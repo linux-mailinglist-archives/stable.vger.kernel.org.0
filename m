@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F1359BB4F
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:24:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7771E59BB65
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233852AbiHVIVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:21:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52962 "EHLO
+        id S232827AbiHVIWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:22:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233829AbiHVIVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:21:20 -0400
+        with ESMTP id S232755AbiHVIWc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:22:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF5F31EC71
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:21:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D9011EAF8
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:22:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07453B80E9B
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:21:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EDBEC4314C;
-        Mon, 22 Aug 2022 08:21:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A9B9B80EA0
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:22:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BE87C433C1;
+        Mon, 22 Aug 2022 08:22:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661156470;
-        bh=mUlaNt4tq1cJ9TrRqh8ymM0I3IOk8KPxltzllydzhhU=;
+        s=korg; t=1661156548;
+        bh=rmDZSONpqzaKqY5IeeTMDaxz6A4flSgi0fScUCkrztw=;
         h=Subject:To:Cc:From:Date:From;
-        b=srbT5v92RDmmCusVvyIbZn3yhmdL0ATyeDK81q+Cbb8YMAqNrqnZFY7TM5UFqfC/c
-         hBrJ9zuowO9xbCs1fqiJJzIXo6G/YnWuuEwGBC5Msy4QiSuR5Tkg/zw5+0J0nmYFzr
-         NJAUCLPOmmtr2DH+bsdBOzbk/Gz37oIwBryhbvC8=
-Subject: FAILED: patch "[PATCH] NFSv4: Fix races in the legacy idmapper upcall" failed to apply to 4.9-stable tree
-To:     trond.myklebust@hammerspace.com
+        b=TG8fru1pPLxpRNRHPN5mtbc5PsSSpxZj3z4cN5+/zVyh5CGrtjLGao85biphARwDi
+         TbeMgZCvB6Mu+TTowd95g5Dq7MO2UrwUOVve3oXG0H5cvNRtA5mrauhpo9O9hZc9UV
+         1Yj7X+4iFctSbuAQseETuQIW6uhmObRbCxVdkJvo=
+Subject: FAILED: patch "[PATCH] tcp: fix possible freeze in tx path under memory pressure" failed to apply to 5.15-stable tree
+To:     edumazet@google.com, davem@davemloft.net, shakeelb@google.com,
+        soheil@google.com, weiwan@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 10:21:08 +0200
-Message-ID: <166115646821662@kroah.com>
+Date:   Mon, 22 Aug 2022 10:22:26 +0200
+Message-ID: <166115654644191@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,136 +60,65 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 51fd2eb52c0ca8275a906eed81878ef50ae94eb0 Mon Sep 17 00:00:00 2001
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
-Date: Wed, 13 Jul 2022 17:46:52 -0400
-Subject: [PATCH] NFSv4: Fix races in the legacy idmapper upcall
+From f54755f6a11accb2db5ef17f8f75aad0875aefdc Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Tue, 14 Jun 2022 10:17:34 -0700
+Subject: [PATCH] tcp: fix possible freeze in tx path under memory pressure
 
-nfs_idmap_instantiate() will cause the process that is waiting in
-request_key_with_auxdata() to wake up and exit. If there is a second
-process waiting for the idmap->idmap_mutex, then it may wake up and
-start a new call to request_key_with_auxdata(). If the call to
-idmap_pipe_downcall() from the first process has not yet finished
-calling nfs_idmap_complete_pipe_upcall_locked(), then we may end up
-triggering the WARN_ON_ONCE() in nfs_idmap_prepare_pipe_upcall().
+Blamed commit only dealt with applications issuing small writes.
 
-The fix is to ensure that we clear idmap->idmap_upcall_data before
-calling nfs_idmap_instantiate().
+Issue here is that we allow to force memory schedule for the sk_buff
+allocation, but we have no guarantee that sendmsg() is able to
+copy some payload in it.
 
-Fixes: e9ab41b620e4 ("NFSv4: Clean up the legacy idmapper upcall")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+In this patch, I make sure the socket can use up to tcp_wmem[0] bytes.
 
-diff --git a/fs/nfs/nfs4idmap.c b/fs/nfs/nfs4idmap.c
-index f331866dd418..ec6afd3c4bca 100644
---- a/fs/nfs/nfs4idmap.c
-+++ b/fs/nfs/nfs4idmap.c
-@@ -561,22 +561,20 @@ nfs_idmap_prepare_pipe_upcall(struct idmap *idmap,
- 	return true;
+For example, if we consider tcp_wmem[0] = 4096 (default on x86),
+and initial skb->truesize being 1280, tcp_sendmsg() is able to
+copy up to 2816 bytes under memory pressure.
+
+Before this patch a sendmsg() sending more than 2816 bytes
+would either block forever (if persistent memory pressure),
+or return -EAGAIN.
+
+For bigger MTU networks, it is advised to increase tcp_wmem[0]
+to avoid sending too small packets.
+
+v2: deal with zero copy paths.
+
+Fixes: 8e4d980ac215 ("tcp: fix behavior for epoll edge trigger")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Reviewed-by: Wei Wang <weiwan@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index b278063a1724..6c3eab485249 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -968,6 +968,23 @@ static int tcp_wmem_schedule(struct sock *sk, int copy)
+ 	return min(copy, sk->sk_forward_alloc);
  }
  
--static void
--nfs_idmap_complete_pipe_upcall_locked(struct idmap *idmap, int ret)
-+static void nfs_idmap_complete_pipe_upcall(struct idmap_legacy_upcalldata *data,
-+					   int ret)
++static int tcp_wmem_schedule(struct sock *sk, int copy)
++{
++	int left;
++
++	if (likely(sk_wmem_schedule(sk, copy)))
++		return copy;
++
++	/* We could be in trouble if we have nothing queued.
++	 * Use whatever is left in sk->sk_forward_alloc and tcp_wmem[0]
++	 * to guarantee some progress.
++	 */
++	left = sock_net(sk)->ipv4.sysctl_tcp_wmem[0] - sk->sk_wmem_queued;
++	if (left > 0)
++		sk_forced_mem_schedule(sk, min(left, copy));
++	return min(copy, sk->sk_forward_alloc);
++}
++
+ static struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
+ 				      struct page *page, int offset, size_t *size)
  {
--	struct key *authkey = idmap->idmap_upcall_data->authkey;
--
--	kfree(idmap->idmap_upcall_data);
--	idmap->idmap_upcall_data = NULL;
--	complete_request_key(authkey, ret);
--	key_put(authkey);
-+	complete_request_key(data->authkey, ret);
-+	key_put(data->authkey);
-+	kfree(data);
- }
- 
--static void
--nfs_idmap_abort_pipe_upcall(struct idmap *idmap, int ret)
-+static void nfs_idmap_abort_pipe_upcall(struct idmap *idmap,
-+					struct idmap_legacy_upcalldata *data,
-+					int ret)
- {
--	if (idmap->idmap_upcall_data != NULL)
--		nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
-+	if (cmpxchg(&idmap->idmap_upcall_data, data, NULL) == data)
-+		nfs_idmap_complete_pipe_upcall(data, ret);
- }
- 
- static int nfs_idmap_legacy_upcall(struct key *authkey, void *aux)
-@@ -613,7 +611,7 @@ static int nfs_idmap_legacy_upcall(struct key *authkey, void *aux)
- 
- 	ret = rpc_queue_upcall(idmap->idmap_pipe, msg);
- 	if (ret < 0)
--		nfs_idmap_abort_pipe_upcall(idmap, ret);
-+		nfs_idmap_abort_pipe_upcall(idmap, data, ret);
- 
- 	return ret;
- out2:
-@@ -669,6 +667,7 @@ idmap_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
- 	struct request_key_auth *rka;
- 	struct rpc_inode *rpci = RPC_I(file_inode(filp));
- 	struct idmap *idmap = (struct idmap *)rpci->private;
-+	struct idmap_legacy_upcalldata *data;
- 	struct key *authkey;
- 	struct idmap_msg im;
- 	size_t namelen_in;
-@@ -678,10 +677,11 @@ idmap_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
- 	 * will have been woken up and someone else may now have used
- 	 * idmap_key_cons - so after this point we may no longer touch it.
- 	 */
--	if (idmap->idmap_upcall_data == NULL)
-+	data = xchg(&idmap->idmap_upcall_data, NULL);
-+	if (data == NULL)
- 		goto out_noupcall;
- 
--	authkey = idmap->idmap_upcall_data->authkey;
-+	authkey = data->authkey;
- 	rka = get_request_key_auth(authkey);
- 
- 	if (mlen != sizeof(im)) {
-@@ -703,18 +703,17 @@ idmap_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
- 	if (namelen_in == 0 || namelen_in == IDMAP_NAMESZ) {
- 		ret = -EINVAL;
- 		goto out;
--}
-+	}
- 
--	ret = nfs_idmap_read_and_verify_message(&im,
--			&idmap->idmap_upcall_data->idmap_msg,
--			rka->target_key, authkey);
-+	ret = nfs_idmap_read_and_verify_message(&im, &data->idmap_msg,
-+						rka->target_key, authkey);
- 	if (ret >= 0) {
- 		key_set_timeout(rka->target_key, nfs_idmap_cache_timeout);
- 		ret = mlen;
- 	}
- 
- out:
--	nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
-+	nfs_idmap_complete_pipe_upcall(data, ret);
- out_noupcall:
- 	return ret;
- }
-@@ -728,7 +727,7 @@ idmap_pipe_destroy_msg(struct rpc_pipe_msg *msg)
- 	struct idmap *idmap = data->idmap;
- 
- 	if (msg->errno)
--		nfs_idmap_abort_pipe_upcall(idmap, msg->errno);
-+		nfs_idmap_abort_pipe_upcall(idmap, data, msg->errno);
- }
- 
- static void
-@@ -736,8 +735,11 @@ idmap_release_pipe(struct inode *inode)
- {
- 	struct rpc_inode *rpci = RPC_I(inode);
- 	struct idmap *idmap = (struct idmap *)rpci->private;
-+	struct idmap_legacy_upcalldata *data;
- 
--	nfs_idmap_abort_pipe_upcall(idmap, -EPIPE);
-+	data = xchg(&idmap->idmap_upcall_data, NULL);
-+	if (data)
-+		nfs_idmap_complete_pipe_upcall(data, -EPIPE);
- }
- 
- int nfs_map_name_to_uid(const struct nfs_server *server, const char *name, size_t namelen, kuid_t *uid)
 
