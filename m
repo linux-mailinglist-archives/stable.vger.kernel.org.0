@@ -2,76 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65ABE59BB3D
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AECE859BB42
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232398AbiHVIUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:20:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52184 "EHLO
+        id S233317AbiHVIVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:21:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232606AbiHVIUS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:20:18 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 875B81EAF8;
-        Mon, 22 Aug 2022 01:20:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1661156394;
-        bh=oiwA1zgV4w9lXHIksAJ9fEf2oEdi2urzdwuD2s8uYaw=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=DrFEypzdgHBBjlJMJcZ4/7qZwKFfnSjsL7WH9iZMQdofHyELeIAZwhZ+satOoChre
-         N8716Y/VEl0++jxzvQFd82jryrYH0s0LRAy5GgVeBYXmH65mgG1j741e5rVhsTj+UB
-         ikenmpgRD/h7gBI4muOXcS76vRwPb2cWsB9hCLBQ=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx105
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1MTiPl-1otUIe0o6n-00U45U; Mon, 22
- Aug 2022 10:19:54 +0200
-Message-ID: <4c42af33-dc05-315a-87d9-be0747a74df4@gmx.com>
-Date:   Mon, 22 Aug 2022 16:19:49 +0800
+        with ESMTP id S233662AbiHVIUY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:20:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6182C1EAF4
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:20:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4D92B80EA1
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:20:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25DFEC433C1;
+        Mon, 22 Aug 2022 08:20:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661156420;
+        bh=ZXvthEqInMvOgE128PqZX1UqvQqDLAmdEHD4c+qPuMk=;
+        h=Subject:To:Cc:From:Date:From;
+        b=1UHLuwc/8lqIEvRByznZChXToHaOm3PW/vBmGzQcPM9SEZa9xb+6/j8SFl1brfxAd
+         /9Tq7wfXm7tsczl72q3YmSCiPbbJt+UllcKPqxBJPA5O4g77arvFw/B+7ffIxqlLMk
+         NQLok9V6SKJj6N5oLdrGMOqwQGzfOng8pUIztB30=
+Subject: FAILED: patch "[PATCH] net: tap: NULL pointer derefence in dev_parse_header_protocol" failed to apply to 5.15-stable tree
+To:     cbulinaru@gmail.com, davem@davemloft.net, willemb@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Aug 2022 10:20:17 +0200
+Message-ID: <1661156417250138@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: LTS kernel Linux 4.14.290 unable to boot with edk2-ovmf (x86_64
- UEFI runtime)
-Content-Language: en-US
-To:     Willy Tarreau <w@1wt.eu>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>,
-        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-x86_64@vger.kernel.org
-References: <2d6012e8-805d-4225-80ed-d317c28f1899@gmx.com>
- <YwMhXX6OhROLZ/LR@kroah.com> <1ed5a33a-b667-0e8e-e010-b4365f3713d6@gmx.com>
- <YwMxRAfrrsPE6sNI@kroah.com> <8aff5c17-d414-2412-7269-c9d15f574037@gmx.com>
- <20220822080456.GB17080@1wt.eu>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <20220822080456.GB17080@1wt.eu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:izlLQSna+6slNPoEw8Xfs35Mfte2/o3TebxKsezXSd36johbDVE
- Bg0kA7Csd2uTWS1tlERVenoDxKOUkRL7KqpUPQaHk7d4z2pj5rof1bMs6eZ/mOQxGOsAS/2
- qLz5s7CwlwgXD3sWZX9HYjpJQc0YGGYm9n4e24yrceDHc4yQTbdDBOL1+FWuKQIJ4Vvsdc7
- 9a+dq+VM0BpC/VikpaWQQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:ibKqMWTVe/I=:U/SWRDw6M8N8u1siJyWI/6
- KIwa8Mj+QW92GX7fy7blxIATs1e9cTtTQe2VWE8HLLXsy+8uQHIeEbgpjqe3gH5HBRCnW7AMJ
- qHKRfAVWenhG5vLsVbXKRlr6VDGeor6m8XhNdoMoudQJNlZu3Fkvf3fZlJYF2P7jdZ6q/1GBR
- wvG1vmwyVDwCSLsE67DK3ztLt4dBNgXCIHzFj0OIloNq37KfFuHXOa/bz+bL1oMZh/uICFFpV
- FB/k++snyloDq+JnfyV9kH5/HFXrkcF+0JUBQsvrCjEDLfNuXszR3GgmhqAfbd2d5wxHtHybT
- SM6n+rFG4q+XLW+dmqBLkelOmgQPtpB83yr0J25v+doPI6im0vpYQEq871LWc97DFWxa+WAgv
- vVEZeG7jNCsfZ0/wx+eEsVJbLPaxklLquWFQisHlwLCkpIc3fCrLLHA04zCX8Na8Sktw0grrM
- arSfHEFl6/6ZQoAfoX4hCjpismWR6ZEdCZWGpqgfh/3ETq0mzxfJegehJhHwsPy3/oi2o3mF6
- tJrBoJjF4WEYqu0anQHFTNR7QHsdEqQOUYYTiyQKahQHzWTm5/rWCWdZNStV+qSv95UXwQ4YP
- 6nzOwiPOSfjBit6iLQBxIxqvJV/Gms2A5Itf9twumchcn4Jxjr0ff40rIwPQJgwVkuDH9iDMj
- RyK/olCGgD7LnOHx/SAf/aXZw4fCB9sG/3BQyQ8uvI1XZ1j8K98YFUwqY2Q9CIFlMvnNfhxgr
- Tw9HPhNAE4xhIUOZoKr70XiAFfl0xNLBK3roM0U0OitqubKxcQJx2+DRrwkEnAFLmzyiCFEiT
- VerHRS+7yPHCMEOcNONYvT/qylWawp/QVFYNYWvOmLlQbsIyLIvfcgvzVvi0oVz6Y2vCfSCo7
- YptwIv6JfBBL6Tvv5pdh8UEJJjXVGk12Xs94FDG4oNN7+ZRaMglO9KVhLyelSL35SFI58D/GX
- npde9B6k+q7neDS8w7em+WitEVDJSVlMXZBS4nkxIdX1bjLT3YF2liBghmIn6AKjX7kKNVopb
- kBEOkZSaKoJJyEE+XcW9V08YPXkLeHJ7fB5qUV/NAu4iFmaVG4lUMlNt2EXCve93E9ymY7Tw3
- OyoJ3QuxFs4aXRMaDatz0Nrjhx+MwZhNS9C50+/g+3Y3D/IXDz1LuSCXQ==
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -79,47 +48,115 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On 2022/8/22 16:04, Willy Tarreau wrote:
-> On Mon, Aug 22, 2022 at 03:49:51PM +0800, Qu Wenruo wrote:
->> Yeah, I'm pretty sure my toolchain is too new for v4.14.0. But my distr=
-o
->> only provides the latest and mostly upstream packages.
->
-> Then there's something odd in your use case. Old kernels are aimed at
-> those who need to have systems on which nothing changes. It's particular=
-ly
-> strange to be stuck in the past for the kernel but to continually upgrad=
-e
-> userland. Most often it's the opposite that's seen.
+thanks,
 
-Yep, that's my bad, just too lazy to get a time-period correct distro,
-or learn other package management tools from other distros.
+greg k-h
 
->
-> Regardless, if you need an older compiler, just use these ones:
->
->     https://mirrors.edge.kernel.org/pub/tools/crosstool/
->
-> They go back to 4.9.4 for x86, you'll surely find the right one for your
-> usage. I've long used 4.7.4 for kernels up to 4.9 and 6.5 for 4.19 and
-> above, so something within that area will surely match your needs.
+------------------ original commit in Linus's tree ------------------
 
-BTW, it would be way more awesome if the page can provide some hint on
-the initial release date of the compilers.
+From 4f61f133f354853bc394ec7d6028adb9b02dd701 Mon Sep 17 00:00:00 2001
+From: Cezar Bulinaru <cbulinaru@gmail.com>
+Date: Wed, 3 Aug 2022 02:27:59 -0400
+Subject: [PATCH] net: tap: NULL pointer derefence in dev_parse_header_protocol
+ when skb->dev is null
 
-It would help a lot of choose the toolchain then.
+Fixes a NULL pointer derefence bug triggered from tap driver.
+When tap_get_user calls virtio_net_hdr_to_skb the skb->dev is null
+(in tap.c skb->dev is set after the call to virtio_net_hdr_to_skb)
+virtio_net_hdr_to_skb calls dev_parse_header_protocol which
+needs skb->dev field to be valid.
 
->
->> It may be a even worse disaster to find a way to rollback to older
->> toolchains using my distro...
->
-> No, using a prebuilt toolchain like those above is quite trivial and
-> it will avoid messing up with your local packages. That's the best
-> solution I can recommend.
+The line that trigers the bug is in dev_parse_header_protocol
+(dev is at offset 0x10 from skb and is stored in RAX register)
+  if (!dev->header_ops || !dev->header_ops->parse_protocol)
+  22e1:   mov    0x10(%rbx),%rax
+  22e5:	  mov    0x230(%rax),%rax
 
-Thanks for all the info, it really helps a lot,
-Qu
+Setting skb->dev before the call in tap.c fixes the issue.
 
->
-> Willy
+BUG: kernel NULL pointer dereference, address: 0000000000000230
+RIP: 0010:virtio_net_hdr_to_skb.constprop.0+0x335/0x410 [tap]
+Code: c0 0f 85 b7 fd ff ff eb d4 41 39 c6 77 cf 29 c6 48 89 df 44 01 f6 e8 7a 79 83 c1 48 85 c0 0f 85 d9 fd ff ff eb b7 48 8b 43 10 <48> 8b 80 30 02 00 00 48 85 c0 74 55 48 8b 40 28 48 85 c0 74 4c 48
+RSP: 0018:ffffc90005c27c38 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: ffff888298f25300 RCX: 0000000000000010
+RDX: 0000000000000005 RSI: ffffc90005c27cb6 RDI: ffff888298f25300
+RBP: ffffc90005c27c80 R08: 00000000ffffffea R09: 00000000000007e8
+R10: ffff88858ec77458 R11: 0000000000000000 R12: 0000000000000001
+R13: 0000000000000014 R14: ffffc90005c27e08 R15: ffffc90005c27cb6
+FS:  0000000000000000(0000) GS:ffff88858ec40000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000230 CR3: 0000000281408006 CR4: 00000000003706e0
+Call Trace:
+ tap_get_user+0x3f1/0x540 [tap]
+ tap_sendmsg+0x56/0x362 [tap]
+ ? get_tx_bufs+0xc2/0x1e0 [vhost_net]
+ handle_tx_copy+0x114/0x670 [vhost_net]
+ handle_tx+0xb0/0xe0 [vhost_net]
+ handle_tx_kick+0x15/0x20 [vhost_net]
+ vhost_worker+0x7b/0xc0 [vhost]
+ ? vhost_vring_call_reset+0x40/0x40 [vhost]
+ kthread+0xfa/0x120
+ ? kthread_complete_and_exit+0x20/0x20
+ ret_from_fork+0x1f/0x30
+
+Fixes: 924a9bc362a5 ("net: check if protocol extracted by virtio_net_hdr_set_proto is correct")
+Signed-off-by: Cezar Bulinaru <cbulinaru@gmail.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index c3d42062559d..9e75ed3f08ce 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -716,10 +716,20 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 	skb_reset_mac_header(skb);
+ 	skb->protocol = eth_hdr(skb)->h_proto;
+ 
++	rcu_read_lock();
++	tap = rcu_dereference(q->tap);
++	if (!tap) {
++		kfree_skb(skb);
++		rcu_read_unlock();
++		return total_len;
++	}
++	skb->dev = tap->dev;
++
+ 	if (vnet_hdr_len) {
+ 		err = virtio_net_hdr_to_skb(skb, &vnet_hdr,
+ 					    tap_is_little_endian(q));
+ 		if (err) {
++			rcu_read_unlock();
+ 			drop_reason = SKB_DROP_REASON_DEV_HDR;
+ 			goto err_kfree;
+ 		}
+@@ -732,8 +742,6 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 	    __vlan_get_protocol(skb, skb->protocol, &depth) != 0)
+ 		skb_set_network_header(skb, depth);
+ 
+-	rcu_read_lock();
+-	tap = rcu_dereference(q->tap);
+ 	/* copy skb_ubuf_info for callback when skb has no error */
+ 	if (zerocopy) {
+ 		skb_zcopy_init(skb, msg_control);
+@@ -742,14 +750,8 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
+ 		uarg->callback(NULL, uarg, false);
+ 	}
+ 
+-	if (tap) {
+-		skb->dev = tap->dev;
+-		dev_queue_xmit(skb);
+-	} else {
+-		kfree_skb(skb);
+-	}
++	dev_queue_xmit(skb);
+ 	rcu_read_unlock();
+-
+ 	return total_len;
+ 
+ err_kfree:
+
