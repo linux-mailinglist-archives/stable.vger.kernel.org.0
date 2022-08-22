@@ -2,177 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A37659BDAF
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 12:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A84E959BDF4
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 12:55:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232248AbiHVKjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 06:39:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34084 "EHLO
+        id S234066AbiHVKzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 06:55:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229871AbiHVKjl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:39:41 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882C22E699
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:39:39 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id gt3so7840742ejb.12
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:39:39 -0700 (PDT)
+        with ESMTP id S233960AbiHVKzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:55:02 -0400
+Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114EB24956
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:55:01 -0700 (PDT)
+Received: by mail-lj1-x235.google.com with SMTP id bn9so2653565ljb.6
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:55:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=B8pLnsqFOp817XRYb/vm02deQ/vqjCuD0oAUsC/zdZk=;
-        b=Y8+1EQQEZF8mV38epQby0B2TirDJWZ2imPKnOUObslc06UkKZ7SFnpVSZq3aRE0kuL
-         X5mwD4equcMF8hQeA6nAAxCKhAWxRVBdi1BeK//4BMZqQhycgOJaE1++g+SGXwUNgxgC
-         MPzPSSTeayQUDqAbv8m5r0bXGqGgPUFiN+0EVi4tGfXK5lbLkxG5bRlmE5HwzM1oamg3
-         /bDjyXFoAn5Cbd8QZgTfn70QlBflbcVOsvIjZcbElyLgi/IrVxqGI3Gjm9uqS8jL1e7N
-         KAIprkPsHvZewRmvhcJXaXhqGyazD8FKglgA0P9omq4b1NLteRICmnrsd223Zuzcev24
-         zgkA==
+        d=gmail.com; s=20210112;
+        h=to:date:message-id:subject:mime-version:content-transfer-encoding
+         :from:from:to:cc;
+        bh=W38wILXAOsLN0spW4/FTEOVGT/u6x1Em51eO6WN6vgg=;
+        b=DkFquB5oGi8PxD3QMIzalB5Btd/qoO0K+eVIuFfecSAxQK9gjHfnSo8Aj0NmDLGNhw
+         tI8+QAW9OYwEWF/vnWL320/yN26Jlt/33rfLjlmQ83kUEETsH3znCynPnEmv2T5nk8vg
+         s+BDmpkyRYP/Eu+hBBR1j0sRig/pMjhP0pB0MK2FVzpRJ2RWJlcYik53J3BhKEQ0ToAb
+         XsCtu2HbH15/AccTAXZXMdxCkftPoKUUpUOn83RzOV0r94XAJpR781nOPcKMvrBVtUgs
+         EXElV5WQdIdrjPjvwk/rw6aKL9oDyYiDVcF86Mez3MInhedEKpQCa3RzpC66J2nEgZdd
+         cpyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=B8pLnsqFOp817XRYb/vm02deQ/vqjCuD0oAUsC/zdZk=;
-        b=RkR9rfntXNeQfIhpejM2bFyJzxpijgbGkysJaFZQPpXdK9aUIJiCSAzPkFnbPRyUgH
-         oEDV8hSly5sf58hwvKDxr6N/d8lnFHNI6tQnHtbH6t8Q72Qvi9KUyAIDimxUL+mqlDf4
-         UaC7J/tDoemESs0CriHTuWN7NqjSy1NWBQsRpfo/jfSa4ivpspYUcSCuqajs0Q9EWxBK
-         Gq3buQn1T1aAQ3ktu2lWmsY5u4kB0SJfZvJ61m1Omt3tkiMLaMnTrd8rcHgy/AjI8cuh
-         KPznNufyu4cO++7+1mW0skwnonD822aimHK7AsHJfve5o1VQxIzzSNuOoNL3EySr6RfB
-         f1tg==
-X-Gm-Message-State: ACgBeo17oiVpnsll+qNW8vUDNp9WST1M8XvOAr0AD7Gu6cLE5BhfEYUD
-        pRIJ2vwpvfPBPDE+mSVGo7aUxEagk1xJn9TsXMrs0g==
-X-Google-Smtp-Source: AA6agR7UYsWI6RAl+mETEou8egftd5+12GtoWKr75gZFL0maYHt/Um7l6zoh+RBXUNNu023PyfZCYBwyD/8S1s3rl8A=
-X-Received: by 2002:a17:907:7389:b0:73d:81b9:ed2 with SMTP id
- er9-20020a170907738900b0073d81b90ed2mr2833345ejc.448.1661164777962; Mon, 22
- Aug 2022 03:39:37 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220820182952.751374248@linuxfoundation.org>
-In-Reply-To: <20220820182952.751374248@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 22 Aug 2022 16:09:26 +0530
-Message-ID: <CA+G9fYu8GMuQrAYTf05Le=mhZWAWpnFP1xTBCPk9TrGcDO=kBQ@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/541] 5.10.137-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
+        h=to:date:message-id:subject:mime-version:content-transfer-encoding
+         :from:x-gm-message-state:from:to:cc;
+        bh=W38wILXAOsLN0spW4/FTEOVGT/u6x1Em51eO6WN6vgg=;
+        b=YdUP7FUk8EFTgX+FQDJ89sCZio8kBnClhFUSNsvvWgCys5YDYIOkJxezrd38vvJPEj
+         AJXafUe3fVU/PbJcSK4Br3PIUYLCdEgp92oJLu6rEL6/9F8hX/TOlcBMpfq7qLYDak2j
+         RtLGaKTte6k1TMiXe+PrfEuLvQuXe9TUsSLV0/NQeKpKI3hKPaEwMFJHlrPj85EJvwsG
+         0RmdJOQgWiHDJcB7AQKJPW6Tjm6IeEiF4DB3DXSLfz/im81XkdsNdxCDvkBRhxC2L/EQ
+         qWTXNNU8sNjdfpV2NA76hy2+/Uqg5uPTcxXYQAqfWUl6tWAJXZ9UaBaxDlOErAGSUH5e
+         gOVA==
+X-Gm-Message-State: ACgBeo23yU0njf47V9yROed+uEKAMX/GU8K4fmYxO5nVeauGc6wsuySd
+        Zl8sTsNylxG6sZb1InFXR38EYfs3yN0=
+X-Google-Smtp-Source: AA6agR6NcJNW5TuUgLFSy+fNGIUnxXY4JenRWljsWqdLJMslXXz7Go48DyiGRh1z7+yQikwjXwxpIA==
+X-Received: by 2002:a2e:540e:0:b0:261:d12d:8618 with SMTP id i14-20020a2e540e000000b00261d12d8618mr759178ljb.459.1661165698994;
+        Mon, 22 Aug 2022 03:54:58 -0700 (PDT)
+Received: from smtpclient.apple ([80.87.144.137])
+        by smtp.gmail.com with ESMTPSA id q15-20020a056512210f00b00492d1eb41dfsm1196513lfr.240.2022.08.22.03.54.56
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 22 Aug 2022 03:54:56 -0700 (PDT)
+From:   Alexander Kochetkov <al.kochet@gmail.com>
+Content-Type: text/plain;
+        charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.120.41.1.1\))
+Subject: [PATCH] Fix ethernet for rk3188 for 4.19, 5.4 stable
+Message-Id: <512449D6-77E3-4FD5-A719-85DC186C4871@gmail.com>
+Date:   Mon, 22 Aug 2022 13:54:55 +0300
+To:     stable@vger.kernel.org
+X-Mailer: Apple Mail (2.3696.120.41.1.1)
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 21 Aug 2022 at 12:31, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.137 release.
-> There are 541 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Mon, 22 Aug 2022 18:28:24 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.137-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi Greg,
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Please apply to 4.19, 5.4 stable following:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+commit	ef990bcad58cf1d13c5a49191a2c2342eb8d6709
 
-## Build
-* kernel: 5.10.137-rc2
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.10.y
-* git commit: 879ffc7efcbe48e91264fd3bd3ec52cbcf69114c
-* git describe: v5.10.136-542-g879ffc7efcbe
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.136-542-g879ffc7efcbe
+clk: rockchip: add sclk_mac_lbtest to rk3188_critical_clocks
+Since the loopbacktest clock is not exported and is not touched in the
+driver, it has to be added to rk3188_critical_clocks to be protected from
+being disabled and in order to get the emac working.
 
-## No test Regressions (compared to v5.10.136)
+Signed-off-by: Alex Bee <knaerzche@gmail.com>
+Link: 
+https://lore.kernel.org/r/20200722161820.5316-1-knaerzche@gmail.com
 
-## No metric Regressions (compared to v5.10.136)
-
-## No test Fixes (compared to v5.10.136)
-
-## No metric Fixes (compared to v5.10.136)
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 
 
-## Test result summary
-total: 123695, pass: 109086, fail: 570, skip: 13312, xfail: 727
+Thanks,
+Alexander.
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 301 total, 301 passed, 0 failed
-* arm64: 62 total, 60 passed, 2 failed
-* i386: 52 total, 50 passed, 2 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 51 total, 51 passed, 0 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 21 total, 21 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 55 total, 53 passed, 2 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
