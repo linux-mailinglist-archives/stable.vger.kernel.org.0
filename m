@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C7359C01B
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 15:05:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A913859C01F
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 15:06:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229637AbiHVNFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 09:05:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44144 "EHLO
+        id S233716AbiHVNGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 09:06:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235019AbiHVNFo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 09:05:44 -0400
+        with ESMTP id S234887AbiHVNGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 09:06:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065CDE03F
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 06:05:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C8F6356C9
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 06:06:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B35ECB81132
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 13:05:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A5DCC433D6;
-        Mon, 22 Aug 2022 13:05:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A447B811D2
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 13:06:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68E2CC433C1;
+        Mon, 22 Aug 2022 13:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661173541;
-        bh=CBWRvCsBM+K9NY7EqwNANeUEorZljIX9BP/QCTvZdRI=;
+        s=korg; t=1661173604;
+        bh=z5+piozfAagGU7JQmpQgbweTZ3lBkGkAIDZBSyZr4aY=;
         h=Subject:To:Cc:From:Date:From;
-        b=SZ4mvL56ZmAjsFNGLZ3A+wRZH8arPfTy70/LRNiaHVl07H/IPf2TqqAF2+EOJQVVn
-         kw3a3Y/as1aDOGglUtkWeftDunUBeQqP7PvqgwXPSC8n2c50kqeLn38y022T46W4bc
-         Y6A8o5gs3UjyK/Tr0QnmeQLlsy5Hn+ZkJ1bxH5us=
-Subject: FAILED: patch "[PATCH] net: dsa: mv88e6060: prevent crash on an unused port" failed to apply to 4.19-stable tree
-To:     saproj@gmail.com, f.fainelli@gmail.com, kuba@kernel.org,
-        olteanv@gmail.com, vivien.didelot@savoirfairelinux.com
+        b=m2ELPSdqUYV8sb2jfDCR7D2tZWaGpySx0VWi8V9Lvizyyw4ZIw2lY24O/406l/I/3
+         ovst3CaJHQufCPvUZtWJrAnjZScxTZpdSYZnR5aF1Z23YxZsxbPRtT3w3FZk3Y9Y0c
+         3warsM2VooDoPislO7HI9F3gI7T0mqjglEA8Y9pI=
+Subject: FAILED: patch "[PATCH] ice: Fix double VLAN error when entering promisc mode" failed to apply to 5.4-stable tree
+To:     grzegorz.siwik@intel.com, anthony.l.nguyen@intel.com,
+        gurucharanx.g@intel.com, igor@gooddata.com,
+        jaroslav.pulchart@gooddata.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 15:05:38 +0200
-Message-ID: <166117353817177@kroah.com>
+Date:   Mon, 22 Aug 2022 15:06:41 +0200
+Message-ID: <16611736015265@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,51 +61,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 246bbf2f977ea36aaf41f5d24370fef433250728 Mon Sep 17 00:00:00 2001
-From: Sergei Antonov <saproj@gmail.com>
-Date: Thu, 11 Aug 2022 10:09:39 +0300
-Subject: [PATCH] net: dsa: mv88e6060: prevent crash on an unused port
+From ffa9ed86522f1c08d4face4e0a4ebf366037bf19 Mon Sep 17 00:00:00 2001
+From: Grzegorz Siwik <grzegorz.siwik@intel.com>
+Date: Fri, 12 Aug 2022 15:25:47 +0200
+Subject: [PATCH] ice: Fix double VLAN error when entering promisc mode
 
-If the port isn't a CPU port nor a user port, 'cpu_dp'
-is a null pointer and a crash happened on dereferencing
-it in mv88e6060_setup_port():
+Avoid enabling or disabling VLAN 0 when trying to set promiscuous
+VLAN mode if double VLAN mode is enabled. This fix is needed
+because the driver tries to add the VLAN 0 filter twice (once for
+inner and once for outer) when double VLAN mode is enabled. The
+filter program is rejected by the firmware when double VLAN is
+enabled, because the promiscuous filter only needs to be set once.
 
-[    9.575872] Unable to handle kernel NULL pointer dereference at virtual address 00000014
-...
-[    9.942216]  mv88e6060_setup from dsa_register_switch+0x814/0xe84
-[    9.948616]  dsa_register_switch from mdio_probe+0x2c/0x54
-[    9.954433]  mdio_probe from really_probe.part.0+0x98/0x2a0
-[    9.960375]  really_probe.part.0 from driver_probe_device+0x30/0x10c
-[    9.967029]  driver_probe_device from __device_attach_driver+0xb8/0x13c
-[    9.973946]  __device_attach_driver from bus_for_each_drv+0x90/0xe0
-[    9.980509]  bus_for_each_drv from __device_attach+0x110/0x184
-[    9.986632]  __device_attach from bus_probe_device+0x8c/0x94
-[    9.992577]  bus_probe_device from deferred_probe_work_func+0x78/0xa8
-[    9.999311]  deferred_probe_work_func from process_one_work+0x290/0x73c
-[   10.006292]  process_one_work from worker_thread+0x30/0x4b8
-[   10.012155]  worker_thread from kthread+0xd4/0x10c
-[   10.017238]  kthread from ret_from_fork+0x14/0x3c
+This issue was missed in the initial implementation of double VLAN
+mode.
 
-Fixes: 0abfd494deef ("net: dsa: use dedicated CPU port")
-CC: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-CC: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
-Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20220811070939.1717146-1-saproj@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 5eda8afd6bcc ("ice: Add support for PF/VF promiscuous mode")
+Signed-off-by: Grzegorz Siwik <grzegorz.siwik@intel.com>
+Link: https://lore.kernel.org/all/CAK8fFZ7m-KR57M_rYX6xZN39K89O=LGooYkKsu6HKt0Bs+x6xQ@mail.gmail.com/
+Tested-by: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
+Tested-by: Igor Raits <igor@gooddata.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-diff --git a/drivers/net/dsa/mv88e6060.c b/drivers/net/dsa/mv88e6060.c
-index a4c6eb9a52d0..83dca9179aa0 100644
---- a/drivers/net/dsa/mv88e6060.c
-+++ b/drivers/net/dsa/mv88e6060.c
-@@ -118,6 +118,9 @@ static int mv88e6060_setup_port(struct mv88e6060_priv *priv, int p)
- 	int addr = REG_PORT(p);
- 	int ret;
+diff --git a/drivers/net/ethernet/intel/ice/ice_switch.c b/drivers/net/ethernet/intel/ice/ice_switch.c
+index 262e553e3b58..0c265739cce2 100644
+--- a/drivers/net/ethernet/intel/ice/ice_switch.c
++++ b/drivers/net/ethernet/intel/ice/ice_switch.c
+@@ -4445,6 +4445,13 @@ ice_set_vlan_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
+ 		goto free_fltr_list;
  
-+	if (dsa_is_unused_port(priv->ds, p))
-+		return 0;
+ 	list_for_each_entry(list_itr, &vsi_list_head, list_entry) {
++		/* Avoid enabling or disabling VLAN zero twice when in double
++		 * VLAN mode
++		 */
++		if (ice_is_dvm_ena(hw) &&
++		    list_itr->fltr_info.l_data.vlan.tpid == 0)
++			continue;
 +
- 	/* Do not force flow control, disable Ingress and Egress
- 	 * Header tagging, disable VLAN tunneling, and set the port
- 	 * state to Forwarding.  Additionally, if this is the CPU
+ 		vlan_id = list_itr->fltr_info.l_data.vlan.vlan_id;
+ 		if (rm_vlan_promisc)
+ 			status = ice_clear_vsi_promisc(hw, vsi_handle,
 
