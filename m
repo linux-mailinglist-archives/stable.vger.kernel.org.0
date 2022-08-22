@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9EA659BCA7
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:20:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B751559BCA9
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234336AbiHVJTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 05:19:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43532 "EHLO
+        id S233132AbiHVJTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 05:19:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233132AbiHVJSy (ORCPT
+        with ESMTP id S234035AbiHVJSy (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:18:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3542B19F
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:18:48 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B64E32AE2A
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:18:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B87360EDC
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:18:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E37C433D7;
-        Mon, 22 Aug 2022 09:18:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B6CBB80EF2
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:18:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B82EC433D6;
+        Mon, 22 Aug 2022 09:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661159927;
-        bh=RjPcZ3AFlEISe4rtWgCODLaDJQiZPBKKKZNfpN4Ab8o=;
+        s=korg; t=1661159924;
+        bh=0pV62oJtEnoRpn2PSQRWCEfi0XgSjxdAvvpaBc3KS+I=;
         h=Subject:To:Cc:From:Date:From;
-        b=ps8EQfHLljfOBhZDJpz3sTK+BsCo2/p8LCWpBJqT6AiFT1bXGTXduHy71yrgxysPV
-         /k1PejiDSi+jfWKABRa8PWGXK/ZQD40ZX6Y3RArGXDbzqHJBrLI3EvBUAWlSZuOfSs
-         BOkIUxSYyPZRgnFRVmg3VHm93b8/iEkeRV+9bujg=
-Subject: FAILED: patch "[PATCH] geneve: fix TOS inheriting for ipv4" failed to apply to 4.19-stable tree
+        b=vBzQNr96nNGjvk4wwFALPwct0X+lQ+KpX4wZJLpDsany1d48EOhpL1/lmSYuX4t8j
+         gIJaCejiipykVl0IhWLt6kdIN3egh6Q+xZWXp2GsCVRFMPHLP10dXAQvZ1a+hSS0S7
+         7J6MRAZLpck8O/mLswBtM504Pr8mNV4VHuWO+djM=
+Subject: FAILED: patch "[PATCH] geneve: fix TOS inheriting for ipv4" failed to apply to 4.14-stable tree
 To:     matthias.may@westermo.com, gnault@redhat.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 22 Aug 2022 11:18:33 +0200
-Message-ID: <1661159913165169@kroah.com>
+Message-ID: <16611599135413@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
