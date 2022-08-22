@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB3F59BADC
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C80F59BAE3
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:06:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233679AbiHVIFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:05:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57280 "EHLO
+        id S233235AbiHVIFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:05:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229635AbiHVIEq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:04:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BFF32B1A6
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:04:03 -0700 (PDT)
+        with ESMTP id S229586AbiHVIEt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:04:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39B792B1A1
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:04:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCC9F6100A
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:04:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0230C433C1;
-        Mon, 22 Aug 2022 08:04:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D327B80E9B
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D41B1C433D7;
+        Mon, 22 Aug 2022 08:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661155442;
-        bh=HGYOUjB0fODM8aCnS0eyI+4aTn2GRxIcuRBpcJYv2+U=;
+        s=korg; t=1661155445;
+        bh=6pFjHWq0GNo1CKgDSPVl8ZLzuC/ZyH77aV8Xro63oWE=;
         h=Subject:To:Cc:From:Date:From;
-        b=edWx8mx7bL5vdEJReP9BSk1FM7te3pI6HiHLprB7knsB/cY5HFYuMICQyOO6Lrn2d
-         IR+mRYv3MVPEMVlC9x42z3ME/Tajf4bx6+UjTP0d8PI5k+hbYklpxYp+PxJfoD8Piz
-         h8nxcxvDDQ9+7Dn8KfG7JISmqq9On2WYJxeI9B9E=
-Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Turn off 'manual mode' on Dell dock" failed to apply to 5.10-stable tree
+        b=xv0m6KwUXtbk55DkLp/wer+IzNn47pMLCQDc1DIGJFRrWwsXbesxE5pFiSPLt6OZ+
+         A+q4g5FffDXr0iv42JeXGKpm0BpAWoAuit/P87S37Brmlz1a7Fvl2W8IiKbnxvPHeV
+         tNI1hAn5hCd/U+y9wjzfUxOFvIG03V7SYQYXuiEA=
+Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Turn off 'manual mode' on Dell dock" failed to apply to 5.4-stable tree
 To:     jan@jschaer.ch, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 10:03:55 +0200
-Message-ID: <166115543513954@kroah.com>
+Date:   Mon, 22 Aug 2022 10:03:56 +0200
+Message-ID: <166115543616649@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
