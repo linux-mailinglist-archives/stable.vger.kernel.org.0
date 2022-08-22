@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B9459BB62
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E183559BB75
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:24:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232779AbiHVIWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:22:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53576 "EHLO
+        id S231355AbiHVIWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:22:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232755AbiHVIWk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:22:40 -0400
+        with ESMTP id S233796AbiHVIWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:22:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0861EAF8
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:22:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BED31EC4E
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:22:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66EBB60FEC
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:22:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C91DC433C1;
-        Mon, 22 Aug 2022 08:22:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 424946102F
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:22:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD64C433D6;
+        Mon, 22 Aug 2022 08:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661156558;
-        bh=yYj8EcVCyAMi0EZsp671cV0bWH2kRXYglu/g6xaHMgo=;
+        s=korg; t=1661156555;
+        bh=ytJnMbxJ2FtU6g2jkdV7ALwglb1BegGtuB2ELQXjGZQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=epL6V20ZNniLCoxABr/O8X3TSp5C/Kx6xR/2TEJDOKvinQt5rUC3pXKn8hMIDMbWP
-         czVje76HlqjPrY+4sLnlPkrT9K1Z1nUrmmCSJtlMDL3tb2ncBxzvW/XDAj6PFEPM4v
-         +DnU+H5zsrBN+x8OnxsL/HA3dWdYUgjhRLYYPfds=
-Subject: FAILED: patch "[PATCH] tcp: fix possible freeze in tx path under memory pressure" failed to apply to 5.4-stable tree
+        b=vAHx47gFJkcsPbm69KcBuvBziMPmJjfwezXykA9663E5Sj3g60AU7Gewkig/Mf36U
+         4gWAkKcEGmXo+ETrSVSfQXKFplbaC0dUVGQaUoftoK5N6jTMPTv4K1OTWJ1kN0uxNB
+         U+J9BETtzQDGEFw+1t2BHYfY2OxIXcWgoMATc89Y=
+Subject: FAILED: patch "[PATCH] tcp: fix possible freeze in tx path under memory pressure" failed to apply to 4.19-stable tree
 To:     edumazet@google.com, davem@davemloft.net, shakeelb@google.com,
         soheil@google.com, weiwan@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 22 Aug 2022 10:22:28 +0200
-Message-ID: <166115654889161@kroah.com>
+Message-ID: <1661156548246168@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
