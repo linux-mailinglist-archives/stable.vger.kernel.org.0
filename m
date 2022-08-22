@@ -2,73 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F55359BADD
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:06:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A36359BAFF
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233183AbiHVIFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:05:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55576 "EHLO
+        id S233737AbiHVIGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:06:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232785AbiHVIFC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:05:02 -0400
-Received: from 1wt.eu (wtarreau.pck.nerim.net [62.212.114.60])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6C12B10AE;
-        Mon, 22 Aug 2022 01:04:59 -0700 (PDT)
-Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 27M84u0h017804;
-        Mon, 22 Aug 2022 10:04:56 +0200
-Date:   Mon, 22 Aug 2022 10:04:56 +0200
-From:   Willy Tarreau <w@1wt.eu>
-To:     Qu Wenruo <quwenruo.btrfs@gmx.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>,
-        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-x86_64@vger.kernel.org
-Subject: Re: LTS kernel Linux 4.14.290 unable to boot with edk2-ovmf (x86_64
- UEFI runtime)
-Message-ID: <20220822080456.GB17080@1wt.eu>
-References: <2d6012e8-805d-4225-80ed-d317c28f1899@gmx.com>
- <YwMhXX6OhROLZ/LR@kroah.com>
- <1ed5a33a-b667-0e8e-e010-b4365f3713d6@gmx.com>
- <YwMxRAfrrsPE6sNI@kroah.com>
- <8aff5c17-d414-2412-7269-c9d15f574037@gmx.com>
+        with ESMTP id S233749AbiHVIGR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:06:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF9D12B249
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:05:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF61060C71
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:05:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5B94C433D6;
+        Mon, 22 Aug 2022 08:05:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661155552;
+        bh=sUucZbdfspLt3rbIcFSPZm8f3qzo8nPmuD/uQclnjCQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Q81ESKC4nrMtuXRmj06MCJRDgYZgPM3T5gL9j8LwC66NBtfUWgdgH7hIJ0rIixdbM
+         RAFGjUY6YCepjexZzeAaOnMA1VBjd2mBOogrVmB6AYZAuPDFCjtkBAN4glgkkGuEFO
+         wEBGZIPI7fR8H6cMsC1yTb7eh/XxW24N9rAFQ110=
+Subject: FAILED: patch "[PATCH] apparmor: fix quiet_denied for file rules" failed to apply to 4.9-stable tree
+To:     john.johansen@canonical.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Aug 2022 10:05:49 +0200
+Message-ID: <166115554923435@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8aff5c17-d414-2412-7269-c9d15f574037@gmx.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 22, 2022 at 03:49:51PM +0800, Qu Wenruo wrote:
-> Yeah, I'm pretty sure my toolchain is too new for v4.14.0. But my distro
-> only provides the latest and mostly upstream packages.
 
-Then there's something odd in your use case. Old kernels are aimed at
-those who need to have systems on which nothing changes. It's particularly
-strange to be stuck in the past for the kernel but to continually upgrade
-userland. Most often it's the opposite that's seen.
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Regardless, if you need an older compiler, just use these ones:
+thanks,
 
-   https://mirrors.edge.kernel.org/pub/tools/crosstool/
+greg k-h
 
-They go back to 4.9.4 for x86, you'll surely find the right one for your
-usage. I've long used 4.7.4 for kernels up to 4.9 and 6.5 for 4.19 and
-above, so something within that area will surely match your needs.
+------------------ original commit in Linus's tree ------------------
 
-> It may be a even worse disaster to find a way to rollback to older
-> toolchains using my distro...
+From 68ff8540cc9e4ab557065b3f635c1ff4c96e1f1c Mon Sep 17 00:00:00 2001
+From: John Johansen <john.johansen@canonical.com>
+Date: Thu, 29 Apr 2021 01:48:28 -0700
+Subject: [PATCH] apparmor: fix quiet_denied for file rules
 
-No, using a prebuilt toolchain like those above is quite trivial and
-it will avoid messing up with your local packages. That's the best
-solution I can recommend.
+Global quieting of denied AppArmor generated file events is not
+handled correctly. Unfortunately the is checking if quieting of all
+audit events is set instead of just denied events.
 
-Willy
+Fixes: 67012e8209df ("AppArmor: basic auditing infrastructure.")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
+
+diff --git a/security/apparmor/audit.c b/security/apparmor/audit.c
+index f7e97c7e80f3..704b0c895605 100644
+--- a/security/apparmor/audit.c
++++ b/security/apparmor/audit.c
+@@ -137,7 +137,7 @@ int aa_audit(int type, struct aa_profile *profile, struct common_audit_data *sa,
+ 	}
+ 	if (AUDIT_MODE(profile) == AUDIT_QUIET ||
+ 	    (type == AUDIT_APPARMOR_DENIED &&
+-	     AUDIT_MODE(profile) == AUDIT_QUIET))
++	     AUDIT_MODE(profile) == AUDIT_QUIET_DENIED))
+ 		return aad(sa)->error;
+ 
+ 	if (KILL_MODE(profile) && type == AUDIT_APPARMOR_DENIED)
+
