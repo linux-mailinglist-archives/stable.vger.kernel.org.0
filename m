@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D409259BB60
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A61FA59BB69
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233429AbiHVIXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:23:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53776 "EHLO
+        id S233364AbiHVIXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:23:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232755AbiHVIXO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:23:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E57371FA
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:23:12 -0700 (PDT)
+        with ESMTP id S233883AbiHVIX3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:23:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6119821A2
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:23:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2B46B80EA3
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC74AC433C1;
-        Mon, 22 Aug 2022 08:23:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B44D1CE0FCB
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:23:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4696C433D6;
+        Mon, 22 Aug 2022 08:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661156590;
-        bh=shO60EF0nesFQCXZd76Cn/XIwUrM2lB5cidGsqXIQNU=;
+        s=korg; t=1661156604;
+        bh=wTPHsZ0soy3HPRj9u3ZWAyC3L9XrWeNgFQVbAEAfknY=;
         h=Subject:To:Cc:From:Date:From;
-        b=OlXWebEgO5zdtPUqj0jtNtCsl6nFuie5VJyyexvoEdnon9KeymCzwEDcXVsFWtbPi
-         yyVkiNp9K4whr4A0Tf34jjJVpTfNBl3YjgqGRYX1Yd6CqzII9rRvccdtr0JkUrljqb
-         ha/q8fFf8shaWq7aG4ubAyeNsHhTPc18/aRtBGzk=
-Subject: FAILED: patch "[PATCH] mptcp: move subflow cleanup in mptcp_destroy_common()" failed to apply to 5.15-stable tree
+        b=bAtWhjtHXtxZUhyjcSoRkQtPtLTsZCa1DiaRxGU4n+st6wOROLtPLH/yBHjbNlg9H
+         bl06xuQUdi6oXjL6iGSYXuE29hEuWCjY96JVf3+wD8iXQcjPIMGSCV2zC2jg2XW1Di
+         PSoIYq5icgzueohsl3SkvW95z3qFRs37CcwbKLs4=
+Subject: FAILED: patch "[PATCH] mptcp: do not queue data on closed subflows" failed to apply to 5.15-stable tree
 To:     pabeni@redhat.com, davem@davemloft.net,
-        mathew.j.martineau@linux.intel.com, phind.uet@gmail.com
+        mail.dipanjan.das@gmail.com, mathew.j.martineau@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 10:23:07 +0200
-Message-ID: <166115658722449@kroah.com>
+Date:   Mon, 22 Aug 2022 10:23:21 +0200
+Message-ID: <166115660127151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,157 +60,125 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c0bf3c6aa444a5ef44acc57ef6cfa53fd4fc1c9b Mon Sep 17 00:00:00 2001
+From c886d70286bf3ad411eb3d689328a67f7102c6ae Mon Sep 17 00:00:00 2001
 From: Paolo Abeni <pabeni@redhat.com>
-Date: Thu, 4 Aug 2022 17:21:25 -0700
-Subject: [PATCH] mptcp: move subflow cleanup in mptcp_destroy_common()
+Date: Thu, 4 Aug 2022 17:21:26 -0700
+Subject: [PATCH] mptcp: do not queue data on closed subflows
 
-If the mptcp socket creation fails due to a CGROUP_INET_SOCK_CREATE
-eBPF program, the MPTCP protocol ends-up leaking all the subflows:
-the related cleanup happens in __mptcp_destroy_sock() that is not
-invoked in such code path.
+Dipanjan reported a syzbot splat at close time:
 
-Address the issue moving the subflow sockets cleanup in the
-mptcp_destroy_common() helper, which is invoked in every msk cleanup
-path.
+WARNING: CPU: 1 PID: 10818 at net/ipv4/af_inet.c:153
+inet_sock_destruct+0x6d0/0x8e0 net/ipv4/af_inet.c:153
+Modules linked in: uio_ivshmem(OE) uio(E)
+CPU: 1 PID: 10818 Comm: kworker/1:16 Tainted: G           OE
+5.19.0-rc6-g2eae0556bb9d #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.13.0-1ubuntu1.1 04/01/2014
+Workqueue: events mptcp_worker
+RIP: 0010:inet_sock_destruct+0x6d0/0x8e0 net/ipv4/af_inet.c:153
+Code: 21 02 00 00 41 8b 9c 24 28 02 00 00 e9 07 ff ff ff e8 34 4d 91
+f9 89 ee 4c 89 e7 e8 4a 47 60 ff e9 a6 fc ff ff e8 20 4d 91 f9 <0f> 0b
+e9 84 fe ff ff e8 14 4d 91 f9 0f 0b e9 d4 fd ff ff e8 08 4d
+RSP: 0018:ffffc9001b35fa78 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 00000000002879d0 RCX: ffff8881326f3b00
+RDX: 0000000000000000 RSI: ffff8881326f3b00 RDI: 0000000000000002
+RBP: ffff888179662674 R08: ffffffff87e983a0 R09: 0000000000000000
+R10: 0000000000000005 R11: 00000000000004ea R12: ffff888179662400
+R13: ffff888179662428 R14: 0000000000000001 R15: ffff88817e38e258
+FS:  0000000000000000(0000) GS:ffff8881f5f00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020007bc0 CR3: 0000000179592000 CR4: 0000000000150ee0
+Call Trace:
+ <TASK>
+ __sk_destruct+0x4f/0x8e0 net/core/sock.c:2067
+ sk_destruct+0xbd/0xe0 net/core/sock.c:2112
+ __sk_free+0xef/0x3d0 net/core/sock.c:2123
+ sk_free+0x78/0xa0 net/core/sock.c:2134
+ sock_put include/net/sock.h:1927 [inline]
+ __mptcp_close_ssk+0x50f/0x780 net/mptcp/protocol.c:2351
+ __mptcp_destroy_sock+0x332/0x760 net/mptcp/protocol.c:2828
+ mptcp_worker+0x5d2/0xc90 net/mptcp/protocol.c:2586
+ process_one_work+0x9cc/0x1650 kernel/workqueue.c:2289
+ worker_thread+0x623/0x1070 kernel/workqueue.c:2436
+ kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
+ </TASK>
 
-Additionally get rid of the intermediate list_splice_init step, which
-is an unneeded relic from the past.
+The root cause of the problem is that an mptcp-level (re)transmit can
+race with mptcp_close() and the packet scheduler checks the subflow
+state before acquiring the socket lock: we can try to (re)transmit on
+an already closed ssk.
 
-The issue is present since before the reported root cause commit, but
-any attempt to backport the fix before that hash will require a complete
-rewrite.
+Fix the issue checking again the subflow socket status under the
+subflow socket lock protection. Additionally add the missing check
+for the fallback-to-tcp case.
 
-Fixes: e16163b6e2 ("mptcp: refactor shutdown and close")
-Reported-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Fixes: d5f49190def6 ("mptcp: allow picking different xmit subflows")
+Reported-by: Dipanjan Das <mail.dipanjan.das@gmail.com>
 Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Co-developed-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
 diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index a3f1c1461874..07fcc86e1fc9 100644
+index 07fcc86e1fc9..da4257504fad 100644
 --- a/net/mptcp/protocol.c
 +++ b/net/mptcp/protocol.c
-@@ -2769,30 +2769,16 @@ static void __mptcp_wr_shutdown(struct sock *sk)
+@@ -1240,6 +1240,9 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
+ 			 info->limit > dfrag->data_len))
+ 		return 0;
  
- static void __mptcp_destroy_sock(struct sock *sk)
- {
--	struct mptcp_subflow_context *subflow, *tmp;
- 	struct mptcp_sock *msk = mptcp_sk(sk);
--	LIST_HEAD(conn_list);
- 
- 	pr_debug("msk=%p", msk);
- 
- 	might_sleep();
- 
--	/* join list will be eventually flushed (with rst) at sock lock release time*/
--	list_splice_init(&msk->conn_list, &conn_list);
--
- 	mptcp_stop_timer(sk);
- 	sk_stop_timer(sk, &sk->sk_timer);
- 	msk->pm.status = 0;
- 
--	/* clears msk->subflow, allowing the following loop to close
--	 * even the initial subflow
--	 */
--	mptcp_dispose_initial_subflow(msk);
--	list_for_each_entry_safe(subflow, tmp, &conn_list, node) {
--		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
--		__mptcp_close_ssk(sk, ssk, subflow, 0);
--	}
--
- 	sk->sk_prot->destroy(sk);
- 
- 	WARN_ON_ONCE(msk->rmem_fwd_alloc);
-@@ -2884,24 +2870,20 @@ static void mptcp_copy_inaddrs(struct sock *msk, const struct sock *ssk)
- 
- static int mptcp_disconnect(struct sock *sk, int flags)
- {
--	struct mptcp_subflow_context *subflow, *tmp;
- 	struct mptcp_sock *msk = mptcp_sk(sk);
- 
- 	inet_sk_state_store(sk, TCP_CLOSE);
- 
--	list_for_each_entry_safe(subflow, tmp, &msk->conn_list, node) {
--		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
--
--		__mptcp_close_ssk(sk, ssk, subflow, MPTCP_CF_FASTCLOSE);
--	}
--
- 	mptcp_stop_timer(sk);
- 	sk_stop_timer(sk, &sk->sk_timer);
- 
- 	if (mptcp_sk(sk)->token)
- 		mptcp_event(MPTCP_EVENT_CLOSED, mptcp_sk(sk), NULL, GFP_KERNEL);
- 
--	mptcp_destroy_common(msk);
-+	/* msk->subflow is still intact, the following will not free the first
-+	 * subflow
-+	 */
-+	mptcp_destroy_common(msk, MPTCP_CF_FASTCLOSE);
- 	msk->last_snd = NULL;
- 	WRITE_ONCE(msk->flags, 0);
- 	msk->cb_flags = 0;
-@@ -3051,12 +3033,17 @@ static struct sock *mptcp_accept(struct sock *sk, int flags, int *err,
- 	return newsk;
- }
- 
--void mptcp_destroy_common(struct mptcp_sock *msk)
-+void mptcp_destroy_common(struct mptcp_sock *msk, unsigned int flags)
- {
-+	struct mptcp_subflow_context *subflow, *tmp;
- 	struct sock *sk = (struct sock *)msk;
- 
- 	__mptcp_clear_xmit(sk);
- 
-+	/* join list will be eventually flushed (with rst) at sock lock release time */
-+	list_for_each_entry_safe(subflow, tmp, &msk->conn_list, node)
-+		__mptcp_close_ssk(sk, mptcp_subflow_tcp_sock(subflow), subflow, flags);
++	if (unlikely(!__tcp_can_send(ssk)))
++		return -EAGAIN;
 +
- 	/* move to sk_receive_queue, sk_stream_kill_queues will purge it */
- 	mptcp_data_lock(sk);
- 	skb_queue_splice_tail_init(&msk->receive_queue, &sk->sk_receive_queue);
-@@ -3078,7 +3065,11 @@ static void mptcp_destroy(struct sock *sk)
- {
- 	struct mptcp_sock *msk = mptcp_sk(sk);
+ 	/* compute send limit */
+ 	info->mss_now = tcp_send_mss(ssk, &info->size_goal, info->flags);
+ 	copy = info->size_goal;
+@@ -1413,7 +1416,8 @@ static struct sock *mptcp_subflow_get_send(struct mptcp_sock *msk)
+ 	if (__mptcp_check_fallback(msk)) {
+ 		if (!msk->first)
+ 			return NULL;
+-		return sk_stream_memory_free(msk->first) ? msk->first : NULL;
++		return __tcp_can_send(msk->first) &&
++		       sk_stream_memory_free(msk->first) ? msk->first : NULL;
+ 	}
  
--	mptcp_destroy_common(msk);
-+	/* clears msk->subflow, allowing the following to close
-+	 * even the initial subflow
-+	 */
-+	mptcp_dispose_initial_subflow(msk);
-+	mptcp_destroy_common(msk, 0);
- 	sk_sockets_allocated_dec(sk);
- }
+ 	/* re-use last subflow, if the burst allow that */
+@@ -1564,6 +1568,8 @@ void __mptcp_push_pending(struct sock *sk, unsigned int flags)
  
+ 			ret = mptcp_sendmsg_frag(sk, ssk, dfrag, &info);
+ 			if (ret <= 0) {
++				if (ret == -EAGAIN)
++					continue;
+ 				mptcp_push_release(ssk, &info);
+ 				goto out;
+ 			}
 diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index 5d6043c16b09..40881a7df5d5 100644
+index 40881a7df5d5..132d50833df1 100644
 --- a/net/mptcp/protocol.h
 +++ b/net/mptcp/protocol.h
-@@ -717,7 +717,7 @@ static inline void mptcp_write_space(struct sock *sk)
- 	}
+@@ -624,16 +624,19 @@ void mptcp_info2sockaddr(const struct mptcp_addr_info *info,
+ 			 struct sockaddr_storage *addr,
+ 			 unsigned short family);
+ 
+-static inline bool __mptcp_subflow_active(struct mptcp_subflow_context *subflow)
++static inline bool __tcp_can_send(const struct sock *ssk)
+ {
+-	struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
++	/* only send if our side has not closed yet */
++	return ((1 << inet_sk_state_load(ssk)) & (TCPF_ESTABLISHED | TCPF_CLOSE_WAIT));
++}
+ 
++static inline bool __mptcp_subflow_active(struct mptcp_subflow_context *subflow)
++{
+ 	/* can't send if JOIN hasn't completed yet (i.e. is usable for mptcp) */
+ 	if (subflow->request_join && !subflow->fully_established)
+ 		return false;
+ 
+-	/* only send if our side has not closed yet */
+-	return ((1 << ssk->sk_state) & (TCPF_ESTABLISHED | TCPF_CLOSE_WAIT));
++	return __tcp_can_send(mptcp_subflow_tcp_sock(subflow));
  }
  
--void mptcp_destroy_common(struct mptcp_sock *msk);
-+void mptcp_destroy_common(struct mptcp_sock *msk, unsigned int flags);
- 
- #define MPTCP_TOKEN_MAX_RETRIES	4
- 
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 901c763dcdbb..c7d49fb6e7bd 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -621,7 +621,8 @@ static void mptcp_sock_destruct(struct sock *sk)
- 		sock_orphan(sk);
- 	}
- 
--	mptcp_destroy_common(mptcp_sk(sk));
-+	/* We don't need to clear msk->subflow, as it's still NULL at this point */
-+	mptcp_destroy_common(mptcp_sk(sk), 0);
- 	inet_sock_destruct(sk);
- }
- 
+ void mptcp_subflow_set_active(struct mptcp_subflow_context *subflow);
 
