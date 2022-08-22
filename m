@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 228C059BFD2
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:55:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9931859BFD7
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:55:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231961AbiHVMzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 08:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33588 "EHLO
+        id S234182AbiHVMzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 08:55:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229565AbiHVMzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:55:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0010B220F7
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:55:04 -0700 (PDT)
+        with ESMTP id S232195AbiHVMzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:55:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1433923BC1
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:55:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D168B811D2
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:55:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E21B2C433C1;
-        Mon, 22 Aug 2022 12:55:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63B2A61152
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:55:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC3BC433D6;
+        Mon, 22 Aug 2022 12:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661172902;
-        bh=/fxz6yeFJmZXyJy/wzuOFK3OcuQQRVmTaBfSD8q2tZQ=;
+        s=korg; t=1661172919;
+        bh=0VbAIdHW2EsNaUq45VbAmR6CWYZOL0p5gI02BXpp+DM=;
         h=Subject:To:Cc:From:Date:From;
-        b=qDtqWIj8IcrtObkLF/X+jNMMMWzsDFg3xS02Kyec6sGiGeDTivOSj5HxwFNBPIbaP
-         YF7oCMQz5+wWaxbvZPd2REUkaE0MsCiXnTcL37J53/OBwv6auV+ntdg2YJFGtAVUAv
-         +5Z4It/5oMxfOlz6DdOH6muSpcqmM1seMsBICaeA=
-Subject: FAILED: patch "[PATCH] mlxsw: spectrum: Clear PTP configuration after unregistering" failed to apply to 5.4-stable tree
-To:     amcohen@nvidia.com, davem@davemloft.net, idosch@nvidia.com,
-        petrm@nvidia.com
+        b=mhQMbN0AdQRqEq1cjrolKpAa79DFnFbbuo4quhcP3txEF0bBrb86wjXLZvh2mzq7r
+         sOXwTcEddRJimaBJVx+98ZRvfrrJ0EWXKGvKpj8vvJLvwcTtAj93IMK/v91cS+Y56U
+         jOYbIQ99kqXTw4i9QR8GU7oR10ypnDqlr4Rsnq1Q=
+Subject: FAILED: patch "[PATCH] net: moxa: pass pdev instead of ndev to DMA functions" failed to apply to 4.19-stable tree
+To:     saproj@gmail.com, andrew@lunn.ch, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 14:54:51 +0200
-Message-ID: <16611728913082@kroah.com>
+Date:   Mon, 22 Aug 2022 14:55:16 +0200
+Message-ID: <1661172916683@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,40 +59,109 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a159e986ad26d3f35c0157ac92760ba5e44e6785 Mon Sep 17 00:00:00 2001
-From: Amit Cohen <amcohen@nvidia.com>
-Date: Fri, 12 Aug 2022 17:32:01 +0200
-Subject: [PATCH] mlxsw: spectrum: Clear PTP configuration after unregistering
- the netdevice
+From 3a12df22a8f68954a4ba48435c06b3d1791c87c4 Mon Sep 17 00:00:00 2001
+From: Sergei Antonov <saproj@gmail.com>
+Date: Fri, 12 Aug 2022 20:13:39 +0300
+Subject: [PATCH] net: moxa: pass pdev instead of ndev to DMA functions
 
-Currently as part of removing port, PTP API is called to clear the
-existing configuration and set the 'rx_filter' and 'tx_type' to zero.
-The clearing is done before unregistering the netdevice, which means that
-there is a window of time in which the user can reconfigure PTP in the
-port, and this configuration will not be cleared.
+dma_map_single() calls fail in moxart_mac_setup_desc_ring() and
+moxart_mac_start_xmit() which leads to an incessant output of this:
 
-Reorder the operations, clear PTP configuration after unregistering the
-netdevice.
+[   16.043925] moxart-ethernet 92000000.mac eth0: DMA mapping error
+[   16.050957] moxart-ethernet 92000000.mac eth0: DMA mapping error
+[   16.058229] moxart-ethernet 92000000.mac eth0: DMA mapping error
 
-Fixes: 8748642751ede ("mlxsw: spectrum: PTP: Support SIOCGHWTSTAMP, SIOCSHWTSTAMP ioctls")
-Signed-off-by: Amit Cohen <amcohen@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Passing pdev to DMA is a common approach among net drivers.
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index 1e240cdd9cbd..30c7b0e15721 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -1897,9 +1897,9 @@ static void mlxsw_sp_port_remove(struct mlxsw_sp *mlxsw_sp, u16 local_port)
+Fixes: 6c821bd9edc9 ("net: Add MOXA ART SoCs ethernet driver")
+Signed-off-by: Sergei Antonov <saproj@gmail.com>
+Suggested-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220812171339.2271788-1-saproj@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/drivers/net/ethernet/moxa/moxart_ether.c b/drivers/net/ethernet/moxa/moxart_ether.c
+index a3214a762e4b..f11f1cb92025 100644
+--- a/drivers/net/ethernet/moxa/moxart_ether.c
++++ b/drivers/net/ethernet/moxa/moxart_ether.c
+@@ -77,7 +77,7 @@ static void moxart_mac_free_memory(struct net_device *ndev)
+ 	int i;
  
- 	cancel_delayed_work_sync(&mlxsw_sp_port->periodic_hw_stats.update_dw);
- 	cancel_delayed_work_sync(&mlxsw_sp_port->ptp.shaper_dw);
--	mlxsw_sp_port_ptp_clear(mlxsw_sp_port);
- 	mlxsw_core_port_clear(mlxsw_sp->core, local_port, mlxsw_sp);
- 	unregister_netdev(mlxsw_sp_port->dev); /* This calls ndo_stop */
-+	mlxsw_sp_port_ptp_clear(mlxsw_sp_port);
- 	mlxsw_sp_port_vlan_classification_set(mlxsw_sp_port, true, true);
- 	mlxsw_sp->ports[local_port] = NULL;
- 	mlxsw_sp_port_vlan_flush(mlxsw_sp_port, true);
+ 	for (i = 0; i < RX_DESC_NUM; i++)
+-		dma_unmap_single(&ndev->dev, priv->rx_mapping[i],
++		dma_unmap_single(&priv->pdev->dev, priv->rx_mapping[i],
+ 				 priv->rx_buf_size, DMA_FROM_DEVICE);
+ 
+ 	if (priv->tx_desc_base)
+@@ -147,11 +147,11 @@ static void moxart_mac_setup_desc_ring(struct net_device *ndev)
+ 		       desc + RX_REG_OFFSET_DESC1);
+ 
+ 		priv->rx_buf[i] = priv->rx_buf_base + priv->rx_buf_size * i;
+-		priv->rx_mapping[i] = dma_map_single(&ndev->dev,
++		priv->rx_mapping[i] = dma_map_single(&priv->pdev->dev,
+ 						     priv->rx_buf[i],
+ 						     priv->rx_buf_size,
+ 						     DMA_FROM_DEVICE);
+-		if (dma_mapping_error(&ndev->dev, priv->rx_mapping[i]))
++		if (dma_mapping_error(&priv->pdev->dev, priv->rx_mapping[i]))
+ 			netdev_err(ndev, "DMA mapping error\n");
+ 
+ 		moxart_desc_write(priv->rx_mapping[i],
+@@ -240,7 +240,7 @@ static int moxart_rx_poll(struct napi_struct *napi, int budget)
+ 		if (len > RX_BUF_SIZE)
+ 			len = RX_BUF_SIZE;
+ 
+-		dma_sync_single_for_cpu(&ndev->dev,
++		dma_sync_single_for_cpu(&priv->pdev->dev,
+ 					priv->rx_mapping[rx_head],
+ 					priv->rx_buf_size, DMA_FROM_DEVICE);
+ 		skb = netdev_alloc_skb_ip_align(ndev, len);
+@@ -294,7 +294,7 @@ static void moxart_tx_finished(struct net_device *ndev)
+ 	unsigned int tx_tail = priv->tx_tail;
+ 
+ 	while (tx_tail != tx_head) {
+-		dma_unmap_single(&ndev->dev, priv->tx_mapping[tx_tail],
++		dma_unmap_single(&priv->pdev->dev, priv->tx_mapping[tx_tail],
+ 				 priv->tx_len[tx_tail], DMA_TO_DEVICE);
+ 
+ 		ndev->stats.tx_packets++;
+@@ -358,9 +358,9 @@ static netdev_tx_t moxart_mac_start_xmit(struct sk_buff *skb,
+ 
+ 	len = skb->len > TX_BUF_SIZE ? TX_BUF_SIZE : skb->len;
+ 
+-	priv->tx_mapping[tx_head] = dma_map_single(&ndev->dev, skb->data,
++	priv->tx_mapping[tx_head] = dma_map_single(&priv->pdev->dev, skb->data,
+ 						   len, DMA_TO_DEVICE);
+-	if (dma_mapping_error(&ndev->dev, priv->tx_mapping[tx_head])) {
++	if (dma_mapping_error(&priv->pdev->dev, priv->tx_mapping[tx_head])) {
+ 		netdev_err(ndev, "DMA mapping error\n");
+ 		goto out_unlock;
+ 	}
+@@ -379,7 +379,7 @@ static netdev_tx_t moxart_mac_start_xmit(struct sk_buff *skb,
+ 		len = ETH_ZLEN;
+ 	}
+ 
+-	dma_sync_single_for_device(&ndev->dev, priv->tx_mapping[tx_head],
++	dma_sync_single_for_device(&priv->pdev->dev, priv->tx_mapping[tx_head],
+ 				   priv->tx_buf_size, DMA_TO_DEVICE);
+ 
+ 	txdes1 = TX_DESC1_LTS | TX_DESC1_FTS | (len & TX_DESC1_BUF_SIZE_MASK);
+@@ -493,7 +493,7 @@ static int moxart_mac_probe(struct platform_device *pdev)
+ 	priv->tx_buf_size = TX_BUF_SIZE;
+ 	priv->rx_buf_size = RX_BUF_SIZE;
+ 
+-	priv->tx_desc_base = dma_alloc_coherent(&pdev->dev, TX_REG_DESC_SIZE *
++	priv->tx_desc_base = dma_alloc_coherent(p_dev, TX_REG_DESC_SIZE *
+ 						TX_DESC_NUM, &priv->tx_base,
+ 						GFP_DMA | GFP_KERNEL);
+ 	if (!priv->tx_desc_base) {
+@@ -501,7 +501,7 @@ static int moxart_mac_probe(struct platform_device *pdev)
+ 		goto init_fail;
+ 	}
+ 
+-	priv->rx_desc_base = dma_alloc_coherent(&pdev->dev, RX_REG_DESC_SIZE *
++	priv->rx_desc_base = dma_alloc_coherent(p_dev, RX_REG_DESC_SIZE *
+ 						RX_DESC_NUM, &priv->rx_base,
+ 						GFP_DMA | GFP_KERNEL);
+ 	if (!priv->rx_desc_base) {
 
