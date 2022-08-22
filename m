@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 920C559BA42
+	by mail.lfdr.de (Postfix) with ESMTP id 496B459BA41
 	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 09:29:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229496AbiHVH30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 03:29:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50794 "EHLO
+        id S233254AbiHVH3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 03:29:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233160AbiHVH3Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 03:29:25 -0400
+        with ESMTP id S233157AbiHVH32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 03:29:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB551D0DA
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 00:29:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB082A26A
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 00:29:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B01160FCA
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 07:29:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B695C433D6;
-        Mon, 22 Aug 2022 07:29:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36B2260FE0
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 07:29:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20F95C433D6;
+        Mon, 22 Aug 2022 07:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661153362;
-        bh=r2tcXP+cZvnWw8V6CnuKY42oh1Y5TwbWYiPg2ZSrXBY=;
+        s=korg; t=1661153366;
+        bh=VPFfn6K5p+WcnggFLqHsa31woDbbbOjSreZPcov4cfE=;
         h=Subject:To:Cc:From:Date:From;
-        b=hBKrwxSlxk3YW2rPkkkz9Lm0Xhu1Jvw2+tUaxv6XW8JiwqVGbvdVa/Af4dAIpbhUG
-         vD8sTDloiXTfuHm/HLa/btmIo4+kEJoURssaU+xlvSNXQVuVaHruHwix0Mt6nEVBUg
-         dEioQrc17zdcof1HBGaDVZBM69T4zAp1iPD1itZM=
-Subject: FAILED: patch "[PATCH] tracing/probes: Have kprobes and uprobes use $COMM too" failed to apply to 5.10-stable tree
+        b=Q6gEroGClCP1OCjrAgVG+3aMN172jIMDfqo52C5ngbQa82b9IQyNqqoAn7+V/CRMb
+         K2ZDLrqt4+VZLIa20LHhOP95iH7LTS+wtD0REtcQOd66vw2cR2fE5NoeMSXraz9wbj
+         9VVPKEuVsbuk8fsItnxL0H/X8RKc240IU6nZaTwk=
+Subject: FAILED: patch "[PATCH] tracing/probes: Have kprobes and uprobes use $COMM too" failed to apply to 5.4-stable tree
 To:     rostedt@goodmis.org, akpm@linux-foundation.org,
         mhiramat@kernel.org, mingo@kernel.org, tz.stoyanov@gmail.com,
         zanussi@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 09:29:14 +0200
-Message-ID: <166115335415514@kroah.com>
+Date:   Mon, 22 Aug 2022 09:29:15 +0200
+Message-ID: <166115335579185@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
