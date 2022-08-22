@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 032B159BB43
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:21:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31F1359BB4F
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbiHVIVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:21:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52466 "EHLO
+        id S233852AbiHVIVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:21:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233942AbiHVIUj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:20:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 494ED1EAF1
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:20:38 -0700 (PDT)
+        with ESMTP id S233829AbiHVIVU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:21:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF5F31EC71
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:21:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9BC161029
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:20:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB954C433D6;
-        Mon, 22 Aug 2022 08:20:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07453B80E9B
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:21:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EDBEC4314C;
+        Mon, 22 Aug 2022 08:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661156437;
-        bh=raxlbdPWZyqZZsFgvYYkDZSQpkKk4NDas+OJ0gjXktY=;
+        s=korg; t=1661156470;
+        bh=mUlaNt4tq1cJ9TrRqh8ymM0I3IOk8KPxltzllydzhhU=;
         h=Subject:To:Cc:From:Date:From;
-        b=YLXa6DFVsF8A2u/rqA5s9rIOgomMI+V6MEhp/vHM94X5nhZJYq/Hnj7TFS366Rifl
-         INmie5GXzF6vAZA2RLLiMu7MHyHbK4OAi3087bsYrHz6+sST2bVER6ZaZwFMdbUN4e
-         3J/tmwzMkxcaRT5vuuFvHTFL7e8ydlCKMWneRuMg=
-Subject: FAILED: patch "[PATCH] net: tap: NULL pointer derefence in dev_parse_header_protocol" failed to apply to 4.14-stable tree
-To:     cbulinaru@gmail.com, davem@davemloft.net, willemb@google.com
+        b=srbT5v92RDmmCusVvyIbZn3yhmdL0ATyeDK81q+Cbb8YMAqNrqnZFY7TM5UFqfC/c
+         hBrJ9zuowO9xbCs1fqiJJzIXo6G/YnWuuEwGBC5Msy4QiSuR5Tkg/zw5+0J0nmYFzr
+         NJAUCLPOmmtr2DH+bsdBOzbk/Gz37oIwBryhbvC8=
+Subject: FAILED: patch "[PATCH] NFSv4: Fix races in the legacy idmapper upcall" failed to apply to 4.9-stable tree
+To:     trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 10:20:22 +0200
-Message-ID: <1661156422072@kroah.com>
+Date:   Mon, 22 Aug 2022 10:21:08 +0200
+Message-ID: <166115646821662@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,104 +59,136 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4f61f133f354853bc394ec7d6028adb9b02dd701 Mon Sep 17 00:00:00 2001
-From: Cezar Bulinaru <cbulinaru@gmail.com>
-Date: Wed, 3 Aug 2022 02:27:59 -0400
-Subject: [PATCH] net: tap: NULL pointer derefence in dev_parse_header_protocol
- when skb->dev is null
+From 51fd2eb52c0ca8275a906eed81878ef50ae94eb0 Mon Sep 17 00:00:00 2001
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
+Date: Wed, 13 Jul 2022 17:46:52 -0400
+Subject: [PATCH] NFSv4: Fix races in the legacy idmapper upcall
 
-Fixes a NULL pointer derefence bug triggered from tap driver.
-When tap_get_user calls virtio_net_hdr_to_skb the skb->dev is null
-(in tap.c skb->dev is set after the call to virtio_net_hdr_to_skb)
-virtio_net_hdr_to_skb calls dev_parse_header_protocol which
-needs skb->dev field to be valid.
+nfs_idmap_instantiate() will cause the process that is waiting in
+request_key_with_auxdata() to wake up and exit. If there is a second
+process waiting for the idmap->idmap_mutex, then it may wake up and
+start a new call to request_key_with_auxdata(). If the call to
+idmap_pipe_downcall() from the first process has not yet finished
+calling nfs_idmap_complete_pipe_upcall_locked(), then we may end up
+triggering the WARN_ON_ONCE() in nfs_idmap_prepare_pipe_upcall().
 
-The line that trigers the bug is in dev_parse_header_protocol
-(dev is at offset 0x10 from skb and is stored in RAX register)
-  if (!dev->header_ops || !dev->header_ops->parse_protocol)
-  22e1:   mov    0x10(%rbx),%rax
-  22e5:	  mov    0x230(%rax),%rax
+The fix is to ensure that we clear idmap->idmap_upcall_data before
+calling nfs_idmap_instantiate().
 
-Setting skb->dev before the call in tap.c fixes the issue.
+Fixes: e9ab41b620e4 ("NFSv4: Clean up the legacy idmapper upcall")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-BUG: kernel NULL pointer dereference, address: 0000000000000230
-RIP: 0010:virtio_net_hdr_to_skb.constprop.0+0x335/0x410 [tap]
-Code: c0 0f 85 b7 fd ff ff eb d4 41 39 c6 77 cf 29 c6 48 89 df 44 01 f6 e8 7a 79 83 c1 48 85 c0 0f 85 d9 fd ff ff eb b7 48 8b 43 10 <48> 8b 80 30 02 00 00 48 85 c0 74 55 48 8b 40 28 48 85 c0 74 4c 48
-RSP: 0018:ffffc90005c27c38 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: ffff888298f25300 RCX: 0000000000000010
-RDX: 0000000000000005 RSI: ffffc90005c27cb6 RDI: ffff888298f25300
-RBP: ffffc90005c27c80 R08: 00000000ffffffea R09: 00000000000007e8
-R10: ffff88858ec77458 R11: 0000000000000000 R12: 0000000000000001
-R13: 0000000000000014 R14: ffffc90005c27e08 R15: ffffc90005c27cb6
-FS:  0000000000000000(0000) GS:ffff88858ec40000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000230 CR3: 0000000281408006 CR4: 00000000003706e0
-Call Trace:
- tap_get_user+0x3f1/0x540 [tap]
- tap_sendmsg+0x56/0x362 [tap]
- ? get_tx_bufs+0xc2/0x1e0 [vhost_net]
- handle_tx_copy+0x114/0x670 [vhost_net]
- handle_tx+0xb0/0xe0 [vhost_net]
- handle_tx_kick+0x15/0x20 [vhost_net]
- vhost_worker+0x7b/0xc0 [vhost]
- ? vhost_vring_call_reset+0x40/0x40 [vhost]
- kthread+0xfa/0x120
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x1f/0x30
-
-Fixes: 924a9bc362a5 ("net: check if protocol extracted by virtio_net_hdr_set_proto is correct")
-Signed-off-by: Cezar Bulinaru <cbulinaru@gmail.com>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index c3d42062559d..9e75ed3f08ce 100644
---- a/drivers/net/tap.c
-+++ b/drivers/net/tap.c
-@@ -716,10 +716,20 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
- 	skb_reset_mac_header(skb);
- 	skb->protocol = eth_hdr(skb)->h_proto;
+diff --git a/fs/nfs/nfs4idmap.c b/fs/nfs/nfs4idmap.c
+index f331866dd418..ec6afd3c4bca 100644
+--- a/fs/nfs/nfs4idmap.c
++++ b/fs/nfs/nfs4idmap.c
+@@ -561,22 +561,20 @@ nfs_idmap_prepare_pipe_upcall(struct idmap *idmap,
+ 	return true;
+ }
  
-+	rcu_read_lock();
-+	tap = rcu_dereference(q->tap);
-+	if (!tap) {
-+		kfree_skb(skb);
-+		rcu_read_unlock();
-+		return total_len;
+-static void
+-nfs_idmap_complete_pipe_upcall_locked(struct idmap *idmap, int ret)
++static void nfs_idmap_complete_pipe_upcall(struct idmap_legacy_upcalldata *data,
++					   int ret)
+ {
+-	struct key *authkey = idmap->idmap_upcall_data->authkey;
+-
+-	kfree(idmap->idmap_upcall_data);
+-	idmap->idmap_upcall_data = NULL;
+-	complete_request_key(authkey, ret);
+-	key_put(authkey);
++	complete_request_key(data->authkey, ret);
++	key_put(data->authkey);
++	kfree(data);
+ }
+ 
+-static void
+-nfs_idmap_abort_pipe_upcall(struct idmap *idmap, int ret)
++static void nfs_idmap_abort_pipe_upcall(struct idmap *idmap,
++					struct idmap_legacy_upcalldata *data,
++					int ret)
+ {
+-	if (idmap->idmap_upcall_data != NULL)
+-		nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
++	if (cmpxchg(&idmap->idmap_upcall_data, data, NULL) == data)
++		nfs_idmap_complete_pipe_upcall(data, ret);
+ }
+ 
+ static int nfs_idmap_legacy_upcall(struct key *authkey, void *aux)
+@@ -613,7 +611,7 @@ static int nfs_idmap_legacy_upcall(struct key *authkey, void *aux)
+ 
+ 	ret = rpc_queue_upcall(idmap->idmap_pipe, msg);
+ 	if (ret < 0)
+-		nfs_idmap_abort_pipe_upcall(idmap, ret);
++		nfs_idmap_abort_pipe_upcall(idmap, data, ret);
+ 
+ 	return ret;
+ out2:
+@@ -669,6 +667,7 @@ idmap_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
+ 	struct request_key_auth *rka;
+ 	struct rpc_inode *rpci = RPC_I(file_inode(filp));
+ 	struct idmap *idmap = (struct idmap *)rpci->private;
++	struct idmap_legacy_upcalldata *data;
+ 	struct key *authkey;
+ 	struct idmap_msg im;
+ 	size_t namelen_in;
+@@ -678,10 +677,11 @@ idmap_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
+ 	 * will have been woken up and someone else may now have used
+ 	 * idmap_key_cons - so after this point we may no longer touch it.
+ 	 */
+-	if (idmap->idmap_upcall_data == NULL)
++	data = xchg(&idmap->idmap_upcall_data, NULL);
++	if (data == NULL)
+ 		goto out_noupcall;
+ 
+-	authkey = idmap->idmap_upcall_data->authkey;
++	authkey = data->authkey;
+ 	rka = get_request_key_auth(authkey);
+ 
+ 	if (mlen != sizeof(im)) {
+@@ -703,18 +703,17 @@ idmap_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
+ 	if (namelen_in == 0 || namelen_in == IDMAP_NAMESZ) {
+ 		ret = -EINVAL;
+ 		goto out;
+-}
 +	}
-+	skb->dev = tap->dev;
-+
- 	if (vnet_hdr_len) {
- 		err = virtio_net_hdr_to_skb(skb, &vnet_hdr,
- 					    tap_is_little_endian(q));
- 		if (err) {
-+			rcu_read_unlock();
- 			drop_reason = SKB_DROP_REASON_DEV_HDR;
- 			goto err_kfree;
- 		}
-@@ -732,8 +742,6 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
- 	    __vlan_get_protocol(skb, skb->protocol, &depth) != 0)
- 		skb_set_network_header(skb, depth);
  
--	rcu_read_lock();
--	tap = rcu_dereference(q->tap);
- 	/* copy skb_ubuf_info for callback when skb has no error */
- 	if (zerocopy) {
- 		skb_zcopy_init(skb, msg_control);
-@@ -742,14 +750,8 @@ static ssize_t tap_get_user(struct tap_queue *q, void *msg_control,
- 		uarg->callback(NULL, uarg, false);
+-	ret = nfs_idmap_read_and_verify_message(&im,
+-			&idmap->idmap_upcall_data->idmap_msg,
+-			rka->target_key, authkey);
++	ret = nfs_idmap_read_and_verify_message(&im, &data->idmap_msg,
++						rka->target_key, authkey);
+ 	if (ret >= 0) {
+ 		key_set_timeout(rka->target_key, nfs_idmap_cache_timeout);
+ 		ret = mlen;
  	}
  
--	if (tap) {
--		skb->dev = tap->dev;
--		dev_queue_xmit(skb);
--	} else {
--		kfree_skb(skb);
--	}
-+	dev_queue_xmit(skb);
- 	rcu_read_unlock();
--
- 	return total_len;
+ out:
+-	nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
++	nfs_idmap_complete_pipe_upcall(data, ret);
+ out_noupcall:
+ 	return ret;
+ }
+@@ -728,7 +727,7 @@ idmap_pipe_destroy_msg(struct rpc_pipe_msg *msg)
+ 	struct idmap *idmap = data->idmap;
  
- err_kfree:
+ 	if (msg->errno)
+-		nfs_idmap_abort_pipe_upcall(idmap, msg->errno);
++		nfs_idmap_abort_pipe_upcall(idmap, data, msg->errno);
+ }
+ 
+ static void
+@@ -736,8 +735,11 @@ idmap_release_pipe(struct inode *inode)
+ {
+ 	struct rpc_inode *rpci = RPC_I(inode);
+ 	struct idmap *idmap = (struct idmap *)rpci->private;
++	struct idmap_legacy_upcalldata *data;
+ 
+-	nfs_idmap_abort_pipe_upcall(idmap, -EPIPE);
++	data = xchg(&idmap->idmap_upcall_data, NULL);
++	if (data)
++		nfs_idmap_complete_pipe_upcall(data, -EPIPE);
+ }
+ 
+ int nfs_map_name_to_uid(const struct nfs_server *server, const char *name, size_t namelen, kuid_t *uid)
 
