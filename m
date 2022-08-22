@@ -2,124 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE5059B6C9
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 01:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA6BF59B731
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 03:17:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231328AbiHUXjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 19:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41632 "EHLO
+        id S232208AbiHVBQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 21:16:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230056AbiHUXjU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 19:39:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E9313D61;
-        Sun, 21 Aug 2022 16:39:17 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CB8460DFC;
-        Sun, 21 Aug 2022 23:39:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC63C433D6;
-        Sun, 21 Aug 2022 23:39:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1661125156;
-        bh=bsjBQ8x53uP4Wlujj47O/Zq5yIu60FEP1VZKHxMxb14=;
-        h=Date:To:From:Subject:From;
-        b=cOJSo4pbgJ3z0OrdI4mhZMD1EX6DEymaVNAz7E6GXUDMDbDXmOX6LBcECfGrkeh5c
-         zz4AOJFmnL+Qm5PEQeZDC+Hcq7ouirZGH6s8azl0IluHRs/ZIZcymgcsaj2cnxSSoF
-         aqYO3CxI7tZXl/ctrmB6TcazI+BUrPslxw3u6v/c=
-Date:   Sun, 21 Aug 2022 16:39:15 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, sj@kernel.org,
-        badari.pulavarty@intel.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-damon-dbgfs-avoid-duplicate-context-directory-creation.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220821233916.8FC63C433D6@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229948AbiHVBQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 21:16:08 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 181D61FCEB;
+        Sun, 21 Aug 2022 18:16:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1661130965;
+        bh=x5pSxYkH1+MKJHQizQrAJ0MWNoO/BUWSG6YS+I3fQCw=;
+        h=X-UI-Sender-Class:Date:To:Cc:From:Subject;
+        b=EAcpOnwTymAvyYa1R4afV1u8B5MNrNb/azpV13iHXqqqV7m3eOzH/ch5UY9Qzpl+S
+         T4Psb2VU7eVxGl0h0JEgLgaatRyR0RwHQ96u6yX390qu3SmIgR9+1jsdfdYrS+PHfR
+         Ym8YqsGFRhJfL58HrID2GByckh1zlg8sR5vEHGkQ=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx105
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1M3DJl-1oTVU10F3N-003d7j; Mon, 22
+ Aug 2022 03:16:05 +0200
+Message-ID: <2d6012e8-805d-4225-80ed-d317c28f1899@gmx.com>
+Date:   Mon, 22 Aug 2022 09:15:59 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Content-Language: en-US
+To:     stable <stable@vger.kernel.org>
+Cc:     "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-x86_64@vger.kernel.org
+From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
+Subject: LTS kernel Linux 4.14.290 unable to boot with edk2-ovmf (x86_64 UEFI
+ runtime)
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:s6xZ76BCYb4OTJdeDQQ2yV2g8i10/2Ry6601fyssiI0Hd9Z5r2d
+ tJwT0WkUtCSvECZ3ir20Nqd4UpuabJxTvIZ8zoHeWwikZkb2+dHn89UdC8ps3/2tsGEbkBx
+ AbXLiJ8a5Iej21MpyUdWSI0zsNY06ATMCkFDWxL69TA8CiqoFwI0P1QxkQT7MnQRsa2t1zt
+ qWUQXjXEhet3PouG+jutg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:KG6Er7NV+bw=:QDaCbemftEYo5b/eRSq7n8
+ s6On5XJux3PigsetgcTY/zn4pax3prlgKakG4JGFoZDbCBuguJ4K+QQJEXA2FYT1rJTNz9dC0
+ jRtyyBDlqgiwj+J/O/r9g/7Xv/FlXN3KsudLazvf666kP4zJNYf/TNx/6MiMohDQb928fNRI0
+ UxzQGxk4uK/QWdJ7+3izb+X6m55QBtTPDmEvMRfOjMVYt1d3qY3ENJ2FBTAnze6wiAP1WuMJS
+ MFfEqL7fQBFtir7SfKxXgrnEXzirR2CvhxaKyofrADKBzaH3E6Jbdaal+ZlFxZD92ORHnFyEH
+ dCpKHpuNUIH5myyEReR6rjdNif4kWUNdfxF5I85mO0J/XgO8PoqUSGbNhJxn+q1Wbn1oFVmy6
+ qF/QJNRIWoGhVtjzBcsg+Y3XansIkTUpqdjrzFcTipmCCgmNmTIU4ZfrOrsQ7POEccjHeLqzl
+ XgnNct0uS0gnBl6ao1kUSByVwOppCNT05MsDcWGMWwuocL3vuFlU+K7xWonM8wt0H3edGf71w
+ exdRG84tJB3uc/jLpUprVtbwsUMn0pgVoRdh6aHqaqa2EYTL9k6enaeLbJnNmnU4XeSMgbutW
+ JanXCo1bBUEe8W7jScPUWuqR5p0IiCLGuinXuwSUyB3Bmd2mZy1h9gNEa92lDFZokMdv22a02
+ 3VFnMyMrbipZ55CkmIvbwi0R0M2tnfBzmBYyYRKXiHuUE38ADXJANYFzVK0eG+9DN1EXPNwDz
+ OiEBWtDp6WdZ3hQhbFFNr76BO4T/FoVJ8WHEUL1vezMJq3IEIN9u05yQIL27IwPQzLF67ZIXe
+ BdoyLgWtYCDn2LofWPRcxU8CbdAqUQJtdmveF3R/OEqzbq+/bO9xIwn283AuH3qvIqSOtr7kS
+ qzO6yWD/fWMoXR5uJ1K1qFMu9ppvTB+2BfCUtOZnJ4vYhWwII40n4+iZtfuYAA+HMjMgINTz8
+ iY1Dkaq03UtX/H+F8g73IdybtBb8klV+Ql4if+NVCvy9avNsAngokUzjRsutq7AZre6chuOsH
+ N4ryDfd3uHKVudx5Bz3XMECqEifk1t7X3sZJo0XoyGP4XAf3PbSwwVJwDEeeXJPmsM2x0BC9/
+ HbfZM8spbdy0rq/T8G/C6BvW5KbmQ5e2UPI2yGlo1sCuhIguALrPBUWoA==
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch titled
-     Subject: mm/damon/dbgfs: avoid duplicate context directory creation
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-damon-dbgfs-avoid-duplicate-context-directory-creation.patch
+When backporting some btrfs specific patches to all LTS kernels, I found
+v4.14.290 kernel unable to boot as a KVM guest with edk2-ovmf
+(edk2-ovmf: 202205, qemu 7.0.0, libvirt 1:8.6.0).
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-damon-dbgfs-avoid-duplicate-context-directory-creation.patch
+While all other LTS/stable branches (4.19.x, 5.4.x, 5.10.x, 5.15.x,
+5.18.x, 5.19.x) can boot without a hipccup.
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+I tried the following configs, but none of them can even provide an
+early output:
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+- CONFIG_X86_VERBOSE_BOOTUP
+- CONFIG_EARLY_PRINTK
+- CONFIG_EARLY_PRINTK_EFI
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Is this a known bug or something new?
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Badari Pulavarty <badari.pulavarty@intel.com>
-Subject: mm/damon/dbgfs: avoid duplicate context directory creation
-Date: Sun, 21 Aug 2022 18:08:53 +0000
-
-When user tries to create a DAMON context via the DAMON debugfs interface
-with a name of an already existing context, the context directory creation
-fails but a new context is created and added in the internal data
-structure, due to absence of the directory creation success check.  As a
-result, memory could leak and DAMON cannot be turned on.  An example test
-case is as below:
-
-    # cd /sys/kernel/debug/damon/
-    # echo "off" >  monitor_on
-    # echo paddr > target_ids
-    # echo "abc" > mk_context
-    # echo "abc" > mk_context
-    # echo $$ > abc/target_ids
-    # echo "on" > monitor_on  <<< fails
-
-Return value of 'debugfs_create_dir()' is expected to be ignored in
-general, but this is an exceptional case as DAMON feature is depending
-on the debugfs functionality and it has the potential duplicate name
-issue.  This commit therefore fixes the issue by checking the directory
-creation failure and immediately return the error in the case.
-
-Link: https://lkml.kernel.org/r/20220821180853.2400-1-sj@kernel.org
-Fixes: 75c1c2b53c78 ("mm/damon/dbgfs: support multiple contexts")
-Signed-off-by: Badari Pulavarty <badari.pulavarty@intel.com>
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Cc: <stable@vger.kernel.org>	[ 5.15.x]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/damon/dbgfs.c |    3 +++
- 1 file changed, 3 insertions(+)
-
---- a/mm/damon/dbgfs.c~mm-damon-dbgfs-avoid-duplicate-context-directory-creation
-+++ a/mm/damon/dbgfs.c
-@@ -818,6 +818,9 @@ static int dbgfs_mk_context(char *name)
- 		return -ENOENT;
- 
- 	new_dir = debugfs_create_dir(name, root);
-+	/* Below check is required for a potential duplicated name case */
-+	if (IS_ERR(new_dir))
-+		return PTR_ERR(new_dir);
- 	dbgfs_dirs[dbgfs_nr_ctxs] = new_dir;
- 
- 	new_ctx = dbgfs_new_ctx();
-_
-
-Patches currently in -mm which might be from badari.pulavarty@intel.com are
-
-mm-damon-dbgfs-avoid-duplicate-context-directory-creation.patch
-
+Thanks,
+Qu
