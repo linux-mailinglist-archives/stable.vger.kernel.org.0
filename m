@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E82359BC67
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 061F659BC6B
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:13:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234308AbiHVJMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 05:12:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59550 "EHLO
+        id S234260AbiHVJMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 05:12:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234328AbiHVJMM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:12:12 -0400
+        with ESMTP id S234264AbiHVJM3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:12:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5643A2F67E
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:11:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB732FFC8
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:11:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F6C060EAC
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:11:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 392F4C433D7;
-        Mon, 22 Aug 2022 09:11:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E15F60ED4
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:11:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B96BC43142;
+        Mon, 22 Aug 2022 09:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661159512;
-        bh=lXvfGuI6OPIeUVw0TCOLfzdflQveF5PQdN7eeGRml1Y=;
+        s=korg; t=1661159515;
+        bh=KAdorwAxJ5SGKs3b6EJLl/QB8E0zQ2Kw9250WQnkklM=;
         h=Subject:To:Cc:From:Date:From;
-        b=vpsB+yLvkrjHFRAmaDld6kywQ1XcbtjuppLNsI9eZN5KjXQ9sk5ncX5BDgweBTUX0
-         uuRnrOYN954BX8t90x22otLWPVSK7rXrf1ueqp+Gnjny6gGo1bfWfV4YGjmKMhIib0
-         iJ3mlKVEw51mj9TTmCKdH+wtVaAn4ks8vO+/7CN0=
-Subject: FAILED: patch "[PATCH] ceph: don't truncate file in atomic_open" failed to apply to 5.19-stable tree
+        b=J6/NQ+cCi0fBY6JUU8PPs4AVBVOzEaEBd7kJIdXQ+bTD6NxCTTuw++r45yEIHM0B5
+         yC+xbBm5CdQgzxpAhDl8FasNIDTz0LzT/N/zWVj4aKp6RHfSA+VTv/Vpa/+Gx0Ey8O
+         5r0sI4tS8zPngtymWdhWDEFJIjkVf8+7z67jxo4o=
+Subject: FAILED: patch "[PATCH] ceph: don't truncate file in atomic_open" failed to apply to 5.10-stable tree
 To:     sehuww@mail.scut.edu.cn, idryomov@gmail.com, xiubli@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 11:11:17 +0200
-Message-ID: <1661159477244209@kroah.com>
+Date:   Mon, 22 Aug 2022 11:11:18 +0200
+Message-ID: <166115947813214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
