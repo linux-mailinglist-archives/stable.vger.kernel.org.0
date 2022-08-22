@@ -2,128 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D760C59BAB5
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 09:58:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9372D59BAB9
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233481AbiHVH6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 03:58:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
+        id S232659AbiHVIBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:01:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbiHVH6T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 03:58:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C01CE1BA;
-        Mon, 22 Aug 2022 00:58:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S232273AbiHVIBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:01:14 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530F62AE0D
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:01:13 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 3176833FB1;
+        Mon, 22 Aug 2022 08:01:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1661155271; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9iR9JDfiZS+sETZQtq2cCjhwMQUxIMbVn1N+j9swyY4=;
+        b=vm44TnHAbKagcd3iq76N13V1sYZrQmP7Wt+WjdREDxZJNkd3PTzzUB5D0EqcTOlJ1wmLON
+        SpHMbx/hyik68r/E3cG4nprlVH1C1ZcX2g2n/jsqYX4+X2gRQD0ulsTpS2EOzDhA9VQMUY
+        SJixJ1CdEFlBNlYP0MBZPDfAc6kVu7U=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1661155271;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9iR9JDfiZS+sETZQtq2cCjhwMQUxIMbVn1N+j9swyY4=;
+        b=TITkoQxWSTW3aiml64/iv+ep9USl/hFEL+jhjH0LpvFBYuAnZORPJhAXRcMUFqwTaDGp5i
+        VmhMZDaCtBOh2DBg==
+Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 830E7B80E9E;
-        Mon, 22 Aug 2022 07:58:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C511FC433D6;
-        Mon, 22 Aug 2022 07:58:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661155090;
-        bh=oj7YS48yYvRZgeoU3nxjZEqvfr+ShGiRpCR6wm3JQCU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jJlMWhiK+/vEhIinEYOaB2nPlQ+58o9wKMFI8gHsJQ37q8VpNmZCFNjfAQ678KT1U
-         eJ2XOHpYZc+xv7cxUTOBlBTcZtcNW7+almtJS30xLmTjllSjQgbX5mus3lkapiZTw5
-         KkIIo0PTutgsfJng1/uCBDR5faxv3B/Iov/BIar4=
-Date:   Mon, 22 Aug 2022 09:58:07 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Qu Wenruo <quwenruo.btrfs@gmx.com>
-Cc:     stable <stable@vger.kernel.org>,
-        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-x86_64@vger.kernel.org
-Subject: Re: LTS kernel Linux 4.14.290 unable to boot with edk2-ovmf (x86_64
- UEFI runtime)
-Message-ID: <YwM3DwvPIGkfE4Tu@kroah.com>
-References: <2d6012e8-805d-4225-80ed-d317c28f1899@gmx.com>
- <YwMhXX6OhROLZ/LR@kroah.com>
- <1ed5a33a-b667-0e8e-e010-b4365f3713d6@gmx.com>
- <YwMxRAfrrsPE6sNI@kroah.com>
- <8aff5c17-d414-2412-7269-c9d15f574037@gmx.com>
+        by relay2.suse.de (Postfix) with ESMTPS id 0B5022C141;
+        Mon, 22 Aug 2022 08:01:11 +0000 (UTC)
+Date:   Mon, 22 Aug 2022 10:01:09 +0200
+From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Coiby Xu <coxu@redhat.com>, bhe@redhat.com, will@kernel.org,
+        zohar@linux.ibm.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] arm64: kexec_file: use more system
+ keyrings to verify kernel" failed to apply to 5.15-stable tree
+Message-ID: <20220822080109.GI28810@kitsune.suse.cz>
+References: <16605775859368@kroah.com>
+ <20220818040938.pllzarythgusnyzf@Rk>
+ <Yv+hC9QyHn55uVAo@kroah.com>
+ <YwEl3xUF8mwpuVrB@kroah.com>
+ <20220821072410.GG28810@kitsune.suse.cz>
+ <YwMwhJ1sFJi+/RBj@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <8aff5c17-d414-2412-7269-c9d15f574037@gmx.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YwMwhJ1sFJi+/RBj@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 22, 2022 at 03:49:51PM +0800, Qu Wenruo wrote:
-> 
-> 
-> On 2022/8/22 15:33, Greg KH wrote:
-> > On Mon, Aug 22, 2022 at 03:24:53PM +0800, Qu Wenruo wrote:
-> > > 
-> > > 
-> > > On 2022/8/22 14:25, Greg KH wrote:
-> > > > On Mon, Aug 22, 2022 at 09:15:59AM +0800, Qu Wenruo wrote:
-> > > > > Hi,
+On Mon, Aug 22, 2022 at 09:30:12AM +0200, Greg KH wrote:
+> On Sun, Aug 21, 2022 at 09:24:10AM +0200, Michal Suchánek wrote:
+> > On Sat, Aug 20, 2022 at 08:20:15PM +0200, Greg KH wrote:
+> > > On Fri, Aug 19, 2022 at 04:41:15PM +0200, Greg KH wrote:
+> > > > On Thu, Aug 18, 2022 at 12:09:38PM +0800, Coiby Xu wrote:
+> > > > > Hi Greg,
 > > > > > 
-> > > > > When backporting some btrfs specific patches to all LTS kernels, I found
-> > > > > v4.14.290 kernel unable to boot as a KVM guest with edk2-ovmf
-> > > > > (edk2-ovmf: 202205, qemu 7.0.0, libvirt 1:8.6.0).
+> > > > > This patch depends on three prerequisites. This full list of commit ids
+> > > > > should be backported is shown below,
 > > > > > 
-> > > > > While all other LTS/stable branches (4.19.x, 5.4.x, 5.10.x, 5.15.x,
-> > > > > 5.18.x, 5.19.x) can boot without a hipccup.
+> > > > > 1. 65d9a9a60fd7 ("kexec_file: drop weak attribute from functions")
+> > > > > 2. 689a71493bd2 ("kexec: clean up arch_kexec_kernel_verify_sig")
+> > > > > 3. c903dae8941d ("kexec, KEYS: make the code in bzImage64_verify_sig generic")
+> > > > > 4. 0d519cadf751 ("arm64: kexec_file: use more system keyrings to verify kernel image signature")
 > > > > > 
-> > > > > I tried the following configs, but none of them can even provide an
-> > > > > early output:
-> > > > > 
-> > > > > - CONFIG_X86_VERBOSE_BOOTUP
-> > > > > - CONFIG_EARLY_PRINTK
-> > > > > - CONFIG_EARLY_PRINTK_EFI
-> > > > > 
-> > > > > Is this a known bug or something new?
+> > > > > And I can confirm they can be applied to linux-5.15.y branch
+> > > > > successfully,
+> > > > >     $ git checkout -b arm_key_5.15.y stable/linux-5.15.y
+> > > > >     branch 'arm_key_5.15.y' set up to track 'stable/linux-5.15.y'.
+> > > > >     Switched to a new branch 'arm_key_5.15.y'
+> > > > >     $ git cherry-pick 65d9a9a60fd7 689a71493bd2 c903dae8941d 0d519cadf751
+> > > > >     Auto-merging arch/arm64/include/asm/kexec.h
+> > > > >     Auto-merging arch/powerpc/include/asm/kexec.h
+> > > > >     Auto-merging arch/s390/include/asm/kexec.h
+> > > > >     Auto-merging arch/x86/include/asm/kexec.h
+> > > > >     Auto-merging include/linux/kexec.h
+> > > > >     Auto-merging kernel/kexec_file.c
+> > > > >     [arm_key_5.15.y 7c7844771360] kexec_file: drop weak attribute from functions
+> > > > >      Author: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+> > > > >      Date: Fri Jul 1 13:04:04 2022 +0530
+> > > > >      6 files changed, 61 insertions(+), 40 deletions(-)
+> > > > >     Auto-merging include/linux/kexec.h
+> > > > >     Auto-merging kernel/kexec_file.c
+> > > > >     [arm_key_5.15.y 4283e2681d86] kexec: clean up arch_kexec_kernel_verify_sig
+> > > > >      Date: Thu Jul 14 21:40:24 2022 +0800
+> > > > >      2 files changed, 13 insertions(+), 25 deletions(-)
+> > > > >     Auto-merging include/linux/kexec.h
+> > > > >     Auto-merging kernel/kexec_file.c
+> > > > >     [arm_key_5.15.y c0cf50b9056f] kexec, KEYS: make the code in bzImage64_verify_sig generic
+> > > > >      Date: Thu Jul 14 21:40:25 2022 +0800
+> > > > >      3 files changed, 25 insertions(+), 19 deletions(-)
+> > > > >     [arm_key_5.15.y 40b98256cb89] arm64: kexec_file: use more system keyrings to verify kernel image signature
+> > > > >      Date: Thu Jul 14 21:40:26 2022 +0800
+> > > > >      1 file changed, 1 insertion(+), 10 deletions(-)
 > > > > 
-> > > > Has this ever worked properly on this very old kernel tree?  If so, can
-> > > > you use 'git bisect' to find the offending commit?
+> > > > thanks, now queued up.
 > > > 
-> > > Unfortunately the initial v4.14 from upstream can not even be compiled.
+> > > Nope, it causes build breakages in powerpc :(
+> > s390
+> > > 
+> > > See:
+> > > 	https://lore.kernel.org/r/YwC6eQjx8xC9y3LD@debian
+> > > and
+> > > 	https://lore.kernel.org/r/CA+G9fYtXnZP2vdAi4eU_ApC_YFz6TqTd6Eh5Mumb2=0Y_dK5Yw@mail.gmail.com
+> > > 
+> > > for the reports.  I'm dropping these from 5.15.y now, please fix this up
+> > > and resend if you want them included.
 > > 
-> > Really?  Try using an older version of gcc and you should be fine.  It
-> > did build properly back in 2017 when it was released :)
+> > The offending function was removed in 5.16 by
+> > commit 277c8389386e ("s390/kexec_file: move kernel image size check")
 > 
-> Yeah, I'm pretty sure my toolchain is too new for v4.14.0. But my distro
-> only provides the latest and mostly upstream packages.
-> 
-> It may be a even worse disaster to find a way to rollback to older
-> toolchains using my distro...
-> 
-> Also my hardware may not be well suited for older kernels either.
-> (Zen 3 CPU used here)
-> 
-> In fact, I even find it hard just to locate a v4.14.x tag that can compile.
-> After some bisection between v4.14.x tags, only v4.14.268 and newer tags
-> can even be compiled using latest toolchain.
-> (But still tons of warning, and tons of objdump warnings against
-> insn_get_length()).
-> 
-> I'm not sure what's the normal practice for backports to such old branch.
-> 
-> Do you stable guys keep dedicated VMs loaded with older distro just for
-> these old branches?
+> Great, then someone needs to send me a backported, and tested, set of
+> patches and I will be glad to queue them up.
 
-I don't, that's why those kernels can be built with newer versions of
-gcc.
+It would apply cleanly to 5.15 if it weren't for previous backport of
 
-Your distro should have a version of gcc-10 or gcc-9 that can be
-installed, right?  Or maybe use the gcc versions on kernel.org that only
-work for kernel builds?
+commit 4aa9340584e3 ("s390/kexec: fix memory leak of ipl report buffer")
 
-> If so, any recommendation on those kinda retro distro?
+adds a function below the one that's supposed to be removed.
 
-Try installing an old version of Debian, or better yet, use a distro
-that provides old versions of gcc :)
+Thanks
 
-good luck!
-
-greg k-h
+Michal
