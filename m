@@ -2,92 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 994B959BB90
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:28:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4289159BB95
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:29:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233135AbiHVI2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33836 "EHLO
+        id S232024AbiHVI2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:28:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233411AbiHVI2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:28:25 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816E6B7C9;
-        Mon, 22 Aug 2022 01:28:18 -0700 (PDT)
-Received: from zn.tnic (p200300ea971b9882329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:971b:9882:329c:23ff:fea6:a903])
+        with ESMTP id S233411AbiHVI2m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:28:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6122CE33
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:28:40 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E8CAA1EC04DA;
-        Mon, 22 Aug 2022 10:28:12 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1661156893;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=3t9+6nfiuQKFvxF6QSwH6wfi0OEdPc0eB0BQ88sluiw=;
-        b=LBTgUcDzl5EdkYRDDlSD9fBZ0rURljXWITRA9M9N8bU0uOJgF0ELIcgHu1BNxGDLbs8SjS
-        rzXJHZvhI0nkzVUuapeB4U5odChwEb15KS+ReeR2th/1wYx7PdbXEUpL1kh3/p9CNFT3dm
-        aQbFCNV0IyjQbUqZostPTwFiS+hKwUg=
-Date:   Mon, 22 Aug 2022 10:28:08 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Juergen Gross <jgross@suse.com>
-Cc:     xen-devel@lists.xenproject.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 01/10] x86/mtrr: fix MTRR fixup on APs
-Message-ID: <YwM+GPu8hFowl2R7@zn.tnic>
-References: <20220820092533.29420-1-jgross@suse.com>
- <20220820092533.29420-2-jgross@suse.com>
- <YwIkV7mYAC4Ebbwb@zn.tnic>
- <YwKmcFuKlq3/MzVi@zn.tnic>
- <f205da1c-db33-299c-5fc6-922a8ebd1983@suse.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39FA96103F
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:28:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 216CCC433D6;
+        Mon, 22 Aug 2022 08:28:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661156919;
+        bh=wfoDUCxyG0rr9PZ+bEfQm7Iri/aFl9Wlbn6X/S1Yt/Y=;
+        h=Subject:To:Cc:From:Date:From;
+        b=EC+ymdhnLn7sUppMjGjAlkT7M0Sm9Y3tUMk9fLrct5E4e3d/G9khw4wmRmzl3PIkJ
+         ebuiF9YxYM1Y3pFw25xKrHQoCgO+1eh70aPTG++CulJrCN3piobmVvlNNC2n3WI/a5
+         WCRYYQXbn0IFm1meWr7N4QEHrWNWCsvkKJRHFgo4=
+Subject: FAILED: patch "[PATCH] can: mcp251x: Fix race condition on receive interrupt" failed to apply to 4.19-stable tree
+To:     sebastian.wuerl@ororatech.com, mkl@pengutronix.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Aug 2022 10:28:36 +0200
+Message-ID: <1661156916141207@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <f205da1c-db33-299c-5fc6-922a8ebd1983@suse.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 22, 2022 at 07:17:40AM +0200, Juergen Gross wrote:
-> And then there is mtrr_state_warn() in arch/x86/kernel/cpu/mtrr/generic.c
-> which has a comment saying:
-> 
-> /* Some BIOS's are messed up and don't set all MTRRs the same! */
 
-That thing also says:
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-        pr_info("mtrr: probably your BIOS does not setup all CPUs.\n");
-        pr_info("mtrr: corrected configuration.\n");
+thanks,
 
-because it'll go and force on all CPUs the MTRR state it read from the
-BSP in mtrr_bp_init->get_mtrr_state.
+greg k-h
 
-> Yes, the chances are slim to hit such a box,
+------------------ original commit in Linus's tree ------------------
 
-Well, my workstation says:
+From d80d60b0db6ff3dd2e29247cc2a5166d7e9ae37e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20W=C3=BCrl?= <sebastian.wuerl@ororatech.com>
+Date: Thu, 4 Aug 2022 10:14:11 +0200
+Subject: [PATCH] can: mcp251x: Fix race condition on receive interrupt
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-$ dmesg | grep -i mtrr
-[    0.391514] mtrr: your CPUs had inconsistent variable MTRR settings
-[    0.395199] mtrr: probably your BIOS does not setup all CPUs.
-[    0.399199] mtrr: corrected configuration.
+The mcp251x driver uses both receiving mailboxes of the CAN controller
+chips. For retrieving the CAN frames from the controller via SPI, it checks
+once per interrupt which mailboxes have been filled and will retrieve the
+messages accordingly.
 
-but that's the variable MTRRs.
+This introduces a race condition, as another CAN frame can enter mailbox 1
+while mailbox 0 is emptied. If now another CAN frame enters mailbox 0 until
+the interrupt handler is called next, mailbox 0 is emptied before
+mailbox 1, leading to out-of-order CAN frames in the network device.
 
-> but your reasoning suggests I should remove the related code?
+This is fixed by checking the interrupt flags once again after freeing
+mailbox 0, to correctly also empty mailbox 1 before leaving the handler.
 
-My reasoning says you should not do anything at all here - works as
-advertized. :-)
+For reproducing the bug I created the following setup:
+ - Two CAN devices, one Raspberry Pi with MCP2515, the other can be any.
+ - Setup CAN to 1 MHz
+ - Spam bursts of 5 CAN-messages with increasing CAN-ids
+ - Continue sending the bursts while sleeping a second between the bursts
+ - Check on the RPi whether the received messages have increasing CAN-ids
+ - Without this patch, every burst of messages will contain a flipped pair
 
--- 
-Regards/Gruss,
-    Boris.
+v3: https://lore.kernel.org/all/20220804075914.67569-1-sebastian.wuerl@ororatech.com
+v2: https://lore.kernel.org/all/20220804064803.63157-1-sebastian.wuerl@ororatech.com
+v1: https://lore.kernel.org/all/20220803153300.58732-1-sebastian.wuerl@ororatech.com
 
-https://people.kernel.org/tglx/notes-about-netiquette
+Fixes: bf66f3736a94 ("can: mcp251x: Move to threaded interrupts instead of workqueues.")
+Signed-off-by: Sebastian Würl <sebastian.wuerl@ororatech.com>
+Link: https://lore.kernel.org/all/20220804081411.68567-1-sebastian.wuerl@ororatech.com
+[mkl: reduce scope of intf1, eflag1]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+
+diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
+index e750d13c8841..c320de474f40 100644
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -1070,9 +1070,6 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
+ 
+ 		mcp251x_read_2regs(spi, CANINTF, &intf, &eflag);
+ 
+-		/* mask out flags we don't care about */
+-		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
+-
+ 		/* receive buffer 0 */
+ 		if (intf & CANINTF_RX0IF) {
+ 			mcp251x_hw_rx(spi, 0);
+@@ -1082,6 +1079,18 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
+ 			if (mcp251x_is_2510(spi))
+ 				mcp251x_write_bits(spi, CANINTF,
+ 						   CANINTF_RX0IF, 0x00);
++
++			/* check if buffer 1 is already known to be full, no need to re-read */
++			if (!(intf & CANINTF_RX1IF)) {
++				u8 intf1, eflag1;
++
++				/* intf needs to be read again to avoid a race condition */
++				mcp251x_read_2regs(spi, CANINTF, &intf1, &eflag1);
++
++				/* combine flags from both operations for error handling */
++				intf |= intf1;
++				eflag |= eflag1;
++			}
+ 		}
+ 
+ 		/* receive buffer 1 */
+@@ -1092,6 +1101,9 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
+ 				clear_intf |= CANINTF_RX1IF;
+ 		}
+ 
++		/* mask out flags we don't care about */
++		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
++
+ 		/* any error or tx interrupt we need to clear? */
+ 		if (intf & (CANINTF_ERR | CANINTF_TX))
+ 			clear_intf |= intf & (CANINTF_ERR | CANINTF_TX);
+
