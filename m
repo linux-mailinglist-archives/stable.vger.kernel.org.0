@@ -2,102 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B7659C3E0
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 18:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4C2A59C423
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 18:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233351AbiHVQRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 12:17:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33048 "EHLO
+        id S236336AbiHVQbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 12:31:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236091AbiHVQRb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 12:17:31 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C084356DC
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:17:29 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S237073AbiHVQaf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 12:30:35 -0400
+X-Greylist: delayed 3683 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 22 Aug 2022 09:30:34 PDT
+Received: from yamato.tf-network.de (mailstorage3.tf-network.de [IPv6:2001:4ba0:ffa0:1b::d2:221])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9214198D
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:30:34 -0700 (PDT)
+Received: from amavis3.tf-network.de ([IPv6:2001:4ba0:ffa0:1b::d1:221])
+        by yamato.tf-network.de (Postfix) with ESMTP id 4MBHsN5fF3z442N;
+        Mon, 22 Aug 2022 18:30:32 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at amavis3.tf-network.de
+Received: from smtp.tf-network.de ([93.186.202.221])
+        by amavis3.tf-network.de ([IPv6:2001:4ba0:ffa0:1b::d1:221]) (amavisd-new, port 10024)
+        with LMTP id rjkh0D8jHqOy; Mon, 22 Aug 2022 18:30:32 +0200 (CEST)
+Received: from [10.1.0.10] (xdsl-213-196-226-148.nc.de [213.196.226.148])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 72937CE137A
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 16:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE6F8C433C1;
-        Mon, 22 Aug 2022 16:17:24 +0000 (UTC)
-Date:   Mon, 22 Aug 2022 12:17:40 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     <gregkh@linuxfoundation.org>
-Cc:     akpm@linux-foundation.org, mhiramat@kernel.org, mingo@kernel.org,
-        tz.stoyanov@gmail.com, zanussi@kernel.org, <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] tracing/probes: Have kprobes and uprobes
- use $COMM too" failed to apply to 5.10-stable tree
-Message-ID: <20220822121740.03e5c1c9@gandalf.local.home>
-In-Reply-To: <166115335415514@kroah.com>
-References: <166115335415514@kroah.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        by smtp.tf-network.de (Postfix) with ESMTPSA id 4MBHsN0q2Sz442L;
+        Mon, 22 Aug 2022 18:30:32 +0200 (CEST)
+Message-ID: <4f69659f-7160-7854-0ed5-6867e3eb2edb@whissi.de>
+Date:   Mon, 22 Aug 2022 18:30:31 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.1.2
+Subject: Re: [REGRESSION] v5.17-rc1+: FIFREEZE ioctl system call hangs
+Content-Language: en-US
+From:   Thomas Deutschmann <whissi@whissi.de>
+To:     Song Liu <song@kernel.org>
+Cc:     Vishal Verma <vverma@digitalocean.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        Jens Axboe <axboe@kernel.dk>
+References: <000401d8a746$3eaca200$bc05e600$@whissi.de>
+ <000001d8ad7e$c340ad70$49c20850$@whissi.de>
+ <2a2d1075-aa22-8c4d-ca21-274200dce2fc@leemhuis.info>
+ <0FBCAB10-545E-45E2-A0C8-D7620817651D@digitalocean.com>
+ <CAPhsuW5f9QD+gzJ9eBhn5irsHvrsvkWjSnA4MPaHsQjjLMypXg@mail.gmail.com>
+ <43e678ca-3fc3-6c08-f035-2c31a34dd889@whissi.de>
+ <701f3fc0-2f0c-a32c-0d41-b489a9a59b99@whissi.de>
+ <0192a465-d75d-c09a-732a-eb2215bf3479@whissi.de>
+ <CAPhsuW6yLLcj3GtA+4mUFooQmfGo3cVTYn-xBEY2KuP1wwmQNA@mail.gmail.com>
+ <b903abd4-d101-e6a5-06a0-667853286308@whissi.de>
+In-Reply-To: <b903abd4-d101-e6a5-06a0-667853286308@whissi.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,KHOP_HELO_FCRDNS,
+        NICE_REPLY_A,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Below is the backport to 5.10 and 5.4.
+Hi,
 
--- Steve
+I can now reproduce using fio:
 
------------------- original commit in Linus's tree ------------------
+I looked around in MariaDB issue tracker and found 
+https://jira.mariadb.org/browse/MDEV-26674 which lead me to 
+https://github.com/MariaDB/server/commit/de7db5517de11a58d57d2a41d0bc6f38b6f92dd8 
+-- it's a conditional based on $KV and I hit that kernel regression 
+during one of my bisect attempts (see 
+https://lore.kernel.org/all/701f3fc0-2f0c-a32c-0d41-b489a9a59b99@whissi.de/).
 
->From ab8384442ee512fc0fc72deeb036110843d0e7ff Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Date: Sat, 20 Aug 2022 09:43:21 -0400
-Subject: [PATCH] tracing/probes: Have kprobes and uprobes use $COMM too
+Setting innodb_use_native_aio=OFF will prevent the problem.
 
-Both $comm and $COMM can be used to get current->comm in eprobes and the
-filtering and histogram logic. Make kprobes and uprobes consistent in this
-regard and allow both $comm and $COMM as well. Currently kprobes and
-uprobes only handle $comm, which is inconsistent with the other utilities,
-and can be confusing to users.
+This helped me to find https://github.com/axboe/fio/issues/1195 so I now 
+have a working reproducer for fio.
 
-Link: https://lkml.kernel.org/r/20220820134401.317014913@goodmis.org
-Link: https://lore.kernel.org/all/20220820220442.776e1ddaf8836e82edb34d01@kernel.org/
+   $ cat reproducer.fio
+   [global]
+   direct=1
+   thread=1
+   norandommap=1
+   group_reporting=1
+   time_based=1
+   ioengine=io_uring
 
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
-Cc: Tom Zanussi <zanussi@kernel.org>
-Fixes: 533059281ee5 ("tracing: probeevent: Introduce new argument fetching code")
-Suggested-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+   rw=randwrite
+   bs=4096
+   runtime=20
+   numjobs=1
+   fixedbufs=1
+   hipri=1
+   registerfiles=1
+   sqthread_poll=1
 
----
- kernel/trace/trace_probe.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Index: linux-test.git/kernel/trace/trace_probe.c
-===================================================================
---- linux-test.git.orig/kernel/trace/trace_probe.c	2022-08-22 11:11:31.068828616 -0400
-+++ linux-test.git/kernel/trace/trace_probe.c	2022-08-22 11:13:36.916829113 -0400
-@@ -300,7 +300,7 @@ static int parse_probe_vars(char *arg, c
- 			}
- 		} else
- 			goto inval_var;
--	} else if (strcmp(arg, "comm") == 0) {
-+	} else if (strcmp(arg, "comm") == 0 || strcmp(arg, "COMM") == 0) {
- 		code->op = FETCH_OP_COMM;
- #ifdef CONFIG_HAVE_FUNCTION_ARG_ACCESS_API
- 	} else if (((flags & TPARG_FL_MASK) ==
-@@ -595,7 +595,8 @@ static int traceprobe_parse_probe_arg_bo
- 	 * Since $comm and immediate string can not be dereferred,
- 	 * we can find those by strcmp.
- 	 */
--	if (strcmp(arg, "$comm") == 0 || strncmp(arg, "\\\"", 2) == 0) {
-+	if (strcmp(arg, "$comm") == 0 || strcmp(arg, "$COMM") == 0 ||
-+	    strncmp(arg, "\\\"", 2) == 0) {
- 		/* The type of $comm must be "string", and not an array. */
- 		if (parg->count || (t && strcmp(t, "string")))
- 			return -EINVAL;
+   [filename0]
+   directory=/srv/machines/fio
+   size=200M
+   iodepth=1
+   cpus_allowed=20
+
+
+...now call fio like "fio reproducer.fio". After one successful fio run, 
+fsfreeze will already hang for me.
+
+
+-- 
+Regards,
+Thomas
