@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E7D059BC0E
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:52:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D13459BC0B
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:52:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233841AbiHVIvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:51:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33368 "EHLO
+        id S233801AbiHVIvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:51:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232555AbiHVIvo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:51:44 -0400
+        with ESMTP id S233798AbiHVIvv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:51:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED9F17061
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:51:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C86A65D8
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:51:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D54D0B80EDE
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:51:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DCB0C43470;
-        Mon, 22 Aug 2022 08:51:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A26ADB80EDB
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:51:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D486DC433C1;
+        Mon, 22 Aug 2022 08:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661158300;
-        bh=8V2XbWlNgx4aC7cLaf4DUPq0eH2dX3t5Bep92Xjdvn0=;
+        s=korg; t=1661158307;
+        bh=gb35oGYinDLPkwr1gNwOwP/CSanVuwRkI1a1veq1nx4=;
         h=Subject:To:Cc:From:Date:From;
-        b=Z/ES6RWKzrZfIxLj9A9hWyy8aIuFMhORzWGjvo95LZd+emsXneytlQapihnowAoKC
-         VXQ6x1FDf6xwakwt6B1GcZYceC5U77zY4YZGMcLuPT6MSh/bm7p8xKMLWyZuelJQKL
-         YRgGmnZAYxXKm6BMMuUOzSCCcOiAUs7aqXuyGZCo=
-Subject: FAILED: patch "[PATCH] vxlan: do not use RT_TOS for IPv6 flowlabel" failed to apply to 4.9-stable tree
+        b=Y/XdaRytpRVVe65AT9+RZrNjUg6SAs9t4Ffp75Maopmd+5ewzING72EEE+NZ6k73y
+         48cLhhXezKeYfFMysjSkvZ9XFdooW5PjbkrxmFq5FNnErXBqx5shNFqeFaz8ZPBICz
+         lyfONz6BXA85HzUOjbRML88rRuefeEPUYaENUXoE=
+Subject: FAILED: patch "[PATCH] mlx5: do not use RT_TOS for IPv6 flowlabel" failed to apply to 5.10-stable tree
 To:     matthias.may@westermo.com, gnault@redhat.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 10:51:28 +0200
-Message-ID: <16611582881125@kroah.com>
+Date:   Mon, 22 Aug 2022 10:51:40 +0200
+Message-ID: <16611583003063@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,10 +59,10 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e488d4f5d6e4cd1e728ba4ddbdcd7ef5f4d13a21 Mon Sep 17 00:00:00 2001
+From bcb0da7fffee9464073998b267ce5543da2356d2 Mon Sep 17 00:00:00 2001
 From: Matthias May <matthias.may@westermo.com>
-Date: Fri, 5 Aug 2022 21:19:04 +0200
-Subject: [PATCH] vxlan: do not use RT_TOS for IPv6 flowlabel
+Date: Fri, 5 Aug 2022 21:19:05 +0200
+Subject: [PATCH] mlx5: do not use RT_TOS for IPv6 flowlabel
 
 According to Guillaume Nault RT_TOS should never be used for IPv6.
 
@@ -76,22 +76,31 @@ But using RT_TOS() in IPv6 code is always a bug: IPv6 never had a "TOS"
 field to be interpreted the RFC 1349 way. There's no historical
 compatibility to worry about.
 
-Fixes: 1400615d64cf ("vxlan: allow setting ipv6 traffic class")
+Fixes: ce99f6b97fcd ("net/mlx5e: Support SRIOV TC encapsulation offloads for IPv6 tunnels")
 Acked-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: Matthias May <matthias.may@westermo.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
-index 90811ab851fd..c3285242f74f 100644
---- a/drivers/net/vxlan/vxlan_core.c
-+++ b/drivers/net/vxlan/vxlan_core.c
-@@ -2321,7 +2321,7 @@ static struct dst_entry *vxlan6_get_route(struct vxlan_dev *vxlan,
- 	fl6.flowi6_oif = oif;
- 	fl6.daddr = *daddr;
- 	fl6.saddr = *saddr;
--	fl6.flowlabel = ip6_make_flowinfo(RT_TOS(tos), label);
-+	fl6.flowlabel = ip6_make_flowinfo(tos, label);
- 	fl6.flowi6_mark = skb->mark;
- 	fl6.flowi6_proto = IPPROTO_UDP;
- 	fl6.fl6_dport = dport;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
+index d87bbb0be7c8..e6f64d890fb3 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
+@@ -506,7 +506,7 @@ int mlx5e_tc_tun_create_header_ipv6(struct mlx5e_priv *priv,
+ 	int err;
+ 
+ 	attr.ttl = tun_key->ttl;
+-	attr.fl.fl6.flowlabel = ip6_make_flowinfo(RT_TOS(tun_key->tos), tun_key->label);
++	attr.fl.fl6.flowlabel = ip6_make_flowinfo(tun_key->tos, tun_key->label);
+ 	attr.fl.fl6.daddr = tun_key->u.ipv6.dst;
+ 	attr.fl.fl6.saddr = tun_key->u.ipv6.src;
+ 
+@@ -620,7 +620,7 @@ int mlx5e_tc_tun_update_header_ipv6(struct mlx5e_priv *priv,
+ 
+ 	attr.ttl = tun_key->ttl;
+ 
+-	attr.fl.fl6.flowlabel = ip6_make_flowinfo(RT_TOS(tun_key->tos), tun_key->label);
++	attr.fl.fl6.flowlabel = ip6_make_flowinfo(tun_key->tos, tun_key->label);
+ 	attr.fl.fl6.daddr = tun_key->u.ipv6.dst;
+ 	attr.fl.fl6.saddr = tun_key->u.ipv6.src;
+ 
 
