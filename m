@@ -2,74 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3DC659BB23
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:14:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65ABE59BB3D
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:21:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232048AbiHVINM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:13:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43080 "EHLO
+        id S232398AbiHVIUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:20:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231278AbiHVINL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:13:11 -0400
+        with ESMTP id S232606AbiHVIUS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:20:18 -0400
 Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F9961001;
-        Mon, 22 Aug 2022 01:13:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 875B81EAF8;
+        Mon, 22 Aug 2022 01:20:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1661155988;
-        bh=VF47xpSy5FMXLFoHD4vWRnBzqe4OlQT5XGbK7tkpYXU=;
+        s=badeba3b8450; t=1661156394;
+        bh=oiwA1zgV4w9lXHIksAJ9fEf2oEdi2urzdwuD2s8uYaw=;
         h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=IVQw/rdTWqU73uPZgM+iIdgxTLOl++xT82L4OfB9UYPsnw0lKlNc+xOpoRLuT4Vdp
-         H/5zYEWDEGOr/st/28+/t8Z3KMeE0XrWd650BAx26xzSpE0DLsCH8/OjiebSUdn0yg
-         +XiMw+YtJ+hqyC6ZLsKaSS+KHu5mhoVf0qoDCK38=
+        b=DrFEypzdgHBBjlJMJcZ4/7qZwKFfnSjsL7WH9iZMQdofHyELeIAZwhZ+satOoChre
+         N8716Y/VEl0++jxzvQFd82jryrYH0s0LRAy5GgVeBYXmH65mgG1j741e5rVhsTj+UB
+         ikenmpgRD/h7gBI4muOXcS76vRwPb2cWsB9hCLBQ=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx104
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1MhD2Y-1p3Cmv0A5q-00eJ17; Mon, 22
- Aug 2022 10:13:08 +0200
-Message-ID: <acc6051b-748f-4f06-63b3-919eb831217c@gmx.com>
-Date:   Mon, 22 Aug 2022 16:13:03 +0800
+Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx105
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1MTiPl-1otUIe0o6n-00U45U; Mon, 22
+ Aug 2022 10:19:54 +0200
+Message-ID: <4c42af33-dc05-315a-87d9-be0747a74df4@gmx.com>
+Date:   Mon, 22 Aug 2022 16:19:49 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.12.0
 Subject: Re: LTS kernel Linux 4.14.290 unable to boot with edk2-ovmf (x86_64
  UEFI runtime)
 Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>,
+To:     Willy Tarreau <w@1wt.eu>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
         "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-x86_64@vger.kernel.org
 References: <2d6012e8-805d-4225-80ed-d317c28f1899@gmx.com>
  <YwMhXX6OhROLZ/LR@kroah.com> <1ed5a33a-b667-0e8e-e010-b4365f3713d6@gmx.com>
  <YwMxRAfrrsPE6sNI@kroah.com> <8aff5c17-d414-2412-7269-c9d15f574037@gmx.com>
- <YwM3DwvPIGkfE4Tu@kroah.com>
+ <20220822080456.GB17080@1wt.eu>
 From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <YwM3DwvPIGkfE4Tu@kroah.com>
+In-Reply-To: <20220822080456.GB17080@1wt.eu>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:sa08DhrSOFunKMqMAgmYyystR5b0QdhInYEnY/iilAcBcCRmr2O
- jULTD4n6NLrmyiBAHcczjIeXmmZyQQEEYMpjNLtb3WX3FsNCh21G++VRWgbYEL3tStNSTM9
- UxmyS3XTy2TxMjvjkp3MHhjyypzKX0n1od5cEx/mhrCoFioEHH+IQ/8Hyd482bazh50ZkOs
- WKW1E0ma9g1teivfwu3BA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:7v3WyKqh90c=:vfXhF5ASvCGzNdxahB2n72
- LRcZIHkygQ2OHfY9TL5uMPjXFJcgmh4FgtaM+CqeqSeDBh4nGzHNjRl/qjoXCtFK8jAsy/tCC
- zgIs/D5uSHKMrW36u4g/Lsv3pDcH/0ER0ZT82VIMo3eVGcBZr5a1x3/eKcm3cA3Y5zOxlLtTC
- WRVk2//VvPhK9MOYe6/1XwHE40O4sIE2RrhR5t04yJLRZtniVlKnVPaVNuu1n6y70UYap59r/
- tZg4JSMDsaCc/VHllbL5PXt+xGfPQPKdGr76c8hAPdvq4miC1NTs9qo1Ut40GrbUdI4xRD9vQ
- lxUAjOtGC8O1euDaPPnJjN3ms/nFxkNdHIcBmX3ddE+FLCyCfpw0Ms1bLrRIFJlzxjK6CLZvW
- t6Zm6UTufgmZCYZ1/e//rzw3DWDU+7KFT7xOZXoIpkLxOe981HQ9cXkNYTxgZRSYGCRtQFKAN
- y0FJ9dC8iOvuXBY3x85f7e6LPcoian2xnIiJbfxPlBREeY2VGMuBXF2Ef5ktJlb5qYX+6clfm
- 6o0La93oz+hbQ/+Aeb5RebE6tXaVpJndZ2qCE4T3Oun62GjgpTBHYpbF1NKEb+eHjwtcXbCZm
- XidrB6bmWwcQ8yxuhDq2zZpA8HwBE57wuvBIWGlVwYdSFdqZ/kIuIJmYTl6RcmBVb6B1U7pZ2
- FnHvfpJ5N2pJx+T2UslFJEqDVSQPkW/3sgV7WviVCCbE6ffi0JPGLrqyo7wfQMGh/T2zaKiQs
- pRL33l6HCvgnm6xYV8Ma1RT98BMb59AAvw+YaEh2TrKRNFrLEAW1Yfgg39v49/2sGtAcs1BgC
- kjbeZ+GF8/vPR5T8JYZ6e9sZC1i5ypfTOyjNy/EDaMs/dwLLx7hBjkmhRCJ6OHCZ0/GuBnUim
- ZnDfGZL89TWkkpbKl0x5D2Bm+8XvXicMj/vGSZDcTZhcRXiXmveZfWwcVENdzB4cT65YY9iT8
- aNCsM3AhDcRP7T6oaxoJ/FWtj0h8Ckm5PMv9F2qQsDYNVAbXo5TDbQic765Y/WMrJLSDhQhvy
- bv0msPgdcpZBeSXppWWLlpmeihOZCuBWF8chaYL6sc2ziJY7PU2W7hk2dtqy7Sr31rl9kkGoq
- S81hIZJWwvrWthoeX7x4MUv6bX2ZJDLWPvcvAjPTUtVuh0N6QaZt1EU7oqTe0pxsKZiuncabl
- peaxYYx6i9YSg6Uye69xXyUcNqXeqzFAEbCF7oBBwqodk9v6Gyg2NLxC++6BDuVlmgf0oemkJ
- lPiGP+eT2yoJZn4l1+gRG1C622VUpAS7g1oLsCd7Yywen8JCb0chf6/P2iU2qeekmINa8atdl
- 7Rj7xICUyqs3mJBFfxCBN9g1RDXFuA==
+X-Provags-ID: V03:K1:izlLQSna+6slNPoEw8Xfs35Mfte2/o3TebxKsezXSd36johbDVE
+ Bg0kA7Csd2uTWS1tlERVenoDxKOUkRL7KqpUPQaHk7d4z2pj5rof1bMs6eZ/mOQxGOsAS/2
+ qLz5s7CwlwgXD3sWZX9HYjpJQc0YGGYm9n4e24yrceDHc4yQTbdDBOL1+FWuKQIJ4Vvsdc7
+ 9a+dq+VM0BpC/VikpaWQQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:ibKqMWTVe/I=:U/SWRDw6M8N8u1siJyWI/6
+ KIwa8Mj+QW92GX7fy7blxIATs1e9cTtTQe2VWE8HLLXsy+8uQHIeEbgpjqe3gH5HBRCnW7AMJ
+ qHKRfAVWenhG5vLsVbXKRlr6VDGeor6m8XhNdoMoudQJNlZu3Fkvf3fZlJYF2P7jdZ6q/1GBR
+ wvG1vmwyVDwCSLsE67DK3ztLt4dBNgXCIHzFj0OIloNq37KfFuHXOa/bz+bL1oMZh/uICFFpV
+ FB/k++snyloDq+JnfyV9kH5/HFXrkcF+0JUBQsvrCjEDLfNuXszR3GgmhqAfbd2d5wxHtHybT
+ SM6n+rFG4q+XLW+dmqBLkelOmgQPtpB83yr0J25v+doPI6im0vpYQEq871LWc97DFWxa+WAgv
+ vVEZeG7jNCsfZ0/wx+eEsVJbLPaxklLquWFQisHlwLCkpIc3fCrLLHA04zCX8Na8Sktw0grrM
+ arSfHEFl6/6ZQoAfoX4hCjpismWR6ZEdCZWGpqgfh/3ETq0mzxfJegehJhHwsPy3/oi2o3mF6
+ tJrBoJjF4WEYqu0anQHFTNR7QHsdEqQOUYYTiyQKahQHzWTm5/rWCWdZNStV+qSv95UXwQ4YP
+ 6nzOwiPOSfjBit6iLQBxIxqvJV/Gms2A5Itf9twumchcn4Jxjr0ff40rIwPQJgwVkuDH9iDMj
+ RyK/olCGgD7LnOHx/SAf/aXZw4fCB9sG/3BQyQ8uvI1XZ1j8K98YFUwqY2Q9CIFlMvnNfhxgr
+ Tw9HPhNAE4xhIUOZoKr70XiAFfl0xNLBK3roM0U0OitqubKxcQJx2+DRrwkEnAFLmzyiCFEiT
+ VerHRS+7yPHCMEOcNONYvT/qylWawp/QVFYNYWvOmLlQbsIyLIvfcgvzVvi0oVz6Y2vCfSCo7
+ YptwIv6JfBBL6Tvv5pdh8UEJJjXVGk12Xs94FDG4oNN7+ZRaMglO9KVhLyelSL35SFI58D/GX
+ npde9B6k+q7neDS8w7em+WitEVDJSVlMXZBS4nkxIdX1bjLT3YF2liBghmIn6AKjX7kKNVopb
+ kBEOkZSaKoJJyEE+XcW9V08YPXkLeHJ7fB5qUV/NAu4iFmaVG4lUMlNt2EXCve93E9ymY7Tw3
+ OyoJ3QuxFs4aXRMaDatz0Nrjhx+MwZhNS9C50+/g+3Y3D/IXDz1LuSCXQ==
 X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -82,92 +80,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-On 2022/8/22 15:58, Greg KH wrote:
+On 2022/8/22 16:04, Willy Tarreau wrote:
 > On Mon, Aug 22, 2022 at 03:49:51PM +0800, Qu Wenruo wrote:
->>
->>
->> On 2022/8/22 15:33, Greg KH wrote:
->>> On Mon, Aug 22, 2022 at 03:24:53PM +0800, Qu Wenruo wrote:
->>>>
->>>>
->>>> On 2022/8/22 14:25, Greg KH wrote:
->>>>> On Mon, Aug 22, 2022 at 09:15:59AM +0800, Qu Wenruo wrote:
->>>>>> Hi,
->>>>>>
->>>>>> When backporting some btrfs specific patches to all LTS kernels, I =
-found
->>>>>> v4.14.290 kernel unable to boot as a KVM guest with edk2-ovmf
->>>>>> (edk2-ovmf: 202205, qemu 7.0.0, libvirt 1:8.6.0).
->>>>>>
->>>>>> While all other LTS/stable branches (4.19.x, 5.4.x, 5.10.x, 5.15.x,
->>>>>> 5.18.x, 5.19.x) can boot without a hipccup.
->>>>>>
->>>>>> I tried the following configs, but none of them can even provide an
->>>>>> early output:
->>>>>>
->>>>>> - CONFIG_X86_VERBOSE_BOOTUP
->>>>>> - CONFIG_EARLY_PRINTK
->>>>>> - CONFIG_EARLY_PRINTK_EFI
->>>>>>
->>>>>> Is this a known bug or something new?
->>>>>
->>>>> Has this ever worked properly on this very old kernel tree?  If so, =
-can
->>>>> you use 'git bisect' to find the offending commit?
->>>>
->>>> Unfortunately the initial v4.14 from upstream can not even be compile=
-d.
->>>
->>> Really?  Try using an older version of gcc and you should be fine.  It
->>> did build properly back in 2017 when it was released :)
->>
 >> Yeah, I'm pretty sure my toolchain is too new for v4.14.0. But my distr=
 o
 >> only provides the latest and mostly upstream packages.
->>
+>
+> Then there's something odd in your use case. Old kernels are aimed at
+> those who need to have systems on which nothing changes. It's particular=
+ly
+> strange to be stuck in the past for the kernel but to continually upgrad=
+e
+> userland. Most often it's the opposite that's seen.
+
+Yep, that's my bad, just too lazy to get a time-period correct distro,
+or learn other package management tools from other distros.
+
+>
+> Regardless, if you need an older compiler, just use these ones:
+>
+>     https://mirrors.edge.kernel.org/pub/tools/crosstool/
+>
+> They go back to 4.9.4 for x86, you'll surely find the right one for your
+> usage. I've long used 4.7.4 for kernels up to 4.9 and 6.5 for 4.19 and
+> above, so something within that area will surely match your needs.
+
+BTW, it would be way more awesome if the page can provide some hint on
+the initial release date of the compilers.
+
+It would help a lot of choose the toolchain then.
+
+>
 >> It may be a even worse disaster to find a way to rollback to older
 >> toolchains using my distro...
->>
->> Also my hardware may not be well suited for older kernels either.
->> (Zen 3 CPU used here)
->>
->> In fact, I even find it hard just to locate a v4.14.x tag that can comp=
-ile.
->> After some bisection between v4.14.x tags, only v4.14.268 and newer tag=
-s
->> can even be compiled using latest toolchain.
->> (But still tons of warning, and tons of objdump warnings against
->> insn_get_length()).
->>
->> I'm not sure what's the normal practice for backports to such old branc=
-h.
->>
->> Do you stable guys keep dedicated VMs loaded with older distro just for
->> these old branches?
 >
-> I don't, that's why those kernels can be built with newer versions of
-> gcc.
->
-> Your distro should have a version of gcc-10 or gcc-9 that can be
-> installed, right?
+> No, using a prebuilt toolchain like those above is quite trivial and
+> it will avoid messing up with your local packages. That's the best
+> solution I can recommend.
 
-This may sounds like a meme, but I'm really using Archlinux for my VM
-and host, and it doesn't provide older GCC at all.
-
->  Or maybe use the gcc versions on kernel.org that only
-> work for kernel builds?
->
->> If so, any recommendation on those kinda retro distro?
->
-> Try installing an old version of Debian, or better yet, use a distro
-> that provides old versions of gcc :)
-
-I guess that's the only way to go.
-
-Thanks for all the advice,
+Thanks for all the info, it really helps a lot,
 Qu
 
 >
-> good luck!
->
-> greg k-h
+> Willy
