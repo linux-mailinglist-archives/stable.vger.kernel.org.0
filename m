@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FFB259BFFA
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 15:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FAE959C005
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 15:03:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234756AbiHVNBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 09:01:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38792 "EHLO
+        id S234611AbiHVNDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 09:03:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234923AbiHVNAe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 09:00:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A106333E29
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 06:00:33 -0700 (PDT)
+        with ESMTP id S234738AbiHVNC2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 09:02:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 419D8356C9
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 06:02:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D4A1B811CF
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 13:00:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3EAFC433C1;
-        Mon, 22 Aug 2022 13:00:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A8C78CE12B0
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 13:02:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B40FC433C1;
+        Mon, 22 Aug 2022 13:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661173231;
-        bh=ctLFXnjsD90gB1NR7gR/mitaX/MBzldzSUtaNNry3E4=;
+        s=korg; t=1661173344;
+        bh=SRR+8Bo6nSdb+mSUfydpwECvjQpU2VUbRDFmJxIWnC0=;
         h=Subject:To:Cc:From:Date:From;
-        b=W//Vach3ivGtlenvRLtpEp+6NVSd2esUeEyVgHZLmZMECCWl30VmtxGXG9LHAjTYK
-         40rbcAvFNU9huIZaJWMXmCyYe1yQM1uWjSROXl93K7Z3fx+UGaraEu267HAPfG91PZ
-         u4qFJZ/8EOLfL1h53asqWgWRlEIgmTz6rpaa4zn8=
-Subject: FAILED: patch "[PATCH] i2c: imx: Make sure to unregister adapter on remove()" failed to apply to 4.9-stable tree
-To:     u.kleine-koenig@pengutronix.de, o.rempel@pengutronix.de,
-        wsa@kernel.org
+        b=QfPD0o+J87bRZNl3e0ZLQcefaihA4XUoQdP0abmMeirCSH/jq7kh6l/jIxIvPDs3m
+         26ccE6Q6vPl+dAGXKM/kckQpNy8C+d5UZ26KNeQzeMIoWpelTR18LnKHZ8bJ1qSVcq
+         xCSENvN4/PUO3Ya6fN1jTZMONyTNeBGAKMMQ1Ug0=
+Subject: FAILED: patch "[PATCH] igb: Add lock to avoid data race" failed to apply to 4.9-stable tree
+To:     linma@zju.edu.cn, anthony.l.nguyen@intel.com,
+        konrad0.jankowski@intel.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 15:00:15 +0200
-Message-ID: <1661173215147161@kroah.com>
+Date:   Mon, 22 Aug 2022 15:02:21 +0200
+Message-ID: <166117334120467@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,69 +60,125 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d98bdd3a5b50446d8e010be5b04ce81c4eabf728 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Date: Wed, 20 Jul 2022 17:09:33 +0200
-Subject: [PATCH] i2c: imx: Make sure to unregister adapter on remove()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 6faee3d4ee8be0f0367d0c3d826afb3571b7a5e0 Mon Sep 17 00:00:00 2001
+From: Lin Ma <linma@zju.edu.cn>
+Date: Wed, 17 Aug 2022 11:49:21 -0700
+Subject: [PATCH] igb: Add lock to avoid data race
 
-If for whatever reasons pm_runtime_resume_and_get() fails and .remove() is
-exited early, the i2c adapter stays around and the irq still calls its
-handler, while the driver data and the register mapping go away. So if
-later the i2c adapter is accessed or the irq triggers this results in
-havoc accessing freed memory and unmapped registers.
+The commit c23d92b80e0b ("igb: Teardown SR-IOV before
+unregister_netdev()") places the unregister_netdev() call after the
+igb_disable_sriov() call to avoid functionality issue.
 
-So unregister the software resources even if resume failed, and only skip
-the hardware access in that case.
+However, it introduces several race conditions when detaching a device.
+For example, when .remove() is called, the below interleaving leads to
+use-after-free.
 
-Fixes: 588eb93ea49f ("i2c: imx: add runtime pm support to improve the performance")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+ (FREE from device detaching)      |   (USE from netdev core)
+igb_remove                         |  igb_ndo_get_vf_config
+ igb_disable_sriov                 |  vf >= adapter->vfs_allocated_count?
+  kfree(adapter->vf_data)          |
+  adapter->vfs_allocated_count = 0 |
+                                   |    memcpy(... adapter->vf_data[vf]
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 78fb1a4274a6..e47fa3465671 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1572,9 +1572,7 @@ static int i2c_imx_remove(struct platform_device *pdev)
- 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
- 	int irq, ret;
+Moreover, the igb_disable_sriov() also suffers from data race with the
+requests from VF driver.
+
+ (FREE from device detaching)      |   (USE from requests)
+igb_remove                         |  igb_msix_other
+ igb_disable_sriov                 |   igb_msg_task
+  kfree(adapter->vf_data)          |    vf < adapter->vfs_allocated_count
+  adapter->vfs_allocated_count = 0 |
+
+To this end, this commit first eliminates the data races from netdev
+core by using rtnl_lock (similar to commit 719479230893 ("dpaa2-eth: add
+MAC/PHY support through phylink")). And then adds a spinlock to
+eliminate races from driver requests. (similar to commit 1e53834ce541
+("ixgbe: Add locking to prevent panic when setting sriov_numvfs to zero")
+
+Fixes: c23d92b80e0b ("igb: Teardown SR-IOV before unregister_netdev()")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20220817184921.735244-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/drivers/net/ethernet/intel/igb/igb.h b/drivers/net/ethernet/intel/igb/igb.h
+index 2d3daf022651..015b78144114 100644
+--- a/drivers/net/ethernet/intel/igb/igb.h
++++ b/drivers/net/ethernet/intel/igb/igb.h
+@@ -664,6 +664,8 @@ struct igb_adapter {
+ 	struct igb_mac_addr *mac_table;
+ 	struct vf_mac_filter vf_macs;
+ 	struct vf_mac_filter *vf_mac_list;
++	/* lock for VF resources */
++	spinlock_t vfs_lock;
+ };
  
--	ret = pm_runtime_resume_and_get(&pdev->dev);
--	if (ret < 0)
--		return ret;
-+	ret = pm_runtime_get_sync(&pdev->dev);
+ /* flags controlling PTP/1588 function */
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index d8b836a85cc3..2796e81d2726 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -3637,6 +3637,7 @@ static int igb_disable_sriov(struct pci_dev *pdev)
+ 	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	struct igb_adapter *adapter = netdev_priv(netdev);
+ 	struct e1000_hw *hw = &adapter->hw;
++	unsigned long flags;
  
- 	hrtimer_cancel(&i2c_imx->slave_timer);
+ 	/* reclaim resources allocated to VFs */
+ 	if (adapter->vf_data) {
+@@ -3649,12 +3650,13 @@ static int igb_disable_sriov(struct pci_dev *pdev)
+ 			pci_disable_sriov(pdev);
+ 			msleep(500);
+ 		}
+-
++		spin_lock_irqsave(&adapter->vfs_lock, flags);
+ 		kfree(adapter->vf_mac_list);
+ 		adapter->vf_mac_list = NULL;
+ 		kfree(adapter->vf_data);
+ 		adapter->vf_data = NULL;
+ 		adapter->vfs_allocated_count = 0;
++		spin_unlock_irqrestore(&adapter->vfs_lock, flags);
+ 		wr32(E1000_IOVCTL, E1000_IOVCTL_REUSE_VFQ);
+ 		wrfl();
+ 		msleep(100);
+@@ -3814,7 +3816,9 @@ static void igb_remove(struct pci_dev *pdev)
+ 	igb_release_hw_control(adapter);
  
-@@ -1585,17 +1583,21 @@ static int i2c_imx_remove(struct platform_device *pdev)
- 	if (i2c_imx->dma)
- 		i2c_imx_dma_free(i2c_imx);
+ #ifdef CONFIG_PCI_IOV
++	rtnl_lock();
+ 	igb_disable_sriov(pdev);
++	rtnl_unlock();
+ #endif
  
--	/* setup chip registers to defaults */
--	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
--	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
--	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
--	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
-+	if (ret == 0) {
-+		/* setup chip registers to defaults */
-+		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
-+		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
-+		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
-+		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
-+		clk_disable(i2c_imx->clk);
-+	}
+ 	unregister_netdev(netdev);
+@@ -3974,6 +3978,9 @@ static int igb_sw_init(struct igb_adapter *adapter)
  
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq >= 0)
- 		free_irq(irq, i2c_imx);
--	clk_disable_unprepare(i2c_imx->clk);
+ 	spin_lock_init(&adapter->nfc_lock);
+ 	spin_lock_init(&adapter->stats64_lock);
 +
-+	clk_unprepare(i2c_imx->clk);
++	/* init spinlock to avoid concurrency of VF resources */
++	spin_lock_init(&adapter->vfs_lock);
+ #ifdef CONFIG_PCI_IOV
+ 	switch (hw->mac.type) {
+ 	case e1000_82576:
+@@ -7958,8 +7965,10 @@ static void igb_rcv_msg_from_vf(struct igb_adapter *adapter, u32 vf)
+ static void igb_msg_task(struct igb_adapter *adapter)
+ {
+ 	struct e1000_hw *hw = &adapter->hw;
++	unsigned long flags;
+ 	u32 vf;
  
- 	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
++	spin_lock_irqsave(&adapter->vfs_lock, flags);
+ 	for (vf = 0; vf < adapter->vfs_allocated_count; vf++) {
+ 		/* process any reset requests */
+ 		if (!igb_check_for_rst(hw, vf))
+@@ -7973,6 +7982,7 @@ static void igb_msg_task(struct igb_adapter *adapter)
+ 		if (!igb_check_for_ack(hw, vf))
+ 			igb_rcv_ack_from_vf(adapter, vf);
+ 	}
++	spin_unlock_irqrestore(&adapter->vfs_lock, flags);
+ }
+ 
+ /**
 
