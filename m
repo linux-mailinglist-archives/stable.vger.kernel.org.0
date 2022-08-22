@@ -2,84 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47CE959C030
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 15:09:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 082F259C032
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 15:09:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234872AbiHVNIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 09:08:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47948 "EHLO
+        id S234771AbiHVNIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 09:08:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235072AbiHVNIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 09:08:45 -0400
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58DEAD115
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 06:08:27 -0700 (PDT)
-Received: from localhost.localdomain (unknown [95.31.169.23])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 51C61401014B;
-        Mon, 22 Aug 2022 13:08:25 +0000 (UTC)
-From:   Fedor Pchelkin <pchelkin@ispras.ru>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Oleksij Rempel <o.rempel@pengutronix.de>, mkl@pengutronix.de,
-        ldv-project@linuxtesting.org
-Subject: [PATCH 5.10 1/1] can: j1939: j1939_sk_queue_activate_next_locked(): replace WARN_ON_ONCE with netdev_warn_once()
-Date:   Mon, 22 Aug 2022 16:08:05 +0300
-Message-Id: <20220822130805.261446-2-pchelkin@ispras.ru>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220822130805.261446-1-pchelkin@ispras.ru>
-References: <20220822130805.261446-1-pchelkin@ispras.ru>
+        with ESMTP id S235019AbiHVNIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 09:08:49 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C34313FA0
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 06:08:42 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AEE51CE12B3
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 13:08:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD9F4C433D6;
+        Mon, 22 Aug 2022 13:08:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661173719;
+        bh=d3tUqq0w89qyRs59Q7Jk7eaJ0kG8JfN/eYJAKyCxvII=;
+        h=Subject:To:Cc:From:Date:From;
+        b=napa9m7KiuksuwJpOtrybAFRkFSpNWH1mEH6qPmQt4rR+SY5STZa6+JHjC46LToth
+         JkxxsbVm2PMW9TddF+MKH314yHjOAxw6ZT+XozPE73X3Nng7FEJ9B9HJrQIZvAUW2n
+         dZ/gW8rrCQMGJBBeFpM1jxQqAygYZ84TPnZAI4yU=
+Subject: FAILED: patch "[PATCH] ice: Fix double VLAN error when entering promisc mode" failed to apply to 5.10-stable tree
+To:     grzegorz.siwik@intel.com, anthony.l.nguyen@intel.com,
+        gurucharanx.g@intel.com, igor@gooddata.com,
+        jaroslav.pulchart@gooddata.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Aug 2022 15:08:36 +0200
+Message-ID: <1661173716200237@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-commit 8ef49f7f8244424adcf4a546dba4cbbeb0b09c09 upstream.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-We should warn user-space that it is doing something wrong when trying
-to activate sessions with identical parameters but WARN_ON_ONCE macro
-can not be used here as it serves a different purpose.
+thanks,
 
-So it would be good to replace it with netdev_warn_once() message.
+greg k-h
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+------------------ original commit in Linus's tree ------------------
 
-Fixes: 9d71dd0 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20220729143655.1108297-1-pchelkin@ispras.ru
-[mkl: fix indention]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- net/can/j1939/socket.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+From ffa9ed86522f1c08d4face4e0a4ebf366037bf19 Mon Sep 17 00:00:00 2001
+From: Grzegorz Siwik <grzegorz.siwik@intel.com>
+Date: Fri, 12 Aug 2022 15:25:47 +0200
+Subject: [PATCH] ice: Fix double VLAN error when entering promisc mode
 
-diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-index e1a399821238..709141abd131 100644
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -178,7 +178,10 @@ static void j1939_sk_queue_activate_next_locked(struct j1939_session *session)
- 	if (!first)
- 		return;
+Avoid enabling or disabling VLAN 0 when trying to set promiscuous
+VLAN mode if double VLAN mode is enabled. This fix is needed
+because the driver tries to add the VLAN 0 filter twice (once for
+inner and once for outer) when double VLAN mode is enabled. The
+filter program is rejected by the firmware when double VLAN is
+enabled, because the promiscuous filter only needs to be set once.
+
+This issue was missed in the initial implementation of double VLAN
+mode.
+
+Fixes: 5eda8afd6bcc ("ice: Add support for PF/VF promiscuous mode")
+Signed-off-by: Grzegorz Siwik <grzegorz.siwik@intel.com>
+Link: https://lore.kernel.org/all/CAK8fFZ7m-KR57M_rYX6xZN39K89O=LGooYkKsu6HKt0Bs+x6xQ@mail.gmail.com/
+Tested-by: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
+Tested-by: Igor Raits <igor@gooddata.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+
+diff --git a/drivers/net/ethernet/intel/ice/ice_switch.c b/drivers/net/ethernet/intel/ice/ice_switch.c
+index 262e553e3b58..0c265739cce2 100644
+--- a/drivers/net/ethernet/intel/ice/ice_switch.c
++++ b/drivers/net/ethernet/intel/ice/ice_switch.c
+@@ -4445,6 +4445,13 @@ ice_set_vlan_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
+ 		goto free_fltr_list;
  
--	if (WARN_ON_ONCE(j1939_session_activate(first))) {
-+	if (j1939_session_activate(first)) {
-+		netdev_warn_once(first->priv->ndev,
-+				 "%s: 0x%p: Identical session is already activated.\n",
-+				 __func__, first);
- 		first->err = -EBUSY;
- 		goto activate_next;
- 	} else {
--- 
-2.25.1
+ 	list_for_each_entry(list_itr, &vsi_list_head, list_entry) {
++		/* Avoid enabling or disabling VLAN zero twice when in double
++		 * VLAN mode
++		 */
++		if (ice_is_dvm_ena(hw) &&
++		    list_itr->fltr_info.l_data.vlan.tpid == 0)
++			continue;
++
+ 		vlan_id = list_itr->fltr_info.l_data.vlan.vlan_id;
+ 		if (rm_vlan_promisc)
+ 			status = ice_clear_vsi_promisc(hw, vsi_handle,
 
