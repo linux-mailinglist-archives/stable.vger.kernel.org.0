@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76CFE59BFEE
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:59:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39C8759BFEC
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:59:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234446AbiHVM5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 08:57:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35206 "EHLO
+        id S234611AbiHVM6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 08:58:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234611AbiHVM5w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:57:52 -0400
+        with ESMTP id S232206AbiHVM6F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:58:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FDD3220F7
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:57:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADBD5220F7
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:58:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 591ACB811D2
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:57:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A86FC433C1;
-        Mon, 22 Aug 2022 12:57:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65460B811D6
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:58:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4CDDC433C1;
+        Mon, 22 Aug 2022 12:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661173069;
-        bh=8cD9S02Wq8rn+eV15FSqS9b2IUqD1IJqWEjjHzdyZqU=;
+        s=korg; t=1661173082;
+        bh=JB7AwwoC6b/2cK7yrxSLlEYOzj6lv6N9/fVJjsg65k8=;
         h=Subject:To:Cc:From:Date:From;
-        b=A+UgO8HE8fT9tvJdnC7U30oKU69c05Qrit4ruTTtHWOqZtJ4rdUAiQU2yOh3IIfGL
-         43S8unc4zxy8mJJPs4ZWZgy+7lAshqaidVDWnP+W0dycqsr/LZ/20xhLD8sJscuuXl
-         5Pd2qP6C0gU4WSDd0+ZGDbdHrtyBt0O7jMAsZLKI=
-Subject: FAILED: patch "[PATCH] net: mscc: ocelot: report ndo_get_stats64 from the" failed to apply to 4.19-stable tree
-To:     vladimir.oltean@nxp.com, kuba@kernel.org
+        b=tDGCP61gUkuFBY4cpdHvcvkVZS01BCeEEmOUn8zt7QSQTC5hgEwOTg/ErQgbSAdSd
+         93uXssHNU7YQcc8Lkoy74bs2OTdimG6zsTmnUK4f4Joh9vQhHxfCzfzsgRvM7dXevy
+         tvjIucOOJpFMqXVqF4f2CylHyy1ysvdYOefmL5LA=
+Subject: FAILED: patch "[PATCH] net: dsa: don't warn in dsa_port_set_state_now() when driver" failed to apply to 5.10-stable tree
+To:     vladimir.oltean@nxp.com, kuba@kernel.org, saproj@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 14:57:33 +0200
-Message-ID: <166117305312988@kroah.com>
+Date:   Mon, 22 Aug 2022 14:57:59 +0200
+Message-ID: <1661173079203246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,104 +59,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e780e3193e889fd8358b862f7cd18ec5a4901caf Mon Sep 17 00:00:00 2001
+From 211987f3ac734000ea1548784b2a4539a974fbc8 Mon Sep 17 00:00:00 2001
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Tue, 16 Aug 2022 16:53:52 +0300
-Subject: [PATCH] net: mscc: ocelot: report ndo_get_stats64 from the
- wraparound-resistant ocelot->stats
+Date: Tue, 16 Aug 2022 23:14:45 +0300
+Subject: [PATCH] net: dsa: don't warn in dsa_port_set_state_now() when driver
+ doesn't support it
 
-Rather than reading the stats64 counters directly from the 32-bit
-hardware, it's better to rely on the output produced by the periodic
-ocelot_port_update_stats().
+ds->ops->port_stp_state_set() is, like most DSA methods, optional, and
+if absent, the port is supposed to remain in the forwarding state (as
+standalone). Such is the case with the mv88e6060 driver, which does not
+offload the bridge layer. DSA warns that the STP state can't be changed
+to FORWARDING as part of dsa_port_enable_rt(), when in fact it should not.
 
-It would be even better to call ocelot_port_update_stats() right from
-ocelot_get_stats64() to make sure we report the current values rather
-than the ones from 2 seconds ago. But we need to export
-ocelot_port_update_stats() from the switch lib towards the switchdev
-driver for that, and future work will largely undo that.
+The error message is also not up to modern standards, so take the
+opportunity to make it more descriptive.
 
-There are more ocelot-based drivers waiting to be introduced, an example
-of which is the SPI-controlled VSC7512. In that driver's case, it will
-be impossible to call ocelot_port_update_stats() from ndo_get_stats64
-context, since the latter is atomic, and reading the stats over SPI is
-sleepable. So the compromise taken here, which will also hold going
-forward, is to report 64-bit counters to stats64, which are not 100% up
-to date.
-
-Fixes: a556c76adc05 ("net: mscc: Add initial Ocelot switch support")
+Fixes: fd3645413197 ("net: dsa: change scope of STP state setter")
+Reported-by: Sergei Antonov <saproj@gmail.com>
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Sergei Antonov <saproj@gmail.com>
+Link: https://lore.kernel.org/r/20220816201445.1809483-1-vladimir.oltean@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_net.c b/drivers/net/ethernet/mscc/ocelot_net.c
-index 6b9d37138844..330d30841cdc 100644
---- a/drivers/net/ethernet/mscc/ocelot_net.c
-+++ b/drivers/net/ethernet/mscc/ocelot_net.c
-@@ -725,41 +725,40 @@ static void ocelot_get_stats64(struct net_device *dev,
- 	struct ocelot_port_private *priv = netdev_priv(dev);
- 	struct ocelot *ocelot = priv->port.ocelot;
- 	int port = priv->port.index;
-+	u64 *s;
+diff --git a/net/dsa/port.c b/net/dsa/port.c
+index 2dd76eb1621c..a8895ee3cd60 100644
+--- a/net/dsa/port.c
++++ b/net/dsa/port.c
+@@ -145,11 +145,14 @@ int dsa_port_set_state(struct dsa_port *dp, u8 state, bool do_fast_age)
+ static void dsa_port_set_state_now(struct dsa_port *dp, u8 state,
+ 				   bool do_fast_age)
+ {
++	struct dsa_switch *ds = dp->ds;
+ 	int err;
  
- 	spin_lock(&ocelot->stats_lock);
- 
--	/* Configure the port to read the stats from */
--	ocelot_write(ocelot, SYS_STAT_CFG_STAT_VIEW(port),
--		     SYS_STAT_CFG);
-+	s = &ocelot->stats[port * OCELOT_NUM_STATS];
- 
- 	/* Get Rx stats */
--	stats->rx_bytes = ocelot_read(ocelot, SYS_COUNT_RX_OCTETS);
--	stats->rx_packets = ocelot_read(ocelot, SYS_COUNT_RX_SHORTS) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_FRAGMENTS) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_JABBERS) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_LONGS) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_64) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_65_127) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_128_255) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_256_511) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_512_1023) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_1024_1526) +
--			    ocelot_read(ocelot, SYS_COUNT_RX_1527_MAX);
--	stats->multicast = ocelot_read(ocelot, SYS_COUNT_RX_MULTICAST);
-+	stats->rx_bytes = s[OCELOT_STAT_RX_OCTETS];
-+	stats->rx_packets = s[OCELOT_STAT_RX_SHORTS] +
-+			    s[OCELOT_STAT_RX_FRAGMENTS] +
-+			    s[OCELOT_STAT_RX_JABBERS] +
-+			    s[OCELOT_STAT_RX_LONGS] +
-+			    s[OCELOT_STAT_RX_64] +
-+			    s[OCELOT_STAT_RX_65_127] +
-+			    s[OCELOT_STAT_RX_128_255] +
-+			    s[OCELOT_STAT_RX_256_511] +
-+			    s[OCELOT_STAT_RX_512_1023] +
-+			    s[OCELOT_STAT_RX_1024_1526] +
-+			    s[OCELOT_STAT_RX_1527_MAX];
-+	stats->multicast = s[OCELOT_STAT_RX_MULTICAST];
- 	stats->rx_dropped = dev->stats.rx_dropped;
- 
- 	/* Get Tx stats */
--	stats->tx_bytes = ocelot_read(ocelot, SYS_COUNT_TX_OCTETS);
--	stats->tx_packets = ocelot_read(ocelot, SYS_COUNT_TX_64) +
--			    ocelot_read(ocelot, SYS_COUNT_TX_65_127) +
--			    ocelot_read(ocelot, SYS_COUNT_TX_128_255) +
--			    ocelot_read(ocelot, SYS_COUNT_TX_256_511) +
--			    ocelot_read(ocelot, SYS_COUNT_TX_512_1023) +
--			    ocelot_read(ocelot, SYS_COUNT_TX_1024_1526) +
--			    ocelot_read(ocelot, SYS_COUNT_TX_1527_MAX);
--	stats->tx_dropped = ocelot_read(ocelot, SYS_COUNT_TX_DROPS) +
--			    ocelot_read(ocelot, SYS_COUNT_TX_AGING);
--	stats->collisions = ocelot_read(ocelot, SYS_COUNT_TX_COLLISION);
-+	stats->tx_bytes = s[OCELOT_STAT_TX_OCTETS];
-+	stats->tx_packets = s[OCELOT_STAT_TX_64] +
-+			    s[OCELOT_STAT_TX_65_127] +
-+			    s[OCELOT_STAT_TX_128_255] +
-+			    s[OCELOT_STAT_TX_256_511] +
-+			    s[OCELOT_STAT_TX_512_1023] +
-+			    s[OCELOT_STAT_TX_1024_1526] +
-+			    s[OCELOT_STAT_TX_1527_MAX];
-+	stats->tx_dropped = s[OCELOT_STAT_TX_DROPS] +
-+			    s[OCELOT_STAT_TX_AGED];
-+	stats->collisions = s[OCELOT_STAT_TX_COLLISION];
- 
- 	spin_unlock(&ocelot->stats_lock);
+ 	err = dsa_port_set_state(dp, state, do_fast_age);
+-	if (err)
+-		pr_err("DSA: failed to set STP state %u (%d)\n", state, err);
++	if (err && err != -EOPNOTSUPP) {
++		dev_err(ds->dev, "port %d failed to set STP state %u: %pe\n",
++			dp->index, state, ERR_PTR(err));
++	}
  }
+ 
+ int dsa_port_set_mst_state(struct dsa_port *dp,
 
