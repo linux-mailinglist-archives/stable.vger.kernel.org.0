@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2799E59E22E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE35759E20A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353220AbiHWMSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55588 "EHLO
+        id S1356055AbiHWK53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:57:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359648AbiHWMQH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:07 -0400
+        with ESMTP id S1356256AbiHWKyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:54:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 237CC7A752;
-        Tue, 23 Aug 2022 02:41:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 064D01055D;
+        Tue, 23 Aug 2022 02:13:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FE56614CF;
-        Tue, 23 Aug 2022 09:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9208BC433C1;
-        Tue, 23 Aug 2022 09:41:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00CCD60F85;
+        Tue, 23 Aug 2022 09:13:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2FF7C433C1;
+        Tue, 23 Aug 2022 09:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247661;
-        bh=PbfyJcXtqyDQvM6iBo0E7sLSnlG/jg4GL4AuxQa1PcE=;
+        s=korg; t=1661245997;
+        bh=YyS6kzcP5LnTRVkg6JjJD2bti6S4kghdoWLmjpu6yHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTJAtg8vG8Rn6UN8uuiV/kcPp8vYoJx4JYXtiTplzclBOjcGbh6BdV6yFgU3K2SpQ
-         0k5UMeLDfrg4E76zzBJRhWIimiyYX98vWy1pkLc0BTYyDtYatZwaPVf7+GlRsqaHVk
-         YGeHES8iv1P5r4ys/qRkpzz6MBvhq87wiZ6H5wkw=
+        b=tIeWJIYznO+8kUst9WtnwSD967agzczbochFyZj8q7vamtDtOq9vEEGR99fMMkZ6D
+         7Cz60dmG3rGL9dUclm35b6hKxuVNm0GBAbP1q3kRTY0ll7+eKpFMymqzKrPZdS6uHm
+         iXlEcsC7+/+brFN1b5px7VMVPT0lPYRcf5SPWc6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.10 076/158] netfilter: nf_tables: validate NFTA_SET_ELEM_OBJREF based on NFT_SET_OBJECT flag
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 239/287] vsock: Set socket state back to SS_UNCONNECTED in vsock_connect_timeout()
 Date:   Tue, 23 Aug 2022 10:26:48 +0200
-Message-Id: <20220823080049.114879139@linuxfoundation.org>
+Message-Id: <20220823080109.124885855@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,51 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-commit 5a2f3dc31811e93be15522d9eb13ed61460b76c8 upstream.
+commit a3e7b29e30854ed67be0d17687e744ad0c769c4b upstream.
 
-If the NFTA_SET_ELEM_OBJREF netlink attribute is present and
-NFT_SET_OBJECT flag is set on, report EINVAL.
+Imagine two non-blocking vsock_connect() requests on the same socket.
+The first request schedules @connect_work, and after it times out,
+vsock_connect_timeout() sets *sock* state back to TCP_CLOSE, but keeps
+*socket* state as SS_CONNECTING.
 
-Move existing sanity check earlier to validate that NFT_SET_OBJECT
-requires NFTA_SET_ELEM_OBJREF.
+Later, the second request returns -EALREADY, meaning the socket "already
+has a pending connection in progress", even though the first request has
+already timed out.
 
-Fixes: 8aeff920dcc9 ("netfilter: nf_tables: add stateful object reference to set elements")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+As suggested by Stefano, fix it by setting *socket* state back to
+SS_UNCONNECTED, so that the second request will return -ETIMEDOUT.
+
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/vmw_vsock/af_vsock.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -5245,6 +5245,15 @@ static int nft_add_set_elem(struct nft_c
- 			return -EINVAL;
- 	}
- 
-+	if (set->flags & NFT_SET_OBJECT) {
-+		if (!nla[NFTA_SET_ELEM_OBJREF] &&
-+		    !(flags & NFT_SET_ELEM_INTERVAL_END))
-+			return -EINVAL;
-+	} else {
-+		if (nla[NFTA_SET_ELEM_OBJREF])
-+			return -EINVAL;
-+	}
-+
- 	if ((flags & NFT_SET_ELEM_INTERVAL_END) &&
- 	     (nla[NFTA_SET_ELEM_DATA] ||
- 	      nla[NFTA_SET_ELEM_OBJREF] ||
-@@ -5322,10 +5331,6 @@ static int nft_add_set_elem(struct nft_c
- 				       expr->ops->size);
- 
- 	if (nla[NFTA_SET_ELEM_OBJREF] != NULL) {
--		if (!(set->flags & NFT_SET_OBJECT)) {
--			err = -EINVAL;
--			goto err_parse_key_end;
--		}
- 		obj = nft_obj_lookup(ctx->net, ctx->table,
- 				     nla[NFTA_SET_ELEM_OBJREF],
- 				     set->objtype, genmask);
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1118,6 +1118,7 @@ static void vsock_connect_timeout(struct
+ 	if (sk->sk_state == TCP_SYN_SENT &&
+ 	    (sk->sk_shutdown != SHUTDOWN_MASK)) {
+ 		sk->sk_state = TCP_CLOSE;
++		sk->sk_socket->state = SS_UNCONNECTED;
+ 		sk->sk_err = ETIMEDOUT;
+ 		sk->sk_error_report(sk);
+ 		vsock_transport_cancel_pkt(vsk);
 
 
