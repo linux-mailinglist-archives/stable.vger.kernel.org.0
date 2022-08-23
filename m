@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21E5D59E0D5
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71FE959E168
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352251AbiHWMRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:17:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46788 "EHLO
+        id S1356513AbiHWK5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:57:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359560AbiHWMP6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7A7EA14C;
-        Tue, 23 Aug 2022 02:41:26 -0700 (PDT)
+        with ESMTP id S244111AbiHWKy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:54:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8139B17E2F;
+        Tue, 23 Aug 2022 02:13:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE38B61389;
-        Tue, 23 Aug 2022 09:40:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5ECAC433C1;
-        Tue, 23 Aug 2022 09:40:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34EE661122;
+        Tue, 23 Aug 2022 09:13:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CB0AC433D6;
+        Tue, 23 Aug 2022 09:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247628;
-        bh=+cQueMhG49MjrWyekbaH7KLGxxmn10UFrF2aTy84y2Y=;
+        s=korg; t=1661246003;
+        bh=ort/3hcnaukUGsA7LDhSiF203JxpCct0qeqwR3Ahero=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nryMyqOED5RZh8CZZyqqNMFn4kFjptRRJU1MNda7mNTxtwvSER+bStx+hHWW895yN
-         ozLJkEJAuXrqkRMo0oo9TaC9TOcxJ/58yUZz/s98LEIWlldKtGoA5oldpHOvpiC1Ho
-         8Pav4RGy6QJkwDiRtYo09oCsr1czJQLnYF1DhuqU=
+        b=YiSsDGSV/ymZkzbsv3zM6+xdylYAt0w2pVemV64C3xoKhqnPQOw95UaT0N9BhjY5o
+         QcmWRBkTIA2zLJkJ2vPVtBe34syyujuAcvaDxqrAxS63t9Obd1jmxbLHhS/9U3CxJj
+         Hq5zgiMg5gpDvdolPikJhjt9StawQSwhIGyvM+nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Hector Martin <marcan@marcan.st>,
-        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.10 095/158] locking/atomic: Make test_and_*_bit() ordered on failure
+        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 258/287] PCI: Add ACS quirk for Broadcom BCM5750x NICs
 Date:   Tue, 23 Aug 2022 10:27:07 +0200
-Message-Id: <20220823080049.888024871@linuxfoundation.org>
+Message-Id: <20220823080109.963872987@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Pavan Chebbi <pavan.chebbi@broadcom.com>
 
-commit 415d832497098030241605c52ea83d4e2cfa7879 upstream.
+[ Upstream commit afd306a65cedb9589564bdb23a0c368abc4215fd ]
 
-These operations are documented as always ordered in
-include/asm-generic/bitops/instrumented-atomic.h, and producer-consumer
-type use cases where one side needs to ensure a flag is left pending
-after some shared data was updated rely on this ordering, even in the
-failure case.
+The Broadcom BCM5750x NICs may be multi-function devices.  They do not
+advertise ACS capability. Peer-to-peer transactions are not possible
+between the individual functions, so it is safe to treat them as fully
+isolated.
 
-This is the case with the workqueue code, which currently suffers from a
-reproducible ordering violation on Apple M1 platforms (which are
-notoriously out-of-order) that ends up causing the TTY layer to fail to
-deliver data to userspace properly under the right conditions.  This
-change fixes that bug.
+Add an ACS quirk for these devices so the functions can be in independent
+IOMMU groups and attached individually to userspace applications using
+VFIO.
 
-Change the documentation to restrict the "no order on failure" story to
-the _lock() variant (for which it makes sense), and remove the
-early-exit from the generic implementation, which is what causes the
-missing barrier semantics in that case.  Without this, the remaining
-atomic op is fully ordered (including on ARM64 LSE, as of recent
-versions of the architecture spec).
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: stable@vger.kernel.org
-Fixes: e986a0d6cb36 ("locking/atomics, asm-generic/bitops/atomic.h: Rewrite using atomic_*() APIs")
-Fixes: 61e02392d3c7 ("locking/atomic/bitops: Document and clarify ordering semantics for failed test_and_{}_bit()")
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Acked-by: Will Deacon <will@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/1654796507-28610-1-git-send-email-michael.chan@broadcom.com
+Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/atomic_bitops.txt     |    2 +-
- include/asm-generic/bitops/atomic.h |    6 ------
- 2 files changed, 1 insertion(+), 7 deletions(-)
+ drivers/pci/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/Documentation/atomic_bitops.txt
-+++ b/Documentation/atomic_bitops.txt
-@@ -59,7 +59,7 @@ Like with atomic_t, the rule of thumb is
-  - RMW operations that have a return value are fully ordered.
- 
-  - RMW operations that are conditional are unordered on FAILURE,
--   otherwise the above rules apply. In the case of test_and_{}_bit() operations,
-+   otherwise the above rules apply. In the case of test_and_set_bit_lock(),
-    if the bit in memory is unchanged by the operation then it is deemed to have
-    failed.
- 
---- a/include/asm-generic/bitops/atomic.h
-+++ b/include/asm-generic/bitops/atomic.h
-@@ -35,9 +35,6 @@ static inline int test_and_set_bit(unsig
- 	unsigned long mask = BIT_MASK(nr);
- 
- 	p += BIT_WORD(nr);
--	if (READ_ONCE(*p) & mask)
--		return 1;
--
- 	old = atomic_long_fetch_or(mask, (atomic_long_t *)p);
- 	return !!(old & mask);
- }
-@@ -48,9 +45,6 @@ static inline int test_and_clear_bit(uns
- 	unsigned long mask = BIT_MASK(nr);
- 
- 	p += BIT_WORD(nr);
--	if (!(READ_ONCE(*p) & mask))
--		return 0;
--
- 	old = atomic_long_fetch_andnot(mask, (atomic_long_t *)p);
- 	return !!(old & mask);
- }
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 7cd38c9eaa02..f494e76faaa0 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4799,6 +4799,9 @@ static const struct pci_dev_acs_enabled {
+ 	{ PCI_VENDOR_ID_AMPERE, 0xE00C, pci_quirk_xgene_acs },
+ 	/* Broadcom multi-function device */
+ 	{ PCI_VENDOR_ID_BROADCOM, 0x16D7, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_BROADCOM, 0x1750, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_BROADCOM, 0x1751, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_BROADCOM, 0x1752, pci_quirk_mf_endpoint_acs },
+ 	{ PCI_VENDOR_ID_BROADCOM, 0xD714, pci_quirk_brcm_acs },
+ 	{ 0 }
+ };
+-- 
+2.35.1
+
 
 
