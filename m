@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A8959D81B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46DE59D9F9
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242518AbiHWJlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52592 "EHLO
+        id S1352035AbiHWKEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:04:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351777AbiHWJk1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:40:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84E8778BFB;
-        Tue, 23 Aug 2022 01:41:33 -0700 (PDT)
+        with ESMTP id S1352498AbiHWKB7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6854C70E53;
+        Tue, 23 Aug 2022 01:49:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC25E61545;
-        Tue, 23 Aug 2022 08:40:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0055CC433D6;
-        Tue, 23 Aug 2022 08:40:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C523B81B90;
+        Tue, 23 Aug 2022 08:49:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7E90C433C1;
+        Tue, 23 Aug 2022 08:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244047;
-        bh=aqtmc+GVlURHEGXqXvyfAmByh5SXHExesIF6rdrC7b4=;
+        s=korg; t=1661244587;
+        bh=BlCmXcTZu+EWNPS2irvhKqaRmVQCnnQHWvNPA6UBN7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UNFc++1RjHwleYzhDUVN45f9PydspRayrJEqHzEATKiDRk+lXD4Aw2rgeRQIddO1i
-         7uQc1js3CiFUJW8j8N9uAztbidp4sA1wfexD+kavKIdkkY3FissQrYovg4FhdE60rS
-         8fdlwhhRB6Xcrq9iLePuruti/Jyk4qASP+teUE2s=
+        b=Asav5WKiV0On0leM5bZYMF/dKLqqz4w3n+Osl7i0uOkcNNdAS79Pm6/z5k97MO48X
+         DjxSEKB1MujPW3NsYb/NPj+YrAVDRl7HuugG86wbmJzPtfQ1KbmIX84TarCBzc2Dfn
+         6WEkKef/IHRdxnN/EtwLZaSf803Utgc6l+AJGaik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rustam Subkhankulov <subkhankulov@ispras.ru>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 078/229] wifi: p54: add missing parentheses in p54_flush()
-Date:   Tue, 23 Aug 2022 10:23:59 +0200
-Message-Id: <20220823080056.504148486@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 081/244] vsock: Set socket state back to SS_UNCONNECTED in vsock_connect_timeout()
+Date:   Tue, 23 Aug 2022 10:24:00 +0200
+Message-Id: <20220823080101.749275404@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Subkhankulov <subkhankulov@ispras.ru>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit bcfd9d7f6840b06d5988c7141127795cf405805e ]
+commit a3e7b29e30854ed67be0d17687e744ad0c769c4b upstream.
 
-The assignment of the value to the variable total in the loop
-condition must be enclosed in additional parentheses, since otherwise,
-in accordance with the precedence of the operators, the conjunction
-will be performed first, and only then the assignment.
+Imagine two non-blocking vsock_connect() requests on the same socket.
+The first request schedules @connect_work, and after it times out,
+vsock_connect_timeout() sets *sock* state back to TCP_CLOSE, but keeps
+*socket* state as SS_CONNECTING.
 
-Due to this error, a warning later in the function after the loop may
-not occur in the situation when it should.
+Later, the second request returns -EALREADY, meaning the socket "already
+has a pending connection in progress", even though the first request has
+already timed out.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+As suggested by Stefano, fix it by setting *socket* state back to
+SS_UNCONNECTED, so that the second request will return -ETIMEDOUT.
 
-Signed-off-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
-Fixes: 0d4171e2153b ("p54: implement flush callback")
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220714134831.106004-1-subkhankulov@ispras.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intersil/p54/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/vmw_vsock/af_vsock.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/intersil/p54/main.c b/drivers/net/wireless/intersil/p54/main.c
-index ab6d39e12069..120c3f21f382 100644
---- a/drivers/net/wireless/intersil/p54/main.c
-+++ b/drivers/net/wireless/intersil/p54/main.c
-@@ -688,7 +688,7 @@ static void p54_flush(struct ieee80211_hw *dev, struct ieee80211_vif *vif,
- 	 * queues have already been stopped and no new frames can sneak
- 	 * up from behind.
- 	 */
--	while ((total = p54_flush_count(priv) && i--)) {
-+	while ((total = p54_flush_count(priv)) && i--) {
- 		/* waste time */
- 		msleep(20);
- 	}
--- 
-2.35.1
-
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1285,6 +1285,7 @@ static void vsock_connect_timeout(struct
+ 	if (sk->sk_state == TCP_SYN_SENT &&
+ 	    (sk->sk_shutdown != SHUTDOWN_MASK)) {
+ 		sk->sk_state = TCP_CLOSE;
++		sk->sk_socket->state = SS_UNCONNECTED;
+ 		sk->sk_err = ETIMEDOUT;
+ 		sk_error_report(sk);
+ 		vsock_transport_cancel_pkt(vsk);
 
 
