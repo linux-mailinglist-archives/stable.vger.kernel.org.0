@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96DC259DDB7
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B52459DE47
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357221AbiHWLRw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43378 "EHLO
+        id S241582AbiHWLPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:15:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357289AbiHWLRQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D987DBD74C;
-        Tue, 23 Aug 2022 02:20:34 -0700 (PDT)
+        with ESMTP id S240876AbiHWLOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:14:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A517C6B142;
+        Tue, 23 Aug 2022 02:18:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1E0FB81B1F;
-        Tue, 23 Aug 2022 09:20:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A87C433C1;
-        Tue, 23 Aug 2022 09:20:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B76876121F;
+        Tue, 23 Aug 2022 09:18:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18D4C433C1;
+        Tue, 23 Aug 2022 09:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246409;
-        bh=hwBSpc7erig/674qMUa5THYn7tKXm6QBe24djanajcU=;
+        s=korg; t=1661246316;
+        bh=fsWJpVlbdSP6aK71pA9OxUeNSHt9OvDhrKF+Ylw6rhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8VoYPUwjdF5WVSs/z7Mr09ug0ifZXaiMswQAVw2k0hDkIQYBT4fzGKjv5Ylyt9lf
-         1EYE4/JckZXDQ7JhbP9fGUHAvf6nftjvtyilun8u5oNDSF0rRfB1jvs3+vFfBY/A6+
-         cS+hj6Om9n6KjgxTvOn0uPr6oVFBf/MjdSrAfG7c=
+        b=KSN1v42vywQM9MG50vstptZfEkxzw469e5Mwb+laHMaCbjFkDClYC4dhu7CjNjfm1
+         W+flC3B38D7WCcxymcVXdGxckPOVEL5jiVT+tUWTL65UxfaK+hccUBbXzyGXoQ8l80
+         yXNfKhbQBiuVQHgdahJf+f67GnPQxqM+6BPRcCMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/389] ARM: shmobile: rcar-gen2: Increase refcount for new reference
-Date:   Tue, 23 Aug 2022 10:22:28 +0200
-Message-Id: <20220823080118.550259911@linuxfoundation.org>
+Subject: [PATCH 5.4 071/389] PM: hibernate: defer device probing when resuming from hibernation
+Date:   Tue, 23 Aug 2022 10:22:29 +0200
+Message-Id: <20220823080118.597058908@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,58 +56,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 75a185fb92e58ccd3670258d8d3b826bd2fa6d29 ]
+[ Upstream commit 8386c414e27caba8501119948e9551e52b527f59 ]
 
-In rcar_gen2_regulator_quirk(), for_each_matching_node_and_match() will
-automatically increase and decrease the refcount.  However, we should
-call of_node_get() for the new reference created in 'quirk->np'.
-Besides, we also should call of_node_put() before the 'quirk' being
-freed.
+syzbot is reporting hung task at misc_open() [1], for there is a race
+window of AB-BA deadlock which involves probe_count variable. Currently
+wait_for_device_probe() from snapshot_open() from misc_open() can sleep
+forever with misc_mtx held if probe_count cannot become 0.
 
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220701121804.234223-1-windhl@126.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+When a device is probed by hub_event() work function, probe_count is
+incremented before the probe function starts, and probe_count is
+decremented after the probe function completed.
+
+There are three cases that can prevent probe_count from dropping to 0.
+
+  (a) A device being probed stopped responding (i.e. broken/malicious
+      hardware).
+
+  (b) A process emulating a USB device using /dev/raw-gadget interface
+      stopped responding for some reason.
+
+  (c) New device probe requests keeps coming in before existing device
+      probe requests complete.
+
+The phenomenon syzbot is reporting is (b). A process which is holding
+system_transition_mutex and misc_mtx is waiting for probe_count to become
+0 inside wait_for_device_probe(), but the probe function which is called
+ from hub_event() work function is waiting for the processes which are
+blocked at mutex_lock(&misc_mtx) to respond via /dev/raw-gadget interface.
+
+This patch mitigates (b) by deferring wait_for_device_probe() from
+snapshot_open() to snapshot_write() and snapshot_ioctl(). Please note that
+the possibility of (b) remains as long as any thread which is emulating a
+USB device via /dev/raw-gadget interface can be blocked by uninterruptible
+blocking operations (e.g. mutex_lock()).
+
+Please also note that (a) and (c) are not addressed. Regarding (c), we
+should change the code to wait for only one device which contains the
+image for resuming from hibernation. I don't know how to address (a), for
+use of timeout for wait_for_device_probe() might result in loss of user
+data in the image. Maybe we should require the userland to wait for the
+image device before opening /dev/snapshot interface.
+
+Link: https://syzkaller.appspot.com/bug?extid=358c9ab4c93da7b7238c [1]
+Reported-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/power/user.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
-index 09ef73b99dd8..ba44cec5e59a 100644
---- a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
-+++ b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
-@@ -125,6 +125,7 @@ static int regulator_quirk_notify(struct notifier_block *nb,
+diff --git a/kernel/power/user.c b/kernel/power/user.c
+index 77438954cc2b..672d4e28fa8a 100644
+--- a/kernel/power/user.c
++++ b/kernel/power/user.c
+@@ -26,6 +26,7 @@
  
- 	list_for_each_entry_safe(pos, tmp, &quirk_list, list) {
- 		list_del(&pos->list);
-+		of_node_put(pos->np);
- 		kfree(pos);
- 	}
+ #include "power.h"
  
-@@ -174,11 +175,12 @@ static int __init rcar_gen2_regulator_quirk(void)
- 		memcpy(&quirk->i2c_msg, id->data, sizeof(quirk->i2c_msg));
++static bool need_wait;
  
- 		quirk->id = id;
--		quirk->np = np;
-+		quirk->np = of_node_get(np);
- 		quirk->i2c_msg.addr = addr;
+ #define SNAPSHOT_MINOR	231
  
- 		ret = of_irq_parse_one(np, 0, argsa);
- 		if (ret) {	/* Skip invalid entry and continue */
-+			of_node_put(np);
- 			kfree(quirk);
- 			continue;
- 		}
-@@ -225,6 +227,7 @@ static int __init rcar_gen2_regulator_quirk(void)
- err_mem:
- 	list_for_each_entry_safe(pos, tmp, &quirk_list, list) {
- 		list_del(&pos->list);
-+		of_node_put(pos->np);
- 		kfree(pos);
- 	}
+@@ -79,7 +80,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
+ 		 * Resuming.  We may need to wait for the image device to
+ 		 * appear.
+ 		 */
+-		wait_for_device_probe();
++		need_wait = true;
  
+ 		data->swap = -1;
+ 		data->mode = O_WRONLY;
+@@ -171,6 +172,11 @@ static ssize_t snapshot_write(struct file *filp, const char __user *buf,
+ 	ssize_t res;
+ 	loff_t pg_offp = *offp & ~PAGE_MASK;
+ 
++	if (need_wait) {
++		wait_for_device_probe();
++		need_wait = false;
++	}
++
+ 	lock_system_sleep();
+ 
+ 	data = filp->private_data;
+@@ -206,6 +212,11 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
+ 	loff_t size;
+ 	sector_t offset;
+ 
++	if (need_wait) {
++		wait_for_device_probe();
++		need_wait = false;
++	}
++
+ 	if (_IOC_TYPE(cmd) != SNAPSHOT_IOC_MAGIC)
+ 		return -ENOTTY;
+ 	if (_IOC_NR(cmd) > SNAPSHOT_IOC_MAXNR)
 -- 
 2.35.1
 
