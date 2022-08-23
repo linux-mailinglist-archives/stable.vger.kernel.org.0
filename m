@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EA1D59DFA7
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C0559E305
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354916AbiHWMST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
+        id S244418AbiHWMDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:03:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359558AbiHWMP5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 233B1796A4;
-        Tue, 23 Aug 2022 02:41:31 -0700 (PDT)
+        with ESMTP id S1359352AbiHWMBS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:01:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E18D83E2;
+        Tue, 23 Aug 2022 02:35:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 337D1B81C65;
-        Tue, 23 Aug 2022 09:41:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 998D4C433C1;
-        Tue, 23 Aug 2022 09:41:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FCFCB81C63;
+        Tue, 23 Aug 2022 09:35:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F149BC433C1;
+        Tue, 23 Aug 2022 09:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247677;
-        bh=zuynUB4qvXHwuhHt93KM7PDIxN+C9d44hf1QyZClopY=;
+        s=korg; t=1661247340;
+        bh=aNmfpcaxTpFNfqz2CgXLsqoeLB3uweq9V9AqqFqHcRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4dzdps/Orja196TZLq4mdClXTPm6UhGV9lx5UWGguNInK+WLPkSZDUwgxN9CT4cK
-         KLaLrUaLdlw92BqfT4n+o7qY81GUJvqkQOX+LG2PdpZ7vGFNJ9pT2EJNEI5oWEWWNS
-         yh9cKL/abf0xYS0HrTJVOLhf8m/ukLbkGhyBd5MA=
+        b=CTIIZGMm6psPTZ5VWezwUthlerepa19lR/mYkL7WLXNKkd1SdQQTgUu5VWgwKbep+
+         kpEZvsDSr1SsqL5Q5rZ9oGpzeVaR6IQSlcdZxS23Wt8m7ZMiPt2mFvwbqQ4EAYvvsB
+         SeZkaAoD2G2jxDOGS/v1fFHvEmBukp/bAwvPQ1/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pascal Terjan <pterjan@google.com>,
+        stable@vger.kernel.org, Wentao_Liang <Wentao_Liang_g@163.com>,
+        Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 112/158] vboxguest: Do not use devm for irq
+Subject: [PATCH 5.4 366/389] drivers:md:fix a potential use-after-free bug
 Date:   Tue, 23 Aug 2022 10:27:24 +0200
-Message-Id: <20220823080050.477796219@linuxfoundation.org>
+Message-Id: <20220823080130.831174912@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pascal Terjan <pterjan@google.com>
+From: Wentao_Liang <Wentao_Liang_g@163.com>
 
-[ Upstream commit 6169525b76764acb81918aa387ac168fb9a55575 ]
+[ Upstream commit 104212471b1c1817b311771d817fb692af983173 ]
 
-When relying on devm it doesn't get freed early enough which causes the
-following warning when unloading the module:
+In line 2884, "raid5_release_stripe(sh);" drops the reference to sh and
+may cause sh to be released. However, sh is subsequently used in lines
+2886 "if (sh->batch_head && sh != sh->batch_head)". This may result in an
+use-after-free bug.
 
-[249348.837181] remove_proc_entry: removing non-empty directory 'irq/20', leaking at least 'vboxguest'
-[249348.837219] WARNING: CPU: 0 PID: 6708 at fs/proc/generic.c:715 remove_proc_entry+0x119/0x140
+It can be fixed by moving "raid5_release_stripe(sh);" to the bottom of
+the function.
 
-[249348.837379] Call Trace:
-[249348.837385]  unregister_irq_proc+0xbd/0xe0
-[249348.837392]  free_desc+0x23/0x60
-[249348.837396]  irq_free_descs+0x4a/0x70
-[249348.837401]  irq_domain_free_irqs+0x160/0x1a0
-[249348.837452]  mp_unmap_irq+0x5c/0x60
-[249348.837458]  acpi_unregister_gsi_ioapic+0x29/0x40
-[249348.837463]  acpi_unregister_gsi+0x17/0x30
-[249348.837467]  acpi_pci_irq_disable+0xbf/0xe0
-[249348.837473]  pcibios_disable_device+0x20/0x30
-[249348.837478]  pci_disable_device+0xef/0x120
-[249348.837482]  vbg_pci_remove+0x6c/0x70 [vboxguest]
-
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Pascal Terjan <pterjan@google.com>
-Link: https://lore.kernel.org/r/20220612133744.4030602-1-pterjan@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wentao_Liang <Wentao_Liang_g@163.com>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virt/vboxguest/vboxguest_linux.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/md/raid5.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virt/vboxguest/vboxguest_linux.c b/drivers/virt/vboxguest/vboxguest_linux.c
-index 73eb34849eab..4ccfd30c2a30 100644
---- a/drivers/virt/vboxguest/vboxguest_linux.c
-+++ b/drivers/virt/vboxguest/vboxguest_linux.c
-@@ -356,8 +356,8 @@ static int vbg_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
- 		goto err_vbg_core_exit;
- 	}
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 474cf6abefea..fe99e8cdc026 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -2666,10 +2666,10 @@ static void raid5_end_write_request(struct bio *bi)
+ 	if (!test_and_clear_bit(R5_DOUBLE_LOCKED, &sh->dev[i].flags))
+ 		clear_bit(R5_LOCKED, &sh->dev[i].flags);
+ 	set_bit(STRIPE_HANDLE, &sh->state);
+-	raid5_release_stripe(sh);
  
--	ret = devm_request_irq(dev, pci->irq, vbg_core_isr, IRQF_SHARED,
--			       DEVICE_NAME, gdev);
-+	ret = request_irq(pci->irq, vbg_core_isr, IRQF_SHARED, DEVICE_NAME,
-+			  gdev);
- 	if (ret) {
- 		vbg_err("vboxguest: Error requesting irq: %d\n", ret);
- 		goto err_vbg_core_exit;
-@@ -367,7 +367,7 @@ static int vbg_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
- 	if (ret) {
- 		vbg_err("vboxguest: Error misc_register %s failed: %d\n",
- 			DEVICE_NAME, ret);
--		goto err_vbg_core_exit;
-+		goto err_free_irq;
- 	}
+ 	if (sh->batch_head && sh != sh->batch_head)
+ 		raid5_release_stripe(sh->batch_head);
++	raid5_release_stripe(sh);
+ }
  
- 	ret = misc_register(&gdev->misc_device_user);
-@@ -403,6 +403,8 @@ static int vbg_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
- 	misc_deregister(&gdev->misc_device_user);
- err_unregister_misc_device:
- 	misc_deregister(&gdev->misc_device);
-+err_free_irq:
-+	free_irq(pci->irq, gdev);
- err_vbg_core_exit:
- 	vbg_core_exit(gdev);
- err_disable_pcidev:
-@@ -419,6 +421,7 @@ static void vbg_pci_remove(struct pci_dev *pci)
- 	vbg_gdev = NULL;
- 	mutex_unlock(&vbg_gdev_mutex);
- 
-+	free_irq(pci->irq, gdev);
- 	device_remove_file(gdev->dev, &dev_attr_host_features);
- 	device_remove_file(gdev->dev, &dev_attr_host_version);
- 	misc_deregister(&gdev->misc_device_user);
+ static void raid5_error(struct mddev *mddev, struct md_rdev *rdev)
 -- 
 2.35.1
 
