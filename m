@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B16459D870
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6808859DA5C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242020AbiHWJvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:51:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39342 "EHLO
+        id S1352343AbiHWKH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:07:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351690AbiHWJuv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:50:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F9AA6DF9A;
-        Tue, 23 Aug 2022 01:45:14 -0700 (PDT)
+        with ESMTP id S1352809AbiHWKGS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E387027166;
+        Tue, 23 Aug 2022 01:53:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0720761338;
-        Tue, 23 Aug 2022 08:44:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B7FEC433D6;
-        Tue, 23 Aug 2022 08:44:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76FE461377;
+        Tue, 23 Aug 2022 08:53:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76AC6C433D6;
+        Tue, 23 Aug 2022 08:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244274;
-        bh=aolZgR12PUzxTi1PxC82EDK5N5Y8ZmpIPPwJr1pSbSA=;
+        s=korg; t=1661244786;
+        bh=UlzcKidXqLG4HmGSEd5gPKAWOKksFX8ym+DBmzhofjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkmck8acNBP9tHM7vZbYO8TDsrh/QBB/azb9mhtrCNM5nr674F9JOgMaCBmAwrwaX
-         PfWvQTytkWIcd399g2QucmN5k53MeGeycGvV5xhIKFt+ZRKRY8Ayj3vLLKeDiUtsCJ
-         X1peLc0aSqRe2r9voQvRkvQNoPZy7aX3N9Ml2/t4=
+        b=DGY3A5P+4Z+2xhE9/2R04DPXjp+R0wuoSJfGe6hEO2GQsBlX9iBFaQYbL3518zUPJ
+         JK8Z47fVyvcGM3EBGaxrcJU9eA36kiHgED3HyzYZgxF+tkGn+BcvFJMgBXxMjHSuvf
+         /sjj9mA3m5pFmVYTiS8qBJyp8+aAKZVY47Fxeomk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 112/229] USB: serial: fix tty-port initialized comments
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 5.15 114/244] nios2: add force_successful_syscall_return()
 Date:   Tue, 23 Aug 2022 10:24:33 +0200
-Message-Id: <20220823080057.677023084@linuxfoundation.org>
+Message-Id: <20220823080102.823419744@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 688ee1d1785c1359f9040f615dd8e6054962bce2 ]
+commit fd0c153daad135d0ec1a53c5dbe6936a724d6ae1 upstream.
 
-Fix up the tty-port initialized comments which got truncated and
-obfuscated when replacing the old ASYNCB_INITIALIZED flag.
+If we use the ancient SysV syscall ABI, we'd better have tell the
+kernel how to claim that a negative return value is a success.
+Use ->orig_r2 for that - it's inaccessible via ptrace, so it's
+a fair game for changes and it's normally[*] non-negative on return
+from syscall.  Set to -1; syscall is not going to be restart-worthy
+by definition, so we won't interfere with that use either.
 
-Fixes: d41861ca19c9 ("tty: Replace ASYNC_INITIALIZED bit and update atomically")
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[*] the only exception is rt_sigreturn(), where we skip the entire
+messing with r1/r2 anyway.
+
+Fixes: 82ed08dd1b0e ("nios2: Exception handling")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/sierra.c     | 3 ++-
- drivers/usb/serial/usb-serial.c | 2 +-
- drivers/usb/serial/usb_wwan.c   | 3 ++-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ arch/nios2/include/asm/ptrace.h |    2 ++
+ arch/nios2/kernel/entry.S       |    6 ++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/usb/serial/sierra.c b/drivers/usb/serial/sierra.c
-index a9c5564b6b65..fcbe8a9d2650 100644
---- a/drivers/usb/serial/sierra.c
-+++ b/drivers/usb/serial/sierra.c
-@@ -759,7 +759,8 @@ static void sierra_close(struct usb_serial_port *port)
+--- a/arch/nios2/include/asm/ptrace.h
++++ b/arch/nios2/include/asm/ptrace.h
+@@ -74,6 +74,8 @@ extern void show_regs(struct pt_regs *);
+ 	((struct pt_regs *)((unsigned long)current_thread_info() + THREAD_SIZE)\
+ 		- 1)
  
- 	/*
- 	 * Need to take susp_lock to make sure port is not already being
--	 * resumed, but no need to hold it due to initialized
-+	 * resumed, but no need to hold it due to the tty-port initialized
-+	 * flag.
- 	 */
- 	spin_lock_irq(&intfdata->susp_lock);
- 	if (--intfdata->open_ports == 0)
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
-index 3dc3464626fb..731bae05d7e5 100644
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -254,7 +254,7 @@ static int serial_open(struct tty_struct *tty, struct file *filp)
-  *
-  * Shut down a USB serial port. Serialized against activate by the
-  * tport mutex and kept to matching open/close pairs
-- * of calls by the initialized flag.
-+ * of calls by the tty-port initialized flag.
-  *
-  * Not called if tty is console.
-  */
-diff --git a/drivers/usb/serial/usb_wwan.c b/drivers/usb/serial/usb_wwan.c
-index 4fab7ec9cd3f..bb05c9ea9190 100644
---- a/drivers/usb/serial/usb_wwan.c
-+++ b/drivers/usb/serial/usb_wwan.c
-@@ -465,7 +465,8 @@ void usb_wwan_close(struct usb_serial_port *port)
- 
- 	/*
- 	 * Need to take susp_lock to make sure port is not already being
--	 * resumed, but no need to hold it due to initialized
-+	 * resumed, but no need to hold it due to the tty-port initialized
-+	 * flag.
- 	 */
- 	spin_lock_irq(&intfdata->susp_lock);
- 	if (--intfdata->open_ports == 0)
--- 
-2.35.1
-
++#define force_successful_syscall_return() (current_pt_regs()->orig_r2 = -1)
++
+ int do_syscall_trace_enter(void);
+ void do_syscall_trace_exit(void);
+ #endif /* __ASSEMBLY__ */
+--- a/arch/nios2/kernel/entry.S
++++ b/arch/nios2/kernel/entry.S
+@@ -213,6 +213,9 @@ local_restart:
+ translate_rc_and_ret:
+ 	movi	r1, 0
+ 	bge	r2, zero, 3f
++	ldw	r1, PT_ORIG_R2(sp)
++	addi	r1, r1, 1
++	beq	r1, zero, 3f
+ 	sub	r2, zero, r2
+ 	movi	r1, 1
+ 3:
+@@ -276,6 +279,9 @@ traced_system_call:
+ translate_rc_and_ret2:
+ 	movi	r1, 0
+ 	bge	r2, zero, 4f
++	ldw	r1, PT_ORIG_R2(sp)
++	addi	r1, r1, 1
++	beq	r1, zero, 4f
+ 	sub	r2, zero, r2
+ 	movi	r1, 1
+ 4:
 
 
