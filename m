@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C9F759D3C2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 906B459D34D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241989AbiHWIQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:16:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44492 "EHLO
+        id S242314AbiHWIQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:16:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242522AbiHWIP2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:15:28 -0400
+        with ESMTP id S242644AbiHWIPj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:15:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1908D6D57D;
-        Tue, 23 Aug 2022 01:10:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BED6D9F8;
+        Tue, 23 Aug 2022 01:10:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14F5DB81C23;
-        Tue, 23 Aug 2022 08:10:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E8F6C433D6;
-        Tue, 23 Aug 2022 08:10:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D12E3B81C25;
+        Tue, 23 Aug 2022 08:10:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16606C433D6;
+        Tue, 23 Aug 2022 08:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242210;
-        bh=pjkEizbC1JCRLj2o9AxXBiGOjqN01mRAxYEHVJUGgas=;
+        s=korg; t=1661242216;
+        bh=GfvLHcQKa8EEuB0oS8LRPAOzkCWK28/qDxLgIRgfctY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dn3J0zKcPUAoxf2JhdZKNgXdCwONYiXl7ye5JUKOC6ghmBFCiHx8B+uOE8TanAMxW
-         MI+M25iyO1gSKXtBnswe4JLiKnToWRckn50Geyvk2dEpFiQgpH/48IsQdn0SIe/0Fe
-         coTg8U0abGhrPNznw8HMajkw4ocF81gAiTulzaI4=
+        b=U/SrVawcKMwVN7OfBIBL4magzQ3jAgX2JNoMLkX3UlilR/b9CKApyUaTiMVW/vnnh
+         FHIppJ4S50saA+nsQRTFFxJt+FNWxZSq7Q6Bi88EC9HpAj1Ur754YQwuue1JXq8By/
+         oaD3dLvAQAagN538i6AP0E5DfMeyNUno7KFieKRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.19 077/365] ASoC: qdsp6: q6apm-dai: unprepare stream if its already prepared
-Date:   Tue, 23 Aug 2022 09:59:38 +0200
-Message-Id: <20220823080121.409659939@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason Wang" <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.19 078/365] virtio: VIRTIO_HARDEN_NOTIFICATION is broken
+Date:   Tue, 23 Aug 2022 09:59:39 +0200
+Message-Id: <20220823080121.453005696@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,40 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-commit 6548c884a595391fab172faeae39e2b329b848f3 upstream.
+commit ebe797f25f68f28581f46a9cb9c1997ac15c39a0 upstream.
 
-prepare callback can be called multiple times, so unprepare the stream
-if its already prepared.
+This option doesn't really work and breaks too many drivers.
+Not yet sure what's the right thing to do, for now
+let's make sure randconfig isn't broken by this.
 
-Without this DSP is not happy to setting the params on a already
-prepared graph.
-
-Fixes: 9b4fe0f1cd79 ("ASoC: qdsp6: audioreach: add q6apm-dai support")
-Reported-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220610144818.511797-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: c346dae4f3fb ("virtio: disable notification hardening by default")
+Cc: "Jason Wang" <jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/qcom/qdsp6/q6apm-dai.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/virtio/Kconfig |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/soc/qcom/qdsp6/q6apm-dai.c
-+++ b/sound/soc/qcom/qdsp6/q6apm-dai.c
-@@ -153,6 +153,12 @@ static int q6apm_dai_prepare(struct snd_
- 		q6apm_unmap_memory_regions(prtd->graph, substream->stream);
- 	}
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -35,11 +35,12 @@ if VIRTIO_MENU
  
-+	if (prtd->state) {
-+		/* clear the previous setup if any  */
-+		q6apm_graph_stop(prtd->graph);
-+		q6apm_unmap_memory_regions(prtd->graph, substream->stream);
-+	}
-+
- 	prtd->pcm_count = snd_pcm_lib_period_bytes(substream);
- 	prtd->pos = 0;
- 	/* rate and channels are sent to audio driver */
+ config VIRTIO_HARDEN_NOTIFICATION
+         bool "Harden virtio notification"
++        depends on BROKEN
+         help
+           Enable this to harden the device notifications and suppress
+           those that happen at a time where notifications are illegal.
+ 
+-          Experimental: Note that several drivers still have bugs that
++          Experimental: Note that several drivers still have issues that
+           may cause crashes or hangs when correct handling of
+           notifications is enforced; depending on the subset of
+           drivers and devices you use, this may or may not work.
 
 
