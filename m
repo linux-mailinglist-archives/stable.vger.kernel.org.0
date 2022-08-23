@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F10059DB2F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:18:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3606759E2EA
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355384AbiHWKiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:38:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43260 "EHLO
+        id S240329AbiHWLhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:37:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355711AbiHWKg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:36:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D279A6C22;
-        Tue, 23 Aug 2022 02:07:22 -0700 (PDT)
+        with ESMTP id S1349802AbiHWLdj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:33:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1A46C6CF3;
+        Tue, 23 Aug 2022 02:27:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FE4E6158D;
-        Tue, 23 Aug 2022 09:07:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B16C433D6;
-        Tue, 23 Aug 2022 09:07:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9DB66133A;
+        Tue, 23 Aug 2022 09:27:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD755C433D6;
+        Tue, 23 Aug 2022 09:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245641;
-        bh=kEJ44uGQhbsnlEsOnJCVVttPofYwKWyYENYgbKrdolw=;
+        s=korg; t=1661246823;
+        bh=+nrm8rt8GRkyPlcrkGTD0rMmIru5+ErV50pcg9tTFSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QJz0a/n4O7lY0E4L4toPKQmTHVz+OnY2avEqTSTvTCO2vCiw9IJgDb0LUGbQJ+k5/
-         106HjGUZI0PdR9AFnvdDpAx4E1V0Iu7d3++pZxXU1Htd+x8QuRjDYPUu7zSwULFtYY
-         KlrueIFIILBodMra+xgVskGpTFB5GBPy0xNvSdm8=
+        b=hsd3CKUigjcC3aKkj0uIcxHyHHfZ1QkgbZ+vcrc36S/kkVdwWlsn7WNAz12TrLWQx
+         skXtFWce4VnEjmYKcv2fbJm7tRltFa3tcdYFF7Uk/U9nqj2K7lXJ9/FlWwFPTh8/2R
+         DCKD0l5G5DmHiZ+FzNBPsfKyMdgTdpLYsRtOrb0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ad24705d3fd6463b18c6@syzkaller.appspotmail.com,
-        Jakub Kicinski <kuba@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 110/287] netdevsim: Avoid allocation warnings triggered from user space
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 201/389] jbd2: fix assertion jh->b_frozen_data == NULL failure when journal aborted
 Date:   Tue, 23 Aug 2022 10:24:39 +0200
-Message-Id: <20220823080104.076774622@linuxfoundation.org>
+Message-Id: <20220823080124.042681302@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit d0b80a9edb1a029ff913e81b47540e57ad034329 ]
+[ Upstream commit 4a734f0869f970b8a9b65062ea40b09a5da9dba8 ]
 
-We need to suppress warnings from sily map sizes. Also switch
-from GFP_USER to GFP_KERNEL_ACCOUNT, I'm pretty sure I misunderstood
-the flags when writing this code.
+Following process will fail assertion 'jh->b_frozen_data == NULL' in
+jbd2_journal_dirty_metadata():
 
-Fixes: 395cacb5f1a0 ("netdevsim: bpf: support fake map offload")
-Reported-by: syzbot+ad24705d3fd6463b18c6@syzkaller.appspotmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220726213605.154204-1-kuba@kernel.org
+                   jbd2_journal_commit_transaction
+unlink(dir/a)
+ jh->b_transaction = trans1
+ jh->b_jlist = BJ_Metadata
+                    journal->j_running_transaction = NULL
+                    trans1->t_state = T_COMMIT
+unlink(dir/b)
+ handle->h_trans = trans2
+ do_get_write_access
+  jh->b_modified = 0
+  jh->b_frozen_data = frozen_buffer
+  jh->b_next_transaction = trans2
+ jbd2_journal_dirty_metadata
+  is_handle_aborted
+   is_journal_aborted // return false
+
+           --> jbd2 abort <--
+
+                     while (commit_transaction->t_buffers)
+                      if (is_journal_aborted)
+                       jbd2_journal_refile_buffer
+                        __jbd2_journal_refile_buffer
+                         WRITE_ONCE(jh->b_transaction,
+						jh->b_next_transaction)
+                         WRITE_ONCE(jh->b_next_transaction, NULL)
+                         __jbd2_journal_file_buffer(jh, BJ_Reserved)
+        J_ASSERT_JH(jh, jh->b_frozen_data == NULL) // assertion failure !
+
+The reproducer (See detail in [Link]) reports:
+ ------------[ cut here ]------------
+ kernel BUG at fs/jbd2/transaction.c:1629!
+ invalid opcode: 0000 [#1] PREEMPT SMP
+ CPU: 2 PID: 584 Comm: unlink Tainted: G        W
+ 5.19.0-rc6-00115-g4a57a8400075-dirty #697
+ RIP: 0010:jbd2_journal_dirty_metadata+0x3c5/0x470
+ RSP: 0018:ffffc90000be7ce0 EFLAGS: 00010202
+ Call Trace:
+  <TASK>
+  __ext4_handle_dirty_metadata+0xa0/0x290
+  ext4_handle_dirty_dirblock+0x10c/0x1d0
+  ext4_delete_entry+0x104/0x200
+  __ext4_unlink+0x22b/0x360
+  ext4_unlink+0x275/0x390
+  vfs_unlink+0x20b/0x4c0
+  do_unlinkat+0x42f/0x4c0
+  __x64_sys_unlink+0x37/0x50
+  do_syscall_64+0x35/0x80
+
+After journal aborting, __jbd2_journal_refile_buffer() is executed with
+holding @jh->b_state_lock, we can fix it by moving 'is_handle_aborted()'
+into the area protected by @jh->b_state_lock.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216251
+Fixes: 470decc613ab20 ("[PATCH] jbd2: initial copy of files from jbd")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Link: https://lore.kernel.org/r/20220715125152.4022726-1-chengzhihao1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/netdevsim/bpf.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/jbd2/transaction.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/netdevsim/bpf.c b/drivers/net/netdevsim/bpf.c
-index 12f100392ed1..ca9042ddb6d7 100644
---- a/drivers/net/netdevsim/bpf.c
-+++ b/drivers/net/netdevsim/bpf.c
-@@ -330,10 +330,12 @@ nsim_map_alloc_elem(struct bpf_offloaded_map *offmap, unsigned int idx)
- {
- 	struct nsim_bpf_bound_map *nmap = offmap->dev_priv;
+diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+index be05fb96757c..e0bd73140415 100644
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -1375,8 +1375,6 @@ int jbd2_journal_dirty_metadata(handle_t *handle, struct buffer_head *bh)
+ 	struct journal_head *jh;
+ 	int ret = 0;
  
--	nmap->entry[idx].key = kmalloc(offmap->map.key_size, GFP_USER);
-+	nmap->entry[idx].key = kmalloc(offmap->map.key_size,
-+				       GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
- 	if (!nmap->entry[idx].key)
- 		return -ENOMEM;
--	nmap->entry[idx].value = kmalloc(offmap->map.value_size, GFP_USER);
-+	nmap->entry[idx].value = kmalloc(offmap->map.value_size,
-+					 GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
- 	if (!nmap->entry[idx].value) {
- 		kfree(nmap->entry[idx].key);
- 		nmap->entry[idx].key = NULL;
-@@ -475,7 +477,7 @@ nsim_bpf_map_alloc(struct netdevsim *ns, struct bpf_offloaded_map *offmap)
- 	if (offmap->map.map_flags)
- 		return -EINVAL;
+-	if (is_handle_aborted(handle))
+-		return -EROFS;
+ 	if (!buffer_jbd(bh))
+ 		return -EUCLEAN;
  
--	nmap = kzalloc(sizeof(*nmap), GFP_USER);
-+	nmap = kzalloc(sizeof(*nmap), GFP_KERNEL_ACCOUNT);
- 	if (!nmap)
- 		return -ENOMEM;
+@@ -1423,6 +1421,18 @@ int jbd2_journal_dirty_metadata(handle_t *handle, struct buffer_head *bh)
+ 	journal = transaction->t_journal;
+ 	jbd_lock_bh_state(bh);
  
++	if (is_handle_aborted(handle)) {
++		/*
++		 * Check journal aborting with @jh->b_state_lock locked,
++		 * since 'jh->b_transaction' could be replaced with
++		 * 'jh->b_next_transaction' during old transaction
++		 * committing if journal aborted, which may fail
++		 * assertion on 'jh->b_frozen_data == NULL'.
++		 */
++		ret = -EROFS;
++		goto out_unlock_bh;
++	}
++
+ 	if (jh->b_modified == 0) {
+ 		/*
+ 		 * This buffer's got modified and becoming part
 -- 
 2.35.1
 
