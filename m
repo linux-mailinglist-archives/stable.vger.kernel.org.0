@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3664859DDA8
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1D759DCA5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239704AbiHWMPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:15:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43272 "EHLO
+        id S1358636AbiHWLwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350342AbiHWMOb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:14:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C111B77EA0;
-        Tue, 23 Aug 2022 02:40:35 -0700 (PDT)
+        with ESMTP id S1359035AbiHWLvg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:51:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40FF8D3E68;
+        Tue, 23 Aug 2022 02:32:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB2A60F50;
-        Tue, 23 Aug 2022 09:39:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39ED6C433B5;
-        Tue, 23 Aug 2022 09:39:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 243C1B81C96;
+        Tue, 23 Aug 2022 09:32:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AAEBC433C1;
+        Tue, 23 Aug 2022 09:32:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247555;
-        bh=sZA4j3WfRODB02016YMFjVMHgF4nnVisj24HWC5yEA8=;
+        s=korg; t=1661247133;
+        bh=xtzz9eBK+owALhajEDHehpsCM+hAxbsgv57CdLLHDE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=szF1d4q4LmOfE+OmVpwct/9yurrJaNG8QKO2oJKtdkQvQC+lcfEKdl/nTfb2hqxT1
-         Ml3zh/l9ooioF4RzFu6bO0PfnJ58WVpdxOLOTr/+baOV5kDCjtxevB/P6HS1GToKGg
-         G+czkKHk+X55ISajftTdsek70tRDFlFPjbOl47d4=
+        b=BYmBJBZWxjc3SwtinpjUbUmQmrEvFkV4uHM+MMhEQjapQZHtwITT5m9LU4TDGtcye
+         uBPuTeDz/rBpwcM/9Vh98+JJVuPJ0DSVcAroCEJs0LBUIzYrhTHyrgIavsOAwU45qY
+         8EeOoKTGZAJhhfMGj7v7TWrZuOtNDDimtTdkQmXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 044/158] ACPI: property: Return type of acpi_add_nondev_subnodes() should be bool
+        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.4 298/389] apparmor: fix overlapping attachment computation
 Date:   Tue, 23 Aug 2022 10:26:16 +0200
-Message-Id: <20220823080047.854895541@linuxfoundation.org>
+Message-Id: <20220823080127.996462689@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: John Johansen <john.johansen@canonical.com>
 
-commit 85140ef275f577f64e8a2c5789447222dfc14fc4 upstream.
+commit 2504db207146543736e877241f3b3de005cbe056 upstream.
 
-The value acpi_add_nondev_subnodes() returns is bool so change the return
-type of the function to match that.
+When finding the profile via patterned attachments, the longest left
+match is being set to the static compile time value and not using the
+runtime computed value.
 
-Fixes: 445b0eb058f5 ("ACPI / property: Add support for data-only subnodes")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix this by setting the candidate value to the greater of the
+precomputed value or runtime computed value.
+
+Fixes: 21f606610502 ("apparmor: improve overlapping domain attachment resolution")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/property.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ security/apparmor/domain.c         |    2 +-
+ security/apparmor/include/policy.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/property.c
-+++ b/drivers/acpi/property.c
-@@ -155,10 +155,10 @@ static bool acpi_nondev_subnode_ok(acpi_
- 	return acpi_nondev_subnode_data_ok(handle, link, list, parent);
- }
+--- a/security/apparmor/domain.c
++++ b/security/apparmor/domain.c
+@@ -460,7 +460,7 @@ restart:
+ 				 * xattrs, or a longer match
+ 				 */
+ 				candidate = profile;
+-				candidate_len = profile->xmatch_len;
++				candidate_len = max(count, profile->xmatch_len);
+ 				candidate_xattrs = ret;
+ 				conflict = false;
+ 			}
+--- a/security/apparmor/include/policy.h
++++ b/security/apparmor/include/policy.h
+@@ -135,7 +135,7 @@ struct aa_profile {
  
--static int acpi_add_nondev_subnodes(acpi_handle scope,
--				    const union acpi_object *links,
--				    struct list_head *list,
--				    struct fwnode_handle *parent)
-+static bool acpi_add_nondev_subnodes(acpi_handle scope,
-+				     const union acpi_object *links,
-+				     struct list_head *list,
-+				     struct fwnode_handle *parent)
- {
- 	bool ret = false;
- 	int i;
+ 	const char *attach;
+ 	struct aa_dfa *xmatch;
+-	int xmatch_len;
++	unsigned int xmatch_len;
+ 	enum audit_mode audit;
+ 	long mode;
+ 	u32 path_flags;
 
 
