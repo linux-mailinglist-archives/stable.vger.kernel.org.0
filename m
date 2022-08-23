@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F44859D3FE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD6959D382
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241622AbiHWIJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:09:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50578 "EHLO
+        id S241744AbiHWIJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:09:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241459AbiHWIIZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:08:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B8B1208F;
-        Tue, 23 Aug 2022 01:05:36 -0700 (PDT)
+        with ESMTP id S241741AbiHWIIa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:08:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE6615FD5;
+        Tue, 23 Aug 2022 01:05:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FF1C6123F;
-        Tue, 23 Aug 2022 08:05:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AD24C433D6;
-        Tue, 23 Aug 2022 08:05:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 627C9CE1B29;
+        Tue, 23 Aug 2022 08:05:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6367AC433C1;
+        Tue, 23 Aug 2022 08:05:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661241911;
-        bh=Q0I/PmJguM5EbQjnODE386mN8aRsJ1nboBw3Kf2fsGA=;
+        s=korg; t=1661241914;
+        bh=p5L1RJmEecqNIfPyT3QRQLYh4wl0EhjOa21pZM+hFrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rSTu9u8NZDscSVAhG5vUQ2i77J8zrm+xJCg77QjiE6zpzI0+dJnxeALAfjXRS/WmB
-         Gfjs1NnHKMWdoN76RT++ma5imxD/e6SGNxgyNvK/H3Ah/fjsXjjSb6lp1HtlE1OpxN
-         2EyycM1hoNG8277XFijA2lrGfSjh4k34fct+9p4g=
+        b=blmD1hZBE3AzsX/24YuZpnPjGCa7S0BkkMIppyf/hCHTmxO23PLQvs4XaYfRxj1Jw
+         JcxkiVxuGmVGssiL5FiI2MMXCvy90kFmOT9xMzjdSx7GQJDkAZr4nRPCpgY2OO6cZP
+         UMaktVlOOLDoMfIWdrj+43ECCxVb39zNdZ0MDNcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.19 017/365] mmc: meson-gx: Fix an error handling path in meson_mmc_probe()
-Date:   Tue, 23 Aug 2022 09:58:38 +0200
-Message-Id: <20220823080118.902709249@linuxfoundation.org>
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
+        Nikolay Borisov <nborisov@suse.com>,
+        Zixuan Fu <r33s3n6@gmail.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.19 018/365] btrfs: unset reloc control if transaction commit fails in prepare_to_relocate()
+Date:   Tue, 23 Aug 2022 09:58:39 +0200
+Message-Id: <20220823080118.950572230@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,38 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Zixuan Fu <r33s3n6@gmail.com>
 
-commit b3e1cf31154136da855f3cb6117c17eb0b6bcfb4 upstream.
+commit 85f02d6c856b9f3a0acf5219de6e32f58b9778eb upstream.
 
-The commit in Fixes has introduced a new error handling which should goto
-the existing error handling path.
-Otherwise some resources leak.
+In btrfs_relocate_block_group(), the rc is allocated.  Then
+btrfs_relocate_block_group() calls
 
-Fixes: 19c6beaa064c ("mmc: meson-gx: add device reset")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/be4b863bacf323521ba3a02efdc4fca9cdedd1a6.1659855351.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+relocate_block_group()
+  prepare_to_relocate()
+    set_reloc_control()
+
+that assigns rc to the variable fs_info->reloc_ctl. When
+prepare_to_relocate() returns, it calls
+
+btrfs_commit_transaction()
+  btrfs_start_dirty_block_groups()
+    btrfs_alloc_path()
+      kmem_cache_zalloc()
+
+which may fail for example (or other errors could happen). When the
+failure occurs, btrfs_relocate_block_group() detects the error and frees
+rc and doesn't set fs_info->reloc_ctl to NULL. After that, in
+btrfs_init_reloc_root(), rc is retrieved from fs_info->reloc_ctl and
+then used, which may cause a use-after-free bug.
+
+This possible bug can be triggered by calling btrfs_ioctl_balance()
+before calling btrfs_ioctl_defrag().
+
+To fix this possible bug, in prepare_to_relocate(), check if
+btrfs_commit_transaction() fails. If the failure occurs,
+unset_reloc_control() is called to set fs_info->reloc_ctl to NULL.
+
+The error log in our fault-injection testing is shown as follows:
+
+  [   58.751070] BUG: KASAN: use-after-free in btrfs_init_reloc_root+0x7ca/0x920 [btrfs]
+  ...
+  [   58.753577] Call Trace:
+  ...
+  [   58.755800]  kasan_report+0x45/0x60
+  [   58.756066]  btrfs_init_reloc_root+0x7ca/0x920 [btrfs]
+  [   58.757304]  record_root_in_trans+0x792/0xa10 [btrfs]
+  [   58.757748]  btrfs_record_root_in_trans+0x463/0x4f0 [btrfs]
+  [   58.758231]  start_transaction+0x896/0x2950 [btrfs]
+  [   58.758661]  btrfs_defrag_root+0x250/0xc00 [btrfs]
+  [   58.759083]  btrfs_ioctl_defrag+0x467/0xa00 [btrfs]
+  [   58.759513]  btrfs_ioctl+0x3c95/0x114e0 [btrfs]
+  ...
+  [   58.768510] Allocated by task 23683:
+  [   58.768777]  ____kasan_kmalloc+0xb5/0xf0
+  [   58.769069]  __kmalloc+0x227/0x3d0
+  [   58.769325]  alloc_reloc_control+0x10a/0x3d0 [btrfs]
+  [   58.769755]  btrfs_relocate_block_group+0x7aa/0x1e20 [btrfs]
+  [   58.770228]  btrfs_relocate_chunk+0xf1/0x760 [btrfs]
+  [   58.770655]  __btrfs_balance+0x1326/0x1f10 [btrfs]
+  [   58.771071]  btrfs_balance+0x3150/0x3d30 [btrfs]
+  [   58.771472]  btrfs_ioctl_balance+0xd84/0x1410 [btrfs]
+  [   58.771902]  btrfs_ioctl+0x4caa/0x114e0 [btrfs]
+  ...
+  [   58.773337] Freed by task 23683:
+  ...
+  [   58.774815]  kfree+0xda/0x2b0
+  [   58.775038]  free_reloc_control+0x1d6/0x220 [btrfs]
+  [   58.775465]  btrfs_relocate_block_group+0x115c/0x1e20 [btrfs]
+  [   58.775944]  btrfs_relocate_chunk+0xf1/0x760 [btrfs]
+  [   58.776369]  __btrfs_balance+0x1326/0x1f10 [btrfs]
+  [   58.776784]  btrfs_balance+0x3150/0x3d30 [btrfs]
+  [   58.777185]  btrfs_ioctl_balance+0xd84/0x1410 [btrfs]
+  [   58.777621]  btrfs_ioctl+0x4caa/0x114e0 [btrfs]
+  ...
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/meson-gx-mmc.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/btrfs/relocation.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -1172,8 +1172,10 @@ static int meson_mmc_probe(struct platfo
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -3573,7 +3573,12 @@ int prepare_to_relocate(struct reloc_con
+ 		 */
+ 		return PTR_ERR(trans);
  	}
+-	return btrfs_commit_transaction(trans);
++
++	ret = btrfs_commit_transaction(trans);
++	if (ret)
++		unset_reloc_control(rc);
++
++	return ret;
+ }
  
- 	ret = device_reset_optional(&pdev->dev);
--	if (ret)
--		return dev_err_probe(&pdev->dev, ret, "device reset failed\n");
-+	if (ret) {
-+		dev_err_probe(&pdev->dev, ret, "device reset failed\n");
-+		goto free_host;
-+	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	host->regs = devm_ioremap_resource(&pdev->dev, res);
+ static noinline_for_stack int relocate_block_group(struct reloc_control *rc)
 
 
