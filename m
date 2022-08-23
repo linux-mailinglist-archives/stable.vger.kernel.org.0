@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8233559D394
+	by mail.lfdr.de (Postfix) with ESMTP id CEA6459D395
 	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242425AbiHWIRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:17:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44492 "EHLO
+        id S242339AbiHWIQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:16:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242376AbiHWIOh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:14:37 -0400
+        with ESMTP id S242167AbiHWIOz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:14:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1F796CF41;
-        Tue, 23 Aug 2022 01:09:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EFF46CF44;
+        Tue, 23 Aug 2022 01:09:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1E716126A;
-        Tue, 23 Aug 2022 08:09:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5CADC433C1;
-        Tue, 23 Aug 2022 08:09:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B2816126A;
+        Tue, 23 Aug 2022 08:09:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D292C433C1;
+        Tue, 23 Aug 2022 08:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242189;
-        bh=6U83wbLARbMC175D+M8iSXUKvFzWTq2N2fBB1jY3bHg=;
+        s=korg; t=1661242195;
+        bh=+SzV2j3mKb6C/dGCOU8fZHy34MjFU/Y5qxgDjnVjrw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSI32Wiu1I+I1dfF3UIqeb4vnbH+nYbn+9NZXksouwF2k2HqvxWVmQ/1FDKqmIWWy
-         r3ROVN0hqmbrgjxXKbJibeKoj3KnUUlxpCO1lNWP159k+ficS+p6RJ7ZJ2MdKvQ/2V
-         JDv7GKBniyP2emvJZ+TSHmE1loedETMLEUmUHSPY=
+        b=s/3BKX1TxAX37gf0+TDHPB2UcuHqze4vB930oixL1Gjrs6IXx4kCJvPBiLgEFOEiU
+         DntYL75/7AwT4MWMFyXiU5FdvC0X2uQ9mBgXrC7r2PwFIJm2hA7MLXqzqtnX9g5IPX
+         WPqsKtQB1xxUSs6UG2iaQdjGbUoyKaFJ+viMjm4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Namjae Jeon <linkinjeon@kernel.org>, stable@kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Steve French <sfrench@samba.org>,
-        Hyunchul Lee <hyc.lee@gmail.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Dave Wysochanski <dwysocha@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 033/101] vfs: Check the truncate maximum size in inode_newsize_ok()
-Date:   Tue, 23 Aug 2022 10:03:06 +0200
-Message-Id: <20220823080035.847056784@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Lukas Wunner <lukas@wunner.de>,
+        Oliver Neukum <oneukum@suse.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 034/101] usbnet: Fix linkwatch use-after-free on disconnect
+Date:   Tue, 23 Aug 2022 10:03:07 +0200
+Message-Id: <20220823080035.888712866@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -60,68 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit e2ebff9c57fe4eb104ce4768f6ebcccf76bef849 upstream.
+commit a69e617e533edddf3fa3123149900f36e0a6dc74 upstream.
 
-If something manages to set the maximum file size to MAX_OFFSET+1, this
-can cause the xfs and ext4 filesystems at least to become corrupt.
+usbnet uses the work usbnet_deferred_kevent() to perform tasks which may
+sleep.  On disconnect, completion of the work was originally awaited in
+->ndo_stop().  But in 2003, that was moved to ->disconnect() by historic
+commit "[PATCH] USB: usbnet, prevent exotic rtnl deadlock":
 
-Ordinarily, the kernel protects against userspace trying this by
-checking the value early in the truncate() and ftruncate() system calls
-calls - but there are at least two places that this check is bypassed:
+  https://git.kernel.org/tglx/history/c/0f138bbfd83c
 
- (1) Cachefiles will round up the EOF of the backing file to DIO block
-     size so as to allow DIO on the final block - but this might push
-     the offset negative. It then calls notify_change(), but this
-     inadvertently bypasses the checking. This can be triggered if
-     someone puts an 8EiB-1 file on a server for someone else to try and
-     access by, say, nfs.
+The change was made because back then, the kernel's workqueue
+implementation did not allow waiting for a single work.  One had to wait
+for completion of *all* work by calling flush_scheduled_work(), and that
+could deadlock when waiting for usbnet_deferred_kevent() with rtnl_mutex
+held in ->ndo_stop().
 
- (2) ksmbd doesn't check the value it is given in set_end_of_file_info()
-     and then calls vfs_truncate() directly - which also bypasses the
-     check.
+The commit solved one problem but created another:  It causes a
+use-after-free in USB Ethernet drivers aqc111.c, asix_devices.c,
+ax88179_178a.c, ch9200.c and smsc75xx.c:
 
-In both cases, it is potentially possible for a network filesystem to
-cause a disk filesystem to be corrupted: cachefiles in the client's
-cache filesystem; ksmbd in the server's filesystem.
+* If the drivers receive a link change interrupt immediately before
+  disconnect, they raise EVENT_LINK_RESET in their (non-sleepable)
+  ->status() callback and schedule usbnet_deferred_kevent().
+* usbnet_deferred_kevent() invokes the driver's ->link_reset() callback,
+  which calls netif_carrier_{on,off}().
+* That in turn schedules the work linkwatch_event().
 
-nfsd is okay as it checks the value, but we can then remove this check
-too.
+Because usbnet_deferred_kevent() is awaited after unregister_netdev(),
+netif_carrier_{on,off}() may operate on an unregistered netdev and
+linkwatch_event() may run after free_netdev(), causing a use-after-free.
 
-Fix this by adding a check to inode_newsize_ok(), as called from
-setattr_prepare(), thereby catching the issue as filesystems set up to
-perform the truncate with minimal opportunity for bypassing the new
-check.
+In 2010, usbnet was changed to only wait for a single instance of
+usbnet_deferred_kevent() instead of *all* work by commit 23f333a2bfaf
+("drivers/net: don't use flush_scheduled_work()").
 
-Fixes: 1f08c925e7a3 ("cachefiles: Implement backing file wrangling")
-Fixes: f44158485826 ("cifsd: add file operations")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reported-by: Jeff Layton <jlayton@kernel.org>
-Tested-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Namjae Jeon <linkinjeon@kernel.org>
-Cc: stable@kernel.org
-Acked-by: Alexander Viro <viro@zeniv.linux.org.uk>
-cc: Steve French <sfrench@samba.org>
-cc: Hyunchul Lee <hyc.lee@gmail.com>
-cc: Chuck Lever <chuck.lever@oracle.com>
-cc: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Unfortunately the commit neglected to move the wait back to
+->ndo_stop().  Rectify that omission at long last.
+
+Reported-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/netdev/CAG48ez0MHBbENX5gCdHAUXZ7h7s20LnepBF-pa5M=7Bi-jZrEA@mail.gmail.com/
+Reported-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/netdev/20220315113841.GA22337@pengutronix.de/
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/d1c87ebe9fc502bffcd1576e238d685ad08321e4.1655987888.git.lukas@wunner.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/attr.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/usb/usbnet.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -111,6 +111,8 @@ EXPORT_SYMBOL(setattr_prepare);
-  */
- int inode_newsize_ok(const struct inode *inode, loff_t offset)
- {
-+	if (offset < 0)
-+		return -EINVAL;
- 	if (inode->i_size < offset) {
- 		unsigned long limit;
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -847,13 +847,11 @@ int usbnet_stop (struct net_device *net)
  
+ 	mpn = !test_and_clear_bit(EVENT_NO_RUNTIME_PM, &dev->flags);
+ 
+-	/* deferred work (task, timer, softirq) must also stop.
+-	 * can't flush_scheduled_work() until we drop rtnl (later),
+-	 * else workers could deadlock; so make workers a NOP.
+-	 */
++	/* deferred work (timer, softirq, task) must also stop */
+ 	dev->flags = 0;
+ 	del_timer_sync (&dev->delay);
+ 	tasklet_kill (&dev->bh);
++	cancel_work_sync(&dev->kevent);
+ 	if (!pm)
+ 		usb_autopm_put_interface(dev->intf);
+ 
+@@ -1577,8 +1575,6 @@ void usbnet_disconnect (struct usb_inter
+ 	net = dev->net;
+ 	unregister_netdev (net);
+ 
+-	cancel_work_sync(&dev->kevent);
+-
+ 	usb_scuttle_anchored_urbs(&dev->deferred);
+ 
+ 	if (dev->driver_info->unbind)
 
 
