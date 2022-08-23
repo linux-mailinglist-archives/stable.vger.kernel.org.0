@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7977A59D787
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B82E959D7CA
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351022AbiHWJd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:33:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34844 "EHLO
+        id S241584AbiHWJrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:47:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350625AbiHWJc0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:32:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7813783BDB;
-        Tue, 23 Aug 2022 01:38:56 -0700 (PDT)
+        with ESMTP id S1352571AbiHWJqf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83EB74DB27;
+        Tue, 23 Aug 2022 01:44:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA55661517;
-        Tue, 23 Aug 2022 08:37:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEC77C433B5;
-        Tue, 23 Aug 2022 08:37:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3345661540;
+        Tue, 23 Aug 2022 08:43:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29F27C433B5;
+        Tue, 23 Aug 2022 08:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243872;
-        bh=5F3L1hqSN/7exQ2u/UxDEhO+Ah+rnMqDKqPMrqS7AEE=;
+        s=korg; t=1661244199;
+        bh=Ar0Ri1pXQ2u5TEvE1oM8+Sx9bnNlWLzCZzLjllN8NEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AS1NiJ0q3hxiyZ6zL0nLPlK2gt+XBOcY1VAp6DK6tUpxMHZqU13zRXdh8xEDDkt0n
-         TSIATAzTJTqRNCsQvJu3461MjWAGKz8RqumWQ4xX3Fj7aqmOX1tMTdKNNrWbS1GOwh
-         bcreHCio9YrwV/i57XKzl9n//4QH+HChyqvKOfIs=
+        b=t3QaiXGALtus5VP4P49vqbKBhf+exQtlOg9QIwkTArpm2m5NONVjNGVf7BH76/dOE
+         lp7pPGXpG4Gb+d9y1PPSkM5wttDE3/suWF1p0S2CF78DPIJLTbmGSSbsTH/wfpwbRX
+         06dCKaybAwLTXnQngyqhOWXCSSoCbStallyVeelk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 049/229] ARM: findbit: fix overflowing offset
-Date:   Tue, 23 Aug 2022 10:23:30 +0200
-Message-Id: <20220823080055.424373126@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.15 055/244] SUNRPC: Reinitialise the backchannel request buffers before reuse
+Date:   Tue, 23 Aug 2022 10:23:34 +0200
+Message-Id: <20220823080100.903408710@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit ec85bd369fd2bfaed6f45dd678706429d4f75b48 ]
+commit 6622e3a73112fc336c1c2c582428fb5ef18e456a upstream.
 
-When offset is larger than the size of the bit array, we should not
-attempt to access the array as we can perform an access beyond the
-end of the array. Fix this by changing the pre-condition.
+When we're reusing the backchannel requests instead of freeing them,
+then we should reinitialise any values of the send/receive xdr_bufs so
+that they reflect the available space.
 
-Using "cmp r2, r1; bhs ..." covers us for the size == 0 case, since
-this will always take the branch when r1 is zero, irrespective of
-the value of r2. This means we can fix this bug without adding any
-additional code!
-
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0d2a970d0ae5 ("SUNRPC: Fix a backchannel race")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/lib/findbit.S | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/sunrpc/backchannel_rqst.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/arch/arm/lib/findbit.S b/arch/arm/lib/findbit.S
-index 7848780e8834..20fef6c41f6f 100644
---- a/arch/arm/lib/findbit.S
-+++ b/arch/arm/lib/findbit.S
-@@ -43,8 +43,8 @@ ENDPROC(_find_first_zero_bit_le)
-  * Prototype: int find_next_zero_bit(void *addr, unsigned int maxbit, int offset)
-  */
- ENTRY(_find_next_zero_bit_le)
--		teq	r1, #0
--		beq	3b
-+		cmp	r2, r1
-+		bhs	3b
- 		ands	ip, r2, #7
- 		beq	1b			@ If new byte, goto old routine
-  ARM(		ldrb	r3, [r0, r2, lsr #3]	)
-@@ -84,8 +84,8 @@ ENDPROC(_find_first_bit_le)
-  * Prototype: int find_next_zero_bit(void *addr, unsigned int maxbit, int offset)
-  */
- ENTRY(_find_next_bit_le)
--		teq	r1, #0
--		beq	3b
-+		cmp	r2, r1
-+		bhs	3b
- 		ands	ip, r2, #7
- 		beq	1b			@ If new byte, goto old routine
-  ARM(		ldrb	r3, [r0, r2, lsr #3]	)
-@@ -118,8 +118,8 @@ ENTRY(_find_first_zero_bit_be)
- ENDPROC(_find_first_zero_bit_be)
+--- a/net/sunrpc/backchannel_rqst.c
++++ b/net/sunrpc/backchannel_rqst.c
+@@ -64,6 +64,17 @@ static void xprt_free_allocation(struct
+ 	kfree(req);
+ }
  
- ENTRY(_find_next_zero_bit_be)
--		teq	r1, #0
--		beq	3b
-+		cmp	r2, r1
-+		bhs	3b
- 		ands	ip, r2, #7
- 		beq	1b			@ If new byte, goto old routine
- 		eor	r3, r2, #0x18		@ big endian byte ordering
-@@ -152,8 +152,8 @@ ENTRY(_find_first_bit_be)
- ENDPROC(_find_first_bit_be)
- 
- ENTRY(_find_next_bit_be)
--		teq	r1, #0
--		beq	3b
-+		cmp	r2, r1
-+		bhs	3b
- 		ands	ip, r2, #7
- 		beq	1b			@ If new byte, goto old routine
- 		eor	r3, r2, #0x18		@ big endian byte ordering
--- 
-2.35.1
-
++static void xprt_bc_reinit_xdr_buf(struct xdr_buf *buf)
++{
++	buf->head[0].iov_len = PAGE_SIZE;
++	buf->tail[0].iov_len = 0;
++	buf->pages = NULL;
++	buf->page_len = 0;
++	buf->flags = 0;
++	buf->len = 0;
++	buf->buflen = PAGE_SIZE;
++}
++
+ static int xprt_alloc_xdr_buf(struct xdr_buf *buf, gfp_t gfp_flags)
+ {
+ 	struct page *page;
+@@ -292,6 +303,9 @@ void xprt_free_bc_rqst(struct rpc_rqst *
+ 	 */
+ 	spin_lock_bh(&xprt->bc_pa_lock);
+ 	if (xprt_need_to_requeue(xprt)) {
++		xprt_bc_reinit_xdr_buf(&req->rq_snd_buf);
++		xprt_bc_reinit_xdr_buf(&req->rq_rcv_buf);
++		req->rq_rcv_buf.len = PAGE_SIZE;
+ 		list_add_tail(&req->rq_bc_pa_list, &xprt->bc_pa_list);
+ 		xprt->bc_alloc_count++;
+ 		atomic_inc(&xprt->bc_slot_count);
 
 
