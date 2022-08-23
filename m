@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01FE759DDD4
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4360959E306
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245547AbiHWLR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47180 "EHLO
+        id S1352960AbiHWKT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357933AbiHWLR2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48DEA804B5;
-        Tue, 23 Aug 2022 02:20:52 -0700 (PDT)
+        with ESMTP id S1353437AbiHWKRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:17:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5857180B7C;
+        Tue, 23 Aug 2022 02:01:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3654B81C86;
-        Tue, 23 Aug 2022 09:20:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E67B9C433C1;
-        Tue, 23 Aug 2022 09:20:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AFE8661499;
+        Tue, 23 Aug 2022 09:01:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D17C433C1;
+        Tue, 23 Aug 2022 09:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246449;
-        bh=5Eg+mOfgK0nOXc2WZG4g5gtNOFCOyYxaBjt1GGpN1z0=;
+        s=korg; t=1661245292;
+        bh=q8TQCf8SAtSSg0KTvYIsRTspUDo0nbDxlT1zhrAe5AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AhxuFO/nz1iaXFbM0zl4z6lSZySlO4YcfSV0ShOdYL/79FJzSD15VPWZkMd2k/ZUa
-         iknTSxel9Hv4s6JzQySTRVf2As4O/bDWyHfLIJu07MsjlCgi9ncuKE0flw9VsH23BO
-         WsWgzL5ziO9PSR0AErz6BMDK/eE6hX5v9vr9oDy4=
+        b=r0OIQdTPYPao/fZE7o9Lq6bdd3XXQAs3Pea1G4ywO4+AcwJ5Ay5QufOn8ZOlN/BSX
+         2iH/FfBBLCd85bIU5mdoSoOjW28ydXRJnlzw+WvZi4+Sh3STo+4snewJI7I+Ty5Azz
+         tmzv4LK4usV4EBEoKqr/kNx7tP2YNsFy0yQ3DZmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 096/389] wifi: rtlwifi: fix error codes in rtl_debugfs_set_write_h2c()
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Jeongik Cha <jeongik@google.com>
+Subject: [PATCH 4.19 005/287] wifi: mac80211_hwsim: add back erroneously removed cast
 Date:   Tue, 23 Aug 2022 10:22:54 +0200
-Message-Id: <20220823080119.622749193@linuxfoundation.org>
+Message-Id: <20220823080100.447145203@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit b88d28146c30a8e14f0f012d56ebf19b68a348f4 ]
+commit 58b6259d820d63c2adf1c7541b54cce5a2ae6073 upstream.
 
-If the copy_from_user() fails or the user gives invalid date then the
-correct thing to do is to return a negative error code.  (Currently it
-returns success).
+The robots report that we're now casting to a differently
+sized integer, which is correct, and the previous patch
+had erroneously removed it.
 
-I made a copy additional related cleanups:
-1) There is no need to check "buffer" for NULL.  That's handled by
-copy_from_user().
-2) The "h2c_len" variable cannot be negative because it is unsigned
-and because sscanf() does not return negative error codes.
-
-Fixes: 610247f46feb ("rtlwifi: Improve debugging by using debugfs")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/YoOLnDkHgVltyXK7@kili
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 4ee186fa7e40 ("wifi: mac80211_hwsim: fix race condition in pending packet")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: Jeongik Cha <jeongik@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/debug.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/debug.c b/drivers/net/wireless/realtek/rtlwifi/debug.c
-index 55db71c766fe..ec0da33da4f8 100644
---- a/drivers/net/wireless/realtek/rtlwifi/debug.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/debug.c
-@@ -349,8 +349,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -3149,7 +3149,7 @@ static int hwsim_tx_info_frame_received_
+ 		u64 skb_cookie;
  
- 	tmp_len = (count > sizeof(tmp) - 1 ? sizeof(tmp) - 1 : count);
+ 		txi = IEEE80211_SKB_CB(skb);
+-		skb_cookie = (u64)txi->rate_driver_data[0];
++		skb_cookie = (u64)(uintptr_t)txi->rate_driver_data[0];
  
--	if (!buffer || copy_from_user(tmp, buffer, tmp_len))
--		return count;
-+	if (copy_from_user(tmp, buffer, tmp_len))
-+		return -EFAULT;
- 
- 	tmp[tmp_len] = '\0';
- 
-@@ -360,8 +360,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
- 			 &h2c_data[4], &h2c_data[5],
- 			 &h2c_data[6], &h2c_data[7]);
- 
--	if (h2c_len <= 0)
--		return count;
-+	if (h2c_len == 0)
-+		return -EINVAL;
- 
- 	for (i = 0; i < h2c_len; i++)
- 		h2c_data_packed[i] = (u8)h2c_data[i];
--- 
-2.35.1
-
+ 		if (skb_cookie == ret_skb_cookie) {
+ 			__skb_unlink(skb, &data2->pending);
 
 
