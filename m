@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D46859D406
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F423259D446
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242723AbiHWISf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:18:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41470 "EHLO
+        id S242769AbiHWISp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:18:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243041AbiHWIQb (ORCPT
+        with ESMTP id S243048AbiHWIQb (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:16:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7699D696FF;
-        Tue, 23 Aug 2022 01:10:57 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0CDE69F47;
+        Tue, 23 Aug 2022 01:11:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB7396125C;
-        Tue, 23 Aug 2022 08:10:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB454C433C1;
-        Tue, 23 Aug 2022 08:10:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 994E6B81C21;
+        Tue, 23 Aug 2022 08:11:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C927C433C1;
+        Tue, 23 Aug 2022 08:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242256;
-        bh=7JAZnDt9lcHI9LQLfpATVy4VPp1dPuVcZFLyzYVRfB8=;
+        s=korg; t=1661242262;
+        bh=jfx9wh8uosd78AL1NIjHUT0Kyi87J6lpHbyFZ/VZkjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pUpPF8b5Z4Co5+lkFP5mE/4Jf6upBWyTENqXNPer64L3aNsxWSMN9/sdmzRDl3iHy
-         Vv/CAR0tDk69xoU1o7exmplTEQgj1zsDczLfBfSpNYpma+c9nEuSNIprXjQW4QIHyo
-         enpJwmqOj/08hmNwwq8S5veMlZx+UlP2WfigbaEQ=
+        b=n0h9hRl93UbhJsqaL01UNgTF9ET0rdXqItg0D2saVUDm1xJohibVEf14KBSdN3/EF
+         z3z5tzXZ3DS8xSLZ5PXkzxrvx1keEyz49phC5hB/kp9Gb64Vs2JV/TKaYd3yfn6RG/
+         dbSq+bo9xoacKErvu9JPLPlVcd28s1rsEkmEa5aM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 043/101] powerpc/powernv: Avoid crashing if rng is NULL
-Date:   Tue, 23 Aug 2022 10:03:16 +0200
-Message-Id: <20220823080036.179213506@linuxfoundation.org>
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.9 044/101] MIPS: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
+Date:   Tue, 23 Aug 2022 10:03:17 +0200
+Message-Id: <20220823080036.210365370@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -53,39 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-commit 90b5d4fe0b3ba7f589c6723c6bfb559d9e83956a upstream.
+commit e1a534f5d074db45ae5cbac41d8912b98e96a006 upstream.
 
-On a bare-metal Power8 system that doesn't have an "ibm,power-rng", a
-malicious QEMU and guest that ignore the absence of the
-KVM_CAP_PPC_HWRNG flag, and calls H_RANDOM anyway, will dereference a
-NULL pointer.
+When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
+cpu_max_bits_warn() generates a runtime warning similar as below while
+we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
+instead of NR_CPUS to iterate CPUs.
 
-In practice all Power8 machines have an "ibm,power-rng", but let's not
-rely on that, add a NULL check and early return in
-powernv_get_random_real_mode().
+[    3.052463] ------------[ cut here ]------------
+[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
+[    3.070072] Modules linked in: efivarfs autofs4
+[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
+[    3.084034] Hardware name: Loongson Loongson-3A4000-7A1000-1w-V0.1-CRB/Loongson-LS3A4000-7A1000-1w-EVB-V1.21, BIOS Loongson-UDK2018-V2.0.04082-beta7 04/27
+[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
+[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
+[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
+[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
+[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
+[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
+[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
+[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
+[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
+[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
+[    3.195868]         ...
+[    3.199917] Call Trace:
+[    3.203941] [<98000000002086d8>] show_stack+0x38/0x14c
+[    3.210666] [<9800000000cf846c>] dump_stack_lvl+0x60/0x88
+[    3.217625] [<980000000023d268>] __warn+0xd0/0x100
+[    3.223958] [<9800000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
+[    3.231150] [<9800000000210220>] show_cpuinfo+0x5e8/0x5f0
+[    3.238080] [<98000000004f578c>] seq_read_iter+0x354/0x4b4
+[    3.245098] [<98000000004c2e90>] new_sync_read+0x17c/0x1c4
+[    3.252114] [<98000000004c5174>] vfs_read+0x138/0x1d0
+[    3.258694] [<98000000004c55f8>] ksys_read+0x70/0x100
+[    3.265265] [<9800000000cfde9c>] do_syscall+0x7c/0x94
+[    3.271820] [<9800000000202fe4>] handle_syscall+0xc4/0x160
+[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
 
-Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
-Cc: stable@vger.kernel.org # v4.1+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220727143219.2684192-1-mpe@ellerman.id.au
+Cc: stable@vger.kernel.org
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/powernv/rng.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/kernel/proc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -67,6 +67,8 @@ int powernv_get_random_real_mode(unsigne
- 	struct powernv_rng *rng;
+--- a/arch/mips/kernel/proc.c
++++ b/arch/mips/kernel/proc.c
+@@ -162,7 +162,7 @@ static void *c_start(struct seq_file *m,
+ {
+ 	unsigned long i = *pos;
  
- 	rng = raw_cpu_read(powernv_rng);
-+	if (!rng)
-+		return 0;
+-	return i < NR_CPUS ? (void *) (i + 1) : NULL;
++	return i < nr_cpu_ids ? (void *) (i + 1) : NULL;
+ }
  
- 	*v = rng_whiten(rng, in_rm64(rng->regs_real));
- 
+ static void *c_next(struct seq_file *m, void *v, loff_t *pos)
 
 
