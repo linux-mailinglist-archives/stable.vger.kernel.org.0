@@ -2,54 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85A2959DA65
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:09:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF1F459DA6A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:09:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352487AbiHWKHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:07:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58286 "EHLO
+        id S1352573AbiHWKIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:08:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352867AbiHWKGZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB856408;
-        Tue, 23 Aug 2022 01:53:26 -0700 (PDT)
+        with ESMTP id S1352893AbiHWKG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37928A460;
+        Tue, 23 Aug 2022 01:53:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90C76B81BF8;
-        Tue, 23 Aug 2022 08:53:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C022BC433C1;
-        Tue, 23 Aug 2022 08:53:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93ACB611DD;
+        Tue, 23 Aug 2022 08:53:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FCBCC433D6;
+        Tue, 23 Aug 2022 08:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244803;
-        bh=69ovCRcumfGslh/oGLivZ4DIr8oJgQGwFuXGEqHGW5k=;
+        s=korg; t=1661244809;
+        bh=WZrmzVPJBdBpw6UfrkbPuq4sZK3uUvd+tAu+0nNF+wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFGcUPhy3FdlJSs4xPaJ6Isyeg9C7IGbrGfh01GoRRPeTMr2xXjgGHHYvg2ih2GyQ
-         jlBFXGAln7J1kUeFcuOc/a91Uqn+LtrSqUBOGyk1o017DjQ3O6Vr7D4nNBldzZEIPi
-         7f6I4SVPUjKg4eT0rCUGVeXftPNCTixV0LlMi/mI=
+        b=TkjziN5ReaDaR45VxPUrCgobgl2VmDvTnjNNpj4KGTpJpPomhkDqjd1A3irXPMUXB
+         QWRTQiBO7giSMftLoX+TQcukGJea6TbV4LqAv62sTLamss4oIOT9ArsEUHe039mHmh
+         rkJxwv/9mtreEt48XlBzKW7W1vjBvnQWrKjRAsYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, llvm@lists.linux.dev,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Song Liu <song@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.14 194/229] tools build: Switch to new openssl API for test-libcrypto
-Date:   Tue, 23 Aug 2022 10:25:55 +0200
-Message-Id: <20220823080100.563952280@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.14 195/229] xen/xenbus: fix return type in xenbus_file_read()
+Date:   Tue, 23 Aug 2022 10:25:56 +0200
+Message-Id: <20220823080100.609879614@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -67,70 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 5b245985a6de5ac18b5088c37068816d413fb8ed upstream.
+commit 32ad11127b95236dfc52375f3707853194a7f4b4 upstream.
 
-Switch to new EVP API for detecting libcrypto, as Fedora 36 returns an
-error when it encounters the deprecated function MD5_Init() and the others.
+This code tries to store -EFAULT in an unsigned int.  The
+xenbus_file_read() function returns type ssize_t so the negative value
+is returned as a positive value to the user.
 
-The error would be interpreted as missing libcrypto, while in reality it is
-not.
+This change forces another change to the min() macro.  Originally, the
+min() macro used "unsigned" type which checkpatch complains about.  Also
+unsigned type would break if "len" were not capped at MAX_RW_COUNT.  Use
+size_t for the min().  (No effect on runtime for the min_t() change).
 
-Fixes: 6e8ccb4f624a73c5 ("tools/bpf: properly account for libbfd variations")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: bpf@vger.kernel.org
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: llvm@lists.linux.dev
-Cc: Martin KaFai Lau <martin.lau@linux.dev>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Quentin Monnet <quentin@isovalent.com>
-Cc: Song Liu <song@kernel.org>
-Cc: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/20220719170555.2576993-4-roberto.sassu@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 2fb3683e7b16 ("xen: Add xenbus device driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Link: https://lore.kernel.org/r/YutxJUaUYRG/VLVc@kili
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/build/feature/test-libcrypto.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/xen/xenbus/xenbus_dev_frontend.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/build/feature/test-libcrypto.c
-+++ b/tools/build/feature/test-libcrypto.c
-@@ -1,16 +1,23 @@
- // SPDX-License-Identifier: GPL-2.0
-+#include <openssl/evp.h>
- #include <openssl/sha.h>
- #include <openssl/md5.h>
- 
- int main(void)
+--- a/drivers/xen/xenbus/xenbus_dev_frontend.c
++++ b/drivers/xen/xenbus/xenbus_dev_frontend.c
+@@ -125,7 +125,7 @@ static ssize_t xenbus_file_read(struct f
  {
--	MD5_CTX context;
-+	EVP_MD_CTX *mdctx;
- 	unsigned char md[MD5_DIGEST_LENGTH + SHA_DIGEST_LENGTH];
- 	unsigned char dat[] = "12345";
-+	unsigned int digest_len;
+ 	struct xenbus_file_priv *u = filp->private_data;
+ 	struct read_buffer *rb;
+-	unsigned i;
++	ssize_t i;
+ 	int ret;
  
--	MD5_Init(&context);
--	MD5_Update(&context, &dat[0], sizeof(dat));
--	MD5_Final(&md[0], &context);
-+	mdctx = EVP_MD_CTX_new();
-+	if (!mdctx)
-+		return 0;
-+
-+	EVP_DigestInit_ex(mdctx, EVP_md5(), NULL);
-+	EVP_DigestUpdate(mdctx, &dat[0], sizeof(dat));
-+	EVP_DigestFinal_ex(mdctx, &md[0], &digest_len);
-+	EVP_MD_CTX_free(mdctx);
+ 	mutex_lock(&u->reply_mutex);
+@@ -145,7 +145,7 @@ again:
+ 	rb = list_entry(u->read_buffers.next, struct read_buffer, list);
+ 	i = 0;
+ 	while (i < len) {
+-		unsigned sz = min((unsigned)len - i, rb->len - rb->cons);
++		size_t sz = min_t(size_t, len - i, rb->len - rb->cons);
  
- 	SHA1(&dat[0], sizeof(dat), &md[0]);
+ 		ret = copy_to_user(ubuf + i, &rb->msg[rb->cons], sz);
  
 
 
