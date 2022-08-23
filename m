@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0381459D755
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC26D59D7DE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240417AbiHWJ5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:57:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53130 "EHLO
+        id S1351027AbiHWJd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:33:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241531AbiHWJye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:54:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20ADC9FA8E;
-        Tue, 23 Aug 2022 01:46:30 -0700 (PDT)
+        with ESMTP id S1350650AbiHWJc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:32:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D6364B0F8;
+        Tue, 23 Aug 2022 01:38:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC87E61485;
-        Tue, 23 Aug 2022 08:46:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF6CFC433C1;
-        Tue, 23 Aug 2022 08:46:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F713B81C62;
+        Tue, 23 Aug 2022 08:37:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4241C433C1;
+        Tue, 23 Aug 2022 08:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244389;
-        bh=gOe0zsjTFaGKaX1+mWyZEMX/nJdtJ2M8NjiPmFYYEEI=;
+        s=korg; t=1661243866;
+        bh=nNnTUhqNU4YQbcijVe/pezvof71mJ2XPgaNef+hmOY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0CA77cjIkKGVTR+0x7a5Nhd59Vohcthm3ZbFAuczU0JWvjkwsTIYbUrHFhCTagwf
-         gr+bN1UpT5+0ghlKPd7iUMTW963CRfIf/9MuTCE1Ly5Amb1KChspkDdOCDaNR87ihS
-         THlbR5IWuc4LDiwaPdWZzAy3bfQpPo4xugHo9rKA=
+        b=jrX2fJVBSB38MPIBb8UNf9rhYMpISbQc0HtGmakpK3RHz+dzsqdh6/YOXbJjg1GWR
+         2IDmaElvpEHHz8Ey67WV5WOuwSd4L+c/VWatfePGXaZ+qwAiHxITDutBkKMBotfeQ+
+         hI96IpWRm9YqrWGs43C66J9MFZTCzUje9o/wvWHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yonghong Song <yhs@fb.com>, Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 048/244] bpf: Check the validity of max_rdwr_access for sock local storage map iterator
-Date:   Tue, 23 Aug 2022 10:23:27 +0200
-Message-Id: <20220823080100.671938641@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 047/229] PM: hibernate: defer device probing when resuming from hibernation
+Date:   Tue, 23 Aug 2022 10:23:28 +0200
+Message-Id: <20220823080055.346898181@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 52bd05eb7c88e1ad8541a48873188ccebca9da26 upstream.
+[ Upstream commit 8386c414e27caba8501119948e9551e52b527f59 ]
 
-The value of sock local storage map is writable in map iterator, so check
-max_rdwr_access instead of max_rdonly_access.
+syzbot is reporting hung task at misc_open() [1], for there is a race
+window of AB-BA deadlock which involves probe_count variable. Currently
+wait_for_device_probe() from snapshot_open() from misc_open() can sleep
+forever with misc_mtx held if probe_count cannot become 0.
 
-Fixes: 5ce6e77c7edf ("bpf: Implement bpf iterator for sock local storage map")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/r/20220810080538.1845898-6-houtao@huaweicloud.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When a device is probed by hub_event() work function, probe_count is
+incremented before the probe function starts, and probe_count is
+decremented after the probe function completed.
+
+There are three cases that can prevent probe_count from dropping to 0.
+
+  (a) A device being probed stopped responding (i.e. broken/malicious
+      hardware).
+
+  (b) A process emulating a USB device using /dev/raw-gadget interface
+      stopped responding for some reason.
+
+  (c) New device probe requests keeps coming in before existing device
+      probe requests complete.
+
+The phenomenon syzbot is reporting is (b). A process which is holding
+system_transition_mutex and misc_mtx is waiting for probe_count to become
+0 inside wait_for_device_probe(), but the probe function which is called
+ from hub_event() work function is waiting for the processes which are
+blocked at mutex_lock(&misc_mtx) to respond via /dev/raw-gadget interface.
+
+This patch mitigates (b) by deferring wait_for_device_probe() from
+snapshot_open() to snapshot_write() and snapshot_ioctl(). Please note that
+the possibility of (b) remains as long as any thread which is emulating a
+USB device via /dev/raw-gadget interface can be blocked by uninterruptible
+blocking operations (e.g. mutex_lock()).
+
+Please also note that (a) and (c) are not addressed. Regarding (c), we
+should change the code to wait for only one device which contains the
+image for resuming from hibernation. I don't know how to address (a), for
+use of timeout for wait_for_device_probe() might result in loss of user
+data in the image. Maybe we should require the userland to wait for the
+image device before opening /dev/snapshot interface.
+
+Link: https://syzkaller.appspot.com/bug?extid=358c9ab4c93da7b7238c [1]
+Reported-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/bpf_sk_storage.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/power/user.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/net/core/bpf_sk_storage.c
-+++ b/net/core/bpf_sk_storage.c
-@@ -894,7 +894,7 @@ static int bpf_iter_attach_map(struct bp
- 	if (map->map_type != BPF_MAP_TYPE_SK_STORAGE)
- 		goto put_map;
+diff --git a/kernel/power/user.c b/kernel/power/user.c
+index 69017a569f30..add4653477fe 100644
+--- a/kernel/power/user.c
++++ b/kernel/power/user.c
+@@ -29,6 +29,7 @@
  
--	if (prog->aux->max_rdonly_access > map->value_size) {
-+	if (prog->aux->max_rdwr_access > map->value_size) {
- 		err = -EACCES;
- 		goto put_map;
- 	}
+ #include "power.h"
+ 
++static bool need_wait;
+ 
+ #define SNAPSHOT_MINOR	231
+ 
+@@ -82,7 +83,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
+ 		 * Resuming.  We may need to wait for the image device to
+ 		 * appear.
+ 		 */
+-		wait_for_device_probe();
++		need_wait = true;
+ 
+ 		data->swap = -1;
+ 		data->mode = O_WRONLY;
+@@ -174,6 +175,11 @@ static ssize_t snapshot_write(struct file *filp, const char __user *buf,
+ 	ssize_t res;
+ 	loff_t pg_offp = *offp & ~PAGE_MASK;
+ 
++	if (need_wait) {
++		wait_for_device_probe();
++		need_wait = false;
++	}
++
+ 	lock_system_sleep();
+ 
+ 	data = filp->private_data;
+@@ -209,6 +215,11 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
+ 	loff_t size;
+ 	sector_t offset;
+ 
++	if (need_wait) {
++		wait_for_device_probe();
++		need_wait = false;
++	}
++
+ 	if (_IOC_TYPE(cmd) != SNAPSHOT_IOC_MAGIC)
+ 		return -ENOTTY;
+ 	if (_IOC_NR(cmd) > SNAPSHOT_IOC_MAXNR)
+-- 
+2.35.1
+
 
 
