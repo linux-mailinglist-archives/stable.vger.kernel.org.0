@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9036E59D6C9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8986359D7AE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242898AbiHWJlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:41:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52832 "EHLO
+        id S232689AbiHWJyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:54:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351676AbiHWJkB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:40:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451BA98C9E;
-        Tue, 23 Aug 2022 01:41:19 -0700 (PDT)
+        with ESMTP id S1344438AbiHWJyE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:54:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 298DC6A49A;
+        Tue, 23 Aug 2022 01:46:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B8861540;
-        Tue, 23 Aug 2022 08:40:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E456C433D6;
-        Tue, 23 Aug 2022 08:40:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CCFD6153C;
+        Tue, 23 Aug 2022 08:45:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F55C433D6;
+        Tue, 23 Aug 2022 08:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244029;
-        bh=o680fSd5QgG2dGfNBgWcGxeyA9nWVhvUlqlhj7sYoHI=;
+        s=korg; t=1661244357;
+        bh=bfj1rlsQXGQ8Wn6QfQwt2YuiHr8K9dNN60BDvqIIFzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1DqDv4j42uJXkt/aSj3FkTEK4SFWS/nbBb1VZiX/1Q0nCXB16iz/YHdyI7Hre+VT
-         Br4ncJWwodvBwNQc0dOxTNu/ON0xdh7wpDg60Kd2R5daVOSWn3G6+rSr8n7kLGLtqK
-         qLqthDCz72z089suhoeM/zC3PMt41qR+hqn+GwQA=
+        b=AWHqa+ANDAEjO0GwqjFp3L5ECdlJJv8fIjgtubPkaosekCOypYnqL9sW92rGvRUem
+         lVODCU1eoVbrJeQSC60AV7uiMb8zs8aD3pljJeEbAl1X5mX1dVXMSMzq/pKqZdZeB5
+         zE5jwDjJrAL/tao4Is0/3AzKW3LHRYWgHpiB/dUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 075/229] fs: check FMODE_LSEEK to control internal pipe splicing
-Date:   Tue, 23 Aug 2022 10:23:56 +0200
-Message-Id: <20220823080056.398968527@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Matthias May <matthias.may@westermo.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 078/244] ipv6: do not use RT_TOS for IPv6 flowlabel
+Date:   Tue, 23 Aug 2022 10:23:57 +0200
+Message-Id: <20220823080101.656251834@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Matthias May <matthias.may@westermo.com>
 
-[ Upstream commit 97ef77c52b789ec1411d360ed99dca1efe4b2c81 ]
+commit ab7e2e0dfa5d37540ab1dc5376e9a2cb9188925d upstream.
 
-The original direct splicing mechanism from Jens required the input to
-be a regular file because it was avoiding the special socket case. It
-also recognized blkdevs as being close enough to a regular file. But it
-forgot about chardevs, which behave the same way and work fine here.
+According to Guillaume Nault RT_TOS should never be used for IPv6.
 
-This is an okayish heuristic, but it doesn't totally work. For example,
-a few chardevs should be spliceable here. And a few regular files
-shouldn't. This patch fixes this by instead checking whether FMODE_LSEEK
-is set, which represents decently enough what we need rewinding for when
-splicing to internal pipes.
+Quote:
+RT_TOS() is an old macro used to interprete IPv4 TOS as described in
+the obsolete RFC 1349. It's conceptually wrong to use it even in IPv4
+code, although, given the current state of the code, most of the
+existing calls have no consequence.
 
-Fixes: b92ce5589374 ("[PATCH] splice: add direct fd <-> fd splicing support")
-Cc: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But using RT_TOS() in IPv6 code is always a bug: IPv6 never had a "TOS"
+field to be interpreted the RFC 1349 way. There's no historical
+compatibility to worry about.
+
+Fixes: 571912c69f0e ("net: UDP tunnel encapsulation module for tunnelling different protocols like MPLS, IP, NSH etc.")
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Matthias May <matthias.may@westermo.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/splice.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ net/ipv6/ip6_output.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/splice.c b/fs/splice.c
-index c84ac7e97e21..04d25af25a42 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -898,17 +898,15 @@ ssize_t splice_direct_to_actor(struct file *in, struct splice_desc *sd,
- {
- 	struct pipe_inode_info *pipe;
- 	long ret, bytes;
--	umode_t i_mode;
- 	size_t len;
- 	int i, flags, more;
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1289,8 +1289,7 @@ struct dst_entry *ip6_dst_lookup_tunnel(
+ 	fl6.daddr = info->key.u.ipv6.dst;
+ 	fl6.saddr = info->key.u.ipv6.src;
+ 	prio = info->key.tos;
+-	fl6.flowlabel = ip6_make_flowinfo(RT_TOS(prio),
+-					  info->key.label);
++	fl6.flowlabel = ip6_make_flowinfo(prio, info->key.label);
  
- 	/*
--	 * We require the input being a regular file, as we don't want to
--	 * randomly drop data for eg socket -> socket splicing. Use the
--	 * piped splicing for that!
-+	 * We require the input to be seekable, as we don't want to randomly
-+	 * drop data for eg socket -> socket splicing. Use the piped splicing
-+	 * for that!
- 	 */
--	i_mode = file_inode(in)->i_mode;
--	if (unlikely(!S_ISREG(i_mode) && !S_ISBLK(i_mode)))
-+	if (unlikely(!(in->f_mode & FMODE_LSEEK)))
- 		return -EINVAL;
- 
- 	/*
--- 
-2.35.1
-
+ 	dst = ipv6_stub->ipv6_dst_lookup_flow(net, sock->sk, &fl6,
+ 					      NULL);
 
 
