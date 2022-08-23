@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4360959E306
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2665B59DCD9
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352960AbiHWKT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
+        id S238512AbiHWLWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:22:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353437AbiHWKRY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:17:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5857180B7C;
-        Tue, 23 Aug 2022 02:01:33 -0700 (PDT)
+        with ESMTP id S1357527AbiHWLRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E2E6717D;
+        Tue, 23 Aug 2022 02:21:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFE8661499;
-        Tue, 23 Aug 2022 09:01:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D17C433C1;
-        Tue, 23 Aug 2022 09:01:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 225AF6121F;
+        Tue, 23 Aug 2022 09:21:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16835C433C1;
+        Tue, 23 Aug 2022 09:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245292;
-        bh=q8TQCf8SAtSSg0KTvYIsRTspUDo0nbDxlT1zhrAe5AI=;
+        s=korg; t=1661246482;
+        bh=t95JfVAsbvjZQPz/fb5tjYrWHwt5ViVfGfVIPpXnKwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r0OIQdTPYPao/fZE7o9Lq6bdd3XXQAs3Pea1G4ywO4+AcwJ5Ay5QufOn8ZOlN/BSX
-         2iH/FfBBLCd85bIU5mdoSoOjW28ydXRJnlzw+WvZi4+Sh3STo+4snewJI7I+Ty5Azz
-         tmzv4LK4usV4EBEoKqr/kNx7tP2YNsFy0yQ3DZmQ=
+        b=RmEoAiVYFRX/8MXqrUgiA9v4tcxeAfSnhKDakY577BgCUaoA0NiQzl832ZY8z4e1t
+         w8sCNSFGLFnxL8BBY0rJI1QQvJ8qy318vq68PxSzB0KVklvUysB39jTTatGiEDA907
+         Gynr/Jm5z3SBryDW7woXnqAEgTj+WZzwnGSZ+GWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Jeongik Cha <jeongik@google.com>
-Subject: [PATCH 4.19 005/287] wifi: mac80211_hwsim: add back erroneously removed cast
-Date:   Tue, 23 Aug 2022 10:22:54 +0200
-Message-Id: <20220823080100.447145203@linuxfoundation.org>
+        stable@vger.kernel.org, Yunhao Tian <t123yh.xyz@gmail.com>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 097/389] drm/mipi-dbi: align max_chunk to 2 in spi_transfer
+Date:   Tue, 23 Aug 2022 10:22:55 +0200
+Message-Id: <20220823080119.662538583@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Yunhao Tian <t123yh.xyz@gmail.com>
 
-commit 58b6259d820d63c2adf1c7541b54cce5a2ae6073 upstream.
+[ Upstream commit 435c249008cba04ed6a7975e9411f3b934620204 ]
 
-The robots report that we're now casting to a differently
-sized integer, which is correct, and the previous patch
-had erroneously removed it.
+In __spi_validate, there's a validation that no partial transfers
+are accepted (xfer->len % w_size must be zero). When
+max_chunk is not a multiple of bpw (e.g. max_chunk = 65535,
+bpw = 16), the transfer will be rejected.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 4ee186fa7e40 ("wifi: mac80211_hwsim: fix race condition in pending packet")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Cc: Jeongik Cha <jeongik@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch aligns max_chunk to 2 bytes (the maximum value of bpw is 16),
+so that no partial transfer will occur.
+
+Fixes: d23d4d4dac01 ("drm/tinydrm: Move tinydrm_spi_transfer()")
+
+Signed-off-by: Yunhao Tian <t123yh.xyz@gmail.com>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220510030219.2486687-1-t123yh.xyz@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_mipi_dbi.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -3149,7 +3149,7 @@ static int hwsim_tx_info_frame_received_
- 		u64 skb_cookie;
+diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
+index 4042f5b39765..2a7ef1051b39 100644
+--- a/drivers/gpu/drm/drm_mipi_dbi.c
++++ b/drivers/gpu/drm/drm_mipi_dbi.c
+@@ -1156,6 +1156,13 @@ int mipi_dbi_spi_transfer(struct spi_device *spi, u32 speed_hz,
+ 	size_t chunk;
+ 	int ret;
  
- 		txi = IEEE80211_SKB_CB(skb);
--		skb_cookie = (u64)txi->rate_driver_data[0];
-+		skb_cookie = (u64)(uintptr_t)txi->rate_driver_data[0];
++	/* In __spi_validate, there's a validation that no partial transfers
++	 * are accepted (xfer->len % w_size must be zero).
++	 * Here we align max_chunk to multiple of 2 (16bits),
++	 * to prevent transfers from being rejected.
++	 */
++	max_chunk = ALIGN_DOWN(max_chunk, 2);
++
+ 	spi_message_init_with_transfers(&m, &tr, 1);
  
- 		if (skb_cookie == ret_skb_cookie) {
- 			__skb_unlink(skb, &data2->pending);
+ 	while (len) {
+-- 
+2.35.1
+
 
 
