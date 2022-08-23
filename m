@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DFC159DCC2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AA1F59DC00
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242781AbiHWKRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:17:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47050 "EHLO
+        id S1355645AbiHWKxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:53:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353404AbiHWKPC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:15:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B8D772FE2;
-        Tue, 23 Aug 2022 02:00:05 -0700 (PDT)
+        with ESMTP id S1356159AbiHWKtj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:49:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E154BAB18A;
+        Tue, 23 Aug 2022 02:12:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD1086155E;
-        Tue, 23 Aug 2022 09:00:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8C84C433D6;
-        Tue, 23 Aug 2022 09:00:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B00CB81C88;
+        Tue, 23 Aug 2022 09:12:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88066C433D6;
+        Tue, 23 Aug 2022 09:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245204;
-        bh=6XxyMxUtDNh1xCRAMJ3F1TbsgLln1XdyvazR/OQeeGk=;
+        s=korg; t=1661245951;
+        bh=aNIRR/iONKqARPCKsB/oCtcZdHegiXVYWMndFZ7GRFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VrzczDhNy0sDzF3moSzqwgT8/eFjxxT+mRknJkmeZAHI+ccohL6ybSdzKKHkKTaHU
-         ULMakhFNz1gLPxqBlawzxcJYFzS7gha2PBqgCA3sJKPOOEO5Rr6JDgjXv5oDmGUvpM
-         sPLFBYJWv/Ta3IgYS/txhmiM/2bDrHZVcFZWajx0=
+        b=CL0mCzVlKv8wWBJpbjbMYeVJoNchUvLWr6Su1aN8CNMESD+Mf573Nky8sYXp8vfU5
+         5nvPe+e7U6aRGR7RCm/R6V9qAkGvZAd2PHGlipRJUBD38zMQPzSOWZnhM+wItvDZ9O
+         32yPIa8RuxlINvWEAVlBHH6Kj6gQ2PyhNWJnw5Ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 220/244] powerpc/32: Set an IBAT covering up to _einittext during init
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 4.19 210/287] net/9p: Initialize the iounit field during fid creation
 Date:   Tue, 23 Aug 2022 10:26:19 +0200
-Message-Id: <20220823080106.884379948@linuxfoundation.org>
+Message-Id: <20220823080107.996496307@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-[ Upstream commit 2a0fb3c155c97c75176e557d61f8e66c1bd9b735 ]
+commit aa7aeee169480e98cf41d83c01290a37e569be6d upstream.
 
-Always set an IBAT covering up to _einittext during init because when
-CONFIG_MODULES is not selected there is no reason to have an exception
-handler for kernel instruction TLB misses.
+Ensure that the fid's iounit field is set to zero when a new fid is
+created. Certain 9P operations, such as OPEN and CREATE, allow the
+server to reply with an iounit size which the client code assigns to the
+p9_fid struct shortly after the fid is created by p9_fid_create(). On
+the other hand, an XATTRWALK operation doesn't allow for the server to
+specify an iounit value. The iounit field of the newly allocated p9_fid
+struct remained uninitialized in that case. Depending on allocation
+patterns, the iounit value could have been something reasonable that was
+carried over from previously freed fids or, in the worst case, could
+have been arbitrary values from non-fid related usages of the memory
+location.
 
-It implies DBAT and IBAT are now totaly independent, IBATs are set
-by setibat() and DBAT by setbat().
+The bug was detected in the Windows Subsystem for Linux 2 (WSL2) kernel
+after the uninitialized iounit field resulted in the typical sequence of
+two getxattr(2) syscalls, one to get the size of an xattr and another
+after allocating a sufficiently sized buffer to fit the xattr value, to
+hit an unexpected ERANGE error in the second call to getxattr(2). An
+uninitialized iounit field would sometimes force rsize to be smaller
+than the xattr value size in p9_client_read_once() and the 9P server in
+WSL refused to chunk up the READ on the attr_fid and, instead, returned
+ERANGE to the client. The virtfs server in QEMU seems happy to chunk up
+the READ and this problem goes undetected there.
 
-This allows to revert commit 9bb162fa26ed ("powerpc/603: Fix
-boot failure with DEBUG_PAGEALLOC and KFENCE")
-
-Reported-by: Maxime Bizon <mbizon@freebox.fr>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/ce7f04a39593934d9b1ee68c69144ccd3d4da4a1.1655202804.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220710141402.803295-1-tyhicks@linux.microsoft.com
+Fixes: ebf46264a004 ("fs/9p: Add support user. xattr")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+[tyhicks: Adjusted context due to:
+ - Lack of fid refcounting introduced in v5.11 commit 6636b6dcc3db ("9p:
+   add refcount to p9_fid struct")
+ - Difference in how buffer sizes are specified v5.16 commit
+   6e195b0f7c8e ("9p: fix a bunch of checkpatch warnings")]
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/head_book3s_32.S |  4 ++--
- arch/powerpc/mm/book3s32/mmu.c       | 10 ++++------
- 2 files changed, 6 insertions(+), 8 deletions(-)
+ net/9p/client.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/kernel/head_book3s_32.S b/arch/powerpc/kernel/head_book3s_32.S
-index 2e2a8211b17b..68e5c0a7e99d 100644
---- a/arch/powerpc/kernel/head_book3s_32.S
-+++ b/arch/powerpc/kernel/head_book3s_32.S
-@@ -421,14 +421,14 @@ InstructionTLBMiss:
-  */
- 	/* Get PTE (linux-style) and check access */
- 	mfspr	r3,SPRN_IMISS
--#if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_KFENCE)
-+#ifdef CONFIG_MODULES
- 	lis	r1, TASK_SIZE@h		/* check if kernel address */
- 	cmplw	0,r1,r3
- #endif
- 	mfspr	r2, SPRN_SDR1
- 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC | _PAGE_USER
- 	rlwinm	r2, r2, 28, 0xfffff000
--#if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_KFENCE)
-+#ifdef CONFIG_MODULES
- 	bgt-	112f
- 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
- 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
-diff --git a/arch/powerpc/mm/book3s32/mmu.c b/arch/powerpc/mm/book3s32/mmu.c
-index 203735caf691..bfca0afe9112 100644
---- a/arch/powerpc/mm/book3s32/mmu.c
-+++ b/arch/powerpc/mm/book3s32/mmu.c
-@@ -160,7 +160,10 @@ unsigned long __init mmu_mapin_ram(unsigned long base, unsigned long top)
- {
- 	unsigned long done;
- 	unsigned long border = (unsigned long)__init_begin - PAGE_OFFSET;
-+	unsigned long size;
+--- a/net/9p/client.c
++++ b/net/9p/client.c
+@@ -908,16 +908,13 @@ static struct p9_fid *p9_fid_create(stru
+ 	struct p9_fid *fid;
  
-+	size = roundup_pow_of_two((unsigned long)_einittext - PAGE_OFFSET);
-+	setibat(0, PAGE_OFFSET, 0, size, PAGE_KERNEL_X);
+ 	p9_debug(P9_DEBUG_FID, "clnt %p\n", clnt);
+-	fid = kmalloc(sizeof(struct p9_fid), GFP_KERNEL);
++	fid = kzalloc(sizeof(struct p9_fid), GFP_KERNEL);
+ 	if (!fid)
+ 		return NULL;
  
- 	if (debug_pagealloc_enabled_or_kfence() || __map_without_bats) {
- 		pr_debug_once("Read-Write memory mapped without BATs\n");
-@@ -246,10 +249,9 @@ void mmu_mark_rodata_ro(void)
- }
+-	memset(&fid->qid, 0, sizeof(struct p9_qid));
+ 	fid->mode = -1;
+ 	fid->uid = current_fsuid();
+ 	fid->clnt = clnt;
+-	fid->rdir = NULL;
+-	fid->fid = 0;
  
- /*
-- * Set up one of the I/D BAT (block address translation) register pairs.
-+ * Set up one of the D BAT (block address translation) register pairs.
-  * The parameters are not checked; in particular size must be a power
-  * of 2 between 128k and 256M.
-- * On 603+, only set IBAT when _PAGE_EXEC is set
-  */
- void __init setbat(int index, unsigned long virt, phys_addr_t phys,
- 		   unsigned int size, pgprot_t prot)
-@@ -285,10 +287,6 @@ void __init setbat(int index, unsigned long virt, phys_addr_t phys,
- 		/* G bit must be zero in IBATs */
- 		flags &= ~_PAGE_EXEC;
- 	}
--	if (flags & _PAGE_EXEC)
--		bat[0] = bat[1];
--	else
--		bat[0].batu = bat[0].batl = 0;
- 
- 	bat_addrs[index].start = virt;
- 	bat_addrs[index].limit = virt + ((bl + 1) << 17) - 1;
--- 
-2.35.1
-
+ 	idr_preload(GFP_KERNEL);
+ 	spin_lock_irq(&clnt->lock);
 
 
