@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DDF059DE2B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA2259DD1D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357915AbiHWLRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38008 "EHLO
+        id S1357923AbiHWLRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357375AbiHWLPf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:15:35 -0400
+        with ESMTP id S1357442AbiHWLPo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:15:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6DD5BB6AE;
-        Tue, 23 Aug 2022 02:19:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA4EBCC11;
+        Tue, 23 Aug 2022 02:19:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DBC360F91;
-        Tue, 23 Aug 2022 09:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 266C1C433C1;
-        Tue, 23 Aug 2022 09:18:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 241E561220;
+        Tue, 23 Aug 2022 09:18:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3190FC433C1;
+        Tue, 23 Aug 2022 09:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246297;
-        bh=gzQ7LzangA592IXLLGzsXognqZYwWADhEorvI9asYZw=;
+        s=korg; t=1661246300;
+        bh=c84agSOYBMlLZ/VpaWh6X5ZnVSl2b4aRge5inlbnrI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8JiW38yRw1yhDe+63NPfqVtK8mJBKyGdZyc9qe2n+/63g28zzs/g/xzRKDI8GwDB
-         /9+bQcw932mUL+3hKSiMN5zHiU7Bx+Jo7SjHV5HputuKkHh+BSLYf1P7WJrF2UAalt
-         00CvavJnOLLD8bX8OejLVKi8no6QyVLJfSg3JnAo=
+        b=n8Mb0lerz8X8Il0+JzuHc1MOn/gDb7xV8YMzsw3+KY4ymraKPxEI4+5X7oM1gyXK7
+         0Qg8da9loqL+u0b0tgyS6YmErdXu6GMJq9B2uyA1ROL8zJvwFKvdx2BUkgYXJjX0zl
+         0Du1KfSXQsY7g1NIz1ELI4Msn7qIO66IM73e+OTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 034/389] iio: light: isl29028: Fix the warning in isl29028_remove()
-Date:   Tue, 23 Aug 2022 10:21:52 +0200
-Message-Id: <20220823080117.090312039@linuxfoundation.org>
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.4 035/389] fuse: limit nsec
+Date:   Tue, 23 Aug 2022 10:21:53 +0200
+Message-Id: <20220823080117.130211487@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,49 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 06674fc7c003b9d0aa1d37fef7ab2c24802cc6ad upstream.
+commit 47912eaa061a6a81e4aa790591a1874c650733c0 upstream.
 
-The driver use the non-managed form of the register function in
-isl29028_remove(). To keep the release order as mirroring the ordering
-in probe, the driver should use non-managed form in probe, too.
+Limit nanoseconds to 0..999999999.
 
-The following log reveals it:
-
-[   32.374955] isl29028 0-0010: remove
-[   32.376861] general protection fault, probably for non-canonical address 0xdffffc0000000006: 0000 [#1] PREEMPT SMP KASAN PTI
-[   32.377676] KASAN: null-ptr-deref in range [0x0000000000000030-0x0000000000000037]
-[   32.379432] RIP: 0010:kernfs_find_and_get_ns+0x28/0xe0
-[   32.385461] Call Trace:
-[   32.385807]  sysfs_unmerge_group+0x59/0x110
-[   32.386110]  dpm_sysfs_remove+0x58/0xc0
-[   32.386391]  device_del+0x296/0xe50
-[   32.386959]  cdev_device_del+0x1d/0xd0
-[   32.387231]  devm_iio_device_unreg+0x27/0xb0
-[   32.387542]  devres_release_group+0x319/0x3d0
-[   32.388162]  i2c_device_remove+0x93/0x1f0
-
-Fixes: 2db5054ac28d ("staging: iio: isl29028: add runtime power management support")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/20220717004241.2281028-1-zheyuma97@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: d8a5ba45457e ("[PATCH] FUSE - core")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/isl29028.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/inode.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/iio/light/isl29028.c
-+++ b/drivers/iio/light/isl29028.c
-@@ -628,7 +628,7 @@ static int isl29028_probe(struct i2c_cli
- 					 ISL29028_POWER_OFF_DELAY_MS);
- 	pm_runtime_use_autosuspend(&client->dev);
- 
--	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
-+	ret = iio_device_register(indio_dev);
- 	if (ret < 0) {
- 		dev_err(&client->dev,
- 			"%s(): iio registration failed with error %d\n",
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -162,6 +162,12 @@ void fuse_change_attributes_common(struc
+ 	inode->i_uid     = make_kuid(fc->user_ns, attr->uid);
+ 	inode->i_gid     = make_kgid(fc->user_ns, attr->gid);
+ 	inode->i_blocks  = attr->blocks;
++
++	/* Sanitize nsecs */
++	attr->atimensec = min_t(u32, attr->atimensec, NSEC_PER_SEC - 1);
++	attr->mtimensec = min_t(u32, attr->mtimensec, NSEC_PER_SEC - 1);
++	attr->ctimensec = min_t(u32, attr->ctimensec, NSEC_PER_SEC - 1);
++
+ 	inode->i_atime.tv_sec   = attr->atime;
+ 	inode->i_atime.tv_nsec  = attr->atimensec;
+ 	/* mtime from server may be stale due to local buffered write */
 
 
