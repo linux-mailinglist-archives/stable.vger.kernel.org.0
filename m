@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1547159D6C6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCF2059D4F1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239747AbiHWJR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49946 "EHLO
+        id S243401AbiHWI1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:27:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350139AbiHWJQl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:16:41 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B19D3753A1;
-        Tue, 23 Aug 2022 01:32:58 -0700 (PDT)
+        with ESMTP id S243544AbiHWIZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:25:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED0C6A4BC;
+        Tue, 23 Aug 2022 01:13:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4ED9DCE1B43;
-        Tue, 23 Aug 2022 08:32:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 675F4C433C1;
-        Tue, 23 Aug 2022 08:32:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 909C761257;
+        Tue, 23 Aug 2022 08:13:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ECCFC433D6;
+        Tue, 23 Aug 2022 08:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243560;
-        bh=TT7tWc/244ggDbMGZAOtd6yfrQaNNX6DFkJuHIlf8kw=;
+        s=korg; t=1661242394;
+        bh=uGThrt33mi1eSMf2gxBEVQ79aDsfgcKb82P3o+mpreY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlDQmDLqkR+lZjmkeoFYltR9OkmjEBgV+bS9tSr5CBEidmDKn1b6g6Tv/mU4gdpPo
-         X5ZVcnZmjhKzaZ1vwwQdAiueravcpIHIgQkzbPLm6WVcbIHqEZ1KT+VAtsju1V6kh5
-         OvEvUNHtvHG8/oV9KP+A38kf/u4KOqJUbfjR+pAY=
+        b=KEerS4iYBk1WCArn2tJ6CYhEYHA7fVNNcdZQxLUYa8Yg2gSET9+gOOo4Xg4/Y1Wpe
+         YiLTZRSSnWPXuYxU6Fkx0cxJrIHAuGgsI2v9iPfSmnAWWymxlzrdOC+PRJka1Iif+g
+         JvrTo9394MOEMyqsY7X7+YyDwLfbdzu7zrtQ2CH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com,
-        Lukas Czerner <lczerner@redhat.com>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 316/365] ext4: block range must be validated before use in ext4_mb_clear_bb()
-Date:   Tue, 23 Aug 2022 10:03:37 +0200
-Message-Id: <20220823080131.397839950@linuxfoundation.org>
+        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 065/101] net_sched: cls_route: disallow handle of 0
+Date:   Tue, 23 Aug 2022 10:03:38 +0200
+Message-Id: <20220823080037.066078661@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,147 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Czerner <lczerner@redhat.com>
+From: Jamal Hadi Salim <jhs@mojatatu.com>
 
-[ Upstream commit 1e1c2b86ef86a8477fd9b9a4f48a6bfe235606f6 ]
+commit 02799571714dc5dd6948824b9d080b44a295f695 upstream.
 
-Block range to free is validated in ext4_free_blocks() using
-ext4_inode_block_valid() and then it's passed to ext4_mb_clear_bb().
-However in some situations on bigalloc file system the range might be
-adjusted after the validation in ext4_free_blocks() which can lead to
-troubles on corrupted file systems such as one found by syzkaller that
-resulted in the following BUG
+Follows up on:
+https://lore.kernel.org/all/20220809170518.164662-1-cascardo@canonical.com/
 
-kernel BUG at fs/ext4/ext4.h:3319!
-PREEMPT SMP NOPTI
-CPU: 28 PID: 4243 Comm: repro Kdump: loaded Not tainted 5.19.0-rc6+ #1
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1.fc35 04/01/2014
-RIP: 0010:ext4_free_blocks+0x95e/0xa90
-Call Trace:
- <TASK>
- ? lock_timer_base+0x61/0x80
- ? __es_remove_extent+0x5a/0x760
- ? __mod_timer+0x256/0x380
- ? ext4_ind_truncate_ensure_credits+0x90/0x220
- ext4_clear_blocks+0x107/0x1b0
- ext4_free_data+0x15b/0x170
- ext4_ind_truncate+0x214/0x2c0
- ? _raw_spin_unlock+0x15/0x30
- ? ext4_discard_preallocations+0x15a/0x410
- ? ext4_journal_check_start+0xe/0x90
- ? __ext4_journal_start_sb+0x2f/0x110
- ext4_truncate+0x1b5/0x460
- ? __ext4_journal_start_sb+0x2f/0x110
- ext4_evict_inode+0x2b4/0x6f0
- evict+0xd0/0x1d0
- ext4_enable_quotas+0x11f/0x1f0
- ext4_orphan_cleanup+0x3de/0x430
- ? proc_create_seq_private+0x43/0x50
- ext4_fill_super+0x295f/0x3ae0
- ? snprintf+0x39/0x40
- ? sget_fc+0x19c/0x330
- ? ext4_reconfigure+0x850/0x850
- get_tree_bdev+0x16d/0x260
- vfs_get_tree+0x25/0xb0
- path_mount+0x431/0xa70
- __x64_sys_mount+0xe2/0x120
- do_syscall_64+0x5b/0x80
- ? do_user_addr_fault+0x1e2/0x670
- ? exc_page_fault+0x70/0x170
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7fdf4e512ace
+handle of 0 implies from/to of universe realm which is not very
+sensible.
 
-Fix it by making sure that the block range is properly validated before
-used every time it changes in ext4_free_blocks() or ext4_mb_clear_bb().
+Lets see what this patch will do:
+$sudo tc qdisc add dev $DEV root handle 1:0 prio
 
-Link: https://syzkaller.appspot.com/bug?id=5266d464285a03cee9dbfda7d2452a72c3c2ae7c
-Reported-by: syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
-Tested-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Link: https://lore.kernel.org/r/20220714165903.58260-1-lczerner@redhat.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+//lets manufacture a way to insert handle of 0
+$sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 \
+route to 0 from 0 classid 1:10 action ok
+
+//gets rejected...
+Error: handle of 0 is not valid.
+We have an error talking to the kernel, -1
+
+//lets create a legit entry..
+sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 route from 10 \
+classid 1:10 action ok
+
+//what did the kernel insert?
+$sudo tc filter ls dev $DEV parent 1:0
+filter protocol ip pref 100 route chain 0
+filter protocol ip pref 100 route chain 0 fh 0x000a8000 flowid 1:10 from 10
+	action order 1: gact action pass
+	 random type none pass val 0
+	 index 1 ref 1 bind 1
+
+//Lets try to replace that legit entry with a handle of 0
+$ sudo tc filter replace dev $DEV parent 1:0 protocol ip prio 100 \
+handle 0x000a8000 route to 0 from 0 classid 1:10 action drop
+
+Error: Replacing with handle of 0 is invalid.
+We have an error talking to the kernel, -1
+
+And last, lets run Cascardo's POC:
+$ ./poc
+0
+0
+-22
+-22
+-22
+
+Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/mballoc.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ net/sched/cls_route.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index 9e06334771a3..38e7dc2531b1 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -5928,6 +5928,15 @@ static void ext4_mb_clear_bb(handle_t *handle, struct inode *inode,
+--- a/net/sched/cls_route.c
++++ b/net/sched/cls_route.c
+@@ -427,6 +427,9 @@ static int route4_set_parms(struct net *
+ 			goto errout;
+ 	}
  
- 	sbi = EXT4_SB(sb);
- 
-+	if (!(flags & EXT4_FREE_BLOCKS_VALIDATED) &&
-+	    !ext4_inode_block_valid(inode, block, count)) {
-+		ext4_error(sb, "Freeing blocks in system zone - "
-+			   "Block = %llu, count = %lu", block, count);
-+		/* err = 0. ext4_std_error should be a no op */
-+		goto error_return;
-+	}
-+	flags |= EXT4_FREE_BLOCKS_VALIDATED;
++	if (!nhandle)
++		return -EINVAL;
 +
- do_more:
- 	overflow = 0;
- 	ext4_get_group_no_and_offset(sb, block, &block_group, &bit);
-@@ -5944,6 +5953,8 @@ static void ext4_mb_clear_bb(handle_t *handle, struct inode *inode,
- 		overflow = EXT4_C2B(sbi, bit) + count -
- 			EXT4_BLOCKS_PER_GROUP(sb);
- 		count -= overflow;
-+		/* The range changed so it's no longer validated */
-+		flags &= ~EXT4_FREE_BLOCKS_VALIDATED;
- 	}
- 	count_clusters = EXT4_NUM_B2C(sbi, count);
- 	bitmap_bh = ext4_read_block_bitmap(sb, block_group);
-@@ -5958,7 +5969,8 @@ static void ext4_mb_clear_bb(handle_t *handle, struct inode *inode,
- 		goto error_return;
- 	}
+ 	h1 = to_hash(nhandle);
+ 	b = rtnl_dereference(head->table[h1]);
+ 	if (!b) {
+@@ -486,6 +489,9 @@ static int route4_change(struct net *net
+ 	int err;
+ 	bool new = true;
  
--	if (!ext4_inode_block_valid(inode, block, count)) {
-+	if (!(flags & EXT4_FREE_BLOCKS_VALIDATED) &&
-+	    !ext4_inode_block_valid(inode, block, count)) {
- 		ext4_error(sb, "Freeing blocks in system zone - "
- 			   "Block = %llu, count = %lu", block, count);
- 		/* err = 0. ext4_std_error should be a no op */
-@@ -6081,6 +6093,8 @@ static void ext4_mb_clear_bb(handle_t *handle, struct inode *inode,
- 		block += count;
- 		count = overflow;
- 		put_bh(bitmap_bh);
-+		/* The range changed so it's no longer validated */
-+		flags &= ~EXT4_FREE_BLOCKS_VALIDATED;
- 		goto do_more;
- 	}
- error_return:
-@@ -6127,6 +6141,7 @@ void ext4_free_blocks(handle_t *handle, struct inode *inode,
- 			   "block = %llu, count = %lu", block, count);
- 		return;
- 	}
-+	flags |= EXT4_FREE_BLOCKS_VALIDATED;
++	if (!handle)
++		return -EINVAL;
++
+ 	if (opt == NULL)
+ 		return handle ? -EINVAL : 0;
  
- 	ext4_debug("freeing block %llu\n", block);
- 	trace_ext4_free_blocks(inode, block, count, flags);
-@@ -6158,6 +6173,8 @@ void ext4_free_blocks(handle_t *handle, struct inode *inode,
- 			block -= overflow;
- 			count += overflow;
- 		}
-+		/* The range changed so it's no longer validated */
-+		flags &= ~EXT4_FREE_BLOCKS_VALIDATED;
- 	}
- 	overflow = EXT4_LBLK_COFF(sbi, count);
- 	if (overflow) {
-@@ -6168,6 +6185,8 @@ void ext4_free_blocks(handle_t *handle, struct inode *inode,
- 				return;
- 		} else
- 			count += sbi->s_cluster_ratio - overflow;
-+		/* The range changed so it's no longer validated */
-+		flags &= ~EXT4_FREE_BLOCKS_VALIDATED;
- 	}
- 
- 	if (!bh && (flags & EXT4_FREE_BLOCKS_FORGET)) {
--- 
-2.35.1
-
 
 
