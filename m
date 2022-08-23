@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 063A659E10B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6B0359E0EB
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358179AbiHWLt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:49:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57112 "EHLO
+        id S1355762AbiHWKsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:48:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358510AbiHWLtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:49:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 646C7D2928;
-        Tue, 23 Aug 2022 02:30:55 -0700 (PDT)
+        with ESMTP id S1354826AbiHWKpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:45:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B6F727CD3;
+        Tue, 23 Aug 2022 02:10:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F9D8B81C85;
-        Tue, 23 Aug 2022 09:30:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C65A7C433C1;
-        Tue, 23 Aug 2022 09:30:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07AB060DB4;
+        Tue, 23 Aug 2022 09:10:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E003C433D6;
+        Tue, 23 Aug 2022 09:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247052;
-        bh=tlXaeYOTBR4BxZS8c9V7BazF3L0omHcyLCdBs2LcKhk=;
+        s=korg; t=1661245858;
+        bh=DbugGScHIkvIP6Pd4hT6Ur37vKutWJFJ6tLVmCrkrCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDrer+KTTqStsebW2ln0V03NTxBRsCgSLVdRzgnN4MrR2vYYBkgySpxGBTb7M99bq
-         UMEP731T3aKWBHo4+Xe6EG+JBBEvLCv94l5jS5GtJd8f2dvaosMDtMBuHbHqCoFTfj
-         N3O6w9TNsRumWI6KbadIOL15cRuKFQpTwGjP7ncs=
+        b=UTd+VMp21Tf9tsI7FW9OGqi93UkB6qfIQ0cr9X3+IdmO9P8ugc0DyQXCNnyx4YYUb
+         Vd9Gue25bE3T8pkaSBtYkVf0pRJafjdin6azq8c/p4V+Xo3e6rkI7KXPP6mF7joa3Y
+         EjZNsOTuwp0e5dszlypwz4YZyrmXYKXtcRnEGNtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.4 304/389] NFSv4: Fix races in the legacy idmapper upcall
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 213/287] powerpc/mm: Split dump_pagelinuxtables flag_array table
 Date:   Tue, 23 Aug 2022 10:26:22 +0200
-Message-Id: <20220823080128.266299242@linuxfoundation.org>
+Message-Id: <20220823080108.114894774@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,138 +55,526 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 51fd2eb52c0ca8275a906eed81878ef50ae94eb0 upstream.
+commit 97026b5a5ac26541b3d294146f5c941491a9e609 upstream.
 
-nfs_idmap_instantiate() will cause the process that is waiting in
-request_key_with_auxdata() to wake up and exit. If there is a second
-process waiting for the idmap->idmap_mutex, then it may wake up and
-start a new call to request_key_with_auxdata(). If the call to
-idmap_pipe_downcall() from the first process has not yet finished
-calling nfs_idmap_complete_pipe_upcall_locked(), then we may end up
-triggering the WARN_ON_ONCE() in nfs_idmap_prepare_pipe_upcall().
+To reduce the complexity of flag_array, and allow the removal of
+default 0 value of non existing flags, lets have one flag_array
+table for each platform family with only the really existing flags.
 
-The fix is to ensure that we clear idmap->idmap_upcall_data before
-calling nfs_idmap_instantiate().
-
-Fixes: e9ab41b620e4 ("NFSv4: Clean up the legacy idmapper upcall")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4idmap.c |   46 ++++++++++++++++++++++++----------------------
- 1 file changed, 24 insertions(+), 22 deletions(-)
+ arch/powerpc/mm/Makefile                        |    7 +
+ arch/powerpc/mm/dump_linuxpagetables-8xx.c      |   82 ++++++++++++
+ arch/powerpc/mm/dump_linuxpagetables-book3s64.c |  115 +++++++++++++++++
+ arch/powerpc/mm/dump_linuxpagetables-generic.c  |   82 ++++++++++++
+ arch/powerpc/mm/dump_linuxpagetables.c          |  155 ------------------------
+ arch/powerpc/mm/dump_linuxpagetables.h          |   19 ++
+ 6 files changed, 307 insertions(+), 153 deletions(-)
+ create mode 100644 arch/powerpc/mm/dump_linuxpagetables-8xx.c
+ create mode 100644 arch/powerpc/mm/dump_linuxpagetables-book3s64.c
+ create mode 100644 arch/powerpc/mm/dump_linuxpagetables-generic.c
+ create mode 100644 arch/powerpc/mm/dump_linuxpagetables.h
 
---- a/fs/nfs/nfs4idmap.c
-+++ b/fs/nfs/nfs4idmap.c
-@@ -560,22 +560,20 @@ nfs_idmap_prepare_pipe_upcall(struct idm
- 	return true;
- }
- 
--static void
--nfs_idmap_complete_pipe_upcall_locked(struct idmap *idmap, int ret)
-+static void nfs_idmap_complete_pipe_upcall(struct idmap_legacy_upcalldata *data,
-+					   int ret)
- {
--	struct key *authkey = idmap->idmap_upcall_data->authkey;
--
--	kfree(idmap->idmap_upcall_data);
--	idmap->idmap_upcall_data = NULL;
--	complete_request_key(authkey, ret);
--	key_put(authkey);
-+	complete_request_key(data->authkey, ret);
-+	key_put(data->authkey);
-+	kfree(data);
- }
- 
--static void
--nfs_idmap_abort_pipe_upcall(struct idmap *idmap, int ret)
-+static void nfs_idmap_abort_pipe_upcall(struct idmap *idmap,
-+					struct idmap_legacy_upcalldata *data,
-+					int ret)
- {
--	if (idmap->idmap_upcall_data != NULL)
--		nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
-+	if (cmpxchg(&idmap->idmap_upcall_data, data, NULL) == data)
-+		nfs_idmap_complete_pipe_upcall(data, ret);
- }
- 
- static int nfs_idmap_legacy_upcall(struct key *authkey, void *aux)
-@@ -612,7 +610,7 @@ static int nfs_idmap_legacy_upcall(struc
- 
- 	ret = rpc_queue_upcall(idmap->idmap_pipe, msg);
- 	if (ret < 0)
--		nfs_idmap_abort_pipe_upcall(idmap, ret);
-+		nfs_idmap_abort_pipe_upcall(idmap, data, ret);
- 
- 	return ret;
- out2:
-@@ -668,6 +666,7 @@ idmap_pipe_downcall(struct file *filp, c
- 	struct request_key_auth *rka;
- 	struct rpc_inode *rpci = RPC_I(file_inode(filp));
- 	struct idmap *idmap = (struct idmap *)rpci->private;
-+	struct idmap_legacy_upcalldata *data;
- 	struct key *authkey;
- 	struct idmap_msg im;
- 	size_t namelen_in;
-@@ -677,10 +676,11 @@ idmap_pipe_downcall(struct file *filp, c
- 	 * will have been woken up and someone else may now have used
- 	 * idmap_key_cons - so after this point we may no longer touch it.
- 	 */
--	if (idmap->idmap_upcall_data == NULL)
-+	data = xchg(&idmap->idmap_upcall_data, NULL);
-+	if (data == NULL)
- 		goto out_noupcall;
- 
--	authkey = idmap->idmap_upcall_data->authkey;
-+	authkey = data->authkey;
- 	rka = get_request_key_auth(authkey);
- 
- 	if (mlen != sizeof(im)) {
-@@ -702,18 +702,17 @@ idmap_pipe_downcall(struct file *filp, c
- 	if (namelen_in == 0 || namelen_in == IDMAP_NAMESZ) {
- 		ret = -EINVAL;
- 		goto out;
--}
+--- a/arch/powerpc/mm/Makefile
++++ b/arch/powerpc/mm/Makefile
+@@ -43,5 +43,12 @@ obj-$(CONFIG_HIGHMEM)		+= highmem.o
+ obj-$(CONFIG_PPC_COPRO_BASE)	+= copro_fault.o
+ obj-$(CONFIG_SPAPR_TCE_IOMMU)	+= mmu_context_iommu.o
+ obj-$(CONFIG_PPC_PTDUMP)	+= dump_linuxpagetables.o
++ifdef CONFIG_PPC_PTDUMP
++obj-$(CONFIG_4xx)		+= dump_linuxpagetables-generic.o
++obj-$(CONFIG_PPC_8xx)		+= dump_linuxpagetables-8xx.o
++obj-$(CONFIG_PPC_BOOK3E_MMU)	+= dump_linuxpagetables-generic.o
++obj-$(CONFIG_PPC_BOOK3S_32)	+= dump_linuxpagetables-generic.o
++obj-$(CONFIG_PPC_BOOK3S_64)	+= dump_linuxpagetables-book3s64.o
++endif
+ obj-$(CONFIG_PPC_HTDUMP)	+= dump_hashpagetable.o
+ obj-$(CONFIG_PPC_MEM_KEYS)	+= pkeys.o
+--- /dev/null
++++ b/arch/powerpc/mm/dump_linuxpagetables-8xx.c
+@@ -0,0 +1,82 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * From split of dump_linuxpagetables.c
++ * Copyright 2016, Rashmica Gupta, IBM Corp.
++ *
++ */
++#include <linux/kernel.h>
++#include <asm/pgtable.h>
++
++#include "dump_linuxpagetables.h"
++
++static const struct flag_info flag_array[] = {
++	{
++		.mask	= _PAGE_PRIVILEGED,
++		.val	= 0,
++		.set	= "user",
++		.clear	= "    ",
++	}, {
++		.mask	= _PAGE_RO | _PAGE_NA,
++		.val	= 0,
++		.set	= "rw",
++	}, {
++		.mask	= _PAGE_RO | _PAGE_NA,
++		.val	= _PAGE_RO,
++		.set	= "r ",
++	}, {
++		.mask	= _PAGE_RO | _PAGE_NA,
++		.val	= _PAGE_NA,
++		.set	= "  ",
++	}, {
++		.mask	= _PAGE_EXEC,
++		.val	= _PAGE_EXEC,
++		.set	= " X ",
++		.clear	= "   ",
++	}, {
++		.mask	= _PAGE_PRESENT,
++		.val	= _PAGE_PRESENT,
++		.set	= "present",
++		.clear	= "       ",
++	}, {
++		.mask	= _PAGE_GUARDED,
++		.val	= _PAGE_GUARDED,
++		.set	= "guarded",
++		.clear	= "       ",
++	}, {
++		.mask	= _PAGE_DIRTY,
++		.val	= _PAGE_DIRTY,
++		.set	= "dirty",
++		.clear	= "     ",
++	}, {
++		.mask	= _PAGE_ACCESSED,
++		.val	= _PAGE_ACCESSED,
++		.set	= "accessed",
++		.clear	= "        ",
++	}, {
++		.mask	= _PAGE_NO_CACHE,
++		.val	= _PAGE_NO_CACHE,
++		.set	= "no cache",
++		.clear	= "        ",
++	}, {
++		.mask	= _PAGE_SPECIAL,
++		.val	= _PAGE_SPECIAL,
++		.set	= "special",
 +	}
++};
++
++struct pgtable_level pg_level[5] = {
++	{
++	}, { /* pgd */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	}, { /* pud */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	}, { /* pmd */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	}, { /* pte */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	},
++};
+--- /dev/null
++++ b/arch/powerpc/mm/dump_linuxpagetables-book3s64.c
+@@ -0,0 +1,115 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * From split of dump_linuxpagetables.c
++ * Copyright 2016, Rashmica Gupta, IBM Corp.
++ *
++ */
++#include <linux/kernel.h>
++#include <asm/pgtable.h>
++
++#include "dump_linuxpagetables.h"
++
++static const struct flag_info flag_array[] = {
++	{
++		.mask	= _PAGE_PRIVILEGED,
++		.val	= 0,
++		.set	= "user",
++		.clear	= "    ",
++	}, {
++		.mask	= _PAGE_READ,
++		.val	= _PAGE_READ,
++		.set	= "r",
++		.clear	= " ",
++	}, {
++		.mask	= _PAGE_WRITE,
++		.val	= _PAGE_WRITE,
++		.set	= "w",
++		.clear	= " ",
++	}, {
++		.mask	= _PAGE_EXEC,
++		.val	= _PAGE_EXEC,
++		.set	= " X ",
++		.clear	= "   ",
++	}, {
++		.mask	= _PAGE_PTE,
++		.val	= _PAGE_PTE,
++		.set	= "pte",
++		.clear	= "   ",
++	}, {
++		.mask	= _PAGE_PRESENT,
++		.val	= _PAGE_PRESENT,
++		.set	= "present",
++		.clear	= "       ",
++	}, {
++		.mask	= H_PAGE_HASHPTE,
++		.val	= H_PAGE_HASHPTE,
++		.set	= "hpte",
++		.clear	= "    ",
++	}, {
++		.mask	= _PAGE_DIRTY,
++		.val	= _PAGE_DIRTY,
++		.set	= "dirty",
++		.clear	= "     ",
++	}, {
++		.mask	= _PAGE_ACCESSED,
++		.val	= _PAGE_ACCESSED,
++		.set	= "accessed",
++		.clear	= "        ",
++	}, {
++		.mask	= _PAGE_NON_IDEMPOTENT,
++		.val	= _PAGE_NON_IDEMPOTENT,
++		.set	= "non-idempotent",
++		.clear	= "              ",
++	}, {
++		.mask	= _PAGE_TOLERANT,
++		.val	= _PAGE_TOLERANT,
++		.set	= "tolerant",
++		.clear	= "        ",
++	}, {
++		.mask	= H_PAGE_BUSY,
++		.val	= H_PAGE_BUSY,
++		.set	= "busy",
++	}, {
++#ifdef CONFIG_PPC_64K_PAGES
++		.mask	= H_PAGE_COMBO,
++		.val	= H_PAGE_COMBO,
++		.set	= "combo",
++	}, {
++		.mask	= H_PAGE_4K_PFN,
++		.val	= H_PAGE_4K_PFN,
++		.set	= "4K_pfn",
++	}, {
++#else /* CONFIG_PPC_64K_PAGES */
++		.mask	= H_PAGE_F_GIX,
++		.val	= H_PAGE_F_GIX,
++		.set	= "f_gix",
++		.is_val	= true,
++		.shift	= H_PAGE_F_GIX_SHIFT,
++	}, {
++		.mask	= H_PAGE_F_SECOND,
++		.val	= H_PAGE_F_SECOND,
++		.set	= "f_second",
++	}, {
++#endif /* CONFIG_PPC_64K_PAGES */
++		.mask	= _PAGE_SPECIAL,
++		.val	= _PAGE_SPECIAL,
++		.set	= "special",
++	}
++};
++
++struct pgtable_level pg_level[5] = {
++	{
++	}, { /* pgd */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	}, { /* pud */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	}, { /* pmd */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	}, { /* pte */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	},
++};
+--- /dev/null
++++ b/arch/powerpc/mm/dump_linuxpagetables-generic.c
+@@ -0,0 +1,82 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * From split of dump_linuxpagetables.c
++ * Copyright 2016, Rashmica Gupta, IBM Corp.
++ *
++ */
++#include <linux/kernel.h>
++#include <asm/pgtable.h>
++
++#include "dump_linuxpagetables.h"
++
++static const struct flag_info flag_array[] = {
++	{
++		.mask	= _PAGE_USER,
++		.val	= _PAGE_USER,
++		.set	= "user",
++		.clear	= "    ",
++	}, {
++		.mask	= _PAGE_RW,
++		.val	= _PAGE_RW,
++		.set	= "rw",
++		.clear	= "r ",
++	}, {
++#ifndef CONFIG_PPC_BOOK3S_32
++		.mask	= _PAGE_EXEC,
++		.val	= _PAGE_EXEC,
++		.set	= " X ",
++		.clear	= "   ",
++	}, {
++#endif
++		.mask	= _PAGE_PRESENT,
++		.val	= _PAGE_PRESENT,
++		.set	= "present",
++		.clear	= "       ",
++	}, {
++		.mask	= _PAGE_GUARDED,
++		.val	= _PAGE_GUARDED,
++		.set	= "guarded",
++		.clear	= "       ",
++	}, {
++		.mask	= _PAGE_DIRTY,
++		.val	= _PAGE_DIRTY,
++		.set	= "dirty",
++		.clear	= "     ",
++	}, {
++		.mask	= _PAGE_ACCESSED,
++		.val	= _PAGE_ACCESSED,
++		.set	= "accessed",
++		.clear	= "        ",
++	}, {
++		.mask	= _PAGE_WRITETHRU,
++		.val	= _PAGE_WRITETHRU,
++		.set	= "write through",
++		.clear	= "             ",
++	}, {
++		.mask	= _PAGE_NO_CACHE,
++		.val	= _PAGE_NO_CACHE,
++		.set	= "no cache",
++		.clear	= "        ",
++	}, {
++		.mask	= _PAGE_SPECIAL,
++		.val	= _PAGE_SPECIAL,
++		.set	= "special",
++	}
++};
++
++struct pgtable_level pg_level[5] = {
++	{
++	}, { /* pgd */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	}, { /* pud */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	}, { /* pmd */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	}, { /* pte */
++		.flag	= flag_array,
++		.num	= ARRAY_SIZE(flag_array),
++	},
++};
+--- a/arch/powerpc/mm/dump_linuxpagetables.c
++++ b/arch/powerpc/mm/dump_linuxpagetables.c
+@@ -28,6 +28,8 @@
+ #include <asm/page.h>
+ #include <asm/pgalloc.h>
  
--	ret = nfs_idmap_read_and_verify_message(&im,
--			&idmap->idmap_upcall_data->idmap_msg,
--			rka->target_key, authkey);
-+	ret = nfs_idmap_read_and_verify_message(&im, &data->idmap_msg,
-+						rka->target_key, authkey);
- 	if (ret >= 0) {
- 		key_set_timeout(rka->target_key, nfs_idmap_cache_timeout);
- 		ret = mlen;
- 	}
++#include "dump_linuxpagetables.h"
++
+ #ifdef CONFIG_PPC32
+ #define KERN_VIRT_START	0
+ #endif
+@@ -102,159 +104,6 @@ static struct addr_marker address_marker
+ 	{ -1,	NULL },
+ };
  
- out:
--	nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
-+	nfs_idmap_complete_pipe_upcall(data, ret);
- out_noupcall:
- 	return ret;
- }
-@@ -727,7 +726,7 @@ idmap_pipe_destroy_msg(struct rpc_pipe_m
- 	struct idmap *idmap = data->idmap;
- 
- 	if (msg->errno)
--		nfs_idmap_abort_pipe_upcall(idmap, msg->errno);
-+		nfs_idmap_abort_pipe_upcall(idmap, data, msg->errno);
- }
- 
- static void
-@@ -735,8 +734,11 @@ idmap_release_pipe(struct inode *inode)
+-struct flag_info {
+-	u64		mask;
+-	u64		val;
+-	const char	*set;
+-	const char	*clear;
+-	bool		is_val;
+-	int		shift;
+-};
+-
+-static const struct flag_info flag_array[] = {
+-	{
+-		.mask	= _PAGE_USER | _PAGE_PRIVILEGED,
+-		.val	= _PAGE_USER,
+-		.set	= "user",
+-		.clear	= "    ",
+-	}, {
+-		.mask	= _PAGE_RW | _PAGE_RO | _PAGE_NA,
+-		.val	= _PAGE_RW,
+-		.set	= "rw",
+-	}, {
+-		.mask	= _PAGE_RW | _PAGE_RO | _PAGE_NA,
+-		.val	= _PAGE_RO,
+-		.set	= "ro",
+-	}, {
+-#if _PAGE_NA != 0
+-		.mask	= _PAGE_RW | _PAGE_RO | _PAGE_NA,
+-		.val	= _PAGE_RO,
+-		.set	= "na",
+-	}, {
+-#endif
+-		.mask	= _PAGE_EXEC,
+-		.val	= _PAGE_EXEC,
+-		.set	= " X ",
+-		.clear	= "   ",
+-	}, {
+-		.mask	= _PAGE_PTE,
+-		.val	= _PAGE_PTE,
+-		.set	= "pte",
+-		.clear	= "   ",
+-	}, {
+-		.mask	= _PAGE_PRESENT,
+-		.val	= _PAGE_PRESENT,
+-		.set	= "present",
+-		.clear	= "       ",
+-	}, {
+-#ifdef CONFIG_PPC_BOOK3S_64
+-		.mask	= H_PAGE_HASHPTE,
+-		.val	= H_PAGE_HASHPTE,
+-#else
+-		.mask	= _PAGE_HASHPTE,
+-		.val	= _PAGE_HASHPTE,
+-#endif
+-		.set	= "hpte",
+-		.clear	= "    ",
+-	}, {
+-#ifndef CONFIG_PPC_BOOK3S_64
+-		.mask	= _PAGE_GUARDED,
+-		.val	= _PAGE_GUARDED,
+-		.set	= "guarded",
+-		.clear	= "       ",
+-	}, {
+-#endif
+-		.mask	= _PAGE_DIRTY,
+-		.val	= _PAGE_DIRTY,
+-		.set	= "dirty",
+-		.clear	= "     ",
+-	}, {
+-		.mask	= _PAGE_ACCESSED,
+-		.val	= _PAGE_ACCESSED,
+-		.set	= "accessed",
+-		.clear	= "        ",
+-	}, {
+-#ifndef CONFIG_PPC_BOOK3S_64
+-		.mask	= _PAGE_WRITETHRU,
+-		.val	= _PAGE_WRITETHRU,
+-		.set	= "write through",
+-		.clear	= "             ",
+-	}, {
+-#endif
+-#ifndef CONFIG_PPC_BOOK3S_64
+-		.mask	= _PAGE_NO_CACHE,
+-		.val	= _PAGE_NO_CACHE,
+-		.set	= "no cache",
+-		.clear	= "        ",
+-	}, {
+-#else
+-		.mask	= _PAGE_NON_IDEMPOTENT,
+-		.val	= _PAGE_NON_IDEMPOTENT,
+-		.set	= "non-idempotent",
+-		.clear	= "              ",
+-	}, {
+-		.mask	= _PAGE_TOLERANT,
+-		.val	= _PAGE_TOLERANT,
+-		.set	= "tolerant",
+-		.clear	= "        ",
+-	}, {
+-#endif
+-#ifdef CONFIG_PPC_BOOK3S_64
+-		.mask	= H_PAGE_BUSY,
+-		.val	= H_PAGE_BUSY,
+-		.set	= "busy",
+-	}, {
+-#ifdef CONFIG_PPC_64K_PAGES
+-		.mask	= H_PAGE_COMBO,
+-		.val	= H_PAGE_COMBO,
+-		.set	= "combo",
+-	}, {
+-		.mask	= H_PAGE_4K_PFN,
+-		.val	= H_PAGE_4K_PFN,
+-		.set	= "4K_pfn",
+-	}, {
+-#else /* CONFIG_PPC_64K_PAGES */
+-		.mask	= H_PAGE_F_GIX,
+-		.val	= H_PAGE_F_GIX,
+-		.set	= "f_gix",
+-		.is_val	= true,
+-		.shift	= H_PAGE_F_GIX_SHIFT,
+-	}, {
+-		.mask	= H_PAGE_F_SECOND,
+-		.val	= H_PAGE_F_SECOND,
+-		.set	= "f_second",
+-	}, {
+-#endif /* CONFIG_PPC_64K_PAGES */
+-#endif
+-		.mask	= _PAGE_SPECIAL,
+-		.val	= _PAGE_SPECIAL,
+-		.set	= "special",
+-	}
+-};
+-
+-struct pgtable_level {
+-	const struct flag_info *flag;
+-	size_t num;
+-	u64 mask;
+-};
+-
+-static struct pgtable_level pg_level[] = {
+-	{
+-	}, { /* pgd */
+-		.flag	= flag_array,
+-		.num	= ARRAY_SIZE(flag_array),
+-	}, { /* pud */
+-		.flag	= flag_array,
+-		.num	= ARRAY_SIZE(flag_array),
+-	}, { /* pmd */
+-		.flag	= flag_array,
+-		.num	= ARRAY_SIZE(flag_array),
+-	}, { /* pte */
+-		.flag	= flag_array,
+-		.num	= ARRAY_SIZE(flag_array),
+-	},
+-};
+-
+ static void dump_flag_info(struct pg_state *st, const struct flag_info
+ 		*flag, u64 pte, int num)
  {
- 	struct rpc_inode *rpci = RPC_I(inode);
- 	struct idmap *idmap = (struct idmap *)rpci->private;
-+	struct idmap_legacy_upcalldata *data;
- 
--	nfs_idmap_abort_pipe_upcall(idmap, -EPIPE);
-+	data = xchg(&idmap->idmap_upcall_data, NULL);
-+	if (data)
-+		nfs_idmap_complete_pipe_upcall(data, -EPIPE);
- }
- 
- int nfs_map_name_to_uid(const struct nfs_server *server, const char *name, size_t namelen, kuid_t *uid)
+--- /dev/null
++++ b/arch/powerpc/mm/dump_linuxpagetables.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#include <linux/types.h>
++
++struct flag_info {
++	u64		mask;
++	u64		val;
++	const char	*set;
++	const char	*clear;
++	bool		is_val;
++	int		shift;
++};
++
++struct pgtable_level {
++	const struct flag_info *flag;
++	size_t num;
++	u64 mask;
++};
++
++extern struct pgtable_level pg_level[5];
 
 
