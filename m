@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5106859D72A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8616659D45A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348671AbiHWJRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:17:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52746 "EHLO
+        id S242841AbiHWIWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:22:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349447AbiHWJQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:16:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A2617538E;
-        Tue, 23 Aug 2022 01:32:23 -0700 (PDT)
+        with ESMTP id S243496AbiHWIVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:21:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBEBC6F560;
+        Tue, 23 Aug 2022 01:12:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1B2E614C2;
-        Tue, 23 Aug 2022 08:32:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E44C433D6;
-        Tue, 23 Aug 2022 08:32:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52C7EB81C4A;
+        Tue, 23 Aug 2022 08:12:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74677C433C1;
+        Tue, 23 Aug 2022 08:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243542;
-        bh=dA6ZEuwj7DPqjItnEoT4QchiUOKqV/ohRsxC0LHDOW0=;
+        s=korg; t=1661242348;
+        bh=rjjBHXoP7pxnv7fCJOqFLvOtZtIYyDWZRkjY5upDNlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QW9zXnqgBK7T8Dyhvku0wDnc0sA85R29MiJl+hn4feKR/+PRezn6rWcvdZuWlDpQF
-         sBy0SOJV3nFKDdQHYSjsdRv/QVD/f0YmwDYBMR8S8icKQCDBcgj3pjBgq2Q6+rOTQl
-         ZTFbXG/rvel1ozQf+mOayGKD/XiU73KPhHbgdWp4=
+        b=TNdgDx/jeh48a8or45FzY8gqPHS4XBh7mDjAVKYZLMLln/bapHw/7z7XB7KhcUcFt
+         Qk8eNlvKgvHx6QVEZPsoEomBOuDhmjjT7swcwiSQnJ76JHwrXhrKs0qxJemW+kN4Fs
+         x0Hh+9FGjGUGX7sQA1F6cAyhaD+I0kqWqyxAW7Oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 310/365] phy: samsung: phy-exynos-pcie: sanitize init/power_on callbacks
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.9 058/101] btrfs: reject log replay if there is unsupported RO compat flag
 Date:   Tue, 23 Aug 2022 10:03:31 +0200
-Message-Id: <20220823080131.142708441@linuxfoundation.org>
+Message-Id: <20220823080036.782860749@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,87 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit f2812227bb07e2eaee74253f11cea1576945df31 ]
+commit dc4d31684974d140250f3ee612c3f0cab13b3146 upstream.
 
-The exynos-pcie driver called phy_power_on() before phy_init() for some
-historical reasons. However the generic PHY framework assumes that the
-proper sequence is to call phy_init() first, then phy_power_on(). The
-operations done by both functions should be considered as one action and as
-such they are called by the exynos-pcie driver (without doing anything
-between them). The initialization is just a sequence of register writes,
-which cannot be altered without breaking the hardware operation.
+[BUG]
+If we have a btrfs image with dirty log, along with an unsupported RO
+compatible flag:
 
-To match the generic PHY framework requirement, simply move all register
-writes to the phy_init()/phy_exit() and drop power_on()/power_off()
-callbacks. This way the driver will also work with the old (incorrect)
-PHY initialization call sequence.
+log_root		30474240
+...
+compat_flags		0x0
+compat_ro_flags		0x40000003
+			( FREE_SPACE_TREE |
+			  FREE_SPACE_TREE_VALID |
+			  unknown flag: 0x40000000 )
 
-Link: https://lore.kernel.org/r/20220628220409.26545-1-m.szyprowski@samsung.com
-Reported-by: Bjorn Helgaas <helgaas@kernel.org>
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Chanho Park <chanho61.park@samsung.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-By: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Then even if we can only mount it RO, we will still cause metadata
+update for log replay:
+
+  BTRFS info (device dm-1): flagging fs with big metadata feature
+  BTRFS info (device dm-1): using free space tree
+  BTRFS info (device dm-1): has skinny extents
+  BTRFS info (device dm-1): start tree-log replay
+
+This is definitely against RO compact flag requirement.
+
+[CAUSE]
+RO compact flag only forces us to do RO mount, but we will still do log
+replay for plain RO mount.
+
+Thus this will result us to do log replay and update metadata.
+
+This can be very problematic for new RO compat flag, for example older
+kernel can not understand v2 cache, and if we allow metadata update on
+RO mount and invalidate/corrupt v2 cache.
+
+[FIX]
+Just reject the mount unless rescue=nologreplay is provided:
+
+  BTRFS error (device dm-1): cannot replay dirty log with unsupport optional features (0x40000000), try rescue=nologreplay instead
+
+We don't want to set rescue=nologreply directly, as this would make the
+end user to read the old data, and cause confusion.
+
+Since the such case is really rare, we're mostly fine to just reject the
+mount with an error message, which also includes the proper workaround.
+
+CC: stable@vger.kernel.org #4.9+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/samsung/phy-exynos-pcie.c | 25 +++++++++----------------
- 1 file changed, 9 insertions(+), 16 deletions(-)
+ fs/btrfs/disk-io.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/phy/samsung/phy-exynos-pcie.c b/drivers/phy/samsung/phy-exynos-pcie.c
-index 578cfe07d07a..53c9230c2907 100644
---- a/drivers/phy/samsung/phy-exynos-pcie.c
-+++ b/drivers/phy/samsung/phy-exynos-pcie.c
-@@ -51,6 +51,13 @@ static int exynos5433_pcie_phy_init(struct phy *phy)
- {
- 	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
- 
-+	regmap_update_bits(ep->pmureg, EXYNOS5433_PMU_PCIE_PHY_OFFSET,
-+			   BIT(0), 1);
-+	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_GLOBAL_RESET,
-+			   PCIE_APP_REQ_EXIT_L1_MODE, 0);
-+	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_L1SUB_CM_CON,
-+			   PCIE_REFCLK_GATING_EN, 0);
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2774,6 +2774,20 @@ int open_ctree(struct super_block *sb,
+ 		err = -EINVAL;
+ 		goto fail_alloc;
+ 	}
++	/*
++	 * We have unsupported RO compat features, although RO mounted, we
++	 * should not cause any metadata write, including log replay.
++	 * Or we could screw up whatever the new feature requires.
++	 */
++	if (unlikely(features && btrfs_super_log_root(disk_super) &&
++		     !btrfs_test_opt(fs_info, NOLOGREPLAY))) {
++		btrfs_err(fs_info,
++"cannot replay dirty log with unsupported compat_ro features (0x%llx), try rescue=nologreplay",
++			  features);
++		err = -EINVAL;
++		goto fail_alloc;
++	}
 +
- 	regmap_update_bits(ep->fsysreg,	PCIE_EXYNOS5433_PHY_COMMON_RESET,
- 			   PCIE_PHY_RESET, 1);
- 	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_MAC_RESET,
-@@ -109,20 +116,7 @@ static int exynos5433_pcie_phy_init(struct phy *phy)
- 	return 0;
- }
  
--static int exynos5433_pcie_phy_power_on(struct phy *phy)
--{
--	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
--
--	regmap_update_bits(ep->pmureg, EXYNOS5433_PMU_PCIE_PHY_OFFSET,
--			   BIT(0), 1);
--	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_GLOBAL_RESET,
--			   PCIE_APP_REQ_EXIT_L1_MODE, 0);
--	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_L1SUB_CM_CON,
--			   PCIE_REFCLK_GATING_EN, 0);
--	return 0;
--}
--
--static int exynos5433_pcie_phy_power_off(struct phy *phy)
-+static int exynos5433_pcie_phy_exit(struct phy *phy)
- {
- 	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
+ 	max_active = fs_info->thread_pool_size;
  
-@@ -135,8 +129,7 @@ static int exynos5433_pcie_phy_power_off(struct phy *phy)
- 
- static const struct phy_ops exynos5433_phy_ops = {
- 	.init		= exynos5433_pcie_phy_init,
--	.power_on	= exynos5433_pcie_phy_power_on,
--	.power_off	= exynos5433_pcie_phy_power_off,
-+	.exit		= exynos5433_pcie_phy_exit,
- 	.owner		= THIS_MODULE,
- };
- 
--- 
-2.35.1
-
 
 
