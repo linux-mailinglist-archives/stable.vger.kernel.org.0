@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FBE959DCE1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:25:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3C859E29B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353158AbiHWKO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:14:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33088 "EHLO
+        id S1355691AbiHWKr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:47:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353986AbiHWKMX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:12:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C9F3AB0D;
-        Tue, 23 Aug 2022 01:58:49 -0700 (PDT)
+        with ESMTP id S1355875AbiHWKpV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:45:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CCFC6CD2A;
+        Tue, 23 Aug 2022 02:11:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2525B81C28;
-        Tue, 23 Aug 2022 08:58:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4203CC433B5;
-        Tue, 23 Aug 2022 08:58:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A82660F50;
+        Tue, 23 Aug 2022 09:11:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32AB5C433C1;
+        Tue, 23 Aug 2022 09:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245126;
-        bh=dJICxAXUVqoAvRcs1iEYL7jr+zKhXIpbPrZJ96/wyv0=;
+        s=korg; t=1661245864;
+        bh=IKMkzTsYh/OjMKBcBRBsOD5re4x3laIipvrW/22RXUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EfzoZtRnIENOkM/9s12PURk2/zcDKlcz60l3dI114Z72XB6WfQ4x3kyjbHYU+WQq+
-         wZuFsEaZT88IoPR3FhKRNJrNajcnrLX2sC/jzXxfJZoaykw/Dg+eoYtbzM8anARH+O
-         4gigiMX2umnWH5gmWW4FdwEbPBAZO4xK4dm5w29k=
+        b=P1mRuirHwOvxQGn/iy6/b7Fef6bsum68rQG38W0kR2TQJIQw+EPu+LlYtSyBNaq5n
+         J4sRNmYe/pOGxQBttWrmB0igiTnb3VcvuJ+MhzHWllq6z2anfkLLYdt021xgLbeDGM
+         pe19LVImlqsBV3/BHbjjV2AK7lIuJQYl36/6+wd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+1ee0910eca9c94f71f25@syzkaller.appspotmail.com,
-        syzbot+49b10793b867871ee26f@syzkaller.appspotmail.com,
-        syzbot+8285e973a41b5aa68902@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 225/244] ALSA: timer: Use deferred fasync helper
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 215/287] ALSA: info: Fix llseek return value when using callback
 Date:   Tue, 23 Aug 2022 10:26:24 +0200
-Message-Id: <20220823080107.054177105@linuxfoundation.org>
+Message-Id: <20220823080108.194251665@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,83 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit 95cc637c1afd83fb7dd3d7c8a53710488f4caf9c ]
+commit 9be080edcca330be4af06b19916c35227891e8bc upstream.
 
-For avoiding the potential deadlock via kill_fasync() call, use the
-new fasync helpers to defer the invocation from PCI API.  Note that
-it's merely a workaround.
+When using callback there was a flow of
 
-Reported-by: syzbot+1ee0910eca9c94f71f25@syzkaller.appspotmail.com
-Reported-by: syzbot+49b10793b867871ee26f@syzkaller.appspotmail.com
-Reported-by: syzbot+8285e973a41b5aa68902@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20220728125945.29533-3-tiwai@suse.de
+	ret = -EINVAL
+	if (callback) {
+		offset = callback();
+		goto out;
+	}
+	...
+	offset = some other value in case of no callback;
+	ret = offset;
+out:
+	return ret;
+
+which causes the snd_info_entry_llseek() to return -EINVAL when there is
+callback handler. Fix this by setting "ret" directly to callback return
+value before jumping to "out".
+
+Fixes: 73029e0ff18d ("ALSA: info - Implement common llseek for binary mode")
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220817124924.3974577-1-amadeuszx.slawinski@linux.intel.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/timer.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ sound/core/info.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/core/timer.c b/sound/core/timer.c
-index b3214baa8919..e08a37c23add 100644
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -83,7 +83,7 @@ struct snd_timer_user {
- 	unsigned int filter;
- 	struct timespec64 tstamp;		/* trigger tstamp */
- 	wait_queue_head_t qchange_sleep;
--	struct fasync_struct *fasync;
-+	struct snd_fasync *fasync;
- 	struct mutex ioctl_lock;
- };
- 
-@@ -1345,7 +1345,7 @@ static void snd_timer_user_interrupt(struct snd_timer_instance *timeri,
+--- a/sound/core/info.c
++++ b/sound/core/info.c
+@@ -127,9 +127,9 @@ static loff_t snd_info_entry_llseek(stru
+ 	entry = data->entry;
+ 	mutex_lock(&entry->access);
+ 	if (entry->c.ops->llseek) {
+-		offset = entry->c.ops->llseek(entry,
+-					      data->file_private_data,
+-					      file, offset, orig);
++		ret = entry->c.ops->llseek(entry,
++					   data->file_private_data,
++					   file, offset, orig);
+ 		goto out;
  	}
-       __wake:
- 	spin_unlock(&tu->qlock);
--	kill_fasync(&tu->fasync, SIGIO, POLL_IN);
-+	snd_kill_fasync(tu->fasync, SIGIO, POLL_IN);
- 	wake_up(&tu->qchange_sleep);
- }
  
-@@ -1383,7 +1383,7 @@ static void snd_timer_user_ccallback(struct snd_timer_instance *timeri,
- 	spin_lock_irqsave(&tu->qlock, flags);
- 	snd_timer_user_append_to_tqueue(tu, &r1);
- 	spin_unlock_irqrestore(&tu->qlock, flags);
--	kill_fasync(&tu->fasync, SIGIO, POLL_IN);
-+	snd_kill_fasync(tu->fasync, SIGIO, POLL_IN);
- 	wake_up(&tu->qchange_sleep);
- }
- 
-@@ -1453,7 +1453,7 @@ static void snd_timer_user_tinterrupt(struct snd_timer_instance *timeri,
- 	spin_unlock(&tu->qlock);
- 	if (append == 0)
- 		return;
--	kill_fasync(&tu->fasync, SIGIO, POLL_IN);
-+	snd_kill_fasync(tu->fasync, SIGIO, POLL_IN);
- 	wake_up(&tu->qchange_sleep);
- }
- 
-@@ -1521,6 +1521,7 @@ static int snd_timer_user_release(struct inode *inode, struct file *file)
- 			snd_timer_instance_free(tu->timeri);
- 		}
- 		mutex_unlock(&tu->ioctl_lock);
-+		snd_fasync_free(tu->fasync);
- 		kfree(tu->queue);
- 		kfree(tu->tqueue);
- 		kfree(tu);
-@@ -2135,7 +2136,7 @@ static int snd_timer_user_fasync(int fd, struct file * file, int on)
- 	struct snd_timer_user *tu;
- 
- 	tu = file->private_data;
--	return fasync_helper(fd, file, on, &tu->fasync);
-+	return snd_fasync_helper(fd, file, on, &tu->fasync);
- }
- 
- static ssize_t snd_timer_user_read(struct file *file, char __user *buffer,
--- 
-2.35.1
-
 
 
