@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BB0E59DCB2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83C1359E00B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354714AbiHWKnE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:43:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52752 "EHLO
+        id S1357548AbiHWLiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:38:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355200AbiHWKkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:40:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE689A723B;
-        Tue, 23 Aug 2022 02:08:03 -0700 (PDT)
+        with ESMTP id S1358150AbiHWLhD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:37:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9128C8888;
+        Tue, 23 Aug 2022 02:27:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7327FB81C4E;
-        Tue, 23 Aug 2022 09:08:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0B7BC433C1;
-        Tue, 23 Aug 2022 09:08:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2873CB81C95;
+        Tue, 23 Aug 2022 09:27:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65F01C43470;
+        Tue, 23 Aug 2022 09:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245681;
-        bh=8oectIyZt6VRJD/c0vemqJWQCt3u+kU50lQPATG608M=;
+        s=korg; t=1661246873;
+        bh=himHa72SbR58BlQGvStzlVlxCP07VtgiIqZ7m2ZiR40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gttL7T/jly3XWt+Qf0z0zDMzprTDmEPwc1GLMYrMcb07KyeK2Dikhhz6LHKPet2P8
-         Xiua3sjsg9wB5s905arL6N8FP/fnkWH9V5SkfRFSXu5VlWspMNMCOIBVY2dEiZhgPJ
-         Hjk3/9ntOT7egLL/llkI6M+H7Rdv5cBwPbuUh5UY=
+        b=ixEjeh1X9l7Msk6zj+FKVJufPK0dH5O6h/wXLdL/Kuj4dXkfaybIsYZUx8KntsygM
+         Z0+vRmLDvUpZij6VitW0L7Wfe81xgDepYnSppkNKFjkYq95/7el1JoLYdsvFieJt47
+         /35WTs2g3RZACGDdc/+TjPwESwGR5ObldNpJHuCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 156/287] vfio/ccw: Do not change FSM state in subchannel event
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 247/389] video: fbdev: s3fb: Check the size of screen before memset_io()
 Date:   Tue, 23 Aug 2022 10:25:25 +0200
-Message-Id: <20220823080105.905442984@linuxfoundation.org>
+Message-Id: <20220823080125.895945189@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Farman <farman@linux.ibm.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit cffcc109fd682075dee79bade3d60a07152a8fd1 ]
+[ Upstream commit 6ba592fa014f21f35a8ee8da4ca7b95a018f13e8 ]
 
-The routine vfio_ccw_sch_event() is tasked with handling subchannel events,
-specifically machine checks, on behalf of vfio-ccw. It correctly calls
-cio_update_schib(), and if that fails (meaning the subchannel is gone)
-it makes an FSM event call to mark the subchannel Not Operational.
+In the function s3fb_set_par(), the value of 'screen_size' is
+calculated by the user input. If the user provides the improper value,
+the value of 'screen_size' may larger than 'info->screen_size', which
+may cause the following bug:
 
-If that worked, however, then it decides that if the FSM state was already
-Not Operational (implying the subchannel just came back), then it should
-simply change the FSM to partially- or fully-open.
+[   54.083733] BUG: unable to handle page fault for address: ffffc90003000000
+[   54.083742] #PF: supervisor write access in kernel mode
+[   54.083744] #PF: error_code(0x0002) - not-present page
+[   54.083760] RIP: 0010:memset_orig+0x33/0xb0
+[   54.083782] Call Trace:
+[   54.083788]  s3fb_set_par+0x1ec6/0x4040
+[   54.083806]  fb_set_var+0x604/0xeb0
+[   54.083836]  do_fb_ioctl+0x234/0x670
 
-Remove this trickery, since a subchannel returning will require more
-probing than simply "oh all is well again" to ensure it works correctly.
+Fix the this by checking the value of 'screen_size' before memset_io().
 
-Fixes: bbe37e4cb8970 ("vfio: ccw: introduce a finite state machine")
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220707135737.720765-4-farman@linux.ibm.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: a268422de8bf ("fbdev driver for S3 Trio/Virge")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/video/fbdev/s3fb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 7a06cdff6572..862b0eb0fe6d 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -205,19 +205,11 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	if (work_pending(&sch->todo_work))
- 		goto out_unlock;
+diff --git a/drivers/video/fbdev/s3fb.c b/drivers/video/fbdev/s3fb.c
+index be16c349c10f..228e5ee7a547 100644
+--- a/drivers/video/fbdev/s3fb.c
++++ b/drivers/video/fbdev/s3fb.c
+@@ -902,6 +902,8 @@ static int s3fb_set_par(struct fb_info *info)
+ 	value = clamp((htotal + hsstart + 1) / 2 + 2, hsstart + 4, htotal + 1);
+ 	svga_wcrt_multi(par->state.vgabase, s3_dtpc_regs, value);
  
--	if (cio_update_schib(sch)) {
--		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
--		rc = 0;
--		goto out_unlock;
--	}
--
--	private = dev_get_drvdata(&sch->dev);
--	if (private->state == VFIO_CCW_STATE_NOT_OPER) {
--		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
--				 VFIO_CCW_STATE_STANDBY;
--	}
- 	rc = 0;
- 
-+	if (cio_update_schib(sch))
-+		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
-+
- out_unlock:
- 	spin_unlock_irqrestore(sch->lock, flags);
- 
++	if (screen_size > info->screen_size)
++		screen_size = info->screen_size;
+ 	memset_io(info->screen_base, 0x00, screen_size);
+ 	/* Device and screen back on */
+ 	svga_wcrt_mask(par->state.vgabase, 0x17, 0x80, 0x80);
 -- 
 2.35.1
 
