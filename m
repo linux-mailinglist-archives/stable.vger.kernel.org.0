@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DAD259D8AC
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64BD459D9C4
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236992AbiHWJyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:54:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42012 "EHLO
+        id S241619AbiHWKCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:02:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244585AbiHWJyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:54:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CA989F768;
-        Tue, 23 Aug 2022 01:46:24 -0700 (PDT)
+        with ESMTP id S242091AbiHWJ70 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:59:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15A75A220B;
+        Tue, 23 Aug 2022 01:48:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA3A9B81C3A;
-        Tue, 23 Aug 2022 08:46:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC362C433D6;
-        Tue, 23 Aug 2022 08:46:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A4F6B81C28;
+        Tue, 23 Aug 2022 08:48:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC30BC433C1;
+        Tue, 23 Aug 2022 08:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244366;
-        bh=d2C7zI3JOKJ5MqjkH9tUElWe9uYNhh5//9mKAug5n1Q=;
+        s=korg; t=1661244487;
+        bh=3KmEpMGR6c7BCp8aZrOzLRXP9eHflZRAsYfKvwD+VUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RNlkxITg5y66poxcGI3QO3IbDRQ93/3HTwzrdF+kL1bAGfCAi+SCDWvxYi+PfQaH5
-         zEmeRzbxUq9QxfVSQa+EwP9S61DmYEargZ/DcjXXDk+TIiI+uXXQ3/IHkUdzDBx9bz
-         4M57Uy6MKuyCl/BKwuHtYrkngNTbC/qrGBKx5mdY=
+        b=H1TtK7tDDAoaHeKeR66DnskG/vqBmR0qszvay5as5a9dJyHbBCIBeoIS9fqHT9ZMo
+         7pkw0HWiNo/kAWihOukMdO3R3woFnvxZSIxRNs3ynp0Xep4nrwmINRBnsrc6dxbLUX
+         su25fdk32siJxKNlWV4HMzGzSi79XgkGMuRQf+pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Miaoqian Lin <linmq006@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 099/229] usb: host: Fix refcount leak in ehci_hcd_ppc_of_probe
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 101/244] perf tests: Fix Track with sched_switch test for hybrid case
 Date:   Tue, 23 Aug 2022 10:24:20 +0200
-Message-Id: <20220823080057.231944046@linuxfoundation.org>
+Message-Id: <20220823080102.404760852@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit b5c5b13cb45e2c88181308186b0001992cb41954 ]
+commit 1da1d60774014137d776d0400fdf2f1779d8d4d5 upstream.
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+If cpu_core PMU event fails to parse, try also cpu_atom PMU event when
+parsing cycles event.
 
-Fixes: 796bcae7361c ("USB: powerpc: Workaround for the PPC440EPX USBH_23 errata [take 3]")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220602110849.58549-1-linmq006@gmail.com
+Fixes: 43eb05d066795bdf ("perf tests: Support 'Track with sched_switch' test for hybrid")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/r/20220809080702.6921-3-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-ppc-of.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/tests/switch-tracking.c |   18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/host/ehci-ppc-of.c b/drivers/usb/host/ehci-ppc-of.c
-index 1a10c8d542ca..d36aa2c29d39 100644
---- a/drivers/usb/host/ehci-ppc-of.c
-+++ b/drivers/usb/host/ehci-ppc-of.c
-@@ -147,6 +147,7 @@ static int ehci_hcd_ppc_of_probe(struct platform_device *op)
- 		} else {
- 			ehci->has_amcc_usb23 = 1;
- 		}
-+		of_node_put(np);
+--- a/tools/perf/tests/switch-tracking.c
++++ b/tools/perf/tests/switch-tracking.c
+@@ -324,6 +324,7 @@ out_free_nodes:
+ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_unused)
+ {
+ 	const char *sched_switch = "sched:sched_switch";
++	const char *cycles = "cycles:u";
+ 	struct switch_tracking switch_tracking = { .tids = NULL, };
+ 	struct record_opts opts = {
+ 		.mmap_pages	     = UINT_MAX,
+@@ -372,12 +373,19 @@ int test__switch_tracking(struct test *t
+ 	cpu_clocks_evsel = evlist__last(evlist);
+ 
+ 	/* Second event */
+-	if (perf_pmu__has_hybrid())
+-		err = parse_events(evlist, "cpu_core/cycles/u", NULL);
+-	else
+-		err = parse_events(evlist, "cycles:u", NULL);
++	if (perf_pmu__has_hybrid()) {
++		cycles = "cpu_core/cycles/u";
++		err = parse_events(evlist, cycles, NULL);
++		if (err) {
++			cycles = "cpu_atom/cycles/u";
++			pr_debug("Trying %s\n", cycles);
++			err = parse_events(evlist, cycles, NULL);
++		}
++	} else {
++		err = parse_events(evlist, cycles, NULL);
++	}
+ 	if (err) {
+-		pr_debug("Failed to parse event cycles:u\n");
++		pr_debug("Failed to parse event %s\n", cycles);
+ 		goto out_err;
  	}
  
- 	if (of_get_property(dn, "big-endian", NULL)) {
--- 
-2.35.1
-
 
 
