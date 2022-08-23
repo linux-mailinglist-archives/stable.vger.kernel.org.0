@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1549459DC2A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB5BF59DE14
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234825AbiHWL2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:28:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60078 "EHLO
+        id S243798AbiHWLhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:37:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358184AbiHWL1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:27:30 -0400
+        with ESMTP id S241903AbiHWLet (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:34:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A541C3F58;
-        Tue, 23 Aug 2022 02:25:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8AE5C6E8B;
+        Tue, 23 Aug 2022 02:27:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6006C61220;
-        Tue, 23 Aug 2022 09:25:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F5CFC433D6;
-        Tue, 23 Aug 2022 09:25:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 747FC61321;
+        Tue, 23 Aug 2022 09:27:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64437C433D6;
+        Tue, 23 Aug 2022 09:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246709;
-        bh=ayePQ4jSZQclIGH4CsY3QCuzA/aCfLhd204WTXX4Rq8=;
+        s=korg; t=1661246832;
+        bh=06WiK+Q++lIczkn7ND7xiLRX3czC6B9CkexQnaYSWdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wjt8ur2vRoajTBcTmVINt+zdgkWdR8eMWlfBmgkYhiMOUdgp9xL8zjvO/a6vbIzRb
-         uRQzT8HhwdpIdxK8S4K9MT5+pkywGu1Rioy/dKEUn1s2lC6jQrwt+wyAyLUs1ONCQP
-         vekVKTfnokIJmOuEj49h7IbMcaPLXag8nn7djZ0c=
+        b=1RuCOaJqagkQ1QejaEk2YjpC7QwjavfshaZCAxzDVe3/YpJ/7RPiZxgC8/U3+isXn
+         uGEC+hMvvXoJAewvQHXaaYRdeAn19K0wtTjmQDkUkC7X3UoIhmmrdJ3eofC1hSG0y5
+         BbdEwcokHjfWFuuQZeJs0oGQFEL0o3wIZ+eZLRvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vidya Sagar <vidyas@nvidia.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 193/389] PCI: tegra194: Fix link up retry sequence
-Date:   Tue, 23 Aug 2022 10:24:31 +0200
-Message-Id: <20220823080123.689370273@linuxfoundation.org>
+Subject: [PATCH 5.4 194/389] USB: serial: fix tty-port initialized comments
+Date:   Tue, 23 Aug 2022 10:24:32 +0200
+Message-Id: <20220823080123.729112581@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,35 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vidya Sagar <vidyas@nvidia.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit e05fd6ae77c3e2cc0dba283005d24b6d56d2b1fa ]
+[ Upstream commit 688ee1d1785c1359f9040f615dd8e6054962bce2 ]
 
-Add the missing DLF capability offset while clearing DL_FEATURE_EXCHANGE_EN
-bit during link up retry.
+Fix up the tty-port initialized comments which got truncated and
+obfuscated when replacing the old ASYNCB_INITIALIZED flag.
 
-Link: https://lore.kernel.org/r/20220721142052.25971-15-vidyas@nvidia.com
-Fixes: 56e15a238d92 ("PCI: tegra: Add Tegra194 PCIe support")
-Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: d41861ca19c9 ("tty: Replace ASYNC_INITIALIZED bit and update atomically")
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/sierra.c     | 3 ++-
+ drivers/usb/serial/usb-serial.c | 2 +-
+ drivers/usb/serial/usb_wwan.c   | 3 ++-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index c7ac61a6080b..120d64c1a27f 100644
---- a/drivers/pci/controller/dwc/pcie-tegra194.c
-+++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -854,7 +854,7 @@ static int tegra_pcie_dw_host_init(struct pcie_port *pp)
- 		offset = dw_pcie_find_ext_capability(pci, PCI_EXT_CAP_ID_DLF);
- 		val = dw_pcie_readl_dbi(pci, offset + PCI_DLF_CAP);
- 		val &= ~PCI_DLF_EXCHANGE_ENABLE;
--		dw_pcie_writel_dbi(pci, offset, val);
-+		dw_pcie_writel_dbi(pci, offset + PCI_DLF_CAP, val);
+diff --git a/drivers/usb/serial/sierra.c b/drivers/usb/serial/sierra.c
+index a43263a0edd8..891e52bc5002 100644
+--- a/drivers/usb/serial/sierra.c
++++ b/drivers/usb/serial/sierra.c
+@@ -757,7 +757,8 @@ static void sierra_close(struct usb_serial_port *port)
  
- 		tegra_pcie_prepare_host(pp);
+ 	/*
+ 	 * Need to take susp_lock to make sure port is not already being
+-	 * resumed, but no need to hold it due to initialized
++	 * resumed, but no need to hold it due to the tty-port initialized
++	 * flag.
+ 	 */
+ 	spin_lock_irq(&intfdata->susp_lock);
+ 	if (--intfdata->open_ports == 0)
+diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
+index dc7a65b9ec98..2a2469b76cc5 100644
+--- a/drivers/usb/serial/usb-serial.c
++++ b/drivers/usb/serial/usb-serial.c
+@@ -254,7 +254,7 @@ static int serial_open(struct tty_struct *tty, struct file *filp)
+  *
+  * Shut down a USB serial port. Serialized against activate by the
+  * tport mutex and kept to matching open/close pairs
+- * of calls by the initialized flag.
++ * of calls by the tty-port initialized flag.
+  *
+  * Not called if tty is console.
+  */
+diff --git a/drivers/usb/serial/usb_wwan.c b/drivers/usb/serial/usb_wwan.c
+index b2285d5a869d..628a75d1232a 100644
+--- a/drivers/usb/serial/usb_wwan.c
++++ b/drivers/usb/serial/usb_wwan.c
+@@ -435,7 +435,8 @@ void usb_wwan_close(struct usb_serial_port *port)
  
+ 	/*
+ 	 * Need to take susp_lock to make sure port is not already being
+-	 * resumed, but no need to hold it due to initialized
++	 * resumed, but no need to hold it due to the tty-port initialized
++	 * flag.
+ 	 */
+ 	spin_lock_irq(&intfdata->susp_lock);
+ 	if (--intfdata->open_ports == 0)
 -- 
 2.35.1
 
