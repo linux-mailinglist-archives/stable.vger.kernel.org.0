@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 628AE59DA1F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C4B59DA3F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352262AbiHWKFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45832 "EHLO
+        id S1352040AbiHWKGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:06:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351823AbiHWKDg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:03:36 -0400
+        with ESMTP id S1352152AbiHWKEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:04:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 675557C74C;
-        Tue, 23 Aug 2022 01:51:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF1C7CABB;
+        Tue, 23 Aug 2022 01:51:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAB55B8105C;
-        Tue, 23 Aug 2022 08:51:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC59C433C1;
-        Tue, 23 Aug 2022 08:51:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0AB1B81BF8;
+        Tue, 23 Aug 2022 08:51:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 599C3C433C1;
+        Tue, 23 Aug 2022 08:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244675;
-        bh=gLM8LBhORFu5PwRUSqfEW5Kpwo0NNLq/B/aFZnNfZHA=;
+        s=korg; t=1661244681;
+        bh=AIm+iPxsLuS8cHO7rgsgO4mYB1yWFzEMV0ofdqrskFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+wa5B2rHzM0c48BerkRvvDhR3Dvn7h2GW19luSf4Roj4lfo2wP3ZviTqDNxcQWdl
-         Rg6tQ9MilRvSh+qRTwHPT6NyeK27dP4IlF8gV7VhG1C7dc8fk68EBggSC+hQuCD4VP
-         A5M63qoE6CW/8mSGbPhJlsVj4sdrdOChz8FMY564=
+        b=z1P+6muCxh7fkK4YtIwEsaAxKAcxb969jvNxu8taVgQKtnlGaBBcue2OSa1JOR5U7
+         SPySLmk4L2NQy3OeftCdzeLTHTM0CYCo6xJ8DkPtLByaq+dpq1dBblmPXQMSqwSvEK
+         tngpP7ZL/ModNese5PWiN7CABVqznRmH4Z3/PSnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 132/244] powerpc/pci: Fix get_phb_number() locking
-Date:   Tue, 23 Aug 2022 10:24:51 +0200
-Message-Id: <20220823080103.521023017@linuxfoundation.org>
+        stable@vger.kernel.org, Da Xue <da@libre.computer>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 133/244] spi: meson-spicc: add local pow2 clock ops to preserve rate between messages
+Date:   Tue, 23 Aug 2022 10:24:52 +0200
+Message-Id: <20220823080103.561905801@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -53,105 +54,255 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-commit 8d48562a2729742f767b0fdd994d6b2a56a49c63 upstream.
+commit 09992025dacd258c823f50e82db09d7ef06cdac4 upstream.
 
-The recent change to get_phb_number() causes a DEBUG_ATOMIC_SLEEP
-warning on some systems:
+At the end of a message, the HW gets a reset in meson_spicc_unprepare_transfer(),
+this resets the SPICC_CONREG register and notably the value set by the
+Common Clock Framework.
 
-  BUG: sleeping function called from invalid context at kernel/locking/mutex.c:580
-  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: swapper
-  preempt_count: 1, expected: 0
-  RCU nest depth: 0, expected: 0
-  1 lock held by swapper/1:
-   #0: c157efb0 (hose_spinlock){+.+.}-{2:2}, at: pcibios_alloc_controller+0x64/0x220
-  Preemption disabled at:
-  [<00000000>] 0x0
-  CPU: 0 PID: 1 Comm: swapper Not tainted 5.19.0-yocto-standard+ #1
-  Call Trace:
-  [d101dc90] [c073b264] dump_stack_lvl+0x50/0x8c (unreliable)
-  [d101dcb0] [c0093b70] __might_resched+0x258/0x2a8
-  [d101dcd0] [c0d3e634] __mutex_lock+0x6c/0x6ec
-  [d101dd50] [c0a84174] of_alias_get_id+0x50/0xf4
-  [d101dd80] [c002ec78] pcibios_alloc_controller+0x1b8/0x220
-  [d101ddd0] [c140c9dc] pmac_pci_init+0x198/0x784
-  [d101de50] [c140852c] discover_phbs+0x30/0x4c
-  [d101de60] [c0007fd4] do_one_initcall+0x94/0x344
-  [d101ded0] [c1403b40] kernel_init_freeable+0x1a8/0x22c
-  [d101df10] [c00086e0] kernel_init+0x34/0x160
-  [d101df30] [c001b334] ret_from_kernel_thread+0x5c/0x64
+This is problematic because:
+- the register value CCF can be different from the corresponding CCF cached rate
+- CCF is allowed to change the clock rate whenever the HW state
 
-This is because pcibios_alloc_controller() holds hose_spinlock but
-of_alias_get_id() takes of_mutex which can sleep.
+This introduces:
+- local pow2 clock ops checking the HW state before allowing a clock operation
+- separation of legacy pow2 clock patch and new enhanced clock path
+- SPICC_CONREG datarate value is now value kepts across messages
 
-The hose_spinlock protects the phb_bitmap, and also the hose_list, but
-it doesn't need to be held while get_phb_number() calls the OF routines,
-because those are only looking up information in the device tree.
+It has been checked that:
+- SPICC_CONREG datarate value is kept across messages
+- CCF is only allowed to change the SPICC_CONREG datarate value when busy
+- SPICC_CONREG datarate value is correct for each transfer
 
-So fix it by having get_phb_number() take the hose_spinlock itself, only
-where required, and then dropping the lock before returning.
-pcibios_alloc_controller() then needs to take the lock again before the
-list_add() but that's safe, the order of the list is not important.
+This didn't appear before commit 3e0cf4d3fc29 ("spi: meson-spicc: add a linear clock divider support")
+because we recalculated and wrote the rate for each xfer.
 
-Fixes: 0fe1e96fef0a ("powerpc/pci: Prefer PCI domain assignment via DT 'linux,pci-domain' and alias")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220815065550.1303620-1-mpe@ellerman.id.au
+Fixes: 3e0cf4d3fc29 ("spi: meson-spicc: add a linear clock divider support")
+Reported-by: Da Xue <da@libre.computer>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220811134445.678446-1-narmstrong@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/pci-common.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/spi/spi-meson-spicc.c |  129 ++++++++++++++++++++++++++++++++----------
+ 1 file changed, 101 insertions(+), 28 deletions(-)
 
---- a/arch/powerpc/kernel/pci-common.c
-+++ b/arch/powerpc/kernel/pci-common.c
-@@ -67,10 +67,6 @@ void set_pci_dma_ops(const struct dma_ma
- 	pci_dma_ops = dma_ops;
- }
+--- a/drivers/spi/spi-meson-spicc.c
++++ b/drivers/spi/spi-meson-spicc.c
+@@ -156,6 +156,7 @@ struct meson_spicc_device {
+ 	void __iomem			*base;
+ 	struct clk			*core;
+ 	struct clk			*pclk;
++	struct clk_divider		pow2_div;
+ 	struct clk			*clk;
+ 	struct spi_message		*message;
+ 	struct spi_transfer		*xfer;
+@@ -168,6 +169,8 @@ struct meson_spicc_device {
+ 	unsigned long			xfer_remain;
+ };
  
--/*
-- * This function should run under locking protection, specifically
-- * hose_spinlock.
-- */
- static int get_phb_number(struct device_node *dn)
++#define pow2_clk_to_spicc(_div) container_of(_div, struct meson_spicc_device, pow2_div)
++
+ static void meson_spicc_oen_enable(struct meson_spicc_device *spicc)
  {
- 	int ret, phb_id = -1;
-@@ -107,15 +103,20 @@ static int get_phb_number(struct device_
- 	if (!ret)
- 		phb_id = (int)(prop & (MAX_PHBS - 1));
+ 	u32 conf;
+@@ -421,7 +424,7 @@ static int meson_spicc_prepare_message(s
+ {
+ 	struct meson_spicc_device *spicc = spi_master_get_devdata(master);
+ 	struct spi_device *spi = message->spi;
+-	u32 conf = 0;
++	u32 conf = readl_relaxed(spicc->base + SPICC_CONREG) & SPICC_DATARATE_MASK;
  
-+	spin_lock(&hose_spinlock);
+ 	/* Store current message */
+ 	spicc->message = message;
+@@ -458,8 +461,6 @@ static int meson_spicc_prepare_message(s
+ 	/* Select CS */
+ 	conf |= FIELD_PREP(SPICC_CS_MASK, spi->chip_select);
+ 
+-	/* Default Clock rate core/4 */
+-
+ 	/* Default 8bit word */
+ 	conf |= FIELD_PREP(SPICC_BITLENGTH_MASK, 8 - 1);
+ 
+@@ -476,12 +477,16 @@ static int meson_spicc_prepare_message(s
+ static int meson_spicc_unprepare_transfer(struct spi_master *master)
+ {
+ 	struct meson_spicc_device *spicc = spi_master_get_devdata(master);
++	u32 conf = readl_relaxed(spicc->base + SPICC_CONREG) & SPICC_DATARATE_MASK;
+ 
+ 	/* Disable all IRQs */
+ 	writel(0, spicc->base + SPICC_INTREG);
+ 
+ 	device_reset_optional(&spicc->pdev->dev);
+ 
++	/* Set default configuration, keeping datarate field */
++	writel_relaxed(conf, spicc->base + SPICC_CONREG);
 +
- 	/* We need to be sure to not use the same PHB number twice. */
- 	if ((phb_id >= 0) && !test_and_set_bit(phb_id, phb_bitmap))
--		return phb_id;
-+		goto out_unlock;
- 
- 	/* If everything fails then fallback to dynamic PHB numbering. */
- 	phb_id = find_first_zero_bit(phb_bitmap, MAX_PHBS);
- 	BUG_ON(phb_id >= MAX_PHBS);
- 	set_bit(phb_id, phb_bitmap);
- 
-+out_unlock:
-+	spin_unlock(&hose_spinlock);
-+
- 	return phb_id;
+ 	return 0;
  }
  
-@@ -126,10 +127,13 @@ struct pci_controller *pcibios_alloc_con
- 	phb = zalloc_maybe_bootmem(sizeof(struct pci_controller), GFP_KERNEL);
- 	if (phb == NULL)
- 		return NULL;
--	spin_lock(&hose_spinlock);
+@@ -518,14 +523,60 @@ static void meson_spicc_cleanup(struct s
+  * Clk path for G12A series:
+  *    pclk -> pow2 fixed div -> pow2 div -> mux -> out
+  *    pclk -> enh fixed div -> enh div -> mux -> out
++ *
++ * The pow2 divider is tied to the controller HW state, and the
++ * divider is only valid when the controller is initialized.
++ *
++ * A set of clock ops is added to make sure we don't read/set this
++ * clock rate while the controller is in an unknown state.
+  */
+ 
+-static int meson_spicc_clk_init(struct meson_spicc_device *spicc)
++static unsigned long meson_spicc_pow2_recalc_rate(struct clk_hw *hw,
++						  unsigned long parent_rate)
++{
++	struct clk_divider *divider = to_clk_divider(hw);
++	struct meson_spicc_device *spicc = pow2_clk_to_spicc(divider);
 +
- 	phb->global_number = get_phb_number(dev);
++	if (!spicc->master->cur_msg || !spicc->master->busy)
++		return 0;
 +
-+	spin_lock(&hose_spinlock);
- 	list_add_tail(&phb->list_node, &hose_list);
- 	spin_unlock(&hose_spinlock);
++	return clk_divider_ops.recalc_rate(hw, parent_rate);
++}
 +
- 	phb->dn = dev;
- 	phb->is_dynamic = slab_is_available();
- #ifdef CONFIG_PPC64
++static int meson_spicc_pow2_determine_rate(struct clk_hw *hw,
++					   struct clk_rate_request *req)
++{
++	struct clk_divider *divider = to_clk_divider(hw);
++	struct meson_spicc_device *spicc = pow2_clk_to_spicc(divider);
++
++	if (!spicc->master->cur_msg || !spicc->master->busy)
++		return -EINVAL;
++
++	return clk_divider_ops.determine_rate(hw, req);
++}
++
++static int meson_spicc_pow2_set_rate(struct clk_hw *hw, unsigned long rate,
++				     unsigned long parent_rate)
++{
++	struct clk_divider *divider = to_clk_divider(hw);
++	struct meson_spicc_device *spicc = pow2_clk_to_spicc(divider);
++
++	if (!spicc->master->cur_msg || !spicc->master->busy)
++		return -EINVAL;
++
++	return clk_divider_ops.set_rate(hw, rate, parent_rate);
++}
++
++const struct clk_ops meson_spicc_pow2_clk_ops = {
++	.recalc_rate = meson_spicc_pow2_recalc_rate,
++	.determine_rate = meson_spicc_pow2_determine_rate,
++	.set_rate = meson_spicc_pow2_set_rate,
++};
++
++static int meson_spicc_pow2_clk_init(struct meson_spicc_device *spicc)
+ {
+ 	struct device *dev = &spicc->pdev->dev;
+-	struct clk_fixed_factor *pow2_fixed_div, *enh_fixed_div;
+-	struct clk_divider *pow2_div, *enh_div;
+-	struct clk_mux *mux;
++	struct clk_fixed_factor *pow2_fixed_div;
+ 	struct clk_init_data init;
+ 	struct clk *clk;
+ 	struct clk_parent_data parent_data[2];
+@@ -560,31 +611,45 @@ static int meson_spicc_clk_init(struct m
+ 	if (WARN_ON(IS_ERR(clk)))
+ 		return PTR_ERR(clk);
+ 
+-	pow2_div = devm_kzalloc(dev, sizeof(*pow2_div), GFP_KERNEL);
+-	if (!pow2_div)
+-		return -ENOMEM;
+-
+ 	snprintf(name, sizeof(name), "%s#pow2_div", dev_name(dev));
+ 	init.name = name;
+-	init.ops = &clk_divider_ops;
+-	init.flags = CLK_SET_RATE_PARENT;
++	init.ops = &meson_spicc_pow2_clk_ops;
++	/*
++	 * Set NOCACHE here to make sure we read the actual HW value
++	 * since we reset the HW after each transfer.
++	 */
++	init.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE;
+ 	parent_data[0].hw = &pow2_fixed_div->hw;
+ 	init.num_parents = 1;
+ 
+-	pow2_div->shift = 16,
+-	pow2_div->width = 3,
+-	pow2_div->flags = CLK_DIVIDER_POWER_OF_TWO,
+-	pow2_div->reg = spicc->base + SPICC_CONREG;
+-	pow2_div->hw.init = &init;
++	spicc->pow2_div.shift = 16,
++	spicc->pow2_div.width = 3,
++	spicc->pow2_div.flags = CLK_DIVIDER_POWER_OF_TWO,
++	spicc->pow2_div.reg = spicc->base + SPICC_CONREG;
++	spicc->pow2_div.hw.init = &init;
+ 
+-	clk = devm_clk_register(dev, &pow2_div->hw);
+-	if (WARN_ON(IS_ERR(clk)))
+-		return PTR_ERR(clk);
++	spicc->clk = devm_clk_register(dev, &spicc->pow2_div.hw);
++	if (WARN_ON(IS_ERR(spicc->clk)))
++		return PTR_ERR(spicc->clk);
+ 
+-	if (!spicc->data->has_enhance_clk_div) {
+-		spicc->clk = clk;
+-		return 0;
+-	}
++	return 0;
++}
++
++static int meson_spicc_enh_clk_init(struct meson_spicc_device *spicc)
++{
++	struct device *dev = &spicc->pdev->dev;
++	struct clk_fixed_factor *enh_fixed_div;
++	struct clk_divider *enh_div;
++	struct clk_mux *mux;
++	struct clk_init_data init;
++	struct clk *clk;
++	struct clk_parent_data parent_data[2];
++	char name[64];
++
++	memset(&init, 0, sizeof(init));
++	memset(&parent_data, 0, sizeof(parent_data));
++
++	init.parent_data = parent_data;
+ 
+ 	/* algorithm for enh div: rate = freq / 2 / (N + 1) */
+ 
+@@ -637,7 +702,7 @@ static int meson_spicc_clk_init(struct m
+ 	snprintf(name, sizeof(name), "%s#sel", dev_name(dev));
+ 	init.name = name;
+ 	init.ops = &clk_mux_ops;
+-	parent_data[0].hw = &pow2_div->hw;
++	parent_data[0].hw = &spicc->pow2_div.hw;
+ 	parent_data[1].hw = &enh_div->hw;
+ 	init.num_parents = 2;
+ 	init.flags = CLK_SET_RATE_PARENT;
+@@ -754,12 +819,20 @@ static int meson_spicc_probe(struct plat
+ 
+ 	meson_spicc_oen_enable(spicc);
+ 
+-	ret = meson_spicc_clk_init(spicc);
++	ret = meson_spicc_pow2_clk_init(spicc);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "clock registration failed\n");
++		dev_err(&pdev->dev, "pow2 clock registration failed\n");
+ 		goto out_clk;
+ 	}
+ 
++	if (spicc->data->has_enhance_clk_div) {
++		ret = meson_spicc_enh_clk_init(spicc);
++		if (ret) {
++			dev_err(&pdev->dev, "clock registration failed\n");
++			goto out_clk;
++		}
++	}
++
+ 	ret = devm_spi_register_master(&pdev->dev, master);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "spi master registration failed\n");
 
 
