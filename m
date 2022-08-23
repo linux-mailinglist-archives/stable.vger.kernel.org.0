@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 974C659E1C4
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5913959DF96
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353205AbiHWKhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244079AbiHWKhG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Aug 2022 06:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36984 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353625AbiHWKe7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:34:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E841A61D0;
-        Tue, 23 Aug 2022 02:07:04 -0700 (PDT)
+        with ESMTP id S1355512AbiHWKgW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:36:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB537A61F8;
+        Tue, 23 Aug 2022 02:07:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45F4F6156F;
-        Tue, 23 Aug 2022 09:07:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C834C433C1;
-        Tue, 23 Aug 2022 09:07:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CEB61B81C89;
+        Tue, 23 Aug 2022 09:07:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E4DBC433C1;
+        Tue, 23 Aug 2022 09:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245622;
-        bh=em6fE2WEIEaDG8U9cC/Dtp6StwJew9mwOQxtaNxLcHY=;
+        s=korg; t=1661245625;
+        bh=SST7BgK6nRiYlNdnB7lLK158LHGtjk/AuY3lc7GNw78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1eb8yFUe0b5kqPVx+ZhZ+eOWoktIibrXb1nVFcVYSgwiNuRstyxu9+Tvz8FccDnh
-         xG85PGdsvWoJa3SdbQkR85+TRJL3ykbUS4ed5lQJOXedJT33rQg+yZ1Zbf4UvEcfmK
-         +WMDCbPCXg2FNzkwZXXLVuHTKOAwIQecPD7uZMmM=
+        b=WNlH11uMhHMMON0VxxApPL4Pdv9e5TgkEGIdm8GMvbSgBt2s+3kqpcweVX7Afi3dU
+         BUcVf+Q329gdEEcsmpRSdTB7LoYtNemagbHqSTqqnvsCgjR825EOaiRvwPhreYD7K8
+         MWkNz+fKLULnk5B7/mmFHmBWyTTf6v7HQfo8ieYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Robert Richter <rric@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 135/287] gpio: gpiolib-of: Fix refcount bugs in of_mm_gpiochip_add_data()
-Date:   Tue, 23 Aug 2022 10:25:04 +0200
-Message-Id: <20220823080104.989173101@linuxfoundation.org>
+Subject: [PATCH 4.19 136/287] mmc: cavium-octeon: Add of_node_put() when breaking out of loop
+Date:   Tue, 23 Aug 2022 10:25:05 +0200
+Message-Id: <20220823080105.038918411@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
 References: <20220823080100.268827165@linuxfoundation.org>
@@ -56,49 +57,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit 5d07a692f9562f9c06e62cce369e9dd108173a0f ]
+[ Upstream commit 19bbb49acf8d7a03cb83e05624363741a4c3ec6f ]
 
-We should use of_node_get() when a new reference of device_node
-is created. It is noted that the old reference stored in
-'mm_gc->gc.of_node' should also be decreased.
+In octeon_mmc_probe(), we should call of_node_put() when breaking
+out of for_each_child_of_node() which has increased and decreased
+the refcount during each iteration.
 
-This patch is based on the fact that there is a call site in function
-'qe_add_gpiochips()' of src file 'drivers\soc\fsl\qe\gpio.c'. In this
-function, of_mm_gpiochip_add_data() is contained in an iteration of
-for_each_compatible_node() which will automatically increase and
-decrease the refcount. So we need additional of_node_get() for the
-reference escape in of_mm_gpiochip_add_data().
-
-Fixes: a19e3da5bc5f ("of/gpio: Kill of_gpio_chip and add members directly to gpio_chip")
+Fixes: 01d95843335c ("mmc: cavium: Add MMC support for Octeon SOCs.")
 Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Acked-by: Robert Richter <rric@kernel.org>
+Link: https://lore.kernel.org/r/20220719095216.1241601-1-windhl@126.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-of.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mmc/host/cavium-octeon.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
-index 09999e3e3109..7bda0f59c109 100644
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -476,7 +476,8 @@ int of_mm_gpiochip_add_data(struct device_node *np,
- 	if (mm_gc->save_regs)
- 		mm_gc->save_regs(mm_gc);
- 
--	mm_gc->gc.of_node = np;
-+	of_node_put(mm_gc->gc.of_node);
-+	mm_gc->gc.of_node = of_node_get(np);
- 
- 	ret = gpiochip_add_data(gc, data);
- 	if (ret)
-@@ -484,6 +485,7 @@ int of_mm_gpiochip_add_data(struct device_node *np,
- 
- 	return 0;
- err2:
-+	of_node_put(np);
- 	iounmap(mm_gc->regs);
- err1:
- 	kfree(gc->label);
+diff --git a/drivers/mmc/host/cavium-octeon.c b/drivers/mmc/host/cavium-octeon.c
+index 22aded1065ae..2245452a44c8 100644
+--- a/drivers/mmc/host/cavium-octeon.c
++++ b/drivers/mmc/host/cavium-octeon.c
+@@ -288,6 +288,7 @@ static int octeon_mmc_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_err(&pdev->dev, "Error populating slots\n");
+ 			octeon_mmc_set_shared_power(host, 0);
++			of_node_put(cn);
+ 			goto error;
+ 		}
+ 		i++;
 -- 
 2.35.1
 
