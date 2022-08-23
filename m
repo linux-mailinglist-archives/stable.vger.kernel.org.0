@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F1B59E34E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2E4D59DF45
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354876AbiHWMSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55462 "EHLO
+        id S241449AbiHWLFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:05:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359634AbiHWMQF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED1C799250;
-        Tue, 23 Aug 2022 02:41:39 -0700 (PDT)
+        with ESMTP id S1356617AbiHWLDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:03:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A02E8B2858;
+        Tue, 23 Aug 2022 02:15:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D3EF6148E;
-        Tue, 23 Aug 2022 09:41:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65F14C433D6;
-        Tue, 23 Aug 2022 09:41:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4DE7B81C94;
+        Tue, 23 Aug 2022 09:14:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D32DC433D6;
+        Tue, 23 Aug 2022 09:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247698;
-        bh=z2mVfhEC80zyzFF605ckfOxj9YZMtntZeAziBf3KXV4=;
+        s=korg; t=1661246075;
+        bh=BG1IryY/JpKplKDyYH7hpVvg67ZthQH8oyEbqAqfFfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faFJ0GTJispfFD0L5OnNMx2k+n8lSl6Hgjz7tTip8K0SeMLG7dBnn3Us1mhrUFV9d
-         6BphV6k8jrQbuIP39zs9olG+aOXYyvpH7X2t1xj/jstkMjTeeJrBGspp84BOmc7mQM
-         hfi8rj4yNXJtTllg/dqTWvsC34BDcG4j7A8ADbr8=
+        b=0eap0GPD81VtCDn2xfdgOo/qaVbBSIXLIZDD0cCJjHFiBFLUJwsRzP4AjAXTpDypL
+         Ut3iKkEU4G1T8i3eDXRnKXh89n0cKRcyW50L50EfTm00fyWytX7rRPhynZ83WA3t/W
+         5ieWYICvNBgwsA5MMEA+VFzVx+PvKT//cUtChhok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Henning Schild <henning.schild@siemens.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 119/158] pinctrl: intel: Check against matching data instead of ACPI companion
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 282/287] video: fbdev: i740fb: Check the argument of i740_calc_vclk()
 Date:   Tue, 23 Aug 2022 10:27:31 +0200
-Message-Id: <20220823080050.729879248@linuxfoundation.org>
+Message-Id: <20220823080110.984312492@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,65 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit c551bd81d198bf1dcd4398d5454acdc0309dbe77 ]
+[ Upstream commit 40bf722f8064f50200b8c4f8946cd625b441dda9 ]
 
-In some cases we may get a platform device that has ACPI companion
-which is different to the pin control described in the ACPI tables.
-This is primarily happens when device is instantiated by board file.
+Since the user can control the arguments of the ioctl() from the user
+space, under special arguments that may result in a divide-by-zero bug.
 
-In order to allow this device being enumerated, refactor
-intel_pinctrl_get_soc_data() to check the matching data instead of
-ACPI companion.
+If the user provides an improper 'pixclock' value that makes the argumet
+of i740_calc_vclk() less than 'I740_RFREQ_FIX', it will cause a
+divide-by-zero bug in:
+    drivers/video/fbdev/i740fb.c:353 p_best = min(15, ilog2(I740_MAX_VCO_FREQ / (freq / I740_RFREQ_FIX)));
 
-Reported-by: Henning Schild <henning.schild@siemens.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Henning Schild <henning.schild@siemens.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Lee Jones <lee@kernel.org>
+The following log can reveal it:
+
+divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+RIP: 0010:i740_calc_vclk drivers/video/fbdev/i740fb.c:353 [inline]
+RIP: 0010:i740fb_decode_var drivers/video/fbdev/i740fb.c:646 [inline]
+RIP: 0010:i740fb_set_par+0x163f/0x3b70 drivers/video/fbdev/i740fb.c:742
+Call Trace:
+ fb_set_var+0x604/0xeb0 drivers/video/fbdev/core/fbmem.c:1034
+ do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
+ fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
+
+Fix this by checking the argument of i740_calc_vclk() first.
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/video/fbdev/i740fb.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index 348c670a7b07..4de832ac47d3 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -1571,16 +1571,14 @@ EXPORT_SYMBOL_GPL(intel_pinctrl_probe_by_uid);
+diff --git a/drivers/video/fbdev/i740fb.c b/drivers/video/fbdev/i740fb.c
+index f6d7b04d6dff..bdbafff4529f 100644
+--- a/drivers/video/fbdev/i740fb.c
++++ b/drivers/video/fbdev/i740fb.c
+@@ -399,7 +399,7 @@ static int i740fb_decode_var(const struct fb_var_screeninfo *var,
+ 	u32 xres, right, hslen, left, xtotal;
+ 	u32 yres, lower, vslen, upper, ytotal;
+ 	u32 vxres, xoffset, vyres, yoffset;
+-	u32 bpp, base, dacspeed24, mem;
++	u32 bpp, base, dacspeed24, mem, freq;
+ 	u8 r7;
+ 	int i;
  
- const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_device *pdev)
- {
-+	const struct intel_pinctrl_soc_data * const *table;
- 	const struct intel_pinctrl_soc_data *data = NULL;
--	const struct intel_pinctrl_soc_data **table;
--	struct acpi_device *adev;
--	unsigned int i;
+@@ -642,7 +642,12 @@ static int i740fb_decode_var(const struct fb_var_screeninfo *var,
+ 	par->atc[VGA_ATC_OVERSCAN] = 0;
  
--	adev = ACPI_COMPANION(&pdev->dev);
--	if (adev) {
--		const void *match = device_get_match_data(&pdev->dev);
-+	table = device_get_match_data(&pdev->dev);
-+	if (table) {
-+		struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
-+		unsigned int i;
+ 	/* Calculate VCLK that most closely matches the requested dot clock */
+-	i740_calc_vclk((((u32)1e9) / var->pixclock) * (u32)(1e3), par);
++	freq = (((u32)1e9) / var->pixclock) * (u32)(1e3);
++	if (freq < I740_RFREQ_FIX) {
++		fb_dbg(info, "invalid pixclock\n");
++		freq = I740_RFREQ_FIX;
++	}
++	i740_calc_vclk(freq, par);
  
--		table = (const struct intel_pinctrl_soc_data **)match;
- 		for (i = 0; table[i]; i++) {
- 			if (!strcmp(adev->pnp.unique_id, table[i]->uid)) {
- 				data = table[i];
-@@ -1594,7 +1592,7 @@ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_
- 		if (!id)
- 			return ERR_PTR(-ENODEV);
- 
--		table = (const struct intel_pinctrl_soc_data **)id->driver_data;
-+		table = (const struct intel_pinctrl_soc_data * const *)id->driver_data;
- 		data = table[pdev->id];
- 	}
- 
+ 	/* Since we program the clocks ourselves, always use VCLK2. */
+ 	par->misc |= 0x0C;
 -- 
 2.35.1
 
