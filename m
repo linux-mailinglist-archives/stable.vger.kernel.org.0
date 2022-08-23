@@ -2,67 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23EC459EF61
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 00:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B478059EF6F
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 00:48:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232057AbiHWWpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 18:45:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43256 "EHLO
+        id S230400AbiHWWsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 18:48:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232735AbiHWWpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 18:45:30 -0400
-Received: from mail-vk1-xa32.google.com (mail-vk1-xa32.google.com [IPv6:2607:f8b0:4864:20::a32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088557FFA5
-        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 15:45:30 -0700 (PDT)
-Received: by mail-vk1-xa32.google.com with SMTP id x66so6203009vkb.8
-        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 15:45:29 -0700 (PDT)
+        with ESMTP id S231248AbiHWWsT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 18:48:19 -0400
+Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A33978B2E5
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 15:48:16 -0700 (PDT)
+Received: by mail-pl1-x649.google.com with SMTP id i16-20020a170902c95000b00172c39b3fb0so7918555pla.22
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 15:48:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=lKR1LPWV5JYNJ2MF97LLJcPqSX2EDVC07cmQNstoLM8=;
-        b=FKfVx2kFpiXPjaveiV3/KqPqJ90UUq8BDS+B6Q6meDoFBSZYDPP7LzvMNFRtnr8IKu
-         yqk2TZFqw3e+lPU4trDjsvjvpgOhc5Y2QnDlMKR54ZONC4O2056A4zSi5EBYG43hbClf
-         2xFqt9E3rMprMaaLWA3ru/F/ZJL+8R8la6+gfQ7yPyDo2iBbkk8l0J+uhr8m1CbMSz+w
-         1oC9axEZJjyZrBGOzVCTLEpcy+AhBX3VlEss8NzshQXPeFLFcgzJLI0rwa8ZKa7xo+9f
-         O/EHt9cgK2Q14ci/Jkz3VLCX21cUSwfqX92if5pnl6vwadDAN2SfKQbycvjP4iDf6nE0
-         4Aiw==
+        h=cc:to:from:subject:mime-version:message-id:date:from:to:cc;
+        bh=YHBqbQM3NMY0cCrSntfkljesc8TAC/U4AG8R+VgzY3A=;
+        b=O6VMZWlXVxl9lfPpxPjKWilGV07sUHi4GKZV0gZX1Gi2ZF7dN+73ZJ/PK0Sa1jwLCk
+         tWszWgO9rxX+fbVFHqYkehQqb2wrkVqGRUty1VpJFrJ1VttT3vVIWTh8cWd2TMVD4pVi
+         ZZ3V0qE4frtaEiKuUAymKgGXB3tpSxUqf7oeCG3oy+9iq1VH2RWR1y+IOD1n7hOsbeTb
+         UKbmIX5Feo7H7ML7Wkk8jFv3IyTcmmR3TeTlTlycH3AE1ZYIi2L+aJj2b74i96zn0VUn
+         qfk1zDrcVxMUDFm3hbvH/6ZJJR1XzhvTzG7x7uVCM0r/mSn/m11MqrlXpCdVdBPgHEhv
+         Hu3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=lKR1LPWV5JYNJ2MF97LLJcPqSX2EDVC07cmQNstoLM8=;
-        b=D5LEENx+EOGDSJ/swNU0+AOz1lHyxVSKLofyUfS0hzIGLhAQ7/nA3U95u56IzrZ3Y9
-         XRfJ72f/QYrWovSme+hlG1UjPtvXXt80KM6bT9vMVla/4Et4XLdzSa4ELwYJapD1S3Es
-         JUPDBhaFNsN/4/1P0YdjJiGu/RD1vFroU1Qrcx+wGpkP2HE1ktl5DbEoT2Y25zn8FsC5
-         Fdi7IY27ubgb818TH9uy9WKmBqaBGSGGUhZ8GuC7BIX7UKk75vd0QNZ2Zh1UCSmPubwH
-         EkGCfFEaUR9fKEtGGCGJ3CM18eamcjJyrdOjY/NexCsLZKtuvQOg0tL/gyvfVt/Yl8YA
-         X6nQ==
-X-Gm-Message-State: ACgBeo2JK//PM9iJWrUhT0iz+qn1McwZ/GewSJ4JB2wRSD5aPU8OA61B
-        s9FlOFnsYcV4ll8sk2NT4CwfGTt2JBPsf0xREM08oQ==
-X-Google-Smtp-Source: AA6agR4hnPm8HQUZjP3vxa46EViMW812XPaXdP3DMiFa61+rBxn3KXQ9a+ZX8y+EYAVxlMVrlvOJ72psvNRw7Yr8NBY=
-X-Received: by 2002:a1f:2ad4:0:b0:38c:5a9c:2d98 with SMTP id
- q203-20020a1f2ad4000000b0038c5a9c2d98mr6090772vkq.24.1661294729024; Tue, 23
- Aug 2022 15:45:29 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220823221138.45602-1-peterx@redhat.com>
-In-Reply-To: <20220823221138.45602-1-peterx@redhat.com>
-From:   Yu Zhao <yuzhao@google.com>
-Date:   Tue, 23 Aug 2022 16:44:51 -0600
-Message-ID: <CAOUHufbcxL5GcqQFJHEzsLTV8htAuZ1qucRGBhNQBg65Q4JYuw@mail.gmail.com>
-Subject: Re: [PATCH] mm/mprotect: Only reference swap pfn page if type match
-To:     Peter Xu <peterx@redhat.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Huang Ying <ying.huang@intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        stable <stable@vger.kernel.org>
+        h=cc:to:from:subject:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc;
+        bh=YHBqbQM3NMY0cCrSntfkljesc8TAC/U4AG8R+VgzY3A=;
+        b=LPFy52TWdCKcHNC8P3yFKIwoMPceE+ocSdP9XsGHRKKt1UCFZHNzg0sh9wq6fdcKM6
+         EFh54AC2gHrU6AGB3rFkQODvp5e7K9uve5R+cFThdEjs7L87TITx00O7+puRchHQHOjg
+         vzTJ8XdLjCB68CBPsmAJEQ7gHlsXZAK1wMZV3XkCXyt/h1P4JCyLG2iF5CznZDlF4rKy
+         d4TYgc6cbyU0BFiT+p53mC3GY4BzQySPA9CN4+/HrwMJXbdkYwSajVH2nJkrgLbuJpmU
+         /1Yw3UfYu5uoS7fdSfFe7xiEnsCd8yiK8Mfivcdhd+bmgxMoGGf8pgBtVAf6d8DCFhQr
+         d+QA==
+X-Gm-Message-State: ACgBeo1LeC5u+Ap/4opteqDr1OanU13YS5ezK3OLVO7JHKLJMo2XXHBg
+        FNpw+dHXD7iasOeDwedRHcs1LqZ1tQ==
+X-Google-Smtp-Source: AA6agR4/Tw3x1nc5MgOSIj9wYmOp31p/sL5WQ6wQTxMTGs1JLO43iiGd6CU2gmPX6d61M3Y0Ckx07mWGfQ==
+X-Received: from adelg-virt.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:d1f])
+ (user=adelg job=sendgmr) by 2002:a05:6a00:10c2:b0:4f7:5af4:47b6 with SMTP id
+ d2-20020a056a0010c200b004f75af447b6mr22564043pfu.6.1661294895970; Tue, 23 Aug
+ 2022 15:48:15 -0700 (PDT)
+Date:   Tue, 23 Aug 2022 22:48:11 +0000
+Message-Id: <20220823224811.12758-1-adelg@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.37.1.595.g718a3a8f04-goog
+Subject: [PATCH] selftests: remove unused variable in close_range test
+From:   Andrew Delgadilo <adelg@google.com>
+To:     Shuah Khan <shuah@kernel.org>, Andrew Delgadillo <adelg@google.com>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,51 +65,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 23, 2022 at 4:11 PM Peter Xu <peterx@redhat.com> wrote:
->
-> Yu Zhao reported a bug after the commit "mm/swap: Add swp_offset_pfn() to
-> fetch PFN from swap entry" added a check in swp_offset_pfn() for swap type [1]:
->
->   kernel BUG at include/linux/swapops.h:117!
->   CPU: 46 PID: 5245 Comm: EventManager_De Tainted: G S         O L 6.0.0-dbg-DEV #2
->   RIP: 0010:pfn_swap_entry_to_page+0x72/0xf0
->   Code: c6 48 8b 36 48 83 fe ff 74 53 48 01 d1 48 83 c1 08 48 8b 09 f6
->   c1 01 75 7b 66 90 48 89 c1 48 8b 09 f6 c1 01 74 74 5d c3 eb 9e <0f> 0b
->   48 ba ff ff ff ff 03 00 00 00 eb ae a9 ff 0f 00 00 75 13 48
->   RSP: 0018:ffffa59e73fabb80 EFLAGS: 00010282
->   RAX: 00000000ffffffe8 RBX: 0c00000000000000 RCX: ffffcd5440000000
->   RDX: 1ffffffffff7a80a RSI: 0000000000000000 RDI: 0c0000000000042b
->   RBP: ffffa59e73fabb80 R08: ffff9965ca6e8bb8 R09: 0000000000000000
->   R10: ffffffffa5a2f62d R11: 0000030b372e9fff R12: ffff997b79db5738
->   R13: 000000000000042b R14: 0c0000000000042b R15: 1ffffffffff7a80a
->   FS:  00007f549d1bb700(0000) GS:ffff99d3cf680000(0000) knlGS:0000000000000000
->   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->   CR2: 0000440d035b3180 CR3: 0000002243176004 CR4: 00000000003706e0
->   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->   Call Trace:
->    <TASK>
->    change_pte_range+0x36e/0x880
->    change_p4d_range+0x2e8/0x670
->    change_protection_range+0x14e/0x2c0
->    mprotect_fixup+0x1ee/0x330
->    do_mprotect_pkey+0x34c/0x440
->    __x64_sys_mprotect+0x1d/0x30
->
-> It triggers because pfn_swap_entry_to_page() could be called upon e.g. a
-> genuine swap entry.
->
-> Fix it by only calling it when it's a write migration entry where the page*
-> is used.
->
-> [1] https://lore.kernel.org/lkml/CAOUHufaVC2Za-p8m0aiHw6YkheDcrO-C3wRGixwDS32VTS+k1w@mail.gmail.com/
->
-> Fixes: 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: <stable@vger.kernel.org>
-> Reported-by: Yu Zhao <yuzhao@google.com>
-> Signed-off-by: Peter Xu <peterx@redhat.com>
+From: Andrew Delgadillo <adelg@google.com>
 
-Thanks for the quick turnaround!
+commit 2c5db60e46ad ("tests: add close_range() tests") adds the
+close_range test under the core namespace. In its current form, the
+close_range test has an unused variable, namely, ret. For those building
+with -Werror,-Wall, this breaks the build.
 
-Tested-by: Yu Zhao <yuzhao@google.com>
+Without this patch:
+$ make -C tools/testing/selftests/ TARGETS=core V=1 CFLAGS="-Werror -Wall"
+> make: Entering directory '/.../kernel-src/tools/testing/selftests'
+> make[1]: Entering directory '/.../kernel-src/tools/testing/selftests/core'
+> gcc -Werror -Wall    close_range_test.c  -o /.../kernel-src/tools/testing/selftests/core/close_range_test
+> close_range_test.c: In function 'core_close_range':
+> close_range_test.c:55:16: error: unused variable 'ret' [-Werror=unused-variable]
+>   55 |         int i, ret;
+>      |                ^~~
+> cc1: all warnings being treated as errors
+> make[1]: *** [../lib.mk:135: /.../kernel-src/tools/testing/selftests/core/close_range_test] Error 1
+> make[1]: Leaving directory '/.../kernel-src/tools/testing/selftests/core'
+> make: *** [Makefile:155: all] Error 2
+> make: Leaving directory '/.../kernel-src/tools/testing/selftests'
+
+With this patch:
+$ make -C tools/testing/selftests/ TARGETS=core V=1 CFLAGS="-Werror -Wall"
+> make: Entering directory '/.../kernel-src/tools/testing/selftests'
+> make[1]: Entering directory '/.../kernel-src/tools/testing/selftests/core'
+> gcc -Werror -Wall    close_range_test.c  -o /.../kernel-src/tools/testing/selftests/core/close_range_test
+> make[1]: Leaving directory '/.../kernel-src/tools/testing/selftests/core'
+> make: Leaving directory '/.../kernel-src/tools/testing/selftests'
+
+Fixes: 2c5db60e46ad ("tests: add close_range() tests")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Delgadillo <adelg@google.com>
+---
+ tools/testing/selftests/core/close_range_test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/testing/selftests/core/close_range_test.c b/tools/testing/selftests/core/close_range_test.c
+index 749239930ca83..17c76c6c13cb9 100644
+--- a/tools/testing/selftests/core/close_range_test.c
++++ b/tools/testing/selftests/core/close_range_test.c
+@@ -52,7 +52,7 @@ static inline int sys_close_range(unsigned int fd, unsigned int max_fd,
+ 
+ TEST(core_close_range)
+ {
+-	int i, ret;
++	int i;
+ 	int open_fds[101];
+ 
+ 	for (i = 0; i < ARRAY_SIZE(open_fds); i++) {
+-- 
+2.37.1.595.g718a3a8f04-goog
+
