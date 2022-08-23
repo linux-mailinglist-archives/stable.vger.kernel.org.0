@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC1C59D9E3
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C40759DA6F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:09:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242856AbiHWKDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:03:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45832 "EHLO
+        id S1352628AbiHWKIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:08:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352322AbiHWKBl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F127B7B0;
-        Tue, 23 Aug 2022 01:49:21 -0700 (PDT)
+        with ESMTP id S1352938AbiHWKGa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB91511177;
+        Tue, 23 Aug 2022 01:53:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 198046122F;
-        Tue, 23 Aug 2022 08:49:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3BEEC433D6;
-        Tue, 23 Aug 2022 08:49:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54D4CB81C28;
+        Tue, 23 Aug 2022 08:53:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B9C9C433D6;
+        Tue, 23 Aug 2022 08:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244559;
-        bh=7o9wGdshU5JpHoJS4v5+Ldi10mCK71DBv3aRF5U5Y9A=;
+        s=korg; t=1661244818;
+        bh=a/tR0wRoyr4JuYKwTcIB1bxG4Gavs+wVKA4M6lxPakE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OwQr2xjwdwIEDhl0F2/2xg5dVXaQbk46eBmLzkcTZWlaxvDiOuqeAgzW9vGLcSDbG
-         CXmj9xL0pyo7Bd9RVE13fbQ6l20Kt8Dl7L2LWRB4QJpbvnhiuZUNnYofc+rm6ljtCi
-         w0Y77nlG8fAJrbJ41Ly4Or4Y35Cdzetpdm/aXAjM=
+        b=hAez04SDu9ICXZugcXse63g5lwsda5/ZKDRtMqOhmZvfRnwn52efAu1Wzc7MsFcpi
+         BqVdKWj94STythVjZc+017i8jJAxUypIJiUHilfcirRE8yRYkXMaq/lBnG+atkrrQc
+         cZy9067jGMqJFP/pbBAlSgsb3APbi2jlFuDuf+1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>
-Subject: [PATCH 4.14 155/229] ext4: update s_overhead_clusters in the superblock during an on-line resize
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 157/244] drm/meson: Fix refcount bugs in meson_vpu_has_available_connectors()
 Date:   Tue, 23 Aug 2022 10:25:16 +0200
-Message-Id: <20220823080059.208458416@linuxfoundation.org>
+Message-Id: <20220823080104.437021684@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Liang He <windhl@126.com>
 
-commit de394a86658ffe4e89e5328fd4993abfe41b7435 upstream.
+[ Upstream commit 91b3c8dbe898df158fd2a84675f3a284ff6666f7 ]
 
-When doing an online resize, the on-disk superblock on-disk wasn't
-updated.  This means that when the file system is unmounted and
-remounted, and the on-disk overhead value is non-zero, this would
-result in the results of statfs(2) to be incorrect.
+In this function, there are two refcount leak bugs:
+(1) when breaking out of for_each_endpoint_of_node(), we need call
+the of_node_put() for the 'ep';
+(2) we should call of_node_put() for the reference returned by
+of_graph_get_remote_port() when it is not used anymore.
 
-This was partially fixed by Commits 10b01ee92df5 ("ext4: fix overhead
-calculation to account for the reserved gdt blocks"), 85d825dbf489
-("ext4: force overhead calculation if the s_overhead_cluster makes no
-sense"), and eb7054212eac ("ext4: update the cached overhead value in
-the superblock").
-
-However, since it was too expensive to forcibly recalculate the
-overhead for bigalloc file systems at every mount, this didn't fix the
-problem for bigalloc file systems.  This commit should address the
-problem when resizing file systems with the bigalloc feature enabled.
-
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20220629040026.112371-1-tytso@mit.edu
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
+Signed-off-by: Liang He <windhl@126.com>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220726010722.1319416-1-windhl@126.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/resize.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/meson/meson_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1456,6 +1456,7 @@ static void ext4_update_super(struct sup
- 	 * Update the fs overhead information
- 	 */
- 	ext4_calculate_overhead(sb);
-+	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index c98525d60df5..a56607501d36 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -114,8 +114,11 @@ static bool meson_vpu_has_available_connectors(struct device *dev)
+ 	for_each_endpoint_of_node(dev->of_node, ep) {
+ 		/* If the endpoint node exists, consider it enabled */
+ 		remote = of_graph_get_remote_port(ep);
+-		if (remote)
++		if (remote) {
++			of_node_put(remote);
++			of_node_put(ep);
+ 			return true;
++		}
+ 	}
  
- 	if (test_opt(sb, DEBUG))
- 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
+ 	return false;
+-- 
+2.35.1
+
 
 
