@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DA0C59E2A7
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E2A759DDA6
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353636AbiHWKhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:37:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37902 "EHLO
+        id S244423AbiHWLeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:34:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354964AbiHWKdr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:33:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD67EA5C51;
-        Tue, 23 Aug 2022 02:06:54 -0700 (PDT)
+        with ESMTP id S1358059AbiHWLcU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ADDB75FFB;
+        Tue, 23 Aug 2022 02:26:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99C7361596;
-        Tue, 23 Aug 2022 09:06:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76EFEC433D7;
-        Tue, 23 Aug 2022 09:06:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B1D96126A;
+        Tue, 23 Aug 2022 09:26:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2405FC433C1;
+        Tue, 23 Aug 2022 09:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245613;
-        bh=F+sRpFZxN66/xatrsdfd4GAqMNuPg/Ab7EFMa+nq+KQ=;
+        s=korg; t=1661246804;
+        bh=nlZ0MR4wZADSln3mC3C9MdSprJkx7c6lJDIz81a123o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQZcyOyc0axBdcnfb5gzQcJTDTni7UQfI+qdJk6GhMbPiELvXxig/dfkJUMn9PaLb
-         rENtKmoShPGrO7irwDnvE+RyOD+J601IpLKhkPjvoOcMjEHHfoEDJRIzzxAIC0XK7T
-         ZByshuC8lAKAZwOLJkBXmpeqDdio3NVJg2H3eF2M=
+        b=YsT99HW+e0cakV37tcRZUpD/78zUXj1Q+njR/mBgH6xXci/uBc1TFf+QcnL80KznH
+         Zqywyv1UWlz/GDKIjsp6Do/WBcfJh4K8oRpEnFHpoDMpJkYYyfaD55KKkPf/eWbhO+
+         AxDFvJE6q3PRqGLM7ZVLG9fdSz0ooxGbbZ0bY07E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Benesh <scott.benesh@microchip.com>,
-        Scott Teel <scott.teel@microchip.com>,
-        Mike McGowen <mike.mcgowen@microchip.com>,
-        Kevin Barnett <kevin.barnett@microchip.com>,
-        Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>,
-        Don Brace <don.brace@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 132/287] scsi: smartpqi: Fix DMA direction for RAID requests
-Date:   Tue, 23 Aug 2022 10:25:01 +0200
-Message-Id: <20220823080104.868916164@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 224/389] iommu/arm-smmu: qcom_iommu: Add of_node_put() when breaking out of loop
+Date:   Tue, 23 Aug 2022 10:25:02 +0200
+Message-Id: <20220823080124.953975239@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,66 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 69695aeaa6621bc49cdd7a8e5a8d1042461e496e ]
+[ Upstream commit a91eb6803c1c715738682fece095145cbd68fe0b ]
 
-Correct a SOP READ and WRITE DMA flags for some requests.
+In qcom_iommu_has_secure_context(), we should call of_node_put()
+for the reference 'child' when breaking out of for_each_child_of_node()
+which will automatically increase and decrease the refcount.
 
-This update corrects DMA direction issues with SCSI commands removed from
-the controller's internal lookup table.
-
-Currently, SCSI READ BLOCK LIMITS (0x5) was removed from the controller
-lookup table and exposed a DMA direction flag issue.
-
-SCSI READ BLOCK LIMITS was recently removed from our controller lookup
-table so the controller uses the respective IU flag field to set the DMA
-data direction. Since the DMA direction is incorrect the FW never completes
-the request causing a hang.
-
-Some SCSI commands which use SCSI READ BLOCK LIMITS
-
-      * sg_map
-      * mt -f /dev/stX status
-
-After updating controller firmware, users may notice their tape units
-failing. This patch resolves the issue.
-
-Also, the AIO path DMA direction is correct.
-
-The DMA direction flag is a day-one bug with no reported BZ.
-
-Fixes: 6c223761eb54 ("smartpqi: initial commit of Microsemi smartpqi driver")
-Link: https://lore.kernel.org/r/165730605618.177165.9054223644512926624.stgit@brunhilda
-Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
-Reviewed-by: Scott Teel <scott.teel@microchip.com>
-Reviewed-by: Mike McGowen <mike.mcgowen@microchip.com>
-Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
-Signed-off-by: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
-Signed-off-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: d051f28c8807 ("iommu/qcom: Initialize secure page table")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220719124955.1242171-1-windhl@126.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/qcom_iommu.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 98f2d076f938..b86cc0342ae3 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -4638,10 +4638,10 @@ static int pqi_raid_submit_scsi_cmd_with_io_request(
- 	}
+diff --git a/drivers/iommu/qcom_iommu.c b/drivers/iommu/qcom_iommu.c
+index 280de92b332e..b6e546b62a7c 100644
+--- a/drivers/iommu/qcom_iommu.c
++++ b/drivers/iommu/qcom_iommu.c
+@@ -785,9 +785,12 @@ static bool qcom_iommu_has_secure_context(struct qcom_iommu_dev *qcom_iommu)
+ {
+ 	struct device_node *child;
  
- 	switch (scmd->sc_data_direction) {
--	case DMA_TO_DEVICE:
-+	case DMA_FROM_DEVICE:
- 		request->data_direction = SOP_READ_FLAG;
- 		break;
--	case DMA_FROM_DEVICE:
-+	case DMA_TO_DEVICE:
- 		request->data_direction = SOP_WRITE_FLAG;
- 		break;
- 	case DMA_NONE:
+-	for_each_child_of_node(qcom_iommu->dev->of_node, child)
+-		if (of_device_is_compatible(child, "qcom,msm-iommu-v1-sec"))
++	for_each_child_of_node(qcom_iommu->dev->of_node, child) {
++		if (of_device_is_compatible(child, "qcom,msm-iommu-v1-sec")) {
++			of_node_put(child);
+ 			return true;
++		}
++	}
+ 
+ 	return false;
+ }
 -- 
 2.35.1
 
