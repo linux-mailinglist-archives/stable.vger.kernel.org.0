@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E04259E02B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1769459DFBB
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352972AbiHWKMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:12:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58332 "EHLO
+        id S244350AbiHWMDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:03:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352409AbiHWKJe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:09:34 -0400
+        with ESMTP id S1376258AbiHWMCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D6267DF60;
-        Tue, 23 Aug 2022 01:55:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 291CDDAB88;
+        Tue, 23 Aug 2022 02:36:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE8DB6155E;
-        Tue, 23 Aug 2022 08:55:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03619C433D6;
-        Tue, 23 Aug 2022 08:55:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA8F461485;
+        Tue, 23 Aug 2022 09:36:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3BC3C433B5;
+        Tue, 23 Aug 2022 09:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244939;
-        bh=9krYIMZkWByFYm0Z2MCMjTdo/cKY77hHZASSi3Elm3k=;
+        s=korg; t=1661247389;
+        bh=xVV0l/Pd2MYjbdMgeA4Tm9OMCqwYPPiHSBBgogv6Dhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/NJ5qw/4jaMtaLSXA4dotY5kXfoCsmtOEE/KY+7w6+CsO9WchRO7Tu5azfEbXzoI
-         0Tk6bglQGev9mkheWPCvWcNQu872+O+gM6g9Hpl40/Mdakn4Q8FqhfdquBpO7pDcwr
-         SGg7FEr8jY38BACMcqyQahActd0pPHEyfbtB2EAA=
+        b=v4NJ/SeVWQxKU35ih8ZXyMJBxNPDvOKVRnQvC66HbW8DCP4gO35oOB0d0x3QdGVCE
+         /z4Vx3AGKQhDLytw/IfisyLk6E5UsVcLpO8Qgx8PabD0U4GjJG+nzvAbTAxL+2EvC7
+         HgJUnElCC56O8pyz+xtadFvqo0UrohAju1DQ9qKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 175/244] usb: renesas: Fix refcount leak bug
-Date:   Tue, 23 Aug 2022 10:25:34 +0200
-Message-Id: <20220823080105.129109668@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Lu <aaron.lu@intel.com>,
+        stable@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 003/158] x86/mm: Use proper mask when setting PUD mapping
+Date:   Tue, 23 Aug 2022 10:25:35 +0200
+Message-Id: <20220823080046.179441523@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Aaron Lu <aaron.lu@intel.com>
 
-[ Upstream commit 9d6d5303c39b8bc182475b22f45504106a07f086 ]
+commit 88e0a74902f894fbbc55ad3ad2cb23b4bfba555c upstream.
 
-In usbhs_rza1_hardware_init(), of_find_node_by_name() will return
-a node pointer with refcount incremented. We should use of_node_put()
-when it is not used anymore.
+Commit c164fbb40c43f("x86/mm: thread pgprot_t through
+init_memory_mapping()") mistakenly used __pgprot() which doesn't respect
+__default_kernel_pte_mask when setting PUD mapping.
 
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220618023205.4056548-1-windhl@126.com
+Fix it by only setting the one bit we actually need (PSE) and leaving
+the other bits (that have been properly masked) alone.
+
+Fixes: c164fbb40c43 ("x86/mm: thread pgprot_t through init_memory_mapping()")
+Signed-off-by: Aaron Lu <aaron.lu@intel.com>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/renesas_usbhs/rza.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/mm/init_64.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/renesas_usbhs/rza.c b/drivers/usb/renesas_usbhs/rza.c
-index 24de64edb674..2d77edefb4b3 100644
---- a/drivers/usb/renesas_usbhs/rza.c
-+++ b/drivers/usb/renesas_usbhs/rza.c
-@@ -23,6 +23,10 @@ static int usbhs_rza1_hardware_init(struct platform_device *pdev)
- 	extal_clk = of_find_node_by_name(NULL, "extal");
- 	of_property_read_u32(usb_x1_clk, "clock-frequency", &freq_usb);
- 	of_property_read_u32(extal_clk, "clock-frequency", &freq_extal);
-+
-+	of_node_put(usb_x1_clk);
-+	of_node_put(extal_clk);
-+
- 	if (freq_usb == 0) {
- 		if (freq_extal == 12000000) {
- 			/* Select 12MHz XTAL */
--- 
-2.35.1
-
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -645,7 +645,7 @@ phys_pud_init(pud_t *pud_page, unsigned
+ 			pages++;
+ 			spin_lock(&init_mm.page_table_lock);
+ 
+-			prot = __pgprot(pgprot_val(prot) | __PAGE_KERNEL_LARGE);
++			prot = __pgprot(pgprot_val(prot) | _PAGE_PSE);
+ 
+ 			set_pte_init((pte_t *)pud,
+ 				     pfn_pte((paddr & PUD_MASK) >> PAGE_SHIFT,
 
 
