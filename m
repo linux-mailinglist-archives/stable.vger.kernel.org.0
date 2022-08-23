@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92D6D59DEC4
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B27459DE8C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357476AbiHWLRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1357468AbiHWLRg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Aug 2022 07:17:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352713AbiHWLO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:14:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E177CB942C;
-        Tue, 23 Aug 2022 02:18:54 -0700 (PDT)
+        with ESMTP id S242420AbiHWLOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:14:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBFDFB95AC;
+        Tue, 23 Aug 2022 02:18:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A86C5B81C94;
-        Tue, 23 Aug 2022 09:18:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E59F7C433D6;
-        Tue, 23 Aug 2022 09:18:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DE427CE1B55;
+        Tue, 23 Aug 2022 09:18:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01C6BC433C1;
+        Tue, 23 Aug 2022 09:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246322;
-        bh=lpSj1NNhiHPnDfqWLUp3MPq8+c3a0hP1j7exSHushs0=;
+        s=korg; t=1661246325;
+        bh=lC1PDtOD4kVcf3eDjo4yBR1rOPmdYM1OQZgn1WPyCNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xlWYIA9fgW99sFe0J7zo568Zz9XfxGYTrpq6NVePr4bEwMIheyl75AM/RGUkTRYEA
-         RGfdvDNihfG9MsizFr+MhWSBG3d+IxvaVqI+aQ4VH2jXCiuTk8M334LvK3nMn/X+9Q
-         AZRF4T9ns+V8xO34vdmz6EHDt/AB3W/f2AMTw7LE=
+        b=0IC7j+fJaAvq6f3pSKsNOXHNlrYyz+Ts5zyqjqM9VKmY/YJFaVK8NdaDmW+V//WO1
+         Fl6y6Mlbsi31ydNTSckOUGqAMnUouPN2RUbWiulcdJlSx04F7BkhKwgFr4GyKN8CIg
+         phySE89fuspYSBOS7D8SgUT1G+Hsf97k5rITER9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/389] spi: spi-rspi: Fix PIO fallback on RZ platforms
-Date:   Tue, 23 Aug 2022 10:22:31 +0200
-Message-Id: <20220823080118.688874692@linuxfoundation.org>
+Subject: [PATCH 5.4 074/389] ARM: findbit: fix overflowing offset
+Date:   Tue, 23 Aug 2022 10:22:32 +0200
+Message-Id: <20220823080118.736925402@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -55,45 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit b620aa3a7be346f04ae7789b165937615c6ee8d3 ]
+[ Upstream commit ec85bd369fd2bfaed6f45dd678706429d4f75b48 ]
 
-RSPI IP on RZ/{A, G2L} SoC's has the same signal for both interrupt
-and DMA transfer request. Setting DMARS register for DMA transfer
-makes the signal to work as a DMA transfer request signal and
-subsequent interrupt requests to the interrupt controller
-are masked.
+When offset is larger than the size of the bit array, we should not
+attempt to access the array as we can perform an access beyond the
+end of the array. Fix this by changing the pre-condition.
 
-PIO fallback does not work as interrupt signal is disabled.
+Using "cmp r2, r1; bhs ..." covers us for the size == 0 case, since
+this will always take the branch when r1 is zero, irrespective of
+the value of r2. This means we can fix this bug without adding any
+additional code!
 
-This patch fixes this issue by re-enabling the interrupts by
-calling dmaengine_synchronize().
-
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220721143449.879257-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rspi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/lib/findbit.S | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/spi/spi-rspi.c b/drivers/spi/spi-rspi.c
-index 0524741d73b9..8ae2ac40b4b2 100644
---- a/drivers/spi/spi-rspi.c
-+++ b/drivers/spi/spi-rspi.c
-@@ -595,6 +595,10 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
- 					       rspi->dma_callbacked, HZ);
- 	if (ret > 0 && rspi->dma_callbacked) {
- 		ret = 0;
-+		if (tx)
-+			dmaengine_synchronize(rspi->ctlr->dma_tx);
-+		if (rx)
-+			dmaengine_synchronize(rspi->ctlr->dma_rx);
- 	} else {
- 		if (!ret) {
- 			dev_err(&rspi->ctlr->dev, "DMA timeout\n");
+diff --git a/arch/arm/lib/findbit.S b/arch/arm/lib/findbit.S
+index b5e8b9ae4c7d..7fd3600db8ef 100644
+--- a/arch/arm/lib/findbit.S
++++ b/arch/arm/lib/findbit.S
+@@ -40,8 +40,8 @@ ENDPROC(_find_first_zero_bit_le)
+  * Prototype: int find_next_zero_bit(void *addr, unsigned int maxbit, int offset)
+  */
+ ENTRY(_find_next_zero_bit_le)
+-		teq	r1, #0
+-		beq	3b
++		cmp	r2, r1
++		bhs	3b
+ 		ands	ip, r2, #7
+ 		beq	1b			@ If new byte, goto old routine
+  ARM(		ldrb	r3, [r0, r2, lsr #3]	)
+@@ -81,8 +81,8 @@ ENDPROC(_find_first_bit_le)
+  * Prototype: int find_next_zero_bit(void *addr, unsigned int maxbit, int offset)
+  */
+ ENTRY(_find_next_bit_le)
+-		teq	r1, #0
+-		beq	3b
++		cmp	r2, r1
++		bhs	3b
+ 		ands	ip, r2, #7
+ 		beq	1b			@ If new byte, goto old routine
+  ARM(		ldrb	r3, [r0, r2, lsr #3]	)
+@@ -115,8 +115,8 @@ ENTRY(_find_first_zero_bit_be)
+ ENDPROC(_find_first_zero_bit_be)
+ 
+ ENTRY(_find_next_zero_bit_be)
+-		teq	r1, #0
+-		beq	3b
++		cmp	r2, r1
++		bhs	3b
+ 		ands	ip, r2, #7
+ 		beq	1b			@ If new byte, goto old routine
+ 		eor	r3, r2, #0x18		@ big endian byte ordering
+@@ -149,8 +149,8 @@ ENTRY(_find_first_bit_be)
+ ENDPROC(_find_first_bit_be)
+ 
+ ENTRY(_find_next_bit_be)
+-		teq	r1, #0
+-		beq	3b
++		cmp	r2, r1
++		bhs	3b
+ 		ands	ip, r2, #7
+ 		beq	1b			@ If new byte, goto old routine
+ 		eor	r3, r2, #0x18		@ big endian byte ordering
 -- 
 2.35.1
 
