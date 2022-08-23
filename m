@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6FD359E1A2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 800A659DCF5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:25:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353583AbiHWKe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:34:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57390 "EHLO
+        id S1351047AbiHWLeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:34:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353768AbiHWKcx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:32:53 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5C04A59A4;
-        Tue, 23 Aug 2022 02:06:50 -0700 (PDT)
+        with ESMTP id S1358046AbiHWLcS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F1EE7675B;
+        Tue, 23 Aug 2022 02:26:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EDD91CE1B55;
-        Tue, 23 Aug 2022 09:06:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1AB9C433B5;
-        Tue, 23 Aug 2022 09:06:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B688B81C89;
+        Tue, 23 Aug 2022 09:26:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03EBDC433D7;
+        Tue, 23 Aug 2022 09:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245607;
-        bh=cJuu4ZZl0EdtOSaY9llk/P3EaNJAf4mMjEgnCGzH9V0=;
+        s=korg; t=1661246798;
+        bh=SVAvuIG5d2w0weB0GqrOa9TrS0lpy0jSMeYRu80LnY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDBGSm1megKgwGYpUdHVSTZriqaur8vVDdCkQuf8YgU6zxVzQxE1LGMoFHLOkgDgw
-         ghaacQa6KpyyKbg0VFMGnvf8NEaq7L2Pf3/PO0FAc2ezWuYTtNDYSyLclsOjU4+Kkf
-         O9ccLGVK+dIhtkEKTOdFpEToW34EzHT/LEMD/j5M=
+        b=wTpilk9ZmyG49YF4P30JLQ6ZXBF7MYTPT/+B0lmWypCwwsfsNBYCf0ry6RCDU9NSt
+         H1Wlg9isGcfF5jFinaG+BN/a5DzFtfzvYVVr0+3NbOzdQgMhDrWSsIdYBt+Z71cGT3
+         5Xd/0KX//6+9gsslvtQUWqJMLPmCtInR9yzRj3bA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Yao Hongbo <yaohongbo@linux.alibaba.com>,
-        Naveen Naidu <naveennaidu479@gmail.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 131/287] PCI/portdrv: Dont disable AER reporting in get_port_device_capability()
-Date:   Tue, 23 Aug 2022 10:25:00 +0200
-Message-Id: <20220823080104.822064956@linuxfoundation.org>
+Subject: [PATCH 5.4 223/389] mfd: max77620: Fix refcount leak in max77620_initialise_fps
+Date:   Tue, 23 Aug 2022 10:25:01 +0200
+Message-Id: <20220823080124.912822849@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,100 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Roese <sr@denx.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
+[ Upstream commit 1520669c8255bd637c6b248b2be910e2688d38dd ]
 
-AER reporting is currently disabled in the DevCtl registers of all non Root
-Port PCIe devices on systems using pcie_ports_native || host->native_aer,
-disabling AER completely in such systems. This is because 2bd50dd800b5
-("PCI: PCIe: Disable PCIe port services during port initialization"), added
-a call to pci_disable_pcie_error_reporting() *after* the AER setup was
-completed for the PCIe device tree.
+of_get_child_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Here a longer analysis about the current status of AER enabling /
-disabling upon bootup provided by Bjorn:
-
-  pcie_portdrv_probe
-    pcie_port_device_register
-      get_port_device_capability
-        pci_disable_pcie_error_reporting
-          clear CERE NFERE FERE URRE               # <-- disable for RP USP DSP
-      pcie_device_init
-        device_register                            # new AER service device
-          aer_probe
-            aer_enable_rootport                    # RP only
-              set_downstream_devices_error_reporting
-                set_device_error_reporting         # self (RP)
-                  if (RP || USP || DSP)
-                    pci_enable_pcie_error_reporting
-                      set CERE NFERE FERE URRE     # <-- enable for RP
-                pci_walk_bus
-                  set_device_error_reporting
-                    if (RP || USP || DSP)
-                      pci_enable_pcie_error_reporting
-                        set CERE NFERE FERE URRE   # <-- enable for USP DSP
-
-In a typical Root Port -> Endpoint hierarchy, the above:
-  - Disables Error Reporting for the Root Port,
-  - Enables Error Reporting for the Root Port,
-  - Does NOT enable Error Reporting for the Endpoint because it is not a
-    Root Port or Switch Port.
-
-In a deeper Root Port -> Upstream Switch Port -> Downstream Switch
-Port -> Endpoint hierarchy:
-  - Disables Error Reporting for the Root Port,
-  - Enables Error Reporting for the Root Port,
-  - Enables Error Reporting for both Switch Ports,
-  - Does NOT enable Error Reporting for the Endpoint because it is not a
-    Root Port or Switch Port,
-  - Disables Error Reporting for the Switch Ports when pcie_portdrv_probe()
-    claims them.  AER does not re-enable it because these are not Root
-    Ports.
-
-Remove this call to pci_disable_pcie_error_reporting() from
-get_port_device_capability(), leaving the already enabled AER configuration
-intact. With this change, AER is enabled in the Root Port and the PCIe
-switch upstream and downstream ports. Only the PCIe Endpoints don't have
-AER enabled yet. A follow-up patch will take care of this Endpoint
-enabling.
-
-Fixes: 2bd50dd800b5 ("PCI: PCIe: Disable PCIe port services during port initialization")
-Link: https://lore.kernel.org/r/20220125071820.2247260-3-sr@denx.de
-Signed-off-by: Stefan Roese <sr@denx.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-Cc: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Cc: Yao Hongbo <yaohongbo@linux.alibaba.com>
-Cc: Naveen Naidu <naveennaidu479@gmail.com>
+Fixes: 327156c59360 ("mfd: max77620: Add core driver for MAX77620/MAX20024")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220601043222.64441-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/portdrv_core.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/mfd/max77620.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
-index 7c37d815229e..216dd6e61624 100644
---- a/drivers/pci/pcie/portdrv_core.c
-+++ b/drivers/pci/pcie/portdrv_core.c
-@@ -218,15 +218,8 @@ static int get_port_device_capability(struct pci_dev *dev)
+diff --git a/drivers/mfd/max77620.c b/drivers/mfd/max77620.c
+index a851ff473a44..2bf5bcbc8852 100644
+--- a/drivers/mfd/max77620.c
++++ b/drivers/mfd/max77620.c
+@@ -418,9 +418,11 @@ static int max77620_initialise_fps(struct max77620_chip *chip)
+ 		ret = max77620_config_fps(chip, fps_child);
+ 		if (ret < 0) {
+ 			of_node_put(fps_child);
++			of_node_put(fps_np);
+ 			return ret;
+ 		}
+ 	}
++	of_node_put(fps_np);
  
- #ifdef CONFIG_PCIEAER
- 	if (dev->aer_cap && pci_aer_available() &&
--	    (pcie_ports_native || host->native_aer)) {
-+	    (pcie_ports_native || host->native_aer))
- 		services |= PCIE_PORT_SERVICE_AER;
--
--		/*
--		 * Disable AER on this port in case it's been enabled by the
--		 * BIOS (the AER service driver will enable it when necessary).
--		 */
--		pci_disable_pcie_error_reporting(dev);
--	}
- #endif
- 
- 	/*
+ 	config = chip->enable_global_lpm ? MAX77620_ONOFFCNFG2_SLP_LPM_MSK : 0;
+ 	ret = regmap_update_bits(chip->rmap, MAX77620_REG_ONOFFCNFG2,
 -- 
 2.35.1
 
