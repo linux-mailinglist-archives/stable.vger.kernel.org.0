@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0DB59E22A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6D359DBE0
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353200AbiHWKNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:13:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35388 "EHLO
+        id S244255AbiHWLhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:37:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353275AbiHWKLL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:11 -0400
+        with ESMTP id S1350510AbiHWLew (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:34:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF26E7E837;
-        Tue, 23 Aug 2022 01:56:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B13CE910AE;
+        Tue, 23 Aug 2022 02:27:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68380B81C3B;
-        Tue, 23 Aug 2022 08:56:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A21CCC433D6;
-        Tue, 23 Aug 2022 08:56:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CD16B81B1F;
+        Tue, 23 Aug 2022 09:27:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7A9C433D6;
+        Tue, 23 Aug 2022 09:27:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244978;
-        bh=6JiylxBtWlmdCkRFM3rD+4knp9Wk7t4RBOSPjliPdRg=;
+        s=korg; t=1661246836;
+        bh=PiAYzXHGfc/+OGeL048E+MAGO3HB2dyAx+psoKblKFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhGAqT7tk7LRdY6TS7xwFbxaO7dGqZ9FoT6sQjNfzIFcdVYWuPxFzGwxGC2B7WJgq
-         KNpKAobp466MH+MNXgVzPw/2JJA2Gj4mgPtkpnfi0FSiAuLs7O3o5PLAFnk065lZdo
-         RE4Rjz3hooIWHuexYh2AAT8MtH8BmNO6jS2nbF80=
+        b=1EzGu3PW2ZpoQdHzHx7shkXxvtTnkDxp3nPvuMn0bsI8cQYOSjElQwukMEntE5hiA
+         zZHHVR4iMA6bFTom17in7xP6u8DecZhl65c7AAIerCsxN8h/XerAPI6rsRsiXwoCPq
+         J0GGWJ25YvmGgKB30zuS3udTbTUEAmu1Y04V1Lgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Brady <alan.brady@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 147/244] i40e: Fix to stop tx_timeout recovery if GLOBR fails
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 228/389] ASoC: audio-graph-card: Add of_node_put() in fail path
 Date:   Tue, 23 Aug 2022 10:25:06 +0200
-Message-Id: <20220823080104.080986957@linuxfoundation.org>
+Message-Id: <20220823080125.127020091@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Brady <alan.brady@intel.com>
+From: Liang He <windhl@126.com>
 
-commit 57c942bc3bef0970f0b21f8e0998e76a900ea80d upstream.
+[ Upstream commit 65fb8e2ef3531a6e950060fca6e551c923fb0f0e ]
 
-When a tx_timeout fires, the PF attempts to recover by incrementally
-resetting.  First we try a PFR, then CORER and finally a GLOBR.  If the
-GLOBR fails, then we keep hitting the tx_timeout and incrementing the
-recovery level and issuing dmesgs, which is both annoying to the user
-and accomplishes nothing.
+In asoc_simple_parse_dai(), we should call of_node_put() for the
+reference returned by of_graph_get_port_parent() in fail path.
 
-If the GLOBR fails, then we're pretty much totally hosed, and there's
-not much else we can do to recover, so this makes it such that we just
-kill the VSI and stop hitting the tx_timeout in such a case.
-
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Alan Brady <alan.brady@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ae30a694da4c ("ASoC: simple-card-utils: add asoc_simple_card_parse_dai()")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220721144308.1301587-1-windhl@126.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |    4 +++-
+ sound/soc/generic/audio-graph-card.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -383,7 +383,9 @@ static void i40e_tx_timeout(struct net_d
- 		set_bit(__I40E_GLOBAL_RESET_REQUESTED, pf->state);
- 		break;
- 	default:
--		netdev_err(netdev, "tx_timeout recovery unsuccessful\n");
-+		netdev_err(netdev, "tx_timeout recovery unsuccessful, device is in non-recoverable state.\n");
-+		set_bit(__I40E_DOWN_REQUESTED, pf->state);
-+		set_bit(__I40E_VSI_DOWN_REQUESTED, vsi->state);
- 		break;
- 	}
+diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
+index 1bc498124689..96aa2c015572 100644
+--- a/sound/soc/generic/audio-graph-card.c
++++ b/sound/soc/generic/audio-graph-card.c
+@@ -149,8 +149,10 @@ static int asoc_simple_parse_dai(struct device_node *ep,
+ 	 *    if he unbinded CPU or Codec.
+ 	 */
+ 	ret = snd_soc_get_dai_name(&args, &dlc->dai_name);
+-	if (ret < 0)
++	if (ret < 0) {
++		of_node_put(node);
+ 		return ret;
++	}
  
+ 	dlc->of_node = node;
+ 
+-- 
+2.35.1
+
 
 
