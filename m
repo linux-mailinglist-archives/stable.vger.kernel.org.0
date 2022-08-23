@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D470859DEBA
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B72F59E08F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349832AbiHWLTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:19:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43514 "EHLO
+        id S1353699AbiHWKSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:18:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357492AbiHWLRh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:37 -0400
+        with ESMTP id S1354342AbiHWKRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:17:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56BF74BA79;
-        Tue, 23 Aug 2022 02:21:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25C580B5A;
+        Tue, 23 Aug 2022 02:01:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0E566098A;
-        Tue, 23 Aug 2022 09:21:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5334C433D7;
-        Tue, 23 Aug 2022 09:21:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98D5C61459;
+        Tue, 23 Aug 2022 09:01:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2EFC433D6;
+        Tue, 23 Aug 2022 09:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246467;
-        bh=aQEoMfCovPkTWLiJW3uCpiZOLirceCKWhcTPW0uKekk=;
+        s=korg; t=1661245283;
+        bh=k99rQfAN/Lt2RYkkU5H2EoGW+vQy2MUMH4d2va9jXms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V7QXXBojTiiAMIp8uSSlbn6FU4St+PYn8qRALWMOJHpnLwEO6LLjP1NmyvjWD2+gg
-         0efChXRMm4BHloEzHi09QmoDBhZvIEWIlQGu2P2+Zuses30xEh0KNWVH539cTyWEjT
-         iJDNNOzCVmhny65JO0QqJvip6rMmFkwzisPgQ0eo=
+        b=oKFkLDk1w3mGccHmsXwpBa9OrTrXLiV/b6zDXoaMFK7Y3/Og8YVCaLDiWhoo4pEE9
+         /cRSk/p7kopfOTRWKRf7YPWv0lhhrxrfqxG92+AhD4BmvYqQNjXjns7MsEOUu2/RX0
+         +2cTAxiGWOFXYykoacA1ovu30HjVTHGf6nITrgLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Houlong Wei <houlong.wei@mediatek.com>,
-        Irui Wang <irui.wang@mediatek.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 119/389] media: platform: mtk-mdp: Fix mdp_ipi_comm structure alignment
-Date:   Tue, 23 Aug 2022 10:23:17 +0200
-Message-Id: <20220823080120.580728086@linuxfoundation.org>
+        stable@vger.kernel.org, Yi Guo <yi.guo@cavium.com>,
+        Nadav Haklai <nadavh@marvell.com>,
+        Narendra Hadke <nhadke@marvell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 4.19 029/287] serial: mvebu-uart: uart2 error bits clearing
+Date:   Tue, 23 Aug 2022 10:23:18 +0200
+Message-Id: <20220823080101.256900175@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,57 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Narendra Hadke <nhadke@marvell.com>
 
-[ Upstream commit ab14c99c035da7156a3b66fa171171295bc4b89a ]
+commit a7209541239e5dd44d981289e5f9059222d40fd1 upstream.
 
-The mdp_ipi_comm structure defines a command that is either
-PROCESS (start processing) or DEINIT (destroy instance); we
-are using this one to send PROCESS or DEINIT commands from Linux
-to an MDP instance through a VPU write but, while the first wants
-us to stay 4-bytes aligned, the VPU instead requires an 8-bytes
-data alignment.
+For mvebu uart2, error bits are not cleared on buffer read.
+This causes interrupt loop and system hang.
 
-Keeping in mind that these commands are executed immediately
-after sending them (hence not chained with others before the
-VPU/MDP "actually" start executing), it is fine to simply add
-a padding of 4 bytes to this structure: this keeps the same
-performance as before, as we're still stack-allocating it,
-while avoiding hackery inside of mtk-vpu to ensure alignment
-bringing a definitely bigger performance impact.
-
-Fixes: c8eb2d7e8202 ("[media] media: Add Mediatek MDP Driver")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Houlong Wei <houlong.wei@mediatek.com>
-Reviewed-by: Irui Wang <irui.wang@mediatek.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Yi Guo <yi.guo@cavium.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+Signed-off-by: Narendra Hadke <nhadke@marvell.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20220726091221.12358-1-pali@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/mvebu-uart.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h b/drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h
-index 2cb8cecb3077..b810c96695c8 100644
---- a/drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h
-+++ b/drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h
-@@ -40,12 +40,14 @@ struct mdp_ipi_init {
-  * @ipi_id        : IPI_MDP
-  * @ap_inst       : AP mtk_mdp_vpu address
-  * @vpu_inst_addr : VPU MDP instance address
-+ * @padding       : Alignment padding
-  */
- struct mdp_ipi_comm {
- 	uint32_t msg_id;
- 	uint32_t ipi_id;
- 	uint64_t ap_inst;
- 	uint32_t vpu_inst_addr;
-+	uint32_t padding;
- };
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -237,6 +237,7 @@ static void mvebu_uart_rx_chars(struct u
+ 	struct tty_port *tport = &port->state->port;
+ 	unsigned char ch = 0;
+ 	char flag = 0;
++	int ret;
  
- /**
--- 
-2.35.1
-
+ 	do {
+ 		if (status & STAT_RX_RDY(port)) {
+@@ -249,6 +250,16 @@ static void mvebu_uart_rx_chars(struct u
+ 				port->icount.parity++;
+ 		}
+ 
++		/*
++		 * For UART2, error bits are not cleared on buffer read.
++		 * This causes interrupt loop and system hang.
++		 */
++		if (IS_EXTENDED(port) && (status & STAT_BRK_ERR)) {
++			ret = readl(port->membase + UART_STAT);
++			ret |= STAT_BRK_ERR;
++			writel(ret, port->membase + UART_STAT);
++		}
++
+ 		if (status & STAT_BRK_DET) {
+ 			port->icount.brk++;
+ 			status &= ~(STAT_FRM_ERR | STAT_PAR_ERR);
 
 
