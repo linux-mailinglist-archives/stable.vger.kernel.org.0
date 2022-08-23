@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CF7159DFA2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10AB059DF8F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352424AbiHWKJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:09:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58192 "EHLO
+        id S1355703AbiHWKoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:44:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352403AbiHWKHc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:07:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4F657542;
-        Tue, 23 Aug 2022 01:54:10 -0700 (PDT)
+        with ESMTP id S1356550AbiHWKme (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:42:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08CD58672E;
+        Tue, 23 Aug 2022 02:10:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47CF7B81C35;
-        Tue, 23 Aug 2022 08:54:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6888C433D7;
-        Tue, 23 Aug 2022 08:54:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 77C12CE1B40;
+        Tue, 23 Aug 2022 09:10:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71F26C433C1;
+        Tue, 23 Aug 2022 09:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244848;
-        bh=fy9Hbiarz6gfSjxp30zSLiolvV9NwPqMSdgxPIu22Qs=;
+        s=korg; t=1661245799;
+        bh=oBWPVa+/s0Zsff8K0UJpXwNYvvBDOEBsVZDbzO/5imw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SaOSsC4fQNpa8SDVKnoDIjfJ/4Ux3h56f28Q62b0sUxBbvW/tYH7colvQ00zJySHg
-         i/ZFhD4PxZFr1WLI3jIA6povl59yX8M7jZADGvdaQTsJdqOowcJVcOZFRc/HslhDhh
-         2l+tCbzAwE0CI4+ugk4oS19TLQxNgH7Vs8J5PmXA=
+        b=QgMBLFMhRbePs72q98Gr36FUPfpBi8ecNKhmXzKrMGbMEBTAl69XQ28to/XDrhwg8
+         dGtayjfWs8hqwd6Izb1UO5YEI/AIWnzbUhpMSNvPzuSYD0QTdwL3i8+ANxKr1cDIpw
+         fzh/XkCekQ5uIQEVUmj8+n/MAfSbgHH1v/HMvCqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 4.14 201/229] nios2: restarts apply only to the first sigframe we build...
+        stable@vger.kernel.org, stable@kernel.org,
+        Baokun Li <libaokun1@huawei.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 193/287] ext4: correct the misjudgment in ext4_iget_extra_inode
 Date:   Tue, 23 Aug 2022 10:26:02 +0200
-Message-Id: <20220823080100.819429975@linuxfoundation.org>
+Message-Id: <20220823080107.338891250@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,27 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 411a76b7219555c55867466c82d70ce928d6c9e1 upstream.
+commit fd7e672ea98b95b9d4c9dae316639f03c16a749d upstream.
 
-Fixes: b53e906d255d ("nios2: Signal handling support")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Use the EXT4_INODE_HAS_XATTR_SPACE macro to more accurately
+determine whether the inode have xattr space.
+
+Cc: stable@kernel.org
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220616021358.2504451-5-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/kernel/signal.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/inode.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/nios2/kernel/signal.c
-+++ b/arch/nios2/kernel/signal.c
-@@ -261,6 +261,7 @@ static int do_signal(struct pt_regs *reg
- 			regs->ea = restart_addr;
- 			break;
- 		}
-+		regs->orig_r2 = -1;
- 	}
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4844,8 +4844,7 @@ static inline int ext4_iget_extra_inode(
+ 	__le32 *magic = (void *)raw_inode +
+ 			EXT4_GOOD_OLD_INODE_SIZE + ei->i_extra_isize;
  
- 	if (get_signal(&ksig)) {
+-	if (EXT4_GOOD_OLD_INODE_SIZE + ei->i_extra_isize + sizeof(__le32) <=
+-	    EXT4_INODE_SIZE(inode->i_sb) &&
++	if (EXT4_INODE_HAS_XATTR_SPACE(inode)  &&
+ 	    *magic == cpu_to_le32(EXT4_XATTR_MAGIC)) {
+ 		ext4_set_inode_state(inode, EXT4_STATE_XATTR);
+ 		return ext4_find_inline_data_nolock(inode);
 
 
