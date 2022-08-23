@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D0359DB2A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:18:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF2E959E0A8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354675AbiHWKm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:42:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41606 "EHLO
+        id S1352489AbiHWKJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:09:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355495AbiHWKij (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:38:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334401EEF5;
-        Tue, 23 Aug 2022 02:07:50 -0700 (PDT)
+        with ESMTP id S1352407AbiHWKHc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:07:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A2C48E9E;
+        Tue, 23 Aug 2022 01:54:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCB9F6159E;
-        Tue, 23 Aug 2022 09:07:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B57E0C433C1;
-        Tue, 23 Aug 2022 09:07:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 322F7B81C39;
+        Tue, 23 Aug 2022 08:54:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BD92C433C1;
+        Tue, 23 Aug 2022 08:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245669;
-        bh=boTzLUsBAj1F2wZ4ou4VPjMXnGttbkrUw1RUr52Rtk0=;
+        s=korg; t=1661244850;
+        bh=0pbObdzox6CbrcgRjPxsv/HH0bIFHIjmUHHJFWXZ/p4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JG0Jtf+re1XvJnpW2gquyZUiSIg0EBTfTLEmL1a8gwzPjB1b3c+RNzhDXLQLvqyi2
-         NsReil7pCmrgm1m9L5cT4ctsBRpnVU9a13r78SnS6GXNV4XUEM+xt6SwRPhQiJNbxJ
-         Ph44O/kChSlvgSRZbrRzC0nXPgxVqcP6yKEYOPLY=
+        b=IZkUgonVhrNby4KGEiwrX1qaWkUIkRaV6kWmdyy9m5w7muTCayKhGdVFi0gaYZgb5
+         b223s0uoxGJl6xfCiMkUFJirK62WX+heZT2RLRo/EyXhFKqQZF3UM4pHzIJq+YpXRF
+         THE3hO+l1+Zkiw+iukebJwRtiTfI6lWVz3H6VcfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 152/287] tty: n_gsm: fix non flow control frames during mux flow off
+        stable@vger.kernel.org, Tao Jin <tao-j@outlook.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 162/244] HID: multitouch: new device class fix Lenovo X12 trackpad sticky
 Date:   Tue, 23 Aug 2022 10:25:21 +0200
-Message-Id: <20220823080105.730518417@linuxfoundation.org>
+Message-Id: <20220823080104.611415335@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,114 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Tao Jin <tao-j@outlook.com>
 
-[ Upstream commit bec0224816d19abe4fe503586d16d51890540615 ]
+[ Upstream commit 54eed5c7b938dc4ef6b14d4ee048bbdafdbce352 ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.6.3.6 states that FCoff stops the
-transmission on all channels except the control channel. This is already
-implemented in gsm_data_kick(). However, chapter 5.4.8.1 explains that this
-shall result in the same behavior as software flow control on the ldisc in
-advanced option mode. That means only flow control frames shall be sent
-during flow off. The current implementation does not consider this case.
+The trackpad of the given device sends continuous report of pointers
+status as per wxn8 spec. However, the spec did not clarify when the
+fingers are lifted so fast that between the interval of two report
+frames fingers on pad reduced from >=2 to 0. The second last report
+contains >=2 fingers with tip state 1 and the last report contains only
+1 finger with tip state 0. Although this can happen unfrequently, a
+  quick fix will be improve the consistency to 100%. A quick fix is to
+disable MT_QUIRK_ALWAYS_VALID and enable MT_QUIRK_NOT_SEEN_MEANS_UP.
 
-Change gsm_data_kick() to send only flow control frames if constipated to
-abide the standard. gsm_read_ea_val() and gsm_is_flow_ctrl_msg() are
-introduced as helper functions for this.
-It is planned to use gsm_read_ea_val() in later code cleanups for other
-functions, too.
+Test for hid-tools is added in [1]
 
-Fixes: c01af4fec2c8 ("n_gsm : Flow control handling in Mux driver")
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220701061652.39604-5-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In addition to this, I2C device 04CA:00B1 may also need similar class
+but with MT_QUIRK_FORCE_MULTI_INPUT disabled (but it does not harm to
+ enable it on non-multi-input device either). The respective owner has
+been notified and a patch may coming soon after test.
+
+[1]: https://gitlab.freedesktop.org/libevdev/hid-tools/-/merge_requests/130
+
+Signed-off-by: Tao Jin <tao-j@outlook.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 54 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 53 insertions(+), 1 deletion(-)
+ drivers/hid/hid-multitouch.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 5d2bb4d95186..baadac224c8d 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -410,6 +410,27 @@ static int gsm_read_ea(unsigned int *val, u8 c)
- 	return c & EA;
- }
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index f382444dc2db..a14c48de4446 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -194,6 +194,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
+ #define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
+ #define MT_CLS_WIN_8_DISABLE_WAKEUP		0x0016
+ #define MT_CLS_WIN_8_NO_STICKY_FINGERS		0x0017
++#define MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU	0x0018
  
-+/**
-+ *	gsm_read_ea_val	-	read a value until EA
-+ *	@val: variable holding value
-+ *	@data: buffer of data
-+ *	@dlen: length of data
-+ *
-+ *	Processes an EA value. Updates the passed variable and
-+ *	returns the processed data length.
-+ */
-+static unsigned int gsm_read_ea_val(unsigned int *val, const u8 *data, int dlen)
-+{
-+	unsigned int len = 0;
-+
-+	for (; dlen > 0; dlen--) {
-+		len++;
-+		if (gsm_read_ea(val, *data++))
-+			break;
-+	}
-+	return len;
-+}
-+
- /**
-  *	gsm_encode_modem	-	encode modem data bits
-  *	@dlci: DLCI to encode from
-@@ -657,6 +678,37 @@ static struct gsm_msg *gsm_data_alloc(struct gsm_mux *gsm, u8 addr, int len,
- 	return m;
- }
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -286,6 +287,15 @@ static const struct mt_class mt_classes[] = {
+ 			MT_QUIRK_WIN8_PTP_BUTTONS |
+ 			MT_QUIRK_FORCE_MULTI_INPUT,
+ 		.export_all_inputs = true },
++	{ .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
++		.quirks = MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_STICKY_FINGERS |
++			MT_QUIRK_WIN8_PTP_BUTTONS |
++			MT_QUIRK_FORCE_MULTI_INPUT |
++			MT_QUIRK_NOT_SEEN_MEANS_UP,
++		.export_all_inputs = true },
+ 	{ .name = MT_CLS_WIN_8_DISABLE_WAKEUP,
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_IGNORE_DUPLICATES |
+@@ -783,6 +793,7 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_DG_CONFIDENCE:
+ 			if ((cls->name == MT_CLS_WIN_8 ||
+ 			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
++			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU ||
+ 			     cls->name == MT_CLS_WIN_8_DISABLE_WAKEUP) &&
+ 				(field->application == HID_DG_TOUCHPAD ||
+ 				 field->application == HID_DG_TOUCHSCREEN))
+@@ -2033,7 +2044,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			   USB_DEVICE_ID_LENOVO_X1_TAB3) },
  
-+/**
-+ *	gsm_is_flow_ctrl_msg	-	checks if flow control message
-+ *	@msg: message to check
-+ *
-+ *	Returns true if the given message is a flow control command of the
-+ *	control channel. False is returned in any other case.
-+ */
-+static bool gsm_is_flow_ctrl_msg(struct gsm_msg *msg)
-+{
-+	unsigned int cmd;
-+
-+	if (msg->addr > 0)
-+		return false;
-+
-+	switch (msg->ctrl & ~PF) {
-+	case UI:
-+	case UIH:
-+		cmd = 0;
-+		if (gsm_read_ea_val(&cmd, msg->data + 2, msg->len - 2) < 1)
-+			break;
-+		switch (cmd & ~PF) {
-+		case CMD_FCOFF:
-+		case CMD_FCON:
-+			return true;
-+		}
-+		break;
-+	}
-+
-+	return false;
-+}
-+
- /**
-  *	gsm_data_kick		-	poke the queue
-  *	@gsm: GSM Mux
-@@ -675,7 +727,7 @@ static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
- 	int len;
- 
- 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_list, list) {
--		if (gsm->constipated && msg->addr)
-+		if (gsm->constipated && !gsm_is_flow_ctrl_msg(msg))
- 			continue;
- 		if (gsm->encoding != 0) {
- 			gsm->txframe[0] = GSM1_SOF;
+ 	/* Lenovo X12 TAB Gen 1 */
+-	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
+ 		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
+ 			   USB_VENDOR_ID_LENOVO,
+ 			   USB_DEVICE_ID_LENOVO_X12_TAB) },
 -- 
 2.35.1
 
