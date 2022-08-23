@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0877C59DB64
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B4759DD04
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:26:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244091AbiHWKpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:45:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52746 "EHLO
+        id S1359308AbiHWMHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:07:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350994AbiHWKmx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:42:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7061FAA4F9;
-        Tue, 23 Aug 2022 02:10:20 -0700 (PDT)
+        with ESMTP id S1359724AbiHWMGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:06:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DF721E;
+        Tue, 23 Aug 2022 02:38:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7208560EFB;
-        Tue, 23 Aug 2022 09:10:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A64EC433B5;
-        Tue, 23 Aug 2022 09:10:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F938B81C89;
+        Tue, 23 Aug 2022 09:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A934FC433D6;
+        Tue, 23 Aug 2022 09:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245818;
-        bh=uW7eY63ZhSgsE1wQj23d5+bX5fq600O+sVk+bqkRiew=;
+        s=korg; t=1661247460;
+        bh=u4A5WIwiymsMQc9oxnnVUUrLYCHeBa/9DFyqkrzssfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLEBzOLE8IvyN1Cq+w1HKyAQVbPrrChJ+hOw6Uyuyx+RpXEyFsUtZKpLLgfcw+sp2
-         7ccnXTtbg2IGHrKzYsSulcBqnbRVdC0RaCdYW8MPrNg+oynVFn6Ir41YLLWwyYaf4/
-         fEDE+LSLjzYtW0JAquixGZZ90cod72Xpl5jqW+lE=
+        b=s2Pu4XX5kh0QsM/s2ecGBDo/L0umSxg+jGSeqI4syKcOftZPBzpRlG7RMvRUjBcWY
+         qk7KXdpS2tSYEEuulU1Cd2ZfN2ekTxqVvzCBLiz3gGqhTParV1uDY2WdXSe4RKzjcB
+         LvR9PDuW0B00HoUAVgLjlweAFBOL6BLLF+56y3UA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.19 199/287] dm writecache: set a default MAX_WRITEBACK_JOBS
+        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 036/158] virtio_net: fix memory leak inside XPD_TX with mergeable
 Date:   Tue, 23 Aug 2022 10:26:08 +0200
-Message-Id: <20220823080107.545184357@linuxfoundation.org>
+Message-Id: <20220823080047.524501428@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-commit ca7dc242e358e46d963b32f9d9dd829785a9e957 upstream.
+commit 7a542bee27c6a57e45c33cbbdc963325fd6493af upstream.
 
-dm-writecache has the capability to limit the number of writeback jobs
-in progress. However, this feature was off by default. As such there
-were some out-of-memory crashes observed when lowering the low
-watermark while the cache is full.
+When we call xdp_convert_buff_to_frame() to get xdpf, if it returns
+NULL, we should check if xdp_page was allocated by xdp_linearize_page().
+If it is newly allocated, it should be freed here alone. Just like any
+other "goto err_xdp".
 
-This commit enables writeback limit by default. It is set to 256MiB or
-1/16 of total system memory, whichever is smaller.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 44fa2dbd4759 ("xdp: transition into using xdp_frame for ndo_xdp_xmit")
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-writecache.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/virtio_net.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -20,7 +20,7 @@
- 
- #define HIGH_WATERMARK			50
- #define LOW_WATERMARK			45
--#define MAX_WRITEBACK_JOBS		0
-+#define MAX_WRITEBACK_JOBS		min(0x10000000 / PAGE_SIZE, totalram_pages / 16)
- #define ENDIO_LATENCY			16
- #define WRITEBACK_LATENCY		64
- #define AUTOCOMMIT_BLOCKS_SSD		65536
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -968,8 +968,11 @@ static struct sk_buff *receive_mergeable
+ 		case XDP_TX:
+ 			stats->xdp_tx++;
+ 			xdpf = xdp_convert_buff_to_frame(&xdp);
+-			if (unlikely(!xdpf))
++			if (unlikely(!xdpf)) {
++				if (unlikely(xdp_page != page))
++					put_page(xdp_page);
+ 				goto err_xdp;
++			}
+ 			err = virtnet_xdp_xmit(dev, 1, &xdpf, 0);
+ 			if (unlikely(err < 0)) {
+ 				trace_xdp_exception(vi->dev, xdp_prog, act);
 
 
