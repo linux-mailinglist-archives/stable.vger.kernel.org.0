@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21E9059D396
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AACC459D388
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241756AbiHWIIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239324AbiHWIIo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Aug 2022 04:08:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49400 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241760AbiHWIIV (ORCPT
+        with ESMTP id S241759AbiHWIIV (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:08:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F4F86C762;
-        Tue, 23 Aug 2022 01:05:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69856C765;
+        Tue, 23 Aug 2022 01:05:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BAD56120C;
-        Tue, 23 Aug 2022 08:05:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 725EFC433C1;
-        Tue, 23 Aug 2022 08:05:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 614376123D;
+        Tue, 23 Aug 2022 08:05:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA593C433D6;
+        Tue, 23 Aug 2022 08:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661241904;
-        bh=gAdVwi5b46D9uvxjWOaMgLJiK7BOtIW4GyeExVWcIaw=;
+        s=korg; t=1661241908;
+        bh=XXnsT8YnvLr5n07bfMayojz6yEaBHQq9iwO02OlXMVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdFIPSW1gimQ5NgG+fqURfYN6hTs0B76dQQesmqxPZBn5H6QMK1OXxm/AeUSsqdJa
-         l50NuKEIcdGzKPiOJsBhovCmSjmtgoQl/vA4MxT/B0oB/TqoPaMFuyV4HcbiliuMrr
-         Em+8V9W5bNnfrC9BzmmKYIVNjrHbUwLZoyAIoORo=
+        b=c48SkWsePC5SDFot3+abi7+NQtX1ZN2y8UGoRS51fM+FkBz4z7E0qBAS405TkVx5S
+         Ih3sdvDRHgTieFYRnIDVhxkh6haOVpW4S5fHkWWpfbx/wP398vYhBQvDs42tdZVkJ9
+         Ikx7UnhFFMjVfdMsnbxXs/R3rpO0jczXPZqJ65YQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.19 015/365] mmc: pxamci: Fix another error handling path in pxamci_probe()
-Date:   Tue, 23 Aug 2022 09:58:36 +0200
-Message-Id: <20220823080118.811898619@linuxfoundation.org>
+Subject: [PATCH 5.19 016/365] mmc: pxamci: Fix an error handling path in pxamci_probe()
+Date:   Tue, 23 Aug 2022 09:58:37 +0200
+Message-Id: <20220823080118.861640237@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -56,17 +56,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit b886f54c300d31c109d2e4336b22922b64e7ba7d upstream.
+commit 98d7c5e5792b8ce3e1352196dac7f404bb1b46ec upstream.
 
-The commit in Fixes: has introduced an new error handling without branching
-to the existing error handling path.
+The commit in Fixes: has moved some code around without updating gotos to
+the error handling path.
 
-Update it now and release some resources if pxamci_init_ocr() fails.
+Update it now and release some resources if pxamci_of_init() fails.
 
-Fixes: 61951fd6cb49 ("mmc: pxamci: let mmc core handle regulators")
+Fixes: fa3a5115469c ("mmc: pxamci: call mmc_of_parse()")
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/07a2dcebf8ede69b484103de8f9df043f158cffd.1658862932.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/6d75855ad4e2470e9ed99e0df21bc30f0c925a29.1658862932.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -75,14 +75,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mmc/host/pxamci.c
 +++ b/drivers/mmc/host/pxamci.c
-@@ -672,7 +672,7 @@ static int pxamci_probe(struct platform_
+@@ -648,7 +648,7 @@ static int pxamci_probe(struct platform_
  
- 	ret = pxamci_init_ocr(host);
- 	if (ret < 0)
+ 	ret = pxamci_of_init(pdev, mmc);
+ 	if (ret)
 -		return ret;
 +		goto out;
  
- 	mmc->caps = 0;
- 	host->cmdat = 0;
+ 	host = mmc_priv(mmc);
+ 	host->mmc = mmc;
 
 
