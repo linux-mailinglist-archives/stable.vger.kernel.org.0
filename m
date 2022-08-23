@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E42F59D647
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0124959D503
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243689AbiHWIcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:32:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60664 "EHLO
+        id S243917AbiHWIdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:33:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343753AbiHWIbR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:31:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2817074E2F;
-        Tue, 23 Aug 2022 01:15:45 -0700 (PDT)
+        with ESMTP id S1345953AbiHWIbq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:31:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC596D57A;
+        Tue, 23 Aug 2022 01:15:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01B9F6129A;
-        Tue, 23 Aug 2022 08:14:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0070CC433C1;
-        Tue, 23 Aug 2022 08:14:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 197B3B81C3A;
+        Tue, 23 Aug 2022 08:15:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69446C433C1;
+        Tue, 23 Aug 2022 08:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242493;
-        bh=Rfq4sGxkv7PUq84xlx59lHyoBQyqRqYH7SkfBniubrg=;
+        s=korg; t=1661242499;
+        bh=5b2KOXIlNhpiLODn1vjNTLwHdqHZGoh1tLrygHJOIf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u7uVWiKy3VeDe/1qpGMsUob6025P/vx3FEJ97U6u9uElFnHjrXdoItC7K5Slkvwgc
-         rsCrqopN5YYosjq1hP20fPDhPWVnlwEAVJuYHcvkor1EEveIrTxnKpOZcIQtiNALoB
-         WOJ9IEWMAwK8Ftp+9QhSTlNxsvoLxOmN3/8jyzkE=
+        b=wdxsxFElTIHKhg1c32bLtBKgraBjKwTE8a2guwHLve+0RtCLx5OjmDMtmkFYunXXn
+         HYvbzIdEuNKY06xqIy0vweXIL7uyH7Vz8TXGjYiOcpFm38afWuL6Deo23CUASN52d2
+         mPDO413U5w9KwnOvAwhwJ7ZW9p7Qy7Nig+O7xUDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Matthias May <matthias.may@westermo.com>,
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Florian Westphal <fw@strlen.de>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 123/365] ipv6: do not use RT_TOS for IPv6 flowlabel
-Date:   Tue, 23 Aug 2022 10:00:24 +0200
-Message-Id: <20220823080123.340298617@linuxfoundation.org>
+Subject: [PATCH 5.19 124/365] plip: avoid rcu debug splat
+Date:   Tue, 23 Aug 2022 10:00:25 +0200
+Message-Id: <20220823080123.378364257@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,42 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias May <matthias.may@westermo.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit ab7e2e0dfa5d37540ab1dc5376e9a2cb9188925d upstream.
+commit bc3c8fe3c79bcdae4d90e3726054fac5cca8ac32 upstream.
 
-According to Guillaume Nault RT_TOS should never be used for IPv6.
+WARNING: suspicious RCU usage
+5.2.0-rc2-00605-g2638eb8b50cfc #1 Not tainted
+drivers/net/plip/plip.c:1110 suspicious rcu_dereference_check() usage!
 
-Quote:
-RT_TOS() is an old macro used to interprete IPv4 TOS as described in
-the obsolete RFC 1349. It's conceptually wrong to use it even in IPv4
-code, although, given the current state of the code, most of the
-existing calls have no consequence.
+plip_open is called with RTNL held, switch to the correct helper.
 
-But using RT_TOS() in IPv6 code is always a bug: IPv6 never had a "TOS"
-field to be interpreted the RFC 1349 way. There's no historical
-compatibility to worry about.
-
-Fixes: 571912c69f0e ("net: UDP tunnel encapsulation module for tunnelling different protocols like MPLS, IP, NSH etc.")
-Acked-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Matthias May <matthias.may@westermo.com>
+Fixes: 2638eb8b50cf ("net: ipv4: provide __rcu annotation for ifa_list")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Link: https://lore.kernel.org/r/20220807115304.13257-1-fw@strlen.de
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_output.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/plip/plip.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1311,8 +1311,7 @@ struct dst_entry *ip6_dst_lookup_tunnel(
- 	fl6.daddr = info->key.u.ipv6.dst;
- 	fl6.saddr = info->key.u.ipv6.src;
- 	prio = info->key.tos;
--	fl6.flowlabel = ip6_make_flowinfo(RT_TOS(prio),
--					  info->key.label);
-+	fl6.flowlabel = ip6_make_flowinfo(prio, info->key.label);
- 
- 	dst = ipv6_stub->ipv6_dst_lookup_flow(net, sock->sk, &fl6,
- 					      NULL);
+--- a/drivers/net/plip/plip.c
++++ b/drivers/net/plip/plip.c
+@@ -1111,7 +1111,7 @@ plip_open(struct net_device *dev)
+ 		/* Any address will do - we take the first. We already
+ 		   have the first two bytes filled with 0xfc, from
+ 		   plip_init_dev(). */
+-		const struct in_ifaddr *ifa = rcu_dereference(in_dev->ifa_list);
++		const struct in_ifaddr *ifa = rtnl_dereference(in_dev->ifa_list);
+ 		if (ifa != NULL) {
+ 			dev_addr_mod(dev, 2, &ifa->ifa_local, 4);
+ 		}
 
 
