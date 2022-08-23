@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01D1C59E26E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F10059DB2F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:18:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240193AbiHWLhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:37:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49076 "EHLO
+        id S1355384AbiHWKiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:38:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350035AbiHWLdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:33:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB106C6CE9;
-        Tue, 23 Aug 2022 02:27:03 -0700 (PDT)
+        with ESMTP id S1355711AbiHWKg4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:36:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D279A6C22;
+        Tue, 23 Aug 2022 02:07:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84A7BB81C66;
-        Tue, 23 Aug 2022 09:27:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB54DC433C1;
-        Tue, 23 Aug 2022 09:26:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FE4E6158D;
+        Tue, 23 Aug 2022 09:07:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B16C433D6;
+        Tue, 23 Aug 2022 09:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246820;
-        bh=u4vPOslWEQUuLCljqJhRpEZpjdHMmesnZcR9ZrcUPwU=;
+        s=korg; t=1661245641;
+        bh=kEJ44uGQhbsnlEsOnJCVVttPofYwKWyYENYgbKrdolw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ETEc1aYTXybXdl1pZ/2HeCyHQYG0iOjBLj3wYViKwIvJ6mSj8I211pcxzCi7mo4Cc
-         ykFo4sOJBNL8EM+57imZ00IdIMunNGpn+LyGKScLFR58KpScySU1Zr2BPB7+D1R6P6
-         lIM5ufOIUrjs/n4i/ihbVnpQ2CBqRB3rfjzhGZpk=
+        b=QJz0a/n4O7lY0E4L4toPKQmTHVz+OnY2avEqTSTvTCO2vCiw9IJgDb0LUGbQJ+k5/
+         106HjGUZI0PdR9AFnvdDpAx4E1V0Iu7d3++pZxXU1Htd+x8QuRjDYPUu7zSwULFtYY
+         KlrueIFIILBodMra+xgVskGpTFB5GBPy0xNvSdm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Lingfeng <lilingfeng3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org,
+        syzbot+ad24705d3fd6463b18c6@syzkaller.appspotmail.com,
+        Jakub Kicinski <kuba@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 200/389] ext4: recover csum seed of tmp_inode after migrating to extents
-Date:   Tue, 23 Aug 2022 10:24:38 +0200
-Message-Id: <20220823080123.991475102@linuxfoundation.org>
+Subject: [PATCH 4.19 110/287] netdevsim: Avoid allocation warnings triggered from user space
+Date:   Tue, 23 Aug 2022 10:24:39 +0200
+Message-Id: <20220823080104.076774622@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Lingfeng <lilingfeng3@huawei.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 07ea7a617d6b278fb7acedb5cbe1a81ce2de7d0c ]
+[ Upstream commit d0b80a9edb1a029ff913e81b47540e57ad034329 ]
 
-When migrating to extents, the checksum seed of temporary inode
-need to be replaced by inode's, otherwise the inode checksums
-will be incorrect when swapping the inodes data.
+We need to suppress warnings from sily map sizes. Also switch
+from GFP_USER to GFP_KERNEL_ACCOUNT, I'm pretty sure I misunderstood
+the flags when writing this code.
 
-However, the temporary inode can not match it's checksum to
-itself since it has lost it's own checksum seed.
-
-mkfs.ext4 -F /dev/sdc
-mount /dev/sdc /mnt/sdc
-xfs_io -fc "pwrite 4k 4k" -c "fsync" /mnt/sdc/testfile
-chattr -e /mnt/sdc/testfile
-chattr +e /mnt/sdc/testfile
-umount /dev/sdc
-fsck -fn /dev/sdc
-
-========
-...
-Pass 1: Checking inodes, blocks, and sizes
-Inode 13 passes checks, but checksum does not match inode.  Fix? no
-...
-========
-
-The fix is simple, save the checksum seed of temporary inode, and
-recover it after migrating to extents.
-
-Fixes: e81c9302a6c3 ("ext4: set csum seed in tmp inode while migrating to extents")
-Signed-off-by: Li Lingfeng <lilingfeng3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220617062515.2113438-1-lilingfeng3@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 395cacb5f1a0 ("netdevsim: bpf: support fake map offload")
+Reported-by: syzbot+ad24705d3fd6463b18c6@syzkaller.appspotmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220726213605.154204-1-kuba@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/migrate.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/netdevsim/bpf.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ext4/migrate.c b/fs/ext4/migrate.c
-index c5b2ea1a9372..1faa8e4ffb9d 100644
---- a/fs/ext4/migrate.c
-+++ b/fs/ext4/migrate.c
-@@ -435,7 +435,7 @@ int ext4_ext_migrate(struct inode *inode)
- 	struct inode *tmp_inode = NULL;
- 	struct migrate_struct lb;
- 	unsigned long max_entries;
--	__u32 goal;
-+	__u32 goal, tmp_csum_seed;
- 	uid_t owner[2];
+diff --git a/drivers/net/netdevsim/bpf.c b/drivers/net/netdevsim/bpf.c
+index 12f100392ed1..ca9042ddb6d7 100644
+--- a/drivers/net/netdevsim/bpf.c
++++ b/drivers/net/netdevsim/bpf.c
+@@ -330,10 +330,12 @@ nsim_map_alloc_elem(struct bpf_offloaded_map *offmap, unsigned int idx)
+ {
+ 	struct nsim_bpf_bound_map *nmap = offmap->dev_priv;
  
- 	/*
-@@ -483,6 +483,7 @@ int ext4_ext_migrate(struct inode *inode)
- 	 * the migration.
- 	 */
- 	ei = EXT4_I(inode);
-+	tmp_csum_seed = EXT4_I(tmp_inode)->i_csum_seed;
- 	EXT4_I(tmp_inode)->i_csum_seed = ei->i_csum_seed;
- 	i_size_write(tmp_inode, i_size_read(inode));
- 	/*
-@@ -593,6 +594,7 @@ int ext4_ext_migrate(struct inode *inode)
- 	 * the inode is not visible to user space.
- 	 */
- 	tmp_inode->i_blocks = 0;
-+	EXT4_I(tmp_inode)->i_csum_seed = tmp_csum_seed;
+-	nmap->entry[idx].key = kmalloc(offmap->map.key_size, GFP_USER);
++	nmap->entry[idx].key = kmalloc(offmap->map.key_size,
++				       GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
+ 	if (!nmap->entry[idx].key)
+ 		return -ENOMEM;
+-	nmap->entry[idx].value = kmalloc(offmap->map.value_size, GFP_USER);
++	nmap->entry[idx].value = kmalloc(offmap->map.value_size,
++					 GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
+ 	if (!nmap->entry[idx].value) {
+ 		kfree(nmap->entry[idx].key);
+ 		nmap->entry[idx].key = NULL;
+@@ -475,7 +477,7 @@ nsim_bpf_map_alloc(struct netdevsim *ns, struct bpf_offloaded_map *offmap)
+ 	if (offmap->map.map_flags)
+ 		return -EINVAL;
  
- 	/* Reset the extent details */
- 	ext4_ext_tree_init(handle, tmp_inode);
+-	nmap = kzalloc(sizeof(*nmap), GFP_USER);
++	nmap = kzalloc(sizeof(*nmap), GFP_KERNEL_ACCOUNT);
+ 	if (!nmap)
+ 		return -ENOMEM;
+ 
 -- 
 2.35.1
 
