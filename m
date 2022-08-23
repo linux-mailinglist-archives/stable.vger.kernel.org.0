@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B27459DE8C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCB159E18F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357468AbiHWLRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37564 "EHLO
+        id S1357147AbiHWLRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242420AbiHWLOx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:14:53 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBFDFB95AC;
-        Tue, 23 Aug 2022 02:18:58 -0700 (PDT)
+        with ESMTP id S1357560AbiHWLQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E81BD0B3;
+        Tue, 23 Aug 2022 02:19:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DE427CE1B55;
-        Tue, 23 Aug 2022 09:18:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01C6BC433C1;
-        Tue, 23 Aug 2022 09:18:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C128BB81C96;
+        Tue, 23 Aug 2022 09:18:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C923C433C1;
+        Tue, 23 Aug 2022 09:18:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246325;
-        bh=lC1PDtOD4kVcf3eDjo4yBR1rOPmdYM1OQZgn1WPyCNM=;
+        s=korg; t=1661246328;
+        bh=YhgF2yt0u3VyqWuFgGE9+OCvXB5d0Chiy9PsctpcyxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0IC7j+fJaAvq6f3pSKsNOXHNlrYyz+Ts5zyqjqM9VKmY/YJFaVK8NdaDmW+V//WO1
-         Fl6y6Mlbsi31ydNTSckOUGqAMnUouPN2RUbWiulcdJlSx04F7BkhKwgFr4GyKN8CIg
-         phySE89fuspYSBOS7D8SgUT1G+Hsf97k5rITER9c=
+        b=m8D4HeErsJAIK4xY1Vn0C46EncqiUhLtCBB0BheT7gphcJUI7T5/tr6M0j5k5xFS0
+         9rqb+ne5GQ4BX66m9yOT/YHh+1RmF8vryeuCPoOJ9DoHh2inn9H7TxiKBYfMK7HH3A
+         w4SEipka7uRCsvOdS7Bkd5VVmNkTsPibTh17KMQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 074/389] ARM: findbit: fix overflowing offset
-Date:   Tue, 23 Aug 2022 10:22:32 +0200
-Message-Id: <20220823080118.736925402@linuxfoundation.org>
+Subject: [PATCH 5.4 075/389] meson-mx-socinfo: Fix refcount leak in meson_mx_socinfo_init
+Date:   Tue, 23 Aug 2022 10:22:33 +0200
+Message-Id: <20220823080118.782693335@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,74 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit ec85bd369fd2bfaed6f45dd678706429d4f75b48 ]
+[ Upstream commit a2106f38077e78afcb4bf98fdda3e162118cfb3d ]
 
-When offset is larger than the size of the bit array, we should not
-attempt to access the array as we can perform an access beyond the
-end of the array. Fix this by changing the pre-condition.
+of_find_matching_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Using "cmp r2, r1; bhs ..." covers us for the size == 0 case, since
-this will always take the branch when r1 is zero, irrespective of
-the value of r2. This means we can fix this bug without adding any
-additional code!
-
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: 5e68c0fc8df8 ("soc: amlogic: Add Meson6/Meson8/Meson8b/Meson8m2 SoC Information driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220524065729.33689-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/lib/findbit.S | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/soc/amlogic/meson-mx-socinfo.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/lib/findbit.S b/arch/arm/lib/findbit.S
-index b5e8b9ae4c7d..7fd3600db8ef 100644
---- a/arch/arm/lib/findbit.S
-+++ b/arch/arm/lib/findbit.S
-@@ -40,8 +40,8 @@ ENDPROC(_find_first_zero_bit_le)
-  * Prototype: int find_next_zero_bit(void *addr, unsigned int maxbit, int offset)
-  */
- ENTRY(_find_next_zero_bit_le)
--		teq	r1, #0
--		beq	3b
-+		cmp	r2, r1
-+		bhs	3b
- 		ands	ip, r2, #7
- 		beq	1b			@ If new byte, goto old routine
-  ARM(		ldrb	r3, [r0, r2, lsr #3]	)
-@@ -81,8 +81,8 @@ ENDPROC(_find_first_bit_le)
-  * Prototype: int find_next_zero_bit(void *addr, unsigned int maxbit, int offset)
-  */
- ENTRY(_find_next_bit_le)
--		teq	r1, #0
--		beq	3b
-+		cmp	r2, r1
-+		bhs	3b
- 		ands	ip, r2, #7
- 		beq	1b			@ If new byte, goto old routine
-  ARM(		ldrb	r3, [r0, r2, lsr #3]	)
-@@ -115,8 +115,8 @@ ENTRY(_find_first_zero_bit_be)
- ENDPROC(_find_first_zero_bit_be)
+diff --git a/drivers/soc/amlogic/meson-mx-socinfo.c b/drivers/soc/amlogic/meson-mx-socinfo.c
+index 78f0f1aeca57..92125dd65f33 100644
+--- a/drivers/soc/amlogic/meson-mx-socinfo.c
++++ b/drivers/soc/amlogic/meson-mx-socinfo.c
+@@ -126,6 +126,7 @@ static int __init meson_mx_socinfo_init(void)
+ 	np = of_find_matching_node(NULL, meson_mx_socinfo_analog_top_ids);
+ 	if (np) {
+ 		analog_top_regmap = syscon_node_to_regmap(np);
++		of_node_put(np);
+ 		if (IS_ERR(analog_top_regmap))
+ 			return PTR_ERR(analog_top_regmap);
  
- ENTRY(_find_next_zero_bit_be)
--		teq	r1, #0
--		beq	3b
-+		cmp	r2, r1
-+		bhs	3b
- 		ands	ip, r2, #7
- 		beq	1b			@ If new byte, goto old routine
- 		eor	r3, r2, #0x18		@ big endian byte ordering
-@@ -149,8 +149,8 @@ ENTRY(_find_first_bit_be)
- ENDPROC(_find_first_bit_be)
- 
- ENTRY(_find_next_bit_be)
--		teq	r1, #0
--		beq	3b
-+		cmp	r2, r1
-+		bhs	3b
- 		ands	ip, r2, #7
- 		beq	1b			@ If new byte, goto old routine
- 		eor	r3, r2, #0x18		@ big endian byte ordering
 -- 
 2.35.1
 
