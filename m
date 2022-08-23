@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BC959DC66
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7560E59DCB8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359006AbiHWL6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:58:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40726 "EHLO
+        id S244174AbiHWLG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:06:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359394AbiHWL4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:56:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F19DD7CD8;
-        Tue, 23 Aug 2022 02:34:27 -0700 (PDT)
+        with ESMTP id S1356864AbiHWLFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:05:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D5EBB4412;
+        Tue, 23 Aug 2022 02:15:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21617B81B1F;
-        Tue, 23 Aug 2022 09:34:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C884C433D7;
-        Tue, 23 Aug 2022 09:34:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A8CE60DB4;
+        Tue, 23 Aug 2022 09:14:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC3BC433D6;
+        Tue, 23 Aug 2022 09:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247265;
-        bh=noI0SHTyTyoNWmj0FmTe9S6Tq2D9OmFbIBtBdSw+lgc=;
+        s=korg; t=1661246072;
+        bh=ukjfHyx+sVMLnQs4BZHpN4Y/SYXUdACjDDbNw43YMF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RT+KNO/bkLKqKiMctUquf7d7nM8PYdMhRE1oanZ/hxQnaoek3eov6+mxd0BkxmF6B
-         kX1vbiBb4ZraxbB2LlxFD/zyPZPxmX21nI2LPYY7EGDJCl9McKKFpZJosRUfhrhIfG
-         7gcJ847ofsdtY8DY8d7cd8rDsAAWDzIzGyxwGUts=
+        b=yYdMNnayc1ABZVegXRwDAs/8Mu96Qe7nUDsxY0QSsuxaxcNwHxCv9HMqOBzpCDVUx
+         3pn/87uDJkQcmzG/fzgQr7AsQ9SnA3OMTs3VzVh0Nl9OTHxHvsp9/zbjOkeGSErCN6
+         L6u4OWIv4PU6kc0vhiqYxvYLGhsQJz53ez28YKx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Zhouyi Zhou <zhouzhouyi@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 371/389] vfio: Clear the caps->buf to NULL after free
-Date:   Tue, 23 Aug 2022 10:27:29 +0200
-Message-Id: <20220823080131.044874275@linuxfoundation.org>
+Subject: [PATCH 4.19 281/287] powerpc/64: Init jump labels before parse_early_param()
+Date:   Tue, 23 Aug 2022 10:27:30 +0200
+Message-Id: <20220823080110.944511402@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Zhouyi Zhou <zhouzhouyi@gmail.com>
 
-[ Upstream commit 6641085e8d7b3f061911517f79a2a15a0a21b97b ]
+[ Upstream commit ca829e05d3d4f728810cc5e4b468d9ebc7745eb3 ]
 
-On buffer resize failure, vfio_info_cap_add() will free the buffer,
-report zero for the size, and return -ENOMEM.  As additional
-hardening, also clear the buffer pointer to prevent any chance of a
-double free.
+On 64-bit, calling jump_label_init() in setup_feature_keys() is too
+late because static keys may be used in subroutines of
+parse_early_param() which is again subroutine of early_init_devtree().
 
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Link: https://lore.kernel.org/r/20220629022948.55608-1-schspa@gmail.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+For example booting with "threadirqs":
+
+  static_key_enable_cpuslocked(): static key '0xc000000002953260' used before call to jump_label_init()
+  WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xfc/0x120
+  ...
+  NIP static_key_enable_cpuslocked+0xfc/0x120
+  LR  static_key_enable_cpuslocked+0xf8/0x120
+  Call Trace:
+    static_key_enable_cpuslocked+0xf8/0x120 (unreliable)
+    static_key_enable+0x30/0x50
+    setup_forced_irqthreads+0x28/0x40
+    do_early_param+0xa0/0x108
+    parse_args+0x290/0x4e0
+    parse_early_options+0x48/0x5c
+    parse_early_param+0x58/0x84
+    early_init_devtree+0xd4/0x518
+    early_setup+0xb4/0x214
+
+So call jump_label_init() just before parse_early_param() in
+early_init_devtree().
+
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
+[mpe: Add call trace to change log and minor wording edits.]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220726015747.11754-1-zhouzhouyi@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/vfio.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/prom.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-index 388597930b64..efd3782ead97 100644
---- a/drivers/vfio/vfio.c
-+++ b/drivers/vfio/vfio.c
-@@ -1802,6 +1802,7 @@ struct vfio_info_cap_header *vfio_info_cap_add(struct vfio_info_cap *caps,
- 	buf = krealloc(caps->buf, caps->size + size, GFP_KERNEL);
- 	if (!buf) {
- 		kfree(caps->buf);
-+		caps->buf = NULL;
- 		caps->size = 0;
- 		return ERR_PTR(-ENOMEM);
- 	}
+diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
+index f8c49e5d4bd3..c57aeb9f031c 100644
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -737,6 +737,13 @@ void __init early_init_devtree(void *params)
+ 	of_scan_flat_dt(early_init_dt_scan_root, NULL);
+ 	of_scan_flat_dt(early_init_dt_scan_memory_ppc, NULL);
+ 
++	/*
++	 * As generic code authors expect to be able to use static keys
++	 * in early_param() handlers, we initialize the static keys just
++	 * before parsing early params (it's fine to call jump_label_init()
++	 * more than once).
++	 */
++	jump_label_init();
+ 	parse_early_param();
+ 
+ 	/* make sure we've parsed cmdline for mem= before this */
 -- 
 2.35.1
 
