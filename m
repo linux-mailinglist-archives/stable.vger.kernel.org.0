@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB8759D81A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A81DC59D8F1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349043AbiHWJOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:14:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33274 "EHLO
+        id S1348786AbiHWJNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:13:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348671AbiHWJMW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:12:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F0796D576;
-        Tue, 23 Aug 2022 01:31:47 -0700 (PDT)
+        with ESMTP id S1349332AbiHWJLa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:11:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0835386C37;
+        Tue, 23 Aug 2022 01:31:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19CF76147B;
-        Tue, 23 Aug 2022 08:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 250DDC433C1;
-        Tue, 23 Aug 2022 08:31:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 09485CE1B34;
+        Tue, 23 Aug 2022 08:31:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06D13C433C1;
+        Tue, 23 Aug 2022 08:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243469;
-        bh=mDDod5hoK9zUIp4GLrFxdxCIQSI8HzlisO5aPIIpYBk=;
+        s=korg; t=1661243472;
+        bh=skXDE7HoEs1CM7r5+jZrhjl8BpmwHHmVvjU7vqHj44E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=weXUF9jGuxizLED8U2nYYGYAH8rBGyk4ZRrlil22bAqMKnWaqfs9mU6T9zHz7+a8c
-         eR7Hl9u3JQNeqHLGVyfwqFpFhsjgQQeEO2+sJtSI4hyGU71H3Tj15M2X9v9sFhnxyz
-         hGEzNZK/GJ5kR547Ua+vObm8HPNRmrU/nwLeyQHE=
+        b=GewB7pae6xuQCN6bM2E6RBHQfMhyuvQjVaRlbFJyaAc9ZOvV9GU8vxkfLsGdgS6QR
+         O1/NKMXPda+7o6aa/sCofl5b0U3cyPp5J3L83DoUYxF3WsRD2ti71oTe5ZJSIOtpWt
+         N5W2qydmL8P8eiJM00IPSo/bfFWTpXAU05rei7i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        Tao Zhang <quic_taozha@quicinc.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        stable@vger.kernel.org, Dafna Hirschfeld <dhirschfeld@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 287/365] coresight: etm4x: avoid build failure with unrolled loops
-Date:   Tue, 23 Aug 2022 10:03:08 +0200
-Message-Id: <20220823080130.208107606@linuxfoundation.org>
+Subject: [PATCH 5.19 288/365] habanalabs: add terminating NULL to attrs arrays
+Date:   Tue, 23 Aug 2022 10:03:09 +0200
+Message-Id: <20220823080130.259653833@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -57,114 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Dafna Hirschfeld <dhirschfeld@habana.ai>
 
-[ Upstream commit 4d45bc82df667ad9e9cb8361830e54fc1264e993 ]
+[ Upstream commit 78d503087be190eab36290644ccec050135e7c70 ]
 
-When the following configs are enabled:
-* CORESIGHT
-* CORESIGHT_SOURCE_ETM4X
-* UBSAN
-* UBSAN_TRAP
+Arrays of struct attribute are expected to be NULL terminated.
+This is required by API methods such as device_add_groups.
+This fixes a crash when loading the driver for Goya device.
 
-Clang fails assemble the kernel with the error:
-<instantiation>:1:7: error: expected constant expression in '.inst' directive
-.inst (0xd5200000|((((2) << 19) | ((1) << 16) | (((((((((((0x160 + (i * 4))))) >> 2))) >> 7) & 0x7)) << 12) | ((((((((((0x160 + (i * 4))))) >> 2))) & 0xf)) << 8) | (((((((((((0x160 + (i * 4))))) >> 2))) >> 4) & 0x7)) << 5)))|(.L__reg_num_x8))
-      ^
-drivers/hwtracing/coresight/coresight-etm4x-core.c:702:4: note: while in
-macro instantiation
-etm4x_relaxed_read32(csa, TRCCNTVRn(i));
-^
-drivers/hwtracing/coresight/coresight-etm4x.h:403:4: note: expanded from
-macro 'etm4x_relaxed_read32'
-read_etm4x_sysreg_offset((offset), false)))
-^
-drivers/hwtracing/coresight/coresight-etm4x.h:383:12: note: expanded
-from macro 'read_etm4x_sysreg_offset'
-__val = read_etm4x_sysreg_const_offset((offset));       \
-        ^
-drivers/hwtracing/coresight/coresight-etm4x.h:149:2: note: expanded from
-macro 'read_etm4x_sysreg_const_offset'
-READ_ETM4x_REG(ETM4x_OFFSET_TO_REG(offset))
-^
-drivers/hwtracing/coresight/coresight-etm4x.h:144:2: note: expanded from
-macro 'READ_ETM4x_REG'
-read_sysreg_s(ETM4x_REG_NUM_TO_SYSREG((reg)))
-^
-arch/arm64/include/asm/sysreg.h:1108:15: note: expanded from macro
-'read_sysreg_s'
-asm volatile(__mrs_s("%0", r) : "=r" (__val));                  \
-             ^
-arch/arm64/include/asm/sysreg.h:1074:2: note: expanded from macro '__mrs_s'
-"       mrs_s " v ", " __stringify(r) "\n"                      \
- ^
-
-Consider the definitions of TRCSSCSRn and TRCCNTVRn:
-drivers/hwtracing/coresight/coresight-etm4x.h:56
- #define TRCCNTVRn(n)      (0x160 + (n * 4))
-drivers/hwtracing/coresight/coresight-etm4x.h:81
- #define TRCSSCSRn(n)      (0x2A0 + (n * 4))
-
-Where the macro parameter is expanded to i; a loop induction variable
-from etm4_disable_hw.
-
-When any compiler can determine that loops may be unrolled, then the
-__builtin_constant_p check in read_etm4x_sysreg_offset() defined in
-drivers/hwtracing/coresight/coresight-etm4x.h may evaluate to true. This
-can lead to the expression `(0x160 + (i * 4))` being passed to
-read_etm4x_sysreg_const_offset. Via the trace above, this is passed
-through READ_ETM4x_REG, read_sysreg_s, and finally to __mrs_s where it
-is string-ified and used directly in inline asm.
-
-Regardless of which compiler or compiler options determine whether a
-loop can or can't be unrolled, which determines whether
-__builtin_constant_p evaluates to true when passed an expression using a
-loop induction variable, it is NEVER safe to allow the preprocessor to
-construct inline asm like:
-  asm volatile (".inst (0x160 + (i * 4))" : "=r"(__val));
-                                 ^ expected constant expression
-
-Instead of read_etm4x_sysreg_offset() using __builtin_constant_p(), use
-__is_constexpr from include/linux/const.h instead to ensure only
-expressions that are valid integer constant expressions get passed
-through to read_sysreg_s().
-
-This is not a bug in clang; it's a potentially unsafe use of the macro
-arguments in read_etm4x_sysreg_offset dependent on __builtin_constant_p.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1310
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Reported-by: Tao Zhang <quic_taozha@quicinc.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20220708231520.3958391-1-ndesaulniers@google.com
+Signed-off-by: Dafna Hirschfeld <dhirschfeld@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/misc/habanalabs/common/sysfs.c    | 2 ++
+ drivers/misc/habanalabs/gaudi/gaudi.c     | 1 +
+ drivers/misc/habanalabs/goya/goya_hwmgr.c | 2 ++
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.h b/drivers/hwtracing/coresight/coresight-etm4x.h
-index 33869c1d20c3..a7bfea31f7d8 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.h
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.h
-@@ -7,6 +7,7 @@
- #define _CORESIGHT_CORESIGHT_ETM_H
+diff --git a/drivers/misc/habanalabs/common/sysfs.c b/drivers/misc/habanalabs/common/sysfs.c
+index 9ebeb18ab85e..da8181068895 100644
+--- a/drivers/misc/habanalabs/common/sysfs.c
++++ b/drivers/misc/habanalabs/common/sysfs.c
+@@ -73,6 +73,7 @@ static DEVICE_ATTR_RO(clk_cur_freq_mhz);
+ static struct attribute *hl_dev_clk_attrs[] = {
+ 	&dev_attr_clk_max_freq_mhz.attr,
+ 	&dev_attr_clk_cur_freq_mhz.attr,
++	NULL,
+ };
  
- #include <asm/local.h>
-+#include <linux/const.h>
- #include <linux/spinlock.h>
- #include <linux/types.h>
- #include "coresight-priv.h"
-@@ -515,7 +516,7 @@
- 	({									\
- 		u64 __val;							\
- 										\
--		if (__builtin_constant_p((offset)))				\
-+		if (__is_constexpr((offset)))					\
- 			__val = read_etm4x_sysreg_const_offset((offset));	\
- 		else								\
- 			__val = etm4x_sysreg_read((offset), true, (_64bit));	\
+ static ssize_t vrm_ver_show(struct device *dev, struct device_attribute *attr, char *buf)
+@@ -93,6 +94,7 @@ static DEVICE_ATTR_RO(vrm_ver);
+ 
+ static struct attribute *hl_dev_vrm_attrs[] = {
+ 	&dev_attr_vrm_ver.attr,
++	NULL,
+ };
+ 
+ static ssize_t uboot_ver_show(struct device *dev, struct device_attribute *attr,
+diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
+index fba322241096..25d735aee6a3 100644
+--- a/drivers/misc/habanalabs/gaudi/gaudi.c
++++ b/drivers/misc/habanalabs/gaudi/gaudi.c
+@@ -9187,6 +9187,7 @@ static DEVICE_ATTR_RO(infineon_ver);
+ 
+ static struct attribute *gaudi_vrm_dev_attrs[] = {
+ 	&dev_attr_infineon_ver.attr,
++	NULL,
+ };
+ 
+ static void gaudi_add_device_attr(struct hl_device *hdev, struct attribute_group *dev_clk_attr_grp,
+diff --git a/drivers/misc/habanalabs/goya/goya_hwmgr.c b/drivers/misc/habanalabs/goya/goya_hwmgr.c
+index 6580fc6a486a..b595721751c1 100644
+--- a/drivers/misc/habanalabs/goya/goya_hwmgr.c
++++ b/drivers/misc/habanalabs/goya/goya_hwmgr.c
+@@ -359,6 +359,7 @@ static struct attribute *goya_clk_dev_attrs[] = {
+ 	&dev_attr_pm_mng_profile.attr,
+ 	&dev_attr_tpc_clk.attr,
+ 	&dev_attr_tpc_clk_curr.attr,
++	NULL,
+ };
+ 
+ static ssize_t infineon_ver_show(struct device *dev, struct device_attribute *attr, char *buf)
+@@ -375,6 +376,7 @@ static DEVICE_ATTR_RO(infineon_ver);
+ 
+ static struct attribute *goya_vrm_dev_attrs[] = {
+ 	&dev_attr_infineon_ver.attr,
++	NULL,
+ };
+ 
+ void goya_add_device_attr(struct hl_device *hdev, struct attribute_group *dev_clk_attr_grp,
 -- 
 2.35.1
 
