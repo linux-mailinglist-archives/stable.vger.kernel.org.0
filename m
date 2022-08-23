@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F3F59DB6D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF0E59E134
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242623AbiHWL2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:28:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36438 "EHLO
+        id S244037AbiHWK1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:27:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357951AbiHWL07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:26:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107A7C2769;
-        Tue, 23 Aug 2022 02:24:40 -0700 (PDT)
+        with ESMTP id S1354207AbiHWKZM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:25:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03330A405C;
+        Tue, 23 Aug 2022 02:04:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D27EA61298;
-        Tue, 23 Aug 2022 09:24:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5124C433C1;
-        Tue, 23 Aug 2022 09:24:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A51CB8105C;
+        Tue, 23 Aug 2022 09:04:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE4D2C433C1;
+        Tue, 23 Aug 2022 09:04:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246679;
-        bh=J4/pvGaC8HEhSLGC2Rn8iOTgnE0RHSuP4UzFN4eR2Ak=;
+        s=korg; t=1661245489;
+        bh=DWD3GZq6j5zEbQtORBVne/OcWKHdw1NZa8O3C6p2FYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BujDRbqaRf1leX2P9wTF8hUZH0E5Dc8W5g1GUH+jIC00pZ2QeuXofhcJ25+d4tt3t
-         Dxn+8aq/mAp2njeSnAwfV6bg7tW+RCizwx1+oW8TTwzptcLTA+bu/D7bC6TLqHXV5W
-         rVOCFQv1kciPOAjvhyfCGRZztI/+SzfzFwubVetg=
+        b=jDMENSr9znHagoxOCSTAhblZbcbb0DB1Xuspaakv+NFVA5Da8OLhM4sUDdotPIKA8
+         0CJHSytTT/hoSTI+ukNEbfLua8RiPu4G8hdUrOPo6pJZNTxzQMswwK0d+dgUiQUskY
+         1YwZpDNRJZY1YyT/UT6y4AY2nTjtRc1zmm0YKDnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haoyue Xu <xuhaoyue1@hisilicon.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 185/389] RDMA/hns: Fix incorrect clearing of interrupt status register
+Subject: [PATCH 4.19 094/287] can: pch_can: do not report txerr and rxerr during bus-off
 Date:   Tue, 23 Aug 2022 10:24:23 +0200
-Message-Id: <20220823080123.360556054@linuxfoundation.org>
+Message-Id: <20220823080103.494719635@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haoyue Xu <xuhaoyue1@hisilicon.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit ecb4db5c3590aa956b4b2c352081a5b632d1f9f9 ]
+[ Upstream commit 3a5c7e4611ddcf0ef37a3a17296b964d986161a6 ]
 
-The driver will clear all the interrupts in the same area
-when the driver handles the interrupt of type AEQ overflow.
-It should only set the interrupt status bit of type AEQ overflow.
+During bus off, the error count is greater than 255 and can not fit in
+a u8.
 
-Fixes: a5073d6054f7 ("RDMA/hns: Add eq support of hip08")
-Link: https://lore.kernel.org/r/20220714134353.16700-4-liangwenpeng@huawei.com
-Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: 0c78ab76a05c ("pch_can: Add setting TEC/REC statistics processing")
+Link: https://lore.kernel.org/all/20220719143550.3681-2-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/pch_can.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index d01e3222c00c..28bbc4708fd4 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -5216,8 +5216,8 @@ static irqreturn_t hns_roce_v2_msix_interrupt_abn(int irq, void *dev_id)
+diff --git a/drivers/net/can/pch_can.c b/drivers/net/can/pch_can.c
+index ced11ea89269..3e1d71c70b0d 100644
+--- a/drivers/net/can/pch_can.c
++++ b/drivers/net/can/pch_can.c
+@@ -507,6 +507,9 @@ static void pch_can_error(struct net_device *ndev, u32 status)
+ 		cf->can_id |= CAN_ERR_BUSOFF;
+ 		priv->can.can_stats.bus_off++;
+ 		can_bus_off(ndev);
++	} else {
++		cf->data[6] = errc & PCH_TEC;
++		cf->data[7] = (errc & PCH_REC) >> 8;
+ 	}
  
- 		dev_err(dev, "AEQ overflow!\n");
+ 	errc = ioread32(&priv->regs->errc);
+@@ -567,9 +570,6 @@ static void pch_can_error(struct net_device *ndev, u32 status)
+ 		break;
+ 	}
  
--		int_st |= 1 << HNS_ROCE_V2_VF_INT_ST_AEQ_OVERFLOW_S;
--		roce_write(hr_dev, ROCEE_VF_ABN_INT_ST_REG, int_st);
-+		roce_write(hr_dev, ROCEE_VF_ABN_INT_ST_REG,
-+			   1 << HNS_ROCE_V2_VF_INT_ST_AEQ_OVERFLOW_S);
+-	cf->data[6] = errc & PCH_TEC;
+-	cf->data[7] = (errc & PCH_REC) >> 8;
+-
+ 	priv->can.state = state;
+ 	netif_receive_skb(skb);
  
- 		/* Set reset level for reset_event() */
- 		if (ops->set_default_reset_request)
 -- 
 2.35.1
 
