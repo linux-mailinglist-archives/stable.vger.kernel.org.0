@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC07B59DFC1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8755259E1F9
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356136AbiHWKt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:49:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33992 "EHLO
+        id S1359231AbiHWLwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356431AbiHWKrW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:47:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F02386B4E;
-        Tue, 23 Aug 2022 02:11:51 -0700 (PDT)
+        with ESMTP id S1358731AbiHWLuo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:50:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E03B6D2EAB;
+        Tue, 23 Aug 2022 02:31:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC13C60DB4;
-        Tue, 23 Aug 2022 09:11:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3A3C433D6;
-        Tue, 23 Aug 2022 09:11:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16B44B8105C;
+        Tue, 23 Aug 2022 09:31:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51F4FC433D6;
+        Tue, 23 Aug 2022 09:31:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245910;
-        bh=ABq+T4w3fzA7lwyjdCSsJMz1bpZ3rIbr9SCyC8Hlzt4=;
+        s=korg; t=1661247105;
+        bh=tgwi/tP+hcVfUhfNfNmv7WL2po1ZQx4WqR5FMscIIQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irQ9YFMGUBoZ2sCjyNbIXL+arOqxmHDPU0efhkLXqIgThKKDkdPDpsF+H0xBjU98G
-         q8SJjCEMGVKy551d9quoOMrTDRpgv80hzd8/TI4pe5iBhhitqYK+AFQ1MT9Azg+E8A
-         ta7+VMQ2nbhJkKDsRMPztlqvuz7Pra7W0vwic3Sw=
+        b=YxqHU8Fcow4VV0zd4n6PGJ4HMmSdS9oCNVybyJUvu/lxZVlS7n0eR/qdKLqyx9e4j
+         3hB4m3B0zFzQDVorSrOMrIGgI+tpMN3EQlRFEy5YWmUzGT+LEo866BQY9s9ID7vrZc
+         ibXxtekL6RT2E06E0rDNy91RTTq4fVVJzgWwrDvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 4.19 228/287] apparmor: fix reference count leak in aa_pivotroot()
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 319/389] vsock: Set socket state back to SS_UNCONNECTED in vsock_connect_timeout()
 Date:   Tue, 23 Aug 2022 10:26:37 +0200
-Message-Id: <20220823080108.688336207@linuxfoundation.org>
+Message-Id: <20220823080128.865043509@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-commit 11c3627ec6b56c1525013f336f41b79a983b4d46 upstream.
+commit a3e7b29e30854ed67be0d17687e744ad0c769c4b upstream.
 
-The aa_pivotroot() function has a reference counting bug in a specific
-path. When aa_replace_current_label() returns on success, the function
-forgets to decrement the reference count of “target”, which is
-increased earlier by build_pivotroot(), causing a reference leak.
+Imagine two non-blocking vsock_connect() requests on the same socket.
+The first request schedules @connect_work, and after it times out,
+vsock_connect_timeout() sets *sock* state back to TCP_CLOSE, but keeps
+*socket* state as SS_CONNECTING.
 
-Fix it by decreasing the refcount of “target” in that path.
+Later, the second request returns -EALREADY, meaning the socket "already
+has a pending connection in progress", even though the first request has
+already timed out.
 
-Fixes: 2ea3ffb7782a ("apparmor: add mount mediation")
-Co-developed-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Co-developed-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+As suggested by Stefano, fix it by setting *socket* state back to
+SS_UNCONNECTED, so that the second request will return -ETIMEDOUT.
+
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/apparmor/mount.c |    1 +
+ net/vmw_vsock/af_vsock.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/security/apparmor/mount.c
-+++ b/security/apparmor/mount.c
-@@ -686,6 +686,7 @@ int aa_pivotroot(struct aa_label *label,
- 			aa_put_label(target);
- 			goto out;
- 		}
-+		aa_put_label(target);
- 	} else
- 		/* already audited error */
- 		error = PTR_ERR(target);
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1110,6 +1110,7 @@ static void vsock_connect_timeout(struct
+ 	if (sk->sk_state == TCP_SYN_SENT &&
+ 	    (sk->sk_shutdown != SHUTDOWN_MASK)) {
+ 		sk->sk_state = TCP_CLOSE;
++		sk->sk_socket->state = SS_UNCONNECTED;
+ 		sk->sk_err = ETIMEDOUT;
+ 		sk->sk_error_report(sk);
+ 		vsock_transport_cancel_pkt(vsk);
 
 
