@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF4FC59E2B3
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8598059DEA9
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358180AbiHWLrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:47:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42882 "EHLO
+        id S1352284AbiHWMGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:06:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358388AbiHWLpw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:45:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5D2ECE322;
-        Tue, 23 Aug 2022 02:30:10 -0700 (PDT)
+        with ESMTP id S1359410AbiHWMDu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:03:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A209CDABB8;
+        Tue, 23 Aug 2022 02:37:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8932B61335;
-        Tue, 23 Aug 2022 09:30:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93828C433C1;
-        Tue, 23 Aug 2022 09:30:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8299613CA;
+        Tue, 23 Aug 2022 09:37:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE7DFC433D6;
+        Tue, 23 Aug 2022 09:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247006;
-        bh=VV9VWbqCXr3v62WIm+26KJr4UKL4Y09Hi/jbiUvSFA4=;
+        s=korg; t=1661247435;
+        bh=qbghJcHm0gVRjNPJv+owcXxInm53demoP6ZbyBNgN08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZOncfIh6oaTml5O/wOBqO9OTNCCObKW4GvWyfXwURaITSg5pHJ5HxP2ouf8ZlCiv
-         jry/7GUg8XIZkWTHltclhdSlYVJQsFXcSnV0LKvlSGOsiiLLbdVlYuMpkwtwX67HCG
-         Ci/uqyyicfmhuN8+MOCk/t+mzcsEKqm9yczR5YBM=
+        b=DoG/ccEIzpgpjQ+uQ5JBjVcidzNxbZfHiw675DfgPvujLiOQo8HS6z0QWjHPXaCfA
+         8M7Mj8vK99Q/kY/fOtrXP6Gtg0ohgTfx/mUNEaLH917j/aC0cqeJ2/ytUt/w8nmG1/
+         xygImtOKucm4DfN6ZDAbWba+xS4Oma5U8TDoLuXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Hannes Reinecke <hare@suse.de>
-Subject: [PATCH 5.4 288/389] ata: libata-eh: Add missing command name
+        stable@vger.kernel.org, Dan Aloni <dan.aloni@vastdata.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.10 034/158] sunrpc: fix expiry of auth creds
 Date:   Tue, 23 Aug 2022 10:26:06 +0200
-Message-Id: <20220823080127.578978362@linuxfoundation.org>
+Message-Id: <20220823080047.454420066@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,31 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Dan Aloni <dan.aloni@vastdata.com>
 
-commit d3122bf9aa4c974f5e2c0112f799757b3a2779da upstream.
+commit f1bafa7375c01ff71fb7cb97c06caadfcfe815f3 upstream.
 
-Add the missing command name for ATA_CMD_NCQ_NON_DATA to
-ata_get_cmd_name().
+Before this commit, with a large enough LRU of expired items (100), the
+loop skipped all the expired items and was entirely ineffectual in
+trimming the LRU list.
 
-Fixes: 661ce1f0c4a6 ("libata/libsas: Define ATA_CMD_NCQ_NON_DATA")
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+Fixes: 95cd623250ad ('SUNRPC: Clean up the AUTH cache code')
+Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-eh.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/auth.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/libata-eh.c
-+++ b/drivers/ata/libata-eh.c
-@@ -2329,6 +2329,7 @@ const char *ata_get_cmd_descript(u8 comm
- 		{ ATA_CMD_WRITE_QUEUED_FUA_EXT, "WRITE DMA QUEUED FUA EXT" },
- 		{ ATA_CMD_FPDMA_READ,		"READ FPDMA QUEUED" },
- 		{ ATA_CMD_FPDMA_WRITE,		"WRITE FPDMA QUEUED" },
-+		{ ATA_CMD_NCQ_NON_DATA,		"NCQ NON-DATA" },
- 		{ ATA_CMD_FPDMA_SEND,		"SEND FPDMA QUEUED" },
- 		{ ATA_CMD_FPDMA_RECV,		"RECEIVE FPDMA QUEUED" },
- 		{ ATA_CMD_PIO_READ,		"READ SECTOR(S)" },
+--- a/net/sunrpc/auth.c
++++ b/net/sunrpc/auth.c
+@@ -445,7 +445,7 @@ rpcauth_prune_expired(struct list_head *
+ 		 * Enforce a 60 second garbage collection moratorium
+ 		 * Note that the cred_unused list must be time-ordered.
+ 		 */
+-		if (!time_in_range(cred->cr_expire, expired, jiffies))
++		if (time_in_range(cred->cr_expire, expired, jiffies))
+ 			continue;
+ 		if (!rpcauth_unhash_cred(cred))
+ 			continue;
 
 
