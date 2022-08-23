@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E74F59DDAA
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B640C59DED8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244525AbiHWMD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48218 "EHLO
+        id S1352154AbiHWMD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:03:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241742AbiHWMDF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:03:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2197DC5C5;
-        Tue, 23 Aug 2022 02:36:57 -0700 (PDT)
+        with ESMTP id S1358941AbiHWMDI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:03:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18BD8DC5E9;
+        Tue, 23 Aug 2022 02:37:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D74561389;
-        Tue, 23 Aug 2022 09:36:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43A0CC433D7;
-        Tue, 23 Aug 2022 09:36:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8A08613CA;
+        Tue, 23 Aug 2022 09:37:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD2A2C433C1;
+        Tue, 23 Aug 2022 09:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247416;
-        bh=3pYrimhcGr0K85s/IZAnpNsiTmUnQgIr+fgbMTw5icc=;
+        s=korg; t=1661247420;
+        bh=bzyo+BAZUaNzG/Esy2DXbEuHJ1wI5aKBPt+mEZCgAv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPPKMb3Sl8ztf/7hsjIpvB+tmWeSWl2W+bzHD1aIJgnKCt2ZPpk69oW7R5B+jFHav
-         sRMJN92G+8AIid2iezBxCmjF9Ixp/qHOaMk2oW2Cc1PMEiVrEDgCkPumJUbX3L+Chz
-         ToXHa8h3pric/iPm1p7Rl96EIefAZU2S2TPDFnM8=
+        b=LI2qC+j0iYrHWOSSJjntxnQB9ZhQ3bVHrDfNnFqyHpBeXmKv3j8lEc+IxOFCaF9k+
+         LpxJA69+WaUN7rgYW2TSRvZGC4DGIixpfVbThWd+VWMO7MnSZ5QOLLFxEr5tI/WxCw
+         GIA/qtUVvgI+J5B875/8+0sAegpAoZ17T6P1MVuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yonghong Song <yhs@fb.com>, Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 029/158] bpf: Acquire map uref in .init_seq_private for sock local storage map iterator
-Date:   Tue, 23 Aug 2022 10:26:01 +0200
-Message-Id: <20220823080047.265635596@linuxfoundation.org>
+        Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.10 030/158] bpf: Acquire map uref in .init_seq_private for sock{map,hash} iterator
+Date:   Tue, 23 Aug 2022 10:26:02 +0200
+Message-Id: <20220823080047.305143400@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
 References: <20220823080046.056825146@linuxfoundation.org>
@@ -56,56 +55,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hou Tao <houtao1@huawei.com>
 
-commit 3c5f6e698b5c538bbb23cd453b22e1e4922cffd8 upstream.
+commit f0d2b2716d71778d0b0c8eaa433c073287d69d93 upstream.
 
-bpf_iter_attach_map() acquires a map uref, and the uref may be released
-before or in the middle of iterating map elements. For example, the uref
-could be released in bpf_iter_detach_map() as part of
+sock_map_iter_attach_target() acquires a map uref, and the uref may be
+released before or in the middle of iterating map elements. For example,
+the uref could be released in sock_map_iter_detach_target() as part of
 bpf_link_release(), or could be released in bpf_map_put_with_uref() as
 part of bpf_map_release().
 
-So acquiring an extra map uref in bpf_iter_init_sk_storage_map() and
-releasing it in bpf_iter_fini_sk_storage_map().
+Fixing it by acquiring an extra map uref in .init_seq_private and
+releasing it in .fini_seq_private.
 
-Fixes: 5ce6e77c7edf ("bpf: Implement bpf iterator for sock local storage map")
+Fixes: 0365351524d7 ("net: Allow iterating sockmap and sockhash")
 Signed-off-by: Hou Tao <houtao1@huawei.com>
 Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/r/20220810080538.1845898-4-houtao@huaweicloud.com
+Link: https://lore.kernel.org/r/20220810080538.1845898-5-houtao@huaweicloud.com
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/bpf_sk_storage.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/core/sock_map.c |   20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
---- a/net/core/bpf_sk_storage.c
-+++ b/net/core/bpf_sk_storage.c
-@@ -794,10 +794,18 @@ static int bpf_iter_init_sk_storage_map(
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -815,13 +815,22 @@ static int sock_map_init_seq_private(voi
  {
- 	struct bpf_iter_seq_sk_storage_map_info *seq_info = priv_data;
+ 	struct sock_map_seq_info *info = priv_data;
  
 +	bpf_map_inc_with_uref(aux->map);
- 	seq_info->map = aux->map;
+ 	info->map = aux->map;
  	return 0;
  }
  
-+static void bpf_iter_fini_sk_storage_map(void *priv_data)
++static void sock_map_fini_seq_private(void *priv_data)
 +{
-+	struct bpf_iter_seq_sk_storage_map_info *seq_info = priv_data;
++	struct sock_map_seq_info *info = priv_data;
 +
-+	bpf_map_put_with_uref(seq_info->map);
++	bpf_map_put_with_uref(info->map);
 +}
 +
- static int bpf_iter_attach_map(struct bpf_prog *prog,
- 			       union bpf_iter_link_info *linfo,
- 			       struct bpf_iter_aux_info *aux)
-@@ -843,7 +851,7 @@ static const struct seq_operations bpf_s
- static const struct bpf_iter_seq_info iter_seq_info = {
- 	.seq_ops		= &bpf_sk_storage_map_seq_ops,
- 	.init_seq_private	= bpf_iter_init_sk_storage_map,
--	.fini_seq_private	= NULL,
-+	.fini_seq_private	= bpf_iter_fini_sk_storage_map,
- 	.seq_priv_size		= sizeof(struct bpf_iter_seq_sk_storage_map_info),
+ static const struct bpf_iter_seq_info sock_map_iter_seq_info = {
+ 	.seq_ops		= &sock_map_seq_ops,
+ 	.init_seq_private	= sock_map_init_seq_private,
++	.fini_seq_private	= sock_map_fini_seq_private,
+ 	.seq_priv_size		= sizeof(struct sock_map_seq_info),
+ };
+ 
+@@ -1422,18 +1431,27 @@ static const struct seq_operations sock_
+ };
+ 
+ static int sock_hash_init_seq_private(void *priv_data,
+-				     struct bpf_iter_aux_info *aux)
++				      struct bpf_iter_aux_info *aux)
+ {
+ 	struct sock_hash_seq_info *info = priv_data;
+ 
++	bpf_map_inc_with_uref(aux->map);
+ 	info->map = aux->map;
+ 	info->htab = container_of(aux->map, struct bpf_shtab, map);
+ 	return 0;
+ }
+ 
++static void sock_hash_fini_seq_private(void *priv_data)
++{
++	struct sock_hash_seq_info *info = priv_data;
++
++	bpf_map_put_with_uref(info->map);
++}
++
+ static const struct bpf_iter_seq_info sock_hash_iter_seq_info = {
+ 	.seq_ops		= &sock_hash_seq_ops,
+ 	.init_seq_private	= sock_hash_init_seq_private,
++	.fini_seq_private	= sock_hash_fini_seq_private,
+ 	.seq_priv_size		= sizeof(struct sock_hash_seq_info),
  };
  
 
