@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7535459D896
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37B5459D88A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351319AbiHWJhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45938 "EHLO
+        id S242437AbiHWJv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:51:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351945AbiHWJgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:36:09 -0400
+        with ESMTP id S1352035AbiHWJvN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:13 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2850C95E67;
-        Tue, 23 Aug 2022 01:40:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02DBB9E2DB;
+        Tue, 23 Aug 2022 01:45:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9E2D4CE1B4D;
-        Tue, 23 Aug 2022 08:39:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1DDBC433D6;
-        Tue, 23 Aug 2022 08:39:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BD988CE1B2C;
+        Tue, 23 Aug 2022 08:44:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB919C433B5;
+        Tue, 23 Aug 2022 08:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243955;
-        bh=LZkjIvVaPJ5PQVliSAj7ZPU9g5VAT/t9LqW3Bx3TFh0=;
+        s=korg; t=1661244262;
+        bh=8CmxgCYmN7CuAnJkg+oksYBTsGEpAazn0mrXZaAWCg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Du1hVkKaYey64ForIaKbyOOqp9Gml+/VNA5T/qyT9f1EHdesq2lti9BFkY/xLGo5v
-         o0VveL6t43b01YZkm6oQIZa8tJMBFVXRRVUd3e3ZkaycOE3vUGsMsv5DwY6jm3xFHD
-         19cXO4BJHZFqthPRTnwrhTCfD2GAgevavF4JUPUU=
+        b=GmHIrS+j6EdgwR1Hu8kjCZBTUdVheBe8O+1kIQ/Lygf20C1orCJtPFaD7LxAxe+uj
+         PwM3b6yYkPDWfa5Yh6P1hWvb+2heDHlOa/5x5WDkuyuQbnHVTmr5pvZBhbynlmoRTL
+         Ct21dTRocDYWvBvUnB7o0bn4klqKZN+GXnvp+BCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jitao Shi <jitao.shi@mediatek.com>,
-        Xinlei Lee <xinlei.lee@mediatek.com>,
-        Rex-BC Chen <rex-bc.chen@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 061/229] drm/mediatek: Add pull-down MIPI operation in mtk_dsi_poweroff function
-Date:   Tue, 23 Aug 2022 10:23:42 +0200
-Message-Id: <20220823080055.918335162@linuxfoundation.org>
+        stable@vger.kernel.org, Nikita Travkin <nikita@trvn.ru>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.15 064/244] pinctrl: qcom: msm8916: Allow CAMSS GP clocks to be muxed
+Date:   Tue, 23 Aug 2022 10:23:43 +0200
+Message-Id: <20220823080101.217478232@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xinlei Lee <xinlei.lee@mediatek.com>
+From: Nikita Travkin <nikita@trvn.ru>
 
-[ Upstream commit fa5d0a0205c34734c5b8daa77e39ac2817f63a10 ]
+commit 44339391c666e46cba522d19c65a6ad1071c68b7 upstream.
 
-In the dsi_enable function, mtk_dsi_rxtx_control is to
-pull up the MIPI signal operation. Before dsi_disable,
-MIPI should also be pulled down by writing a register
-instead of disabling dsi.
+GPIO 31, 32 can be muxed to GCC_CAMSS_GP(1,2)_CLK respectively but the
+function was never assigned to the pingroup (even though the function
+exists already).
 
-If disable dsi without pulling the mipi signal low, the value of
-the register will still maintain the setting of the mipi signal being
-pulled high.
-After resume, even if the mipi signal is not pulled high, it will still
-be in the high state.
+Add this mode to the related pins.
 
-Fixes: 2e54c14e310f ("drm/mediatek: Add DSI sub driver")
-
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/1653012007-11854-5-git-send-email-xinlei.lee@mediatek.com/
-Signed-off-by: Jitao Shi <jitao.shi@mediatek.com>
-Signed-off-by: Xinlei Lee <xinlei.lee@mediatek.com>
-Reviewed-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5373a2c5abb6 ("pinctrl: qcom: Add msm8916 pinctrl driver")
+Signed-off-by: Nikita Travkin <nikita@trvn.ru>
+Link: https://lore.kernel.org/r/20220612145955.385787-4-nikita@trvn.ru
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dsi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/qcom/pinctrl-msm8916.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
-index c1b8caad65e6..7ae243122f68 100644
---- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-@@ -652,6 +652,8 @@ static void mtk_dsi_poweroff(struct mtk_dsi *dsi)
- 	mtk_dsi_reset_engine(dsi);
- 	mtk_dsi_lane0_ulp_mode_enter(dsi);
- 	mtk_dsi_clk_ulp_mode_enter(dsi);
-+	/* set the lane number as 0 to pull down mipi */
-+	writel(0, dsi->regs + DSI_TXRX_CTRL);
- 
- 	mtk_dsi_disable(dsi);
- 
--- 
-2.35.1
-
+--- a/drivers/pinctrl/qcom/pinctrl-msm8916.c
++++ b/drivers/pinctrl/qcom/pinctrl-msm8916.c
+@@ -844,8 +844,8 @@ static const struct msm_pingroup msm8916
+ 	PINGROUP(28, pwr_modem_enabled_a, NA, NA, NA, NA, NA, qdss_tracedata_b, NA, atest_combodac),
+ 	PINGROUP(29, cci_i2c, NA, NA, NA, NA, NA, qdss_tracedata_b, NA, atest_combodac),
+ 	PINGROUP(30, cci_i2c, NA, NA, NA, NA, NA, NA, NA, qdss_tracedata_b),
+-	PINGROUP(31, cci_timer0, NA, NA, NA, NA, NA, NA, NA, NA),
+-	PINGROUP(32, cci_timer1, NA, NA, NA, NA, NA, NA, NA, NA),
++	PINGROUP(31, cci_timer0, flash_strobe, NA, NA, NA, NA, NA, NA, NA),
++	PINGROUP(32, cci_timer1, flash_strobe, NA, NA, NA, NA, NA, NA, NA),
+ 	PINGROUP(33, cci_async, NA, NA, NA, NA, NA, NA, NA, qdss_tracedata_b),
+ 	PINGROUP(34, pwr_nav_enabled_a, NA, NA, NA, NA, NA, NA, NA, qdss_tracedata_b),
+ 	PINGROUP(35, pwr_crypto_enabled_a, NA, NA, NA, NA, NA, NA, NA, qdss_tracedata_b),
 
 
