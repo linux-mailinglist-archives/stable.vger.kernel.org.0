@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A59AA59D510
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2C359D4D2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243745AbiHWIcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:32:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60616 "EHLO
+        id S243720AbiHWIct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:32:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244240AbiHWIat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:30:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E05BF74E17;
-        Tue, 23 Aug 2022 01:15:39 -0700 (PDT)
+        with ESMTP id S1346211AbiHWIbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:31:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 830B37539D;
+        Tue, 23 Aug 2022 01:16:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 458C661228;
-        Tue, 23 Aug 2022 08:14:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B69C433C1;
-        Tue, 23 Aug 2022 08:14:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11D20B81C20;
+        Tue, 23 Aug 2022 08:15:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56B19C433D6;
+        Tue, 23 Aug 2022 08:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242480;
-        bh=xe+hnbiAgN4P59gttLQ1kDXxo0brOCP+J++ZTZE/A38=;
+        s=korg; t=1661242526;
+        bh=1uZf0x+togNFly4eR+qOBeUyoGt1699gwYKKUkpYrlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/dPVKxQ5rLAyILGLSyr8gSCfUWt20koy6rs0Yf2v6LWrgdfDVs64HoFnA/hjLwOY
-         OhOKIBobtrwCwcb1NGCBt6+5Sf/PYzZi5rObTHlugfxoILAYk0pXGed3sSghttwO0P
-         9cbPR9Egc2bkjYGq86CHvv6mVOwV3hd6PotwwuU0=
+        b=rzXPkm6k0Kb/dxsiaKSLZhTkcEEBuCbiKIP8qGaRj+DSG3hd6auRrOIvQFum8hrGu
+         C7gIS9cUneGaqtzVrJL1M31M07wkXxqxt4EPeTgdCTUbqHWC5G7xWTONJ9YQe9seZL
+         FS5i2K4+2hiFLvqA1jS3J+DCqYRzV26pKQ3cgAUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Rob Herring <robh@kernel.org>,
+        stable@vger.kernel.org, Jianhua Lu <lujianhua000@gmail.com>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
         Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.19 099/365] dt-bindings: pinctrl: mt8186: Add and use drive-strength-microamp
-Date:   Tue, 23 Aug 2022 10:00:00 +0200
-Message-Id: <20220823080122.343379586@linuxfoundation.org>
+Subject: [PATCH 5.19 100/365] pinctrl: qcom: sm8250: Fix PDC map
+Date:   Tue, 23 Aug 2022 10:00:01 +0200
+Message-Id: <20220823080122.375616930@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -57,72 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+From: Jianhua Lu <lujianhua000@gmail.com>
 
-commit f4526ae80dbdef7078ab2aae30dfc70bbc0098c6 upstream.
+commit 4b759ca15a4914f96ea204ea9200ceeb01d70666 upstream.
 
-Commit e5fabbe43f3f ("pinctrl: mediatek: paris: Support generic
-PIN_CONFIG_DRIVE_STRENGTH_UA") added support for using
-drive-strength-microamp instead of mediatek,drive-strength-adv.
+Fix the PDC mapping for SM8250, gpio39 is mapped to irq73(not irq37).
 
-Similarly to the mt8192 and mt8195, there's no user of property
-'mediatek,drive-strength-adv', hence removing it is safe.
-
-Fixes: 338e953f1bd1 ("dt-bindings: pinctrl: mt8186: add pinctrl file and binding document")
-Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220725110702.11362-3-allen-kh.cheng@mediatek.com
+Fixes: b41efeed507a("pinctrl: qcom: sm8250: Specify PDC map.")
+Signed-off-by: Jianhua Lu <lujianhua000@gmail.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20220803015645.22388-1-lujianhua000@gmail.com
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/pinctrl/pinctrl-mt8186.yaml |   29 +---------
- 1 file changed, 3 insertions(+), 26 deletions(-)
+ drivers/pinctrl/qcom/pinctrl-sm8250.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/pinctrl/pinctrl-mt8186.yaml
-+++ b/Documentation/devicetree/bindings/pinctrl/pinctrl-mt8186.yaml
-@@ -105,31 +105,8 @@ patternProperties:
-           drive-strength:
-             enum: [2, 4, 6, 8, 10, 12, 14, 16]
- 
--          mediatek,drive-strength-adv:
--            description: |
--              Describe the specific driving setup property.
--              For I2C pins, the existing generic driving setup can only support
--              2/4/6/8/10/12/14/16mA driving. But in specific driving setup, they
--              can support 0.125/0.25/0.5/1mA adjustment. If we enable specific
--              driving setup, the existing generic setup will be disabled.
--              The specific driving setup is controlled by E1E0EN.
--              When E1=0/E0=0, the strength is 0.125mA.
--              When E1=0/E0=1, the strength is 0.25mA.
--              When E1=1/E0=0, the strength is 0.5mA.
--              When E1=1/E0=1, the strength is 1mA.
--              EN is used to enable or disable the specific driving setup.
--              Valid arguments are described as below:
--              0: (E1, E0, EN) = (0, 0, 0)
--              1: (E1, E0, EN) = (0, 0, 1)
--              2: (E1, E0, EN) = (0, 1, 0)
--              3: (E1, E0, EN) = (0, 1, 1)
--              4: (E1, E0, EN) = (1, 0, 0)
--              5: (E1, E0, EN) = (1, 0, 1)
--              6: (E1, E0, EN) = (1, 1, 0)
--              7: (E1, E0, EN) = (1, 1, 1)
--              So the valid arguments are from 0 to 7.
--            $ref: /schemas/types.yaml#/definitions/uint32
--            enum: [0, 1, 2, 3, 4, 5, 6, 7]
-+          drive-strength-microamp:
-+            enum: [125, 250, 500, 1000]
- 
-           bias-pull-down:
-             oneOf:
-@@ -291,7 +268,7 @@ examples:
-           pinmux = <PINMUX_GPIO127__FUNC_SCL0>,
-                    <PINMUX_GPIO128__FUNC_SDA0>;
-           bias-pull-up = <MTK_PULL_SET_RSEL_001>;
--          mediatek,drive-strength-adv = <7>;
-+          drive-strength-microamp = <1000>;
-         };
-       };
-     };
+--- a/drivers/pinctrl/qcom/pinctrl-sm8250.c
++++ b/drivers/pinctrl/qcom/pinctrl-sm8250.c
+@@ -1316,7 +1316,7 @@ static const struct msm_pingroup sm8250_
+ static const struct msm_gpio_wakeirq_map sm8250_pdc_map[] = {
+ 	{ 0, 79 }, { 1, 84 }, { 2, 80 }, { 3, 82 }, { 4, 107 }, { 7, 43 },
+ 	{ 11, 42 }, { 14, 44 }, { 15, 52 }, { 19, 67 }, { 23, 68 }, { 24, 105 },
+-	{ 27, 92 }, { 28, 106 }, { 31, 69 }, { 35, 70 }, { 39, 37 },
++	{ 27, 92 }, { 28, 106 }, { 31, 69 }, { 35, 70 }, { 39, 73 },
+ 	{ 40, 108 }, { 43, 71 }, { 45, 72 }, { 47, 83 }, { 51, 74 }, { 55, 77 },
+ 	{ 59, 78 }, { 63, 75 }, { 64, 81 }, { 65, 87 }, { 66, 88 }, { 67, 89 },
+ 	{ 68, 54 }, { 70, 85 }, { 77, 46 }, { 80, 90 }, { 81, 91 }, { 83, 97 },
 
 
