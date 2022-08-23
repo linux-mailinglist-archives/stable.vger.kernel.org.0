@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0297159E1A6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3969359E028
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351713AbiHWLOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:14:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37662 "EHLO
+        id S1351291AbiHWLP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:15:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241582AbiHWLNO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:13:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67E2BB9405;
-        Tue, 23 Aug 2022 02:17:57 -0700 (PDT)
+        with ESMTP id S242344AbiHWLOt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:14:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3390A895D3;
+        Tue, 23 Aug 2022 02:18:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73B29B81C85;
-        Tue, 23 Aug 2022 09:17:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02B3C433C1;
-        Tue, 23 Aug 2022 09:17:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B60DF61224;
+        Tue, 23 Aug 2022 09:17:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDCB1C433D6;
+        Tue, 23 Aug 2022 09:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246273;
-        bh=Ys9TIHJ9edNtGbf4XQYHNXCNCYaeXKhfNyZOp3p4xek=;
+        s=korg; t=1661246276;
+        bh=woNk0l7ptzPOFYbS0hhw1ok9LRQolQhlhYXUOEC+PK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQc3GlH8MtNjrUMsXaeh+yjNlcceX1K8FePkfnHdiXzKQzN/D0ZCpLYTcdRPkCOOf
-         pYibJrTAat3bVTuFn8GUm0K3EpR72b+t+uzjOOANIJHKMDbiHA8HusbHyEJDDKX0AY
-         AQnTPszuFJdaybZeuzBOFmICnjs8ZQRKqpvxiE80=
+        b=nfswBzAeyHFN0kuke8D+74oLXw3cjw5bimLts0Lsz+MQVv96rSoCZ0MeI8q2kd/D1
+         Kd7O33Gik73SPhBAmPN/gFv5tCFw3ZFuz6ULrZj/MJBlCJwF5utV7PYFGGvY6M268T
+         Q3IHue2IWC8+Xsds/zBAdKQg5D/nXiCQ6sIa9KBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Antonio Borneo <antonio.borneo@foss.st.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 056/389] genirq: Dont return error on missing optional irq_request_resources()
-Date:   Tue, 23 Aug 2022 10:22:14 +0200
-Message-Id: <20220823080117.942081719@linuxfoundation.org>
+        stable@vger.kernel.org, Bruno Goncalves <bgoncalv@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 057/389] wait: Fix __wait_event_hrtimeout for RT/DL tasks
+Date:   Tue, 23 Aug 2022 10:22:15 +0200
+Message-Id: <20220823080117.986098453@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,39 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@foss.st.com>
+From: Juri Lelli <juri.lelli@redhat.com>
 
-[ Upstream commit 95001b756467ecc9f5973eb5e74e97699d9bbdf1 ]
+[ Upstream commit cceeeb6a6d02e7b9a74ddd27a3225013b34174aa ]
 
-Function irq_chip::irq_request_resources() is reported as optional
-in the declaration of struct irq_chip.
-If the parent irq_chip does not implement it, we should ignore it
-and return.
+Changes to hrtimer mode (potentially made by __hrtimer_init_sleeper on
+PREEMPT_RT) are not visible to hrtimer_start_range_ns, thus not
+accounted for by hrtimer_start_expires call paths. In particular,
+__wait_event_hrtimeout suffers from this problem as we have, for
+example:
 
-Don't return error if the functions is missing.
+fs/aio.c::read_events
+  wait_event_interruptible_hrtimeout
+    __wait_event_hrtimeout
+      hrtimer_init_sleeper_on_stack <- this might "mode |= HRTIMER_MODE_HARD"
+                                       on RT if task runs at RT/DL priority
+        hrtimer_start_range_ns
+          WARN_ON_ONCE(!(mode & HRTIMER_MODE_HARD) ^ !timer->is_hard)
+          fires since the latter doesn't see the change of mode done by
+          init_sleeper
 
-Signed-off-by: Antonio Borneo <antonio.borneo@foss.st.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220512160544.13561-1-antonio.borneo@foss.st.com
+Fix it by making __wait_event_hrtimeout call hrtimer_sleeper_start_expires,
+which is aware of the special RT/DL case, instead of hrtimer_start_range_ns.
+
+Reported-by: Bruno Goncalves <bgoncalv@redhat.com>
+Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Reviewed-by: Valentin Schneider <vschneid@redhat.com>
+Link: https://lore.kernel.org/r/20220627095051.42470-1-juri.lelli@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/chip.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/wait.h | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/irq/chip.c b/kernel/irq/chip.c
-index 856f0297dc73..521121c2666c 100644
---- a/kernel/irq/chip.c
-+++ b/kernel/irq/chip.c
-@@ -1484,7 +1484,8 @@ int irq_chip_request_resources_parent(struct irq_data *data)
- 	if (data->chip->irq_request_resources)
- 		return data->chip->irq_request_resources(data);
- 
--	return -ENOSYS;
-+	/* no error on missing optional irq_chip::irq_request_resources */
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(irq_chip_request_resources_parent);
- 
+diff --git a/include/linux/wait.h b/include/linux/wait.h
+index 5903b1d17c92..7d04c1b588c7 100644
+--- a/include/linux/wait.h
++++ b/include/linux/wait.h
+@@ -529,10 +529,11 @@ do {										\
+ 										\
+ 	hrtimer_init_sleeper_on_stack(&__t, CLOCK_MONOTONIC,			\
+ 				      HRTIMER_MODE_REL);			\
+-	if ((timeout) != KTIME_MAX)						\
+-		hrtimer_start_range_ns(&__t.timer, timeout,			\
+-				       current->timer_slack_ns,			\
+-				       HRTIMER_MODE_REL);			\
++	if ((timeout) != KTIME_MAX) {						\
++		hrtimer_set_expires_range_ns(&__t.timer, timeout,		\
++					current->timer_slack_ns);		\
++		hrtimer_sleeper_start_expires(&__t, HRTIMER_MODE_REL);		\
++	}									\
+ 										\
+ 	__ret = ___wait_event(wq_head, condition, state, 0, 0,			\
+ 		if (!__t.task) {						\
 -- 
 2.35.1
 
