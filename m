@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C33759E2D4
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB4B559DD74
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355102AbiHWKiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:38:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42576 "EHLO
+        id S1348694AbiHWLf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:35:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355645AbiHWKgs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:36:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD42A61CD;
-        Tue, 23 Aug 2022 02:07:14 -0700 (PDT)
+        with ESMTP id S1348544AbiHWLdY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:33:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45F09109D;
+        Tue, 23 Aug 2022 02:26:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25851B81C94;
-        Tue, 23 Aug 2022 09:07:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E459C433C1;
-        Tue, 23 Aug 2022 09:07:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D32CE61227;
+        Tue, 23 Aug 2022 09:26:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE8EDC433C1;
+        Tue, 23 Aug 2022 09:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245631;
-        bh=SrbAtyQryqiIjUrEYkpoAKvWYRMpR7d+M4Tnh4zVXZw=;
+        s=korg; t=1661246817;
+        bh=XRMX3midtATI9hujgoxy0IUHmmmKv8GdcEeUHf6Ogcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gL/V6suVV2YxdKBwb3xn2neqUNfNTcR0fmIUglAO8n9a8Do2aKhBQ/8JN6ajYo3I/
-         jPGFgF8lmRghHGbKcY+BLYQS3m/iCcGf0ga6CaeTZfiP4rbE5L7l6KmqQUlWL+sdPf
-         AsWY1g4nqJm3RTLbFFkY8Hkcijtznx5JaJPMxn30=
+        b=QD60Pk0WZewdIYmrRwHpNgyITz6RNZUT3Zqt32YNxbQXVxdhqPFMRuXEy0LPU6QsT
+         NWQiUqvwrZdiVYheddjy5Z+ZEh2KnOCwzvc9WG0azTo9Sq6ouBNGivjAL2NzqRgMHP
+         Ta1lmVreS3X0enZ4Kxp604UshQAaWNX6q4PCyUfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        kernel test robot <lkp@intel.com>,
-        Ammar Faizi <ammarfaizi2@gnuweeb.org>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 107/287] wifi: wil6210: debugfs: fix uninitialized variable use in `wil_write_file_wmi()`
-Date:   Tue, 23 Aug 2022 10:24:36 +0200
-Message-Id: <20220823080103.981225238@linuxfoundation.org>
+Subject: [PATCH 5.4 199/389] jbd2: fix outstanding credits assert in jbd2_journal_commit_transaction()
+Date:   Tue, 23 Aug 2022 10:24:37 +0200
+Message-Id: <20220823080123.957197290@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit d578e0af3a003736f6c440188b156483d451b329 ]
+[ Upstream commit a89573ce4ad32f19f43ec669771726817e185be0 ]
 
-Commit 7a4836560a61 changes simple_write_to_buffer() with memdup_user()
-but it forgets to change the value to be returned that came from
-simple_write_to_buffer() call. It results in the following warning:
+We catch an assert problem in jbd2_journal_commit_transaction() when
+doing fsstress and request falut injection tests. The problem is
+happened in a race condition between jbd2_journal_commit_transaction()
+and ext4_end_io_end(). Firstly, ext4_writepages() writeback dirty pages
+and start reserved handle, and then the journal was aborted due to some
+previous metadata IO error, jbd2_journal_abort() start to commit current
+running transaction, the committing procedure could be raced by
+ext4_end_io_end() and lead to subtract j_reserved_credits twice from
+commit_transaction->t_outstanding_credits, finally the
+t_outstanding_credits is mistakenly smaller than t_nr_buffers and
+trigger assert.
 
-  warning: variable 'rc' is uninitialized when used here [-Wuninitialized]
-           return rc;
-                  ^~
+kjournald2           kworker
 
-Remove rc variable and just return the passed in length if the
-memdup_user() succeeds.
+jbd2_journal_commit_transaction()
+ write_unlock(&journal->j_state_lock);
+ atomic_sub(j_reserved_credits, t_outstanding_credits); //sub once
 
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 7a4836560a6198d245d5732e26f94898b12eb760 ("wifi: wil6210: debugfs: fix info leak in wil_write_file_wmi()")
-Fixes: ff974e4083341383d3dd4079e52ed30f57f376f0 ("wil6210: debugfs interface to send raw WMI command")
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220724202452.61846-1-ammar.faizi@intel.com
+     	             jbd2_journal_start_reserved()
+     	              start_this_handle()  //detect aborted journal
+     	              jbd2_journal_free_reserved()  //get running transaction
+                       read_lock(&journal->j_state_lock)
+     	                __jbd2_journal_unreserve_handle()
+     	               atomic_sub(j_reserved_credits, t_outstanding_credits);
+                       //sub again
+                       read_unlock(&journal->j_state_lock);
+
+ journal->j_running_transaction = NULL;
+ J_ASSERT(t_nr_buffers <= t_outstanding_credits) //bomb!!!
+
+Fix this issue by using journal->j_state_lock to protect the subtraction
+in jbd2_journal_commit_transaction().
+
+Fixes: 96f1e0974575 ("jbd2: avoid long hold times of j_state_lock while committing a transaction")
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220611130426.2013258-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wil6210/debugfs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/jbd2/commit.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
-index 675b2829b4c7..3a46b319e9f1 100644
---- a/drivers/net/wireless/ath/wil6210/debugfs.c
-+++ b/drivers/net/wireless/ath/wil6210/debugfs.c
-@@ -1002,7 +1002,7 @@ static ssize_t wil_write_file_wmi(struct file *file, const char __user *buf,
- 	void *cmd;
- 	int cmdlen = len - sizeof(struct wmi_cmd_hdr);
- 	u16 cmdid;
--	int rc, rc1;
-+	int rc1;
+diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
+index d45ceb2e2149..8d5aced7ed0c 100644
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -514,13 +514,13 @@ void jbd2_journal_commit_transaction(journal_t *journal)
+ 	 */
+ 	jbd2_journal_switch_revoke_table(journal);
  
- 	if (cmdlen < 0 || *ppos != 0)
- 		return -EINVAL;
-@@ -1019,7 +1019,7 @@ static ssize_t wil_write_file_wmi(struct file *file, const char __user *buf,
++	write_lock(&journal->j_state_lock);
+ 	/*
+ 	 * Reserved credits cannot be claimed anymore, free them
+ 	 */
+ 	atomic_sub(atomic_read(&journal->j_reserved_credits),
+ 		   &commit_transaction->t_outstanding_credits);
  
- 	wil_info(wil, "0x%04x[%d] -> %d\n", cmdid, cmdlen, rc1);
- 
--	return rc;
-+	return len;
- }
- 
- static const struct file_operations fops_wmi = {
+-	write_lock(&journal->j_state_lock);
+ 	trace_jbd2_commit_flushing(journal, commit_transaction);
+ 	stats.run.rs_flushing = jiffies;
+ 	stats.run.rs_locked = jbd2_time_diff(stats.run.rs_locked,
 -- 
 2.35.1
 
