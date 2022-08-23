@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 120B259E1BD
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C341159DC4C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353614AbiHWKPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:15:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
+        id S1350775AbiHWKty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:49:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352736AbiHWKN1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:13:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D94407284E;
-        Tue, 23 Aug 2022 01:59:35 -0700 (PDT)
+        with ESMTP id S1349551AbiHWKrv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:47:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786B886B73;
+        Tue, 23 Aug 2022 02:11:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80CFFB81C1C;
-        Tue, 23 Aug 2022 08:59:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBFDEC433D6;
-        Tue, 23 Aug 2022 08:59:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECCFE60DB4;
+        Tue, 23 Aug 2022 09:11:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2237C433C1;
+        Tue, 23 Aug 2022 09:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245173;
-        bh=barHYbJ38GWSZZ4f3neFi2+4tV/8a0RE6MuxMx1Rpw8=;
+        s=korg; t=1661245916;
+        bh=kd+I0XmUbXIJ/LwRaRmEi5NAIq3Uh9Kly8zTmhiZkac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XHu6N09U9iFhEXRnCHxRWDoIk1aikbagRvGygbv6ODyzhMCoRMN7uKHChSDUwThwR
-         dSZwZxhBn33jgpeXUG+H55WqqU8l4QQa4l3N3iR8Wg5ZbW/tOjjX0GrDCIHsKN1zWL
-         E1qJgqPaPgg/gj2h6pNp47+41L/Fon8458cvAWYU=
+        b=hQoCJyGC+0RvDcoStiFgqTly70mcn7WHvxty1fKYwe6bwnq3uosiyYU1b0L3Zp+vZ
+         pv+uleJTGnYI+27eBI+dvV7qpzvtOZlQToDX5EYeMtiRHjUEoEj9ipPB9+Po9zTVEv
+         yju9cREq/G+eJFfk9N8cLwbhXN9SVKuiDgEbgMrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Chinner <dchinner@redhat.com>,
-        Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 239/244] xfs: remove infinite loop when reserving free block pool
-Date:   Tue, 23 Aug 2022 10:26:38 +0200
-Message-Id: <20220823080107.580775752@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.19 230/287] NFSv4: Fix races in the legacy idmapper upcall
+Date:   Tue, 23 Aug 2022 10:26:39 +0200
+Message-Id: <20220823080108.778835691@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,93 +53,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 15f04fdc75aaaa1cccb0b8b3af1be290e118a7bc ]
+commit 51fd2eb52c0ca8275a906eed81878ef50ae94eb0 upstream.
 
-Infinite loops in kernel code are scary.  Calls to xfs_reserve_blocks
-should be rare (people should just use the defaults!) so we really don't
-need to try so hard.  Simplify the logic here by removing the infinite
-loop.
+nfs_idmap_instantiate() will cause the process that is waiting in
+request_key_with_auxdata() to wake up and exit. If there is a second
+process waiting for the idmap->idmap_mutex, then it may wake up and
+start a new call to request_key_with_auxdata(). If the call to
+idmap_pipe_downcall() from the first process has not yet finished
+calling nfs_idmap_complete_pipe_upcall_locked(), then we may end up
+triggering the WARN_ON_ONCE() in nfs_idmap_prepare_pipe_upcall().
 
-Cc: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+The fix is to ensure that we clear idmap->idmap_upcall_data before
+calling nfs_idmap_instantiate().
+
+Fixes: e9ab41b620e4 ("NFSv4: Clean up the legacy idmapper upcall")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_fsops.c |   50 ++++++++++++++++++++------------------------------
- 1 file changed, 20 insertions(+), 30 deletions(-)
+ fs/nfs/nfs4idmap.c |   46 ++++++++++++++++++++++++----------------------
+ 1 file changed, 24 insertions(+), 22 deletions(-)
 
---- a/fs/xfs/xfs_fsops.c
-+++ b/fs/xfs/xfs_fsops.c
-@@ -430,46 +430,36 @@ xfs_reserve_blocks(
- 	 * If the request is larger than the current reservation, reserve the
- 	 * blocks before we update the reserve counters. Sample m_fdblocks and
- 	 * perform a partial reservation if the request exceeds free space.
-+	 *
-+	 * The code below estimates how many blocks it can request from
-+	 * fdblocks to stash in the reserve pool.  This is a classic TOCTOU
-+	 * race since fdblocks updates are not always coordinated via
-+	 * m_sb_lock.
- 	 */
--	error = -ENOSPC;
--	do {
--		free = percpu_counter_sum(&mp->m_fdblocks) -
-+	free = percpu_counter_sum(&mp->m_fdblocks) -
- 						xfs_fdblocks_unavailable(mp);
--		if (free <= 0)
--			break;
--
--		delta = request - mp->m_resblks;
--		lcounter = free - delta;
--		if (lcounter < 0)
--			/* We can't satisfy the request, just get what we can */
--			fdblks_delta = free;
--		else
--			fdblks_delta = delta;
--
-+	delta = request - mp->m_resblks;
-+	if (delta > 0 && free > 0) {
- 		/*
- 		 * We'll either succeed in getting space from the free block
--		 * count or we'll get an ENOSPC. If we get a ENOSPC, it means
--		 * things changed while we were calculating fdblks_delta and so
--		 * we should try again to see if there is anything left to
--		 * reserve.
--		 *
--		 * Don't set the reserved flag here - we don't want to reserve
--		 * the extra reserve blocks from the reserve.....
-+		 * count or we'll get an ENOSPC.  Don't set the reserved flag
-+		 * here - we don't want to reserve the extra reserve blocks
-+		 * from the reserve.
- 		 */
-+		fdblks_delta = min(free, delta);
- 		spin_unlock(&mp->m_sb_lock);
- 		error = xfs_mod_fdblocks(mp, -fdblks_delta, 0);
- 		spin_lock(&mp->m_sb_lock);
--	} while (error == -ENOSPC);
+--- a/fs/nfs/nfs4idmap.c
++++ b/fs/nfs/nfs4idmap.c
+@@ -547,22 +547,20 @@ nfs_idmap_prepare_pipe_upcall(struct idm
+ 	return true;
+ }
  
--	/*
--	 * Update the reserve counters if blocks have been successfully
--	 * allocated.
--	 */
--	if (!error && fdblks_delta) {
--		mp->m_resblks += fdblks_delta;
--		mp->m_resblks_avail += fdblks_delta;
-+		/*
-+		 * Update the reserve counters if blocks have been successfully
-+		 * allocated.
-+		 */
-+		if (!error) {
-+			mp->m_resblks += fdblks_delta;
-+			mp->m_resblks_avail += fdblks_delta;
-+		}
- 	}
+-static void
+-nfs_idmap_complete_pipe_upcall_locked(struct idmap *idmap, int ret)
++static void nfs_idmap_complete_pipe_upcall(struct idmap_legacy_upcalldata *data,
++					   int ret)
+ {
+-	struct key *authkey = idmap->idmap_upcall_data->authkey;
 -
+-	kfree(idmap->idmap_upcall_data);
+-	idmap->idmap_upcall_data = NULL;
+-	complete_request_key(authkey, ret);
+-	key_put(authkey);
++	complete_request_key(data->authkey, ret);
++	key_put(data->authkey);
++	kfree(data);
+ }
+ 
+-static void
+-nfs_idmap_abort_pipe_upcall(struct idmap *idmap, int ret)
++static void nfs_idmap_abort_pipe_upcall(struct idmap *idmap,
++					struct idmap_legacy_upcalldata *data,
++					int ret)
+ {
+-	if (idmap->idmap_upcall_data != NULL)
+-		nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
++	if (cmpxchg(&idmap->idmap_upcall_data, data, NULL) == data)
++		nfs_idmap_complete_pipe_upcall(data, ret);
+ }
+ 
+ static int nfs_idmap_legacy_upcall(struct key *authkey, void *aux)
+@@ -599,7 +597,7 @@ static int nfs_idmap_legacy_upcall(struc
+ 
+ 	ret = rpc_queue_upcall(idmap->idmap_pipe, msg);
+ 	if (ret < 0)
+-		nfs_idmap_abort_pipe_upcall(idmap, ret);
++		nfs_idmap_abort_pipe_upcall(idmap, data, ret);
+ 
+ 	return ret;
+ out2:
+@@ -655,6 +653,7 @@ idmap_pipe_downcall(struct file *filp, c
+ 	struct request_key_auth *rka;
+ 	struct rpc_inode *rpci = RPC_I(file_inode(filp));
+ 	struct idmap *idmap = (struct idmap *)rpci->private;
++	struct idmap_legacy_upcalldata *data;
+ 	struct key *authkey;
+ 	struct idmap_msg im;
+ 	size_t namelen_in;
+@@ -664,10 +663,11 @@ idmap_pipe_downcall(struct file *filp, c
+ 	 * will have been woken up and someone else may now have used
+ 	 * idmap_key_cons - so after this point we may no longer touch it.
+ 	 */
+-	if (idmap->idmap_upcall_data == NULL)
++	data = xchg(&idmap->idmap_upcall_data, NULL);
++	if (data == NULL)
+ 		goto out_noupcall;
+ 
+-	authkey = idmap->idmap_upcall_data->authkey;
++	authkey = data->authkey;
+ 	rka = get_request_key_auth(authkey);
+ 
+ 	if (mlen != sizeof(im)) {
+@@ -689,18 +689,17 @@ idmap_pipe_downcall(struct file *filp, c
+ 	if (namelen_in == 0 || namelen_in == IDMAP_NAMESZ) {
+ 		ret = -EINVAL;
+ 		goto out;
+-}
++	}
+ 
+-	ret = nfs_idmap_read_and_verify_message(&im,
+-			&idmap->idmap_upcall_data->idmap_msg,
+-			rka->target_key, authkey);
++	ret = nfs_idmap_read_and_verify_message(&im, &data->idmap_msg,
++						rka->target_key, authkey);
+ 	if (ret >= 0) {
+ 		key_set_timeout(rka->target_key, nfs_idmap_cache_timeout);
+ 		ret = mlen;
+ 	}
+ 
  out:
- 	if (outval) {
- 		outval->resblks = mp->m_resblks;
+-	nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
++	nfs_idmap_complete_pipe_upcall(data, ret);
+ out_noupcall:
+ 	return ret;
+ }
+@@ -714,7 +713,7 @@ idmap_pipe_destroy_msg(struct rpc_pipe_m
+ 	struct idmap *idmap = data->idmap;
+ 
+ 	if (msg->errno)
+-		nfs_idmap_abort_pipe_upcall(idmap, msg->errno);
++		nfs_idmap_abort_pipe_upcall(idmap, data, msg->errno);
+ }
+ 
+ static void
+@@ -722,8 +721,11 @@ idmap_release_pipe(struct inode *inode)
+ {
+ 	struct rpc_inode *rpci = RPC_I(inode);
+ 	struct idmap *idmap = (struct idmap *)rpci->private;
++	struct idmap_legacy_upcalldata *data;
+ 
+-	nfs_idmap_abort_pipe_upcall(idmap, -EPIPE);
++	data = xchg(&idmap->idmap_upcall_data, NULL);
++	if (data)
++		nfs_idmap_complete_pipe_upcall(data, -EPIPE);
+ }
+ 
+ int nfs_map_name_to_uid(const struct nfs_server *server, const char *name, size_t namelen, kuid_t *uid)
 
 
