@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B77B159DBFF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF17759E283
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349278AbiHWMSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47346 "EHLO
+        id S1356299AbiHWK5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:57:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356480AbiHWMPm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CAD67960C;
-        Tue, 23 Aug 2022 02:41:07 -0700 (PDT)
+        with ESMTP id S1356550AbiHWKyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:54:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B132DC7;
+        Tue, 23 Aug 2022 02:13:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C8B62CE1B5A;
-        Tue, 23 Aug 2022 09:40:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D103DC433C1;
-        Tue, 23 Aug 2022 09:40:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63310B81C88;
+        Tue, 23 Aug 2022 09:13:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B10C0C433C1;
+        Tue, 23 Aug 2022 09:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247622;
-        bh=cVGm+Vjxw8Jv+M9DnbQRMTUqK+6WagTBRZOsSNTMfpc=;
+        s=korg; t=1661245994;
+        bh=+cQueMhG49MjrWyekbaH7KLGxxmn10UFrF2aTy84y2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=03G0+TGmKLFDp84gaW2Z5qr6Wmf4tz1fQEyJZZ20eT3KQYVB3MNL3kYx4GgPbVcvR
-         WiTn+HxpQn2dyOS9meZBOUTC5UMNNSLJ0onEq9vHk9FExJWXBzc1DGhdS2Twf45+bx
-         1t7j7W47U+vvtj3rK8AoWb9SW9+TAaNr0xq3ROpg=
+        b=XmpshZIi48SWWkXsO2Oali1j4HNNlNIOKUIQiC0Bl4iuwIS255deAAj6NR3velFey
+         C8Wrb6RJDAsM7h6T0fz1o+t+o9PvoEC55tE/QzluioQd0L+/7T7IxYvuxzbhBfzIjo
+         siiwIcOmXautNSXFuNDO9GiYAPHqm0U/5AOsEPbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.10 093/158] kbuild: fix the modules order between drivers and libs
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Hector Martin <marcan@marcan.st>,
+        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.19 256/287] locking/atomic: Make test_and_*_bit() ordered on failure
 Date:   Tue, 23 Aug 2022 10:27:05 +0200
-Message-Id: <20220823080049.801391859@linuxfoundation.org>
+Message-Id: <20220823080109.872293149@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Hector Martin <marcan@marcan.st>
 
-commit 113147510b48e764e624e3d0e6707a1e48bc05a9 upstream.
+commit 415d832497098030241605c52ea83d4e2cfa7879 upstream.
 
-Commit b2c885549122 ("kbuild: update modules.order only when contained
-modules are updated") accidentally changed the modules order.
+These operations are documented as always ordered in
+include/asm-generic/bitops/instrumented-atomic.h, and producer-consumer
+type use cases where one side needs to ensure a flag is left pending
+after some shared data was updated rely on this ordering, even in the
+failure case.
 
-Prior to that commit, the modules order was determined based on
-vmlinux-dirs, which lists core-y/m, drivers-y/m, libs-y/m, in this order.
+This is the case with the workqueue code, which currently suffers from a
+reproducible ordering violation on Apple M1 platforms (which are
+notoriously out-of-order) that ends up causing the TTY layer to fail to
+deliver data to userspace properly under the right conditions.  This
+change fixes that bug.
 
-Now, subdir-modorder lists them in a different order: core-y/m, libs-y/m,
-drivers-y/m.
+Change the documentation to restrict the "no order on failure" story to
+the _lock() variant (for which it makes sense), and remove the
+early-exit from the generic implementation, which is what causes the
+missing barrier semantics in that case.  Without this, the remaining
+atomic op is fully ordered (including on ARM64 LSE, as of recent
+versions of the architecture spec).
 
-Presumably, there was no practical issue because the modules in drivers
-and libs are orthogonal, but there is no reason to have this distortion.
-
-Get back to the original order.
-
-Fixes: b2c885549122 ("kbuild: update modules.order only when contained modules are updated")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: e986a0d6cb36 ("locking/atomics, asm-generic/bitops/atomic.h: Rewrite using atomic_*() APIs")
+Fixes: 61e02392d3c7 ("locking/atomic/bitops: Document and clarify ordering semantics for failed test_and_{}_bit()")
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Acked-by: Will Deacon <will@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ Documentation/atomic_bitops.txt     |    2 +-
+ include/asm-generic/bitops/atomic.h |    6 ------
+ 2 files changed, 1 insertion(+), 7 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -1133,13 +1133,11 @@ vmlinux-alldirs	:= $(sort $(vmlinux-dirs
- 		     $(patsubst %/,%,$(filter %/, $(core-) \
- 			$(drivers-) $(libs-))))
+--- a/Documentation/atomic_bitops.txt
++++ b/Documentation/atomic_bitops.txt
+@@ -59,7 +59,7 @@ Like with atomic_t, the rule of thumb is
+  - RMW operations that have a return value are fully ordered.
  
--subdir-modorder := $(addsuffix modules.order,$(filter %/, \
--			$(core-y) $(core-m) $(libs-y) $(libs-m) \
--			$(drivers-y) $(drivers-m)))
+  - RMW operations that are conditional are unordered on FAILURE,
+-   otherwise the above rules apply. In the case of test_and_{}_bit() operations,
++   otherwise the above rules apply. In the case of test_and_set_bit_lock(),
+    if the bit in memory is unchanged by the operation then it is deemed to have
+    failed.
+ 
+--- a/include/asm-generic/bitops/atomic.h
++++ b/include/asm-generic/bitops/atomic.h
+@@ -35,9 +35,6 @@ static inline int test_and_set_bit(unsig
+ 	unsigned long mask = BIT_MASK(nr);
+ 
+ 	p += BIT_WORD(nr);
+-	if (READ_ONCE(*p) & mask)
+-		return 1;
 -
- build-dirs	:= $(vmlinux-dirs)
- clean-dirs	:= $(vmlinux-alldirs)
+ 	old = atomic_long_fetch_or(mask, (atomic_long_t *)p);
+ 	return !!(old & mask);
+ }
+@@ -48,9 +45,6 @@ static inline int test_and_clear_bit(uns
+ 	unsigned long mask = BIT_MASK(nr);
  
-+subdir-modorder := $(addsuffix /modules.order, $(build-dirs))
-+
- # Externally visible symbols (used by link-vmlinux.sh)
- KBUILD_VMLINUX_OBJS := $(head-y) $(patsubst %/,%/built-in.a, $(core-y))
- KBUILD_VMLINUX_OBJS += $(addsuffix built-in.a, $(filter %/, $(libs-y)))
+ 	p += BIT_WORD(nr);
+-	if (!(READ_ONCE(*p) & mask))
+-		return 0;
+-
+ 	old = atomic_long_fetch_andnot(mask, (atomic_long_t *)p);
+ 	return !!(old & mask);
+ }
 
 
