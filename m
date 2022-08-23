@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48CCD59DC67
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F358A59DF91
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354075AbiHWKYY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:24:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42282 "EHLO
+        id S241252AbiHWL1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:27:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355160AbiHWKXD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FF0189929;
-        Tue, 23 Aug 2022 02:04:14 -0700 (PDT)
+        with ESMTP id S236564AbiHWLZE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:25:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C20BF8C459;
+        Tue, 23 Aug 2022 02:24:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1243B81C65;
-        Tue, 23 Aug 2022 09:04:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D96FC433D7;
-        Tue, 23 Aug 2022 09:04:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBCF5612F4;
+        Tue, 23 Aug 2022 09:24:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA17BC433D6;
+        Tue, 23 Aug 2022 09:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245451;
-        bh=rK2GHts97T+cgSqgvSvFBdvim0m1FZpcglrP9sZr150=;
+        s=korg; t=1661246640;
+        bh=g138Vep1kosQ0akqfkLiqvL+yNeVRxLA3+W5eq/fcb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fti1pRgAjfIqHxiDqBiXin4rW78+Z9bZcmCFYTV3iX3GpyHmZofcLOtH29yRnpH2j
-         Xz6g5qXGOZE/ZRQP2zlDo82jzbp2u3QaxdX51inPu1cude/PlwsTMh40dCFO9NQ/2j
-         M1GE7yFwGWaS1GgUuiMkXdFoD2MUszMyVO1HEQwc=
+        b=zkiMt5mZmH3Q0v73uHUYIbwbir+Qq7szMptawMWhStMlQZBFJXZu1VJpmKnvZW5Tk
+         FoFYVSGP+MMsA+HwTDXJAPwiLVmnglW0MkgVt1VI55DREN2PDfXPvgKMvwrgjHVkb+
+         oWb7n/FKAbtxgK0gD3oT/2dILat5PfBbLbnq1t+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 083/287] crypto: hisilicon - Kunpeng916 crypto driver dont sleep when in softirq
+Subject: [PATCH 5.4 174/389] intel_th: Fix a resource leak in an error handling path
 Date:   Tue, 23 Aug 2022 10:24:12 +0200
-Message-Id: <20220823080103.080573227@linuxfoundation.org>
+Message-Id: <20220823080122.909881694@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,94 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 68740ab505431f268dc1ee26a54b871e75f0ddaa ]
+[ Upstream commit 086c28ab7c5699256aced0049aae9c42f1410313 ]
 
-When kunpeng916 encryption driver is used to deencrypt and decrypt
-packets during the softirq, it is not allowed to use mutex lock.
+If an error occurs after calling 'pci_alloc_irq_vectors()',
+'pci_free_irq_vectors()' must be called as already done in the remove
+function.
 
-Fixes: 915e4e8413da ("crypto: hisilicon - SEC security accelerator driver")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 7b7036d47c35 ("intel_th: pci: Use MSI interrupt signalling")
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20220705082637.59979-2-alexander.shishkin@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sec/sec_algs.c | 14 +++++++-------
- drivers/crypto/hisilicon/sec/sec_drv.h  |  2 +-
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/hwtracing/intel_th/pci.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/hisilicon/sec/sec_algs.c b/drivers/crypto/hisilicon/sec/sec_algs.c
-index 3e3cc28d5cfe..f672dc1ecfac 100644
---- a/drivers/crypto/hisilicon/sec/sec_algs.c
-+++ b/drivers/crypto/hisilicon/sec/sec_algs.c
-@@ -457,7 +457,7 @@ static void sec_skcipher_alg_callback(struct sec_bd_info *sec_resp,
- 		 */
- 	}
- 
--	mutex_lock(&ctx->queue->queuelock);
-+	spin_lock_bh(&ctx->queue->queuelock);
- 	/* Put the IV in place for chained cases */
- 	switch (ctx->cipher_alg) {
- 	case SEC_C_AES_CBC_128:
-@@ -517,7 +517,7 @@ static void sec_skcipher_alg_callback(struct sec_bd_info *sec_resp,
- 			list_del(&backlog_req->backlog_head);
- 		}
- 	}
--	mutex_unlock(&ctx->queue->queuelock);
-+	spin_unlock_bh(&ctx->queue->queuelock);
- 
- 	mutex_lock(&sec_req->lock);
- 	list_del(&sec_req_el->head);
-@@ -806,7 +806,7 @@ static int sec_alg_skcipher_crypto(struct skcipher_request *skreq,
- 	 */
- 
- 	/* Grab a big lock for a long time to avoid concurrency issues */
--	mutex_lock(&queue->queuelock);
-+	spin_lock_bh(&queue->queuelock);
- 
- 	/*
- 	 * Can go on to queue if we have space in either:
-@@ -822,15 +822,15 @@ static int sec_alg_skcipher_crypto(struct skcipher_request *skreq,
- 		ret = -EBUSY;
- 		if ((skreq->base.flags & CRYPTO_TFM_REQ_MAY_BACKLOG)) {
- 			list_add_tail(&sec_req->backlog_head, &ctx->backlog);
--			mutex_unlock(&queue->queuelock);
-+			spin_unlock_bh(&queue->queuelock);
- 			goto out;
+diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
+index a723c8c33087..3910fafc4fc2 100644
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -100,8 +100,10 @@ static int intel_th_pci_probe(struct pci_dev *pdev,
  		}
  
--		mutex_unlock(&queue->queuelock);
-+		spin_unlock_bh(&queue->queuelock);
- 		goto err_free_elements;
- 	}
- 	ret = sec_send_request(sec_req, queue);
--	mutex_unlock(&queue->queuelock);
-+	spin_unlock_bh(&queue->queuelock);
- 	if (ret)
- 		goto err_free_elements;
+ 	th = intel_th_alloc(&pdev->dev, drvdata, resource, r);
+-	if (IS_ERR(th))
+-		return PTR_ERR(th);
++	if (IS_ERR(th)) {
++		err = PTR_ERR(th);
++		goto err_free_irq;
++	}
  
-@@ -889,7 +889,7 @@ static int sec_alg_skcipher_init(struct crypto_skcipher *tfm)
- 	if (IS_ERR(ctx->queue))
- 		return PTR_ERR(ctx->queue);
- 
--	mutex_init(&ctx->queue->queuelock);
-+	spin_lock_init(&ctx->queue->queuelock);
- 	ctx->queue->havesoftqueue = false;
+ 	th->activate   = intel_th_pci_activate;
+ 	th->deactivate = intel_th_pci_deactivate;
+@@ -109,6 +111,10 @@ static int intel_th_pci_probe(struct pci_dev *pdev,
+ 	pci_set_master(pdev);
  
  	return 0;
-diff --git a/drivers/crypto/hisilicon/sec/sec_drv.h b/drivers/crypto/hisilicon/sec/sec_drv.h
-index 2d2f186674ba..ddc5d6bd7574 100644
---- a/drivers/crypto/hisilicon/sec/sec_drv.h
-+++ b/drivers/crypto/hisilicon/sec/sec_drv.h
-@@ -347,7 +347,7 @@ struct sec_queue {
- 	DECLARE_BITMAP(unprocessed, SEC_QUEUE_LEN);
- 	DECLARE_KFIFO_PTR(softqueue, typeof(struct sec_request_el *));
- 	bool havesoftqueue;
--	struct mutex queuelock;
-+	spinlock_t queuelock;
- 	void *shadow[SEC_QUEUE_LEN];
- };
++
++err_free_irq:
++	pci_free_irq_vectors(pdev);
++	return err;
+ }
  
+ static void intel_th_pci_remove(struct pci_dev *pdev)
 -- 
 2.35.1
 
