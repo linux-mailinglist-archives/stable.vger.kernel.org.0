@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EAEB59E200
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBC359DD2D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354822AbiHWMMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:12:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38926 "EHLO
+        id S1358568AbiHWLw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354702AbiHWML1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:11:27 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9801EE2C5D;
-        Tue, 23 Aug 2022 02:39:16 -0700 (PDT)
+        with ESMTP id S1358641AbiHWLuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:50:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C943862C5;
+        Tue, 23 Aug 2022 02:31:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9334BCE1B57;
-        Tue, 23 Aug 2022 09:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 924D4C433C1;
-        Tue, 23 Aug 2022 09:38:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70227B81C85;
+        Tue, 23 Aug 2022 09:31:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CDBEC433C1;
+        Tue, 23 Aug 2022 09:31:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247515;
-        bh=BcWBC/MwhJc8WD0lLAzvzWux7J51PZtC2jJpLFzKH1g=;
+        s=korg; t=1661247090;
+        bh=UhQPgBaeXgUoLlYqc0u6KRD3hvwuwBYnfoQghB36ZbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IrlIFDpaxovyMLE3JWNQJmkaj1w8zJavdI+MymOQkikqAwwMyK+4nBxHGQdwvkpN+
-         cfZtImK3+3CTQ/LdcB9eYFM27cABjCoHy5r1wJ2+CrxmuiNsiRTtybWAC5hubcqRWL
-         E0iQ72d1P4PTO53ogUtyf0nzuKuELJoMKVP4A7Gk=
+        b=JEdi4wF+X1zjc5x0a98RB+w+QJNcyQ7izSJB3VJOeOWcyhGYXZddWLp5XiC1rq1yu
+         iBM6PSpSTerRMHlLF19Qije0wQxWjm4XVR00YOo+1+2t2pH39GSrsxSxkVWcEG9a3x
+         vIicfgrqZQTdLaDkXN6ZeEXQogaP9yosSg1w+yho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 060/158] atm: idt77252: fix use-after-free bugs caused by tst_timer
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Samuel Holland <samuel@sholland.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 314/389] pinctrl: sunxi: Add I/O bias setting for H6 R-PIO
 Date:   Tue, 23 Aug 2022 10:26:32 +0200
-Message-Id: <20220823080048.503060932@linuxfoundation.org>
+Message-Id: <20220823080128.679233996@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Samuel Holland <samuel@sholland.org>
 
-commit 3f4093e2bf4673f218c0bf17d8362337c400e77b upstream.
+commit fc153c8f283bf5925615195fc9d4056414d7b168 upstream.
 
-There are use-after-free bugs caused by tst_timer. The root cause
-is that there are no functions to stop tst_timer in idt77252_exit().
-One of the possible race conditions is shown below:
+H6 requires I/O bias configuration on both of its PIO devices.
+Previously it was only done for the main PIO.
 
-    (thread 1)          |        (thread 2)
-                        |  idt77252_init_one
-                        |    init_card
-                        |      fill_tst
-                        |        mod_timer(&card->tst_timer, ...)
-idt77252_exit           |  (wait a time)
-                        |  tst_timer
-                        |
-                        |    ...
-  kfree(card) // FREE   |
-                        |    card->soft_tst[e] // USE
+The setting for Port L is at bit 0, so the bank calculation needs to
+account for the pin base. Otherwise the wrong bit is used.
 
-The idt77252_dev is deallocated in idt77252_exit() and used in
-timer handler.
-
-This patch adds del_timer_sync() in idt77252_exit() in order that
-the timer handler could be stopped before the idt77252_dev is
-deallocated.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220805070008.18007-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: cc62383fcebe ("pinctrl: sunxi: Support I/O bias voltage setting on H6")
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/r/20220713025233.27248-3-samuel@sholland.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/atm/idt77252.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c |    1 +
+ drivers/pinctrl/sunxi/pinctrl-sunxi.c       |    7 ++++---
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/atm/idt77252.c
-+++ b/drivers/atm/idt77252.c
-@@ -3767,6 +3767,7 @@ static void __exit idt77252_exit(void)
- 		card = idt77252_chain;
- 		dev = card->atmdev;
- 		idt77252_chain = card->next;
-+		del_timer_sync(&card->tst_timer);
+--- a/drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c
+@@ -105,6 +105,7 @@ static const struct sunxi_pinctrl_desc s
+ 	.npins = ARRAY_SIZE(sun50i_h6_r_pins),
+ 	.pin_base = PL_BASE,
+ 	.irq_banks = 2,
++	.io_bias_cfg_variant = BIAS_VOLTAGE_PIO_POW_MODE_SEL,
+ };
  
- 		if (dev->phy->stop)
- 			dev->phy->stop(dev);
+ static int sun50i_h6_r_pinctrl_probe(struct platform_device *pdev)
+--- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+@@ -616,7 +616,7 @@ static int sunxi_pinctrl_set_io_bias_cfg
+ 					 unsigned pin,
+ 					 struct regulator *supply)
+ {
+-	unsigned short bank = pin / PINS_PER_BANK;
++	unsigned short bank;
+ 	unsigned long flags;
+ 	u32 val, reg;
+ 	int uV;
+@@ -632,6 +632,9 @@ static int sunxi_pinctrl_set_io_bias_cfg
+ 	if (uV == 0)
+ 		return 0;
+ 
++	pin -= pctl->desc->pin_base;
++	bank = pin / PINS_PER_BANK;
++
+ 	switch (pctl->desc->io_bias_cfg_variant) {
+ 	case BIAS_VOLTAGE_GRP_CONFIG:
+ 		/*
+@@ -649,8 +652,6 @@ static int sunxi_pinctrl_set_io_bias_cfg
+ 		else
+ 			val = 0xD; /* 3.3V */
+ 
+-		pin -= pctl->desc->pin_base;
+-
+ 		reg = readl(pctl->membase + sunxi_grp_config_reg(pin));
+ 		reg &= ~IO_BIAS_MASK;
+ 		writel(reg | val, pctl->membase + sunxi_grp_config_reg(pin));
 
 
