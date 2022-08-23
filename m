@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7F3059E100
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 852E759E251
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348348AbiHWLd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:33:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49384 "EHLO
+        id S1353717AbiHWKcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:32:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357919AbiHWLcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:04 -0400
+        with ESMTP id S1355012AbiHWKas (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:30:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1129760C4;
-        Tue, 23 Aug 2022 02:26:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B78F685AAA;
+        Tue, 23 Aug 2022 02:06:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B3636126A;
-        Tue, 23 Aug 2022 09:26:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E20C433C1;
-        Tue, 23 Aug 2022 09:26:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFCC761596;
+        Tue, 23 Aug 2022 09:06:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA5A6C433B5;
+        Tue, 23 Aug 2022 09:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246777;
-        bh=Yx3XOlt71fds3wG4aOZHbBS34tPgjiVxatuLqfYxJ48=;
+        s=korg; t=1661245589;
+        bh=GBN9yMYjGurun1AV7Y40ykMKxztoq6vHXN9KuxWaQRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NCfgllCeUcp12D9wLj5tmUXJ4+YSkUSykAeaN/O8VDQLc1m1Wn+LspAxD3e6wBPN8
-         tCX9m+eQkMCTgh+ixoRvUM/YdfKaEsX+182ziNFGN9EWdkN0q5dpODnxvoifkyi/fU
-         Xs/7LufjfdGEpgCXcV5NeftzgD9qjp8EvTO6d5fY=
+        b=pz3r1zVPgOEpZria0vYEOH3LlyJkmmJIR+jZl0NXdt+hr36FGaONV3qeMlhUzTQh7
+         u8DImZoPaa8ccL7C/5dQI1U/pd6JDrGbZ8rUFxQnTLRZB2VxQ70nRsgB6QAThfo9s3
+         iqRAbgFR8BboITl574qbQvUouV3v0FNWEseD3AjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 216/389] tty: n_gsm: fix wrong T1 retry count handling
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 125/287] soundwire: bus_type: fix remove and shutdown support
 Date:   Tue, 23 Aug 2022 10:24:54 +0200
-Message-Id: <20220823080124.624526635@linuxfoundation.org>
+Message-Id: <20220823080104.601080377@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit f30e10caa80aa1f35508bc17fc302dbbde9a833c ]
+[ Upstream commit df6407782964dc7e35ad84230abb38f46314b245 ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.7.3 states that the valid range for the
-maximum number of retransmissions (N2) is from 0 to 255 (both including).
-gsm_dlci_t1() handles this number incorrectly by performing N2 - 1
-retransmission attempts. Setting N2 to zero results in more than 255
-retransmission attempts.
-Fix gsm_dlci_t1() to comply with 3GPP 27.010.
+The bus sdw_drv_remove() and sdw_drv_shutdown() helpers are used
+conditionally, if the driver provides these routines.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220707113223.3685-1-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+These helpers already test if the driver provides a .remove or
+.shutdown callback, so there's no harm in invoking the
+sdw_drv_remove() and sdw_drv_shutdown() unconditionally.
+
+In addition, the current code is imbalanced with
+dev_pm_domain_attach() called from sdw_drv_probe(), but
+dev_pm_domain_detach() called from sdw_drv_remove() only if the driver
+provides a .remove callback.
+
+Fixes: 9251345dca24b ("soundwire: Add SoundWire bus type")
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220610015105.25987-1-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/soundwire/bus_type.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 186f4633fd4a..f4b5ac840222 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1534,8 +1534,8 @@ static void gsm_dlci_t1(struct timer_list *t)
+diff --git a/drivers/soundwire/bus_type.c b/drivers/soundwire/bus_type.c
+index 283b2832728e..414621f3c43c 100644
+--- a/drivers/soundwire/bus_type.c
++++ b/drivers/soundwire/bus_type.c
+@@ -154,12 +154,8 @@ int __sdw_register_driver(struct sdw_driver *drv, struct module *owner)
  
- 	switch (dlci->state) {
- 	case DLCI_OPENING:
--		dlci->retries--;
- 		if (dlci->retries) {
-+			dlci->retries--;
- 			gsm_command(dlci->gsm, dlci->addr, SABM|PF);
- 			mod_timer(&dlci->t1, jiffies + gsm->t1 * HZ / 100);
- 		} else if (!dlci->addr && gsm->control == (DM | PF)) {
-@@ -1550,8 +1550,8 @@ static void gsm_dlci_t1(struct timer_list *t)
+ 	drv->driver.owner = owner;
+ 	drv->driver.probe = sdw_drv_probe;
+-
+-	if (drv->remove)
+-		drv->driver.remove = sdw_drv_remove;
+-
+-	if (drv->shutdown)
+-		drv->driver.shutdown = sdw_drv_shutdown;
++	drv->driver.remove = sdw_drv_remove;
++	drv->driver.shutdown = sdw_drv_shutdown;
  
- 		break;
- 	case DLCI_CLOSING:
--		dlci->retries--;
- 		if (dlci->retries) {
-+			dlci->retries--;
- 			gsm_command(dlci->gsm, dlci->addr, DISC|PF);
- 			mod_timer(&dlci->t1, jiffies + gsm->t1 * HZ / 100);
- 		} else
+ 	return driver_register(&drv->driver);
+ }
 -- 
 2.35.1
 
