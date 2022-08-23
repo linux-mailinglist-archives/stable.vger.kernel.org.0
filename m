@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F0EA59E67C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 18:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5478059E687
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 18:03:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240533AbiHWQC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 12:02:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47212 "EHLO
+        id S242548AbiHWQC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 12:02:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244172AbiHWQA2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 12:00:28 -0400
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1514E23DF18;
-        Tue, 23 Aug 2022 05:12:10 -0700 (PDT)
-Received: by mail-wm1-x336.google.com with SMTP id v7-20020a1cac07000000b003a6062a4f81so9455588wme.1;
+        with ESMTP id S244279AbiHWQAm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 12:00:42 -0400
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3320E23DF11;
+        Tue, 23 Aug 2022 05:12:11 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id k17so7101496wmr.2;
         Tue, 23 Aug 2022 05:12:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=gbSayT4EtNiq0syTNIIlLCojXVFXd1TeIsCo+4i/G4I=;
-        b=KDQOLrNkbPuciKMdeVWT8rUrIHPAgOFK9HS4HWlj8QYGLRxrp20dpuGMf2WpI9MgN6
-         sE/1CV3u4jztacPwUpFfPtl7sGeWFgXx4mijyDiNtzRTLCcu11p5N6d/CCyT2EOw7Af/
-         nLvm1Mtbp5VcvwzRRwKOfd/wQ8ekO1yaoV80lynOWsyi8cJe3iMhTebO5NNszFNjrnRL
-         G8ERDoyx9+bZAkIPgTI9akXtfmfOYlVrKO/LWBhFEvzaTMp7+Zui6JpelEJzWS/hRrWb
-         oe+Fxwl9l8eF1eFsemuDPYMXI1v+VeDIVrVrqVva5jpVopjK2l2XJHABhLiPSG6wSE+F
-         73Dg==
+        bh=dwyYxuJamyCThGYEhux6k2lNfMR5/mA+iH2gkx5gwZ4=;
+        b=c3GSuUrH9gof/sSrDL1ldyJDJNfqMWgXBzxZ1Y5MRN8V0qsFdUMfAcm8XETWfr4rPJ
+         Rkb4BkEFy6kAeWaHF/jGm/siVeu3uvjXeh3hNjO32G0Cjj/9+pJI80ZqjDPtvIVkhayE
+         r7i1fFey0LFNsOy/QBByzMdf1ayFX4qnCzHaAF7lqKLbT9Rts/kSA8SAhQMF1H3XA+oA
+         zbMAm54uM7YIZtmJ7oi1uLoCQehInCEGgonqlVOtBQi08+KHp3j4Ofq9OORgMS96jnJC
+         3wPQzVWv+5fm3/xGwHXFULnilRwxgX0bA+owyhb62+BStcco48RAgcSnO1tIin1bU21/
+         TG1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=gbSayT4EtNiq0syTNIIlLCojXVFXd1TeIsCo+4i/G4I=;
-        b=6+FZPC6dus0kvEI5JpvocfH+0mor7Ib6lmh2HvoK09v+cNJqIPhGIsvye02bVjEHBX
-         rteulBa84aLMxfsxGzBJ0ShOLzWoeJwY20aUNf6aKVEGb//+FR6i9vmHWzqUZMxlqC5p
-         vAFWt26CnauIlAd/tYDF9dwVynCwHUV4jcfgfnMNIxf2vDMhY+g810dNsxRatE37PzUr
-         1vc+w+b9plBVC1lQ8ggzboJr3B15aSRQ+z0mjdf17Gep6jhIKMY+zTblqyMUQ79N2Lay
-         BYGveWsXxCth5tibDKkWTorvGSB54Muz0kO/NFntaLpfjgx9Z/aGhjB+IM5pRcOgjJsE
-         FDeA==
-X-Gm-Message-State: ACgBeo2iAKhIucy7GqUfF5e17CMRp6sm+hQGbITMXmsg5oMo3bgQJ8XR
-        YYtZCg+6yxlBnmERq5Pfv0OuqUIKo60=
-X-Google-Smtp-Source: AA6agR5d749vcbr7e/ElfSrikvgM2bDRN0p4ls5Xr8814lxtFP4Q4Y9KuYIgNNfSWSJQdOTOphAAsw==
-X-Received: by 2002:a1c:44d7:0:b0:3a6:725:c0a7 with SMTP id r206-20020a1c44d7000000b003a60725c0a7mr2051873wma.137.1661256707083;
-        Tue, 23 Aug 2022 05:11:47 -0700 (PDT)
+        bh=dwyYxuJamyCThGYEhux6k2lNfMR5/mA+iH2gkx5gwZ4=;
+        b=GscH2ZNY9fn9KP5F8hAQQ8NJkDabdgsLyCF0mcGsYrlFpjEb3NQuAUxDi4ywjFIXad
+         ku5QLYgw2sFF9z7UmAQzgjXaUazfbAF198cxtYCQxAqRQPHgGmvt034UBTdRVxiNrmt/
+         4xv7Ynw2LkYpNd2lMf+GXZPitKbLjEH3KCaBxnEkAsVD+fWxphSvxE5rNQXRjLqfpTJx
+         IgLzrU09w34APIfYmNy1ASh8qecZMbfOlx4gzUC10rTm8Qc6GftfOwkKNJNGrmxwDY9R
+         SWQmbEX7cQhiVtrWwBwxTjbM51A36/haGxl4CsjuUfrcBAkgWx9RwZKklTB/kJcJ9Ite
+         Yk0g==
+X-Gm-Message-State: ACgBeo1XCq3w3kJqS4Pr0xfqjGm0kZX94pNtEZS3sGE7W62JgjSHhjTW
+        0Ss2QphzZyXWYMP0bJbHWHI=
+X-Google-Smtp-Source: AA6agR5dAVuCgrqR17Viaxutf7h80N5q6ksry7R+nZ1ZwPLZJVx2wlorX+yDogn91fmGRnqL2h9RDg==
+X-Received: by 2002:a05:600c:4f90:b0:3a6:2bda:dc4e with SMTP id n16-20020a05600c4f9000b003a62bdadc4emr2017332wmq.39.1661256708832;
+        Tue, 23 Aug 2022 05:11:48 -0700 (PDT)
 Received: from amir-ThinkPad-T480.lan ([77.137.66.49])
-        by smtp.gmail.com with ESMTPSA id g11-20020a05600c4ecb00b003a4c6e67f01sm24681879wmq.6.2022.08.23.05.11.45
+        by smtp.gmail.com with ESMTPSA id g11-20020a05600c4ecb00b003a4c6e67f01sm24681879wmq.6.2022.08.23.05.11.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Aug 2022 05:11:46 -0700 (PDT)
+        Tue, 23 Aug 2022 05:11:48 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -56,12 +56,11 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Adam Manzanares <a.manzanares@samsung.com>,
         linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 v2 3/6] fs: remove __sync_filesystem
-Date:   Tue, 23 Aug 2022 15:11:33 +0300
-Message-Id: <20220823121136.1806820-4-amir73il@gmail.com>
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <brauner@kernel.org>
+Subject: [PATCH 5.10 v2 4/6] vfs: make sync_filesystem return errors from ->sync_fs
+Date:   Tue, 23 Aug 2022 15:11:34 +0300
+Message-Id: <20220823121136.1806820-5-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220823121136.1806820-1-amir73il@gmail.com>
 References: <20220823121136.1806820-1-amir73il@gmail.com>
@@ -77,82 +76,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 9a208ba5c9afa62c7b1e9c6f5e783066e84e2d3c upstream.
+commit 5679897eb104cec9e99609c3f045a0c20603da4c upstream.
 
-[backported for dependency]
+[backport to 5.10 only differs in __sync_blockdev helper]
 
-There is no clear benefit in having this helper vs just open coding it.
+Strangely, sync_filesystem ignores the return code from the ->sync_fs
+call, which means that syscalls like syncfs(2) never see the error.
+This doesn't seem right, so fix that.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20211019062530.2174626-2-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Christian Brauner <brauner@kernel.org>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/sync.c | 38 +++++++++++++++++---------------------
- 1 file changed, 17 insertions(+), 21 deletions(-)
+ fs/sync.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
 diff --git a/fs/sync.c b/fs/sync.c
-index 1373a610dc78..0d6cdc507cb9 100644
+index 0d6cdc507cb9..79180e58d862 100644
 --- a/fs/sync.c
 +++ b/fs/sync.c
-@@ -21,25 +21,6 @@
- #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
- 			SYNC_FILE_RANGE_WAIT_AFTER)
+@@ -28,7 +28,7 @@
+  */
+ int sync_filesystem(struct super_block *sb)
+ {
+-	int ret;
++	int ret = 0;
  
--/*
-- * Do the filesystem syncing work. For simple filesystems
-- * writeback_inodes_sb(sb) just dirties buffers with inodes so we have to
-- * submit IO for these buffers via __sync_blockdev(). This also speeds up the
-- * wait == 1 case since in that case write_inode() functions do
-- * sync_dirty_buffer() and thus effectively write one block at a time.
-- */
--static int __sync_filesystem(struct super_block *sb, int wait)
--{
--	if (wait)
--		sync_inodes_sb(sb);
--	else
--		writeback_inodes_sb(sb, WB_REASON_SYNC);
--
+ 	/*
+ 	 * We need to be protected against the filesystem going from
+@@ -51,15 +51,21 @@ int sync_filesystem(struct super_block *sb)
+ 	 * at a time.
+ 	 */
+ 	writeback_inodes_sb(sb, WB_REASON_SYNC);
 -	if (sb->s_op->sync_fs)
--		sb->s_op->sync_fs(sb, wait);
--	return __sync_blockdev(sb->s_bdev, wait);
--}
--
- /*
-  * Write out and wait upon all dirty data associated with this
-  * superblock.  Filesystem data as well as the underlying block
-@@ -61,10 +42,25 @@ int sync_filesystem(struct super_block *sb)
- 	if (sb_rdonly(sb))
- 		return 0;
- 
--	ret = __sync_filesystem(sb, 0);
-+	/*
-+	 * Do the filesystem syncing work.  For simple filesystems
-+	 * writeback_inodes_sb(sb) just dirties buffers with inodes so we have
-+	 * to submit I/O for these buffers via __sync_blockdev().  This also
-+	 * speeds up the wait == 1 case since in that case write_inode()
-+	 * methods call sync_dirty_buffer() and thus effectively write one block
-+	 * at a time.
-+	 */
-+	writeback_inodes_sb(sb, WB_REASON_SYNC);
-+	if (sb->s_op->sync_fs)
-+		sb->s_op->sync_fs(sb, 0);
-+	ret = __sync_blockdev(sb->s_bdev, 0);
- 	if (ret < 0)
+-		sb->s_op->sync_fs(sb, 0);
++	if (sb->s_op->sync_fs) {
++		ret = sb->s_op->sync_fs(sb, 0);
++		if (ret)
++			return ret;
++	}
+ 	ret = __sync_blockdev(sb->s_bdev, 0);
+-	if (ret < 0)
++	if (ret)
  		return ret;
--	return __sync_filesystem(sb, 1);
-+
-+	sync_inodes_sb(sb);
-+	if (sb->s_op->sync_fs)
-+		sb->s_op->sync_fs(sb, 1);
-+	return __sync_blockdev(sb->s_bdev, 1);
+ 
+ 	sync_inodes_sb(sb);
+-	if (sb->s_op->sync_fs)
+-		sb->s_op->sync_fs(sb, 1);
++	if (sb->s_op->sync_fs) {
++		ret = sb->s_op->sync_fs(sb, 1);
++		if (ret)
++			return ret;
++	}
+ 	return __sync_blockdev(sb->s_bdev, 1);
  }
  EXPORT_SYMBOL(sync_filesystem);
- 
 -- 
 2.25.1
 
