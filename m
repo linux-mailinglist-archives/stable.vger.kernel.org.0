@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEA4F59D52E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B9C59D577
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243283AbiHWI1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243226AbiHWI1T (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Aug 2022 04:27:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47562 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243790AbiHWIZ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:25:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87D4172878;
-        Tue, 23 Aug 2022 01:14:02 -0700 (PDT)
+        with ESMTP id S244013AbiHWI0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:26:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9F7B72FD1;
+        Tue, 23 Aug 2022 01:14:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C60B761242;
-        Tue, 23 Aug 2022 08:14:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD5E6C433D6;
-        Tue, 23 Aug 2022 08:14:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C402861242;
+        Tue, 23 Aug 2022 08:14:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C97A6C433C1;
+        Tue, 23 Aug 2022 08:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242441;
-        bh=OQlvZM+K22KXk20z/y80Vu43gP5UH4g2hFg4EP4s7Wc=;
+        s=korg; t=1661242450;
+        bh=ROwYacelnhogMjbaFhx5Z+LfPE39x335YCVt9z0dvRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTyhsHBKDp9sX+/UYMQV2jNXjYU+NRIwRXGRevcCEFCbORHJlubPs5dblOTHwyf7c
-         eQ8P4V8p8UdxfFp2jBD4P55VjfbK9vzbtQCqVespyfwKx5kZseH60h0IUxIBbnJbpz
-         kpiF9mKeVIZhdPQdq3hVzk3F/NfAy2GErvf5LppI=
+        b=gmrpIr7gb72Bs9NVmJzZTwsjsU9FmmXQ6alDZug+Ed9QoYr6B3srS0yJ32xa2eq+H
+         Pz+itSMmtHzNdRa4bgeaoXGJe3bWhVBK7Z5y9CfQT+CgCPzLds9dMuuFsYVzeuTpei
+         hMDLM+NeFxHIVNDs9xOoybheYIKSipJAcewhfVig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.9 072/101] SUNRPC: Reinitialise the backchannel request buffers before reuse
-Date:   Tue, 23 Aug 2022 10:03:45 +0200
-Message-Id: <20220823080037.304300421@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.9 073/101] pinctrl: nomadik: Fix refcount leak in nmk_pinctrl_dt_subnode_to_map
+Date:   Tue, 23 Aug 2022 10:03:46 +0200
+Message-Id: <20220823080037.344231233@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -53,50 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 6622e3a73112fc336c1c2c582428fb5ef18e456a upstream.
+commit 4b32e054335ea0ce50967f63a7bfd4db058b14b9 upstream.
 
-When we're reusing the backchannel requests instead of freeing them,
-then we should reinitialise any values of the send/receive xdr_bufs so
-that they reflect the available space.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak."
 
-Fixes: 0d2a970d0ae5 ("SUNRPC: Fix a backchannel race")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: c2f6d059abfc ("pinctrl: nomadik: refactor DT parser to take two paths")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220607111602.57355-1-linmq006@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/backchannel_rqst.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/pinctrl/nomadik/pinctrl-nomadik.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/sunrpc/backchannel_rqst.c
-+++ b/net/sunrpc/backchannel_rqst.c
-@@ -69,6 +69,17 @@ static void xprt_free_allocation(struct
- 	kfree(req);
- }
+--- a/drivers/pinctrl/nomadik/pinctrl-nomadik.c
++++ b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+@@ -1455,8 +1455,10 @@ static int nmk_pinctrl_dt_subnode_to_map
  
-+static void xprt_bc_reinit_xdr_buf(struct xdr_buf *buf)
-+{
-+	buf->head[0].iov_len = PAGE_SIZE;
-+	buf->tail[0].iov_len = 0;
-+	buf->pages = NULL;
-+	buf->page_len = 0;
-+	buf->flags = 0;
-+	buf->len = 0;
-+	buf->buflen = PAGE_SIZE;
-+}
-+
- static int xprt_alloc_xdr_buf(struct xdr_buf *buf, gfp_t gfp_flags)
- {
- 	struct page *page;
-@@ -291,6 +302,9 @@ void xprt_free_bc_rqst(struct rpc_rqst *
- 	 */
- 	spin_lock_bh(&xprt->bc_pa_lock);
- 	if (xprt_need_to_requeue(xprt)) {
-+		xprt_bc_reinit_xdr_buf(&req->rq_snd_buf);
-+		xprt_bc_reinit_xdr_buf(&req->rq_rcv_buf);
-+		req->rq_rcv_buf.len = PAGE_SIZE;
- 		list_add_tail(&req->rq_bc_pa_list, &xprt->bc_pa_list);
- 		xprt->bc_alloc_count++;
- 		req = NULL;
+ 	has_config = nmk_pinctrl_dt_get_config(np, &configs);
+ 	np_config = of_parse_phandle(np, "ste,config", 0);
+-	if (np_config)
++	if (np_config) {
+ 		has_config |= nmk_pinctrl_dt_get_config(np_config, &configs);
++		of_node_put(np_config);
++	}
+ 	if (has_config) {
+ 		const char *gpio_name;
+ 		const char *pin;
 
 
