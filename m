@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA23659D83D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B16459D870
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238839AbiHWJvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:51:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39844 "EHLO
+        id S242020AbiHWJvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:51:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242729AbiHWJu0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:50:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E3A69DB47;
-        Tue, 23 Aug 2022 01:45:08 -0700 (PDT)
+        with ESMTP id S1351690AbiHWJuv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:50:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F9AA6DF9A;
+        Tue, 23 Aug 2022 01:45:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EACEB81C5A;
-        Tue, 23 Aug 2022 08:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFFD6C433C1;
-        Tue, 23 Aug 2022 08:44:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0720761338;
+        Tue, 23 Aug 2022 08:44:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B7FEC433D6;
+        Tue, 23 Aug 2022 08:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244268;
-        bh=/RaeS7m5dAmIU2S1dxom5JWgLdGUIw6c/w0E9WlM5zo=;
+        s=korg; t=1661244274;
+        bh=aolZgR12PUzxTi1PxC82EDK5N5Y8ZmpIPPwJr1pSbSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hc5Q7/wiBwTCIRDtNrouRBp9CfCrDKgSLVIT/qFoRxTWmk5PeBXwGPbBLbgkSZvqN
-         fDljMV1qgx6D3p6eKB49nac6KGzq3VyvsPfQVQpmmVwwyZum9JeOmidZcM+2Bp3V9t
-         9qQs2CRUUt89oGFC1a5DhmbTHcLAXOfaEmLdzsIU=
+        b=rkmck8acNBP9tHM7vZbYO8TDsrh/QBB/azb9mhtrCNM5nr674F9JOgMaCBmAwrwaX
+         PfWvQTytkWIcd399g2QucmN5k53MeGeycGvV5xhIKFt+ZRKRY8Ayj3vLLKeDiUtsCJ
+         X1peLc0aSqRe2r9voQvRkvQNoPZy7aX3N9Ml2/t4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Robert Richter <rric@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 111/229] mmc: cavium-thunderx: Add of_node_put() when breaking out of loop
-Date:   Tue, 23 Aug 2022 10:24:32 +0200
-Message-Id: <20220823080057.645464694@linuxfoundation.org>
+Subject: [PATCH 4.14 112/229] USB: serial: fix tty-port initialized comments
+Date:   Tue, 23 Aug 2022 10:24:33 +0200
+Message-Id: <20220823080057.677023084@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -55,40 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 7ee480795e41db314f2c445c65ed854a5d6e8e32 ]
+[ Upstream commit 688ee1d1785c1359f9040f615dd8e6054962bce2 ]
 
-In thunder_mmc_probe(), we should call of_node_put() when breaking
-out of for_each_child_of_node() which has increased and decreased
-the refcount during each iteration.
+Fix up the tty-port initialized comments which got truncated and
+obfuscated when replacing the old ASYNCB_INITIALIZED flag.
 
-Fixes: 166bac38c3c5 ("mmc: cavium: Add MMC PCI driver for ThunderX SOCs")
-Signed-off-by: Liang He <windhl@126.com>
-Acked-by: Robert Richter <rric@kernel.org>
-Link: https://lore.kernel.org/r/20220719095216.1241601-2-windhl@126.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: d41861ca19c9 ("tty: Replace ASYNC_INITIALIZED bit and update atomically")
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/cavium-thunderx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/serial/sierra.c     | 3 ++-
+ drivers/usb/serial/usb-serial.c | 2 +-
+ drivers/usb/serial/usb_wwan.c   | 3 ++-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/cavium-thunderx.c b/drivers/mmc/host/cavium-thunderx.c
-index eee08d81b242..f79806e31e7e 100644
---- a/drivers/mmc/host/cavium-thunderx.c
-+++ b/drivers/mmc/host/cavium-thunderx.c
-@@ -138,8 +138,10 @@ static int thunder_mmc_probe(struct pci_dev *pdev,
- 				continue;
+diff --git a/drivers/usb/serial/sierra.c b/drivers/usb/serial/sierra.c
+index a9c5564b6b65..fcbe8a9d2650 100644
+--- a/drivers/usb/serial/sierra.c
++++ b/drivers/usb/serial/sierra.c
+@@ -759,7 +759,8 @@ static void sierra_close(struct usb_serial_port *port)
  
- 			ret = cvm_mmc_of_slot_probe(&host->slot_pdev[i]->dev, host);
--			if (ret)
-+			if (ret) {
-+				of_node_put(child_node);
- 				goto error;
-+			}
- 		}
- 		i++;
- 	}
+ 	/*
+ 	 * Need to take susp_lock to make sure port is not already being
+-	 * resumed, but no need to hold it due to initialized
++	 * resumed, but no need to hold it due to the tty-port initialized
++	 * flag.
+ 	 */
+ 	spin_lock_irq(&intfdata->susp_lock);
+ 	if (--intfdata->open_ports == 0)
+diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
+index 3dc3464626fb..731bae05d7e5 100644
+--- a/drivers/usb/serial/usb-serial.c
++++ b/drivers/usb/serial/usb-serial.c
+@@ -254,7 +254,7 @@ static int serial_open(struct tty_struct *tty, struct file *filp)
+  *
+  * Shut down a USB serial port. Serialized against activate by the
+  * tport mutex and kept to matching open/close pairs
+- * of calls by the initialized flag.
++ * of calls by the tty-port initialized flag.
+  *
+  * Not called if tty is console.
+  */
+diff --git a/drivers/usb/serial/usb_wwan.c b/drivers/usb/serial/usb_wwan.c
+index 4fab7ec9cd3f..bb05c9ea9190 100644
+--- a/drivers/usb/serial/usb_wwan.c
++++ b/drivers/usb/serial/usb_wwan.c
+@@ -465,7 +465,8 @@ void usb_wwan_close(struct usb_serial_port *port)
+ 
+ 	/*
+ 	 * Need to take susp_lock to make sure port is not already being
+-	 * resumed, but no need to hold it due to initialized
++	 * resumed, but no need to hold it due to the tty-port initialized
++	 * flag.
+ 	 */
+ 	spin_lock_irq(&intfdata->susp_lock);
+ 	if (--intfdata->open_ports == 0)
 -- 
 2.35.1
 
