@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1971559D4EF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03AD259D5CB
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:10:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241256AbiHWIml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:42:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50786 "EHLO
+        id S1346630AbiHWImj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:42:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346705AbiHWIk3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:40:29 -0400
+        with ESMTP id S1346964AbiHWIkg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:40:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E1785F23F;
-        Tue, 23 Aug 2022 01:18:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A255242ADD;
+        Tue, 23 Aug 2022 01:18:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F22161321;
-        Tue, 23 Aug 2022 08:17:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ABFCC433C1;
-        Tue, 23 Aug 2022 08:17:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 752D26132D;
+        Tue, 23 Aug 2022 08:17:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 637C0C4347C;
+        Tue, 23 Aug 2022 08:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242645;
-        bh=GOO6yS8sqZfWknrUvzaIwJRwSqyMq+57shxE+fO7O2Y=;
+        s=korg; t=1661242648;
+        bh=+5grhzWxnc1TKl7dza1qwlywolTWQBQKx7cAp1Gda70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHs0RuaFD73IhUymSU4FpXwCBmPlN8B4ESMLOPvyLlais20CycC2UrVqA4XN3AZvL
-         dJd8h/J+GxanPbPe0KFFwt/GPe4KDKYKzaH74w71xEpV8ulkUrf793SIE/OVbdA90K
-         OBcP8s4E6a0kYdTs7P5su//a4jytK+tmrvtO21Kw=
+        b=z+9OBNHnQg7SVYQNfvqTodiMAuKCyZxQtPCMY59JKSCrUsVnZTMCwvifSCPwj6owV
+         h/TrSCW921dz1x4wFHsU1FAVK525B93hHHjPoRNJEgTr/woikTpUDHxuR6OzivZY7i
+         p3/DUSMOEFNE7wVWK3Fo8epXM7nRSnckaGglyXKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>
-Subject: [PATCH 5.19 152/365] fscache: dont leak cookie access refs if invalidation is in progress or failed
-Date:   Tue, 23 Aug 2022 10:00:53 +0200
-Message-Id: <20220823080124.585754011@linuxfoundation.org>
+        stable@vger.kernel.org, Matthias May <matthias.may@westermo.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 153/365] geneve: fix TOS inheriting for ipv4
+Date:   Tue, 23 Aug 2022 10:00:54 +0200
+Message-Id: <20220823080124.625166031@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,55 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Matthias May <matthias.may@westermo.com>
 
-commit fb24771faf72a2fd62b3b6287af3c610c3ec9cf1 upstream.
+commit b4ab94d6adaa5cf842b68bd28f4b50bc774496bd upstream.
 
-It's possible for a request to invalidate a fscache_cookie will come in
-while we're already processing an invalidation. If that happens we
-currently take an extra access reference that will leak. Only call
-__fscache_begin_cookie_access if the FSCACHE_COOKIE_DO_INVALIDATE bit
-was previously clear.
+The current code retrieves the TOS field after the lookup
+on the ipv4 routing table. The routing process currently
+only allows routing based on the original 3 TOS bits, and
+not on the full 6 DSCP bits.
+As a result the retrieved TOS is cut to the 3 bits.
+However for inheriting purposes the full 6 bits should be used.
 
-Also, ensure that we attempt to clear the bit when the cookie is
-"FAILED" and put the reference to avoid an access leak.
+Extract the full 6 bits before the route lookup and use
+that instead of the cut off 3 TOS bits.
 
-Fixes: 85e4ea1049c7 ("fscache: Fix invalidation/lookup race")
-Suggested-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: e305ac6cf5a1 ("geneve: Add support to collect tunnel metadata.")
+Signed-off-by: Matthias May <matthias.may@westermo.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Link: https://lore.kernel.org/r/20220805190006.8078-1-matthias.may@westermo.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fscache/cookie.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/geneve.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/fs/fscache/cookie.c b/fs/fscache/cookie.c
-index 74920826d8f6..26a6d395737a 100644
---- a/fs/fscache/cookie.c
-+++ b/fs/fscache/cookie.c
-@@ -739,6 +739,9 @@ static void fscache_cookie_state_machine(struct fscache_cookie *cookie)
- 		fallthrough;
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -797,7 +797,8 @@ static struct rtable *geneve_get_v4_rt(s
+ 				       struct geneve_sock *gs4,
+ 				       struct flowi4 *fl4,
+ 				       const struct ip_tunnel_info *info,
+-				       __be16 dport, __be16 sport)
++				       __be16 dport, __be16 sport,
++				       __u8 *full_tos)
+ {
+ 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
+@@ -823,6 +824,8 @@ static struct rtable *geneve_get_v4_rt(s
+ 		use_cache = false;
+ 	}
+ 	fl4->flowi4_tos = RT_TOS(tos);
++	if (full_tos)
++		*full_tos = tos;
  
- 	case FSCACHE_COOKIE_STATE_FAILED:
-+		if (test_and_clear_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags))
-+			fscache_end_cookie_access(cookie, fscache_access_invalidate_cookie_end);
-+
- 		if (atomic_read(&cookie->n_accesses) != 0)
- 			break;
- 		if (test_bit(FSCACHE_COOKIE_DO_RELINQUISH, &cookie->flags)) {
-@@ -1063,8 +1066,8 @@ void __fscache_invalidate(struct fscache_cookie *cookie,
- 		return;
+ 	dst_cache = (struct dst_cache *)&info->dst_cache;
+ 	if (use_cache) {
+@@ -910,6 +913,7 @@ static int geneve_xmit_skb(struct sk_buf
+ 	const struct ip_tunnel_key *key = &info->key;
+ 	struct rtable *rt;
+ 	struct flowi4 fl4;
++	__u8 full_tos;
+ 	__u8 tos, ttl;
+ 	__be16 df = 0;
+ 	__be16 sport;
+@@ -920,7 +924,7 @@ static int geneve_xmit_skb(struct sk_buf
  
- 	case FSCACHE_COOKIE_STATE_LOOKING_UP:
--		__fscache_begin_cookie_access(cookie, fscache_access_invalidate_cookie);
--		set_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags);
-+		if (!test_and_set_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags))
-+			__fscache_begin_cookie_access(cookie, fscache_access_invalidate_cookie);
- 		fallthrough;
- 	case FSCACHE_COOKIE_STATE_CREATING:
- 		spin_unlock(&cookie->lock);
--- 
-2.37.2
-
+ 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+ 	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
+-			      geneve->cfg.info.key.tp_dst, sport);
++			      geneve->cfg.info.key.tp_dst, sport, &full_tos);
+ 	if (IS_ERR(rt))
+ 		return PTR_ERR(rt);
+ 
+@@ -964,7 +968,7 @@ static int geneve_xmit_skb(struct sk_buf
+ 
+ 		df = key->tun_flags & TUNNEL_DONT_FRAGMENT ? htons(IP_DF) : 0;
+ 	} else {
+-		tos = ip_tunnel_ecn_encap(fl4.flowi4_tos, ip_hdr(skb), skb);
++		tos = ip_tunnel_ecn_encap(full_tos, ip_hdr(skb), skb);
+ 		if (geneve->cfg.ttl_inherit)
+ 			ttl = ip_tunnel_get_ttl(ip_hdr(skb), skb);
+ 		else
+@@ -1148,7 +1152,7 @@ static int geneve_fill_metadata_dst(stru
+ 					  1, USHRT_MAX, true);
+ 
+ 		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
+-				      geneve->cfg.info.key.tp_dst, sport);
++				      geneve->cfg.info.key.tp_dst, sport, NULL);
+ 		if (IS_ERR(rt))
+ 			return PTR_ERR(rt);
+ 
 
 
