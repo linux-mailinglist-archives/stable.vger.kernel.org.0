@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7893C59DC28
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DFF159DBCE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241048AbiHWL1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:27:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37980 "EHLO
+        id S1353543AbiHWK0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:26:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357678AbiHWL0i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:26:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1556BFE89;
-        Tue, 23 Aug 2022 02:24:18 -0700 (PDT)
+        with ESMTP id S244002AbiHWKXf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE992A3D5B;
+        Tue, 23 Aug 2022 02:04:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25DB9612B5;
-        Tue, 23 Aug 2022 09:24:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E540C433C1;
-        Tue, 23 Aug 2022 09:24:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8EF9B81C86;
+        Tue, 23 Aug 2022 09:04:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F6C9C433B5;
+        Tue, 23 Aug 2022 09:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246657;
-        bh=re7zcDtxJno2oqiMy9XInb93oaaAzETIW9ezqafgn+Q=;
+        s=korg; t=1661245470;
+        bh=791j+2hWy8TOd/D1gDSC01GR07M5nk56qoSUdhg5FAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y9WPGCN8it+orzrkfsAI8I1hmXutn1bp7s4RVtT6oNzEAsISNpK3USN9EKSh83CmJ
-         4z2thACYlHIOCy7YvxMavABVMV/vQWegU8GEn/Hp44m2kPoxv/GSh1Dt7IDocmXSki
-         DVIShBjZGBOmJSP2PA/gD87ZeSdkyvo6pTsL69iI=
+        b=UWHd7VRP4Q2bpAkUdTHpA6ERiroTRjQTKsv647Z40U8uhUIyOtDmVl90kAWpkvhkB
+         UtPx4cZt1sNNdzWOIEAYS+oUlQNO0hGSNytqKkKdkiJVXFVKXfOAODvO/PBjHelnWr
+         ZpWElsSwKYMEvSWYpWlmOSUxk86MM2qRRwljQA20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        John Stultz <jstultz@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 179/389] memstick/ms_block: Fix some incorrect memory allocation
+Subject: [PATCH 4.19 088/287] selftests: timers: valid-adjtimex: build fix for newer toolchains
 Date:   Tue, 23 Aug 2022 10:24:17 +0200
-Message-Id: <20220823080123.107808446@linuxfoundation.org>
+Message-Id: <20220823080103.261591707@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 2e531bc3e0d86362fcd8a577b3278d9ef3cc2ba0 ]
+[ Upstream commit 9a162977d20436be5678a8e21a8e58eb4616d86a ]
 
-Some functions of the bitmap API take advantage of the fact that a bitmap
-is an array of long.
+Toolchains with an include file 'sys/timex.h' based on 3.18 will have a
+'clock_adjtime' definition added, so it can't be static in the code:
 
-So, to make sure this assertion is correct, allocate bitmaps with
-bitmap_zalloc() instead of kzalloc()+hand-computed number of bytes.
+valid-adjtimex.c:43:12: error: static declaration of ‘clock_adjtime’ follows non-static declaration
 
-While at it, also use bitmap_free() instead of kfree() to keep the
-semantic.
-
-Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/dbf633c48c24ae6d95f852557e8d8b3bbdef65fe.1656155715.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: e03a58c320e1 ("kselftests: timers: Add adjtimex SETOFFSET validity tests")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: John Stultz <jstultz@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/ms_block.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ tools/testing/selftests/timers/valid-adjtimex.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
-index 55907e4c36b1..399510585245 100644
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -1335,17 +1335,17 @@ static int msb_ftl_initialize(struct msb_data *msb)
- 	msb->zone_count = msb->block_count / MS_BLOCKS_IN_ZONE;
- 	msb->logical_block_count = msb->zone_count * 496 - 2;
+diff --git a/tools/testing/selftests/timers/valid-adjtimex.c b/tools/testing/selftests/timers/valid-adjtimex.c
+index 5397de708d3c..48b9a803235a 100644
+--- a/tools/testing/selftests/timers/valid-adjtimex.c
++++ b/tools/testing/selftests/timers/valid-adjtimex.c
+@@ -40,7 +40,7 @@
+ #define ADJ_SETOFFSET 0x0100
  
--	msb->used_blocks_bitmap = kzalloc(msb->block_count / 8, GFP_KERNEL);
--	msb->erased_blocks_bitmap = kzalloc(msb->block_count / 8, GFP_KERNEL);
-+	msb->used_blocks_bitmap = bitmap_zalloc(msb->block_count, GFP_KERNEL);
-+	msb->erased_blocks_bitmap = bitmap_zalloc(msb->block_count, GFP_KERNEL);
- 	msb->lba_to_pba_table =
- 		kmalloc_array(msb->logical_block_count, sizeof(u16),
- 			      GFP_KERNEL);
- 
- 	if (!msb->used_blocks_bitmap || !msb->lba_to_pba_table ||
- 						!msb->erased_blocks_bitmap) {
--		kfree(msb->used_blocks_bitmap);
-+		bitmap_free(msb->used_blocks_bitmap);
-+		bitmap_free(msb->erased_blocks_bitmap);
- 		kfree(msb->lba_to_pba_table);
--		kfree(msb->erased_blocks_bitmap);
- 		return -ENOMEM;
- 	}
- 
-@@ -1953,7 +1953,7 @@ static int msb_bd_open(struct block_device *bdev, fmode_t mode)
- static void msb_data_clear(struct msb_data *msb)
+ #include <sys/syscall.h>
+-static int clock_adjtime(clockid_t id, struct timex *tx)
++int clock_adjtime(clockid_t id, struct timex *tx)
  {
- 	kfree(msb->boot_page);
--	kfree(msb->used_blocks_bitmap);
-+	bitmap_free(msb->used_blocks_bitmap);
- 	kfree(msb->lba_to_pba_table);
- 	kfree(msb->cache);
- 	msb->card = NULL;
+ 	return syscall(__NR_clock_adjtime, id, tx);
+ }
 -- 
 2.35.1
 
