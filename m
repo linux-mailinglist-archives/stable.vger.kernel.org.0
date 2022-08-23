@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8D4559D9D0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A09659D9D2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347175AbiHWKC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:02:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59096 "EHLO
+        id S1347534AbiHWKDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:03:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351996AbiHWKA7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:00:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F4513DD7;
-        Tue, 23 Aug 2022 01:48:28 -0700 (PDT)
+        with ESMTP id S1352049AbiHWKBK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6513422B0A;
+        Tue, 23 Aug 2022 01:48:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A64F1B8105C;
-        Tue, 23 Aug 2022 08:48:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E75A6C433D6;
-        Tue, 23 Aug 2022 08:48:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D1AD61538;
+        Tue, 23 Aug 2022 08:48:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 002E3C433D6;
+        Tue, 23 Aug 2022 08:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244506;
-        bh=Lveu6uFlMWa/CVBVxi5kfsSkEcxc8ilbail2ZMSOKDk=;
+        s=korg; t=1661244512;
+        bh=HW8oSDo9+AP0Lh/FOT/cK/fI51j5qkfr5A+LITh7TqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2fByFeA7SaV816YCfUC8vglBrhkKXx/7PatnOfSMP1q/5GoeWkQnrZ0NvLpById6
-         ykyiDhKETGGTfnOFRDhg1DVPFUGX5TAUds0Y7SGS+bga8+pldiF+f19Al+nQgx/7Ha
-         KEsvNRFKkCw9BiF65jWScodJgk3msUEZyFGoIl5w=
+        b=f0aAi0u6uPstrM22zJhT5JrZrPeaZ2lL7swExrgSyelmeOgDLcAidVr7UaiU1q7Hx
+         9e6TSO5D8Mglg5umhgS1NFcAxSRUpCfnVmLmHqte0SYsRjGhLX807jkfyXMu+HUYaJ
+         /4ln8O/zDvx2ZLIpiH0MddkCIjUsF+P6Ao0xnBRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 147/229] video: fbdev: arkfb: Check the size of screen before memset_io()
-Date:   Tue, 23 Aug 2022 10:25:08 +0200
-Message-Id: <20220823080058.930157019@linuxfoundation.org>
+Subject: [PATCH 4.14 148/229] video: fbdev: s3fb: Check the size of screen before memset_io()
+Date:   Tue, 23 Aug 2022 10:25:09 +0200
+Message-Id: <20220823080058.960774264@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -55,40 +55,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 96b550971c65d54d64728d8ba973487878a06454 ]
+[ Upstream commit 6ba592fa014f21f35a8ee8da4ca7b95a018f13e8 ]
 
-In the function arkfb_set_par(), the value of 'screen_size' is
+In the function s3fb_set_par(), the value of 'screen_size' is
 calculated by the user input. If the user provides the improper value,
 the value of 'screen_size' may larger than 'info->screen_size', which
 may cause the following bug:
 
-[  659.399066] BUG: unable to handle page fault for address: ffffc90003000000
-[  659.399077] #PF: supervisor write access in kernel mode
-[  659.399079] #PF: error_code(0x0002) - not-present page
-[  659.399094] RIP: 0010:memset_orig+0x33/0xb0
-[  659.399116] Call Trace:
-[  659.399122]  arkfb_set_par+0x143f/0x24c0
-[  659.399130]  fb_set_var+0x604/0xeb0
-[  659.399161]  do_fb_ioctl+0x234/0x670
-[  659.399189]  fb_ioctl+0xdd/0x130
+[   54.083733] BUG: unable to handle page fault for address: ffffc90003000000
+[   54.083742] #PF: supervisor write access in kernel mode
+[   54.083744] #PF: error_code(0x0002) - not-present page
+[   54.083760] RIP: 0010:memset_orig+0x33/0xb0
+[   54.083782] Call Trace:
+[   54.083788]  s3fb_set_par+0x1ec6/0x4040
+[   54.083806]  fb_set_var+0x604/0xeb0
+[   54.083836]  do_fb_ioctl+0x234/0x670
 
 Fix the this by checking the value of 'screen_size' before memset_io().
 
-Fixes: 681e14730c73 ("arkfb: new framebuffer driver for ARK Logic cards")
+Fixes: a268422de8bf ("fbdev driver for S3 Trio/Virge")
 Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/arkfb.c | 2 ++
+ drivers/video/fbdev/s3fb.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/video/fbdev/arkfb.c b/drivers/video/fbdev/arkfb.c
-index bfa221b68d71..f7920987dd24 100644
---- a/drivers/video/fbdev/arkfb.c
-+++ b/drivers/video/fbdev/arkfb.c
-@@ -794,6 +794,8 @@ static int arkfb_set_par(struct fb_info *info)
- 	value = ((value * hmul / hdiv) / 8) - 5;
- 	vga_wcrt(par->state.vgabase, 0x42, (value + 1) / 2);
+diff --git a/drivers/video/fbdev/s3fb.c b/drivers/video/fbdev/s3fb.c
+index d63f23e26f7d..b17b806b4187 100644
+--- a/drivers/video/fbdev/s3fb.c
++++ b/drivers/video/fbdev/s3fb.c
+@@ -902,6 +902,8 @@ static int s3fb_set_par(struct fb_info *info)
+ 	value = clamp((htotal + hsstart + 1) / 2 + 2, hsstart + 4, htotal + 1);
+ 	svga_wcrt_multi(par->state.vgabase, s3_dtpc_regs, value);
  
 +	if (screen_size > info->screen_size)
 +		screen_size = info->screen_size;
