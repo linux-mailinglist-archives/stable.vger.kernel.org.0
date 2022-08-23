@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BED559DE33
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E2459E2A5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352567AbiHWMNU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:13:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47002 "EHLO
+        id S1353334AbiHWKNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354491AbiHWMMe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:12:34 -0400
+        with ESMTP id S1353458AbiHWKLa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55365E42FA;
-        Tue, 23 Aug 2022 02:39:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC429B1CB;
+        Tue, 23 Aug 2022 01:56:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C87A961494;
-        Tue, 23 Aug 2022 09:38:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE13EC433D6;
-        Tue, 23 Aug 2022 09:38:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4273C61377;
+        Tue, 23 Aug 2022 08:56:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5181CC433D6;
+        Tue, 23 Aug 2022 08:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247508;
-        bh=bscVAE5S6VHBuepQqS3D/xc941T/WKO+yPSMHz6aUrU=;
+        s=korg; t=1661245008;
+        bh=NQE+D1YIAmhEbIgHZMr35QDB/H8Pj1G4SuYfoV8s4vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPSUNpqTPh6leGjNY88eaeNO6mWwFf529g/bfqvq+dLX0AwhuFz04i6CDU3205Qdz
-         PAmc3tP9sH5TmGWh9y2b8qHspeQOfIqR3+H0QD4pGS8SWNNymJwKjZ11tzu+CzJVm4
-         kaBtIJaai5BKEOs5a6p/N+5Vf6YNHeG4CurKU+tc=
+        b=gAG7lYrZE7p1flRzjjlnwzSvv9gL+JB6XUJzlcOqIz43eCT/KxXS28YSvSZng3u0I
+         b2IQGB2zh61b/FAnYm18F0PcQS+JJZv13ibMTdf8Bbbdq2uK4o3PNOFi6gfQqsP+Hs
+         1oWz9mtdHBeSW7tJV4WO0cc6+ulyo++sNjNgqNHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
-        Yu Xiao <yu.xiao@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 058/158] nfp: ethtool: fix the display error of `ethtool -m DEVNAME`
+        stable@vger.kernel.org,
+        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 229/229] MIPS: tlbex: Explicitly compare _PAGE_NO_EXEC against 0
 Date:   Tue, 23 Aug 2022 10:26:30 +0200
-Message-Id: <20220823080048.419386503@linuxfoundation.org>
+Message-Id: <20220823080101.806263541@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Xiao <yu.xiao@corigine.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 4ae97cae07e15d41e5c0ebabba64c6eefdeb0bbe upstream.
+[ Upstream commit 74de14fe05dd6b151d73cb0c73c8ec874cbdcde6 ]
 
-The port flag isn't set to `NFP_PORT_CHANGED` when using
-`ethtool -m DEVNAME` before, so the port state (e.g. interface)
-cannot be updated. Therefore, it caused that `ethtool -m DEVNAME`
-sometimes cannot read the correct information.
+When CONFIG_XPA is enabled, Clang warns:
 
-E.g. `ethtool -m DEVNAME` cannot work when load driver before plug
-in optical module, as the port interface is still NONE without port
-update.
+  arch/mips/mm/tlbex.c:629:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
+                              ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  arch/mips/mm/tlbex.c:2568:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
+                                ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  2 errors generated.
 
-Now update the port state before sending info to NIC to ensure that
-port interface is correct (latest state).
+_PAGE_NO_EXEC can be '0' or '1 << _PAGE_NO_EXEC_SHIFT' depending on the
+build and runtime configuration, which is what the negation operators
+are trying to convey. To silence the warning, explicitly compare against
+0 so the result of the '<<' operator is not implicitly converted to a
+boolean.
 
-Fixes: 61f7c6f44870 ("nfp: implement ethtool get module EEPROM")
-Reviewed-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Yu Xiao <yu.xiao@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20220802093355.69065-1-simon.horman@corigine.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+According to its documentation, GCC enables -Wint-in-bool-context with
+-Wall but this warning is not visible when building the same
+configuration with GCC. It appears GCC only warns when compiling C++,
+not C, although the documentation makes no note of this:
+https://godbolt.org/z/x39q3brxf
+
+Reported-by: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/mm/tlbex.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-@@ -1225,6 +1225,8 @@ nfp_port_get_module_info(struct net_devi
- 	u8 data;
+diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+index b55c74a7f7a4..82cd14e7b20d 100644
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -634,7 +634,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
+ 		return;
+ 	}
  
- 	port = nfp_port_from_netdev(netdev);
-+	/* update port state to get latest interface */
-+	set_bit(NFP_PORT_CHANGED, &port->flags);
- 	eth_port = nfp_port_get_eth_port(port);
- 	if (!eth_port)
- 		return -EOPNOTSUPP;
+-	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
++	if (cpu_has_rixi && _PAGE_NO_EXEC != 0) {
+ 		if (fill_includes_sw_bits) {
+ 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
+ 		} else {
+@@ -2577,7 +2577,7 @@ static void check_pabits(void)
+ 	unsigned long entry;
+ 	unsigned pabits, fillbits;
+ 
+-	if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
++	if (!cpu_has_rixi || _PAGE_NO_EXEC == 0) {
+ 		/*
+ 		 * We'll only be making use of the fact that we can rotate bits
+ 		 * into the fill if the CPU supports RIXI, so don't bother
+-- 
+2.35.1
+
 
 
