@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC8C59E18C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A40C059E344
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358879AbiHWLzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34948 "EHLO
+        id S1353352AbiHWMSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358742AbiHWLxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:53:39 -0400
+        with ESMTP id S1359543AbiHWMPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BCF4D5DE1;
-        Tue, 23 Aug 2022 02:33:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E35F7A759;
+        Tue, 23 Aug 2022 02:41:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F17EA61389;
-        Tue, 23 Aug 2022 09:33:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1511C433C1;
-        Tue, 23 Aug 2022 09:33:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDD836148E;
+        Tue, 23 Aug 2022 09:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE27C433C1;
+        Tue, 23 Aug 2022 09:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247183;
-        bh=xK2M1WLYf7vV6q0FqCGPn4zL+UX/2Lz0cBFiFLJGSRE=;
+        s=korg; t=1661247616;
+        bh=RlS+b8Vyy/m/NXrnEpfLUDK64uMIFP9NpLwnxs/c8NM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z/icwRpH/bgkAQsLxF979bMnRGoutjvlfBi95nzZp8BbptpilqDjsoq7mThNpgQE2
-         0eYMT6YQHBkw6lr6rTA4g+YhkowZos6sbGjjW6QjTNanF8OYQn42Gz3T8KoIuISY7M
-         vBjPxw1+CYDkcnM7ezMQwDcrK9zXfCjPtQdZCM9I=
+        b=KMhFxp6K6VJ6XMCCOQER2GEhS9AjVF22Nt4HnIkDDyqNrRcGG3+AubI1sgx/vmxN5
+         Q20afCXFNkgsxrviXcqGM5swguqi7df1LbWdIK3914kHfZX89gPBE/0EDA29HuVlgx
+         J74hwZFwg9+d4NFNjS9ZLX2USM0yOuSe7opRbe0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 345/389] igb: Add lock to avoid data race
+Subject: [PATCH 5.10 091/158] stmmac: intel: Add a missing clk_disable_unprepare() call in intel_eth_pci_remove()
 Date:   Tue, 23 Aug 2022 10:27:03 +0200
-Message-Id: <20220823080129.945215032@linuxfoundation.org>
+Message-Id: <20220823080049.712401502@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,126 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 6faee3d4ee8be0f0367d0c3d826afb3571b7a5e0 upstream.
+commit 5c23d6b717e4e956376f3852b90f58e262946b50 upstream.
 
-The commit c23d92b80e0b ("igb: Teardown SR-IOV before
-unregister_netdev()") places the unregister_netdev() call after the
-igb_disable_sriov() call to avoid functionality issue.
+Commit 09f012e64e4b ("stmmac: intel: Fix clock handling on error and remove
+paths") removed this clk_disable_unprepare()
 
-However, it introduces several race conditions when detaching a device.
-For example, when .remove() is called, the below interleaving leads to
-use-after-free.
+This was partly revert by commit ac322f86b56c ("net: stmmac: Fix clock
+handling on remove path") which removed this clk_disable_unprepare()
+because:
+"
+   While unloading the dwmac-intel driver, clk_disable_unprepare() is
+   being called twice in stmmac_dvr_remove() and
+   intel_eth_pci_remove(). This causes kernel panic on the second call.
+"
 
- (FREE from device detaching)      |   (USE from netdev core)
-igb_remove                         |  igb_ndo_get_vf_config
- igb_disable_sriov                 |  vf >= adapter->vfs_allocated_count?
-  kfree(adapter->vf_data)          |
-  adapter->vfs_allocated_count = 0 |
-                                   |    memcpy(... adapter->vf_data[vf]
+However later on, commit 5ec55823438e8 ("net: stmmac: add clocks management
+for gmac driver") has updated stmmac_dvr_remove() which do not call
+clk_disable_unprepare() anymore.
 
-Moreover, the igb_disable_sriov() also suffers from data race with the
-requests from VF driver.
+So this call should now be called from intel_eth_pci_remove().
 
- (FREE from device detaching)      |   (USE from requests)
-igb_remove                         |  igb_msix_other
- igb_disable_sriov                 |   igb_msg_task
-  kfree(adapter->vf_data)          |    vf < adapter->vfs_allocated_count
-  adapter->vfs_allocated_count = 0 |
-
-To this end, this commit first eliminates the data races from netdev
-core by using rtnl_lock (similar to commit 719479230893 ("dpaa2-eth: add
-MAC/PHY support through phylink")). And then adds a spinlock to
-eliminate races from driver requests. (similar to commit 1e53834ce541
-("ixgbe: Add locking to prevent panic when setting sriov_numvfs to zero")
-
-Fixes: c23d92b80e0b ("igb: Teardown SR-IOV before unregister_netdev()")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20220817184921.735244-1-anthony.l.nguyen@intel.com
+Fixes: 5ec55823438e8 ("net: stmmac: add clocks management for gmac driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/d7c8c1dadf40df3a7c9e643f76ffadd0ccc1ad1b.1660659689.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igb/igb.h      |    2 ++
- drivers/net/ethernet/intel/igb/igb_main.c |   12 +++++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/intel/igb/igb.h
-+++ b/drivers/net/ethernet/intel/igb/igb.h
-@@ -594,6 +594,8 @@ struct igb_adapter {
- 	struct igb_mac_addr *mac_table;
- 	struct vf_mac_filter vf_macs;
- 	struct vf_mac_filter *vf_mac_list;
-+	/* lock for VF resources */
-+	spinlock_t vfs_lock;
- };
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+@@ -669,6 +669,7 @@ static void intel_eth_pci_remove(struct
  
- /* flags controlling PTP/1588 function */
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -3491,6 +3491,7 @@ static int igb_disable_sriov(struct pci_
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct igb_adapter *adapter = netdev_priv(netdev);
- 	struct e1000_hw *hw = &adapter->hw;
-+	unsigned long flags;
+ 	pci_free_irq_vectors(pdev);
  
- 	/* reclaim resources allocated to VFs */
- 	if (adapter->vf_data) {
-@@ -3503,12 +3504,13 @@ static int igb_disable_sriov(struct pci_
- 			pci_disable_sriov(pdev);
- 			msleep(500);
- 		}
--
-+		spin_lock_irqsave(&adapter->vfs_lock, flags);
- 		kfree(adapter->vf_mac_list);
- 		adapter->vf_mac_list = NULL;
- 		kfree(adapter->vf_data);
- 		adapter->vf_data = NULL;
- 		adapter->vfs_allocated_count = 0;
-+		spin_unlock_irqrestore(&adapter->vfs_lock, flags);
- 		wr32(E1000_IOVCTL, E1000_IOVCTL_REUSE_VFQ);
- 		wrfl();
- 		msleep(100);
-@@ -3668,7 +3670,9 @@ static void igb_remove(struct pci_dev *p
- 	igb_release_hw_control(adapter);
++	clk_disable_unprepare(priv->plat->stmmac_clk);
+ 	clk_unregister_fixed_rate(priv->plat->stmmac_clk);
  
- #ifdef CONFIG_PCI_IOV
-+	rtnl_lock();
- 	igb_disable_sriov(pdev);
-+	rtnl_unlock();
- #endif
- 
- 	unregister_netdev(netdev);
-@@ -3829,6 +3833,9 @@ static int igb_sw_init(struct igb_adapte
- 
- 	spin_lock_init(&adapter->nfc_lock);
- 	spin_lock_init(&adapter->stats64_lock);
-+
-+	/* init spinlock to avoid concurrency of VF resources */
-+	spin_lock_init(&adapter->vfs_lock);
- #ifdef CONFIG_PCI_IOV
- 	switch (hw->mac.type) {
- 	case e1000_82576:
-@@ -7569,8 +7576,10 @@ unlock:
- static void igb_msg_task(struct igb_adapter *adapter)
- {
- 	struct e1000_hw *hw = &adapter->hw;
-+	unsigned long flags;
- 	u32 vf;
- 
-+	spin_lock_irqsave(&adapter->vfs_lock, flags);
- 	for (vf = 0; vf < adapter->vfs_allocated_count; vf++) {
- 		/* process any reset requests */
- 		if (!igb_check_for_rst(hw, vf))
-@@ -7584,6 +7593,7 @@ static void igb_msg_task(struct igb_adap
- 		if (!igb_check_for_ack(hw, vf))
- 			igb_rcv_ack_from_vf(adapter, vf);
- 	}
-+	spin_unlock_irqrestore(&adapter->vfs_lock, flags);
- }
- 
- /**
+ 	pcim_iounmap_regions(pdev, BIT(0));
 
 
