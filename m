@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65F3959DE60
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC67759DB2E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:18:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357529AbiHWLRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43378 "EHLO
+        id S240575AbiHWLRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357866AbiHWLQu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CEADBD2BF;
-        Tue, 23 Aug 2022 02:20:27 -0700 (PDT)
+        with ESMTP id S244365AbiHWLQy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4383BD4EF;
+        Tue, 23 Aug 2022 02:20:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6601061298;
-        Tue, 23 Aug 2022 09:20:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ABA0C433C1;
-        Tue, 23 Aug 2022 09:20:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC461B81C8B;
+        Tue, 23 Aug 2022 09:20:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D328C433D6;
+        Tue, 23 Aug 2022 09:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246403;
-        bh=FutRVyWlE0IVP1TJoNBQC//wfoF54yZEDO2MEGYYXVg=;
+        s=korg; t=1661246406;
+        bh=hDlEM4d9HLVjMgmnjDUPrcujB7QyITqOhNqevX9Fxf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DsJn9Ku/M6QxDfLofJCz/ntrAgkEuOArWmeOMIASJql1afrq4xjX9WJIk+dMVrLQB
-         c807NXrDDvb4DOxugapjDc6EmjGfso8wNIOnpQjFUrXTJnDqUkt3v4Ml98AKT+9nww
-         plAWHbVlFofArVjm4w+lFnPo4RwCLOOI4BPA9yEQ=
+        b=qJRNKAmzNm6vpI3lwwX01DD1JxDQV4DkRIme1KKp8MrDTAnfSVT2gwEg0M+xeonHZ
+         uT/LMeTo7iwdfcxuhhlF6gpUv0GLqA3c2FxkqAUsJQCtslYPwP2l6msO+CB3NIx00r
+         8s6FHQQzSUIez/DMr2mQQKFuwyfvSQL8VX/yuSYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/389] arm64: dts: qcom: ipq8074: fix NAND node name
-Date:   Tue, 23 Aug 2022 10:22:26 +0200
-Message-Id: <20220823080118.452625311@linuxfoundation.org>
+Subject: [PATCH 5.4 069/389] arm64: dts: allwinner: a64: orangepi-win: Fix LED node name
+Date:   Tue, 23 Aug 2022 10:22:27 +0200
+Message-Id: <20220823080118.501355456@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -55,35 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robimarko@gmail.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit b39961659ffc3c3a9e3d0d43b0476547b5f35d49 ]
+[ Upstream commit b8eb2df19fbf97aa1e950cf491232c2e3bef8357 ]
 
-Per schema it should be nand-controller@79b0000 instead of nand@79b0000.
-Fix it to match nand-controller.yaml requirements.
+"status" does not match any pattern in the gpio-leds binding. Rename the
+node to the preferred pattern. This fixes a `make dtbs_check` error.
 
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220621120642.518575-1-robimarko@gmail.com
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220702132816.46456-1-samuel@sholland.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074.dtsi | 2 +-
+ arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-index 7822592664ff..1e9fa049c550 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-@@ -253,7 +253,7 @@ qpic_bam: dma@7984000 {
- 			status = "disabled";
- 		};
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts
+index a0db02504b69..963a7c505e30 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts
+@@ -78,7 +78,7 @@ hdmi_con_in: endpoint {
+ 	leds {
+ 		compatible = "gpio-leds";
  
--		qpic_nand: nand@79b0000 {
-+		qpic_nand: nand-controller@79b0000 {
- 			compatible = "qcom,ipq8074-nand";
- 			reg = <0x79b0000 0x10000>;
- 			#address-cells = <1>;
+-		status {
++		led-0 {
+ 			label = "orangepi:green:status";
+ 			gpios = <&pio 7 11 GPIO_ACTIVE_HIGH>; /* PH11 */
+ 		};
 -- 
 2.35.1
 
