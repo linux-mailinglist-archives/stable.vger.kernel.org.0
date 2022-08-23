@@ -2,188 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63EDD59EC7F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 21:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C13CA59ECF4
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 21:59:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232215AbiHWTid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 15:38:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
+        id S233178AbiHWT67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 15:58:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232837AbiHWTiO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 15:38:14 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8022EA1D40
-        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 11:34:55 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id bq11so11451157wrb.12
-        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 11:34:55 -0700 (PDT)
+        with ESMTP id S233231AbiHWT6g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 15:58:36 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B69B88DF2
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 12:09:41 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id g18so14883045pju.0
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 12:09:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc;
-        bh=ytTjReeUrxoqSJ5BeQcZY9hlOg/OMaAOjybK5mQFt+A=;
-        b=Qy0Q9yihjuVjrN8moQnwdH5FwctVgPQjWaTW/jYlmysDVAO2t2WrbWoTwEtoaJmO7I
-         AAM5wdq4aFShbRm62kuc1uNIEpKVeAh8SmEEQ3PfYvDK6AzvNnbwQRFbA1niDLjUyRze
-         ADnk1oooR/czh6+WUVhvHGqF+EgkFgwl4/94d7l7cNsTJVGDee5XPIEoP+gbdxTuTEpm
-         +ygSBBsYP68UagMawe/iKr+zmHc42vuPYH+ZHxXrIQcDzCeyYDSvwVvmYYC9SoBuVJHY
-         MyHlPxkg1fmYUo//Epo2iJbf2qX8wqeeva53IyjehMh2NsTVCLC5JUn3hpVlqas2Ed+U
-         iUDQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc;
+        bh=in7oA+dpv+ChfICYbXCwSbjPVTBiZFbEh4U0vyhctyA=;
+        b=jqg9/XhvJu2WlInt5KQ8aU1lo0Cww3eR41KzGwJS1oZQnWXfN40raW/32dyrcew8tL
+         JeWhefaz1GdLgD4vHOY1GyEAO3RaZC2IaX18vkRTkGSUrrE5Kc52drahvPNOd6DXl06q
+         kcAYhocfmVmDQzgDml9GD+3xcBcGDYWBe2YZfnuZaiVwIWh2U0wnz+V5NfcmX4hEK9P5
+         +yX/uKHVNA8k+GON6LrKmqk+scZLAg1gdQHGFHpP8aKnXuRsd0LHeVYkK+o3i9CKpEv/
+         ZcRBJG+15NI2NAXMGguWoUClcLLBIZGNkOSIE4ZK0qI+x4KEH6wc8E/Tf1K8ybAiQsoj
+         a/kQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=ytTjReeUrxoqSJ5BeQcZY9hlOg/OMaAOjybK5mQFt+A=;
-        b=5ICEK6+fgqjMtle72QcMHMUN6faDkuIlc6YSqxdJhm762pznG6cb46/qazscNmj122
-         cTm7Kjwz/Z+jqwf6Ovt27MUTBbwXn7MqMHv9wZ9fVnCvUYUCKOpVElUzBr1BMelHYvCp
-         QxDksMoouXc3sr3r3GxWJWyNTqOZqjlUbQ7ejYj6+4PdWss8MObURF2Q4NSbNGCUi4ne
-         F3WwpU18auHFG24VQwKAoaNqQ5B39tJW5YlPhitmixq5/F4qOQGqfNInAwKLnepfICrU
-         gH886nULpPeT+tSa1MPPgTxj5OugvpDm30+NbftIyhcAHuUByfNYSaPVN3542ISs8RXp
-         dryg==
-X-Gm-Message-State: ACgBeo3DDXc5zoj1kwX0lHmWXqHRASl2x+MY31VMrAUk9CNGwA5ko/I7
-        XKANeEM15WxwnaF/MseRD2Eczg==
-X-Google-Smtp-Source: AA6agR4/pmlxMMCthZI/YxG8smLnTaQ2KoVUL3TkzQsGdeXmEbVwBRWaPWlRjyZd2AB6jbN6KltESA==
-X-Received: by 2002:a5d:50c8:0:b0:225:5a57:bd84 with SMTP id f8-20020a5d50c8000000b002255a57bd84mr6104142wrt.131.1661279694038;
-        Tue, 23 Aug 2022 11:34:54 -0700 (PDT)
-Received: from myrica (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net. [82.27.106.168])
-        by smtp.gmail.com with ESMTPSA id g10-20020a05600c4eca00b003a31ca9dfb6sm27073664wmq.32.2022.08.23.11.34.53
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc;
+        bh=in7oA+dpv+ChfICYbXCwSbjPVTBiZFbEh4U0vyhctyA=;
+        b=3fdaVUqQzDz4Cf2NspQQyxRUf1cf/SB21Fx1ff59GGOtbBS8yHEVWn6KvJpl+WrHPK
+         shGsTDNAEqakMa05B62C0bOC3CbuUn7J/LEXTf27GswqQ6FHhX0nZPutVIRNMRaooGBM
+         QWHTRW8YrAY7uIKVrvK6YlzUqQhKmDsRpwZ/xpPi5eREPzye0dgCLdts+bD2wgXfSWRX
+         XY7F1bUAkjXzwkeJMM06oZEhHO1TgTimKERcrgVLI4Yhc5eQ0GxGcwW5f+W68rK9tvg2
+         wfCccxp6Nt+FeOw3sE2zw+DtDEEzKhTFqPdaUVcvZoyOZw7VEk0HxQEwpGRH4A7DymZI
+         bX7w==
+X-Gm-Message-State: ACgBeo1YUYBCuKnXhoA5U9T7hV3YaKV4lxrorML8CUCxsiQaZ2aLYiUa
+        axk/fpqsZWGdx2OYsCIY482wNfYzFJjjrwi1
+X-Google-Smtp-Source: AA6agR5M4HqV6XAoLX7Rd/8tXtq0WRwQHN52NJsczGkM+2jdfFFZ3XUeuOJbFj1Tvmp+pBaBPEIdhQ==
+X-Received: by 2002:a17:902:f64a:b0:172:7576:2124 with SMTP id m10-20020a170902f64a00b0017275762124mr24656667plg.155.1661281780707;
+        Tue, 23 Aug 2022 12:09:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a6-20020aa78e86000000b00535ca2dce54sm11158835pfr.65.2022.08.23.12.09.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Aug 2022 11:34:53 -0700 (PDT)
-Date:   Tue, 23 Aug 2022 19:34:50 +0100
-From:   Jean-Philippe Brucker <jean-philippe@linaro.org>
-To:     RAJESH DASARI <raajeshdasari@gmail.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ovidiu.panait@windriver.com,
-        alexei.starovoitov@gmail.com, john.fastabend@gmail.com
-Subject: Re: bpf selftest failed in 5.4.210 kernel
-Message-ID: <YwUdyiK16jz1W5Aa@myrica>
-References: <CAPXMrf-C5XEUfOJd3GCtgtHOkc8DxDGbLxE5=GFmr+Py0zKxJA@mail.gmail.com>
- <Yv3M8wqMkLwlaHxa@kroah.com>
- <Yv3wZLuPEL9B/h83@myrica>
- <Yv9shQ3i49efHG6f@kroah.com>
- <CAPXMrf8VsNMKNLxFjdytk57mk_9ZC0avg1qCGLSMOZNirpdboQ@mail.gmail.com>
- <YwCGoRt6ifOC6mCD@kroah.com>
- <CAPXMrf-Gc-Mv1goZrk59GG96OLPxEUC-FKT6Dwo6TU6D7po=gw@mail.gmail.com>
- <YwR76AVTOsdXNpxh@kroah.com>
- <CAPXMrf-XUHnfQtnCMs6pbpM+2LUBLqE2c1Z-UwsM-mU1KdoOUA@mail.gmail.com>
+        Tue, 23 Aug 2022 12:09:37 -0700 (PDT)
+Message-ID: <630525f1.a70a0220.20197.5113@mx.google.com>
+Date:   Tue, 23 Aug 2022 12:09:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPXMrf-XUHnfQtnCMs6pbpM+2LUBLqE2c1Z-UwsM-mU1KdoOUA@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.62-243-g5448111b4eeb
+Subject: stable-rc/queue/5.15 baseline: 102 runs,
+ 1 regressions (v5.15.62-243-g5448111b4eeb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 23, 2022 at 10:31:40AM +0300, RAJESH DASARI wrote:
-> Sorry for the confusion, results are indeed confusing to me .
-> If I try with git bisect I get
-> 
-> git bisect bad
-> 9d6f67365d9cdb389fbdac2bb5b00e59e345930e is the first bad commit
+stable-rc/queue/5.15 baseline: 102 runs, 1 regressions (v5.15.62-243-g54481=
+11b4eeb)
 
-For me bisecting points to:
+Regressions Summary
+-------------------
 
-(A)	7c1134c7da99 ("bpf: Verifer, adjust_scalar_min_max_vals to always call update_reg_bounds()")
+platform        | arch | lab           | compiler | defconfig         | reg=
+ressions
+----------------+------+---------------+----------+-------------------+----=
+--------
+bcm2836-rpi-2-b | arm  | lab-collabora | gcc-10   | bcm2835_defconfig | 1  =
+        =
 
-This changes the BPF verifier output and (as expected) breaks the
-test_align selftest. That's why in the same series [1] another patch fixed
-test_align. In v5.4.y, that patch is:
 
-(B)	6a9b3f0f3bad ("selftests/bpf: Fix test_align verifier log patterns")
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.62-243-g5448111b4eeb/plan/baseline/
 
-Unfortunately commit (B) addresses multiple verifier changes, not solely
-(A). My guess is those changes were in series [1] and haven't been
-backported to v5.4. So multiple solutions:
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.62-243-g5448111b4eeb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5448111b4eebd82cb37769c49e62e267c6ad1418 =
 
-* Partially revert (B), only keeping the changes needed by (A)
-* Revert (A) and (B)
-* Add the missing commits that (B) also addresses
 
-I don't know which, I suppose it depends on the intent behind backporting
-(A). Ovidiu?
 
-In any case 6098562ed9df ("selftests/bpf: Fix "dubious pointer arithmetic"
-test") can be reverted, I can send that once we figure out the rest.
+Test Regressions
+---------------- =
 
-Thanks,
-Jean
 
-[1] https://lore.kernel.org/bpf/158507130343.15666.8018068546764556975.stgit@john-Precision-5820-Tower/
 
-> 
-> If I  try to test myself with multiple test scenarios(I have mentioned
-> in  the previous mails) for the bad commits , I see that bad commits
-> are
-> bpf: Verifer, adjust_scalar_min_max_vals to always call update_reg_bounds()
-> selftests/bpf: Fix test_align verifier log patterns
-> selftests/bpf: Fix "dubious pointer arithmetic" test
-> 
-> Thanks,
-> Rajesh Dasari.
-> 
-> On Tue, Aug 23, 2022 at 10:04 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Mon, Aug 22, 2022 at 10:23:02PM +0300, RAJESH DASARI wrote:
-> > > Hi,
-> > >
-> > > Please find the test scenarios which I have tried.
-> > >
-> > > Test 1:
-> > >
-> > > Running system Kernel version (tag/commit) :  v5.4.210
-> > > Kernel source code checkout : v5.4.210
-> > > test_align test case execution status : Failure
-> > >
-> > > Test 2:
-> > >
-> > > Running system Kernel version (tag/commit) : v5.4.210
-> > > Kernel source code checkout : v5.4.209
-> > > test_align test case execution status : Failure
-> > >
-> > > Test 3:
-> > >
-> > > Running system Kernel version (tag/commit) : v5.4.209
-> > > Kernel source code checkout : v5.4.209
-> > > test_align test case execution status : Success
-> > >
-> > > Test 4:
-> > >
-> > > Running system Kernel version (tag/commit) : ACPI: APEI: Better fix to
-> > > avoid spamming the console with old error logs ( Kernel compiled at
-> > > this commit  and system is booted with this change)
-> > > Kernel source code checkout : v5.4.210 but reverted selftests/bpf: Fix
-> > > test_align verifier log patterns and selftests/bpf: Fix "dubious
-> > > pointer arithmetic" test. If I revert only the Fix "dubious pointer
-> > > arithmetic" test, the testcase still fails.
-> > > test_align test case execution status : Success
-> > >
-> > > Test 5:
-> > >
-> > > Running system Kernel version (tag/commit) :  v5.4.210 but reverted
-> > > commit (bpf: Verifer, adjust_scalar_min_max_vals to always call
-> > > update_reg_bounds() )
-> > > Kernel source code checkout : v5.4.210 but reverted selftests/bpf: Fix
-> > > test_align verifier log patterns and selftests/bpf: Fix "dubious
-> > > pointer arithmetic" test.
-> > > test_align test case execution status : Success
-> > >
-> > > Test 6 :
-> > >
-> > > Running system Kernel version (tag/commit) : bpf: Test_verifier, #70
-> > > error message updates for 32-bit right shift( Kernel compiled at this
-> > > commit  and system is booted with this change)
-> > > Kernel source code checkout : v5.4.209 or v5.4.210
-> > > test_align test case execution status : Failure
-> >
-> > I'm sorry, but I don't know what to do with this report at all.
-> >
-> > Is there some failure somewhere?  If you use 'git bisect' do you find
-> > the offending commit?
-> >
-> > confused,
-> >
-> > greg k-h
+platform        | arch | lab           | compiler | defconfig         | reg=
+ressions
+----------------+------+---------------+----------+-------------------+----=
+--------
+bcm2836-rpi-2-b | arm  | lab-collabora | gcc-10   | bcm2835_defconfig | 1  =
+        =
+
+
+  Details:     https://kernelci.org/test/plan/id/6304f0da00c3225335355645
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.62-=
+243-g5448111b4eeb/arm/bcm2835_defconfig/gcc-10/lab-collabora/baseline-bcm28=
+36-rpi-2-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.62-=
+243-g5448111b4eeb/arm/bcm2835_defconfig/gcc-10/lab-collabora/baseline-bcm28=
+36-rpi-2-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6304f0da00c3225335355=
+646
+        failing since 0 day (last pass: v5.15.60-673-g7d1e7d167a411, first =
+fail: v5.15.62-232-g7f3b8845612d) =
+
+ =20
