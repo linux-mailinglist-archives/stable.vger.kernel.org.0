@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF2C59DB6B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB0D859DCA7
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354082AbiHWKcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:32:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57890 "EHLO
+        id S1354653AbiHWKdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:33:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354616AbiHWK22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:28:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC39D84EF5;
-        Tue, 23 Aug 2022 02:06:09 -0700 (PDT)
+        with ESMTP id S244071AbiHWK2r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:28:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2357A4B2D;
+        Tue, 23 Aug 2022 02:06:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0AFAACE1B55;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8C526159E;
+        Tue, 23 Aug 2022 09:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67BB1C433D6;
         Tue, 23 Aug 2022 09:06:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22568C433B5;
-        Tue, 23 Aug 2022 09:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245566;
-        bh=1HheMQ0rOndr83yFbEnl+ikT2KqMkrmBSB+eHXVVNvg=;
+        s=korg; t=1661245570;
+        bh=luHBUrRIV4gNJjcdb9dB0gLzv7xn9uBt9hJKAdIwS1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjWsgpKbN3dv3t5SsAnMdd3KDN9u3R51r1Ou/oDZdKpuZCi8IotC0fPVdHfY6aFEE
-         9V1SB7c0P/ID8XhO+CZVMU9aIWeSNv16xyfWa9iD+MiJ3dlDC+VXUkM8JmnjfA9glk
-         eAX7wuW1/1YWOITrmSZmIaKaFRkvzCbRqPSSXt9k=
+        b=ll2af/yfryt76RCc2hGw3TCJGPRsBwhqkoQmNCR+uNmtBPr1b9lTL7Qf9lq+UpDiK
+         X+UPw1on9ABXIgc/GYjTXiDmH7F3xpclL0LmY4be/c9uD9Bk4FyVMI49a8ezV8133N
+         r5U6TfoHjtXEnyZiudrv/DEutGTiFHkjdU1F85E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Xu Yilun <yilun.xu@intel.com>,
-        Marco Pagani <marpagan@redhat.com>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Miaoqian Lin <linmq006@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 119/287] fpga: altera-pr-ip: fix unsigned comparison with less than zero
-Date:   Tue, 23 Aug 2022 10:24:48 +0200
-Message-Id: <20220823080104.389848938@linuxfoundation.org>
+Subject: [PATCH 4.19 120/287] usb: host: Fix refcount leak in ehci_hcd_ppc_of_probe
+Date:   Tue, 23 Aug 2022 10:24:49 +0200
+Message-Id: <20220823080104.429242261@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
 References: <20220823080100.268827165@linuxfoundation.org>
@@ -55,38 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Pagani <marpagan@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 2df84a757d87fd62869fc401119d429735377ec5 ]
+[ Upstream commit b5c5b13cb45e2c88181308186b0001992cb41954 ]
 
-Fix the "comparison with less than zero" warning reported by
-cppcheck for the unsigned (size_t) parameter count of the
-alt_pr_fpga_write() function.
+of_find_compatible_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: d201cc17a8a3 ("fpga pr ip: Core driver support for Altera Partial Reconfiguration IP")
-Reviewed-by: Tom Rix <trix@redhat.com>
-Acked-by: Xu Yilun <yilun.xu@intel.com>
-Signed-off-by: Marco Pagani <marpagan@redhat.com>
-Link: https://lore.kernel.org/r/20220609140520.42662-1-marpagan@redhat.com
-Signed-off-by: Xu Yilun <yilun.xu@intel.com>
+Fixes: 796bcae7361c ("USB: powerpc: Workaround for the PPC440EPX USBH_23 errata [take 3]")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220602110849.58549-1-linmq006@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/altera-pr-ip-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/ehci-ppc-of.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/fpga/altera-pr-ip-core.c b/drivers/fpga/altera-pr-ip-core.c
-index 65e0b6a2c031..059ba27f3c29 100644
---- a/drivers/fpga/altera-pr-ip-core.c
-+++ b/drivers/fpga/altera-pr-ip-core.c
-@@ -108,7 +108,7 @@ static int alt_pr_fpga_write(struct fpga_manager *mgr, const char *buf,
- 	u32 *buffer_32 = (u32 *)buf;
- 	size_t i = 0;
+diff --git a/drivers/usb/host/ehci-ppc-of.c b/drivers/usb/host/ehci-ppc-of.c
+index 576f7d79ad4e..d1dc644b215c 100644
+--- a/drivers/usb/host/ehci-ppc-of.c
++++ b/drivers/usb/host/ehci-ppc-of.c
+@@ -148,6 +148,7 @@ static int ehci_hcd_ppc_of_probe(struct platform_device *op)
+ 		} else {
+ 			ehci->has_amcc_usb23 = 1;
+ 		}
++		of_node_put(np);
+ 	}
  
--	if (count <= 0)
-+	if (!count)
- 		return -EINVAL;
- 
- 	/* Write out the complete 32-bit chunks */
+ 	if (of_get_property(dn, "big-endian", NULL)) {
 -- 
 2.35.1
 
