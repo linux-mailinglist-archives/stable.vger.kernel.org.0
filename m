@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17AD959DEAF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9609959DF48
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352877AbiHWKJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:09:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58206 "EHLO
+        id S1357918AbiHWLmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:42:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352857AbiHWKGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:23 -0400
+        with ESMTP id S1358228AbiHWLlS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:41:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F56863EF;
-        Tue, 23 Aug 2022 01:53:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95091796BA;
+        Tue, 23 Aug 2022 02:28:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED960611DD;
-        Tue, 23 Aug 2022 08:53:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E67BEC433D7;
-        Tue, 23 Aug 2022 08:53:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B36961174;
+        Tue, 23 Aug 2022 09:28:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 446C7C433D6;
+        Tue, 23 Aug 2022 09:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244800;
-        bh=mfXabLGDY9gETB+b3ZUJCxSsB/UQoJhhDwkWQHOl0eE=;
+        s=korg; t=1661246934;
+        bh=/aztHlH5HHXIVtljODHpAVEb0ZwqTgdiruIxscLrmRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4vHnKrqr3HBCucTvpgRYOsETuwctNneXlzZ4BIhsB6SeIcUUXD1J2jjqgCYgBshZ
-         B2bAHaLE6zccAG0AZMIwwKKVPXEBMzTIk76Rr6ejnXwYMJObjjEWoqtywLVvNSuMNT
-         r9s6zkLqd5zPlWXlz0VbYkqOKTWtvXFjzFI/K/fQ=
+        b=Y5gaQZ+SMmruP7oir13wyWYAgHxaGXZoQL3l0mWMK4g/M5UsPfDJy+v79Y0CfwVgZ
+         R3I06N4+h2ZcJJN/htuQmTrScZMz4wx3voAHcazoKfIWcdc+bKZfRzjsfCQzPcVtmn
+         mKg/rpXPVVUXI/E5MP76GLka3oLVH9k7wZV66T94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 154/244] drm/imx/dcss: get rid of HPD warning message
+Subject: [PATCH 5.4 235/389] powerpc/xive: Fix refcount leak in xive_get_max_prio
 Date:   Tue, 23 Aug 2022 10:25:13 +0200
-Message-Id: <20220823080104.340461036@linuxfoundation.org>
+Message-Id: <20220823080125.399030631@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 30bdc36b8c776cd4fce5de2a96ff28b37f96942f ]
+[ Upstream commit 255b650cbec6849443ce2e0cdd187fd5e61c218c ]
 
-When DCSS + MIPI_DSI is used, and the last bridge in the chain supports
-HPD, we can see a "Hot plug detection already enabled" warning stack
-trace dump that's thrown when DCSS is initialized.
+of_find_node_by_path() returns a node pointer with
+refcount incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-The problem appeared when HPD was enabled by default in the
-bridge_connector initialization, which made the
-drm_bridge_connector_enable_hpd() call, in DCSS init path, redundant.
-So, let's remove that call.
-
-Fixes: 09077bc311658 ("drm/bridge_connector: enable HPD by default if supported")
-Signed-off-by: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220721120912.6639-1-laurentiu.palcu@oss.nxp.com
+Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220605053225.56125-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/dcss/dcss-kms.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/powerpc/sysdev/xive/spapr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/imx/dcss/dcss-kms.c b/drivers/gpu/drm/imx/dcss/dcss-kms.c
-index 9b84df34a6a1..8cf3352d8858 100644
---- a/drivers/gpu/drm/imx/dcss/dcss-kms.c
-+++ b/drivers/gpu/drm/imx/dcss/dcss-kms.c
-@@ -142,8 +142,6 @@ struct dcss_kms_dev *dcss_kms_attach(struct dcss_dev *dcss)
+diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
+index 3f15615712b5..b21d71badaec 100644
+--- a/arch/powerpc/sysdev/xive/spapr.c
++++ b/arch/powerpc/sysdev/xive/spapr.c
+@@ -683,6 +683,7 @@ static bool xive_get_max_prio(u8 *max_prio)
+ 	}
  
- 	drm_kms_helper_poll_init(drm);
- 
--	drm_bridge_connector_enable_hpd(kms->connector);
--
- 	ret = drm_dev_register(drm, 0);
- 	if (ret)
- 		goto cleanup_crtc;
+ 	reg = of_get_property(rootdn, "ibm,plat-res-int-priorities", &len);
++	of_node_put(rootdn);
+ 	if (!reg) {
+ 		pr_err("Failed to read 'ibm,plat-res-int-priorities' property\n");
+ 		return false;
 -- 
 2.35.1
 
