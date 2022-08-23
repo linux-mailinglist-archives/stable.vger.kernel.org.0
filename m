@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB39159DE87
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A24F559E1BF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352171AbiHWKOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:14:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60644 "EHLO
+        id S1352860AbiHWKJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:09:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353611AbiHWKLn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE49413E0D;
-        Tue, 23 Aug 2022 01:57:43 -0700 (PDT)
+        with ESMTP id S1352361AbiHWKH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:07:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A4926546;
+        Tue, 23 Aug 2022 01:54:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A51361555;
-        Tue, 23 Aug 2022 08:57:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85A70C433D6;
-        Tue, 23 Aug 2022 08:57:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 669FEB81B90;
+        Tue, 23 Aug 2022 08:54:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B08CAC433D6;
+        Tue, 23 Aug 2022 08:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245063;
-        bh=okJOAwiVkcqXe9Psl92GGX87dAbkBAg+7UOYMgzJ/PA=;
+        s=korg; t=1661244842;
+        bh=74BDVeIvMBWQuIu/Rh+9XV75YMCsgnfcdiv4ClaKEQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTW3+AgfZXiw0/AtayonQoqMq7AGTJ/P7wFhi+FaEbtTIxSklqGdsDPmnn4S1DD6E
-         T07hyRhgM5zEAKjeVYy8wasZz1eMKU+JqN8PvL1Qd62zMjGfN4E3tnV+FJqn5UJts4
-         QzXYiohpCUgWPq6WEtrjUTAQ6l/os+c4NsYJTh7I=
+        b=nZT/9W9T+yeK1n6cW7kt1MKiwWLoGfmcD/k1j5zqfgC5GA6983OajMIf8TFa2fBQS
+         YwD5zl79fckpUpIhdHVBAPmfKs+6j0QpVgmYHnhp3eC7Z46Jnc9oL7wSd1YxQUzweE
+         vJrPXkEUQP9yLcb/Dbzy59NynTAoYThvyHBcluHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 202/244] nvmet-tcp: fix lockdep complaint on nvmet_tcp_wq flush during queue teardown
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 4.14 200/229] nios2: fix syscall restart checks
 Date:   Tue, 23 Aug 2022 10:26:01 +0200
-Message-Id: <20220823080106.233438629@linuxfoundation.org>
+Message-Id: <20220823080100.783428681@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 533d2e8b4d5e4c89772a0adce913525fb86cbbee ]
+commit 2d631bd58fe0ea3e3350212e23c9aba1fb606514 upstream.
 
-We probably need nvmet_tcp_wq to have MEM_RECLAIM as we are
-sending/receiving for the socket from works on this workqueue.
-Also this eliminates lockdep complaints:
---
-[ 6174.010200] workqueue: WQ_MEM_RECLAIM
-nvmet-wq:nvmet_tcp_release_queue_work [nvmet_tcp] is flushing
-!WQ_MEM_RECLAIM nvmet_tcp_wq:nvmet_tcp_io_work [nvmet_tcp]
-[ 6174.010216] WARNING: CPU: 20 PID: 14456 at kernel/workqueue.c:2628
-check_flush_dependency+0x110/0x14c
+sys_foo() returns -512 (aka -ERESTARTSYS) => do_signal() sees
+512 in r2 and 1 in r1.
 
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+sys_foo() returns 512 => do_signal() sees 512 in r2 and 0 in r1.
+
+The former is restart-worthy; the latter obviously isn't.
+
+Fixes: b53e906d255d ("nios2: Signal handling support")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/tcp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/nios2/kernel/signal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index f592e5f7f5f3..889c5433c94d 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1834,7 +1834,8 @@ static int __init nvmet_tcp_init(void)
- {
- 	int ret;
- 
--	nvmet_tcp_wq = alloc_workqueue("nvmet_tcp_wq", WQ_HIGHPRI, 0);
-+	nvmet_tcp_wq = alloc_workqueue("nvmet_tcp_wq",
-+				WQ_MEM_RECLAIM | WQ_HIGHPRI, 0);
- 	if (!nvmet_tcp_wq)
- 		return -ENOMEM;
- 
--- 
-2.35.1
-
+--- a/arch/nios2/kernel/signal.c
++++ b/arch/nios2/kernel/signal.c
+@@ -240,7 +240,7 @@ static int do_signal(struct pt_regs *reg
+ 	/*
+ 	 * If we were from a system call, check for system call restarting...
+ 	 */
+-	if (regs->orig_r2 >= 0) {
++	if (regs->orig_r2 >= 0 && regs->r1) {
+ 		continue_addr = regs->ea;
+ 		restart_addr = continue_addr - 4;
+ 		retval = regs->r2;
 
 
