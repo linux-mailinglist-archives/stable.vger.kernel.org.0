@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7146059D42F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 216EF59D35E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242685AbiHWIWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33484 "EHLO
+        id S242226AbiHWIOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:14:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243431AbiHWIVJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:21:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48E3B6EF30;
-        Tue, 23 Aug 2022 01:12:31 -0700 (PDT)
+        with ESMTP id S242229AbiHWINJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:13:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B2E6C13E;
+        Tue, 23 Aug 2022 01:09:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F84EB81C3B;
-        Tue, 23 Aug 2022 08:12:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 634CEC433D6;
-        Tue, 23 Aug 2022 08:12:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAFEB6123D;
+        Tue, 23 Aug 2022 08:09:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65144C433D6;
+        Tue, 23 Aug 2022 08:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242342;
-        bh=z+CGCDyFSMPbd/EN3DNknlU9RDhJkyHosZULARlSM94=;
+        s=korg; t=1661242151;
+        bh=gyk0DIlacszwxhUgLMZ0yJZSzHV8SnJZoaqZaniVh88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPUN3aFZXheTy8L+51Vm+bKgM7oCOoM5UuuYJUOk8/DY5IfkeomfFmdxWaoJYIkxs
-         oiLPPnmKqenYDXibY9XV8yA8SZYldOrQpTi7MhkBDOeB5YlIHdsDEENyezCqXgzLD2
-         i1qS8y2L5rAuQYt5uCAwwsXqh7bFwg3KB/LWsjuE=
+        b=Oc72Y6XsoRwU1v/sVhCT2QSY9BVv83xHt69dDSmuslfqXcAjF1ZDaMNtSnjpNNiqi
+         /lU1v3+RJBiCXN8yeDB4eRx/TJLFTd77BvNeL6J5ac/DJCTl6rbVY8PHvzmj+moFJR
+         Wbrf/vFKBl3O5AVdiHrQFrEGQGUtp+0YAvrY0T7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.19 063/365] bpf: Dont reinit map value in prealloc_lru_pop
-Date:   Tue, 23 Aug 2022 09:59:24 +0200
-Message-Id: <20220823080120.831080541@linuxfoundation.org>
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.19 064/365] bpf: Acquire map uref in .init_seq_private for array map iterator
+Date:   Tue, 23 Aug 2022 09:59:25 +0200
+Message-Id: <20220823080120.882381491@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,65 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit 275c30bcee66a27d1aa97a215d607ad6d49804cb upstream.
+commit f76fa6b338055054f80c72b29c97fb95c1becadc upstream.
 
-The LRU map that is preallocated may have its elements reused while
-another program holds a pointer to it from bpf_map_lookup_elem. Hence,
-only check_and_free_fields is appropriate when the element is being
-deleted, as it ensures proper synchronization against concurrent access
-of the map value. After that, we cannot call check_and_init_map_value
-again as it may rewrite bpf_spin_lock, bpf_timer, and kptr fields while
-they can be concurrently accessed from a BPF program.
+bpf_iter_attach_map() acquires a map uref, and the uref may be released
+before or in the middle of iterating map elements. For example, the uref
+could be released in bpf_iter_detach_map() as part of
+bpf_link_release(), or could be released in bpf_map_put_with_uref() as
+part of bpf_map_release().
 
-This is safe to do as when the map entry is deleted, concurrent access
-is protected against by check_and_free_fields, i.e. an existing timer
-would be freed, and any existing kptr will be released by it. The
-program can create further timers and kptrs after check_and_free_fields,
-but they will eventually be released once the preallocated items are
-freed on map destruction, even if the item is never reused again. Hence,
-the deleted item sitting in the free list can still have resources
-attached to it, and they would never leak.
+Alternative fix is acquiring an extra bpf_link reference just like
+a pinned map iterator does, but it introduces unnecessary dependency
+on bpf_link instead of bpf_map.
 
-With spin_lock, we never touch the field at all on delete or update, as
-we may end up modifying the state of the lock. Since the verifier
-ensures that a bpf_spin_lock call is always paired with bpf_spin_unlock
-call, the program will eventually release the lock so that on reuse the
-new user of the value can take the lock.
+So choose another fix: acquiring an extra map uref in .init_seq_private
+for array map iterator.
 
-Essentially, for the preallocated case, we must assume that the map
-value may always be in use by the program, even when it is sitting in
-the freelist, and handle things accordingly, i.e. use proper
-synchronization inside check_and_free_fields, and never reinitialize the
-special fields when it is reused on update.
-
-Fixes: 68134668c17f ("bpf: Add map side support for bpf timers.")
+Fixes: d3cc2ab546ad ("bpf: Implement bpf iterator for array maps")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
 Acked-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/r/20220809213033.24147-3-memxor@gmail.com
+Link: https://lore.kernel.org/r/20220810080538.1845898-2-houtao@huaweicloud.com
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/hashtab.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ kernel/bpf/arraymap.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -311,12 +311,8 @@ static struct htab_elem *prealloc_lru_po
- 	struct htab_elem *l;
- 
- 	if (node) {
--		u32 key_size = htab->map.key_size;
--
- 		l = container_of(node, struct htab_elem, lru_node);
--		memcpy(l->key, key, key_size);
--		check_and_init_map_value(&htab->map,
--					 l->key + round_up(key_size, 8));
-+		memcpy(l->key, key, htab->map.key_size);
- 		return l;
+--- a/kernel/bpf/arraymap.c
++++ b/kernel/bpf/arraymap.c
+@@ -649,6 +649,11 @@ static int bpf_iter_init_array_map(void
+ 		seq_info->percpu_value_buf = value_buf;
  	}
+ 
++	/* bpf_iter_attach_map() acquires a map uref, and the uref may be
++	 * released before or in the middle of iterating map elements, so
++	 * acquire an extra map uref for iterator.
++	 */
++	bpf_map_inc_with_uref(map);
+ 	seq_info->map = map;
+ 	return 0;
+ }
+@@ -657,6 +662,7 @@ static void bpf_iter_fini_array_map(void
+ {
+ 	struct bpf_iter_seq_array_map_info *seq_info = priv_data;
+ 
++	bpf_map_put_with_uref(seq_info->map);
+ 	kfree(seq_info->percpu_value_buf);
+ }
  
 
 
