@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 679F259DCF6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32D7759DC39
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236992AbiHWLwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:52:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52602 "EHLO
+        id S1348631AbiHWMMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:12:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358976AbiHWLv0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:51:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADCE3D3985;
-        Tue, 23 Aug 2022 02:32:16 -0700 (PDT)
+        with ESMTP id S1352567AbiHWMLW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:11:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F8A3E1AB1;
+        Tue, 23 Aug 2022 02:39:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 309AFB81C95;
-        Tue, 23 Aug 2022 09:32:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77B62C433D6;
-        Tue, 23 Aug 2022 09:32:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF094B81C97;
+        Tue, 23 Aug 2022 09:39:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2534DC433D6;
+        Tue, 23 Aug 2022 09:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247130;
-        bh=g50zDTVcQS08LAu01kQ31YSa+m5euRa8lzIjKbTqsww=;
+        s=korg; t=1661247552;
+        bh=KVV9LSKv94xjVZyS3EhPLIwl0hPqOnV0rioQJ+Wgwmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUKm3LaJwmiZd0ujsoA38NYH+lKBDLAjd/+TW3YPwiiBuhSIOu4chR0I2CYDuTQAY
-         SkLCGmnJFAnAyeFwF531r4SXAPg79hnwwa75nR/4+R4X5cPUVWx3TkFs7yw7ptkN9F
-         uX35pGjKZ66Py4ImzVxTDEbcflioYkcu3XMm2UEA=
+        b=tNsWeLWyx9QQX+yZ5SwF7jkZ7wzMklSZ09dL6Dt+OM/eNZuuL9afSkmvpO/D7hvEz
+         kTmHfVRa6/YWoXLQOD0JvwLGnlOxN+rGgA30+IfZfmxR89/1jchaywS0FOvbgRrHS6
+         f0H1LwGmkfV9e0Z5Rn65nFJCUkw+PzaVqz3A9zos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.4 297/389] apparmor: fix aa_label_asxprint return check
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.10 043/158] um: Add missing apply_returns()
 Date:   Tue, 23 Aug 2022 10:26:15 +0200
-Message-Id: <20220823080127.964405043@linuxfoundation.org>
+Message-Id: <20220823080047.810865424@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 3e2a3a0830a2090e766d0d887d52c67de2a6f323 upstream.
+commit 637285e7f8d6da70a70c64e7895cb0672357a1f7 upstream.
 
-Clang static analysis reports this issue
-label.c:1802:3: warning: 2nd function call argument
-  is an uninitialized value
-  pr_info("%s", str);
-  ^~~~~~~~~~~~~~~~~~
+Implement apply_returns() stub for UM, just like all the other patching
+routines.
 
-str is set from a successful call to aa_label_asxprint(&str, ...)
-On failure a negative value is returned, not a -1.  So change
-the check.
-
-Fixes: f1bd904175e8 ("apparmor: add the base fns() for domain labels")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fixes: 15e67227c49a ("x86: Undo return-thunk damage")
+Reported-by: Randy Dunlap <rdunlap@infradead.org)
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/apparmor/label.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/um/kernel/um_arch.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/security/apparmor/label.c
-+++ b/security/apparmor/label.c
-@@ -1750,7 +1750,7 @@ void aa_label_xaudit(struct audit_buffer
- 	if (!use_label_hname(ns, label, flags) ||
- 	    display_mode(ns, label, flags)) {
- 		len  = aa_label_asxprint(&name, ns, label, flags, gfp);
--		if (len == -1) {
-+		if (len < 0) {
- 			AA_DEBUG("label print error");
- 			return;
- 		}
-@@ -1778,7 +1778,7 @@ void aa_label_seq_xprint(struct seq_file
- 		int len;
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -367,6 +367,10 @@ void apply_returns(s32 *start, s32 *end)
+ {
+ }
  
- 		len = aa_label_asxprint(&str, ns, label, flags, gfp);
--		if (len == -1) {
-+		if (len < 0) {
- 			AA_DEBUG("label print error");
- 			return;
- 		}
-@@ -1801,7 +1801,7 @@ void aa_label_xprintk(struct aa_ns *ns,
- 		int len;
- 
- 		len = aa_label_asxprint(&str, ns, label, flags, gfp);
--		if (len == -1) {
-+		if (len < 0) {
- 			AA_DEBUG("label print error");
- 			return;
- 		}
++void apply_returns(s32 *start, s32 *end)
++{
++}
++
+ void apply_alternatives(struct alt_instr *start, struct alt_instr *end)
+ {
+ }
 
 
