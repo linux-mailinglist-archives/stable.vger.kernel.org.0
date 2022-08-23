@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3812F59DCBA
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CC759DD3D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241541AbiHWL20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:28:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37666 "EHLO
+        id S1354218AbiHWK1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:27:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358124AbiHWL1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:27:23 -0400
+        with ESMTP id S1354536AbiHWKZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:25:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 197932BC9;
-        Tue, 23 Aug 2022 02:25:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F27C8307D;
+        Tue, 23 Aug 2022 02:05:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36B6361321;
-        Tue, 23 Aug 2022 09:25:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D4AFC433D6;
-        Tue, 23 Aug 2022 09:25:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10DB461538;
+        Tue, 23 Aug 2022 09:05:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15016C4314B;
+        Tue, 23 Aug 2022 09:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246702;
-        bh=GfzdxVCertLB2uPJqZ9KQxIPR8FwJWUnAX9p0S7Y20Q=;
+        s=korg; t=1661245514;
+        bh=6o7dFMo7ClTdnFjrVOtoQR+dS9HFFHcI3I/lUGs2dLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfa2IF2odq3ct1QBWEYH50UuLi+UYABJ/4Bb1Z2accExD137P59Lv/lDpU/EKCvQt
-         ny3rNcRgXRIY4ZdFbutS628EEExyrI+Yc0Uc/oKMppcZ8iN9k7+QLi8fcGJlzFeiEq
-         pZUkeT8TPsfWM4Hxa6QTXBG5hzyz+X7XmENqUx/E=
+        b=ZEPOJGR3XMrlCwDHqJDwaWJf9ausndDZ8NnZI/sL59DRCVja5aaG4tUuMtJuttL7K
+         J5HE0sGB6AOaXDMpwvZwix+JDK9z3Yy4+LuuaImtJ2R6b7Y5dtTD76h2scpAlc8tw6
+         8hfGUvCB5gtawuKCBU1NTar6btOkoFwH84UHMfEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Artem Borisov <dedsa2002@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 191/389] HID: alps: Declare U1_UNICORN_LEGACY support
-Date:   Tue, 23 Aug 2022 10:24:29 +0200
-Message-Id: <20220823080123.601191906@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 101/287] can: usb_8dev: do not report txerr and rxerr during bus-off
+Date:   Tue, 23 Aug 2022 10:24:30 +0200
+Message-Id: <20220823080103.767855881@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Borisov <dedsa2002@gmail.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 1117d182c5d72abd7eb8b7d5e7b8c3373181c3ab ]
+[ Upstream commit aebe8a2433cd090ccdc222861f44bddb75eb01de ]
 
-U1_UNICORN_LEGACY id was added to the driver, but was not declared
-in the device id table, making it impossible to use.
+During bus off, the error count is greater than 255 and can not fit in
+a u8.
 
-Fixes: 640e403 ("HID: alps: Add AUI1657 device ID")
-Signed-off-by: Artem Borisov <dedsa2002@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
+Link: https://lore.kernel.org/all/20220719143550.3681-10-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-alps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/usb/usb_8dev.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index 2477b2a3f7c3..464a48906d01 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -831,6 +831,8 @@ static const struct hid_device_id alps_id[] = {
- 		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1_DUAL) },
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
- 		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1) },
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
-+		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY) },
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
- 		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_T4_BTNLESS) },
- 	{ }
+diff --git a/drivers/net/can/usb/usb_8dev.c b/drivers/net/can/usb/usb_8dev.c
+index 232f45f722f0..5cb5be4dc941 100644
+--- a/drivers/net/can/usb/usb_8dev.c
++++ b/drivers/net/can/usb/usb_8dev.c
+@@ -453,9 +453,10 @@ static void usb_8dev_rx_err_msg(struct usb_8dev_priv *priv,
+ 
+ 	if (rx_errors)
+ 		stats->rx_errors++;
+-
+-	cf->data[6] = txerr;
+-	cf->data[7] = rxerr;
++	if (priv->can.state != CAN_STATE_BUS_OFF) {
++		cf->data[6] = txerr;
++		cf->data[7] = rxerr;
++	}
+ 
+ 	priv->bec.txerr = txerr;
+ 	priv->bec.rxerr = rxerr;
 -- 
 2.35.1
 
