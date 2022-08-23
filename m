@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA8659D971
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F4059D8CE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350940AbiHWJdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:33:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39326 "EHLO
+        id S1351115AbiHWJgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:36:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350344AbiHWJb7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:31:59 -0400
+        with ESMTP id S1351627AbiHWJfu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:35:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B4943E52;
-        Tue, 23 Aug 2022 01:38:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34F7397D68;
+        Tue, 23 Aug 2022 01:40:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 416A1B81C6B;
-        Tue, 23 Aug 2022 08:37:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 552E5C433C1;
-        Tue, 23 Aug 2022 08:37:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBF18B81C53;
+        Tue, 23 Aug 2022 08:39:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5F55C433D6;
+        Tue, 23 Aug 2022 08:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243831;
-        bh=ljrqwzOrbT0JrmQUw2UjpfLFC5dyyN3a2eOKGBHBJcM=;
+        s=korg; t=1661243942;
+        bh=XXnsT8YnvLr5n07bfMayojz6yEaBHQq9iwO02OlXMVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xkcNuQtU1zq65TlSGZjzB+Y4xYOPQUMz6jM5u7r8HFlyDM/Mhih+q2pGciBE6C5Ct
-         Hb0/A644C3is/CmTxdSncEdblduoSXpHD5wvXhJEZ6bGQenaHYOJZm/7MreTx0OgPw
-         mcX+nOuBug1J9f+EFs8ksnbPdaaEpR4QdbuWWcak=
+        b=A33b7MDvfMlaL213tYjRk45mOGSPRu10aqT6gOC5d2ObWUgCRoYI6CETdVgd0LC8h
+         YiXio5Es4m+Fxz/FAIknywRyb5YOq/MWVGg6x188Mp6GfhIvqe8JDdHvI/7y/r1WML
+         aStylsF5wM3c3/k41VhGzDY6aYtphHQB0PTpL0ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "Justin M. Forbes" <jforbes@fedoraproject.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Nicolas Pitre <nico@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 4.14 008/229] ARM: crypto: comment out gcc warning that breaks clang builds
-Date:   Tue, 23 Aug 2022 10:22:49 +0200
-Message-Id: <20220823080053.626188301@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 012/244] mmc: pxamci: Fix an error handling path in pxamci_probe()
+Date:   Tue, 23 Aug 2022 10:22:51 +0200
+Message-Id: <20220823080059.492779138@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-The gcc build warning prevents all clang-built kernels from working
-properly, so comment it out to fix the build.
+commit 98d7c5e5792b8ce3e1352196dac7f404bb1b46ec upstream.
 
-This is a -stable kernel only patch for now, it will be resolved
-differently in mainline releases in the future.
+The commit in Fixes: has moved some code around without updating gotos to
+the error handling path.
 
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: "Justin M. Forbes" <jforbes@fedoraproject.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Nicolas Pitre <nico@linaro.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
+Update it now and release some resources if pxamci_of_init() fails.
+
+Fixes: fa3a5115469c ("mmc: pxamci: call mmc_of_parse()")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/6d75855ad4e2470e9ed99e0df21bc30f0c925a29.1658862932.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/lib/xor-neon.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/pxamci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/lib/xor-neon.c
-+++ b/arch/arm/lib/xor-neon.c
-@@ -29,8 +29,9 @@ MODULE_LICENSE("GPL");
-  * While older versions of GCC do not generate incorrect code, they fail to
-  * recognize the parallel nature of these functions, and emit plain ARM code,
-  * which is known to be slower than the optimized ARM code in asm-arm/xor.h.
-+ *
-+ * #warning This code requires at least version 4.6 of GCC
-  */
--#warning This code requires at least version 4.6 of GCC
- #endif
+--- a/drivers/mmc/host/pxamci.c
++++ b/drivers/mmc/host/pxamci.c
+@@ -648,7 +648,7 @@ static int pxamci_probe(struct platform_
  
- #pragma GCC diagnostic ignored "-Wunused-variable"
+ 	ret = pxamci_of_init(pdev, mmc);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	host = mmc_priv(mmc);
+ 	host->mmc = mmc;
 
 
