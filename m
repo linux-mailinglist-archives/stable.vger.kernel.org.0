@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F281F59D939
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE38659D86E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242737AbiHWJwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:52:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41044 "EHLO
+        id S242984AbiHWJkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:40:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352290AbiHWJv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B57627B2A2;
-        Tue, 23 Aug 2022 01:45:53 -0700 (PDT)
+        with ESMTP id S243334AbiHWJjV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:39:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A837859E;
+        Tue, 23 Aug 2022 01:41:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67387B81C5B;
-        Tue, 23 Aug 2022 08:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C64D0C433C1;
-        Tue, 23 Aug 2022 08:35:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB2AB61499;
+        Tue, 23 Aug 2022 08:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1EE3C433D6;
+        Tue, 23 Aug 2022 08:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243706;
-        bh=pVh0kY2dRG6Xb0FG85icTj2NW55fBngQJ94RJpxzoGQ=;
+        s=korg; t=1661243709;
+        bh=qwM3ShvFVEwOhnb4lNkJcm+UOiGSvKD2PWo6NN8Oelg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bx+k0r/u0NXhsAjRaUXadsl3Ng0JaG9Qj6gv7lArn7Xojpfdhh0/H9BcFGVNGIsdZ
-         HRWgFixBGRMJgABIWI61wksRcaCpZ9cQQETXrSPC74YkNaMfiPMIAQEL/n/vR87wV3
-         +dQQ0jHYTKW8KTQ/YAEqYJm5VOhH9urARgPbnJMg=
+        b=X9AE7zOFs+IX5JWJ3dn55yWwWX4Fzh0E+LUkEfXD39DN/6TncGfWmykWjfmIOm/Ct
+         mVDxsn0eCnveapeHwohKdGHekSNKX4+oNidEHYqbQgOUO85Rldx35+ryBvPr1hBahc
+         RvUyoPG8XnSTSXdhfeKm4OEoAdp2rkoGXRFIg3So=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Daeho Jeong <daehojeong@google.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 361/365] MIPS: tlbex: Explicitly compare _PAGE_NO_EXEC against 0
-Date:   Tue, 23 Aug 2022 10:04:22 +0200
-Message-Id: <20220823080133.394797517@linuxfoundation.org>
+Subject: [PATCH 5.19 362/365] f2fs: revive F2FS_IOC_ABORT_VOLATILE_WRITE
+Date:   Tue, 23 Aug 2022 10:04:23 +0200
+Message-Id: <20220823080133.443422112@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -56,68 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Daeho Jeong <daehojeong@google.com>
 
-[ Upstream commit 74de14fe05dd6b151d73cb0c73c8ec874cbdcde6 ]
+[ Upstream commit 23339e5752d01a4b5e122759b002cf896d26f6c1 ]
 
-When CONFIG_XPA is enabled, Clang warns:
+F2FS_IOC_ABORT_VOLATILE_WRITE was used to abort a atomic write before.
+However it was removed accidentally. So revive it by changing the name,
+since volatile write had gone.
 
-  arch/mips/mm/tlbex.c:629:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
-          if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
-                              ^
-  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
-  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
-                                     ^
-  arch/mips/mm/tlbex.c:2568:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
-          if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
-                                ^
-  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
-  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
-                                     ^
-  2 errors generated.
-
-_PAGE_NO_EXEC can be '0' or '1 << _PAGE_NO_EXEC_SHIFT' depending on the
-build and runtime configuration, which is what the negation operators
-are trying to convey. To silence the warning, explicitly compare against
-0 so the result of the '<<' operator is not implicitly converted to a
-boolean.
-
-According to its documentation, GCC enables -Wint-in-bool-context with
--Wall but this warning is not visible when building the same
-configuration with GCC. It appears GCC only warns when compiling C++,
-not C, although the documentation makes no note of this:
-https://godbolt.org/z/x39q3brxf
-
-Reported-by: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Daeho Jeong <daehojeong@google.com>
+Fiexes: 7bc155fec5b3("f2fs: kill volatile write support")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/tlbex.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/file.c            | 30 ++++++++++++++++++++++++++++--
+ include/uapi/linux/f2fs.h |  2 +-
+ 2 files changed, 29 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
-index 8dbbd99fc7e8..be4d4670d649 100644
---- a/arch/mips/mm/tlbex.c
-+++ b/arch/mips/mm/tlbex.c
-@@ -626,7 +626,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
- 		return;
- 	}
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index fc0f30738b21..41547604f192 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -2108,6 +2108,31 @@ static int f2fs_ioc_commit_atomic_write(struct file *filp)
+ 	return ret;
+ }
  
--	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
-+	if (cpu_has_rixi && _PAGE_NO_EXEC != 0) {
- 		if (fill_includes_sw_bits) {
- 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
- 		} else {
-@@ -2565,7 +2565,7 @@ static void check_pabits(void)
- 	unsigned long entry;
- 	unsigned pabits, fillbits;
- 
--	if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
-+	if (!cpu_has_rixi || _PAGE_NO_EXEC == 0) {
- 		/*
- 		 * We'll only be making use of the fact that we can rotate bits
- 		 * into the fill if the CPU supports RIXI, so don't bother
++static int f2fs_ioc_abort_atomic_write(struct file *filp)
++{
++	struct inode *inode = file_inode(filp);
++	struct user_namespace *mnt_userns = file_mnt_user_ns(filp);
++	int ret;
++
++	if (!inode_owner_or_capable(mnt_userns, inode))
++		return -EACCES;
++
++	ret = mnt_want_write_file(filp);
++	if (ret)
++		return ret;
++
++	inode_lock(inode);
++
++	if (f2fs_is_atomic_file(inode))
++		f2fs_abort_atomic_write(inode, true);
++
++	inode_unlock(inode);
++
++	mnt_drop_write_file(filp);
++	f2fs_update_time(F2FS_I_SB(inode), REQ_TIME);
++	return ret;
++}
++
+ static int f2fs_ioc_shutdown(struct file *filp, unsigned long arg)
+ {
+ 	struct inode *inode = file_inode(filp);
+@@ -4063,9 +4088,10 @@ static long __f2fs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 		return f2fs_ioc_start_atomic_write(filp);
+ 	case F2FS_IOC_COMMIT_ATOMIC_WRITE:
+ 		return f2fs_ioc_commit_atomic_write(filp);
++	case F2FS_IOC_ABORT_ATOMIC_WRITE:
++		return f2fs_ioc_abort_atomic_write(filp);
+ 	case F2FS_IOC_START_VOLATILE_WRITE:
+ 	case F2FS_IOC_RELEASE_VOLATILE_WRITE:
+-	case F2FS_IOC_ABORT_VOLATILE_WRITE:
+ 		return -EOPNOTSUPP;
+ 	case F2FS_IOC_SHUTDOWN:
+ 		return f2fs_ioc_shutdown(filp, arg);
+@@ -4734,7 +4760,7 @@ long f2fs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	case F2FS_IOC_COMMIT_ATOMIC_WRITE:
+ 	case F2FS_IOC_START_VOLATILE_WRITE:
+ 	case F2FS_IOC_RELEASE_VOLATILE_WRITE:
+-	case F2FS_IOC_ABORT_VOLATILE_WRITE:
++	case F2FS_IOC_ABORT_ATOMIC_WRITE:
+ 	case F2FS_IOC_SHUTDOWN:
+ 	case FITRIM:
+ 	case FS_IOC_SET_ENCRYPTION_POLICY:
+diff --git a/include/uapi/linux/f2fs.h b/include/uapi/linux/f2fs.h
+index 352a822d4370..3121d127d5aa 100644
+--- a/include/uapi/linux/f2fs.h
++++ b/include/uapi/linux/f2fs.h
+@@ -13,7 +13,7 @@
+ #define F2FS_IOC_COMMIT_ATOMIC_WRITE	_IO(F2FS_IOCTL_MAGIC, 2)
+ #define F2FS_IOC_START_VOLATILE_WRITE	_IO(F2FS_IOCTL_MAGIC, 3)
+ #define F2FS_IOC_RELEASE_VOLATILE_WRITE	_IO(F2FS_IOCTL_MAGIC, 4)
+-#define F2FS_IOC_ABORT_VOLATILE_WRITE	_IO(F2FS_IOCTL_MAGIC, 5)
++#define F2FS_IOC_ABORT_ATOMIC_WRITE	_IO(F2FS_IOCTL_MAGIC, 5)
+ #define F2FS_IOC_GARBAGE_COLLECT	_IOW(F2FS_IOCTL_MAGIC, 6, __u32)
+ #define F2FS_IOC_WRITE_CHECKPOINT	_IO(F2FS_IOCTL_MAGIC, 7)
+ #define F2FS_IOC_DEFRAGMENT		_IOWR(F2FS_IOCTL_MAGIC, 8,	\
 -- 
 2.35.1
 
