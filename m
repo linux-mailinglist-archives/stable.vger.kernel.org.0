@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B14DC59DC41
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C01F59DDC6
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353539AbiHWKPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:15:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47130 "EHLO
+        id S1353740AbiHWKSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:18:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353238AbiHWKNM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:13:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D0671993;
-        Tue, 23 Aug 2022 01:59:13 -0700 (PDT)
+        with ESMTP id S1353565AbiHWKNw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:13:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50B2A6C121;
+        Tue, 23 Aug 2022 01:59:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42904B81C28;
-        Tue, 23 Aug 2022 08:59:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A29CC433D6;
-        Tue, 23 Aug 2022 08:59:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5B66B81C3A;
+        Tue, 23 Aug 2022 08:59:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36504C433C1;
+        Tue, 23 Aug 2022 08:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245150;
-        bh=zXMtss4VfpDdXbj9MI1myaQXhSHrO2BJtp5vYDd2ldY=;
+        s=korg; t=1661245185;
+        bh=lhcGVfedXLvlZmgQ5jX75/1UekAf+1RD+VFUn9Vc6Ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RN8bv2UGCZYscDDLWHRqEf2eZLwVcju0JUQkMirLZvtFyLLYWJFzxYQH/B/gBtDiS
-         BuoQ0kyAC9fxefo7Jf5iHtUMt3mYMulc2okV/ndJMGbHZsnWPKN21+UwQ4IwKiSAQF
-         8momqaieaqv+zCZOzP9vRJUL5FMgsPOlU4a8duRY=
+        b=BngnfUD+WcRJaZMi7UBztfHxpazAvrkZl2Z3ptJ5BhE64/HM4tjDKSPyUsgsjE6BJ
+         XORWfisui738hhVPNtdJg8cjW34qG8R96YkCLS+/slByxNyyITMjSk0eQ2Cibqd3oa
+         V+x8levffI+NcGYbY7QizEt8JHpDLN67UENEtvNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Brice Goglin <Brice.Goglin@inria.fr>,
         Conor Dooley <conor.dooley@microchip.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 215/244] riscv: dts: sifive: Add fu740 topology information
-Date:   Tue, 23 Aug 2022 10:26:14 +0200
-Message-Id: <20220823080106.686362291@linuxfoundation.org>
+Subject: [PATCH 5.15 216/244] riscv: dts: canaan: Add k210 topology information
+Date:   Tue, 23 Aug 2022 10:26:15 +0200
+Message-Id: <20220823080106.726302489@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -57,27 +58,28 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit bf6cd1c01c959a31002dfa6784c0d8caffed4cf1 ]
+[ Upstream commit d9d193dea8666bbf69fc21c5bdcdabaa34a466e3 ]
 
-The fu740 has no cpu-map node, so tools like hwloc cannot correctly
+The k210 has no cpu-map node, so tools like hwloc cannot correctly
 parse the topology. Add the node using the existing node labels.
 
 Reported-by: Brice Goglin <Brice.Goglin@inria.fr>
 Link: https://github.com/open-mpi/hwloc/issues/536
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20220705190435.1790466-4-mail@conchuod.ie
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lore.kernel.org/r/20220705190435.1790466-6-mail@conchuod.ie
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/sifive/fu740-c000.dtsi | 24 ++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ arch/riscv/boot/dts/canaan/k210.dtsi | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-index abbb960f90a0..454079a69ab4 100644
---- a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-+++ b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-@@ -134,6 +134,30 @@
- 				interrupt-controller;
+diff --git a/arch/riscv/boot/dts/canaan/k210.dtsi b/arch/riscv/boot/dts/canaan/k210.dtsi
+index 780416d489aa..fa9162e3afa3 100644
+--- a/arch/riscv/boot/dts/canaan/k210.dtsi
++++ b/arch/riscv/boot/dts/canaan/k210.dtsi
+@@ -65,6 +65,18 @@
+ 				compatible = "riscv,cpu-intc";
  			};
  		};
 +
@@ -90,23 +92,11 @@ index abbb960f90a0..454079a69ab4 100644
 +				core1 {
 +					cpu = <&cpu1>;
 +				};
-+
-+				core2 {
-+					cpu = <&cpu2>;
-+				};
-+
-+				core3 {
-+					cpu = <&cpu3>;
-+				};
-+
-+				core4 {
-+					cpu = <&cpu4>;
-+				};
 +			};
 +		};
  	};
- 	soc {
- 		#address-cells = <2>;
+ 
+ 	sram: memory@80000000 {
 -- 
 2.35.1
 
