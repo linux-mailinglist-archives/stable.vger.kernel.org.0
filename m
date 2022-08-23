@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C588D59D33A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D28359D420
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240832AbiHWIHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48204 "EHLO
+        id S240796AbiHWIJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:09:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241109AbiHWIHI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:07:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 488D16B8F7;
-        Tue, 23 Aug 2022 01:04:56 -0700 (PDT)
+        with ESMTP id S240165AbiHWIIj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:08:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86AEF40BC1;
+        Tue, 23 Aug 2022 01:05:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2765B81C21;
-        Tue, 23 Aug 2022 08:04:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29370C433D6;
-        Tue, 23 Aug 2022 08:04:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 904A5B81C21;
+        Tue, 23 Aug 2022 08:05:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1665C433C1;
+        Tue, 23 Aug 2022 08:05:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661241892;
-        bh=ITNkrA9oaAdQvqvgxkbO2YmAfNEa2GRB35lOg9Xwodk=;
+        s=korg; t=1661241927;
+        bh=shzhjZ2bb1Pt+2Da4GAyL7p2ZZ6kUqtw89dmd6HMbLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWhht10c+VAzrKKNUit/R7D7npGxH75Ho8vJT+MEPq/cEXsv2tDtonr+eM7y9Xd8a
-         FjMk4G058ar7+82nEFKllNJSKW6e7zeM5nqY8jxJX7VjOZYjG+4MUesuMHcNcWgD6P
-         gvy0WF5mX7ALEJh9MBqU3C1bOqLlFIyOGSU71HC4=
+        b=RhSGwUiyqRYvti5oYzodBkcP8dt4Bs0IoLZQ7LDTembUog4iruA4b46UDmyCFk5gz
+         RDicxyKQXWysbhfgbuYtQ2maMb/myuGw7FmPrluHsP1RvkjJXKm1ZtbrIYURHsw4RM
+         bbpmBgCu0rxYv085MRRBMH+XsxZ01BmFdBJCqfvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>
-Subject: [PATCH 5.19 003/365] RDMA: Handle the return code from dma_resv_wait_timeout() properly
-Date:   Tue, 23 Aug 2022 09:58:24 +0200
-Message-Id: <20220823080118.298671452@linuxfoundation.org>
+        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.19 004/365] KVM: Unconditionally get a ref to /dev/kvm module when creating a VM
+Date:   Tue, 23 Aug 2022 09:58:25 +0200
+Message-Id: <20220823080118.329629845@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,61 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit b16de8b9e7d1aae169d059c3a0dd9a881a3c0d1d upstream.
+commit 405294f29faee5de8c10cb9d4a90e229c2835279 upstream.
 
-ib_umem_dmabuf_map_pages() returns 0 on success and -ERRNO on failure.
+Unconditionally get a reference to the /dev/kvm module when creating a VM
+instead of using try_get_module(), which will fail if the module is in
+the process of being forcefully unloaded.  The error handling when
+try_get_module() fails doesn't properly unwind all that has been done,
+e.g. doesn't call kvm_arch_pre_destroy_vm() and doesn't remove the VM
+from the global list.  Not removing VMs from the global list tends to be
+fatal, e.g. leads to use-after-free explosions.
 
-dma_resv_wait_timeout() uses a different scheme:
+The obvious alternative would be to add proper unwinding, but the
+justification for using try_get_module(), "rmmod --wait", is completely
+bogus as support for "rmmod --wait", i.e. delete_module() without
+O_NONBLOCK, was removed by commit 3f2b9c9cdf38 ("module: remove rmmod
+--wait option.") nearly a decade ago.
 
- * Returns -ERESTARTSYS if interrupted, 0 if the wait timed out, or
- * greater than zero on success.
+It's still possible for try_get_module() to fail due to the module dying
+(more like being killed), as the module will be tagged MODULE_STATE_GOING
+by "rmmod --force", i.e. delete_module(..., O_TRUNC), but playing nice
+with forced unloading is an exercise in futility and gives a falsea sense
+of security.  Using try_get_module() only prevents acquiring _new_
+references, it doesn't magically put the references held by other VMs,
+and forced unloading doesn't wait, i.e. "rmmod --force" on KVM is all but
+guaranteed to cause spectacular fireworks; the window where KVM will fail
+try_get_module() is tiny compared to the window where KVM is building and
+running the VM with an elevated module refcount.
 
-This results in ib_umem_dmabuf_map_pages() being non-functional as a
-positive return will be understood to be an error by drivers.
+Addressing KVM's inability to play nice with "rmmod --force" is firmly
+out-of-scope.  Forcefully unloading any module taints kernel (for obvious
+reasons)  _and_ requires the kernel to be built with
+CONFIG_MODULE_FORCE_UNLOAD=y, which is off by default and comes with the
+amusing disclaimer that it's "mainly for kernel developers and desperate
+users".  In other words, KVM is free to scoff at bug reports due to using
+"rmmod --force" while VMs may be running.
 
-Fixes: f30bceab16d1 ("RDMA: use dma_resv_wait() instead of extracting the fence")
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/0-v1-d8f4e1fa84c8+17-rdma_dmabuf_fix_jgg@nvidia.com
-Tested-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: 5f6de5cbebee ("KVM: Prevent module exit until all VMs are freed")
+Cc: stable@vger.kernel.org
+Cc: David Matlack <dmatlack@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220816053937.2477106-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/umem_dmabuf.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ virt/kvm/kvm_main.c |   14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/infiniband/core/umem_dmabuf.c b/drivers/infiniband/core/umem_dmabuf.c
-index fce80a4a5147..04c04e6d24c3 100644
---- a/drivers/infiniband/core/umem_dmabuf.c
-+++ b/drivers/infiniband/core/umem_dmabuf.c
-@@ -18,6 +18,7 @@ int ib_umem_dmabuf_map_pages(struct ib_umem_dmabuf *umem_dmabuf)
- 	struct scatterlist *sg;
- 	unsigned long start, end, cur = 0;
- 	unsigned int nmap = 0;
-+	long ret;
- 	int i;
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1085,6 +1085,9 @@ static struct kvm *kvm_create_vm(unsigne
+ 	if (!kvm)
+ 		return ERR_PTR(-ENOMEM);
  
- 	dma_resv_assert_held(umem_dmabuf->attach->dmabuf->resv);
-@@ -67,9 +68,14 @@ int ib_umem_dmabuf_map_pages(struct ib_umem_dmabuf *umem_dmabuf)
- 	 * may be not up-to-date. Wait for the exporter to finish
- 	 * the migration.
- 	 */
--	return dma_resv_wait_timeout(umem_dmabuf->attach->dmabuf->resv,
-+	ret = dma_resv_wait_timeout(umem_dmabuf->attach->dmabuf->resv,
- 				     DMA_RESV_USAGE_KERNEL,
- 				     false, MAX_SCHEDULE_TIMEOUT);
-+	if (ret < 0)
-+		return ret;
-+	if (ret == 0)
-+		return -ETIMEDOUT;
-+	return 0;
++	/* KVM is pinned via open("/dev/kvm"), the fd passed to this ioctl(). */
++	__module_get(kvm_chardev_ops.owner);
++
+ 	KVM_MMU_LOCK_INIT(kvm);
+ 	mmgrab(current->mm);
+ 	kvm->mm = current->mm;
+@@ -1170,16 +1173,6 @@ static struct kvm *kvm_create_vm(unsigne
+ 	preempt_notifier_inc();
+ 	kvm_init_pm_notifier(kvm);
+ 
+-	/*
+-	 * When the fd passed to this ioctl() is opened it pins the module,
+-	 * but try_module_get() also prevents getting a reference if the module
+-	 * is in MODULE_STATE_GOING (e.g. if someone ran "rmmod --wait").
+-	 */
+-	if (!try_module_get(kvm_chardev_ops.owner)) {
+-		r = -ENODEV;
+-		goto out_err;
+-	}
+-
+ 	return kvm;
+ 
+ out_err:
+@@ -1201,6 +1194,7 @@ out_err_no_irq_srcu:
+ out_err_no_srcu:
+ 	kvm_arch_free_vm(kvm);
+ 	mmdrop(current->mm);
++	module_put(kvm_chardev_ops.owner);
+ 	return ERR_PTR(r);
  }
- EXPORT_SYMBOL(ib_umem_dmabuf_map_pages);
  
--- 
-2.37.2
-
 
 
