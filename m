@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C7659D667
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1547159D6C6
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243036AbiHWI1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:27:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
+        id S239747AbiHWJR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:17:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243532AbiHWIZf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:25:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C31FF5EDDA;
-        Tue, 23 Aug 2022 01:13:38 -0700 (PDT)
+        with ESMTP id S1350139AbiHWJQl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:16:41 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B19D3753A1;
+        Tue, 23 Aug 2022 01:32:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 646EEB81C39;
-        Tue, 23 Aug 2022 08:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB50AC433D6;
-        Tue, 23 Aug 2022 08:13:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4ED9DCE1B43;
+        Tue, 23 Aug 2022 08:32:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 675F4C433C1;
+        Tue, 23 Aug 2022 08:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242388;
-        bh=7VVa0jMI40XAqw0ec5vegBfGZZUkDAlrWifIwxJk7WI=;
+        s=korg; t=1661243560;
+        bh=TT7tWc/244ggDbMGZAOtd6yfrQaNNX6DFkJuHIlf8kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pugy4Irp9+uZkZaZRoLUD/VKgxUCK75QmHKmr+2Q7uzj3qspLdR1w5bHGKMyyueCY
-         /pGJMY5LpYiFTZr8LfHgQtz1rHZdt/R1QNpgd24ow7xYTZ3bEIva8J5KnxzOWbdN9T
-         TmKjUcHgYOYfS92psYDpzSqpje5XNhy6HaVwwzpQ=
+        b=TlDQmDLqkR+lZjmkeoFYltR9OkmjEBgV+bS9tSr5CBEidmDKn1b6g6Tv/mU4gdpPo
+         X5ZVcnZmjhKzaZ1vwwQdAiueravcpIHIgQkzbPLm6WVcbIHqEZ1KT+VAtsju1V6kh5
+         OvEvUNHtvHG8/oV9KP+A38kf/u4KOqJUbfjR+pAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 4.9 064/101] net/9p: Initialize the iounit field during fid creation
+        stable@vger.kernel.org,
+        syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com,
+        Lukas Czerner <lczerner@redhat.com>,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 316/365] ext4: block range must be validated before use in ext4_mb_clear_bb()
 Date:   Tue, 23 Aug 2022 10:03:37 +0200
-Message-Id: <20220823080037.026540537@linuxfoundation.org>
+Message-Id: <20220823080131.397839950@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
-References: <20220823080034.579196046@linuxfoundation.org>
+In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
+References: <20220823080118.128342613@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +56,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Lukas Czerner <lczerner@redhat.com>
 
-commit aa7aeee169480e98cf41d83c01290a37e569be6d upstream.
+[ Upstream commit 1e1c2b86ef86a8477fd9b9a4f48a6bfe235606f6 ]
 
-Ensure that the fid's iounit field is set to zero when a new fid is
-created. Certain 9P operations, such as OPEN and CREATE, allow the
-server to reply with an iounit size which the client code assigns to the
-p9_fid struct shortly after the fid is created by p9_fid_create(). On
-the other hand, an XATTRWALK operation doesn't allow for the server to
-specify an iounit value. The iounit field of the newly allocated p9_fid
-struct remained uninitialized in that case. Depending on allocation
-patterns, the iounit value could have been something reasonable that was
-carried over from previously freed fids or, in the worst case, could
-have been arbitrary values from non-fid related usages of the memory
-location.
+Block range to free is validated in ext4_free_blocks() using
+ext4_inode_block_valid() and then it's passed to ext4_mb_clear_bb().
+However in some situations on bigalloc file system the range might be
+adjusted after the validation in ext4_free_blocks() which can lead to
+troubles on corrupted file systems such as one found by syzkaller that
+resulted in the following BUG
 
-The bug was detected in the Windows Subsystem for Linux 2 (WSL2) kernel
-after the uninitialized iounit field resulted in the typical sequence of
-two getxattr(2) syscalls, one to get the size of an xattr and another
-after allocating a sufficiently sized buffer to fit the xattr value, to
-hit an unexpected ERANGE error in the second call to getxattr(2). An
-uninitialized iounit field would sometimes force rsize to be smaller
-than the xattr value size in p9_client_read_once() and the 9P server in
-WSL refused to chunk up the READ on the attr_fid and, instead, returned
-ERANGE to the client. The virtfs server in QEMU seems happy to chunk up
-the READ and this problem goes undetected there.
+kernel BUG at fs/ext4/ext4.h:3319!
+PREEMPT SMP NOPTI
+CPU: 28 PID: 4243 Comm: repro Kdump: loaded Not tainted 5.19.0-rc6+ #1
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1.fc35 04/01/2014
+RIP: 0010:ext4_free_blocks+0x95e/0xa90
+Call Trace:
+ <TASK>
+ ? lock_timer_base+0x61/0x80
+ ? __es_remove_extent+0x5a/0x760
+ ? __mod_timer+0x256/0x380
+ ? ext4_ind_truncate_ensure_credits+0x90/0x220
+ ext4_clear_blocks+0x107/0x1b0
+ ext4_free_data+0x15b/0x170
+ ext4_ind_truncate+0x214/0x2c0
+ ? _raw_spin_unlock+0x15/0x30
+ ? ext4_discard_preallocations+0x15a/0x410
+ ? ext4_journal_check_start+0xe/0x90
+ ? __ext4_journal_start_sb+0x2f/0x110
+ ext4_truncate+0x1b5/0x460
+ ? __ext4_journal_start_sb+0x2f/0x110
+ ext4_evict_inode+0x2b4/0x6f0
+ evict+0xd0/0x1d0
+ ext4_enable_quotas+0x11f/0x1f0
+ ext4_orphan_cleanup+0x3de/0x430
+ ? proc_create_seq_private+0x43/0x50
+ ext4_fill_super+0x295f/0x3ae0
+ ? snprintf+0x39/0x40
+ ? sget_fc+0x19c/0x330
+ ? ext4_reconfigure+0x850/0x850
+ get_tree_bdev+0x16d/0x260
+ vfs_get_tree+0x25/0xb0
+ path_mount+0x431/0xa70
+ __x64_sys_mount+0xe2/0x120
+ do_syscall_64+0x5b/0x80
+ ? do_user_addr_fault+0x1e2/0x670
+ ? exc_page_fault+0x70/0x170
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7fdf4e512ace
 
-Link: https://lkml.kernel.org/r/20220710141402.803295-1-tyhicks@linux.microsoft.com
-Fixes: ebf46264a004 ("fs/9p: Add support user. xattr")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-[tyhicks: Adjusted context due to:
- - Lack of fid refcounting introduced in v5.11 commit 6636b6dcc3db ("9p:
-   add refcount to p9_fid struct")
- - Difference in how buffer sizes are specified v5.16 commit
-   6e195b0f7c8e ("9p: fix a bunch of checkpatch warnings")
- - Reimplementation of the fidlist as an IDR in v4.19 commit
-   f28cdf0430fc ("9p: Replace the fidlist with an IDR")]
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix it by making sure that the block range is properly validated before
+used every time it changes in ext4_free_blocks() or ext4_mb_clear_bb().
+
+Link: https://syzkaller.appspot.com/bug?id=5266d464285a03cee9dbfda7d2452a72c3c2ae7c
+Reported-by: syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
+Tested-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Link: https://lore.kernel.org/r/20220714165903.58260-1-lczerner@redhat.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/client.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/ext4/mballoc.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
---- a/net/9p/client.c
-+++ b/net/9p/client.c
-@@ -891,7 +891,7 @@ static struct p9_fid *p9_fid_create(stru
- 	unsigned long flags;
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index 9e06334771a3..38e7dc2531b1 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -5928,6 +5928,15 @@ static void ext4_mb_clear_bb(handle_t *handle, struct inode *inode,
  
- 	p9_debug(P9_DEBUG_FID, "clnt %p\n", clnt);
--	fid = kmalloc(sizeof(struct p9_fid), GFP_KERNEL);
-+	fid = kzalloc(sizeof(struct p9_fid), GFP_KERNEL);
- 	if (!fid)
- 		return ERR_PTR(-ENOMEM);
+ 	sbi = EXT4_SB(sb);
  
-@@ -902,11 +902,9 @@ static struct p9_fid *p9_fid_create(stru
++	if (!(flags & EXT4_FREE_BLOCKS_VALIDATED) &&
++	    !ext4_inode_block_valid(inode, block, count)) {
++		ext4_error(sb, "Freeing blocks in system zone - "
++			   "Block = %llu, count = %lu", block, count);
++		/* err = 0. ext4_std_error should be a no op */
++		goto error_return;
++	}
++	flags |= EXT4_FREE_BLOCKS_VALIDATED;
++
+ do_more:
+ 	overflow = 0;
+ 	ext4_get_group_no_and_offset(sb, block, &block_group, &bit);
+@@ -5944,6 +5953,8 @@ static void ext4_mb_clear_bb(handle_t *handle, struct inode *inode,
+ 		overflow = EXT4_C2B(sbi, bit) + count -
+ 			EXT4_BLOCKS_PER_GROUP(sb);
+ 		count -= overflow;
++		/* The range changed so it's no longer validated */
++		flags &= ~EXT4_FREE_BLOCKS_VALIDATED;
  	}
- 	fid->fid = ret;
+ 	count_clusters = EXT4_NUM_B2C(sbi, count);
+ 	bitmap_bh = ext4_read_block_bitmap(sb, block_group);
+@@ -5958,7 +5969,8 @@ static void ext4_mb_clear_bb(handle_t *handle, struct inode *inode,
+ 		goto error_return;
+ 	}
  
--	memset(&fid->qid, 0, sizeof(struct p9_qid));
- 	fid->mode = -1;
- 	fid->uid = current_fsuid();
- 	fid->clnt = clnt;
--	fid->rdir = NULL;
- 	spin_lock_irqsave(&clnt->lock, flags);
- 	list_add(&fid->flist, &clnt->fidlist);
- 	spin_unlock_irqrestore(&clnt->lock, flags);
+-	if (!ext4_inode_block_valid(inode, block, count)) {
++	if (!(flags & EXT4_FREE_BLOCKS_VALIDATED) &&
++	    !ext4_inode_block_valid(inode, block, count)) {
+ 		ext4_error(sb, "Freeing blocks in system zone - "
+ 			   "Block = %llu, count = %lu", block, count);
+ 		/* err = 0. ext4_std_error should be a no op */
+@@ -6081,6 +6093,8 @@ static void ext4_mb_clear_bb(handle_t *handle, struct inode *inode,
+ 		block += count;
+ 		count = overflow;
+ 		put_bh(bitmap_bh);
++		/* The range changed so it's no longer validated */
++		flags &= ~EXT4_FREE_BLOCKS_VALIDATED;
+ 		goto do_more;
+ 	}
+ error_return:
+@@ -6127,6 +6141,7 @@ void ext4_free_blocks(handle_t *handle, struct inode *inode,
+ 			   "block = %llu, count = %lu", block, count);
+ 		return;
+ 	}
++	flags |= EXT4_FREE_BLOCKS_VALIDATED;
+ 
+ 	ext4_debug("freeing block %llu\n", block);
+ 	trace_ext4_free_blocks(inode, block, count, flags);
+@@ -6158,6 +6173,8 @@ void ext4_free_blocks(handle_t *handle, struct inode *inode,
+ 			block -= overflow;
+ 			count += overflow;
+ 		}
++		/* The range changed so it's no longer validated */
++		flags &= ~EXT4_FREE_BLOCKS_VALIDATED;
+ 	}
+ 	overflow = EXT4_LBLK_COFF(sbi, count);
+ 	if (overflow) {
+@@ -6168,6 +6185,8 @@ void ext4_free_blocks(handle_t *handle, struct inode *inode,
+ 				return;
+ 		} else
+ 			count += sbi->s_cluster_ratio - overflow;
++		/* The range changed so it's no longer validated */
++		flags &= ~EXT4_FREE_BLOCKS_VALIDATED;
+ 	}
+ 
+ 	if (!bh && (flags & EXT4_FREE_BLOCKS_FORGET)) {
+-- 
+2.35.1
+
 
 
