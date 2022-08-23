@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 341C659DCEC
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:25:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628E759DF30
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359334AbiHWMHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:07:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56696 "EHLO
+        id S1358425AbiHWLtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:49:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359739AbiHWMGf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:06:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 243EBDEB67;
-        Tue, 23 Aug 2022 02:38:01 -0700 (PDT)
+        with ESMTP id S243987AbiHWLs5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:48:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B053D25FE;
+        Tue, 23 Aug 2022 02:30:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EA9BB81C98;
-        Tue, 23 Aug 2022 09:37:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4A90C433D6;
-        Tue, 23 Aug 2022 09:37:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85154B81C86;
+        Tue, 23 Aug 2022 09:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABD55C433D6;
+        Tue, 23 Aug 2022 09:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247454;
-        bh=EKZDETK2wMS8ga13sw3/T56Jn7RQhNCk9lH3fLtohFk=;
+        s=korg; t=1661247027;
+        bh=ZtDQi6JrjMLlOTANa3295Wj3dOJNTeCm+ZsTBf4vlWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enC175gIAnNKQF/w2bP7ov5IkJ2XDJiOgLVBeSrEg3Op824Q54v9VQ/AALNnKhoyM
-         4/OrXe0BNmKmH4AeOSq7VU7c+3PGDVxIfNPdn3CAoix8xUOux7O+v6g/2HIz8ZV1zx
-         4nsVraFRK3o9S3uDcXiXEZ9jemBVxCK4qEGUkl+Q=
+        b=FqiiPWLRR6lZtQKyr2wtQbqlFrYxCzUIEshi9aPCtkEMC+lghHvgbrqMICBsgA4cc
+         VbL7Ot+OMXeqKBhzxxzyuvNzN3m8TiH2mG/RRNRwmiQtiP0ytQcl+Xf/mtDFwfuc+Y
+         sQGM9lITUkimSzol5tpZdG6UGVdFr0o0VGSjHA+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 010/158] tracing: Have filter accept "common_cpu" to be consistent
-Date:   Tue, 23 Aug 2022 10:25:42 +0200
-Message-Id: <20220823080046.491607346@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable <stable@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 5.4 265/389] intel_th: pci: Add Raptor Lake-S PCH support
+Date:   Tue, 23 Aug 2022 10:25:43 +0200
+Message-Id: <20220823080126.641030790@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit b2380577d4fe1c0ef3fa50417f1e441c016e4cbe upstream.
+commit 23e2de5826e2fc4dd43e08bab3a2ea1a5338b063 upstream.
 
-Make filtering consistent with histograms. As "cpu" can be a field of an
-event, allow for "common_cpu" to keep it from being confused with the
-"cpu" field of the event.
+Add support for the Trace Hub in Raptor Lake-S PCH.
 
-Link: https://lkml.kernel.org/r/20220820134401.513062765@goodmis.org
-Link: https://lore.kernel.org/all/20220820220920.e42fa32b70505b1904f0a0ad@kernel.org/
-
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
-Cc: Tom Zanussi <zanussi@kernel.org>
-Fixes: 1e3bac71c5053 ("tracing/histogram: Rename "cpu" to "common_cpu"")
-Suggested-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20220705082637.59979-6-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwtracing/intel_th/pci.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -168,6 +168,7 @@ static int trace_define_generic_fields(v
- 
- 	__generic_field(int, CPU, FILTER_CPU);
- 	__generic_field(int, cpu, FILTER_CPU);
-+	__generic_field(int, common_cpu, FILTER_CPU);
- 	__generic_field(char *, COMM, FILTER_COMM);
- 	__generic_field(char *, comm, FILTER_COMM);
- 
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -285,6 +285,11 @@ static const struct pci_device_id intel_
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
+ 	{
++		/* Raptor Lake-S */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x7a26),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
++	{
+ 		/* Rocket Lake CPU */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4c19),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 
 
