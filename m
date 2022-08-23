@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7020459DC70
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F8559E0A1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357231AbiHWLKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:10:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57710 "EHLO
+        id S1349876AbiHWLL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:11:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356910AbiHWLJ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:09:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73FEA876A6;
-        Tue, 23 Aug 2022 02:16:30 -0700 (PDT)
+        with ESMTP id S1357086AbiHWLIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:08:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE16F870BA;
+        Tue, 23 Aug 2022 02:16:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8322E60F54;
-        Tue, 23 Aug 2022 09:16:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 872D1C433D7;
-        Tue, 23 Aug 2022 09:16:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE11760DB4;
+        Tue, 23 Aug 2022 09:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7654C433D7;
+        Tue, 23 Aug 2022 09:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246178;
-        bh=U1YidWuVoyqZs3ej4kXKap1Dt9pgAIknPE6V3h/CqC8=;
+        s=korg; t=1661246182;
+        bh=h4SRFRwWDGFpd+Pvz9NJz6+4oQ+lzHmWydHpMm9CVU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCIU4aAGfIaTml393bAhNO5C2Y6pCsthyBfS/a1vgsPe9o2N4MkV1Gaz2qptKpSNv
-         E620eTapHAydSvp+o08AHQoZOE8XrPsnnsQdZivkAa7ClLTrHL67t1vdvGlD0yBymI
-         eOGFRZgrZJIud/KmkPN+I01mPjd7JJpfNCdn8yCM=
+        b=fjEMau6YXCzaC6IeS0KQ8s8iRvALqIes9egXoFbcHyNE1cjcK6XYqB+YDNaElNsJv
+         wLkXqgvE5gguSgptmmywaBUP82xk89BuRYg4XuRPLhqESCLakwPOnSbggkJtX5ua5W
+         XkrAacDUoDtLniDwdGqoLsVaEM56aqBAXJgjm1dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 026/389] fbcon: Fix boundary checks for fbcon=vc:n1-n2 parameters
-Date:   Tue, 23 Aug 2022 10:21:44 +0200
-Message-Id: <20220823080116.793037665@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Lukas Wunner <lukas@wunner.de>,
+        Oliver Neukum <oneukum@suse.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 027/389] usbnet: Fix linkwatch use-after-free on disconnect
+Date:   Tue, 23 Aug 2022 10:21:45 +0200
+Message-Id: <20220823080116.827872846@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -53,54 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit cad564ca557f8d3bb3b1fa965d9a2b3f6490ec69 upstream.
+commit a69e617e533edddf3fa3123149900f36e0a6dc74 upstream.
 
-The user may use the fbcon=vc:<n1>-<n2> option to tell fbcon to take
-over the given range (n1...n2) of consoles. The value for n1 and n2
-needs to be a positive number and up to (MAX_NR_CONSOLES - 1).
-The given values were not fully checked against those boundaries yet.
+usbnet uses the work usbnet_deferred_kevent() to perform tasks which may
+sleep.  On disconnect, completion of the work was originally awaited in
+->ndo_stop().  But in 2003, that was moved to ->disconnect() by historic
+commit "[PATCH] USB: usbnet, prevent exotic rtnl deadlock":
 
-To fix the issue, convert first_fb_vc and last_fb_vc to unsigned
-integers and check them against the upper boundary, and make sure that
-first_fb_vc is smaller than last_fb_vc.
+  https://git.kernel.org/tglx/history/c/0f138bbfd83c
 
-Cc: stable@vger.kernel.org # v4.19+
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/YpkYRMojilrtZIgM@p100
+The change was made because back then, the kernel's workqueue
+implementation did not allow waiting for a single work.  One had to wait
+for completion of *all* work by calling flush_scheduled_work(), and that
+could deadlock when waiting for usbnet_deferred_kevent() with rtnl_mutex
+held in ->ndo_stop().
+
+The commit solved one problem but created another:  It causes a
+use-after-free in USB Ethernet drivers aqc111.c, asix_devices.c,
+ax88179_178a.c, ch9200.c and smsc75xx.c:
+
+* If the drivers receive a link change interrupt immediately before
+  disconnect, they raise EVENT_LINK_RESET in their (non-sleepable)
+  ->status() callback and schedule usbnet_deferred_kevent().
+* usbnet_deferred_kevent() invokes the driver's ->link_reset() callback,
+  which calls netif_carrier_{on,off}().
+* That in turn schedules the work linkwatch_event().
+
+Because usbnet_deferred_kevent() is awaited after unregister_netdev(),
+netif_carrier_{on,off}() may operate on an unregistered netdev and
+linkwatch_event() may run after free_netdev(), causing a use-after-free.
+
+In 2010, usbnet was changed to only wait for a single instance of
+usbnet_deferred_kevent() instead of *all* work by commit 23f333a2bfaf
+("drivers/net: don't use flush_scheduled_work()").
+
+Unfortunately the commit neglected to move the wait back to
+->ndo_stop().  Rectify that omission at long last.
+
+Reported-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/netdev/CAG48ez0MHBbENX5gCdHAUXZ7h7s20LnepBF-pa5M=7Bi-jZrEA@mail.gmail.com/
+Reported-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/netdev/20220315113841.GA22337@pengutronix.de/
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/d1c87ebe9fc502bffcd1576e238d685ad08321e4.1655987888.git.lukas@wunner.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/usb/usbnet.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -123,8 +123,8 @@ static int logo_lines;
-    enums.  */
- static int logo_shown = FBCON_LOGO_CANSHOW;
- /* console mappings */
--static int first_fb_vc;
--static int last_fb_vc = MAX_NR_CONSOLES - 1;
-+static unsigned int first_fb_vc;
-+static unsigned int last_fb_vc = MAX_NR_CONSOLES - 1;
- static int fbcon_is_default = 1; 
- static int primary_device = -1;
- static int fbcon_has_console_bind;
-@@ -474,10 +474,12 @@ static int __init fb_console_setup(char
- 			options += 3;
- 			if (*options)
- 				first_fb_vc = simple_strtoul(options, &options, 10) - 1;
--			if (first_fb_vc < 0)
-+			if (first_fb_vc >= MAX_NR_CONSOLES)
- 				first_fb_vc = 0;
- 			if (*options++ == '-')
- 				last_fb_vc = simple_strtoul(options, &options, 10) - 1;
-+			if (last_fb_vc < first_fb_vc || last_fb_vc >= MAX_NR_CONSOLES)
-+				last_fb_vc = MAX_NR_CONSOLES - 1;
- 			fbcon_is_default = 0; 
- 			continue;
- 		}
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -833,13 +833,11 @@ int usbnet_stop (struct net_device *net)
+ 
+ 	mpn = !test_and_clear_bit(EVENT_NO_RUNTIME_PM, &dev->flags);
+ 
+-	/* deferred work (task, timer, softirq) must also stop.
+-	 * can't flush_scheduled_work() until we drop rtnl (later),
+-	 * else workers could deadlock; so make workers a NOP.
+-	 */
++	/* deferred work (timer, softirq, task) must also stop */
+ 	dev->flags = 0;
+ 	del_timer_sync (&dev->delay);
+ 	tasklet_kill (&dev->bh);
++	cancel_work_sync(&dev->kevent);
+ 	if (!pm)
+ 		usb_autopm_put_interface(dev->intf);
+ 
+@@ -1603,8 +1601,6 @@ void usbnet_disconnect (struct usb_inter
+ 	net = dev->net;
+ 	unregister_netdev (net);
+ 
+-	cancel_work_sync(&dev->kevent);
+-
+ 	usb_scuttle_anchored_urbs(&dev->deferred);
+ 
+ 	if (dev->driver_info->unbind)
 
 
