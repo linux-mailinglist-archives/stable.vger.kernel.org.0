@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF17759E283
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED66F59E154
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356299AbiHWK5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:57:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54878 "EHLO
+        id S244438AbiHWL4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:56:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356550AbiHWKyS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:54:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B132DC7;
-        Tue, 23 Aug 2022 02:13:17 -0700 (PDT)
+        with ESMTP id S1358627AbiHWLxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:53:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0C2BB47;
+        Tue, 23 Aug 2022 02:33:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63310B81C88;
-        Tue, 23 Aug 2022 09:13:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B10C0C433C1;
-        Tue, 23 Aug 2022 09:13:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEAB461389;
+        Tue, 23 Aug 2022 09:33:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D317BC433C1;
+        Tue, 23 Aug 2022 09:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245994;
+        s=korg; t=1661247193;
         bh=+cQueMhG49MjrWyekbaH7KLGxxmn10UFrF2aTy84y2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XmpshZIi48SWWkXsO2Oali1j4HNNlNIOKUIQiC0Bl4iuwIS255deAAj6NR3velFey
-         C8Wrb6RJDAsM7h6T0fz1o+t+o9PvoEC55tE/QzluioQd0L+/7T7IxYvuxzbhBfzIjo
-         siiwIcOmXautNSXFuNDO9GiYAPHqm0U/5AOsEPbY=
+        b=iSSpxYnxAiJ0DJdeIPr4ZvVo1vcpHILKgxLj10vFC3d7S0OEUTyMdea5gVT7pOhyf
+         EraEjU+WtoRt4ws5hBIN9ulx07dAdIMANFKrvyK6uDC6QKCvallr8kXQs2AyXV83P5
+         7YMHIuzzTQsCUiE818JGbhud0plAmwQPM2lCyOj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Hector Martin <marcan@marcan.st>,
         Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.19 256/287] locking/atomic: Make test_and_*_bit() ordered on failure
+Subject: [PATCH 5.4 347/389] locking/atomic: Make test_and_*_bit() ordered on failure
 Date:   Tue, 23 Aug 2022 10:27:05 +0200
-Message-Id: <20220823080109.872293149@linuxfoundation.org>
+Message-Id: <20220823080130.030533464@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
