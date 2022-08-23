@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ACFF59E1EE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E69059E138
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357514AbiHWLRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44754 "EHLO
+        id S1353261AbiHWKRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:17:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357824AbiHWLQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:44 -0400
+        with ESMTP id S1353554AbiHWKPL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:15:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE2F4BD291;
-        Tue, 23 Aug 2022 02:20:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2EA312097;
+        Tue, 23 Aug 2022 02:00:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70EB2B81C85;
-        Tue, 23 Aug 2022 09:19:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1608C433C1;
-        Tue, 23 Aug 2022 09:19:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BE09B81C3A;
+        Tue, 23 Aug 2022 09:00:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5478C433C1;
+        Tue, 23 Aug 2022 09:00:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246388;
-        bh=+DQ+ttyqkz9njZ1UNxy19IHIxu7jG17XH4JY/M5wtJc=;
+        s=korg; t=1661245217;
+        bh=22bjKCrwPuAchkIl7u/Le+vlT8VnCrkd2/EXiX7WGPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsdphZ4C90RQzrbrGMK5wDLiW75pHYWGjM3u0N5rZyXW3qz0VzOLe2ukfo0TO7h0u
-         68Djj45tZaZrPvRvLA5gWH9AHj7BZwE6XS3sgbN1MXd0spZuBIdnVLILcufW5cnAaj
-         15HcNBK3Pn+8vgzu/qNNXfSwVuPRXFkfSIdD+GL0=
+        b=cHD/WHem3qbjK2w2tIIj5aIGED9AjlfPQFhKM0gn7vqyf6zTpvIe6ONK6DtIxjN6Z
+         DkxsNWdiUUvGfPKqzeidyqVFdJbMkhjWIIgQhykrcGuiKwF8F8bK975R+0lIWytxlS
+         pDD0EtXeZdwHFXzwcFOBCJUcdavIYfD9qkL7HnPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Phil Auld <pauld@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/389] nohz/full, sched/rt: Fix missed tick-reenabling bug in dequeue_task_rt()
+        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 001/287] Makefile: link with -z noexecstack --no-warn-rwx-segments
 Date:   Tue, 23 Aug 2022 10:22:50 +0200
-Message-Id: <20220823080119.455820083@linuxfoundation.org>
+Message-Id: <20220823080100.316905555@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,117 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 5c66d1b9b30f737fcef85a0b75bfe0590e16b62a ]
+commit 0d362be5b14200b77ecc2127936a5ff82fbffe41 upstream.
 
-dequeue_task_rt() only decrements 'rt_rq->rt_nr_running' after having
-called sched_update_tick_dependency() preventing it from re-enabling the
-tick on systems that no longer have pending SCHED_RT tasks but have
-multiple runnable SCHED_OTHER tasks:
+Users of GNU ld (BFD) from binutils 2.39+ will observe multiple
+instances of a new warning when linking kernels in the form:
 
-  dequeue_task_rt()
-    dequeue_rt_entity()
-      dequeue_rt_stack()
-        dequeue_top_rt_rq()
-	  sub_nr_running()	// decrements rq->nr_running
-	    sched_update_tick_dependency()
-	      sched_can_stop_tick()	// checks rq->rt.rt_nr_running,
-	      ...
-        __dequeue_rt_entity()
-          dec_rt_tasks()	// decrements rq->rt.rt_nr_running
-	  ...
+  ld: warning: vmlinux: missing .note.GNU-stack section implies executable stack
+  ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+  ld: warning: vmlinux has a LOAD segment with RWX permissions
 
-Every other scheduler class performs the operation in the opposite
-order, and sched_update_tick_dependency() expects the values to be
-updated as such. So avoid the misbehaviour by inverting the order in
-which the above operations are performed in the RT scheduler.
+Generally, we would like to avoid the stack being executable.  Because
+there could be a need for the stack to be executable, assembler sources
+have to opt-in to this security feature via explicit creation of the
+.note.GNU-stack feature (which compilers create by default) or command
+line flag --noexecstack.  Or we can simply tell the linker the
+production of such sections is irrelevant and to link the stack as
+--noexecstack.
 
-Fixes: 76d92ac305f2 ("sched: Migrate sched to use new tick dependency mask model")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <vschneid@redhat.com>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Link: https://lore.kernel.org/r/20220628092259.330171-1-nsaenzju@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+LLVM's LLD linker defaults to -z noexecstack, so this flag isn't
+strictly necessary when linking with LLD, only BFD, but it doesn't hurt
+to be explicit here for all linkers IMO.  --no-warn-rwx-segments is
+currently BFD specific and only available in the current latest release,
+so it's wrapped in an ld-option check.
+
+While the kernel makes extensive usage of ELF sections, it doesn't use
+permissions from ELF segments.
+
+Link: https://lore.kernel.org/linux-block/3af4127a-f453-4cf7-f133-a181cce06f73@kernel.dk/
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
+Link: https://github.com/llvm/llvm-project/issues/57009
+Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/rt.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ Makefile |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index 28c82dee13ea..c11d3d79d4c3 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -437,7 +437,7 @@ static inline void rt_queue_push_tasks(struct rq *rq)
- #endif /* CONFIG_SMP */
+--- a/Makefile
++++ b/Makefile
+@@ -876,6 +876,9 @@ LDFLAGS_BUILD_ID := $(call ld-option, --
+ KBUILD_LDFLAGS_MODULE += $(LDFLAGS_BUILD_ID)
+ LDFLAGS_vmlinux += $(LDFLAGS_BUILD_ID)
  
- static void enqueue_top_rt_rq(struct rt_rq *rt_rq);
--static void dequeue_top_rt_rq(struct rt_rq *rt_rq);
-+static void dequeue_top_rt_rq(struct rt_rq *rt_rq, unsigned int count);
- 
- static inline int on_rt_rq(struct sched_rt_entity *rt_se)
- {
-@@ -519,7 +519,7 @@ static void sched_rt_rq_dequeue(struct rt_rq *rt_rq)
- 	rt_se = rt_rq->tg->rt_se[cpu];
- 
- 	if (!rt_se) {
--		dequeue_top_rt_rq(rt_rq);
-+		dequeue_top_rt_rq(rt_rq, rt_rq->rt_nr_running);
- 		/* Kick cpufreq (see the comment in kernel/sched/sched.h). */
- 		cpufreq_update_util(rq_of_rt_rq(rt_rq), 0);
- 	}
-@@ -605,7 +605,7 @@ static inline void sched_rt_rq_enqueue(struct rt_rq *rt_rq)
- 
- static inline void sched_rt_rq_dequeue(struct rt_rq *rt_rq)
- {
--	dequeue_top_rt_rq(rt_rq);
-+	dequeue_top_rt_rq(rt_rq, rt_rq->rt_nr_running);
- }
- 
- static inline int rt_rq_throttled(struct rt_rq *rt_rq)
-@@ -1004,7 +1004,7 @@ static void update_curr_rt(struct rq *rq)
- }
- 
- static void
--dequeue_top_rt_rq(struct rt_rq *rt_rq)
-+dequeue_top_rt_rq(struct rt_rq *rt_rq, unsigned int count)
- {
- 	struct rq *rq = rq_of_rt_rq(rt_rq);
- 
-@@ -1015,7 +1015,7 @@ dequeue_top_rt_rq(struct rt_rq *rt_rq)
- 
- 	BUG_ON(!rq->nr_running);
- 
--	sub_nr_running(rq, rt_rq->rt_nr_running);
-+	sub_nr_running(rq, count);
- 	rt_rq->rt_queued = 0;
- 
- }
-@@ -1294,18 +1294,21 @@ static void __dequeue_rt_entity(struct sched_rt_entity *rt_se, unsigned int flag
- static void dequeue_rt_stack(struct sched_rt_entity *rt_se, unsigned int flags)
- {
- 	struct sched_rt_entity *back = NULL;
-+	unsigned int rt_nr_running;
- 
- 	for_each_sched_rt_entity(rt_se) {
- 		rt_se->back = back;
- 		back = rt_se;
- 	}
- 
--	dequeue_top_rt_rq(rt_rq_of_se(back));
-+	rt_nr_running = rt_rq_of_se(back)->rt_nr_running;
- 
- 	for (rt_se = back; rt_se; rt_se = rt_se->back) {
- 		if (on_rt_rq(rt_se))
- 			__dequeue_rt_entity(rt_se, flags);
- 	}
++KBUILD_LDFLAGS	+= -z noexecstack
++KBUILD_LDFLAGS	+= $(call ld-option,--no-warn-rwx-segments)
 +
-+	dequeue_top_rt_rq(rt_rq_of_se(back), rt_nr_running);
- }
- 
- static void enqueue_rt_entity(struct sched_rt_entity *rt_se, unsigned int flags)
--- 
-2.35.1
-
+ ifeq ($(CONFIG_STRIP_ASM_SYMS),y)
+ LDFLAGS_vmlinux	+= $(call ld-option, -X,)
+ endif
 
 
