@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE59F59DE42
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B0B59E014
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354453AbiHWKm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:42:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46718 "EHLO
+        id S1352904AbiHWKJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:09:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355426AbiHWKiX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:38:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3A1A720F;
-        Tue, 23 Aug 2022 02:07:45 -0700 (PDT)
+        with ESMTP id S1352359AbiHWKH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:07:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9DD41CFEB;
+        Tue, 23 Aug 2022 01:54:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AFE5B81C65;
-        Tue, 23 Aug 2022 09:07:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F92C433C1;
-        Tue, 23 Aug 2022 09:07:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87FD1B81C1C;
+        Tue, 23 Aug 2022 08:54:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEAC0C433C1;
+        Tue, 23 Aug 2022 08:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245663;
-        bh=5Yabsf9P9O//Eym2yywOLLQ57DVHSg+BZbAaS79Jszs=;
+        s=korg; t=1661244839;
+        bh=VM9t8c7YAid0OO1n+T0A55NXeHwrEK+T+ZVpeJptmbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KL6NdvaMjez7UwcLEg3oYA/enpqul4I7Czn6q7dEaa7UbHCW428ZtSNdvRC+MrgZZ
-         tnZPKU3pfHoAzrtg+CFMbH1TpBMjKoHG+qiblr2J0PhrGEaA6+8Drw9xoXsx1/xnwv
-         dnWINX608e0nBx6wV4ArJ8/EwKFmpN0VVpEnNd4w=
+        b=poopqI3in/3RTxrsPmZrDTZ82hTZFK00sIu9PDdlOAfPhL2i9zM/Z6qu2CPE2FwPH
+         acUyWBx2lkDDvjQ1pqsLKPE6DaAQtpB8Wg6M+00Oltmk/aPVXkNyK0GcSmgar091Kt
+         Ld7yPzuZhj4746m33x4KuYJx/tssiOdLiMKTG7gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 150/287] serial: 8250_dw: Store LSR into lsr_saved_flags in dw8250_tx_wait_empty()
+        stable@vger.kernel.org, Oliver Upton <oliver.upton@linux.dev>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 160/244] KVM: arm64: Treat PMCR_EL1.LC as RES1 on asymmetric systems
 Date:   Tue, 23 Aug 2022 10:25:19 +0200
-Message-Id: <20220823080105.646601472@linuxfoundation.org>
+Message-Id: <20220823080104.541392256@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Oliver Upton <oliver.upton@linux.dev>
 
-[ Upstream commit af14f3007e2dca0d112f10f6717ba43093f74e81 ]
+[ Upstream commit f3c6efc72f3b20ec23566e768979802f0a398f04 ]
 
-Make sure LSR flags are preserved in dw8250_tx_wait_empty(). This
-function is called from a low-level out function and therefore cannot
-call serial_lsr_in() as it would lead to infinite recursion.
+KVM does not support AArch32 on asymmetric systems. To that end, enforce
+AArch64-only behavior on PMCR_EL1.LC when on an asymmetric system.
 
-It is borderline if the flags need to be saved here at all since this
-code relates to writing LCR register which usually implies no important
-characters should be arriving.
-
-Fixes: 914eaf935ec7 ("serial: 8250_dw: Allow TX FIFO to drain before writing to UART_LCR")
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220608095431.18376-7-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2122a833316f ("arm64: Allow mismatched 32-bit EL0 support")
+Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220816192554.1455559-2-oliver.upton@linux.dev
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_dw.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/include/asm/kvm_host.h | 4 ++++
+ arch/arm64/kvm/arm.c              | 3 +--
+ arch/arm64/kvm/sys_regs.c         | 4 ++--
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
-index c73d0eddd9b8..cc9d1f416db8 100644
---- a/drivers/tty/serial/8250/8250_dw.c
-+++ b/drivers/tty/serial/8250/8250_dw.c
-@@ -140,12 +140,15 @@ static void dw8250_check_lcr(struct uart_port *p, int value)
- /* Returns once the transmitter is empty or we run out of retries */
- static void dw8250_tx_wait_empty(struct uart_port *p)
- {
-+	struct uart_8250_port *up = up_to_u8250p(p);
- 	unsigned int tries = 20000;
- 	unsigned int delay_threshold = tries - 1000;
- 	unsigned int lsr;
+diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+index fc6ee6c5972d..1713630bf8f5 100644
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -795,6 +795,10 @@ bool kvm_arm_vcpu_is_finalized(struct kvm_vcpu *vcpu);
+ #define kvm_vcpu_has_pmu(vcpu)					\
+ 	(test_bit(KVM_ARM_VCPU_PMU_V3, (vcpu)->arch.features))
  
- 	while (tries--) {
- 		lsr = readb (p->membase + (UART_LSR << p->regshift));
-+		up->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
++#define kvm_supports_32bit_el0()				\
++	(system_supports_32bit_el0() &&				\
++	 !static_branch_unlikely(&arm64_mismatched_32bit_el0))
 +
- 		if (lsr & UART_LSR_TEMT)
- 			break;
+ int kvm_trng_call(struct kvm_vcpu *vcpu);
+ #ifdef CONFIG_KVM
+ extern phys_addr_t hyp_mem_base;
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index f181527f9d43..4cb265e15361 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -712,8 +712,7 @@ static bool vcpu_mode_is_bad_32bit(struct kvm_vcpu *vcpu)
+ 	if (likely(!vcpu_mode_is_32bit(vcpu)))
+ 		return false;
  
+-	return !system_supports_32bit_el0() ||
+-		static_branch_unlikely(&arm64_mismatched_32bit_el0);
++	return !kvm_supports_32bit_el0();
+ }
+ 
+ /**
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index 7c18e429b449..c11612db4a37 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -649,7 +649,7 @@ static void reset_pmcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+ 	 */
+ 	val = ((pmcr & ~ARMV8_PMU_PMCR_MASK)
+ 	       | (ARMV8_PMU_PMCR_MASK & 0xdecafbad)) & (~ARMV8_PMU_PMCR_E);
+-	if (!system_supports_32bit_el0())
++	if (!kvm_supports_32bit_el0())
+ 		val |= ARMV8_PMU_PMCR_LC;
+ 	__vcpu_sys_reg(vcpu, r->reg) = val;
+ }
+@@ -698,7 +698,7 @@ static bool access_pmcr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+ 		val = __vcpu_sys_reg(vcpu, PMCR_EL0);
+ 		val &= ~ARMV8_PMU_PMCR_MASK;
+ 		val |= p->regval & ARMV8_PMU_PMCR_MASK;
+-		if (!system_supports_32bit_el0())
++		if (!kvm_supports_32bit_el0())
+ 			val |= ARMV8_PMU_PMCR_LC;
+ 		__vcpu_sys_reg(vcpu, PMCR_EL0) = val;
+ 		kvm_pmu_handle_pmcr(vcpu, val);
 -- 
 2.35.1
 
