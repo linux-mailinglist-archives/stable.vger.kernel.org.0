@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6204F59E1B1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 306CD59DB8E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358656AbiHWLwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:52:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57366 "EHLO
+        id S1353280AbiHWKNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358584AbiHWLt5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:49:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DAC77EB0;
-        Tue, 23 Aug 2022 02:31:15 -0700 (PDT)
+        with ESMTP id S1353379AbiHWKLV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27F297F086;
+        Tue, 23 Aug 2022 01:56:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CB36B81C66;
-        Tue, 23 Aug 2022 09:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA4BC433D6;
-        Tue, 23 Aug 2022 09:31:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3475B81C35;
+        Tue, 23 Aug 2022 08:56:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A68FC433C1;
+        Tue, 23 Aug 2022 08:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247072;
-        bh=IOsgaTxVBzA63oEuZIQOdrHHKRDvYavH/H8To3RGHZs=;
+        s=korg; t=1661244996;
+        bh=SMPKi7JYN8lXUwX1rq7vek4IGXoJO6A+YLX7BvVgKCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o08S1V/ClCCbakgLGCZOUtAvYrVU5BvbnSqIO/IxBNjgp61AoODA9Y31mOGggMxqd
-         Ds4Hptcd7YUy/qpH+YGNBdb3xC+UiqDqvduBY2OpBm6h/3UkFw5rOl4MpDaNprP8OU
-         CYnZcvuq5+uy7AwVeBs0EZVeqVLudEcgulwVj8/w=
+        b=1yFNHqw9V63m3CwyBOX+oBxcn/UqOytTIqNEhIYiKqpkbgNI1odLYUaMAoUP81p5N
+         raXaUj2fsRiMNrZGbEXBhCE6Mcw7zmtG3d04EoYF4vAYzOoJVmH0x2HH+QK+w3GAT9
+         NLDtGhRDVkTgZQ26t9C1uazq+PIRrFqqsU28lgjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 310/389] devlink: Fix use-after-free after a failed reload
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Zhouyi Zhou <zhouzhouyi@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 227/229] powerpc/64: Init jump labels before parse_early_param()
 Date:   Tue, 23 Aug 2022 10:26:28 +0200
-Message-Id: <20220823080128.524086837@linuxfoundation.org>
+Message-Id: <20220823080101.744991620@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Zhouyi Zhou <zhouzhouyi@gmail.com>
 
-commit 6b4db2e528f650c7fb712961aac36455468d5902 upstream.
+[ Upstream commit ca829e05d3d4f728810cc5e4b468d9ebc7745eb3 ]
 
-After a failed devlink reload, devlink parameters are still registered,
-which means user space can set and get their values. In the case of the
-mlxsw "acl_region_rehash_interval" parameter, these operations will
-trigger a use-after-free [1].
+On 64-bit, calling jump_label_init() in setup_feature_keys() is too
+late because static keys may be used in subroutines of
+parse_early_param() which is again subroutine of early_init_devtree().
 
-Fix this by rejecting set and get operations while in the failed state.
-Return the "-EOPNOTSUPP" error code which does not abort the parameters
-dump, but instead causes it to skip over the problematic parameter.
+For example booting with "threadirqs":
 
-Another possible fix is to perform these checks in the mlxsw parameter
-callbacks, but other drivers might be affected by the same problem and I
-am not aware of scenarios where these stricter checks will cause a
-regression.
+  static_key_enable_cpuslocked(): static key '0xc000000002953260' used before call to jump_label_init()
+  WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xfc/0x120
+  ...
+  NIP static_key_enable_cpuslocked+0xfc/0x120
+  LR  static_key_enable_cpuslocked+0xf8/0x120
+  Call Trace:
+    static_key_enable_cpuslocked+0xf8/0x120 (unreliable)
+    static_key_enable+0x30/0x50
+    setup_forced_irqthreads+0x28/0x40
+    do_early_param+0xa0/0x108
+    parse_args+0x290/0x4e0
+    parse_early_options+0x48/0x5c
+    parse_early_param+0x58/0x84
+    early_init_devtree+0xd4/0x518
+    early_setup+0xb4/0x214
 
-[1]
-mlxsw_spectrum3 0000:00:10.0: Port 125: Failed to register netdev
-mlxsw_spectrum3 0000:00:10.0: Failed to create ports
+So call jump_label_init() just before parse_early_param() in
+early_init_devtree().
 
-==================================================================
-BUG: KASAN: use-after-free in mlxsw_sp_acl_tcam_vregion_rehash_intrvl_get+0xbd/0xd0 drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c:904
-Read of size 4 at addr ffff8880099dcfd8 by task kworker/u4:4/777
-
-CPU: 1 PID: 777 Comm: kworker/u4:4 Not tainted 5.19.0-rc7-custom-126601-gfe26f28c586d #1
-Hardware name: QEMU MSN4700, BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-Workqueue: netns cleanup_net
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x92/0xbd lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:313 [inline]
- print_report.cold+0x5e/0x5cf mm/kasan/report.c:429
- kasan_report+0xb9/0xf0 mm/kasan/report.c:491
- __asan_report_load4_noabort+0x14/0x20 mm/kasan/report_generic.c:306
- mlxsw_sp_acl_tcam_vregion_rehash_intrvl_get+0xbd/0xd0 drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c:904
- mlxsw_sp_acl_region_rehash_intrvl_get+0x49/0x60 drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c:1106
- mlxsw_sp_params_acl_region_rehash_intrvl_get+0x33/0x80 drivers/net/ethernet/mellanox/mlxsw/spectrum.c:3854
- devlink_param_get net/core/devlink.c:4981 [inline]
- devlink_nl_param_fill+0x238/0x12d0 net/core/devlink.c:5089
- devlink_param_notify+0xe5/0x230 net/core/devlink.c:5168
- devlink_ns_change_notify net/core/devlink.c:4417 [inline]
- devlink_ns_change_notify net/core/devlink.c:4396 [inline]
- devlink_reload+0x15f/0x700 net/core/devlink.c:4507
- devlink_pernet_pre_exit+0x112/0x1d0 net/core/devlink.c:12272
- ops_pre_exit_list net/core/net_namespace.c:152 [inline]
- cleanup_net+0x494/0xc00 net/core/net_namespace.c:582
- process_one_work+0x9fc/0x1710 kernel/workqueue.c:2289
- worker_thread+0x675/0x10b0 kernel/workqueue.c:2436
- kthread+0x30c/0x3d0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
- </TASK>
-
-The buggy address belongs to the physical page:
-page:ffffea0000267700 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x99dc
-flags: 0x100000000000000(node=0|zone=1)
-raw: 0100000000000000 0000000000000000 dead000000000122 0000000000000000
-raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff8880099dce80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff8880099dcf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->ffff8880099dcf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                                                    ^
- ffff8880099dd000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff8880099dd080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-==================================================================
-
-Fixes: 98bbf70c1c41 ("mlxsw: spectrum: add "acl_region_rehash_interval" devlink param")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
+[mpe: Add call trace to change log and minor wording edits.]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220726015747.11754-1-zhouzhouyi@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/devlink.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/prom.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -2953,7 +2953,7 @@ static int devlink_param_get(struct devl
- 			     const struct devlink_param *param,
- 			     struct devlink_param_gset_ctx *ctx)
- {
--	if (!param->get)
-+	if (!param->get || devlink->reload_failed)
- 		return -EOPNOTSUPP;
- 	return param->get(devlink, param->id, ctx);
- }
-@@ -2962,7 +2962,7 @@ static int devlink_param_set(struct devl
- 			     const struct devlink_param *param,
- 			     struct devlink_param_gset_ctx *ctx)
- {
--	if (!param->set)
-+	if (!param->set || devlink->reload_failed)
- 		return -EOPNOTSUPP;
- 	return param->set(devlink, param->id, ctx);
- }
+diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
+index 99409d0420d2..ffc571edac28 100644
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -710,6 +710,13 @@ void __init early_init_devtree(void *params)
+ 	of_scan_flat_dt(early_init_dt_scan_root, NULL);
+ 	of_scan_flat_dt(early_init_dt_scan_memory_ppc, NULL);
+ 
++	/*
++	 * As generic code authors expect to be able to use static keys
++	 * in early_param() handlers, we initialize the static keys just
++	 * before parsing early params (it's fine to call jump_label_init()
++	 * more than once).
++	 */
++	jump_label_init();
+ 	parse_early_param();
+ 
+ 	/* make sure we've parsed cmdline for mem= before this */
+-- 
+2.35.1
+
 
 
