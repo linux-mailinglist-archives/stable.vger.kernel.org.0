@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E186259DE12
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7829959DFF2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352392AbiHWMRt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:17:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
+        id S1355860AbiHWKxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:53:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240207AbiHWMO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:14:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B09E9916;
-        Tue, 23 Aug 2022 02:40:50 -0700 (PDT)
+        with ESMTP id S1356823AbiHWKwP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:52:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C3806D9D3;
+        Tue, 23 Aug 2022 02:12:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30D86B81C89;
-        Tue, 23 Aug 2022 09:39:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9567EC433C1;
-        Tue, 23 Aug 2022 09:39:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCC13B81C85;
+        Tue, 23 Aug 2022 09:12:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F28F4C433D6;
+        Tue, 23 Aug 2022 09:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247592;
-        bh=xt9Z0x6wZKXP0XPQ3nzzHDOiKcMowZ34WYDeRTxaghc=;
+        s=korg; t=1661245966;
+        bh=74BDVeIvMBWQuIu/Rh+9XV75YMCsgnfcdiv4ClaKEQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5Ax7VMvDfscboRECK9UgNHRIP+i2Gx7e2XRysNogZTTOY5UvO0Ixad9uRiNkHjLU
-         GnG/dkSABzf8EAhduBUny5iS8WikAwWYq4TgbWqLAugTVnPJflG4oeiUYH+OTUg9QW
-         H3NxYh7DSzgmdQmzm8hM4xIIDYTWF/PgOZYZ1v+4=
+        b=tzd0upPXuQ+Ji+02tX/Cy8EZNVurWhbpQ/EdKbHjo1T1R2OWifqd0hYHDgPs9PSFI
+         5XCayzqpI3OhbCw5KwQoKl4FqheBOBV/+vtT1OxvSI6d9NwEEmVNWTilW8HKuMCl2t
+         Pi4lG5ffjOyRXuISTJ0TjxgPCYdWh6wv+GWugius=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+dc54d9ba8153b216cae0@syzkaller.appspotmail.com,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 084/158] net: genl: fix error path memory leak in policy dumping
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 4.19 247/287] nios2: fix syscall restart checks
 Date:   Tue, 23 Aug 2022 10:26:56 +0200
-Message-Id: <20220823080049.457436218@linuxfoundation.org>
+Message-Id: <20220823080109.465592412@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 249801360db3dec4f73768c502192020bfddeacc upstream.
+commit 2d631bd58fe0ea3e3350212e23c9aba1fb606514 upstream.
 
-If construction of the array of policies fails when recording
-non-first policy we need to unwind.
+sys_foo() returns -512 (aka -ERESTARTSYS) => do_signal() sees
+512 in r2 and 1 in r1.
 
-netlink_policy_dump_add_policy() itself also needs fixing as
-it currently gives up on error without recording the allocated
-pointer in the pstate pointer.
+sys_foo() returns 512 => do_signal() sees 512 in r2 and 0 in r1.
 
-Reported-by: syzbot+dc54d9ba8153b216cae0@syzkaller.appspotmail.com
-Fixes: 50a896cf2d6f ("genetlink: properly support per-op policy dumping")
-Link: https://lore.kernel.org/r/20220816161939.577583-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The former is restart-worthy; the latter obviously isn't.
+
+Fixes: b53e906d255d ("nios2: Signal handling support")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlink/genetlink.c |    6 +++++-
- net/netlink/policy.c    |   14 ++++++++++++--
- 2 files changed, 17 insertions(+), 3 deletions(-)
+ arch/nios2/kernel/signal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netlink/genetlink.c
-+++ b/net/netlink/genetlink.c
-@@ -1182,13 +1182,17 @@ static int ctrl_dumppolicy_start(struct
- 							     op.policy,
- 							     op.maxattr);
- 			if (err)
--				return err;
-+				goto err_free_state;
- 		}
- 	}
- 
- 	if (!ctx->state)
- 		return -ENODATA;
- 	return 0;
-+
-+err_free_state:
-+	netlink_policy_dump_free(ctx->state);
-+	return err;
- }
- 
- static void *ctrl_dumppolicy_prep(struct sk_buff *skb,
---- a/net/netlink/policy.c
-+++ b/net/netlink/policy.c
-@@ -144,7 +144,7 @@ int netlink_policy_dump_add_policy(struc
- 
- 	err = add_policy(&state, policy, maxtype);
- 	if (err)
--		return err;
-+		goto err_try_undo;
- 
- 	for (policy_idx = 0;
- 	     policy_idx < state->n_alloc && state->policies[policy_idx].policy;
-@@ -164,7 +164,7 @@ int netlink_policy_dump_add_policy(struc
- 						 policy[type].nested_policy,
- 						 policy[type].len);
- 				if (err)
--					return err;
-+					goto err_try_undo;
- 				break;
- 			default:
- 				break;
-@@ -174,6 +174,16 @@ int netlink_policy_dump_add_policy(struc
- 
- 	*pstate = state;
- 	return 0;
-+
-+err_try_undo:
-+	/* Try to preserve reasonable unwind semantics - if we're starting from
-+	 * scratch clean up fully, otherwise record what we got and caller will.
-+	 */
-+	if (!*pstate)
-+		netlink_policy_dump_free(state);
-+	else
-+		*pstate = state;
-+	return err;
- }
- 
- static bool
+--- a/arch/nios2/kernel/signal.c
++++ b/arch/nios2/kernel/signal.c
+@@ -240,7 +240,7 @@ static int do_signal(struct pt_regs *reg
+ 	/*
+ 	 * If we were from a system call, check for system call restarting...
+ 	 */
+-	if (regs->orig_r2 >= 0) {
++	if (regs->orig_r2 >= 0 && regs->r1) {
+ 		continue_addr = regs->ea;
+ 		restart_addr = continue_addr - 4;
+ 		retval = regs->r2;
 
 
