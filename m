@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E45B59D668
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A5659D4E1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348162AbiHWJIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:08:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51610 "EHLO
+        id S242425AbiHWJGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:06:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347930AbiHWJG5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:06:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 457BB83F1C;
-        Tue, 23 Aug 2022 01:30:10 -0700 (PDT)
+        with ESMTP id S1347967AbiHWJFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:05:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E52385ABB;
+        Tue, 23 Aug 2022 01:29:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C07D8B81C4D;
-        Tue, 23 Aug 2022 08:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 234CAC433D6;
-        Tue, 23 Aug 2022 08:28:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B99E6148F;
+        Tue, 23 Aug 2022 08:28:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45250C433D6;
+        Tue, 23 Aug 2022 08:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243322;
-        bh=ou72801z8mN71VTlq2a6SZCJ4zfndl7r4LyeKMh+suU=;
+        s=korg; t=1661243325;
+        bh=mfXabLGDY9gETB+b3ZUJCxSsB/UQoJhhDwkWQHOl0eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0vYkN+9ES34B8KQE21bpiZ04ONYTuAharV2cJVAHq4JyXreOkWHNjmPcSaDRZKole
-         Apds4kGt8rz2EimGUg4wi2H5zbfM8J+KUV/dnl77bKxeSthkorN6whkRN+vk/+Hk13
-         vwLQpZj6Ezjd/aDa0W0lrDHpQs8s9reEKKZOkr7g=
+        b=HMb7UOJgHW5hnszlSjkSP1gty1Mu0OL2TtrHmA4xRi/qM6iGoq8X8/KwpSXL2Gz9V
+         7JTkDbU94yQ+HzHTtBEz8vSkLzJ5APqeWASm21KXS4l/lJNn2mY21ThWDJsmq6Mi62
+         QlH5eShxHLdbmi9UxxHwe6LSYYZ5nCGKOac0hHUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.19 241/365] can: j1939: j1939_sk_queue_activate_next_locked(): replace WARN_ON_ONCE with netdev_warn_once()
-Date:   Tue, 23 Aug 2022 10:02:22 +0200
-Message-Id: <20220823080128.319300150@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 242/365] drm/imx/dcss: get rid of HPD warning message
+Date:   Tue, 23 Aug 2022 10:02:23 +0200
+Message-Id: <20220823080128.356688743@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,43 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
 
-commit 8ef49f7f8244424adcf4a546dba4cbbeb0b09c09 upstream.
+[ Upstream commit 30bdc36b8c776cd4fce5de2a96ff28b37f96942f ]
 
-We should warn user-space that it is doing something wrong when trying
-to activate sessions with identical parameters but WARN_ON_ONCE macro
-can not be used here as it serves a different purpose.
+When DCSS + MIPI_DSI is used, and the last bridge in the chain supports
+HPD, we can see a "Hot plug detection already enabled" warning stack
+trace dump that's thrown when DCSS is initialized.
 
-So it would be good to replace it with netdev_warn_once() message.
+The problem appeared when HPD was enabled by default in the
+bridge_connector initialization, which made the
+drm_bridge_connector_enable_hpd() call, in DCSS init path, redundant.
+So, let's remove that call.
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20220729143655.1108297-1-pchelkin@ispras.ru
-[mkl: fix indention]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 09077bc311658 ("drm/bridge_connector: enable HPD by default if supported")
+Signed-off-by: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220721120912.6639-1-laurentiu.palcu@oss.nxp.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/socket.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/imx/dcss/dcss-kms.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -178,7 +178,10 @@ activate_next:
- 	if (!first)
- 		return;
+diff --git a/drivers/gpu/drm/imx/dcss/dcss-kms.c b/drivers/gpu/drm/imx/dcss/dcss-kms.c
+index 9b84df34a6a1..8cf3352d8858 100644
+--- a/drivers/gpu/drm/imx/dcss/dcss-kms.c
++++ b/drivers/gpu/drm/imx/dcss/dcss-kms.c
+@@ -142,8 +142,6 @@ struct dcss_kms_dev *dcss_kms_attach(struct dcss_dev *dcss)
  
--	if (WARN_ON_ONCE(j1939_session_activate(first))) {
-+	if (j1939_session_activate(first)) {
-+		netdev_warn_once(first->priv->ndev,
-+				 "%s: 0x%p: Identical session is already activated.\n",
-+				 __func__, first);
- 		first->err = -EBUSY;
- 		goto activate_next;
- 	} else {
+ 	drm_kms_helper_poll_init(drm);
+ 
+-	drm_bridge_connector_enable_hpd(kms->connector);
+-
+ 	ret = drm_dev_register(drm, 0);
+ 	if (ret)
+ 		goto cleanup_crtc;
+-- 
+2.35.1
+
 
 
