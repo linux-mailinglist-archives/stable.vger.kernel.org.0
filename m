@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D48F59D742
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C19B959D6D8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243084AbiHWJmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:42:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53402 "EHLO
+        id S242128AbiHWJma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:42:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352083AbiHWJkz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:40:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 725F7402FA;
-        Tue, 23 Aug 2022 01:41:47 -0700 (PDT)
+        with ESMTP id S1352388AbiHWJlR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:41:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 875DC99246;
+        Tue, 23 Aug 2022 01:42:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06255B81C5A;
-        Tue, 23 Aug 2022 08:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 348B1C433D6;
-        Tue, 23 Aug 2022 08:41:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AA1EB81C4A;
+        Tue, 23 Aug 2022 08:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1FABC433D6;
+        Tue, 23 Aug 2022 08:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244077;
-        bh=sZHTj6NlHV1gKfCIF3Oh0sM2abCOlzPAapitMOgNRbQ=;
+        s=korg; t=1661244090;
+        bh=2lB3I7+8Hem0I6Ax5aso+WvIIZirR+UtJ+Zd6sfcEwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q90JOrQjI8UnHtAuofmA7pUS2lPDoiZUwYDqzW/nQa+1hWul4F99opK1wzePonrMq
-         +6leH7VJfRGzumAOply8RBwXUkpEDejtYzwsAURd1ZkEYnMzUUznhvS+nP2S1dOmYN
-         v7r8Vjmud67TVGvMOiPMDQ5IetaInfNHvlFmM5MQ=
+        b=vPNq5+n/VhdYNY/eIToOWc/rM3zwWJdnr/oySACxPsSjm3kvkEGiOIQNSccx1KMfJ
+         6WuAkoQCpaipEdU+qDosPKHtFx2UuAq6r1x3I/Je4g1WD/47dgAoINY1lUFvzmSWhq
+         k37I0N2dIOFEqCQk2PH/5nxPup0ov5ERbcnl4Vcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.15 033/244] apparmor: fix overlapping attachment computation
-Date:   Tue, 23 Aug 2022 10:23:12 +0200
-Message-Id: <20220823080100.171767098@linuxfoundation.org>
+        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.15 035/244] apparmor: Fix memleak in aa_simple_write_to_buffer()
+Date:   Tue, 23 Aug 2022 10:23:14 +0200
+Message-Id: <20220823080100.240361186@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -52,46 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-commit 2504db207146543736e877241f3b3de005cbe056 upstream.
+commit 417ea9fe972d2654a268ad66e89c8fcae67017c3 upstream.
 
-When finding the profile via patterned attachments, the longest left
-match is being set to the static compile time value and not using the
-runtime computed value.
+When copy_from_user failed, the memory is freed by kvfree. however the
+management struct and data blob are allocated independently, so only
+kvfree(data) cause a memleak issue here. Use aa_put_loaddata(data) to
+fix this issue.
 
-Fix this by setting the candidate value to the greater of the
-precomputed value or runtime computed value.
-
-Fixes: 21f606610502 ("apparmor: improve overlapping domain attachment resolution")
+Fixes: a6a52579e52b5 ("apparmor: split load data into management struct and data blob")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
 Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/apparmor/domain.c         |    2 +-
- security/apparmor/include/policy.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ security/apparmor/apparmorfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/apparmor/domain.c
-+++ b/security/apparmor/domain.c
-@@ -467,7 +467,7 @@ restart:
- 				 * xattrs, or a longer match
- 				 */
- 				candidate = profile;
--				candidate_len = profile->xmatch_len;
-+				candidate_len = max(count, profile->xmatch_len);
- 				candidate_xattrs = ret;
- 				conflict = false;
- 			}
---- a/security/apparmor/include/policy.h
-+++ b/security/apparmor/include/policy.h
-@@ -135,7 +135,7 @@ struct aa_profile {
+--- a/security/apparmor/apparmorfs.c
++++ b/security/apparmor/apparmorfs.c
+@@ -401,7 +401,7 @@ static struct aa_loaddata *aa_simple_wri
  
- 	const char *attach;
- 	struct aa_dfa *xmatch;
--	int xmatch_len;
-+	unsigned int xmatch_len;
- 	enum audit_mode audit;
- 	long mode;
- 	u32 path_flags;
+ 	data->size = copy_size;
+ 	if (copy_from_user(data->data, userbuf, copy_size)) {
+-		kvfree(data);
++		aa_put_loaddata(data);
+ 		return ERR_PTR(-EFAULT);
+ 	}
+ 
 
 
