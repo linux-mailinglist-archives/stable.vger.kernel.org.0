@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84B5359E19A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F1FD59E076
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358627AbiHWL5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:57:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41942 "EHLO
+        id S240126AbiHWLCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:02:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359207AbiHWL4Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:56:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C7D66128;
-        Tue, 23 Aug 2022 02:33:58 -0700 (PDT)
+        with ESMTP id S1356962AbiHWLAn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:00:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B894AE21B;
+        Tue, 23 Aug 2022 02:14:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D69D660F85;
-        Tue, 23 Aug 2022 09:33:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D747BC433C1;
-        Tue, 23 Aug 2022 09:33:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31E28B81C4E;
+        Tue, 23 Aug 2022 09:14:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61AC4C433C1;
+        Tue, 23 Aug 2022 09:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247237;
-        bh=fxlNh0LwhOpWUkF19exROe077tMNe7vdcr/NJnAVD5A=;
+        s=korg; t=1661246047;
+        bh=UfA2D+Yn9Vkzxi9TLQAdixu5obpAF7LAI9CvtDbERPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SMkJVAbiBECx6kZMa1HaQBry2g2W21RnO+q/m/apLlbP561t7unTl7A1Qc/Q5boUG
-         Hsa1oBk28MsvQP3bnJAjJlz8x3ZF6NHobT+cd+Hu4WuEUQCEaf1erV2iG9lFyVrQj8
-         V5nIvxirROBzTRu1gmr2k8qzJmoPvGI9Bpo0Xt1Y=
+        b=C7m1iUZ/fUwODqUfFKgm3/PvrScXCqrRPiMiIhr+VfPS8dRQLfZ6U64X7r3QsyLmY
+         wpLJe18yH4OV8bp+6c5z9uV7/3daQQ913SRu7od7j6yTemW6LqQFdXoz67eMRQ9WRd
+         DkoOG6TBM4K0phJOGQ1RU02igltH9G0ITCBkGgcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.4 331/389] nios2: traced syscall does need to check the syscall number
-Date:   Tue, 23 Aug 2022 10:26:49 +0200
-Message-Id: <20220823080129.354774807@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jon Mason <jdmason@kudzu.us>
+Subject: [PATCH 4.19 241/287] NTB: ntb_tool: uninitialized heap data in tool_fn_write()
+Date:   Tue, 23 Aug 2022 10:26:50 +0200
+Message-Id: <20220823080109.204439326@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 25ba820ef36bdbaf9884adeac69b6e1821a7df76 upstream.
+commit 45e1058b77feade4e36402828bfe3e0d3363177b upstream.
 
-all checks done before letting the tracer modify the register
-state are worthless...
+The call to:
 
-Fixes: 82ed08dd1b0e ("nios2: Exception handling")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+	ret = simple_write_to_buffer(buf, size, offp, ubuf, size);
+
+will return success if it is able to write even one byte to "buf".
+The value of "*offp" controls which byte.  This could result in
+reading uninitialized data when we do the sscanf() on the next line.
+
+This code is not really desigined to handle partial writes where
+*offp is non-zero and the "buf" is preserved and re-used between writes.
+Just ban partial writes and replace the simple_write_to_buffer() with
+copy_from_user().
+
+Fixes: 578b881ba9c4 ("NTB: Add tool test client")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/kernel/entry.S |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/ntb/test/ntb_tool.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/arch/nios2/kernel/entry.S
-+++ b/arch/nios2/kernel/entry.S
-@@ -255,9 +255,9 @@ traced_system_call:
- 	ldw	r6, PT_R6(sp)
- 	ldw	r7, PT_R7(sp)
+--- a/drivers/ntb/test/ntb_tool.c
++++ b/drivers/ntb/test/ntb_tool.c
+@@ -367,14 +367,16 @@ static ssize_t tool_fn_write(struct tool
+ 	u64 bits;
+ 	int n;
  
--	/* Fetch the syscall function, we don't need to check the boundaries
--	 * since this is already done.
--	 */
-+	/* Fetch the syscall function. */
-+	movui	r1, __NR_syscalls
-+	bgeu	r2, r1, traced_invsyscall
- 	slli	r1, r2, 2
- 	movhi	r11,%hiadj(sys_call_table)
- 	add	r1, r1, r11
-@@ -287,6 +287,11 @@ end_translate_rc_and_ret2:
- 	RESTORE_SWITCH_STACK
- 	br	ret_from_exception
- 
-+	/* If the syscall number was invalid return ENOSYS */
-+traced_invsyscall:
-+	movi	r2, -ENOSYS
-+	br	translate_rc_and_ret2
++	if (*offp)
++		return 0;
 +
- Luser_return:
- 	GET_THREAD_INFO	r11			/* get thread_info pointer */
- 	ldw	r10, TI_FLAGS(r11)		/* get thread_info->flags */
+ 	buf = kmalloc(size + 1, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = simple_write_to_buffer(buf, size, offp, ubuf, size);
+-	if (ret < 0) {
++	if (copy_from_user(buf, ubuf, size)) {
+ 		kfree(buf);
+-		return ret;
++		return -EFAULT;
+ 	}
+ 
+ 	buf[size] = 0;
 
 
