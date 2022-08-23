@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5025759E145
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37C1C59DFE2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358856AbiHWLy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:54:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34834 "EHLO
+        id S243535AbiHWLDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:03:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358720AbiHWLxS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:53:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4BFD5711;
-        Tue, 23 Aug 2022 02:32:54 -0700 (PDT)
+        with ESMTP id S1357261AbiHWLBw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:01:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDDA86FC3;
+        Tue, 23 Aug 2022 02:14:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9A1C60F50;
-        Tue, 23 Aug 2022 09:32:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F9DC433C1;
-        Tue, 23 Aug 2022 09:32:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D871A60F54;
+        Tue, 23 Aug 2022 09:14:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFF3BC433D7;
+        Tue, 23 Aug 2022 09:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247155;
-        bh=hH9EABSe28KlyoKoCa/fmsYDX15i5Xi3gViSaf2aJNc=;
+        s=korg; t=1661246063;
+        bh=fxlNh0LwhOpWUkF19exROe077tMNe7vdcr/NJnAVD5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C11U5nzjgSRslYmWcuVrRFMymdebMbP6mAuVuK74rdbwS5+YBceEVTGTeH2KqH6VL
-         uKFcNM8ShACV+hcEIOnnWPlvRklz9gijH4uxatfoadvPHGu/YdMSvlLZsUwDO/jU93
-         gOVTIxFi1G3iEJbuYRgGAayMFKpkRp0NZIf0TgLw=
+        b=2wdoEnJgZAOHjE3ZgcYDKyj40L/KOxRUyAMOBcNx3zOlBXstinjTps8m1OAs0PTJX
+         TD09RAkffRaqYQZI1hXBooo1QWafWk6jhOZ72syBrd+6xDqPcTsswu4L8RukKV1AFB
+         3zVKPXcSotgR9hOXm+j6EsQsMhJJ8ehT/OPSHVRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Alexander Kochetkov <al.kochet@gmail.com>
-Subject: [PATCH 5.4 336/389] clk: rockchip: add sclk_mac_lbtest to rk3188_critical_clocks
-Date:   Tue, 23 Aug 2022 10:26:54 +0200
-Message-Id: <20220823080129.556787490@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 4.19 246/287] nios2: traced syscall does need to check the syscall number
+Date:   Tue, 23 Aug 2022 10:26:55 +0200
+Message-Id: <20220823080109.423177007@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Bee <knaerzche@gmail.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit ef990bcad58cf1d13c5a49191a2c2342eb8d6709 upstream.
+commit 25ba820ef36bdbaf9884adeac69b6e1821a7df76 upstream.
 
-Since the loopbacktest clock is not exported and is not touched in the
-driver, it has to be added to rk3188_critical_clocks to be protected from
-being disabled and in order to get the emac working.
+all checks done before letting the tracer modify the register
+state are worthless...
 
-Signed-off-by: Alex Bee <knaerzche@gmail.com>
-Link: https://lore.kernel.org/r/20200722161820.5316-1-knaerzche@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Cc: Alexander Kochetkov <al.kochet@gmail.com>
+Fixes: 82ed08dd1b0e ("nios2: Exception handling")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/rockchip/clk-rk3188.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/nios2/kernel/entry.S |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/clk/rockchip/clk-rk3188.c
-+++ b/drivers/clk/rockchip/clk-rk3188.c
-@@ -751,6 +751,7 @@ static const char *const rk3188_critical
- 	"pclk_peri",
- 	"hclk_cpubus",
- 	"hclk_vio_bus",
-+	"sclk_mac_lbtest",
- };
+--- a/arch/nios2/kernel/entry.S
++++ b/arch/nios2/kernel/entry.S
+@@ -255,9 +255,9 @@ traced_system_call:
+ 	ldw	r6, PT_R6(sp)
+ 	ldw	r7, PT_R7(sp)
  
- static struct rockchip_clk_provider *__init rk3188_common_clk_init(struct device_node *np)
+-	/* Fetch the syscall function, we don't need to check the boundaries
+-	 * since this is already done.
+-	 */
++	/* Fetch the syscall function. */
++	movui	r1, __NR_syscalls
++	bgeu	r2, r1, traced_invsyscall
+ 	slli	r1, r2, 2
+ 	movhi	r11,%hiadj(sys_call_table)
+ 	add	r1, r1, r11
+@@ -287,6 +287,11 @@ end_translate_rc_and_ret2:
+ 	RESTORE_SWITCH_STACK
+ 	br	ret_from_exception
+ 
++	/* If the syscall number was invalid return ENOSYS */
++traced_invsyscall:
++	movi	r2, -ENOSYS
++	br	translate_rc_and_ret2
++
+ Luser_return:
+ 	GET_THREAD_INFO	r11			/* get thread_info pointer */
+ 	ldw	r10, TI_FLAGS(r11)		/* get thread_info->flags */
 
 
