@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4E659D951
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F6559D95A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350775AbiHWJcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:32:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38816 "EHLO
+        id S1350688AbiHWJce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:32:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351276AbiHWJba (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:31:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75B183D5A9;
-        Tue, 23 Aug 2022 01:38:40 -0700 (PDT)
+        with ESMTP id S1351231AbiHWJb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:31:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA818275F1;
+        Tue, 23 Aug 2022 01:38:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 54C0ECE1B4C;
-        Tue, 23 Aug 2022 08:38:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ACA1C433C1;
-        Tue, 23 Aug 2022 08:38:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39DDB61547;
+        Tue, 23 Aug 2022 08:37:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29CF5C433C1;
+        Tue, 23 Aug 2022 08:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243917;
-        bh=N6Dxo8yqmRoAixjaYoc1lwWBKTmbUnxqORez7FgqLKY=;
+        s=korg; t=1661243828;
+        bh=yMu/+1FFUxvoYGpo6+tLh1Im8+eo2FszMBiGdkHivVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V7250Nv9krS7CBTejQ7HgSqMTmthTA0tXkbQ+ZLwjZUTiV1TAJg0/+MQeEfmMKZ5C
-         j6nDoaIyyuWNkz2/P/6bf4rsDErnnrjSgCLd6MYmtUr3cn0CLBW37B40M6mf9sYv1y
-         WjusGlIHAcP0FSafruagfLxcFSBoncGLRfeqwdAM=
+        b=WnKYaV/zKw0R+Hpua2nqq8w3L79HSzbZ1ikOsrSE4YjV60IsNcaEwTN1lVnd2KOVo
+         b2IgBi7h5lLZNr/cU9ZKWs3DZmBrTtWcyGHGYB6BiWaV8cRXDYaPSGaMPrWtgTNFRU
+         Y6bMdyw5buT8LWcRK25pEWTlAizY1n++0rymH0ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.15 008/244] drm/ttm: Fix dummy res NULL ptr deref bug
-Date:   Tue, 23 Aug 2022 10:22:47 +0200
-Message-Id: <20220823080059.363785113@linuxfoundation.org>
+        Domingo Dirutigliano <pwnzer0tt1@proton.me>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 007/229] netfilter: nf_queue: do not allow packet truncation below transport header offset
+Date:   Tue, 23 Aug 2022 10:22:48 +0200
+Message-Id: <20220823080053.580178437@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,135 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit cf4b7387c0a842d64bdd7c353e6d3298174a7740 upstream.
+[ Upstream commit 99a63d36cb3ed5ca3aa6fcb64cffbeaf3b0fb164 ]
 
-Check the bo->resource value before accessing the resource
-mem_type.
+Domingo Dirutigliano and Nicola Guerrera report kernel panic when
+sending nf_queue verdict with 1-byte nfta_payload attribute.
 
-v2: Fix commit description unwrapped warning
+The IP/IPv6 stack pulls the IP(v6) header from the packet after the
+input hook.
 
-<log snip>
-[   40.191227][  T184] general protection fault, probably for non-canonical address 0xdffffc0000000002: 0000 [#1] SMP KASAN PTI
-[   40.192995][  T184] KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
-[   40.194411][  T184] CPU: 1 PID: 184 Comm: systemd-udevd Not tainted 5.19.0-rc4-00721-gb297c22b7070 #1
-[   40.196063][  T184] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-debian-1.16.0-4 04/01/2014
-[   40.199605][  T184] RIP: 0010:ttm_bo_validate+0x1b3/0x240 [ttm]
-[   40.200754][  T184] Code: e8 72 c5 ff ff 83 f8 b8 74 d4 85 c0 75 54 49 8b 9e 58 01 00 00 48 b8 00 00 00 00 00 fc ff df 48 8d 7b 10 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 04 3c 03 7e 44 8b 53 10 31 c0 85 d2 0f 85 58
-[   40.203685][  T184] RSP: 0018:ffffc900006df0c8 EFLAGS: 00010202
-[   40.204630][  T184] RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 1ffff1102f4bb71b
-[   40.205864][  T184] RDX: 0000000000000002 RSI: ffffc900006df208 RDI: 0000000000000010
-[   40.207102][  T184] RBP: 1ffff920000dbe1a R08: ffffc900006df208 R09: 0000000000000000
-[   40.208394][  T184] R10: ffff88817a5f0000 R11: 0000000000000001 R12: ffffc900006df110
-[   40.209692][  T184] R13: ffffc900006df0f0 R14: ffff88817a5db800 R15: ffffc900006df208
-[   40.210862][  T184] FS:  00007f6b1d16e8c0(0000) GS:ffff88839d700000(0000) knlGS:0000000000000000
-[   40.212250][  T184] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   40.213275][  T184] CR2: 000055a1001d4ff0 CR3: 00000001700f4000 CR4: 00000000000006e0
-[   40.214469][  T184] Call Trace:
-[   40.214974][  T184]  <TASK>
-[   40.215438][  T184]  ? ttm_bo_bounce_temp_buffer+0x140/0x140 [ttm]
-[   40.216572][  T184]  ? mutex_spin_on_owner+0x240/0x240
-[   40.217456][  T184]  ? drm_vma_offset_add+0xaa/0x100 [drm]
-[   40.218457][  T184]  ttm_bo_init_reserved+0x3d6/0x540 [ttm]
-[   40.219410][  T184]  ? shmem_get_inode+0x744/0x980
-[   40.220231][  T184]  ttm_bo_init_validate+0xb1/0x200 [ttm]
-[   40.221172][  T184]  ? bo_driver_evict_flags+0x340/0x340 [drm_vram_helper]
-[   40.222530][  T184]  ? ttm_bo_init_reserved+0x540/0x540 [ttm]
-[   40.223643][  T184]  ? __do_sys_finit_module+0x11a/0x1c0
-[   40.224654][  T184]  ? __shmem_file_setup+0x102/0x280
-[   40.234764][  T184]  drm_gem_vram_create+0x305/0x480 [drm_vram_helper]
-[   40.235766][  T184]  ? bo_driver_evict_flags+0x340/0x340 [drm_vram_helper]
-[   40.236846][  T184]  ? __kasan_slab_free+0x108/0x180
-[   40.237650][  T184]  drm_gem_vram_fill_create_dumb+0x134/0x340 [drm_vram_helper]
-[   40.238864][  T184]  ? local_pci_probe+0xdf/0x180
-[   40.239674][  T184]  ? drmm_vram_helper_init+0x400/0x400 [drm_vram_helper]
-[   40.240826][  T184]  drm_client_framebuffer_create+0x19c/0x400 [drm]
-[   40.241955][  T184]  ? drm_client_buffer_delete+0x200/0x200 [drm]
-[   40.243001][  T184]  ? drm_client_pick_crtcs+0x554/0xb80 [drm]
-[   40.244030][  T184]  drm_fb_helper_generic_probe+0x23f/0x940 [drm_kms_helper]
-[   40.245226][  T184]  ? __cond_resched+0x1c/0xc0
-[   40.245987][  T184]  ? drm_fb_helper_memory_range_to_clip+0x180/0x180 [drm_kms_helper]
-[   40.247316][  T184]  ? mutex_unlock+0x80/0x100
-[   40.248005][  T184]  ? __mutex_unlock_slowpath+0x2c0/0x2c0
-[   40.249083][  T184]  drm_fb_helper_single_fb_probe+0x907/0xf00 [drm_kms_helper]
-[   40.250314][  T184]  ? drm_fb_helper_check_var+0x1180/0x1180 [drm_kms_helper]
-[   40.251540][  T184]  ? __cond_resched+0x1c/0xc0
-[   40.252321][  T184]  ? mutex_lock+0x9f/0x100
-[   40.253062][  T184]  __drm_fb_helper_initial_config_and_unlock+0xb9/0x2c0 [drm_kms_helper]
-[   40.254394][  T184]  drm_fbdev_client_hotplug+0x56f/0x840 [drm_kms_helper]
-[   40.255477][  T184]  drm_fbdev_generic_setup+0x165/0x3c0 [drm_kms_helper]
-[   40.256607][  T184]  bochs_pci_probe+0x6b7/0x900 [bochs]
-[   40.257515][  T184]  ? _raw_spin_lock_irqsave+0x87/0x100
-[   40.258312][  T184]  ? bochs_hw_init+0x480/0x480 [bochs]
-[   40.259244][  T184]  ? bochs_hw_init+0x480/0x480 [bochs]
-[   40.260186][  T184]  local_pci_probe+0xdf/0x180
-[   40.260928][  T184]  pci_call_probe+0x15f/0x500
-[   40.265798][  T184]  ? _raw_spin_lock+0x81/0x100
-[   40.266508][  T184]  ? pci_pm_suspend_noirq+0x980/0x980
-[   40.267322][  T184]  ? pci_assign_irq+0x81/0x280
-[   40.268096][  T184]  ? pci_match_device+0x351/0x6c0
-[   40.268883][  T184]  ? kernfs_put+0x18/0x40
-[   40.269611][  T184]  pci_device_probe+0xee/0x240
-[   40.270352][  T184]  really_probe+0x435/0xa80
-[   40.271021][  T184]  __driver_probe_device+0x2ab/0x480
-[   40.271828][  T184]  driver_probe_device+0x49/0x140
-[   40.272627][  T184]  __driver_attach+0x1bd/0x4c0
-[   40.273372][  T184]  ? __device_attach_driver+0x240/0x240
-[   40.274273][  T184]  bus_for_each_dev+0x11e/0x1c0
-[   40.275080][  T184]  ? subsys_dev_iter_exit+0x40/0x40
-[   40.275951][  T184]  ? klist_add_tail+0x132/0x280
-[   40.276767][  T184]  bus_add_driver+0x39b/0x580
-[   40.277574][  T184]  driver_register+0x20f/0x3c0
-[   40.278281][  T184]  ? 0xffffffffc04a2000
-[   40.278894][  T184]  do_one_initcall+0x8a/0x300
-[   40.279642][  T184]  ? trace_event_raw_event_initcall_level+0x1c0/0x1c0
-[   40.280707][  T184]  ? kasan_unpoison+0x23/0x80
-[   40.281479][  T184]  ? kasan_unpoison+0x23/0x80
-[   40.282197][  T184]  do_init_module+0x190/0x640
-[   40.282926][  T184]  load_module+0x221b/0x2780
-[   40.283611][  T184]  ? layout_and_allocate+0x5c0/0x5c0
-[   40.284401][  T184]  ? kernel_read_file+0x286/0x6c0
-[   40.285216][  T184]  ? __x64_sys_fspick+0x2c0/0x2c0
-[   40.286043][  T184]  ? mmap_region+0x4e7/0x1300
-[   40.286832][  T184]  ? __do_sys_finit_module+0x11a/0x1c0
-[   40.287743][  T184]  __do_sys_finit_module+0x11a/0x1c0
-[   40.288636][  T184]  ? __ia32_sys_init_module+0xc0/0xc0
-[   40.289557][  T184]  ? __seccomp_filter+0x15e/0xc80
-[   40.290341][  T184]  ? vm_mmap_pgoff+0x185/0x240
-[   40.291060][  T184]  do_syscall_64+0x3b/0xc0
-[   40.291763][  T184]  entry_SYSCALL_64_after_hwframe+0x46/0xb0
-[   40.292678][  T184] RIP: 0033:0x7f6b1d6279b9
-[   40.293438][  T184] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a7 54 0c 00 f7 d8 64 89 01 48
-[   40.296302][  T184] RSP: 002b:00007ffe7f51b798 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-[   40.297633][  T184] RAX: ffffffffffffffda RBX: 00005642dcca2880 RCX: 00007f6b1d6279b9
-[   40.298890][  T184] RDX: 0000000000000000 RSI: 00007f6b1d7b2e2d RDI: 0000000000000016
-[   40.300199][  T184] RBP: 0000000000020000 R08: 0000000000000000 R09: 00005642dccd5530
-[   40.301547][  T184] R10: 0000000000000016 R11: 0000000000000246 R12: 00007f6b1d7b2e2d
-[   40.302698][  T184] R13: 0000000000000000 R14: 00005642dcca4230 R15: 00005642dcca2880
+If user truncates the packet below the header size, this skb_pull() will
+result in a malformed skb (skb->len < 0).
 
-Signed-off-by: Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220726162205.2778-1-Arunpravin.PaneerSelvam@amd.com
-Link: https://patchwork.freedesktop.org/patch/msgid/20220809095623.3569-1-Arunpravin.PaneerSelvam@amd.com
-Signed-off-by: Christian König <christian.koenig@amd.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7af4cc3fa158 ("[NETFILTER]: Add "nfnetlink_queue" netfilter queue handler over nfnetlink")
+Reported-by: Domingo Dirutigliano <pwnzer0tt1@proton.me>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ttm/ttm_bo.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nfnetlink_queue.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/ttm/ttm_bo.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo.c
-@@ -987,7 +987,7 @@ int ttm_bo_validate(struct ttm_buffer_ob
- 	/*
- 	 * We might need to add a TTM.
- 	 */
--	if (bo->resource->mem_type == TTM_PL_SYSTEM) {
-+	if (!bo->resource || bo->resource->mem_type == TTM_PL_SYSTEM) {
- 		ret = ttm_tt_create(bo, true);
- 		if (ret)
- 			return ret;
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index ba74bb2d6341..369f1634afe9 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -827,11 +827,16 @@ nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
+ }
+ 
+ static int
+-nfqnl_mangle(void *data, int data_len, struct nf_queue_entry *e, int diff)
++nfqnl_mangle(void *data, unsigned int data_len, struct nf_queue_entry *e, int diff)
+ {
+ 	struct sk_buff *nskb;
+ 
+ 	if (diff < 0) {
++		unsigned int min_len = skb_transport_offset(e->skb);
++
++		if (data_len < min_len)
++			return -EINVAL;
++
+ 		if (pskb_trim(e->skb, data_len))
+ 			return -ENOMEM;
+ 	} else if (diff > 0) {
+-- 
+2.35.1
+
 
 
