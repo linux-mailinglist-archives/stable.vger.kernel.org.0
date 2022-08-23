@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF96359DFE6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A25BD59E175
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354303AbiHWKYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40574 "EHLO
+        id S241430AbiHWL1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:27:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355222AbiHWKXO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01B6296FCA;
-        Tue, 23 Aug 2022 02:04:17 -0700 (PDT)
+        with ESMTP id S1351614AbiHWLZp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:25:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60994B089C;
+        Tue, 23 Aug 2022 02:24:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAD69B81C66;
-        Tue, 23 Aug 2022 09:04:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFFFFC433B5;
-        Tue, 23 Aug 2022 09:04:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7C07B81B1F;
+        Tue, 23 Aug 2022 09:24:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 119E9C433C1;
+        Tue, 23 Aug 2022 09:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245454;
-        bh=iEBNwJXJZXuq4CJ5XN0UuXtBxokmOgf2OI7wZs/yPh0=;
+        s=korg; t=1661246643;
+        bh=Vi5nOn57Hq/yjy93n2CxGZ9yBwsNUVNFG9Sh/CociKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ru9QUR2jJ2k1CFuXYihR8xIiJ+M9lagXIpfmzCD2KZeLOhc1xSV7WLBEw1hT6efBV
-         G9IKG3BMTpWjkUhp39OeoKBCMLQlRYRPj77gC66z0afdRLg2BWlpYojVkN7RTDWHsk
-         bjslanpdp0iYCI31hs6fQEb6yR9A0ouMgX9NRfUQ=
+        b=piRW6RXEEFG8vEkI9oSgaF8yDc9L8OQgwfP5f0skutdaNs9Otde9J8MK5UjT9iDbh
+         gmNjAl6/pbGhAdbm/SuD0CthdU04t58BrAjj5hsQvmilozsQKMMejBwOU4MUDjMc50
+         rsAt111Ub3Fv5PubD+CdJ7thMxgxbu4SVPVxk47E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Houlong Wei <houlong.wei@mediatek.com>,
-        Irui Wang <irui.wang@mediatek.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 084/287] media: platform: mtk-mdp: Fix mdp_ipi_comm structure alignment
+Subject: [PATCH 5.4 175/389] intel_th: msu-sink: Potential dereference of null pointer
 Date:   Tue, 23 Aug 2022 10:24:13 +0200
-Message-Id: <20220823080103.118785157@linuxfoundation.org>
+Message-Id: <20220823080122.954653463@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,55 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit ab14c99c035da7156a3b66fa171171295bc4b89a ]
+[ Upstream commit 82f76a4a720791d889de775b5f7541d601efc8bd ]
 
-The mdp_ipi_comm structure defines a command that is either
-PROCESS (start processing) or DEINIT (destroy instance); we
-are using this one to send PROCESS or DEINIT commands from Linux
-to an MDP instance through a VPU write but, while the first wants
-us to stay 4-bytes aligned, the VPU instead requires an 8-bytes
-data alignment.
+The return value of dma_alloc_coherent() needs to be checked.
+To avoid use of null pointer in sg_set_buf() in case of the failure of
+alloc.
 
-Keeping in mind that these commands are executed immediately
-after sending them (hence not chained with others before the
-VPU/MDP "actually" start executing), it is fine to simply add
-a padding of 4 bytes to this structure: this keeps the same
-performance as before, as we're still stack-allocating it,
-while avoiding hackery inside of mtk-vpu to ensure alignment
-bringing a definitely bigger performance impact.
-
-Fixes: c8eb2d7e8202 ("[media] media: Add Mediatek MDP Driver")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Houlong Wei <houlong.wei@mediatek.com>
-Reviewed-by: Irui Wang <irui.wang@mediatek.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: f220df66f676 ("intel_th: msu-sink: An example msu buffer "sink"")
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20220705082637.59979-3-alexander.shishkin@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwtracing/intel_th/msu-sink.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h b/drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h
-index 78e2cc0dead1..4f4a51dd48e1 100644
---- a/drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h
-+++ b/drivers/media/platform/mtk-mdp/mtk_mdp_ipi.h
-@@ -48,12 +48,14 @@ struct mdp_ipi_init {
-  * @ipi_id        : IPI_MDP
-  * @ap_inst       : AP mtk_mdp_vpu address
-  * @vpu_inst_addr : VPU MDP instance address
-+ * @padding       : Alignment padding
-  */
- struct mdp_ipi_comm {
- 	uint32_t msg_id;
- 	uint32_t ipi_id;
- 	uint64_t ap_inst;
- 	uint32_t vpu_inst_addr;
-+	uint32_t padding;
- };
+diff --git a/drivers/hwtracing/intel_th/msu-sink.c b/drivers/hwtracing/intel_th/msu-sink.c
+index 2c7f5116be12..891b28ea25fe 100644
+--- a/drivers/hwtracing/intel_th/msu-sink.c
++++ b/drivers/hwtracing/intel_th/msu-sink.c
+@@ -71,6 +71,9 @@ static int msu_sink_alloc_window(void *data, struct sg_table **sgt, size_t size)
+ 		block = dma_alloc_coherent(priv->dev->parent->parent,
+ 					   PAGE_SIZE, &sg_dma_address(sg_ptr),
+ 					   GFP_KERNEL);
++		if (!block)
++			return -ENOMEM;
++
+ 		sg_set_buf(sg_ptr, block, PAGE_SIZE);
+ 	}
  
- /**
 -- 
 2.35.1
 
