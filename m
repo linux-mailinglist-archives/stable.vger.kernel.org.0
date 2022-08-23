@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB70759E13A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70DFA59DF8D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351606AbiHWMNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:13:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40442 "EHLO
+        id S1358555AbiHWLwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240963AbiHWMMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:12:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9147F7170A;
-        Tue, 23 Aug 2022 02:39:47 -0700 (PDT)
+        with ESMTP id S1358647AbiHWLuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:50:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D96762CE;
+        Tue, 23 Aug 2022 02:31:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9208161467;
-        Tue, 23 Aug 2022 09:38:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B9D0C433D6;
-        Tue, 23 Aug 2022 09:38:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6CC33B8105C;
+        Tue, 23 Aug 2022 09:31:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1D9EC433D6;
+        Tue, 23 Aug 2022 09:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247518;
-        bh=T4UVlykg/Vhq8l4HUOnnq5HvNS5LO+d2RyBZBPX+Mm0=;
+        s=korg; t=1661247093;
+        bh=P/OgRbBal2oMJ65e+9HknwAw+1Ro5mp3YCbEB9NHDko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsjP8uPBY9WGXDHJ2tESNraWQkCma6VNGEcHhtup/6bctsHiRHJrfbdBbAE0hYKes
-         m7HTZdzHGAbrEJVsi1fbW67TJ6r/7MP0sSPa6x344jBe8UZpMiy4IAnO+uTpJNc+no
-         z8osbdfl+IDJR2HcAK6APCDp8RBb6ybpQPQzxLk0=
+        b=qq52aYV7aD8knLmOMYNoHAFBzD1AeEf2DZqWqBCMe+WcZlabME5cvCbdkTFXqQqSU
+         6giLOxMCKa7lOHg36Q7xXUINrdfOV06ZJtA7tK2GEMiuOSa9+Yv2vF+kw7MwX/6kYy
+         RQKOui6bswsdGMYA85+idA1rlH8Z7K5d+unBD1iU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias May <matthias.may@westermo.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 061/158] geneve: fix TOS inheriting for ipv4
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 315/389] ACPI: property: Return type of acpi_add_nondev_subnodes() should be bool
 Date:   Tue, 23 Aug 2022 10:26:33 +0200
-Message-Id: <20220823080048.541363442@linuxfoundation.org>
+Message-Id: <20220823080128.710422856@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias May <matthias.may@westermo.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit b4ab94d6adaa5cf842b68bd28f4b50bc774496bd upstream.
+commit 85140ef275f577f64e8a2c5789447222dfc14fc4 upstream.
 
-The current code retrieves the TOS field after the lookup
-on the ipv4 routing table. The routing process currently
-only allows routing based on the original 3 TOS bits, and
-not on the full 6 DSCP bits.
-As a result the retrieved TOS is cut to the 3 bits.
-However for inheriting purposes the full 6 bits should be used.
+The value acpi_add_nondev_subnodes() returns is bool so change the return
+type of the function to match that.
 
-Extract the full 6 bits before the route lookup and use
-that instead of the cut off 3 TOS bits.
-
-Fixes: e305ac6cf5a1 ("geneve: Add support to collect tunnel metadata.")
-Signed-off-by: Matthias May <matthias.may@westermo.com>
-Acked-by: Guillaume Nault <gnault@redhat.com>
-Link: https://lore.kernel.org/r/20220805190006.8078-1-matthias.may@westermo.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 445b0eb058f5 ("ACPI / property: Add support for data-only subnodes")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/acpi/property.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -772,7 +772,8 @@ static struct rtable *geneve_get_v4_rt(s
- 				       struct geneve_sock *gs4,
- 				       struct flowi4 *fl4,
- 				       const struct ip_tunnel_info *info,
--				       __be16 dport, __be16 sport)
-+				       __be16 dport, __be16 sport,
-+				       __u8 *full_tos)
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -152,10 +152,10 @@ static bool acpi_nondev_subnode_ok(acpi_
+ 	return acpi_nondev_subnode_data_ok(handle, link, list, parent);
+ }
+ 
+-static int acpi_add_nondev_subnodes(acpi_handle scope,
+-				    const union acpi_object *links,
+-				    struct list_head *list,
+-				    struct fwnode_handle *parent)
++static bool acpi_add_nondev_subnodes(acpi_handle scope,
++				     const union acpi_object *links,
++				     struct list_head *list,
++				     struct fwnode_handle *parent)
  {
- 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-@@ -797,6 +798,8 @@ static struct rtable *geneve_get_v4_rt(s
- 		use_cache = false;
- 	}
- 	fl4->flowi4_tos = RT_TOS(tos);
-+	if (full_tos)
-+		*full_tos = tos;
- 
- 	dst_cache = (struct dst_cache *)&info->dst_cache;
- 	if (use_cache) {
-@@ -884,6 +887,7 @@ static int geneve_xmit_skb(struct sk_buf
- 	const struct ip_tunnel_key *key = &info->key;
- 	struct rtable *rt;
- 	struct flowi4 fl4;
-+	__u8 full_tos;
- 	__u8 tos, ttl;
- 	__be16 df = 0;
- 	__be16 sport;
-@@ -894,7 +898,7 @@ static int geneve_xmit_skb(struct sk_buf
- 
- 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
--			      geneve->cfg.info.key.tp_dst, sport);
-+			      geneve->cfg.info.key.tp_dst, sport, &full_tos);
- 	if (IS_ERR(rt))
- 		return PTR_ERR(rt);
- 
-@@ -938,7 +942,7 @@ static int geneve_xmit_skb(struct sk_buf
- 
- 		df = key->tun_flags & TUNNEL_DONT_FRAGMENT ? htons(IP_DF) : 0;
- 	} else {
--		tos = ip_tunnel_ecn_encap(fl4.flowi4_tos, ip_hdr(skb), skb);
-+		tos = ip_tunnel_ecn_encap(full_tos, ip_hdr(skb), skb);
- 		if (geneve->cfg.ttl_inherit)
- 			ttl = ip_tunnel_get_ttl(ip_hdr(skb), skb);
- 		else
-@@ -1120,7 +1124,7 @@ static int geneve_fill_metadata_dst(stru
- 					  1, USHRT_MAX, true);
- 
- 		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
--				      geneve->cfg.info.key.tp_dst, sport);
-+				      geneve->cfg.info.key.tp_dst, sport, NULL);
- 		if (IS_ERR(rt))
- 			return PTR_ERR(rt);
- 
+ 	bool ret = false;
+ 	int i;
 
 
