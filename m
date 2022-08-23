@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D22059E343
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DCC459E0ED
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352347AbiHWMSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55402 "EHLO
+        id S1358889AbiHWLzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353640AbiHWMP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E01EB98CAD;
-        Tue, 23 Aug 2022 02:40:57 -0700 (PDT)
+        with ESMTP id S1358750AbiHWLxq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:53:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBA8D59BA;
+        Tue, 23 Aug 2022 02:33:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE614614CB;
-        Tue, 23 Aug 2022 09:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD659C433D6;
-        Tue, 23 Aug 2022 09:40:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DCF8B81C99;
+        Tue, 23 Aug 2022 09:33:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8583CC433D7;
+        Tue, 23 Aug 2022 09:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247613;
-        bh=wfxCBtMasHoEFMn9oqLYg4hdLmiDL38+6fTcxBgzW1k=;
+        s=korg; t=1661247180;
+        bh=NSWtoY/b14STqguOXNn0kkCnYB/ON/ex+GeP1Dr7dog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yw4Ky4wH6XmqPHNpC/+xyaQztEhUtxhwDeoanAgVPDwP97qoDJya1SaD3BVXP7WcA
-         lwSLofxTIlBIruMb2WlfWeXQdzOxXsDhFS9vHX475V/ipHp1SuStp+qvx21xzaaIPA
-         zJB2VftPKArfsVYXNHFeso9aDcMhc2Q/nhyuBGIM=
+        b=toTHpqLfA7jWea2wWRsp/2VBijWPmqgUiZHPa5EjDH7WKQ/DH1DIu51unNiDujVfD
+         fOPZV3RcK4U3glu8z2g0udlZ1+Vrn9iLN0uG60i5z5kZbjcPQvpZ9St49o3hLcKoZQ
+         wN54DqBQ0sdVmO0fgBvdBXuSomjRV4iSFeDuAJ3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Cs=C3=B3k=C3=A1s=20Bence?= <csokas.bence@prolan.hu>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 090/158] fec: Fix timer capture timing in `fec_ptp_enable_pps()`
+Subject: [PATCH 5.4 344/389] fec: Fix timer capture timing in `fec_ptp_enable_pps()`
 Date:   Tue, 23 Aug 2022 10:27:02 +0200
-Message-Id: <20220823080049.680479943@linuxfoundation.org>
+Message-Id: <20220823080129.912443511@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,7 +72,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/freescale/fec_ptp.c
 +++ b/drivers/net/ethernet/freescale/fec_ptp.c
-@@ -136,11 +136,7 @@ static int fec_ptp_enable_pps(struct fec
+@@ -141,11 +141,7 @@ static int fec_ptp_enable_pps(struct fec
  		 * NSEC_PER_SEC - ts.tv_nsec. Add the remaining nanoseconds
  		 * to current timer would be next second.
  		 */
