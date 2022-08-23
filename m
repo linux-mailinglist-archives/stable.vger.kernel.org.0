@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4946E59DB45
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4140759DC4F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244324AbiHWLVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:21:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55258 "EHLO
+        id S1354308AbiHWKZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:25:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357752AbiHWLVE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:21:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5416C8C020;
-        Tue, 23 Aug 2022 02:22:54 -0700 (PDT)
+        with ESMTP id S1354568AbiHWKVp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:21:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E28BA82779;
+        Tue, 23 Aug 2022 02:03:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75F076098A;
-        Tue, 23 Aug 2022 09:22:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A29F3C433C1;
-        Tue, 23 Aug 2022 09:22:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78F8FB81C53;
+        Tue, 23 Aug 2022 09:03:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFC14C433D6;
+        Tue, 23 Aug 2022 09:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246572;
-        bh=dNYsai5aLFh1i2yJbds7z4p1h/gJ9fnh5nIHLbMUgKc=;
+        s=korg; t=1661245383;
+        bh=16N7gqoDhgtgU26/uFo+Xnm3wcLCzPvXEWtJM8/2n9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQQxVvTsJV9RHeAbvEc+HbOvnuXrewEqgb4MEEQqe/Z3bc80vX3z50eS4w/BJoOb/
-         9qshCjWeak5H+bVJXhQ0VuC4hWLGpcZZ35B3SYwzKsvgbiCCOOBlhfNd+g8rDv9QAr
-         AUgVMTcUV7DI7CATN43YheuRy9hZCrgbRGRb5uvg=
+        b=KPIPDq/7enOGYJHREr+qi2ugmgfCSM2D8vrYf5AynAtxP1VjYiIlrFn7g0txJ9kk0
+         eN3wFp30MRk6PI4kT+fp0hVrxZ3PIKAwxMA5ROP0y6QrFsJqbTN9e+usf2l9uZfnE0
+         AXhQGyMKzmOlkWpYaA/cVqnimF3BcM2hkmOJCjyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 152/389] dccp: put dccp_qpolicy_full() and dccp_qpolicy_push() in the same lock
+Subject: [PATCH 4.19 061/287] ARM: dts: qcom: pm8841: add required thermal-sensor-cells
 Date:   Tue, 23 Aug 2022 10:23:50 +0200
-Message-Id: <20220823080121.941751327@linuxfoundation.org>
+Message-Id: <20220823080102.289679274@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit a41b17ff9dacd22f5f118ee53d82da0f3e52d5e3 ]
+[ Upstream commit e2759fa0676c9a32bbddb9aff955b54bb35066ad ]
 
-In the case of sk->dccps_qpolicy == DCCPQ_POLICY_PRIO, dccp_qpolicy_full
-will drop a skb when qpolicy is full. And the lock in dccp_sendmsg is
-released before sock_alloc_send_skb and then relocked after
-sock_alloc_send_skb. The following conditions may lead dccp_qpolicy_push
-to add skb to an already full sk_write_queue:
+The PM8841 temperature sensor has to define thermal-sensor-cells.
 
-thread1--->lock
-thread1--->dccp_qpolicy_full: queue is full. drop a skb
-thread1--->unlock
-thread2--->lock
-thread2--->dccp_qpolicy_full: queue is not full. no need to drop.
-thread2--->unlock
-thread1--->lock
-thread1--->dccp_qpolicy_push: add a skb. queue is full.
-thread1--->unlock
-thread2--->lock
-thread2--->dccp_qpolicy_push: add a skb!
-thread2--->unlock
-
-Fix this by moving dccp_qpolicy_full.
-
-Fixes: b1308dc015eb ("[DCCP]: Set TX Queue Length Bounds via Sysctl")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220729110027.40569-1-hbh25y@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: dab8134ca072 ("ARM: dts: qcom: Add PM8841 functions device nodes")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220608112702.80873-2-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/proto.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/qcom-pm8841.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/dccp/proto.c b/net/dccp/proto.c
-index cb61a9d281f6..951cbdf05ffe 100644
---- a/net/dccp/proto.c
-+++ b/net/dccp/proto.c
-@@ -765,11 +765,6 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+diff --git a/arch/arm/boot/dts/qcom-pm8841.dtsi b/arch/arm/boot/dts/qcom-pm8841.dtsi
+index 2fd59c440903..c73e5b149ac5 100644
+--- a/arch/arm/boot/dts/qcom-pm8841.dtsi
++++ b/arch/arm/boot/dts/qcom-pm8841.dtsi
+@@ -25,6 +25,7 @@ temp-alarm@2400 {
+ 			compatible = "qcom,spmi-temp-alarm";
+ 			reg = <0x2400>;
+ 			interrupts = <4 0x24 0 IRQ_TYPE_EDGE_RISING>;
++			#thermal-sensor-cells = <0>;
+ 		};
+ 	};
  
- 	lock_sock(sk);
- 
--	if (dccp_qpolicy_full(sk)) {
--		rc = -EAGAIN;
--		goto out_release;
--	}
--
- 	timeo = sock_sndtimeo(sk, noblock);
- 
- 	/*
-@@ -788,6 +783,11 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 	if (skb == NULL)
- 		goto out_release;
- 
-+	if (dccp_qpolicy_full(sk)) {
-+		rc = -EAGAIN;
-+		goto out_discard;
-+	}
-+
- 	if (sk->sk_state == DCCP_CLOSED) {
- 		rc = -ENOTCONN;
- 		goto out_discard;
 -- 
 2.35.1
 
