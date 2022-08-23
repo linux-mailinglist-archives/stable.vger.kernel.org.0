@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE8D259DEF5
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9515259DEA1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355494AbiHWKnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:43:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53400 "EHLO
+        id S1358515AbiHWLtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:49:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356136AbiHWKlc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F567A7A98;
-        Tue, 23 Aug 2022 02:08:52 -0700 (PDT)
+        with ESMTP id S1358336AbiHWLrm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:47:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011A5D2905;
+        Tue, 23 Aug 2022 02:30:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3460B81C65;
-        Tue, 23 Aug 2022 09:08:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0030AC433C1;
-        Tue, 23 Aug 2022 09:08:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A277B81C85;
+        Tue, 23 Aug 2022 09:30:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D33CCC433D7;
+        Tue, 23 Aug 2022 09:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245728;
-        bh=800Ti04Gr9T0VEvRB2LDK0haSnicZUITX9uNJeI3KT0=;
+        s=korg; t=1661247043;
+        bh=ueeu1O7WxTB5W7eT1aqQvjP1jaD0aS1iXFRsRpMLeAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sSz8nVNihSBqIx/iseZgc3Uh/pQ6S6wWHUpVwsAnWqEU1tSWrCsfuCpYTFPcY6oIt
-         Fz4I6LGBohd2/2dIZQTcKeTzcJXK6yW8CAb+160TzhyWhvdkm3zT4j8cDKJbcXvHs7
-         ShVt116BtkkNujkgoGJp4Ygk2gT/aY08p1kNDquo=
+        b=D2YkJmksqqHgZ6tQOqji0LOqUIua6uCWWh0chcQjspomZDIvJfSiwL2HM1PfYUe9S
+         /4g/WIJGLco68P71D3q12x9xGlMvcpqn/Fvk0JX6UKrp68dVY0zYDucr6gM7cdoTnX
+         DB0OeJ5InmudmJ7Dt0MA7OT+oG3Lc8KV4GL1QJuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 169/287] powerpc/32: Do not allow selection of e5500 or e6500 CPUs on PPC32
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>
+Subject: [PATCH 5.4 260/389] ext4: update s_overhead_clusters in the superblock during an on-line resize
 Date:   Tue, 23 Aug 2022 10:25:38 +0200
-Message-Id: <20220823080106.452222920@linuxfoundation.org>
+Message-Id: <20220823080126.446266632@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 9be013b2a9ecb29b5168e4b9db0e48ed53acf37c ]
+commit de394a86658ffe4e89e5328fd4993abfe41b7435 upstream.
 
-Commit 0e00a8c9fd92 ("powerpc: Allow CPU selection also on PPC32")
-enlarged the CPU selection logic to PPC32 by removing depend to
-PPC64, and failed to restrict that depend to E5500_CPU and E6500_CPU.
-Fortunately that got unnoticed because -mcpu=8540 will override the
--mcpu=e500mc64 or -mpcu=e6500 as they are ealier, but that's
-fragile and may no be right in the future.
+When doing an online resize, the on-disk superblock on-disk wasn't
+updated.  This means that when the file system is unmounted and
+remounted, and the on-disk overhead value is non-zero, this would
+result in the results of statfs(2) to be incorrect.
 
-Add back the depend PPC64 on E5500_CPU and E6500_CPU.
+This was partially fixed by Commits 10b01ee92df5 ("ext4: fix overhead
+calculation to account for the reserved gdt blocks"), 85d825dbf489
+("ext4: force overhead calculation if the s_overhead_cluster makes no
+sense"), and eb7054212eac ("ext4: update the cached overhead value in
+the superblock").
 
-Fixes: 0e00a8c9fd92 ("powerpc: Allow CPU selection also on PPC32")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/8abab4888da69ff78b73a56f64d9678a7bf684e9.1657549153.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, since it was too expensive to forcibly recalculate the
+overhead for bigalloc file systems at every mount, this didn't fix the
+problem for bigalloc file systems.  This commit should address the
+problem when resizing file systems with the bigalloc feature enabled.
+
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20220629040026.112371-1-tytso@mit.edu
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/Kconfig.cputype | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/resize.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-index ad0216c41d2c..67ad128a9a3d 100644
---- a/arch/powerpc/platforms/Kconfig.cputype
-+++ b/arch/powerpc/platforms/Kconfig.cputype
-@@ -134,11 +134,11 @@ config POWER9_CPU
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -1483,6 +1483,7 @@ static void ext4_update_super(struct sup
+ 	 * Update the fs overhead information
+ 	 */
+ 	ext4_calculate_overhead(sb);
++	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
  
- config E5500_CPU
- 	bool "Freescale e5500"
--	depends on E500
-+	depends on PPC64 && E500
- 
- config E6500_CPU
- 	bool "Freescale e6500"
--	depends on E500
-+	depends on PPC64 && E500
- 
- config 860_CPU
- 	bool "8xx family"
--- 
-2.35.1
-
+ 	if (test_opt(sb, DEBUG))
+ 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
 
 
