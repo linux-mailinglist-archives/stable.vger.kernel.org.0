@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5454259DE1D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C8B59DECE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355039AbiHWMSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46776 "EHLO
+        id S1358849AbiHWL5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:57:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347147AbiHWMOz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:14:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33DE9785B0;
-        Tue, 23 Aug 2022 02:40:49 -0700 (PDT)
+        with ESMTP id S1359269AbiHWL4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:56:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5EEEC7F86;
+        Tue, 23 Aug 2022 02:34:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E8F261468;
-        Tue, 23 Aug 2022 09:39:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 363DBC433C1;
-        Tue, 23 Aug 2022 09:39:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1326B81C96;
+        Tue, 23 Aug 2022 09:34:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0631C433D6;
+        Tue, 23 Aug 2022 09:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247573;
-        bh=zhu1T9zcaG1eb+/a5Tgb4CKFR0EPSiq+lQRFbBpBptc=;
+        s=korg; t=1661247241;
+        bh=74BDVeIvMBWQuIu/Rh+9XV75YMCsgnfcdiv4ClaKEQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQ7aHBnE3t7Y+QbCESIK0sO1P/aWGlAqJ1Yb5UQ9NYEmwlKhluJ6BPHUM5Nn0S97s
-         jflERIuImpPM8Aui9ScCezkSHOBP403+WFYuEELejCz0ixtFgNLr4I0vDKQ/HD6YNj
-         aZjFPt9oM3LGiR9u+aScrhcliRknKhVSEMSQWcWg=
+        b=2PDstKpMbULm/qEE/aPPcw0TvdjcUJmQdNng9TtdJFdjAvaOSiBcFDfgswIvHRRcu
+         ps7vkfGAo7Ae8b0qSAPv1Ts4DmfoHKkTR0PPyGZWbD4mehtxQaZUdlljVu+kDW4oA2
+         OBsjme13JeyB1QA2G/o129XSOkgE1RA0QPP443kU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 078/158] powerpc/pci: Fix get_phb_number() locking
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 5.4 332/389] nios2: fix syscall restart checks
 Date:   Tue, 23 Aug 2022 10:26:50 +0200
-Message-Id: <20220823080049.196501421@linuxfoundation.org>
+Message-Id: <20220823080129.391011846@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,105 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 8d48562a2729742f767b0fdd994d6b2a56a49c63 upstream.
+commit 2d631bd58fe0ea3e3350212e23c9aba1fb606514 upstream.
 
-The recent change to get_phb_number() causes a DEBUG_ATOMIC_SLEEP
-warning on some systems:
+sys_foo() returns -512 (aka -ERESTARTSYS) => do_signal() sees
+512 in r2 and 1 in r1.
 
-  BUG: sleeping function called from invalid context at kernel/locking/mutex.c:580
-  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: swapper
-  preempt_count: 1, expected: 0
-  RCU nest depth: 0, expected: 0
-  1 lock held by swapper/1:
-   #0: c157efb0 (hose_spinlock){+.+.}-{2:2}, at: pcibios_alloc_controller+0x64/0x220
-  Preemption disabled at:
-  [<00000000>] 0x0
-  CPU: 0 PID: 1 Comm: swapper Not tainted 5.19.0-yocto-standard+ #1
-  Call Trace:
-  [d101dc90] [c073b264] dump_stack_lvl+0x50/0x8c (unreliable)
-  [d101dcb0] [c0093b70] __might_resched+0x258/0x2a8
-  [d101dcd0] [c0d3e634] __mutex_lock+0x6c/0x6ec
-  [d101dd50] [c0a84174] of_alias_get_id+0x50/0xf4
-  [d101dd80] [c002ec78] pcibios_alloc_controller+0x1b8/0x220
-  [d101ddd0] [c140c9dc] pmac_pci_init+0x198/0x784
-  [d101de50] [c140852c] discover_phbs+0x30/0x4c
-  [d101de60] [c0007fd4] do_one_initcall+0x94/0x344
-  [d101ded0] [c1403b40] kernel_init_freeable+0x1a8/0x22c
-  [d101df10] [c00086e0] kernel_init+0x34/0x160
-  [d101df30] [c001b334] ret_from_kernel_thread+0x5c/0x64
+sys_foo() returns 512 => do_signal() sees 512 in r2 and 0 in r1.
 
-This is because pcibios_alloc_controller() holds hose_spinlock but
-of_alias_get_id() takes of_mutex which can sleep.
+The former is restart-worthy; the latter obviously isn't.
 
-The hose_spinlock protects the phb_bitmap, and also the hose_list, but
-it doesn't need to be held while get_phb_number() calls the OF routines,
-because those are only looking up information in the device tree.
-
-So fix it by having get_phb_number() take the hose_spinlock itself, only
-where required, and then dropping the lock before returning.
-pcibios_alloc_controller() then needs to take the lock again before the
-list_add() but that's safe, the order of the list is not important.
-
-Fixes: 0fe1e96fef0a ("powerpc/pci: Prefer PCI domain assignment via DT 'linux,pci-domain' and alias")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220815065550.1303620-1-mpe@ellerman.id.au
+Fixes: b53e906d255d ("nios2: Signal handling support")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/pci-common.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ arch/nios2/kernel/signal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/pci-common.c
-+++ b/arch/powerpc/kernel/pci-common.c
-@@ -66,10 +66,6 @@ void set_pci_dma_ops(const struct dma_ma
- 	pci_dma_ops = dma_ops;
- }
- 
--/*
-- * This function should run under locking protection, specifically
-- * hose_spinlock.
-- */
- static int get_phb_number(struct device_node *dn)
- {
- 	int ret, phb_id = -1;
-@@ -106,15 +102,20 @@ static int get_phb_number(struct device_
- 	if (!ret)
- 		phb_id = (int)(prop & (MAX_PHBS - 1));
- 
-+	spin_lock(&hose_spinlock);
-+
- 	/* We need to be sure to not use the same PHB number twice. */
- 	if ((phb_id >= 0) && !test_and_set_bit(phb_id, phb_bitmap))
--		return phb_id;
-+		goto out_unlock;
- 
- 	/* If everything fails then fallback to dynamic PHB numbering. */
- 	phb_id = find_first_zero_bit(phb_bitmap, MAX_PHBS);
- 	BUG_ON(phb_id >= MAX_PHBS);
- 	set_bit(phb_id, phb_bitmap);
- 
-+out_unlock:
-+	spin_unlock(&hose_spinlock);
-+
- 	return phb_id;
- }
- 
-@@ -125,10 +126,13 @@ struct pci_controller *pcibios_alloc_con
- 	phb = zalloc_maybe_bootmem(sizeof(struct pci_controller), GFP_KERNEL);
- 	if (phb == NULL)
- 		return NULL;
--	spin_lock(&hose_spinlock);
-+
- 	phb->global_number = get_phb_number(dev);
-+
-+	spin_lock(&hose_spinlock);
- 	list_add_tail(&phb->list_node, &hose_list);
- 	spin_unlock(&hose_spinlock);
-+
- 	phb->dn = dev;
- 	phb->is_dynamic = slab_is_available();
- #ifdef CONFIG_PPC64
+--- a/arch/nios2/kernel/signal.c
++++ b/arch/nios2/kernel/signal.c
+@@ -240,7 +240,7 @@ static int do_signal(struct pt_regs *reg
+ 	/*
+ 	 * If we were from a system call, check for system call restarting...
+ 	 */
+-	if (regs->orig_r2 >= 0) {
++	if (regs->orig_r2 >= 0 && regs->r1) {
+ 		continue_addr = regs->ea;
+ 		restart_addr = continue_addr - 4;
+ 		retval = regs->r2;
 
 
