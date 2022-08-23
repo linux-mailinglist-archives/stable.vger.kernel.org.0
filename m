@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5089E59E33E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B36F59DB72
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352220AbiHWMRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:17:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
+        id S1356274AbiHWKuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:50:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357802AbiHWMPq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:46 -0400
+        with ESMTP id S1355947AbiHWKse (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:48:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B84EAEA14D;
-        Tue, 23 Aug 2022 02:41:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A96EC25E8F;
+        Tue, 23 Aug 2022 02:12:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3BACB81C96;
-        Tue, 23 Aug 2022 09:40:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BEBFC433D6;
-        Tue, 23 Aug 2022 09:40:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C7E8B81C66;
+        Tue, 23 Aug 2022 09:12:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0C3EC433D6;
+        Tue, 23 Aug 2022 09:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247634;
-        bh=X6jgYWZ4Mu4BRn1XVD+JQfc78HmS4SDy8hx0sB+nn/s=;
+        s=korg; t=1661245929;
+        bh=OQlvZM+K22KXk20z/y80Vu43gP5UH4g2hFg4EP4s7Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNEA+z8Wad17MbiYlmDodOgEq1SqNeA9eeQszLBD7SasgBCklTn3kEGoC4/bGHkqw
-         q6eqE48Lt2bD8yuKFwiMfYwFCHA1gPUlgiZjCjMGKsLVGBKXqgB7qdtlKaTWfCUnXS
-         y+Z1myMUmdY/y+TWqSYDzL/BCdtferMQNyA3XB7c=
+        b=Ro28e8kxR/SfEbZfBlYwCvrG49ZT/o8oMnVYdAGHgcNFN/hF4QcMcVvpDRaMoJXE+
+         zavLMQyxWtI/HmxLKNDf3uqoIKz4IkmImbZdITq1keLWe+4BS1oGxiQtPXan/u9TT1
+         TATvKEQTyaEOWFBXds4sjf2KL6SQAEMGaMKygZMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Marek Szlosek <marek.szlosek@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 070/158] iavf: Fix adminq error handling
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.19 233/287] SUNRPC: Reinitialise the backchannel request buffers before reuse
 Date:   Tue, 23 Aug 2022 10:26:42 +0200
-Message-Id: <20220823080048.904723977@linuxfoundation.org>
+Message-Id: <20220823080108.889190037@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 419831617ed349992c84344dbd9e627f9e68f842 upstream.
+commit 6622e3a73112fc336c1c2c582428fb5ef18e456a upstream.
 
-iavf_alloc_asq_bufs/iavf_alloc_arq_bufs allocates with dma_alloc_coherent
-memory for VF mailbox.
-Free DMA regions for both ASQ and ARQ in case error happens during
-configuration of ASQ/ARQ registers.
-Without this change it is possible to see when unloading interface:
-74626.583369: dma_debug_device_change: device driver has pending DMA allocations while released from device [count=32]
-One of leaked entries details: [device address=0x0000000b27ff9000] [size=4096 bytes] [mapped with DMA_BIDIRECTIONAL] [mapped as coherent]
+When we're reusing the backchannel requests instead of freeing them,
+then we should reinitialise any values of the send/receive xdr_bufs so
+that they reflect the available space.
 
-Fixes: d358aa9a7a2d ("i40evf: init code and hardware support")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Marek Szlosek <marek.szlosek@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 0d2a970d0ae5 ("SUNRPC: Fix a backchannel race")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_adminq.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ net/sunrpc/backchannel_rqst.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/net/ethernet/intel/iavf/iavf_adminq.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_adminq.c
-@@ -324,6 +324,7 @@ static enum iavf_status iavf_config_arq_
- static enum iavf_status iavf_init_asq(struct iavf_hw *hw)
- {
- 	enum iavf_status ret_code = 0;
-+	int i;
+--- a/net/sunrpc/backchannel_rqst.c
++++ b/net/sunrpc/backchannel_rqst.c
+@@ -69,6 +69,17 @@ static void xprt_free_allocation(struct
+ 	kfree(req);
+ }
  
- 	if (hw->aq.asq.count > 0) {
- 		/* queue already initialized */
-@@ -354,12 +355,17 @@ static enum iavf_status iavf_init_asq(st
- 	/* initialize base registers */
- 	ret_code = iavf_config_asq_regs(hw);
- 	if (ret_code)
--		goto init_adminq_free_rings;
-+		goto init_free_asq_bufs;
- 
- 	/* success! */
- 	hw->aq.asq.count = hw->aq.num_asq_entries;
- 	goto init_adminq_exit;
- 
-+init_free_asq_bufs:
-+	for (i = 0; i < hw->aq.num_asq_entries; i++)
-+		iavf_free_dma_mem(hw, &hw->aq.asq.r.asq_bi[i]);
-+	iavf_free_virt_mem(hw, &hw->aq.asq.dma_head);
++static void xprt_bc_reinit_xdr_buf(struct xdr_buf *buf)
++{
++	buf->head[0].iov_len = PAGE_SIZE;
++	buf->tail[0].iov_len = 0;
++	buf->pages = NULL;
++	buf->page_len = 0;
++	buf->flags = 0;
++	buf->len = 0;
++	buf->buflen = PAGE_SIZE;
++}
 +
- init_adminq_free_rings:
- 	iavf_free_adminq_asq(hw);
- 
-@@ -383,6 +389,7 @@ init_adminq_exit:
- static enum iavf_status iavf_init_arq(struct iavf_hw *hw)
+ static int xprt_alloc_xdr_buf(struct xdr_buf *buf, gfp_t gfp_flags)
  {
- 	enum iavf_status ret_code = 0;
-+	int i;
- 
- 	if (hw->aq.arq.count > 0) {
- 		/* queue already initialized */
-@@ -413,12 +420,16 @@ static enum iavf_status iavf_init_arq(st
- 	/* initialize base registers */
- 	ret_code = iavf_config_arq_regs(hw);
- 	if (ret_code)
--		goto init_adminq_free_rings;
-+		goto init_free_arq_bufs;
- 
- 	/* success! */
- 	hw->aq.arq.count = hw->aq.num_arq_entries;
- 	goto init_adminq_exit;
- 
-+init_free_arq_bufs:
-+	for (i = 0; i < hw->aq.num_arq_entries; i++)
-+		iavf_free_dma_mem(hw, &hw->aq.arq.r.arq_bi[i]);
-+	iavf_free_virt_mem(hw, &hw->aq.arq.dma_head);
- init_adminq_free_rings:
- 	iavf_free_adminq_arq(hw);
- 
+ 	struct page *page;
+@@ -291,6 +302,9 @@ void xprt_free_bc_rqst(struct rpc_rqst *
+ 	 */
+ 	spin_lock_bh(&xprt->bc_pa_lock);
+ 	if (xprt_need_to_requeue(xprt)) {
++		xprt_bc_reinit_xdr_buf(&req->rq_snd_buf);
++		xprt_bc_reinit_xdr_buf(&req->rq_rcv_buf);
++		req->rq_rcv_buf.len = PAGE_SIZE;
+ 		list_add_tail(&req->rq_bc_pa_list, &xprt->bc_pa_list);
+ 		xprt->bc_alloc_count++;
+ 		req = NULL;
 
 
