@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F1EA59D445
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:24:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B0CC59D3AD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241790AbiHWIJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:09:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58228 "EHLO
+        id S242327AbiHWIOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:14:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241796AbiHWIJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:09:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6240399F2;
-        Tue, 23 Aug 2022 01:05:56 -0700 (PDT)
+        with ESMTP id S242205AbiHWIM4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:12:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4A116C11F;
+        Tue, 23 Aug 2022 01:09:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 382CBB81C21;
-        Tue, 23 Aug 2022 08:05:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8237EC433D6;
-        Tue, 23 Aug 2022 08:05:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16DC96128E;
+        Tue, 23 Aug 2022 08:09:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AA62C433D6;
+        Tue, 23 Aug 2022 08:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661241953;
-        bh=BaRmGPtwqRsLB/YhckKVe4GwVoLQrbRKvKxeSbmy2n0=;
+        s=korg; t=1661242146;
+        bh=v4KGrEVskcMrBDA4KqT7FNFEnwx3XEfxBHbjvZzK7pY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqsyuXC7daXgUUr/RIiZJjmJFa2/Fi+p2ZH5ipL0IMtQNlD7ce2ETe89xgoggDfj4
-         UGLBop5ul4YCc9ghrzjLongfpL639mX7rz4vQz9qWlEMyKAixiaoUl0N6g2GTEEbYA
-         R/cLty9gutINlWf2cHpwB5tJdWPjslMKqTvnFnkY=
+        b=DAvsNNjdDmjGfrT/FaxJLxFcIR58aLrZROR9FhMMkuJAd2FFYX3Ikaiz07G/hY7pT
+         Cq0l2/F++hiBboO3FAjZv2r4dajxMhR3l7xhkVajygo7F9967Fzf3siYLR47gK5bP7
+         7K4H8ENZ9l7BVm/3XxTMi9kCsJ7i2m+ZRhAkRc4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krister Johansen <kjlx@templeofstupid.com>,
-        Jiri Olsa <jolsa@kernel.org>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
+        Tom Zanussi <zanussi@kernel.org>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.19 030/365] tracing/perf: Fix double put of trace event when init fails
-Date:   Tue, 23 Aug 2022 09:58:51 +0200
-Message-Id: <20220823080119.473574905@linuxfoundation.org>
+Subject: [PATCH 5.19 031/365] tracing/eprobes: Do not allow eprobes to use $stack, or % for regs
+Date:   Tue, 23 Aug 2022 09:58:52 +0200
+Message-Id: <20220823080119.509826276@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -56,87 +59,121 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 7249921d94ff64f67b733eca0b68853a62032b3d upstream.
+commit 2673c60ee67e71f2ebe34386e62d348f71edee47 upstream.
 
-If in perf_trace_event_init(), the perf_trace_event_open() fails, then it
-will call perf_trace_event_unreg() which will not only unregister the perf
-trace event, but will also call the put() function of the tp_event.
+While playing with event probes (eprobes), I tried to see what would
+happen if I attempted to retrieve the instruction pointer (%rip) knowing
+that event probes do not use pt_regs. The result was:
 
-The problem here is that the trace_event_try_get_ref() is called by the
-caller of perf_trace_event_init() and if perf_trace_event_init() returns a
-failure, it will then call trace_event_put(). But since the
-perf_trace_event_unreg() already called the trace_event_put() function, it
-triggers a WARN_ON().
+ BUG: kernel NULL pointer dereference, address: 0000000000000024
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 1 PID: 1847 Comm: trace-cmd Not tainted 5.19.0-rc5-test+ #309
+ Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01
+v03.03 07/14/2016
+ RIP: 0010:get_event_field.isra.0+0x0/0x50
+ Code: ff 48 c7 c7 c0 8f 74 a1 e8 3d 8b f5 ff e8 88 09 f6 ff 4c 89 e7 e8
+50 6a 13 00 48 89 ef 5b 5d 41 5c 41 5d e9 42 6a 13 00 66 90 <48> 63 47 24
+8b 57 2c 48 01 c6 8b 47 28 83 f8 02 74 0e 83 f8 04 74
+ RSP: 0018:ffff916c394bbaf0 EFLAGS: 00010086
+ RAX: ffff916c854041d8 RBX: ffff916c8d9fbf50 RCX: ffff916c255d2000
+ RDX: 0000000000000000 RSI: ffff916c255d2008 RDI: 0000000000000000
+ RBP: 0000000000000000 R08: ffff916c3a2a0c08 R09: ffff916c394bbda8
+ R10: 0000000000000000 R11: 0000000000000000 R12: ffff916c854041d8
+ R13: ffff916c854041b0 R14: 0000000000000000 R15: 0000000000000000
+ FS:  0000000000000000(0000) GS:ffff916c9ea40000(0000)
+knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000024 CR3: 000000011b60a002 CR4: 00000000001706e0
+ Call Trace:
+  <TASK>
+  get_eprobe_size+0xb4/0x640
+  ? __mod_node_page_state+0x72/0xc0
+  __eprobe_trace_func+0x59/0x1a0
+  ? __mod_lruvec_page_state+0xaa/0x1b0
+  ? page_remove_file_rmap+0x14/0x230
+  ? page_remove_rmap+0xda/0x170
+  event_triggers_call+0x52/0xe0
+  trace_event_buffer_commit+0x18f/0x240
+  trace_event_raw_event_sched_wakeup_template+0x7a/0xb0
+  try_to_wake_up+0x260/0x4c0
+  __wake_up_common+0x80/0x180
+  __wake_up_common_lock+0x7c/0xc0
+  do_notify_parent+0x1c9/0x2a0
+  exit_notify+0x1a9/0x220
+  do_exit+0x2ba/0x450
+  do_group_exit+0x2d/0x90
+  __x64_sys_exit_group+0x14/0x20
+  do_syscall_64+0x3b/0x90
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
- WARNING: CPU: 1 PID: 30309 at kernel/trace/trace_dynevent.c:46 trace_event_dyn_put_ref+0x15/0x20
+Obviously this is not the desired result.
 
-If perf_trace_event_reg() does not call the trace_event_try_get_ref() then
-the perf_trace_event_unreg() should not be calling trace_event_put(). This
-breaks symmetry and causes bugs like these.
+Move the testing for TPARG_FL_TPOINT which is only used for event probes
+to the top of the "$" variable check, as all the other variables are not
+used for event probes. Also add a check in the register parsing "%" to
+fail if an event probe is used.
 
-Pull out the trace_event_put() from perf_trace_event_unreg() and call it
-in the locations that perf_trace_event_unreg() is called. This not only
-fixes this bug, but also brings back the proper symmetry of the reg/unreg
-vs get/put logic.
-
-Link: https://lore.kernel.org/all/cover.1660347763.git.kjlx@templeofstupid.com/
-Link: https://lkml.kernel.org/r/20220816192817.43d5e17f@gandalf.local.home
+Link: https://lkml.kernel.org/r/20220820134400.564426983@goodmis.org
 
 Cc: stable@vger.kernel.org
-Fixes: 1d18538e6a092 ("tracing: Have dynamic events have a ref counter")
-Reported-by: Krister Johansen <kjlx@templeofstupid.com>
-Reviewed-by: Krister Johansen <kjlx@templeofstupid.com>
-Tested-by: Krister Johansen <kjlx@templeofstupid.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
+Cc: Tom Zanussi <zanussi@kernel.org>
+Fixes: 7491e2c44278 ("tracing: Add a probe that attaches to trace events")
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_event_perf.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ kernel/trace/trace_probe.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/kernel/trace/trace_event_perf.c
-+++ b/kernel/trace/trace_event_perf.c
-@@ -157,7 +157,7 @@ static void perf_trace_event_unreg(struc
- 	int i;
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -279,7 +279,14 @@ static int parse_probe_vars(char *arg, c
+ 	int ret = 0;
+ 	int len;
  
- 	if (--tp_event->perf_refcount > 0)
--		goto out;
-+		return;
+-	if (strcmp(arg, "retval") == 0) {
++	if (flags & TPARG_FL_TPOINT) {
++		if (code->data)
++			return -EFAULT;
++		code->data = kstrdup(arg, GFP_KERNEL);
++		if (!code->data)
++			return -ENOMEM;
++		code->op = FETCH_OP_TP_ARG;
++	} else if (strcmp(arg, "retval") == 0) {
+ 		if (flags & TPARG_FL_RETURN) {
+ 			code->op = FETCH_OP_RETVAL;
+ 		} else {
+@@ -319,13 +326,6 @@ static int parse_probe_vars(char *arg, c
+ 		code->op = FETCH_OP_ARG;
+ 		code->param = (unsigned int)param - 1;
+ #endif
+-	} else if (flags & TPARG_FL_TPOINT) {
+-		if (code->data)
+-			return -EFAULT;
+-		code->data = kstrdup(arg, GFP_KERNEL);
+-		if (!code->data)
+-			return -ENOMEM;
+-		code->op = FETCH_OP_TP_ARG;
+ 	} else
+ 		goto inval_var;
  
- 	tp_event->class->reg(tp_event, TRACE_REG_PERF_UNREGISTER, NULL);
+@@ -380,6 +380,11 @@ parse_probe_arg(char *arg, const struct
+ 		break;
  
-@@ -176,8 +176,6 @@ static void perf_trace_event_unreg(struc
- 			perf_trace_buf[i] = NULL;
- 		}
- 	}
--out:
--	trace_event_put_ref(tp_event);
- }
- 
- static int perf_trace_event_open(struct perf_event *p_event)
-@@ -241,6 +239,7 @@ void perf_trace_destroy(struct perf_even
- 	mutex_lock(&event_mutex);
- 	perf_trace_event_close(p_event);
- 	perf_trace_event_unreg(p_event);
-+	trace_event_put_ref(p_event->tp_event);
- 	mutex_unlock(&event_mutex);
- }
- 
-@@ -292,6 +291,7 @@ void perf_kprobe_destroy(struct perf_eve
- 	mutex_lock(&event_mutex);
- 	perf_trace_event_close(p_event);
- 	perf_trace_event_unreg(p_event);
-+	trace_event_put_ref(p_event->tp_event);
- 	mutex_unlock(&event_mutex);
- 
- 	destroy_local_trace_kprobe(p_event->tp_event);
-@@ -347,6 +347,7 @@ void perf_uprobe_destroy(struct perf_eve
- 	mutex_lock(&event_mutex);
- 	perf_trace_event_close(p_event);
- 	perf_trace_event_unreg(p_event);
-+	trace_event_put_ref(p_event->tp_event);
- 	mutex_unlock(&event_mutex);
- 	destroy_local_trace_uprobe(p_event->tp_event);
- }
+ 	case '%':	/* named register */
++		if (flags & TPARG_FL_TPOINT) {
++			/* eprobes do not handle registers */
++			trace_probe_log_err(offs, BAD_VAR);
++			break;
++		}
+ 		ret = regs_query_register_offset(arg + 1);
+ 		if (ret >= 0) {
+ 			code->op = FETCH_OP_REG;
 
 
