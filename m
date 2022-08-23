@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C795C59DCB1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C82BC59DC44
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242509AbiHWLkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:40:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59846 "EHLO
+        id S1352427AbiHWKMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:12:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357745AbiHWLiG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:38:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F06F101CF;
-        Tue, 23 Aug 2022 02:28:23 -0700 (PDT)
+        with ESMTP id S1352875AbiHWKJY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:09:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7273C7D7BE;
+        Tue, 23 Aug 2022 01:55:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4ACDB81C89;
-        Tue, 23 Aug 2022 09:28:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C309C433C1;
-        Tue, 23 Aug 2022 09:28:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1210761555;
+        Tue, 23 Aug 2022 08:55:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C3FFC433C1;
+        Tue, 23 Aug 2022 08:55:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246886;
-        bh=V4LgSedpr3Mn3JFQSAmnZTgGzA5U6Wo8O3HklmKyLu4=;
+        s=korg; t=1661244911;
+        bh=YA7qGjAoZ0w68jbN59Y8bWwXYBlkSuhDhVnrXYHcvq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J528pb1rmNSGQoSULv4WjCvR3z6mFamfFW9CISF1HfAQ8D7YbP5gadmCnbuLDmnzs
-         32WV0bhgkZnBwdga68GWET9jNMingunocPwlClH4YkHZwTHTPIGjgtprIMRHtA0R06
-         /0guiJzaynqreIxGprK01PiczaBN+pEpowjleiWk=
+        b=nJRWiJvrw17Hc26phI9MaJyRzOwUs1omMVkrE77RFXTFsiJ09WGGdcFRDw/LkJpdr
+         HSLsQOqpTIcB0NvRZIGYOS80+gj3S+3NAKkOTn0Uh5qHF66elsWbPeuyggpTBkfngG
+         cyJLVqgJiwErWEk2iSILzNjctP1rB7wpFvJZ1erk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Bannoth <nbannoth@in.ibm.com>,
-        Kyle Mahlkuch <Kyle.Mahlkuch@ibm.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 251/389] scsi: qla2xxx: Fix erroneous mailbox timeout after PCI error injection
-Date:   Tue, 23 Aug 2022 10:25:29 +0200
-Message-Id: <20220823080126.074957854@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 171/244] drm/meson: Fix overflow implicit truncation warnings
+Date:   Tue, 23 Aug 2022 10:25:30 +0200
+Message-Id: <20220823080104.975324224@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
 
-commit f260694e6463b63ae550aad25ddefe94cb1904da upstream.
+[ Upstream commit 98692f52c588225034cbff458622c2c06dfcb544 ]
 
-Clear wait for mailbox interrupt flag to prevent stale mailbox:
+Fix -Woverflow warnings for drm/meson driver which is a result
+of moving arm64 custom MMIO accessor macros to asm-generic function
+implementations giving a bonus type-checking now and uncovering these
+overflow warnings.
 
-Feb 22 05:22:56 ltcden4-lp7 kernel: qla2xxx [0135:90:00.1]-500a:4: LOOP UP detected (16 Gbps).
-Feb 22 05:22:59 ltcden4-lp7 kernel: qla2xxx [0135:90:00.1]-d04c:4: MBX Command timeout for cmd 69, ...
+drivers/gpu/drm/meson/meson_viu.c: In function ‘meson_viu_init’:
+drivers/gpu/drm/meson/meson_registers.h:1826:48: error: large integer implicitly truncated to unsigned type [-Werror=overflow]
+ #define  VIU_OSD_BLEND_REORDER(dest, src)      ((src) << (dest * 4))
+                                                ^
+drivers/gpu/drm/meson/meson_viu.c:472:18: note: in expansion of macro ‘VIU_OSD_BLEND_REORDER’
+   writel_relaxed(VIU_OSD_BLEND_REORDER(0, 1) |
+                  ^~~~~~~~~~~~~~~~~~~~~
 
-To fix the issue, driver needs to clear the MBX_INTR_WAIT flag on purging
-the mailbox. When the stale mailbox completion does arrive, it will be
-dropped.
-
-Link: https://lore.kernel.org/r/20220616053508.27186-11-njavali@marvell.com
-Fixes: b6faaaf796d7 ("scsi: qla2xxx: Serialize mailbox request")
-Cc: Naresh Bannoth <nbannoth@in.ibm.com>
-Cc: Kyle Mahlkuch <Kyle.Mahlkuch@ibm.com>
-Cc: stable@vger.kernel.org
-Reported-by: Naresh Bannoth <nbannoth@in.ibm.com>
-Tested-by: Naresh Bannoth <nbannoth@in.ibm.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/meson/meson_viu.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -271,6 +271,12 @@ qla2x00_mailbox_command(scsi_qla_host_t
- 		atomic_inc(&ha->num_pend_mbx_stage3);
- 		if (!wait_for_completion_timeout(&ha->mbx_intr_comp,
- 		    mcp->tov * HZ)) {
-+			ql_dbg(ql_dbg_mbx, vha, 0x117a,
-+			    "cmd=%x Timeout.\n", command);
-+			spin_lock_irqsave(&ha->hardware_lock, flags);
-+			clear_bit(MBX_INTR_WAIT, &ha->mbx_cmd_flags);
-+			spin_unlock_irqrestore(&ha->hardware_lock, flags);
-+
- 			if (chip_reset != ha->chip_reset) {
- 				spin_lock_irqsave(&ha->hardware_lock, flags);
- 				ha->flags.mbox_busy = 0;
-@@ -281,12 +287,6 @@ qla2x00_mailbox_command(scsi_qla_host_t
- 				rval = QLA_ABORTED;
- 				goto premature_exit;
- 			}
--			ql_dbg(ql_dbg_mbx, vha, 0x117a,
--			    "cmd=%x Timeout.\n", command);
--			spin_lock_irqsave(&ha->hardware_lock, flags);
--			clear_bit(MBX_INTR_WAIT, &ha->mbx_cmd_flags);
--			spin_unlock_irqrestore(&ha->hardware_lock, flags);
--
- 		} else if (ha->flags.purge_mbox ||
- 		    chip_reset != ha->chip_reset) {
- 			spin_lock_irqsave(&ha->hardware_lock, flags);
+diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
+index 259f3e6bec90..bb7e109534de 100644
+--- a/drivers/gpu/drm/meson/meson_viu.c
++++ b/drivers/gpu/drm/meson/meson_viu.c
+@@ -469,17 +469,17 @@ void meson_viu_init(struct meson_drm *priv)
+ 			priv->io_base + _REG(VD2_IF0_LUMA_FIFO_SIZE));
+ 
+ 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+-		writel_relaxed(VIU_OSD_BLEND_REORDER(0, 1) |
+-			       VIU_OSD_BLEND_REORDER(1, 0) |
+-			       VIU_OSD_BLEND_REORDER(2, 0) |
+-			       VIU_OSD_BLEND_REORDER(3, 0) |
+-			       VIU_OSD_BLEND_DIN_EN(1) |
+-			       VIU_OSD_BLEND1_DIN3_BYPASS_TO_DOUT1 |
+-			       VIU_OSD_BLEND1_DOUT_BYPASS_TO_BLEND2 |
+-			       VIU_OSD_BLEND_DIN0_BYPASS_TO_DOUT0 |
+-			       VIU_OSD_BLEND_BLEN2_PREMULT_EN(1) |
+-			       VIU_OSD_BLEND_HOLD_LINES(4),
+-			       priv->io_base + _REG(VIU_OSD_BLEND_CTRL));
++		u32 val = (u32)VIU_OSD_BLEND_REORDER(0, 1) |
++			  (u32)VIU_OSD_BLEND_REORDER(1, 0) |
++			  (u32)VIU_OSD_BLEND_REORDER(2, 0) |
++			  (u32)VIU_OSD_BLEND_REORDER(3, 0) |
++			  (u32)VIU_OSD_BLEND_DIN_EN(1) |
++			  (u32)VIU_OSD_BLEND1_DIN3_BYPASS_TO_DOUT1 |
++			  (u32)VIU_OSD_BLEND1_DOUT_BYPASS_TO_BLEND2 |
++			  (u32)VIU_OSD_BLEND_DIN0_BYPASS_TO_DOUT0 |
++			  (u32)VIU_OSD_BLEND_BLEN2_PREMULT_EN(1) |
++			  (u32)VIU_OSD_BLEND_HOLD_LINES(4);
++		writel_relaxed(val, priv->io_base + _REG(VIU_OSD_BLEND_CTRL));
+ 
+ 		writel_relaxed(OSD_BLEND_PATH_SEL_ENABLE,
+ 			       priv->io_base + _REG(OSD1_BLEND_SRC_CTRL));
+-- 
+2.35.1
+
 
 
