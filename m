@@ -2,216 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DF2859EC5D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 21:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63EDD59EC7F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 21:38:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231849AbiHWTb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 15:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54112 "EHLO
+        id S232215AbiHWTid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 15:38:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232034AbiHWTbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 15:31:31 -0400
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC0D105F1E;
-        Tue, 23 Aug 2022 11:23:00 -0700 (PDT)
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27NIIiQa017138;
-        Tue, 23 Aug 2022 18:22:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2022-7-12;
- bh=CTE7IplM7dE4r2Iy8oCQHKk2buyXzP+a2aMmSaux3Og=;
- b=oQotXJWnsTOwmFl11QidwDm+yJf+eql3H536BwmY2WGnpui3Q489BgUKQ3V1JGYukMhe
- GTuZDOu5Nir2YwsZlwCNij8Qr2E8AA7t4awPyeOJHpgcA7lT+XkSKmHDP0446LmQB+Ig
- +GFWSzYXzZjOWnYjmk375JK9aIVsKRfYuLdoeEC7OUuxpNQYj1rO2CsP9EMqiJkFEWv5
- M1VHxke13+SNkJs8VxsUwiYi0xIHfMWXnVcdlYnXQt4g2vt81X0bwlQ2XKa3zu7urXRW
- dSJENbkhJqjg/dZycVg00sl5H7v8BjeA9AzC9Tfdclk4p4+nusVWnSsxaqi7JdVKfaeU 1w== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3j4eweayt3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Aug 2022 18:22:45 +0000
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 27NICCkW024889;
-        Tue, 23 Aug 2022 18:22:43 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2103.outbound.protection.outlook.com [104.47.70.103])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3j3mm9yfje-2
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Aug 2022 18:22:43 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SZotg1KvbTqOGg00iqaPKblTYPcvpQKbhyVhFWJawU3roJfz4aBgV5O3RO8MoOfjzR9iuMTZc1F6Vkg7HJXBw+ZP5sJhpj/DR8/pWDvJ8BP9KTKqRbdOvgUNNG7agG7kmjXI0k7CstuL9JnOHbWG3/uR0LgQZyK9FlTHutVTbE25G89owJBwzF7jMo7EgNwy525wMMBsw4vXMl7N3jisCjJl9qVdD2YHsDvEWYJiKqtO06SEg/zXi9MjHT8DAPQHnWGbSgx8gu85N8njWDIzPi2lkL8JtskJaPZImgU4Hb23qv6HLSacmioi8DcOtVUSZHfXRLYIwv73/MCSLCakmQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CTE7IplM7dE4r2Iy8oCQHKk2buyXzP+a2aMmSaux3Og=;
- b=E4MrV5vzqVd9ravXnhGaeW5Vjb2yL1dKo7mivvHDR8MBaXmfp2rqB1P7TTmWgEyKG8k0hwMOzAN0tW43F62Quusx+XbjiizEfRR8zg7xeE/qLfgblwACnGI1164K/dQ2829a8j79A2MrgH6qwLO03lGTBv8+dwMwDyXR0BN/6qguTCHiyS4MqzwxEjhOgpLDqTIzEtXyp4iEzaVbf8wqf43W0TdYJwI/WSF+S7DL8B436RzI+Gyv3aAsz+7+7/79iMkk4fzKotWjGZyqT6/nqQgerwBMb7/m0n0vLUzJ498Psm7BzYZgKZs/y3WttMONL4N1x1GyERM5jFh02Izcvw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+        with ESMTP id S232837AbiHWTiO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 15:38:14 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8022EA1D40
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 11:34:55 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id bq11so11451157wrb.12
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 11:34:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CTE7IplM7dE4r2Iy8oCQHKk2buyXzP+a2aMmSaux3Og=;
- b=HRJD3HPW99ypa9Pb9OTz2Aa9hqZQzccoNZzgxRFFmFfuLOk4S4a1KMkGMzu7d3Xi8XRrJdFZEKuZw96lmbaEzIfIVxL9eb52G1iEVh4hwRnOdUixYFcJijdAgdg4s9bNR8TOLpUKeZffOPPKPmqVHhsD6/2pCVAE/TZ9/miX+JA=
-Received: from BN7PR10MB2659.namprd10.prod.outlook.com (2603:10b6:406:c5::18)
- by BYAPR10MB3670.namprd10.prod.outlook.com (2603:10b6:a03:124::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5546.22; Tue, 23 Aug
- 2022 18:22:42 +0000
-Received: from BN7PR10MB2659.namprd10.prod.outlook.com
- ([fe80::e0f6:5b20:2ab3:fcce]) by BN7PR10MB2659.namprd10.prod.outlook.com
- ([fe80::e0f6:5b20:2ab3:fcce%4]) with mapi id 15.20.5546.019; Tue, 23 Aug 2022
- 18:22:42 +0000
-Subject: Re: [PATCH 5.19 319/365] swiotlb: panic if nslabs is too small
-To:     Yu Zhao <yuzhao@google.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Robin Murphy <robin.murphy@arm.com>,
-        stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        iommu@lists.linux.dev
-References: <20220823080118.128342613@linuxfoundation.org>
- <20220823080131.532813281@linuxfoundation.org>
- <c49d3b2b-9f5a-4257-9085-f7ac107cff40@oracle.com>
- <CAOUHufagA1x4jyjH9Q0RX65fwF3SyYHUTkNnB0S_t-2GqbiC2A@mail.gmail.com>
-From:   Dongli Zhang <dongli.zhang@oracle.com>
-Message-ID: <4d963d03-787f-992a-eb78-4719fb82cfae@oracle.com>
-Date:   Tue, 23 Aug 2022 11:22:38 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.1
-In-Reply-To: <CAOUHufagA1x4jyjH9Q0RX65fwF3SyYHUTkNnB0S_t-2GqbiC2A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SA9P223CA0009.NAMP223.PROD.OUTLOOK.COM
- (2603:10b6:806:26::14) To BN7PR10MB2659.namprd10.prod.outlook.com
- (2603:10b6:406:c5::18)
+        d=linaro.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc;
+        bh=ytTjReeUrxoqSJ5BeQcZY9hlOg/OMaAOjybK5mQFt+A=;
+        b=Qy0Q9yihjuVjrN8moQnwdH5FwctVgPQjWaTW/jYlmysDVAO2t2WrbWoTwEtoaJmO7I
+         AAM5wdq4aFShbRm62kuc1uNIEpKVeAh8SmEEQ3PfYvDK6AzvNnbwQRFbA1niDLjUyRze
+         ADnk1oooR/czh6+WUVhvHGqF+EgkFgwl4/94d7l7cNsTJVGDee5XPIEoP+gbdxTuTEpm
+         +ygSBBsYP68UagMawe/iKr+zmHc42vuPYH+ZHxXrIQcDzCeyYDSvwVvmYYC9SoBuVJHY
+         MyHlPxkg1fmYUo//Epo2iJbf2qX8wqeeva53IyjehMh2NsTVCLC5JUn3hpVlqas2Ed+U
+         iUDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+        bh=ytTjReeUrxoqSJ5BeQcZY9hlOg/OMaAOjybK5mQFt+A=;
+        b=5ICEK6+fgqjMtle72QcMHMUN6faDkuIlc6YSqxdJhm762pznG6cb46/qazscNmj122
+         cTm7Kjwz/Z+jqwf6Ovt27MUTBbwXn7MqMHv9wZ9fVnCvUYUCKOpVElUzBr1BMelHYvCp
+         QxDksMoouXc3sr3r3GxWJWyNTqOZqjlUbQ7ejYj6+4PdWss8MObURF2Q4NSbNGCUi4ne
+         F3WwpU18auHFG24VQwKAoaNqQ5B39tJW5YlPhitmixq5/F4qOQGqfNInAwKLnepfICrU
+         gH886nULpPeT+tSa1MPPgTxj5OugvpDm30+NbftIyhcAHuUByfNYSaPVN3542ISs8RXp
+         dryg==
+X-Gm-Message-State: ACgBeo3DDXc5zoj1kwX0lHmWXqHRASl2x+MY31VMrAUk9CNGwA5ko/I7
+        XKANeEM15WxwnaF/MseRD2Eczg==
+X-Google-Smtp-Source: AA6agR4/pmlxMMCthZI/YxG8smLnTaQ2KoVUL3TkzQsGdeXmEbVwBRWaPWlRjyZd2AB6jbN6KltESA==
+X-Received: by 2002:a5d:50c8:0:b0:225:5a57:bd84 with SMTP id f8-20020a5d50c8000000b002255a57bd84mr6104142wrt.131.1661279694038;
+        Tue, 23 Aug 2022 11:34:54 -0700 (PDT)
+Received: from myrica (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net. [82.27.106.168])
+        by smtp.gmail.com with ESMTPSA id g10-20020a05600c4eca00b003a31ca9dfb6sm27073664wmq.32.2022.08.23.11.34.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Aug 2022 11:34:53 -0700 (PDT)
+Date:   Tue, 23 Aug 2022 19:34:50 +0100
+From:   Jean-Philippe Brucker <jean-philippe@linaro.org>
+To:     RAJESH DASARI <raajeshdasari@gmail.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ovidiu.panait@windriver.com,
+        alexei.starovoitov@gmail.com, john.fastabend@gmail.com
+Subject: Re: bpf selftest failed in 5.4.210 kernel
+Message-ID: <YwUdyiK16jz1W5Aa@myrica>
+References: <CAPXMrf-C5XEUfOJd3GCtgtHOkc8DxDGbLxE5=GFmr+Py0zKxJA@mail.gmail.com>
+ <Yv3M8wqMkLwlaHxa@kroah.com>
+ <Yv3wZLuPEL9B/h83@myrica>
+ <Yv9shQ3i49efHG6f@kroah.com>
+ <CAPXMrf8VsNMKNLxFjdytk57mk_9ZC0avg1qCGLSMOZNirpdboQ@mail.gmail.com>
+ <YwCGoRt6ifOC6mCD@kroah.com>
+ <CAPXMrf-Gc-Mv1goZrk59GG96OLPxEUC-FKT6Dwo6TU6D7po=gw@mail.gmail.com>
+ <YwR76AVTOsdXNpxh@kroah.com>
+ <CAPXMrf-XUHnfQtnCMs6pbpM+2LUBLqE2c1Z-UwsM-mU1KdoOUA@mail.gmail.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 3debda64-38c5-4a1e-acc0-08da853477ac
-X-MS-TrafficTypeDiagnostic: BYAPR10MB3670:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: FSRgpM408M7kyij9qlyYicXtgscdjk/iPoWn0762/uEu0oUjx6KRHQ8ngCRGMP4HFMl0iBJAi+ZCmoHJtjkDlQ5iw6BKCCME6YoQ6kPv3S4unkFipImnsvGzd3mEmwnLhUx542xmEGN5EcUTL5sRIgemrCBAMryhZdOltKXJdUTcAdUAKe+ViWv2pdHNaG3ZBAeaBDbbXf/Rfiz/QlioJJbwPBHAkQo7ZsivF/LK5sf750bIljvbMrU6eIvAobYr4wgBo7GfhZeIxGm3j6ElnEoQNjXyTeDuJveLk8UdM4zsWgEvXQdMOWdC7NBOIQGtW7ixe9+Vwl5peIEZaD5kbtkbjlNlJ+d77bz4M40qyL7bVo2Z174lW0vV6rAEhCIlRxn8hskMSuu29r2d9yqUSgBzrLGK9g+NqWz6KzBUVmZBSeCGcyNcZ0X2EHrXfwIsHqUMONxCVbyp4QikGPieu8q9JhfTQt1Nb/haYahMuVG7Msd6+MOpPM+E9kB2YaiNetLfi7Zc82rj7/M/EscOJwQRSUp8r68Vb1YvSg/02hxaRPeK6LMmuGhLOCd30XOXNvgL/cHt1Embu08LOtOdIGPkxvMOgK554Gww66v6pHUbeqNRHRU9lRcp4MKuNog5zcn+Fk8VowiRxEMRbHNMvmRxlnnb89C9u2rMCS0LKseyhun3Kh0CCeTqDyoje3MU8rg8r8BrKKnNhxGyUDLTORknnR0u3jsO0argKz97GUJ9rIljq0WBDZdKCJf0gbDXUZfju567NcwTjUE+mZZ0u8vo/R924g9tn9OrE8SaYtfn0lPfYrAerQxuQCGWCBhr8NWjQWhhTEuNA9J7WfvuW/9/vOMFpOUpvlqkphzHneazCVEHlFH4f1vxvskf/oZ5E+n5juml5w1nEKx4gh7MfMN1i+bJrEj8iyl48YwZhOc=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN7PR10MB2659.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(366004)(396003)(376002)(136003)(346002)(39860400002)(83380400001)(8676002)(36756003)(38100700002)(4326008)(66556008)(66476007)(66946007)(8936002)(6666004)(6506007)(5660300002)(44832011)(6512007)(2616005)(31686004)(478600001)(6916009)(6486002)(316002)(41300700001)(31696002)(86362001)(2906002)(186003)(54906003)(966005)(53546011)(160913001)(15963001)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?OUpwTlV5K29oTC9wRkFuR3Fzb2NVU3ZHaGhKZ1diTm1ieWFBdFUxcEZPODRs?=
- =?utf-8?B?anlqb3ZoL2JzQllmNlRHN0FmbzlQV2NSYWVSM3YxWVVxM0FvcmkrTW1rMUpk?=
- =?utf-8?B?VjdLY3k4c1gyRzcvOG9TVDZmS0tCZmpjVzNGa2U2TWo0WUYvV3QzQ0VFWTFo?=
- =?utf-8?B?YlhBY0ZlMDBUay9sZ0dOTVVCa2I0a0VabnFydHhYNDBoWWdvNmFLbXdzTktP?=
- =?utf-8?B?WFZVc05VazNFN2dRNTJjZi9WVXMzV0tzcGw3a3p2cHdTbUdPaW0zV2dheTZo?=
- =?utf-8?B?NGc2L3lNV3pETG9TbkZtNjYzZFhiRlRaRnFzK0pSTCtJYXpXOVdBRWZicDlJ?=
- =?utf-8?B?aDZidHpuSmZEL1RlUkJkUnE3VVA3WGtLZXF0QnVnWDlpa25sWWZhK3EvMG9J?=
- =?utf-8?B?TkNmZ0xGT1RxUjV3RG9WbVRBVzI4VnhNL245Y2hGc0tzdnQ3ckRHT2lpQlRi?=
- =?utf-8?B?UkM5SU9kWDc4cWZETUNScG1RVWczRTBVS1g3N2N0a2ZiZjFOcWxiczZjVVV3?=
- =?utf-8?B?WVdWUnlXWXFPT3NHYy8yWWVvRTlVQTR0VkExN0tFMnU4VEIvV1YrVThNN2hR?=
- =?utf-8?B?Q1kvYWxIMVgzQTVjSWZ5V1R3N1R5U3JvM2hVTjBNbHNFWm1hbHg4S1k0aUJC?=
- =?utf-8?B?amZyb3YwRUZhSEhkVTFQUFRxN29WWFVUYjYzRW8wSlZLSjMxNnpzdFlwREZ3?=
- =?utf-8?B?QldnRjVpZTlCdWgvb3QxdmtOWk5iMWxsTmpWYnEvYkF5RlZFT3pSUDFyVnJE?=
- =?utf-8?B?cjVwWG9iMndhRjh0Z3ltcmtxZUNPYVRtNE1lUnZ3YWRyck13azBwaFV6d0ND?=
- =?utf-8?B?VlFNUUl1ZFVQM0kwcCtXNzAzY0lIMlZlOFQ2SnhIYTg5Q1VVUlIxVTBVU1Y4?=
- =?utf-8?B?ZWtxMjhkZ2d1N2RuRXo3OGI2UjFNWUNmS3E5bElqUDZ5eUF0SWQ2VC9WdGRB?=
- =?utf-8?B?Wm94bEZPMncwOEo2d1l3YU9FcVBkOHA4dHltNElkdFUrelhMNUNXK2xFNWF1?=
- =?utf-8?B?R0F6aHhEdzBocmo1ZEZiWTdwa0NsekN3WFlHREdGcjU3Sm1OS3NzcEFzb2ZS?=
- =?utf-8?B?VnJYWDVqaEJvTVpGMnRoZ2tFVlN6RERYZ2lCblkzVzUzSkNHa3hOeTFYd1Er?=
- =?utf-8?B?ZlM5MWE3NDEvdFZzeHAyMmlPbVdXSFl3cGZvajFVMkxOWlFOSXBnVEdYV2hm?=
- =?utf-8?B?N2paSFE0ZnF4WU01RlJkQkdhQWFPc0NwRVVJekdYTDl1UlpPUzZ6azRuSlNF?=
- =?utf-8?B?Sjl4WUhSbHpQVHNmbEJkZmkzek1GTlNHbXR0eGlLTWc4UFNLTHJkeFZQNHp1?=
- =?utf-8?B?cXFvLytjNExDbDRtMjVkaTk1M2FIUnErYk5RUzRPT3g4NmFQKzRoSmorK1h5?=
- =?utf-8?B?VTFmSkM5ODlpL2c5dWlLZm8xS3lTcTk0ellYUm1FVGhCMU82Vlk3ZzY2V3Fo?=
- =?utf-8?B?Y0FDWjdSQmJONkt0UWxSQXpSWVdteHRIS3ZoNEtMdVV6RXQ4Z05LY09hQUtt?=
- =?utf-8?B?d082WGdsNkVQZWJMSkNpcmpTalJkcDVXbERDRCtWaXpydDFYMERPdFFWTjNU?=
- =?utf-8?B?a3ovaXVYajhYdVgyay9iem0zWExOdGhJUW9LNDBkT0N4VlRLREI2RVlGOExV?=
- =?utf-8?B?T3Y4QTRicStjRVpiUEJ6WGVkc0t0R3RBYnhraWE1cGtpYXFVNzZ6SHpwcEdy?=
- =?utf-8?B?aHNTRUhDSEZQT3AzbEpMZFhnMlFzK0plRXcwWUszUXNFcEt0V2F1WlF3Tnl1?=
- =?utf-8?B?eWlTSnFLUHJPN1ZqTEJRMG1raUdmZTdYNEtHZEkxQ1k1aVRXL3YyTFIyVmdL?=
- =?utf-8?B?VmE2ZEw3cVArS1BiNTlwemNCWWxqeWFwTGk3Q0p1aTJQWnBpODJvUEIrU3Ny?=
- =?utf-8?B?cG0zNkF0K0xsUmJxMTdKZElES2g0aStqWkVId2ZacU5DNCtiZjBaem8vd0N3?=
- =?utf-8?B?UEViclRVMGZiS09aWEZYcVpSbmFRdnNoNldnckJCMlJPbFNYUkJLU0owbHVW?=
- =?utf-8?B?QjVNTlBLWHIrd2hFaUI1R0JkU2N4U0pNMFhLck1OZWFaWEFoeFA2K3JRUWZk?=
- =?utf-8?B?d1c2bHdSZXBPK05lWjdTWlRldzQxQVZIRHNqb1ozZHR1RUxQVCtDY2tjY2lw?=
- =?utf-8?B?bTFvZzJ1Nm1UeUN4REpXZiszQTdBbWc5WGxLNXJuWUZ4b1Z0ZjBhOVNUVmkx?=
- =?utf-8?Q?m8Wx3jiJCIOXNF2VUrT1plw=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3debda64-38c5-4a1e-acc0-08da853477ac
-X-MS-Exchange-CrossTenant-AuthSource: BN7PR10MB2659.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Aug 2022 18:22:42.0351
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: PbJ8xdEdchmrwDvxPaiLdIctLkPIMo0WvzPDuPE5FjHH4GiE5vKM7w8+pRR/mzItqi7G2RD/r1ugInuJxlon6w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB3670
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-23_07,2022-08-22_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 suspectscore=0 spamscore=0
- phishscore=0 adultscore=0 mlxscore=0 malwarescore=0 mlxlogscore=935
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2208230071
-X-Proofpoint-ORIG-GUID: WR6TGYOlPwf6nxVBidKQMk6FJIYUStIx
-X-Proofpoint-GUID: WR6TGYOlPwf6nxVBidKQMk6FJIYUStIx
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAPXMrf-XUHnfQtnCMs6pbpM+2LUBLqE2c1Z-UwsM-mU1KdoOUA@mail.gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 8/23/22 10:51 AM, Yu Zhao wrote:
-> On Tue, Aug 23, 2022 at 11:25 AM Dongli Zhang <dongli.zhang@oracle.com> wrote:
->>
->> Adding Robin, Yu and swiotlb list.
+On Tue, Aug 23, 2022 at 10:31:40AM +0300, RAJESH DASARI wrote:
+> Sorry for the confusion, results are indeed confusing to me .
+> If I try with git bisect I get
 > 
-> Thanks.
+> git bisect bad
+> 9d6f67365d9cdb389fbdac2bb5b00e59e345930e is the first bad commit
+
+For me bisecting points to:
+
+(A)	7c1134c7da99 ("bpf: Verifer, adjust_scalar_min_max_vals to always call update_reg_bounds()")
+
+This changes the BPF verifier output and (as expected) breaks the
+test_align selftest. That's why in the same series [1] another patch fixed
+test_align. In v5.4.y, that patch is:
+
+(B)	6a9b3f0f3bad ("selftests/bpf: Fix test_align verifier log patterns")
+
+Unfortunately commit (B) addresses multiple verifier changes, not solely
+(A). My guess is those changes were in series [1] and haven't been
+backported to v5.4. So multiple solutions:
+
+* Partially revert (B), only keeping the changes needed by (A)
+* Revert (A) and (B)
+* Add the missing commits that (B) also addresses
+
+I don't know which, I suppose it depends on the intent behind backporting
+(A). Ovidiu?
+
+In any case 6098562ed9df ("selftests/bpf: Fix "dubious pointer arithmetic"
+test") can be reverted, I can send that once we figure out the rest.
+
+Thanks,
+Jean
+
+[1] https://lore.kernel.org/bpf/158507130343.15666.8018068546764556975.stgit@john-Precision-5820-Tower/
+
 > 
->> There is an on-going discussion whether to revert this patch, because it breaks
->> a corner case in MIPS
+> If I  try to test myself with multiple test scenarios(I have mentioned
+> in  the previous mails) for the bad commits , I see that bad commits
+> are
+> bpf: Verifer, adjust_scalar_min_max_vals to always call update_reg_bounds()
+> selftests/bpf: Fix test_align verifier log patterns
+> selftests/bpf: Fix "dubious pointer arithmetic" test
 > 
-> I wouldn't call it a corner case. Cavium Octeon is the major platform
-> we use to test Debian MIPS ports [1], and 4 out of 5 best-selling
-> Wi-Fi routers are MIPS-based [2].
+> Thanks,
+> Rajesh Dasari.
 > 
-> [1] https://urldefense.com/v3/__https://wiki.debian.org/MIPSPort__;!!ACWV5N9M2RV99hQ!NDVwU_XfPmfl_OSGxbroJXOjYmdrb-Vmbnx-zq0UIxkYNCetx4ZWdl6KlftLS9F5ORGT4t8F5YapMSSBiA$  
-> [2] https://urldefense.com/v3/__https://www.amazon.com/bestsellers/pc/300189__;!!ACWV5N9M2RV99hQ!NDVwU_XfPmfl_OSGxbroJXOjYmdrb-Vmbnx-zq0UIxkYNCetx4ZWdl6KlftLS9F5ORGT4t8F5YacDz0Zlg$  
-> 
->> when many kernel CONFIGs are not enabled (related to PCI
->> and device). As a result, MIPS pre-allocates only PAGE_SIZE buffer as swiotlb.
->>
->> https://urldefense.com/v3/__https://lore.kernel.org/all/20220820012031.1285979-1-yuzhao@google.com/__;!!ACWV5N9M2RV99hQ!NDVwU_XfPmfl_OSGxbroJXOjYmdrb-Vmbnx-zq0UIxkYNCetx4ZWdl6KlftLS9F5ORGT4t8F5YbWJyEn2A$  
->>
->> However, the core idea of the patch is to panic on purpose if the swiotlb is
->> configured with <1MB memory, in order to sync with the remap failure handler in
->> swiotlb_init_remap().
->>
->> Therefore, I am waiting for suggestion from Christoph whether (1) to revert this
->> patch, or (2) enforce the restriction to disallow <1MB allocation.
-> 
-> There are other archs (arm, ppc, riscv, s390, etc.) that call
-> swiotlb_init(). Have you verified them all?
-> 
-
-The issue is not about swiotlb_init(). It is about swiotlb_adjust_size() where
-the 'default_nslabs' is configured to a very small value (e.g., equivalent to
-swiotlb=2). I do not see any arch can directly configure 'default_nslabs'.
-
-There are only two callers (archs) of swiotlb_adjust_size(): amd/sev and
-mips/cavium-octeon.
-
-About amd/sev, it uses at least IO_TLB_DEFAULT_SIZE so that there is not any issue.
-
-244         size = total_mem * 6 / 100;
-245         size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
-246         swiotlb_adjust_size(size);
-
-In this case, only swiotlb=2 is allocated if PAGE_SIZE is 4K.
-
-Thank you very much!
-
-Dongli Zhang
+> On Tue, Aug 23, 2022 at 10:04 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, Aug 22, 2022 at 10:23:02PM +0300, RAJESH DASARI wrote:
+> > > Hi,
+> > >
+> > > Please find the test scenarios which I have tried.
+> > >
+> > > Test 1:
+> > >
+> > > Running system Kernel version (tag/commit) :  v5.4.210
+> > > Kernel source code checkout : v5.4.210
+> > > test_align test case execution status : Failure
+> > >
+> > > Test 2:
+> > >
+> > > Running system Kernel version (tag/commit) : v5.4.210
+> > > Kernel source code checkout : v5.4.209
+> > > test_align test case execution status : Failure
+> > >
+> > > Test 3:
+> > >
+> > > Running system Kernel version (tag/commit) : v5.4.209
+> > > Kernel source code checkout : v5.4.209
+> > > test_align test case execution status : Success
+> > >
+> > > Test 4:
+> > >
+> > > Running system Kernel version (tag/commit) : ACPI: APEI: Better fix to
+> > > avoid spamming the console with old error logs ( Kernel compiled at
+> > > this commit  and system is booted with this change)
+> > > Kernel source code checkout : v5.4.210 but reverted selftests/bpf: Fix
+> > > test_align verifier log patterns and selftests/bpf: Fix "dubious
+> > > pointer arithmetic" test. If I revert only the Fix "dubious pointer
+> > > arithmetic" test, the testcase still fails.
+> > > test_align test case execution status : Success
+> > >
+> > > Test 5:
+> > >
+> > > Running system Kernel version (tag/commit) :  v5.4.210 but reverted
+> > > commit (bpf: Verifer, adjust_scalar_min_max_vals to always call
+> > > update_reg_bounds() )
+> > > Kernel source code checkout : v5.4.210 but reverted selftests/bpf: Fix
+> > > test_align verifier log patterns and selftests/bpf: Fix "dubious
+> > > pointer arithmetic" test.
+> > > test_align test case execution status : Success
+> > >
+> > > Test 6 :
+> > >
+> > > Running system Kernel version (tag/commit) : bpf: Test_verifier, #70
+> > > error message updates for 32-bit right shift( Kernel compiled at this
+> > > commit  and system is booted with this change)
+> > > Kernel source code checkout : v5.4.209 or v5.4.210
+> > > test_align test case execution status : Failure
+> >
+> > I'm sorry, but I don't know what to do with this report at all.
+> >
+> > Is there some failure somewhere?  If you use 'git bisect' do you find
+> > the offending commit?
+> >
+> > confused,
+> >
+> > greg k-h
