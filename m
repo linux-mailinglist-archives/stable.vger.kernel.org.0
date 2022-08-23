@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90F2059E299
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9FE59DE81
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244593AbiHWMSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55384 "EHLO
+        id S1358982AbiHWL6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:58:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359618AbiHWMQE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A09D4C613;
-        Tue, 23 Aug 2022 02:41:32 -0700 (PDT)
+        with ESMTP id S1359372AbiHWL4p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:56:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59CE8D75A9;
+        Tue, 23 Aug 2022 02:34:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 480D46138B;
-        Tue, 23 Aug 2022 09:41:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 490D4C433D6;
-        Tue, 23 Aug 2022 09:41:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05F5FB81C89;
+        Tue, 23 Aug 2022 09:34:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D82AC433C1;
+        Tue, 23 Aug 2022 09:34:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247686;
-        bh=9oSHigocV2XvvM+6VuFD2ZFWpYY21AKOJNsjAjIvVtg=;
+        s=korg; t=1661247259;
+        bh=5QEhkpbOIt5ZQhJj4twQe+roC+RNayxcEOZD8bg916A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tl8eJlPRxAyRBuLT2P283EjHaGEhiQUVN0fFZi/RTBwJYjkPbK+sV7w5CEMLzQnsO
-         KfSQO/wupi9pHRtVe7SLnt5vFemp0IkfkZ3t7B1tZS4I/V9hlww9O96GogJkI2v3kW
-         alUu3DkCpaeq9OxUEeYMUe68FQQsi5ZU5WR8+DSg=
+        b=GYVtzZxw1nceSCsDfAcUsihgcnTBTi2DhX5zzIOblbMlfk9AuRtCb6L//4KCZTn0n
+         SIg3G30lXsxqMzyzGg4HX1E9stRj3CmwQQKzVgUdcaAJIx7FKUfJMXEnVB0DwfCBme
+         kmk36lEeyCQHp/aRQkutBuc+hiDbkWn9A68xBhvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 115/158] zram: do not lookup algorithm in backends table
+Subject: [PATCH 5.4 369/389] lib/list_debug.c: Detect uninitialized lists
 Date:   Tue, 23 Aug 2022 10:27:27 +0200
-Message-Id: <20220823080050.586763796@linuxfoundation.org>
+Message-Id: <20220823080130.947646755@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,98 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit dc89997264de565999a1cb55db3f295d3a8e457b ]
+[ Upstream commit 0cc011c576aaa4de505046f7a6c90933d7c749a9 ]
 
-Always use crypto_has_comp() so that crypto can lookup module, call
-usermodhelper to load the modules, wait for usermodhelper to finish and so
-on.  Otherwise crypto will do all of these steps under CPU hot-plug lock
-and this looks like too much stuff to handle under the CPU hot-plug lock.
-Besides this can end up in a deadlock when usermodhelper triggers a code
-path that attempts to lock the CPU hot-plug lock, that zram already holds.
+In some circumstances, attempts are made to add entries to or to remove
+entries from an uninitialized list.  A prime example is
+amdgpu_bo_vm_destroy(): It is indirectly called from
+ttm_bo_init_reserved() if that function fails, and tries to remove an
+entry from a list.  However, that list is only initialized in
+amdgpu_bo_create_vm() after the call to ttm_bo_init_reserved() returned
+success.  This results in crashes such as
 
-An example of such deadlock:
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP NOPTI
+ CPU: 1 PID: 1479 Comm: chrome Not tainted 5.10.110-15768-g29a72e65dae5
+ Hardware name: Google Grunt/Grunt, BIOS Google_Grunt.11031.149.0 07/15/2020
+ RIP: 0010:__list_del_entry_valid+0x26/0x7d
+ ...
+ Call Trace:
+  amdgpu_bo_vm_destroy+0x48/0x8b
+  ttm_bo_init_reserved+0x1d7/0x1e0
+  amdgpu_bo_create+0x212/0x476
+  ? amdgpu_bo_user_destroy+0x23/0x23
+  ? kmem_cache_alloc+0x60/0x271
+  amdgpu_bo_create_vm+0x40/0x7d
+  amdgpu_vm_pt_create+0xe8/0x24b
+ ...
 
-- path A. zram grabs CPU hot-plug lock, execs /sbin/modprobe from crypto
-  and waits for modprobe to finish
+Check if the list's prev and next pointers are NULL to catch such problems.
 
-disksize_store
- zcomp_create
-  __cpuhp_state_add_instance
-   __cpuhp_state_add_instance_cpuslocked
-    zcomp_cpu_up_prepare
-     crypto_alloc_base
-      crypto_alg_mod_lookup
-       call_usermodehelper_exec
-        wait_for_completion_killable
-         do_wait_for_common
-          schedule
-
-- path B. async work kthread that brings in scsi device. It wants to
-  register CPUHP states at some point, and it needs the CPU hot-plug
-  lock for that, which is owned by zram.
-
-async_run_entry_fn
- scsi_probe_and_add_lun
-  scsi_mq_alloc_queue
-   blk_mq_init_queue
-    blk_mq_init_allocated_queue
-     blk_mq_realloc_hw_ctxs
-      __cpuhp_state_add_instance
-       __cpuhp_state_add_instance_cpuslocked
-        mutex_lock
-         schedule
-
-- path C. modprobe sleeps, waiting for all aync works to finish.
-
-load_module
- do_init_module
-  async_synchronize_full
-   async_synchronize_cookie_domain
-    schedule
-
-[senozhatsky@chromium.org: add comment]
-  Link: https://lkml.kernel.org/r/20220624060606.1014474-1-senozhatsky@chromium.org
-Link: https://lkml.kernel.org/r/20220622023501.517125-1-senozhatsky@chromium.org
-Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Nitin Gupta <ngupta@vflare.org>
+Link: https://lkml.kernel.org/r/20220531222951.92073-1-linux@roeck-us.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/zram/zcomp.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ lib/list_debug.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/zram/zcomp.c b/drivers/block/zram/zcomp.c
-index 33e3b76c4fa9..b08650417bf0 100644
---- a/drivers/block/zram/zcomp.c
-+++ b/drivers/block/zram/zcomp.c
-@@ -61,12 +61,6 @@ static int zcomp_strm_init(struct zcomp_strm *zstrm, struct zcomp *comp)
- 
- bool zcomp_available_algorithm(const char *comp)
+diff --git a/lib/list_debug.c b/lib/list_debug.c
+index 5d5424b51b74..413daa72a3d8 100644
+--- a/lib/list_debug.c
++++ b/lib/list_debug.c
+@@ -20,7 +20,11 @@
+ bool __list_add_valid(struct list_head *new, struct list_head *prev,
+ 		      struct list_head *next)
  {
--	int i;
--
--	i = sysfs_match_string(backends, comp);
--	if (i >= 0)
--		return true;
--
- 	/*
- 	 * Crypto does not ignore a trailing new line symbol,
- 	 * so make sure you don't supply a string containing
-@@ -215,6 +209,11 @@ struct zcomp *zcomp_create(const char *compress)
- 	struct zcomp *comp;
- 	int error;
+-	if (CHECK_DATA_CORRUPTION(next->prev != prev,
++	if (CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_add corruption. prev is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next == NULL,
++			"list_add corruption. next is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next->prev != prev,
+ 			"list_add corruption. next->prev should be prev (%px), but was %px. (next=%px).\n",
+ 			prev, next->prev, next) ||
+ 	    CHECK_DATA_CORRUPTION(prev->next != next,
+@@ -42,7 +46,11 @@ bool __list_del_entry_valid(struct list_head *entry)
+ 	prev = entry->prev;
+ 	next = entry->next;
  
-+	/*
-+	 * Crypto API will execute /sbin/modprobe if the compression module
-+	 * is not loaded yet. We must do it here, otherwise we are about to
-+	 * call /sbin/modprobe under CPU hot-plug lock.
-+	 */
- 	if (!zcomp_available_algorithm(compress))
- 		return ERR_PTR(-EINVAL);
- 
+-	if (CHECK_DATA_CORRUPTION(next == LIST_POISON1,
++	if (CHECK_DATA_CORRUPTION(next == NULL,
++			"list_del corruption, %px->next is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_del corruption, %px->prev is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(next == LIST_POISON1,
+ 			"list_del corruption, %px->next is LIST_POISON1 (%px)\n",
+ 			entry, LIST_POISON1) ||
+ 	    CHECK_DATA_CORRUPTION(prev == LIST_POISON2,
 -- 
 2.35.1
 
