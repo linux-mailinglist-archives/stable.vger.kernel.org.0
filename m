@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E3A259D758
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70DCC59D547
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350069AbiHWJZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:25:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37516 "EHLO
+        id S1344835AbiHWIhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:37:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346369AbiHWJYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:24:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A53EF9019A;
-        Tue, 23 Aug 2022 01:35:48 -0700 (PDT)
+        with ESMTP id S1345554AbiHWIfp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:35:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF7FE760FD;
+        Tue, 23 Aug 2022 01:17:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D5A6B81C1B;
-        Tue, 23 Aug 2022 08:34:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 569D5C433D7;
-        Tue, 23 Aug 2022 08:34:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2DEF6131B;
+        Tue, 23 Aug 2022 08:17:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE0F4C433C1;
+        Tue, 23 Aug 2022 08:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243678;
-        bh=BWjidRQ+edWUR4aH7drez7StIMEyzcJyA/RtL4QAKXA=;
+        s=korg; t=1661242624;
+        bh=WnMkrFmRqTr/C6KW7WcHvuKKxCCcy1TaXXmxhygiNlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PaeCGs2OXk/8avndwVV/HgzjRsy1ZuS4sp3oWw8bQBBNjO847CQDfE1ExPGoYj5k0
-         GaGu25whOtxyL2q4VdnEjLUSskvrzoNcbnwcMl0N3HSSU797xQkqFtotgsP4QD7/Jt
-         XldaoiSGob7OUIYGMdkOzlqC8JK0z9RDpcZ13ydg=
+        b=d4XaXvpTh3XxVNzZ+Epitm6b1As9LQa73pqF+VuRyVmeT51PCP/Lo1kDN/B095XdC
+         bmx1KrcQi+pyv/cHhPotTkWIW4CLiYJ8t8FrTvi0WNk1yAd8G+6BQOPCM3nTKWwkqq
+         b16jStfX/7a1voW2y1i2LpU8dUaW6a/202i2XCE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+8285e973a41b5aa68902@syzkaller.appspotmail.com,
-        syzbot+669c9abf11a6a011dd09@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 353/365] ALSA: pcm: Use deferred fasync helper
+        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 101/101] MIPS: tlbex: Explicitly compare _PAGE_NO_EXEC against 0
 Date:   Tue, 23 Aug 2022 10:04:14 +0200
-Message-Id: <20220823080133.039157499@linuxfoundation.org>
+Message-Id: <20220823080038.398671207@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 96b097091c66df4f6fbf5cbff21df6cc02a2f055 ]
+[ Upstream commit 74de14fe05dd6b151d73cb0c73c8ec874cbdcde6 ]
 
-For avoiding the potential deadlock via kill_fasync() call, use the
-new fasync helpers to defer the invocation from timer API.  Note that
-it's merely a workaround.
+When CONFIG_XPA is enabled, Clang warns:
 
-Reported-by: syzbot+8285e973a41b5aa68902@syzkaller.appspotmail.com
-Reported-by: syzbot+669c9abf11a6a011dd09@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20220728125945.29533-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  arch/mips/mm/tlbex.c:629:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
+                              ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  arch/mips/mm/tlbex.c:2568:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
+                                ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  2 errors generated.
+
+_PAGE_NO_EXEC can be '0' or '1 << _PAGE_NO_EXEC_SHIFT' depending on the
+build and runtime configuration, which is what the negation operators
+are trying to convey. To silence the warning, explicitly compare against
+0 so the result of the '<<' operator is not implicitly converted to a
+boolean.
+
+According to its documentation, GCC enables -Wint-in-bool-context with
+-Wall but this warning is not visible when building the same
+configuration with GCC. It appears GCC only warns when compiling C++,
+not C, although the documentation makes no note of this:
+https://godbolt.org/z/x39q3brxf
+
+Reported-by: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/pcm.h     | 2 +-
- sound/core/pcm.c        | 1 +
- sound/core/pcm_lib.c    | 2 +-
- sound/core/pcm_native.c | 2 +-
- 4 files changed, 4 insertions(+), 3 deletions(-)
+ arch/mips/mm/tlbex.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/sound/pcm.h b/include/sound/pcm.h
-index 6b99310b5b88..6987110843f0 100644
---- a/include/sound/pcm.h
-+++ b/include/sound/pcm.h
-@@ -399,7 +399,7 @@ struct snd_pcm_runtime {
- 	snd_pcm_uframes_t twake; 	/* do transfer (!poll) wakeup if non-zero */
- 	wait_queue_head_t sleep;	/* poll sleep */
- 	wait_queue_head_t tsleep;	/* transfer sleep */
--	struct fasync_struct *fasync;
-+	struct snd_fasync *fasync;
- 	bool stop_operating;		/* sync_stop will be called */
- 	struct mutex buffer_mutex;	/* protect for buffer changes */
- 	atomic_t buffer_accessing;	/* >0: in r/w operation, <0: blocked */
-diff --git a/sound/core/pcm.c b/sound/core/pcm.c
-index 977d54320a5c..c917ac84a7e5 100644
---- a/sound/core/pcm.c
-+++ b/sound/core/pcm.c
-@@ -1005,6 +1005,7 @@ void snd_pcm_detach_substream(struct snd_pcm_substream *substream)
- 		substream->runtime = NULL;
+diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+index f625fd20b21e..65fed205383e 100644
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -637,7 +637,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
+ 		return;
  	}
- 	mutex_destroy(&runtime->buffer_mutex);
-+	snd_fasync_free(runtime->fasync);
- 	kfree(runtime);
- 	put_pid(substream->pid);
- 	substream->pid = NULL;
-diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
-index 1fc7c50ffa62..40751e5aff09 100644
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1822,7 +1822,7 @@ void snd_pcm_period_elapsed_under_stream_lock(struct snd_pcm_substream *substrea
- 		snd_timer_interrupt(substream->timer, 1);
- #endif
-  _end:
--	kill_fasync(&runtime->fasync, SIGIO, POLL_IN);
-+	snd_kill_fasync(runtime->fasync, SIGIO, POLL_IN);
- }
- EXPORT_SYMBOL(snd_pcm_period_elapsed_under_stream_lock);
  
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-index 4adaee62ef33..16fcf57c6f03 100644
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -3945,7 +3945,7 @@ static int snd_pcm_fasync(int fd, struct file * file, int on)
- 	runtime = substream->runtime;
- 	if (runtime->status->state == SNDRV_PCM_STATE_DISCONNECTED)
- 		return -EBADFD;
--	return fasync_helper(fd, file, on, &runtime->fasync);
-+	return snd_fasync_helper(fd, file, on, &runtime->fasync);
- }
+-	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
++	if (cpu_has_rixi && _PAGE_NO_EXEC != 0) {
+ 		if (fill_includes_sw_bits) {
+ 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
+ 		} else {
+@@ -2518,7 +2518,7 @@ static void check_pabits(void)
+ 	unsigned long entry;
+ 	unsigned pabits, fillbits;
  
- /*
+-	if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
++	if (!cpu_has_rixi || _PAGE_NO_EXEC == 0) {
+ 		/*
+ 		 * We'll only be making use of the fact that we can rotate bits
+ 		 * into the fill if the CPU supports RIXI, so don't bother
 -- 
 2.35.1
 
