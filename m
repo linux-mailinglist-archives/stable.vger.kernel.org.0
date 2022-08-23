@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41FCD59D7D8
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96E4059D6E4
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242597AbiHWJlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:41:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59024 "EHLO
+        id S1350478AbiHWJaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:30:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351684AbiHWJkB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:40:01 -0400
+        with ESMTP id S1350213AbiHWJ2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:28:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D5FD48E8F;
-        Tue, 23 Aug 2022 01:41:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B2791D34;
+        Tue, 23 Aug 2022 01:37:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4319361458;
-        Tue, 23 Aug 2022 08:40:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A089C433D6;
-        Tue, 23 Aug 2022 08:40:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFAA761338;
+        Tue, 23 Aug 2022 08:36:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 661C7C433D6;
+        Tue, 23 Aug 2022 08:36:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244038;
-        bh=t5e8m7zUSZLlKDZ0aO+vYJnddTUtFWDaqH96W3GXM0M=;
+        s=korg; t=1661243801;
+        bh=gqbaW8/ikRdd6TxRUOKi9A3Jc4QfMJtxgR9AO8Z7Cpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jh5P11yMlIoDuaItuE7nf+PUSBZVv/6tq+o0pfGkPUuGCLT/Ehueq8iyO2R6I980a
-         nh2YSjGEzEQcoCzw4NxaH0fbwpEIoNRXd0NIT2AMDKrjpHgDAaYNVOyzYpEmosa9Bm
-         xrKgtb/1sHKks29pFdB3oekcUf0cuB153LZDm/+Q=
+        b=bRdk4QkV7IG5Xzioet0b92s9A5eKaeSpXgRKw4rRQZ3FdSoHLtKqpU5Apyvml1v+8
+         pmjk5ySuXyTe8FKZz/OfjwatNWoSyZnLGJfUMTs47Gmt0/PmpvmSAYhUH5WE1wCl+m
+         3Ens0CFAFoMppyMDPWMNQlL7ACYKEppBHaP3Hfes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerhard Uttenthaler <uttenthaler@ems-wuensche.com>,
-        Sebastian Haas <haas@ems-wuensche.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 027/244] can: ems_usb: fix clangs -Wunaligned-access warning
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Lukas Wunner <lukas@wunner.de>,
+        Oliver Neukum <oneukum@suse.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 025/229] usbnet: Fix linkwatch use-after-free on disconnect
 Date:   Tue, 23 Aug 2022 10:23:06 +0200
-Message-Id: <20220823080059.964579394@linuxfoundation.org>
+Message-Id: <20220823080054.355292979@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit a4cb6e62ea4d36e53fb3c0f18ea4503d7b76674f upstream.
+commit a69e617e533edddf3fa3123149900f36e0a6dc74 upstream.
 
-clang emits a -Wunaligned-access warning on struct __packed
-ems_cpc_msg.
+usbnet uses the work usbnet_deferred_kevent() to perform tasks which may
+sleep.  On disconnect, completion of the work was originally awaited in
+->ndo_stop().  But in 2003, that was moved to ->disconnect() by historic
+commit "[PATCH] USB: usbnet, prevent exotic rtnl deadlock":
 
-The reason is that the anonymous union msg (not declared as packed) is
-being packed right after some non naturally aligned variables (3*8
-bits + 2*32) inside a packed struct:
+  https://git.kernel.org/tglx/history/c/0f138bbfd83c
 
-| struct __packed ems_cpc_msg {
-| 	u8 type;	/* type of message */
-| 	u8 length;	/* length of data within union 'msg' */
-| 	u8 msgid;	/* confirmation handle */
-| 	__le32 ts_sec;	/* timestamp in seconds */
-| 	__le32 ts_nsec;	/* timestamp in nano seconds */
-|	/* ^ not naturally aligned */
-|
-| 	union {
-| 	/* ^ not declared as packed */
-| 		u8 generic[64];
-| 		struct cpc_can_msg can_msg;
-| 		struct cpc_can_params can_params;
-| 		struct cpc_confirm confirmation;
-| 		struct cpc_overrun overrun;
-| 		struct cpc_can_error error;
-| 		struct cpc_can_err_counter err_counter;
-| 		u8 can_state;
-| 	} msg;
-| };
+The change was made because back then, the kernel's workqueue
+implementation did not allow waiting for a single work.  One had to wait
+for completion of *all* work by calling flush_scheduled_work(), and that
+could deadlock when waiting for usbnet_deferred_kevent() with rtnl_mutex
+held in ->ndo_stop().
 
-Starting from LLVM 14, having an unpacked struct nested in a packed
-struct triggers a warning. c.f. [1].
+The commit solved one problem but created another:  It causes a
+use-after-free in USB Ethernet drivers aqc111.c, asix_devices.c,
+ax88179_178a.c, ch9200.c and smsc75xx.c:
 
-Fix the warning by marking the anonymous union as packed.
+* If the drivers receive a link change interrupt immediately before
+  disconnect, they raise EVENT_LINK_RESET in their (non-sleepable)
+  ->status() callback and schedule usbnet_deferred_kevent().
+* usbnet_deferred_kevent() invokes the driver's ->link_reset() callback,
+  which calls netif_carrier_{on,off}().
+* That in turn schedules the work linkwatch_event().
 
-[1] https://github.com/llvm/llvm-project/issues/55520
+Because usbnet_deferred_kevent() is awaited after unregister_netdev(),
+netif_carrier_{on,off}() may operate on an unregistered netdev and
+linkwatch_event() may run after free_netdev(), causing a use-after-free.
 
-Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
-Link: https://lore.kernel.org/all/20220802094021.959858-1-mkl@pengutronix.de
-Cc: Gerhard Uttenthaler <uttenthaler@ems-wuensche.com>
-Cc: Sebastian Haas <haas@ems-wuensche.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+In 2010, usbnet was changed to only wait for a single instance of
+usbnet_deferred_kevent() instead of *all* work by commit 23f333a2bfaf
+("drivers/net: don't use flush_scheduled_work()").
+
+Unfortunately the commit neglected to move the wait back to
+->ndo_stop().  Rectify that omission at long last.
+
+Reported-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/netdev/CAG48ez0MHBbENX5gCdHAUXZ7h7s20LnepBF-pa5M=7Bi-jZrEA@mail.gmail.com/
+Reported-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/netdev/20220315113841.GA22337@pengutronix.de/
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/d1c87ebe9fc502bffcd1576e238d685ad08321e4.1655987888.git.lukas@wunner.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/ems_usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/usbnet.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/net/can/usb/ems_usb.c
-+++ b/drivers/net/can/usb/ems_usb.c
-@@ -194,7 +194,7 @@ struct __packed ems_cpc_msg {
- 	__le32 ts_sec;	/* timestamp in seconds */
- 	__le32 ts_nsec;	/* timestamp in nano seconds */
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -847,13 +847,11 @@ int usbnet_stop (struct net_device *net)
  
--	union {
-+	union __packed {
- 		u8 generic[64];
- 		struct cpc_can_msg can_msg;
- 		struct cpc_can_params can_params;
+ 	mpn = !test_and_clear_bit(EVENT_NO_RUNTIME_PM, &dev->flags);
+ 
+-	/* deferred work (task, timer, softirq) must also stop.
+-	 * can't flush_scheduled_work() until we drop rtnl (later),
+-	 * else workers could deadlock; so make workers a NOP.
+-	 */
++	/* deferred work (timer, softirq, task) must also stop */
+ 	dev->flags = 0;
+ 	del_timer_sync (&dev->delay);
+ 	tasklet_kill (&dev->bh);
++	cancel_work_sync(&dev->kevent);
+ 	if (!pm)
+ 		usb_autopm_put_interface(dev->intf);
+ 
+@@ -1616,8 +1614,6 @@ void usbnet_disconnect (struct usb_inter
+ 	net = dev->net;
+ 	unregister_netdev (net);
+ 
+-	cancel_work_sync(&dev->kevent);
+-
+ 	usb_scuttle_anchored_urbs(&dev->deferred);
+ 
+ 	if (dev->driver_info->unbind)
 
 
