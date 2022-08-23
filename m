@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BBFD59DF6A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB58859DD40
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354156AbiHWKYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38786 "EHLO
+        id S1347520AbiHWLX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:23:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354681AbiHWKV7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:21:59 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 747DA2DED;
-        Tue, 23 Aug 2022 02:03:22 -0700 (PDT)
+        with ESMTP id S1357885AbiHWLVV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:21:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A418B8E454;
+        Tue, 23 Aug 2022 02:23:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 97C02CE1B40;
-        Tue, 23 Aug 2022 09:03:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91142C433C1;
-        Tue, 23 Aug 2022 09:03:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E52606098A;
+        Tue, 23 Aug 2022 09:23:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7E8CC433D7;
+        Tue, 23 Aug 2022 09:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245399;
-        bh=RZW52RKR3Uudu0bjrdyowQavWiTMX177M9w5TtGXDzg=;
+        s=korg; t=1661246587;
+        bh=lIKT57QeWRi638sIGVBA/9+tdx4JPlHNpzq6o4TTZaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWqKQTp89OIXzI5vkTS97YxnUbNF93d9wiqXyzAnRYPRppWFXyYRgTaqPkue1GAp4
-         O98PTbXFu3TJ0M202Z2IY+WPfYtgYe0Bg3jcYLxHItyNTIX+PWmFqM2HpBWsDxk6/a
-         4QQ2Ki64JlSOX6hi1wyLlW6oaeIcxGCJI7B1KmdQ=
+        b=nphevtqmVIvj44DjQbFnQCm2Mz0mbyCG+fRyjAryA04JEneQw2dcYhOR+zIbWYQ6x
+         8YIAcb8lg5qtlkwxI/zmHfqWTwpY0nXqFfQNDR0png1LAxz3u8oNBYQ6Iah3TTINzI
+         fI1TeIkxLvg71XhCoXJZJsEnR+MP/iH3CGVn+xas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Phil Auld <pauld@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 065/287] nohz/full, sched/rt: Fix missed tick-reenabling bug in dequeue_task_rt()
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Liang Yang <liang.yang@amlogic.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 156/389] mtd: rawnand: meson: Fix a potential double free issue
 Date:   Tue, 23 Aug 2022 10:23:54 +0200
-Message-Id: <20220823080102.425385618@linuxfoundation.org>
+Message-Id: <20220823080122.116857697@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,115 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 5c66d1b9b30f737fcef85a0b75bfe0590e16b62a ]
+[ Upstream commit ec0da06337751b18f6dee06b6526e0f0d6e80369 ]
 
-dequeue_task_rt() only decrements 'rt_rq->rt_nr_running' after having
-called sched_update_tick_dependency() preventing it from re-enabling the
-tick on systems that no longer have pending SCHED_RT tasks but have
-multiple runnable SCHED_OTHER tasks:
+When meson_nfc_nand_chip_cleanup() is called, it will call:
+	meson_nfc_free_buffer(&meson_chip->nand);
+	nand_cleanup(&meson_chip->nand);
 
-  dequeue_task_rt()
-    dequeue_rt_entity()
-      dequeue_rt_stack()
-        dequeue_top_rt_rq()
-	  sub_nr_running()	// decrements rq->nr_running
-	    sched_update_tick_dependency()
-	      sched_can_stop_tick()	// checks rq->rt.rt_nr_running,
-	      ...
-        __dequeue_rt_entity()
-          dec_rt_tasks()	// decrements rq->rt.rt_nr_running
-	  ...
+nand_cleanup() in turn will call nand_detach() which calls the
+.detach_chip() which is here meson_nand_detach_chip().
 
-Every other scheduler class performs the operation in the opposite
-order, and sched_update_tick_dependency() expects the values to be
-updated as such. So avoid the misbehaviour by inverting the order in
-which the above operations are performed in the RT scheduler.
+meson_nand_detach_chip() already calls meson_nfc_free_buffer(), so we
+could double free some memory.
 
-Fixes: 76d92ac305f2 ("sched: Migrate sched to use new tick dependency mask model")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <vschneid@redhat.com>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Link: https://lore.kernel.org/r/20220628092259.330171-1-nsaenzju@redhat.com
+Fix it by removing the unneeded explicit call to meson_nfc_free_buffer().
+
+Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Liang Yang <liang.yang@amlogic.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/ec15c358b8063f7c50ff4cd628cf0d2e14e43f49.1653064877.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/mtd/nand/raw/meson_nand.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index 70e8cd395474..9c6c3572b131 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -434,7 +434,7 @@ static inline void rt_queue_push_tasks(struct rq *rq)
- #endif /* CONFIG_SMP */
+diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
+index ab7ab6a279aa..28dc26e1a20a 100644
+--- a/drivers/mtd/nand/raw/meson_nand.c
++++ b/drivers/mtd/nand/raw/meson_nand.c
+@@ -1304,7 +1304,6 @@ static int meson_nfc_nand_chip_cleanup(struct meson_nfc *nfc)
+ 		if (ret)
+ 			return ret;
  
- static void enqueue_top_rt_rq(struct rt_rq *rt_rq);
--static void dequeue_top_rt_rq(struct rt_rq *rt_rq);
-+static void dequeue_top_rt_rq(struct rt_rq *rt_rq, unsigned int count);
- 
- static inline int on_rt_rq(struct sched_rt_entity *rt_se)
- {
-@@ -516,7 +516,7 @@ static void sched_rt_rq_dequeue(struct rt_rq *rt_rq)
- 	rt_se = rt_rq->tg->rt_se[cpu];
- 
- 	if (!rt_se) {
--		dequeue_top_rt_rq(rt_rq);
-+		dequeue_top_rt_rq(rt_rq, rt_rq->rt_nr_running);
- 		/* Kick cpufreq (see the comment in kernel/sched/sched.h). */
- 		cpufreq_update_util(rq_of_rt_rq(rt_rq), 0);
+-		meson_nfc_free_buffer(&meson_chip->nand);
+ 		nand_cleanup(&meson_chip->nand);
+ 		list_del(&meson_chip->node);
  	}
-@@ -602,7 +602,7 @@ static inline void sched_rt_rq_enqueue(struct rt_rq *rt_rq)
- 
- static inline void sched_rt_rq_dequeue(struct rt_rq *rt_rq)
- {
--	dequeue_top_rt_rq(rt_rq);
-+	dequeue_top_rt_rq(rt_rq, rt_rq->rt_nr_running);
- }
- 
- static inline int rt_rq_throttled(struct rt_rq *rt_rq)
-@@ -1001,7 +1001,7 @@ static void update_curr_rt(struct rq *rq)
- }
- 
- static void
--dequeue_top_rt_rq(struct rt_rq *rt_rq)
-+dequeue_top_rt_rq(struct rt_rq *rt_rq, unsigned int count)
- {
- 	struct rq *rq = rq_of_rt_rq(rt_rq);
- 
-@@ -1012,7 +1012,7 @@ dequeue_top_rt_rq(struct rt_rq *rt_rq)
- 
- 	BUG_ON(!rq->nr_running);
- 
--	sub_nr_running(rq, rt_rq->rt_nr_running);
-+	sub_nr_running(rq, count);
- 	rt_rq->rt_queued = 0;
- 
- }
-@@ -1291,18 +1291,21 @@ static void __dequeue_rt_entity(struct sched_rt_entity *rt_se, unsigned int flag
- static void dequeue_rt_stack(struct sched_rt_entity *rt_se, unsigned int flags)
- {
- 	struct sched_rt_entity *back = NULL;
-+	unsigned int rt_nr_running;
- 
- 	for_each_sched_rt_entity(rt_se) {
- 		rt_se->back = back;
- 		back = rt_se;
- 	}
- 
--	dequeue_top_rt_rq(rt_rq_of_se(back));
-+	rt_nr_running = rt_rq_of_se(back)->rt_nr_running;
- 
- 	for (rt_se = back; rt_se; rt_se = rt_se->back) {
- 		if (on_rt_rq(rt_se))
- 			__dequeue_rt_entity(rt_se, flags);
- 	}
-+
-+	dequeue_top_rt_rq(rt_rq_of_se(back), rt_nr_running);
- }
- 
- static void enqueue_rt_entity(struct sched_rt_entity *rt_se, unsigned int flags)
 -- 
 2.35.1
 
