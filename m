@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4099759D3DE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDE759D684
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242279AbiHWISm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45680 "EHLO
+        id S1348467AbiHWJKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:10:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243092AbiHWIQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:16:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B75B72BD2;
-        Tue, 23 Aug 2022 01:11:28 -0700 (PDT)
+        with ESMTP id S240882AbiHWJJU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:09:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A0C868AE;
+        Tue, 23 Aug 2022 01:30:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 534296129B;
-        Tue, 23 Aug 2022 08:11:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 543C0C433D6;
-        Tue, 23 Aug 2022 08:11:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E05AB81C57;
+        Tue, 23 Aug 2022 08:30:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9762EC433D7;
+        Tue, 23 Aug 2022 08:30:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242287;
-        bh=2+sQkRXsD0AeFSz1VPilz17J+suFYLIeRqzV6+TbAvw=;
+        s=korg; t=1661243438;
+        bh=j2KoHzmv7mNAD0mAEpA0x+P63+btGz4TXSLAu6PoG78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQDDrPT1s05JAD7z1qA3kt4WV5qkv16n115Ms5ZFh2OdpSKH13U6dClGuYu8FYo1y
-         mQBrBHSU+hD7e5ZRbCC6P6BOLcsStuYTWRlp5KBbL7Y0esnQYy9231PFGFFT9/21Ij
-         jkCoQ2iw3kO8rwlTvfEKRQ8A2AqYVNE6k6ROdOu8=
+        b=suDVOI6txxvCQSzwg1TUqBJ6rUENr70AJ6kCsGqtv7DO0OUxVXqOWNbpAIam9xrc8
+         GEFfP8urpQ/ixjuOzmroMhNfdkQSVZX3yAyv+qKpviLdGlDe1ypp8j1TO7yv5IpXMr
+         AKXWTO4kKHzf4DmkXUyhoMRabO4vqowRsDpcmBBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 025/101] Makefile: link with -z noexecstack --no-warn-rwx-segments
-Date:   Tue, 23 Aug 2022 10:02:58 +0200
-Message-Id: <20220823080035.534613756@linuxfoundation.org>
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 278/365] usb: dwc2: gadget: remove D+ pull-up while no vbus with usb-role-switch
+Date:   Tue, 23 Aug 2022 10:02:59 +0200
+Message-Id: <20220823080129.796689734@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
-References: <20220823080034.579196046@linuxfoundation.org>
+In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
+References: <20220823080118.128342613@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-commit 0d362be5b14200b77ecc2127936a5ff82fbffe41 upstream.
+[ Upstream commit db638c6500abaffb8f7770b2a69c40d003d54ae1 ]
 
-Users of GNU ld (BFD) from binutils 2.39+ will observe multiple
-instances of a new warning when linking kernels in the form:
+When using usb-role-switch, D+ pull-up is set as soon as DTCL_SFTDISCON is
+cleared, whatever the vbus valid signal state is. The pull-up should not
+be set when vbus isn't present (this is determined by the drd controller).
 
-  ld: warning: vmlinux: missing .note.GNU-stack section implies executable stack
-  ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
-  ld: warning: vmlinux has a LOAD segment with RWX permissions
+This patch ensures that B-Session (so Peripheral role + vbus valid signal)
+is valid before clearing the DCTL_SFTDISCON bit when role switch is used.
+Keep original behavior when usb-role-switch isn't used.
 
-Generally, we would like to avoid the stack being executable.  Because
-there could be a need for the stack to be executable, assembler sources
-have to opt-in to this security feature via explicit creation of the
-.note.GNU-stack feature (which compilers create by default) or command
-line flag --noexecstack.  Or we can simply tell the linker the
-production of such sections is irrelevant and to link the stack as
---noexecstack.
-
-LLVM's LLD linker defaults to -z noexecstack, so this flag isn't
-strictly necessary when linking with LLD, only BFD, but it doesn't hurt
-to be explicit here for all linkers IMO.  --no-warn-rwx-segments is
-currently BFD specific and only available in the current latest release,
-so it's wrapped in an ld-option check.
-
-While the kernel makes extensive usage of ELF sections, it doesn't use
-permissions from ELF segments.
-
-Link: https://lore.kernel.org/linux-block/3af4127a-f453-4cf7-f133-a181cce06f73@kernel.dk/
-Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
-Link: https://github.com/llvm/llvm-project/issues/57009
-Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
-Suggested-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220622160717.314580-1-fabrice.gasnier@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc2/gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -870,6 +870,9 @@ ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATI
- LDFLAGS_vmlinux	+= $(call ld-option, --gc-sections,)
- endif
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index fe2a58c75861..8b15742d9e8a 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -3594,7 +3594,8 @@ void dwc2_hsotg_core_disconnect(struct dwc2_hsotg *hsotg)
+ void dwc2_hsotg_core_connect(struct dwc2_hsotg *hsotg)
+ {
+ 	/* remove the soft-disconnect and let's go */
+-	dwc2_clear_bit(hsotg, DCTL, DCTL_SFTDISCON);
++	if (!hsotg->role_sw || (dwc2_readl(hsotg, GOTGCTL) & GOTGCTL_BSESVLD))
++		dwc2_clear_bit(hsotg, DCTL, DCTL_SFTDISCON);
+ }
  
-+LDFLAGS	+= -z noexecstack
-+LDFLAGS	+= $(call ld-option,--no-warn-rwx-segments)
-+
- ifeq ($(CONFIG_STRIP_ASM_SYMS),y)
- LDFLAGS_vmlinux	+= $(call ld-option, -X,)
- endif
+ /**
+-- 
+2.35.1
+
 
 
