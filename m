@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21F0A59E3BE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95E0E59E3B0
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352633AbiHWMcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49832 "EHLO
+        id S241168AbiHWM2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:28:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243483AbiHWMam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:30:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4613F101598;
-        Tue, 23 Aug 2022 02:45:17 -0700 (PDT)
+        with ESMTP id S242479AbiHWM0t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:26:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DAA4FBA41;
+        Tue, 23 Aug 2022 02:44:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F934B81C53;
-        Tue, 23 Aug 2022 09:43:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E77C4C433C1;
-        Tue, 23 Aug 2022 09:43:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF03761389;
+        Tue, 23 Aug 2022 09:43:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E77C433C1;
+        Tue, 23 Aug 2022 09:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247829;
-        bh=dgjbgDlxAfjjvEvgGnYLvzEkwhOO16Ktjk5n5ZW0IDE=;
+        s=korg; t=1661247832;
+        bh=19IgdIE9ZrUrSbXsW+/oPm9vunuXvHYium+mpiIAJ+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u38nkmRjPj3sA/GplxJhHuBFqsn0Pv4VJ+mcc1l5GO1h1y/nft54yEbsS6LULGG4M
-         KtwfQEOa8dsvv27HsTOEYsgdMSxDj5AO+qC3z7qm+lBQPstIWMChR+H0kWkVAfIJRZ
-         g9WiKZ2MGUsC+TxDB9NlJae4ghV2xzd2t8bI1Oao=
+        b=j0rnFBQufVR28RrYNcxTee+uem8fh9HCNi6htBgk/I1KZL0PWYQ1T4nZ0u0awQph3
+         vAGiOAsSkuDVRZCoRYJScZQeRo2U1czlHBLU8qx6nAFlb+TBC9uxtcvhaUU1a3zQTD
+         4KITEEddrR5kliNURb5Cv+Y+a6Y/oDlNp7wa6EcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brice Goglin <Brice.Goglin@inria.fr>,
-        Conor Dooley <conor.dooley@microchip.com>,
+        stable@vger.kernel.org, xctan <xc-tan@outlook.com>,
+        dram <dramforever@live.com>, Ruizhe Pan <c141028@gmail.com>,
+        Celeste Liu <coelacanthus@outlook.com>,
         Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 137/158] riscv: dts: sifive: Add fu540 topology information
-Date:   Tue, 23 Aug 2022 10:27:49 +0200
-Message-Id: <20220823080051.369528177@linuxfoundation.org>
+Subject: [PATCH 5.10 138/158] riscv: mmap with PROT_WRITE but no PROT_READ is invalid
+Date:   Tue, 23 Aug 2022 10:27:50 +0200
+Message-Id: <20220823080051.408345634@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
 References: <20220823080046.056825146@linuxfoundation.org>
@@ -55,58 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Celeste Liu <coelacanthus@outlook.com>
 
-[ Upstream commit af8f260abc608c06e4466a282b53f1e2dc09f042 ]
+[ Upstream commit 2139619bcad7ac44cc8f6f749089120594056613 ]
 
-The fu540 has no cpu-map node, so tools like hwloc cannot correctly
-parse the topology. Add the node using the existing node labels.
+As mentioned in Table 4.5 in RISC-V spec Volume 2 Section 4.3, write
+but not read is "Reserved for future use.". For now, they are not valid.
+In the current code, -wx is marked as invalid, but -w- is not marked
+as invalid.
+This patch refines that judgment.
 
-Reported-by: Brice Goglin <Brice.Goglin@inria.fr>
-Link: https://github.com/open-mpi/hwloc/issues/536
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20220705190435.1790466-3-mail@conchuod.ie
+Reported-by: xctan <xc-tan@outlook.com>
+Co-developed-by: dram <dramforever@live.com>
+Signed-off-by: dram <dramforever@live.com>
+Co-developed-by: Ruizhe Pan <c141028@gmail.com>
+Signed-off-by: Ruizhe Pan <c141028@gmail.com>
+Signed-off-by: Celeste Liu <coelacanthus@outlook.com>
+Link: https://lore.kernel.org/r/PH7PR14MB559464DBDD310E755F5B21E8CEDC9@PH7PR14MB5594.namprd14.prod.outlook.com
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/sifive/fu540-c000.dtsi | 24 ++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ arch/riscv/kernel/sys_riscv.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
-index 64c06c9b41dc..87d6e5a4253f 100644
---- a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
-+++ b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
-@@ -133,6 +133,30 @@
- 				interrupt-controller;
- 			};
- 		};
-+
-+		cpu-map {
-+			cluster0 {
-+				core0 {
-+					cpu = <&cpu0>;
-+				};
-+
-+				core1 {
-+					cpu = <&cpu1>;
-+				};
-+
-+				core2 {
-+					cpu = <&cpu2>;
-+				};
-+
-+				core3 {
-+					cpu = <&cpu3>;
-+				};
-+
-+				core4 {
-+					cpu = <&cpu4>;
-+				};
-+			};
-+		};
- 	};
- 	soc {
- 		#address-cells = <2>;
+diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
+index 12f8a7fce78b..8a7880b9c433 100644
+--- a/arch/riscv/kernel/sys_riscv.c
++++ b/arch/riscv/kernel/sys_riscv.c
+@@ -18,9 +18,8 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
+ 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
+ 		return -EINVAL;
+ 
+-	if ((prot & PROT_WRITE) && (prot & PROT_EXEC))
+-		if (unlikely(!(prot & PROT_READ)))
+-			return -EINVAL;
++	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
++		return -EINVAL;
+ 
+ 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
+ 			       offset >> (PAGE_SHIFT - page_shift_offset));
 -- 
 2.35.1
 
