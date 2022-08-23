@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BAD459D733
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7390E59D38F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348481AbiHWJM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:12:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33802 "EHLO
+        id S242382AbiHWIQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:16:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348468AbiHWJKU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:10:20 -0400
+        with ESMTP id S242325AbiHWIPL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:15:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A096CD3B;
-        Tue, 23 Aug 2022 01:31:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C90D1EEEB;
+        Tue, 23 Aug 2022 01:10:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB5BB614CA;
-        Tue, 23 Aug 2022 08:31:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6231C433C1;
-        Tue, 23 Aug 2022 08:31:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB05061284;
+        Tue, 23 Aug 2022 08:10:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98829C433C1;
+        Tue, 23 Aug 2022 08:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243466;
-        bh=QT4ELwD36/p5x2JGWEwyso4qQpwPkC03HMsNuMjrIMQ=;
+        s=korg; t=1661242202;
+        bh=BrFXwbNfEskmHA1m12s7QDvxCiFqcliIkI/8VwguhzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9j/R096LBHlVT9fh0kKf23cZ/08mLAjxoTnPw1pRAB4dQMHgMhceH3j4P/HbMjJT
-         NFmMH8KWDLPE5LeHu9W5O4G2LZ/90axBrY9mbnMvUljTFz7jfqm2PDVOfCaL0wksdJ
-         Z1ebGvJSviS7mM9eHG5WWHzLe/JBYHumShkJaC1M=
+        b=i48qIdq03Q0cOr5ui1Xelr0rkx76RorBsJsr67BvsUaBQrhJ9+zgrPCmdV6J5Xix0
+         yZCJFmSgvvrkeASvT9oEaEuPlpWouUTR4rkZLRsZX5bNJIPBBQ69l840H4v0Exk2IQ
+         S5h1R1KeuoZvr/mBbF74nvnbIZpvr03+bcSvB7xI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jozef Martiniak <jomajm@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 286/365] gadgetfs: ep_io - wait until IRQ finishes
-Date:   Tue, 23 Aug 2022 10:03:07 +0200
-Message-Id: <20220823080130.159590630@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.9 035/101] parisc: Fix device names in /proc/iomem
+Date:   Tue, 23 Aug 2022 10:03:08 +0200
+Message-Id: <20220823080035.921656131@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jozef Martiniak <jomajm@gmail.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 04cb742d4d8f30dc2e83b46ac317eec09191c68e ]
+commit cab56b51ec0e69128909cef4650e1907248d821b upstream.
 
-after usb_ep_queue() if wait_for_completion_interruptible() is
-interrupted we need to wait until IRQ gets finished.
+Fix the output of /proc/iomem to show the real hardware device name
+including the pa_pathname, e.g. "Merlin 160 Core Centronics [8:16:0]".
+Up to now only the pa_pathname ("[8:16.0]") was shown.
 
-Otherwise complete() from epio_complete() can corrupt stack.
-
-Signed-off-by: Jozef Martiniak <jomajm@gmail.com>
-Link: https://lore.kernel.org/r/20220708070645.6130-1-jomajm@gmail.com
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # v4.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/inode.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/kernel/drivers.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-index 79990597c39f..01c3ead7d1b4 100644
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -362,6 +362,7 @@ ep_io (struct ep_data *epdata, void *buf, unsigned len)
- 				spin_unlock_irq (&epdata->dev->lock);
+--- a/arch/parisc/kernel/drivers.c
++++ b/arch/parisc/kernel/drivers.c
+@@ -504,7 +504,6 @@ alloc_pa_dev(unsigned long hpa, struct h
+ 	dev->id.hversion_rev = iodc_data[1] & 0x0f;
+ 	dev->id.sversion = ((iodc_data[4] & 0x0f) << 16) |
+ 			(iodc_data[5] << 8) | iodc_data[6];
+-	dev->hpa.name = parisc_pathname(dev);
+ 	dev->hpa.start = hpa;
+ 	/* This is awkward.  The STI spec says that gfx devices may occupy
+ 	 * 32MB or 64MB.  Unfortunately, we don't know how to tell whether
+@@ -518,10 +517,10 @@ alloc_pa_dev(unsigned long hpa, struct h
+ 		dev->hpa.end = hpa + 0xfff;
+ 	}
+ 	dev->hpa.flags = IORESOURCE_MEM;
+-	name = parisc_hardware_description(&dev->id);
+-	if (name) {
+-		strlcpy(dev->name, name, sizeof(dev->name));
+-	}
++	dev->hpa.name = dev->name;
++	name = parisc_hardware_description(&dev->id) ? : "unknown";
++	snprintf(dev->name, sizeof(dev->name), "%s [%s]",
++		name, parisc_pathname(dev));
  
- 				DBG (epdata->dev, "endpoint gone\n");
-+				wait_for_completion(&done);
- 				epdata->status = -ENODEV;
- 			}
- 		}
--- 
-2.35.1
-
+ 	/* Silently fail things like mouse ports which are subsumed within
+ 	 * the keyboard controller
 
 
