@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF39059D77B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C72A959D73B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242860AbiHWJmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:42:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39870 "EHLO
+        id S236827AbiHWJmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:42:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351933AbiHWJkl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:40:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33426785A8;
-        Tue, 23 Aug 2022 01:41:37 -0700 (PDT)
+        with ESMTP id S1352563AbiHWJld (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:41:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1D979625;
+        Tue, 23 Aug 2022 01:41:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC93961499;
-        Tue, 23 Aug 2022 08:41:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B85CAC433C1;
-        Tue, 23 Aug 2022 08:41:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19F6061446;
+        Tue, 23 Aug 2022 08:41:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20E77C433C1;
+        Tue, 23 Aug 2022 08:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244096;
-        bh=wAb9caDwUzbk7UBhI7cFlk+Z8maI1Aajsuhg8IEI720=;
+        s=korg; t=1661244112;
+        bh=20lKauL1YVUqyPxh4iNRKgHY+P1m62xaHe6u7/78kJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLcWpmtgdjrstJAB7S7tzy8bY+NoiTwGTMgHhhTQXzVIwUrDIBS50Cy2Lq6E0okxy
-         QhezDdKG8OFNWrSek4CYH8wC/UXtCfcTSxhMdmoWNVgHWmYL7gQ1lKOK9Szjz7KzWy
-         h/R3YIyU20a3NHwvnX28eTxRhBKuORK4SHtxycxw=
+        b=YAHmlnZ48hQ8iS2n7fWa5pZfT5k6k+a5m5Dk1KB+yCycCcy89FsBQf7tLXCi/10nh
+         7+aiW2cIye25f8mI/tRrBdnFB6KkYftYTbqXemwtN24m8fnuX6+ivkLVE5wyKGti7W
+         sCuWWt9+88U7XMsxcDX4hIbmP0d+5NA/lqPfys9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qifu Zhang <zhangqifu@bytedance.com>,
-        Tony Luck <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.15 036/244] Documentation: ACPI: EINJ: Fix obsolete example
-Date:   Tue, 23 Aug 2022 10:23:15 +0200
-Message-Id: <20220823080100.270015157@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.15 038/244] NFSv4.1: Handle NFS4ERR_DELAY replies to OP_SEQUENCE correctly
+Date:   Tue, 23 Aug 2022 10:23:17 +0200
+Message-Id: <20220823080100.329675799@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -54,33 +53,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qifu Zhang <zhangqifu@bytedance.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 9066e151c37950af92c3be6a7270daa8e8063db9 upstream.
+commit 7ccafd4b2b9f34e6d8185f796f151c47424e273e upstream.
 
-Since commit 488dac0c9237 ("libfs: fix error cast of negative value in
-simple_attr_write()"), the EINJ debugfs interface no longer accepts
-negative values as input. Attempt to do so will result in EINVAL.
+Don't assume that the NFS4ERR_DELAY means that the server is processing
+this slot id.
 
-Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
-Signed-off-by: Qifu Zhang <zhangqifu@bytedance.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 3453d5708b33 ("NFSv4.1: Avoid false retries when RPC calls are interrupted")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/firmware-guide/acpi/apei/einj.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/Documentation/firmware-guide/acpi/apei/einj.rst
-+++ b/Documentation/firmware-guide/acpi/apei/einj.rst
-@@ -168,7 +168,7 @@ An error injection example::
-   0x00000008	Memory Correctable
-   0x00000010	Memory Uncorrectable non-fatal
-   # echo 0x12345000 > param1		# Set memory address for injection
--  # echo $((-1 << 12)) > param2		# Mask 0xfffffffffffff000 - anywhere in this page
-+  # echo 0xfffffffffffff000 > param2		# Mask - anywhere in this page
-   # echo 0x8 > error_type			# Choose correctable memory error
-   # echo 1 > error_inject			# Inject now
- 
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -856,7 +856,6 @@ static int nfs41_sequence_process(struct
+ 			__func__,
+ 			slot->slot_nr,
+ 			slot->seq_nr);
+-		nfs4_slot_sequence_acked(slot, slot->seq_nr);
+ 		goto out_retry;
+ 	case -NFS4ERR_RETRY_UNCACHED_REP:
+ 	case -NFS4ERR_SEQ_FALSE_RETRY:
 
 
