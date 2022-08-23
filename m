@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C02B59E15C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F05F59E225
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239100AbiHWL1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:27:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52550 "EHLO
+        id S1354055AbiHWKYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241690AbiHWLYf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:24:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CAA97330C;
-        Tue, 23 Aug 2022 02:23:53 -0700 (PDT)
+        with ESMTP id S1355102AbiHWKWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:22:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E339782D22;
+        Tue, 23 Aug 2022 02:04:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E910DB81B1F;
-        Tue, 23 Aug 2022 09:23:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EAAEC433C1;
-        Tue, 23 Aug 2022 09:23:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C00861579;
+        Tue, 23 Aug 2022 09:04:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92166C433C1;
+        Tue, 23 Aug 2022 09:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246630;
-        bh=pUgHQ3k3twW5S4+8bfc2BELCE52yZejB212T7oG7Et4=;
+        s=korg; t=1661245442;
+        bh=uFkwEnwYdM2knsy3Y3aTW+IQSNPBA1I+FmHWrWPgufA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wy0U4AH5NRsiH1utdphrwRAY2Moey4KRgBpAsjkGtJ458eu+VONw1NJyD20ZpjW4q
-         hy9+Aun+XtKrsBEFap2rXySn+iRDVzsNjhkFyl+nDVixmL+moX2oiBhvZ6WhCaA9Of
-         vrOyVuKBimBkUn81zc/Z8UPs3laqiNpFA/4gsS0w=
+        b=aCN8aBNNJTAITmmpLJzd7joGAEnWQOkKfVfziy+dTnPfw3r+wSDTMVyuVv9hHpB84
+         +vNtSn6IiLjjTgKTBINMP8kJfp/stkUlT1/ZeQz1YJFXN3oASXYk1WjI3khvbVqnGY
+         AcPAXn4ZyVuZS3kW1I+/kJtEycYOSNDZjnT/GF34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Bo-Chen Chen <rex-bc.chen@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 171/389] clk: qcom: ipq8074: set BRANCH_HALT_DELAY flag for UBI clocks
+Subject: [PATCH 4.19 080/287] drm/mediatek: dpi: Remove output format of YUV
 Date:   Tue, 23 Aug 2022 10:24:09 +0200
-Message-Id: <20220823080122.764408396@linuxfoundation.org>
+Message-Id: <20220823080102.961692222@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robimarko@gmail.com>
+From: Bo-Chen Chen <rex-bc.chen@mediatek.com>
 
-[ Upstream commit 2bd357e698207e2e65db03007e4be65bf9d6a7b3 ]
+[ Upstream commit c9ed0713b3c35fc45677707ba47f432cad95da56 ]
 
-Currently, attempting to enable the UBI clocks will cause the stuck at
-off warning to be printed and clk_enable will fail.
+DPI is not support output format as YUV, but there is the setting of
+configuring output YUV. Therefore, remove them in this patch.
 
-[   14.936694] gcc_ubi1_ahb_clk status stuck at 'off'
-
-Downstream 5.4 QCA kernel has fixed this by seting the BRANCH_HALT_DELAY
-flag on UBI clocks, so lets do the same.
-
-Fixes: 5736294aef83 ("clk: qcom: ipq8074: add NSS clocks")
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220515210048.483898-6-robimarko@gmail.com
+Fixes: 9e629c17aa8d ("drm/mediatek: Add DPI sub driver")
+Signed-off-by: Bo-Chen Chen <rex-bc.chen@mediatek.com>
+Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220701035845.16458-5-rex-bc.chen@mediatek.com/
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-ipq8074.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/mediatek/mtk_dpi.c | 31 ++++++------------------------
+ 1 file changed, 6 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
-index 735a1cb59ffa..68fe80a0a92f 100644
---- a/drivers/clk/qcom/gcc-ipq8074.c
-+++ b/drivers/clk/qcom/gcc-ipq8074.c
-@@ -3354,6 +3354,7 @@ static struct clk_branch gcc_nssnoc_ubi1_ahb_clk = {
+diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
+index 6c0ea39d5739..a263ac4aaab2 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dpi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
+@@ -52,13 +52,7 @@ enum mtk_dpi_out_channel_swap {
+ };
  
- static struct clk_branch gcc_ubi0_ahb_clk = {
- 	.halt_reg = 0x6820c,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x6820c,
- 		.enable_mask = BIT(0),
-@@ -3371,6 +3372,7 @@ static struct clk_branch gcc_ubi0_ahb_clk = {
+ enum mtk_dpi_out_color_format {
+-	MTK_DPI_COLOR_FORMAT_RGB,
+-	MTK_DPI_COLOR_FORMAT_RGB_FULL,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_444,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_422,
+-	MTK_DPI_COLOR_FORMAT_XV_YCC,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_444_FULL,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_422_FULL
++	MTK_DPI_COLOR_FORMAT_RGB
+ };
  
- static struct clk_branch gcc_ubi0_axi_clk = {
- 	.halt_reg = 0x68200,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68200,
- 		.enable_mask = BIT(0),
-@@ -3388,6 +3390,7 @@ static struct clk_branch gcc_ubi0_axi_clk = {
+ struct mtk_dpi {
+@@ -347,24 +341,11 @@ static void mtk_dpi_config_2n_h_fre(struct mtk_dpi *dpi)
+ static void mtk_dpi_config_color_format(struct mtk_dpi *dpi,
+ 					enum mtk_dpi_out_color_format format)
+ {
+-	if ((format == MTK_DPI_COLOR_FORMAT_YCBCR_444) ||
+-	    (format == MTK_DPI_COLOR_FORMAT_YCBCR_444_FULL)) {
+-		mtk_dpi_config_yuv422_enable(dpi, false);
+-		mtk_dpi_config_csc_enable(dpi, true);
+-		mtk_dpi_config_swap_input(dpi, false);
+-		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_BGR);
+-	} else if ((format == MTK_DPI_COLOR_FORMAT_YCBCR_422) ||
+-		   (format == MTK_DPI_COLOR_FORMAT_YCBCR_422_FULL)) {
+-		mtk_dpi_config_yuv422_enable(dpi, true);
+-		mtk_dpi_config_csc_enable(dpi, true);
+-		mtk_dpi_config_swap_input(dpi, true);
+-		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
+-	} else {
+-		mtk_dpi_config_yuv422_enable(dpi, false);
+-		mtk_dpi_config_csc_enable(dpi, false);
+-		mtk_dpi_config_swap_input(dpi, false);
+-		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
+-	}
++	/* only support RGB888 */
++	mtk_dpi_config_yuv422_enable(dpi, false);
++	mtk_dpi_config_csc_enable(dpi, false);
++	mtk_dpi_config_swap_input(dpi, false);
++	mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
+ }
  
- static struct clk_branch gcc_ubi0_nc_axi_clk = {
- 	.halt_reg = 0x68204,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68204,
- 		.enable_mask = BIT(0),
-@@ -3405,6 +3408,7 @@ static struct clk_branch gcc_ubi0_nc_axi_clk = {
- 
- static struct clk_branch gcc_ubi0_core_clk = {
- 	.halt_reg = 0x68210,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68210,
- 		.enable_mask = BIT(0),
-@@ -3422,6 +3426,7 @@ static struct clk_branch gcc_ubi0_core_clk = {
- 
- static struct clk_branch gcc_ubi0_mpt_clk = {
- 	.halt_reg = 0x68208,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68208,
- 		.enable_mask = BIT(0),
-@@ -3439,6 +3444,7 @@ static struct clk_branch gcc_ubi0_mpt_clk = {
- 
- static struct clk_branch gcc_ubi1_ahb_clk = {
- 	.halt_reg = 0x6822c,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x6822c,
- 		.enable_mask = BIT(0),
-@@ -3456,6 +3462,7 @@ static struct clk_branch gcc_ubi1_ahb_clk = {
- 
- static struct clk_branch gcc_ubi1_axi_clk = {
- 	.halt_reg = 0x68220,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68220,
- 		.enable_mask = BIT(0),
-@@ -3473,6 +3480,7 @@ static struct clk_branch gcc_ubi1_axi_clk = {
- 
- static struct clk_branch gcc_ubi1_nc_axi_clk = {
- 	.halt_reg = 0x68224,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68224,
- 		.enable_mask = BIT(0),
-@@ -3490,6 +3498,7 @@ static struct clk_branch gcc_ubi1_nc_axi_clk = {
- 
- static struct clk_branch gcc_ubi1_core_clk = {
- 	.halt_reg = 0x68230,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68230,
- 		.enable_mask = BIT(0),
-@@ -3507,6 +3516,7 @@ static struct clk_branch gcc_ubi1_core_clk = {
- 
- static struct clk_branch gcc_ubi1_mpt_clk = {
- 	.halt_reg = 0x68228,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68228,
- 		.enable_mask = BIT(0),
+ static void mtk_dpi_power_off(struct mtk_dpi *dpi, enum mtk_dpi_power_ctl pctl)
 -- 
 2.35.1
 
