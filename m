@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F19359D37A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F45F59D3BF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242212AbiHWISo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:18:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41974 "EHLO
+        id S242773AbiHWISq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:18:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243050AbiHWIQb (ORCPT
+        with ESMTP id S243053AbiHWIQb (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:16:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA2E67CBE;
-        Tue, 23 Aug 2022 01:11:01 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1EE869F4B;
+        Tue, 23 Aug 2022 01:11:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92D1FB81C25;
-        Tue, 23 Aug 2022 08:11:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D58C1C433D6;
-        Tue, 23 Aug 2022 08:10:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13F4461257;
+        Tue, 23 Aug 2022 08:11:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9F5C433C1;
+        Tue, 23 Aug 2022 08:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242259;
-        bh=QJpX0XKokoMZBk/Tl7oumqJUQg482sDWrAlMoLsvadk=;
+        s=korg; t=1661242265;
+        bh=X64jWE4sYmXdajzHGjPAcpzNUpOWDxH6QKW+V8PUFBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzXqpkOYmk4pxehX7V/Nv4ITuuHGGdVJRvWZ55COPlVaYc7uy6D+WDmMIdVcWzrKJ
-         +BQZL/ue9VSawd+JQ8c+SYR1bTHfFfcnz8MR4nL13bksdOx14Dx0q8W+/px9LKReFy
-         Ar9vB0ZLpZuOVv/NdDD1Cn3XrAVt/zG54JYjwpxA=
+        b=kyo9z05no06eVUUDySlDZIoHHoG7Zq/+379K/6Q5wQB8rgtEI3RjmxkB9S6hT01+i
+         REqaNbZB8BuUEFNay7Ob/AfRYppn40xX+L5X5x2bMj7HzUoc4klLPIF5HZ6vJ0tKy4
+         h3bTe9aWZVeHQHiKtqrRj/6yxgsiWNpo5dQSc+qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 084/365] net: phy: c45 baset1: do not skip aneg configuration if clock role is not specified
-Date:   Tue, 23 Aug 2022 09:59:45 +0200
-Message-Id: <20220823080121.697047439@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 085/365] net: dsa: felix: suppress non-changes to the tagging protocol
+Date:   Tue, 23 Aug 2022 09:59:46 +0200
+Message-Id: <20220823080121.746982636@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,98 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 3702e4041cfda50bc697363d29511ce8f6b24795 upstream.
+commit 4c46bb49460ee14c69629e813640d8b929e88941 upstream.
 
-In case master/slave clock role is not specified (which is default), the
-aneg registers will not be written.
+The way in which dsa_tree_change_tag_proto() works is that when
+dsa_tree_notify() fails, it doesn't know whether the operation failed
+mid way in a multi-switch tree, or it failed for a single-switch tree.
+So even though drivers need to fail cleanly in
+ds->ops->change_tag_protocol(), DSA will still call dsa_tree_notify()
+again, to restore the old tag protocol for potential switches in the
+tree where the change did succeeed (before failing for others).
 
-The visible impact of this is missing pause advertisement.
+This means for the felix driver that if we report an error in
+felix_change_tag_protocol(), we'll get another call where proto_ops ==
+old_proto_ops. If we proceed to act upon that, we may do unexpected
+things. For example, we will call dsa_tag_8021q_register() twice in a
+row, without any dsa_tag_8021q_unregister() in between. Then we will
+actually call dsa_tag_8021q_unregister() via old_proto_ops->teardown,
+which (if it manages to run at all, after walking through corrupted data
+structures) will leave the ports inoperational anyway.
 
-So, rework genphy_c45_baset1_an_config_aneg() to be able to write
-advertisement registers even if clock role is unknown.
+The bug can be readily reproduced if we force an error while in
+tag_8021q mode; this crashes the kernel.
 
-Fixes: 3da8ffd8545f ("net: phy: Add 10BASE-T1L support in phy-c45")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220805073159.908643-1-o.rempel@pengutronix.de
+echo ocelot-8021q > /sys/class/net/eno2/dsa/tagging
+echo edsa > /sys/class/net/eno2/dsa/tagging # -EPROTONOSUPPORT
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000014
+Call trace:
+ vcap_entry_get+0x24/0x124
+ ocelot_vcap_filter_del+0x198/0x270
+ felix_tag_8021q_vlan_del+0xd4/0x21c
+ dsa_switch_tag_8021q_vlan_del+0x168/0x2cc
+ dsa_switch_event+0x68/0x1170
+ dsa_tree_notify+0x14/0x34
+ dsa_port_tag_8021q_vlan_del+0x84/0x110
+ dsa_tag_8021q_unregister+0x15c/0x1c0
+ felix_tag_8021q_teardown+0x16c/0x180
+ felix_change_tag_protocol+0x1bc/0x230
+ dsa_switch_event+0x14c/0x1170
+ dsa_tree_change_tag_proto+0x118/0x1c0
+
+Fixes: 7a29d220f4c0 ("net: dsa: felix: reimplement tagging protocol change with function pointers")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220808125127.3344094-1-vladimir.oltean@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy-c45.c |   34 ++++++++++++++++------------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+ drivers/net/dsa/ocelot/felix.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/phy/phy-c45.c
-+++ b/drivers/net/phy/phy-c45.c
-@@ -190,44 +190,42 @@ EXPORT_SYMBOL_GPL(genphy_c45_pma_setup_f
-  */
- static int genphy_c45_baset1_an_config_aneg(struct phy_device *phydev)
- {
-+	u16 adv_l_mask, adv_l = 0;
-+	u16 adv_m_mask, adv_m = 0;
- 	int changed = 0;
--	u16 adv_l = 0;
--	u16 adv_m = 0;
- 	int ret;
+diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
+index 859196898a7d..aadb0bd7c24f 100644
+--- a/drivers/net/dsa/ocelot/felix.c
++++ b/drivers/net/dsa/ocelot/felix.c
+@@ -610,6 +610,9 @@ static int felix_change_tag_protocol(struct dsa_switch *ds,
  
-+	adv_l_mask = MDIO_AN_T1_ADV_L_FORCE_MS | MDIO_AN_T1_ADV_L_PAUSE_CAP |
-+		MDIO_AN_T1_ADV_L_PAUSE_ASYM;
-+	adv_m_mask = MDIO_AN_T1_ADV_M_MST | MDIO_AN_T1_ADV_M_B10L;
+ 	old_proto_ops = felix->tag_proto_ops;
+ 
++	if (proto_ops == old_proto_ops)
++		return 0;
 +
- 	switch (phydev->master_slave_set) {
- 	case MASTER_SLAVE_CFG_MASTER_FORCE:
-+		adv_m |= MDIO_AN_T1_ADV_M_MST;
-+		fallthrough;
- 	case MASTER_SLAVE_CFG_SLAVE_FORCE:
- 		adv_l |= MDIO_AN_T1_ADV_L_FORCE_MS;
- 		break;
- 	case MASTER_SLAVE_CFG_MASTER_PREFERRED:
-+		adv_m |= MDIO_AN_T1_ADV_M_MST;
-+		fallthrough;
- 	case MASTER_SLAVE_CFG_SLAVE_PREFERRED:
- 		break;
- 	case MASTER_SLAVE_CFG_UNKNOWN:
- 	case MASTER_SLAVE_CFG_UNSUPPORTED:
--		return 0;
-+		/* if master/slave role is not specified, do not overwrite it */
-+		adv_l_mask &= ~MDIO_AN_T1_ADV_L_FORCE_MS;
-+		adv_m_mask &= ~MDIO_AN_T1_ADV_M_MST;
-+		break;
- 	default:
- 		phydev_warn(phydev, "Unsupported Master/Slave mode\n");
- 		return -EOPNOTSUPP;
- 	}
- 
--	switch (phydev->master_slave_set) {
--	case MASTER_SLAVE_CFG_MASTER_FORCE:
--	case MASTER_SLAVE_CFG_MASTER_PREFERRED:
--		adv_m |= MDIO_AN_T1_ADV_M_MST;
--		break;
--	case MASTER_SLAVE_CFG_SLAVE_FORCE:
--	case MASTER_SLAVE_CFG_SLAVE_PREFERRED:
--		break;
--	default:
--		break;
--	}
--
- 	adv_l |= linkmode_adv_to_mii_t1_adv_l_t(phydev->advertising);
- 
- 	ret = phy_modify_mmd_changed(phydev, MDIO_MMD_AN, MDIO_AN_T1_ADV_L,
--				     (MDIO_AN_T1_ADV_L_FORCE_MS | MDIO_AN_T1_ADV_L_PAUSE_CAP
--				     | MDIO_AN_T1_ADV_L_PAUSE_ASYM), adv_l);
-+				     adv_l_mask, adv_l);
- 	if (ret < 0)
- 		return ret;
- 	if (ret > 0)
-@@ -236,7 +234,7 @@ static int genphy_c45_baset1_an_config_a
- 	adv_m |= linkmode_adv_to_mii_t1_adv_m_t(phydev->advertising);
- 
- 	ret = phy_modify_mmd_changed(phydev, MDIO_MMD_AN, MDIO_AN_T1_ADV_M,
--				     MDIO_AN_T1_ADV_M_MST | MDIO_AN_T1_ADV_M_B10L, adv_m);
-+				     adv_m_mask, adv_m);
- 	if (ret < 0)
- 		return ret;
- 	if (ret > 0)
+ 	err = proto_ops->setup(ds);
+ 	if (err)
+ 		goto setup_failed;
+-- 
+2.37.2
+
 
 
