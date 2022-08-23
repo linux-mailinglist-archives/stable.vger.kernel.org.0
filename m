@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B185659DD08
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:26:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3873E59E0EA
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357549AbiHWLjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:39:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59820 "EHLO
+        id S1352947AbiHWKMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:12:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357715AbiHWLiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:38:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F1C21054A;
-        Tue, 23 Aug 2022 02:28:23 -0700 (PDT)
+        with ESMTP id S1352920AbiHWKJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:09:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1859D7DF5F;
+        Tue, 23 Aug 2022 01:55:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88A6CB81C85;
-        Tue, 23 Aug 2022 09:28:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D203CC433C1;
-        Tue, 23 Aug 2022 09:28:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B76CAB81C28;
+        Tue, 23 Aug 2022 08:55:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01B42C433C1;
+        Tue, 23 Aug 2022 08:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246899;
-        bh=SQXOfBhhjusfyQ7h7S2cvioqr/p4Hpbw5vz6sQzz1Wk=;
+        s=korg; t=1661244933;
+        bh=0LLFBfOKHFPod6bxQlh8610jSWOZ/Fs0Wgi1kYBiWWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkI16JYsi2c/l5fDN6rzH6CtbkpHXhOObXBf3CgXXIdfB0qLIUFQv6GmEm9gkQr+R
-         EjEpnQTCGEBjWxN8xv5Pwxhu0y8NG60YC0vxIeKgV2LdZ6acwRwZyX5I+raIEQPpb1
-         j1sX/UXGKgmM7KBxWjjF/DB4GFTXaDBfKxlITTM0=
+        b=O1feV97vPan5q2zMltiC2U6SEWIOcWE8GeR4PUfzXTOdt2MYdof4bxGFsfpZBY4sG
+         5scGyqrzTlOG1VDV4YnOxYzyk9dqc44EV+RQwkCaNUNhcNEr1ta9N5pYFicbQc9INF
+         x7bvQCk7G/JD2Sk8JO0zTF/VvN0GF5rjLEGRIXAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, WANG Xuerui <git@xen0n.name>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.4 255/389] tpm: eventlog: Fix section mismatch for DEBUG_SECTION_MISMATCH
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Liang He <windhl@126.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 174/244] usb: host: ohci-ppc-of: Fix refcount leak bug
 Date:   Tue, 23 Aug 2022 10:25:33 +0200
-Message-Id: <20220823080126.253203932@linuxfoundation.org>
+Message-Id: <20220823080105.087474189@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Liang He <windhl@126.com>
 
-commit bed4593645366ad7362a3aa7bc0d100d8d8236a8 upstream.
+[ Upstream commit 40a959d7042bb7711e404ad2318b30e9f92c6b9b ]
 
-If DEBUG_SECTION_MISMATCH enabled, __calc_tpm2_event_size() will not be
-inlined, this cause section mismatch like this:
+In ohci_hcd_ppc_of_probe(), of_find_compatible_node() will return
+a node pointer with refcount incremented. We should use of_node_put()
+when it is not used anymore.
 
-WARNING: modpost: vmlinux.o(.text.unlikely+0xe30c): Section mismatch in reference from the variable L0 to the function .init.text:early_ioremap()
-The function L0() references
-the function __init early_memremap().
-This is often because L0 lacks a __init
-annotation or the annotation of early_ioremap is wrong.
-
-Fix it by using __always_inline instead of inline for the called-once
-function __calc_tpm2_event_size().
-
-Fixes: 44038bc514a2 ("tpm: Abstract crypto agile event size calculations")
-Cc: stable@vger.kernel.org # v5.3
-Reported-by: WANG Xuerui <git@xen0n.name>
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220617034637.4003115-1-windhl@126.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/tpm_eventlog.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/ohci-ppc-of.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/tpm_eventlog.h
-+++ b/include/linux/tpm_eventlog.h
-@@ -157,7 +157,7 @@ struct tcg_algorithm_info {
-  * Return: size of the event on success, 0 on failure
-  */
+diff --git a/drivers/usb/host/ohci-ppc-of.c b/drivers/usb/host/ohci-ppc-of.c
+index 45f7cceb6df3..98e46725999e 100644
+--- a/drivers/usb/host/ohci-ppc-of.c
++++ b/drivers/usb/host/ohci-ppc-of.c
+@@ -169,6 +169,7 @@ static int ohci_hcd_ppc_of_probe(struct platform_device *op)
+ 				release_mem_region(res.start, 0x4);
+ 		} else
+ 			pr_debug("%s: cannot get ehci offset from fdt\n", __FILE__);
++		of_node_put(np);
+ 	}
  
--static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
-+static __always_inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
- 					 struct tcg_pcr_event *event_header,
- 					 bool do_mapping)
- {
+ 	irq_dispose_mapping(irq);
+-- 
+2.35.1
+
 
 
