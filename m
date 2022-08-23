@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1AC159DFF1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60FE459E379
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359249AbiHWMLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:11:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40442 "EHLO
+        id S240411AbiHWMWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:22:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359472AbiHWMIg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:08:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AD0CEAB;
-        Tue, 23 Aug 2022 02:38:33 -0700 (PDT)
+        with ESMTP id S1352825AbiHWMUk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:20:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E72B25E92;
+        Tue, 23 Aug 2022 02:43:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 915A961389;
-        Tue, 23 Aug 2022 09:37:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BC5DC433C1;
-        Tue, 23 Aug 2022 09:37:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C2C1B81C63;
+        Tue, 23 Aug 2022 09:37:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8824C433C1;
+        Tue, 23 Aug 2022 09:37:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247448;
-        bh=IofdAwIDyvUXY6X9Xr4M4jwUuXAIwWHoIICBfaLTqs0=;
+        s=korg; t=1661247451;
+        bh=KSdGKfB20YcOQwyF+fFiOKWl2k86ympCcrjk2OM2IIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VPuxVBNFdP0nAUa+Vk6h4CFDXtZn4koTD7bLxcvgNklniLrcW60uNuSG/rhDycRlJ
-         m46EeG1QQdGzAHvJPzpiKhCqm5mW9oAjupFKiLV64c7TXm3jCSbtaJFJWtJGXfhcyX
-         b6sXKG6bUSGRwD53srroh1OC6Xtsn2X52X54Im0Q=
+        b=oTGSpd92og4S687DJVcaSgj4g71oANCEakea3JsE79RsQKDWw/R23ALjKpeb5KA/i
+         dLJQqyPLwx5nt85J+GGrH8Y1YLEK5kZUegWhnAR4ikKl24+1tIVE34wmNM4HN/96Uw
+         1APmjGJKuZSrMqGyvCR2UF+WRNwkGAs661ez/w0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 008/158] mmc: meson-gx: Fix an error handling path in meson_mmc_probe()
-Date:   Tue, 23 Aug 2022 10:25:40 +0200
-Message-Id: <20220823080046.400346292@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 009/158] btrfs: fix lost error handling when looking up extended ref on log replay
+Date:   Tue, 23 Aug 2022 10:25:41 +0200
+Message-Id: <20220823080046.440072974@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
 References: <20220823080046.056825146@linuxfoundation.org>
@@ -54,38 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit b3e1cf31154136da855f3cb6117c17eb0b6bcfb4 upstream.
+commit 7a6b75b79902e47f46328b57733f2604774fa2d9 upstream.
 
-The commit in Fixes has introduced a new error handling which should goto
-the existing error handling path.
-Otherwise some resources leak.
+During log replay, when processing inode references, if we get an error
+when looking up for an extended reference at __add_inode_ref(), we ignore
+it and proceed, returning success (0) if no other error happens after the
+lookup. This is obviously wrong because in case an extended reference
+exists and it encodes some name not in the log, we need to unlink it,
+otherwise the filesystem state will not match the state it had after the
+last fsync.
 
-Fixes: 19c6beaa064c ("mmc: meson-gx: add device reset")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/be4b863bacf323521ba3a02efdc4fca9cdedd1a6.1659855351.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+So just make __add_inode_ref() return an error it gets from the extended
+reference lookup.
+
+Fixes: f186373fef005c ("btrfs: extended inode refs")
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/meson-gx-mmc.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/btrfs/tree-log.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -1161,8 +1161,10 @@ static int meson_mmc_probe(struct platfo
- 	}
- 
- 	ret = device_reset_optional(&pdev->dev);
--	if (ret)
--		return dev_err_probe(&pdev->dev, ret, "device reset failed\n");
-+	if (ret) {
-+		dev_err_probe(&pdev->dev, ret, "device reset failed\n");
-+		goto free_host;
-+	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	host->regs = devm_ioremap_resource(&pdev->dev, res);
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1075,7 +1075,9 @@ again:
+ 	extref = btrfs_lookup_inode_extref(NULL, root, path, name, namelen,
+ 					   inode_objectid, parent_objectid, 0,
+ 					   0);
+-	if (!IS_ERR_OR_NULL(extref)) {
++	if (IS_ERR(extref)) {
++		return PTR_ERR(extref);
++	} else if (extref) {
+ 		u32 item_size;
+ 		u32 cur_offset = 0;
+ 		unsigned long base;
 
 
