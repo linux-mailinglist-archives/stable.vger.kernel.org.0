@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C1C59DFE2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40B9E59E346
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243535AbiHWLDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:03:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41942 "EHLO
+        id S1353767AbiHWMSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:18:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357261AbiHWLBw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:01:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDDA86FC3;
-        Tue, 23 Aug 2022 02:14:31 -0700 (PDT)
+        with ESMTP id S1356782AbiHWMMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:12:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DAA2E68EB;
+        Tue, 23 Aug 2022 02:39:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D871A60F54;
-        Tue, 23 Aug 2022 09:14:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFF3BC433D7;
-        Tue, 23 Aug 2022 09:14:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86A71B81C85;
+        Tue, 23 Aug 2022 09:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4049EC433C1;
+        Tue, 23 Aug 2022 09:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246063;
-        bh=fxlNh0LwhOpWUkF19exROe077tMNe7vdcr/NJnAVD5A=;
+        s=korg; t=1661247589;
+        bh=yRfbSEmiNTKD8CgTYYkOZDifnY/nDW1hQjWqoS4iblc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wdoEnJgZAOHjE3ZgcYDKyj40L/KOxRUyAMOBcNx3zOlBXstinjTps8m1OAs0PTJX
-         TD09RAkffRaqYQZI1hXBooo1QWafWk6jhOZ72syBrd+6xDqPcTsswu4L8RukKV1AFB
-         3zVKPXcSotgR9hOXm+j6EsQsMhJJ8ehT/OPSHVRo=
+        b=qmggA/Vu9hsb48qXHIXephwyakpYR+/xjCW+nBs3Zo7KqO6xf7WflShARBJcSusCG
+         IU0ueS0Gd23LbgyISd89EY97Kp+fhumhL8khEhdMe4PnNcYzr8k3YQZgI5DqS7L7UK
+         gOxP02B/yGssQKdfOx7irMAK7icJHdE4bWd67HCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 4.19 246/287] nios2: traced syscall does need to check the syscall number
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 083/158] net: dsa: felix: fix ethtool 256-511 and 512-1023 TX packet counters
 Date:   Tue, 23 Aug 2022 10:26:55 +0200
-Message-Id: <20220823080109.423177007@linuxfoundation.org>
+Message-Id: <20220823080049.403592021@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 25ba820ef36bdbaf9884adeac69b6e1821a7df76 upstream.
+commit 40d21c4565bce064c73a03b79a157a3493c518b9 upstream.
 
-all checks done before letting the tracer modify the register
-state are worthless...
+What the driver actually reports as 256-511 is in fact 512-1023, and the
+TX packets in the 256-511 bucket are not reported. Fix that.
 
-Fixes: 82ed08dd1b0e ("nios2: Exception handling")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Fixes: 56051948773e ("net: dsa: ocelot: add driver for Felix switch family")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/kernel/entry.S |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/net/dsa/ocelot/felix_vsc9959.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/nios2/kernel/entry.S
-+++ b/arch/nios2/kernel/entry.S
-@@ -255,9 +255,9 @@ traced_system_call:
- 	ldw	r6, PT_R6(sp)
- 	ldw	r7, PT_R7(sp)
- 
--	/* Fetch the syscall function, we don't need to check the boundaries
--	 * since this is already done.
--	 */
-+	/* Fetch the syscall function. */
-+	movui	r1, __NR_syscalls
-+	bgeu	r2, r1, traced_invsyscall
- 	slli	r1, r2, 2
- 	movhi	r11,%hiadj(sys_call_table)
- 	add	r1, r1, r11
-@@ -287,6 +287,11 @@ end_translate_rc_and_ret2:
- 	RESTORE_SWITCH_STACK
- 	br	ret_from_exception
- 
-+	/* If the syscall number was invalid return ENOSYS */
-+traced_invsyscall:
-+	movi	r2, -ENOSYS
-+	br	translate_rc_and_ret2
-+
- Luser_return:
- 	GET_THREAD_INFO	r11			/* get thread_info pointer */
- 	ldw	r10, TI_FLAGS(r11)		/* get thread_info->flags */
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -578,7 +578,8 @@ static const struct ocelot_stat_layout v
+ 	{ .offset = 0x87,	.name = "tx_frames_below_65_octets", },
+ 	{ .offset = 0x88,	.name = "tx_frames_65_to_127_octets", },
+ 	{ .offset = 0x89,	.name = "tx_frames_128_255_octets", },
+-	{ .offset = 0x8B,	.name = "tx_frames_256_511_octets", },
++	{ .offset = 0x8A,	.name = "tx_frames_256_511_octets", },
++	{ .offset = 0x8B,	.name = "tx_frames_512_1023_octets", },
+ 	{ .offset = 0x8C,	.name = "tx_frames_1024_1526_octets", },
+ 	{ .offset = 0x8D,	.name = "tx_frames_over_1526_octets", },
+ 	{ .offset = 0x8E,	.name = "tx_yellow_prio_0", },
 
 
