@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E442B59DF11
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8146959DB35
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240980AbiHWLRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37632 "EHLO
+        id S1352912AbiHWKXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:23:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357801AbiHWLQl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EC93BD1F0;
-        Tue, 23 Aug 2022 02:20:17 -0700 (PDT)
+        with ESMTP id S1354104AbiHWKUX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:20:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECF17816A9;
+        Tue, 23 Aug 2022 02:02:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A8C5B81C63;
-        Tue, 23 Aug 2022 09:19:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0429C433D7;
-        Tue, 23 Aug 2022 09:19:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6AC61B81C28;
+        Tue, 23 Aug 2022 09:02:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A01D5C433C1;
+        Tue, 23 Aug 2022 09:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246391;
-        bh=2KW1HM963k7v+bwEDDz4Yh4oQrYctMijf1hKLtDHh9Y=;
+        s=korg; t=1661245323;
+        bh=bLCLK6K8yuOyc8MbJTgMJSd+85QxC9+CZ5FW4UNulCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+87G/NsfEflQAbpTEZIsFaSMMoRyxvumz7Jg7zfxA3Lx03GWe1hoRu10YNApYUS6
-         Uf9j82k+S7CjPi+/vrW8F/M/IVIp8G1XWwKciNFTO5wBWopCq4E8B3XmjgiuVwTivu
-         A5fA+A6U7tgoptF238zy/baU2MVziS8yxfNywXZE=
+        b=oAFHrhBFS4/HAS2OCtNnR/m5dMDYaXE/915nUoxDxj4BAYaJyJJCPaSFk7E7rqhom
+         RPuiITM903mwcA6TUM+T2Sxj4Uf6j7JppzOd6BJnAgY4pWLiwzwU4m31H1ScGF9XoJ
+         p3DAR2/SYQuGMQd+N5YshgBN0cRXF5+aZTT4ry2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Mayer <mmayer@broadcom.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>,
-        =?UTF-8?q?Alejandro=20Gonz=C3=A1lez?= 
-        <alejandro.gonzalez.correo@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/389] thermal/tools/tmon: Include pthread and time headers in tmon.h
+        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 002/287] x86: link vdso and boot with -z noexecstack --no-warn-rwx-segments
 Date:   Tue, 23 Aug 2022 10:22:51 +0200
-Message-Id: <20220823080119.503147337@linuxfoundation.org>
+Message-Id: <20220823080100.348256127@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,59 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Mayer <mmayer@broadcom.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 0cf51bfe999524377fbb71becb583b4ca6d07cfc ]
+commit ffcf9c5700e49c0aee42dcba9a12ba21338e8136 upstream.
 
-Include sys/time.h and pthread.h in tmon.h, so that types
-"pthread_mutex_t" and "struct timeval tv" are known when tmon.h
-references them.
+Users of GNU ld (BFD) from binutils 2.39+ will observe multiple
+instances of a new warning when linking kernels in the form:
 
-Without these headers, compiling tmon against musl-libc will fail with
-these errors:
+  ld: warning: arch/x86/boot/pmjump.o: missing .note.GNU-stack section implies executable stack
+  ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+  ld: warning: arch/x86/boot/compressed/vmlinux has a LOAD segment with RWX permissions
 
-In file included from sysfs.c:31:0:
-tmon.h:47:8: error: unknown type name 'pthread_mutex_t'
- extern pthread_mutex_t input_lock;
-        ^~~~~~~~~~~~~~~
-make[3]: *** [<builtin>: sysfs.o] Error 1
-make[3]: *** Waiting for unfinished jobs....
-In file included from tui.c:31:0:
-tmon.h:54:17: error: field 'tv' has incomplete type
-  struct timeval tv;
-                 ^~
-make[3]: *** [<builtin>: tui.o] Error 1
-make[2]: *** [Makefile:83: tmon] Error 2
+Generally, we would like to avoid the stack being executable.  Because
+there could be a need for the stack to be executable, assembler sources
+have to opt-in to this security feature via explicit creation of the
+.note.GNU-stack feature (which compilers create by default) or command
+line flag --noexecstack.  Or we can simply tell the linker the
+production of such sections is irrelevant and to link the stack as
+--noexecstack.
 
-Signed-off-by: Markus Mayer <mmayer@broadcom.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
-Acked-by: Alejandro González <alejandro.gonzalez.correo@gmail.com>
-Tested-by: Alejandro González <alejandro.gonzalez.correo@gmail.com>
-Fixes: 94f69966faf8 ("tools/thermal: Introduce tmon, a tool for thermal  subsystem")
-Link: https://lore.kernel.org/r/20220718031040.44714-1-f.fainelli@gmail.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+LLVM's LLD linker defaults to -z noexecstack, so this flag isn't
+strictly necessary when linking with LLD, only BFD, but it doesn't hurt
+to be explicit here for all linkers IMO.  --no-warn-rwx-segments is
+currently BFD specific and only available in the current latest release,
+so it's wrapped in an ld-option check.
+
+While the kernel makes extensive usage of ELF sections, it doesn't use
+permissions from ELF segments.
+
+Link: https://lore.kernel.org/linux-block/3af4127a-f453-4cf7-f133-a181cce06f73@kernel.dk/
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
+Link: https://github.com/llvm/llvm-project/issues/57009
+Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/thermal/tmon/tmon.h | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/boot/Makefile            |    2 +-
+ arch/x86/boot/compressed/Makefile |    4 ++++
+ arch/x86/entry/vdso/Makefile      |    2 +-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/tools/thermal/tmon/tmon.h b/tools/thermal/tmon/tmon.h
-index c9066ec104dd..44d16d778f04 100644
---- a/tools/thermal/tmon/tmon.h
-+++ b/tools/thermal/tmon/tmon.h
-@@ -27,6 +27,9 @@
- #define NR_LINES_TZDATA 1
- #define TMON_LOG_FILE "/var/tmp/tmon.log"
+--- a/arch/x86/boot/Makefile
++++ b/arch/x86/boot/Makefile
+@@ -100,7 +100,7 @@ $(obj)/zoffset.h: $(obj)/compressed/vmli
+ AFLAGS_header.o += -I$(objtree)/$(obj)
+ $(obj)/header.o: $(obj)/zoffset.h
  
-+#include <sys/time.h>
-+#include <pthread.h>
+-LDFLAGS_setup.elf	:= -m elf_i386 -T
++LDFLAGS_setup.elf	:= -m elf_i386 -z noexecstack -T
+ $(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) FORCE
+ 	$(call if_changed,ld)
+ 
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -57,6 +57,10 @@ else
+ KBUILD_LDFLAGS += $(shell $(LD) --help 2>&1 | grep -q "\-z noreloc-overflow" \
+ 	&& echo "-z noreloc-overflow -pie --no-dynamic-linker")
+ endif
 +
- extern unsigned long ticktime;
- extern double time_elapsed;
- extern unsigned long target_temp_user;
--- 
-2.35.1
-
++KBUILD_LDFLAGS += -z noexecstack
++KBUILD_LDFLAGS += $(call ld-option,--no-warn-rwx-segments)
++
+ LDFLAGS_vmlinux := -T
+ 
+ hostprogs-y	:= mkpiggy
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -172,7 +172,7 @@ quiet_cmd_vdso = VDSO    $@
+ 
+ VDSO_LDFLAGS = -shared $(call ld-option, --hash-style=both) \
+ 	$(call ld-option, --build-id) $(call ld-option, --eh-frame-hdr) \
+-	-Bsymbolic
++	-Bsymbolic -z noexecstack
+ GCOV_PROFILE := n
+ 
+ #
 
 
