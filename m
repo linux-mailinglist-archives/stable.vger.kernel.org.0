@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE1259D1C8
+	by mail.lfdr.de (Postfix) with ESMTP id 7713459D1C7
 	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 09:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240212AbiHWHL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 03:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44040 "EHLO
+        id S237040AbiHWHOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 03:14:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240880AbiHWHLT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 03:11:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0862361D59;
-        Tue, 23 Aug 2022 00:11:18 -0700 (PDT)
+        with ESMTP id S229811AbiHWHOd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 03:14:33 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4AEE5926F
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 00:14:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F627B801C0;
-        Tue, 23 Aug 2022 07:11:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEA25C433D6;
-        Tue, 23 Aug 2022 07:11:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F0306CE1AEC
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 07:14:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFFD1C433D6;
+        Tue, 23 Aug 2022 07:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661238675;
-        bh=vMiL6tXO64IX78O0F1aZDGjmvXqzBiRZfMNOvY56/yc=;
+        s=korg; t=1661238868;
+        bh=unjE1vc68y6gFzqWEvbFLMBCgHWntYhMyj+Gy0d8q8M=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sAXFQaKxAKlCaC7NX2XtYskIX7HQAcGV2PhFFxMovv9H01hIZnB8HG2j3roNk9mn9
-         0Qh1nhXLd9lFMfUaEw+6kXC3Q3qdnWkXtkBOMxILre+GO8H2gJsMsCEylYnxdg7BNT
-         aW0K0lA5C0AzHIztQaBAlSxyc88eSbIQthX8qP7Y=
-Date:   Tue, 23 Aug 2022 09:11:12 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Dominique Martinet <dominique.martinet@atmark-techno.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sean V Kelley <sean.v.kelley@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        linux-pci@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
-        Hinko Kocevar <hinko.kocevar@ess.eu>,
-        Dan Williams <dan.j.williams@intel.com>,
-        "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@intel.com>
-Subject: Re: [PATCH 5.10 480/545] PCI/ERR: Add pci_walk_bridge() to
- pcie_do_recovery()
-Message-ID: <YwR9kFH3UqhkV4d0@kroah.com>
-References: <20220819153850.911668266@linuxfoundation.org>
- <YwL/brvUP1aiwo93@atmark-techno.com>
+        b=ftyLLsnbmTOB/W2ql6U6UJRNVifVJQbBem66gU1nDRfbNQEyo3IpHof4nsyjRfd66
+         EjJuAr9k/JbrY2KafbXHe1DVYAzjFQVu624o19lsKYRLjSfILSOZsKsRj0rPRNU3YK
+         fmHiD4YY6Fbux4S8/deKLDWIlWw1jzNvOrEc8dQI=
+Date:   Tue, 23 Aug 2022 09:14:25 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jens Wiklander <jens.wiklander@linaro.org>
+Cc:     stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        Jerome Forissier <jerome.forissier@linaro.org>,
+        Nimish Mishra <neelam.nimish@gmail.com>,
+        Anirban Chakraborty <ch.anirban00727@gmail.com>,
+        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Pavel Machek <pavel@denx.de>
+Subject: Re: [PATCH] tee: add overflow check in tee_ioctl_shm_register()
+Message-ID: <YwR+UTRq5stmn0jC@kroah.com>
+References: <20220822131227.3865684-1-jens.wiklander@linaro.org>
+ <YwOFX8eXYmZrsl/n@kroah.com>
+ <CAHUa44Ein2WMDtBeBHU+MQULFBonQ1LYXCuQTCO+rrmfxunbNw@mail.gmail.com>
+ <YwOZYRYSke8N1Tpr@kroah.com>
+ <CAHUa44GdJQDmAtSyM5uYSoc4JX_EfrG9zSHCJgx4Jf+qU6LS_g@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YwL/brvUP1aiwo93@atmark-techno.com>
+In-Reply-To: <CAHUa44GdJQDmAtSyM5uYSoc4JX_EfrG9zSHCJgx4Jf+qU6LS_g@mail.gmail.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -59,99 +59,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 22, 2022 at 01:00:46PM +0900, Dominique Martinet wrote:
-> Greg Kroah-Hartman wrote on Fri, Aug 19, 2022 at 05:44:10PM +0200:
-> > From: Sean V Kelley <sean.v.kelley@intel.com>
-> > 
-> > [ Upstream commit 05e9ae19ab83881a0f33025bd1288e41e552a34b ]
-> > 
-> > Consolidate subordinate bus checks with pci_walk_bus() into
-> > pci_walk_bridge() for walking below potentially AER affected bridges.
-> > 
-> > Link: https://lore.kernel.org/r/20201121001036.8560-10-sean.v.kelley@intel.com
-> > Tested-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> # non-native/no RCEC
-> > Signed-off-by: Sean V Kelley <sean.v.kelley@intel.com>
-> > Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >  drivers/pci/pcie/err.c | 30 +++++++++++++++++++++++-------
-> >  1 file changed, 23 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
-> > index 931e75f2549d..8b53aecdb43d 100644
-> > --- a/drivers/pci/pcie/err.c
-> > +++ b/drivers/pci/pcie/err.c
-> > [...]
-> > @@ -165,23 +182,22 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
-> >  	else
-> >  		bridge = pci_upstream_bridge(dev);
-> >  
-> > -	bus = bridge->subordinate;
-> >  	pci_dbg(bridge, "broadcast error_detected message\n");
-> >  	if (state == pci_channel_io_frozen) {
-> > -		pci_walk_bus(bus, report_frozen_detected, &status);
-> > +		pci_walk_bridge(bridge, report_frozen_detected, &status);
-> >  		status = reset_subordinates(bridge);
-> >  		if (status != PCI_ERS_RESULT_RECOVERED) {
-> >  			pci_warn(bridge, "subordinate device reset failed\n");
-> >  			goto failed;
-> >  		}
+On Tue, Aug 23, 2022 at 09:00:43AM +0200, Jens Wiklander wrote:
+> On Mon, Aug 22, 2022 at 4:57 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, Aug 22, 2022 at 04:29:05PM +0200, Jens Wiklander wrote:
+> > > On Mon, Aug 22, 2022 at 3:32 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > On Mon, Aug 22, 2022 at 03:12:27PM +0200, Jens Wiklander wrote:
+> > > > > commit 573ae4f13f630d6660008f1974c0a8a29c30e18a upstream.
+> > > > >
+> > > > > With special lengths supplied by user space, tee_shm_register() has
+> > > > > an integer overflow when calculating the number of pages covered by a
+> > > > > supplied user space memory region.
+> > > > >
+> > > > > This may cause pin_user_pages_fast() to do a NULL pointer dereference.
+> > > > >
+> > > > > Fix this by adding an an explicit call to access_ok() in
+> > > > > tee_ioctl_shm_register() to catch an invalid user space address early.
+> > > > >
+> > > > > Fixes: 033ddf12bcf5 ("tee: add register user memory")
+> > > > > Cc: stable@vger.kernel.org # 5.4
+> > > > > Cc: stable@vger.kernel.org # 5.10
+> > > > > Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
+> > > > > Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
+> > > > > Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
+> > > > > Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
+> > > > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > > > > [JW: backport to stable 5.4 and 5.10 + update commit message]
+> > > >
+> > > > You already sent me a 5.4 version here:
+> > > >         https://lore.kernel.org/r/20220822092621.3691771-1-jens.wiklander@linaro.org
+> > > >
+> > > > And I applied that.
+> > > >
+> > > > And for 5.10, it's already in the tree as commit 578c349570d2 ("tee: add
+> > > > overflow check in register_shm_helper()") and was in the 5.10.137
+> > > > release.
+> > > >
+> > > > > Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+> > > > > ---
+> > > > >  drivers/tee/tee_core.c | 3 +++
+> > > > >  1 file changed, 3 insertions(+)
+> > > > >
+> > > > > diff --git a/drivers/tee/tee_core.c b/drivers/tee/tee_core.c
+> > > > > index a7ccd4d2bd10..2db144d2d26f 100644
+> > > > > --- a/drivers/tee/tee_core.c
+> > > > > +++ b/drivers/tee/tee_core.c
+> > > > > @@ -182,6 +182,9 @@ tee_ioctl_shm_register(struct tee_context *ctx,
+> > > > >       if (data.flags)
+> > > > >               return -EINVAL;
+> > > > >
+> > > > > +     if (!access_ok((void __user *)(unsigned long)data.addr, data.length))
+> > > > > +             return -EFAULT;
+> > > >
+> > > > What I took in 5.10.137 was:
+> > > >
+> > > > +       if (!access_ok((void __user *)addr, length))
+> > > > +               return ERR_PTR(-EFAULT);
+> > > >
+> > > > Should I fix it up to look like what you sent here instead?
+> > >
+> > > Yes, please.
+> >
+> > Ok, no, that does not work on 5.10.y at all, it blows up with the
+> > obvious issue that there is no data pointer in this function.  It's also
+> > in a different file, drivers/tee/tee_shm.c
+> >
+> > So I'm going to leave 5.10.y alone for now, I think it's fixed.
 > 
-> A local conflict merging this made me notice a later commit:
-> -----
-> commit 387c72cdd7fb6bef650fb078d0f6ae9682abf631
-> Author: Keith Busch <kbusch@kernel.org>
-> Date:   Mon Jan 4 15:02:58 2021 -0800
+> It works somewhat, but there's the potential memory leak that Pavel
+> Machek pointed out,
+> https://lore.kernel.org/lkml/20220822111546.GA7795@duo.ucw.cz/ .
 > 
-> PCI/ERR: Retain status from error notification
+> The 5.4 patch has a better approach since it verifies the supplied
+> address range early before we do anything that must be undone on
+> error.
+> The 5.4 patch changes  tee_ioctl_shm_register() instead, which is the
+> function one step up in the call chain. This approach should be taken
+> for all kernels before 53e16519c2ec ("tee: replace
+> tee_shm_register()"), that is, before v5.18 if I'm reading the git log
+> correctly.
 > 
-> Overwriting the frozen detected status with the result of the link reset
-> loses the NEED_RESET result that drivers are depending on for error
-> handling to report the .slot_reset() callback. Retain this status so
-> that subsequent error handling has the correct flow.
-> 
-> Link: https://lore.kernel.org/r/20210104230300.1277180-4-kbusch@kernel.org
-> Reported-by: Hinko Kocevar <hinko.kocevar@ess.eu>
-> Tested-by: Hedi Berriche <hedi.berriche@hpe.com>
-> Signed-off-by: Keith Busch <kbusch@kernel.org>
-> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> Acked-by: Sean V Kelley <sean.v.kelley@intel.com>
-> Acked-by: Hedi Berriche <hedi.berriche@hpe.com>
-> 
-> diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
-> index a84f0bf4c1e2..b576aa890c76 100644
-> --- a/drivers/pci/pcie/err.c
-> +++ b/drivers/pci/pcie/err.c
-> @@ -198,8 +198,7 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
->  	pci_dbg(bridge, "broadcast error_detected message\n");
->  	if (state == pci_channel_io_frozen) {
->  		pci_walk_bridge(bridge, report_frozen_detected, &status);
-> -		status = reset_subordinates(bridge);
-> -		if (status != PCI_ERS_RESULT_RECOVERED) {
-> +		if (reset_subordinates(bridge) != PCI_ERS_RESULT_RECOVERED) {
->  			pci_warn(bridge, "subordinate device reset failed\n");
->  			goto failed;
->  		}
-> -----
-> 
-> Since this (commit I reply to) has been picked up, I think it'd make
-> sense to also include this (commit I just listed) in a later 5.10 tag.
-> It cherry-picks without error but would you like me to resend?
-> (I have added in Cc all involved people to this mail)
-> 
-> Digging through the mails the patch came with seem to imply approval for
-> stable merges; but it didn't make sense until pci_walk_bridge() had been
-> added just now. Now it's here we probably want both:
-> https://lore.kernel.org/all/d9ee4151-b28d-a52a-b5be-190a75e0e49b@intel.com/
-> 
-> 
-> (I noticed because the NXP kernel we are provided includes a different
-> "fix" for what I believe to be the same issue, previously discussed here:
-> https://lore.kernel.org/linux-pci/12115.1588207324@famine/
-> 
-> I haven't actually encountered any of the problems discribed, so this is
-> purely theorical for me; it just looks a bit weird.)
+> access_ok() went from taking three arguments to two sometime after
+> v4.19, why that patch is slightly different.
 
-I've queued up the commit you referenced above now, thanks!
+Ok, can you send me a new fix-up patch, on top of the latest 5.10.y
+release, to resolve the 5.10 issue?
+
+thanks,
 
 greg k-h
