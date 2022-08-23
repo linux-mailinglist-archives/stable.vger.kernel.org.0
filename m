@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 468B059D5EA
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:10:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F5B459D673
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347756AbiHWJGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:06:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58114 "EHLO
+        id S1348294AbiHWJJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348119AbiHWJFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:05:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD819844EB;
-        Tue, 23 Aug 2022 01:29:21 -0700 (PDT)
+        with ESMTP id S1347662AbiHWJHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:07:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81B448670D;
+        Tue, 23 Aug 2022 01:30:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30860B81C53;
-        Tue, 23 Aug 2022 08:28:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 630F8C433C1;
-        Tue, 23 Aug 2022 08:28:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12D48B81C5A;
+        Tue, 23 Aug 2022 08:30:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64A4AC4314A;
+        Tue, 23 Aug 2022 08:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243294;
-        bh=kBIJUnYoiF4hvWbezr8bvwVph0x8Ae5+cW9bccerPLw=;
+        s=korg; t=1661243419;
+        bh=vYopN2OvdoOaGtVHd9gj1WN5klnOVbI44044XMYR80o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X6VVkbPBAyigqFonlavrZ+3lM60kb/gXzg6QDkAtd7+neTC7uEEpNrDw67CmLLxLu
-         mkGyxk1KWGMM4aMeGnf2im5r8gUFn/Z5Nk1nXsv8BgnQen0+sGftlXUlBRjXUFuyPJ
-         2/lFP7ZuWBAQBk2qVq9yuojNoMNOKt2BSvg4Qd4s=
+        b=soGOp/FktAgVgHl+XV67bzIhMuaKqosY5Vgkbr+2+zLz7ycTHkEmLSpzW7u6pQrj1
+         wisw+BtIkAGw0WGRF8Wyzwyoo8maCIYY2sya0aS4s83ikYdsYbm0DMaZSput6y2n5e
+         eGmEjMsfCXVXNhZ1j0ePlffb44wJqvxKVCqGWA08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Marek Szlosek <marek.szlosek@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.19 230/365] i40e: Fix tunnel checksum offload with fragmented traffic
-Date:   Tue, 23 Aug 2022 10:02:11 +0200
-Message-Id: <20220823080127.841289110@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>
+Subject: [PATCH 5.19 231/365] regulator: pca9450: Remove restrictions for regulator-name
+Date:   Tue, 23 Aug 2022 10:02:12 +0200
+Message-Id: <20220823080127.885654541@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -56,59 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-commit 2c6482091f01ba104cf8ee549aa5c717e80d43ea upstream.
+commit b0de7fa706506bf0591037908376351beda8c5d6 upstream.
 
-Fix checksum offload on VXLAN tunnels.
-In case, when mpls protocol is not used, set l4 header to transport
-header of skb. This fixes case, when user tries to offload checksums
-of VXLAN tunneled traffic.
+The device bindings shouldn't put any constraints on the regulator-name
+property specified in the generic bindings. This allows using arbitrary
+and descriptive names for the regulators.
 
-Steps for reproduction (requires link partner with tunnels):
-ip l s enp130s0f0 up
-ip a f enp130s0f0
-ip a a 10.10.110.2/24 dev enp130s0f0
-ip l s enp130s0f0 mtu 1600
-ip link add vxlan12_sut type vxlan id 12 group 238.168.100.100 dev \
-enp130s0f0 dstport 4789
-ip l s vxlan12_sut up
-ip a a 20.10.110.2/24 dev vxlan12_sut
-iperf3 -c 20.10.110.1 #should connect
-
-Without this patch, TX descriptor was using wrong data, due to
-l4 header pointing wrong address. NIC would then drop those packets
-internally, due to incorrect TX descriptor data, which increased
-GLV_TEPC register.
-
-Fixes: b4fb2d33514a ("i40e: Add support for MPLS + TSO")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Marek Szlosek <marek.szlosek@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Suggested-by: Mark Brown <broonie@kernel.org>
+Fixes: 7ae9e3a6bf3f ("dt-bindings: regulator: add pca9450 regulator yaml")
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Link: https://lore.kernel.org/r/20220802064335.8481-1-frieder@fris.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_txrx.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/regulator/nxp,pca9450-regulator.yaml |   11 ----------
+ 1 file changed, 11 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-@@ -3204,11 +3204,13 @@ static int i40e_tx_enable_csum(struct sk
+--- a/Documentation/devicetree/bindings/regulator/nxp,pca9450-regulator.yaml
++++ b/Documentation/devicetree/bindings/regulator/nxp,pca9450-regulator.yaml
+@@ -47,12 +47,6 @@ properties:
+         description:
+           Properties for single LDO regulator.
  
- 	protocol = vlan_get_protocol(skb);
+-        properties:
+-          regulator-name:
+-            pattern: "^LDO[1-5]$"
+-            description:
+-              should be "LDO1", ..., "LDO5"
+-
+         unevaluatedProperties: false
  
--	if (eth_p_mpls(protocol))
-+	if (eth_p_mpls(protocol)) {
- 		ip.hdr = skb_inner_network_header(skb);
--	else
-+		l4.hdr = skb_checksum_start(skb);
-+	} else {
- 		ip.hdr = skb_network_header(skb);
--	l4.hdr = skb_checksum_start(skb);
-+		l4.hdr = skb_transport_header(skb);
-+	}
+       "^BUCK[1-6]$":
+@@ -62,11 +56,6 @@ properties:
+           Properties for single BUCK regulator.
  
- 	/* set the tx_flags to indicate the IP protocol type. this is
- 	 * required so that checksum header computation below is accurate.
+         properties:
+-          regulator-name:
+-            pattern: "^BUCK[1-6]$"
+-            description:
+-              should be "BUCK1", ..., "BUCK6"
+-
+           nxp,dvs-run-voltage:
+             $ref: "/schemas/types.yaml#/definitions/uint32"
+             minimum: 600000
 
 
