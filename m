@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A77F659E050
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 996C859E297
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354967AbiHWKds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:33:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
+        id S1350620AbiHWLeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:34:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355521AbiHWKca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:32:30 -0400
+        with ESMTP id S1358013AbiHWLcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 541EDA572E;
-        Tue, 23 Aug 2022 02:06:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B144E614;
+        Tue, 23 Aug 2022 02:26:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 598E86155D;
-        Tue, 23 Aug 2022 09:06:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62D14C433D6;
-        Tue, 23 Aug 2022 09:06:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3736F61227;
+        Tue, 23 Aug 2022 09:26:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15552C433B5;
+        Tue, 23 Aug 2022 09:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245601;
-        bh=EybR0K8FIJjUR+xXMlRDmtFDxa6phjBNGmXo8Ep1NLo=;
+        s=korg; t=1661246789;
+        bh=Md5RQ6iHQPX4e7LRHADrQoCMdtevRuFoWjv4ghAxn0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d1f1IBf0Ws7ItNBWW94fzP+IywvkTFOsaBRjYLErFuHkioXX/7uqYotL44EVhjIQA
-         AgQwlscgsC3mZMdg7Tw94Nl6Hb4L3qE1GVuGSq7u40aoatLMT1l5d+1JgD8dY23POi
-         UmspVBw1gyXlZzEJpboufsAkdsqEA3e6iXPQbjl8=
+        b=N9zJ85aknlucM0VTIPEVz/++PcKJg3XppMqREVZOZ7wm5WBEneWMO1+xNqHSdOh87
+         BPby9tGXiwFtFf3NbC19MPtetUG63VrnJedigcxrrWCAIxI/LUcQlDI4aOIElieu39
+         ROZPTlsBkzfPAszBpz5iXhQ4NXFILrBVEwfhAolc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 129/287] memstick/ms_block: Fix a memory leak
+Subject: [PATCH 5.4 220/389] rpmsg: qcom_smd: Fix refcount leak in qcom_smd_parse_edge
 Date:   Tue, 23 Aug 2022 10:24:58 +0200
-Message-Id: <20220823080104.749924521@linuxfoundation.org>
+Message-Id: <20220823080124.774737556@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 54eb7a55be6779c4d0c25eaf5056498a28595049 ]
+[ Upstream commit 65382585f067d4256ba087934f30f85c9b6984de ]
 
-'erased_blocks_bitmap' is never freed. As it is allocated at the same time
-as 'used_blocks_bitmap', it is likely that it should be freed also at the
-same time.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
 
-Add the corresponding bitmap_free() in msb_data_clear().
-
-Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/b3b78926569445962ea5c3b6e9102418a9effb88.1656155715.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220511120737.57374-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/ms_block.c | 1 +
+ drivers/rpmsg/qcom_smd.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
-index 0874fa882649..addf76a8d1b0 100644
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -1962,6 +1962,7 @@ static void msb_data_clear(struct msb_data *msb)
- {
- 	kfree(msb->boot_page);
- 	bitmap_free(msb->used_blocks_bitmap);
-+	bitmap_free(msb->erased_blocks_bitmap);
- 	kfree(msb->lba_to_pba_table);
- 	kfree(msb->cache);
- 	msb->card = NULL;
+diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
+index a4db9f6100d2..0b1e853d8c91 100644
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1364,6 +1364,7 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 		}
+ 
+ 		edge->ipc_regmap = syscon_node_to_regmap(syscon_np);
++		of_node_put(syscon_np);
+ 		if (IS_ERR(edge->ipc_regmap)) {
+ 			ret = PTR_ERR(edge->ipc_regmap);
+ 			goto put_node;
 -- 
 2.35.1
 
