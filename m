@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE6FB59DF55
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E41959E10C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242142AbiHWL15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:27:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37050 "EHLO
+        id S241152AbiHWL2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:28:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357777AbiHWL0r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:26:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0304E8FD48;
-        Tue, 23 Aug 2022 02:24:26 -0700 (PDT)
+        with ESMTP id S1358100AbiHWL1U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:27:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460FB90189;
+        Tue, 23 Aug 2022 02:25:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23493B81C97;
-        Tue, 23 Aug 2022 09:24:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D879C4314B;
-        Tue, 23 Aug 2022 09:24:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F38896126A;
+        Tue, 23 Aug 2022 09:24:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED8E5C433D6;
+        Tue, 23 Aug 2022 09:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246663;
-        bh=DGDNu2art7hAa52l3xxktqslUjIw4By6ta+2UGBncT8=;
+        s=korg; t=1661246699;
+        bh=HvyWMNn1dAMxG+kBolx7NdXelB+3mIqP2NLkskiIxtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WU7A09TBF/gYMOPvnwvwQkKLs0dFCKBZU6m1q9Ybf5Y2fvInCtQCbnzEyOy/gYknL
-         ynXr65hjJDklaiFNQt9i+zuSfS9vIReuJ/xq9gJ3TtXy+sHq4AUO58Xd07Vw7ydkLH
-         2kWeW3MEqqIcQNAtlGEEUy0pDzKSw+rD4vVqgfdA=
+        b=ckG7LTFdgR+PP3NfSeyinaNE2/W6ZPU9KPoI3VMn2wgdAVVxUr0CTnjRDKk30i8/T
+         RkJ6/Tpx4DRd/MJ1VGuWh4SXRfH8txxT9WqtQq86tjD9gI5yiXeQHbcWG6dt5B0bwO
+         TI4i9rF8MOyZeiETiejks3Oo9SjrWAU/QHijK4M8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Tang Bin <tangbin@cmss.chinamobile.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 163/389] usb: ohci-nxp: Fix refcount leak in ohci_hcd_nxp_probe
-Date:   Tue, 23 Aug 2022 10:24:01 +0200
-Message-Id: <20220823080122.427896643@linuxfoundation.org>
+Subject: [PATCH 5.4 164/389] usb: xhci: tegra: Fix error check
+Date:   Tue, 23 Aug 2022 10:24:02 +0200
+Message-Id: <20220823080122.476035562@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,36 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-[ Upstream commit 302970b4cad3ebfda2c05ce06c322ccdc447d17e ]
+[ Upstream commit 18fc7c435be3f17ea26a21b2e2312fcb9088e01f ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+In the function tegra_xusb_powerdomain_init(),
+dev_pm_domain_attach_by_name() may return NULL in some cases,
+so IS_ERR() doesn't meet the requirements. Thus fix it.
 
-Fixes: 73108aa90cbf ("USB: ohci-nxp: Use isp1301 driver")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220603141231.979-1-linmq006@gmail.com
+Fixes: 6494a9ad86de ("usb: xhci: tegra: Add genpd support")
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Link: https://lore.kernel.org/r/20220524121404.18376-1-tangbin@cmss.chinamobile.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ohci-nxp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci-tegra.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/host/ohci-nxp.c b/drivers/usb/host/ohci-nxp.c
-index c561881d0e79..07cee8c7c25e 100644
---- a/drivers/usb/host/ohci-nxp.c
-+++ b/drivers/usb/host/ohci-nxp.c
-@@ -164,6 +164,7 @@ static int ohci_hcd_nxp_probe(struct platform_device *pdev)
+diff --git a/drivers/usb/host/xhci-tegra.c b/drivers/usb/host/xhci-tegra.c
+index 6087b1fa530f..d53bdb7d297f 100644
+--- a/drivers/usb/host/xhci-tegra.c
++++ b/drivers/usb/host/xhci-tegra.c
+@@ -933,15 +933,15 @@ static int tegra_xusb_powerdomain_init(struct device *dev,
+ 	int err;
+ 
+ 	tegra->genpd_dev_host = dev_pm_domain_attach_by_name(dev, "xusb_host");
+-	if (IS_ERR(tegra->genpd_dev_host)) {
+-		err = PTR_ERR(tegra->genpd_dev_host);
++	if (IS_ERR_OR_NULL(tegra->genpd_dev_host)) {
++		err = PTR_ERR(tegra->genpd_dev_host) ? : -ENODATA;
+ 		dev_err(dev, "failed to get host pm-domain: %d\n", err);
+ 		return err;
  	}
  
- 	isp1301_i2c_client = isp1301_get_client(isp1301_node);
-+	of_node_put(isp1301_node);
- 	if (!isp1301_i2c_client)
- 		return -EPROBE_DEFER;
- 
+ 	tegra->genpd_dev_ss = dev_pm_domain_attach_by_name(dev, "xusb_ss");
+-	if (IS_ERR(tegra->genpd_dev_ss)) {
+-		err = PTR_ERR(tegra->genpd_dev_ss);
++	if (IS_ERR_OR_NULL(tegra->genpd_dev_ss)) {
++		err = PTR_ERR(tegra->genpd_dev_ss) ? : -ENODATA;
+ 		dev_err(dev, "failed to get superspeed pm-domain: %d\n", err);
+ 		return err;
+ 	}
 -- 
 2.35.1
 
