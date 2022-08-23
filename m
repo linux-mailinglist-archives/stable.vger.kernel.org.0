@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B36F59DB72
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B263059DB48
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356274AbiHWKuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:50:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40094 "EHLO
+        id S1354263AbiHWKRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:17:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355947AbiHWKse (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:48:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A96EC25E8F;
-        Tue, 23 Aug 2022 02:12:11 -0700 (PDT)
+        with ESMTP id S1353299AbiHWKON (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:14:13 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE54972FE6;
+        Tue, 23 Aug 2022 01:59:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C7E8B81C66;
-        Tue, 23 Aug 2022 09:12:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0C3EC433D6;
-        Tue, 23 Aug 2022 09:12:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3F24CCE1B2C;
+        Tue, 23 Aug 2022 08:59:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F40CC433D6;
+        Tue, 23 Aug 2022 08:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245929;
-        bh=OQlvZM+K22KXk20z/y80Vu43gP5UH4g2hFg4EP4s7Wc=;
+        s=korg; t=1661245191;
+        bh=nJdKeWgqbwSrC1zoMSnCLvplncVpAtSgrQGy4V7rxN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ro28e8kxR/SfEbZfBlYwCvrG49ZT/o8oMnVYdAGHgcNFN/hF4QcMcVvpDRaMoJXE+
-         zavLMQyxWtI/HmxLKNDf3uqoIKz4IkmImbZdITq1keLWe+4BS1oGxiQtPXan/u9TT1
-         TATvKEQTyaEOWFBXds4sjf2KL6SQAEMGaMKygZMo=
+        b=T4fN/GcmafdOrofZIY+h4OaBD3K3xRQl0a/hAVw24golU+X5LbXw9ok76wbpPYi+h
+         HxOMJLus1rwqkbrd0hQjeXce6LhHL45hqeD0USRn9sbSAw/u87YKwdfDVf8zpHuYs9
+         Aar56weC+gO9Wkyc6wP2BKffv3nzsTVCl0ApDDZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.19 233/287] SUNRPC: Reinitialise the backchannel request buffers before reuse
-Date:   Tue, 23 Aug 2022 10:26:42 +0200
-Message-Id: <20220823080108.889190037@linuxfoundation.org>
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Allison Henderson <allison.henderson@oracle.com>,
+        Catherine Hoang <catherine.hoang@oracle.com>,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 244/244] xfs: reject crazy array sizes being fed to XFS_IOC_GETBMAP*
+Date:   Tue, 23 Aug 2022 10:26:43 +0200
+Message-Id: <20220823080107.796989859@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 6622e3a73112fc336c1c2c582428fb5ef18e456a upstream.
+[ Upstream commit 29d650f7e3ab55283b89c9f5883d0c256ce478b5 ]
 
-When we're reusing the backchannel requests instead of freeing them,
-then we should reinitialise any values of the send/receive xdr_bufs so
-that they reflect the available space.
+Syzbot tripped over the following complaint from the kernel:
 
-Fixes: 0d2a970d0ae5 ("SUNRPC: Fix a backchannel race")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+WARNING: CPU: 2 PID: 15402 at mm/util.c:597 kvmalloc_node+0x11e/0x125 mm/util.c:597
+
+While trying to run XFS_IOC_GETBMAP against the following structure:
+
+struct getbmap fubar = {
+	.bmv_count	= 0x22dae649,
+};
+
+Obviously, this is a crazy huge value since the next thing that the
+ioctl would do is allocate 37GB of memory.  This is enough to make
+kvmalloc mad, but isn't large enough to trip the validation functions.
+In other words, I'm fussing with checks that were **already sufficient**
+because that's easier than dealing with 644 internal bug reports.  Yes,
+that's right, six hundred and forty-four.
+
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Allison Henderson <allison.henderson@oracle.com>
+Reviewed-by: Catherine Hoang <catherine.hoang@oracle.com>
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/backchannel_rqst.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ fs/xfs/xfs_ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sunrpc/backchannel_rqst.c
-+++ b/net/sunrpc/backchannel_rqst.c
-@@ -69,6 +69,17 @@ static void xprt_free_allocation(struct
- 	kfree(req);
- }
+--- a/fs/xfs/xfs_ioctl.c
++++ b/fs/xfs/xfs_ioctl.c
+@@ -1545,7 +1545,7 @@ xfs_ioc_getbmap(
  
-+static void xprt_bc_reinit_xdr_buf(struct xdr_buf *buf)
-+{
-+	buf->head[0].iov_len = PAGE_SIZE;
-+	buf->tail[0].iov_len = 0;
-+	buf->pages = NULL;
-+	buf->page_len = 0;
-+	buf->flags = 0;
-+	buf->len = 0;
-+	buf->buflen = PAGE_SIZE;
-+}
-+
- static int xprt_alloc_xdr_buf(struct xdr_buf *buf, gfp_t gfp_flags)
- {
- 	struct page *page;
-@@ -291,6 +302,9 @@ void xprt_free_bc_rqst(struct rpc_rqst *
- 	 */
- 	spin_lock_bh(&xprt->bc_pa_lock);
- 	if (xprt_need_to_requeue(xprt)) {
-+		xprt_bc_reinit_xdr_buf(&req->rq_snd_buf);
-+		xprt_bc_reinit_xdr_buf(&req->rq_rcv_buf);
-+		req->rq_rcv_buf.len = PAGE_SIZE;
- 		list_add_tail(&req->rq_bc_pa_list, &xprt->bc_pa_list);
- 		xprt->bc_alloc_count++;
- 		req = NULL;
+ 	if (bmx.bmv_count < 2)
+ 		return -EINVAL;
+-	if (bmx.bmv_count > ULONG_MAX / recsize)
++	if (bmx.bmv_count >= INT_MAX / recsize)
+ 		return -ENOMEM;
+ 
+ 	buf = kvzalloc(bmx.bmv_count * sizeof(*buf), GFP_KERNEL);
 
 
