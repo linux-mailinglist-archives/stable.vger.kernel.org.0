@@ -2,104 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6476259DC3F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A41C859DDE3
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355182AbiHWMMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:12:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38674 "EHLO
+        id S1356078AbiHWKtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:49:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359344AbiHWML0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:11:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD87E0FF1;
-        Tue, 23 Aug 2022 02:39:09 -0700 (PDT)
+        with ESMTP id S1356346AbiHWKrD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:47:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B573586B59;
+        Tue, 23 Aug 2022 02:11:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AB0AB81CA0;
-        Tue, 23 Aug 2022 09:38:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2D98C433C1;
-        Tue, 23 Aug 2022 09:38:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40EEF60F50;
+        Tue, 23 Aug 2022 09:11:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D115C433D6;
+        Tue, 23 Aug 2022 09:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247527;
-        bh=FiKJFq3p3hNMNAz/G+j1Jr63XmO/Uxj1ECLA2jSv+YM=;
+        s=korg; t=1661245906;
+        bh=J1OQH30u8/si5yEbyQ4z0MiHnttBlN//30HHIi/nk44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIZGtENePEp3HbULfgdQxL02ORbH8+JGp9pBJXeJ3Auf2F+0IoHkVySLUWMMJFAbo
-         dnFGohV4oAk4BPwY3zeFNNfNWNpkieLbRwN0bx7Trij27opK+C+i2IaurIzKnskBZh
-         oraWjzBFStrArhU7PnTHHzoFao6zW5Eku7YZf9nA=
+        b=FDbeEpxLkeWmCqIgXdsTp2QH7sDiFmRyumSPTU0vyOhwl2Bs90u3Eqz4RH5Pb/vI4
+         T1ozImuRKw5XFmiFeQFzjLioWY8QMdalgbpUA/vhgiTP6sdKu14F1oSHMGHfPigjz6
+         E6rHqPnfBefVAYau43wwL7QYkPlCA7dtFSHm1aXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.10 064/158] nios2: page fault et.al. are *not* restartable syscalls...
+        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 4.19 227/287] apparmor: fix overlapping attachment computation
 Date:   Tue, 23 Aug 2022 10:26:36 +0200
-Message-Id: <20220823080048.669109248@linuxfoundation.org>
+Message-Id: <20220823080108.649059844@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_ABUSE_SURBL
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: John Johansen <john.johansen@canonical.com>
 
-commit 8535c239ac674f7ead0f2652932d35c52c4123b2 upstream.
+commit 2504db207146543736e877241f3b3de005cbe056 upstream.
 
-make sure that ->orig_r2 is negative for everything except
-the syscalls.
+When finding the profile via patterned attachments, the longest left
+match is being set to the static compile time value and not using the
+runtime computed value.
 
-Fixes: 82ed08dd1b0e ("nios2: Exception handling")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Fix this by setting the candidate value to the greater of the
+precomputed value or runtime computed value.
+
+Fixes: 21f606610502 ("apparmor: improve overlapping domain attachment resolution")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/include/asm/entry.h |    3 ++-
- arch/nios2/kernel/entry.S      |    4 +---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ security/apparmor/domain.c         |    2 +-
+ security/apparmor/include/policy.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/nios2/include/asm/entry.h
-+++ b/arch/nios2/include/asm/entry.h
-@@ -50,7 +50,8 @@
- 	stw	r13, PT_R13(sp)
- 	stw	r14, PT_R14(sp)
- 	stw	r15, PT_R15(sp)
--	stw	r2, PT_ORIG_R2(sp)
-+	movi	r24, -1
-+	stw	r24, PT_ORIG_R2(sp)
- 	stw	r7, PT_ORIG_R7(sp)
+--- a/security/apparmor/domain.c
++++ b/security/apparmor/domain.c
+@@ -464,7 +464,7 @@ restart:
+ 				 * xattrs, or a longer match
+ 				 */
+ 				candidate = profile;
+-				candidate_len = profile->xmatch_len;
++				candidate_len = max(count, profile->xmatch_len);
+ 				candidate_xattrs = ret;
+ 				conflict = false;
+ 			}
+--- a/security/apparmor/include/policy.h
++++ b/security/apparmor/include/policy.h
+@@ -139,7 +139,7 @@ struct aa_profile {
  
- 	stw	ra, PT_RA(sp)
---- a/arch/nios2/kernel/entry.S
-+++ b/arch/nios2/kernel/entry.S
-@@ -185,6 +185,7 @@ ENTRY(handle_system_call)
- 	ldw	r5, PT_R5(sp)
- 
- local_restart:
-+	stw	r2, PT_ORIG_R2(sp)
- 	/* Check that the requested system call is within limits */
- 	movui	r1, __NR_syscalls
- 	bgeu	r2, r1, ret_invsyscall
-@@ -336,9 +337,6 @@ external_interrupt:
- 	/* skip if no interrupt is pending */
- 	beq	r12, r0, ret_from_interrupt
- 
--	movi	r24, -1
--	stw	r24, PT_ORIG_R2(sp)
--
- 	/*
- 	 * Process an external hardware interrupt.
- 	 */
+ 	const char *attach;
+ 	struct aa_dfa *xmatch;
+-	int xmatch_len;
++	unsigned int xmatch_len;
+ 	enum audit_mode audit;
+ 	long mode;
+ 	u32 path_flags;
 
 
