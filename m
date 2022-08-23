@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1EAF59DD84
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE7C759DD91
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357413AbiHWLTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:19:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37618 "EHLO
+        id S1346506AbiHWLT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:19:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244190AbiHWLRs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190E389831;
-        Tue, 23 Aug 2022 02:21:44 -0700 (PDT)
+        with ESMTP id S241855AbiHWLRt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677626DF8D;
+        Tue, 23 Aug 2022 02:21:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B94E3B81C63;
-        Tue, 23 Aug 2022 09:21:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24945C433D7;
-        Tue, 23 Aug 2022 09:21:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F549B81B1F;
+        Tue, 23 Aug 2022 09:21:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48D5EC433D6;
+        Tue, 23 Aug 2022 09:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246501;
-        bh=PxMWAnN7mLY/qiAkQF7kR9yzGUfxyiz/6b1nMbzbwmw=;
+        s=korg; t=1661246504;
+        bh=+YT+tRkvhVo8szNoAVSGW7oqfQ9VN9Go5c/q5Z2uSu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVnKNU/t0zvwrJQOkv7RR3HboCVwxFtkWPlMynH0COIw36+S6hZPdpsrLRJohVuMO
-         06G6fTWxtEOp3fehc+8JgF77biHnIjbBrNaVZGWnrh/NbwAKMHiRz1adiHuPfePrXl
-         upcchA0RwfJLnRlqD97aOsC/0CZRVURqg0OWBAbo=
+        b=a7U7OmwG83vVUs0VN901w4TOVXbNoi3WTv/9gd+mJkuz4ZjhajWL87MNAh0LGZZUj
+         80uxuk2Vu4p1iCEiDQcldvXZ0lmfsnr8fRA25OGRXIrhUMmcGirq7fNRPjeYx2TP20
+         Yq7ZW9GQ6lx0wRH9DAFgb5R0oUNqgCX5r1s3sCQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jitao Shi <jitao.shi@mediatek.com>,
-        Xinlei Lee <xinlei.lee@mediatek.com>,
-        Rex-BC Chen <rex-bc.chen@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        stable@vger.kernel.org,
+        Antonio Borneo <antonio.borneo@foss.st.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 099/389] drm/mediatek: Add pull-down MIPI operation in mtk_dsi_poweroff function
-Date:   Tue, 23 Aug 2022 10:22:57 +0200
-Message-Id: <20220823080119.747901417@linuxfoundation.org>
+Subject: [PATCH 5.4 100/389] drm: adv7511: override i2c address of cec before accessing it
+Date:   Tue, 23 Aug 2022 10:22:58 +0200
+Message-Id: <20220823080119.795793566@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -56,46 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xinlei Lee <xinlei.lee@mediatek.com>
+From: Antonio Borneo <antonio.borneo@foss.st.com>
 
-[ Upstream commit fa5d0a0205c34734c5b8daa77e39ac2817f63a10 ]
+[ Upstream commit 9cc4853e4781bf0dd0f35355dc92d97c9da02f5d ]
 
-In the dsi_enable function, mtk_dsi_rxtx_control is to
-pull up the MIPI signal operation. Before dsi_disable,
-MIPI should also be pulled down by writing a register
-instead of disabling dsi.
+Commit 680532c50bca ("drm: adv7511: Add support for
+i2c_new_secondary_device") allows a device tree node to override
+the default addresses of the secondary i2c devices. This is useful
+for solving address conflicts on the i2c bus.
 
-If disable dsi without pulling the mipi signal low, the value of
-the register will still maintain the setting of the mipi signal being
-pulled high.
-After resume, even if the mipi signal is not pulled high, it will still
-be in the high state.
+In adv7511_init_cec_regmap() the new i2c address of cec device is
+read from device tree and immediately accessed, well before it is
+written in the proper register to override the default address.
+This can cause an i2c error during probe and a consequent probe
+failure.
 
-Fixes: 2e54c14e310f ("drm/mediatek: Add DSI sub driver")
+Once the new i2c address is read from the device tree, override
+the default address before any attempt to access the cec.
 
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/1653012007-11854-5-git-send-email-xinlei.lee@mediatek.com/
-Signed-off-by: Jitao Shi <jitao.shi@mediatek.com>
-Signed-off-by: Xinlei Lee <xinlei.lee@mediatek.com>
-Reviewed-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Tested with adv7533 and stm32mp157f.
+
+Signed-off-by: Antonio Borneo <antonio.borneo@foss.st.com>
+Fixes: 680532c50bca ("drm: adv7511: Add support for i2c_new_secondary_device")
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220607213144.427177-1-antonio.borneo@foss.st.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dsi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
-index 224afb666881..e82705a33acf 100644
---- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-@@ -645,6 +645,8 @@ static void mtk_dsi_poweroff(struct mtk_dsi *dsi)
- 	mtk_dsi_reset_engine(dsi);
- 	mtk_dsi_lane0_ulp_mode_enter(dsi);
- 	mtk_dsi_clk_ulp_mode_enter(dsi);
-+	/* set the lane number as 0 to pull down mipi */
-+	writel(0, dsi->regs + DSI_TXRX_CTRL);
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index e7bf32f234d7..e2f84e2d5d3c 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -985,6 +985,10 @@ static int adv7511_init_cec_regmap(struct adv7511 *adv)
+ 						ADV7511_CEC_I2C_ADDR_DEFAULT);
+ 	if (IS_ERR(adv->i2c_cec))
+ 		return PTR_ERR(adv->i2c_cec);
++
++	regmap_write(adv->regmap, ADV7511_REG_CEC_I2C_ADDR,
++		     adv->i2c_cec->addr << 1);
++
+ 	i2c_set_clientdata(adv->i2c_cec, adv);
  
- 	mtk_dsi_disable(dsi);
+ 	adv->regmap_cec = devm_regmap_init_i2c(adv->i2c_cec,
+@@ -1189,9 +1193,6 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
+ 	if (ret)
+ 		goto err_i2c_unregister_packet;
  
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_I2C_ADDR,
+-		     adv7511->i2c_cec->addr << 1);
+-
+ 	INIT_WORK(&adv7511->hpd_work, adv7511_hpd_work);
+ 
+ 	if (i2c->irq) {
 -- 
 2.35.1
 
