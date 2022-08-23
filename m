@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 225F659DC2C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 157DA59E230
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355305AbiHWKkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:40:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43154 "EHLO
+        id S1352874AbiHWKJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:09:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355308AbiHWKiJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:38:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4FA0A6C7D;
-        Tue, 23 Aug 2022 02:07:39 -0700 (PDT)
+        with ESMTP id S1352327AbiHWKH0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:07:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10453D597;
+        Tue, 23 Aug 2022 01:53:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37852B81C85;
-        Tue, 23 Aug 2022 09:07:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8313BC433D6;
-        Tue, 23 Aug 2022 09:07:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D579B81C1C;
+        Tue, 23 Aug 2022 08:53:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9878C433C1;
+        Tue, 23 Aug 2022 08:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245657;
-        bh=gAP38tcAj7LlaKrsijqfJ1GSUGU8jMf8tiBpQP4uIZ0=;
+        s=korg; t=1661244833;
+        bh=w2DxzNtSYjlJOxq37XuAFn4T5Dj04nIDkze7xtUTYpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0uWNVLBLjlAAzwZ1tXynTuWQv0ih2b3HQPEzpY9jX75pT6d+cSeoYu9ns8sLngL1
-         NuK+B+TXs5fJjJ81BF5ftM0l24hKjR9FvFD53G3lq4JOwfdk/vOwO5OlEQNtEpbQ4C
-         Swng1G3HwUoB2MXtNgv3v9hSl5lQhtns5ob0aiPQ=
+        b=EDc39UpLcRBWhDuMzNyyw2pXjUSvqBhPHYxqp4v7Sjy7iyyJHhPOr9gq3Gh7qxMSl
+         N8oppXNu6eDzH8g2bhkEzfV2IQOCZa4aQf11xPHDrzb0Gp8xH5eOWOz7AlNxvFyLdk
+         kf8SuRHTiia9d5WFtxUWZosHft4ZzSjmz123JQ4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Maxim Kochetkov <fido_max@inbox.ru>,
+        Hemant Kumar <quic_hemantk@quicinc.com>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 148/287] ASoC: codecs: da7210: add check for i2c_add_driver
-Date:   Tue, 23 Aug 2022 10:25:17 +0200
-Message-Id: <20220823080105.554865945@linuxfoundation.org>
+Subject: [PATCH 5.15 159/244] net: qrtr: start MHI channel after endpoit creation
+Date:   Tue, 23 Aug 2022 10:25:18 +0200
+Message-Id: <20220823080104.499836386@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +57,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Maxim Kochetkov <fido_max@inbox.ru>
 
-[ Upstream commit 82fa8f581a954ddeec1602bed9f8b4a09d100e6e ]
+[ Upstream commit 68a838b84effb7b57ba7d50b1863fc6ae35a54ce ]
 
-As i2c_add_driver could return error if fails, it should be
-better to check the return value.
-However, if the CONFIG_I2C and CONFIG_SPI_MASTER are both true,
-the return value of i2c_add_driver will be covered by
-spi_register_driver.
-Therefore, it is necessary to add check and return error if fails.
+MHI channel may generates event/interrupt right after enabling.
+It may leads to 2 race conditions issues.
 
-Fixes: aa0e25caafb7 ("ASoC: da7210: Add support for spi regmap")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220531094712.2376759-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+1)
+Such event may be dropped by qcom_mhi_qrtr_dl_callback() at check:
+
+	if (!qdev || mhi_res->transaction_status)
+		return;
+
+Because dev_set_drvdata(&mhi_dev->dev, qdev) may be not performed at
+this moment. In this situation qrtr-ns will be unable to enumerate
+services in device.
+---------------------------------------------------------------
+
+2)
+Such event may come at the moment after dev_set_drvdata() and
+before qrtr_endpoint_register(). In this case kernel will panic with
+accessing wrong pointer at qcom_mhi_qrtr_dl_callback():
+
+	rc = qrtr_endpoint_post(&qdev->ep, mhi_res->buf_addr,
+				mhi_res->bytes_xferd);
+
+Because endpoint is not created yet.
+--------------------------------------------------------------
+So move mhi_prepare_for_transfer_autoqueue after endpoint creation
+to fix it.
+
+Fixes: a2e2cc0dbb11 ("net: qrtr: Start MHI channels during init")
+Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+Reviewed-by: Hemant Kumar <quic_hemantk@quicinc.com>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/da7210.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/qrtr/mhi.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/da7210.c b/sound/soc/codecs/da7210.c
-index e172913d04a4..efc5049c0796 100644
---- a/sound/soc/codecs/da7210.c
-+++ b/sound/soc/codecs/da7210.c
-@@ -1333,6 +1333,8 @@ static int __init da7210_modinit(void)
- 	int ret = 0;
- #if IS_ENABLED(CONFIG_I2C)
- 	ret = i2c_add_driver(&da7210_i2c_driver);
-+	if (ret)
-+		return ret;
- #endif
- #if defined(CONFIG_SPI_MASTER)
- 	ret = spi_register_driver(&da7210_spi_driver);
+diff --git a/net/qrtr/mhi.c b/net/qrtr/mhi.c
+index fa611678af05..49e7cab43d24 100644
+--- a/net/qrtr/mhi.c
++++ b/net/qrtr/mhi.c
+@@ -78,11 +78,6 @@ static int qcom_mhi_qrtr_probe(struct mhi_device *mhi_dev,
+ 	struct qrtr_mhi_dev *qdev;
+ 	int rc;
+ 
+-	/* start channels */
+-	rc = mhi_prepare_for_transfer(mhi_dev);
+-	if (rc)
+-		return rc;
+-
+ 	qdev = devm_kzalloc(&mhi_dev->dev, sizeof(*qdev), GFP_KERNEL);
+ 	if (!qdev)
+ 		return -ENOMEM;
+@@ -96,6 +91,13 @@ static int qcom_mhi_qrtr_probe(struct mhi_device *mhi_dev,
+ 	if (rc)
+ 		return rc;
+ 
++	/* start channels */
++	rc = mhi_prepare_for_transfer(mhi_dev);
++	if (rc) {
++		qrtr_endpoint_unregister(&qdev->ep);
++		return rc;
++	}
++
+ 	dev_dbg(qdev->dev, "Qualcomm MHI QRTR driver probed\n");
+ 
+ 	return 0;
 -- 
 2.35.1
 
