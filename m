@@ -2,104 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C326B59D612
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:11:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE5C459D70C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243604AbiHWI2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:28:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46468 "EHLO
+        id S231508AbiHWJWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:22:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344524AbiHWI1A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:27:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FF696C746;
-        Tue, 23 Aug 2022 01:14:47 -0700 (PDT)
+        with ESMTP id S1350433AbiHWJVr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:21:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 944A08E0E6;
+        Tue, 23 Aug 2022 01:34:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD2CF6132D;
-        Tue, 23 Aug 2022 08:14:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0055C433D6;
-        Tue, 23 Aug 2022 08:14:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1147D61499;
+        Tue, 23 Aug 2022 08:33:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 181B7C433D6;
+        Tue, 23 Aug 2022 08:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242484;
-        bh=FiKJFq3p3hNMNAz/G+j1Jr63XmO/Uxj1ECLA2jSv+YM=;
+        s=korg; t=1661243629;
+        bh=XMqlULsVRDZW+IEUfiphA3cJNCqcrWzjUawBkqNX6W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xxiniz4ePqBgMc027Zpa5HNBif8u7o48pWXcOCC558+hiV2u4QNCVsl2jSficxu5B
-         VMmNNsf79bfFEpGrEoaDfNvmYMn/J/0z0J9/Ec5RyYdrqqoEEEnUqq3c66IKTRmo0b
-         keAkFB/vzLIkHFVu2ZMwSqwCApyjpM6dfRU58bYo=
+        b=VmctdUQG7628qXMTkuyidLA2afXhOF8EKNro7oNP1FfIBkv+GNKPRC6zbFzNlYCIw
+         fB5Oq+wlA63vdUPoYVQIrUVaUMKaDw0uhe7sti0PUkw1Vkn86rfNpbJOXX60sF3/v5
+         dacefLa0I9hCxP/ZLB7UAEFJJ9PHbRzRyPMLXqjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 4.9 078/101] nios2: page fault et.al. are *not* restartable syscalls...
+        stable@vger.kernel.org,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 330/365] ASoC: SOF: sof-client-probes: Only load the driver if IPC3 is used
 Date:   Tue, 23 Aug 2022 10:03:51 +0200
-Message-Id: <20220823080037.557315562@linuxfoundation.org>
+Message-Id: <20220823080132.023341441@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
-References: <20220823080034.579196046@linuxfoundation.org>
+In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
+References: <20220823080118.128342613@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_ABUSE_SURBL
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-commit 8535c239ac674f7ead0f2652932d35c52c4123b2 upstream.
+[ Upstream commit 9b93eda355089b36482f7a2f134bdd24be70f907 ]
 
-make sure that ->orig_r2 is negative for everything except
-the syscalls.
+The current implementation of probes only supports IPC3 and should not be
+loaded for other IPC implementation.
 
-Fixes: 82ed08dd1b0e ("nios2: Exception handling")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Link: https://lore.kernel.org/r/20220712131022.1124-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nios2/include/asm/entry.h |    3 ++-
- arch/nios2/kernel/entry.S      |    4 +---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ sound/soc/sof/sof-client-probes.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/nios2/include/asm/entry.h
-+++ b/arch/nios2/include/asm/entry.h
-@@ -50,7 +50,8 @@
- 	stw	r13, PT_R13(sp)
- 	stw	r14, PT_R14(sp)
- 	stw	r15, PT_R15(sp)
--	stw	r2, PT_ORIG_R2(sp)
-+	movi	r24, -1
-+	stw	r24, PT_ORIG_R2(sp)
- 	stw	r7, PT_ORIG_R7(sp)
+diff --git a/sound/soc/sof/sof-client-probes.c b/sound/soc/sof/sof-client-probes.c
+index 34e6bd356e71..60e4250fac87 100644
+--- a/sound/soc/sof/sof-client-probes.c
++++ b/sound/soc/sof/sof-client-probes.c
+@@ -693,6 +693,10 @@ static int sof_probes_client_probe(struct auxiliary_device *auxdev,
+ 	if (!sof_probes_enabled)
+ 		return -ENXIO;
  
- 	stw	ra, PT_RA(sp)
---- a/arch/nios2/kernel/entry.S
-+++ b/arch/nios2/kernel/entry.S
-@@ -185,6 +185,7 @@ ENTRY(handle_system_call)
- 	ldw	r5, PT_R5(sp)
- 
- local_restart:
-+	stw	r2, PT_ORIG_R2(sp)
- 	/* Check that the requested system call is within limits */
- 	movui	r1, __NR_syscalls
- 	bgeu	r2, r1, ret_invsyscall
-@@ -336,9 +337,6 @@ external_interrupt:
- 	/* skip if no interrupt is pending */
- 	beq	r12, r0, ret_from_interrupt
- 
--	movi	r24, -1
--	stw	r24, PT_ORIG_R2(sp)
--
- 	/*
- 	 * Process an external hardware interrupt.
- 	 */
++	/* only ipc3 is supported */
++	if (sof_client_get_ipc_type(cdev) != SOF_IPC)
++		return -ENXIO;
++
+ 	if (!dev->platform_data) {
+ 		dev_err(dev, "missing platform data\n");
+ 		return -ENODEV;
+-- 
+2.35.1
+
 
 
