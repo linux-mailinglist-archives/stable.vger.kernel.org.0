@@ -2,54 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2CD59E0B5
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B82E59DB60
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355855AbiHWKsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:48:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53400 "EHLO
+        id S1352707AbiHWKNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355846AbiHWKo4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:44:56 -0400
+        with ESMTP id S1353402AbiHWKL0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D1186880;
-        Tue, 23 Aug 2022 02:10:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E387F094;
+        Tue, 23 Aug 2022 01:56:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9336B81C66;
-        Tue, 23 Aug 2022 09:10:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB06C433C1;
-        Tue, 23 Aug 2022 09:10:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C4FEB81C3E;
+        Tue, 23 Aug 2022 08:56:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F00CC433D6;
+        Tue, 23 Aug 2022 08:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245840;
-        bh=rOtT2ckmil5KAQ6B8IHaMvbN4V0Br6QFkFcCFOmDcag=;
+        s=korg; t=1661244999;
+        bh=Qv6ZPkimk60J/z99QV34gPcNVKVWvbzTNrs91mDfqTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qoQ/BxU0PipQtjTvZxtNXixlYTax6a4SE9EgIAQyBU5vdN24rPsEAqZ0ubycznK3X
-         MyMFNLTLLzRWiXp4RQHfak2xHoGvRHaTWAU3J5y8OAy8ltH7W6BkVhCGuXlsyzDX6H
-         2zL9rISrqj2cNyvXcpL/6wZY+lf6BudRXQfqgKis=
+        b=ITZ5Agz8P9NiqzZ9GZBfO01aYHqx8fHjuUyUFEAy5prxYVBF8FrGPmFCqIKkRgeGe
+         /fR7Ge4vLtQIOur2xbjvSBx5hJ1DNSm+pakQ7F5HiToC+92q0FVb4MlKhpy6NpGF93
+         MZqoIAtXnoRBwb3b5IkrYN61d1rPEmMDb4wHwJg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E8=B0=AD=E6=A2=93=E7=85=8A?= <tanzixuan.me@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Martin KaFai Lau <kafai@fb.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Ofir Bitton <obitton@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 176/287] genelf: Use HAVE_LIBCRYPTO_SUPPORT, not the never defined HAVE_LIBCRYPTO
+Subject: [PATCH 5.15 186/244] habanalabs/gaudi: fix shift out of bounds
 Date:   Tue, 23 Aug 2022 10:25:45 +0200
-Message-Id: <20220823080106.687592053@linuxfoundation.org>
+Message-Id: <20220823080105.561121637@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,53 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Ofir Bitton <obitton@habana.ai>
 
-[ Upstream commit 91cea6be90e436c55cde8770a15e4dac9d3032d0 ]
+[ Upstream commit 01622098aeb05a5efbb727199bbc2a4653393255 ]
 
-When genelf was introduced it tested for HAVE_LIBCRYPTO not
-HAVE_LIBCRYPTO_SUPPORT, which is the define the feature test for openssl
-defines, fix it.
+When validating NIC queues, queue offset calculation must be
+performed only for NIC queues.
 
-This also adds disables the deprecation warning, someone has to fix this
-to build with openssl 3.0 before the warning becomes a hard error.
-
-Fixes: 9b07e27f88b9cd78 ("perf inject: Add jitdump mmap injection support")
-Reported-by: 谭梓煊 <tanzixuan.me@gmail.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/YulpPqXSOG0Q4J1o@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Ofir Bitton <obitton@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/genelf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/misc/habanalabs/gaudi/gaudi.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
-index aafbe54fd3fa..afb8fe3a8e35 100644
---- a/tools/perf/util/genelf.c
-+++ b/tools/perf/util/genelf.c
-@@ -35,7 +35,11 @@
+diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
+index 14da87b38e83..801acab048eb 100644
+--- a/drivers/misc/habanalabs/gaudi/gaudi.c
++++ b/drivers/misc/habanalabs/gaudi/gaudi.c
+@@ -5744,15 +5744,17 @@ static int gaudi_parse_cb_no_ext_queue(struct hl_device *hdev,
+ {
+ 	struct asic_fixed_properties *asic_prop = &hdev->asic_prop;
+ 	struct gaudi_device *gaudi = hdev->asic_specific;
+-	u32 nic_mask_q_id = 1 << (HW_CAP_NIC_SHIFT +
+-		((parser->hw_queue_id - GAUDI_QUEUE_ID_NIC_0_0) >> 2));
++	u32 nic_queue_offset, nic_mask_q_id;
  
- #define BUILD_ID_URANDOM /* different uuid for each run */
- 
--#ifdef HAVE_LIBCRYPTO
-+// FIXME, remove this and fix the deprecation warnings before its removed and
-+// We'll break for good here...
-+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+ 	if ((parser->hw_queue_id >= GAUDI_QUEUE_ID_NIC_0_0) &&
+-			(parser->hw_queue_id <= GAUDI_QUEUE_ID_NIC_9_3) &&
+-			(!(gaudi->hw_cap_initialized & nic_mask_q_id))) {
+-		dev_err(hdev->dev, "h/w queue %d is disabled\n",
+-				parser->hw_queue_id);
+-		return -EINVAL;
++			(parser->hw_queue_id <= GAUDI_QUEUE_ID_NIC_9_3)) {
++		nic_queue_offset = parser->hw_queue_id - GAUDI_QUEUE_ID_NIC_0_0;
++		nic_mask_q_id = 1 << (HW_CAP_NIC_SHIFT + (nic_queue_offset >> 2));
 +
-+#ifdef HAVE_LIBCRYPTO_SUPPORT
++		if (!(gaudi->hw_cap_initialized & nic_mask_q_id)) {
++			dev_err(hdev->dev, "h/w queue %d is disabled\n", parser->hw_queue_id);
++			return -EINVAL;
++		}
+ 	}
  
- #define BUILD_ID_MD5
- #undef BUILD_ID_SHA	/* does not seem to work well when linked with Java */
+ 	/* For internal queue jobs just check if CB address is valid */
 -- 
 2.35.1
 
