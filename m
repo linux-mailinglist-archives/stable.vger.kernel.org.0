@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E945059E0F8
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D22059E343
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358671AbiHWL46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
+        id S1352347AbiHWMSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:18:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359039AbiHWL4F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:56:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A78F67CB9;
-        Tue, 23 Aug 2022 02:33:36 -0700 (PDT)
+        with ESMTP id S1353640AbiHWMP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E01EB98CAD;
+        Tue, 23 Aug 2022 02:40:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5315761335;
-        Tue, 23 Aug 2022 09:32:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5208FC433C1;
-        Tue, 23 Aug 2022 09:32:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE614614CB;
+        Tue, 23 Aug 2022 09:40:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD659C433D6;
+        Tue, 23 Aug 2022 09:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247176;
-        bh=BLG1m5ZxveTg+8OAMSqltELUdyCKw/WsOmvoPuaHGb0=;
+        s=korg; t=1661247613;
+        bh=wfxCBtMasHoEFMn9oqLYg4hdLmiDL38+6fTcxBgzW1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iYXM44HUBZC2PVAD+7geJRGE7UzX1/GwK9oVRPOAnYUedpJ929qVhjZ7n8UG8cpGz
-         OPo2Xl1TVCkvFg9IDguErVrvUM/bhD7ZtgyokUHg7Ng3N7BW2aDmz5cBnqOjO1bTeY
-         99pgZxV4ZWPofQ4VpvJkD4r4oCm87huEvR2FhAz0=
+        b=Yw4Ky4wH6XmqPHNpC/+xyaQztEhUtxhwDeoanAgVPDwP97qoDJya1SaD3BVXP7WcA
+         lwSLofxTIlBIruMb2WlfWeXQdzOxXsDhFS9vHX475V/ipHp1SuStp+qvx21xzaaIPA
+         zJB2VftPKArfsVYXNHFeso9aDcMhc2Q/nhyuBGIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Brady <alan.brady@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.4 343/389] i40e: Fix to stop tx_timeout recovery if GLOBR fails
-Date:   Tue, 23 Aug 2022 10:27:01 +0200
-Message-Id: <20220823080129.863587808@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Cs=C3=B3k=C3=A1s=20Bence?= <csokas.bence@prolan.hu>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 090/158] fec: Fix timer capture timing in `fec_ptp_enable_pps()`
+Date:   Tue, 23 Aug 2022 10:27:02 +0200
+Message-Id: <20220823080049.680479943@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Brady <alan.brady@intel.com>
+From: Csókás Bence <csokas.bence@prolan.hu>
 
-commit 57c942bc3bef0970f0b21f8e0998e76a900ea80d upstream.
+commit 61d5e2a251fb20c2c5e998c3f1d52ed6d5360319 upstream.
 
-When a tx_timeout fires, the PF attempts to recover by incrementally
-resetting.  First we try a PFR, then CORER and finally a GLOBR.  If the
-GLOBR fails, then we keep hitting the tx_timeout and incrementing the
-recovery level and issuing dmesgs, which is both annoying to the user
-and accomplishes nothing.
+Code reimplements functionality already in `fec_ptp_read()`,
+but misses check for FEC_QUIRK_BUG_CAPTURE. Replace with function call.
 
-If the GLOBR fails, then we're pretty much totally hosed, and there's
-not much else we can do to recover, so this makes it such that we just
-kill the VSI and stop hitting the tx_timeout in such a case.
-
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Alan Brady <alan.brady@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 28b5f058cf1d ("net: fec: ptp: fix convergence issue to support LinuxPTP stack")
+Signed-off-by: Csókás Bence <csokas.bence@prolan.hu>
+Link: https://lore.kernel.org/r/20220811101348.13755-1-csokas.bence@prolan.hu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/fec_ptp.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -409,7 +409,9 @@ static void i40e_tx_timeout(struct net_d
- 		set_bit(__I40E_GLOBAL_RESET_REQUESTED, pf->state);
- 		break;
- 	default:
--		netdev_err(netdev, "tx_timeout recovery unsuccessful\n");
-+		netdev_err(netdev, "tx_timeout recovery unsuccessful, device is in non-recoverable state.\n");
-+		set_bit(__I40E_DOWN_REQUESTED, pf->state);
-+		set_bit(__I40E_VSI_DOWN_REQUESTED, vsi->state);
- 		break;
- 	}
- 
+--- a/drivers/net/ethernet/freescale/fec_ptp.c
++++ b/drivers/net/ethernet/freescale/fec_ptp.c
+@@ -136,11 +136,7 @@ static int fec_ptp_enable_pps(struct fec
+ 		 * NSEC_PER_SEC - ts.tv_nsec. Add the remaining nanoseconds
+ 		 * to current timer would be next second.
+ 		 */
+-		tempval = readl(fep->hwp + FEC_ATIME_CTRL);
+-		tempval |= FEC_T_CTRL_CAPTURE;
+-		writel(tempval, fep->hwp + FEC_ATIME_CTRL);
+-
+-		tempval = readl(fep->hwp + FEC_ATIME);
++		tempval = fep->cc.read(&fep->cc);
+ 		/* Convert the ptp local counter to 1588 timestamp */
+ 		ns = timecounter_cyc2time(&fep->tc, tempval);
+ 		ts = ns_to_timespec64(ns);
 
 
