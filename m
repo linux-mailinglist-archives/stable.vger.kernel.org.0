@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A99F459D96D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 379D759D952
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243451AbiHWJ5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:57:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56304 "EHLO
+        id S236644AbiHWJmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:42:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352257AbiHWJ4i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:56:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 927B0A0623;
-        Tue, 23 Aug 2022 01:47:25 -0700 (PDT)
+        with ESMTP id S1352581AbiHWJlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:41:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5137B7A77C;
+        Tue, 23 Aug 2022 01:42:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BBED9B8105C;
-        Tue, 23 Aug 2022 08:47:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF3C1C433D6;
-        Tue, 23 Aug 2022 08:47:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE7FC61257;
+        Tue, 23 Aug 2022 08:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEF50C433B5;
+        Tue, 23 Aug 2022 08:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244440;
-        bh=UfA2D+Yn9Vkzxi9TLQAdixu5obpAF7LAI9CvtDbERPU=;
+        s=korg; t=1661244143;
+        bh=CmsG51oJ8EzkSt1t67kltCCBkqFOsG2kjKAsW1x6eOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDjcuwdCmyEEQjkB/ceny7EllUW79t+JIsYv0JEFHgjSgU/NuHYHt3oskFLEI4yPK
-         CIogs6uviDmP2NQCpJEnXDGBj/v0TouudXcjfJHb5cJ8YZ+FAWaseWR1rudZcnFMZu
-         MDeQKiKEFGjwzCoZqd1/oA6UQ9gKdoMbD5QGswDU=
+        b=sKts0qEuJLGyv7UIJL5tsTlQwpL5ZphB1hRqPF/a1pJb3W+T85iC63jyFUrrc9F7x
+         GeNgB+/kyq3YYJpMaCCW4BZmUjqc19oi/idVOaEVqwxDYsfa0xIK3NKVD4oXiwFXeO
+         r4SVtxKJo4FWfA4DPvJ+388DNaJvGmBFnG4lsucE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jon Mason <jdmason@kudzu.us>
-Subject: [PATCH 5.15 094/244] NTB: ntb_tool: uninitialized heap data in tool_fn_write()
+        stable@vger.kernel.org, Bernard Pidoux <f6bvp@free.fr>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 092/229] net: rose: fix netdev reference changes
 Date:   Tue, 23 Aug 2022 10:24:13 +0200
-Message-Id: <20220823080102.157740388@linuxfoundation.org>
+Message-Id: <20220823080057.006498481@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 45e1058b77feade4e36402828bfe3e0d3363177b upstream.
+[ Upstream commit 931027820e4dafabc78aff82af59f8c1c4bd3128 ]
 
-The call to:
+Bernard reported that trying to unload rose module would lead
+to infamous messages:
 
-	ret = simple_write_to_buffer(buf, size, offp, ubuf, size);
+unregistered_netdevice: waiting for rose0 to become free. Usage count = xx
 
-will return success if it is able to write even one byte to "buf".
-The value of "*offp" controls which byte.  This could result in
-reading uninitialized data when we do the sscanf() on the next line.
+This patch solves the issue, by making sure each socket referring to
+a netdevice holds a reference count on it, and properly releases it
+in rose_release().
 
-This code is not really desigined to handle partial writes where
-*offp is non-zero and the "buf" is preserved and re-used between writes.
-Just ban partial writes and replace the simple_write_to_buffer() with
-copy_from_user().
+rose_dev_first() is also fixed to take a device reference
+before leaving the rcu_read_locked section.
 
-Fixes: 578b881ba9c4 ("NTB: Add tool test client")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Following patch will add ref_tracker annotations to ease
+future bug hunting.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Bernard Pidoux <f6bvp@free.fr>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Tested-by: Bernard Pidoux <f6bvp@free.fr>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/test/ntb_tool.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/rose/af_rose.c    | 11 +++++++++--
+ net/rose/rose_route.c |  2 ++
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/ntb/test/ntb_tool.c
-+++ b/drivers/ntb/test/ntb_tool.c
-@@ -367,14 +367,16 @@ static ssize_t tool_fn_write(struct tool
- 	u64 bits;
- 	int n;
+diff --git a/net/rose/af_rose.c b/net/rose/af_rose.c
+index 6a5c4992cf61..b53468edf35a 100644
+--- a/net/rose/af_rose.c
++++ b/net/rose/af_rose.c
+@@ -194,6 +194,7 @@ static void rose_kill_by_device(struct net_device *dev)
+ 			rose_disconnect(s, ENETUNREACH, ROSE_OUT_OF_ORDER, 0);
+ 			if (rose->neighbour)
+ 				rose->neighbour->use--;
++			dev_put(rose->device);
+ 			rose->device = NULL;
+ 		}
+ 	}
+@@ -594,6 +595,8 @@ static struct sock *rose_make_new(struct sock *osk)
+ 	rose->idle	= orose->idle;
+ 	rose->defer	= orose->defer;
+ 	rose->device	= orose->device;
++	if (rose->device)
++		dev_hold(rose->device);
+ 	rose->qbitincl	= orose->qbitincl;
  
-+	if (*offp)
-+		return 0;
-+
- 	buf = kmalloc(size + 1, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
- 
--	ret = simple_write_to_buffer(buf, size, offp, ubuf, size);
--	if (ret < 0) {
-+	if (copy_from_user(buf, ubuf, size)) {
- 		kfree(buf);
--		return ret;
-+		return -EFAULT;
+ 	return sk;
+@@ -647,6 +650,7 @@ static int rose_release(struct socket *sock)
+ 		break;
  	}
  
- 	buf[size] = 0;
++	dev_put(rose->device);
+ 	sock->sk = NULL;
+ 	release_sock(sk);
+ 	sock_put(sk);
+@@ -721,7 +725,6 @@ static int rose_connect(struct socket *sock, struct sockaddr *uaddr, int addr_le
+ 	struct rose_sock *rose = rose_sk(sk);
+ 	struct sockaddr_rose *addr = (struct sockaddr_rose *)uaddr;
+ 	unsigned char cause, diagnostic;
+-	struct net_device *dev;
+ 	ax25_uid_assoc *user;
+ 	int n, err = 0;
+ 
+@@ -778,9 +781,12 @@ static int rose_connect(struct socket *sock, struct sockaddr *uaddr, int addr_le
+ 	}
+ 
+ 	if (sock_flag(sk, SOCK_ZAPPED)) {	/* Must bind first - autobinding in this may or may not work */
++		struct net_device *dev;
++
+ 		sock_reset_flag(sk, SOCK_ZAPPED);
+ 
+-		if ((dev = rose_dev_first()) == NULL) {
++		dev = rose_dev_first();
++		if (!dev) {
+ 			err = -ENETUNREACH;
+ 			goto out_release;
+ 		}
+@@ -788,6 +794,7 @@ static int rose_connect(struct socket *sock, struct sockaddr *uaddr, int addr_le
+ 		user = ax25_findbyuid(current_euid());
+ 		if (!user) {
+ 			err = -EINVAL;
++			dev_put(dev);
+ 			goto out_release;
+ 		}
+ 
+diff --git a/net/rose/rose_route.c b/net/rose/rose_route.c
+index 1027f52a45ab..25c6d1fa22f3 100644
+--- a/net/rose/rose_route.c
++++ b/net/rose/rose_route.c
+@@ -614,6 +614,8 @@ struct net_device *rose_dev_first(void)
+ 			if (first == NULL || strncmp(dev->name, first->name, 3) < 0)
+ 				first = dev;
+ 	}
++	if (first)
++		dev_hold(first);
+ 	rcu_read_unlock();
+ 
+ 	return first;
+-- 
+2.35.1
+
 
 
