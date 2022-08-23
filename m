@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D663B59E079
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1372C59DB51
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354235AbiHWKZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:25:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60998 "EHLO
+        id S1348607AbiHWLUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353094AbiHWKTh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:19:37 -0400
+        with ESMTP id S244255AbiHWLRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7EC81681;
-        Tue, 23 Aug 2022 02:02:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 984A889818;
+        Tue, 23 Aug 2022 02:21:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9732961530;
-        Tue, 23 Aug 2022 09:02:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83142C433C1;
-        Tue, 23 Aug 2022 09:01:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35B6D6126A;
+        Tue, 23 Aug 2022 09:21:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF2CC433D6;
+        Tue, 23 Aug 2022 09:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245320;
-        bh=1vOJ0DEcTcdeZLSQo67LaoUD2bS9OW4W8on2CZ1dDuI=;
+        s=korg; t=1661246510;
+        bh=2BXTnrYIo8l+zFZrpBe3c0CIOLQzVwN6oj3EOVh/E+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pD0tv3tlrNDlhv3SlJ79wpmsTiNJVd3A0UtamWQDX0lV9N1Xkiv/HI/jIoq2GsEKB
-         V8lgo3qEcpa06vXwznbrXlvdbKkqB3szEjahOX0akTO4a2u+BFQr351YXkoSw4rUpa
-         LPirj9CKLsrAJX3cAtJ6Ym5K2uMFk5WAGHchkrFo=
+        b=CZbRvFx4anBQqmE/IjunDEwv+A8SkZrhn03CdPOX7utk0u0HndpYApAsTq4wWRD9T
+         +Eb10y2Y03qU2OwOqxv32KlRV+1MypLMqIejRFUAoEFrOaBLyIgGgREEdfTfSDfKEE
+         rOPvfZYY+NSv/Cw8NO86ij2A9m5t5alxiM+EttZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>
-Subject: [PATCH 4.19 011/287] KVM: x86: Set error code to segment selector on LLDT/LTR non-canonical #GP
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 102/389] media: tw686x: Register the irq at the end of probe
 Date:   Tue, 23 Aug 2022 10:23:00 +0200
-Message-Id: <20220823080100.654882034@linuxfoundation.org>
+Message-Id: <20220823080119.883599356@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 2626206963ace9e8bf92b6eea5ff78dd674c555c upstream.
+[ Upstream commit fb730334e0f759d00f72168fbc555e5a95e35210 ]
 
-When injecting a #GP on LLDT/LTR due to a non-canonical LDT/TSS base, set
-the error code to the selector.  Intel SDM's says nothing about the #GP,
-but AMD's APM explicitly states that both LLDT and LTR set the error code
-to the selector, not zero.
+We got the following warning when booting the kernel:
 
-Note, a non-canonical memory operand on LLDT/LTR does generate a #GP(0),
-but the KVM code in question is specific to the base from the descriptor.
+[    3.243674] INFO: trying to register non-static key.
+[    3.243922] The code is fine but needs lockdep annotation, or maybe
+[    3.244230] you didn't initialize this object before use?
+[    3.245642] Call Trace:
+[    3.247836]  lock_acquire+0xff/0x2d0
+[    3.248727]  tw686x_audio_irq+0x1a5/0xcc0 [tw686x]
+[    3.249211]  tw686x_irq+0x1f9/0x480 [tw686x]
 
-Fixes: e37a75a13cda ("KVM: x86: Emulator ignores LDTR/TR extended base on LLDT/LTR")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220711232750.1092012-3-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The lock 'vc->qlock' will be initialized in tw686x_video_init(), but the
+driver registers the irq before calling the tw686x_video_init(), and we
+got the warning.
+
+Fix this by registering the irq at the end of probe
+
+Fixes: 704a84ccdbf1 ("[media] media: Support Intersil/Techwell TW686x-based video capture cards")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/pci/tw686x/tw686x-core.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -1745,8 +1745,8 @@ static int __load_segment_descriptor(str
- 		if (ret != X86EMUL_CONTINUE)
- 			return ret;
- 		if (emul_is_noncanonical_address(get_desc_base(&seg_desc) |
--				((u64)base3 << 32), ctxt))
--			return emulate_gp(ctxt, 0);
-+						 ((u64)base3 << 32), ctxt))
-+			return emulate_gp(ctxt, err_code);
+diff --git a/drivers/media/pci/tw686x/tw686x-core.c b/drivers/media/pci/tw686x/tw686x-core.c
+index 74ae4f0dcee7..8a25a0dac4ae 100644
+--- a/drivers/media/pci/tw686x/tw686x-core.c
++++ b/drivers/media/pci/tw686x/tw686x-core.c
+@@ -315,13 +315,6 @@ static int tw686x_probe(struct pci_dev *pci_dev,
+ 
+ 	spin_lock_init(&dev->lock);
+ 
+-	err = request_irq(pci_dev->irq, tw686x_irq, IRQF_SHARED,
+-			  dev->name, dev);
+-	if (err < 0) {
+-		dev_err(&pci_dev->dev, "unable to request interrupt\n");
+-		goto iounmap;
+-	}
+-
+ 	timer_setup(&dev->dma_delay_timer, tw686x_dma_delay, 0);
+ 
+ 	/*
+@@ -333,18 +326,23 @@ static int tw686x_probe(struct pci_dev *pci_dev,
+ 	err = tw686x_video_init(dev);
+ 	if (err) {
+ 		dev_err(&pci_dev->dev, "can't register video\n");
+-		goto free_irq;
++		goto iounmap;
  	}
  
- 	if (seg == VCPU_SREG_TR) {
+ 	err = tw686x_audio_init(dev);
+ 	if (err)
+ 		dev_warn(&pci_dev->dev, "can't register audio\n");
+ 
++	err = request_irq(pci_dev->irq, tw686x_irq, IRQF_SHARED,
++			  dev->name, dev);
++	if (err < 0) {
++		dev_err(&pci_dev->dev, "unable to request interrupt\n");
++		goto iounmap;
++	}
++
+ 	pci_set_drvdata(pci_dev, dev);
+ 	return 0;
+ 
+-free_irq:
+-	free_irq(pci_dev->irq, dev);
+ iounmap:
+ 	pci_iounmap(pci_dev, dev->mmio);
+ free_region:
+-- 
+2.35.1
+
 
 
