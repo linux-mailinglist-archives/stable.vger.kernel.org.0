@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ECB259DF2C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B904759DB8F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353507AbiHWKNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:13:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60598 "EHLO
+        id S1359219AbiHWMFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:05:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353595AbiHWKLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA4215A0B;
-        Tue, 23 Aug 2022 01:57:37 -0700 (PDT)
+        with ESMTP id S1359325AbiHWMDl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:03:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C9DDAA06;
+        Tue, 23 Aug 2022 02:37:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 798E76155D;
-        Tue, 23 Aug 2022 08:57:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8009EC433D6;
-        Tue, 23 Aug 2022 08:57:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF6EAB81C63;
+        Tue, 23 Aug 2022 09:36:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5773DC433D6;
+        Tue, 23 Aug 2022 09:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245056;
-        bh=dA6ZEuwj7DPqjItnEoT4QchiUOKqV/ohRsxC0LHDOW0=;
+        s=korg; t=1661247410;
+        bh=DaQnnVDgFwZPMMhgq8n/IGkxtk0uMZiqPrINJIhDaIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1b+F7fNB8tWrLbVNpxaLlzkxg5iPt3gLA4KkK+FcoCGGarPgVe7Acp6bxM7SALHG
-         liy0b9Z8G57ab4G4lVuZWtxUcyRe5BK+Fi3hDYNseViYGRXBk2b93G5qla0AdZCamT
-         8UAydrWp7prprXg9E4z4V2cQwl7rjn33ujD7Gw+E=
+        b=BQZY+ntb6cqozSNkj/wUKoIIKSgJ0MooxDK6YtysKaA6ETc/tks3v6cXTMYhcBQcG
+         RhVvoBOXJL8wjN2N6CC7rhltxArjQjmPxeJA26WbEVlmOmTzBno4Brbv8IpPSC0NBf
+         VI2bcM70kOp4LqEaXbwIq2Vm1FxZa+l2JexwpKh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 200/244] phy: samsung: phy-exynos-pcie: sanitize init/power_on callbacks
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.10 027/158] bpf: Acquire map uref in .init_seq_private for array map iterator
 Date:   Tue, 23 Aug 2022 10:25:59 +0200
-Message-Id: <20220823080106.152465127@linuxfoundation.org>
+Message-Id: <20220823080047.190919503@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,87 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit f2812227bb07e2eaee74253f11cea1576945df31 ]
+commit f76fa6b338055054f80c72b29c97fb95c1becadc upstream.
 
-The exynos-pcie driver called phy_power_on() before phy_init() for some
-historical reasons. However the generic PHY framework assumes that the
-proper sequence is to call phy_init() first, then phy_power_on(). The
-operations done by both functions should be considered as one action and as
-such they are called by the exynos-pcie driver (without doing anything
-between them). The initialization is just a sequence of register writes,
-which cannot be altered without breaking the hardware operation.
+bpf_iter_attach_map() acquires a map uref, and the uref may be released
+before or in the middle of iterating map elements. For example, the uref
+could be released in bpf_iter_detach_map() as part of
+bpf_link_release(), or could be released in bpf_map_put_with_uref() as
+part of bpf_map_release().
 
-To match the generic PHY framework requirement, simply move all register
-writes to the phy_init()/phy_exit() and drop power_on()/power_off()
-callbacks. This way the driver will also work with the old (incorrect)
-PHY initialization call sequence.
+Alternative fix is acquiring an extra bpf_link reference just like
+a pinned map iterator does, but it introduces unnecessary dependency
+on bpf_link instead of bpf_map.
 
-Link: https://lore.kernel.org/r/20220628220409.26545-1-m.szyprowski@samsung.com
-Reported-by: Bjorn Helgaas <helgaas@kernel.org>
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Chanho Park <chanho61.park@samsung.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-By: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So choose another fix: acquiring an extra map uref in .init_seq_private
+for array map iterator.
+
+Fixes: d3cc2ab546ad ("bpf: Implement bpf iterator for array maps")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/r/20220810080538.1845898-2-houtao@huaweicloud.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/samsung/phy-exynos-pcie.c | 25 +++++++++----------------
- 1 file changed, 9 insertions(+), 16 deletions(-)
+ kernel/bpf/arraymap.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/phy/samsung/phy-exynos-pcie.c b/drivers/phy/samsung/phy-exynos-pcie.c
-index 578cfe07d07a..53c9230c2907 100644
---- a/drivers/phy/samsung/phy-exynos-pcie.c
-+++ b/drivers/phy/samsung/phy-exynos-pcie.c
-@@ -51,6 +51,13 @@ static int exynos5433_pcie_phy_init(struct phy *phy)
- {
- 	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
+--- a/kernel/bpf/arraymap.c
++++ b/kernel/bpf/arraymap.c
+@@ -616,6 +616,11 @@ static int bpf_iter_init_array_map(void
+ 		seq_info->percpu_value_buf = value_buf;
+ 	}
  
-+	regmap_update_bits(ep->pmureg, EXYNOS5433_PMU_PCIE_PHY_OFFSET,
-+			   BIT(0), 1);
-+	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_GLOBAL_RESET,
-+			   PCIE_APP_REQ_EXIT_L1_MODE, 0);
-+	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_L1SUB_CM_CON,
-+			   PCIE_REFCLK_GATING_EN, 0);
-+
- 	regmap_update_bits(ep->fsysreg,	PCIE_EXYNOS5433_PHY_COMMON_RESET,
- 			   PCIE_PHY_RESET, 1);
- 	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_MAC_RESET,
-@@ -109,20 +116,7 @@ static int exynos5433_pcie_phy_init(struct phy *phy)
++	/* bpf_iter_attach_map() acquires a map uref, and the uref may be
++	 * released before or in the middle of iterating map elements, so
++	 * acquire an extra map uref for iterator.
++	 */
++	bpf_map_inc_with_uref(map);
+ 	seq_info->map = map;
  	return 0;
  }
- 
--static int exynos5433_pcie_phy_power_on(struct phy *phy)
--{
--	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
--
--	regmap_update_bits(ep->pmureg, EXYNOS5433_PMU_PCIE_PHY_OFFSET,
--			   BIT(0), 1);
--	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_GLOBAL_RESET,
--			   PCIE_APP_REQ_EXIT_L1_MODE, 0);
--	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_L1SUB_CM_CON,
--			   PCIE_REFCLK_GATING_EN, 0);
--	return 0;
--}
--
--static int exynos5433_pcie_phy_power_off(struct phy *phy)
-+static int exynos5433_pcie_phy_exit(struct phy *phy)
+@@ -624,6 +629,7 @@ static void bpf_iter_fini_array_map(void
  {
- 	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
+ 	struct bpf_iter_seq_array_map_info *seq_info = priv_data;
  
-@@ -135,8 +129,7 @@ static int exynos5433_pcie_phy_power_off(struct phy *phy)
++	bpf_map_put_with_uref(seq_info->map);
+ 	kfree(seq_info->percpu_value_buf);
+ }
  
- static const struct phy_ops exynos5433_phy_ops = {
- 	.init		= exynos5433_pcie_phy_init,
--	.power_on	= exynos5433_pcie_phy_power_on,
--	.power_off	= exynos5433_pcie_phy_power_off,
-+	.exit		= exynos5433_pcie_phy_exit,
- 	.owner		= THIS_MODULE,
- };
- 
--- 
-2.35.1
-
 
 
