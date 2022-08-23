@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D82F59D998
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BDA459DA35
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244003AbiHWJ6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:58:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52674 "EHLO
+        id S1351888AbiHWKGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:06:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352190AbiHWJ4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:56:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3676A0332;
-        Tue, 23 Aug 2022 01:47:19 -0700 (PDT)
+        with ESMTP id S1352427AbiHWKFk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:05:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27272A3448;
+        Tue, 23 Aug 2022 01:52:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3CC5B81C35;
-        Tue, 23 Aug 2022 08:47:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B8F9C4347C;
-        Tue, 23 Aug 2022 08:47:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FC08611DD;
+        Tue, 23 Aug 2022 08:52:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EE2DC433C1;
+        Tue, 23 Aug 2022 08:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244436;
-        bh=teXgXwagCJhheI7Y+/QuiPceXborMnBt0F32WtrSM8E=;
+        s=korg; t=1661244722;
+        bh=Lj3vgTIfpEYlX7Q9QBsnBXWw2WeUak/ATk2ICgEljuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xEjzXuya6OYYWVwFFGgsSQXB88X9n6rkg4dnu4/dmk0onySCZLcJfHKSif/yxv2Gm
-         bHrN+rdc7ZzUjojOZbg05rNGl1xYeb4eEWAltQlifeZU1nA6MTGzVVdfcErw8MJoSY
-         ef7to1si416t6DZTGdr7EWeqSY+DvWl+dWxPPH7I=
+        b=KCew92kTEalx7DJ4Qk5J6lgAnd/abseY9v6S5UHwlgjl9jLi0RSeZzXI7uCddWOt8
+         pQtAxWFr4eFMdnFtzuwU7SpUNLT3Jd5lUTL6GzIggL8q4aw4czY4Pr0EZcXZ3oCfYg
+         yIJ0wHVGY6qt+xoYB+PYP3e2ZraICF2CdFUCSmag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 137/229] powerpc/spufs: Fix refcount leak in spufs_init_isolated_loader
+        stable@vger.kernel.org,
+        Arun Ramadoss <arun.ramadoss@microchip.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 139/244] net: dsa: microchip: ksz9477: fix fdb_dump last invalid entry
 Date:   Tue, 23 Aug 2022 10:24:58 +0200
-Message-Id: <20220823080058.586853140@linuxfoundation.org>
+Message-Id: <20220823080103.795969863@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Arun Ramadoss <arun.ramadoss@microchip.com>
 
-[ Upstream commit 6ac059dacffa8ab2f7798f20e4bd3333890c541c ]
+commit 36c0d935015766bf20d621c18313f17691bda5e3 upstream.
 
-of_find_node_by_path() returns remote device nodepointer with
-refcount incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+In the ksz9477_fdb_dump function it reads the ALU control register and
+exit from the timeout loop if there is valid entry or search is
+complete. After exiting the loop, it reads the alu entry and report to
+the user space irrespective of entry is valid. It works till the valid
+entry. If the loop exited when search is complete, it reads the alu
+table. The table returns all ones and it is reported to user space. So
+bridge fdb show gives ff:ff:ff:ff:ff:ff as last entry for every port.
+To fix it, after exiting the loop the entry is reported only if it is
+valid one.
 
-Fixes: 0afacde3df4c ("[POWERPC] spufs: allow isolated mode apps by starting the SPE loader")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220603121543.22884-1-linmq006@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
+Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220816105516.18350-1-arun.ramadoss@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/cell/spufs/inode.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/dsa/microchip/ksz9477.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/platforms/cell/spufs/inode.c b/arch/powerpc/platforms/cell/spufs/inode.c
-index 9558d725a99b..37ba89f2fd80 100644
---- a/arch/powerpc/platforms/cell/spufs/inode.c
-+++ b/arch/powerpc/platforms/cell/spufs/inode.c
-@@ -684,6 +684,7 @@ spufs_init_isolated_loader(void)
- 		return;
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -759,6 +759,9 @@ static int ksz9477_port_fdb_dump(struct
+ 			goto exit;
+ 		}
  
- 	loader = of_get_property(dn, "loader", &size);
-+	of_node_put(dn);
- 	if (!loader)
- 		return;
++		if (!(ksz_data & ALU_VALID))
++			continue;
++
+ 		/* read ALU table */
+ 		ksz9477_read_table(dev, alu_table);
  
--- 
-2.35.1
-
 
 
