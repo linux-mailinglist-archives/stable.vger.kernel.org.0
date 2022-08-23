@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D7759DC39
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE67D59DFFA
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348631AbiHWMMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:12:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
+        id S1356003AbiHWKuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:50:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352567AbiHWMLW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:11:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F8A3E1AB1;
-        Tue, 23 Aug 2022 02:39:14 -0700 (PDT)
+        with ESMTP id S1355912AbiHWKsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:48:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F25F6275C2;
+        Tue, 23 Aug 2022 02:12:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF094B81C97;
-        Tue, 23 Aug 2022 09:39:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2534DC433D6;
-        Tue, 23 Aug 2022 09:39:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DDDC60DB4;
+        Tue, 23 Aug 2022 09:12:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8758FC433C1;
+        Tue, 23 Aug 2022 09:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247552;
-        bh=KVV9LSKv94xjVZyS3EhPLIwl0hPqOnV0rioQJ+Wgwmk=;
+        s=korg; t=1661245926;
+        bh=1GQ/pb1NhWVt5bXl2j6hJBRaPk2HcFNi7s+o3/H3dws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNsWeLWyx9QQX+yZ5SwF7jkZ7wzMklSZ09dL6Dt+OM/eNZuuL9afSkmvpO/D7hvEz
-         kTmHfVRa6/YWoXLQOD0JvwLGnlOxN+rGgA30+IfZfmxR89/1jchaywS0FOvbgRrHS6
-         f0H1LwGmkfV9e0Z5Rn65nFJCUkw+PzaVqz3A9zos=
+        b=F6KIzF24LxSudk+we6Y8FQc4WprgEf+WWKLPra7SZtHgmFXaDMKkU/g5yrKGjyBcu
+         8SWg0v+vWghUR2tL9olXTZC3gX1X9zLQxt4LM9asB0xe0AwtI1XPnureTcU1Ys6OS/
+         s8rHnFjrtZNqThcvSiteIhu9WW5GzZ/blJvTcmas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.10 043/158] um: Add missing apply_returns()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Wei Wang <weiwan@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 206/287] tcp: fix over estimation in sk_forced_mem_schedule()
 Date:   Tue, 23 Aug 2022 10:26:15 +0200
-Message-Id: <20220823080047.810865424@linuxfoundation.org>
+Message-Id: <20220823080107.839297135@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 637285e7f8d6da70a70c64e7895cb0672357a1f7 upstream.
+commit c4ee118561a0f74442439b7b5b486db1ac1ddfeb upstream.
 
-Implement apply_returns() stub for UM, just like all the other patching
-routines.
+sk_forced_mem_schedule() has a bug similar to ones fixed
+in commit 7c80b038d23e ("net: fix sk_wmem_schedule() and
+sk_rmem_schedule() errors")
 
-Fixes: 15e67227c49a ("x86: Undo return-thunk damage")
-Reported-by: Randy Dunlap <rdunlap@infradead.org)
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+While this bug has little chance to trigger in old kernels,
+we need to fix it before the following patch.
+
+Fixes: d83769a580f1 ("tcp: fix possible deadlock in tcp_send_fin()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Wei Wang <weiwan@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/kernel/um_arch.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/tcp_output.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/um/kernel/um_arch.c
-+++ b/arch/um/kernel/um_arch.c
-@@ -367,6 +367,10 @@ void apply_returns(s32 *start, s32 *end)
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -3079,11 +3079,12 @@ void tcp_xmit_retransmit_queue(struct so
+  */
+ void sk_forced_mem_schedule(struct sock *sk, int size)
  {
- }
+-	int amt;
++	int delta, amt;
  
-+void apply_returns(s32 *start, s32 *end)
-+{
-+}
-+
- void apply_alternatives(struct alt_instr *start, struct alt_instr *end)
- {
- }
+-	if (size <= sk->sk_forward_alloc)
++	delta = size - sk->sk_forward_alloc;
++	if (delta <= 0)
+ 		return;
+-	amt = sk_mem_pages(size);
++	amt = sk_mem_pages(delta);
+ 	sk->sk_forward_alloc += amt * SK_MEM_QUANTUM;
+ 	sk_memory_allocated_add(sk, amt);
+ 
 
 
