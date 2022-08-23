@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E365B59E1EF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91CE259DCF4
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353098AbiHWKRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:17:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57214 "EHLO
+        id S1355799AbiHWKxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:53:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353114AbiHWKPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:15:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D9772FE4;
-        Tue, 23 Aug 2022 02:00:10 -0700 (PDT)
+        with ESMTP id S1355718AbiHWKuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:50:04 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BC2CAB1B7;
+        Tue, 23 Aug 2022 02:12:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFB0861572;
-        Tue, 23 Aug 2022 09:00:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91281C433C1;
-        Tue, 23 Aug 2022 09:00:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C7D34CE1B55;
+        Tue, 23 Aug 2022 09:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5587C433C1;
+        Tue, 23 Aug 2022 09:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245206;
-        bh=h78+rvESYBGXJHbC/SddqUp5duaZ1uXyON64juuFpjU=;
+        s=korg; t=1661245954;
+        bh=OGw3oPz10IqjYMxRUxCHGCBX+uIvqJJ1DbIfwwhwO/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZAflfXK22vrbJwVMmjpt7D3MZQtcN4D8m5MGqwtpTXGTDEXFMc7cOTF3elaESfR0
-         fhpY9whwyRFUDAfDySont/txAlcw7EyGFs4gXOoeaNS3cvA5JkTSYxKfTMLCEaHf06
-         a9JC7xkjR+jzuiJd7yZ7M88X0xaUgm0W1b6lZK8s=
+        b=b+wVhStmQs2VNjHr5jisZ9OTj6wB/ATG6qVTdyRib8d7bZ0BjD7WsRgXpBnam8xuW
+         zYQegmOcxzTWdefjmzy/oSkf0DC/d4igdAuBWK2kfQqf8mqNb6UpgJ8NbTD0PJAPNm
+         2105++qccEhffNR3UGm+L+rvEIwI6uVJ/5btC1IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 221/244] powerpc/32: Dont always pass -mcpu=powerpc to the compiler
+        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 211/287] net_sched: cls_route: disallow handle of 0
 Date:   Tue, 23 Aug 2022 10:26:20 +0200
-Message-Id: <20220823080106.924199228@linuxfoundation.org>
+Message-Id: <20220823080108.037249281@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,148 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Jamal Hadi Salim <jhs@mojatatu.com>
 
-[ Upstream commit 446cda1b21d9a6b3697fe399c6a3a00ff4a285f5 ]
+commit 02799571714dc5dd6948824b9d080b44a295f695 upstream.
 
-Since commit 4bf4f42a2feb ("powerpc/kbuild: Set default generic
-machine type for 32-bit compile"), when building a 32 bits kernel
-with a bi-arch version of GCC, or when building a book3s/32 kernel,
-the option -mcpu=powerpc is passed to GCC at all time, relying on it
-being eventually overriden by a subsequent -mcpu=xxxx.
+Follows up on:
+https://lore.kernel.org/all/20220809170518.164662-1-cascardo@canonical.com/
 
-But when building the same kernel with a 32 bits only version of GCC,
-that is not done, relying on gcc being built with the expected default
-CPU.
+handle of 0 implies from/to of universe realm which is not very
+sensible.
 
-This logic has two problems. First, it is a bit fragile to rely on
-whether the GCC version is bi-arch or not, because today we can have
-bi-arch versions of GCC configured with a 32 bits default. Second,
-there are some versions of GCC which don't support -mcpu=powerpc,
-for instance for e500 SPE-only versions.
+Lets see what this patch will do:
+$sudo tc qdisc add dev $DEV root handle 1:0 prio
 
-So, stop relying on this approximative logic and allow the user to
-decide whether he/she wants to use the toolchain's default CPU or if
-he/she wants to set one, and allow only possible CPUs based on the
-selected target.
+//lets manufacture a way to insert handle of 0
+$sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 \
+route to 0 from 0 classid 1:10 action ok
 
-Reported-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Tested-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/d4df724691351531bf46d685d654689e5dfa0d74.1657549153.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+//gets rejected...
+Error: handle of 0 is not valid.
+We have an error talking to the kernel, -1
+
+//lets create a legit entry..
+sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 route from 10 \
+classid 1:10 action ok
+
+//what did the kernel insert?
+$sudo tc filter ls dev $DEV parent 1:0
+filter protocol ip pref 100 route chain 0
+filter protocol ip pref 100 route chain 0 fh 0x000a8000 flowid 1:10 from 10
+	action order 1: gact action pass
+	 random type none pass val 0
+	 index 1 ref 1 bind 1
+
+//Lets try to replace that legit entry with a handle of 0
+$ sudo tc filter replace dev $DEV parent 1:0 protocol ip prio 100 \
+handle 0x000a8000 route to 0 from 0 classid 1:10 action drop
+
+Error: Replacing with handle of 0 is invalid.
+We have an error talking to the kernel, -1
+
+And last, lets run Cascardo's POC:
+$ ./poc
+0
+0
+-22
+-22
+-22
+
+Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/Makefile                  | 26 +-------------------------
- arch/powerpc/platforms/Kconfig.cputype | 21 ++++++++++++++++++---
- 2 files changed, 19 insertions(+), 28 deletions(-)
+ net/sched/cls_route.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index 72610e2d6176..2bb0fe9b2058 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -17,23 +17,6 @@ HAS_BIARCH	:= $(call cc-option-yn, -m32)
- # Set default 32 bits cross compilers for vdso and boot wrapper
- CROSS32_COMPILE ?=
+--- a/net/sched/cls_route.c
++++ b/net/sched/cls_route.c
+@@ -427,6 +427,11 @@ static int route4_set_parms(struct net *
+ 			return -EINVAL;
+ 	}
  
--ifeq ($(HAS_BIARCH),y)
--ifeq ($(CROSS32_COMPILE),)
--ifdef CONFIG_PPC32
--# These options will be overridden by any -mcpu option that the CPU
--# or platform code sets later on the command line, but they are needed
--# to set a sane 32-bit cpu target for the 64-bit cross compiler which
--# may default to the wrong ISA.
--KBUILD_CFLAGS		+= -mcpu=powerpc
--KBUILD_AFLAGS		+= -mcpu=powerpc
--endif
--endif
--endif
--
--ifdef CONFIG_PPC_BOOK3S_32
--KBUILD_CFLAGS		+= -mcpu=powerpc
--endif
--
- # If we're on a ppc/ppc64/ppc64le machine use that defconfig, otherwise just use
- # ppc64_defconfig because we have nothing better to go on.
- uname := $(shell uname -m)
-@@ -185,6 +168,7 @@ endif
- endif
- 
- CFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
-+AFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
- 
- # Altivec option not allowed with e500mc64 in GCC.
- ifdef CONFIG_ALTIVEC
-@@ -195,14 +179,6 @@ endif
- CFLAGS-$(CONFIG_E5500_CPU) += $(E5500_CPU)
- CFLAGS-$(CONFIG_E6500_CPU) += $(call cc-option,-mcpu=e6500,$(E5500_CPU))
- 
--ifdef CONFIG_PPC32
--ifdef CONFIG_PPC_E500MC
--CFLAGS-y += $(call cc-option,-mcpu=e500mc,-mcpu=powerpc)
--else
--CFLAGS-$(CONFIG_E500) += $(call cc-option,-mcpu=8540 -msoft-float,-mcpu=powerpc)
--endif
--endif
--
- asinstr := $(call as-instr,lis 9$(comma)foo@high,-DHAVE_AS_ATHIGH=1)
- 
- KBUILD_CPPFLAGS	+= -I $(srctree)/arch/$(ARCH) $(asinstr)
-diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-index 81f8c9634832..1b1e67ff9d21 100644
---- a/arch/powerpc/platforms/Kconfig.cputype
-+++ b/arch/powerpc/platforms/Kconfig.cputype
-@@ -137,9 +137,9 @@ config GENERIC_CPU
- 	depends on PPC64 && CPU_LITTLE_ENDIAN
- 	select ARCH_HAS_FAST_MULTIPLIER
- 
--config GENERIC_CPU
-+config POWERPC_CPU
- 	bool "Generic 32 bits powerpc"
--	depends on PPC32 && !PPC_8xx
-+	depends on PPC32 && !PPC_8xx && !PPC_85xx
- 
- config CELL_CPU
- 	bool "Cell Broadband Engine"
-@@ -193,11 +193,23 @@ config G4_CPU
- 	depends on PPC_BOOK3S_32
- 	select ALTIVEC
- 
-+config E500_CPU
-+	bool "e500 (8540)"
-+	depends on PPC_85xx && !PPC_E500MC
++	if (!nhandle) {
++		NL_SET_ERR_MSG(extack, "Replacing with handle of 0 is invalid");
++		return -EINVAL;
++	}
 +
-+config E500MC_CPU
-+	bool "e500mc"
-+	depends on PPC_85xx && PPC_E500MC
+ 	h1 = to_hash(nhandle);
+ 	b = rtnl_dereference(head->table[h1]);
+ 	if (!b) {
+@@ -480,6 +485,11 @@ static int route4_change(struct net *net
+ 	int err;
+ 	bool new = true;
+ 
++	if (!handle) {
++		NL_SET_ERR_MSG(extack, "Creating with handle of 0 is invalid");
++		return -EINVAL;
++	}
 +
-+config TOOLCHAIN_DEFAULT_CPU
-+	bool "Rely on the toolchain's implicit default CPU"
-+	depends on PPC32
-+
- endchoice
+ 	if (opt == NULL)
+ 		return handle ? -EINVAL : 0;
  
- config TARGET_CPU_BOOL
- 	bool
--	default !GENERIC_CPU
-+	default !GENERIC_CPU && !TOOLCHAIN_DEFAULT_CPU
- 
- config TARGET_CPU
- 	string
-@@ -212,6 +224,9 @@ config TARGET_CPU
- 	default "e300c2" if E300C2_CPU
- 	default "e300c3" if E300C3_CPU
- 	default "G4" if G4_CPU
-+	default "8540" if E500_CPU
-+	default "e500mc" if E500MC_CPU
-+	default "powerpc" if POWERPC_CPU
- 
- config PPC_BOOK3S
- 	def_bool y
--- 
-2.35.1
-
 
 
