@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1878459DBBA
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD8A59DE7B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354123AbiHWKYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:24:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60996 "EHLO
+        id S241072AbiHWLVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354319AbiHWKVN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:21:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CA1510C7;
-        Tue, 23 Aug 2022 02:02:31 -0700 (PDT)
+        with ESMTP id S244336AbiHWLTd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:19:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A24C78A1DA;
+        Tue, 23 Aug 2022 02:22:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C22AEB8105C;
-        Tue, 23 Aug 2022 09:02:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35CA6C4347C;
-        Tue, 23 Aug 2022 09:02:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EF6D6126A;
+        Tue, 23 Aug 2022 09:22:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4334FC433C1;
+        Tue, 23 Aug 2022 09:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245348;
-        bh=XJV9M8+6gd6QGZ+hPFG/T7Pgl2ABNYmIgsz/9vaE7z4=;
+        s=korg; t=1661246537;
+        bh=0vKGd9wXXP2b6+XBRymM35lhwbyCL8alQMDI1djM2cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05u9LjuYn7RbREN3hBHcc1gKrXcLL/EDdkjR/4BLl/60mue7HTkE17PIaw9OYuJKG
-         irCXH2FiHGXuAssAy6lvXqV696NFCMr/8uTweKj96OlDdtMCuq4FKldz6FP5prE36W
-         g+6Bi+CUsPNzOCM4hEH0L/HGyPYIXIgw2jbreqUY=
+        b=nlPKUz9jISOUZuMmpT183zARYMiEvHusmUEDTFkL900FfYF/x25SH9ylSdgbOweG9
+         oT5Sl5FN8Jc5aY9AUp5KL1ATM9OY2MwgqdVsnj9X0znzFXOnb2IG07jWdHZ1nFCwM6
+         uQh2cn0Q+PjmF94O0EpiovZa2NG+bMoiv2fBsCps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 051/287] PM: hibernate: defer device probing when resuming from hibernation
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Shubhrajyoti Datta <Shubhrajyoti.datta@amd.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 142/389] i2c: cadence: Support PEC for SMBus block read
 Date:   Tue, 23 Aug 2022 10:23:40 +0200
-Message-Id: <20220823080101.965489604@linuxfoundation.org>
+Message-Id: <20220823080121.537272876@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,104 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit 8386c414e27caba8501119948e9551e52b527f59 ]
+[ Upstream commit 9fdf6d97f03035ad5298e2d1635036c74c2090ed ]
 
-syzbot is reporting hung task at misc_open() [1], for there is a race
-window of AB-BA deadlock which involves probe_count variable. Currently
-wait_for_device_probe() from snapshot_open() from misc_open() can sleep
-forever with misc_mtx held if probe_count cannot become 0.
+SMBus packet error checking (PEC) is implemented by appending one
+additional byte of checksum data at the end of the message. This provides
+additional protection and allows to detect data corruption on the I2C bus.
 
-When a device is probed by hub_event() work function, probe_count is
-incremented before the probe function starts, and probe_count is
-decremented after the probe function completed.
+SMBus block reads support variable length reads. The first byte in the read
+message is the number of available data bytes.
 
-There are three cases that can prevent probe_count from dropping to 0.
+The combination of PEC and block read is currently not supported by the
+Cadence I2C driver.
+ * When PEC is enabled the maximum transfer length for block reads
+   increases from 33 to 34 bytes.
+ * The I2C core smbus emulation layer relies on the driver updating the
+   `i2c_msg` `len` field with the number of received bytes. The updated
+   length is used when checking the PEC.
 
-  (a) A device being probed stopped responding (i.e. broken/malicious
-      hardware).
+Add support to the Cadence I2C driver for handling SMBus block reads with
+PEC. To determine the maximum transfer length uses the initial `len` value
+of the `i2c_msg`. When PEC is enabled this will be 2, when it is disabled
+it will be 1.
 
-  (b) A process emulating a USB device using /dev/raw-gadget interface
-      stopped responding for some reason.
+Once a read transfer is done also increment the `len` field by the amount
+of received data bytes.
 
-  (c) New device probe requests keeps coming in before existing device
-      probe requests complete.
+This change has been tested with a UCM90320 PMBus power monitor, which
+requires block reads to access certain data fields, but also has PEC
+enabled by default.
 
-The phenomenon syzbot is reporting is (b). A process which is holding
-system_transition_mutex and misc_mtx is waiting for probe_count to become
-0 inside wait_for_device_probe(), but the probe function which is called
- from hub_event() work function is waiting for the processes which are
-blocked at mutex_lock(&misc_mtx) to respond via /dev/raw-gadget interface.
-
-This patch mitigates (b) by deferring wait_for_device_probe() from
-snapshot_open() to snapshot_write() and snapshot_ioctl(). Please note that
-the possibility of (b) remains as long as any thread which is emulating a
-USB device via /dev/raw-gadget interface can be blocked by uninterruptible
-blocking operations (e.g. mutex_lock()).
-
-Please also note that (a) and (c) are not addressed. Regarding (c), we
-should change the code to wait for only one device which contains the
-image for resuming from hibernation. I don't know how to address (a), for
-use of timeout for wait_for_device_probe() might result in loss of user
-data in the image. Maybe we should require the userland to wait for the
-image device before opening /dev/snapshot interface.
-
-Link: https://syzkaller.appspot.com/bug?extid=358c9ab4c93da7b7238c [1]
-Reported-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: df8eb5691c48 ("i2c: Add driver for Cadence I2C controller")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Tested-by: Shubhrajyoti Datta <Shubhrajyoti.datta@amd.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/user.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-cadence.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/power/user.c b/kernel/power/user.c
-index 2d8b60a3c86b..6a11154b3d52 100644
---- a/kernel/power/user.c
-+++ b/kernel/power/user.c
-@@ -29,6 +29,7 @@
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 8750e444f449..72699fdd5d11 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -348,8 +348,13 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+ 	ctrl_reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
+ 	ctrl_reg |= CDNS_I2C_CR_RW | CDNS_I2C_CR_CLR_FIFO;
  
- #include "power.h"
++	/*
++	 * Receive up to I2C_SMBUS_BLOCK_MAX data bytes, plus one message length
++	 * byte, plus one checksum byte if PEC is enabled. p_msg->len will be 2 if
++	 * PEC is enabled, otherwise 1.
++	 */
+ 	if (id->p_msg->flags & I2C_M_RECV_LEN)
+-		id->recv_count = I2C_SMBUS_BLOCK_MAX + 1;
++		id->recv_count = I2C_SMBUS_BLOCK_MAX + id->p_msg->len;
  
-+static bool need_wait;
+ 	id->curr_recv_count = id->recv_count;
  
- #define SNAPSHOT_MINOR	231
+@@ -535,6 +540,9 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 	if (id->err_status & CDNS_I2C_IXR_ARB_LOST)
+ 		return -EAGAIN;
  
-@@ -82,7 +83,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
- 		 * Resuming.  We may need to wait for the image device to
- 		 * appear.
- 		 */
--		wait_for_device_probe();
-+		need_wait = true;
- 
- 		data->swap = -1;
- 		data->mode = O_WRONLY;
-@@ -174,6 +175,11 @@ static ssize_t snapshot_write(struct file *filp, const char __user *buf,
- 	ssize_t res;
- 	loff_t pg_offp = *offp & ~PAGE_MASK;
- 
-+	if (need_wait) {
-+		wait_for_device_probe();
-+		need_wait = false;
-+	}
++	if (msg->flags & I2C_M_RECV_LEN)
++		msg->len += min_t(unsigned int, msg->buf[0], I2C_SMBUS_BLOCK_MAX);
 +
- 	lock_system_sleep();
+ 	return 0;
+ }
  
- 	data = filp->private_data;
-@@ -209,6 +215,11 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
- 	loff_t size;
- 	sector_t offset;
- 
-+	if (need_wait) {
-+		wait_for_device_probe();
-+		need_wait = false;
-+	}
-+
- 	if (_IOC_TYPE(cmd) != SNAPSHOT_IOC_MAGIC)
- 		return -ENOTTY;
- 	if (_IOC_NR(cmd) > SNAPSHOT_IOC_MAXNR)
 -- 
 2.35.1
 
