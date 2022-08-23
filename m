@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E0E59E3B0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2EB359E3B4
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241168AbiHWM2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:28:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50514 "EHLO
+        id S239287AbiHWM3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:29:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242479AbiHWM0t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:26:49 -0400
+        with ESMTP id S242044AbiHWM2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:28:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DAA4FBA41;
-        Tue, 23 Aug 2022 02:44:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F056FBA46;
+        Tue, 23 Aug 2022 02:44:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF03761389;
-        Tue, 23 Aug 2022 09:43:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E77C433C1;
-        Tue, 23 Aug 2022 09:43:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCC9261464;
+        Tue, 23 Aug 2022 09:43:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4A6CC433C1;
+        Tue, 23 Aug 2022 09:43:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247832;
-        bh=19IgdIE9ZrUrSbXsW+/oPm9vunuXvHYium+mpiIAJ+g=;
+        s=korg; t=1661247835;
+        bh=1HZL6Ii0eYbpxdGWodcz3JnCT22+06EimcngsnMDASM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0rnFBQufVR28RrYNcxTee+uem8fh9HCNi6htBgk/I1KZL0PWYQ1T4nZ0u0awQph3
-         vAGiOAsSkuDVRZCoRYJScZQeRo2U1czlHBLU8qx6nAFlb+TBC9uxtcvhaUU1a3zQTD
-         4KITEEddrR5kliNURb5Cv+Y+a6Y/oDlNp7wa6EcM=
+        b=mKo2ShqpDerIrMmOMJC/MbYZ4JHZq6us3XZa7t1vufapO682e/2TsE6rUrU4r8LaI
+         vixhBLcJii9gbI4W9egeh6DD1tE9JEDJxH8Nc0QtttmLm/00Dtn2W1ieWnI99zBFyT
+         BcAIDy5p6xpOVwoFJAm5oaF7rMgeHu5jxnIbJkuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xctan <xc-tan@outlook.com>,
-        dram <dramforever@live.com>, Ruizhe Pan <c141028@gmail.com>,
-        Celeste Liu <coelacanthus@outlook.com>,
+        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
+        Xianting Tian <xianting.tian@linux.alibaba.com>,
         Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 138/158] riscv: mmap with PROT_WRITE but no PROT_READ is invalid
-Date:   Tue, 23 Aug 2022 10:27:50 +0200
-Message-Id: <20220823080051.408345634@linuxfoundation.org>
+Subject: [PATCH 5.10 139/158] RISC-V: Add fast call path of crash_kexec()
+Date:   Tue, 23 Aug 2022 10:27:51 +0200
+Message-Id: <20220823080051.448858902@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
 References: <20220823080046.056825146@linuxfoundation.org>
@@ -56,45 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Celeste Liu <coelacanthus@outlook.com>
+From: Xianting Tian <xianting.tian@linux.alibaba.com>
 
-[ Upstream commit 2139619bcad7ac44cc8f6f749089120594056613 ]
+[ Upstream commit 3f1901110a89b0e2e13adb2ac8d1a7102879ea98 ]
 
-As mentioned in Table 4.5 in RISC-V spec Volume 2 Section 4.3, write
-but not read is "Reserved for future use.". For now, they are not valid.
-In the current code, -wx is marked as invalid, but -w- is not marked
-as invalid.
-This patch refines that judgment.
+Currently, almost all archs (x86, arm64, mips...) support fast call
+of crash_kexec() when "regs && kexec_should_crash()" is true. But
+RISC-V not, it can only enter crash system via panic(). However panic()
+doesn't pass the regs of the real accident scene to crash_kexec(),
+it caused we can't get accurate backtrace via gdb,
+	$ riscv64-linux-gnu-gdb vmlinux vmcore
+	Reading symbols from vmlinux...
+	[New LWP 95]
+	#0  console_unlock () at kernel/printk/printk.c:2557
+	2557                    if (do_cond_resched)
+	(gdb) bt
+	#0  console_unlock () at kernel/printk/printk.c:2557
+	#1  0x0000000000000000 in ?? ()
 
-Reported-by: xctan <xc-tan@outlook.com>
-Co-developed-by: dram <dramforever@live.com>
-Signed-off-by: dram <dramforever@live.com>
-Co-developed-by: Ruizhe Pan <c141028@gmail.com>
-Signed-off-by: Ruizhe Pan <c141028@gmail.com>
-Signed-off-by: Celeste Liu <coelacanthus@outlook.com>
-Link: https://lore.kernel.org/r/PH7PR14MB559464DBDD310E755F5B21E8CEDC9@PH7PR14MB5594.namprd14.prod.outlook.com
+With the patch we can get the accurate backtrace,
+	$ riscv64-linux-gnu-gdb vmlinux vmcore
+	Reading symbols from vmlinux...
+	[New LWP 95]
+	#0  0xffffffe00063a4e0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
+	81             *(int *)p = 0xdead;
+	(gdb)
+	(gdb) bt
+	#0  0xffffffe00064d5c0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
+	#1  0x0000000000000000 in ?? ()
+
+Test code to produce NULL address dereference in test_crash.c,
+	void *p = NULL;
+	*(int *)p = 0xdead;
+
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Tested-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20220606082308.2883458-1-xianting.tian@linux.alibaba.com
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/sys_riscv.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/riscv/kernel/traps.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
-index 12f8a7fce78b..8a7880b9c433 100644
---- a/arch/riscv/kernel/sys_riscv.c
-+++ b/arch/riscv/kernel/sys_riscv.c
-@@ -18,9 +18,8 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
- 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
- 		return -EINVAL;
+diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
+index ad14f4466d92..c1a13011fb8e 100644
+--- a/arch/riscv/kernel/traps.c
++++ b/arch/riscv/kernel/traps.c
+@@ -15,6 +15,7 @@
+ #include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/irq.h>
++#include <linux/kexec.h>
  
--	if ((prot & PROT_WRITE) && (prot & PROT_EXEC))
--		if (unlikely(!(prot & PROT_READ)))
--			return -EINVAL;
-+	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
-+		return -EINVAL;
+ #include <asm/processor.h>
+ #include <asm/ptrace.h>
+@@ -43,6 +44,9 @@ void die(struct pt_regs *regs, const char *str)
  
- 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
- 			       offset >> (PAGE_SHIFT - page_shift_offset));
+ 	ret = notify_die(DIE_OOPS, str, regs, 0, regs->cause, SIGSEGV);
+ 
++	if (regs && kexec_should_crash(current))
++		crash_kexec(regs);
++
+ 	bust_spinlocks(0);
+ 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
+ 	spin_unlock_irq(&die_lock);
 -- 
 2.35.1
 
