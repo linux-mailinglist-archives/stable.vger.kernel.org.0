@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EBC359DD2D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C40059DD98
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358568AbiHWLw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:52:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52672 "EHLO
+        id S1353578AbiHWKPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:15:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358641AbiHWLuc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:50:32 -0400
+        with ESMTP id S1353257AbiHWKNP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:13:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C943862C5;
-        Tue, 23 Aug 2022 02:31:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED2C71BFD;
+        Tue, 23 Aug 2022 01:59:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70227B81C85;
-        Tue, 23 Aug 2022 09:31:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CDBEC433C1;
-        Tue, 23 Aug 2022 09:31:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3FDF6B81C3A;
+        Tue, 23 Aug 2022 08:59:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8639AC433C1;
+        Tue, 23 Aug 2022 08:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247090;
-        bh=UhQPgBaeXgUoLlYqc0u6KRD3hvwuwBYnfoQghB36ZbQ=;
+        s=korg; t=1661245153;
+        bh=7fWuYtg1B+J9a2WfNzdv9rvcTUNgHSU4aummuoGeZCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEdi4wF+X1zjc5x0a98RB+w+QJNcyQ7izSJB3VJOeOWcyhGYXZddWLp5XiC1rq1yu
-         iBM6PSpSTerRMHlLF19Qije0wQxWjm4XVR00YOo+1+2t2pH39GSrsxSxkVWcEG9a3x
-         vIicfgrqZQTdLaDkXN6ZeEXQogaP9yosSg1w+yho=
+        b=PQvtq5HkKpp4h1SW0KxL/j3g84T8VJ1mU5FWa5532eM5vt2MJ/msJRoueznAa33oi
+         i6MOxDRQ7Ql+uLe9rfdb3IZwy/WY3QM8w4GSSe+rIfmfcL7RRXG7ddiCeOYvw5PVuC
+         1cdqTlbZ4f7H1i4inFT0yvhaCQ3gXR3TtdkwIazU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Samuel Holland <samuel@sholland.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 314/389] pinctrl: sunxi: Add I/O bias setting for H6 R-PIO
+        stable@vger.kernel.org,
+        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 233/244] MIPS: tlbex: Explicitly compare _PAGE_NO_EXEC against 0
 Date:   Tue, 23 Aug 2022 10:26:32 +0200
-Message-Id: <20220823080128.679233996@linuxfoundation.org>
+Message-Id: <20220823080107.338166314@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit fc153c8f283bf5925615195fc9d4056414d7b168 upstream.
+[ Upstream commit 74de14fe05dd6b151d73cb0c73c8ec874cbdcde6 ]
 
-H6 requires I/O bias configuration on both of its PIO devices.
-Previously it was only done for the main PIO.
+When CONFIG_XPA is enabled, Clang warns:
 
-The setting for Port L is at bit 0, so the bank calculation needs to
-account for the pin base. Otherwise the wrong bit is used.
+  arch/mips/mm/tlbex.c:629:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
+                              ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  arch/mips/mm/tlbex.c:2568:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
+                                ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  2 errors generated.
 
-Fixes: cc62383fcebe ("pinctrl: sunxi: Support I/O bias voltage setting on H6")
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Tested-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Link: https://lore.kernel.org/r/20220713025233.27248-3-samuel@sholland.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+_PAGE_NO_EXEC can be '0' or '1 << _PAGE_NO_EXEC_SHIFT' depending on the
+build and runtime configuration, which is what the negation operators
+are trying to convey. To silence the warning, explicitly compare against
+0 so the result of the '<<' operator is not implicitly converted to a
+boolean.
+
+According to its documentation, GCC enables -Wint-in-bool-context with
+-Wall but this warning is not visible when building the same
+configuration with GCC. It appears GCC only warns when compiling C++,
+not C, although the documentation makes no note of this:
+https://godbolt.org/z/x39q3brxf
+
+Reported-by: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c |    1 +
- drivers/pinctrl/sunxi/pinctrl-sunxi.c       |    7 ++++---
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ arch/mips/mm/tlbex.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c
-@@ -105,6 +105,7 @@ static const struct sunxi_pinctrl_desc s
- 	.npins = ARRAY_SIZE(sun50i_h6_r_pins),
- 	.pin_base = PL_BASE,
- 	.irq_banks = 2,
-+	.io_bias_cfg_variant = BIAS_VOLTAGE_PIO_POW_MODE_SEL,
- };
+diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+index 046d51a454af..3471a089bc05 100644
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -634,7 +634,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
+ 		return;
+ 	}
  
- static int sun50i_h6_r_pinctrl_probe(struct platform_device *pdev)
---- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-@@ -616,7 +616,7 @@ static int sunxi_pinctrl_set_io_bias_cfg
- 					 unsigned pin,
- 					 struct regulator *supply)
- {
--	unsigned short bank = pin / PINS_PER_BANK;
-+	unsigned short bank;
- 	unsigned long flags;
- 	u32 val, reg;
- 	int uV;
-@@ -632,6 +632,9 @@ static int sunxi_pinctrl_set_io_bias_cfg
- 	if (uV == 0)
- 		return 0;
+-	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
++	if (cpu_has_rixi && _PAGE_NO_EXEC != 0) {
+ 		if (fill_includes_sw_bits) {
+ 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
+ 		} else {
+@@ -2573,7 +2573,7 @@ static void check_pabits(void)
+ 	unsigned long entry;
+ 	unsigned pabits, fillbits;
  
-+	pin -= pctl->desc->pin_base;
-+	bank = pin / PINS_PER_BANK;
-+
- 	switch (pctl->desc->io_bias_cfg_variant) {
- 	case BIAS_VOLTAGE_GRP_CONFIG:
+-	if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
++	if (!cpu_has_rixi || _PAGE_NO_EXEC == 0) {
  		/*
-@@ -649,8 +652,6 @@ static int sunxi_pinctrl_set_io_bias_cfg
- 		else
- 			val = 0xD; /* 3.3V */
- 
--		pin -= pctl->desc->pin_base;
--
- 		reg = readl(pctl->membase + sunxi_grp_config_reg(pin));
- 		reg &= ~IO_BIAS_MASK;
- 		writel(reg | val, pctl->membase + sunxi_grp_config_reg(pin));
+ 		 * We'll only be making use of the fact that we can rotate bits
+ 		 * into the fill if the CPU supports RIXI, so don't bother
+-- 
+2.35.1
+
 
 
