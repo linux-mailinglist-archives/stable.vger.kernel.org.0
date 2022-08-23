@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3A759DCA0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C98259E152
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353642AbiHWK04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:26:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44020 "EHLO
+        id S242279AbiHWL2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:28:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352857AbiHWKXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00DF7832E3;
-        Tue, 23 Aug 2022 02:04:39 -0700 (PDT)
+        with ESMTP id S1357859AbiHWL0y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:26:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE6FC0E5B;
+        Tue, 23 Aug 2022 02:24:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CD72B8105C;
-        Tue, 23 Aug 2022 09:04:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 758D0C433C1;
-        Tue, 23 Aug 2022 09:04:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7605EB81C89;
+        Tue, 23 Aug 2022 09:24:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84D0AC4314B;
+        Tue, 23 Aug 2022 09:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245476;
-        bh=M0pBvuUrXO6gcVio/ZNcbGY7XiS3JfWArod8klC12M0=;
+        s=korg; t=1661246670;
+        bh=2tU/kM5H2cvuoqxSUPxpQ9SiENVxFijCjzjdIv813eA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nTsmqJ3AGGyQg3Kg514YE6q0yhO/7FZhG3n54lSd3G/HiDm5xB3mKcbYzpzsThlUj
-         +/poIydguYjauGVRtDPlnuwbrsgUQdbme7wXtZH3PzIpM4PRUR9wJL+8Ex5sa2oaBA
-         1CjMGBE5zCdExoO6a1TVt6/KCI+ADbWvjisUhAKk=
+        b=Y+R9DJKSo1p6oV/YqDLFewfWUa0B0EOZs0cac4dUo9l7qH/SBO3i0L4su208puTVA
+         2W3k/mGUHn4CWEP2ZDwTnRVx4BobdMh2isTICLnFEabkd/SIFxVkUjc1vHItAZneAA
+         qv9SmylUudsXt9O5X2VY9yccy6/Wf6J1hqjI0BXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Yao Hongbo <yaohongbo@linux.alibaba.com>,
+        Naveen Naidu <naveennaidu479@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 090/287] fs: check FMODE_LSEEK to control internal pipe splicing
-Date:   Tue, 23 Aug 2022 10:24:19 +0200
-Message-Id: <20220823080103.337117504@linuxfoundation.org>
+Subject: [PATCH 5.4 182/389] PCI/portdrv: Dont disable AER reporting in get_port_device_capability()
+Date:   Tue, 23 Aug 2022 10:24:20 +0200
+Message-Id: <20220823080123.228828362@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +60,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Stefan Roese <sr@denx.de>
 
-[ Upstream commit 97ef77c52b789ec1411d360ed99dca1efe4b2c81 ]
+[ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
 
-The original direct splicing mechanism from Jens required the input to
-be a regular file because it was avoiding the special socket case. It
-also recognized blkdevs as being close enough to a regular file. But it
-forgot about chardevs, which behave the same way and work fine here.
+AER reporting is currently disabled in the DevCtl registers of all non Root
+Port PCIe devices on systems using pcie_ports_native || host->native_aer,
+disabling AER completely in such systems. This is because 2bd50dd800b5
+("PCI: PCIe: Disable PCIe port services during port initialization"), added
+a call to pci_disable_pcie_error_reporting() *after* the AER setup was
+completed for the PCIe device tree.
 
-This is an okayish heuristic, but it doesn't totally work. For example,
-a few chardevs should be spliceable here. And a few regular files
-shouldn't. This patch fixes this by instead checking whether FMODE_LSEEK
-is set, which represents decently enough what we need rewinding for when
-splicing to internal pipes.
+Here a longer analysis about the current status of AER enabling /
+disabling upon bootup provided by Bjorn:
 
-Fixes: b92ce5589374 ("[PATCH] splice: add direct fd <-> fd splicing support")
-Cc: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+  pcie_portdrv_probe
+    pcie_port_device_register
+      get_port_device_capability
+        pci_disable_pcie_error_reporting
+          clear CERE NFERE FERE URRE               # <-- disable for RP USP DSP
+      pcie_device_init
+        device_register                            # new AER service device
+          aer_probe
+            aer_enable_rootport                    # RP only
+              set_downstream_devices_error_reporting
+                set_device_error_reporting         # self (RP)
+                  if (RP || USP || DSP)
+                    pci_enable_pcie_error_reporting
+                      set CERE NFERE FERE URRE     # <-- enable for RP
+                pci_walk_bus
+                  set_device_error_reporting
+                    if (RP || USP || DSP)
+                      pci_enable_pcie_error_reporting
+                        set CERE NFERE FERE URRE   # <-- enable for USP DSP
+
+In a typical Root Port -> Endpoint hierarchy, the above:
+  - Disables Error Reporting for the Root Port,
+  - Enables Error Reporting for the Root Port,
+  - Does NOT enable Error Reporting for the Endpoint because it is not a
+    Root Port or Switch Port.
+
+In a deeper Root Port -> Upstream Switch Port -> Downstream Switch
+Port -> Endpoint hierarchy:
+  - Disables Error Reporting for the Root Port,
+  - Enables Error Reporting for the Root Port,
+  - Enables Error Reporting for both Switch Ports,
+  - Does NOT enable Error Reporting for the Endpoint because it is not a
+    Root Port or Switch Port,
+  - Disables Error Reporting for the Switch Ports when pcie_portdrv_probe()
+    claims them.  AER does not re-enable it because these are not Root
+    Ports.
+
+Remove this call to pci_disable_pcie_error_reporting() from
+get_port_device_capability(), leaving the already enabled AER configuration
+intact. With this change, AER is enabled in the Root Port and the PCIe
+switch upstream and downstream ports. Only the PCIe Endpoints don't have
+AER enabled yet. A follow-up patch will take care of this Endpoint
+enabling.
+
+Fixes: 2bd50dd800b5 ("PCI: PCIe: Disable PCIe port services during port initialization")
+Link: https://lore.kernel.org/r/20220125071820.2247260-3-sr@denx.de
+Signed-off-by: Stefan Roese <sr@denx.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Pali Rohár <pali@kernel.org>
+Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
+Cc: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: Yao Hongbo <yaohongbo@linux.alibaba.com>
+Cc: Naveen Naidu <naveennaidu479@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/splice.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/pci/pcie/portdrv_core.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/fs/splice.c b/fs/splice.c
-index fd28c7da3c83..ef1604e307f1 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -899,17 +899,15 @@ ssize_t splice_direct_to_actor(struct file *in, struct splice_desc *sd,
- {
- 	struct pipe_inode_info *pipe;
- 	long ret, bytes;
--	umode_t i_mode;
- 	size_t len;
- 	int i, flags, more;
+diff --git a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
+index 8637f6068f9c..066406d6d0ee 100644
+--- a/drivers/pci/pcie/portdrv_core.c
++++ b/drivers/pci/pcie/portdrv_core.c
+@@ -222,15 +222,8 @@ static int get_port_device_capability(struct pci_dev *dev)
  
- 	/*
--	 * We require the input being a regular file, as we don't want to
--	 * randomly drop data for eg socket -> socket splicing. Use the
--	 * piped splicing for that!
-+	 * We require the input to be seekable, as we don't want to randomly
-+	 * drop data for eg socket -> socket splicing. Use the piped splicing
-+	 * for that!
- 	 */
--	i_mode = file_inode(in)->i_mode;
--	if (unlikely(!S_ISREG(i_mode) && !S_ISBLK(i_mode)))
-+	if (unlikely(!(in->f_mode & FMODE_LSEEK)))
- 		return -EINVAL;
+ #ifdef CONFIG_PCIEAER
+ 	if (dev->aer_cap && pci_aer_available() &&
+-	    (pcie_ports_native || host->native_aer)) {
++	    (pcie_ports_native || host->native_aer))
+ 		services |= PCIE_PORT_SERVICE_AER;
+-
+-		/*
+-		 * Disable AER on this port in case it's been enabled by the
+-		 * BIOS (the AER service driver will enable it when necessary).
+-		 */
+-		pci_disable_pcie_error_reporting(dev);
+-	}
+ #endif
  
  	/*
 -- 
