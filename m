@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4F959E006
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5071659E1D2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359054AbiHWMDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48756 "EHLO
+        id S1350002AbiHWKnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:43:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359671AbiHWMCI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D24DA3D2;
-        Tue, 23 Aug 2022 02:36:20 -0700 (PDT)
+        with ESMTP id S1356316AbiHWKlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA1CC84ECB;
+        Tue, 23 Aug 2022 02:09:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A2C061467;
-        Tue, 23 Aug 2022 09:36:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B64DC433D6;
-        Tue, 23 Aug 2022 09:36:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B4626010E;
+        Tue, 23 Aug 2022 09:09:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B256C433D7;
+        Tue, 23 Aug 2022 09:09:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247379;
-        bh=W79uSSvskBaeQttHv1qR+U1nseM67Zgw+Zkr/nhruKI=;
+        s=korg; t=1661245759;
+        bh=dS14W8ecUphTKxvCQBorbBcTsP8koOnv//b1T3gJMZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bT1mrr5gbWMKr/WqpscwZ6CyaY3onoFUK8jKK+/P96gXcvFpyy+IhVUVI/F25C9B9
-         fgtQgtevBCOM79yVwlhqSsQ3Uo0VFcb4jjhVzK1FglkSdGY5Jbq1EYCC1iB5Ml21te
-         ci+M/UjPtX5IEvxudxXSqDxeDJXq+B5teaU8L7ow=
+        b=QGpf8RkcXZTNoNYH17f7mjDEelzmBqQxtklWyZufjOqyOoeNNcqi+eimD/4aqcRW3
+         koc03lrgxJKhPj+k0ClLvPvq9/ZEWBjL9/EMrxKO3l6I4zo/Q1j+vZIa+7vOIs0SHU
+         U+NUYJaH3AkWaZ9lgq03Mh3SKyXTPe40fIGpB29Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.10 018/158] apparmor: fix overlapping attachment computation
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 181/287] video: fbdev: vt8623fb: Check the size of screen before memset_io()
 Date:   Tue, 23 Aug 2022 10:25:50 +0200
-Message-Id: <20220823080046.815234981@linuxfoundation.org>
+Message-Id: <20220823080106.880864909@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,46 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 2504db207146543736e877241f3b3de005cbe056 upstream.
+[ Upstream commit ec0754c60217248fa77cc9005d66b2b55200ac06 ]
 
-When finding the profile via patterned attachments, the longest left
-match is being set to the static compile time value and not using the
-runtime computed value.
+In the function vt8623fb_set_par(), the value of 'screen_size' is
+calculated by the user input. If the user provides the improper value,
+the value of 'screen_size' may larger than 'info->screen_size', which
+may cause the following bug:
 
-Fix this by setting the candidate value to the greater of the
-precomputed value or runtime computed value.
+[  583.339036] BUG: unable to handle page fault for address: ffffc90005000000
+[  583.339049] #PF: supervisor write access in kernel mode
+[  583.339052] #PF: error_code(0x0002) - not-present page
+[  583.339074] RIP: 0010:memset_orig+0x33/0xb0
+[  583.339110] Call Trace:
+[  583.339118]  vt8623fb_set_par+0x11cd/0x21e0
+[  583.339146]  fb_set_var+0x604/0xeb0
+[  583.339181]  do_fb_ioctl+0x234/0x670
+[  583.339209]  fb_ioctl+0xdd/0x130
 
-Fixes: 21f606610502 ("apparmor: improve overlapping domain attachment resolution")
-Signed-off-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix the this by checking the value of 'screen_size' before memset_io().
+
+Fixes: 558b7bd86c32 ("vt8623fb: new framebuffer driver for VIA VT8623")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/domain.c         |    2 +-
- security/apparmor/include/policy.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/vt8623fb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/security/apparmor/domain.c
-+++ b/security/apparmor/domain.c
-@@ -465,7 +465,7 @@ restart:
- 				 * xattrs, or a longer match
- 				 */
- 				candidate = profile;
--				candidate_len = profile->xmatch_len;
-+				candidate_len = max(count, profile->xmatch_len);
- 				candidate_xattrs = ret;
- 				conflict = false;
- 			}
---- a/security/apparmor/include/policy.h
-+++ b/security/apparmor/include/policy.h
-@@ -135,7 +135,7 @@ struct aa_profile {
+diff --git a/drivers/video/fbdev/vt8623fb.c b/drivers/video/fbdev/vt8623fb.c
+index 5cac871db3ee..cbae9c510092 100644
+--- a/drivers/video/fbdev/vt8623fb.c
++++ b/drivers/video/fbdev/vt8623fb.c
+@@ -504,6 +504,8 @@ static int vt8623fb_set_par(struct fb_info *info)
+ 			 (info->var.vmode & FB_VMODE_DOUBLE) ? 2 : 1, 1,
+ 			 1, info->node);
  
- 	const char *attach;
- 	struct aa_dfa *xmatch;
--	int xmatch_len;
-+	unsigned int xmatch_len;
- 	enum audit_mode audit;
- 	long mode;
- 	u32 path_flags;
++	if (screen_size > info->screen_size)
++		screen_size = info->screen_size;
+ 	memset_io(info->screen_base, 0x00, screen_size);
+ 
+ 	/* Device and screen back on */
+-- 
+2.35.1
+
 
 
