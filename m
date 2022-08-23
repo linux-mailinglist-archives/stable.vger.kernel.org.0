@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D7B59E25A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D9359DC56
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358215AbiHWLoM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:44:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40834 "EHLO
+        id S1355714AbiHWKoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:44:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358604AbiHWLmK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:42:10 -0400
+        with ESMTP id S1356485AbiHWKmY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:42:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 266F8D0210;
-        Tue, 23 Aug 2022 02:29:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8789CA99C0;
+        Tue, 23 Aug 2022 02:09:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B378161174;
-        Tue, 23 Aug 2022 09:29:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE70DC433D6;
-        Tue, 23 Aug 2022 09:29:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2172D6092E;
+        Tue, 23 Aug 2022 09:09:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1132EC433C1;
+        Tue, 23 Aug 2022 09:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246985;
-        bh=BPjRKYlZVVLcttuktKVhBBeZgURIhOTGAyf0WJJ+PiY=;
+        s=korg; t=1661245790;
+        bh=ueeu1O7WxTB5W7eT1aqQvjP1jaD0aS1iXFRsRpMLeAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZJfWnMaBHPmXLm9PEjhmpXV4B+5miqytblPjerM1wABrG6zmnmK5H0igneoyX4t+K
-         kMFLZBbxGwKurOlH6P/34ntmBUmf/wL4xFPu88DYvYN5F5QhzqhgC5tHuxz4VnGVLi
-         6KrW2XbunLHgP2E2AxDLUxHoRy3+WsVf9EJ0UfNg=
+        b=i8Eb69Ikdeit69U/bGdwIAfb1r6sQrpwqWon8t5g1LNk1kSBFvPs66DX9NAN/MIY0
+         rbUfa8651ExyUZjSU5V93YFu2SqozH8KutlbJTNQw6FhWuNtksucjFbEntBAXA5j71
+         2tg6K5uhsVubA84gEkc80uu9XZWG5NBYHBD6vbj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
-        Tony Battersby <tonyb@cybernetics.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 281/389] scsi: sg: Allow waiting for commands to complete on removed device
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>
+Subject: [PATCH 4.19 190/287] ext4: update s_overhead_clusters in the superblock during an on-line resize
 Date:   Tue, 23 Aug 2022 10:25:59 +0200
-Message-Id: <20220823080127.282757799@linuxfoundation.org>
+Message-Id: <20220823080107.211177549@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,148 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Battersby <tonyb@cybernetics.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 3455607fd7be10b449f5135c00dc306b85dc0d21 upstream.
+commit de394a86658ffe4e89e5328fd4993abfe41b7435 upstream.
 
-When a SCSI device is removed while in active use, currently sg will
-immediately return -ENODEV on any attempt to wait for active commands that
-were sent before the removal.  This is problematic for commands that use
-SG_FLAG_DIRECT_IO since the data buffer may still be in use by the kernel
-when userspace frees or reuses it after getting ENODEV, leading to
-corrupted userspace memory (in the case of READ-type commands) or corrupted
-data being sent to the device (in the case of WRITE-type commands).  This
-has been seen in practice when logging out of a iscsi_tcp session, where
-the iSCSI driver may still be processing commands after the device has been
-marked for removal.
+When doing an online resize, the on-disk superblock on-disk wasn't
+updated.  This means that when the file system is unmounted and
+remounted, and the on-disk overhead value is non-zero, this would
+result in the results of statfs(2) to be incorrect.
 
-Change the policy to allow userspace to wait for active sg commands even
-when the device is being removed.  Return -ENODEV only when there are no
-more responses to read.
+This was partially fixed by Commits 10b01ee92df5 ("ext4: fix overhead
+calculation to account for the reserved gdt blocks"), 85d825dbf489
+("ext4: force overhead calculation if the s_overhead_cluster makes no
+sense"), and eb7054212eac ("ext4: update the cached overhead value in
+the superblock").
 
-Link: https://lore.kernel.org/r/5ebea46f-fe83-2d0b-233d-d0dcb362dd0a@cybernetics.com
-Cc: <stable@vger.kernel.org>
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Tony Battersby <tonyb@cybernetics.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+However, since it was too expensive to forcibly recalculate the
+overhead for bigalloc file systems at every mount, this didn't fix the
+problem for bigalloc file systems.  This commit should address the
+problem when resizing file systems with the bigalloc feature enabled.
+
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20220629040026.112371-1-tytso@mit.edu
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/sg.c |   57 ++++++++++++++++++++++++++++++++----------------------
- 1 file changed, 34 insertions(+), 23 deletions(-)
+ fs/ext4/resize.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -190,7 +190,7 @@ static void sg_link_reserve(Sg_fd * sfp,
- static void sg_unlink_reserve(Sg_fd * sfp, Sg_request * srp);
- static Sg_fd *sg_add_sfp(Sg_device * sdp);
- static void sg_remove_sfp(struct kref *);
--static Sg_request *sg_get_rq_mark(Sg_fd * sfp, int pack_id);
-+static Sg_request *sg_get_rq_mark(Sg_fd * sfp, int pack_id, bool *busy);
- static Sg_request *sg_add_request(Sg_fd * sfp);
- static int sg_remove_request(Sg_fd * sfp, Sg_request * srp);
- static Sg_device *sg_get_dev(int dev);
-@@ -412,6 +412,7 @@ sg_read(struct file *filp, char __user *
- 	Sg_fd *sfp;
- 	Sg_request *srp;
- 	int req_pack_id = -1;
-+	bool busy;
- 	sg_io_hdr_t *hp;
- 	struct sg_header *old_hdr = NULL;
- 	int retval = 0;
-@@ -459,25 +460,19 @@ sg_read(struct file *filp, char __user *
- 		} else
- 			req_pack_id = old_hdr->pack_id;
- 	}
--	srp = sg_get_rq_mark(sfp, req_pack_id);
-+	srp = sg_get_rq_mark(sfp, req_pack_id, &busy);
- 	if (!srp) {		/* now wait on packet to arrive */
--		if (atomic_read(&sdp->detaching)) {
--			retval = -ENODEV;
--			goto free_old_hdr;
--		}
- 		if (filp->f_flags & O_NONBLOCK) {
- 			retval = -EAGAIN;
- 			goto free_old_hdr;
- 		}
- 		retval = wait_event_interruptible(sfp->read_wait,
--			(atomic_read(&sdp->detaching) ||
--			(srp = sg_get_rq_mark(sfp, req_pack_id))));
--		if (atomic_read(&sdp->detaching)) {
--			retval = -ENODEV;
--			goto free_old_hdr;
--		}
--		if (retval) {
--			/* -ERESTARTSYS as signal hit process */
-+			((srp = sg_get_rq_mark(sfp, req_pack_id, &busy)) ||
-+			(!busy && atomic_read(&sdp->detaching))));
-+		if (!srp) {
-+			/* signal or detaching */
-+			if (!retval)
-+				retval = -ENODEV;
- 			goto free_old_hdr;
- 		}
- 	}
-@@ -928,9 +923,7 @@ sg_ioctl(struct file *filp, unsigned int
- 		if (result < 0)
- 			return result;
- 		result = wait_event_interruptible(sfp->read_wait,
--			(srp_done(sfp, srp) || atomic_read(&sdp->detaching)));
--		if (atomic_read(&sdp->detaching))
--			return -ENODEV;
-+			srp_done(sfp, srp));
- 		write_lock_irq(&sfp->rq_list_lock);
- 		if (srp->done) {
- 			srp->done = 2;
-@@ -2074,19 +2067,28 @@ sg_unlink_reserve(Sg_fd * sfp, Sg_reques
- }
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -1483,6 +1483,7 @@ static void ext4_update_super(struct sup
+ 	 * Update the fs overhead information
+ 	 */
+ 	ext4_calculate_overhead(sb);
++	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
  
- static Sg_request *
--sg_get_rq_mark(Sg_fd * sfp, int pack_id)
-+sg_get_rq_mark(Sg_fd * sfp, int pack_id, bool *busy)
- {
- 	Sg_request *resp;
- 	unsigned long iflags;
- 
-+	*busy = false;
- 	write_lock_irqsave(&sfp->rq_list_lock, iflags);
- 	list_for_each_entry(resp, &sfp->rq_list, entry) {
--		/* look for requests that are ready + not SG_IO owned */
--		if ((1 == resp->done) && (!resp->sg_io_owned) &&
-+		/* look for requests that are not SG_IO owned */
-+		if ((!resp->sg_io_owned) &&
- 		    ((-1 == pack_id) || (resp->header.pack_id == pack_id))) {
--			resp->done = 2;	/* guard against other readers */
--			write_unlock_irqrestore(&sfp->rq_list_lock, iflags);
--			return resp;
-+			switch (resp->done) {
-+			case 0: /* request active */
-+				*busy = true;
-+				break;
-+			case 1: /* request done; response ready to return */
-+				resp->done = 2;	/* guard against other readers */
-+				write_unlock_irqrestore(&sfp->rq_list_lock, iflags);
-+				return resp;
-+			case 2: /* response already being returned */
-+				break;
-+			}
- 		}
- 	}
- 	write_unlock_irqrestore(&sfp->rq_list_lock, iflags);
-@@ -2140,6 +2142,15 @@ sg_remove_request(Sg_fd * sfp, Sg_reques
- 		res = 1;
- 	}
- 	write_unlock_irqrestore(&sfp->rq_list_lock, iflags);
-+
-+	/*
-+	 * If the device is detaching, wakeup any readers in case we just
-+	 * removed the last response, which would leave nothing for them to
-+	 * return other than -ENODEV.
-+	 */
-+	if (unlikely(atomic_read(&sfp->parentdp->detaching)))
-+		wake_up_interruptible_all(&sfp->read_wait);
-+
- 	return res;
- }
- 
+ 	if (test_opt(sb, DEBUG))
+ 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
 
 
