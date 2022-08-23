@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C46DE59D9F9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 876A459D8F2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352035AbiHWKEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:04:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46324 "EHLO
+        id S1350602AbiHWJmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:42:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352498AbiHWKB7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6854C70E53;
-        Tue, 23 Aug 2022 01:49:50 -0700 (PDT)
+        with ESMTP id S1351943AbiHWJkm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:40:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC187960E;
+        Tue, 23 Aug 2022 01:41:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C523B81B90;
-        Tue, 23 Aug 2022 08:49:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7E90C433C1;
-        Tue, 23 Aug 2022 08:49:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71C4BB81C3E;
+        Tue, 23 Aug 2022 08:41:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C917BC433C1;
+        Tue, 23 Aug 2022 08:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244587;
-        bh=BlCmXcTZu+EWNPS2irvhKqaRmVQCnnQHWvNPA6UBN7U=;
+        s=korg; t=1661244059;
+        bh=DPuyn0vXH02KiwaX6fibOkAwgcLn6wDShe4JqCjHAHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Asav5WKiV0On0leM5bZYMF/dKLqqz4w3n+Osl7i0uOkcNNdAS79Pm6/z5k97MO48X
-         DjxSEKB1MujPW3NsYb/NPj+YrAVDRl7HuugG86wbmJzPtfQ1KbmIX84TarCBzc2Dfn
-         6WEkKef/IHRdxnN/EtwLZaSf803Utgc6l+AJGaik=
+        b=KU3cAjPhLcF88hRRiAgE2Q7FBDie9qxf5I3I4SW33LA5d7bcOg8P+YZkQejrOHxJJ
+         qYAWexziG19ZTcx3/eteaNbYC8B7ZkAyARbr0ddsPUWDGEy+FrlMX84/VOgWdsRxjl
+         HlZksYaB3YD/HDtqzn8f8ph5VUAdPFYL022IZX1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        Peilin Ye <peilin.ye@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 081/244] vsock: Set socket state back to SS_UNCONNECTED in vsock_connect_timeout()
-Date:   Tue, 23 Aug 2022 10:24:00 +0200
-Message-Id: <20220823080101.749275404@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 080/229] can: rcar_can: do not report txerr and rxerr during bus-off
+Date:   Tue, 23 Aug 2022 10:24:01 +0200
+Message-Id: <20220823080056.577409346@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-commit a3e7b29e30854ed67be0d17687e744ad0c769c4b upstream.
+[ Upstream commit a37b7245e831a641df360ca41db6a71c023d3746 ]
 
-Imagine two non-blocking vsock_connect() requests on the same socket.
-The first request schedules @connect_work, and after it times out,
-vsock_connect_timeout() sets *sock* state back to TCP_CLOSE, but keeps
-*socket* state as SS_CONNECTING.
+During bus off, the error count is greater than 255 and can not fit in
+a u8.
 
-Later, the second request returns -EALREADY, meaning the socket "already
-has a pending connection in progress", even though the first request has
-already timed out.
-
-As suggested by Stefano, fix it by setting *socket* state back to
-SS_UNCONNECTED, so that the second request will return -ETIMEDOUT.
-
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fd1159318e55 ("can: add Renesas R-Car CAN driver")
+Link: https://lore.kernel.org/all/20220719143550.3681-3-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/rcar/rcar_can.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1285,6 +1285,7 @@ static void vsock_connect_timeout(struct
- 	if (sk->sk_state == TCP_SYN_SENT &&
- 	    (sk->sk_shutdown != SHUTDOWN_MASK)) {
- 		sk->sk_state = TCP_CLOSE;
-+		sk->sk_socket->state = SS_UNCONNECTED;
- 		sk->sk_err = ETIMEDOUT;
- 		sk_error_report(sk);
- 		vsock_transport_cancel_pkt(vsk);
+diff --git a/drivers/net/can/rcar/rcar_can.c b/drivers/net/can/rcar/rcar_can.c
+index 963da8eda168..0156c18d5a2d 100644
+--- a/drivers/net/can/rcar/rcar_can.c
++++ b/drivers/net/can/rcar/rcar_can.c
+@@ -233,11 +233,8 @@ static void rcar_can_error(struct net_device *ndev)
+ 	if (eifr & (RCAR_CAN_EIFR_EWIF | RCAR_CAN_EIFR_EPIF)) {
+ 		txerr = readb(&priv->regs->tecr);
+ 		rxerr = readb(&priv->regs->recr);
+-		if (skb) {
++		if (skb)
+ 			cf->can_id |= CAN_ERR_CRTL;
+-			cf->data[6] = txerr;
+-			cf->data[7] = rxerr;
+-		}
+ 	}
+ 	if (eifr & RCAR_CAN_EIFR_BEIF) {
+ 		int rx_errors = 0, tx_errors = 0;
+@@ -337,6 +334,9 @@ static void rcar_can_error(struct net_device *ndev)
+ 		can_bus_off(ndev);
+ 		if (skb)
+ 			cf->can_id |= CAN_ERR_BUSOFF;
++	} else if (skb) {
++		cf->data[6] = txerr;
++		cf->data[7] = rxerr;
+ 	}
+ 	if (eifr & RCAR_CAN_EIFR_ORIF) {
+ 		netdev_dbg(priv->ndev, "Receive overrun error interrupt\n");
+-- 
+2.35.1
+
 
 
