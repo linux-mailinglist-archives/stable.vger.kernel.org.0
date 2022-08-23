@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BA2C59D37F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7146059D42F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242172AbiHWIMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:12:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
+        id S242685AbiHWIWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:22:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242560AbiHWILd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:11:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2AE6B152;
-        Tue, 23 Aug 2022 01:08:49 -0700 (PDT)
+        with ESMTP id S243431AbiHWIVJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:21:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48E3B6EF30;
+        Tue, 23 Aug 2022 01:12:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 145A96123D;
-        Tue, 23 Aug 2022 08:08:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB33C433D6;
-        Tue, 23 Aug 2022 08:08:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F84EB81C3B;
+        Tue, 23 Aug 2022 08:12:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 634CEC433D6;
+        Tue, 23 Aug 2022 08:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242128;
-        bh=rhyB6i+Er1SWoPwFIMMk0wov/QnS/fbCmU1KUM1Bc58=;
+        s=korg; t=1661242342;
+        bh=z+CGCDyFSMPbd/EN3DNknlU9RDhJkyHosZULARlSM94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ROtxdsLKadMENzUphZRo7gTZ1fsgFbV/Wq3hBNZuADosxmeTCx0Gloc1DtEpH4T/f
-         1D01zIgg8s3aqenmU4Z1HJPuYqZY/XGwyXH8LrAAh8w9mhrnMOcLokcoTN7ghG5ZZV
-         J0ihVU5Er/cQht+mL6KmiqvhR5ftwD9sHT8zIAHA=
+        b=TPUN3aFZXheTy8L+51Vm+bKgM7oCOoM5UuuYJUOk8/DY5IfkeomfFmdxWaoJYIkxs
+         oiLPPnmKqenYDXibY9XV8yA8SZYldOrQpTi7MhkBDOeB5YlIHdsDEENyezCqXgzLD2
+         i1qS8y2L5rAuQYt5uCAwwsXqh7bFwg3KB/LWsjuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YiFei Zhu <zhuyifei@google.com>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.19 062/365] bpf: Disallow bpf programs call prog_run command.
-Date:   Tue, 23 Aug 2022 09:59:23 +0200
-Message-Id: <20220823080120.784563663@linuxfoundation.org>
+Subject: [PATCH 5.19 063/365] bpf: Dont reinit map value in prealloc_lru_pop
+Date:   Tue, 23 Aug 2022 09:59:24 +0200
+Message-Id: <20220823080120.831080541@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,87 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit 86f44fcec22ce2979507742bc53db8400e454f46 upstream.
+commit 275c30bcee66a27d1aa97a215d607ad6d49804cb upstream.
 
-The verifier cannot perform sufficient validation of bpf_attr->test.ctx_in
-pointer, therefore bpf programs should not be allowed to call BPF_PROG_RUN
-command from within the program.
-To fix this issue split bpf_sys_bpf() bpf helper into normal kern_sys_bpf()
-kernel function that can only be used by the kernel light skeleton directly.
+The LRU map that is preallocated may have its elements reused while
+another program holds a pointer to it from bpf_map_lookup_elem. Hence,
+only check_and_free_fields is appropriate when the element is being
+deleted, as it ensures proper synchronization against concurrent access
+of the map value. After that, we cannot call check_and_init_map_value
+again as it may rewrite bpf_spin_lock, bpf_timer, and kptr fields while
+they can be concurrently accessed from a BPF program.
 
-Reported-by: YiFei Zhu <zhuyifei@google.com>
-Fixes: b1d18a7574d0 ("bpf: Extend sys_bpf commands for bpf_syscall programs.")
+This is safe to do as when the map entry is deleted, concurrent access
+is protected against by check_and_free_fields, i.e. an existing timer
+would be freed, and any existing kptr will be released by it. The
+program can create further timers and kptrs after check_and_free_fields,
+but they will eventually be released once the preallocated items are
+freed on map destruction, even if the item is never reused again. Hence,
+the deleted item sitting in the free list can still have resources
+attached to it, and they would never leak.
+
+With spin_lock, we never touch the field at all on delete or update, as
+we may end up modifying the state of the lock. Since the verifier
+ensures that a bpf_spin_lock call is always paired with bpf_spin_unlock
+call, the program will eventually release the lock so that on reuse the
+new user of the value can take the lock.
+
+Essentially, for the preallocated case, we must assume that the map
+value may always be in use by the program, even when it is sitting in
+the freelist, and handle things accordingly, i.e. use proper
+synchronization inside check_and_free_fields, and never reinitialize the
+special fields when it is reused on update.
+
+Fixes: 68134668c17f ("bpf: Add map side support for bpf timers.")
+Acked-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/r/20220809213033.24147-3-memxor@gmail.com
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/syscall.c          |   20 ++++++++++++++------
- tools/lib/bpf/skel_internal.h |    4 ++--
- 2 files changed, 16 insertions(+), 8 deletions(-)
+ kernel/bpf/hashtab.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -5035,9 +5035,6 @@ static bool syscall_prog_is_valid_access
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -311,12 +311,8 @@ static struct htab_elem *prealloc_lru_po
+ 	struct htab_elem *l;
  
- BPF_CALL_3(bpf_sys_bpf, int, cmd, union bpf_attr *, attr, u32, attr_size)
- {
--	struct bpf_prog * __maybe_unused prog;
--	struct bpf_tramp_run_ctx __maybe_unused run_ctx;
+ 	if (node) {
+-		u32 key_size = htab->map.key_size;
 -
- 	switch (cmd) {
- 	case BPF_MAP_CREATE:
- 	case BPF_MAP_UPDATE_ELEM:
-@@ -5047,6 +5044,18 @@ BPF_CALL_3(bpf_sys_bpf, int, cmd, union
- 	case BPF_LINK_CREATE:
- 	case BPF_RAW_TRACEPOINT_OPEN:
- 		break;
-+	default:
-+		return -EINVAL;
-+	}
-+	return __sys_bpf(cmd, KERNEL_BPFPTR(attr), attr_size);
-+}
-+
-+int kern_sys_bpf(int cmd, union bpf_attr *attr, unsigned int size)
-+{
-+	struct bpf_prog * __maybe_unused prog;
-+	struct bpf_tramp_run_ctx __maybe_unused run_ctx;
-+
-+	switch (cmd) {
- #ifdef CONFIG_BPF_JIT /* __bpf_prog_enter_sleepable used by trampoline and JIT */
- 	case BPF_PROG_TEST_RUN:
- 		if (attr->test.data_in || attr->test.data_out ||
-@@ -5077,11 +5086,10 @@ BPF_CALL_3(bpf_sys_bpf, int, cmd, union
- 		return 0;
- #endif
- 	default:
--		return -EINVAL;
-+		return ____bpf_sys_bpf(cmd, attr, size);
+ 		l = container_of(node, struct htab_elem, lru_node);
+-		memcpy(l->key, key, key_size);
+-		check_and_init_map_value(&htab->map,
+-					 l->key + round_up(key_size, 8));
++		memcpy(l->key, key, htab->map.key_size);
+ 		return l;
  	}
--	return __sys_bpf(cmd, KERNEL_BPFPTR(attr), attr_size);
- }
--EXPORT_SYMBOL(bpf_sys_bpf);
-+EXPORT_SYMBOL(kern_sys_bpf);
  
- static const struct bpf_func_proto bpf_sys_bpf_proto = {
- 	.func		= bpf_sys_bpf,
---- a/tools/lib/bpf/skel_internal.h
-+++ b/tools/lib/bpf/skel_internal.h
-@@ -66,13 +66,13 @@ struct bpf_load_and_run_opts {
- 	const char *errstr;
- };
- 
--long bpf_sys_bpf(__u32 cmd, void *attr, __u32 attr_size);
-+long kern_sys_bpf(__u32 cmd, void *attr, __u32 attr_size);
- 
- static inline int skel_sys_bpf(enum bpf_cmd cmd, union bpf_attr *attr,
- 			  unsigned int size)
- {
- #ifdef __KERNEL__
--	return bpf_sys_bpf(cmd, attr, size);
-+	return kern_sys_bpf(cmd, attr, size);
- #else
- 	return syscall(__NR_bpf, cmd, attr, size);
- #endif
 
 
