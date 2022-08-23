@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D77A559DD64
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D6659DDEF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355038AbiHWKnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:43:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49478 "EHLO
+        id S1357861AbiHWLjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:39:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355654AbiHWKkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:40:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDA0A74D7;
-        Tue, 23 Aug 2022 02:08:12 -0700 (PDT)
+        with ESMTP id S1357384AbiHWLhq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:37:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 684E7A475;
+        Tue, 23 Aug 2022 02:28:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AAD61B81C53;
-        Tue, 23 Aug 2022 09:08:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A58C433D6;
-        Tue, 23 Aug 2022 09:08:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 433D7B81B1F;
+        Tue, 23 Aug 2022 09:28:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FFF2C433C1;
+        Tue, 23 Aug 2022 09:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245690;
-        bh=bCxOf+Tw6FCeLVi8ztxNIf2iE72I9R5m0AUtL9Ft5Hc=;
+        s=korg; t=1661246880;
+        bh=endJk+ACyFfb201hJXGiey3lovGUucIMGyidZKnYtZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DV0/jbXqgYUsVHKAXPtd9B2a73oq2wC3w7QShEkDs//C1PTW27dvLditgpp5TGiQZ
-         WPF4c8PMsFRzTjZw3NbvTtZ7bY553zw1nQJ98bCR+ff89+8h1+W+eQmTZ5+/UPiIdq
-         SGJo9ylnPhuuBb94SJaqZyaCNtyAhG1F1WKen2FA=
+        b=FbVDwdZ7hc68HCQ2RSeKi2xwdsuofswilU54gSqbgZqRauQRH6qcbowOuVlYECJSS
+         KvDSU/fkF3R9IPknUtskXAnnSQ3LQWVzpDZtMj+aWSOK15u/duLjGqlll+3pu5CrcG
+         J/AOKolZrsWwfVtNzzLSCeuWLwZwUzcPcUg9PWlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 158/287] tty: n_gsm: fix DM command
+        stable@vger.kernel.org, Tony Battersby <tonyb@cybernetics.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 249/389] scsi: qla2xxx: Fix discovery issues in FC-AL topology
 Date:   Tue, 23 Aug 2022 10:25:27 +0200
-Message-Id: <20220823080106.005042114@linuxfoundation.org>
+Message-Id: <20220823080125.977099866@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +56,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit 18a948c7d90995d127785e308fa7b701df4c499f ]
+commit 47ccb113cead905bdc236571bf8ac6fed90321b3 upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.3.3 defines the DM response. There exists
-no DM command. However, the current implementation incorrectly sends DM as
-command in case of unexpected UIH frames in gsm_queue().
-Correct this behavior by always sending DM as response.
+A direct attach tape device, when gets swapped with another, was not
+discovered. Fix this by looking at loop map and reinitialize link if there
+are devices present.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220707113223.3685-2-daniel.starke@siemens.com
+Link: https://lore.kernel.org/linux-scsi/baef87c3-5dad-3b47-44c1-6914bfc90108@cybernetics.com/
+Link: https://lore.kernel.org/r/20220713052045.10683-8-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reported-by: Tony Battersby <tonyb@cybernetics.com>
+Tested-by: Tony Battersby <tonyb@cybernetics.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_gbl.h  |    3 ++-
+ drivers/scsi/qla2xxx/qla_init.c |   29 +++++++++++++++++++++++++++++
+ drivers/scsi/qla2xxx/qla_mbx.c  |    5 ++++-
+ 3 files changed, 35 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 43491df37a2d..727707e02551 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1892,7 +1892,7 @@ static void gsm_queue(struct gsm_mux *gsm)
- 			goto invalid;
- #endif
- 		if (dlci == NULL || dlci->state != DLCI_OPEN) {
--			gsm_command(gsm, address, DM|PF);
-+			gsm_response(gsm, address, DM|PF);
- 			return;
+--- a/drivers/scsi/qla2xxx/qla_gbl.h
++++ b/drivers/scsi/qla2xxx/qla_gbl.h
+@@ -397,7 +397,8 @@ extern int
+ qla2x00_get_resource_cnts(scsi_qla_host_t *);
+ 
+ extern int
+-qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map);
++qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map,
++		u8 *num_entries);
+ 
+ extern int
+ qla2x00_get_link_status(scsi_qla_host_t *, uint16_t, struct link_statistics *,
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -5068,6 +5068,22 @@ qla2x00_configure_loop(scsi_qla_host_t *
+ 	return (rval);
+ }
+ 
++static void
++qla_reinitialize_link(scsi_qla_host_t *vha)
++{
++	int rval;
++
++	atomic_set(&vha->loop_state, LOOP_DOWN);
++	atomic_set(&vha->loop_down_timer, LOOP_DOWN_TIME);
++	rval = qla2x00_full_login_lip(vha);
++	if (rval == QLA_SUCCESS) {
++		ql_dbg(ql_dbg_disc, vha, 0xd050, "Link reinitialized\n");
++	} else {
++		ql_dbg(ql_dbg_disc, vha, 0xd051,
++			"Link reinitialization failed (%d)\n", rval);
++	}
++}
++
+ /*
+  * qla2x00_configure_local_loop
+  *	Updates Fibre Channel Device Database with local loop devices.
+@@ -5132,6 +5148,19 @@ skip_login:
+ 		spin_unlock_irqrestore(&vha->work_lock, flags);
+ 
+ 		if (vha->scan.scan_retry < MAX_SCAN_RETRIES) {
++			u8 loop_map_entries = 0;
++			int rc;
++
++			rc = qla2x00_get_fcal_position_map(vha, NULL,
++						&loop_map_entries);
++			if (rc == QLA_SUCCESS && loop_map_entries > 1) {
++				/*
++				 * There are devices that are still not logged
++				 * in. Reinitialize to give them a chance.
++				 */
++				qla_reinitialize_link(vha);
++				return QLA_FUNCTION_FAILED;
++			}
+ 			set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
+ 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
  		}
- 		dlci->data(dlci, gsm->buf, gsm->len);
--- 
-2.35.1
-
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -2928,7 +2928,8 @@ qla2x00_get_resource_cnts(scsi_qla_host_
+  *	Kernel context.
+  */
+ int
+-qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map)
++qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map,
++		u8 *num_entries)
+ {
+ 	int rval;
+ 	mbx_cmd_t mc;
+@@ -2968,6 +2969,8 @@ qla2x00_get_fcal_position_map(scsi_qla_h
+ 
+ 		if (pos_map)
+ 			memcpy(pos_map, pmap, FCAL_MAP_SIZE);
++		if (num_entries)
++			*num_entries = pmap[0];
+ 	}
+ 	dma_pool_free(ha->s_dma_pool, pmap, pmap_dma);
+ 
 
 
