@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AAF159D603
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C6E59D537
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241000AbiHWJGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:06:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52280 "EHLO
+        id S1347692AbiHWJGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:06:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347712AbiHWJFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:05:20 -0400
+        with ESMTP id S1348073AbiHWJFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:05:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10BEC84EC0;
-        Tue, 23 Aug 2022 01:29:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25D8284EF1;
+        Tue, 23 Aug 2022 01:29:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43ABD61499;
-        Tue, 23 Aug 2022 08:27:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41CFEC433D6;
-        Tue, 23 Aug 2022 08:27:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 497E561490;
+        Tue, 23 Aug 2022 08:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F635C433C1;
+        Tue, 23 Aug 2022 08:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243273;
-        bh=JzwUZcD7jNCJYY/ChR+2ByndPEgmimdsvcQdGqDEtNg=;
+        s=korg; t=1661243276;
+        bh=1c39BiNd7SQ5EjNVpwpii3C/c76JTx3O9Q0M7TYzoc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pe9tmdIfDYuQpEtX503QJwywUU5kChivFghzWonYBEeD63b7FZ8PxuI6wGXyngwJc
-         Pl6DuQMqOLJxpo2/nYDVDK63oZEq7K2ngAGXWu0mSClKfdJ3uYeCHGcFohIQMdgE9z
-         4LJzr7Qayxu2fTFHElk2wbModkkr6JeSzO7QN9WM=
+        b=BBaFj+cIXSDkWNHY/2k9Ymlg4+jyIAv65YkKRg8ByyV2EMD+PT2/CrGAjg2q8fjUz
+         M4Qra9vUFkhmExxdZ2ZvvpR8ZrZv74QnJU7J4piSRxJt1Upx1t3slXzNsK0M69pGcn
+         YsDHzNBMlxdmJhFnJZWRwDNxJ7AUxG1J/gCippVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Igor Raits <igor@gooddata.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.19 224/365] ice: Fix double VLAN error when entering promisc mode
-Date:   Tue, 23 Aug 2022 10:02:05 +0200
-Message-Id: <20220823080127.569797517@linuxfoundation.org>
+Subject: [PATCH 5.19 225/365] ice: Ignore EEXIST when setting promisc mode
+Date:   Tue, 23 Aug 2022 10:02:06 +0200
+Message-Id: <20220823080127.610838708@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -58,17 +58,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Grzegorz Siwik <grzegorz.siwik@intel.com>
 
-commit ffa9ed86522f1c08d4face4e0a4ebf366037bf19 upstream.
+commit 11e551a2efa4481bd4f616ab75374a2710b480e9 upstream.
 
-Avoid enabling or disabling VLAN 0 when trying to set promiscuous
-VLAN mode if double VLAN mode is enabled. This fix is needed
-because the driver tries to add the VLAN 0 filter twice (once for
-inner and once for outer) when double VLAN mode is enabled. The
-filter program is rejected by the firmware when double VLAN is
-enabled, because the promiscuous filter only needs to be set once.
-
-This issue was missed in the initial implementation of double VLAN
-mode.
+Ignore EEXIST error when setting promiscuous mode.
+This fix is needed because the driver could set promiscuous mode
+when it still has not cleared properly.
+Promiscuous mode could be set only once, so setting it second
+time will be rejected.
 
 Fixes: 5eda8afd6bcc ("ice: Add support for PF/VF promiscuous mode")
 Signed-off-by: Grzegorz Siwik <grzegorz.siwik@intel.com>
@@ -79,24 +75,19 @@ Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_switch.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_switch.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/net/ethernet/intel/ice/ice_switch.c
 +++ b/drivers/net/ethernet/intel/ice/ice_switch.c
-@@ -4414,6 +4414,13 @@ ice_set_vlan_vsi_promisc(struct ice_hw *
- 		goto free_fltr_list;
+@@ -4428,7 +4428,7 @@ ice_set_vlan_vsi_promisc(struct ice_hw *
+ 		else
+ 			status = ice_set_vsi_promisc(hw, vsi_handle,
+ 						     promisc_mask, vlan_id);
+-		if (status)
++		if (status && status != -EEXIST)
+ 			break;
+ 	}
  
- 	list_for_each_entry(list_itr, &vsi_list_head, list_entry) {
-+		/* Avoid enabling or disabling VLAN zero twice when in double
-+		 * VLAN mode
-+		 */
-+		if (ice_is_dvm_ena(hw) &&
-+		    list_itr->fltr_info.l_data.vlan.tpid == 0)
-+			continue;
-+
- 		vlan_id = list_itr->fltr_info.l_data.vlan.vlan_id;
- 		if (rm_vlan_promisc)
- 			status = ice_clear_vsi_promisc(hw, vsi_handle,
 
 
