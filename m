@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E00F559D3B6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA79059D3BE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242753AbiHWISl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:18:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45538 "EHLO
+        id S242544AbiHWITN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:19:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243093AbiHWIQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:16:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A2A86331;
-        Tue, 23 Aug 2022 01:11:32 -0700 (PDT)
+        with ESMTP id S242515AbiHWIRf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:17:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE9571F2F9;
+        Tue, 23 Aug 2022 01:11:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73631612DC;
-        Tue, 23 Aug 2022 08:11:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E62C433D6;
-        Tue, 23 Aug 2022 08:11:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9443AB81C29;
+        Tue, 23 Aug 2022 08:11:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA6D9C433B5;
+        Tue, 23 Aug 2022 08:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242290;
-        bh=ttLvW3MfLOd5HkB/xUpnfI6bCZM/YFhvYh+VBRclgbE=;
+        s=korg; t=1661242297;
+        bh=rVd4J0guZ65vkhwgCDxawhFODU/bU6NhtmHAr44jMRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yCgdnMIhyh4vZBA5YW809sQmYU47qznWzuYXhJ0lCBoOUWpkMZ6a1uU+4zewvKd/B
-         T5f28Ada9sdxrnZhbOA7eOd4G3mnPen/Y1DEa6wkh2z+pqQZDsQfJ1ulbKvRSRLLW7
-         /8pSbJziUyHiFESPDgEMNCVT46wDV44i5Ij9w3AE=
+        b=dKJxMvch6CSK/dDCpiSqT8+Ni5a5iSMCEaHSl88yS4uipVnsbdkRsyU4ck7crFGW+
+         pRfZu1IVT0WK2KkmTW/XeXfjz9rjK1QiNg5sT/bharbjXcvr09s6kxBwcB7ir0e70D
+         8AMLZdX40o1Y9vvMQVNadegXy0ctLCqgLu7TtXgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        kernel test robot <lkp@intel.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Yury Norov <yury.norov@gmail.com>
-Subject: [PATCH 4.9 048/101] x86/olpc: fix logical not is only applied to the left hand side
-Date:   Tue, 23 Aug 2022 10:03:21 +0200
-Message-Id: <20220823080036.369144154@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        David Collins <quic_collinsd@quicinc.com>
+Subject: [PATCH 4.9 049/101] spmi: trace: fix stack-out-of-bound access in SPMI tracing functions
+Date:   Tue, 23 Aug 2022 10:03:22 +0200
+Message-Id: <20220823080036.420431808@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -55,49 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: David Collins <quic_collinsd@quicinc.com>
 
-commit 3a2ba42cbd0b669ce3837ba400905f93dd06c79f upstream.
+commit 2af28b241eea816e6f7668d1954f15894b45d7e3 upstream.
 
-The bitops compile-time optimization series revealed one more
-problem in olpc-xo1-sci.c:send_ebook_state(), resulted in GCC
-warnings:
+trace_spmi_write_begin() and trace_spmi_read_end() both call
+memcpy() with a length of "len + 1".  This leads to one extra
+byte being read beyond the end of the specified buffer.  Fix
+this out-of-bound memory access by using a length of "len"
+instead.
 
-arch/x86/platform/olpc/olpc-xo1-sci.c: In function 'send_ebook_state':
-arch/x86/platform/olpc/olpc-xo1-sci.c:83:63: warning: logical not is only applied to the left hand side of comparison [-Wlogical-not-parentheses]
-   83 |         if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
-      |                                                               ^~
-arch/x86/platform/olpc/olpc-xo1-sci.c:83:13: note: add parentheses around left hand side expression to silence this warning
+Here is a KASAN log showing the issue:
 
-Despite this code working as intended, this redundant double
-negation of boolean value, together with comparing to `char`
-with no explicit conversion to bool, makes compilers think
-the author made some unintentional logical mistakes here.
-Make it the other way around and negate the char instead
-to silence the warnings.
+BUG: KASAN: stack-out-of-bounds in trace_event_raw_event_spmi_read_end+0x1d0/0x234
+Read of size 2 at addr ffffffc0265b7540 by task thermal@2.0-ser/1314
+...
+Call trace:
+ dump_backtrace+0x0/0x3e8
+ show_stack+0x2c/0x3c
+ dump_stack_lvl+0xdc/0x11c
+ print_address_description+0x74/0x384
+ kasan_report+0x188/0x268
+ kasan_check_range+0x270/0x2b0
+ memcpy+0x90/0xe8
+ trace_event_raw_event_spmi_read_end+0x1d0/0x234
+ spmi_read_cmd+0x294/0x3ac
+ spmi_ext_register_readl+0x84/0x9c
+ regmap_spmi_ext_read+0x144/0x1b0 [regmap_spmi]
+ _regmap_raw_read+0x40c/0x754
+ regmap_raw_read+0x3a0/0x514
+ regmap_bulk_read+0x418/0x494
+ adc5_gen3_poll_wait_hs+0xe8/0x1e0 [qcom_spmi_adc5_gen3]
+ ...
+ __arm64_sys_read+0x4c/0x60
+ invoke_syscall+0x80/0x218
+ el0_svc_common+0xec/0x1c8
+ ...
 
-Fixes: d2aa37411b8e ("x86/olpc/xo1/sci: Produce wakeup events for buttons and switches")
-Cc: stable@vger.kernel.org # 3.5+
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-and-tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
+addr ffffffc0265b7540 is located in stack of task thermal@2.0-ser/1314 at offset 32 in frame:
+ adc5_gen3_poll_wait_hs+0x0/0x1e0 [qcom_spmi_adc5_gen3]
+
+this frame has 1 object:
+ [32, 33) 'status'
+
+Memory state around the buggy address:
+ ffffffc0265b7400: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
+ ffffffc0265b7480: 04 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+>ffffffc0265b7500: 00 00 00 00 f1 f1 f1 f1 01 f3 f3 f3 00 00 00 00
+                                           ^
+ ffffffc0265b7580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffffffc0265b7600: f1 f1 f1 f1 01 f2 07 f2 f2 f2 01 f3 00 00 00 00
+==================================================================
+
+Fixes: a9fce374815d ("spmi: add command tracepoints for SPMI")
+Cc: stable@vger.kernel.org
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: David Collins <quic_collinsd@quicinc.com>
+Link: https://lore.kernel.org/r/20220627235512.2272783-1-quic_collinsd@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/platform/olpc/olpc-xo1-sci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/trace/events/spmi.h |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/x86/platform/olpc/olpc-xo1-sci.c
-+++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
-@@ -85,7 +85,7 @@ static void send_ebook_state(void)
- 		return;
- 	}
+--- a/include/trace/events/spmi.h
++++ b/include/trace/events/spmi.h
+@@ -20,15 +20,15 @@ TRACE_EVENT(spmi_write_begin,
+ 		__field		( u8,         sid       )
+ 		__field		( u16,        addr      )
+ 		__field		( u8,         len       )
+-		__dynamic_array	( u8,   buf,  len + 1   )
++		__dynamic_array	( u8,   buf,  len       )
+ 	),
  
--	if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
-+	if (test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == !!state)
- 		return; /* Nothing new to report. */
+ 	TP_fast_assign(
+ 		__entry->opcode = opcode;
+ 		__entry->sid    = sid;
+ 		__entry->addr   = addr;
+-		__entry->len    = len + 1;
+-		memcpy(__get_dynamic_array(buf), buf, len + 1);
++		__entry->len    = len;
++		memcpy(__get_dynamic_array(buf), buf, len);
+ 	),
  
- 	input_report_switch(ebook_switch_idev, SW_TABLET_MODE, state);
+ 	TP_printk("opc=%d sid=%02d addr=0x%04x len=%d buf=0x[%*phD]",
+@@ -91,7 +91,7 @@ TRACE_EVENT(spmi_read_end,
+ 		__field		( u16,        addr      )
+ 		__field		( int,        ret       )
+ 		__field		( u8,         len       )
+-		__dynamic_array	( u8,   buf,  len + 1   )
++		__dynamic_array	( u8,   buf,  len       )
+ 	),
+ 
+ 	TP_fast_assign(
+@@ -99,8 +99,8 @@ TRACE_EVENT(spmi_read_end,
+ 		__entry->sid    = sid;
+ 		__entry->addr   = addr;
+ 		__entry->ret    = ret;
+-		__entry->len    = len + 1;
+-		memcpy(__get_dynamic_array(buf), buf, len + 1);
++		__entry->len    = len;
++		memcpy(__get_dynamic_array(buf), buf, len);
+ 	),
+ 
+ 	TP_printk("opc=%d sid=%02d addr=0x%04x ret=%d len=%02d buf=0x[%*phD]",
 
 
