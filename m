@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E92D59DA4A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F46559D99C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352204AbiHWKHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:07:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45818 "EHLO
+        id S1343580AbiHWJ6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:58:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352699AbiHWKGH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B70CEA3466;
-        Tue, 23 Aug 2022 01:52:26 -0700 (PDT)
+        with ESMTP id S1352462AbiHWJ47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:56:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46053A1A64;
+        Tue, 23 Aug 2022 01:47:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53177B81C35;
-        Tue, 23 Aug 2022 08:52:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF00C433D6;
-        Tue, 23 Aug 2022 08:52:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 132AFB81C28;
+        Tue, 23 Aug 2022 08:47:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61054C433D6;
+        Tue, 23 Aug 2022 08:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244744;
-        bh=8FgyVo3x1/fTtKYfDm5v9sXbRI0V0BPvK2V8hKQPRrw=;
+        s=korg; t=1661244456;
+        bh=5W9S8KSf9oP4xZJYWjinORLtbpUFU6U4C0Ne61cmBMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwqUB8RQuPbB8gc5/yK7mJxvl31pg3l8ojeCxlUX4yR9bvv2YhgPF6z51h+9h3XoE
-         pL+rqcUJmvm5vRjxGebHYC/ZkWC2VifTAqBs9FebYN7agZ4TcS/iduZBp79ilOTDIq
-         kcruk/5IulhS3HEl+3f+N+DgW/M9mpLZ7fywZAJ4=
+        b=L4ffls+5gTUPk2XaC0IX1idj3OjcHTA7lPhWqdf9fo28hX6y3xUDBChMQEduzSUhm
+         skAGxn/4tMoxoiD+ixz/0DUnlAtZOXgEKqD0mxJffn5z9DSVyeLvJxFHhzItggIhT9
+         9gHkTpnq4Tyw/NwGpR2B45zJgBY4zO2IXjSnbbZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Antonov <saproj@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 142/244] net: dsa: dont warn in dsa_port_set_state_now() when driver doesnt support it
+        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 140/229] kprobes: Forbid probing on trampoline and BPF code areas
 Date:   Tue, 23 Aug 2022 10:25:01 +0200
-Message-Id: <20220823080103.908855403@linuxfoundation.org>
+Message-Id: <20220823080058.685732796@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit 211987f3ac734000ea1548784b2a4539a974fbc8 upstream.
+[ Upstream commit 28f6c37a2910f565b4f5960df52b2eccae28c891 ]
 
-ds->ops->port_stp_state_set() is, like most DSA methods, optional, and
-if absent, the port is supposed to remain in the forwarding state (as
-standalone). Such is the case with the mv88e6060 driver, which does not
-offload the bridge layer. DSA warns that the STP state can't be changed
-to FORWARDING as part of dsa_port_enable_rt(), when in fact it should not.
+kernel_text_address() treats ftrace_trampoline, kprobe_insn_slot
+and bpf_text_address as valid kprobe addresses - which is not ideal.
 
-The error message is also not up to modern standards, so take the
-opportunity to make it more descriptive.
+These text areas are removable and changeable without any notification
+to kprobes, and probing on them can trigger unexpected behavior:
 
-Fixes: fd3645413197 ("net: dsa: change scope of STP state setter")
-Reported-by: Sergei Antonov <saproj@gmail.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Sergei Antonov <saproj@gmail.com>
-Link: https://lore.kernel.org/r/20220816201445.1809483-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  https://lkml.org/lkml/2022/7/26/1148
+
+Considering that jump_label and static_call text are already
+forbiden to probe, kernel_text_address() should be replaced with
+core_kernel_text() and is_module_text_address() to check other text
+areas which are unsafe to kprobe.
+
+[ mingo: Rewrote the changelog. ]
+
+Fixes: 5b485629ba0d ("kprobes, extable: Identify kprobes trampolines as kernel text area")
+Fixes: 74451e66d516 ("bpf: make jited programs visible in traces")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20220801033719.228248-1-chenzhongjin@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/port.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ kernel/kprobes.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -111,11 +111,14 @@ int dsa_port_set_state(struct dsa_port *
- static void dsa_port_set_state_now(struct dsa_port *dp, u8 state,
- 				   bool do_fast_age)
- {
-+	struct dsa_switch *ds = dp->ds;
- 	int err;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 4f918dd28fb7..b8e14aa6d496 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1551,7 +1551,8 @@ static int check_kprobe_address_safe(struct kprobe *p,
+ 	preempt_disable();
  
- 	err = dsa_port_set_state(dp, state, do_fast_age);
--	if (err)
--		pr_err("DSA: failed to set STP state %u (%d)\n", state, err);
-+	if (err && err != -EOPNOTSUPP) {
-+		dev_err(ds->dev, "port %d failed to set STP state %u: %pe\n",
-+			dp->index, state, ERR_PTR(err));
-+	}
- }
- 
- int dsa_port_enable_rt(struct dsa_port *dp, struct phy_device *phy)
+ 	/* Ensure it is not in reserved area nor out of text */
+-	if (!kernel_text_address((unsigned long) p->addr) ||
++	if (!(core_kernel_text((unsigned long) p->addr) ||
++	    is_module_text_address((unsigned long) p->addr)) ||
+ 	    within_kprobe_blacklist((unsigned long) p->addr) ||
+ 	    jump_label_text_reserved(p->addr, p->addr) ||
+ 	    find_bug((unsigned long)p->addr)) {
+-- 
+2.35.1
+
 
 
