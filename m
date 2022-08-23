@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBA859D6D7
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0988559D74E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350062AbiHWJ1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:27:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52444 "EHLO
+        id S1350452AbiHWJcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:32:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351151AbiHWJ0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:26:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50EBC91094;
-        Tue, 23 Aug 2022 01:37:09 -0700 (PDT)
+        with ESMTP id S1351128AbiHWJbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:31:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B4015A2E;
+        Tue, 23 Aug 2022 01:38:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFA6F614C5;
-        Tue, 23 Aug 2022 08:35:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F7AC433D6;
-        Tue, 23 Aug 2022 08:35:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DC38B81C28;
+        Tue, 23 Aug 2022 08:37:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCB96C433C1;
+        Tue, 23 Aug 2022 08:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243745;
-        bh=iJZpFLRwvDbeVZ/DqC+ffQrnPhgOnA1QgJ3ZxT8FJCc=;
+        s=korg; t=1661243844;
+        bh=yagiaS4psLuXibb3+PS+oAKKqpiYlNe2XinfS2S4DwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qlUhYW5yUywWxAPe3aRgo57zi6dsA/Lkhu8eVBs39yzSROYjGIuD3bQYkuxOBnNz0
-         gkitNaRcBInZU5oINYX2eRF+6oZyqXlsuOMrz0ZJ//GeOoFNmBTyFrIuSVfooCcYcu
-         4WDQVcM2+5298Xu2uSNYyvYuAQ1y5ACK5NLbGA50=
+        b=jQTNYKchK0m+tY8zXYbGr6G6zAWlSEe3XWmpewHmKghXL9VvVCIy6yCVAZpQAYWJL
+         44seLxDmOmJdrrSsGcz1KWtAoNMLzkgOjYjAwdsLEn6/wdRzIdW8oEQHIYH1b4ohbw
+         jFtddZm7AW6J5hHhA8iW/KqDHB9DklYSYs5OMvuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 4.14 001/229] Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put
-Date:   Tue, 23 Aug 2022 10:22:42 +0200
-Message-Id: <20220823080053.272976849@linuxfoundation.org>
+        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Hawkins Jiawei <yin31149@gmail.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Yongqiang Liu <liuyongqiang13@huawei.com>,
+        Zhang Yi <yi.zhang@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 002/229] ntfs: fix use-after-free in ntfs_ucsncmp()
+Date:   Tue, 23 Aug 2022 10:22:43 +0200
+Message-Id: <20220823080053.326718526@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,264 +58,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-commit d0be8347c623e0ac4202a1d4e0373882821f56b0 upstream.
+commit 38c9c22a85aeed28d0831f230136e9cf6fa2ed44 upstream.
 
-This fixes the following trace which is caused by hci_rx_work starting up
-*after* the final channel reference has been put() during sock_close() but
-*before* the references to the channel have been destroyed, so instead
-the code now rely on kref_get_unless_zero/l2cap_chan_hold_unless_zero to
-prevent referencing a channel that is about to be destroyed.
+Syzkaller reported use-after-free bug as follows:
 
-  refcount_t: increment on 0; use-after-free.
-  BUG: KASAN: use-after-free in refcount_dec_and_test+0x20/0xd0
-  Read of size 4 at addr ffffffc114f5bf18 by task kworker/u17:14/705
+==================================================================
+BUG: KASAN: use-after-free in ntfs_ucsncmp+0x123/0x130
+Read of size 2 at addr ffff8880751acee8 by task a.out/879
 
-  CPU: 4 PID: 705 Comm: kworker/u17:14 Tainted: G S      W
-  4.14.234-00003-g1fb6d0bd49a4-dirty #28
-  Hardware name: Qualcomm Technologies, Inc. SM8150 V2 PM8150
-  Google Inc. MSM sm8150 Flame DVT (DT)
-  Workqueue: hci0 hci_rx_work
-  Call trace:
-   dump_backtrace+0x0/0x378
-   show_stack+0x20/0x2c
-   dump_stack+0x124/0x148
-   print_address_description+0x80/0x2e8
-   __kasan_report+0x168/0x188
-   kasan_report+0x10/0x18
-   __asan_load4+0x84/0x8c
-   refcount_dec_and_test+0x20/0xd0
-   l2cap_chan_put+0x48/0x12c
-   l2cap_recv_frame+0x4770/0x6550
-   l2cap_recv_acldata+0x44c/0x7a4
-   hci_acldata_packet+0x100/0x188
-   hci_rx_work+0x178/0x23c
-   process_one_work+0x35c/0x95c
-   worker_thread+0x4cc/0x960
-   kthread+0x1a8/0x1c4
-   ret_from_fork+0x10/0x18
+CPU: 7 PID: 879 Comm: a.out Not tainted 5.19.0-rc4-next-20220630-00001-gcc5218c8bd2c-dirty #7
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x1c0/0x2b0
+ print_address_description.constprop.0.cold+0xd4/0x484
+ print_report.cold+0x55/0x232
+ kasan_report+0xbf/0xf0
+ ntfs_ucsncmp+0x123/0x130
+ ntfs_are_names_equal.cold+0x2b/0x41
+ ntfs_attr_find+0x43b/0xb90
+ ntfs_attr_lookup+0x16d/0x1e0
+ ntfs_read_locked_attr_inode+0x4aa/0x2360
+ ntfs_attr_iget+0x1af/0x220
+ ntfs_read_locked_inode+0x246c/0x5120
+ ntfs_iget+0x132/0x180
+ load_system_files+0x1cc6/0x3480
+ ntfs_fill_super+0xa66/0x1cf0
+ mount_bdev+0x38d/0x460
+ legacy_get_tree+0x10d/0x220
+ vfs_get_tree+0x93/0x300
+ do_new_mount+0x2da/0x6d0
+ path_mount+0x496/0x19d0
+ __x64_sys_mount+0x284/0x300
+ do_syscall_64+0x3b/0xc0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7f3f2118d9ea
+Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
+RSP: 002b:00007ffc269deac8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3f2118d9ea
+RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffc269dec00
+RBP: 00007ffc269dec80 R08: 00007ffc269deb00 R09: 00007ffc269dec44
+R10: 0000000000000000 R11: 0000000000000202 R12: 000055f81ab1d220
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
 
-Cc: stable@kernel.org
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+The buggy address belongs to the physical page:
+page:0000000085430378 refcount:1 mapcount:1 mapping:0000000000000000 index:0x555c6a81d pfn:0x751ac
+memcg:ffff888101f7e180
+anon flags: 0xfffffc00a0014(uptodate|lru|mappedtodisk|swapbacked|node=0|zone=1|lastcpupid=0x1fffff)
+raw: 000fffffc00a0014 ffffea0001bf2988 ffffea0001de2448 ffff88801712e201
+raw: 0000000555c6a81d 0000000000000000 0000000100000000 ffff888101f7e180
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8880751acd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880751ace00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff8880751ace80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                                                          ^
+ ffff8880751acf00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880751acf80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+==================================================================
+
+The reason is that struct ATTR_RECORD->name_offset is 6485, end address of
+name string is out of bounds.
+
+Fix this by adding sanity check on end address of attribute name string.
+
+[akpm@linux-foundation.org: coding-style cleanups]
+[chenxiaosong2@huawei.com: cleanup suggested by Hawkins Jiawei]
+  Link: https://lkml.kernel.org/r/20220709064511.3304299-1-chenxiaosong2@huawei.com
+Link: https://lkml.kernel.org/r/20220707105329.4020708-1-chenxiaosong2@huawei.com
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Cc: Anton Altaparmakov <anton@tuxera.com>
+Cc: ChenXiaoSong <chenxiaosong2@huawei.com>
+Cc: Yongqiang Liu <liuyongqiang13@huawei.com>
+Cc: Zhang Yi <yi.zhang@huawei.com>
+Cc: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/bluetooth/l2cap.h |    1 
- net/bluetooth/l2cap_core.c    |   61 +++++++++++++++++++++++++++++++++---------
- 2 files changed, 49 insertions(+), 13 deletions(-)
+ fs/ntfs/attrib.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/include/net/bluetooth/l2cap.h
-+++ b/include/net/bluetooth/l2cap.h
-@@ -798,6 +798,7 @@ enum {
- };
- 
- void l2cap_chan_hold(struct l2cap_chan *c);
-+struct l2cap_chan *l2cap_chan_hold_unless_zero(struct l2cap_chan *c);
- void l2cap_chan_put(struct l2cap_chan *c);
- 
- static inline void l2cap_chan_lock(struct l2cap_chan *chan)
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -113,7 +113,8 @@ static struct l2cap_chan *__l2cap_get_ch
- }
- 
- /* Find channel with given SCID.
-- * Returns locked channel. */
-+ * Returns a reference locked channel.
-+ */
- static struct l2cap_chan *l2cap_get_chan_by_scid(struct l2cap_conn *conn,
- 						 u16 cid)
- {
-@@ -121,15 +122,19 @@ static struct l2cap_chan *l2cap_get_chan
- 
- 	mutex_lock(&conn->chan_lock);
- 	c = __l2cap_get_chan_by_scid(conn, cid);
--	if (c)
--		l2cap_chan_lock(c);
-+	if (c) {
-+		/* Only lock if chan reference is not 0 */
-+		c = l2cap_chan_hold_unless_zero(c);
-+		if (c)
-+			l2cap_chan_lock(c);
-+	}
- 	mutex_unlock(&conn->chan_lock);
- 
- 	return c;
- }
- 
- /* Find channel with given DCID.
-- * Returns locked channel.
-+ * Returns a reference locked channel.
-  */
- static struct l2cap_chan *l2cap_get_chan_by_dcid(struct l2cap_conn *conn,
- 						 u16 cid)
-@@ -138,8 +143,12 @@ static struct l2cap_chan *l2cap_get_chan
- 
- 	mutex_lock(&conn->chan_lock);
- 	c = __l2cap_get_chan_by_dcid(conn, cid);
--	if (c)
--		l2cap_chan_lock(c);
-+	if (c) {
-+		/* Only lock if chan reference is not 0 */
-+		c = l2cap_chan_hold_unless_zero(c);
-+		if (c)
-+			l2cap_chan_lock(c);
-+	}
- 	mutex_unlock(&conn->chan_lock);
- 
- 	return c;
-@@ -164,8 +173,12 @@ static struct l2cap_chan *l2cap_get_chan
- 
- 	mutex_lock(&conn->chan_lock);
- 	c = __l2cap_get_chan_by_ident(conn, ident);
--	if (c)
--		l2cap_chan_lock(c);
-+	if (c) {
-+		/* Only lock if chan reference is not 0 */
-+		c = l2cap_chan_hold_unless_zero(c);
-+		if (c)
-+			l2cap_chan_lock(c);
-+	}
- 	mutex_unlock(&conn->chan_lock);
- 
- 	return c;
-@@ -491,6 +504,16 @@ void l2cap_chan_hold(struct l2cap_chan *
- 	kref_get(&c->kref);
- }
- 
-+struct l2cap_chan *l2cap_chan_hold_unless_zero(struct l2cap_chan *c)
-+{
-+	BT_DBG("chan %p orig refcnt %u", c, kref_read(&c->kref));
-+
-+	if (!kref_get_unless_zero(&c->kref))
-+		return NULL;
-+
-+	return c;
-+}
-+
- void l2cap_chan_put(struct l2cap_chan *c)
- {
- 	BT_DBG("chan %p orig refcnt %d", c, kref_read(&c->kref));
-@@ -1803,7 +1826,10 @@ static struct l2cap_chan *l2cap_global_c
- 			src_match = !bacmp(&c->src, src);
- 			dst_match = !bacmp(&c->dst, dst);
- 			if (src_match && dst_match) {
--				l2cap_chan_hold(c);
-+				c = l2cap_chan_hold_unless_zero(c);
-+				if (!c)
-+					continue;
-+
- 				read_unlock(&chan_list_lock);
- 				return c;
- 			}
-@@ -1818,7 +1844,7 @@ static struct l2cap_chan *l2cap_global_c
- 	}
- 
- 	if (c1)
--		l2cap_chan_hold(c1);
-+		c1 = l2cap_chan_hold_unless_zero(c1);
- 
- 	read_unlock(&chan_list_lock);
- 
-@@ -4204,6 +4230,7 @@ static inline int l2cap_config_req(struc
- 
- unlock:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 	return err;
- }
- 
-@@ -4316,6 +4343,7 @@ static inline int l2cap_config_rsp(struc
- 
- done:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 	return err;
- }
- 
-@@ -5044,6 +5072,7 @@ send_move_response:
- 	l2cap_send_move_chan_rsp(chan, result);
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -5136,6 +5165,7 @@ static void l2cap_move_continue(struct l
- 	}
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- }
- 
- static void l2cap_move_fail(struct l2cap_conn *conn, u8 ident, u16 icid,
-@@ -5165,6 +5195,7 @@ static void l2cap_move_fail(struct l2cap
- 	l2cap_send_move_chan_cfm(chan, L2CAP_MC_UNCONFIRMED);
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- }
- 
- static int l2cap_move_channel_rsp(struct l2cap_conn *conn,
-@@ -5228,6 +5259,7 @@ static int l2cap_move_channel_confirm(st
- 	l2cap_send_move_chan_cfm_rsp(conn, cmd->ident, icid);
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -5263,6 +5295,7 @@ static inline int l2cap_move_channel_con
- 	}
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -5635,12 +5668,11 @@ static inline int l2cap_le_credits(struc
- 	if (credits > max_credits) {
- 		BT_ERR("LE credits overflow");
- 		l2cap_send_disconn_req(chan, ECONNRESET);
--		l2cap_chan_unlock(chan);
- 
- 		/* Return 0 so that we don't trigger an unnecessary
- 		 * command reject packet.
- 		 */
--		return 0;
-+		goto unlock;
- 	}
- 
- 	chan->tx_credits += credits;
-@@ -5651,7 +5683,9 @@ static inline int l2cap_le_credits(struc
- 	if (chan->tx_credits)
- 		chan->ops->resume(chan);
- 
-+unlock:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -6949,6 +6983,7 @@ drop:
- 
- done:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- }
- 
- static void l2cap_conless_channel(struct l2cap_conn *conn, __le16 psm,
-@@ -7353,7 +7388,7 @@ static struct l2cap_chan *l2cap_global_f
- 		if (src_type != c->src_type)
- 			continue;
- 
--		l2cap_chan_hold(c);
-+		c = l2cap_chan_hold_unless_zero(c);
- 		read_unlock(&chan_list_lock);
- 		return c;
- 	}
+--- a/fs/ntfs/attrib.c
++++ b/fs/ntfs/attrib.c
+@@ -606,8 +606,12 @@ static int ntfs_attr_find(const ATTR_TYP
+ 		a = (ATTR_RECORD*)((u8*)ctx->attr +
+ 				le32_to_cpu(ctx->attr->length));
+ 	for (;;	a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))) {
+-		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > (u8*)ctx->mrec +
+-				le32_to_cpu(ctx->mrec->bytes_allocated))
++		u8 *mrec_end = (u8 *)ctx->mrec +
++		               le32_to_cpu(ctx->mrec->bytes_allocated);
++		u8 *name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
++			       a->name_length * sizeof(ntfschar);
++		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > mrec_end ||
++		    name_end > mrec_end)
+ 			break;
+ 		ctx->attr = a;
+ 		if (unlikely(le32_to_cpu(a->type) > le32_to_cpu(type) ||
 
 
