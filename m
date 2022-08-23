@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5246159DE5E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E50E59DBC5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352994AbiHWKJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:09:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36054 "EHLO
+        id S1353211AbiHWKTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:19:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352698AbiHWKIc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:08:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0E4A6DFA7;
-        Tue, 23 Aug 2022 01:54:43 -0700 (PDT)
+        with ESMTP id S1353215AbiHWKRd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:17:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A5F80E8C;
+        Tue, 23 Aug 2022 02:01:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7FFDB81C54;
-        Tue, 23 Aug 2022 08:39:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D8EC433C1;
-        Tue, 23 Aug 2022 08:39:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83E99B81C3B;
+        Tue, 23 Aug 2022 09:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF8CEC433C1;
+        Tue, 23 Aug 2022 09:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243986;
-        bh=NtEwKMZ/Nfx57WqXVp8dLzBoBoDtiLiAqK5M3OVyZj0=;
+        s=korg; t=1661245295;
+        bh=7oHLfdxUfI49xPBE6W9NwDX0o2JYr7uHVpkexMqKnlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UavR/g+vJINka8Vb6ngdEe9hodN3pXydW1sTCySVhwM5WY1AfoW6tAZV9XpI7dSs9
-         DxtH0VyY80rBTxAo5VFXD2bQoPBsf6VBikH+RWXHf+aIHiYlk79vaXGmB+CTyQwE2Q
-         fQ2LHPYTTa4Q53HFS2U/NP4PAm4+SNzyn+3Z94U0=
+        b=w7x15z2xQ9JQ3+KmuASdbpkHgZ8HynBIT0S/8OK4oUdEOUFUwezmBwNzo/yFNnEMz
+         Qg9LLrFSjSoRiC5GpI4reNVc90baMYtf/coUa663584EDqFVYnF2Zd5F0ZbMpLtO7Y
+         jCsfK3PJSZx4o2cyNmnL+HjX43iY8hZ2dQpg1PTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Francis Laniel <flaniel@linux.microsoft.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 039/229] arm64: Do not forget syscall when starting a new thread.
-Date:   Tue, 23 Aug 2022 10:23:20 +0200
-Message-Id: <20220823080054.982504326@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 032/287] PCI: Add defines for normal and subtractive PCI bridges
+Date:   Tue, 23 Aug 2022 10:23:21 +0200
+Message-Id: <20220823080101.355499862@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francis Laniel <flaniel@linux.microsoft.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit de6921856f99c11d3986c6702d851e1328d4f7f6 ]
+commit 904b10fb189cc15376e9bfce1ef0282e68b0b004 upstream.
 
-Enable tracing of the execve*() system calls with the
-syscalls:sys_exit_execve tracepoint by removing the call to
-forget_syscall() when starting a new thread and preserving the value of
-regs->syscallno across exec.
+Add these PCI class codes to pci_ids.h:
 
-Signed-off-by: Francis Laniel <flaniel@linux.microsoft.com>
-Link: https://lore.kernel.org/r/20220608162447.666494-2-flaniel@linux.microsoft.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  PCI_CLASS_BRIDGE_PCI_NORMAL
+  PCI_CLASS_BRIDGE_PCI_SUBTRACTIVE
+
+Use these defines in all kernel code for describing PCI class codes for
+normal and subtractive PCI bridges.
+
+[bhelgaas: similar change in pci-mvebu.c]
+Link: https://lore.kernel.org/r/20220214114109.26809-1-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Guenter Roeck <linux@roeck-us.net>a
+Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
+[ gregkh - take only the pci_ids.h portion for stable backports ]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/processor.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/pci_ids.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index 9eb95ab19924..8767f9d4ebc6 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -143,8 +143,9 @@ void tls_preserve_current_state(void);
- 
- static inline void start_thread_common(struct pt_regs *regs, unsigned long pc)
- {
-+	s32 previous_syscall = regs->syscallno;
- 	memset(regs, 0, sizeof(*regs));
--	forget_syscall(regs);
-+	regs->syscallno = previous_syscall;
- 	regs->pc = pc;
- }
- 
--- 
-2.35.1
-
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -59,6 +59,8 @@
+ #define PCI_CLASS_BRIDGE_EISA		0x0602
+ #define PCI_CLASS_BRIDGE_MC		0x0603
+ #define PCI_CLASS_BRIDGE_PCI		0x0604
++#define PCI_CLASS_BRIDGE_PCI_NORMAL		0x060400
++#define PCI_CLASS_BRIDGE_PCI_SUBTRACTIVE	0x060401
+ #define PCI_CLASS_BRIDGE_PCMCIA		0x0605
+ #define PCI_CLASS_BRIDGE_NUBUS		0x0606
+ #define PCI_CLASS_BRIDGE_CARDBUS	0x0607
 
 
