@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B613159E347
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9E1F59E213
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353989AbiHWMSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50858 "EHLO
+        id S1355887AbiHWKxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:53:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356004AbiHWMPk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:40 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774B079697;
-        Tue, 23 Aug 2022 02:41:02 -0700 (PDT)
+        with ESMTP id S1356994AbiHWKwu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:52:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C359ABD6A;
+        Tue, 23 Aug 2022 02:12:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 49880CE1B58;
-        Tue, 23 Aug 2022 09:39:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F61C433C1;
-        Tue, 23 Aug 2022 09:39:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9821D60F54;
+        Tue, 23 Aug 2022 09:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DDE1C433C1;
+        Tue, 23 Aug 2022 09:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247594;
-        bh=jCgrNFOMkzIfQkvmFRUBShrSXcsnNAqOEKWnP3VWncU=;
+        s=korg; t=1661245973;
+        bh=UlzcKidXqLG4HmGSEd5gPKAWOKksFX8ym+DBmzhofjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JXcRUu1HicTvymdVdM7DRf9O0EpoUaWhuOeR0wcqFVehnsjPhKU1loFhNaf1c3l3K
-         ozoXUskWeQer3PrlIfCOj2o0GXuq4L4dgOvcImrAVqWtaXHZab5WzfGm9QBVe2ZMXJ
-         Fvu4q7f/GoONM6qX7ARnJ2n23l4g9ltzB/XspN5k=
+        b=iMHYqbjATnTNp3WW1N/FA9j8Gtdm2GSWf3RDa5wONZ2x6t7ZvDWLZkO+Zryly67Tj
+         lG5SlVw3fpJ3VVyPRLjxDnx5T6kBlEsZ3vyKKGJUm3/gDPuONr6A7JlvXezAeTagDh
+         WDOb9Q/donnNuypI1wQropOM/z5MTiPdTeNEI8UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rustam Subkhankulov <subkhankulov@ispras.ru>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 085/158] net: dsa: sja1105: fix buffer overflow in sja1105_setup_devlink_regions()
-Date:   Tue, 23 Aug 2022 10:26:57 +0200
-Message-Id: <20220823080049.491475845@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 4.19 249/287] nios2: add force_successful_syscall_return()
+Date:   Tue, 23 Aug 2022 10:26:58 +0200
+Message-Id: <20220823080109.556316374@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Subkhankulov <subkhankulov@ispras.ru>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit fd8e899cdb5ecaf8e8ee73854a99e10807eef1de upstream.
+commit fd0c153daad135d0ec1a53c5dbe6936a724d6ae1 upstream.
 
-If an error occurs in dsa_devlink_region_create(), then 'priv->regions'
-array will be accessed by negative index '-1'.
+If we use the ancient SysV syscall ABI, we'd better have tell the
+kernel how to claim that a negative return value is a success.
+Use ->orig_r2 for that - it's inaccessible via ptrace, so it's
+a fair game for changes and it's normally[*] non-negative on return
+from syscall.  Set to -1; syscall is not going to be restart-worthy
+by definition, so we won't interfere with that use either.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+[*] the only exception is rt_sigreturn(), where we skip the entire
+messing with r1/r2 anyway.
 
-Signed-off-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
-Fixes: bf425b82059e ("net: dsa: sja1105: expose static config as devlink region")
-Link: https://lore.kernel.org/r/20220817003845.389644-1-subkhankulov@ispras.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 82ed08dd1b0e ("nios2: Exception handling")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/sja1105/sja1105_devlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/include/asm/ptrace.h |    2 ++
+ arch/nios2/kernel/entry.S       |    6 ++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_devlink.c b/drivers/net/dsa/sja1105/sja1105_devlink.c
-index 0569ff066634..10c6fea1227f 100644
---- a/drivers/net/dsa/sja1105/sja1105_devlink.c
-+++ b/drivers/net/dsa/sja1105/sja1105_devlink.c
-@@ -93,7 +93,7 @@ static int sja1105_setup_devlink_regions(struct dsa_switch *ds)
+--- a/arch/nios2/include/asm/ptrace.h
++++ b/arch/nios2/include/asm/ptrace.h
+@@ -74,6 +74,8 @@ extern void show_regs(struct pt_regs *);
+ 	((struct pt_regs *)((unsigned long)current_thread_info() + THREAD_SIZE)\
+ 		- 1)
  
- 		region = dsa_devlink_region_create(ds, ops, 1, size);
- 		if (IS_ERR(region)) {
--			while (i-- >= 0)
-+			while (--i >= 0)
- 				dsa_devlink_region_destroy(priv->regions[i]);
- 			return PTR_ERR(region);
- 		}
--- 
-2.37.2
-
++#define force_successful_syscall_return() (current_pt_regs()->orig_r2 = -1)
++
+ int do_syscall_trace_enter(void);
+ void do_syscall_trace_exit(void);
+ #endif /* __ASSEMBLY__ */
+--- a/arch/nios2/kernel/entry.S
++++ b/arch/nios2/kernel/entry.S
+@@ -213,6 +213,9 @@ local_restart:
+ translate_rc_and_ret:
+ 	movi	r1, 0
+ 	bge	r2, zero, 3f
++	ldw	r1, PT_ORIG_R2(sp)
++	addi	r1, r1, 1
++	beq	r1, zero, 3f
+ 	sub	r2, zero, r2
+ 	movi	r1, 1
+ 3:
+@@ -276,6 +279,9 @@ traced_system_call:
+ translate_rc_and_ret2:
+ 	movi	r1, 0
+ 	bge	r2, zero, 4f
++	ldw	r1, PT_ORIG_R2(sp)
++	addi	r1, r1, 1
++	beq	r1, zero, 4f
+ 	sub	r2, zero, r2
+ 	movi	r1, 1
+ 4:
 
 
