@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D81959E23F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E0DF59E23C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242649AbiHWLVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:21:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44028 "EHLO
+        id S1354262AbiHWKY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357666AbiHWLUr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:20:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2AC78C02B;
-        Tue, 23 Aug 2022 02:22:44 -0700 (PDT)
+        with ESMTP id S1354506AbiHWKVi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:21:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28A86EE33;
+        Tue, 23 Aug 2022 02:02:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DDE26121F;
-        Tue, 23 Aug 2022 09:22:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 425F9C433D6;
-        Tue, 23 Aug 2022 09:22:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3F1CB81C54;
+        Tue, 23 Aug 2022 09:02:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A0B3C43470;
+        Tue, 23 Aug 2022 09:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246562;
-        bh=eCa0mB0c5GsKscPjdyXyKcwbYEbh4le6XWboPcUYGiQ=;
+        s=korg; t=1661245373;
+        bh=8usOAsQE0nY2RX9D88449YqHhr60C4dx7CTc1aw9+RM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJvU9u6miqJtGN3Poo61B+IOwQ+mlTeWhZ1C7+wrieQmaCtgNl42+o6PUtWIhhJzM
-         E1WP2GVUMwvXfWYzmsG2doo48VeaaFPSUZ25TOEhZ6o3Tc1P4B+CnYEMGf5eG9NMN4
-         HPlAmidjwGwGc7DTWJJjTfIdiiJjHxQc8plZRKGs=
+        b=aUSTGLVvMcZDoZIy1DMrQc8QTyYX0buYsqMqPlBjqZRr3Ok+wM8oIn0aM+re/mQgb
+         UKgpWccAv6njA9ejuv434LmH85Nx/EPDxjrPC7I6hVh8ZfqaeNeTkIzGy4/igerZ5J
+         pIPumfrrIZkRanP1XMjKUJtaT83lJezt8uu7DeYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Jun Zhang <xuejun.zhang@intel.com>,
-        Bharathi Sreenivas <bharathi.sreenivas@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 149/389] iavf: Fix max_rate limiting
+Subject: [PATCH 4.19 058/287] soc: fsl: guts: machine variable might be unset
 Date:   Tue, 23 Aug 2022 10:23:47 +0200
-Message-Id: <20220823080121.818079376@linuxfoundation.org>
+Message-Id: <20220823080102.193571502@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,102 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit ec60d54cb9a3d43a02c5612a03093c18233e6601 ]
+[ Upstream commit ab3f045774f704c4e7b6a878102f4e9d4ae7bc74 ]
 
-Fix max_rate option in TC, check for proper quanta boundaries.
-Check for minimum value provided and if it fits expected 50Mbps
-quanta.
+If both the model and the compatible properties are missing, then
+machine will not be set. Initialize it with NULL.
 
-Without this patch, iavf could send settings for max_rate limiting
-that would be accepted from by PF even the max_rate option is less
-than expected 50Mbps quanta. It results in no rate limiting
-on traffic as rate limiting will be floored to 0.
-
-Example:
-tc qdisc add dev $vf root mqprio num_tc 3 map 0 2 1 queues \
-2@0 2@2 2@4 hw 1 mode channel shaper bw_rlimit \
-max_rate 50Mbps 500Mbps 500Mbps
-
-Should limit TC0 to circa 50 Mbps
-
-tc qdisc add dev $vf root mqprio num_tc 3 map 0 2 1 queues \
-2@0 2@2 2@4 hw 1 mode channel shaper bw_rlimit \
-max_rate 0Mbps 100Kbit 500Mbps
-
-Should return error
-
-Fixes: d5b33d024496 ("i40evf: add ndo_setup_tc callback to i40evf")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Jun Zhang <xuejun.zhang@intel.com>
-Tested-by: Bharathi Sreenivas <bharathi.sreenivas@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 34c1c21e94ac ("soc: fsl: fix section mismatch build warnings")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf.h      |  1 +
- drivers/net/ethernet/intel/iavf/iavf_main.c | 25 +++++++++++++++++++--
- 2 files changed, 24 insertions(+), 2 deletions(-)
+ drivers/soc/fsl/guts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
-index 81ca6472937d..85275b6ede4d 100644
---- a/drivers/net/ethernet/intel/iavf/iavf.h
-+++ b/drivers/net/ethernet/intel/iavf/iavf.h
-@@ -86,6 +86,7 @@ struct iavf_vsi {
- #define IAVF_HKEY_ARRAY_SIZE ((IAVF_VFQF_HKEY_MAX_INDEX + 1) * 4)
- #define IAVF_HLUT_ARRAY_SIZE ((IAVF_VFQF_HLUT_MAX_INDEX + 1) * 4)
- #define IAVF_MBPS_DIVISOR	125000 /* divisor to convert to Mbps */
-+#define IAVF_MBPS_QUANTA	50
+diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
+index 302e0c8d69d9..6693c32e7447 100644
+--- a/drivers/soc/fsl/guts.c
++++ b/drivers/soc/fsl/guts.c
+@@ -136,7 +136,7 @@ static int fsl_guts_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct resource *res;
+ 	const struct fsl_soc_die_attr *soc_die;
+-	const char *machine;
++	const char *machine = NULL;
+ 	u32 svr;
  
- #define IAVF_VIRTCHNL_VF_RESOURCE_SIZE (sizeof(struct virtchnl_vf_resource) + \
- 					(IAVF_MAX_VF_VSI * \
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index e8850ba5604c..4c41bb47fc1a 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -2581,6 +2581,7 @@ static int iavf_validate_ch_config(struct iavf_adapter *adapter,
- 				   struct tc_mqprio_qopt_offload *mqprio_qopt)
- {
- 	u64 total_max_rate = 0;
-+	u32 tx_rate_rem = 0;
- 	int i, num_qps = 0;
- 	u64 tx_rate = 0;
- 	int ret = 0;
-@@ -2595,12 +2596,32 @@ static int iavf_validate_ch_config(struct iavf_adapter *adapter,
- 			return -EINVAL;
- 		if (mqprio_qopt->min_rate[i]) {
- 			dev_err(&adapter->pdev->dev,
--				"Invalid min tx rate (greater than 0) specified\n");
-+				"Invalid min tx rate (greater than 0) specified for TC%d\n",
-+				i);
- 			return -EINVAL;
- 		}
--		/*convert to Mbps */
-+
-+		/* convert to Mbps */
- 		tx_rate = div_u64(mqprio_qopt->max_rate[i],
- 				  IAVF_MBPS_DIVISOR);
-+
-+		if (mqprio_qopt->max_rate[i] &&
-+		    tx_rate < IAVF_MBPS_QUANTA) {
-+			dev_err(&adapter->pdev->dev,
-+				"Invalid max tx rate for TC%d, minimum %dMbps\n",
-+				i, IAVF_MBPS_QUANTA);
-+			return -EINVAL;
-+		}
-+
-+		(void)div_u64_rem(tx_rate, IAVF_MBPS_QUANTA, &tx_rate_rem);
-+
-+		if (tx_rate_rem != 0) {
-+			dev_err(&adapter->pdev->dev,
-+				"Invalid max tx rate for TC%d, not divisible by %d\n",
-+				i, IAVF_MBPS_QUANTA);
-+			return -EINVAL;
-+		}
-+
- 		total_max_rate += tx_rate;
- 		num_qps += mqprio_qopt->qopt.count[i];
- 	}
+ 	/* Initialize guts */
 -- 
 2.35.1
 
