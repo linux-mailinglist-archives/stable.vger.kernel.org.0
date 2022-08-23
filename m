@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B8FA59E311
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3E4959E007
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358800AbiHWL5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:57:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41932 "EHLO
+        id S1356476AbiHWK5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:57:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359208AbiHWL4Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:56:24 -0400
+        with ESMTP id S1357050AbiHWK4W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:56:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65CEFA2856;
-        Tue, 23 Aug 2022 02:34:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CDF45B7BE;
+        Tue, 23 Aug 2022 02:13:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAD43B81C89;
-        Tue, 23 Aug 2022 09:33:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50410C433D6;
-        Tue, 23 Aug 2022 09:33:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74F29B81C85;
+        Tue, 23 Aug 2022 09:13:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 509C5C433D6;
+        Tue, 23 Aug 2022 09:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247205;
-        bh=SXrx+DlaLHzX4I2b5Q7/9xvnCK8Sl1fsEV9Ilr6BdHc=;
+        s=korg; t=1661246010;
+        bh=dYGbQYEVSg+7i9OX+zbS1WofhspkrL24iXLAfO+kxgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xKuFK7T17Z7lAtYP7+dHkWWh7bQl+E14hUEFOsp+7hSbyQ0l6/RANJuUQRXKiplSh
-         HPuroHShlSI+WUYNJ+KHmbGCuExU2tf01wYwl46KEpsu8Od8X9aLVSRqZs/uBINBl9
-         drQRAqzCOvC360isGEr4OX+YAaAZlRXDlgjmHI40=
+        b=n+OI1Q41foavpqCPqRSMFPLTfj+lP8A19UVqQOiQcpOBGmVdlZyepkyHPkBI77iIN
+         qAtwin+OkMtUxUc4dy6rseykK3gcE7o4ugnlYNp1lBIZbEPMROxmGtywugQ0jY7/ip
+         J+pXy1NSS0CagwdfhYN18zHZYze60vkiYQ/0qsko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 351/389] usb: gadget: uvc: call uvc uvcg_warn on completed status instead of uvcg_info
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Liang He <windhl@126.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 260/287] usb: host: ohci-ppc-of: Fix refcount leak bug
 Date:   Tue, 23 Aug 2022 10:27:09 +0200
-Message-Id: <20220823080130.204809747@linuxfoundation.org>
+Message-Id: <20220823080110.037874361@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit a725d0f6dfc5d3739d6499f30ec865305ba3544d ]
+[ Upstream commit 40a959d7042bb7711e404ad2318b30e9f92c6b9b ]
 
-Likewise to the uvcvideo hostside driver, this patch is changing the
-usb_request message of an non zero completion handler call from dev_info
-to dev_warn.
+In ohci_hcd_ppc_of_probe(), of_find_compatible_node() will return
+a node pointer with refcount incremented. We should use of_node_put()
+when it is not used anymore.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220529223848.105914-4-m.grzeschik@pengutronix.de
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220617034637.4003115-1-windhl@126.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_video.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/ohci-ppc-of.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index 5c042f380708..f9fad639a489 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -191,7 +191,7 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
- 		goto requeue;
+diff --git a/drivers/usb/host/ohci-ppc-of.c b/drivers/usb/host/ohci-ppc-of.c
+index 76a9b40b08f1..96c5c7655283 100644
+--- a/drivers/usb/host/ohci-ppc-of.c
++++ b/drivers/usb/host/ohci-ppc-of.c
+@@ -169,6 +169,7 @@ static int ohci_hcd_ppc_of_probe(struct platform_device *op)
+ 				release_mem_region(res.start, 0x4);
+ 		} else
+ 			pr_debug("%s: cannot get ehci offset from fdt\n", __FILE__);
++		of_node_put(np);
+ 	}
  
- 	default:
--		uvcg_info(&video->uvc->func,
-+		uvcg_warn(&video->uvc->func,
- 			  "VS request completed with status %d.\n",
- 			  req->status);
- 		uvcg_queue_cancel(queue, 0);
+ 	irq_dispose_mapping(irq);
 -- 
 2.35.1
 
