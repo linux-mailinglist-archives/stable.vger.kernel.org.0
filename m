@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85DAD59E209
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB6E959DFA9
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353639AbiHWK1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:27:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44822 "EHLO
+        id S241877AbiHWL2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:28:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354357AbiHWKZ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:25:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2288832F2;
-        Tue, 23 Aug 2022 02:04:56 -0700 (PDT)
+        with ESMTP id S1358024AbiHWL1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:27:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F136DF89;
+        Tue, 23 Aug 2022 02:24:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5052D61585;
-        Tue, 23 Aug 2022 09:04:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31DC8C433D6;
-        Tue, 23 Aug 2022 09:04:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5ACD6098A;
+        Tue, 23 Aug 2022 09:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC13C433D6;
+        Tue, 23 Aug 2022 09:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245495;
-        bh=k6l0jTys9X4jNwGOb/WlS1JIPlY5G2K38bc4mbzN3tQ=;
+        s=korg; t=1661246689;
+        bh=GF4TbJ1hutDZOonw/FVmEopGTSDIsLj01qpR16/WWcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYDMGj4wM/Mxg5aFPmUlGIK9vgpwyfdnoihRb0HIRRDP0t/V01r4u9shivlr1jC+U
-         MCiEJI6l+f2/moKaUUPw6W4yc2dlUkks0kQMMfuzhqePZi8ZCs0wKOW4jU/ZAEMaFm
-         g2Gr1eqNu+2R0j0HAcwqBGLDaKVQKnVeymLUl9Dw=
+        b=i6NXa5z7gm6xzRGPSz3PVO/Y3E6ABawV0Drv3tUL2lAeRhqd9huGoQ/dxbOdI64x/
+         +ZINUwC4XVF8KgFsBdgSCoKgLI3xPcwyii1xx76v5t7hWKe46UPnQKYqCcwyAUmWla
+         h/CAh6xncFgb5Ov4yROudlgkTmXUuYKtZ1YBzsuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 096/287] can: sja1000: do not report txerr and rxerr during bus-off
-Date:   Tue, 23 Aug 2022 10:24:25 +0200
-Message-Id: <20220823080103.582813645@linuxfoundation.org>
+Subject: [PATCH 5.4 188/389] gpio: gpiolib-of: Fix refcount bugs in of_mm_gpiochip_add_data()
+Date:   Tue, 23 Aug 2022 10:24:26 +0200
+Message-Id: <20220823080123.494544792@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 164d7cb2d5a30f1b3a5ab4fab1a27731fb1494a8 ]
+[ Upstream commit 5d07a692f9562f9c06e62cce369e9dd108173a0f ]
 
-During bus off, the error count is greater than 255 and can not fit in
-a u8.
+We should use of_node_get() when a new reference of device_node
+is created. It is noted that the old reference stored in
+'mm_gc->gc.of_node' should also be decreased.
 
-Fixes: 215db1856e83 ("can: sja1000: Consolidate and unify state change handling")
-Link: https://lore.kernel.org/all/20220719143550.3681-4-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+This patch is based on the fact that there is a call site in function
+'qe_add_gpiochips()' of src file 'drivers\soc\fsl\qe\gpio.c'. In this
+function, of_mm_gpiochip_add_data() is contained in an iteration of
+for_each_compatible_node() which will automatically increase and
+decrease the refcount. So we need additional of_node_get() for the
+reference escape in of_mm_gpiochip_add_data().
+
+Fixes: a19e3da5bc5f ("of/gpio: Kill of_gpio_chip and add members directly to gpio_chip")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/sja1000/sja1000.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpio/gpiolib-of.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/sja1000/sja1000.c b/drivers/net/can/sja1000/sja1000.c
-index 9f107798f904..e7327ceabb76 100644
---- a/drivers/net/can/sja1000/sja1000.c
-+++ b/drivers/net/can/sja1000/sja1000.c
-@@ -405,9 +405,6 @@ static int sja1000_err(struct net_device *dev, uint8_t isrc, uint8_t status)
- 	txerr = priv->read_reg(priv, SJA1000_TXERR);
- 	rxerr = priv->read_reg(priv, SJA1000_RXERR);
+diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
+index b1dcd2dd52e6..73807c897391 100644
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -734,7 +734,8 @@ int of_mm_gpiochip_add_data(struct device_node *np,
+ 	if (mm_gc->save_regs)
+ 		mm_gc->save_regs(mm_gc);
  
--	cf->data[6] = txerr;
--	cf->data[7] = rxerr;
--
- 	if (isrc & IRQ_DOI) {
- 		/* data overrun interrupt */
- 		netdev_dbg(dev, "data overrun interrupt\n");
-@@ -429,6 +426,10 @@ static int sja1000_err(struct net_device *dev, uint8_t isrc, uint8_t status)
- 		else
- 			state = CAN_STATE_ERROR_ACTIVE;
- 	}
-+	if (state != CAN_STATE_BUS_OFF) {
-+		cf->data[6] = txerr;
-+		cf->data[7] = rxerr;
-+	}
- 	if (isrc & IRQ_BEI) {
- 		/* bus error interrupt */
- 		priv->can.can_stats.bus_error++;
+-	mm_gc->gc.of_node = np;
++	of_node_put(mm_gc->gc.of_node);
++	mm_gc->gc.of_node = of_node_get(np);
+ 
+ 	ret = gpiochip_add_data(gc, data);
+ 	if (ret)
+@@ -742,6 +743,7 @@ int of_mm_gpiochip_add_data(struct device_node *np,
+ 
+ 	return 0;
+ err2:
++	of_node_put(np);
+ 	iounmap(mm_gc->regs);
+ err1:
+ 	kfree(gc->label);
 -- 
 2.35.1
 
