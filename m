@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7AB259E3CB
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD58259E3C7
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242234AbiHWMd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:33:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58778 "EHLO
+        id S241824AbiHWMdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:33:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243837AbiHWMau (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 23 Aug 2022 08:30:50 -0400
+        with ESMTP id S1348860AbiHWMbf (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 23 Aug 2022 08:31:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9043101C50
-        for <Stable@vger.kernel.org>; Tue, 23 Aug 2022 02:45:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64FA1101D04
+        for <Stable@vger.kernel.org>; Tue, 23 Aug 2022 02:45:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37927B81C9F
-        for <Stable@vger.kernel.org>; Tue, 23 Aug 2022 09:44:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93888C43470;
-        Tue, 23 Aug 2022 09:44:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09CA7B81CA0
+        for <Stable@vger.kernel.org>; Tue, 23 Aug 2022 09:44:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62584C433D6;
+        Tue, 23 Aug 2022 09:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247861;
-        bh=KNbnlH5IK71EzBJXjbCV32Fa99yOrg38UkNEj8uVhfA=;
+        s=korg; t=1661247864;
+        bh=6kd0s8jjXvZ1q9PVaDxVrTGPdQ1f6UvkAm1vFhO5Rw8=;
         h=Subject:To:From:Date:From;
-        b=sibZ0fgFJc1+lx2uM2Orecc9TH2LFc+Vt26FewFOQsVDFbMLELRJ/nTTKSQxkbo/c
-         8nvzd0HNXZ70ifa8Qesoo343mDlL7qjN19L4EcfSYyWbvs/j1UdhHgE5yvDVER0l6g
-         hF8r7T8RWfAAdXbi5Z3AFbjpCgzyQUm50rBtZJGs=
-Subject: patch "iio: adc: mcp3911: correct "microchip,device-addr" property" added to char-misc-linus
+        b=GhMf0YIAs6yoy/sQxamnw6vXZ5aAq7H0y3X/zBZNXClj0quQfjbsShmR6n9I1gOH5
+         8xrsPidq2fb4iWbOj+fLPjhGH8VhNmfMj57bxFWioEMJ+/RbbNgdCGEdZGBX+aQ6nf
+         AeTnnTnvOsZYhRZUUMfsTCrQPxNPsBIOL1s5ri0k=
+Subject: patch "iio: adc: mcp3911: use correct formula for AD conversion" added to char-misc-linus
 To:     marcus.folkesson@gmail.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, andy.shevchenko@gmail.com
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 23 Aug 2022 10:42:58 +0200
-Message-ID: <16612441780254@kroah.com>
+Message-ID: <166124417857138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: mcp3911: correct "microchip,device-addr" property
+    iio: adc: mcp3911: use correct formula for AD conversion
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -65,43 +65,61 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From cfbd76d5c9c449739bb74288d982bccf9ff822f4 Mon Sep 17 00:00:00 2001
+From 9e2238e3ae40d371a1130226e0e740aa1601efa6 Mon Sep 17 00:00:00 2001
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Date: Fri, 22 Jul 2022 15:07:19 +0200
-Subject: iio: adc: mcp3911: correct "microchip,device-addr" property
+Date: Fri, 22 Jul 2022 15:07:20 +0200
+Subject: iio: adc: mcp3911: use correct formula for AD conversion
 
-Go for the right property name that is documented in the bindings.
+The ADC conversion is actually not rail-to-rail but with a factor 1.5.
+Make use of this factor when calculating actual voltage.
 
 Fixes: 3a89b289df5d ("iio: adc: add support for mcp3911")
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220722130726.7627-3-marcus.folkesson@gmail.com
+Link: https://lore.kernel.org/r/20220722130726.7627-4-marcus.folkesson@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/mcp3911.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/iio/adc/mcp3911.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/iio/adc/mcp3911.c b/drivers/iio/adc/mcp3911.c
-index f581cefb6719..f8875076ae80 100644
+index f8875076ae80..890af7dca62d 100644
 --- a/drivers/iio/adc/mcp3911.c
 +++ b/drivers/iio/adc/mcp3911.c
-@@ -210,7 +210,14 @@ static int mcp3911_config(struct mcp3911 *adc)
- 	u32 configreg;
- 	int ret;
+@@ -40,8 +40,8 @@
+ #define MCP3911_CHANNEL(x)		(MCP3911_REG_CHANNEL0 + x * 3)
+ #define MCP3911_OFFCAL(x)		(MCP3911_REG_OFFCAL_CH0 + x * 6)
  
--	device_property_read_u32(dev, "device-addr", &adc->dev_addr);
-+	ret = device_property_read_u32(dev, "microchip,device-addr", &adc->dev_addr);
+-/* Internal voltage reference in uV */
+-#define MCP3911_INT_VREF_UV		1200000
++/* Internal voltage reference in mV */
++#define MCP3911_INT_VREF_MV		1200
+ 
+ #define MCP3911_REG_READ(reg, id)	((((reg) << 1) | ((id) << 5) | (1 << 0)) & 0xff)
+ #define MCP3911_REG_WRITE(reg, id)	((((reg) << 1) | ((id) << 5) | (0 << 0)) & 0xff)
+@@ -139,11 +139,18 @@ static int mcp3911_read_raw(struct iio_dev *indio_dev,
+ 
+ 			*val = ret / 1000;
+ 		} else {
+-			*val = MCP3911_INT_VREF_UV;
++			*val = MCP3911_INT_VREF_MV;
+ 		}
+ 
+-		*val2 = 24;
+-		ret = IIO_VAL_FRACTIONAL_LOG2;
++		/*
++		 * For 24bit Conversion
++		 * Raw = ((Voltage)/(Vref) * 2^23 * Gain * 1.5
++		 * Voltage = Raw * (Vref)/(2^23 * Gain * 1.5)
++		 */
 +
-+	/*
-+	 * Fallback to "device-addr" due to historical mismatch between
-+	 * dt-bindings and implementation
-+	 */
-+	if (ret)
-+		device_property_read_u32(dev, "device-addr", &adc->dev_addr);
- 	if (adc->dev_addr > 3) {
- 		dev_err(&adc->spi->dev,
- 			"invalid device address (%i). Must be in range 0-3.\n",
++		/* val2 = (2^23 * 1.5) */
++		*val2 = 12582912;
++		ret = IIO_VAL_FRACTIONAL;
+ 		break;
+ 	}
+ 
 -- 
 2.37.2
 
