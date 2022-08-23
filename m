@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C3659D9C8
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0403D59D9CC
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241742AbiHWKCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:02:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56642 "EHLO
+        id S244207AbiHWKCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:02:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245198AbiHWKAF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:00:05 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D329F286;
-        Tue, 23 Aug 2022 01:48:14 -0700 (PDT)
+        with ESMTP id S1351893AbiHWKAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:00:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A741B219C;
+        Tue, 23 Aug 2022 01:48:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C0EAACE1B44;
-        Tue, 23 Aug 2022 08:48:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D88D2C433D6;
-        Tue, 23 Aug 2022 08:48:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 549C6B81C39;
+        Tue, 23 Aug 2022 08:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8874C433D6;
+        Tue, 23 Aug 2022 08:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244490;
-        bh=Tmyi9bk+1bbxmTO9xBpQGKNVA74gTxDUx72W9Ihj6ig=;
+        s=korg; t=1661244500;
+        bh=dS14W8ecUphTKxvCQBorbBcTsP8koOnv//b1T3gJMZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJhurhNjc+q3PvqRdCSAoxtH0YahNK1fO+m/09EvtsZAmuum530tcjeVBB6mJ4vsd
-         l4tVrsXurwf7bhW8CR4lm/B+gKimBH5im+f17qkpvguVxPFmsN7WuvJYAcE0JuBTWI
-         qqYhEYZctsKJL+r8stzSn+EYgMChvAIHeUt6TQ6E=
+        b=1oeYgn0CguyaJHkL3MYF8Ny/yxeUCuz+bS6xJDMf8uip1R0rYdt/ddl408rVhunSN
+         1tjw5HFJxJCXB9GNE3/JIytXTkSFoeHZ9Y9A5CBkoJSTDyWDJQR2I2kXMoEoLx8ykg
+         OwZvKkQ+xGvi0RWRN0oUZ1NgJaEhvwElF06wKlV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 145/229] tools/thermal: Fix possible path truncations
-Date:   Tue, 23 Aug 2022 10:25:06 +0200
-Message-Id: <20220823080058.853476989@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 146/229] video: fbdev: vt8623fb: Check the size of screen before memset_io()
+Date:   Tue, 23 Aug 2022 10:25:07 +0200
+Message-Id: <20220823080058.894853891@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -54,107 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 6c58cf40e3a1d2f47c09d3489857e9476316788a ]
+[ Upstream commit ec0754c60217248fa77cc9005d66b2b55200ac06 ]
 
-A build with -D_FORTIFY_SOURCE=2 enabled will produce the following warnings:
+In the function vt8623fb_set_par(), the value of 'screen_size' is
+calculated by the user input. If the user provides the improper value,
+the value of 'screen_size' may larger than 'info->screen_size', which
+may cause the following bug:
 
-sysfs.c:63:30: warning: '%s' directive output may be truncated writing up to 255 bytes into a region of size between 0 and 255 [-Wformat-truncation=]
-  snprintf(filepath, 256, "%s/%s", path, filename);
-                              ^~
-Bump up the buffer to PATH_MAX which is the limit and account for all of
-the possible NUL and separators that could lead to exceeding the
-allocated buffer sizes.
+[  583.339036] BUG: unable to handle page fault for address: ffffc90005000000
+[  583.339049] #PF: supervisor write access in kernel mode
+[  583.339052] #PF: error_code(0x0002) - not-present page
+[  583.339074] RIP: 0010:memset_orig+0x33/0xb0
+[  583.339110] Call Trace:
+[  583.339118]  vt8623fb_set_par+0x11cd/0x21e0
+[  583.339146]  fb_set_var+0x604/0xeb0
+[  583.339181]  do_fb_ioctl+0x234/0x670
+[  583.339209]  fb_ioctl+0xdd/0x130
 
-Fixes: 94f69966faf8 ("tools/thermal: Introduce tmon, a tool for thermal subsystem")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix the this by checking the value of 'screen_size' before memset_io().
+
+Fixes: 558b7bd86c32 ("vt8623fb: new framebuffer driver for VIA VT8623")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/thermal/tmon/sysfs.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/video/fbdev/vt8623fb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/thermal/tmon/sysfs.c b/tools/thermal/tmon/sysfs.c
-index 18f523557983..1b17cbc54c9d 100644
---- a/tools/thermal/tmon/sysfs.c
-+++ b/tools/thermal/tmon/sysfs.c
-@@ -22,6 +22,7 @@
- #include <stdint.h>
- #include <dirent.h>
- #include <libintl.h>
-+#include <limits.h>
- #include <ctype.h>
- #include <time.h>
- #include <syslog.h>
-@@ -42,9 +43,9 @@ int sysfs_set_ulong(char *path, char *filename, unsigned long val)
- {
- 	FILE *fd;
- 	int ret = -1;
--	char filepath[256];
-+	char filepath[PATH_MAX + 2]; /* NUL and '/' */
+diff --git a/drivers/video/fbdev/vt8623fb.c b/drivers/video/fbdev/vt8623fb.c
+index 5cac871db3ee..cbae9c510092 100644
+--- a/drivers/video/fbdev/vt8623fb.c
++++ b/drivers/video/fbdev/vt8623fb.c
+@@ -504,6 +504,8 @@ static int vt8623fb_set_par(struct fb_info *info)
+ 			 (info->var.vmode & FB_VMODE_DOUBLE) ? 2 : 1, 1,
+ 			 1, info->node);
  
--	snprintf(filepath, 256, "%s/%s", path, filename);
-+	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
++	if (screen_size > info->screen_size)
++		screen_size = info->screen_size;
+ 	memset_io(info->screen_base, 0x00, screen_size);
  
- 	fd = fopen(filepath, "w");
- 	if (!fd) {
-@@ -66,9 +67,9 @@ static int sysfs_get_ulong(char *path, char *filename, unsigned long *p_ulong)
- {
- 	FILE *fd;
- 	int ret = -1;
--	char filepath[256];
-+	char filepath[PATH_MAX + 2]; /* NUL and '/' */
- 
--	snprintf(filepath, 256, "%s/%s", path, filename);
-+	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
- 
- 	fd = fopen(filepath, "r");
- 	if (!fd) {
-@@ -85,9 +86,9 @@ static int sysfs_get_string(char *path, char *filename, char *str)
- {
- 	FILE *fd;
- 	int ret = -1;
--	char filepath[256];
-+	char filepath[PATH_MAX + 2]; /* NUL and '/' */
- 
--	snprintf(filepath, 256, "%s/%s", path, filename);
-+	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
- 
- 	fd = fopen(filepath, "r");
- 	if (!fd) {
-@@ -208,8 +209,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
- {
- 	unsigned long trip_instance = 0;
- 	char cdev_name_linked[256];
--	char cdev_name[256];
--	char cdev_trip_name[256];
-+	char cdev_name[PATH_MAX];
-+	char cdev_trip_name[PATH_MAX];
- 	int cdev_id;
- 
- 	if (nl->d_type == DT_LNK) {
-@@ -222,7 +223,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
- 			return -EINVAL;
- 		}
- 		/* find the link to real cooling device record binding */
--		snprintf(cdev_name, 256, "%s/%s", tz_name, nl->d_name);
-+		snprintf(cdev_name, sizeof(cdev_name) - 2, "%s/%s",
-+			 tz_name, nl->d_name);
- 		memset(cdev_name_linked, 0, sizeof(cdev_name_linked));
- 		if (readlink(cdev_name, cdev_name_linked,
- 				sizeof(cdev_name_linked) - 1) != -1) {
-@@ -235,8 +237,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
- 			/* find the trip point in which the cdev is binded to
- 			 * in this tzone
- 			 */
--			snprintf(cdev_trip_name, 256, "%s%s", nl->d_name,
--				"_trip_point");
-+			snprintf(cdev_trip_name, sizeof(cdev_trip_name) - 1,
-+				"%s%s", nl->d_name, "_trip_point");
- 			sysfs_get_ulong(tz_name, cdev_trip_name,
- 					&trip_instance);
- 			/* validate trip point range, e.g. trip could return -1
+ 	/* Device and screen back on */
 -- 
 2.35.1
 
