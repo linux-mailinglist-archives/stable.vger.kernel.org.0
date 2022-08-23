@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8636259D405
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A0A759D40E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242759AbiHWISm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45736 "EHLO
+        id S242856AbiHWITV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243103AbiHWIQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:16:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE067646;
-        Tue, 23 Aug 2022 01:11:35 -0700 (PDT)
+        with ESMTP id S242652AbiHWIS3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:18:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EC9F2AC63;
+        Tue, 23 Aug 2022 01:11:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3F4D6122D;
-        Tue, 23 Aug 2022 08:11:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A87CCC433D7;
-        Tue, 23 Aug 2022 08:11:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AAAC5B81C21;
+        Tue, 23 Aug 2022 08:11:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A4AEC433D6;
+        Tue, 23 Aug 2022 08:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242294;
-        bh=2QoUdqntMSIGnko29k9Mv6PoCJqWaulAFQaGzvw9jnE=;
+        s=korg; t=1661242300;
+        bh=yOZYWLwreTFv4WZO0UKvJlQU6N/VIyV/FKO/k1B6alI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEQVks5yqmddpmlXf7olCrwSxbd9q2j10MEzhXJPQZ8XEkOcQx7p9RL6E4dAGTY0l
-         AAasiPqiDSqIq2l5YsLT1LPFun5/uCPInhGpPvBs41Pksdmnc38+xjL9Xrli/4FVq4
-         QMnzytdPWdYgkdQg4Tn5MQv9jedTvGW2Ip3c1Pqk=
+        b=nJQdfkxZGdcOEw59Seb0n0YrS5Lq6SfR59ilwMyd+DAKZvzEr1H3kt2lv2C7bc0z5
+         tNyrbJ9fXWpU6lYnee2d/IjTYVHBfmxMSYVT6qSlgUZpUlu9aqP1omCAIkwUJRh9cu
+         +gWgK70w+KthGFml1dB3K5IMRoh1Dl71dKrU4td4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.19 089/365] dt-bindings: arm: qcom: fix Alcatel OneTouch Idol 3 compatibles
-Date:   Tue, 23 Aug 2022 09:59:50 +0200
-Message-Id: <20220823080121.917673113@linuxfoundation.org>
+        stable@vger.kernel.org, Phil Edworthy <phil.edworthy@renesas.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 5.19 090/365] pinctrl: renesas: rzg2l: Return -EINVAL for pins which have input disabled
+Date:   Tue, 23 Aug 2022 09:59:51 +0200
+Message-Id: <20220823080121.953400787@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,45 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-commit 944de5182f0269e72ffe0a8880c8dbeb30f473d8 upstream.
+commit 5223c511eb4f919e6b423b2f66e02674e97e77e3 upstream.
 
-The MSM8916 Alcatel OneTouch Idol 3 does not use MTP fallbacks in
-compatibles:
+Pin status reported by pinconf-pins file always reported pin status as
+"input enabled" even for pins which had input disabled. Fix this by
+returning -EINVAL for the pins which have input disabled.
 
-  msm8916-alcatel-idol347.dtb: /: compatible: 'oneOf' conditional failed, one must be fixed:
-    ['alcatel,idol347', 'qcom,msm8916'] is too short
-
-Reported-by: Rob Herring <robh@kernel.org>
-Fixes: e9dd2f7204ed ("dt-bindings: arm: qcom: Document alcatel,idol347 board")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20220520123252.365762-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: c4c4637eb57f2 ("pinctrl: renesas: Add RZ/G2L pin and gpio controller driver")
+Reported-by: Phil Edworthy <phil.edworthy@renesas.com>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Phil Edworthy <phil.edworthy@renesas.com>
+Link: https://lore.kernel.org/r/20220511094057.3151-1-prabhakar.mahadev-lad.rj@bp.renesas.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/arm/qcom.yaml |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/pinctrl/renesas/pinctrl-rzg2l.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/Documentation/devicetree/bindings/arm/qcom.yaml
-+++ b/Documentation/devicetree/bindings/arm/qcom.yaml
-@@ -153,14 +153,13 @@ properties:
-           - const: qcom,msm8974
+--- a/drivers/pinctrl/renesas/pinctrl-rzg2l.c
++++ b/drivers/pinctrl/renesas/pinctrl-rzg2l.c
+@@ -517,6 +517,8 @@ static int rzg2l_pinctrl_pinconf_get(str
+ 		if (!(cfg & PIN_CFG_IEN))
+ 			return -EINVAL;
+ 		arg = rzg2l_read_pin_config(pctrl, IEN(port_offset), bit, IEN_MASK);
++		if (!arg)
++			return -EINVAL;
+ 		break;
  
-       - items:
--          - enum:
--              - alcatel,idol347
-           - const: qcom,msm8916-mtp/1
-           - const: qcom,msm8916-mtp
-           - const: qcom,msm8916
- 
-       - items:
-           - enum:
-+              - alcatel,idol347
-               - longcheer,l8150
-               - samsung,a3u-eur
-               - samsung,a5u-eur
+ 	case PIN_CONFIG_POWER_SOURCE: {
 
 
