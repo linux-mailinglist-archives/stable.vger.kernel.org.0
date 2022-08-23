@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC14059D85B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7427F59D8C6
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346468AbiHWJ3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:29:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53444 "EHLO
+        id S1351130AbiHWJgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:36:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348812AbiHWJ1e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:27:34 -0400
+        with ESMTP id S1351685AbiHWJfy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:35:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 017BF915F7;
-        Tue, 23 Aug 2022 01:37:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2FC097D6F;
+        Tue, 23 Aug 2022 01:40:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A558BB81C4F;
-        Tue, 23 Aug 2022 08:36:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6C44C433C1;
-        Tue, 23 Aug 2022 08:36:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3FA4B81C66;
+        Tue, 23 Aug 2022 08:40:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08D0AC433C1;
+        Tue, 23 Aug 2022 08:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243782;
-        bh=B3zwTcB/xhXEugosPjzJlf0j/Duf78YLQt3ExNWz/Co=;
+        s=korg; t=1661244008;
+        bh=NjBoIts4ftHS3FHOf3IvpJrjsZCLRUUI6NkDYNIikfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coJ2cnWm016p45/vdQMGvPwK7rkcS/KcBB7njdKEC81/R6fzWlZqZia6ujE0Awh2m
-         KB4ICjG3alO+S/56NdDVD2P5mb1phD/pcWOAxZvXTl9B6lu38UTY5umONGi3NX7jhh
-         7wDgU0TYwyHCPcYlnccKUS+zv6C5LoPUirDuUeQU=
+        b=A94Eu3t6kWDZO75NgxfrBeZ+90vqXN/vaQKPrHHjae/PM3KLAyfIK9awPL0Rx8AGp
+         fpLf3NxlkVX1D/ftLqzuBHlQfgGL+wedhMLrZm28poe9QhCTmFmW1A+7T4cL9mDxux
+         HuG9AEtqqVCItdAnmwWPw0ircAwOnbbOzhritZ1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>
-Subject: [PATCH 4.14 020/229] KVM: x86: Set error code to segment selector on LLDT/LTR non-canonical #GP
-Date:   Tue, 23 Aug 2022 10:23:01 +0200
-Message-Id: <20220823080054.161410421@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
+        Tom Zanussi <zanussi@kernel.org>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 023/244] tracing/probes: Have kprobes and uprobes use $COMM too
+Date:   Tue, 23 Aug 2022 10:23:02 +0200
+Message-Id: <20220823080059.836940240@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 2626206963ace9e8bf92b6eea5ff78dd674c555c upstream.
+commit ab8384442ee512fc0fc72deeb036110843d0e7ff upstream.
 
-When injecting a #GP on LLDT/LTR due to a non-canonical LDT/TSS base, set
-the error code to the selector.  Intel SDM's says nothing about the #GP,
-but AMD's APM explicitly states that both LLDT and LTR set the error code
-to the selector, not zero.
+Both $comm and $COMM can be used to get current->comm in eprobes and the
+filtering and histogram logic. Make kprobes and uprobes consistent in this
+regard and allow both $comm and $COMM as well. Currently kprobes and
+uprobes only handle $comm, which is inconsistent with the other utilities,
+and can be confusing to users.
 
-Note, a non-canonical memory operand on LLDT/LTR does generate a #GP(0),
-but the KVM code in question is specific to the base from the descriptor.
+Link: https://lkml.kernel.org/r/20220820134401.317014913@goodmis.org
+Link: https://lore.kernel.org/all/20220820220442.776e1ddaf8836e82edb34d01@kernel.org/
 
-Fixes: e37a75a13cda ("KVM: x86: Emulator ignores LDTR/TR extended base on LLDT/LTR")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220711232750.1092012-3-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
+Cc: Tom Zanussi <zanussi@kernel.org>
+Fixes: 533059281ee5 ("tracing: probeevent: Introduce new argument fetching code")
+Suggested-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/trace_probe.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -1758,8 +1758,8 @@ static int __load_segment_descriptor(str
- 		if (ret != X86EMUL_CONTINUE)
- 			return ret;
- 		if (emul_is_noncanonical_address(get_desc_base(&seg_desc) |
--				((u64)base3 << 32), ctxt))
--			return emulate_gp(ctxt, 0);
-+						 ((u64)base3 << 32), ctxt))
-+			return emulate_gp(ctxt, err_code);
- 	}
- 
- 	if (seg == VCPU_SREG_TR) {
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -310,7 +310,7 @@ static int parse_probe_vars(char *arg, c
+ 			}
+ 		} else
+ 			goto inval_var;
+-	} else if (strcmp(arg, "comm") == 0) {
++	} else if (strcmp(arg, "comm") == 0 || strcmp(arg, "COMM") == 0) {
+ 		code->op = FETCH_OP_COMM;
+ #ifdef CONFIG_HAVE_FUNCTION_ARG_ACCESS_API
+ 	} else if (((flags & TPARG_FL_MASK) ==
+@@ -621,7 +621,8 @@ static int traceprobe_parse_probe_arg_bo
+ 	 * we can find those by strcmp. But ignore for eprobes.
+ 	 */
+ 	if (!(flags & TPARG_FL_TPOINT) &&
+-	    (strcmp(arg, "$comm") == 0 || strncmp(arg, "\\\"", 2) == 0)) {
++	    (strcmp(arg, "$comm") == 0 || strcmp(arg, "$COMM") == 0 ||
++	     strncmp(arg, "\\\"", 2) == 0)) {
+ 		/* The type of $comm must be "string", and not an array. */
+ 		if (parg->count || (t && strcmp(t, "string")))
+ 			goto out;
 
 
