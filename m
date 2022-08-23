@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF07059D6CB
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B3CC59D51E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349641AbiHWJ1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:27:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
+        id S234527AbiHWIrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:47:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350464AbiHWJZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:25:50 -0400
+        with ESMTP id S1347652AbiHWIp3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:45:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1804E90830;
-        Tue, 23 Aug 2022 01:36:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3E9E6E8AA;
+        Tue, 23 Aug 2022 01:21:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 829B6614F5;
-        Tue, 23 Aug 2022 08:35:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A867C433C1;
-        Tue, 23 Aug 2022 08:35:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49CC1612D8;
+        Tue, 23 Aug 2022 08:15:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35791C433D7;
+        Tue, 23 Aug 2022 08:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243717;
-        bh=YPFGWF+SZ3nfFejBqr/SAmSzFD052TPPo811pYAyxFQ=;
+        s=korg; t=1661242517;
+        bh=UlzcKidXqLG4HmGSEd5gPKAWOKksFX8ym+DBmzhofjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJCsBt15vXH0R7p/F2hgD6OLcsoL0Q1hCK3SYz1FpkccsAIHtgNU7LYH4PTsq45ZF
-         QWYRtgvcRrafUetZIo/glmWm7Mk4/wtzt35v4jXgKksD8R3bmiKjpG3ERC+ExgCZzI
-         4okWyzlaZf/L7RuJKxg2nu2xZaE1P0sv41lY7VLU=
+        b=1Mc44K3bXX3xjEqzdqKQvAip8UkrSO+YyNOe/jCcFOjpfW0o0BXxXByr9Q4W3G+Bb
+         4/AC/CKNlXihdvq1aoKAHA+wC8iBtP2SFJeTyi9TflfU/5+SBaWye1eOvIBT83LXNF
+         0K82408+kzAN2EBIRIIXWiVuWXsESWTKyO+1WMdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 335/365] ASoC: nau8821: Dont unconditionally free interrupt
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 4.9 083/101] nios2: add force_successful_syscall_return()
 Date:   Tue, 23 Aug 2022 10:03:56 +0200
-Message-Id: <20220823080132.229436719@linuxfoundation.org>
+Message-Id: <20220823080037.723244063@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 2d86cef353b8f3d20b16f8c5615742fd6938c801 ]
+commit fd0c153daad135d0ec1a53c5dbe6936a724d6ae1 upstream.
 
-The remove() operation unconditionally frees the interrupt for the device
-but we may not actually have an interrupt so there might be nothing to
-free. Since the interrupt is requested after all other resources we don't
-need the explicit free anyway, unwinding is guaranteed to be safe, so just
-delete the remove() function and let devm take care of things.
+If we use the ancient SysV syscall ABI, we'd better have tell the
+kernel how to claim that a negative return value is a success.
+Use ->orig_r2 for that - it's inaccessible via ptrace, so it's
+a fair game for changes and it's normally[*] non-negative on return
+from syscall.  Set to -1; syscall is not going to be restart-worthy
+by definition, so we won't interfere with that use either.
 
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/20220718140405.57233-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[*] the only exception is rt_sigreturn(), where we skip the entire
+messing with r1/r2 anyway.
+
+Fixes: 82ed08dd1b0e ("nios2: Exception handling")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/nau8821.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ arch/nios2/include/asm/ptrace.h |    2 ++
+ arch/nios2/kernel/entry.S       |    6 ++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/sound/soc/codecs/nau8821.c b/sound/soc/codecs/nau8821.c
-index ce4e7f46bb06..e078d2ffb3f6 100644
---- a/sound/soc/codecs/nau8821.c
-+++ b/sound/soc/codecs/nau8821.c
-@@ -1665,15 +1665,6 @@ static int nau8821_i2c_probe(struct i2c_client *i2c)
- 	return ret;
- }
+--- a/arch/nios2/include/asm/ptrace.h
++++ b/arch/nios2/include/asm/ptrace.h
+@@ -74,6 +74,8 @@ extern void show_regs(struct pt_regs *);
+ 	((struct pt_regs *)((unsigned long)current_thread_info() + THREAD_SIZE)\
+ 		- 1)
  
--static int nau8821_i2c_remove(struct i2c_client *i2c_client)
--{
--	struct nau8821 *nau8821 = i2c_get_clientdata(i2c_client);
--
--	devm_free_irq(nau8821->dev, nau8821->irq, nau8821);
--
--	return 0;
--}
--
- static const struct i2c_device_id nau8821_i2c_ids[] = {
- 	{ "nau8821", 0 },
- 	{ }
-@@ -1703,7 +1694,6 @@ static struct i2c_driver nau8821_driver = {
- 		.acpi_match_table = ACPI_PTR(nau8821_acpi_match),
- 	},
- 	.probe_new = nau8821_i2c_probe,
--	.remove = nau8821_i2c_remove,
- 	.id_table = nau8821_i2c_ids,
- };
- module_i2c_driver(nau8821_driver);
--- 
-2.35.1
-
++#define force_successful_syscall_return() (current_pt_regs()->orig_r2 = -1)
++
+ int do_syscall_trace_enter(void);
+ void do_syscall_trace_exit(void);
+ #endif /* __ASSEMBLY__ */
+--- a/arch/nios2/kernel/entry.S
++++ b/arch/nios2/kernel/entry.S
+@@ -213,6 +213,9 @@ local_restart:
+ translate_rc_and_ret:
+ 	movi	r1, 0
+ 	bge	r2, zero, 3f
++	ldw	r1, PT_ORIG_R2(sp)
++	addi	r1, r1, 1
++	beq	r1, zero, 3f
+ 	sub	r2, zero, r2
+ 	movi	r1, 1
+ 3:
+@@ -276,6 +279,9 @@ traced_system_call:
+ translate_rc_and_ret2:
+ 	movi	r1, 0
+ 	bge	r2, zero, 4f
++	ldw	r1, PT_ORIG_R2(sp)
++	addi	r1, r1, 1
++	beq	r1, zero, 4f
+ 	sub	r2, zero, r2
+ 	movi	r1, 1
+ 4:
 
 
