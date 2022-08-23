@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2844A59E164
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D871559DD4D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:27:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352884AbiHWKTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54550 "EHLO
+        id S243871AbiHWLT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:19:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351945AbiHWKRV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:17:21 -0400
+        with ESMTP id S244023AbiHWLRj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 162758050F;
-        Tue, 23 Aug 2022 02:01:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2665689820;
+        Tue, 23 Aug 2022 02:21:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61161B81C28;
-        Tue, 23 Aug 2022 09:01:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0319C433D6;
-        Tue, 23 Aug 2022 09:01:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB6C1B81C65;
+        Tue, 23 Aug 2022 09:21:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE683C433C1;
+        Tue, 23 Aug 2022 09:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245289;
-        bh=YLHITOvYu0lt7iEImGEtaN+nTdRoAlJHZbNZO7E2YxY=;
+        s=korg; t=1661246476;
+        bh=NeHKc98R14zR8ENVc6BjZmsKaav6RKSz1RkV7bt+kvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nVHCP85yR2NyNeE2EyjJpT35d58WolVdt108aEHVe8Vy2EbrQYZbJpGnI4P84FM37
-         GUjbJWxqxI3XEBxv1es9l/pJ4d8LPFE/WP+7sofdEf9sxEqeWYKASFJFqU0RTgxzfv
-         dcHRHQN+exAqv1WIp0ABeNgnzWPwxaRXrfKnax+U=
+        b=F7xeaFzpwMmWzbZ3xVDtZ/wvZ8VnadjaRCMVidxCDQmq102/90AlKoek+uvhbTS3+
+         Fhmzdakof7QdPMRORflGHwGH3r3uTFUrXe/p07Bp6eDPFDHNZKQ68JEVvnEy2DcgUz
+         SVKUmyKEkvJqc0Se6bWluQz/FkDxlsrJcUXEB3so=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Yury Norov <yury.norov@gmail.com>
-Subject: [PATCH 4.19 031/287] ia64, processor: fix -Wincompatible-pointer-types in ia64_get_irr()
+        stable@vger.kernel.org, Yonglong Li <liyonglong@chinatelecom.cn>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 122/389] tcp: make retransmitted SKB fit into the send window
 Date:   Tue, 23 Aug 2022 10:23:20 +0200
-Message-Id: <20220823080101.325562952@linuxfoundation.org>
+Message-Id: <20220823080120.701174987@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Yonglong Li <liyonglong@chinatelecom.cn>
 
-commit e5a16a5c4602c119262f350274021f90465f479d upstream.
+[ Upstream commit 536a6c8e05f95e3d1118c40ae8b3022ee2d05d52 ]
 
-test_bit(), as any other bitmap op, takes `unsigned long *` as a
-second argument (pointer to the actual bitmap), as any bitmap
-itself is an array of unsigned longs. However, the ia64_get_irr()
-code passes a ref to `u64` as a second argument.
-This works with the ia64 bitops implementation due to that they
-have `void *` as the second argument and then cast it later on.
-This works with the bitmap API itself due to that `unsigned long`
-has the same size on ia64 as `u64` (`unsigned long long`), but
-from the compiler PoV those two are different.
-Define @irr as `unsigned long` to fix that. That implies no
-functional changes. Has been hidden for 16 years!
+current code of __tcp_retransmit_skb only check TCP_SKB_CB(skb)->seq
+in send window, and TCP_SKB_CB(skb)->seq_end maybe out of send window.
+If receiver has shrunk his window, and skb is out of new window,  it
+should retransmit a smaller portion of the payload.
 
-Fixes: a58786917ce2 ("[IA64] avoid broken SAL_CACHE_FLUSH implementations")
-Cc: stable@vger.kernel.org # 2.6.16+
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+test packetdrill script:
+    0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
+   +0 fcntl(3, F_GETFL) = 0x2 (flags O_RDWR)
+   +0 fcntl(3, F_SETFL, O_RDWR|O_NONBLOCK) = 0
+
+   +0 connect(3, ..., ...) = -1 EINPROGRESS (Operation now in progress)
+   +0 > S 0:0(0)  win 65535 <mss 1460,sackOK,TS val 100 ecr 0,nop,wscale 8>
+ +.05 < S. 0:0(0) ack 1 win 6000 <mss 1000,nop,nop,sackOK>
+   +0 > . 1:1(0) ack 1
+
+   +0 write(3, ..., 10000) = 10000
+
+   +0 > . 1:2001(2000) ack 1 win 65535
+   +0 > . 2001:4001(2000) ack 1 win 65535
+   +0 > . 4001:6001(2000) ack 1 win 65535
+
+ +.05 < . 1:1(0) ack 4001 win 1001
+
+and tcpdump show:
+192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 1:2001, ack 1, win 65535, length 2000
+192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 2001:4001, ack 1, win 65535, length 2000
+192.168.226.67.55 > 192.0.2.1.8080: Flags [P.], seq 4001:5001, ack 1, win 65535, length 1000
+192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 5001:6001, ack 1, win 65535, length 1000
+192.0.2.1.8080 > 192.168.226.67.55: Flags [.], ack 4001, win 1001, length 0
+192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 5001:6001, ack 1, win 65535, length 1000
+192.168.226.67.55 > 192.0.2.1.8080: Flags [P.], seq 4001:5001, ack 1, win 65535, length 1000
+
+when cient retract window to 1001, send window is [4001,5002],
+but TLP send 5001-6001 packet which is out of send window.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yonglong Li <liyonglong@chinatelecom.cn>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/1657532838-20200-1-git-send-email-liyonglong@chinatelecom.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/include/asm/processor.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_output.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
---- a/arch/ia64/include/asm/processor.h
-+++ b/arch/ia64/include/asm/processor.h
-@@ -552,7 +552,7 @@ ia64_get_irr(unsigned int vector)
- {
- 	unsigned int reg = vector / 64;
- 	unsigned int bit = vector % 64;
--	u64 irr;
-+	unsigned long irr;
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index ef749a47768a..fa7fb30e4b59 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -2911,7 +2911,7 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	unsigned int cur_mss;
+ 	int diff, len, err;
+-
++	int avail_wnd;
  
- 	switch (reg) {
- 	case 0: irr = ia64_getreg(_IA64_REG_CR_IRR0); break;
+ 	/* Inconclusive MTU probe */
+ 	if (icsk->icsk_mtup.probe_size)
+@@ -2941,17 +2941,25 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
+ 		return -EHOSTUNREACH; /* Routing failure or similar. */
+ 
+ 	cur_mss = tcp_current_mss(sk);
++	avail_wnd = tcp_wnd_end(tp) - TCP_SKB_CB(skb)->seq;
+ 
+ 	/* If receiver has shrunk his window, and skb is out of
+ 	 * new window, do not retransmit it. The exception is the
+ 	 * case, when window is shrunk to zero. In this case
+-	 * our retransmit serves as a zero window probe.
++	 * our retransmit of one segment serves as a zero window probe.
+ 	 */
+-	if (!before(TCP_SKB_CB(skb)->seq, tcp_wnd_end(tp)) &&
+-	    TCP_SKB_CB(skb)->seq != tp->snd_una)
+-		return -EAGAIN;
++	if (avail_wnd <= 0) {
++		if (TCP_SKB_CB(skb)->seq != tp->snd_una)
++			return -EAGAIN;
++		avail_wnd = cur_mss;
++	}
+ 
+ 	len = cur_mss * segs;
++	if (len > avail_wnd) {
++		len = rounddown(avail_wnd, cur_mss);
++		if (!len)
++			len = avail_wnd;
++	}
+ 	if (skb->len > len) {
+ 		if (tcp_fragment(sk, TCP_FRAG_IN_RTX_QUEUE, skb, len,
+ 				 cur_mss, GFP_ATOMIC))
+@@ -2965,8 +2973,9 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
+ 		diff -= tcp_skb_pcount(skb);
+ 		if (diff)
+ 			tcp_adjust_pcount(sk, skb, diff);
+-		if (skb->len < cur_mss)
+-			tcp_retrans_try_collapse(sk, skb, cur_mss);
++		avail_wnd = min_t(int, avail_wnd, cur_mss);
++		if (skb->len < avail_wnd)
++			tcp_retrans_try_collapse(sk, skb, avail_wnd);
+ 	}
+ 
+ 	/* RFC3168, section 6.1.1.1. ECN fallback */
+-- 
+2.35.1
+
 
 
