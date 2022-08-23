@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29BE359D59E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04FF459D642
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241726AbiHWIgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:36:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60702 "EHLO
+        id S1344548AbiHWIhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:37:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244287AbiHWIde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:33:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50B067C91;
-        Tue, 23 Aug 2022 01:16:38 -0700 (PDT)
+        with ESMTP id S1347785AbiHWIgr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:36:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2C876752;
+        Tue, 23 Aug 2022 01:17:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D97CDB81C3E;
-        Tue, 23 Aug 2022 08:16:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E8E4C433C1;
-        Tue, 23 Aug 2022 08:16:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22BAD61257;
+        Tue, 23 Aug 2022 08:17:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E8FC433D7;
+        Tue, 23 Aug 2022 08:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242572;
-        bh=zaPYx1qAP/nUxRrxTuez+HrXGL97eJXktPJNjE8RN2k=;
+        s=korg; t=1661242639;
+        bh=/8UyoVEL/6prq7euy3iXui/QYxwtGVXrnVvgQbV3Lk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xiXon9YsqtPGq7NnYY7L24QGD2N3Baj8RpFkqMQSlO7rejEXelNdn/iNefBNH6/i9
-         gt4oBLk10AM/Tmi+sWx8vVzODRc7kiVYIINkFmd5rcICTJnDUxQ+5punhNDpeHIf1B
-         60gaNgPGc6sPh+hcahYy3RjVZ0wSCZLIoE92y300=
+        b=hxlAUA+Ov/Lu93r9VF9S1wh2smigquzLSH8+mx2JQHfIGDYeVlhvr058EZdDoHSff
+         WKa8KGaB80xID0OE5Ccd2Unt5W9pCJQNsc8wt2wTrC07HF2g/gN+OTEs68D/CLWlDi
+         UPn2Y5/lEK5JZ1ZEhXYLGvhS6kVTUOkTgi2wRr9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Rob Herring <robh@kernel.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.19 130/365] dt-bindings: arm: qcom: fix MSM8994 boards compatibles
-Date:   Tue, 23 Aug 2022 10:00:31 +0200
-Message-Id: <20220823080123.624388026@linuxfoundation.org>
+Subject: [PATCH 5.19 131/365] dt-bindings: clock: qcom,gcc-msm8996: add more GCC clock sources
+Date:   Tue, 23 Aug 2022 10:00:32 +0200
+Message-Id: <20220823080123.671733279@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,42 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit c704bd373f58a84193eebe40bd271d6b73c138b0 upstream.
+commit 2b4e75a7a7c8d3531a40ebb103b92f88ff693f79 upstream.
 
-The compatibles for APQ8094/MSM8994 boards are different than specified
-in bindings.  None of them use fallback to other SoC variant.
+Add additional GCC clock sources. This includes PCIe and USB PIPE and
+UFS symbol clocks.
 
-Fixes: 9ad3c08f6f1b ("dt-bindings: arm: qcom: Document sony boards for apq8094")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220520123252.365762-4-krzysztof.kozlowski@linaro.org
+Fixes: 2a8aa18c1131 ("dt-bindings: clk: qcom: Fix self-validation, split, and clean cruft")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220620071936.1558906-2-dmitry.baryshkov@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/arm/qcom.yaml |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/clock/qcom,gcc-msm8996.yaml |   16 ++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/Documentation/devicetree/bindings/arm/qcom.yaml
-+++ b/Documentation/devicetree/bindings/arm/qcom.yaml
-@@ -172,12 +172,15 @@ properties:
-       - items:
-           - enum:
-               - sony,karin_windy
-+          - const: qcom,apq8094
-+
-+      - items:
-+          - enum:
-               - sony,karin-row
-               - sony,satsuki-row
-               - sony,sumire-row
-               - sony,suzuran-row
--              - qcom,msm8994
--          - const: qcom,apq8094
-+          - const: qcom,msm8994
+--- a/Documentation/devicetree/bindings/clock/qcom,gcc-msm8996.yaml
++++ b/Documentation/devicetree/bindings/clock/qcom,gcc-msm8996.yaml
+@@ -22,16 +22,32 @@ properties:
+     const: qcom,gcc-msm8996
  
-       - items:
-           - enum:
+   clocks:
++    minItems: 3
+     items:
+       - description: XO source
+       - description: Second XO source
+       - description: Sleep clock source
++      - description: PCIe 0 PIPE clock (optional)
++      - description: PCIe 1 PIPE clock (optional)
++      - description: PCIe 2 PIPE clock (optional)
++      - description: USB3 PIPE clock (optional)
++      - description: UFS RX symbol 0 clock (optional)
++      - description: UFS RX symbol 1 clock (optional)
++      - description: UFS TX symbol 0 clock (optional)
+ 
+   clock-names:
++    minItems: 3
+     items:
+       - const: cxo
+       - const: cxo2
+       - const: sleep_clk
++      - const: pcie_0_pipe_clk_src
++      - const: pcie_1_pipe_clk_src
++      - const: pcie_2_pipe_clk_src
++      - const: usb3_phy_pipe_clk_src
++      - const: ufs_rx_symbol_0_clk_src
++      - const: ufs_rx_symbol_1_clk_src
++      - const: ufs_tx_symbol_0_clk_src
+ 
+   '#clock-cells':
+     const: 1
 
 
