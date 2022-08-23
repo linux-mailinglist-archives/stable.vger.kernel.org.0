@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B19A559D990
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F59659D839
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240218AbiHWJ56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:57:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39320 "EHLO
+        id S1351102AbiHWJfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:35:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243947AbiHWJxP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:53:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7F2B9F773;
-        Tue, 23 Aug 2022 01:46:25 -0700 (PDT)
+        with ESMTP id S1351101AbiHWJeR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:34:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 813A894ECE;
+        Tue, 23 Aug 2022 01:39:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A852B81C39;
-        Tue, 23 Aug 2022 08:46:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68E9AC433D6;
-        Tue, 23 Aug 2022 08:46:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3675B81C3B;
+        Tue, 23 Aug 2022 08:38:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CD66C433D6;
+        Tue, 23 Aug 2022 08:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244378;
-        bh=qbghJcHm0gVRjNPJv+owcXxInm53demoP6ZbyBNgN08=;
+        s=korg; t=1661243887;
+        bh=g6tcTm+ZXaW5n+EYtlo3JwpzKEML7hs46wOKet194ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nY/7UeakdRWQrSd263jPpSw20inCKdIp3NDE2PrlzvXBeiLlykeeIyGS7cauhUnYh
-         kZOkcD9zWzVrW8YbTtrYdQAq/BMvVgoazArnrrALQa+fsUFdE/s66Bx3eEeiHbCydX
-         mI4BVN3tQrPKe+7ZUy5BRKa8hv15/3st418TJT+E=
+        b=JUFv40MF63nsxFRV3N/qJm5dLRGChB0kF0h6ZdMN+YH5l76zeHNfwO83XguW/t0x+
+         cn0RdeyPdABot0QY5D2W9yA4bWp/D7D/ZYGGDXM5OYBue+AyBwaAaYgooABjf9AbzL
+         /tu2RDk4SoFwx0C+hQlHonPidbOKn5xwmKZXye7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Aloni <dan.aloni@vastdata.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.15 053/244] sunrpc: fix expiry of auth creds
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 051/229] x86/pmem: Fix platform-device leak in error path
 Date:   Tue, 23 Aug 2022 10:23:32 +0200
-Message-Id: <20220823080100.837107068@linuxfoundation.org>
+Message-Id: <20220823080055.531533153@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Aloni <dan.aloni@vastdata.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit f1bafa7375c01ff71fb7cb97c06caadfcfe815f3 upstream.
+[ Upstream commit 229e73d46994f15314f58b2d39bf952111d89193 ]
 
-Before this commit, with a large enough LRU of expired items (100), the
-loop skipped all the expired items and was entirely ineffectual in
-trimming the LRU list.
+Make sure to free the platform device in the unlikely event that
+registration fails.
 
-Fixes: 95cd623250ad ('SUNRPC: Clean up the AUTH cache code')
-Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7a67832c7e44 ("libnvdimm, e820: make CONFIG_X86_PMEM_LEGACY a tristate option")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220620140723.9810-1-johan@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/pmem.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/sunrpc/auth.c
-+++ b/net/sunrpc/auth.c
-@@ -445,7 +445,7 @@ rpcauth_prune_expired(struct list_head *
- 		 * Enforce a 60 second garbage collection moratorium
- 		 * Note that the cred_unused list must be time-ordered.
- 		 */
--		if (!time_in_range(cred->cr_expire, expired, jiffies))
-+		if (time_in_range(cred->cr_expire, expired, jiffies))
- 			continue;
- 		if (!rpcauth_unhash_cred(cred))
- 			continue;
+diff --git a/arch/x86/kernel/pmem.c b/arch/x86/kernel/pmem.c
+index 3fe690067802..ada7c077ec2f 100644
+--- a/arch/x86/kernel/pmem.c
++++ b/arch/x86/kernel/pmem.c
+@@ -27,6 +27,11 @@ static __init int register_e820_pmem(void)
+ 	 * simply here to trigger the module to load on demand.
+ 	 */
+ 	pdev = platform_device_alloc("e820_pmem", -1);
+-	return platform_device_add(pdev);
++
++	rc = platform_device_add(pdev);
++	if (rc)
++		platform_device_put(pdev);
++
++	return rc;
+ }
+ device_initcall(register_e820_pmem);
+-- 
+2.35.1
+
 
 
