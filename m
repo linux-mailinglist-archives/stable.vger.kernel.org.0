@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 867E859DB3F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA1D59DFA7
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356845AbiHWLEG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:04:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39438 "EHLO
+        id S1354916AbiHWMST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:18:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357480AbiHWLC3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:02:29 -0400
+        with ESMTP id S1359558AbiHWMP5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A80C9B2758;
-        Tue, 23 Aug 2022 02:15:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 233B1796A4;
+        Tue, 23 Aug 2022 02:41:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D4D8B81C66;
-        Tue, 23 Aug 2022 09:15:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74FD3C433D6;
-        Tue, 23 Aug 2022 09:15:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 337D1B81C65;
+        Tue, 23 Aug 2022 09:41:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 998D4C433C1;
+        Tue, 23 Aug 2022 09:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246101;
-        bh=tJ4/GjcFTOYm1eHzzFoim4ZayD31016TtBq0nigveEE=;
+        s=korg; t=1661247677;
+        bh=zuynUB4qvXHwuhHt93KM7PDIxN+C9d44hf1QyZClopY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sEJc8e3UNwILZbpGkJwonc/Z6Bp2t09SMtQBZEb3y+p2V/QeHvc9oEwdlnZed2fUQ
-         zU8V4LKgAL+gFn3aA7Y1To0S7eG4Y2GQdnSN6kjX4A+Xr0Rgl4zDvIa7aJSChqmtSF
-         pqF1Xx2jQN+q8dLdga9qmP6b96BwlHmAhgUwjQyM=
+        b=C4dzdps/Orja196TZLq4mdClXTPm6UhGV9lx5UWGguNInK+WLPkSZDUwgxN9CT4cK
+         KLaLrUaLdlw92BqfT4n+o7qY81GUJvqkQOX+LG2PdpZ7vGFNJ9pT2EJNEI5oWEWWNS
+         yh9cKL/abf0xYS0HrTJVOLhf8m/ukLbkGhyBd5MA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
-        Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pascal Terjan <pterjan@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 275/287] RISC-V: Add fast call path of crash_kexec()
+Subject: [PATCH 5.10 112/158] vboxguest: Do not use devm for irq
 Date:   Tue, 23 Aug 2022 10:27:24 +0200
-Message-Id: <20220823080110.667293814@linuxfoundation.org>
+Message-Id: <20220823080050.477796219@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Pascal Terjan <pterjan@google.com>
 
-[ Upstream commit 3f1901110a89b0e2e13adb2ac8d1a7102879ea98 ]
+[ Upstream commit 6169525b76764acb81918aa387ac168fb9a55575 ]
 
-Currently, almost all archs (x86, arm64, mips...) support fast call
-of crash_kexec() when "regs && kexec_should_crash()" is true. But
-RISC-V not, it can only enter crash system via panic(). However panic()
-doesn't pass the regs of the real accident scene to crash_kexec(),
-it caused we can't get accurate backtrace via gdb,
-	$ riscv64-linux-gnu-gdb vmlinux vmcore
-	Reading symbols from vmlinux...
-	[New LWP 95]
-	#0  console_unlock () at kernel/printk/printk.c:2557
-	2557                    if (do_cond_resched)
-	(gdb) bt
-	#0  console_unlock () at kernel/printk/printk.c:2557
-	#1  0x0000000000000000 in ?? ()
+When relying on devm it doesn't get freed early enough which causes the
+following warning when unloading the module:
 
-With the patch we can get the accurate backtrace,
-	$ riscv64-linux-gnu-gdb vmlinux vmcore
-	Reading symbols from vmlinux...
-	[New LWP 95]
-	#0  0xffffffe00063a4e0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
-	81             *(int *)p = 0xdead;
-	(gdb)
-	(gdb) bt
-	#0  0xffffffe00064d5c0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
-	#1  0x0000000000000000 in ?? ()
+[249348.837181] remove_proc_entry: removing non-empty directory 'irq/20', leaking at least 'vboxguest'
+[249348.837219] WARNING: CPU: 0 PID: 6708 at fs/proc/generic.c:715 remove_proc_entry+0x119/0x140
 
-Test code to produce NULL address dereference in test_crash.c,
-	void *p = NULL;
-	*(int *)p = 0xdead;
+[249348.837379] Call Trace:
+[249348.837385]  unregister_irq_proc+0xbd/0xe0
+[249348.837392]  free_desc+0x23/0x60
+[249348.837396]  irq_free_descs+0x4a/0x70
+[249348.837401]  irq_domain_free_irqs+0x160/0x1a0
+[249348.837452]  mp_unmap_irq+0x5c/0x60
+[249348.837458]  acpi_unregister_gsi_ioapic+0x29/0x40
+[249348.837463]  acpi_unregister_gsi+0x17/0x30
+[249348.837467]  acpi_pci_irq_disable+0xbf/0xe0
+[249348.837473]  pcibios_disable_device+0x20/0x30
+[249348.837478]  pci_disable_device+0xef/0x120
+[249348.837482]  vbg_pci_remove+0x6c/0x70 [vboxguest]
 
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Tested-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220606082308.2883458-1-xianting.tian@linux.alibaba.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Pascal Terjan <pterjan@google.com>
+Link: https://lore.kernel.org/r/20220612133744.4030602-1-pterjan@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/traps.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/virt/vboxguest/vboxguest_linux.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 24a9333dda2c..7c65750508f2 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -22,6 +22,7 @@
- #include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/irq.h>
-+#include <linux/kexec.h>
+diff --git a/drivers/virt/vboxguest/vboxguest_linux.c b/drivers/virt/vboxguest/vboxguest_linux.c
+index 73eb34849eab..4ccfd30c2a30 100644
+--- a/drivers/virt/vboxguest/vboxguest_linux.c
++++ b/drivers/virt/vboxguest/vboxguest_linux.c
+@@ -356,8 +356,8 @@ static int vbg_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 		goto err_vbg_core_exit;
+ 	}
  
- #include <asm/processor.h>
- #include <asm/ptrace.h>
-@@ -50,6 +51,9 @@ void die(struct pt_regs *regs, const char *str)
+-	ret = devm_request_irq(dev, pci->irq, vbg_core_isr, IRQF_SHARED,
+-			       DEVICE_NAME, gdev);
++	ret = request_irq(pci->irq, vbg_core_isr, IRQF_SHARED, DEVICE_NAME,
++			  gdev);
+ 	if (ret) {
+ 		vbg_err("vboxguest: Error requesting irq: %d\n", ret);
+ 		goto err_vbg_core_exit;
+@@ -367,7 +367,7 @@ static int vbg_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 	if (ret) {
+ 		vbg_err("vboxguest: Error misc_register %s failed: %d\n",
+ 			DEVICE_NAME, ret);
+-		goto err_vbg_core_exit;
++		goto err_free_irq;
+ 	}
  
- 	ret = notify_die(DIE_OOPS, str, regs, 0, regs->scause, SIGSEGV);
+ 	ret = misc_register(&gdev->misc_device_user);
+@@ -403,6 +403,8 @@ static int vbg_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 	misc_deregister(&gdev->misc_device_user);
+ err_unregister_misc_device:
+ 	misc_deregister(&gdev->misc_device);
++err_free_irq:
++	free_irq(pci->irq, gdev);
+ err_vbg_core_exit:
+ 	vbg_core_exit(gdev);
+ err_disable_pcidev:
+@@ -419,6 +421,7 @@ static void vbg_pci_remove(struct pci_dev *pci)
+ 	vbg_gdev = NULL;
+ 	mutex_unlock(&vbg_gdev_mutex);
  
-+	if (regs && kexec_should_crash(current))
-+		crash_kexec(regs);
-+
- 	bust_spinlocks(0);
- 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
- 	spin_unlock_irq(&die_lock);
++	free_irq(pci->irq, gdev);
+ 	device_remove_file(gdev->dev, &dev_attr_host_features);
+ 	device_remove_file(gdev->dev, &dev_attr_host_version);
+ 	misc_deregister(&gdev->misc_device_user);
 -- 
 2.35.1
 
