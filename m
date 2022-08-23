@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6D359DBE0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 581E459DBE8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244255AbiHWLhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:37:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49526 "EHLO
+        id S1357739AbiHWLiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:38:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350510AbiHWLew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:34:52 -0400
+        with ESMTP id S1358047AbiHWLgl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:36:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B13CE910AE;
-        Tue, 23 Aug 2022 02:27:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A28EE915D1;
+        Tue, 23 Aug 2022 02:27:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4CD16B81B1F;
-        Tue, 23 Aug 2022 09:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7A9C433D6;
-        Tue, 23 Aug 2022 09:27:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F025B81C99;
+        Tue, 23 Aug 2022 09:27:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DAB1C43140;
+        Tue, 23 Aug 2022 09:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246836;
-        bh=PiAYzXHGfc/+OGeL048E+MAGO3HB2dyAx+psoKblKFM=;
+        s=korg; t=1661246870;
+        bh=wF1A5vtd8tvVocO+QjQ6jbB4zTb2fIRPK/24cR2VM5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1EzGu3PW2ZpoQdHzHx7shkXxvtTnkDxp3nPvuMn0bsI8cQYOSjElQwukMEntE5hiA
-         zZHHVR4iMA6bFTom17in7xP6u8DecZhl65c7AAIerCsxN8h/XerAPI6rsRsiXwoCPq
-         J0GGWJ25YvmGgKB30zuS3udTbTUEAmu1Y04V1Lgk=
+        b=CBhRv4CmhJrFkacCsnsw5FZZEksGzYQ/FC1iRcNJy/a8uJK7ZyBavNtxBwER99hAR
+         86Dr7AOkJZh1Gb8iagk6KGzHZi4chjroB0JBV9Po1gsGa7kzuyp8UqS0DQuzVrx2Wg
+         67K+slFuG/c9SyVMROFeedVyYZmniMZ4MaN7eyrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
+        William Dean <williamsukatube@gmail.com>,
+        Marek Beh=C3=BAn <kabel@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 228/389] ASoC: audio-graph-card: Add of_node_put() in fail path
-Date:   Tue, 23 Aug 2022 10:25:06 +0200
-Message-Id: <20220823080125.127020091@linuxfoundation.org>
+Subject: [PATCH 5.4 229/389] watchdog: armada_37xx_wdt: check the return value of devm_ioremap() in armada_37xx_wdt_probe()
+Date:   Tue, 23 Aug 2022 10:25:07 +0200
+Message-Id: <20220823080125.164292444@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,38 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: William Dean <williamsukatube@gmail.com>
 
-[ Upstream commit 65fb8e2ef3531a6e950060fca6e551c923fb0f0e ]
+[ Upstream commit 2d27e52841092e5831dd41f313028c668d816eb0 ]
 
-In asoc_simple_parse_dai(), we should call of_node_put() for the
-reference returned by of_graph_get_port_parent() in fail path.
+The function devm_ioremap() in armada_37xx_wdt_probe() can fail, so
+its return value should be checked.
 
-Fixes: ae30a694da4c ("ASoC: simple-card-utils: add asoc_simple_card_parse_dai()")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220721144308.1301587-1-windhl@126.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 54e3d9b518c8a ("watchdog: Add support for Armada 37xx CPU watchdog")
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: William Dean <williamsukatube@gmail.com>
+Reviewed-by: Marek Beh=C3=BAn <kabel@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220722030938.2925156-1-williamsukatube@163.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/audio-graph-card.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/watchdog/armada_37xx_wdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
-index 1bc498124689..96aa2c015572 100644
---- a/sound/soc/generic/audio-graph-card.c
-+++ b/sound/soc/generic/audio-graph-card.c
-@@ -149,8 +149,10 @@ static int asoc_simple_parse_dai(struct device_node *ep,
- 	 *    if he unbinded CPU or Codec.
- 	 */
- 	ret = snd_soc_get_dai_name(&args, &dlc->dai_name);
--	if (ret < 0)
-+	if (ret < 0) {
-+		of_node_put(node);
- 		return ret;
-+	}
+diff --git a/drivers/watchdog/armada_37xx_wdt.c b/drivers/watchdog/armada_37xx_wdt.c
+index e5dcb26d85f0..dcb3ffda3fad 100644
+--- a/drivers/watchdog/armada_37xx_wdt.c
++++ b/drivers/watchdog/armada_37xx_wdt.c
+@@ -274,6 +274,8 @@ static int armada_37xx_wdt_probe(struct platform_device *pdev)
+ 	if (!res)
+ 		return -ENODEV;
+ 	dev->reg = devm_ioremap(&pdev->dev, res->start, resource_size(res));
++	if (!dev->reg)
++		return -ENOMEM;
  
- 	dlc->of_node = node;
- 
+ 	/* init clock */
+ 	dev->clk = devm_clk_get(&pdev->dev, NULL);
 -- 
 2.35.1
 
