@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22EA059DA34
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB2B959DA3B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348797AbiHWKGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:06:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46710 "EHLO
+        id S1352001AbiHWKGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:06:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351993AbiHWKEQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:04:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC947CAAE;
-        Tue, 23 Aug 2022 01:51:21 -0700 (PDT)
+        with ESMTP id S1352123AbiHWKEe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:04:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E9437CAB3;
+        Tue, 23 Aug 2022 01:51:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF892B81C39;
-        Tue, 23 Aug 2022 08:51:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17DC1C433C1;
-        Tue, 23 Aug 2022 08:51:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82C53611DD;
+        Tue, 23 Aug 2022 08:51:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6908BC433D6;
+        Tue, 23 Aug 2022 08:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244678;
-        bh=Jy32Zh/HlrBFPGofS56r9APlpigQ81Lcmqyu53Rlg4g=;
+        s=korg; t=1661244684;
+        bh=940HAywEM73UL70jDkF4U0wYf98SJc6UM4UQiogCvyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vtzKxhBRTdrMDJnoSobxXUkkIxisa62IuO1HK50dIZ9l2LHXUdCplzVhS6Vgio1t8
-         rOFkXeEJQ9jCZ6iO6/nbxppFfE68RifUsfDf4bBECLyry0URSJZAfmjijPwR45UMIg
-         2QiZN7IwS96mO39tdUC0xOHigdoCfVANqLUbTVro=
+        b=R+5wkFIx6o0gmkcPMR9WGjcVB5WW9NPVr/E76sSq8D8J5ykdIBTZWxtcghhdgUtrN
+         79JZVvfne0L+c24sdiYJCcR4VSAS0G2h49KYNxGtnQHSn6AR4ihc8U3lUMqUZdc9ti
+         ZTm7VQYjaiVe6O196/kci8Zdr2sSzOAeKaZvHK5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 174/229] net_sched: cls_route: disallow handle of 0
-Date:   Tue, 23 Aug 2022 10:25:35 +0200
-Message-Id: <20220823080059.835003991@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 175/229] powerpc/ptdump: Fix display of RW pages on FSL_BOOK3E
+Date:   Tue, 23 Aug 2022 10:25:36 +0200
+Message-Id: <20220823080059.865938476@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -54,83 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamal Hadi Salim <jhs@mojatatu.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 02799571714dc5dd6948824b9d080b44a295f695 upstream.
+commit dd8de84b57b02ba9c1fe530a6d916c0853f136bd upstream.
 
-Follows up on:
-https://lore.kernel.org/all/20220809170518.164662-1-cascardo@canonical.com/
+On FSL_BOOK3E, _PAGE_RW is defined with two bits, one for user and one
+for supervisor. As soon as one of the two bits is set, the page has
+to be display as RW. But the way it is implemented today requires both
+bits to be set in order to display it as RW.
 
-handle of 0 implies from/to of universe realm which is not very
-sensible.
+Instead of display RW when _PAGE_RW bits are set and R otherwise,
+reverse the logic and display R when _PAGE_RW bits are all 0 and
+RW otherwise.
 
-Lets see what this patch will do:
-$sudo tc qdisc add dev $DEV root handle 1:0 prio
+This change has no impact on other platforms as _PAGE_RW is a single
+bit on all of them.
 
-//lets manufacture a way to insert handle of 0
-$sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 \
-route to 0 from 0 classid 1:10 action ok
-
-//gets rejected...
-Error: handle of 0 is not valid.
-We have an error talking to the kernel, -1
-
-//lets create a legit entry..
-sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 route from 10 \
-classid 1:10 action ok
-
-//what did the kernel insert?
-$sudo tc filter ls dev $DEV parent 1:0
-filter protocol ip pref 100 route chain 0
-filter protocol ip pref 100 route chain 0 fh 0x000a8000 flowid 1:10 from 10
-	action order 1: gact action pass
-	 random type none pass val 0
-	 index 1 ref 1 bind 1
-
-//Lets try to replace that legit entry with a handle of 0
-$ sudo tc filter replace dev $DEV parent 1:0 protocol ip prio 100 \
-handle 0x000a8000 route to 0 from 0 classid 1:10 action drop
-
-Error: Replacing with handle of 0 is invalid.
-We have an error talking to the kernel, -1
-
-And last, lets run Cascardo's POC:
-$ ./poc
-0
-0
--22
--22
--22
-
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Acked-by: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8eb07b187000 ("powerpc/mm: Dump linux pagetables")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/0c33b96317811edf691e81698aaee8fa45ec3449.1656427391.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_route.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/powerpc/mm/dump_linuxpagetables.c |   13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -431,6 +431,9 @@ static int route4_set_parms(struct net *
- 			return -EINVAL;
- 	}
- 
-+	if (!nhandle)
-+		return -EINVAL;
-+
- 	h1 = to_hash(nhandle);
- 	b = rtnl_dereference(head->table[h1]);
- 	if (!b) {
-@@ -483,6 +486,9 @@ static int route4_change(struct net *net
- 	int err;
- 	bool new = true;
- 
-+	if (!handle)
-+		return -EINVAL;
-+
- 	if (opt == NULL)
- 		return handle ? -EINVAL : 0;
- 
+--- a/arch/powerpc/mm/dump_linuxpagetables.c
++++ b/arch/powerpc/mm/dump_linuxpagetables.c
+@@ -123,15 +123,10 @@ static const struct flag_info flag_array
+ 		.set	= "user",
+ 		.clear	= "    ",
+ 	}, {
+-#if _PAGE_RO == 0
+-		.mask	= _PAGE_RW,
+-		.val	= _PAGE_RW,
+-#else
+-		.mask	= _PAGE_RO,
+-		.val	= 0,
+-#endif
+-		.set	= "rw",
+-		.clear	= "ro",
++		.mask	= _PAGE_RW | _PAGE_RO,
++		.val	= _PAGE_RO,
++		.set	= "ro",
++		.clear	= "rw",
+ 	}, {
+ 		.mask	= _PAGE_EXEC,
+ 		.val	= _PAGE_EXEC,
 
 
