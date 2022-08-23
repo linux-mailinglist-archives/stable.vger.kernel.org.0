@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C27959D8BD
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9170D59D9FE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242161AbiHWJvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40562 "EHLO
+        id S1352064AbiHWKEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:04:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351841AbiHWJu5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:50:57 -0400
+        with ESMTP id S1352584AbiHWKCK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:02:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B8E61728;
-        Tue, 23 Aug 2022 01:45:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87E2D7C329;
+        Tue, 23 Aug 2022 01:50:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D07EB81C6C;
-        Tue, 23 Aug 2022 08:45:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC41DC433D6;
-        Tue, 23 Aug 2022 08:45:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7468B81C1C;
+        Tue, 23 Aug 2022 08:50:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EEFDC433C1;
+        Tue, 23 Aug 2022 08:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244320;
-        bh=EjuNj/W6yvY3QRPw/sASGRs/Haf5FAtW1SwjLFbn8ho=;
+        s=korg; t=1661244606;
+        bh=v5/YKtomldikhe/i3h6gjddah5wV/t0Qwoy5NR3BAPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7uOU+xhTlDzZmi6sIsZ1a1qhCRfratKmUHXgCSrbgnOn7ZsWAn/MU0dKFmT0uZWb
-         pR6p0DnTBmwfqqV0UXOEPZP4xpO0Hpcea5LuLuNeq8yk/EzMabo9tGqGPeOC4NCy7U
-         7Yzwd5zDmRo0zWzD1BI2iRcy1istRL+p4eXunFmM=
+        b=GAzXUwRupk6uElk0tOdB83kTX7dJpzZccYvDRXVMLRGuINwQJ1bzG3Z164d0vKhwx
+         ujSRn4y6GncUehSLS6nZJGPYokrbQPMufwSD57tyPHkzXf7Jt/+Y+x8G+HKwbujMvA
+         5r6i9QlsCwZNBtpISWF0TRlOttjbUwH73fQLDRRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 119/229] ASoC: codecs: da7210: add check for i2c_add_driver
-Date:   Tue, 23 Aug 2022 10:24:40 +0200
-Message-Id: <20220823080057.953286886@linuxfoundation.org>
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 122/244] ASoC: codec: tlv320aic32x4: fix mono playback via I2S
+Date:   Tue, 23 Aug 2022 10:24:41 +0200
+Message-Id: <20220823080103.132900132@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit 82fa8f581a954ddeec1602bed9f8b4a09d100e6e ]
+commit b4b5f29a076e52181f63e45a2ad1bc88593072e3 upstream.
 
-As i2c_add_driver could return error if fails, it should be
-better to check the return value.
-However, if the CONFIG_I2C and CONFIG_SPI_MASTER are both true,
-the return value of i2c_add_driver will be covered by
-spi_register_driver.
-Therefore, it is necessary to add check and return error if fails.
+The two commits referenced below break mono playback via I2S DAI because
+they set BCLK to half the required speed. For PCM transport over I2S, the
+number of transmitted channels is always 2, even for mono playback.
 
-Fixes: aa0e25caafb7 ("ASoC: da7210: Add support for spi regmap")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220531094712.2376759-1-jiasheng@iscas.ac.cn
+Fixes: dcd79364bff3 ("ASoC: codec: tlv3204: Enable 24 bit audio support")
+Fixes: 40b37136287b ("ASoC: tlv320aic32x4: Fix bdiv clock rate derivation")
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://lore.kernel.org/r/20220810104156.665452-1-p.zabel@pengutronix.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/da7210.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/tlv320aic32x4.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/sound/soc/codecs/da7210.c b/sound/soc/codecs/da7210.c
-index 1af443ccbc51..ba38ea99b1da 100644
---- a/sound/soc/codecs/da7210.c
-+++ b/sound/soc/codecs/da7210.c
-@@ -1351,6 +1351,8 @@ static int __init da7210_modinit(void)
- 	int ret = 0;
- #if IS_ENABLED(CONFIG_I2C)
- 	ret = i2c_add_driver(&da7210_i2c_driver);
-+	if (ret)
-+		return ret;
- #endif
- #if defined(CONFIG_SPI_MASTER)
- 	ret = spi_register_driver(&da7210_spi_driver);
--- 
-2.35.1
-
+--- a/sound/soc/codecs/tlv320aic32x4.c
++++ b/sound/soc/codecs/tlv320aic32x4.c
+@@ -49,6 +49,8 @@ struct aic32x4_priv {
+ 	struct aic32x4_setup_data *setup;
+ 	struct device *dev;
+ 	enum aic32x4_type type;
++
++	unsigned int fmt;
+ };
+ 
+ static int aic32x4_reset_adc(struct snd_soc_dapm_widget *w,
+@@ -611,6 +613,7 @@ static int aic32x4_set_dai_sysclk(struct
+ static int aic32x4_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
+ {
+ 	struct snd_soc_component *component = codec_dai->component;
++	struct aic32x4_priv *aic32x4 = snd_soc_component_get_drvdata(component);
+ 	u8 iface_reg_1 = 0;
+ 	u8 iface_reg_2 = 0;
+ 	u8 iface_reg_3 = 0;
+@@ -654,6 +657,8 @@ static int aic32x4_set_dai_fmt(struct sn
+ 		return -EINVAL;
+ 	}
+ 
++	aic32x4->fmt = fmt;
++
+ 	snd_soc_component_update_bits(component, AIC32X4_IFACE1,
+ 				AIC32X4_IFACE1_DATATYPE_MASK |
+ 				AIC32X4_IFACE1_MASTER_MASK, iface_reg_1);
+@@ -758,6 +763,10 @@ static int aic32x4_setup_clocks(struct s
+ 		return -EINVAL;
+ 	}
+ 
++	/* PCM over I2S is always 2-channel */
++	if ((aic32x4->fmt & SND_SOC_DAIFMT_FORMAT_MASK) == SND_SOC_DAIFMT_I2S)
++		channels = 2;
++
+ 	madc = DIV_ROUND_UP((32 * adc_resource_class), aosr);
+ 	max_dosr = (AIC32X4_MAX_DOSR_FREQ / sample_rate / dosr_increment) *
+ 			dosr_increment;
 
 
