@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01CA059E0CE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 565B659DEB6
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355719AbiHWKoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:44:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56670 "EHLO
+        id S1358031AbiHWLom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:44:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356499AbiHWKm0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:42:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078D8AA3D0;
-        Tue, 23 Aug 2022 02:09:55 -0700 (PDT)
+        with ESMTP id S1358067AbiHWLnL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:43:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B417DD0239;
+        Tue, 23 Aug 2022 02:29:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55BD160112;
-        Tue, 23 Aug 2022 09:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 426DAC433C1;
-        Tue, 23 Aug 2022 09:09:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBC2D61227;
+        Tue, 23 Aug 2022 09:29:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2B2FC433C1;
+        Tue, 23 Aug 2022 09:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245793;
-        bh=DnpzbKthLavNueaPHkVIQtqpVn8Kryaf8GGCHKbV0DM=;
+        s=korg; t=1661246988;
+        bh=hoW8gNIAGLEsM0fWmTZQ90WaIxQHpc7DjZgA0ZdiBN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2SvVshs2oMYms6RiPhbG79zhm5XJDSjgMD4WayqFur+seuybfJUd5Aq3mCme3Zqif
-         N97E/bWa55nTIyI1aFxeTEap01CKXxEw3q8yYLmm3G23PU/iCBLcMj6vZNpt0dNtVA
-         VVRJ3sKi8QMmsSXWGU+JNLGpudkOdA8V/TZakqQQ=
+        b=KuLatMV/Cvq9q9b+MVlsU3wxmW9B5JMSoMAzQ9L2793F97si1xRJ/EmXihXuOqG/C
+         YpAdQkIEKDtGMiFv7yn3ED2gBz9AL5gW9Zh8NP8SyqS0vT6Ts5PISV+Ufo2o7mq1Yk
+         JYnbEccLaK9OwSGvajhh9BMkEmUnYHejIrDATtmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 191/287] ext4: fix extent status tree race in writeback error recovery path
+        stable@vger.kernel.org, Ronald Wahl <ronald.wahl@raritan.com>,
+        Jose Alonso <joalonsof@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 282/389] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"
 Date:   Tue, 23 Aug 2022 10:26:00 +0200
-Message-Id: <20220823080107.251245068@linuxfoundation.org>
+Message-Id: <20220823080127.325707289@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Jose Alonso <joalonsof@gmail.com>
 
-commit 7f0d8e1d607c1a4fa9a27362a108921d82230874 upstream.
+commit 6fd2c17fb6e02a8c0ab51df1cfec82ce96b8e83d upstream.
 
-A race can occur in the unlikely event ext4 is unable to allocate a
-physical cluster for a delayed allocation in a bigalloc file system
-during writeback.  Failure to allocate a cluster forces error recovery
-that includes a call to mpage_release_unused_pages().  That function
-removes any corresponding delayed allocated blocks from the extent
-status tree.  If a new delayed write is in progress on the same cluster
-simultaneously, resulting in the addition of an new extent containing
-one or more blocks in that cluster to the extent status tree, delayed
-block accounting can be thrown off if that delayed write then encounters
-a similar cluster allocation failure during future writeback.
+This reverts commit 36a15e1cb134c0395261ba1940762703f778438c.
 
-Write lock the i_data_sem in mpage_release_unused_pages() to fix this
-problem.  Ext4's block/cluster accounting code for bigalloc relies on
-i_data_sem for mutual exclusion, as is found in the delayed write path,
-and the locking in mpage_release_unused_pages() is missing.
+The usage of FLAG_SEND_ZLP causes problems to other firmware/hardware
+versions that have no issues.
 
-Cc: stable@kernel.org
-Reported-by: Ye Bin <yebin10@huawei.com>
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Link: https://lore.kernel.org/r/20220615160530.1928801-1-enwlinux@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+The FLAG_SEND_ZLP is not safe to use in this context.
+See:
+https://patchwork.ozlabs.org/project/netdev/patch/1270599787.8900.8.camel@Linuxdev4-laptop/#118378
+The original problem needs another way to solve.
+
+Fixes: 36a15e1cb134 ("net: usb: ax88179_178a needs FLAG_SEND_ZLP")
+Cc: stable@vger.kernel.org
+Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216327
+Link: https://bugs.archlinux.org/task/75491
+Signed-off-by: Jose Alonso <joalonsof@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/usb/ax88179_178a.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1755,7 +1755,14 @@ static void mpage_release_unused_pages(s
- 		ext4_lblk_t start, last;
- 		start = index << (PAGE_SHIFT - inode->i_blkbits);
- 		last = end << (PAGE_SHIFT - inode->i_blkbits);
-+
-+		/*
-+		 * avoid racing with extent status tree scans made by
-+		 * ext4_insert_delayed_block()
-+		 */
-+		down_write(&EXT4_I(inode)->i_data_sem);
- 		ext4_es_remove_extent(inode, start, last - start + 1);
-+		up_write(&EXT4_I(inode)->i_data_sem);
- 	}
- 
- 	pagevec_init(&pvec);
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1690,7 +1690,7 @@ static const struct driver_info ax88179_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1703,7 +1703,7 @@ static const struct driver_info ax88178a
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1716,7 +1716,7 @@ static const struct driver_info cypress_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1729,7 +1729,7 @@ static const struct driver_info dlink_du
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1742,7 +1742,7 @@ static const struct driver_info sitecom_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1755,7 +1755,7 @@ static const struct driver_info samsung_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1768,7 +1768,7 @@ static const struct driver_info lenovo_i
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1781,7 +1781,7 @@ static const struct driver_info belkin_i
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop	= ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
 
 
