@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D234459DE62
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA4159DE08
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354549AbiHWKxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:53:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40470 "EHLO
+        id S1354416AbiHWKR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:17:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356082AbiHWKtC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:49:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E7B74E32;
-        Tue, 23 Aug 2022 02:12:27 -0700 (PDT)
+        with ESMTP id S1353376AbiHWKOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:14:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C61073322;
+        Tue, 23 Aug 2022 02:00:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25635B81C4E;
-        Tue, 23 Aug 2022 09:12:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D71DC433C1;
-        Tue, 23 Aug 2022 09:12:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 90666CE1B45;
+        Tue, 23 Aug 2022 08:59:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EEDFC433C1;
+        Tue, 23 Aug 2022 08:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245944;
-        bh=4GLTEUjqLgkUnAmMiX/K4Iy8gbFUlHNor6u5MDbLmPs=;
+        s=korg; t=1661245198;
+        bh=rjjCfkyDLgishq46C0BsFbiiIVJXO157qW9QTrr4C8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ut+qRKdtrD45PADv4zoXGY+/OCUorjqDUZk0Vi3G5w7hDxX2ZgLw88b8s8AFGbZUX
-         u2gtxddVxxD7P5Gti8jtIggLnxm32COU+Ow8AdkqDJEKJi1OB1R0sQsqyHDT7IJr1Y
-         YjuZjT33ihd2SSfqkDUISCOtHAv0HdKnUyBrCDZ0=
+        b=Hc2eGEakvxra1SDyfAo4dN4UfSda23FxGmqN8OqKuWt+I6GWXMTc7BeMAzfEbr/AQ
+         TKL+aFx/6xMr6SjMxpff3aQvV/o8xLBipqwKnYQ40rDFLnDo1H/TSYtSFNNrPcuwTp
+         XVQ5uSKTcetmx1qzu3h+o4jrqxz6m8K6u1wfsA58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronald Wahl <ronald.wahl@raritan.com>,
-        Jose Alonso <joalonsof@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 208/287] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"
+        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
+        Xianting Tian <xianting.tian@linux.alibaba.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 218/244] RISC-V: Add fast call path of crash_kexec()
 Date:   Tue, 23 Aug 2022 10:26:17 +0200
-Message-Id: <20220823080107.925645984@linuxfoundation.org>
+Message-Id: <20220823080106.799832477@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Alonso <joalonsof@gmail.com>
+From: Xianting Tian <xianting.tian@linux.alibaba.com>
 
-commit 6fd2c17fb6e02a8c0ab51df1cfec82ce96b8e83d upstream.
+[ Upstream commit 3f1901110a89b0e2e13adb2ac8d1a7102879ea98 ]
 
-This reverts commit 36a15e1cb134c0395261ba1940762703f778438c.
+Currently, almost all archs (x86, arm64, mips...) support fast call
+of crash_kexec() when "regs && kexec_should_crash()" is true. But
+RISC-V not, it can only enter crash system via panic(). However panic()
+doesn't pass the regs of the real accident scene to crash_kexec(),
+it caused we can't get accurate backtrace via gdb,
+	$ riscv64-linux-gnu-gdb vmlinux vmcore
+	Reading symbols from vmlinux...
+	[New LWP 95]
+	#0  console_unlock () at kernel/printk/printk.c:2557
+	2557                    if (do_cond_resched)
+	(gdb) bt
+	#0  console_unlock () at kernel/printk/printk.c:2557
+	#1  0x0000000000000000 in ?? ()
 
-The usage of FLAG_SEND_ZLP causes problems to other firmware/hardware
-versions that have no issues.
+With the patch we can get the accurate backtrace,
+	$ riscv64-linux-gnu-gdb vmlinux vmcore
+	Reading symbols from vmlinux...
+	[New LWP 95]
+	#0  0xffffffe00063a4e0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
+	81             *(int *)p = 0xdead;
+	(gdb)
+	(gdb) bt
+	#0  0xffffffe00064d5c0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
+	#1  0x0000000000000000 in ?? ()
 
-The FLAG_SEND_ZLP is not safe to use in this context.
-See:
-https://patchwork.ozlabs.org/project/netdev/patch/1270599787.8900.8.camel@Linuxdev4-laptop/#118378
-The original problem needs another way to solve.
+Test code to produce NULL address dereference in test_crash.c,
+	void *p = NULL;
+	*(int *)p = 0xdead;
 
-Fixes: 36a15e1cb134 ("net: usb: ax88179_178a needs FLAG_SEND_ZLP")
-Cc: stable@vger.kernel.org
-Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216327
-Link: https://bugs.archlinux.org/task/75491
-Signed-off-by: Jose Alonso <joalonsof@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Tested-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20220606082308.2883458-1-xianting.tian@linux.alibaba.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/ax88179_178a.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/riscv/kernel/traps.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1706,7 +1706,7 @@ static const struct driver_info ax88179_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1719,7 +1719,7 @@ static const struct driver_info ax88178a
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1732,7 +1732,7 @@ static const struct driver_info cypress_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1745,7 +1745,7 @@ static const struct driver_info dlink_du
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1758,7 +1758,7 @@ static const struct driver_info sitecom_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1771,7 +1771,7 @@ static const struct driver_info samsung_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1784,7 +1784,7 @@ static const struct driver_info lenovo_i
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1797,7 +1797,7 @@ static const struct driver_info belkin_i
- 	.link_reset = ax88179_link_reset,
- 	.reset	= ax88179_reset,
- 	.stop	= ax88179_stop,
--	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
+diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
+index 0daaa3e4630d..b938ffe129d6 100644
+--- a/arch/riscv/kernel/traps.c
++++ b/arch/riscv/kernel/traps.c
+@@ -16,6 +16,7 @@
+ #include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/irq.h>
++#include <linux/kexec.h>
+ 
+ #include <asm/asm-prototypes.h>
+ #include <asm/bug.h>
+@@ -44,6 +45,9 @@ void die(struct pt_regs *regs, const char *str)
+ 
+ 	ret = notify_die(DIE_OOPS, str, regs, 0, regs->cause, SIGSEGV);
+ 
++	if (regs && kexec_should_crash(current))
++		crash_kexec(regs);
++
+ 	bust_spinlocks(0);
+ 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
+ 	spin_unlock_irq(&die_lock);
+-- 
+2.35.1
+
 
 
