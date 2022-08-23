@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78AC059DA01
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0593759D85C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352079AbiHWKE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:04:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44114 "EHLO
+        id S241691AbiHWJy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:54:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352614AbiHWKCM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:02:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81061A2615;
-        Tue, 23 Aug 2022 01:50:14 -0700 (PDT)
+        with ESMTP id S242564AbiHWJxx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:53:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E36F6E8A2;
+        Tue, 23 Aug 2022 01:46:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 858A661499;
-        Tue, 23 Aug 2022 08:50:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 908C3C433D6;
-        Tue, 23 Aug 2022 08:50:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4322B61499;
+        Tue, 23 Aug 2022 08:45:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D07CC433C1;
+        Tue, 23 Aug 2022 08:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244613;
-        bh=Sx7YHlC+iMKeMwWYo50W0TgzSYAvSksJ9vsSXpoXKBc=;
+        s=korg; t=1661244335;
+        bh=/+eRUPMPZDWrhSIl0FMK0dBhrrqdcIZx5ZENoVmu4KY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ghHvpV5gkn4qrhyl9Y1cgwNxWrw2H/H/w2GiTfJHF3pXU1/5ELcQ6euhh9tdlplEu
-         nOeg7ajiMZlLWKhKbNyA/ecWkILoam8zd3EyJxpvLorGhsWsC60mu0ZWoCve6YPhuL
-         cg4c2pzCL+NZkUTTPp92L7fOWA7ga9hrEK531ksQ=
+        b=JNE0I+humPVzjic7nZQqey3n0yMA+iqgJJhvqSp8KHJWbI/M2gguelXuFJceP1o1n
+         8BP4eTWQEa4WSXIVKCwjdju68Lt+QLP7Cw28Nd+zRdiQi2mfSChwUFgPYG/uY6VHiV
+         R7/hosLko1swpAX36KznlY6ebusL5kapMXUJ10Xk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 123/244] netfilter: nf_tables: use READ_ONCE and WRITE_ONCE for shared generation id access
+        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 121/229] profiling: fix shift too large makes kernel panic
 Date:   Tue, 23 Aug 2022 10:24:42 +0200
-Message-Id: <20220823080103.171945337@linuxfoundation.org>
+Message-Id: <20220823080058.031432587@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,109 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit 3400278328285a8c2f121904496aff5e7b610a01 upstream.
+[ Upstream commit 0fe6ee8f123a4dfb529a5aff07536bb481f34043 ]
 
-The generation ID is bumped from the commit path while holding the
-mutex, however, netlink dump operations rely on RCU.
+2d186afd04d6 ("profiling: fix shift-out-of-bounds bugs") limits shift
+value by [0, BITS_PER_LONG -1], which means [0, 63].
 
-This patch also adds missing cb->base_eq initialization in
-nf_tables_dump_set().
+However, syzbot found that the max shift value should be the bit number of
+(_etext - _stext).  If shift is outside of this, the "buffer_bytes" will
+be zero and will cause kzalloc(0).  Then the kernel panics due to
+dereferencing the returned pointer 16.
 
-Fixes: 38e029f14a97 ("netfilter: nf_tables: set NLM_F_DUMP_INTR if netlink dumping is stale")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This can be easily reproduced by passing a large number like 60 to enable
+profiling and then run readprofile.
+
+LOGS:
+ BUG: kernel NULL pointer dereference, address: 0000000000000010
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 6148067 P4D 6148067 PUD 6142067 PMD 0
+ PREEMPT SMP
+ CPU: 4 PID: 184 Comm: readprofile Not tainted 5.18.0+ #162
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
+ RIP: 0010:read_profile+0x104/0x220
+ RSP: 0018:ffffc900006fbe80 EFLAGS: 00000202
+ RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+ RDX: ffff888006150000 RSI: 0000000000000001 RDI: ffffffff82aba4a0
+ RBP: 000000000188bb60 R08: 0000000000000010 R09: ffff888006151000
+ R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff82aba4a0
+ R13: 0000000000000000 R14: ffffc900006fbf08 R15: 0000000000020c30
+ FS:  000000000188a8c0(0000) GS:ffff88803ed00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000010 CR3: 0000000006144000 CR4: 00000000000006e0
+ Call Trace:
+  <TASK>
+  proc_reg_read+0x56/0x70
+  vfs_read+0x9a/0x1b0
+  ksys_read+0xa1/0xe0
+  ? fpregs_assert_state_consistent+0x1e/0x40
+  do_syscall_64+0x3a/0x80
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+ RIP: 0033:0x4d4b4e
+ RSP: 002b:00007ffebb668d58 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+ RAX: ffffffffffffffda RBX: 000000000188a8a0 RCX: 00000000004d4b4e
+ RDX: 0000000000000400 RSI: 000000000188bb60 RDI: 0000000000000003
+ RBP: 0000000000000003 R08: 000000000000006e R09: 0000000000000000
+ R10: 0000000000000041 R11: 0000000000000246 R12: 000000000188bb60
+ R13: 0000000000000400 R14: 0000000000000000 R15: 000000000188bb60
+  </TASK>
+ Modules linked in:
+ CR2: 0000000000000010
+Killed
+ ---[ end trace 0000000000000000 ]---
+
+Check prof_len in profile_init() to prevent it be zero.
+
+Link: https://lkml.kernel.org/r/20220531012854.229439-1-chenzhongjin@huawei.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ kernel/profile.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -837,7 +837,7 @@ static int nf_tables_dump_tables(struct
+diff --git a/kernel/profile.c b/kernel/profile.c
+index efa58f63dc1b..7fc621404230 100644
+--- a/kernel/profile.c
++++ b/kernel/profile.c
+@@ -108,6 +108,13 @@ int __ref profile_init(void)
  
- 	rcu_read_lock();
- 	nft_net = nft_pernet(net);
--	cb->seq = nft_net->base_seq;
-+	cb->seq = READ_ONCE(nft_net->base_seq);
- 
- 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
- 		if (family != NFPROTO_UNSPEC && family != table->family)
-@@ -1626,7 +1626,7 @@ static int nf_tables_dump_chains(struct
- 
- 	rcu_read_lock();
- 	nft_net = nft_pernet(net);
--	cb->seq = nft_net->base_seq;
-+	cb->seq = READ_ONCE(nft_net->base_seq);
- 
- 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
- 		if (family != NFPROTO_UNSPEC && family != table->family)
-@@ -3054,7 +3054,7 @@ static int nf_tables_dump_rules(struct s
- 
- 	rcu_read_lock();
- 	nft_net = nft_pernet(net);
--	cb->seq = nft_net->base_seq;
-+	cb->seq = READ_ONCE(nft_net->base_seq);
- 
- 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
- 		if (family != NFPROTO_UNSPEC && family != table->family)
-@@ -4036,7 +4036,7 @@ static int nf_tables_dump_sets(struct sk
- 
- 	rcu_read_lock();
- 	nft_net = nft_pernet(net);
--	cb->seq = nft_net->base_seq;
-+	cb->seq = READ_ONCE(nft_net->base_seq);
- 
- 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
- 		if (ctx->family != NFPROTO_UNSPEC &&
-@@ -4964,6 +4964,8 @@ static int nf_tables_dump_set(struct sk_
- 
- 	rcu_read_lock();
- 	nft_net = nft_pernet(net);
-+	cb->seq = READ_ONCE(nft_net->base_seq);
+ 	/* only text is profiled */
+ 	prof_len = (_etext - _stext) >> prof_shift;
 +
- 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
- 		if (dump_ctx->ctx.family != NFPROTO_UNSPEC &&
- 		    dump_ctx->ctx.family != table->family)
-@@ -6796,7 +6798,7 @@ static int nf_tables_dump_obj(struct sk_
- 
- 	rcu_read_lock();
- 	nft_net = nft_pernet(net);
--	cb->seq = nft_net->base_seq;
-+	cb->seq = READ_ONCE(nft_net->base_seq);
- 
- 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
- 		if (family != NFPROTO_UNSPEC && family != table->family)
-@@ -7728,7 +7730,7 @@ static int nf_tables_dump_flowtable(stru
- 
- 	rcu_read_lock();
- 	nft_net = nft_pernet(net);
--	cb->seq = nft_net->base_seq;
-+	cb->seq = READ_ONCE(nft_net->base_seq);
- 
- 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
- 		if (family != NFPROTO_UNSPEC && family != table->family)
-@@ -8612,6 +8614,7 @@ static int nf_tables_commit(struct net *
- 	struct nft_trans_elem *te;
- 	struct nft_chain *chain;
- 	struct nft_table *table;
-+	unsigned int base_seq;
- 	LIST_HEAD(adl);
- 	int err;
- 
-@@ -8661,9 +8664,12 @@ static int nf_tables_commit(struct net *
- 	 * Bump generation counter, invalidate any dump in progress.
- 	 * Cannot fail after this point.
- 	 */
--	while (++nft_net->base_seq == 0)
-+	base_seq = READ_ONCE(nft_net->base_seq);
-+	while (++base_seq == 0)
- 		;
- 
-+	WRITE_ONCE(nft_net->base_seq, base_seq);
++	if (!prof_len) {
++		pr_warn("profiling shift: %u too large\n", prof_shift);
++		prof_on = 0;
++		return -EINVAL;
++	}
 +
- 	/* step 3. Start new generation, rules_gen_X now in use. */
- 	net->nft.gencursor = nft_gencursor_next(net);
+ 	buffer_bytes = prof_len*sizeof(atomic_t);
  
+ 	if (!alloc_cpumask_var(&prof_cpu_mask, GFP_KERNEL))
+-- 
+2.35.1
+
 
 
