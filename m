@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F43359E2E7
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4640D59DE28
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242679AbiHWLKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:10:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57720 "EHLO
+        id S242165AbiHWLKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356928AbiHWLJ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:09:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 104A8B600F;
-        Tue, 23 Aug 2022 02:16:35 -0700 (PDT)
+        with ESMTP id S1356962AbiHWLJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:09:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27F0D6DAEA;
+        Tue, 23 Aug 2022 02:16:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18E916122D;
-        Tue, 23 Aug 2022 09:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F48FC433C1;
-        Tue, 23 Aug 2022 09:16:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EF5B60F85;
+        Tue, 23 Aug 2022 09:16:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A971C433D6;
+        Tue, 23 Aug 2022 09:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246194;
-        bh=G88VyuaJY6zu5QACzDNnVCsG0jKFiacsIaEoFMegvaA=;
+        s=korg; t=1661246197;
+        bh=9A2z22znlbAYApTQ0zMZkzZR+kK9hXo38msPUj15JF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LpsUsg56RVBkZzONc3qN4mvI2WlWFQ3GhaDKsIs3HNLDtSW64u+ohzpbX/TXzrQEQ
-         3DZM25W+9Qvs029lxgs0oUv+qdXmfydj6aujiokD5I/OOIoweZI24z2wXVI2iHIvUf
-         vGTU+99EefoobMLMAjdIYUbMylt5ugQlgIWLdLRQ=
+        b=P5l5fKCZXvcBiPmFMj17q0JQfk+3+QUbzNv6mV+vRDbJG/wnexkcLfB0spQTzyR/p
+         GiVEnWcQCyrvHTabhhFUTDLNAXTO8CCW6K+Ufgwae6Mb/AAFzicfunITEEX4BIinkt
+         VnfsbZSBr0M+qdtmYzEY18WQ6jwamBbMeUS2oBKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Jeongik Cha <jeongik@google.com>
-Subject: [PATCH 5.4 007/389] wifi: mac80211_hwsim: add back erroneously removed cast
-Date:   Tue, 23 Aug 2022 10:21:25 +0200
-Message-Id: <20220823080115.958517669@linuxfoundation.org>
+Subject: [PATCH 5.4 008/389] wifi: mac80211_hwsim: use 32-bit skb cookie
+Date:   Tue, 23 Aug 2022 10:21:26 +0200
+Message-Id: <20220823080115.999701671@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -56,29 +55,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-commit 58b6259d820d63c2adf1c7541b54cce5a2ae6073 upstream.
+commit cc5250cdb43d444061412df7fae72d2b4acbdf97 upstream.
 
-The robots report that we're now casting to a differently
-sized integer, which is correct, and the previous patch
-had erroneously removed it.
+We won't really have enough skbs to need a 64-bit cookie,
+and on 32-bit platforms storing the 64-bit cookie into the
+void *rate_driver_data doesn't work anyway. Switch back to
+using just a 32-bit cookie and uintptr_t for the type to
+avoid compiler warnings about all this.
 
-Reported-by: kernel test robot <lkp@intel.com>
 Fixes: 4ee186fa7e40 ("wifi: mac80211_hwsim: fix race condition in pending packet")
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Cc: Jeongik Cha <jeongik@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mac80211_hwsim.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 --- a/drivers/net/wireless/mac80211_hwsim.c
 +++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -3289,7 +3289,7 @@ static int hwsim_tx_info_frame_received_
- 		u64 skb_cookie;
+@@ -527,7 +527,7 @@ struct mac80211_hwsim_data {
+ 	bool ps_poll_pending;
+ 	struct dentry *debugfs;
+ 
+-	atomic64_t pending_cookie;
++	atomic_t pending_cookie;
+ 	struct sk_buff_head pending;	/* packets pending */
+ 	/*
+ 	 * Only radios in the same group can communicate together (the
+@@ -1044,7 +1044,7 @@ static void mac80211_hwsim_tx_frame_nl(s
+ 	int i;
+ 	struct hwsim_tx_rate tx_attempts[IEEE80211_TX_MAX_RATES];
+ 	struct hwsim_tx_rate_flag tx_attempts_flags[IEEE80211_TX_MAX_RATES];
+-	u64 cookie;
++	uintptr_t cookie;
+ 
+ 	if (data->ps != PS_DISABLED)
+ 		hdr->frame_control |= cpu_to_le16(IEEE80211_FCTL_PM);
+@@ -1113,7 +1113,7 @@ static void mac80211_hwsim_tx_frame_nl(s
+ 		goto nla_put_failure;
+ 
+ 	/* We create a cookie to identify this skb */
+-	cookie = (u64)atomic64_inc_return(&data->pending_cookie);
++	cookie = atomic_inc_return(&data->pending_cookie);
+ 	info->rate_driver_data[0] = (void *)cookie;
+ 	if (nla_put_u64_64bit(skb, HWSIM_ATTR_COOKIE, cookie, HWSIM_ATTR_PAD))
+ 		goto nla_put_failure;
+@@ -3286,10 +3286,10 @@ static int hwsim_tx_info_frame_received_
+ 	/* look for the skb matching the cookie passed back from user */
+ 	spin_lock_irqsave(&data2->pending.lock, flags);
+ 	skb_queue_walk_safe(&data2->pending, skb, tmp) {
+-		u64 skb_cookie;
++		uintptr_t skb_cookie;
  
  		txi = IEEE80211_SKB_CB(skb);
--		skb_cookie = (u64)txi->rate_driver_data[0];
-+		skb_cookie = (u64)(uintptr_t)txi->rate_driver_data[0];
+-		skb_cookie = (u64)(uintptr_t)txi->rate_driver_data[0];
++		skb_cookie = (uintptr_t)txi->rate_driver_data[0];
  
  		if (skb_cookie == ret_skb_cookie) {
  			__skb_unlink(skb, &data2->pending);
