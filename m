@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 187D359D374
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F1C159D343
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242100AbiHWIMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:12:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58048 "EHLO
+        id S242073AbiHWIMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:12:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242011AbiHWIK1 (ORCPT
+        with ESMTP id S242013AbiHWIK1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:10:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C27F22;
-        Tue, 23 Aug 2022 01:06:59 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E2726E2;
+        Tue, 23 Aug 2022 01:07:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00731611DD;
-        Tue, 23 Aug 2022 08:06:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A2FC433D6;
-        Tue, 23 Aug 2022 08:06:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F472610AA;
+        Tue, 23 Aug 2022 08:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 119ECC433D6;
+        Tue, 23 Aug 2022 08:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242018;
-        bh=Avg86YgDdyu2v0jtz82RqyS8CWRkcNshlaeC/O9+9Gc=;
+        s=korg; t=1661242024;
+        bh=uPEDf+H+9p9j/UybwHupxb1s2C5Sf1klNm8f8v4Kf9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OjqIUux0NPxSwsj6qY2ajFXkfflhYrGik6rVUHJTpzhxMzA/Cu09blkkz2LBjbEeI
-         W0QXGhVG3cehT4eCtelUxR8CBAMQjNoMKLGIE+RQGD09hM9IbFZhRLymCFE8KYo9gW
-         DGAhlshLOyLATdtGwcNGz7TsTsGmZ10UwhehdisQ=
+        b=EO4HxgJyQ47HBDvudo5QRRhUgSSjNNXvIkyXh7+Rkmk5Fkp5o7EUd8Zy0a3oRNKCk
+         csrQZREEXzFlCBeUmBOHx1wB1PyZlb5WE2SsJMtKBgRRLyNAongPFDQA9B8SxVqKoX
+         y0u3PF8ky/dxhn44g+OOJeXYZwEztDrjUMpIePAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.19 046/365] apparmor: fix overlapping attachment computation
-Date:   Tue, 23 Aug 2022 09:59:07 +0200
-Message-Id: <20220823080120.110374303@linuxfoundation.org>
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.19 047/365] apparmor: fix reference count leak in aa_pivotroot()
+Date:   Tue, 23 Aug 2022 09:59:08 +0200
+Message-Id: <20220823080120.151196726@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -52,46 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-commit 2504db207146543736e877241f3b3de005cbe056 upstream.
+commit 11c3627ec6b56c1525013f336f41b79a983b4d46 upstream.
 
-When finding the profile via patterned attachments, the longest left
-match is being set to the static compile time value and not using the
-runtime computed value.
+The aa_pivotroot() function has a reference counting bug in a specific
+path. When aa_replace_current_label() returns on success, the function
+forgets to decrement the reference count of “target”, which is
+increased earlier by build_pivotroot(), causing a reference leak.
 
-Fix this by setting the candidate value to the greater of the
-precomputed value or runtime computed value.
+Fix it by decreasing the refcount of “target” in that path.
 
-Fixes: 21f606610502 ("apparmor: improve overlapping domain attachment resolution")
+Fixes: 2ea3ffb7782a ("apparmor: add mount mediation")
+Co-developed-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Co-developed-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
 Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/apparmor/domain.c         |    2 +-
- security/apparmor/include/policy.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ security/apparmor/mount.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/security/apparmor/domain.c
-+++ b/security/apparmor/domain.c
-@@ -466,7 +466,7 @@ restart:
- 				 * xattrs, or a longer match
- 				 */
- 				candidate = profile;
--				candidate_len = profile->xmatch_len;
-+				candidate_len = max(count, profile->xmatch_len);
- 				candidate_xattrs = ret;
- 				conflict = false;
- 			}
---- a/security/apparmor/include/policy.h
-+++ b/security/apparmor/include/policy.h
-@@ -135,7 +135,7 @@ struct aa_profile {
- 
- 	const char *attach;
- 	struct aa_dfa *xmatch;
--	int xmatch_len;
-+	unsigned int xmatch_len;
- 	enum audit_mode audit;
- 	long mode;
- 	u32 path_flags;
+--- a/security/apparmor/mount.c
++++ b/security/apparmor/mount.c
+@@ -719,6 +719,7 @@ int aa_pivotroot(struct aa_label *label,
+ 			aa_put_label(target);
+ 			goto out;
+ 		}
++		aa_put_label(target);
+ 	} else
+ 		/* already audited error */
+ 		error = PTR_ERR(target);
 
 
