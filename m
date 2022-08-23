@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18AB559DD12
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E7D659E19C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359178AbiHWMDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57140 "EHLO
+        id S1358080AbiHWLn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:43:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359857AbiHWMCo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CB5EDC083;
-        Tue, 23 Aug 2022 02:36:50 -0700 (PDT)
+        with ESMTP id S1358505AbiHWLl6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:41:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E7D6CD522;
+        Tue, 23 Aug 2022 02:29:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA908B81C96;
-        Tue, 23 Aug 2022 09:36:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07035C433D6;
-        Tue, 23 Aug 2022 09:36:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4D78B81C89;
+        Tue, 23 Aug 2022 09:29:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 102BCC433D7;
+        Tue, 23 Aug 2022 09:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247392;
-        bh=wAb9caDwUzbk7UBhI7cFlk+Z8maI1Aajsuhg8IEI720=;
+        s=korg; t=1661246966;
+        bh=B3zGsGDfwsKUCKjNNbNoQ75m+V5P0+MQ8gQ4lFU8/9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SvtnU8dDkL6IkfoD7/uAtQ0C8Qtd/H0RD+c7BEDTUS0HwtD8rSYscJ9gAzu48uozQ
-         qXD2XCFzY+L5mjLTLm2wcCHwayW8q4xUEAv8xJj/ywSeV/qPOoMqiDwtSyVCDTmrvJ
-         ZTwdghWsX0bRyaXOG/NvdDMOiLCsQ/ibF201a9Fw=
+        b=xyUnKTOiHC0nvrRgGcT3nrbCm9iqQnCBtYa8YTuJ+0d2apczRLt76l10JvrzjKyI6
+         42o23cd/hnrDZytYlzkLQ32SQSy6aiZQ0MPv59ltTl/S6FFjjIbtXQykrQ6YzBhFCn
+         gRezXLitmTEiKRnIdPIGL3FqNULdc0pSuiW1u9lU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qifu Zhang <zhangqifu@bytedance.com>,
-        Tony Luck <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 021/158] Documentation: ACPI: EINJ: Fix obsolete example
-Date:   Tue, 23 Aug 2022 10:25:53 +0200
-Message-Id: <20220823080046.936596544@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 276/389] btrfs: reject log replay if there is unsupported RO compat flag
+Date:   Tue, 23 Aug 2022 10:25:54 +0200
+Message-Id: <20220823080127.064820431@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qifu Zhang <zhangqifu@bytedance.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 9066e151c37950af92c3be6a7270daa8e8063db9 upstream.
+commit dc4d31684974d140250f3ee612c3f0cab13b3146 upstream.
 
-Since commit 488dac0c9237 ("libfs: fix error cast of negative value in
-simple_attr_write()"), the EINJ debugfs interface no longer accepts
-negative values as input. Attempt to do so will result in EINVAL.
+[BUG]
+If we have a btrfs image with dirty log, along with an unsupported RO
+compatible flag:
 
-Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
-Signed-off-by: Qifu Zhang <zhangqifu@bytedance.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+log_root		30474240
+...
+compat_flags		0x0
+compat_ro_flags		0x40000003
+			( FREE_SPACE_TREE |
+			  FREE_SPACE_TREE_VALID |
+			  unknown flag: 0x40000000 )
+
+Then even if we can only mount it RO, we will still cause metadata
+update for log replay:
+
+  BTRFS info (device dm-1): flagging fs with big metadata feature
+  BTRFS info (device dm-1): using free space tree
+  BTRFS info (device dm-1): has skinny extents
+  BTRFS info (device dm-1): start tree-log replay
+
+This is definitely against RO compact flag requirement.
+
+[CAUSE]
+RO compact flag only forces us to do RO mount, but we will still do log
+replay for plain RO mount.
+
+Thus this will result us to do log replay and update metadata.
+
+This can be very problematic for new RO compat flag, for example older
+kernel can not understand v2 cache, and if we allow metadata update on
+RO mount and invalidate/corrupt v2 cache.
+
+[FIX]
+Just reject the mount unless rescue=nologreplay is provided:
+
+  BTRFS error (device dm-1): cannot replay dirty log with unsupport optional features (0x40000000), try rescue=nologreplay instead
+
+We don't want to set rescue=nologreply directly, as this would make the
+end user to read the old data, and cause confusion.
+
+Since the such case is really rare, we're mostly fine to just reject the
+mount with an error message, which also includes the proper workaround.
+
+CC: stable@vger.kernel.org #4.9+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/firmware-guide/acpi/apei/einj.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/Documentation/firmware-guide/acpi/apei/einj.rst
-+++ b/Documentation/firmware-guide/acpi/apei/einj.rst
-@@ -168,7 +168,7 @@ An error injection example::
-   0x00000008	Memory Correctable
-   0x00000010	Memory Uncorrectable non-fatal
-   # echo 0x12345000 > param1		# Set memory address for injection
--  # echo $((-1 << 12)) > param2		# Mask 0xfffffffffffff000 - anywhere in this page
-+  # echo 0xfffffffffffff000 > param2		# Mask - anywhere in this page
-   # echo 0x8 > error_type			# Choose correctable memory error
-   # echo 1 > error_inject			# Inject now
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2970,6 +2970,20 @@ int open_ctree(struct super_block *sb,
+ 		err = -EINVAL;
+ 		goto fail_csum;
+ 	}
++	/*
++	 * We have unsupported RO compat features, although RO mounted, we
++	 * should not cause any metadata write, including log replay.
++	 * Or we could screw up whatever the new feature requires.
++	 */
++	if (unlikely(features && btrfs_super_log_root(disk_super) &&
++		     !btrfs_test_opt(fs_info, NOLOGREPLAY))) {
++		btrfs_err(fs_info,
++"cannot replay dirty log with unsupported compat_ro features (0x%llx), try rescue=nologreplay",
++			  features);
++		err = -EINVAL;
++		goto fail_alloc;
++	}
++
  
+ 	ret = btrfs_init_workqueues(fs_info, fs_devices);
+ 	if (ret) {
 
 
