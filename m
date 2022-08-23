@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 302EF59E2F1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23B4B59DEE9
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242516AbiHWLT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38554 "EHLO
+        id S244013AbiHWLRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356311AbiHWLRP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D4FBD778;
-        Tue, 23 Aug 2022 02:20:39 -0700 (PDT)
+        with ESMTP id S1347074AbiHWLRN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D799167DE;
+        Tue, 23 Aug 2022 02:20:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E3CAB81C63;
-        Tue, 23 Aug 2022 09:20:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E88F9C433C1;
-        Tue, 23 Aug 2022 09:20:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9883AB8105C;
+        Tue, 23 Aug 2022 09:20:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0605EC433C1;
+        Tue, 23 Aug 2022 09:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246437;
-        bh=yPRFFP0CPKXd7d6vq5NGO9PxC/dmCOE9DsQ2DO3UFlA=;
+        s=korg; t=1661246440;
+        bh=IkKoX6a/t9ES6fnQYu87BdIaOWtA/yzxL2+UmbVGEI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oORvnnsCAfCUzJBvgMRAvI+7JkqLlL60q61utl+WLJ8Xd3uB8kZ2ZqWyBoh3bALuD
-         +0vlENNniCEAKemfEOIJcecvsnmFiR70UWwAIGQHZcscM5jkIsOieDaOhafqfXStbt
-         7SYGJDnm3Ij/zlRejLgg7db0Amz0fEyje/EES+cs=
+        b=Koh3br/8gIUzE+ifDtvyRhPtQ4TLtrOdZ/eaKNwKsx9IxqwdB8/6s9EI5Sf05ykEb
+         WKQ7fhb/XB9Sx+CL0R/7xJj92qtaAirZJDZFWS5+dsLzOzJZ9OW2YpL97fCBwF7FYF
+         LLm7/nEO0YnT7x3hGWMZ/HV/ACixo4DrLeqv1uck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Qian Cai <quic_qiancai@quicinc.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 110/389] drm/vc4: dsi: Correct DSI divider calculations
-Date:   Tue, 23 Aug 2022 10:23:08 +0200
-Message-Id: <20220823080120.211276663@linuxfoundation.org>
+Subject: [PATCH 5.4 111/389] crypto: arm64/gcm - Select AEAD for GHASH_ARM64_CE
+Date:   Tue, 23 Aug 2022 10:23:09 +0200
+Message-Id: <20220823080120.251674858@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -55,49 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+From: Qian Cai <quic_qiancai@quicinc.com>
 
-[ Upstream commit 3b45eee87da171caa28f61240ddb5c21170cda53 ]
+[ Upstream commit fac76f2260893dde5aa05bb693b4c13e8ed0454b ]
 
-The divider calculations tried to find the divider just faster than the
-clock requested. However if it required a divider of 7 then the for loop
-aborted without handling the "error" case, and could end up with a clock
-lower than requested.
+Otherwise, we could fail to compile.
 
-The integer divider from parent PLL to DSI clock is also capable of
-going up to /255, not just /7 that the driver was trying.  This allows
-for slower link frequencies on the DSI bus where the resolution permits.
+ld: arch/arm64/crypto/ghash-ce-glue.o: in function 'ghash_ce_mod_exit':
+ghash-ce-glue.c:(.exit.text+0x24): undefined reference to 'crypto_unregister_aead'
+ld: arch/arm64/crypto/ghash-ce-glue.o: in function 'ghash_ce_mod_init':
+ghash-ce-glue.c:(.init.text+0x34): undefined reference to 'crypto_register_aead'
 
-Correct the loop so that we always have a clock greater than requested,
-and covering the whole range of dividers.
-
-Fixes: 86c1b9eff3f2 ("drm/vc4: Adjust modes in DSI to work around the integer PLL divider.")
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://lore.kernel.org/r/20220613144800.326124-13-maxime@cerno.tech
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Fixes: 537c1445ab0b ("crypto: arm64/gcm - implement native driver using v8 Crypto Extensions")
+Signed-off-by: Qian Cai <quic_qiancai@quicinc.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_dsi.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/arm64/crypto/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_dsi.c b/drivers/gpu/drm/vc4/vc4_dsi.c
-index 0983949cc8c9..e249ab378700 100644
---- a/drivers/gpu/drm/vc4/vc4_dsi.c
-+++ b/drivers/gpu/drm/vc4/vc4_dsi.c
-@@ -791,11 +791,9 @@ static bool vc4_dsi_encoder_mode_fixup(struct drm_encoder *encoder,
- 	/* Find what divider gets us a faster clock than the requested
- 	 * pixel clock.
- 	 */
--	for (divider = 1; divider < 8; divider++) {
--		if (parent_rate / divider < pll_clock) {
--			divider--;
-+	for (divider = 1; divider < 255; divider++) {
-+		if (parent_rate / (divider + 1) < pll_clock)
- 			break;
--		}
- 	}
+diff --git a/arch/arm64/crypto/Kconfig b/arch/arm64/crypto/Kconfig
+index 4922c4451e7c..99cddf1145c2 100644
+--- a/arch/arm64/crypto/Kconfig
++++ b/arch/arm64/crypto/Kconfig
+@@ -59,6 +59,7 @@ config CRYPTO_GHASH_ARM64_CE
+ 	select CRYPTO_HASH
+ 	select CRYPTO_GF128MUL
+ 	select CRYPTO_LIB_AES
++	select CRYPTO_AEAD
  
- 	/* Now that we've picked a PLL divider, calculate back to its
+ config CRYPTO_CRCT10DIF_ARM64_CE
+ 	tristate "CRCT10DIF digest algorithm using PMULL instructions"
 -- 
 2.35.1
 
