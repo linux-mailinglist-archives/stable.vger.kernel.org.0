@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF2E959E0A8
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73C5259DE53
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352489AbiHWKJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:09:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58194 "EHLO
+        id S1357699AbiHWLiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:38:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352407AbiHWKHc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:07:32 -0400
+        with ESMTP id S1358012AbiHWLgg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:36:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A2C48E9E;
-        Tue, 23 Aug 2022 01:54:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95B6BC7F8A;
+        Tue, 23 Aug 2022 02:27:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 322F7B81C39;
-        Tue, 23 Aug 2022 08:54:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BD92C433C1;
-        Tue, 23 Aug 2022 08:54:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DF63B81C89;
+        Tue, 23 Aug 2022 09:27:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0245C433B5;
+        Tue, 23 Aug 2022 09:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244850;
-        bh=0pbObdzox6CbrcgRjPxsv/HH0bIFHIjmUHHJFWXZ/p4=;
+        s=korg; t=1661246861;
+        bh=xIKOzEbAHX9r+GH4VZhr1OOjANvkwjV7THn/VhsTL20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZkUgonVhrNby4KGEiwrX1qaWkUIkRaV6kWmdyy9m5w7muTCayKhGdVFi0gaYZgb5
-         b223s0uoxGJl6xfCiMkUFJirK62WX+heZT2RLRo/EyXhFKqQZF3UM4pHzIJq+YpXRF
-         THE3hO+l1+Zkiw+iukebJwRtiTfI6lWVz3H6VcfA=
+        b=IcF3wwR1+GJ2tqeVzlCcCa+iBO7wXTZW7GfeG4CHNu81ZJEo6/8QgkXdueG1uriZy
+         k+2plz5VQpjdoHVuFTJGvYPv2fSzLqriejda8kZpuq9wEH2Y3lI1606+rkA+BpXlRI
+         V4GdH+dMUtYZRPhGIwLtPQIJabXDeDSrmrIjrUUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Jin <tao-j@outlook.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 162/244] HID: multitouch: new device class fix Lenovo X12 trackpad sticky
-Date:   Tue, 23 Aug 2022 10:25:21 +0200
-Message-Id: <20220823080104.611415335@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 244/389] tools/thermal: Fix possible path truncations
+Date:   Tue, 23 Aug 2022 10:25:22 +0200
+Message-Id: <20220823080125.757795136@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Jin <tao-j@outlook.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 54eed5c7b938dc4ef6b14d4ee048bbdafdbce352 ]
+[ Upstream commit 6c58cf40e3a1d2f47c09d3489857e9476316788a ]
 
-The trackpad of the given device sends continuous report of pointers
-status as per wxn8 spec. However, the spec did not clarify when the
-fingers are lifted so fast that between the interval of two report
-frames fingers on pad reduced from >=2 to 0. The second last report
-contains >=2 fingers with tip state 1 and the last report contains only
-1 finger with tip state 0. Although this can happen unfrequently, a
-  quick fix will be improve the consistency to 100%. A quick fix is to
-disable MT_QUIRK_ALWAYS_VALID and enable MT_QUIRK_NOT_SEEN_MEANS_UP.
+A build with -D_FORTIFY_SOURCE=2 enabled will produce the following warnings:
 
-Test for hid-tools is added in [1]
+sysfs.c:63:30: warning: '%s' directive output may be truncated writing up to 255 bytes into a region of size between 0 and 255 [-Wformat-truncation=]
+  snprintf(filepath, 256, "%s/%s", path, filename);
+                              ^~
+Bump up the buffer to PATH_MAX which is the limit and account for all of
+the possible NUL and separators that could lead to exceeding the
+allocated buffer sizes.
 
-In addition to this, I2C device 04CA:00B1 may also need similar class
-but with MT_QUIRK_FORCE_MULTI_INPUT disabled (but it does not harm to
- enable it on non-multi-input device either). The respective owner has
-been notified and a patch may coming soon after test.
-
-[1]: https://gitlab.freedesktop.org/libevdev/hid-tools/-/merge_requests/130
-
-Signed-off-by: Tao Jin <tao-j@outlook.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 94f69966faf8 ("tools/thermal: Introduce tmon, a tool for thermal subsystem")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-multitouch.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ tools/thermal/tmon/sysfs.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index f382444dc2db..a14c48de4446 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -194,6 +194,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
- #define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
- #define MT_CLS_WIN_8_DISABLE_WAKEUP		0x0016
- #define MT_CLS_WIN_8_NO_STICKY_FINGERS		0x0017
-+#define MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU	0x0018
+diff --git a/tools/thermal/tmon/sysfs.c b/tools/thermal/tmon/sysfs.c
+index b00b1bfd9d8e..cb1108bc9249 100644
+--- a/tools/thermal/tmon/sysfs.c
++++ b/tools/thermal/tmon/sysfs.c
+@@ -13,6 +13,7 @@
+ #include <stdint.h>
+ #include <dirent.h>
+ #include <libintl.h>
++#include <limits.h>
+ #include <ctype.h>
+ #include <time.h>
+ #include <syslog.h>
+@@ -33,9 +34,9 @@ int sysfs_set_ulong(char *path, char *filename, unsigned long val)
+ {
+ 	FILE *fd;
+ 	int ret = -1;
+-	char filepath[256];
++	char filepath[PATH_MAX + 2]; /* NUL and '/' */
  
- /* vendor specific classes */
- #define MT_CLS_3M				0x0101
-@@ -286,6 +287,15 @@ static const struct mt_class mt_classes[] = {
- 			MT_QUIRK_WIN8_PTP_BUTTONS |
- 			MT_QUIRK_FORCE_MULTI_INPUT,
- 		.export_all_inputs = true },
-+	{ .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
-+		.quirks = MT_QUIRK_IGNORE_DUPLICATES |
-+			MT_QUIRK_HOVERING |
-+			MT_QUIRK_CONTACT_CNT_ACCURATE |
-+			MT_QUIRK_STICKY_FINGERS |
-+			MT_QUIRK_WIN8_PTP_BUTTONS |
-+			MT_QUIRK_FORCE_MULTI_INPUT |
-+			MT_QUIRK_NOT_SEEN_MEANS_UP,
-+		.export_all_inputs = true },
- 	{ .name = MT_CLS_WIN_8_DISABLE_WAKEUP,
- 		.quirks = MT_QUIRK_ALWAYS_VALID |
- 			MT_QUIRK_IGNORE_DUPLICATES |
-@@ -783,6 +793,7 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		case HID_DG_CONFIDENCE:
- 			if ((cls->name == MT_CLS_WIN_8 ||
- 			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
-+			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU ||
- 			     cls->name == MT_CLS_WIN_8_DISABLE_WAKEUP) &&
- 				(field->application == HID_DG_TOUCHPAD ||
- 				 field->application == HID_DG_TOUCHSCREEN))
-@@ -2033,7 +2044,7 @@ static const struct hid_device_id mt_devices[] = {
- 			   USB_DEVICE_ID_LENOVO_X1_TAB3) },
+-	snprintf(filepath, 256, "%s/%s", path, filename);
++	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
  
- 	/* Lenovo X12 TAB Gen 1 */
--	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
- 		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
- 			   USB_VENDOR_ID_LENOVO,
- 			   USB_DEVICE_ID_LENOVO_X12_TAB) },
+ 	fd = fopen(filepath, "w");
+ 	if (!fd) {
+@@ -57,9 +58,9 @@ static int sysfs_get_ulong(char *path, char *filename, unsigned long *p_ulong)
+ {
+ 	FILE *fd;
+ 	int ret = -1;
+-	char filepath[256];
++	char filepath[PATH_MAX + 2]; /* NUL and '/' */
+ 
+-	snprintf(filepath, 256, "%s/%s", path, filename);
++	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
+ 
+ 	fd = fopen(filepath, "r");
+ 	if (!fd) {
+@@ -76,9 +77,9 @@ static int sysfs_get_string(char *path, char *filename, char *str)
+ {
+ 	FILE *fd;
+ 	int ret = -1;
+-	char filepath[256];
++	char filepath[PATH_MAX + 2]; /* NUL and '/' */
+ 
+-	snprintf(filepath, 256, "%s/%s", path, filename);
++	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
+ 
+ 	fd = fopen(filepath, "r");
+ 	if (!fd) {
+@@ -199,8 +200,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
+ {
+ 	unsigned long trip_instance = 0;
+ 	char cdev_name_linked[256];
+-	char cdev_name[256];
+-	char cdev_trip_name[256];
++	char cdev_name[PATH_MAX];
++	char cdev_trip_name[PATH_MAX];
+ 	int cdev_id;
+ 
+ 	if (nl->d_type == DT_LNK) {
+@@ -213,7 +214,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
+ 			return -EINVAL;
+ 		}
+ 		/* find the link to real cooling device record binding */
+-		snprintf(cdev_name, 256, "%s/%s", tz_name, nl->d_name);
++		snprintf(cdev_name, sizeof(cdev_name) - 2, "%s/%s",
++			 tz_name, nl->d_name);
+ 		memset(cdev_name_linked, 0, sizeof(cdev_name_linked));
+ 		if (readlink(cdev_name, cdev_name_linked,
+ 				sizeof(cdev_name_linked) - 1) != -1) {
+@@ -226,8 +228,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
+ 			/* find the trip point in which the cdev is binded to
+ 			 * in this tzone
+ 			 */
+-			snprintf(cdev_trip_name, 256, "%s%s", nl->d_name,
+-				"_trip_point");
++			snprintf(cdev_trip_name, sizeof(cdev_trip_name) - 1,
++				"%s%s", nl->d_name, "_trip_point");
+ 			sysfs_get_ulong(tz_name, cdev_trip_name,
+ 					&trip_instance);
+ 			/* validate trip point range, e.g. trip could return -1
 -- 
 2.35.1
 
