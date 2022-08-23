@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7995B59D1F6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 09:25:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C091059D22C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 09:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240205AbiHWHZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 03:25:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58802 "EHLO
+        id S240990AbiHWH3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 03:29:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233020AbiHWHZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 03:25:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 773FE62A93;
-        Tue, 23 Aug 2022 00:25:37 -0700 (PDT)
+        with ESMTP id S241082AbiHWH2r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 03:28:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39CEDE0B8
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 00:28:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 289A0B81BDB;
-        Tue, 23 Aug 2022 07:25:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A338C433D6;
-        Tue, 23 Aug 2022 07:25:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D9B561521
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 07:28:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307F6C433D6;
+        Tue, 23 Aug 2022 07:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661239534;
-        bh=58Xb+4i5V/oco9O7BavXUkLRRYHB+58DLbXicNZDwh4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pjTr/Z6SvB4TmFzMxTfi4ZLz2yva0Pmx+Rx4GcRvdiO3jgYYYfnFpQxYAU9ieczXX
-         uNjwd8sTRcPzn35myL47BwZ5xGyR1WQXMS9eyUrUQZVFA6/+6LmKYr4oZ50Ex+AvTd
-         RresWZXixK4Wa+E2pudBmcywk+jdu6j/UYacXUSk=
-Date:   Tue, 23 Aug 2022 09:25:31 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pu Lehui <pulehui@huawei.com>
-Cc:     bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: Re: [PATCH 5.10] bpf: Fix KASAN use-after-free Read in
- compute_effective_progs
-Message-ID: <YwSA65p3f8kV8TEM@kroah.com>
-References: <20220820050518.2118130-1-pulehui@huawei.com>
+        s=korg; t=1661239710;
+        bh=YGmh1oLnttke3ZGRrO+ovvKC0KrFsckgzUz2BFUzs0Q=;
+        h=Subject:To:From:Date:From;
+        b=SvgdwlfXaqCHTwSiMd4G1mk0PUwNy49AV/w2IcjgnNBjEkLPKVBgFLRPZbFfS0iyj
+         dbRs9YED1DUz21BeLK69Ch1Y+rLLeUfISPONRO+bbMofkdi7rUMIuZhl2rxZQbxoJC
+         2dxs0c9tKUKTvufbwqiQbnfrD1HC31Wv0E1A3A38=
+Subject: patch "Revert "usb: typec: ucsi: add a common function" added to usb-linus
+To:     tiwai@suse.de, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 23 Aug 2022 09:28:27 +0200
+Message-ID: <16612397076532@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220820050518.2118130-1-pulehui@huawei.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -54,39 +47,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 20, 2022 at 01:05:18PM +0800, Pu Lehui wrote:
-> From: Tadeusz Struk <tadeusz.struk@linaro.org>
-> 
-> commit 4c46091ee985ae84c60c5e95055d779fcd291d87 upstream.
-> 
-> Syzbot found a Use After Free bug in compute_effective_progs().
-> The reproducer creates a number of BPF links, and causes a fault
-> injected alloc to fail, while calling bpf_link_detach on them.
-> Link detach triggers the link to be freed by bpf_link_free(),
-> which calls __cgroup_bpf_detach() and update_effective_progs().
-> If the memory allocation in this function fails, the function restores
-> the pointer to the bpf_cgroup_link on the cgroup list, but the memory
-> gets freed just after it returns. After this, every subsequent call to
-> update_effective_progs() causes this already deallocated pointer to be
-> dereferenced in prog_list_length(), and triggers KASAN UAF error.
-> 
-> To fix this issue don't preserve the pointer to the prog or link in the
-> list, but remove it and replace it with a dummy prog without shrinking
-> the table. The subsequent call to __cgroup_bpf_detach() or
-> __cgroup_bpf_detach() will correct it.
-> 
-> Fixes: af6eea57437a ("bpf: Implement bpf_link-based cgroup BPF program attachment")
-> Reported-by: <syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com>
-> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-> Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-> Cc: <stable@vger.kernel.org>
-> Link: https://syzkaller.appspot.com/bug?id=8ebf179a95c2a2670f7cf1ba62429ec044369db4
-> Link: https://lore.kernel.org/bpf/20220517180420.87954-1-tadeusz.struk@linaro.org
-> Signed-off-by: Pu Lehui <pulehui@huawei.com>
-> ---
->  kernel/bpf/cgroup.c | 70 ++++++++++++++++++++++++++++++++++++++-------
->  1 file changed, 60 insertions(+), 10 deletions(-)
 
-Now queued up, thanks.
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    Revert "usb: typec: ucsi: add a common function
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 5f73aa2cf8bef4a39baa1591c3144ede4788826e Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Tue, 23 Aug 2022 08:54:55 +0200
+Subject: Revert "usb: typec: ucsi: add a common function
+ ucsi_unregister_connectors()"
+
+The recent commit 87d0e2f41b8c ("usb: typec: ucsi: add a common
+function ucsi_unregister_connectors()") introduced a regression that
+caused NULL dereference at reading the power supply sysfs.  It's a
+stale sysfs entry that should have been removed but remains with NULL
+ops.  The commit changed the error handling to skip the entries after
+a NULL con->wq, and this leaves the power device unreleased.
+
+For addressing the regression, the straight revert is applied here.
+Further code improvements can be done from the scratch again.
+
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1202386
+Link: https://lore.kernel.org/r/87r11cmbx0.wl-tiwai@suse.de
+Fixes: 87d0e2f41b8c ("usb: typec: ucsi: add a common function ucsi_unregister_connectors()")
+Cc: <stable@vger.kernel.org>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20220823065455.32579-1-tiwai@suse.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/typec/ucsi/ucsi.c | 53 ++++++++++++++++-------------------
+ 1 file changed, 24 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+index 1aea46493b85..7f2624f42724 100644
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -1200,32 +1200,6 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
+ 	return ret;
+ }
+ 
+-static void ucsi_unregister_connectors(struct ucsi *ucsi)
+-{
+-	struct ucsi_connector *con;
+-	int i;
+-
+-	if (!ucsi->connector)
+-		return;
+-
+-	for (i = 0; i < ucsi->cap.num_connectors; i++) {
+-		con = &ucsi->connector[i];
+-
+-		if (!con->wq)
+-			break;
+-
+-		cancel_work_sync(&con->work);
+-		ucsi_unregister_partner(con);
+-		ucsi_unregister_altmodes(con, UCSI_RECIPIENT_CON);
+-		ucsi_unregister_port_psy(con);
+-		destroy_workqueue(con->wq);
+-		typec_unregister_port(con->port);
+-	}
+-
+-	kfree(ucsi->connector);
+-	ucsi->connector = NULL;
+-}
+-
+ /**
+  * ucsi_init - Initialize UCSI interface
+  * @ucsi: UCSI to be initialized
+@@ -1234,6 +1208,7 @@ static void ucsi_unregister_connectors(struct ucsi *ucsi)
+  */
+ static int ucsi_init(struct ucsi *ucsi)
+ {
++	struct ucsi_connector *con;
+ 	u64 command;
+ 	int ret;
+ 	int i;
+@@ -1264,7 +1239,7 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	}
+ 
+ 	/* Allocate the connectors. Released in ucsi_unregister() */
+-	ucsi->connector = kcalloc(ucsi->cap.num_connectors,
++	ucsi->connector = kcalloc(ucsi->cap.num_connectors + 1,
+ 				  sizeof(*ucsi->connector), GFP_KERNEL);
+ 	if (!ucsi->connector) {
+ 		ret = -ENOMEM;
+@@ -1288,7 +1263,15 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	return 0;
+ 
+ err_unregister:
+-	ucsi_unregister_connectors(ucsi);
++	for (con = ucsi->connector; con->port; con++) {
++		ucsi_unregister_partner(con);
++		ucsi_unregister_altmodes(con, UCSI_RECIPIENT_CON);
++		ucsi_unregister_port_psy(con);
++		if (con->wq)
++			destroy_workqueue(con->wq);
++		typec_unregister_port(con->port);
++		con->port = NULL;
++	}
+ 
+ err_reset:
+ 	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
+@@ -1402,6 +1385,7 @@ EXPORT_SYMBOL_GPL(ucsi_register);
+ void ucsi_unregister(struct ucsi *ucsi)
+ {
+ 	u64 cmd = UCSI_SET_NOTIFICATION_ENABLE;
++	int i;
+ 
+ 	/* Make sure that we are not in the middle of driver initialization */
+ 	cancel_delayed_work_sync(&ucsi->work);
+@@ -1409,7 +1393,18 @@ void ucsi_unregister(struct ucsi *ucsi)
+ 	/* Disable notifications */
+ 	ucsi->ops->async_write(ucsi, UCSI_CONTROL, &cmd, sizeof(cmd));
+ 
+-	ucsi_unregister_connectors(ucsi);
++	for (i = 0; i < ucsi->cap.num_connectors; i++) {
++		cancel_work_sync(&ucsi->connector[i].work);
++		ucsi_unregister_partner(&ucsi->connector[i]);
++		ucsi_unregister_altmodes(&ucsi->connector[i],
++					 UCSI_RECIPIENT_CON);
++		ucsi_unregister_port_psy(&ucsi->connector[i]);
++		if (ucsi->connector[i].wq)
++			destroy_workqueue(ucsi->connector[i].wq);
++		typec_unregister_port(ucsi->connector[i].port);
++	}
++
++	kfree(ucsi->connector);
+ }
+ EXPORT_SYMBOL_GPL(ucsi_unregister);
+ 
+-- 
+2.37.2
+
+
