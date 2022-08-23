@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C795E59E310
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A851559DBF3
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354166AbiHWKZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:25:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38044 "EHLO
+        id S241719AbiHWL1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:27:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355259AbiHWKXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D7A9D65D;
-        Tue, 23 Aug 2022 02:04:22 -0700 (PDT)
+        with ESMTP id S1357619AbiHWL0f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:26:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB00BE4D6;
+        Tue, 23 Aug 2022 02:24:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 956B26158F;
-        Tue, 23 Aug 2022 09:04:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83854C433D7;
-        Tue, 23 Aug 2022 09:04:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D4D2B81C66;
+        Tue, 23 Aug 2022 09:24:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77FDBC433D6;
+        Tue, 23 Aug 2022 09:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245461;
-        bh=7sMFwzAeoSVLxHv+4dUE7fblld7ICcdQmAwLdu9zW2I=;
+        s=korg; t=1661246649;
+        bh=28Uj1pz2wv0sJBienNbuzVHt1ORzGBQoYdH6V0l/0lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kW7B7Gx1vbGvWfX3eDoiLZQcYpwQOTf9L6II+pTK8xM56B6BcP7S6XR9akTBdoX3Y
-         M9Obtr7fSbsrDUQV/tlmneQZtktTTNMX0qW19hRYOrsOXbcMsd3o9+U7pFugokf1tL
-         2AxdDyLOWlMUkwpL2LnPVx8gYUf1BhZmx4yOH6R4=
+        b=UjN9A2GQ4M9kk2unohgoHjbzoAcHA0/WeV5w44zHQfJxTYxaEQ7VaNIxIwPGtVNVP
+         ghzTdWjNgcSmimh+VtRIqls1S6h7VILWC3i0lZmaMNGlW+KHHeGfNgNZXrrP02VIZ0
+         NhOiVnc6rvpP1Bvl1SxqxR1++55vpKWR0AWqUJHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglong Li <liyonglong@chinatelecom.cn>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 086/287] tcp: make retransmitted SKB fit into the send window
+Subject: [PATCH 5.4 177/389] staging: rtl8192u: Fix sleep in atomic context bug in dm_fsync_timer_callback
 Date:   Tue, 23 Aug 2022 10:24:15 +0200
-Message-Id: <20220823080103.184375672@linuxfoundation.org>
+Message-Id: <20220823080123.037967159@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +53,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglong Li <liyonglong@chinatelecom.cn>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 536a6c8e05f95e3d1118c40ae8b3022ee2d05d52 ]
+[ Upstream commit 6a0c054930d554ad8f8044ef1fc856d9da391c81 ]
 
-current code of __tcp_retransmit_skb only check TCP_SKB_CB(skb)->seq
-in send window, and TCP_SKB_CB(skb)->seq_end maybe out of send window.
-If receiver has shrunk his window, and skb is out of new window,  it
-should retransmit a smaller portion of the payload.
+There are sleep in atomic context bugs when dm_fsync_timer_callback is
+executing. The root cause is that the memory allocation functions with
+GFP_KERNEL or GFP_NOIO parameters are called in dm_fsync_timer_callback
+which is a timer handler. The call paths that could trigger bugs are
+shown below:
 
-test packetdrill script:
-    0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
-   +0 fcntl(3, F_GETFL) = 0x2 (flags O_RDWR)
-   +0 fcntl(3, F_SETFL, O_RDWR|O_NONBLOCK) = 0
+    (interrupt context)
+dm_fsync_timer_callback
+  write_nic_byte
+    kzalloc(sizeof(data), GFP_KERNEL); //may sleep
+    usb_control_msg
+      kmalloc(.., GFP_NOIO); //may sleep
+  write_nic_dword
+    kzalloc(sizeof(data), GFP_KERNEL); //may sleep
+    usb_control_msg
+      kmalloc(.., GFP_NOIO); //may sleep
 
-   +0 connect(3, ..., ...) = -1 EINPROGRESS (Operation now in progress)
-   +0 > S 0:0(0)  win 65535 <mss 1460,sackOK,TS val 100 ecr 0,nop,wscale 8>
- +.05 < S. 0:0(0) ack 1 win 6000 <mss 1000,nop,nop,sackOK>
-   +0 > . 1:1(0) ack 1
+This patch uses delayed work to replace timer and moves the operations
+that may sleep into the delayed work in order to mitigate bugs.
 
-   +0 write(3, ..., 10000) = 10000
-
-   +0 > . 1:2001(2000) ack 1 win 65535
-   +0 > . 2001:4001(2000) ack 1 win 65535
-   +0 > . 4001:6001(2000) ack 1 win 65535
-
- +.05 < . 1:1(0) ack 4001 win 1001
-
-and tcpdump show:
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 1:2001, ack 1, win 65535, length 2000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 2001:4001, ack 1, win 65535, length 2000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [P.], seq 4001:5001, ack 1, win 65535, length 1000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 5001:6001, ack 1, win 65535, length 1000
-192.0.2.1.8080 > 192.168.226.67.55: Flags [.], ack 4001, win 1001, length 0
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 5001:6001, ack 1, win 65535, length 1000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [P.], seq 4001:5001, ack 1, win 65535, length 1000
-
-when cient retract window to 1001, send window is [4001,5002],
-but TLP send 5001-6001 packet which is out of send window.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yonglong Li <liyonglong@chinatelecom.cn>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/1657532838-20200-1-git-send-email-liyonglong@chinatelecom.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220710103002.63283-1-duoming@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/staging/rtl8192u/r8192U.h    |  2 +-
+ drivers/staging/rtl8192u/r8192U_dm.c | 38 +++++++++++++---------------
+ drivers/staging/rtl8192u/r8192U_dm.h |  2 +-
+ 3 files changed, 20 insertions(+), 22 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 3090b61e4edd..995306dc458a 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -2856,7 +2856,7 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	unsigned int cur_mss;
- 	int diff, len, err;
--
-+	int avail_wnd;
+diff --git a/drivers/staging/rtl8192u/r8192U.h b/drivers/staging/rtl8192u/r8192U.h
+index ec33fb9122e9..57badc1e91e3 100644
+--- a/drivers/staging/rtl8192u/r8192U.h
++++ b/drivers/staging/rtl8192u/r8192U.h
+@@ -1013,7 +1013,7 @@ typedef struct r8192_priv {
+ 	bool		bis_any_nonbepkts;
+ 	bool		bcurrent_turbo_EDCA;
+ 	bool		bis_cur_rdlstate;
+-	struct timer_list fsync_timer;
++	struct delayed_work fsync_work;
+ 	bool bfsync_processing;	/* 500ms Fsync timer is active or not */
+ 	u32	rate_record;
+ 	u32	rateCountDiffRecord;
+diff --git a/drivers/staging/rtl8192u/r8192U_dm.c b/drivers/staging/rtl8192u/r8192U_dm.c
+index c23e43b095d9..30b272da36f5 100644
+--- a/drivers/staging/rtl8192u/r8192U_dm.c
++++ b/drivers/staging/rtl8192u/r8192U_dm.c
+@@ -2585,19 +2585,20 @@ static void dm_init_fsync(struct net_device *dev)
+ 	priv->ieee80211->fsync_seconddiff_ratethreshold = 200;
+ 	priv->ieee80211->fsync_state = Default_Fsync;
+ 	priv->framesyncMonitor = 1;	/* current default 0xc38 monitor on */
+-	timer_setup(&priv->fsync_timer, dm_fsync_timer_callback, 0);
++	INIT_DELAYED_WORK(&priv->fsync_work, dm_fsync_work_callback);
+ }
  
- 	/* Inconclusive MTU probe */
- 	if (icsk->icsk_mtup.probe_size)
-@@ -2886,17 +2886,25 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
- 		return -EHOSTUNREACH; /* Routing failure or similar. */
+ static void dm_deInit_fsync(struct net_device *dev)
+ {
+ 	struct r8192_priv *priv = ieee80211_priv(dev);
  
- 	cur_mss = tcp_current_mss(sk);
-+	avail_wnd = tcp_wnd_end(tp) - TCP_SKB_CB(skb)->seq;
+-	del_timer_sync(&priv->fsync_timer);
++	cancel_delayed_work_sync(&priv->fsync_work);
+ }
  
- 	/* If receiver has shrunk his window, and skb is out of
- 	 * new window, do not retransmit it. The exception is the
- 	 * case, when window is shrunk to zero. In this case
--	 * our retransmit serves as a zero window probe.
-+	 * our retransmit of one segment serves as a zero window probe.
- 	 */
--	if (!before(TCP_SKB_CB(skb)->seq, tcp_wnd_end(tp)) &&
--	    TCP_SKB_CB(skb)->seq != tp->snd_una)
--		return -EAGAIN;
-+	if (avail_wnd <= 0) {
-+		if (TCP_SKB_CB(skb)->seq != tp->snd_una)
-+			return -EAGAIN;
-+		avail_wnd = cur_mss;
-+	}
+-void dm_fsync_timer_callback(struct timer_list *t)
++void dm_fsync_work_callback(struct work_struct *work)
+ {
+-	struct r8192_priv *priv = from_timer(priv, t, fsync_timer);
++	struct r8192_priv *priv =
++	    container_of(work, struct r8192_priv, fsync_work.work);
+ 	struct net_device *dev = priv->ieee80211->dev;
+ 	u32 rate_index, rate_count = 0, rate_count_diff = 0;
+ 	bool		bSwitchFromCountDiff = false;
+@@ -2664,17 +2665,16 @@ void dm_fsync_timer_callback(struct timer_list *t)
+ 			}
+ 		}
+ 		if (bDoubleTimeInterval) {
+-			if (timer_pending(&priv->fsync_timer))
+-				del_timer_sync(&priv->fsync_timer);
+-			priv->fsync_timer.expires = jiffies +
+-				msecs_to_jiffies(priv->ieee80211->fsync_time_interval*priv->ieee80211->fsync_multiple_timeinterval);
+-			add_timer(&priv->fsync_timer);
++			cancel_delayed_work_sync(&priv->fsync_work);
++			schedule_delayed_work(&priv->fsync_work,
++					      msecs_to_jiffies(priv
++					      ->ieee80211->fsync_time_interval *
++					      priv->ieee80211->fsync_multiple_timeinterval));
+ 		} else {
+-			if (timer_pending(&priv->fsync_timer))
+-				del_timer_sync(&priv->fsync_timer);
+-			priv->fsync_timer.expires = jiffies +
+-				msecs_to_jiffies(priv->ieee80211->fsync_time_interval);
+-			add_timer(&priv->fsync_timer);
++			cancel_delayed_work_sync(&priv->fsync_work);
++			schedule_delayed_work(&priv->fsync_work,
++					      msecs_to_jiffies(priv
++					      ->ieee80211->fsync_time_interval));
+ 		}
+ 	} else {
+ 		/* Let Register return to default value; */
+@@ -2702,7 +2702,7 @@ static void dm_EndSWFsync(struct net_device *dev)
+ 	struct r8192_priv *priv = ieee80211_priv(dev);
  
- 	len = cur_mss * segs;
-+	if (len > avail_wnd) {
-+		len = rounddown(avail_wnd, cur_mss);
-+		if (!len)
-+			len = avail_wnd;
-+	}
- 	if (skb->len > len) {
- 		if (tcp_fragment(sk, TCP_FRAG_IN_RTX_QUEUE, skb, len,
- 				 cur_mss, GFP_ATOMIC))
-@@ -2910,8 +2918,9 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
- 		diff -= tcp_skb_pcount(skb);
- 		if (diff)
- 			tcp_adjust_pcount(sk, skb, diff);
--		if (skb->len < cur_mss)
--			tcp_retrans_try_collapse(sk, skb, cur_mss);
-+		avail_wnd = min_t(int, avail_wnd, cur_mss);
-+		if (skb->len < avail_wnd)
-+			tcp_retrans_try_collapse(sk, skb, avail_wnd);
+ 	RT_TRACE(COMP_HALDM, "%s\n", __func__);
+-	del_timer_sync(&(priv->fsync_timer));
++	cancel_delayed_work_sync(&priv->fsync_work);
+ 
+ 	/* Let Register return to default value; */
+ 	if (priv->bswitch_fsync) {
+@@ -2744,11 +2744,9 @@ static void dm_StartSWFsync(struct net_device *dev)
+ 		if (priv->ieee80211->fsync_rate_bitmap &  rateBitmap)
+ 			priv->rate_record += priv->stats.received_rate_histogram[1][rateIndex];
  	}
+-	if (timer_pending(&priv->fsync_timer))
+-		del_timer_sync(&priv->fsync_timer);
+-	priv->fsync_timer.expires = jiffies +
+-			msecs_to_jiffies(priv->ieee80211->fsync_time_interval);
+-	add_timer(&priv->fsync_timer);
++	cancel_delayed_work_sync(&priv->fsync_work);
++	schedule_delayed_work(&priv->fsync_work,
++			      msecs_to_jiffies(priv->ieee80211->fsync_time_interval));
  
- 	/* RFC3168, section 6.1.1.1. ECN fallback */
+ 	write_nic_dword(dev, rOFDM0_RxDetector2, 0x465c12cd);
+ 
+diff --git a/drivers/staging/rtl8192u/r8192U_dm.h b/drivers/staging/rtl8192u/r8192U_dm.h
+index 0b2a1c688597..2159018b4e38 100644
+--- a/drivers/staging/rtl8192u/r8192U_dm.h
++++ b/drivers/staging/rtl8192u/r8192U_dm.h
+@@ -166,7 +166,7 @@ void dm_force_tx_fw_info(struct net_device *dev,
+ void dm_init_edca_turbo(struct net_device *dev);
+ void dm_rf_operation_test_callback(unsigned long data);
+ void dm_rf_pathcheck_workitemcallback(struct work_struct *work);
+-void dm_fsync_timer_callback(struct timer_list *t);
++void dm_fsync_work_callback(struct work_struct *work);
+ void dm_cck_txpower_adjust(struct net_device *dev, bool  binch14);
+ void dm_shadow_init(struct net_device *dev);
+ void dm_initialize_txpower_tracking(struct net_device *dev);
 -- 
 2.35.1
 
