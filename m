@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 910D859D8E0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3376F59D903
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242575AbiHWJwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:52:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42196 "EHLO
+        id S241345AbiHWJrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:47:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352214AbiHWJvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75B7D9F0CC;
-        Tue, 23 Aug 2022 01:45:49 -0700 (PDT)
+        with ESMTP id S1352177AbiHWJqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 136992CE16;
+        Tue, 23 Aug 2022 01:43:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B55D6B81C28;
-        Tue, 23 Aug 2022 08:44:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16EF4C433D6;
-        Tue, 23 Aug 2022 08:44:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DADB661485;
+        Tue, 23 Aug 2022 08:43:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDB6BC433D6;
+        Tue, 23 Aug 2022 08:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244283;
-        bh=1uZf0x+togNFly4eR+qOBeUyoGt1699gwYKKUkpYrlM=;
+        s=korg; t=1661244190;
+        bh=FnF15LZwNDPxhljz7cmUOV0fzoKOxDGUuWynoWR/aTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1Qk4EHNPUSdyvbEpv33273shqC/lgwMeKDApKsbGEihwDok+nm7zcOGDTLyRMN5J
-         gB8KVvEiWppNmvMFZXxpplxUQu0S45dxkUnFFrocNjo3zoFts2sD78AyfSfAZmqq3s
-         TI8UopI328gOxnIMljddhVpnQ3gNpBk0F8AWLIu8=
+        b=F2mjt2gxKGOYDEGBKCnyboElcNdJIpHxdsICEZNd3KRvp2Wmo5ZMssnW4/i55M/+8
+         DzyKxhDf3JveabyneIFRKqzn15fa1LFf1wy/iOSFDqObDnuv6xa85TBuCAa+NIwf4W
+         6F2yETregWS+uZkkTSPr51T3DPaPY8dXpwLB0dwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianhua Lu <lujianhua000@gmail.com>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.15 067/244] pinctrl: qcom: sm8250: Fix PDC map
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 065/229] drm: bridge: adv7511: Add check for mipi_dsi_driver_register
 Date:   Tue, 23 Aug 2022 10:23:46 +0200
-Message-Id: <20220823080101.317608660@linuxfoundation.org>
+Message-Id: <20220823080056.049597945@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianhua Lu <lujianhua000@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 4b759ca15a4914f96ea204ea9200ceeb01d70666 upstream.
+[ Upstream commit 831463667b5f4f1e5bce9c3b94e9e794d2bc8923 ]
 
-Fix the PDC mapping for SM8250, gpio39 is mapped to irq73(not irq37).
+As mipi_dsi_driver_register could return error if fails,
+it should be better to check the return value and return error
+if fails.
+Moreover, if i2c_add_driver fails,  mipi_dsi_driver_register
+should be reverted.
 
-Fixes: b41efeed507a("pinctrl: qcom: sm8250: Specify PDC map.")
-Signed-off-by: Jianhua Lu <lujianhua000@gmail.com>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20220803015645.22388-1-lujianhua000@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1e4d58cd7f88 ("drm/bridge: adv7533: Create a MIPI DSI device")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220602103401.2980938-1-jiasheng@iscas.ac.cn
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-sm8250.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/pinctrl/qcom/pinctrl-sm8250.c
-+++ b/drivers/pinctrl/qcom/pinctrl-sm8250.c
-@@ -1316,7 +1316,7 @@ static const struct msm_pingroup sm8250_
- static const struct msm_gpio_wakeirq_map sm8250_pdc_map[] = {
- 	{ 0, 79 }, { 1, 84 }, { 2, 80 }, { 3, 82 }, { 4, 107 }, { 7, 43 },
- 	{ 11, 42 }, { 14, 44 }, { 15, 52 }, { 19, 67 }, { 23, 68 }, { 24, 105 },
--	{ 27, 92 }, { 28, 106 }, { 31, 69 }, { 35, 70 }, { 39, 37 },
-+	{ 27, 92 }, { 28, 106 }, { 31, 69 }, { 35, 70 }, { 39, 73 },
- 	{ 40, 108 }, { 43, 71 }, { 45, 72 }, { 47, 83 }, { 51, 74 }, { 55, 77 },
- 	{ 59, 78 }, { 63, 75 }, { 64, 81 }, { 65, 87 }, { 66, 88 }, { 67, 89 },
- 	{ 68, 54 }, { 70, 85 }, { 77, 46 }, { 80, 90 }, { 81, 91 }, { 83, 97 },
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index 3c94d838863e..f5195d9841f8 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -1213,10 +1213,21 @@ static struct i2c_driver adv7511_driver = {
+ 
+ static int __init adv7511_init(void)
+ {
+-	if (IS_ENABLED(CONFIG_DRM_MIPI_DSI))
+-		mipi_dsi_driver_register(&adv7533_dsi_driver);
++	int ret;
++
++	if (IS_ENABLED(CONFIG_DRM_MIPI_DSI)) {
++		ret = mipi_dsi_driver_register(&adv7533_dsi_driver);
++		if (ret)
++			return ret;
++	}
+ 
+-	return i2c_add_driver(&adv7511_driver);
++	ret = i2c_add_driver(&adv7511_driver);
++	if (ret) {
++		if (IS_ENABLED(CONFIG_DRM_MIPI_DSI))
++			mipi_dsi_driver_unregister(&adv7533_dsi_driver);
++	}
++
++	return ret;
+ }
+ module_init(adv7511_init);
+ 
+-- 
+2.35.1
+
 
 
