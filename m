@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3303859D7C2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E634759D6FE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238887AbiHWJrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:47:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55812 "EHLO
+        id S242051AbiHWJsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:48:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352283AbiHWJqM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7673D75496;
-        Tue, 23 Aug 2022 01:43:51 -0700 (PDT)
+        with ESMTP id S241981AbiHWJrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:47:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D220A8E0D1;
+        Tue, 23 Aug 2022 01:44:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F9D2614E9;
-        Tue, 23 Aug 2022 08:43:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 860AAC433C1;
-        Tue, 23 Aug 2022 08:43:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0BFA9B81C62;
+        Tue, 23 Aug 2022 08:43:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 112E6C433C1;
+        Tue, 23 Aug 2022 08:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244208;
-        bh=6JrT9EI5+j/PauKm10M95FzvHCL4nLV18Z8dTnkMfVA=;
+        s=korg; t=1661244233;
+        bh=ukwapbfI9bnj1qkrK8Q3hXNU2QLw365AmtkZrw2+F0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=luSQ5yix12WrB4ll19g3qQg5KaA5G0zRmn/axTx6DshsvAK3dYID+YGllXq0DswHs
-         NDgh/3CcyA8Lj/qP89bXQbV3tQjDdw61TlOZTaUdpyoq/5DRCsjDTsIoMP4yOJ8AH/
-         fydEV01/v/fbDkD0T7OHsnZ60iGuLUInlNx/h/qw=
+        b=WovB5bfCKWi36ckgoYiR/GkAjL5bY7YhN7eb9g6CWMqTEPzLqMgkNdA+yMz4kuI6B
+         H432rz4gXYL2pDKogvINx5bQ3fs6gBCKMeYceke/r59BRxtSeD2OnIpNayXJ8YRSKI
+         gmxVoYEuOEm4hPnnC3ifJWVid2vpr+Cp+uATzMAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Scott Benesh <scott.benesh@microchip.com>,
+        Scott Teel <scott.teel@microchip.com>,
+        Mike McGowen <mike.mcgowen@microchip.com>,
+        Kevin Barnett <kevin.barnett@microchip.com>,
+        Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 103/229] memstick/ms_block: Fix some incorrect memory allocation
-Date:   Tue, 23 Aug 2022 10:24:24 +0200
-Message-Id: <20220823080057.377765792@linuxfoundation.org>
+Subject: [PATCH 4.14 106/229] scsi: smartpqi: Fix DMA direction for RAID requests
+Date:   Tue, 23 Aug 2022 10:24:27 +0200
+Message-Id: <20220823080057.470653754@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -55,62 +59,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
 
-[ Upstream commit 2e531bc3e0d86362fcd8a577b3278d9ef3cc2ba0 ]
+[ Upstream commit 69695aeaa6621bc49cdd7a8e5a8d1042461e496e ]
 
-Some functions of the bitmap API take advantage of the fact that a bitmap
-is an array of long.
+Correct a SOP READ and WRITE DMA flags for some requests.
 
-So, to make sure this assertion is correct, allocate bitmaps with
-bitmap_zalloc() instead of kzalloc()+hand-computed number of bytes.
+This update corrects DMA direction issues with SCSI commands removed from
+the controller's internal lookup table.
 
-While at it, also use bitmap_free() instead of kfree() to keep the
-semantic.
+Currently, SCSI READ BLOCK LIMITS (0x5) was removed from the controller
+lookup table and exposed a DMA direction flag issue.
 
-Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/dbf633c48c24ae6d95f852557e8d8b3bbdef65fe.1656155715.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+SCSI READ BLOCK LIMITS was recently removed from our controller lookup
+table so the controller uses the respective IU flag field to set the DMA
+data direction. Since the DMA direction is incorrect the FW never completes
+the request causing a hang.
+
+Some SCSI commands which use SCSI READ BLOCK LIMITS
+
+      * sg_map
+      * mt -f /dev/stX status
+
+After updating controller firmware, users may notice their tape units
+failing. This patch resolves the issue.
+
+Also, the AIO path DMA direction is correct.
+
+The DMA direction flag is a day-one bug with no reported BZ.
+
+Fixes: 6c223761eb54 ("smartpqi: initial commit of Microsemi smartpqi driver")
+Link: https://lore.kernel.org/r/165730605618.177165.9054223644512926624.stgit@brunhilda
+Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
+Reviewed-by: Scott Teel <scott.teel@microchip.com>
+Reviewed-by: Mike McGowen <mike.mcgowen@microchip.com>
+Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
+Signed-off-by: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
+Signed-off-by: Don Brace <don.brace@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/ms_block.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
-index ffe875740671..7138062733ba 100644
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -1338,16 +1338,16 @@ static int msb_ftl_initialize(struct msb_data *msb)
- 	msb->zone_count = msb->block_count / MS_BLOCKS_IN_ZONE;
- 	msb->logical_block_count = msb->zone_count * 496 - 2;
- 
--	msb->used_blocks_bitmap = kzalloc(msb->block_count / 8, GFP_KERNEL);
--	msb->erased_blocks_bitmap = kzalloc(msb->block_count / 8, GFP_KERNEL);
-+	msb->used_blocks_bitmap = bitmap_zalloc(msb->block_count, GFP_KERNEL);
-+	msb->erased_blocks_bitmap = bitmap_zalloc(msb->block_count, GFP_KERNEL);
- 	msb->lba_to_pba_table =
- 		kmalloc(msb->logical_block_count * sizeof(u16), GFP_KERNEL);
- 
- 	if (!msb->used_blocks_bitmap || !msb->lba_to_pba_table ||
- 						!msb->erased_blocks_bitmap) {
--		kfree(msb->used_blocks_bitmap);
-+		bitmap_free(msb->used_blocks_bitmap);
-+		bitmap_free(msb->erased_blocks_bitmap);
- 		kfree(msb->lba_to_pba_table);
--		kfree(msb->erased_blocks_bitmap);
- 		return -ENOMEM;
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index 4055753b495a..5b1f15720947 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -4652,10 +4652,10 @@ static int pqi_raid_submit_scsi_cmd_with_io_request(
  	}
  
-@@ -1960,7 +1960,7 @@ static int msb_bd_open(struct block_device *bdev, fmode_t mode)
- static void msb_data_clear(struct msb_data *msb)
- {
- 	kfree(msb->boot_page);
--	kfree(msb->used_blocks_bitmap);
-+	bitmap_free(msb->used_blocks_bitmap);
- 	kfree(msb->lba_to_pba_table);
- 	kfree(msb->cache);
- 	msb->card = NULL;
+ 	switch (scmd->sc_data_direction) {
+-	case DMA_TO_DEVICE:
++	case DMA_FROM_DEVICE:
+ 		request->data_direction = SOP_READ_FLAG;
+ 		break;
+-	case DMA_FROM_DEVICE:
++	case DMA_TO_DEVICE:
+ 		request->data_direction = SOP_WRITE_FLAG;
+ 		break;
+ 	case DMA_NONE:
 -- 
 2.35.1
 
