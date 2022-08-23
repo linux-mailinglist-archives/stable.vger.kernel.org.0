@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF43959E378
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7FC759DC0C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241462AbiHWMWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:22:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58520 "EHLO
+        id S1343753AbiHWLDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:03:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348949AbiHWMUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:20:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E45ADEF025;
-        Tue, 23 Aug 2022 02:42:57 -0700 (PDT)
+        with ESMTP id S1357227AbiHWLBp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:01:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC3F4AF0EE;
+        Tue, 23 Aug 2022 02:14:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF850B81C89;
-        Tue, 23 Aug 2022 09:42:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FC84C433C1;
-        Tue, 23 Aug 2022 09:42:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F8A8B81C65;
+        Tue, 23 Aug 2022 09:13:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5E73C433C1;
+        Tue, 23 Aug 2022 09:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247751;
-        bh=XCAFwGt6ZZvGEEsPqFEisCf1nOo3sIPK3uhYeB8yzeQ=;
+        s=korg; t=1661246038;
+        bh=za6cP4qVD0yTtyzAS0PYUcIWi7apHcLLt0B3+bVmPIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQXZifPs5FNaDfocvSlLTO84FaaVnl+BQHV93kQ0uLOct6lEHUlMR4rWkGYjS4Cpr
-         P88FI77pQRAT59pYzuN0DSGdBwKMOixNSKrGMqmMFO0Fc9zuZ/EoVYDY+OBjaLyhEO
-         IunSBPXkqZ4mz+eBazmioIiuu2g28LzXPDOF1LDY=
+        b=aAMTEnnxtXLVDsgZJXt94j6fFQrylD0k72HTMGULGcirVYVLfkiG3qd5zdcwehKk9
+         N3O4K9wDwC76FqdVScGLik9D3exFcEpnBqxNAdo/QYDgol9AMXhx96KMQQOnjYNoSc
+         Moc9FeCKWGEZx9hX0Ynx1jUsNWWKzaLf/9bi6uAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 105/158] usb: gadget: uvc: call uvc uvcg_warn on completed status instead of uvcg_info
+Subject: [PATCH 4.19 268/287] ext4: avoid remove directory when directory is corrupted
 Date:   Tue, 23 Aug 2022 10:27:17 +0200
-Message-Id: <20220823080050.244956812@linuxfoundation.org>
+Message-Id: <20220823080110.381049371@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit a725d0f6dfc5d3739d6499f30ec865305ba3544d ]
+[ Upstream commit b24e77ef1c6d4dbf42749ad4903c97539cc9755a ]
 
-Likewise to the uvcvideo hostside driver, this patch is changing the
-usb_request message of an non zero completion handler call from dev_info
-to dev_warn.
+Now if check directoy entry is corrupted, ext4_empty_dir may return true
+then directory will be removed when file system mounted with "errors=continue".
+In order not to make things worse just return false when directory is corrupted.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220529223848.105914-4-m.grzeschik@pengutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220622090223.682234-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_video.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/namei.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index 633e23d58d86..5ce548c2359d 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -159,7 +159,7 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
- 		break;
- 
- 	default:
--		uvcg_info(&video->uvc->func,
-+		uvcg_warn(&video->uvc->func,
- 			  "VS request completed with status %d.\n",
- 			  req->status);
- 		uvcg_queue_cancel(queue, 0);
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index ebc8e75e1ef1..a878b9a8d9ea 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -2842,11 +2842,8 @@ bool ext4_empty_dir(struct inode *inode)
+ 		de = (struct ext4_dir_entry_2 *) (bh->b_data +
+ 					(offset & (sb->s_blocksize - 1)));
+ 		if (ext4_check_dir_entry(inode, NULL, de, bh,
+-					 bh->b_data, bh->b_size, offset)) {
+-			offset = (offset | (sb->s_blocksize - 1)) + 1;
+-			continue;
+-		}
+-		if (le32_to_cpu(de->inode)) {
++					 bh->b_data, bh->b_size, offset) ||
++		    le32_to_cpu(de->inode)) {
+ 			brelse(bh);
+ 			return false;
+ 		}
 -- 
 2.35.1
 
