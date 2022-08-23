@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C0759D795
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4F059D79F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240760AbiHWJvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:51:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53832 "EHLO
+        id S243899AbiHWJsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:48:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242687AbiHWJtB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:49:01 -0400
+        with ESMTP id S1352699AbiHWJqq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D38D6A48C;
-        Tue, 23 Aug 2022 01:44:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F2B18376;
+        Tue, 23 Aug 2022 01:44:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F13566153C;
-        Tue, 23 Aug 2022 08:43:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05F01C433C1;
-        Tue, 23 Aug 2022 08:43:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7153361499;
+        Tue, 23 Aug 2022 08:44:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76F02C433D6;
+        Tue, 23 Aug 2022 08:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244227;
-        bh=u9FU03dzZss74zYK7e0UEvHhyL3ijZBUACDdhcYl4gc=;
+        s=korg; t=1661244255;
+        bh=8x8a63ntKhqkoOD+w91XE3oumOK0E4SykLQt4bVGTB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XwC93PXjYl5fUjobSl3a6Fu4cNREf0bNeUWh7UlE67bjGziqzbocz96oky1iwQq/R
-         sVh1mTafRhzBFiEKn3l1YhO3kMbpya5SfojuzJQEvSWExg3369FAyVviKP995yPwzB
-         jPvg0Nkfn+oS8VvpdvBiy/FhzzWy+vkfbhfV6hE4=
+        b=eqf4SPAge/TTiJ0RN+3M35lZU1FvrV+e/P8vwQwRKYgBEH/5e2kSPE9Swt0IkN5IV
+         pCJ5gBnl/nNZhvy0kYZgptPu3ekuig7LUK3zgS5c8ItpnOMiuAlN//EGYoZkRlSq3n
+         wlVX3c22psg6JnYhrQkR4MtFP7MdKXjx9HP0BB/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 059/244] net: bcmgenet: Indicate MAC is in charge of PHY PM
-Date:   Tue, 23 Aug 2022 10:23:38 +0200
-Message-Id: <20220823080101.045630065@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.15 063/244] pinctrl: nomadik: Fix refcount leak in nmk_pinctrl_dt_subnode_to_map
+Date:   Tue, 23 Aug 2022 10:23:42 +0200
+Message-Id: <20220823080101.187795710@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -53,35 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit bc3410f250219660a7be032c01c954a53b2c26ab upstream.
+commit 4b32e054335ea0ce50967f63a7bfd4db058b14b9 upstream.
 
-Avoid the PHY library call unnecessarily into the suspend/resume functions by
-setting phydev->mac_managed_pm to true. The GENET driver essentially does
-exactly what mdio_bus_phy_resume() does by calling phy_init_hw() plus
-phy_resume().
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak."
 
-Fixes: fba863b81604 ("net: phy: make PHY PM ops a no-op if MAC driver manages PHY PM")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220804173605.1266574-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c2f6d059abfc ("pinctrl: nomadik: refactor DT parser to take two paths")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220607111602.57355-1-linmq006@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmmii.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pinctrl/nomadik/pinctrl-nomadik.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -361,6 +361,9 @@ int bcmgenet_mii_probe(struct net_device
- 	if (priv->internal_phy && !GENET_IS_V5(priv))
- 		dev->phydev->irq = PHY_MAC_INTERRUPT;
+--- a/drivers/pinctrl/nomadik/pinctrl-nomadik.c
++++ b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+@@ -1421,8 +1421,10 @@ static int nmk_pinctrl_dt_subnode_to_map
  
-+	/* Indicate that the MAC is responsible for PHY PM */
-+	dev->phydev->mac_managed_pm = true;
-+
- 	return 0;
- }
- 
+ 	has_config = nmk_pinctrl_dt_get_config(np, &configs);
+ 	np_config = of_parse_phandle(np, "ste,config", 0);
+-	if (np_config)
++	if (np_config) {
+ 		has_config |= nmk_pinctrl_dt_get_config(np_config, &configs);
++		of_node_put(np_config);
++	}
+ 	if (has_config) {
+ 		const char *gpio_name;
+ 		const char *pin;
 
 
