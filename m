@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9839259D958
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E5059D879
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351451AbiHWJhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:37:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52264 "EHLO
+        id S1349869AbiHWJ3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:29:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352002AbiHWJgN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:36:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7043896FD1;
-        Tue, 23 Aug 2022 01:40:09 -0700 (PDT)
+        with ESMTP id S1349876AbiHWJ1U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:27:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A449790C4A;
+        Tue, 23 Aug 2022 01:37:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B18946152E;
-        Tue, 23 Aug 2022 08:39:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A47FAC433C1;
-        Tue, 23 Aug 2022 08:39:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00018B81C3B;
+        Tue, 23 Aug 2022 08:36:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F7C3C433D7;
+        Tue, 23 Aug 2022 08:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243952;
-        bh=Q0I/PmJguM5EbQjnODE386mN8aRsJ1nboBw3Kf2fsGA=;
+        s=korg; t=1661243760;
+        bh=9tYH85BTIVEd2kbDCWr6tvmS9gkPziL43vV4QunDigI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMo9e2Zj3ESrlQGmpv6A2/6W+3H9ixOe8kt1BYlB6z8OBwVL37BhfWJci+PpypHTb
-         vSeNzHLm55fSa3iBtzEorR+tLRby1EB4gsn2Zdgf8GlUBqOpB5V5ErcQNhVtvuvTos
-         8FM7aRQBCsdM/E7EesO8ysU4Cnv77tFmv1mRhUL8=
+        b=vA/IEmUjbZEG/cof3a0iayRyU7sAiuGGhjKQnU24wHYLcge7Qy7eRW4Jla66wFRb6
+         TV59RrGAj5lT9JN6W5e7fk/MqjVvx0K5WAmsZwz/eJrkAqjB8BCdgSvQB/jISsKZV6
+         vTuo7cOusQXbGXckew+4kc+f5z3s+j6dRIuVt7jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 013/244] mmc: meson-gx: Fix an error handling path in meson_mmc_probe()
-Date:   Tue, 23 Aug 2022 10:22:52 +0200
-Message-Id: <20220823080059.522885537@linuxfoundation.org>
+        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 013/229] Makefile: link with -z noexecstack --no-warn-rwx-segments
+Date:   Tue, 23 Aug 2022 10:22:54 +0200
+Message-Id: <20220823080053.873421249@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit b3e1cf31154136da855f3cb6117c17eb0b6bcfb4 upstream.
+commit 0d362be5b14200b77ecc2127936a5ff82fbffe41 upstream.
 
-The commit in Fixes has introduced a new error handling which should goto
-the existing error handling path.
-Otherwise some resources leak.
+Users of GNU ld (BFD) from binutils 2.39+ will observe multiple
+instances of a new warning when linking kernels in the form:
 
-Fixes: 19c6beaa064c ("mmc: meson-gx: add device reset")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/be4b863bacf323521ba3a02efdc4fca9cdedd1a6.1659855351.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+  ld: warning: vmlinux: missing .note.GNU-stack section implies executable stack
+  ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+  ld: warning: vmlinux has a LOAD segment with RWX permissions
+
+Generally, we would like to avoid the stack being executable.  Because
+there could be a need for the stack to be executable, assembler sources
+have to opt-in to this security feature via explicit creation of the
+.note.GNU-stack feature (which compilers create by default) or command
+line flag --noexecstack.  Or we can simply tell the linker the
+production of such sections is irrelevant and to link the stack as
+--noexecstack.
+
+LLVM's LLD linker defaults to -z noexecstack, so this flag isn't
+strictly necessary when linking with LLD, only BFD, but it doesn't hurt
+to be explicit here for all linkers IMO.  --no-warn-rwx-segments is
+currently BFD specific and only available in the current latest release,
+so it's wrapped in an ld-option check.
+
+While the kernel makes extensive usage of ELF sections, it doesn't use
+permissions from ELF segments.
+
+Link: https://lore.kernel.org/linux-block/3af4127a-f453-4cf7-f133-a181cce06f73@kernel.dk/
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
+Link: https://github.com/llvm/llvm-project/issues/57009
+Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/meson-gx-mmc.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ Makefile |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -1172,8 +1172,10 @@ static int meson_mmc_probe(struct platfo
- 	}
+--- a/Makefile
++++ b/Makefile
+@@ -873,6 +873,9 @@ ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATI
+ LDFLAGS_vmlinux	+= $(call ld-option, --gc-sections,)
+ endif
  
- 	ret = device_reset_optional(&pdev->dev);
--	if (ret)
--		return dev_err_probe(&pdev->dev, ret, "device reset failed\n");
-+	if (ret) {
-+		dev_err_probe(&pdev->dev, ret, "device reset failed\n");
-+		goto free_host;
-+	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	host->regs = devm_ioremap_resource(&pdev->dev, res);
++LDFLAGS	+= -z noexecstack
++LDFLAGS	+= $(call ld-option,--no-warn-rwx-segments)
++
+ ifeq ($(CONFIG_STRIP_ASM_SYMS),y)
+ LDFLAGS_vmlinux	+= $(call ld-option, -X,)
+ endif
 
 
