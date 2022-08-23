@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D6959DFC3
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12CF859E1B6
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244462AbiHWMGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58864 "EHLO
+        id S1357879AbiHWLrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:47:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244452AbiHWMEA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:04:00 -0400
+        with ESMTP id S1358142AbiHWLpN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:45:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99FED15707;
-        Tue, 23 Aug 2022 02:37:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B995D1272;
+        Tue, 23 Aug 2022 02:30:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1B3A6147B;
-        Tue, 23 Aug 2022 09:37:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E694EC433D6;
-        Tue, 23 Aug 2022 09:37:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A451861381;
+        Tue, 23 Aug 2022 09:30:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEDD8C433C1;
+        Tue, 23 Aug 2022 09:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247432;
-        bh=NlMeMbrGkxLWvMZrzHb+gQ5MshQVvwJITmy05HzkXG0=;
+        s=korg; t=1661247003;
+        bh=UCYycxyPUwO1hHOBKfBA1QUnk84cOVlOhcqdGlDU2ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7MtCc6VwCiPC79Ksm7jfDILKroqCbfhAEoR5eaqCNbDpXTsL3uPyr1tNnuHeVPvz
-         7p5JqlZveXLaCNod4ezsg05Ylcmswoj5MErorPONx6gHsUiYYUQykQcs7j5F9WQOOr
-         ynYyxZRaEbvN27mMYv0XePQ0U1lYyl9l79ZwQnU4=
+        b=xdCrBhG6aHoUALTksWzXhKOFwtaO6C1T0EFpvQ3Qk3niTB7SozxD71sNvMPvrR/ON
+         fL0D7mXi7pgf+/RNiK8ijP7rIdWrCArzLOQRcdHLMnNzn8DpMDzQpyaaruxZNbX13i
+         7U0irKUeLKcT4xJGEqU7U5WuetvLKhV4a7Ug9vAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Chia-Lin Kao (AceLan)" <acelan.kao@canonical.com>,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 033/158] net: atlantic: fix aq_vec index out of range error
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 287/389] rds: add missing barrier to release_refill
 Date:   Tue, 23 Aug 2022 10:26:05 +0200
-Message-Id: <20220823080047.413877479@linuxfoundation.org>
+Message-Id: <20220823080127.533786856@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,119 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 2ba5e47fb75fbb8fab45f5c1bc8d5c33d8834bd3 upstream.
+commit 9f414eb409daf4f778f011cf8266d36896bb930b upstream.
 
-The final update statement of the for loop exceeds the array range, the
-dereference of self->aq_vec[i] is not checked and then leads to the
-index out of range error.
-Also fixed this kind of coding style in other for loop.
+The functions clear_bit and set_bit do not imply a memory barrier, thus it
+may be possible that the waitqueue_active function (which does not take
+any locks) is moved before clear_bit and it could miss a wakeup event.
 
-[   97.937604] UBSAN: array-index-out-of-bounds in drivers/net/ethernet/aquantia/atlantic/aq_nic.c:1404:48
-[   97.937607] index 8 is out of range for type 'aq_vec_s *[8]'
-[   97.937608] CPU: 38 PID: 3767 Comm: kworker/u256:18 Not tainted 5.19.0+ #2
-[   97.937610] Hardware name: Dell Inc. Precision 7865 Tower/, BIOS 1.0.0 06/12/2022
-[   97.937611] Workqueue: events_unbound async_run_entry_fn
-[   97.937616] Call Trace:
-[   97.937617]  <TASK>
-[   97.937619]  dump_stack_lvl+0x49/0x63
-[   97.937624]  dump_stack+0x10/0x16
-[   97.937626]  ubsan_epilogue+0x9/0x3f
-[   97.937627]  __ubsan_handle_out_of_bounds.cold+0x44/0x49
-[   97.937629]  ? __scm_send+0x348/0x440
-[   97.937632]  ? aq_vec_stop+0x72/0x80 [atlantic]
-[   97.937639]  aq_nic_stop+0x1b6/0x1c0 [atlantic]
-[   97.937644]  aq_suspend_common+0x88/0x90 [atlantic]
-[   97.937648]  aq_pm_suspend_poweroff+0xe/0x20 [atlantic]
-[   97.937653]  pci_pm_suspend+0x7e/0x1a0
-[   97.937655]  ? pci_pm_suspend_noirq+0x2b0/0x2b0
-[   97.937657]  dpm_run_callback+0x54/0x190
-[   97.937660]  __device_suspend+0x14c/0x4d0
-[   97.937661]  async_suspend+0x23/0x70
-[   97.937663]  async_run_entry_fn+0x33/0x120
-[   97.937664]  process_one_work+0x21f/0x3f0
-[   97.937666]  worker_thread+0x4a/0x3c0
-[   97.937668]  ? process_one_work+0x3f0/0x3f0
-[   97.937669]  kthread+0xf0/0x120
-[   97.937671]  ? kthread_complete_and_exit+0x20/0x20
-[   97.937672]  ret_from_fork+0x22/0x30
-[   97.937676]  </TASK>
+Fix this bug by adding a memory barrier after clear_bit.
 
-v2. fixed "warning: variable 'aq_vec' set but not used"
-
-v3. simplified a for loop
-
-Fixes: 97bde5c4f909 ("net: ethernet: aquantia: Support for NIC-specific code")
-Signed-off-by: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
-Acked-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Link: https://lore.kernel.org/r/20220808081845.42005-1-acelan.kao@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_nic.c |   21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ net/rds/ib_recv.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-@@ -265,12 +265,10 @@ static void aq_nic_service_timer_cb(stru
- static void aq_nic_polling_timer_cb(struct timer_list *t)
+--- a/net/rds/ib_recv.c
++++ b/net/rds/ib_recv.c
+@@ -363,6 +363,7 @@ static int acquire_refill(struct rds_con
+ static void release_refill(struct rds_connection *conn)
  {
- 	struct aq_nic_s *self = from_timer(self, t, polling_timer);
--	struct aq_vec_s *aq_vec = NULL;
- 	unsigned int i = 0U;
+ 	clear_bit(RDS_RECV_REFILL, &conn->c_flags);
++	smp_mb__after_atomic();
  
--	for (i = 0U, aq_vec = self->aq_vec[0];
--		self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i])
--		aq_vec_isr(i, (void *)aq_vec);
-+	for (i = 0U; self->aq_vecs > i; ++i)
-+		aq_vec_isr(i, (void *)self->aq_vec[i]);
- 
- 	mod_timer(&self->polling_timer, jiffies +
- 		  AQ_CFG_POLLING_TIMER_INTERVAL);
-@@ -872,7 +870,6 @@ int aq_nic_get_regs_count(struct aq_nic_
- 
- u64 *aq_nic_get_stats(struct aq_nic_s *self, u64 *data)
- {
--	struct aq_vec_s *aq_vec = NULL;
- 	struct aq_stats_s *stats;
- 	unsigned int count = 0U;
- 	unsigned int i = 0U;
-@@ -922,11 +919,11 @@ u64 *aq_nic_get_stats(struct aq_nic_s *s
- 	data += i;
- 
- 	for (tc = 0U; tc < self->aq_nic_cfg.tcs; tc++) {
--		for (i = 0U, aq_vec = self->aq_vec[0];
--		     aq_vec && self->aq_vecs > i;
--		     ++i, aq_vec = self->aq_vec[i]) {
-+		for (i = 0U; self->aq_vecs > i; ++i) {
-+			if (!self->aq_vec[i])
-+				break;
- 			data += count;
--			count = aq_vec_get_sw_stats(aq_vec, tc, data);
-+			count = aq_vec_get_sw_stats(self->aq_vec[i], tc, data);
- 		}
- 	}
- 
-@@ -1240,7 +1237,6 @@ int aq_nic_set_loopback(struct aq_nic_s
- 
- int aq_nic_stop(struct aq_nic_s *self)
- {
--	struct aq_vec_s *aq_vec = NULL;
- 	unsigned int i = 0U;
- 
- 	netif_tx_disable(self->ndev);
-@@ -1258,9 +1254,8 @@ int aq_nic_stop(struct aq_nic_s *self)
- 
- 	aq_ptp_irq_free(self);
- 
--	for (i = 0U, aq_vec = self->aq_vec[0];
--		self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i])
--		aq_vec_stop(aq_vec);
-+	for (i = 0U; self->aq_vecs > i; ++i)
-+		aq_vec_stop(self->aq_vec[i]);
- 
- 	aq_ptp_ring_stop(self);
- 
+ 	/* We don't use wait_on_bit()/wake_up_bit() because our waking is in a
+ 	 * hot path and finding waiters is very rare.  We don't want to walk
 
 
