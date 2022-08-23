@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3457059D5A0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE03D59D57F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243130AbiHWI1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:27:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47694 "EHLO
+        id S243828AbiHWIc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:32:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244293AbiHWI0b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:26:31 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16FCE72FFB;
-        Tue, 23 Aug 2022 01:14:17 -0700 (PDT)
+        with ESMTP id S243649AbiHWI3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:29:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB6274CD0;
+        Tue, 23 Aug 2022 01:15:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C5167CE1B35;
-        Tue, 23 Aug 2022 08:14:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCFA3C433C1;
-        Tue, 23 Aug 2022 08:14:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAAECB81C3B;
+        Tue, 23 Aug 2022 08:14:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEAFBC433D6;
+        Tue, 23 Aug 2022 08:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242453;
-        bh=71pQm5UX7KUdV3OYns4yypzPi12FmpAs/Vlutlh9J9Q=;
+        s=korg; t=1661242459;
+        bh=AOk+oevlxIEWe26QrP0aZwFVPDWgUz50rIsB56MoIl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FC2nS6fjQhptsuZbmhQYUXNumaLWcE7xU9F3yOOYZfOx1bhaVWwEqnjSegdt71cdd
-         X1KjgJJR9MVKxF5hGbOkpE26mZhEQCwJoYWuO5Nu2EeJV6P/RfsPMb2e1AAVmtj6Dn
-         frX3ZY1F2zooNo976NEo2JIvs853X6GLVhQxrZ9A=
+        b=JoVZBKugIZrh/ZPMuUOFX1eP3exfuXbmCqPjB47uZ4VBrgJrzL05xKlyijhXsij/9
+         315rr3tJqoaX3ZH5JAnkX3feOsx5OTC/2e1mu2AOFyMkxrsia/snF3U+9TYnSRCWQe
+         t1D4BE8yJkQoiothRZgkdt/HgYsuAHZA1p0eEquE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
         Sunil Goutham <sgoutham@marvell.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 117/365] octeontx2-af: Fix mcam entry resource leak
-Date:   Tue, 23 Aug 2022 10:00:18 +0200
-Message-Id: <20220823080123.101243885@linuxfoundation.org>
+Subject: [PATCH 5.19 118/365] octeontx2-af: Fix key checking for source mac
+Date:   Tue, 23 Aug 2022 10:00:19 +0200
+Message-Id: <20220823080123.141532991@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -56,60 +56,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Subbaraya Sundeep <sbhatta@marvell.com>
 
-commit 3f8fe40ab7730cf8eb6f8b8ff412012f7f6f8f48 upstream.
+commit c3c290276927a3ae79342a4e17ec0500c138c63a upstream.
 
-The teardown sequence in FLR handler returns if no NIX LF
-is attached to PF/VF because it indicates that graceful
-shutdown of resources already happened. But there is a
-chance of all allocated MCAM entries not being freed by
-PF/VF. Hence free mcam entries even in case of detached LF.
+Given a field with its location/offset in input packet,
+the key checking logic verifies whether extracting the
+field can be supported or not based on the mkex profile
+loaded in hardware. This logic is wrong wrt source mac
+and this patch fixes that.
 
-Fixes: c554f9c1574e ("octeontx2-af: Teardown NPA, NIX LF upon receiving FLR")
+Fixes: 9b179a960a96 ("octeontx2-af: Generate key field bit mask from KEX profile")
 Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
 Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu.c     |    6 ++++++
- drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c |    6 ++++++
- 2 files changed, 12 insertions(+)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_npc_fs.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-@@ -2564,6 +2564,12 @@ static void __rvu_flr_handler(struct rvu
- 	rvu_blklf_teardown(rvu, pcifunc, BLKADDR_NPA);
- 	rvu_reset_lmt_map_tbl(rvu, pcifunc);
- 	rvu_detach_rsrcs(rvu, NULL, pcifunc);
-+	/* In scenarios where PF/VF drivers detach NIXLF without freeing MCAM
-+	 * entries, check and free the MCAM entries explicitly to avoid leak.
-+	 * Since LF is detached use LF number as -1.
-+	 */
-+	rvu_npc_free_mcam_entries(rvu, pcifunc, -1);
-+
- 	mutex_unlock(&rvu->flr_lock);
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc_fs.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc_fs.c
+@@ -445,7 +445,8 @@ do {									       \
+ 	NPC_SCAN_HDR(NPC_VLAN_TAG1, NPC_LID_LB, NPC_LT_LB_CTAG, 2, 2);
+ 	NPC_SCAN_HDR(NPC_VLAN_TAG2, NPC_LID_LB, NPC_LT_LB_STAG_QINQ, 2, 2);
+ 	NPC_SCAN_HDR(NPC_DMAC, NPC_LID_LA, la_ltype, la_start, 6);
+-	NPC_SCAN_HDR(NPC_SMAC, NPC_LID_LA, la_ltype, la_start, 6);
++	/* SMAC follows the DMAC(which is 6 bytes) */
++	NPC_SCAN_HDR(NPC_SMAC, NPC_LID_LA, la_ltype, la_start + 6, 6);
+ 	/* PF_FUNC is 2 bytes at 0th byte of NPC_LT_LA_IH_NIX_ETHER */
+ 	NPC_SCAN_HDR(NPC_PF_FUNC, NPC_LID_LA, NPC_LT_LA_IH_NIX_ETHER, 0, 2);
  }
- 
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-@@ -1096,6 +1096,9 @@ static void npc_enadis_default_entries(s
- 
- void rvu_npc_disable_default_entries(struct rvu *rvu, u16 pcifunc, int nixlf)
- {
-+	if (nixlf < 0)
-+		return;
-+
- 	npc_enadis_default_entries(rvu, pcifunc, nixlf, false);
- 
- 	/* Delete multicast and promisc MCAM entries */
-@@ -1107,6 +1110,9 @@ void rvu_npc_disable_default_entries(str
- 
- void rvu_npc_enable_default_entries(struct rvu *rvu, u16 pcifunc, int nixlf)
- {
-+	if (nixlf < 0)
-+		return;
-+
- 	/* Enables only broadcast match entry. Promisc/Allmulti are enabled
- 	 * in set_rx_mode mbox handler.
- 	 */
 
 
