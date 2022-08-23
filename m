@@ -2,42 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5334259D39F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2091859D342
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242043AbiHWIMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:12:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33284 "EHLO
+        id S242078AbiHWIMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:12:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242132AbiHWIKn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:10:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 785FF69F6C;
-        Tue, 23 Aug 2022 01:07:55 -0700 (PDT)
+        with ESMTP id S242168AbiHWIKt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:10:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2465B6A49A;
+        Tue, 23 Aug 2022 01:08:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14CA26123F;
-        Tue, 23 Aug 2022 08:07:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A7FFC433C1;
-        Tue, 23 Aug 2022 08:07:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0594B81C17;
+        Tue, 23 Aug 2022 08:08:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C04F8C433D7;
+        Tue, 23 Aug 2022 08:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242074;
-        bh=HGZuHszCVXMKiPLMwr7I2qv6J3qZJWqweO7wKCDi7TU=;
+        s=korg; t=1661242080;
+        bh=teKc3lF5mfoEsKS9IbpH7Y4FTQyLnvHdoT5FLMkSxxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWBkwSH5vctso18R54dKOKIMCC6sGN4R5dwTiHh8t7dKj9Z4KWtL4BEzeerE57kp3
-         T2/GcxGkvuqcn38NcdcdzEgOy3VmwO9vfGhbrUpYHQOIjqXtYIDQPJ2aBL7hx/T2B5
-         CZx3XMeybHjhQhQ07JvgsevgU87RZTu3kgvfRlUY=
+        b=c0+QzzjjVNetgG9FuSWeDhNMoxdLtDXwfa5km2KVvO39IxGi6o6hFCow0nCHbfJZq
+         oYPXTUzCbMUfvC+nV7n+GzEVphH88XJoa3kRqnq1lN7EpImTtJbISfjX2d8wweRvPa
+         9a2pL2VNILayqt83ZM4CWC5/t84KOQr/VjS27Orw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Alexander Grund <theflamefire89@gmail.com>
-Subject: [PATCH 4.9 015/101] selinux: fix inode_doinit_with_dentry() LABEL_INVALID error handling
-Date:   Tue, 23 Aug 2022 10:02:48 +0200
-Message-Id: <20220823080035.146702826@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Allison Randal <allison@lohutok.net>,
+        Joe Perches <joe@perches.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Torsten Hilbrich <torsten.hilbrich@secunet.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
+Subject: [PATCH 4.9 016/101] include/uapi/linux/swab.h: fix userspace breakage, use __BITS_PER_LONG for swap
+Date:   Tue, 23 Aug 2022 10:02:49 +0200
+Message-Id: <20220823080035.188734677@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -55,97 +62,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-commit 200ea5a2292dc444a818b096ae6a32ba3caa51b9 upstream.
+commit 467d12f5c7842896d2de3ced74e4147ee29e97c8 upstream.
 
-A previous fix, commit 83370b31a915 ("selinux: fix error initialization
-in inode_doinit_with_dentry()"), changed how failures were handled
-before a SELinux policy was loaded.  Unfortunately that patch was
-potentially problematic for two reasons: it set the isec->initialized
-state without holding a lock, and it didn't set the inode's SELinux
-label to the "default" for the particular filesystem.  The later can
-be a problem if/when a later attempt to revalidate the inode fails
-and SELinux reverts to the existing inode label.
+QEMU has a funny new build error message when I use the upstream kernel
+headers:
 
-This patch should restore the default inode labeling that existed
-before the original fix, without affecting the LABEL_INVALID marking
-such that revalidation will still be attempted in the future.
+      CC      block/file-posix.o
+    In file included from /home/cborntra/REPOS/qemu/include/qemu/timer.h:4,
+                     from /home/cborntra/REPOS/qemu/include/qemu/timed-average.h:29,
+                     from /home/cborntra/REPOS/qemu/include/block/accounting.h:28,
+                     from /home/cborntra/REPOS/qemu/include/block/block_int.h:27,
+                     from /home/cborntra/REPOS/qemu/block/file-posix.c:30:
+    /usr/include/linux/swab.h: In function `__swab':
+    /home/cborntra/REPOS/qemu/include/qemu/bitops.h:20:34: error: "sizeof" is not defined, evaluates to 0 [-Werror=undef]
+       20 | #define BITS_PER_LONG           (sizeof (unsigned long) * BITS_PER_BYTE)
+          |                                  ^~~~~~
+    /home/cborntra/REPOS/qemu/include/qemu/bitops.h:20:41: error: missing binary operator before token "("
+       20 | #define BITS_PER_LONG           (sizeof (unsigned long) * BITS_PER_BYTE)
+          |                                         ^
+    cc1: all warnings being treated as errors
+    make: *** [/home/cborntra/REPOS/qemu/rules.mak:69: block/file-posix.o] Error 1
+    rm tests/qemu-iotests/socket_scm_helper.o
 
-Fixes: 83370b31a915 ("selinux: fix error initialization in inode_doinit_with_dentry()")
-Reported-by: Sven Schnelle <svens@linux.ibm.com>
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Alexander Grund <theflamefire89@gmail.com>
+This was triggered by commit d5767057c9a ("uapi: rename ext2_swab() to
+swab() and share globally in swab.h").  That patch is doing
+
+  #include <asm/bitsperlong.h>
+
+but it uses BITS_PER_LONG.
+
+The kernel file asm/bitsperlong.h provide only __BITS_PER_LONG.
+
+Let us use the __ variant in swap.h
+
+Link: http://lkml.kernel.org/r/20200213142147.17604-1-borntraeger@de.ibm.com
+Fixes: d5767057c9a ("uapi: rename ext2_swab() to swab() and share globally in swab.h")
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: Allison Randal <allison@lohutok.net>
+Cc: Joe Perches <joe@perches.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: William Breathitt Gray <vilhelm.gray@gmail.com>
+Cc: Torsten Hilbrich <torsten.hilbrich@secunet.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/selinux/hooks.c |   31 +++++++++++++------------------
- 1 file changed, 13 insertions(+), 18 deletions(-)
+ include/uapi/linux/swab.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1450,13 +1450,7 @@ static int inode_doinit_with_dentry(stru
- 			 * inode_doinit with a dentry, before these inodes could
- 			 * be used again by userspace.
- 			 */
--			isec->initialized = LABEL_INVALID;
--			/*
--			 * There is nothing useful to jump to the "out"
--			 * label, except a needless spin lock/unlock
--			 * cycle.
--			 */
--			return 0;
-+			goto out_invalid;
- 		}
+--- a/include/uapi/linux/swab.h
++++ b/include/uapi/linux/swab.h
+@@ -134,9 +134,9 @@ static inline __attribute_const__ __u32
  
- 		len = INITCONTEXTLEN;
-@@ -1564,15 +1558,8 @@ static int inode_doinit_with_dentry(stru
- 			 * inode_doinit() with a dentry, before these inodes
- 			 * could be used again by userspace.
- 			 */
--			if (!dentry) {
--				isec->initialized = LABEL_INVALID;
--				/*
--				 * There is nothing useful to jump to the "out"
--				 * label, except a needless spin lock/unlock
--				 * cycle.
--				 */
--				return 0;
--			}
-+			if (!dentry)
-+				goto out_invalid;
- 			rc = selinux_genfs_get_sid(dentry, sclass,
- 						   sbsec->flags, &sid);
- 			dput(dentry);
-@@ -1585,11 +1572,10 @@ static int inode_doinit_with_dentry(stru
- out:
- 	spin_lock(&isec->lock);
- 	if (isec->initialized == LABEL_PENDING) {
--		if (!sid || rc) {
-+		if (rc) {
- 			isec->initialized = LABEL_INVALID;
- 			goto out_unlock;
- 		}
--
- 		isec->initialized = LABEL_INITIALIZED;
- 		isec->sid = sid;
- 	}
-@@ -1597,6 +1583,15 @@ out:
- out_unlock:
- 	spin_unlock(&isec->lock);
- 	return rc;
-+
-+out_invalid:
-+	spin_lock(&isec->lock);
-+	if (isec->initialized == LABEL_PENDING) {
-+		isec->initialized = LABEL_INVALID;
-+		isec->sid = sid;
-+	}
-+	spin_unlock(&isec->lock);
-+	return 0;
+ static __always_inline unsigned long __swab(const unsigned long y)
+ {
+-#if BITS_PER_LONG == 64
++#if __BITS_PER_LONG == 64
+ 	return __swab64(y);
+-#else /* BITS_PER_LONG == 32 */
++#else /* __BITS_PER_LONG == 32 */
+ 	return __swab32(y);
+ #endif
  }
- 
- /* Convert a Linux signal to an access vector. */
 
 
