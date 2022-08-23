@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FFDA59DC92
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E94459DB7B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353164AbiHWKXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44678 "EHLO
+        id S242668AbiHWLcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:32:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355048AbiHWKWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:22:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052CA65654;
-        Tue, 23 Aug 2022 02:03:57 -0700 (PDT)
+        with ESMTP id S1344157AbiHWL3i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:29:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D275C57B6;
+        Tue, 23 Aug 2022 02:25:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C86E6B81C53;
-        Tue, 23 Aug 2022 09:03:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F92EC433C1;
-        Tue, 23 Aug 2022 09:03:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 111EE6130E;
+        Tue, 23 Aug 2022 09:25:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0676BC433C1;
+        Tue, 23 Aug 2022 09:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245434;
-        bh=fKC6Eft23X6p5de7xmAaF7rYFnuHuI+SxHNNWdH0AfU=;
+        s=korg; t=1661246725;
+        bh=2qWzSu005KhCZKCiQj4XzI9joxbuxc5CFtp+2bHxyh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBffbx0FSteXiVu4l31wKHxABA66K2Js4UYPRPfr68Fu24S3RsEA3NpqkEmJaRCVO
-         /sVLpuehyNHa/ClWVxI2SbiWuoam6aTe5hivkulbFxwNSXARx+2+mofLH3qqXKb1UI
-         oH9AY1FPSGGsIb2oe8E06QOkKCYyRB6DOy37MKI0=
+        b=UE5e+eG6VSpiteHh8OLxhwMNvreO/WOfInn856r+16KkPLimFsv8amXsq9Ku2ZRlw
+         yKU1Cqv6G4v4UO1/ihoOfgDUsjHpq/CJwNbgyFj7Ag9QiSWYCrntu4lPhqjuhJv9+u
+         vw8YRzpz1zuTdUz/6u+Ay2FL0WIqFanPTXLPEvm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 078/287] drm/vc4: dsi: Correct DSI divider calculations
+Subject: [PATCH 5.4 169/389] usb: host: xhci: use snprintf() in xhci_decode_trb()
 Date:   Tue, 23 Aug 2022 10:24:07 +0200
-Message-Id: <20220823080102.877281360@linuxfoundation.org>
+Message-Id: <20220823080122.685453474@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 3b45eee87da171caa28f61240ddb5c21170cda53 ]
+[ Upstream commit 1ce69c35b86038dd11d3a6115a04501c5b89a940 ]
 
-The divider calculations tried to find the divider just faster than the
-clock requested. However if it required a divider of 7 then the for loop
-aborted without handling the "error" case, and could end up with a clock
-lower than requested.
+Commit cbf286e8ef83 ("xhci: fix unsafe memory usage in xhci tracing")
+apparently missed one sprintf() call in xhci_decode_trb() -- replace
+it with the snprintf() call as well...
 
-The integer divider from parent PLL to DSI clock is also capable of
-going up to /255, not just /7 that the driver was trying.  This allows
-for slower link frequencies on the DSI bus where the resolution permits.
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
 
-Correct the loop so that we always have a clock greater than requested,
-and covering the whole range of dividers.
-
-Fixes: 86c1b9eff3f2 ("drm/vc4: Adjust modes in DSI to work around the integer PLL divider.")
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://lore.kernel.org/r/20220613144800.326124-13-maxime@cerno.tech
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Fixes: cbf286e8ef83 ("xhci: fix unsafe memory usage in xhci tracing")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220630124645.1805902-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_dsi.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/host/xhci.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_dsi.c b/drivers/gpu/drm/vc4/vc4_dsi.c
-index 0c607eb33d7e..77003ce666a4 100644
---- a/drivers/gpu/drm/vc4/vc4_dsi.c
-+++ b/drivers/gpu/drm/vc4/vc4_dsi.c
-@@ -853,11 +853,9 @@ static bool vc4_dsi_encoder_mode_fixup(struct drm_encoder *encoder,
- 	/* Find what divider gets us a faster clock than the requested
- 	 * pixel clock.
- 	 */
--	for (divider = 1; divider < 8; divider++) {
--		if (parent_rate / divider < pll_clock) {
--			divider--;
-+	for (divider = 1; divider < 255; divider++) {
-+		if (parent_rate / (divider + 1) < pll_clock)
- 			break;
--		}
- 	}
- 
- 	/* Now that we've picked a PLL divider, calculate back to its
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index a9031f494984..5a6ad776858e 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -2376,7 +2376,7 @@ static inline const char *xhci_decode_trb(char *str, size_t size,
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_STOP_RING:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: slot %d sp %d ep %d flags %c",
+ 			xhci_trb_type_string(type),
+ 			TRB_TO_SLOT_ID(field3),
 -- 
 2.35.1
 
