@@ -2,40 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D40AF59D65A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 841E859D4F2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344068AbiHWIjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:39:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45726 "EHLO
+        id S242035AbiHWIg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:36:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344284AbiHWIhP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:37:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05CA577EB5;
-        Tue, 23 Aug 2022 01:17:58 -0700 (PDT)
+        with ESMTP id S1346206AbiHWIgA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:36:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 395DB760EE;
+        Tue, 23 Aug 2022 01:17:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C53BCCE1B34;
-        Tue, 23 Aug 2022 08:16:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C87EDC433C1;
-        Tue, 23 Aug 2022 08:16:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6C4961377;
+        Tue, 23 Aug 2022 08:17:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BF52C433C1;
+        Tue, 23 Aug 2022 08:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242615;
-        bh=epO8K098BtRj6Sc5ipRdBeNNa94m9Yx6xf3h4PdWRFY=;
+        s=korg; t=1661242621;
+        bh=69ovCRcumfGslh/oGLivZ4DIr8oJgQGwFuXGEqHGW5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhJFL6nhxQEmCq8NbRpC4ENDNTtLzV5BWoujyXM1KcepPHwSPbpBMxVqfaWXzfMKs
-         wiNXs03rq8N0b3fQRZci+Hf18zx/Qn07zJQ3yUm5vMsGIBaQ2qLbtSa0Nt8QOjEbfp
-         sGYHvp0bX6n7wOFFKqP/8ma/09Xf98RBP4NkwC1Y=
+        b=1lmfjeY/1AZ4u1HjGhSbikYr0nxZa869OIglx555miOeaIEiXk95EbOhe0Qt+tkA6
+         Z2pv2Qy5uSVbPuj84DP3SZbAmJn9VY9b7BBux8hxotUzGuURNcQ/c9HHqfZP0D9jqy
+         j9ovD0QVIkg/o8/fb0tjth2HvNQtl0grvqjk4ucU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.19 145/365] kbuild: dummy-tools: avoid tmpdir leak in dummy gcc
-Date:   Tue, 23 Aug 2022 10:00:46 +0200
-Message-Id: <20220823080124.294570326@linuxfoundation.org>
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Ingo Molnar <mingo@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, llvm@lists.linux.dev,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nick Terrell <terrelln@fb.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Quentin Monnet <quentin@isovalent.com>,
+        Song Liu <song@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.19 146/365] tools build: Switch to new openssl API for test-libcrypto
+Date:   Tue, 23 Aug 2022 10:00:47 +0200
+Message-Id: <20220823080124.334423074@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,40 +67,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit aac289653fa5adf9e9985e4912c1d24a3e8cbab2 upstream.
+commit 5b245985a6de5ac18b5088c37068816d413fb8ed upstream.
 
-When passed -print-file-name=plugin, the dummy gcc script creates a
-temporary directory that is never cleaned up. To avoid cluttering
-$TMPDIR, instead use a static directory included in the source tree.
+Switch to new EVP API for detecting libcrypto, as Fedora 36 returns an
+error when it encounters the deprecated function MD5_Init() and the others.
 
-Fixes: 76426e238834 ("kbuild: add dummy toolchains to enable all cc-option etc. in Kconfig")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+The error would be interpreted as missing libcrypto, while in reality it is
+not.
+
+Fixes: 6e8ccb4f624a73c5 ("tools/bpf: properly account for libbfd variations")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: bpf@vger.kernel.org
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: llvm@lists.linux.dev
+Cc: Martin KaFai Lau <martin.lau@linux.dev>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Nick Terrell <terrelln@fb.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Quentin Monnet <quentin@isovalent.com>
+Cc: Song Liu <song@kernel.org>
+Cc: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20220719170555.2576993-4-roberto.sassu@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../dummy-tools/dummy-plugin-dir/include/plugin-version.h | 0
- scripts/dummy-tools/gcc |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
- create mode 100644 scripts/dummy-tools/dummy-plugin-dir/include/plugin-version.h
+ tools/build/feature/test-libcrypto.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/scripts/dummy-tools/gcc
-+++ b/scripts/dummy-tools/gcc
-@@ -96,12 +96,8 @@ fi
+--- a/tools/build/feature/test-libcrypto.c
++++ b/tools/build/feature/test-libcrypto.c
+@@ -1,16 +1,23 @@
+ // SPDX-License-Identifier: GPL-2.0
++#include <openssl/evp.h>
+ #include <openssl/sha.h>
+ #include <openssl/md5.h>
  
- # To set GCC_PLUGINS
- if arg_contain -print-file-name=plugin "$@"; then
--	plugin_dir=$(mktemp -d)
--
--	mkdir -p $plugin_dir/include
--	touch $plugin_dir/include/plugin-version.h
--
--	echo $plugin_dir
-+	# Use $0 to find the in-tree dummy directory
-+	echo "$(dirname "$(readlink -f "$0")")/dummy-plugin-dir"
- 	exit 0
- fi
+ int main(void)
+ {
+-	MD5_CTX context;
++	EVP_MD_CTX *mdctx;
+ 	unsigned char md[MD5_DIGEST_LENGTH + SHA_DIGEST_LENGTH];
+ 	unsigned char dat[] = "12345";
++	unsigned int digest_len;
+ 
+-	MD5_Init(&context);
+-	MD5_Update(&context, &dat[0], sizeof(dat));
+-	MD5_Final(&md[0], &context);
++	mdctx = EVP_MD_CTX_new();
++	if (!mdctx)
++		return 0;
++
++	EVP_DigestInit_ex(mdctx, EVP_md5(), NULL);
++	EVP_DigestUpdate(mdctx, &dat[0], sizeof(dat));
++	EVP_DigestFinal_ex(mdctx, &md[0], &digest_len);
++	EVP_MD_CTX_free(mdctx);
+ 
+ 	SHA1(&dat[0], sizeof(dat), &md[0]);
  
 
 
