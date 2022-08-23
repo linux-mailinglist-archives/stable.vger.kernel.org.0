@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D565059DC90
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E597459DF85
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346367AbiHWLH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:07:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51178 "EHLO
+        id S1359180AbiHWMDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:03:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357286AbiHWLGa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:06:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D8C8B515D;
-        Tue, 23 Aug 2022 02:16:04 -0700 (PDT)
+        with ESMTP id S1359689AbiHWMCK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A074DE09D;
+        Tue, 23 Aug 2022 02:36:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id ADB1FCE1B5D;
-        Tue, 23 Aug 2022 09:15:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C27ADC433C1;
-        Tue, 23 Aug 2022 09:15:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9606861471;
+        Tue, 23 Aug 2022 09:35:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99111C433C1;
+        Tue, 23 Aug 2022 09:35:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246120;
-        bh=SjU1n1ytovhL3UgKE8PCRmwFhJUvTy4uztS1wVLyviQ=;
+        s=korg; t=1661247325;
+        bh=aAHCeysXN6GB7GpAXYTkk61ModqjTGqTR+jPzgcCcBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOqscjuYHs7HJAtwsb1zK9xBcOhsFVlLD8LxV8grjvdF+agy6c9LDyiZmX2dvImmO
-         L44dN0O2EEaLr75TkUSW1eUBKdrdabdMTVtQJstCcFAurJf5b4691R94HSkyLhUPxm
-         MWo8bXUBsvTSPpPT/4q6Yb1VoVBoYKkjbiA75MAI=
+        b=NmjhBli9F0k6stP08T5Ip26hPCtX6Y0jkL7JGu48Vft5dTSzBtViQqINBBqU3jn6I
+         SpygGHFknUGZdjiCs/8MdfxJA77wk2LQDxFQQTSFd+qBipMGhnBK3dvVJtrZoomSJr
+         WHFZ4V46g78fmaMRI9obVP4jRbjd2YZhu08IhVT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timur Tabi <timur@kernel.org>,
-        Liang He <windhl@126.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 271/287] tty: serial: Fix refcount leak bug in ucc_uart.c
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 362/389] um: add "noreboot" command line option for PANIC_TIMEOUT=-1 setups
 Date:   Tue, 23 Aug 2022 10:27:20 +0200
-Message-Id: <20220823080110.501223816@linuxfoundation.org>
+Message-Id: <20220823080130.675124640@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit d24d7bb2cd947676f9b71fb944d045e09b8b282f ]
+[ Upstream commit dda520d07b95072a0b63f6c52a8eb566d08ea897 ]
 
-In soc_info(), of_find_node_by_type() will return a node pointer
-with refcount incremented. We should use of_node_put() when it is
-not used anymore.
+QEMU has a -no-reboot option, which halts instead of reboots when the
+guest asks to reboot. This is invaluable when used with
+CONFIG_PANIC_TIMEOUT=-1 (and panic_on_warn), because it allows panics
+and warnings to be caught immediately in CI. Implement this in UML too,
+by way of a basic setup param.
 
-Acked-by: Timur Tabi <timur@kernel.org>
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220618060850.4058525-1-windhl@126.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/ucc_uart.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/um/os-Linux/skas/process.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/ucc_uart.c b/drivers/tty/serial/ucc_uart.c
-index 2b6376e6e5ad..eb0d3f55235a 100644
---- a/drivers/tty/serial/ucc_uart.c
-+++ b/drivers/tty/serial/ucc_uart.c
-@@ -1141,6 +1141,8 @@ static unsigned int soc_info(unsigned int *rev_h, unsigned int *rev_l)
- 		/* No compatible property, so try the name. */
- 		soc_string = np->name;
+diff --git a/arch/um/os-Linux/skas/process.c b/arch/um/os-Linux/skas/process.c
+index 4fb877b99dde..0571cc0a30fc 100644
+--- a/arch/um/os-Linux/skas/process.c
++++ b/arch/um/os-Linux/skas/process.c
+@@ -5,6 +5,7 @@
+  */
  
-+	of_node_put(np);
+ #include <stdlib.h>
++#include <stdbool.h>
+ #include <unistd.h>
+ #include <sched.h>
+ #include <errno.h>
+@@ -641,10 +642,24 @@ void halt_skas(void)
+ 	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_HALT);
+ }
+ 
++static bool noreboot;
 +
- 	/* Extract the SOC number from the "PowerPC," string */
- 	if ((sscanf(soc_string, "PowerPC,%u", &soc) != 1) || !soc)
- 		return 0;
++static int __init noreboot_cmd_param(char *str, int *add)
++{
++	noreboot = true;
++	return 0;
++}
++
++__uml_setup("noreboot", noreboot_cmd_param,
++"noreboot\n"
++"    Rather than rebooting, exit always, akin to QEMU's -no-reboot option.\n"
++"    This is useful if you're using CONFIG_PANIC_TIMEOUT in order to catch\n"
++"    crashes in CI\n");
++
+ void reboot_skas(void)
+ {
+ 	block_signals_trace();
+-	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_REBOOT);
++	UML_LONGJMP(&initial_jmpbuf, noreboot ? INIT_JMP_HALT : INIT_JMP_REBOOT);
+ }
+ 
+ void __switch_mm(struct mm_id *mm_idp)
 -- 
 2.35.1
 
