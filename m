@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3702559D68D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8233559D394
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348401AbiHWJMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:12:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33824 "EHLO
+        id S242425AbiHWIRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:17:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348501AbiHWJK2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:10:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D2574DEE;
-        Tue, 23 Aug 2022 01:31:03 -0700 (PDT)
+        with ESMTP id S242376AbiHWIOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:14:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1F796CF41;
+        Tue, 23 Aug 2022 01:09:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 89870614BC;
-        Tue, 23 Aug 2022 08:31:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 795DFC433D6;
-        Tue, 23 Aug 2022 08:31:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1E716126A;
+        Tue, 23 Aug 2022 08:09:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5CADC433C1;
+        Tue, 23 Aug 2022 08:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243463;
-        bh=tOAIb5zAvN93JR+nNiVB/+65aJaN03Crd3NKqy/DKvo=;
+        s=korg; t=1661242189;
+        bh=6U83wbLARbMC175D+M8iSXUKvFzWTq2N2fBB1jY3bHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i0ArgVrC6F7ZwBNeCjSt2fbg2Sew6RhiBLH8ZnzZ7saWG9DN4NCbTc/2tia6IS1t1
-         JHEZp+IBFGXafZ8UqQr6aGizXmePXQZeDXZ4dOMGAL6vblfOyxuNN/qwn5evOCdKoM
-         GGRV3LEe3hF1l1ziF2q/80ztfTGLapEVvNiupEUg=
+        b=GSI32Wiu1I+I1dfF3UIqeb4vnbH+nYbn+9NZXksouwF2k2HqvxWVmQ/1FDKqmIWWy
+         r3ROVN0hqmbrgjxXKbJibeKoj3KnUUlxpCO1lNWP159k+ficS+p6RJ7ZJ2MdKvQ/2V
+         JDv7GKBniyP2emvJZ+TSHmE1loedETMLEUmUHSPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 285/365] scsi: lpfc: Fix possible memory leak when failing to issue CMF WQE
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Namjae Jeon <linkinjeon@kernel.org>, stable@kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Steve French <sfrench@samba.org>,
+        Hyunchul Lee <hyc.lee@gmail.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Dave Wysochanski <dwysocha@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 033/101] vfs: Check the truncate maximum size in inode_newsize_ok()
 Date:   Tue, 23 Aug 2022 10:03:06 +0200
-Message-Id: <20220823080130.108694170@linuxfoundation.org>
+Message-Id: <20220823080035.847056784@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +60,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 2f67dc7970bce3529edce93a0a14234d88b3fcd5 ]
+commit e2ebff9c57fe4eb104ce4768f6ebcccf76bef849 upstream.
 
-There is no corresponding free routine if lpfc_sli4_issue_wqe fails to
-issue the CMF WQE in lpfc_issue_cmf_sync_wqe.
+If something manages to set the maximum file size to MAX_OFFSET+1, this
+can cause the xfs and ext4 filesystems at least to become corrupt.
 
-If ret_val is non-zero, then free the iocbq request structure.
+Ordinarily, the kernel protects against userspace trying this by
+checking the value early in the truncate() and ftruncate() system calls
+calls - but there are at least two places that this check is bypassed:
 
-Link: https://lore.kernel.org/r/20220701211425.2708-6-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ (1) Cachefiles will round up the EOF of the backing file to DIO block
+     size so as to allow DIO on the final block - but this might push
+     the offset negative. It then calls notify_change(), but this
+     inadvertently bypasses the checking. This can be triggered if
+     someone puts an 8EiB-1 file on a server for someone else to try and
+     access by, say, nfs.
+
+ (2) ksmbd doesn't check the value it is given in set_end_of_file_info()
+     and then calls vfs_truncate() directly - which also bypasses the
+     check.
+
+In both cases, it is potentially possible for a network filesystem to
+cause a disk filesystem to be corrupted: cachefiles in the client's
+cache filesystem; ksmbd in the server's filesystem.
+
+nfsd is okay as it checks the value, but we can then remove this check
+too.
+
+Fix this by adding a check to inode_newsize_ok(), as called from
+setattr_prepare(), thereby catching the issue as filesystems set up to
+perform the truncate with minimal opportunity for bypassing the new
+check.
+
+Fixes: 1f08c925e7a3 ("cachefiles: Implement backing file wrangling")
+Fixes: f44158485826 ("cifsd: add file operations")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reported-by: Jeff Layton <jlayton@kernel.org>
+Tested-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Namjae Jeon <linkinjeon@kernel.org>
+Cc: stable@kernel.org
+Acked-by: Alexander Viro <viro@zeniv.linux.org.uk>
+cc: Steve French <sfrench@samba.org>
+cc: Hyunchul Lee <hyc.lee@gmail.com>
+cc: Chuck Lever <chuck.lever@oracle.com>
+cc: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/attr.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 80ac3a051c19..e2127e85ff32 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -2003,10 +2003,12 @@ lpfc_issue_cmf_sync_wqe(struct lpfc_hba *phba, u32 ms, u64 total)
+--- a/fs/attr.c
++++ b/fs/attr.c
+@@ -111,6 +111,8 @@ EXPORT_SYMBOL(setattr_prepare);
+  */
+ int inode_newsize_ok(const struct inode *inode, loff_t offset)
+ {
++	if (offset < 0)
++		return -EINVAL;
+ 	if (inode->i_size < offset) {
+ 		unsigned long limit;
  
- 	sync_buf->cmd_flag |= LPFC_IO_CMF;
- 	ret_val = lpfc_sli4_issue_wqe(phba, &phba->sli4_hba.hdwq[0], sync_buf);
--	if (ret_val)
-+	if (ret_val) {
- 		lpfc_printf_log(phba, KERN_INFO, LOG_CGN_MGMT,
- 				"6214 Cannot issue CMF_SYNC_WQE: x%x\n",
- 				ret_val);
-+		__lpfc_sli_release_iocbq(phba, sync_buf);
-+	}
- out_unlock:
- 	spin_unlock_irqrestore(&phba->hbalock, iflags);
- 	return ret_val;
--- 
-2.35.1
-
 
 
