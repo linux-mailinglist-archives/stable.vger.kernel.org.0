@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6AC659DC3C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3C959DBB8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349831AbiHWLSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:18:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36704 "EHLO
+        id S1353728AbiHWKSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:18:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357463AbiHWLRg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 599477FE79;
-        Tue, 23 Aug 2022 02:20:59 -0700 (PDT)
+        with ESMTP id S1354203AbiHWKQy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:16:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC2580508;
+        Tue, 23 Aug 2022 02:01:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5E57608D5;
-        Tue, 23 Aug 2022 09:20:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4E93C433D7;
-        Tue, 23 Aug 2022 09:20:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF07BB81C4E;
+        Tue, 23 Aug 2022 09:01:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24EADC433C1;
+        Tue, 23 Aug 2022 09:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246458;
-        bh=xhWZwq/HUtoLagsr8FhoEe1WFz99DlirWBij+9n3rrw=;
+        s=korg; t=1661245273;
+        bh=hr/Pn1MtnmU1uTRaC0OALxO0Ji88TLf/S+Ck1P6grus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EExflo9u+7BXW/Lha0FaP05UuW1XnYcsVYG4cwk87ocZ/idxBnQqU9SqTovayZNSb
-         B5xEX8WeAVyNeexNKJzh+ZBiuzhHOaIWKOdYPJNWEM8Dd6N/nk+b0SDlWdVwJM+cY5
-         Htqap8d0vBb24LUcJCJpbh/yE7j1N7/jK7Z11chY=
+        b=d7yDFRzrIsdN5CUqLGP2QQGjrVMmVo6uPXqyCdq7Ur2IbjLkBAzhLuiBXRwiyx3cc
+         jPzBiKsvYqF/mLOgZZfZmiltXUG2reHu/r67ypFNqF5yFG3MtmYRWzgxOKXEaXQJ2i
+         ggf3M0IKGTd7ZfdPBQSV0viB1cVaKxYaYLfAmlCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 116/389] drm: bridge: sii8620: fix possible off-by-one
-Date:   Tue, 23 Aug 2022 10:23:14 +0200
-Message-Id: <20220823080120.461751167@linuxfoundation.org>
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 026/287] selftests/bpf: Fix "dubious pointer arithmetic" test
+Date:   Tue, 23 Aug 2022 10:23:15 +0200
+Message-Id: <20220823080101.156298170@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Ovidiu Panait <ovidiu.panait@windriver.com>
 
-[ Upstream commit 21779cc21c732c5eff8ea1624be6590450baa30f ]
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-The next call to sii8620_burst_get_tx_buf will result in off-by-one
-When ctx->burst.tx_count + size == ARRAY_SIZE(ctx->burst.tx_buf). The same
-thing happens in sii8620_burst_get_rx_buf.
+commit 3615bdf6d9b19db12b1589861609b4f1c6a8d303 upstream.
 
-This patch also change tx_count and tx_buf to rx_count and rx_buf in
-sii8620_burst_get_rx_buf. It is unreasonable to check tx_buf's size and
-use rx_buf.
+The verifier trace changed following a bugfix. After checking the 64-bit
+sign, only the upper bit mask is known, not bit 31. Update the test
+accordingly.
 
-Fixes: e19e9c692f81 ("drm/bridge/sii8620: add support for burst eMSC transmissions")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220518065856.18936-1-hbh25y@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+[OP: adjust for 4.19 selftests]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/sil-sii8620.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/test_align.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index fb0b64c965b7..970bc00d2aaf 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -604,7 +604,7 @@ static void *sii8620_burst_get_tx_buf(struct sii8620 *ctx, int len)
- 	u8 *buf = &ctx->burst.tx_buf[ctx->burst.tx_count];
- 	int size = len + 2;
- 
--	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
-+	if (ctx->burst.tx_count + size >= ARRAY_SIZE(ctx->burst.tx_buf)) {
- 		dev_err(ctx->dev, "TX-BLK buffer exhausted\n");
- 		ctx->error = -EINVAL;
- 		return NULL;
-@@ -621,7 +621,7 @@ static u8 *sii8620_burst_get_rx_buf(struct sii8620 *ctx, int len)
- 	u8 *buf = &ctx->burst.rx_buf[ctx->burst.rx_count];
- 	int size = len + 1;
- 
--	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
-+	if (ctx->burst.rx_count + size >= ARRAY_SIZE(ctx->burst.rx_buf)) {
- 		dev_err(ctx->dev, "RX-BLK buffer exhausted\n");
- 		ctx->error = -EINVAL;
- 		return NULL;
--- 
-2.35.1
-
+--- a/tools/testing/selftests/bpf/test_align.c
++++ b/tools/testing/selftests/bpf/test_align.c
+@@ -475,10 +475,10 @@ static struct bpf_align_test tests[] = {
+ 			 */
+ 			{7, "R5=inv(id=0,smin_value=-9223372036854775806,smax_value=9223372036854775806,umin_value=2,umax_value=18446744073709551614,var_off=(0x2; 0xfffffffffffffffc)"},
+ 			/* Checked s>=0 */
+-			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
++			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
+ 			/* packet pointer + nonnegative (4n+2) */
+-			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
+-			{13, "R4=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
++			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
++			{13, "R4=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
+ 			/* NET_IP_ALIGN + (4n+2) == (4n), alignment is fine.
+ 			 * We checked the bounds, but it might have been able
+ 			 * to overflow if the packet pointer started in the
+@@ -486,7 +486,7 @@ static struct bpf_align_test tests[] = {
+ 			 * So we did not get a 'range' on R6, and the access
+ 			 * attempt will fail.
+ 			 */
+-			{15, "R6=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
++			{15, "R6=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
+ 		}
+ 	},
+ 	{
 
 
