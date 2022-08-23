@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BE8D59D705
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 366C559D746
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351035AbiHWJfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:35:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38702 "EHLO
+        id S1350190AbiHWJbw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:31:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351140AbiHWJei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:34:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF11F956BC;
-        Tue, 23 Aug 2022 01:39:21 -0700 (PDT)
+        with ESMTP id S1351024AbiHWJbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:31:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9872627F;
+        Tue, 23 Aug 2022 01:38:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2042461485;
-        Tue, 23 Aug 2022 08:38:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 100A4C433C1;
-        Tue, 23 Aug 2022 08:38:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED9896132D;
+        Tue, 23 Aug 2022 08:37:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4176C433C1;
+        Tue, 23 Aug 2022 08:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243896;
-        bh=UCYycxyPUwO1hHOBKfBA1QUnk84cOVlOhcqdGlDU2ck=;
+        s=korg; t=1661243825;
+        bh=3SEtrh6MNpXnvKk3vVEPj7E7RPsWRJCj7UxewlvKznA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aeA8avaasroYimosAlrL+L5iAk+pw1/BuKYDX9Z1o2Pj6pmw8XjtPFMcFrL8Q8nd8
-         4e9hPq/qdVTZ7zI85zcdlkKN4cXmnNaLDkctQkoGAZ2btWPigO3t1DMrWrbHthGeUt
-         s3RufXuc87Py9Ctc+MCCcyhUS+zjqv3qGQQmtNNY=
+        b=UAImMthU8y+HfBX240HX51T3xh7Q8eJH4844pBY1gC7o21uK1tnNE6OeynGIPvRCO
+         YsLO8/x7MjM0S+o/6Uunx17PY3BDtQ4zxOWG+fgJ85CnKVDk5xD6Zz/lBf87Sa37a+
+         K7GQ05YRpZV0u4e33Nvcsmg23zaSEJUrvDFB6mIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 005/244] rds: add missing barrier to release_refill
-Date:   Tue, 23 Aug 2022 10:22:44 +0200
-Message-Id: <20220823080059.271888385@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 006/229] net: sungem_phy: Add of_node_put() for reference returned by of_get_parent()
+Date:   Tue, 23 Aug 2022 10:22:47 +0200
+Message-Id: <20220823080053.536799407@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Liang He <windhl@126.com>
 
-commit 9f414eb409daf4f778f011cf8266d36896bb930b upstream.
+[ Upstream commit ebbbe23fdf6070e31509638df3321688358cc211 ]
 
-The functions clear_bit and set_bit do not imply a memory barrier, thus it
-may be possible that the waitqueue_active function (which does not take
-any locks) is moved before clear_bit and it could miss a wakeup event.
+In bcm5421_init(), we should call of_node_put() for the reference
+returned by of_get_parent() which has increased the refcount.
 
-Fix this bug by adding a memory barrier after clear_bit.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3c326fe9cb7a ("[PATCH] ppc64: Add new PHY to sungem")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220720131003.1287426-1-windhl@126.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/ib_recv.c |    1 +
+ drivers/net/sungem_phy.c | 1 +
  1 file changed, 1 insertion(+)
 
---- a/net/rds/ib_recv.c
-+++ b/net/rds/ib_recv.c
-@@ -363,6 +363,7 @@ static int acquire_refill(struct rds_con
- static void release_refill(struct rds_connection *conn)
- {
- 	clear_bit(RDS_RECV_REFILL, &conn->c_flags);
-+	smp_mb__after_atomic();
- 
- 	/* We don't use wait_on_bit()/wake_up_bit() because our waking is in a
- 	 * hot path and finding waiters is very rare.  We don't want to walk
+diff --git a/drivers/net/sungem_phy.c b/drivers/net/sungem_phy.c
+index 63a8ff816e59..e556b00dfed2 100644
+--- a/drivers/net/sungem_phy.c
++++ b/drivers/net/sungem_phy.c
+@@ -453,6 +453,7 @@ static int bcm5421_init(struct mii_phy* phy)
+ 		int can_low_power = 1;
+ 		if (np == NULL || of_get_property(np, "no-autolowpower", NULL))
+ 			can_low_power = 0;
++		of_node_put(np);
+ 		if (can_low_power) {
+ 			/* Enable automatic low-power */
+ 			sungem_phy_write(phy, 0x1c, 0x9002);
+-- 
+2.35.1
+
 
 
