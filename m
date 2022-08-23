@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A24B59DE1C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E305859E266
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241159AbiHWLTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:19:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40424 "EHLO
+        id S1353927AbiHWKYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357561AbiHWLRs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:48 -0400
+        with ESMTP id S1353870AbiHWKTR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:19:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC9389835;
-        Tue, 23 Aug 2022 02:21:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3659C80F52;
+        Tue, 23 Aug 2022 02:01:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06AF26121F;
-        Tue, 23 Aug 2022 09:21:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01A98C433C1;
-        Tue, 23 Aug 2022 09:21:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CC256123D;
+        Tue, 23 Aug 2022 09:01:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42C71C433C1;
+        Tue, 23 Aug 2022 09:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246498;
-        bh=x4pgOTjFZ7j24t7uOJInGC/hzSu3Wx5f/DwhD36NE14=;
+        s=korg; t=1661245310;
+        bh=ipq2pS/8t4yHP6Fqk/y+1ZASECAh1Sf6kp7qJO6XM+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KeAlSf87BIKkdgMqTQxsH+os40Ew0kp/TkFIovgthGYZw9iFwsQfYhiMFdlV4U06z
-         ihDv6kM5oXwi6ReJp2zqEJE+Z7jumrAcBwyaJrOoPe9mt6SWAyaKV8S647L51FtRW9
-         8HHgSGt7chB2VpB/MbjLeGL3hdKwoxzIn5anEub4=
+        b=CChWWDZ6pXpZW3c4/oWJ09apHQJTMdDMa75yOSwf7f9je+uLa/2N1OBDdKghKslCX
+         glqiHzmSg9UCTbcb4QJyBrFZDGAVSz+rzfUfCnNozA0uqcPD2ws5GaBTOr+/xPQYE2
+         w7pB/6i0ONglrpj/Ltp2yhYe1mHjHktgSctndTzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexey Kodanev <aleksei.kodanev@bell-sw.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/389] drm/radeon: fix potential buffer overflow in ni_set_mc_special_registers()
-Date:   Tue, 23 Aug 2022 10:22:56 +0200
-Message-Id: <20220823080119.697036744@linuxfoundation.org>
+        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 008/287] HID: wacom: Dont register pad_input for touch switch
+Date:   Tue, 23 Aug 2022 10:22:57 +0200
+Message-Id: <20220823080100.545612301@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
+From: Ping Cheng <pinglinux@gmail.com>
 
-[ Upstream commit 136f614931a2bb73616b292cf542da3a18daefd5 ]
+commit d6b675687a4ab4dba684716d97c8c6f81bf10905 upstream.
 
-The last case label can write two buffers 'mc_reg_address[j]' and
-'mc_data[j]' with 'j' offset equal to SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE
-since there are no checks for this value in both case labels after the
-last 'j++'.
+Touch switch state is received through WACOM_PAD_FIELD. However, it
+is reported by touch_input. Don't register pad_input if no other pad
+events require the interface.
 
-Instead of changing '>' to '>=' there, add the bounds check at the start
-of the second 'case' (the first one already has it).
-
-Also, remove redundant last checks for 'j' index bigger than array size.
-The expression is always false. Moreover, before or after the patch
-'table->last' can be equal to SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE and it
-seems it can be a valid value.
-
-Detected using the static analysis tool - Svace.
-Fixes: 69e0b57a91ad ("drm/radeon/kms: add dpm support for cayman (v5)")
-Signed-off-by: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/ni_dpm.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/hid/wacom_sys.c |    2 +-
+ drivers/hid/wacom_wac.c |   43 +++++++++++++++++++++++++------------------
+ 2 files changed, 26 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/ni_dpm.c b/drivers/gpu/drm/radeon/ni_dpm.c
-index bd2e577c701f..288ec3039bc2 100644
---- a/drivers/gpu/drm/radeon/ni_dpm.c
-+++ b/drivers/gpu/drm/radeon/ni_dpm.c
-@@ -2740,10 +2740,10 @@ static int ni_set_mc_special_registers(struct radeon_device *rdev,
- 					table->mc_reg_table_entry[k].mc_data[j] |= 0x100;
- 			}
- 			j++;
--			if (j > SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE)
--				return -EINVAL;
- 			break;
- 		case MC_SEQ_RESERVE_M >> 2:
-+			if (j >= SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE)
-+				return -EINVAL;
- 			temp_reg = RREG32(MC_PMG_CMD_MRS1);
- 			table->mc_reg_address[j].s1 = MC_PMG_CMD_MRS1 >> 2;
- 			table->mc_reg_address[j].s0 = MC_SEQ_PMG_CMD_MRS1_LP >> 2;
-@@ -2752,8 +2752,6 @@ static int ni_set_mc_special_registers(struct radeon_device *rdev,
- 					(temp_reg & 0xffff0000) |
- 					(table->mc_reg_table_entry[k].mc_data[i] & 0x0000ffff);
- 			j++;
--			if (j > SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE)
--				return -EINVAL;
- 			break;
- 		default:
- 			break;
--- 
-2.35.1
-
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -2095,7 +2095,7 @@ static int wacom_register_inputs(struct
+ 
+ 	error = wacom_setup_pad_input_capabilities(pad_input_dev, wacom_wac);
+ 	if (error) {
+-		/* no pad in use on this interface */
++		/* no pad events using this interface */
+ 		input_free_device(pad_input_dev);
+ 		wacom_wac->pad_input = NULL;
+ 		pad_input_dev = NULL;
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1954,7 +1954,6 @@ static void wacom_wac_pad_usage_mapping(
+ 		wacom_wac->has_mute_touch_switch = true;
+ 		usage->type = EV_SW;
+ 		usage->code = SW_MUTE_DEVICE;
+-		features->device_type |= WACOM_DEVICETYPE_PAD;
+ 		break;
+ 	case WACOM_HID_WD_TOUCHSTRIP:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_RX, 0);
+@@ -2034,6 +2033,30 @@ static void wacom_wac_pad_event(struct h
+ 			wacom_wac->hid_data.inrange_state |= value;
+ 	}
+ 
++	/* Process touch switch state first since it is reported through touch interface,
++	 * which is indepentent of pad interface. In the case when there are no other pad
++	 * events, the pad interface will not even be created.
++	 */
++	if ((equivalent_usage == WACOM_HID_WD_MUTE_DEVICE) ||
++	   (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)) {
++		if (wacom_wac->shared->touch_input) {
++			bool *is_touch_on = &wacom_wac->shared->is_touch_on;
++
++			if (equivalent_usage == WACOM_HID_WD_MUTE_DEVICE && value)
++				*is_touch_on = !(*is_touch_on);
++			else if (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)
++				*is_touch_on = value;
++
++			input_report_switch(wacom_wac->shared->touch_input,
++					    SW_MUTE_DEVICE, !(*is_touch_on));
++			input_sync(wacom_wac->shared->touch_input);
++		}
++		return;
++	}
++
++	if (!input)
++		return;
++
+ 	switch (equivalent_usage) {
+ 	case WACOM_HID_WD_TOUCHRING:
+ 		/*
+@@ -2063,22 +2086,6 @@ static void wacom_wac_pad_event(struct h
+ 			input_event(input, usage->type, usage->code, 0);
+ 		break;
+ 
+-	case WACOM_HID_WD_MUTE_DEVICE:
+-	case WACOM_HID_WD_TOUCHONOFF:
+-		if (wacom_wac->shared->touch_input) {
+-			bool *is_touch_on = &wacom_wac->shared->is_touch_on;
+-
+-			if (equivalent_usage == WACOM_HID_WD_MUTE_DEVICE && value)
+-				*is_touch_on = !(*is_touch_on);
+-			else if (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)
+-				*is_touch_on = value;
+-
+-			input_report_switch(wacom_wac->shared->touch_input,
+-					    SW_MUTE_DEVICE, !(*is_touch_on));
+-			input_sync(wacom_wac->shared->touch_input);
+-		}
+-		break;
+-
+ 	case WACOM_HID_WD_MODE_CHANGE:
+ 		if (wacom_wac->is_direct_mode != value) {
+ 			wacom_wac->is_direct_mode = value;
+@@ -2719,7 +2726,7 @@ void wacom_wac_event(struct hid_device *
+ 	/* usage tests must precede field tests */
+ 	if (WACOM_BATTERY_USAGE(usage))
+ 		wacom_wac_battery_event(hdev, field, usage, value);
+-	else if (WACOM_PAD_FIELD(field) && wacom->wacom_wac.pad_input)
++	else if (WACOM_PAD_FIELD(field))
+ 		wacom_wac_pad_event(hdev, field, usage, value);
+ 	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
+ 		wacom_wac_pen_event(hdev, field, usage, value);
 
 
