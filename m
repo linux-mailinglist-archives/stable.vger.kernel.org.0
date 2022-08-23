@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD3959E2AE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5769859DF75
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345227AbiHWKne (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:43:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46370 "EHLO
+        id S1355517AbiHWKni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:43:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356099AbiHWKl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0442A8309;
-        Tue, 23 Aug 2022 02:08:59 -0700 (PDT)
+        with ESMTP id S1356134AbiHWKlc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA67DA832B;
+        Tue, 23 Aug 2022 02:09:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF19AB81C63;
-        Tue, 23 Aug 2022 09:08:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38487C433C1;
-        Tue, 23 Aug 2022 09:08:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56FAC615A6;
+        Tue, 23 Aug 2022 09:09:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A7F7C433B5;
+        Tue, 23 Aug 2022 09:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245737;
-        bh=gqAEIG8WfbBhqZK393AADTyvKVoO0A2WXRDn+KKYA08=;
+        s=korg; t=1661245740;
+        bh=68PQZ3i6lgVIXHof1iJFd+XT/OEODkQkKmzla8hRj6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAwntlz7F7O7gFLp09RvajNkx/jlcXESbN7Phtkr1v3klCQlgyedJUSFZqrI3yye+
-         VWOCZ+aSDVCgwn8bilq3C/biAs0rVlvEnEhJ95wUOEx7h81UpJbrCb9vHbjmxenHqT
-         BgbIv8grHL9EpUkWimoPVuupU6vA6Ek7hQYc90bs=
+        b=ErfpjQmGOexNr6/qxgRk9aMuZbpNhZJWakprP1l+XAH2v9s9rKdJZlbIpBpYesuNH
+         c1rIRKateascqt2hQAdbuTf80xQYInFJf/WpIhT0gAl84oRDFUbcCtFMBCnNt1k85Z
+         RBcI9IXJDWC5Kk2pOtoPFXyltfL0xT+UhRf64WO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 143/287] null_blk: fix ida error handling in null_add_dev()
-Date:   Tue, 23 Aug 2022 10:25:12 +0200
-Message-Id: <20220823080105.341063792@linuxfoundation.org>
+        stable@vger.kernel.org, Li Lingfeng <lilingfeng3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 144/287] ext4: recover csum seed of tmp_inode after migrating to extents
+Date:   Tue, 23 Aug 2022 10:25:13 +0200
+Message-Id: <20220823080105.382394553@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
 References: <20220823080100.268827165@linuxfoundation.org>
@@ -53,60 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Li Lingfeng <lilingfeng3@huawei.com>
 
-[ Upstream commit ee452a8d984f94fa8e894f003a52e776e4572881 ]
+[ Upstream commit 07ea7a617d6b278fb7acedb5cbe1a81ce2de7d0c ]
 
-There needs to be some error checking if ida_simple_get() fails.
-Also call ida_free() if there are errors later.
+When migrating to extents, the checksum seed of temporary inode
+need to be replaced by inode's, otherwise the inode checksums
+will be incorrect when swapping the inodes data.
 
-Fixes: 94bc02e30fb8 ("nullb: use ida to manage index")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YtEhXsr6vJeoiYhd@kili
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+However, the temporary inode can not match it's checksum to
+itself since it has lost it's own checksum seed.
+
+mkfs.ext4 -F /dev/sdc
+mount /dev/sdc /mnt/sdc
+xfs_io -fc "pwrite 4k 4k" -c "fsync" /mnt/sdc/testfile
+chattr -e /mnt/sdc/testfile
+chattr +e /mnt/sdc/testfile
+umount /dev/sdc
+fsck -fn /dev/sdc
+
+========
+...
+Pass 1: Checking inodes, blocks, and sizes
+Inode 13 passes checks, but checksum does not match inode.  Fix? no
+...
+========
+
+The fix is simple, save the checksum seed of temporary inode, and
+recover it after migrating to extents.
+
+Fixes: e81c9302a6c3 ("ext4: set csum seed in tmp inode while migrating to extents")
+Signed-off-by: Li Lingfeng <lilingfeng3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220617062515.2113438-1-lilingfeng3@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk_main.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/ext4/migrate.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
-index 4fef1fb918ec..5553df736c72 100644
---- a/drivers/block/null_blk_main.c
-+++ b/drivers/block/null_blk_main.c
-@@ -1819,8 +1819,13 @@ static int null_add_dev(struct nullb_device *dev)
- 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, nullb->q);
+diff --git a/fs/ext4/migrate.c b/fs/ext4/migrate.c
+index 9adfe217b39d..37ce665ae1d2 100644
+--- a/fs/ext4/migrate.c
++++ b/fs/ext4/migrate.c
+@@ -435,7 +435,7 @@ int ext4_ext_migrate(struct inode *inode)
+ 	struct inode *tmp_inode = NULL;
+ 	struct migrate_struct lb;
+ 	unsigned long max_entries;
+-	__u32 goal;
++	__u32 goal, tmp_csum_seed;
+ 	uid_t owner[2];
  
- 	mutex_lock(&lock);
--	nullb->index = ida_simple_get(&nullb_indexes, 0, 0, GFP_KERNEL);
--	dev->index = nullb->index;
-+	rv = ida_simple_get(&nullb_indexes, 0, 0, GFP_KERNEL);
-+	if (rv < 0) {
-+		mutex_unlock(&lock);
-+		goto out_cleanup_zone;
-+	}
-+	nullb->index = rv;
-+	dev->index = rv;
- 	mutex_unlock(&lock);
+ 	/*
+@@ -483,6 +483,7 @@ int ext4_ext_migrate(struct inode *inode)
+ 	 * the migration.
+ 	 */
+ 	ei = EXT4_I(inode);
++	tmp_csum_seed = EXT4_I(tmp_inode)->i_csum_seed;
+ 	EXT4_I(tmp_inode)->i_csum_seed = ei->i_csum_seed;
+ 	i_size_write(tmp_inode, i_size_read(inode));
+ 	/*
+@@ -593,6 +594,7 @@ int ext4_ext_migrate(struct inode *inode)
+ 	 * the inode is not visible to user space.
+ 	 */
+ 	tmp_inode->i_blocks = 0;
++	EXT4_I(tmp_inode)->i_csum_seed = tmp_csum_seed;
  
- 	blk_queue_logical_block_size(nullb->q, dev->blocksize);
-@@ -1832,13 +1837,16 @@ static int null_add_dev(struct nullb_device *dev)
- 
- 	rv = null_gendisk_register(nullb);
- 	if (rv)
--		goto out_cleanup_zone;
-+		goto out_ida_free;
- 
- 	mutex_lock(&lock);
- 	list_add_tail(&nullb->list, &nullb_list);
- 	mutex_unlock(&lock);
- 
- 	return 0;
-+
-+out_ida_free:
-+	ida_free(&nullb_indexes, nullb->index);
- out_cleanup_zone:
- 	if (dev->zoned)
- 		null_zone_exit(dev);
+ 	/* Reset the extent details */
+ 	ext4_ext_tree_init(handle, tmp_inode);
 -- 
 2.35.1
 
