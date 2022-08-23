@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC26D59D7DE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C4AE59D7D5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351027AbiHWJd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:33:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38660 "EHLO
+        id S242459AbiHWJrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:47:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350650AbiHWJc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:32:29 -0400
+        with ESMTP id S1352587AbiHWJqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D6364B0F8;
-        Tue, 23 Aug 2022 01:38:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABE679C21C;
+        Tue, 23 Aug 2022 01:44:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F713B81C62;
-        Tue, 23 Aug 2022 08:37:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4241C433C1;
-        Tue, 23 Aug 2022 08:37:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B5FAB81C60;
+        Tue, 23 Aug 2022 08:43:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB030C433D7;
+        Tue, 23 Aug 2022 08:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243866;
-        bh=nNnTUhqNU4YQbcijVe/pezvof71mJ2XPgaNef+hmOY0=;
+        s=korg; t=1661244193;
+        bh=Da3VX1ansjmk8r5ZZzofsjUfgE11Ot+/ZhI1/uTkoJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrX2fJVBSB38MPIBb8UNf9rhYMpISbQc0HtGmakpK3RHz+dzsqdh6/YOXbJjg1GWR
-         2IDmaElvpEHHz8Ey67WV5WOuwSd4L+c/VWatfePGXaZ+qwAiHxITDutBkKMBotfeQ+
-         hI96IpWRm9YqrWGs43C66J9MFZTCzUje9o/wvWHQ=
+        b=WET/zY6+4Tw47dXgf+D0BZOgzNItYoKJR1fb2ydMccJpRxvXjQwxYABeFwJK+9REX
+         9iR08aeXOicB1BPbbF2CIvsrc19pXSVavcZ42ehx2Q3fPl5qYHgTp//dXWxD4fm/+R
+         zOqlZFzak2tLxix+v7+GzwMtkjx/KCexx50QXhkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 047/229] PM: hibernate: defer device probing when resuming from hibernation
+        =?UTF-8?q?Sebastian=20W=C3=BCrl?= <sebastian.wuerl@ororatech.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 049/244] can: mcp251x: Fix race condition on receive interrupt
 Date:   Tue, 23 Aug 2022 10:23:28 +0200
-Message-Id: <20220823080055.346898181@linuxfoundation.org>
+Message-Id: <20220823080100.702485928@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,106 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Sebastian Würl <sebastian.wuerl@ororatech.com>
 
-[ Upstream commit 8386c414e27caba8501119948e9551e52b527f59 ]
+commit d80d60b0db6ff3dd2e29247cc2a5166d7e9ae37e upstream.
 
-syzbot is reporting hung task at misc_open() [1], for there is a race
-window of AB-BA deadlock which involves probe_count variable. Currently
-wait_for_device_probe() from snapshot_open() from misc_open() can sleep
-forever with misc_mtx held if probe_count cannot become 0.
+The mcp251x driver uses both receiving mailboxes of the CAN controller
+chips. For retrieving the CAN frames from the controller via SPI, it checks
+once per interrupt which mailboxes have been filled and will retrieve the
+messages accordingly.
 
-When a device is probed by hub_event() work function, probe_count is
-incremented before the probe function starts, and probe_count is
-decremented after the probe function completed.
+This introduces a race condition, as another CAN frame can enter mailbox 1
+while mailbox 0 is emptied. If now another CAN frame enters mailbox 0 until
+the interrupt handler is called next, mailbox 0 is emptied before
+mailbox 1, leading to out-of-order CAN frames in the network device.
 
-There are three cases that can prevent probe_count from dropping to 0.
+This is fixed by checking the interrupt flags once again after freeing
+mailbox 0, to correctly also empty mailbox 1 before leaving the handler.
 
-  (a) A device being probed stopped responding (i.e. broken/malicious
-      hardware).
+For reproducing the bug I created the following setup:
+ - Two CAN devices, one Raspberry Pi with MCP2515, the other can be any.
+ - Setup CAN to 1 MHz
+ - Spam bursts of 5 CAN-messages with increasing CAN-ids
+ - Continue sending the bursts while sleeping a second between the bursts
+ - Check on the RPi whether the received messages have increasing CAN-ids
+ - Without this patch, every burst of messages will contain a flipped pair
 
-  (b) A process emulating a USB device using /dev/raw-gadget interface
-      stopped responding for some reason.
+v3: https://lore.kernel.org/all/20220804075914.67569-1-sebastian.wuerl@ororatech.com
+v2: https://lore.kernel.org/all/20220804064803.63157-1-sebastian.wuerl@ororatech.com
+v1: https://lore.kernel.org/all/20220803153300.58732-1-sebastian.wuerl@ororatech.com
 
-  (c) New device probe requests keeps coming in before existing device
-      probe requests complete.
-
-The phenomenon syzbot is reporting is (b). A process which is holding
-system_transition_mutex and misc_mtx is waiting for probe_count to become
-0 inside wait_for_device_probe(), but the probe function which is called
- from hub_event() work function is waiting for the processes which are
-blocked at mutex_lock(&misc_mtx) to respond via /dev/raw-gadget interface.
-
-This patch mitigates (b) by deferring wait_for_device_probe() from
-snapshot_open() to snapshot_write() and snapshot_ioctl(). Please note that
-the possibility of (b) remains as long as any thread which is emulating a
-USB device via /dev/raw-gadget interface can be blocked by uninterruptible
-blocking operations (e.g. mutex_lock()).
-
-Please also note that (a) and (c) are not addressed. Regarding (c), we
-should change the code to wait for only one device which contains the
-image for resuming from hibernation. I don't know how to address (a), for
-use of timeout for wait_for_device_probe() might result in loss of user
-data in the image. Maybe we should require the userland to wait for the
-image device before opening /dev/snapshot interface.
-
-Link: https://syzkaller.appspot.com/bug?extid=358c9ab4c93da7b7238c [1]
-Reported-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: bf66f3736a94 ("can: mcp251x: Move to threaded interrupts instead of workqueues.")
+Signed-off-by: Sebastian Würl <sebastian.wuerl@ororatech.com>
+Link: https://lore.kernel.org/all/20220804081411.68567-1-sebastian.wuerl@ororatech.com
+[mkl: reduce scope of intf1, eflag1]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/power/user.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/can/spi/mcp251x.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/power/user.c b/kernel/power/user.c
-index 69017a569f30..add4653477fe 100644
---- a/kernel/power/user.c
-+++ b/kernel/power/user.c
-@@ -29,6 +29,7 @@
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -1074,9 +1074,6 @@ static irqreturn_t mcp251x_can_ist(int i
  
- #include "power.h"
+ 		mcp251x_read_2regs(spi, CANINTF, &intf, &eflag);
  
-+static bool need_wait;
- 
- #define SNAPSHOT_MINOR	231
- 
-@@ -82,7 +83,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
- 		 * Resuming.  We may need to wait for the image device to
- 		 * appear.
- 		 */
--		wait_for_device_probe();
-+		need_wait = true;
- 
- 		data->swap = -1;
- 		data->mode = O_WRONLY;
-@@ -174,6 +175,11 @@ static ssize_t snapshot_write(struct file *filp, const char __user *buf,
- 	ssize_t res;
- 	loff_t pg_offp = *offp & ~PAGE_MASK;
- 
-+	if (need_wait) {
-+		wait_for_device_probe();
-+		need_wait = false;
-+	}
+-		/* mask out flags we don't care about */
+-		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
+-
+ 		/* receive buffer 0 */
+ 		if (intf & CANINTF_RX0IF) {
+ 			mcp251x_hw_rx(spi, 0);
+@@ -1086,6 +1083,18 @@ static irqreturn_t mcp251x_can_ist(int i
+ 			if (mcp251x_is_2510(spi))
+ 				mcp251x_write_bits(spi, CANINTF,
+ 						   CANINTF_RX0IF, 0x00);
 +
- 	lock_system_sleep();
- 
- 	data = filp->private_data;
-@@ -209,6 +215,11 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
- 	loff_t size;
- 	sector_t offset;
- 
-+	if (need_wait) {
-+		wait_for_device_probe();
-+		need_wait = false;
-+	}
++			/* check if buffer 1 is already known to be full, no need to re-read */
++			if (!(intf & CANINTF_RX1IF)) {
++				u8 intf1, eflag1;
 +
- 	if (_IOC_TYPE(cmd) != SNAPSHOT_IOC_MAGIC)
- 		return -ENOTTY;
- 	if (_IOC_NR(cmd) > SNAPSHOT_IOC_MAXNR)
--- 
-2.35.1
-
++				/* intf needs to be read again to avoid a race condition */
++				mcp251x_read_2regs(spi, CANINTF, &intf1, &eflag1);
++
++				/* combine flags from both operations for error handling */
++				intf |= intf1;
++				eflag |= eflag1;
++			}
+ 		}
+ 
+ 		/* receive buffer 1 */
+@@ -1096,6 +1105,9 @@ static irqreturn_t mcp251x_can_ist(int i
+ 				clear_intf |= CANINTF_RX1IF;
+ 		}
+ 
++		/* mask out flags we don't care about */
++		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
++
+ 		/* any error or tx interrupt we need to clear? */
+ 		if (intf & (CANINTF_ERR | CANINTF_TX))
+ 			clear_intf |= intf & (CANINTF_ERR | CANINTF_TX);
 
 
