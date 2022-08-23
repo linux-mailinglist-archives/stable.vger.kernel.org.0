@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A09C059E1C9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83CE159E246
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350458AbiHWLHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:07:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
+        id S1358851AbiHWMAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:00:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357184AbiHWLGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:06:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C206CB3B37;
-        Tue, 23 Aug 2022 02:15:40 -0700 (PDT)
+        with ESMTP id S1359000AbiHWL6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:58:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ADD8B07EF;
+        Tue, 23 Aug 2022 02:34:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78EABB81C65;
-        Tue, 23 Aug 2022 09:14:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D884AC433D6;
-        Tue, 23 Aug 2022 09:14:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9152B81C63;
+        Tue, 23 Aug 2022 09:34:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2908BC433D6;
+        Tue, 23 Aug 2022 09:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246091;
-        bh=AADhrfsoE2oKlEtyRwFQCoi7heCZSF3AbdRcEZrnhZo=;
+        s=korg; t=1661247287;
+        bh=exFm/ZMmf9i46JKGVkPhXIV2OSR9BEitNtRgrTQLhRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qm30pYb46DFqXDAYW7Zfzc0xNT++B4wIkoSFwVF0MOBjagObqqZw04+GzCxI+Qfow
-         59iOqSWrXeldBqYVfGIybt2nZqov80I9ap77eH7+z90HEtMJ+xIdLKuvkygI6VJsUY
-         gq1WmtUb7BIM4BoliSIy/rdTbpOZRJya6piOf38A=
+        b=BJ4KS3knX4ociSV6+FPflMLnxBq1YUDF4VjQU/eSNzFN6yJ5eP1wigGglgtvNTLGB
+         58XQi+n5z0ltnHnMxYKFC1gbs0ZWzBG6cXFTz/ASNM/+vUUOIzhVogYmJGboJ0kuMF
+         rAkd+pTbRZzgPe42+5e2e3heBuMpGl1hVVRmjiCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Qu Wenruo <wqu@suse.com>
-Subject: [PATCH 4.19 287/287] btrfs: raid56: dont trust any cached sector in __raid56_parity_recover()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 378/389] ALSA: core: Add async signal helpers
 Date:   Tue, 23 Aug 2022 10:27:36 +0200
-Message-Id: <20220823080111.212598235@linuxfoundation.org>
+Message-Id: <20220823080131.345297470@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,204 +53,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit f6065f8edeb25f4a9dfe0b446030ad995a84a088 upstream.
+[ Upstream commit ef34a0ae7a2654bc9e58675e36898217fb2799d8 ]
 
-[BUG]
-There is a small workload which will always fail with recent kernel:
-(A simplified version from btrfs/125 test case)
+Currently the call of kill_fasync() from an interrupt handler might
+lead to potential spin deadlocks, as spotted by syzkaller.
+Unfortunately, it's not so trivial to fix this lock chain as it's
+involved with the tasklist_lock that is touched in allover places.
 
-  mkfs.btrfs -f -m raid5 -d raid5 -b 1G $dev1 $dev2 $dev3
-  mount $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xee 0 1M" $mnt/file1
-  sync
-  umount $mnt
-  btrfs dev scan -u $dev3
-  mount -o degraded $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xff 0 128M" $mnt/file2
-  umount $mnt
-  btrfs dev scan
-  mount $dev1 $mnt
-  btrfs balance start --full-balance $mnt
-  umount $mnt
+As a temporary workaround, this patch provides the way to defer the
+async signal notification in a work.  The new helper functions,
+snd_fasync_helper() and snd_kill_faync() are replacements for
+fasync_helper() and kill_fasync(), respectively.  In addition,
+snd_fasync_free() needs to be called at the destructor of the relevant
+file object.
 
-The failure is always failed to read some tree blocks:
-
-  BTRFS info (device dm-4): relocating block group 217710592 flags data|raid5
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  ...
-
-[CAUSE]
-With the recently added debug output, we can see all RAID56 operations
-related to full stripe 38928384:
-
-  56.1183: raid56_read_partial: full_stripe=38928384 devid=2 type=DATA1 offset=0 opf=0x0 physical=9502720 len=65536
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=16384 opf=0x0 physical=9519104 len=16384
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x0 physical=9551872 len=16384
-  56.1187: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=0 opf=0x1 physical=9502720 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=32768 opf=0x1 physical=9535488 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=0 opf=0x1 physical=30474240 len=16384
-  56.1189: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=32768 opf=0x1 physical=30507008 len=16384
-  56.1218: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x1 physical=9551872 len=16384
-  56.1219: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=49152 opf=0x1 physical=30523392 len=16384
-  56.2721: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2723: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2724: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-
-Before we enter raid56_parity_recover(), we have triggered some metadata
-write for the full stripe 38928384, this leads to us to read all the
-sectors from disk.
-
-Furthermore, btrfs raid56 write will cache its calculated P/Q sectors to
-avoid unnecessary read.
-
-This means, for that full stripe, after any partial write, we will have
-stale data, along with P/Q calculated using that stale data.
-
-Thankfully due to patch "btrfs: only write the sectors in the vertical stripe
-which has data stripes" we haven't submitted all the corrupted P/Q to disk.
-
-When we really need to recover certain range, aka in
-raid56_parity_recover(), we will use the cached rbio, along with its
-cached sectors (the full stripe is all cached).
-
-This explains why we have no event raid56_scrub_read_recover()
-triggered.
-
-Since we have the cached P/Q which is calculated using the stale data,
-the recovered one will just be stale.
-
-In our particular test case, it will always return the same incorrect
-metadata, thus causing the same error message "parent transid verify
-failed on 39010304 wanted 9 found 7" again and again.
-
-[BTRFS DESTRUCTIVE RMW PROBLEM]
-
-Test case btrfs/125 (and above workload) always has its trouble with
-the destructive read-modify-write (RMW) cycle:
-
-        0       32K     64K
-Data1:  | Good  | Good  |
-Data2:  | Bad   | Bad   |
-Parity: | Good  | Good  |
-
-In above case, if we trigger any write into Data1, we will use the bad
-data in Data2 to re-generate parity, killing the only chance to recovery
-Data2, thus Data2 is lost forever.
-
-This destructive RMW cycle is not specific to btrfs RAID56, but there
-are some btrfs specific behaviors making the case even worse:
-
-- Btrfs will cache sectors for unrelated vertical stripes.
-
-  In above example, if we're only writing into 0~32K range, btrfs will
-  still read data range (32K ~ 64K) of Data1, and (64K~128K) of Data2.
-  This behavior is to cache sectors for later update.
-
-  Incidentally commit d4e28d9b5f04 ("btrfs: raid56: make steal_rbio()
-  subpage compatible") has a bug which makes RAID56 to never trust the
-  cached sectors, thus slightly improve the situation for recovery.
-
-  Unfortunately, follow up fix "btrfs: update stripe_sectors::uptodate in
-  steal_rbio" will revert the behavior back to the old one.
-
-- Btrfs raid56 partial write will update all P/Q sectors and cache them
-
-  This means, even if data at (64K ~ 96K) of Data2 is free space, and
-  only (96K ~ 128K) of Data2 is really stale data.
-  And we write into that (96K ~ 128K), we will update all the parity
-  sectors for the full stripe.
-
-  This unnecessary behavior will completely kill the chance of recovery.
-
-  Thankfully, an unrelated optimization "btrfs: only write the sectors
-  in the vertical stripe which has data stripes" will prevent
-  submitting the write bio for untouched vertical sectors.
-
-  That optimization will keep the on-disk P/Q untouched for a chance for
-  later recovery.
-
-[FIX]
-Although we have no good way to completely fix the destructive RMW
-(unless we go full scrub for each partial write), we can still limit the
-damage.
-
-With patch "btrfs: only write the sectors in the vertical stripe which
-has data stripes" now we won't really submit the P/Q of unrelated
-vertical stripes, so the on-disk P/Q should still be fine.
-
-Now we really need to do is just drop all the cached sectors when doing
-recovery.
-
-By this, we have a chance to read the original P/Q from disk, and have a
-chance to recover the stale data, while still keep the cache to speed up
-regular write path.
-
-In fact, just dropping all the cache for recovery path is good enough to
-allow the test case btrfs/125 along with the small script to pass
-reliably.
-
-The lack of metadata write after the degraded mount, and forced metadata
-COW is saving us this time.
-
-So this patch will fix the behavior by not trust any cache in
-__raid56_parity_recover(), to solve the problem while still keep the
-cache useful.
-
-But please note that this test pass DOES NOT mean we have solved the
-destructive RMW problem, we just do better damage control a little
-better.
-
-Related patches:
-
-- btrfs: only write the sectors in the vertical stripe
-- d4e28d9b5f04 ("btrfs: raid56: make steal_rbio() subpage compatible")
-- btrfs: update stripe_sectors::uptodate in steal_rbio
-
-Acked-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220728125945.29533-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/raid56.c |   19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ include/sound/core.h |  8 ++++
+ sound/core/misc.c    | 94 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 102 insertions(+)
 
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -2101,9 +2101,12 @@ static int __raid56_parity_recover(struc
- 	atomic_set(&rbio->error, 0);
+diff --git a/include/sound/core.h b/include/sound/core.h
+index ee238f100f73..8a80121811d9 100644
+--- a/include/sound/core.h
++++ b/include/sound/core.h
+@@ -440,4 +440,12 @@ snd_pci_quirk_lookup_id(u16 vendor, u16 device,
+ }
+ #endif
  
- 	/*
--	 * read everything that hasn't failed.  Thanks to the
--	 * stripe cache, it is possible that some or all of these
--	 * pages are going to be uptodate.
-+	 * Read everything that hasn't failed. However this time we will
-+	 * not trust any cached sector.
-+	 * As we may read out some stale data but higher layer is not reading
-+	 * that stale part.
-+	 *
-+	 * So here we always re-read everything in recovery path.
- 	 */
- 	for (stripe = 0; stripe < rbio->real_stripes; stripe++) {
- 		if (rbio->faila == stripe || rbio->failb == stripe) {
-@@ -2112,16 +2115,6 @@ static int __raid56_parity_recover(struc
- 		}
++/* async signal helpers */
++struct snd_fasync;
++
++int snd_fasync_helper(int fd, struct file *file, int on,
++		      struct snd_fasync **fasyncp);
++void snd_kill_fasync(struct snd_fasync *fasync, int signal, int poll);
++void snd_fasync_free(struct snd_fasync *fasync);
++
+ #endif /* __SOUND_CORE_H */
+diff --git a/sound/core/misc.c b/sound/core/misc.c
+index 3579dd7a161f..c3f3d94b5197 100644
+--- a/sound/core/misc.c
++++ b/sound/core/misc.c
+@@ -10,6 +10,7 @@
+ #include <linux/time.h>
+ #include <linux/slab.h>
+ #include <linux/ioport.h>
++#include <linux/fs.h>
+ #include <sound/core.h>
  
- 		for (pagenr = 0; pagenr < rbio->stripe_npages; pagenr++) {
--			struct page *p;
--
--			/*
--			 * the rmw code may have already read this
--			 * page in
--			 */
--			p = rbio_stripe_page(rbio, stripe, pagenr);
--			if (PageUptodate(p))
--				continue;
--
- 			ret = rbio_add_io_page(rbio, &bio_list,
- 				       rbio_stripe_page(rbio, stripe, pagenr),
- 				       stripe, pagenr, rbio->stripe_len);
+ #ifdef CONFIG_SND_DEBUG
+@@ -145,3 +146,96 @@ snd_pci_quirk_lookup(struct pci_dev *pci, const struct snd_pci_quirk *list)
+ }
+ EXPORT_SYMBOL(snd_pci_quirk_lookup);
+ #endif
++
++/*
++ * Deferred async signal helpers
++ *
++ * Below are a few helper functions to wrap the async signal handling
++ * in the deferred work.  The main purpose is to avoid the messy deadlock
++ * around tasklist_lock and co at the kill_fasync() invocation.
++ * fasync_helper() and kill_fasync() are replaced with snd_fasync_helper()
++ * and snd_kill_fasync(), respectively.  In addition, snd_fasync_free() has
++ * to be called at releasing the relevant file object.
++ */
++struct snd_fasync {
++	struct fasync_struct *fasync;
++	int signal;
++	int poll;
++	int on;
++	struct list_head list;
++};
++
++static DEFINE_SPINLOCK(snd_fasync_lock);
++static LIST_HEAD(snd_fasync_list);
++
++static void snd_fasync_work_fn(struct work_struct *work)
++{
++	struct snd_fasync *fasync;
++
++	spin_lock_irq(&snd_fasync_lock);
++	while (!list_empty(&snd_fasync_list)) {
++		fasync = list_first_entry(&snd_fasync_list, struct snd_fasync, list);
++		list_del_init(&fasync->list);
++		spin_unlock_irq(&snd_fasync_lock);
++		if (fasync->on)
++			kill_fasync(&fasync->fasync, fasync->signal, fasync->poll);
++		spin_lock_irq(&snd_fasync_lock);
++	}
++	spin_unlock_irq(&snd_fasync_lock);
++}
++
++static DECLARE_WORK(snd_fasync_work, snd_fasync_work_fn);
++
++int snd_fasync_helper(int fd, struct file *file, int on,
++		      struct snd_fasync **fasyncp)
++{
++	struct snd_fasync *fasync = NULL;
++
++	if (on) {
++		fasync = kzalloc(sizeof(*fasync), GFP_KERNEL);
++		if (!fasync)
++			return -ENOMEM;
++		INIT_LIST_HEAD(&fasync->list);
++	}
++
++	spin_lock_irq(&snd_fasync_lock);
++	if (*fasyncp) {
++		kfree(fasync);
++		fasync = *fasyncp;
++	} else {
++		if (!fasync) {
++			spin_unlock_irq(&snd_fasync_lock);
++			return 0;
++		}
++		*fasyncp = fasync;
++	}
++	fasync->on = on;
++	spin_unlock_irq(&snd_fasync_lock);
++	return fasync_helper(fd, file, on, &fasync->fasync);
++}
++EXPORT_SYMBOL_GPL(snd_fasync_helper);
++
++void snd_kill_fasync(struct snd_fasync *fasync, int signal, int poll)
++{
++	unsigned long flags;
++
++	if (!fasync || !fasync->on)
++		return;
++	spin_lock_irqsave(&snd_fasync_lock, flags);
++	fasync->signal = signal;
++	fasync->poll = poll;
++	list_move(&fasync->list, &snd_fasync_list);
++	schedule_work(&snd_fasync_work);
++	spin_unlock_irqrestore(&snd_fasync_lock, flags);
++}
++EXPORT_SYMBOL_GPL(snd_kill_fasync);
++
++void snd_fasync_free(struct snd_fasync *fasync)
++{
++	if (!fasync)
++		return;
++	fasync->on = 0;
++	flush_work(&snd_fasync_work);
++	kfree(fasync);
++}
++EXPORT_SYMBOL_GPL(snd_fasync_free);
+-- 
+2.35.1
+
 
 
