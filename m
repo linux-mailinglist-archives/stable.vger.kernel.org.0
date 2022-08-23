@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E35DF59E2D0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2376C59DC0A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353843AbiHWMNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:13:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
+        id S1353250AbiHWKOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:14:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355277AbiHWMMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:12:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 254DEE3432;
-        Tue, 23 Aug 2022 02:39:39 -0700 (PDT)
+        with ESMTP id S1352908AbiHWKMo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:12:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7B124BD24;
+        Tue, 23 Aug 2022 01:58:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73667B81B1F;
-        Tue, 23 Aug 2022 09:38:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C3B6C433C1;
-        Tue, 23 Aug 2022 09:38:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93F0DB81C28;
+        Tue, 23 Aug 2022 08:58:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01658C433C1;
+        Tue, 23 Aug 2022 08:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247491;
-        bh=3c/OSqaY8uRcFPRq3DKY7IaUNCD747jPXqH4BrwgPEI=;
+        s=korg; t=1661245135;
+        bh=iX9bfe+ORv3IQGMdd+YgIjHQjRAB9HYr5kNWTyjhKAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wEHnE4B+4a50sQhk027e/ZW259NpNjtJR1HkS0roD67SThdSlnU7rbSFUK8Q6GbRo
-         zeSDoj5BpKKnB0uapvhmfzzmfG3ovSjFeBEO7kXvCmHXBypNlDqkPGTiiJzsGVB/v+
-         jv4SwjHyz1DznU/HVlylEJXweTUVNWtWL2XC2L/o=
+        b=XhhqX99r4Y6vwycKtERexj9BRnIKkiY8MFQ73ol0y1YC/iElwdL7wXa7ofapbJEyp
+         QbOAK1WgEJN3H1D5Wo0yRyr4ZMjoOE1VKBIKH27K7OtDmC77Lrs0Z8VHQSyMJR7SHT
+         q2YhKwcI9ecegTMpkVqDdyq/sz29Uui9/dezc/FI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.10 054/158] ceph: dont leak snap_rwsem in handle_cap_grant
-Date:   Tue, 23 Aug 2022 10:26:26 +0200
-Message-Id: <20220823080048.266840116@linuxfoundation.org>
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
+        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 228/244] f2fs: fix to do sanity check on segment type in build_sit_entries()
+Date:   Tue, 23 Aug 2022 10:26:27 +0200
+Message-Id: <20220823080107.164193772@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Chao Yu <chao.yu@oppo.com>
 
-commit 58dd4385577ed7969b80cdc9e2a31575aba6c712 upstream.
+[ Upstream commit 09beadf289d6e300553e60d6e76f13c0427ecab3 ]
 
-When handle_cap_grant is called on an IMPORT op, then the snap_rwsem is
-held and the function is expected to release it before returning. It
-currently fails to do that in all cases which could lead to a deadlock.
+As Wenqing Liu <wenqingliu0120@gmail.com> reported in bugzilla:
 
-Fixes: 6f05b30ea063 ("ceph: reset i_requested_max_size if file write is not wanted")
-Link: https://tracker.ceph.com/issues/55857
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Luís Henriques <lhenriques@suse.de>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+https://bugzilla.kernel.org/show_bug.cgi?id=216285
+
+RIP: 0010:memcpy_erms+0x6/0x10
+ f2fs_update_meta_page+0x84/0x570 [f2fs]
+ change_curseg.constprop.0+0x159/0xbd0 [f2fs]
+ f2fs_do_replace_block+0x5c7/0x18a0 [f2fs]
+ f2fs_replace_block+0xeb/0x180 [f2fs]
+ recover_data+0x1abd/0x6f50 [f2fs]
+ f2fs_recover_fsync_data+0x12ce/0x3250 [f2fs]
+ f2fs_fill_super+0x4459/0x6190 [f2fs]
+ mount_bdev+0x2cf/0x3b0
+ legacy_get_tree+0xed/0x1d0
+ vfs_get_tree+0x81/0x2b0
+ path_mount+0x47e/0x19d0
+ do_mount+0xce/0xf0
+ __x64_sys_mount+0x12c/0x1a0
+ do_syscall_64+0x38/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The root cause is segment type is invalid, so in f2fs_do_replace_block(),
+f2fs accesses f2fs_sm_info::curseg_array with out-of-range segment type,
+result in accessing invalid curseg->sum_blk during memcpy in
+f2fs_update_meta_page(). Fix this by adding sanity check on segment type
+in build_sit_entries().
+
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c |   27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ fs/f2fs/segment.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -3501,24 +3501,23 @@ static void handle_cap_grant(struct inod
- 			fill_inline = true;
- 	}
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 841a978da083..e98c90bd8ef6 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -4537,6 +4537,12 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
+ 				return err;
+ 			seg_info_from_raw_sit(se, &sit);
  
--	if (ci->i_auth_cap == cap &&
--	    le32_to_cpu(grant->op) == CEPH_CAP_OP_IMPORT) {
--		if (newcaps & ~extra_info->issued)
--			wake = true;
-+	if (le32_to_cpu(grant->op) == CEPH_CAP_OP_IMPORT) {
-+		if (ci->i_auth_cap == cap) {
-+			if (newcaps & ~extra_info->issued)
-+				wake = true;
- 
--		if (ci->i_requested_max_size > max_size ||
--		    !(le32_to_cpu(grant->wanted) & CEPH_CAP_ANY_FILE_WR)) {
--			/* re-request max_size if necessary */
--			ci->i_requested_max_size = 0;
--			wake = true;
--		}
-+			if (ci->i_requested_max_size > max_size ||
-+			    !(le32_to_cpu(grant->wanted) & CEPH_CAP_ANY_FILE_WR)) {
-+				/* re-request max_size if necessary */
-+				ci->i_requested_max_size = 0;
-+				wake = true;
++			if (se->type >= NR_PERSISTENT_LOG) {
++				f2fs_err(sbi, "Invalid segment type: %u, segno: %u",
++							se->type, start);
++				return -EFSCORRUPTED;
 +			}
++
+ 			sit_valid_blocks[SE_PAGETYPE(se)] += se->valid_blocks;
  
--		ceph_kick_flushing_inode_caps(session, ci);
--		spin_unlock(&ci->i_ceph_lock);
-+			ceph_kick_flushing_inode_caps(session, ci);
+ 			if (f2fs_block_unit_discard(sbi)) {
+@@ -4585,6 +4591,13 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
+ 			break;
+ 		seg_info_from_raw_sit(se, &sit);
+ 
++		if (se->type >= NR_PERSISTENT_LOG) {
++			f2fs_err(sbi, "Invalid segment type: %u, segno: %u",
++							se->type, start);
++			err = -EFSCORRUPTED;
++			break;
 +		}
- 		up_read(&session->s_mdsc->snap_rwsem);
--	} else {
--		spin_unlock(&ci->i_ceph_lock);
- 	}
-+	spin_unlock(&ci->i_ceph_lock);
++
+ 		sit_valid_blocks[SE_PAGETYPE(se)] += se->valid_blocks;
  
- 	if (fill_inline)
- 		ceph_fill_inline_data(inode, NULL, extra_info->inline_data,
+ 		if (f2fs_block_unit_discard(sbi)) {
+-- 
+2.35.1
+
 
 
