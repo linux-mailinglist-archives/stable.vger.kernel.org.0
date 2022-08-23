@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75A5859D3B0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4619C59D676
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242096AbiHWIMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:12:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59896 "EHLO
+        id S1348336AbiHWJJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:09:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241997AbiHWIK1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:10:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522FF66A4C;
-        Tue, 23 Aug 2022 01:06:55 -0700 (PDT)
+        with ESMTP id S1347750AbiHWJIB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:08:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E06861F9;
+        Tue, 23 Aug 2022 01:30:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED5EBB81C20;
-        Tue, 23 Aug 2022 08:06:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C48C433D6;
-        Tue, 23 Aug 2022 08:06:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10DBB612D8;
+        Tue, 23 Aug 2022 08:29:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA06CC433C1;
+        Tue, 23 Aug 2022 08:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242012;
-        bh=oVWkrboSkv9Bnu5R4qvw2tZvMFAhnopG10Deyehvyss=;
+        s=korg; t=1661243382;
+        bh=XoTiZoUVZX4pd9WYhnysuZkslFJxFicRZdPAq2tGTyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGalO4DRbtG+fp27SwhzI5kz7QvXz6At3RvoOPAgvJvn4uysBWULP9SackP5nF0bT
-         f+4qDKxPhjM54Uum7Lif1WAkOBIv7y+jubYS2/qGUPlfLVSkGufBNIR2I6/rb8dixK
-         Dzy4rIBUZSEdx2QNMFeIpI8gHEinBvoGEXCyFur8=
+        b=AuMlSnIh0tTKuTmiFyG2xz4VXbb1VU6nwWhzLRnukHxGmCzGUXDj5Ulq0svjcBAJR
+         Ru5gQiOasp6qsXFp5t0QK+IwDNIjVacsxBl2NHf+wOFuSfKk14+fD7VZMNwhE+bBbV
+         tQzipcgdWVkdVnERYXJEjstWJDXMmiOoaaHhP7PI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Domingo Dirutigliano <pwnzer0tt1@proton.me>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 006/101] netfilter: nf_queue: do not allow packet truncation below transport header offset
-Date:   Tue, 23 Aug 2022 10:02:39 +0200
-Message-Id: <20220823080034.838634482@linuxfoundation.org>
+Subject: [PATCH 5.19 259/365] PCI: Add ACS quirk for Broadcom BCM5750x NICs
+Date:   Tue, 23 Aug 2022 10:02:40 +0200
+Message-Id: <20220823080129.032890080@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
-References: <20220823080034.579196046@linuxfoundation.org>
+In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
+References: <20220823080118.128342613@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Pavan Chebbi <pavan.chebbi@broadcom.com>
 
-[ Upstream commit 99a63d36cb3ed5ca3aa6fcb64cffbeaf3b0fb164 ]
+[ Upstream commit afd306a65cedb9589564bdb23a0c368abc4215fd ]
 
-Domingo Dirutigliano and Nicola Guerrera report kernel panic when
-sending nf_queue verdict with 1-byte nfta_payload attribute.
+The Broadcom BCM5750x NICs may be multi-function devices.  They do not
+advertise ACS capability. Peer-to-peer transactions are not possible
+between the individual functions, so it is safe to treat them as fully
+isolated.
 
-The IP/IPv6 stack pulls the IP(v6) header from the packet after the
-input hook.
+Add an ACS quirk for these devices so the functions can be in independent
+IOMMU groups and attached individually to userspace applications using
+VFIO.
 
-If user truncates the packet below the header size, this skb_pull() will
-result in a malformed skb (skb->len < 0).
-
-Fixes: 7af4cc3fa158 ("[NETFILTER]: Add "nfnetlink_queue" netfilter queue handler over nfnetlink")
-Reported-by: Domingo Dirutigliano <pwnzer0tt1@proton.me>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Reviewed-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Link: https://lore.kernel.org/r/1654796507-28610-1-git-send-email-michael.chan@broadcom.com
+Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_queue.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/pci/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-index 66814a9d030c..80715b495d7c 100644
---- a/net/netfilter/nfnetlink_queue.c
-+++ b/net/netfilter/nfnetlink_queue.c
-@@ -807,11 +807,16 @@ nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
- }
- 
- static int
--nfqnl_mangle(void *data, int data_len, struct nf_queue_entry *e, int diff)
-+nfqnl_mangle(void *data, unsigned int data_len, struct nf_queue_entry *e, int diff)
- {
- 	struct sk_buff *nskb;
- 
- 	if (diff < 0) {
-+		unsigned int min_len = skb_transport_offset(e->skb);
-+
-+		if (data_len < min_len)
-+			return -EINVAL;
-+
- 		if (pskb_trim(e->skb, data_len))
- 			return -ENOMEM;
- 	} else if (diff > 0) {
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 41aeaa235132..2e68f50bc7ae 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4924,6 +4924,9 @@ static const struct pci_dev_acs_enabled {
+ 	{ PCI_VENDOR_ID_AMPERE, 0xE00C, pci_quirk_xgene_acs },
+ 	/* Broadcom multi-function device */
+ 	{ PCI_VENDOR_ID_BROADCOM, 0x16D7, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_BROADCOM, 0x1750, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_BROADCOM, 0x1751, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_BROADCOM, 0x1752, pci_quirk_mf_endpoint_acs },
+ 	{ PCI_VENDOR_ID_BROADCOM, 0xD714, pci_quirk_brcm_acs },
+ 	/* Amazon Annapurna Labs */
+ 	{ PCI_VENDOR_ID_AMAZON_ANNAPURNA_LABS, 0x0031, pci_quirk_al_acs },
 -- 
 2.35.1
 
