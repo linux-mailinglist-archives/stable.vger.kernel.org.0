@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF3E059D4D9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1971559D4EF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346658AbiHWIme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:42:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48982 "EHLO
+        id S241256AbiHWIml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:42:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242061AbiHWIkI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:40:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB1D44BD06;
-        Tue, 23 Aug 2022 01:18:44 -0700 (PDT)
+        with ESMTP id S1346705AbiHWIk3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:40:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E1785F23F;
+        Tue, 23 Aug 2022 01:18:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6B32B81C26;
-        Tue, 23 Aug 2022 08:17:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A874C433C1;
-        Tue, 23 Aug 2022 08:17:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F22161321;
+        Tue, 23 Aug 2022 08:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ABFCC433C1;
+        Tue, 23 Aug 2022 08:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242642;
-        bh=MmA8+czNp1+q5KyrKW/oAit6SlhxwV+dRrfMMv9Mlwk=;
+        s=korg; t=1661242645;
+        bh=GOO6yS8sqZfWknrUvzaIwJRwSqyMq+57shxE+fO7O2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfTpyFDaRvfVz4m4mUS7AzQHSgLGYeBtwMIOEUsRLV/AIlfIS6lUt53C2iKTGGPgv
-         TzDttE/gCTwMvuuZVqbxSk9kZOLGLkCtEm/exYxRMt2DaKpyDB6RmdfTj4PKVhc+3i
-         PqIuUnE84BzBWXxlRndsG1+p8d6v0xSNxoUaf2xc=
+        b=mHs0RuaFD73IhUymSU4FpXwCBmPlN8B4ESMLOPvyLlais20CycC2UrVqA4XN3AZvL
+         dJd8h/J+GxanPbPe0KFFwt/GPe4KDKYKzaH74w71xEpV8ulkUrf793SIE/OVbdA90K
+         OBcP8s4E6a0kYdTs7P5su//a4jytK+tmrvtO21Kw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 151/365] atm: idt77252: fix use-after-free bugs caused by tst_timer
-Date:   Tue, 23 Aug 2022 10:00:52 +0200
-Message-Id: <20220823080124.546175111@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>
+Subject: [PATCH 5.19 152/365] fscache: dont leak cookie access refs if invalidation is in progress or failed
+Date:   Tue, 23 Aug 2022 10:00:53 +0200
+Message-Id: <20220823080124.585754011@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,51 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 3f4093e2bf4673f218c0bf17d8362337c400e77b upstream.
+commit fb24771faf72a2fd62b3b6287af3c610c3ec9cf1 upstream.
 
-There are use-after-free bugs caused by tst_timer. The root cause
-is that there are no functions to stop tst_timer in idt77252_exit().
-One of the possible race conditions is shown below:
+It's possible for a request to invalidate a fscache_cookie will come in
+while we're already processing an invalidation. If that happens we
+currently take an extra access reference that will leak. Only call
+__fscache_begin_cookie_access if the FSCACHE_COOKIE_DO_INVALIDATE bit
+was previously clear.
 
-    (thread 1)          |        (thread 2)
-                        |  idt77252_init_one
-                        |    init_card
-                        |      fill_tst
-                        |        mod_timer(&card->tst_timer, ...)
-idt77252_exit           |  (wait a time)
-                        |  tst_timer
-                        |
-                        |    ...
-  kfree(card) // FREE   |
-                        |    card->soft_tst[e] // USE
+Also, ensure that we attempt to clear the bit when the cookie is
+"FAILED" and put the reference to avoid an access leak.
 
-The idt77252_dev is deallocated in idt77252_exit() and used in
-timer handler.
-
-This patch adds del_timer_sync() in idt77252_exit() in order that
-the timer handler could be stopped before the idt77252_dev is
-deallocated.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220805070008.18007-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 85e4ea1049c7 ("fscache: Fix invalidation/lookup race")
+Suggested-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/atm/idt77252.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/fscache/cookie.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/atm/idt77252.c
-+++ b/drivers/atm/idt77252.c
-@@ -3752,6 +3752,7 @@ static void __exit idt77252_exit(void)
- 		card = idt77252_chain;
- 		dev = card->atmdev;
- 		idt77252_chain = card->next;
-+		del_timer_sync(&card->tst_timer);
+diff --git a/fs/fscache/cookie.c b/fs/fscache/cookie.c
+index 74920826d8f6..26a6d395737a 100644
+--- a/fs/fscache/cookie.c
++++ b/fs/fscache/cookie.c
+@@ -739,6 +739,9 @@ static void fscache_cookie_state_machine(struct fscache_cookie *cookie)
+ 		fallthrough;
  
- 		if (dev->phy->stop)
- 			dev->phy->stop(dev);
+ 	case FSCACHE_COOKIE_STATE_FAILED:
++		if (test_and_clear_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags))
++			fscache_end_cookie_access(cookie, fscache_access_invalidate_cookie_end);
++
+ 		if (atomic_read(&cookie->n_accesses) != 0)
+ 			break;
+ 		if (test_bit(FSCACHE_COOKIE_DO_RELINQUISH, &cookie->flags)) {
+@@ -1063,8 +1066,8 @@ void __fscache_invalidate(struct fscache_cookie *cookie,
+ 		return;
+ 
+ 	case FSCACHE_COOKIE_STATE_LOOKING_UP:
+-		__fscache_begin_cookie_access(cookie, fscache_access_invalidate_cookie);
+-		set_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags);
++		if (!test_and_set_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags))
++			__fscache_begin_cookie_access(cookie, fscache_access_invalidate_cookie);
+ 		fallthrough;
+ 	case FSCACHE_COOKIE_STATE_CREATING:
+ 		spin_unlock(&cookie->lock);
+-- 
+2.37.2
+
 
 
