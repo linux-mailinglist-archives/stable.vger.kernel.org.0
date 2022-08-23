@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B43359DFD2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3664859DDA8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354412AbiHWKR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54952 "EHLO
+        id S239704AbiHWMPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:15:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353054AbiHWKOR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:14:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB8457390D;
-        Tue, 23 Aug 2022 01:59:57 -0700 (PDT)
+        with ESMTP id S1350342AbiHWMOb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:14:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C111B77EA0;
+        Tue, 23 Aug 2022 02:40:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4BD62CE1B45;
-        Tue, 23 Aug 2022 08:59:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56448C433D6;
-        Tue, 23 Aug 2022 08:59:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB2A60F50;
+        Tue, 23 Aug 2022 09:39:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39ED6C433B5;
+        Tue, 23 Aug 2022 09:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245194;
-        bh=19IgdIE9ZrUrSbXsW+/oPm9vunuXvHYium+mpiIAJ+g=;
+        s=korg; t=1661247555;
+        bh=sZA4j3WfRODB02016YMFjVMHgF4nnVisj24HWC5yEA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/Cq8yg71mixSskqs7sRDC7iHdhSd9LLgzUoeBpz9ukNfl1MsU2ZAWNYSY8kmqgiP
-         97Wl+/0RgEHebJT7d09af2Ju22CBxLVeE6Hh6As8XzglmbIMhAGVfuruZp7R8ZAZ+R
-         V2jw9XDHPBl/LfwdOVQc5lckCyv4OnCjE2xaW9kE=
+        b=szF1d4q4LmOfE+OmVpwct/9yurrJaNG8QKO2oJKtdkQvQC+lcfEKdl/nTfb2hqxT1
+         Ml3zh/l9ooioF4RzFu6bO0PfnJ58WVpdxOLOTr/+baOV5kDCjtxevB/P6HS1GToKGg
+         G+czkKHk+X55ISajftTdsek70tRDFlFPjbOl47d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xctan <xc-tan@outlook.com>,
-        dram <dramforever@live.com>, Ruizhe Pan <c141028@gmail.com>,
-        Celeste Liu <coelacanthus@outlook.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 217/244] riscv: mmap with PROT_WRITE but no PROT_READ is invalid
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 044/158] ACPI: property: Return type of acpi_add_nondev_subnodes() should be bool
 Date:   Tue, 23 Aug 2022 10:26:16 +0200
-Message-Id: <20220823080106.769520439@linuxfoundation.org>
+Message-Id: <20220823080047.854895541@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Celeste Liu <coelacanthus@outlook.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit 2139619bcad7ac44cc8f6f749089120594056613 ]
+commit 85140ef275f577f64e8a2c5789447222dfc14fc4 upstream.
 
-As mentioned in Table 4.5 in RISC-V spec Volume 2 Section 4.3, write
-but not read is "Reserved for future use.". For now, they are not valid.
-In the current code, -wx is marked as invalid, but -w- is not marked
-as invalid.
-This patch refines that judgment.
+The value acpi_add_nondev_subnodes() returns is bool so change the return
+type of the function to match that.
 
-Reported-by: xctan <xc-tan@outlook.com>
-Co-developed-by: dram <dramforever@live.com>
-Signed-off-by: dram <dramforever@live.com>
-Co-developed-by: Ruizhe Pan <c141028@gmail.com>
-Signed-off-by: Ruizhe Pan <c141028@gmail.com>
-Signed-off-by: Celeste Liu <coelacanthus@outlook.com>
-Link: https://lore.kernel.org/r/PH7PR14MB559464DBDD310E755F5B21E8CEDC9@PH7PR14MB5594.namprd14.prod.outlook.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 445b0eb058f5 ("ACPI / property: Add support for data-only subnodes")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/sys_riscv.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/acpi/property.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
-index 12f8a7fce78b..8a7880b9c433 100644
---- a/arch/riscv/kernel/sys_riscv.c
-+++ b/arch/riscv/kernel/sys_riscv.c
-@@ -18,9 +18,8 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
- 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
- 		return -EINVAL;
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -155,10 +155,10 @@ static bool acpi_nondev_subnode_ok(acpi_
+ 	return acpi_nondev_subnode_data_ok(handle, link, list, parent);
+ }
  
--	if ((prot & PROT_WRITE) && (prot & PROT_EXEC))
--		if (unlikely(!(prot & PROT_READ)))
--			return -EINVAL;
-+	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
-+		return -EINVAL;
- 
- 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
- 			       offset >> (PAGE_SHIFT - page_shift_offset));
--- 
-2.35.1
-
+-static int acpi_add_nondev_subnodes(acpi_handle scope,
+-				    const union acpi_object *links,
+-				    struct list_head *list,
+-				    struct fwnode_handle *parent)
++static bool acpi_add_nondev_subnodes(acpi_handle scope,
++				     const union acpi_object *links,
++				     struct list_head *list,
++				     struct fwnode_handle *parent)
+ {
+ 	bool ret = false;
+ 	int i;
 
 
