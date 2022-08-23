@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8706659DE77
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EC5A59E217
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242207AbiHWL2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:28:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59978 "EHLO
+        id S244063AbiHWK07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:26:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357864AbiHWL0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:26:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 416EEC228C;
-        Tue, 23 Aug 2022 02:24:34 -0700 (PDT)
+        with ESMTP id S1353843AbiHWKX7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0659EA3D4C;
+        Tue, 23 Aug 2022 02:04:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C18A66128D;
-        Tue, 23 Aug 2022 09:24:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98495C433C1;
-        Tue, 23 Aug 2022 09:24:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67A7C61589;
+        Tue, 23 Aug 2022 09:04:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ADB2C433B5;
+        Tue, 23 Aug 2022 09:04:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246673;
-        bh=psTYXKwmB5FC+LMgaklBI16+iIF52y4RiI7vG0UomCA=;
+        s=korg; t=1661245482;
+        bh=UnsYK3CCZV3d4U2OT6f8xJcmMIqfdF3LWGKXGLp2kE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTFexRrcdZItNu9iGAWvOXmzuLk7dchgD28rRRMeiFQS7tarhLSpJlkcJ+71I5C3f
-         5OtTCbmFDyYYOaMONmAQ7MO8FPjGdROwoWIhsTLwoaEWFpgmiYN+EUnFVd4CGMzMW7
-         IOLO4eE1Ll8CDs2ytLZaIx1atRCFynyjnWWWHVU4=
+        b=Wp+o2TCfC6SgQxji6J+i0tfHIbd5d8qJTOp4F6Myy00aIGq6Pe/Y31bdTugGUTIGu
+         H5GqAYPMXFmij005RuDKd7UmDrmIwZDMa3+c34vn/xWzhvoN3maMEm653HjP1NnX9/
+         K4LlbuysMrMY1oh0wISgmUb10Zb6djlnu9rQHn4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Benesh <scott.benesh@microchip.com>,
-        Scott Teel <scott.teel@microchip.com>,
-        Mike McGowen <mike.mcgowen@microchip.com>,
-        Kevin Barnett <kevin.barnett@microchip.com>,
-        Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>,
-        Don Brace <don.brace@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 183/389] scsi: smartpqi: Fix DMA direction for RAID requests
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 092/287] wifi: p54: Fix an error handling path in p54spi_probe()
 Date:   Tue, 23 Aug 2022 10:24:21 +0200
-Message-Id: <20220823080123.276725702@linuxfoundation.org>
+Message-Id: <20220823080103.406277168@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,66 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 69695aeaa6621bc49cdd7a8e5a8d1042461e496e ]
+[ Upstream commit 83781f0162d080fec7dcb911afd1bc2f5ad04471 ]
 
-Correct a SOP READ and WRITE DMA flags for some requests.
+If an error occurs after a successful call to p54spi_request_firmware(), it
+must be undone by a corresponding release_firmware() as already done in
+the error handling path of p54spi_request_firmware() and in the .remove()
+function.
 
-This update corrects DMA direction issues with SCSI commands removed from
-the controller's internal lookup table.
+Add the missing call in the error handling path and remove it from
+p54spi_request_firmware() now that it is the responsibility of the caller
+to release the firmware
 
-Currently, SCSI READ BLOCK LIMITS (0x5) was removed from the controller
-lookup table and exposed a DMA direction flag issue.
-
-SCSI READ BLOCK LIMITS was recently removed from our controller lookup
-table so the controller uses the respective IU flag field to set the DMA
-data direction. Since the DMA direction is incorrect the FW never completes
-the request causing a hang.
-
-Some SCSI commands which use SCSI READ BLOCK LIMITS
-
-      * sg_map
-      * mt -f /dev/stX status
-
-After updating controller firmware, users may notice their tape units
-failing. This patch resolves the issue.
-
-Also, the AIO path DMA direction is correct.
-
-The DMA direction flag is a day-one bug with no reported BZ.
-
-Fixes: 6c223761eb54 ("smartpqi: initial commit of Microsemi smartpqi driver")
-Link: https://lore.kernel.org/r/165730605618.177165.9054223644512926624.stgit@brunhilda
-Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
-Reviewed-by: Scott Teel <scott.teel@microchip.com>
-Reviewed-by: Mike McGowen <mike.mcgowen@microchip.com>
-Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
-Signed-off-by: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
-Signed-off-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: cd8d3d321285 ("p54spi: p54spi driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/297d2547ff2ee627731662abceeab9dbdaf23231.1655068321.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intersil/p54/p54spi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 80ff00025c03..540d6eb2cc48 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -5018,10 +5018,10 @@ static int pqi_raid_submit_scsi_cmd_with_io_request(
+diff --git a/drivers/net/wireless/intersil/p54/p54spi.c b/drivers/net/wireless/intersil/p54/p54spi.c
+index e41bf042352e..3dcfad5b61ff 100644
+--- a/drivers/net/wireless/intersil/p54/p54spi.c
++++ b/drivers/net/wireless/intersil/p54/p54spi.c
+@@ -177,7 +177,7 @@ static int p54spi_request_firmware(struct ieee80211_hw *dev)
+ 
+ 	ret = p54_parse_firmware(dev, priv->firmware);
+ 	if (ret) {
+-		release_firmware(priv->firmware);
++		/* the firmware is released by the caller */
+ 		return ret;
  	}
  
- 	switch (scmd->sc_data_direction) {
--	case DMA_TO_DEVICE:
-+	case DMA_FROM_DEVICE:
- 		request->data_direction = SOP_READ_FLAG;
- 		break;
--	case DMA_FROM_DEVICE:
-+	case DMA_TO_DEVICE:
- 		request->data_direction = SOP_WRITE_FLAG;
- 		break;
- 	case DMA_NONE:
+@@ -672,6 +672,7 @@ static int p54spi_probe(struct spi_device *spi)
+ 	return 0;
+ 
+ err_free_common:
++	release_firmware(priv->firmware);
+ 	free_irq(gpio_to_irq(p54spi_gpio_irq), spi);
+ err_free_gpio_irq:
+ 	gpio_free(p54spi_gpio_irq);
 -- 
 2.35.1
 
