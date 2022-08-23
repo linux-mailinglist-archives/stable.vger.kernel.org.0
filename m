@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80CA259DE22
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A01F259E09F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354576AbiHWK2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:28:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42616 "EHLO
+        id S1350554AbiHWLdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:33:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354706AbiHWK0L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:26:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1443074CE9;
-        Tue, 23 Aug 2022 02:05:36 -0700 (PDT)
+        with ESMTP id S243210AbiHWL2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:28:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA246C59C6;
+        Tue, 23 Aug 2022 02:25:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BFFE1B81C66;
-        Tue, 23 Aug 2022 09:05:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CAF2C433C1;
-        Tue, 23 Aug 2022 09:05:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2BB1B81C88;
+        Tue, 23 Aug 2022 09:25:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 017BAC433D6;
+        Tue, 23 Aug 2022 09:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245533;
-        bh=EQPwvuYJOs0V7yD6Lmh7EPf+O5KCLFrmcfzQApKHzAQ=;
+        s=korg; t=1661246722;
+        bh=8yMkKzhaIIy3DNw9qsKXKinY89NRF/Ka1TXvMtoYgLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5iZYdaB7ELYS//QvLisalM0F9qKTdqun50VTu7RoAd5i17FmfZ5o5sLBgN4NPloQ
-         aZ5wQooidcvC3+TYGLVaeoYiV6NPhmoQNMAIrQsohxSRxrRDPK//BkH5kjW3dLLTmH
-         jR47aKItPDYcrHQ0y9kgyJQW04jAYx4tEvsMD+y4=
+        b=XRhBypcRGDBZRsxXKDekTL5tgkcyktuLDwoUAwa8FStYrEaWYefWoHinMbDZURFeh
+         uGBs50HlLsB50srgXZtKkHbIuTVIqO3aUnUUJ363YH9Aslt1m23GHxUa8FtEP/aeNC
+         MfIzJPvzS82oYKKfTEx6HDTGUNR5c2Q98qKgQEy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 077/287] media: hdpvr: fix error value returns in hdpvr_read
+Subject: [PATCH 5.4 168/389] clk: qcom: clk-krait: unlock spin after mux completion
 Date:   Tue, 23 Aug 2022 10:24:06 +0200
-Message-Id: <20220823080102.838414734@linuxfoundation.org>
+Message-Id: <20220823080122.645856083@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-[ Upstream commit 359c27c6ddbde404f44a9c0d3ec88ccd1e2042f2 ]
+[ Upstream commit df83d2c9e72910416f650ade1e07cc314ff02731 ]
 
-Error return values are supposed to be negative in hdpvr_read. Most
-error returns are currently handled via an unsigned integer "ret". When
-setting a negative error value to "ret", the value actually becomes a
-large positive value, because "ret" is unsigned. Later on, the "ret"
-value is returned. But as ssize_t is a 64-bit signed number, the error
-return value stays a large positive integer instead of a negative
-integer. This can cause an error value to be interpreted as the read
-size, which can cause a buffer overread for applications relying on the
-returned size.
+Unlock spinlock after the mux switch is completed to prevent any corner
+case of mux request while the switch still needs to be done.
 
-Fixes: 9aba42efe85b ("V4L/DVB (11096): V4L2 Driver for the Hauppauge HD PVR usb capture device")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 4d7dc77babfe ("clk: qcom: Add support for Krait clocks")
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220430054458.31321-3-ansuelsmth@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/hdpvr/hdpvr-video.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/qcom/clk-krait.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/hdpvr/hdpvr-video.c b/drivers/media/usb/hdpvr/hdpvr-video.c
-index ce46f8721470..1fb2cdd9c4b2 100644
---- a/drivers/media/usb/hdpvr/hdpvr-video.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-video.c
-@@ -413,7 +413,7 @@ static ssize_t hdpvr_read(struct file *file, char __user *buffer, size_t count,
- 	struct hdpvr_device *dev = video_drvdata(file);
- 	struct hdpvr_buffer *buf = NULL;
- 	struct urb *urb;
--	unsigned int ret = 0;
-+	int ret = 0;
- 	int rem, cnt;
+diff --git a/drivers/clk/qcom/clk-krait.c b/drivers/clk/qcom/clk-krait.c
+index 59f1af415b58..90046428693c 100644
+--- a/drivers/clk/qcom/clk-krait.c
++++ b/drivers/clk/qcom/clk-krait.c
+@@ -32,11 +32,16 @@ static void __krait_mux_set_sel(struct krait_mux_clk *mux, int sel)
+ 		regval |= (sel & mux->mask) << (mux->shift + LPL_SHIFT);
+ 	}
+ 	krait_set_l2_indirect_reg(mux->offset, regval);
+-	spin_unlock_irqrestore(&krait_clock_reg_lock, flags);
  
- 	if (*pos)
+ 	/* Wait for switch to complete. */
+ 	mb();
+ 	udelay(1);
++
++	/*
++	 * Unlock now to make sure the mux register is not
++	 * modified while switching to the new parent.
++	 */
++	spin_unlock_irqrestore(&krait_clock_reg_lock, flags);
+ }
+ 
+ static int krait_mux_set_parent(struct clk_hw *hw, u8 index)
 -- 
 2.35.1
 
