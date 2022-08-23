@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3513B59D9E7
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9C959DA18
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351904AbiHWKDq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:03:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
+        id S1352220AbiHWKEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:04:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352379AbiHWKBt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 796A49AFB3;
-        Tue, 23 Aug 2022 01:49:27 -0700 (PDT)
+        with ESMTP id S1348369AbiHWKDM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:03:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 805CC7C531;
+        Tue, 23 Aug 2022 01:51:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31C5461377;
-        Tue, 23 Aug 2022 08:49:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25230C433C1;
-        Tue, 23 Aug 2022 08:49:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A221EB81B90;
+        Tue, 23 Aug 2022 08:51:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9518C433D6;
+        Tue, 23 Aug 2022 08:51:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244565;
-        bh=sxbDryvPEIEmBnIz8HeE+kR0f8qisaLYYvklp0l/9+8=;
+        s=korg; t=1661244669;
+        bh=rkS/6bBSHpcEQLoJ0IzZ7yYlpoy/SAcnwtpgo7NGrQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fKGGTZ0Pt6e6UtMOnmI/YXvyKbzIbRK8oCNztkkwF4QQHPa3MqxBNZEho+oSChKWr
-         CZ4oDzz0LlMVw27X9stBFRHDeWphwzKF9QGPA/2lwMzUqsGmfJnK7cf1EG7AOiRp43
-         AL87kq0TvHhePUg8aQaETIOFtiLLvUKKbtCVOnmw=
+        b=VWeeT8w3ZghT/5FnsGOhpkJE7zMaG7nvdjDDYBtjweZGYFT6zhchpFpVJPP91s7Ky
+         OD+p8Irz2e2mL6/aswG9j/KMjXjt0c+GYsH/ZKZeDm0jRTdnF1lCiynsUTRpSqxZOo
+         sfw4mTARYvEDiV44QzbgR9862GodpG1MfcoqV++w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 129/229] iommu/exynos: Handle failed IOMMU device registration properly
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.15 131/244] netfilter: nf_tables: check NFT_SET_CONCAT flag if field_count is specified
 Date:   Tue, 23 Aug 2022 10:24:50 +0200
-Message-Id: <20220823080058.330949128@linuxfoundation.org>
+Message-Id: <20220823080103.481844592@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Protsenko <semen.protsenko@linaro.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit fce398d2d02c0a9a2bedf7c7201b123e153e8963 ]
+commit 1b6345d4160ecd3d04bd8cd75df90c67811e8cc9 upstream.
 
-If iommu_device_register() fails in exynos_sysmmu_probe(), the previous
-calls have to be cleaned up. In this case, the iommu_device_sysfs_add()
-should be cleaned up, by calling its remove counterpart call.
+Since f3a2181e16f1 ("netfilter: nf_tables: Support for sets with
+multiple ranged fields"), it possible to combine intervals and
+concatenations. Later on, ef516e8625dd ("netfilter: nf_tables:
+reintroduce the NFT_SET_CONCAT flag") provides the NFT_SET_CONCAT flag
+for userspace to report that the set stores a concatenation.
 
-Fixes: d2c302b6e8b1 ("iommu/exynos: Make use of iommu_device_register interface")
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20220714165550.8884-3-semen.protsenko@linaro.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Make sure NFT_SET_CONCAT is set on if field_count is specified for
+consistency. Otherwise, if NFT_SET_CONCAT is specified with no
+field_count, bail out with EINVAL.
+
+Fixes: ef516e8625dd ("netfilter: nf_tables: reintroduce the NFT_SET_CONCAT flag")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/exynos-iommu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index f4ebef29c644..b1b797fd9d3b 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -638,7 +638,7 @@ static int __init exynos_sysmmu_probe(struct platform_device *pdev)
- 
- 	ret = iommu_device_register(&data->iommu);
- 	if (ret)
--		return ret;
-+		goto err_iommu_register;
- 
- 	platform_set_drvdata(pdev, data);
- 
-@@ -665,6 +665,10 @@ static int __init exynos_sysmmu_probe(struct platform_device *pdev)
- 	pm_runtime_enable(dev);
- 
- 	return 0;
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -4354,6 +4354,11 @@ static int nf_tables_newset(struct sk_bu
+ 		err = nf_tables_set_desc_parse(&desc, nla[NFTA_SET_DESC]);
+ 		if (err < 0)
+ 			return err;
 +
-+err_iommu_register:
-+	iommu_device_sysfs_remove(&data->iommu);
-+	return ret;
- }
++		if (desc.field_count > 1 && !(flags & NFT_SET_CONCAT))
++			return -EINVAL;
++	} else if (flags & NFT_SET_CONCAT) {
++		return -EINVAL;
+ 	}
  
- static int __maybe_unused exynos_sysmmu_suspend(struct device *dev)
--- 
-2.35.1
-
+ 	if (nla[NFTA_SET_EXPR] || nla[NFTA_SET_EXPRESSIONS])
 
 
