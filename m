@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 180E059D398
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C9F759D3C2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242419AbiHWIRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:17:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46284 "EHLO
+        id S241989AbiHWIQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242453AbiHWIPV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:15:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 923686D549;
-        Tue, 23 Aug 2022 01:10:06 -0700 (PDT)
+        with ESMTP id S242522AbiHWIP2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:15:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1908D6D57D;
+        Tue, 23 Aug 2022 01:10:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9749611DD;
-        Tue, 23 Aug 2022 08:10:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B322AC433D6;
-        Tue, 23 Aug 2022 08:10:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14F5DB81C23;
+        Tue, 23 Aug 2022 08:10:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E8F6C433D6;
+        Tue, 23 Aug 2022 08:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242205;
-        bh=Rlf/zyX8NPwzyZUHc+x5tXVEWl4HgHAxexgD2KZSQOk=;
+        s=korg; t=1661242210;
+        bh=pjkEizbC1JCRLj2o9AxXBiGOjqN01mRAxYEHVJUGgas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a2y5ZD72SfY/eWuK1zqErGhG40Wei1n7IDup6btDPiTXC5XT7go7NLaNEf51pV5xc
-         RUlfWAB8cEJ4dGJHGV7nvRTZ1ZsMSOxTMS0gSmSSiEt+8wvzA9wlRLn14a3KEpB6iV
-         eSrzaJyHT3K9IfHDHS0IZAiKvrnqvvEJoaoORJEk=
+        b=dn3J0zKcPUAoxf2JhdZKNgXdCwONYiXl7ye5JUKOC6ghmBFCiHx8B+uOE8TanAMxW
+         MI+M25iyO1gSKXtBnswe4JLiKnToWRckn50Geyvk2dEpFiQgpH/48IsQdn0SIe/0Fe
+         coTg8U0abGhrPNznw8HMajkw4ocF81gAiTulzaI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.19 076/365] SUNRPC: Dont reuse bvec on retransmission of the request
-Date:   Tue, 23 Aug 2022 09:59:37 +0200
-Message-Id: <20220823080121.356816589@linuxfoundation.org>
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.19 077/365] ASoC: qdsp6: q6apm-dai: unprepare stream if its already prepared
+Date:   Tue, 23 Aug 2022 09:59:38 +0200
+Message-Id: <20220823080121.409659939@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,171 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-commit 72691a269f0baad6d5f4aa7af97c29081b86d70f upstream.
+commit 6548c884a595391fab172faeae39e2b329b848f3 upstream.
 
-If a request is re-encoded and then retransmitted, we need to make sure
-that we also re-encode the bvec, in case the page lists have changed.
+prepare callback can be called multiple times, so unprepare the stream
+if its already prepared.
 
-Fixes: ff053dbbaffe ("SUNRPC: Move the call to xprt_send_pagedata() out of xprt_sock_sendmsg()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Without this DSP is not happy to setting the params on a already
+prepared graph.
+
+Fixes: 9b4fe0f1cd79 ("ASoC: qdsp6: audioreach: add q6apm-dai support")
+Reported-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220610144818.511797-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sunrpc/xprt.h |    3 ++-
- net/sunrpc/clnt.c           |    1 -
- net/sunrpc/xprt.c           |   27 ++++++++++++++++++---------
- net/sunrpc/xprtsock.c       |   12 ++----------
- 4 files changed, 22 insertions(+), 21 deletions(-)
+ sound/soc/qcom/qdsp6/q6apm-dai.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/linux/sunrpc/xprt.h
-+++ b/include/linux/sunrpc/xprt.h
-@@ -144,7 +144,8 @@ struct rpc_xprt_ops {
- 	unsigned short	(*get_srcport)(struct rpc_xprt *xprt);
- 	int		(*buf_alloc)(struct rpc_task *task);
- 	void		(*buf_free)(struct rpc_task *task);
--	int		(*prepare_request)(struct rpc_rqst *req);
-+	int		(*prepare_request)(struct rpc_rqst *req,
-+					   struct xdr_buf *buf);
- 	int		(*send_request)(struct rpc_rqst *req);
- 	void		(*wait_for_reply_request)(struct rpc_task *task);
- 	void		(*timer)(struct rpc_xprt *xprt, struct rpc_task *task);
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1856,7 +1856,6 @@ rpc_xdr_encode(struct rpc_task *task)
- 	req->rq_snd_buf.head[0].iov_len = 0;
- 	xdr_init_encode(&xdr, &req->rq_snd_buf,
- 			req->rq_snd_buf.head[0].iov_base, req);
--	xdr_free_bvec(&req->rq_snd_buf);
- 	if (rpc_encode_header(task, &xdr))
- 		return;
- 
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -73,7 +73,7 @@ static void	xprt_init(struct rpc_xprt *x
- static __be32	xprt_alloc_xid(struct rpc_xprt *xprt);
- static void	xprt_destroy(struct rpc_xprt *xprt);
- static void	xprt_request_init(struct rpc_task *task);
--static int	xprt_request_prepare(struct rpc_rqst *req);
-+static int	xprt_request_prepare(struct rpc_rqst *req, struct xdr_buf *buf);
- 
- static DEFINE_SPINLOCK(xprt_list_lock);
- static LIST_HEAD(xprt_list);
-@@ -1149,7 +1149,7 @@ xprt_request_enqueue_receive(struct rpc_
- 	if (!xprt_request_need_enqueue_receive(task, req))
- 		return 0;
- 
--	ret = xprt_request_prepare(task->tk_rqstp);
-+	ret = xprt_request_prepare(task->tk_rqstp, &req->rq_rcv_buf);
- 	if (ret)
- 		return ret;
- 	spin_lock(&xprt->queue_lock);
-@@ -1179,8 +1179,11 @@ xprt_request_dequeue_receive_locked(stru
- {
- 	struct rpc_rqst *req = task->tk_rqstp;
- 
--	if (test_and_clear_bit(RPC_TASK_NEED_RECV, &task->tk_runstate))
-+	if (test_and_clear_bit(RPC_TASK_NEED_RECV, &task->tk_runstate)) {
- 		xprt_request_rb_remove(req->rq_xprt, req);
-+		xdr_free_bvec(&req->rq_rcv_buf);
-+		req->rq_private_buf.bvec = NULL;
-+	}
- }
- 
- /**
-@@ -1336,8 +1339,14 @@ xprt_request_enqueue_transmit(struct rpc
- {
- 	struct rpc_rqst *pos, *req = task->tk_rqstp;
- 	struct rpc_xprt *xprt = req->rq_xprt;
-+	int ret;
- 
- 	if (xprt_request_need_enqueue_transmit(task, req)) {
-+		ret = xprt_request_prepare(task->tk_rqstp, &req->rq_snd_buf);
-+		if (ret) {
-+			task->tk_status = ret;
-+			return;
-+		}
- 		req->rq_bytes_sent = 0;
- 		spin_lock(&xprt->queue_lock);
- 		/*
-@@ -1397,6 +1406,7 @@ xprt_request_dequeue_transmit_locked(str
- 	} else
- 		list_del(&req->rq_xmit2);
- 	atomic_long_dec(&req->rq_xprt->xmit_queuelen);
-+	xdr_free_bvec(&req->rq_snd_buf);
- }
- 
- /**
-@@ -1433,8 +1443,6 @@ xprt_request_dequeue_xprt(struct rpc_tas
- 	    test_bit(RPC_TASK_NEED_RECV, &task->tk_runstate) ||
- 	    xprt_is_pinned_rqst(req)) {
- 		spin_lock(&xprt->queue_lock);
--		xprt_request_dequeue_transmit_locked(task);
--		xprt_request_dequeue_receive_locked(task);
- 		while (xprt_is_pinned_rqst(req)) {
- 			set_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
- 			spin_unlock(&xprt->queue_lock);
-@@ -1442,6 +1450,8 @@ xprt_request_dequeue_xprt(struct rpc_tas
- 			spin_lock(&xprt->queue_lock);
- 			clear_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
- 		}
-+		xprt_request_dequeue_transmit_locked(task);
-+		xprt_request_dequeue_receive_locked(task);
- 		spin_unlock(&xprt->queue_lock);
+--- a/sound/soc/qcom/qdsp6/q6apm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6apm-dai.c
+@@ -153,6 +153,12 @@ static int q6apm_dai_prepare(struct snd_
+ 		q6apm_unmap_memory_regions(prtd->graph, substream->stream);
  	}
- }
-@@ -1449,18 +1459,19 @@ xprt_request_dequeue_xprt(struct rpc_tas
- /**
-  * xprt_request_prepare - prepare an encoded request for transport
-  * @req: pointer to rpc_rqst
-+ * @buf: pointer to send/rcv xdr_buf
-  *
-  * Calls into the transport layer to do whatever is needed to prepare
-  * the request for transmission or receive.
-  * Returns error, or zero.
-  */
- static int
--xprt_request_prepare(struct rpc_rqst *req)
-+xprt_request_prepare(struct rpc_rqst *req, struct xdr_buf *buf)
- {
- 	struct rpc_xprt *xprt = req->rq_xprt;
  
- 	if (xprt->ops->prepare_request)
--		return xprt->ops->prepare_request(req);
-+		return xprt->ops->prepare_request(req, buf);
- 	return 0;
- }
- 
-@@ -1961,8 +1972,6 @@ void xprt_release(struct rpc_task *task)
- 	spin_unlock(&xprt->transport_lock);
- 	if (req->rq_buffer)
- 		xprt->ops->buf_free(task);
--	xdr_free_bvec(&req->rq_rcv_buf);
--	xdr_free_bvec(&req->rq_snd_buf);
- 	if (req->rq_cred != NULL)
- 		put_rpccred(req->rq_cred);
- 	if (req->rq_release_snd_buf)
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -822,17 +822,9 @@ static int xs_stream_nospace(struct rpc_
- 	return ret;
- }
- 
--static int
--xs_stream_prepare_request(struct rpc_rqst *req)
-+static int xs_stream_prepare_request(struct rpc_rqst *req, struct xdr_buf *buf)
- {
--	gfp_t gfp = rpc_task_gfp_mask();
--	int ret;
--
--	ret = xdr_alloc_bvec(&req->rq_snd_buf, gfp);
--	if (ret < 0)
--		return ret;
--	xdr_free_bvec(&req->rq_rcv_buf);
--	return xdr_alloc_bvec(&req->rq_rcv_buf, gfp);
-+	return xdr_alloc_bvec(buf, rpc_task_gfp_mask());
- }
- 
- /*
++	if (prtd->state) {
++		/* clear the previous setup if any  */
++		q6apm_graph_stop(prtd->graph);
++		q6apm_unmap_memory_regions(prtd->graph, substream->stream);
++	}
++
+ 	prtd->pcm_count = snd_pcm_lib_period_bytes(substream);
+ 	prtd->pos = 0;
+ 	/* rate and channels are sent to audio driver */
 
 
