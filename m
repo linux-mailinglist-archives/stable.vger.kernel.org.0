@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0848359D9B4
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DAD259D8AC
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345291AbiHWKAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:00:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55230 "EHLO
+        id S236992AbiHWJyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:54:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345397AbiHWJ6V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:58:21 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD0E8A1D6D;
-        Tue, 23 Aug 2022 01:48:04 -0700 (PDT)
+        with ESMTP id S244585AbiHWJyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:54:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CA989F768;
+        Tue, 23 Aug 2022 01:46:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8BABDCE1B53;
-        Tue, 23 Aug 2022 08:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2E49C433D7;
-        Tue, 23 Aug 2022 08:48:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA3A9B81C3A;
+        Tue, 23 Aug 2022 08:46:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC362C433D6;
+        Tue, 23 Aug 2022 08:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244481;
-        bh=nd5+KB9Lr171c9+sykLDGdxdvhZMEc6ArTh1VfBEg5M=;
+        s=korg; t=1661244366;
+        bh=d2C7zI3JOKJ5MqjkH9tUElWe9uYNhh5//9mKAug5n1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQ+lIUdQyWqBqaVSRdiODBTW0I9K8KBPpIZ2dB0diJMcyybHiUjEElaDG3KzInE+v
-         2B6FrojRfOhkwIJVLkHXhW8fDgnzgso/8/hanQ+0LI00pH5k7yg3cyBQD1hmHegqpC
-         MzXUfYIyS3bDXH1IuVRR8KSFXrJbSpcXB9fEmP4s=
+        b=RNlkxITg5y66poxcGI3QO3IbDRQ93/3HTwzrdF+kL1bAGfCAi+SCDWvxYi+PfQaH5
+         zEmeRzbxUq9QxfVSQa+EwP9S61DmYEargZ/DcjXXDk+TIiI+uXXQ3/IHkUdzDBx9bz
+         4M57Uy6MKuyCl/BKwuHtYrkngNTbC/qrGBKx5mdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.15 100/244] perf parse-events: Fix segfault when event parser gets an error
-Date:   Tue, 23 Aug 2022 10:24:19 +0200
-Message-Id: <20220823080102.374205156@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Miaoqian Lin <linmq006@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 099/229] usb: host: Fix refcount leak in ehci_hcd_ppc_of_probe
+Date:   Tue, 23 Aug 2022 10:24:20 +0200
+Message-Id: <20220823080057.231944046@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,57 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 2e828582b81f5bc76a4fe8e7812df259ab208302 upstream.
+[ Upstream commit b5c5b13cb45e2c88181308186b0001992cb41954 ]
 
-parse_events() is often called with parse_events_error set to NULL.
-Make parse_events_error__handle() not segfault in that case.
+of_find_compatible_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-A subsequent patch changes to avoid passing NULL in the first place.
-
-Fixes: 43eb05d066795bdf ("perf tests: Support 'Track with sched_switch' test for hybrid")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/r/20220809080702.6921-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 796bcae7361c ("USB: powerpc: Workaround for the PPC440EPX USBH_23 errata [take 3]")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220602110849.58549-1-linmq006@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/parse-events.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/usb/host/ehci-ppc-of.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -196,9 +196,12 @@ static int tp_event_has_id(const char *d
- void parse_events__handle_error(struct parse_events_error *err, int idx,
- 				char *str, char *help)
- {
--	if (WARN(!str, "WARNING: failed to provide error string\n")) {
--		free(help);
--		return;
-+	if (WARN(!str, "WARNING: failed to provide error string\n"))
-+		goto out_free;
-+	if (!err) {
-+		/* Assume caller does not want message printed */
-+		pr_debug("event syntax error: %s\n", str);
-+		goto out_free;
+diff --git a/drivers/usb/host/ehci-ppc-of.c b/drivers/usb/host/ehci-ppc-of.c
+index 1a10c8d542ca..d36aa2c29d39 100644
+--- a/drivers/usb/host/ehci-ppc-of.c
++++ b/drivers/usb/host/ehci-ppc-of.c
+@@ -147,6 +147,7 @@ static int ehci_hcd_ppc_of_probe(struct platform_device *op)
+ 		} else {
+ 			ehci->has_amcc_usb23 = 1;
+ 		}
++		of_node_put(np);
  	}
- 	switch (err->num_errors) {
- 	case 0:
-@@ -224,6 +227,11 @@ void parse_events__handle_error(struct p
- 		break;
- 	}
- 	err->num_errors++;
-+	return;
-+
-+out_free:
-+	free(str);
-+	free(help);
- }
  
- struct tracepoint_path *tracepoint_id_to_path(u64 config)
+ 	if (of_get_property(dn, "big-endian", NULL)) {
+-- 
+2.35.1
+
 
 
