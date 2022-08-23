@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE0459DB80
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 992E159DFF0
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359286AbiHWMDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52770 "EHLO
+        id S1356273AbiHWLCw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:02:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359353AbiHWMBS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:01:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30FD7D91E2;
-        Tue, 23 Aug 2022 02:35:42 -0700 (PDT)
+        with ESMTP id S1357346AbiHWLCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:02:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03441AF49B;
+        Tue, 23 Aug 2022 02:14:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2DA461468;
-        Tue, 23 Aug 2022 09:34:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7C4CC433C1;
-        Tue, 23 Aug 2022 09:34:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA71C60F85;
+        Tue, 23 Aug 2022 09:14:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE943C433C1;
+        Tue, 23 Aug 2022 09:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247283;
-        bh=sO+e8fdG0iggdNXE9VJVXd52yGBas04bWeyD/n3OLL0=;
+        s=korg; t=1661246088;
+        bh=IAjqu88HBmrdhnXFGvH85PF6S4vUjcTeTg1KNkSXmXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgRfkLgJMlvI3omTYYyQrX6Y2b75WyyHRoguNKfThHuntolzAre4aLx5wf03eEou9
-         l2wxiF/NOA+6ShCsagvp09iK+EJKpW7/p0wRn1gdIEqdT+LD0ZZOSPdynVYAlrZTew
-         mR/xLMbuJfzTAM/wwQ6xh/6yN7LYA6nT81EkZLBU=
+        b=vlkTSMDZc1pBzvC+HviUGr1TeoDiGQS2NbYfJU9/ucIEGRr0hWPi149lpw9VpjmoJ
+         itD/XRGmyAnluN8eRI2tMyXFdCu4Jdu5xk5ma2DlfalvyUlKIpQNBcOn/7N1enZMWO
+         HK0Y/+/AAqmUMkEmL93KjAfr1H03sY3i9yyXJebI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 377/389] powerpc/32: Dont always pass -mcpu=powerpc to the compiler
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Qu Wenruo <wqu@suse.com>
+Subject: [PATCH 4.19 286/287] btrfs: only write the sectors in the vertical stripe which has data stripes
 Date:   Tue, 23 Aug 2022 10:27:35 +0200
-Message-Id: <20220823080131.296286018@linuxfoundation.org>
+Message-Id: <20220823080111.167623816@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,148 +53,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 446cda1b21d9a6b3697fe399c6a3a00ff4a285f5 ]
+commit bd8f7e627703ca5707833d623efcd43f104c7b3f upstream.
 
-Since commit 4bf4f42a2feb ("powerpc/kbuild: Set default generic
-machine type for 32-bit compile"), when building a 32 bits kernel
-with a bi-arch version of GCC, or when building a book3s/32 kernel,
-the option -mcpu=powerpc is passed to GCC at all time, relying on it
-being eventually overriden by a subsequent -mcpu=xxxx.
+If we have only 8K partial write at the beginning of a full RAID56
+stripe, we will write the following contents:
 
-But when building the same kernel with a 32 bits only version of GCC,
-that is not done, relying on gcc being built with the expected default
-CPU.
+                    0  8K           32K             64K
+Disk 1	(data):     |XX|            |               |
+Disk 2  (data):     |               |               |
+Disk 3  (parity):   |XXXXXXXXXXXXXXX|XXXXXXXXXXXXXXX|
 
-This logic has two problems. First, it is a bit fragile to rely on
-whether the GCC version is bi-arch or not, because today we can have
-bi-arch versions of GCC configured with a 32 bits default. Second,
-there are some versions of GCC which don't support -mcpu=powerpc,
-for instance for e500 SPE-only versions.
+|X| means the sector will be written back to disk.
 
-So, stop relying on this approximative logic and allow the user to
-decide whether he/she wants to use the toolchain's default CPU or if
-he/she wants to set one, and allow only possible CPUs based on the
-selected target.
+Note that, although we won't write any sectors from disk 2, but we will
+write the full 64KiB of parity to disk.
 
-Reported-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Tested-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/d4df724691351531bf46d685d654689e5dfa0d74.1657549153.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This behavior is fine for now, but not for the future (especially for
+RAID56J, as we waste quite some space to journal the unused parity
+stripes).
+
+So here we will also utilize the btrfs_raid_bio::dbitmap, anytime we
+queue a higher level bio into an rbio, we will update rbio::dbitmap to
+indicate which vertical stripes we need to writeback.
+
+And at finish_rmw(), we also check dbitmap to see if we need to write
+any sector in the vertical stripe.
+
+So after the patch, above example will only lead to the following
+writeback pattern:
+
+                    0  8K           32K             64K
+Disk 1	(data):     |XX|            |               |
+Disk 2  (data):     |               |               |
+Disk 3  (parity):   |XX|            |               |
+
+Acked-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/Makefile                  | 26 +-------------------------
- arch/powerpc/platforms/Kconfig.cputype | 21 ++++++++++++++++++---
- 2 files changed, 19 insertions(+), 28 deletions(-)
+ fs/btrfs/raid56.c |   55 ++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index b9d2fcf030d0..eedd114a017c 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -17,23 +17,6 @@ HAS_BIARCH	:= $(call cc-option-yn, -m32)
- # Set default 32 bits cross compilers for vdso and boot wrapper
- CROSS32_COMPILE ?=
+--- a/fs/btrfs/raid56.c
++++ b/fs/btrfs/raid56.c
+@@ -318,6 +318,9 @@ static void merge_rbio(struct btrfs_raid
+ {
+ 	bio_list_merge(&dest->bio_list, &victim->bio_list);
+ 	dest->bio_list_bytes += victim->bio_list_bytes;
++	/* Also inherit the bitmaps from @victim. */
++	bitmap_or(dest->dbitmap, victim->dbitmap, dest->dbitmap,
++		  dest->stripe_npages);
+ 	dest->generic_bio_cnt += victim->generic_bio_cnt;
+ 	bio_list_init(&victim->bio_list);
+ }
+@@ -862,6 +865,12 @@ static void rbio_orig_end_io(struct btrf
  
--ifeq ($(HAS_BIARCH),y)
--ifeq ($(CROSS32_COMPILE),)
--ifdef CONFIG_PPC32
--# These options will be overridden by any -mcpu option that the CPU
--# or platform code sets later on the command line, but they are needed
--# to set a sane 32-bit cpu target for the 64-bit cross compiler which
--# may default to the wrong ISA.
--KBUILD_CFLAGS		+= -mcpu=powerpc
--KBUILD_AFLAGS		+= -mcpu=powerpc
--endif
--endif
--endif
--
--ifdef CONFIG_PPC_BOOK3S_32
--KBUILD_CFLAGS		+= -mcpu=powerpc
--endif
--
- # If we're on a ppc/ppc64/ppc64le machine use that defconfig, otherwise just use
- # ppc64_defconfig because we have nothing better to go on.
- uname := $(shell uname -m)
-@@ -192,6 +175,7 @@ endif
- endif
+ 	if (rbio->generic_bio_cnt)
+ 		btrfs_bio_counter_sub(rbio->fs_info, rbio->generic_bio_cnt);
++	/*
++	 * Clear the data bitmap, as the rbio may be cached for later usage.
++	 * do this before before unlock_stripe() so there will be no new bio
++	 * for this bio.
++	 */
++	bitmap_clear(rbio->dbitmap, 0, rbio->stripe_npages);
  
- CFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
-+AFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
+ 	/*
+ 	 * At this moment, rbio->bio_list is empty, however since rbio does not
+@@ -1196,6 +1205,9 @@ static noinline void finish_rmw(struct b
+ 	else
+ 		BUG();
  
- # Altivec option not allowed with e500mc64 in GCC.
- ifdef CONFIG_ALTIVEC
-@@ -202,14 +186,6 @@ endif
- CFLAGS-$(CONFIG_E5500_CPU) += $(E5500_CPU)
- CFLAGS-$(CONFIG_E6500_CPU) += $(call cc-option,-mcpu=e6500,$(E5500_CPU))
- 
--ifdef CONFIG_PPC32
--ifdef CONFIG_PPC_E500MC
--CFLAGS-y += $(call cc-option,-mcpu=e500mc,-mcpu=powerpc)
--else
--CFLAGS-$(CONFIG_E500) += $(call cc-option,-mcpu=8540 -msoft-float,-mcpu=powerpc)
--endif
--endif
--
- asinstr := $(call as-instr,lis 9$(comma)foo@high,-DHAVE_AS_ATHIGH=1)
- 
- KBUILD_CPPFLAGS	+= -I $(srctree)/arch/$(ARCH) $(asinstr)
-diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-index a9b20aa1dfd4..325dc8b53422 100644
---- a/arch/powerpc/platforms/Kconfig.cputype
-+++ b/arch/powerpc/platforms/Kconfig.cputype
-@@ -118,9 +118,9 @@ config GENERIC_CPU
- 	depends on PPC64 && CPU_LITTLE_ENDIAN
- 	select ARCH_HAS_FAST_MULTIPLIER
- 
--config GENERIC_CPU
-+config POWERPC_CPU
- 	bool "Generic 32 bits powerpc"
--	depends on PPC32 && !PPC_8xx
-+	depends on PPC32 && !PPC_8xx && !PPC_85xx
- 
- config CELL_CPU
- 	bool "Cell Broadband Engine"
-@@ -174,11 +174,23 @@ config G4_CPU
- 	depends on PPC_BOOK3S_32
- 	select ALTIVEC
- 
-+config E500_CPU
-+	bool "e500 (8540)"
-+	depends on PPC_85xx && !PPC_E500MC
++	/* We should have at least one data sector. */
++	ASSERT(bitmap_weight(rbio->dbitmap, rbio->stripe_npages));
 +
-+config E500MC_CPU
-+	bool "e500mc"
-+	depends on PPC_85xx && PPC_E500MC
+ 	/* at this point we either have a full stripe,
+ 	 * or we've read the full stripe from the drive.
+ 	 * recalculate the parity and write the new results.
+@@ -1269,6 +1281,11 @@ static noinline void finish_rmw(struct b
+ 	for (stripe = 0; stripe < rbio->real_stripes; stripe++) {
+ 		for (pagenr = 0; pagenr < rbio->stripe_npages; pagenr++) {
+ 			struct page *page;
 +
-+config TOOLCHAIN_DEFAULT_CPU
-+	bool "Rely on the toolchain's implicit default CPU"
-+	depends on PPC32
++			/* This vertical stripe has no data, skip it. */
++			if (!test_bit(pagenr, rbio->dbitmap))
++				continue;
 +
- endchoice
+ 			if (stripe < rbio->nr_data) {
+ 				page = page_in_rbio(rbio, stripe, pagenr, 1);
+ 				if (!page)
+@@ -1293,6 +1310,11 @@ static noinline void finish_rmw(struct b
  
- config TARGET_CPU_BOOL
- 	bool
--	default !GENERIC_CPU
-+	default !GENERIC_CPU && !TOOLCHAIN_DEFAULT_CPU
+ 		for (pagenr = 0; pagenr < rbio->stripe_npages; pagenr++) {
+ 			struct page *page;
++
++			/* This vertical stripe has no data, skip it. */
++			if (!test_bit(pagenr, rbio->dbitmap))
++				continue;
++
+ 			if (stripe < rbio->nr_data) {
+ 				page = page_in_rbio(rbio, stripe, pagenr, 1);
+ 				if (!page)
+@@ -1733,6 +1755,33 @@ static void btrfs_raid_unplug(struct blk
+ 	run_plug(plug);
+ }
  
- config TARGET_CPU
- 	string
-@@ -193,6 +205,9 @@ config TARGET_CPU
- 	default "e300c2" if E300C2_CPU
- 	default "e300c3" if E300C3_CPU
- 	default "G4" if G4_CPU
-+	default "8540" if E500_CPU
-+	default "e500mc" if E500MC_CPU
-+	default "powerpc" if POWERPC_CPU
++/* Add the original bio into rbio->bio_list, and update rbio::dbitmap. */
++static void rbio_add_bio(struct btrfs_raid_bio *rbio, struct bio *orig_bio)
++{
++	const struct btrfs_fs_info *fs_info = rbio->fs_info;
++	const u64 orig_logical = orig_bio->bi_iter.bi_sector << SECTOR_SHIFT;
++	const u64 full_stripe_start = rbio->bbio->raid_map[0];
++	const u32 orig_len = orig_bio->bi_iter.bi_size;
++	const u32 sectorsize = fs_info->sectorsize;
++	u64 cur_logical;
++
++	ASSERT(orig_logical >= full_stripe_start &&
++	       orig_logical + orig_len <= full_stripe_start +
++	       rbio->nr_data * rbio->stripe_len);
++
++	bio_list_add(&rbio->bio_list, orig_bio);
++	rbio->bio_list_bytes += orig_bio->bi_iter.bi_size;
++
++	/* Update the dbitmap. */
++	for (cur_logical = orig_logical; cur_logical < orig_logical + orig_len;
++	     cur_logical += sectorsize) {
++		int bit = ((u32)(cur_logical - full_stripe_start) >>
++			   PAGE_SHIFT) % rbio->stripe_npages;
++
++		set_bit(bit, rbio->dbitmap);
++	}
++}
++
+ /*
+  * our main entry point for writes from the rest of the FS.
+  */
+@@ -1749,9 +1798,8 @@ int raid56_parity_write(struct btrfs_fs_
+ 		btrfs_put_bbio(bbio);
+ 		return PTR_ERR(rbio);
+ 	}
+-	bio_list_add(&rbio->bio_list, bio);
+-	rbio->bio_list_bytes = bio->bi_iter.bi_size;
+ 	rbio->operation = BTRFS_RBIO_WRITE;
++	rbio_add_bio(rbio, bio);
  
- config PPC_BOOK3S
- 	def_bool y
--- 
-2.35.1
-
+ 	btrfs_bio_counter_inc_noblocked(fs_info);
+ 	rbio->generic_bio_cnt = 1;
+@@ -2155,8 +2203,7 @@ int raid56_parity_recover(struct btrfs_f
+ 	}
+ 
+ 	rbio->operation = BTRFS_RBIO_READ_REBUILD;
+-	bio_list_add(&rbio->bio_list, bio);
+-	rbio->bio_list_bytes = bio->bi_iter.bi_size;
++	rbio_add_bio(rbio, bio);
+ 
+ 	rbio->faila = find_logical_bio_stripe(rbio, bio);
+ 	if (rbio->faila == -1) {
 
 
