@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD9459D90A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC93659D8D2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232618AbiHWJbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:31:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51038 "EHLO
+        id S237207AbiHWJqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350539AbiHWJaZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:30:25 -0400
+        with ESMTP id S1351388AbiHWJpZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:45:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB10923E8;
-        Tue, 23 Aug 2022 01:37:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0509AFC4;
+        Tue, 23 Aug 2022 01:43:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E11C614C5;
-        Tue, 23 Aug 2022 08:37:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7392DC433C1;
-        Tue, 23 Aug 2022 08:37:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCEFA614E9;
+        Tue, 23 Aug 2022 08:42:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D45DEC433D7;
+        Tue, 23 Aug 2022 08:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243859;
-        bh=Xa6s7LYbZMRUMtcixMwGFLO019BA0YLdj1CCuUTJ8O8=;
+        s=korg; t=1661244174;
+        bh=dcknOVvdekOuukoPTOE+yv5c06pASb4XC+al3idwRmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFkqVPFOgied8zG51bN4OOo7UTNthMpiwJD/s6whVkN2/t410tXM98hbx4T2jrL+y
-         d9ZLaUGDkawZ8J8kHXbIaZcOCs34Z31gKXESFngahJwPEoq3q6c3J9tNo05V2zhFIR
-         4WpykC1hpLfQKw1Dojn2UNC2Rb74NmXLFYYxilhM=
+        b=bXUBK7mZtaPdR0X52dX83joQF8QXQ3dvFefWikjV6EFhOk0nyhaAkeV5hXiuUB2Zm
+         W8+WcMkyoSNEEH9UPziFvoA+3TYDXFT0wedvtMM5qCC30YCLlHKZht34jNNAB6nEmG
+         se5bJIao+oxILvgnhw/1QhlOdnLDX29MhV20RSSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manyi Li <limanyi@uniontech.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 045/229] ACPI: PM: save NVS memory for Lenovo G40-45
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.15 047/244] bpf: Acquire map uref in .init_seq_private for sock{map,hash} iterator
 Date:   Tue, 23 Aug 2022 10:23:26 +0200
-Message-Id: <20220823080055.255044572@linuxfoundation.org>
+Message-Id: <20220823080100.632196561@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manyi Li <limanyi@uniontech.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 4b7ef7b05afcde44142225c184bf43a0cd9e2178 ]
+commit f0d2b2716d71778d0b0c8eaa433c073287d69d93 upstream.
 
-[821d6f0359b0614792ab8e2fb93b503e25a65079] is to make machines
-produced from 2012 to now not saving NVS region to accelerate S3.
+sock_map_iter_attach_target() acquires a map uref, and the uref may be
+released before or in the middle of iterating map elements. For example,
+the uref could be released in sock_map_iter_detach_target() as part of
+bpf_link_release(), or could be released in bpf_map_put_with_uref() as
+part of bpf_map_release().
 
-But, Lenovo G40-45, a platform released in 2015, still needs NVS memory
-saving during S3. A quirk is introduced for this platform.
+Fixing it by acquiring an extra map uref in .init_seq_private and
+releasing it in .fini_seq_private.
 
-Signed-off-by: Manyi Li <limanyi@uniontech.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0365351524d7 ("net: Allow iterating sockmap and sockhash")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/r/20220810080538.1845898-5-houtao@huaweicloud.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/sleep.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/core/sock_map.c |   20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
-index 7a0af16f86f2..d341908cbd16 100644
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -359,6 +359,14 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "80E3"),
- 		},
- 	},
-+	{
-+	.callback = init_nvs_save_s3,
-+	.ident = "Lenovo G40-45",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "80E1"),
-+		},
-+	},
- 	/*
- 	 * https://bugzilla.kernel.org/show_bug.cgi?id=196907
- 	 * Some Dell XPS13 9360 cannot do suspend-to-idle using the Low Power
--- 
-2.35.1
-
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -789,13 +789,22 @@ static int sock_map_init_seq_private(voi
+ {
+ 	struct sock_map_seq_info *info = priv_data;
+ 
++	bpf_map_inc_with_uref(aux->map);
+ 	info->map = aux->map;
+ 	return 0;
+ }
+ 
++static void sock_map_fini_seq_private(void *priv_data)
++{
++	struct sock_map_seq_info *info = priv_data;
++
++	bpf_map_put_with_uref(info->map);
++}
++
+ static const struct bpf_iter_seq_info sock_map_iter_seq_info = {
+ 	.seq_ops		= &sock_map_seq_ops,
+ 	.init_seq_private	= sock_map_init_seq_private,
++	.fini_seq_private	= sock_map_fini_seq_private,
+ 	.seq_priv_size		= sizeof(struct sock_map_seq_info),
+ };
+ 
+@@ -1376,18 +1385,27 @@ static const struct seq_operations sock_
+ };
+ 
+ static int sock_hash_init_seq_private(void *priv_data,
+-				     struct bpf_iter_aux_info *aux)
++				      struct bpf_iter_aux_info *aux)
+ {
+ 	struct sock_hash_seq_info *info = priv_data;
+ 
++	bpf_map_inc_with_uref(aux->map);
+ 	info->map = aux->map;
+ 	info->htab = container_of(aux->map, struct bpf_shtab, map);
+ 	return 0;
+ }
+ 
++static void sock_hash_fini_seq_private(void *priv_data)
++{
++	struct sock_hash_seq_info *info = priv_data;
++
++	bpf_map_put_with_uref(info->map);
++}
++
+ static const struct bpf_iter_seq_info sock_hash_iter_seq_info = {
+ 	.seq_ops		= &sock_hash_seq_ops,
+ 	.init_seq_private	= sock_hash_init_seq_private,
++	.fini_seq_private	= sock_hash_fini_seq_private,
+ 	.seq_priv_size		= sizeof(struct sock_hash_seq_info),
+ };
+ 
 
 
