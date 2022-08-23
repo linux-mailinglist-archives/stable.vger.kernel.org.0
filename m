@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12CEE59E104
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85F1859DD5E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354258AbiHWKYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:24:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60784 "EHLO
+        id S1357426AbiHWLUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354192AbiHWKUl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:20:41 -0400
+        with ESMTP id S1353520AbiHWLSv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:18:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EAFAAD;
-        Tue, 23 Aug 2022 02:02:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E96678993D;
+        Tue, 23 Aug 2022 02:22:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C862E61579;
-        Tue, 23 Aug 2022 09:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B26BC433C1;
-        Tue, 23 Aug 2022 09:02:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8860F6126A;
+        Tue, 23 Aug 2022 09:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89100C433D7;
+        Tue, 23 Aug 2022 09:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245336;
-        bh=B+3p/GQqQOtvQA60D7Hg3pIgqOkJKFL3MaPiyOP8loE=;
+        s=korg; t=1661246525;
+        bh=APTbj+GkO6pXyOun7k2N1qRsM20PbBhYU61iwnu2ntY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNN63geELsPNlG9YOK6/u5UmBGmGtVW/n1lcSHvjncTwECpSDo0Muom3f8quqJNWs
-         CiC/DFIorbdCJBRpNboA0laNdTR3PsZ1aMqnI7odBDeF+wbxvn7Bil1bPSKRHE4kQ2
-         xjq4ihtgjmx3XR9GTdQV9rV4XfzuR8TRVVT9KfL4=
+        b=Iv085O0U93Iax1/w0m4oUKHw4+aDiEo1fbI0Kxr+EaXO8+MFu+lf3Nzg9usOgzp57
+         n4g5MKPwVsjVeMd914+WX2dlTlrBd7pjA2I33RtwkqfdfB+vIGIflzCRBH5VOwrWi+
+         RZvwTlL3bkL5JaHd34MVX8vlU9kuuC73HFj60Rdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/287] ACPI: EC: Remove duplicate ThinkPad X1 Carbon 6th entry from DMI quirks
+Subject: [PATCH 5.4 138/389] can: usb_8dev: do not report txerr and rxerr during bus-off
 Date:   Tue, 23 Aug 2022 10:23:36 +0200
-Message-Id: <20220823080101.840676854@linuxfoundation.org>
+Message-Id: <20220823080121.377735672@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 0dd6db359e5f206cbf1dd1fd40dd211588cd2725 ]
+[ Upstream commit aebe8a2433cd090ccdc222861f44bddb75eb01de ]
 
-Somehow the "ThinkPad X1 Carbon 6th" entry ended up twice in the
-struct dmi_system_id acpi_ec_no_wakeup[] array. Remove one of
-the entries.
+During bus off, the error count is greater than 255 and can not fit in
+a u8.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
+Link: https://lore.kernel.org/all/20220719143550.3681-10-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/net/can/usb/usb_8dev.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index e3df3dda0332..3394ec64fe95 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -2118,13 +2118,6 @@ static const struct dmi_system_id acpi_ec_no_wakeup[] = {
- 			DMI_MATCH(DMI_PRODUCT_FAMILY, "Thinkpad X1 Carbon 6th"),
- 		},
- 	},
--	{
--		.ident = "ThinkPad X1 Carbon 6th",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Carbon 6th"),
--		},
--	},
- 	{
- 		.ident = "ThinkPad X1 Yoga 3rd",
- 		.matches = {
+diff --git a/drivers/net/can/usb/usb_8dev.c b/drivers/net/can/usb/usb_8dev.c
+index b514b2eaa318..89a94c16fc08 100644
+--- a/drivers/net/can/usb/usb_8dev.c
++++ b/drivers/net/can/usb/usb_8dev.c
+@@ -442,9 +442,10 @@ static void usb_8dev_rx_err_msg(struct usb_8dev_priv *priv,
+ 
+ 	if (rx_errors)
+ 		stats->rx_errors++;
+-
+-	cf->data[6] = txerr;
+-	cf->data[7] = rxerr;
++	if (priv->can.state != CAN_STATE_BUS_OFF) {
++		cf->data[6] = txerr;
++		cf->data[7] = rxerr;
++	}
+ 
+ 	priv->bec.txerr = txerr;
+ 	priv->bec.rxerr = rxerr;
 -- 
 2.35.1
 
