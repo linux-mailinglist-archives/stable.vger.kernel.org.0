@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24AB959E3C3
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A2E59DF93
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240930AbiHWMdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:33:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53208 "EHLO
+        id S1359285AbiHWMDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:03:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244578AbiHWMbE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:31:04 -0400
+        with ESMTP id S1359691AbiHWMCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEF4C10158E;
-        Tue, 23 Aug 2022 02:45:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1396D97D71;
+        Tue, 23 Aug 2022 02:36:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AED786151B;
-        Tue, 23 Aug 2022 09:44:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE800C433D6;
-        Tue, 23 Aug 2022 09:44:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9523361469;
+        Tue, 23 Aug 2022 09:35:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0829C433D6;
+        Tue, 23 Aug 2022 09:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247847;
-        bh=H6UKRo4fZU5TbBWywQodFTRoIUfFUhzsV6K5s9BhEjY=;
+        s=korg; t=1661247319;
+        bh=JBtUajIUUTvXn1dwEIei/vptr1iv5ncaSZumZ5qjilw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivJjUhEjuCEKfJpVkBcw3Odl/+ZrUyTQvbCUBtbYFEw3+2mIr3FQ69/Yb75LZkcen
-         yLFu/VqnQMrI3+z72GxHBJocMtq0DHFJUE39oVaUy4pFq0NHB4i9raljz4RqM+6gOy
-         iHFLvMn5p24bMDvb/givybmcRhv0agNb2sq7/0r4=
+        b=OUQTmBLW1lWTwQ6vzlAZlWaeEei7ohQkS+ju0vJpvdFhtseiljw5pKSg12n8IFOuH
+         O3iOJhxWf1cPPJbprSh+ERpyyYhX+QZKdfqhJLU8wFJUA7fO8RODtJ17UCt1Jlm2bh
+         4ZreNoFrVmLOQKoADmgLRPwUudpnBRheT6U+1xik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timur Tabi <timur@kernel.org>,
-        Liang He <windhl@126.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 133/158] tty: serial: Fix refcount leak bug in ucc_uart.c
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 387/389] can: j1939: j1939_session_destroy(): fix memory leak of skbs
 Date:   Tue, 23 Aug 2022 10:27:45 +0200
-Message-Id: <20220823080051.228232313@linuxfoundation.org>
+Message-Id: <20220823080131.742034120@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit d24d7bb2cd947676f9b71fb944d045e09b8b282f ]
+commit 8c21c54a53ab21842f5050fa090f26b03c0313d6 upstream.
 
-In soc_info(), of_find_node_by_type() will return a node pointer
-with refcount incremented. We should use of_node_put() when it is
-not used anymore.
+We need to drop skb references taken in j1939_session_skb_queue() when
+destroying a session in j1939_session_destroy(). Otherwise those skbs
+would be lost.
 
-Acked-by: Timur Tabi <timur@kernel.org>
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220618060850.4058525-1-windhl@126.com
+Link to Syzkaller info and repro: https://forge.ispras.ru/issues/11743.
+
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+
+V1: https://lore.kernel.org/all/20220708175949.539064-1-pchelkin@ispras.ru
+
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Suggested-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/all/20220805150216.66313-1-pchelkin@ispras.ru
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/ucc_uart.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/can/j1939/transport.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/ucc_uart.c b/drivers/tty/serial/ucc_uart.c
-index d6a8604157ab..d1fecc88330e 100644
---- a/drivers/tty/serial/ucc_uart.c
-+++ b/drivers/tty/serial/ucc_uart.c
-@@ -1137,6 +1137,8 @@ static unsigned int soc_info(unsigned int *rev_h, unsigned int *rev_l)
- 		/* No compatible property, so try the name. */
- 		soc_string = np->name;
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -260,6 +260,8 @@ static void __j1939_session_drop(struct
  
-+	of_node_put(np);
+ static void j1939_session_destroy(struct j1939_session *session)
+ {
++	struct sk_buff *skb;
 +
- 	/* Extract the SOC number from the "PowerPC," string */
- 	if ((sscanf(soc_string, "PowerPC,%u", &soc) != 1) || !soc)
- 		return 0;
--- 
-2.35.1
-
+ 	if (session->err)
+ 		j1939_sk_errqueue(session, J1939_ERRQUEUE_ABORT);
+ 	else
+@@ -270,7 +272,11 @@ static void j1939_session_destroy(struct
+ 	WARN_ON_ONCE(!list_empty(&session->sk_session_queue_entry));
+ 	WARN_ON_ONCE(!list_empty(&session->active_session_list_entry));
+ 
+-	skb_queue_purge(&session->skb_queue);
++	while ((skb = skb_dequeue(&session->skb_queue)) != NULL) {
++		/* drop ref taken in j1939_session_skb_queue() */
++		skb_unref(skb);
++		kfree_skb(skb);
++	}
+ 	__j1939_session_drop(session);
+ 	j1939_priv_put(session->priv);
+ 	kfree(session);
 
 
