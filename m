@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C8059D9DC
+	by mail.lfdr.de (Postfix) with ESMTP id A58D059D9DE
 	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351731AbiHWKD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:03:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59034 "EHLO
+        id S1351757AbiHWKD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:03:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352210AbiHWKBW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56210491EF;
-        Tue, 23 Aug 2022 01:49:01 -0700 (PDT)
+        with ESMTP id S1352243AbiHWKB3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4588F6FA21;
+        Tue, 23 Aug 2022 01:49:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E57A861386;
-        Tue, 23 Aug 2022 08:49:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D16E5C433D6;
-        Tue, 23 Aug 2022 08:48:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEEF9B81BF8;
+        Tue, 23 Aug 2022 08:49:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19F70C433C1;
+        Tue, 23 Aug 2022 08:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244540;
-        bh=xwMDHTFnMLKH4+U7KF18c69Qbn3zdxCc6asbHfolpLg=;
+        s=korg; t=1661244546;
+        bh=X80genjRvM2BQRqho1Zf4KlpLP+VqAoEYc/fqf6UN7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+O1h4soKm8xnkdjVbxazgIsv7qfOe8CKsElg++CN70Ck0lzi+laQyxlvC9uRIc9+
-         p8bj7fGN9CB87IH6+oRyn3GWz22IUALZqxpRq50BK0xetVpqG+mCgmdydMAHwPESt8
-         qxTlVJNNB+oks0FFZUTEi17uCmkqd5gTi6iVvEFM=
+        b=fgfJzE0fVZUaOJyJqRc0kkKkWNPsrd65BcMekk05FqYIhE3VHWgC/IkbDhkFcVKup
+         hnXhT2JloLeYZulHGWvJJJeYTsh276H1GzJadE6PkE5WpdACvFCEs/8QwTsRz31cJB
+         jipgwTVXfYClF+yuevvjlFotgG7zBTa/D7ctjnJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
-        Jan Kara <jack@suse.cz>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        stable@vger.kernel.org, stable@kernel.org,
+        Lukas Czerner <lczerner@redhat.com>,
+        Andreas Dilger <adilger@dilger.ca>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 152/229] ext4: add EXT4_INODE_HAS_XATTR_SPACE macro in xattr.h
-Date:   Tue, 23 Aug 2022 10:25:13 +0200
-Message-Id: <20220823080059.101216471@linuxfoundation.org>
+Subject: [PATCH 4.14 153/229] ext4: make sure ext4_append() always allocates new block
+Date:   Tue, 23 Aug 2022 10:25:14 +0200
+Message-Id: <20220823080059.141504689@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -55,45 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Lukas Czerner <lczerner@redhat.com>
 
-commit 179b14152dcb6a24c3415200603aebca70ff13af upstream.
+commit b8a04fe77ef1360fbf73c80fddbdfeaa9407ed1b upstream.
 
-When adding an xattr to an inode, we must ensure that the inode_size is
-not less than EXT4_GOOD_OLD_INODE_SIZE + extra_isize + pad. Otherwise,
-the end position may be greater than the start position, resulting in UAF.
+ext4_append() must always allocate a new block, otherwise we run the
+risk of overwriting existing directory block corrupting the directory
+tree in the process resulting in all manner of problems later on.
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220616021358.2504451-2-libaokun1@huawei.com
+Add a sanity check to see if the logical block is already allocated and
+error out if it is.
+
+Cc: stable@kernel.org
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20220704142721.157985-2-lczerner@redhat.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.h |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/ext4/namei.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/fs/ext4/xattr.h
-+++ b/fs/ext4/xattr.h
-@@ -95,6 +95,19 @@ struct ext4_xattr_entry {
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -52,6 +52,7 @@ static struct buffer_head *ext4_append(h
+ 					struct inode *inode,
+ 					ext4_lblk_t *block)
+ {
++	struct ext4_map_blocks map;
+ 	struct buffer_head *bh;
+ 	int err;
  
- #define EXT4_ZERO_XATTR_VALUE ((void *)-1)
+@@ -61,6 +62,21 @@ static struct buffer_head *ext4_append(h
+ 		return ERR_PTR(-ENOSPC);
  
-+/*
-+ * If we want to add an xattr to the inode, we should make sure that
-+ * i_extra_isize is not 0 and that the inode size is not less than
-+ * EXT4_GOOD_OLD_INODE_SIZE + extra_isize + pad.
-+ *   EXT4_GOOD_OLD_INODE_SIZE   extra_isize header   entry   pad  data
-+ * |--------------------------|------------|------|---------|---|-------|
-+ */
-+#define EXT4_INODE_HAS_XATTR_SPACE(inode)				\
-+	((EXT4_I(inode)->i_extra_isize != 0) &&				\
-+	 (EXT4_GOOD_OLD_INODE_SIZE + EXT4_I(inode)->i_extra_isize +	\
-+	  sizeof(struct ext4_xattr_ibody_header) + EXT4_XATTR_PAD <=	\
-+	  EXT4_INODE_SIZE((inode)->i_sb)))
+ 	*block = inode->i_size >> inode->i_sb->s_blocksize_bits;
++	map.m_lblk = *block;
++	map.m_len = 1;
 +
- struct ext4_xattr_info {
- 	const char *name;
- 	const void *value;
++	/*
++	 * We're appending new directory block. Make sure the block is not
++	 * allocated yet, otherwise we will end up corrupting the
++	 * directory.
++	 */
++	err = ext4_map_blocks(NULL, inode, &map, 0);
++	if (err < 0)
++		return ERR_PTR(err);
++	if (err) {
++		EXT4_ERROR_INODE(inode, "Logical block already allocated");
++		return ERR_PTR(-EFSCORRUPTED);
++	}
+ 
+ 	bh = ext4_bread(handle, inode, *block, EXT4_GET_BLOCKS_CREATE);
+ 	if (IS_ERR(bh))
 
 
