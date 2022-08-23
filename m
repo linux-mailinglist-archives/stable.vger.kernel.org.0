@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F6359D518
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B6D759D601
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:11:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346817AbiHWImk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:42:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56106 "EHLO
+        id S240362AbiHWJAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:00:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347540AbiHWIk6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:40:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9B778BC2;
-        Tue, 23 Aug 2022 01:19:09 -0700 (PDT)
+        with ESMTP id S241411AbiHWI7g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:59:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A123872861;
+        Tue, 23 Aug 2022 01:26:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C47FB612FE;
-        Tue, 23 Aug 2022 08:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B98A3C433D6;
-        Tue, 23 Aug 2022 08:19:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0726761326;
+        Tue, 23 Aug 2022 08:19:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE79AC433C1;
+        Tue, 23 Aug 2022 08:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242749;
-        bh=8S/L+ko8PXRVOng3sXlH05A8J8sOawPha2jooEBcrs8=;
+        s=korg; t=1661242752;
+        bh=Y6ANw5KX4DbdM59Da3Kv2+eYubJ10ZRx8yC/Z07q1iU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00FyDqoRLlOqdoOgfzVtfU4MjoOJQhBZ5jNud2bgWLXQv2hZuu5SuuxBfCON9oW3r
-         EGlKEdobpoDwNoVWqBk30y9TQWhxZsMBZBhBKyzWZgPCzU1lvanYzLyfdwX4fsl6/V
-         DobmzqDj4MYqRXAWFB250yq4VK45bDpVKxKTS45U=
+        b=CdXpHORVMWKYER3eghs0Z/SK8NAHKYdx+TOy6RzTBpMbQ2hVa8eLVeGPOM06fNley
+         LAxE/3gu8nL8X5Ee7+1st6gar3PxhN9ZbA6lc/uFxPbrOmekU2AnDGFhnuvQc7pCUK
+         +AU4SHk8Z6/rka9tHqlqjlRC7nepfJ0FjKvEzSrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
-        Florian Westphal <fw@strlen.de>
-Subject: [PATCH 5.19 188/365] netfilter: nfnetlink: re-enable conntrack expectation events
-Date:   Tue, 23 Aug 2022 10:01:29 +0200
-Message-Id: <20220823080126.092950775@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.19 189/365] netfilter: nf_tables: use READ_ONCE and WRITE_ONCE for shared generation id access
+Date:   Tue, 23 Aug 2022 10:01:30 +0200
+Message-Id: <20220823080126.128862257@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,161 +52,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 0b2f3212b551a87fe936701fa0813032861a3308 upstream.
+commit 3400278328285a8c2f121904496aff5e7b610a01 upstream.
 
-To avoid allocation of the conntrack extension area when possible,
-the default behaviour was changed to only allocate the event extension
-if a userspace program is subscribed to a notification group.
+The generation ID is bumped from the commit path while holding the
+mutex, however, netlink dump operations rely on RCU.
 
-Problem is that while 'conntrack -E' does enable the event allocation
-behind the scenes, 'conntrack -E expect' does not: no expectation events
-are delivered unless user sets
-"net.netfilter.nf_conntrack_events" back to 1 (always on).
+This patch also adds missing cb->base_eq initialization in
+nf_tables_dump_set().
 
-Fix the autodetection to also consider EXP type group.
-
-We need to track the 6 event groups (3+3, new/update/destroy for events and
-for expectations each) independently, else we'd disable events again
-if an expectation group becomes empty while there is still an active
-event group.
-
-Fixes: 2794cdb0b97b ("netfilter: nfnetlink: allow to detect if ctnetlink listeners exist")
-Reported-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fixes: 38e029f14a97 ("netfilter: nf_tables: set NLM_F_DUMP_INTR if netlink dumping is stale")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netns/conntrack.h |    2 -
- net/netfilter/nfnetlink.c     |   83 +++++++++++++++++++++++++++++++++++-------
- 2 files changed, 72 insertions(+), 13 deletions(-)
+ net/netfilter/nf_tables_api.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/include/net/netns/conntrack.h
-+++ b/include/net/netns/conntrack.h
-@@ -95,7 +95,7 @@ struct nf_ip_net {
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -889,7 +889,7 @@ static int nf_tables_dump_tables(struct
  
- struct netns_ct {
- #ifdef CONFIG_NF_CONNTRACK_EVENTS
--	bool ctnetlink_has_listener;
-+	u8 ctnetlink_has_listener;
- 	bool ecache_dwork_pending;
- #endif
- 	u8			sysctl_log_invalid; /* Log invalid packets */
---- a/net/netfilter/nfnetlink.c
-+++ b/net/netfilter/nfnetlink.c
-@@ -44,6 +44,10 @@ MODULE_DESCRIPTION("Netfilter messages v
+ 	rcu_read_lock();
+ 	nft_net = nft_pernet(net);
+-	cb->seq = nft_net->base_seq;
++	cb->seq = READ_ONCE(nft_net->base_seq);
  
- static unsigned int nfnetlink_pernet_id __read_mostly;
+ 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
+ 		if (family != NFPROTO_UNSPEC && family != table->family)
+@@ -1705,7 +1705,7 @@ static int nf_tables_dump_chains(struct
  
-+#ifdef CONFIG_NF_CONNTRACK_EVENTS
-+static DEFINE_SPINLOCK(nfnl_grp_active_lock);
-+#endif
-+
- struct nfnl_net {
- 	struct sock *nfnl;
- };
-@@ -654,6 +658,44 @@ static void nfnetlink_rcv(struct sk_buff
- 		netlink_rcv_skb(skb, nfnetlink_rcv_msg);
- }
+ 	rcu_read_lock();
+ 	nft_net = nft_pernet(net);
+-	cb->seq = nft_net->base_seq;
++	cb->seq = READ_ONCE(nft_net->base_seq);
  
-+static void nfnetlink_bind_event(struct net *net, unsigned int group)
-+{
-+#ifdef CONFIG_NF_CONNTRACK_EVENTS
-+	int type, group_bit;
-+	u8 v;
-+
-+	/* All NFNLGRP_CONNTRACK_* group bits fit into u8.
-+	 * The other groups are not relevant and can be ignored.
-+	 */
-+	if (group >= 8)
-+		return;
-+
-+	type = nfnl_group2type[group];
-+
-+	switch (type) {
-+	case NFNL_SUBSYS_CTNETLINK:
-+		break;
-+	case NFNL_SUBSYS_CTNETLINK_EXP:
-+		break;
-+	default:
-+		return;
-+	}
-+
-+	group_bit = (1 << group);
-+
-+	spin_lock(&nfnl_grp_active_lock);
-+	v = READ_ONCE(net->ct.ctnetlink_has_listener);
-+	if ((v & group_bit) == 0) {
-+		v |= group_bit;
-+
-+		/* read concurrently without nfnl_grp_active_lock held. */
-+		WRITE_ONCE(net->ct.ctnetlink_has_listener, v);
-+	}
-+
-+	spin_unlock(&nfnl_grp_active_lock);
-+#endif
-+}
-+
- static int nfnetlink_bind(struct net *net, int group)
- {
- 	const struct nfnetlink_subsystem *ss;
-@@ -670,28 +712,45 @@ static int nfnetlink_bind(struct net *ne
- 	if (!ss)
- 		request_module_nowait("nfnetlink-subsys-%d", type);
+ 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
+ 		if (family != NFPROTO_UNSPEC && family != table->family)
+@@ -3149,7 +3149,7 @@ static int nf_tables_dump_rules(struct s
  
--#ifdef CONFIG_NF_CONNTRACK_EVENTS
--	if (type == NFNL_SUBSYS_CTNETLINK) {
--		nfnl_lock(NFNL_SUBSYS_CTNETLINK);
--		WRITE_ONCE(net->ct.ctnetlink_has_listener, true);
--		nfnl_unlock(NFNL_SUBSYS_CTNETLINK);
--	}
--#endif
-+	nfnetlink_bind_event(net, group);
- 	return 0;
- }
+ 	rcu_read_lock();
+ 	nft_net = nft_pernet(net);
+-	cb->seq = nft_net->base_seq;
++	cb->seq = READ_ONCE(nft_net->base_seq);
  
- static void nfnetlink_unbind(struct net *net, int group)
- {
- #ifdef CONFIG_NF_CONNTRACK_EVENTS
-+	int type, group_bit;
-+
- 	if (group <= NFNLGRP_NONE || group > NFNLGRP_MAX)
- 		return;
+ 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
+ 		if (family != NFPROTO_UNSPEC && family != table->family)
+@@ -4133,7 +4133,7 @@ static int nf_tables_dump_sets(struct sk
  
--	if (nfnl_group2type[group] == NFNL_SUBSYS_CTNETLINK) {
--		nfnl_lock(NFNL_SUBSYS_CTNETLINK);
--		if (!nfnetlink_has_listeners(net, group))
--			WRITE_ONCE(net->ct.ctnetlink_has_listener, false);
--		nfnl_unlock(NFNL_SUBSYS_CTNETLINK);
-+	type = nfnl_group2type[group];
+ 	rcu_read_lock();
+ 	nft_net = nft_pernet(net);
+-	cb->seq = nft_net->base_seq;
++	cb->seq = READ_ONCE(nft_net->base_seq);
+ 
+ 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
+ 		if (ctx->family != NFPROTO_UNSPEC &&
+@@ -5061,6 +5061,8 @@ static int nf_tables_dump_set(struct sk_
+ 
+ 	rcu_read_lock();
+ 	nft_net = nft_pernet(net);
++	cb->seq = READ_ONCE(nft_net->base_seq);
 +
-+	switch (type) {
-+	case NFNL_SUBSYS_CTNETLINK:
-+		break;
-+	case NFNL_SUBSYS_CTNETLINK_EXP:
-+		break;
-+	default:
-+		return;
-+	}
+ 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
+ 		if (dump_ctx->ctx.family != NFPROTO_UNSPEC &&
+ 		    dump_ctx->ctx.family != table->family)
+@@ -6887,7 +6889,7 @@ static int nf_tables_dump_obj(struct sk_
+ 
+ 	rcu_read_lock();
+ 	nft_net = nft_pernet(net);
+-	cb->seq = nft_net->base_seq;
++	cb->seq = READ_ONCE(nft_net->base_seq);
+ 
+ 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
+ 		if (family != NFPROTO_UNSPEC && family != table->family)
+@@ -7819,7 +7821,7 @@ static int nf_tables_dump_flowtable(stru
+ 
+ 	rcu_read_lock();
+ 	nft_net = nft_pernet(net);
+-	cb->seq = nft_net->base_seq;
++	cb->seq = READ_ONCE(nft_net->base_seq);
+ 
+ 	list_for_each_entry_rcu(table, &nft_net->tables, list) {
+ 		if (family != NFPROTO_UNSPEC && family != table->family)
+@@ -8752,6 +8754,7 @@ static int nf_tables_commit(struct net *
+ 	struct nft_trans_elem *te;
+ 	struct nft_chain *chain;
+ 	struct nft_table *table;
++	unsigned int base_seq;
+ 	LIST_HEAD(adl);
+ 	int err;
+ 
+@@ -8801,9 +8804,12 @@ static int nf_tables_commit(struct net *
+ 	 * Bump generation counter, invalidate any dump in progress.
+ 	 * Cannot fail after this point.
+ 	 */
+-	while (++nft_net->base_seq == 0)
++	base_seq = READ_ONCE(nft_net->base_seq);
++	while (++base_seq == 0)
+ 		;
+ 
++	WRITE_ONCE(nft_net->base_seq, base_seq);
 +
-+	/* ctnetlink_has_listener is u8 */
-+	if (group >= 8)
-+		return;
-+
-+	group_bit = (1 << group);
-+
-+	spin_lock(&nfnl_grp_active_lock);
-+	if (!nfnetlink_has_listeners(net, group)) {
-+		u8 v = READ_ONCE(net->ct.ctnetlink_has_listener);
-+
-+		v &= ~group_bit;
-+
-+		/* read concurrently without nfnl_grp_active_lock held. */
-+		WRITE_ONCE(net->ct.ctnetlink_has_listener, v);
- 	}
-+	spin_unlock(&nfnl_grp_active_lock);
- #endif
- }
+ 	/* step 3. Start new generation, rules_gen_X now in use. */
+ 	net->nft.gencursor = nft_gencursor_next(net);
  
 
 
