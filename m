@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E14F59D608
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD6F59D67B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348077AbiHWJIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:08:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52066 "EHLO
+        id S1348209AbiHWJJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:09:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347824AbiHWJGu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:06:50 -0400
+        with ESMTP id S1347950AbiHWJIc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:08:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68D0F861C6;
-        Tue, 23 Aug 2022 01:30:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 812E585FDA;
+        Tue, 23 Aug 2022 01:30:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CCF861488;
-        Tue, 23 Aug 2022 08:28:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D33C433C1;
-        Tue, 23 Aug 2022 08:28:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89B6A6148E;
+        Tue, 23 Aug 2022 08:29:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87CB4C433B5;
+        Tue, 23 Aug 2022 08:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243319;
-        bh=43xzfGfQI0B76DhRYGDXitfPVbsJYhLVBLfkISk7KpM=;
+        s=korg; t=1661243354;
+        bh=9a8VWOB3kHtWZih/DNfyhw7RMpOevoUeaUMm2JCDfYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JmseJjB+MrgmX81Ir4y9UC5ioL/svE4yfSaI+94uSkfJAd3G1xJCjWOctakW7wQzu
-         vcla9Yk0I1o7bKsZNmR8VWC74iI8TnMk4FvbBA2hJUg6Q33PXVcmTk1kZAiTiYc5Aa
-         b0KBvtmwxw7bfLojju6VWMVkS3zXjIl8vSil9+IU=
+        b=dWgw/VAWW4OWC8KkB/IvltvKg6+hF7kwc1tLcfRBokMUGmzss3tZ1JjEl18Yz45NL
+         /9Ng+IN6+I4R76adl4y0QUCBetj4SYHP6qXEWKlwjM1CS9Ufn8gqai7ay9QRd40IM4
+         UXA2f4NP6DMwB44/e1/WQCxDfgWTTMwFzMiCVpxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Brady <alan.brady@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.19 232/365] i40e: Fix to stop tx_timeout recovery if GLOBR fails
-Date:   Tue, 23 Aug 2022 10:02:13 +0200
-Message-Id: <20220823080127.937168909@linuxfoundation.org>
+        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.19 233/365] blk-mq: run queue no matter whether the request is the last request
+Date:   Tue, 23 Aug 2022 10:02:14 +0200
+Message-Id: <20220823080127.972131997@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,42 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Brady <alan.brady@intel.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-commit 57c942bc3bef0970f0b21f8e0998e76a900ea80d upstream.
+commit d3b38596875dbc709b4e721a5873f4663d8a9ea2 upstream.
 
-When a tx_timeout fires, the PF attempts to recover by incrementally
-resetting.  First we try a PFR, then CORER and finally a GLOBR.  If the
-GLOBR fails, then we keep hitting the tx_timeout and incrementing the
-recovery level and issuing dmesgs, which is both annoying to the user
-and accomplishes nothing.
+We do test on a virtio scsi device (/dev/sda) and the default mq
+scheduler is 'none'. We found a IO hung as following:
 
-If the GLOBR fails, then we're pretty much totally hosed, and there's
-not much else we can do to recover, so this makes it such that we just
-kill the VSI and stop hitting the tx_timeout in such a case.
+blk_finish_plug
+  blk_mq_plug_issue_direct
+      scsi_mq_get_budget
+      //get budget_token fail and sdev->restarts=1
 
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Alan Brady <alan.brady@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+			     	 scsi_end_request
+				   scsi_run_queue_async
+                                   //sdev->restart=0 and run queue
+
+     blk_mq_request_bypass_insert
+        //add request to hctx->dispatch list
+
+  //continue to dispath plug list
+  blk_mq_dispatch_plug_list
+      blk_mq_try_issue_list_directly
+        //success issue all requests from plug list
+
+After .get_budget fail, scsi_mq_get_budget will increase 'restarts'.
+Normally, it will run hw queue when io complete and set 'restarts'
+as 0. But if we run queue before adding request to the dispatch list
+and blk_mq_dispatch_plug_list also success issue all requests, then
+on one will run queue, and the request will be stall in the dispatch
+list and cannot complete forever.
+
+It is wrong to use last request of plug list to decide if run queue is
+needed since all the remained requests in plug list may be from other
+hctxs. To fix the bug, pass run_queue as true always to
+blk_mq_request_bypass_insert().
+
+Fix-suggested-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Fixes: dc5fc361d891 ("block: attempt direct issue of plug list")
+Link: https://lore.kernel.org/r/20220803023355.3687360-1-yuyufen@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ block/blk-mq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -384,7 +384,9 @@ static void i40e_tx_timeout(struct net_d
- 		set_bit(__I40E_GLOBAL_RESET_REQUESTED, pf->state);
- 		break;
- 	default:
--		netdev_err(netdev, "tx_timeout recovery unsuccessful\n");
-+		netdev_err(netdev, "tx_timeout recovery unsuccessful, device is in non-recoverable state.\n");
-+		set_bit(__I40E_DOWN_REQUESTED, pf->state);
-+		set_bit(__I40E_VSI_DOWN_REQUESTED, vsi->state);
- 		break;
- 	}
- 
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2568,7 +2568,7 @@ static void blk_mq_plug_issue_direct(str
+ 			break;
+ 		case BLK_STS_RESOURCE:
+ 		case BLK_STS_DEV_RESOURCE:
+-			blk_mq_request_bypass_insert(rq, false, last);
++			blk_mq_request_bypass_insert(rq, false, true);
+ 			blk_mq_commit_rqs(hctx, &queued, from_schedule);
+ 			return;
+ 		default:
 
 
