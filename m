@@ -2,92 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BEFB59E516
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 16:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD3C859E4CE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 16:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240191AbiHWO0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 10:26:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33150 "EHLO
+        id S241957AbiHWOEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 10:04:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240664AbiHWOZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 10:25:50 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB852956C0;
-        Tue, 23 Aug 2022 04:40:01 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id D265A1C0005; Tue, 23 Aug 2022 12:09:41 +0200 (CEST)
-Date:   Tue, 23 Aug 2022 12:09:41 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        with ESMTP id S244843AbiHWOCh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 10:02:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E065C243BAD;
+        Tue, 23 Aug 2022 04:11:40 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CC9461598;
+        Tue, 23 Aug 2022 11:10:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 330A6C433D6;
+        Tue, 23 Aug 2022 11:10:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661253048;
+        bh=Ej2f/4SpSbdrp05Uz+VxdpFfI9gh8J1Jjq0tLjxbmaQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=j8QWfzI/dkSetVrmDfn95WQZXErTwU5c+cA4e/WPgqDc19snvHoNt7GHVoSFvlfPb
+         aMC5luBPN/JT7cOxQWhow7bffkN8qeTIKteNFTntXjPk4eeCFehC01/10AGecxPfJi
+         SkiOcmjOItpJzWlA8OS5iVOqcZciLsUrUh6Ar3sc=
+Date:   Tue, 23 Aug 2022 13:10:44 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Conor.Dooley@microchip.com
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 000/287] 4.19.256-rc1 review
-Message-ID: <20220823100941.GB10005@duo.ucw.cz>
-References: <20220823080100.268827165@linuxfoundation.org>
+        Brice.Goglin@inria.fr, palmer@rivosinc.com, sashal@kernel.org
+Subject: Re: [PATCH 5.19 332/365] riscv: dts: sifive: Add fu540 topology
+ information
+Message-ID: <YwS1tCGsk/N0D18r@kroah.com>
+References: <20220823080118.128342613@linuxfoundation.org>
+ <20220823080132.111184627@linuxfoundation.org>
+ <b92e80fc-c8f5-0a19-44ff-f08e2674b7cc@microchip.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+In-Reply-To: <b92e80fc-c8f5-0a19-44ff-f08e2674b7cc@microchip.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Aug 23, 2022 at 09:49:35AM +0000, Conor.Dooley@microchip.com wrote:
+> On 23/08/2022 09:03, Greg Kroah-Hartman wrote:
+> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+> > 
+> > From: Conor Dooley <conor.dooley@microchip.com>
+> > 
+> > [ Upstream commit af8f260abc608c06e4466a282b53f1e2dc09f042 ]
+> > 
+> > The fu540 has no cpu-map node, so tools like hwloc cannot correctly
+> > parse the topology. Add the node using the existing node labels.
+> > 
+> > Reported-by: Brice Goglin <Brice.Goglin@inria.fr>
+> > Link: https://github.com/open-mpi/hwloc/issues/536
+> > Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+> > Link: https://lore.kernel.org/r/20220705190435.1790466-3-mail@conchuod.ie
+> > Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> Hey Greg,
+> I pointed out on the AUTOSEL'd version of these patches that
+> adding the optional dt property papers over the problem rather than
+> really fixing it & Sudeep suggested the time that these patches were
+> not stable worthy, hence the lack of a CC: stable.
+> 
+> The following has been merged into riscv/for-next & is pending for
+> arm64/driver core as an actual fix for RISC-V's default topology
+> reporting:
+> https://lore.kernel.org/linux-riscv/4849490e-b362-c13a-c2e4-82acc3268a3f@microchip.com/#t
+> 
+> As I said to Sasha, I defer to your (plural) better judgement here,
+> but just so that you're aware of the context.
 
---TRYliJ5NKNqkz5bu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for letting me know, I've now dropped it from all stable release
+queues.
 
-Hi!
-
-> This is the start of the stable review cycle for the 4.19.256 release.
-> There are 287 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Thu, 25 Aug 2022 08:00:15 +0000.
-> Anything received after that time might be too late.
->=20
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.25=
-6-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
- linux-4.19.y
-> and the diffstat can be found below.
-
-CIP testing did not find any problems here:
-
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.19.y
-
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
-
-Best regards,
-                                                                Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---TRYliJ5NKNqkz5bu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYwSnZQAKCRAw5/Bqldv6
-8ttOAJ9/kGjiLtmwHK7CpW2h2nwdxvTCNACfd8Le9RQQ1rwDnk0ux7USQHAjADI=
-=XjZx
------END PGP SIGNATURE-----
-
---TRYliJ5NKNqkz5bu--
+greg k-h
