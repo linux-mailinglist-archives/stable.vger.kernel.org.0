@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5952259D4DE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DE2759D4CF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243858AbiHWIc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35258 "EHLO
+        id S243734AbiHWIcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:32:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346713AbiHWIcB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:32:01 -0400
+        with ESMTP id S1346772AbiHWIcD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:32:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6256974E24;
-        Tue, 23 Aug 2022 01:16:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114DF753A2;
+        Tue, 23 Aug 2022 01:16:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1673B81C26;
-        Tue, 23 Aug 2022 08:15:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C641C433C1;
-        Tue, 23 Aug 2022 08:15:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECDE2B81C3B;
+        Tue, 23 Aug 2022 08:16:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D5EFC433C1;
+        Tue, 23 Aug 2022 08:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242553;
-        bh=wMfmtxxz9zvJ7nqIQOgkriWDmiFeSoXT5t0MUPSakxA=;
+        s=korg; t=1661242559;
+        bh=yqioFLrizC8M8c2foLHq0k3WOiVIEJzln4BUfFhPahY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u78JXLQpM1s88kEZWZpAkKT8KWAj2rYJwGf3rsjHxHtUaUxTGa8KZB/rQhRZBvRVP
-         cDAvJLjC74kdiFn6bSPGgzl37Q4XQ6qPUhLRrJNwhN9lLVeO2klUrqn9llyQ1v6i5a
-         Ht5QfETeNNgCLyYEFbtVeeDa3fHh8JVQRa4Mf0Wk=
+        b=x0BAJAEN/vFXHCuKhgKIZhRfYABcsW0ur5fCO06TY6LA5xPZZguTgKzYuLX//OHTY
+         4YsnAO7FmHFIqGjG0QEHuO01iGH2Z1tG9sQcMh2EU5B0zpRr0GCBJlWBqivumkioKM
+         xBqkjBv9LZpjDEkYXMHsBPdlaFjhieeDTxr2fEj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.19 136/365] spi: dt-bindings: qcom,spi-geni-qcom: allow three interconnects
-Date:   Tue, 23 Aug 2022 10:00:37 +0200
-Message-Id: <20220823080123.893483715@linuxfoundation.org>
+        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
+        Jeff Layton <jlayton@kernel.org>, Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.19 137/365] ceph: use correct index when encoding client supported features
+Date:   Tue, 23 Aug 2022 10:00:38 +0200
+Message-Id: <20220823080123.937414439@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,49 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Luís Henriques <lhenriques@suse.de>
 
-commit ee912312db5a5e877120b9f519a034fc34315c9b upstream.
+commit fea013e020e6ecc7be75bea0d61697b7e916b44d upstream.
 
-Recent Qualcomm Geni SPI nodes, e.g. on SM8450, come also with three
-interconnects.  This fixes dtbs_check warnings like:
+Feature bits have to be encoded into the correct locations.  This hasn't
+been an issue so far because the only hole in the feature bits was in bit
+10 (CEPHFS_FEATURE_RECLAIM_CLIENT), which is located in the 2nd byte.  When
+adding more bits that go beyond the this 2nd byte, the bug will show up.
 
-  sm8450-qrd.dtb: spi@a98000: interconnects: [[46, 1, 0, 46, 4, 0], [47, 2, 0, 48, 12, 0], [49, 1, 0, 50, 1, 0]] is too long
-  sm8450-qrd.dtb: spi@a98000: interconnect-names: ['qup-core', 'qup-config', 'qup-memory'] is too long
+[xiubli: remove incorrect comment for CEPHFS_FEATURES_CLIENT_SUPPORTED]
 
-Fixes: 5bdcae1fe1c5 ("spi: dt-bindings: qcom,spi-geni-qcom: convert to dtschema")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220720163841.7283-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 9ba1e224538a ("ceph: allocate the correct amount of extra bytes for the session features")
+Signed-off-by: Luís Henriques <lhenriques@suse.de>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../devicetree/bindings/spi/qcom,spi-geni-qcom.yaml          | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/ceph/mds_client.c |    7 +++++--
+ fs/ceph/mds_client.h |    6 ------
+ 2 files changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/spi/qcom,spi-geni-qcom.yaml b/Documentation/devicetree/bindings/spi/qcom,spi-geni-qcom.yaml
-index e2c7b934c50d..47e1b3ee8b1b 100644
---- a/Documentation/devicetree/bindings/spi/qcom,spi-geni-qcom.yaml
-+++ b/Documentation/devicetree/bindings/spi/qcom,spi-geni-qcom.yaml
-@@ -45,12 +45,15 @@ properties:
-       - const: rx
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -1220,14 +1220,17 @@ static int encode_supported_features(voi
+ 	if (count > 0) {
+ 		size_t i;
+ 		size_t size = FEATURE_BYTES(count);
++		unsigned long bit;
  
-   interconnects:
--    maxItems: 2
-+    minItems: 2
-+    maxItems: 3
+ 		if (WARN_ON_ONCE(*p + 4 + size > end))
+ 			return -ERANGE;
  
-   interconnect-names:
-+    minItems: 2
-     items:
-       - const: qup-core
-       - const: qup-config
-+      - const: qup-memory
+ 		ceph_encode_32(p, size);
+ 		memset(*p, 0, size);
+-		for (i = 0; i < count; i++)
+-			((unsigned char*)(*p))[i / 8] |= BIT(feature_bits[i] % 8);
++		for (i = 0; i < count; i++) {
++			bit = feature_bits[i];
++			((unsigned char *)(*p))[bit / 8] |= BIT(bit % 8);
++		}
+ 		*p += size;
+ 	} else {
+ 		if (WARN_ON_ONCE(*p + 4 > end))
+--- a/fs/ceph/mds_client.h
++++ b/fs/ceph/mds_client.h
+@@ -33,10 +33,6 @@ enum ceph_feature_type {
+ 	CEPHFS_FEATURE_MAX = CEPHFS_FEATURE_METRIC_COLLECT,
+ };
  
-   interrupts:
-     maxItems: 1
--- 
-2.37.2
-
+-/*
+- * This will always have the highest feature bit value
+- * as the last element of the array.
+- */
+ #define CEPHFS_FEATURES_CLIENT_SUPPORTED {	\
+ 	0, 1, 2, 3, 4, 5, 6, 7,			\
+ 	CEPHFS_FEATURE_MIMIC,			\
+@@ -45,8 +41,6 @@ enum ceph_feature_type {
+ 	CEPHFS_FEATURE_MULTI_RECONNECT,		\
+ 	CEPHFS_FEATURE_DELEG_INO,		\
+ 	CEPHFS_FEATURE_METRIC_COLLECT,		\
+-						\
+-	CEPHFS_FEATURE_MAX,			\
+ }
+ #define CEPHFS_FEATURES_CLIENT_REQUIRED {}
+ 
 
 
