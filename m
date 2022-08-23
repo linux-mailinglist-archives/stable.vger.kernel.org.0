@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 532F059D8E2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6294E59D8DD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350635AbiHWJgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:36:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39454 "EHLO
+        id S242168AbiHWJse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:48:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351242AbiHWJfG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:35:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDF7E95E5F;
-        Tue, 23 Aug 2022 01:39:36 -0700 (PDT)
+        with ESMTP id S242511AbiHWJrc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:47:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 683BF9C8F7;
+        Tue, 23 Aug 2022 01:44:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF7C4B81C6D;
-        Tue, 23 Aug 2022 08:38:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FD88C433D6;
-        Tue, 23 Aug 2022 08:38:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24DB8B81C65;
+        Tue, 23 Aug 2022 08:43:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69EEEC433C1;
+        Tue, 23 Aug 2022 08:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243905;
-        bh=JLgT1YjRQoCyfhyImHJaeFjmVBeCtSn+RgWnOxdaFZI=;
+        s=korg; t=1661244211;
+        bh=VBgzVhFa46p77ox+2URUyUqTrxw7PqtF3Lnk9z6s+ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GI3O3i8sb4GMGEWsb9o52i6/itAK5gQDRF9U5Szbx13lqZkeoBaoBST0RC86xeYSf
-         /pHts2jMJ202u5hsFttmvghL5WaFLfGFQkL262J1eBw92IdPXtsAIb/6Mf3ajhHRzK
-         JKEeoqJcz76yFlyrNGtf3OTk/cFgOpFcoZ8mwO5Y=
+        b=LyTpbEqG8X/7lF2RI7FQluqUoCmfubebwFcl+djxvSrcSvW4IJVnCsnlFMkdWWQ42
+         /pumN8LpuZ2rI1DQrf9AouZakm9XPxiEMrx+Ny0QVYCZpWLxmhuykxEZz5hl03+MpX
+         7rMIA5c/4YU7Vijf2GDykXGIUPBNPGwUXjHr6au8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Michal Simek <michal.simek@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 054/229] cpufreq: zynq: Fix refcount leak in zynq_get_revision
-Date:   Tue, 23 Aug 2022 10:23:35 +0200
-Message-Id: <20220823080055.643224062@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 057/244] devlink: Fix use-after-free after a failed reload
+Date:   Tue, 23 Aug 2022 10:23:36 +0200
+Message-Id: <20220823080100.970656746@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit d1ff2559cef0f6f8d97fba6337b28adb10689e16 ]
+commit 6b4db2e528f650c7fb712961aac36455468d5902 upstream.
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+After a failed devlink reload, devlink parameters are still registered,
+which means user space can set and get their values. In the case of the
+mlxsw "acl_region_rehash_interval" parameter, these operations will
+trigger a use-after-free [1].
 
-Fixes: 00f7dc636366 ("ARM: zynq: Add support for SOC_BUS")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220605082807.21526-1-linmq006@gmail.com
-Signed-off-by: Michal Simek <michal.simek@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by rejecting set and get operations while in the failed state.
+Return the "-EOPNOTSUPP" error code which does not abort the parameters
+dump, but instead causes it to skip over the problematic parameter.
+
+Another possible fix is to perform these checks in the mlxsw parameter
+callbacks, but other drivers might be affected by the same problem and I
+am not aware of scenarios where these stricter checks will cause a
+regression.
+
+[1]
+mlxsw_spectrum3 0000:00:10.0: Port 125: Failed to register netdev
+mlxsw_spectrum3 0000:00:10.0: Failed to create ports
+
+==================================================================
+BUG: KASAN: use-after-free in mlxsw_sp_acl_tcam_vregion_rehash_intrvl_get+0xbd/0xd0 drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c:904
+Read of size 4 at addr ffff8880099dcfd8 by task kworker/u4:4/777
+
+CPU: 1 PID: 777 Comm: kworker/u4:4 Not tainted 5.19.0-rc7-custom-126601-gfe26f28c586d #1
+Hardware name: QEMU MSN4700, BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+Workqueue: netns cleanup_net
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x92/0xbd lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:313 [inline]
+ print_report.cold+0x5e/0x5cf mm/kasan/report.c:429
+ kasan_report+0xb9/0xf0 mm/kasan/report.c:491
+ __asan_report_load4_noabort+0x14/0x20 mm/kasan/report_generic.c:306
+ mlxsw_sp_acl_tcam_vregion_rehash_intrvl_get+0xbd/0xd0 drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c:904
+ mlxsw_sp_acl_region_rehash_intrvl_get+0x49/0x60 drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c:1106
+ mlxsw_sp_params_acl_region_rehash_intrvl_get+0x33/0x80 drivers/net/ethernet/mellanox/mlxsw/spectrum.c:3854
+ devlink_param_get net/core/devlink.c:4981 [inline]
+ devlink_nl_param_fill+0x238/0x12d0 net/core/devlink.c:5089
+ devlink_param_notify+0xe5/0x230 net/core/devlink.c:5168
+ devlink_ns_change_notify net/core/devlink.c:4417 [inline]
+ devlink_ns_change_notify net/core/devlink.c:4396 [inline]
+ devlink_reload+0x15f/0x700 net/core/devlink.c:4507
+ devlink_pernet_pre_exit+0x112/0x1d0 net/core/devlink.c:12272
+ ops_pre_exit_list net/core/net_namespace.c:152 [inline]
+ cleanup_net+0x494/0xc00 net/core/net_namespace.c:582
+ process_one_work+0x9fc/0x1710 kernel/workqueue.c:2289
+ worker_thread+0x675/0x10b0 kernel/workqueue.c:2436
+ kthread+0x30c/0x3d0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+ </TASK>
+
+The buggy address belongs to the physical page:
+page:ffffea0000267700 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x99dc
+flags: 0x100000000000000(node=0|zone=1)
+raw: 0100000000000000 0000000000000000 dead000000000122 0000000000000000
+raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8880099dce80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff8880099dcf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>ffff8880099dcf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                                                    ^
+ ffff8880099dd000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff8880099dd080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+==================================================================
+
+Fixes: 98bbf70c1c41 ("mlxsw: spectrum: add "acl_region_rehash_interval" devlink param")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-zynq/common.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/devlink.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-zynq/common.c b/arch/arm/mach-zynq/common.c
-index 6aba9ebf8041..a8b1b9c6626e 100644
---- a/arch/arm/mach-zynq/common.c
-+++ b/arch/arm/mach-zynq/common.c
-@@ -84,6 +84,7 @@ static int __init zynq_get_revision(void)
- 	}
- 
- 	zynq_devcfg_base = of_iomap(np, 0);
-+	of_node_put(np);
- 	if (!zynq_devcfg_base) {
- 		pr_err("%s: Unable to map I/O memory\n", __func__);
- 		return -1;
--- 
-2.35.1
-
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -4413,7 +4413,7 @@ static int devlink_param_get(struct devl
+ 			     const struct devlink_param *param,
+ 			     struct devlink_param_gset_ctx *ctx)
+ {
+-	if (!param->get)
++	if (!param->get || devlink->reload_failed)
+ 		return -EOPNOTSUPP;
+ 	return param->get(devlink, param->id, ctx);
+ }
+@@ -4422,7 +4422,7 @@ static int devlink_param_set(struct devl
+ 			     const struct devlink_param *param,
+ 			     struct devlink_param_gset_ctx *ctx)
+ {
+-	if (!param->set)
++	if (!param->set || devlink->reload_failed)
+ 		return -EOPNOTSUPP;
+ 	return param->set(devlink, param->id, ctx);
+ }
 
 
