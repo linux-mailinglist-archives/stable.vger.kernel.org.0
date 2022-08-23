@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F5559E029
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 085C059E1D1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353314AbiHWKNU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:13:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33250 "EHLO
+        id S1358194AbiHWLtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:49:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353440AbiHWKL3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E67237F088;
-        Tue, 23 Aug 2022 01:56:46 -0700 (PDT)
+        with ESMTP id S1358489AbiHWLtF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:49:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CACDAD25DE;
+        Tue, 23 Aug 2022 02:30:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83AA7614E7;
-        Tue, 23 Aug 2022 08:56:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84157C433D6;
-        Tue, 23 Aug 2022 08:56:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD54E61381;
+        Tue, 23 Aug 2022 09:30:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30BEDC433D7;
+        Tue, 23 Aug 2022 09:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245005;
-        bh=XpSNX1f32Q6TMFam1wAor2QPc0RbNk2vlmC0HXRK4HU=;
+        s=korg; t=1661247040;
+        bh=ACoImR6W7EWMDucrtFWpbZUx7o4KsqUX9cagvLNoOK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vyAYj4fR39pmAuInkNtnIeIZwrkwR+1z2qlq2m0dKDyo7pdzISZQmipq4qo544PU7
-         JQQc5sDn+hNF44zV8TdNMhNFr/icmqdmDJje29F/FYRA0XmIlPKKe8D5GwoIXmXAiX
-         KI2EOhG6ZSxgqSCBd1sUqwIezsAFDO9Go38pEEMo=
+        b=cdPRurHxUKK+JaX/bQtgU3opEqmMJtrMMwGNQymx5H2bzKMPIDFdBWlnwtE1DW77j
+         mwB+raHg5FAEenh47E/1gS5cmm7uIfwY+/7ZNBEGP6wOrhF1Y+eds5THH5RrhEWDys
+         a5vLp7VeQz5rW8dVRPuBWDgoGG4cnkbNgEd0j0zQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 187/244] habanalabs/gaudi: mask constant value before cast
-Date:   Tue, 23 Aug 2022 10:25:46 +0200
-Message-Id: <20220823080105.602580987@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Luo Meng <luomeng12@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.4 269/389] dm thin: fix use-after-free crash in dm_sm_register_threshold_callback
+Date:   Tue, 23 Aug 2022 10:25:47 +0200
+Message-Id: <20220823080126.798951833@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Luo Meng <luomeng12@huawei.com>
 
-[ Upstream commit e3f49437a2e0221a387ecd192d742ae1434e1e3a ]
+commit 3534e5a5ed2997ca1b00f44a0378a075bd05e8a3 upstream.
 
-This fixes a sparse warning of
-"cast truncates bits from constant value"
+Fault inject on pool metadata device reports:
+  BUG: KASAN: use-after-free in dm_pool_register_metadata_threshold+0x40/0x80
+  Read of size 8 at addr ffff8881b9d50068 by task dmsetup/950
 
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  CPU: 7 PID: 950 Comm: dmsetup Tainted: G        W         5.19.0-rc6 #1
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   print_address_description.constprop.0.cold+0xeb/0x3f4
+   kasan_report.cold+0xe6/0x147
+   dm_pool_register_metadata_threshold+0x40/0x80
+   pool_ctr+0xa0a/0x1150
+   dm_table_add_target+0x2c8/0x640
+   table_load+0x1fd/0x430
+   ctl_ioctl+0x2c4/0x5a0
+   dm_ctl_ioctl+0xa/0x10
+   __x64_sys_ioctl+0xb3/0xd0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+This can be easily reproduced using:
+  echo offline > /sys/block/sda/device/state
+  dd if=/dev/zero of=/dev/mapper/thin bs=4k count=10
+  dmsetup load pool --table "0 20971520 thin-pool /dev/sda /dev/sdb 128 0 0"
+
+If a metadata commit fails, the transaction will be aborted and the
+metadata space maps will be destroyed. If a DM table reload then
+happens for this failed thin-pool, a use-after-free will occur in
+dm_sm_register_threshold_callback (called from
+dm_pool_register_metadata_threshold).
+
+Fix this by in dm_pool_register_metadata_threshold() by returning the
+-EINVAL error if the thin-pool is in fail mode. Also fail pool_ctr()
+with a new error message: "Error registering metadata threshold".
+
+Fixes: ac8c3f3df65e4 ("dm thin: generate event when metadata threshold passed")
+Cc: stable@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/habanalabs/gaudi/gaudi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/md/dm-thin-metadata.c |    7 +++++--
+ drivers/md/dm-thin.c          |    4 +++-
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
-index 801acab048eb..8132200dca67 100644
---- a/drivers/misc/habanalabs/gaudi/gaudi.c
-+++ b/drivers/misc/habanalabs/gaudi/gaudi.c
-@@ -3318,19 +3318,19 @@ static void gaudi_init_nic_qman(struct hl_device *hdev, u32 nic_offset,
- 	u32 nic_qm_err_cfg, irq_handler_offset;
- 	u32 q_off;
+--- a/drivers/md/dm-thin-metadata.c
++++ b/drivers/md/dm-thin-metadata.c
+@@ -2060,10 +2060,13 @@ int dm_pool_register_metadata_threshold(
+ 					dm_sm_threshold_fn fn,
+ 					void *context)
+ {
+-	int r;
++	int r = -EINVAL;
  
--	mtr_base_en_lo = lower_32_bits(CFG_BASE +
-+	mtr_base_en_lo = lower_32_bits((CFG_BASE & U32_MAX) +
- 			mmSYNC_MNGR_E_N_SYNC_MNGR_OBJS_MON_PAY_ADDRL_0);
- 	mtr_base_en_hi = upper_32_bits(CFG_BASE +
- 				mmSYNC_MNGR_E_N_SYNC_MNGR_OBJS_MON_PAY_ADDRL_0);
--	so_base_en_lo = lower_32_bits(CFG_BASE +
-+	so_base_en_lo = lower_32_bits((CFG_BASE & U32_MAX) +
- 				mmSYNC_MNGR_E_N_SYNC_MNGR_OBJS_SOB_OBJ_0);
- 	so_base_en_hi = upper_32_bits(CFG_BASE +
- 				mmSYNC_MNGR_E_N_SYNC_MNGR_OBJS_SOB_OBJ_0);
--	mtr_base_ws_lo = lower_32_bits(CFG_BASE +
-+	mtr_base_ws_lo = lower_32_bits((CFG_BASE & U32_MAX) +
- 				mmSYNC_MNGR_W_S_SYNC_MNGR_OBJS_MON_PAY_ADDRL_0);
- 	mtr_base_ws_hi = upper_32_bits(CFG_BASE +
- 				mmSYNC_MNGR_W_S_SYNC_MNGR_OBJS_MON_PAY_ADDRL_0);
--	so_base_ws_lo = lower_32_bits(CFG_BASE +
-+	so_base_ws_lo = lower_32_bits((CFG_BASE & U32_MAX) +
- 				mmSYNC_MNGR_W_S_SYNC_MNGR_OBJS_SOB_OBJ_0);
- 	so_base_ws_hi = upper_32_bits(CFG_BASE +
- 				mmSYNC_MNGR_W_S_SYNC_MNGR_OBJS_SOB_OBJ_0);
--- 
-2.35.1
-
+ 	pmd_write_lock_in_core(pmd);
+-	r = dm_sm_register_threshold_callback(pmd->metadata_sm, threshold, fn, context);
++	if (!pmd->fail_io) {
++		r = dm_sm_register_threshold_callback(pmd->metadata_sm,
++						      threshold, fn, context);
++	}
+ 	pmd_write_unlock(pmd);
+ 
+ 	return r;
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -3425,8 +3425,10 @@ static int pool_ctr(struct dm_target *ti
+ 						calc_metadata_threshold(pt),
+ 						metadata_low_callback,
+ 						pool);
+-	if (r)
++	if (r) {
++		ti->error = "Error registering metadata threshold";
+ 		goto out_flags_changed;
++	}
+ 
+ 	pt->callbacks.congested_fn = pool_is_congested;
+ 	dm_table_add_target_callbacks(ti->table, &pt->callbacks);
 
 
