@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A24F559E1BF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC6DF59DCF9
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352860AbiHWKJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:09:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
+        id S1355724AbiHWKoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:44:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352361AbiHWKH1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:07:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A4926546;
-        Tue, 23 Aug 2022 01:54:04 -0700 (PDT)
+        with ESMTP id S1356535AbiHWKma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:42:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4E18607C;
+        Tue, 23 Aug 2022 02:09:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 669FEB81B90;
-        Tue, 23 Aug 2022 08:54:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B08CAC433D6;
-        Tue, 23 Aug 2022 08:54:01 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3BBD9CE1B40;
+        Tue, 23 Aug 2022 09:09:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54B32C433C1;
+        Tue, 23 Aug 2022 09:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244842;
-        bh=74BDVeIvMBWQuIu/Rh+9XV75YMCsgnfcdiv4ClaKEQU=;
+        s=korg; t=1661245796;
+        bh=F2zdgkDF/XedTRQAuWZeDhYcXnbH11Mv0smvHCoCLAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZT/9W9T+yeK1n6cW7kt1MKiwWLoGfmcD/k1j5zqfgC5GA6983OajMIf8TFa2fBQS
-         YwD5zl79fckpUpIhdHVBAPmfKs+6j0QpVgmYHnhp3eC7Z46Jnc9oL7wSd1YxQUzweE
-         vJrPXkEUQP9yLcb/Dbzy59NynTAoYThvyHBcluHY=
+        b=oYdd6q0xCs7ooStLdbCmZFcqbVAxygmzOmO0Fr1T8fRbFc8M51RD2dg5aNB3/FIx0
+         xOANMTkNeRekYT24n0Jr2IwoUXeN5y1O3V9n+fESOpezvAloaV5EoR05zk/crJAZsa
+         3OPO9egKnqtoLpDlKQkf4rowklJ1rygKv8WFj+9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 4.14 200/229] nios2: fix syscall restart checks
+        stable@vger.kernel.org, stable@kernel.org,
+        Baokun Li <libaokun1@huawei.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 192/287] ext4: correct max_inline_xattr_value_size computing
 Date:   Tue, 23 Aug 2022 10:26:01 +0200
-Message-Id: <20220823080100.783428681@linuxfoundation.org>
+Message-Id: <20220823080107.290379462@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 2d631bd58fe0ea3e3350212e23c9aba1fb606514 upstream.
+commit c9fd167d57133c5b748d16913c4eabc55e531c73 upstream.
 
-sys_foo() returns -512 (aka -ERESTARTSYS) => do_signal() sees
-512 in r2 and 1 in r1.
+If the ext4 inode does not have xattr space, 0 is returned in the
+get_max_inline_xattr_value_size function. Otherwise, the function returns
+a negative value when the inode does not contain EXT4_STATE_XATTR.
 
-sys_foo() returns 512 => do_signal() sees 512 in r2 and 0 in r1.
-
-The former is restart-worthy; the latter obviously isn't.
-
-Fixes: b53e906d255d ("nios2: Signal handling support")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220616021358.2504451-4-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/kernel/signal.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/inline.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/nios2/kernel/signal.c
-+++ b/arch/nios2/kernel/signal.c
-@@ -240,7 +240,7 @@ static int do_signal(struct pt_regs *reg
- 	/*
- 	 * If we were from a system call, check for system call restarting...
- 	 */
--	if (regs->orig_r2 >= 0) {
-+	if (regs->orig_r2 >= 0 && regs->r1) {
- 		continue_addr = regs->ea;
- 		restart_addr = continue_addr - 4;
- 		retval = regs->r2;
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -34,6 +34,9 @@ static int get_max_inline_xattr_value_si
+ 	struct ext4_inode *raw_inode;
+ 	int free, min_offs;
+ 
++	if (!EXT4_INODE_HAS_XATTR_SPACE(inode))
++		return 0;
++
+ 	min_offs = EXT4_SB(inode->i_sb)->s_inode_size -
+ 			EXT4_GOOD_OLD_INODE_SIZE -
+ 			EXT4_I(inode)->i_extra_isize -
 
 
