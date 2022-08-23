@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A851559DBF3
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF97F59DC33
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241719AbiHWL1w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:27:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37830 "EHLO
+        id S244042AbiHWKZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:25:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357619AbiHWL0f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:26:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB00BE4D6;
-        Tue, 23 Aug 2022 02:24:12 -0700 (PDT)
+        with ESMTP id S1355281AbiHWKX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66C72A3465;
+        Tue, 23 Aug 2022 02:04:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D4D2B81C66;
-        Tue, 23 Aug 2022 09:24:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77FDBC433D6;
-        Tue, 23 Aug 2022 09:24:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F13FB81C89;
+        Tue, 23 Aug 2022 09:04:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB073C433C1;
+        Tue, 23 Aug 2022 09:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246649;
-        bh=28Uj1pz2wv0sJBienNbuzVHt1ORzGBQoYdH6V0l/0lc=;
+        s=korg; t=1661245464;
+        bh=eO4wzGcORruDBbQHGEoSVy8v7g9gEkJj9bYk1j+gKKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UjN9A2GQ4M9kk2unohgoHjbzoAcHA0/WeV5w44zHQfJxTYxaEQ7VaNIxIwPGtVNVP
-         ghzTdWjNgcSmimh+VtRIqls1S6h7VILWC3i0lZmaMNGlW+KHHeGfNgNZXrrP02VIZ0
-         NhOiVnc6rvpP1Bvl1SxqxR1++55vpKWR0AWqUJHE=
+        b=GGOc/OJLUxdutP/2ddfZWPtY5x4tIiAk/7Tb6gWpgja0yQ3DitnrTxBai+qU/T0bV
+         6k4P7cFnhPaRRv7pAs1A2yV9QvBBq0zYO7HTY39OqeEmAlLBm9pY4pJeIRvnDj+dxD
+         cZNL4Btvc1dT3qNHjzQJUyFUuzpde5gr/m+UvAm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        stable@vger.kernel.org, Anquan Wu <leiqi96@hotmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 177/389] staging: rtl8192u: Fix sleep in atomic context bug in dm_fsync_timer_callback
-Date:   Tue, 23 Aug 2022 10:24:15 +0200
-Message-Id: <20220823080123.037967159@linuxfoundation.org>
+Subject: [PATCH 4.19 087/287] libbpf: Fix the name of a reused map
+Date:   Tue, 23 Aug 2022 10:24:16 +0200
+Message-Id: <20220823080103.224063724@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,147 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Anquan Wu <leiqi96@hotmail.com>
 
-[ Upstream commit 6a0c054930d554ad8f8044ef1fc856d9da391c81 ]
+[ Upstream commit bf3f00378524adae16628cbadbd11ba7211863bb ]
 
-There are sleep in atomic context bugs when dm_fsync_timer_callback is
-executing. The root cause is that the memory allocation functions with
-GFP_KERNEL or GFP_NOIO parameters are called in dm_fsync_timer_callback
-which is a timer handler. The call paths that could trigger bugs are
-shown below:
+BPF map name is limited to BPF_OBJ_NAME_LEN.
+A map name is defined as being longer than BPF_OBJ_NAME_LEN,
+it will be truncated to BPF_OBJ_NAME_LEN when a userspace program
+calls libbpf to create the map. A pinned map also generates a path
+in the /sys. If the previous program wanted to reuse the map，
+it can not get bpf_map by name, because the name of the map is only
+partially the same as the name which get from pinned path.
 
-    (interrupt context)
-dm_fsync_timer_callback
-  write_nic_byte
-    kzalloc(sizeof(data), GFP_KERNEL); //may sleep
-    usb_control_msg
-      kmalloc(.., GFP_NOIO); //may sleep
-  write_nic_dword
-    kzalloc(sizeof(data), GFP_KERNEL); //may sleep
-    usb_control_msg
-      kmalloc(.., GFP_NOIO); //may sleep
+The syscall information below show that map name "process_pinned_map"
+is truncated to "process_pinned_".
 
-This patch uses delayed work to replace timer and moves the operations
-that may sleep into the delayed work in order to mitigate bugs.
+    bpf(BPF_OBJ_GET, {pathname="/sys/fs/bpf/process_pinned_map",
+    bpf_fd=0, file_flags=0}, 144) = -1 ENOENT (No such file or directory)
 
-Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220710103002.63283-1-duoming@zju.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    bpf(BPF_MAP_CREATE, {map_type=BPF_MAP_TYPE_HASH, key_size=4,
+    value_size=4,max_entries=1024, map_flags=0, inner_map_fd=0,
+    map_name="process_pinned_",map_ifindex=0, btf_fd=3, btf_key_type_id=6,
+    btf_value_type_id=10,btf_vmlinux_value_type_id=0}, 72) = 4
+
+This patch check that if the name of pinned map are the same as the
+actual name for the first (BPF_OBJ_NAME_LEN - 1),
+bpf map still uses the name which is included in bpf object.
+
+Fixes: 26736eb9a483 ("tools: libbpf: allow map reuse")
+Signed-off-by: Anquan Wu <leiqi96@hotmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/OSZP286MB1725CEA1C95C5CB8E7CCC53FB8869@OSZP286MB1725.JPNP286.PROD.OUTLOOK.COM
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192u/r8192U.h    |  2 +-
- drivers/staging/rtl8192u/r8192U_dm.c | 38 +++++++++++++---------------
- drivers/staging/rtl8192u/r8192U_dm.h |  2 +-
- 3 files changed, 20 insertions(+), 22 deletions(-)
+ tools/lib/bpf/libbpf.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8192u/r8192U.h b/drivers/staging/rtl8192u/r8192U.h
-index ec33fb9122e9..57badc1e91e3 100644
---- a/drivers/staging/rtl8192u/r8192U.h
-+++ b/drivers/staging/rtl8192u/r8192U.h
-@@ -1013,7 +1013,7 @@ typedef struct r8192_priv {
- 	bool		bis_any_nonbepkts;
- 	bool		bcurrent_turbo_EDCA;
- 	bool		bis_cur_rdlstate;
--	struct timer_list fsync_timer;
-+	struct delayed_work fsync_work;
- 	bool bfsync_processing;	/* 500ms Fsync timer is active or not */
- 	u32	rate_record;
- 	u32	rateCountDiffRecord;
-diff --git a/drivers/staging/rtl8192u/r8192U_dm.c b/drivers/staging/rtl8192u/r8192U_dm.c
-index c23e43b095d9..30b272da36f5 100644
---- a/drivers/staging/rtl8192u/r8192U_dm.c
-+++ b/drivers/staging/rtl8192u/r8192U_dm.c
-@@ -2585,19 +2585,20 @@ static void dm_init_fsync(struct net_device *dev)
- 	priv->ieee80211->fsync_seconddiff_ratethreshold = 200;
- 	priv->ieee80211->fsync_state = Default_Fsync;
- 	priv->framesyncMonitor = 1;	/* current default 0xc38 monitor on */
--	timer_setup(&priv->fsync_timer, dm_fsync_timer_callback, 0);
-+	INIT_DELAYED_WORK(&priv->fsync_work, dm_fsync_work_callback);
- }
- 
- static void dm_deInit_fsync(struct net_device *dev)
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 249fa8d7376e..76cf63705c86 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -1060,7 +1060,7 @@ static int bpf_map_find_btf_info(struct bpf_map *map, const struct btf *btf)
+ int bpf_map__reuse_fd(struct bpf_map *map, int fd)
  {
- 	struct r8192_priv *priv = ieee80211_priv(dev);
+ 	struct bpf_map_info info = {};
+-	__u32 len = sizeof(info);
++	__u32 len = sizeof(info), name_len;
+ 	int new_fd, err;
+ 	char *new_name;
  
--	del_timer_sync(&priv->fsync_timer);
-+	cancel_delayed_work_sync(&priv->fsync_work);
- }
+@@ -1068,7 +1068,12 @@ int bpf_map__reuse_fd(struct bpf_map *map, int fd)
+ 	if (err)
+ 		return err;
  
--void dm_fsync_timer_callback(struct timer_list *t)
-+void dm_fsync_work_callback(struct work_struct *work)
- {
--	struct r8192_priv *priv = from_timer(priv, t, fsync_timer);
-+	struct r8192_priv *priv =
-+	    container_of(work, struct r8192_priv, fsync_work.work);
- 	struct net_device *dev = priv->ieee80211->dev;
- 	u32 rate_index, rate_count = 0, rate_count_diff = 0;
- 	bool		bSwitchFromCountDiff = false;
-@@ -2664,17 +2665,16 @@ void dm_fsync_timer_callback(struct timer_list *t)
- 			}
- 		}
- 		if (bDoubleTimeInterval) {
--			if (timer_pending(&priv->fsync_timer))
--				del_timer_sync(&priv->fsync_timer);
--			priv->fsync_timer.expires = jiffies +
--				msecs_to_jiffies(priv->ieee80211->fsync_time_interval*priv->ieee80211->fsync_multiple_timeinterval);
--			add_timer(&priv->fsync_timer);
-+			cancel_delayed_work_sync(&priv->fsync_work);
-+			schedule_delayed_work(&priv->fsync_work,
-+					      msecs_to_jiffies(priv
-+					      ->ieee80211->fsync_time_interval *
-+					      priv->ieee80211->fsync_multiple_timeinterval));
- 		} else {
--			if (timer_pending(&priv->fsync_timer))
--				del_timer_sync(&priv->fsync_timer);
--			priv->fsync_timer.expires = jiffies +
--				msecs_to_jiffies(priv->ieee80211->fsync_time_interval);
--			add_timer(&priv->fsync_timer);
-+			cancel_delayed_work_sync(&priv->fsync_work);
-+			schedule_delayed_work(&priv->fsync_work,
-+					      msecs_to_jiffies(priv
-+					      ->ieee80211->fsync_time_interval));
- 		}
- 	} else {
- 		/* Let Register return to default value; */
-@@ -2702,7 +2702,7 @@ static void dm_EndSWFsync(struct net_device *dev)
- 	struct r8192_priv *priv = ieee80211_priv(dev);
+-	new_name = strdup(info.name);
++	name_len = strlen(info.name);
++	if (name_len == BPF_OBJ_NAME_LEN - 1 && strncmp(map->name, info.name, name_len) == 0)
++		new_name = strdup(map->name);
++	else
++		new_name = strdup(info.name);
++
+ 	if (!new_name)
+ 		return -errno;
  
- 	RT_TRACE(COMP_HALDM, "%s\n", __func__);
--	del_timer_sync(&(priv->fsync_timer));
-+	cancel_delayed_work_sync(&priv->fsync_work);
- 
- 	/* Let Register return to default value; */
- 	if (priv->bswitch_fsync) {
-@@ -2744,11 +2744,9 @@ static void dm_StartSWFsync(struct net_device *dev)
- 		if (priv->ieee80211->fsync_rate_bitmap &  rateBitmap)
- 			priv->rate_record += priv->stats.received_rate_histogram[1][rateIndex];
- 	}
--	if (timer_pending(&priv->fsync_timer))
--		del_timer_sync(&priv->fsync_timer);
--	priv->fsync_timer.expires = jiffies +
--			msecs_to_jiffies(priv->ieee80211->fsync_time_interval);
--	add_timer(&priv->fsync_timer);
-+	cancel_delayed_work_sync(&priv->fsync_work);
-+	schedule_delayed_work(&priv->fsync_work,
-+			      msecs_to_jiffies(priv->ieee80211->fsync_time_interval));
- 
- 	write_nic_dword(dev, rOFDM0_RxDetector2, 0x465c12cd);
- 
-diff --git a/drivers/staging/rtl8192u/r8192U_dm.h b/drivers/staging/rtl8192u/r8192U_dm.h
-index 0b2a1c688597..2159018b4e38 100644
---- a/drivers/staging/rtl8192u/r8192U_dm.h
-+++ b/drivers/staging/rtl8192u/r8192U_dm.h
-@@ -166,7 +166,7 @@ void dm_force_tx_fw_info(struct net_device *dev,
- void dm_init_edca_turbo(struct net_device *dev);
- void dm_rf_operation_test_callback(unsigned long data);
- void dm_rf_pathcheck_workitemcallback(struct work_struct *work);
--void dm_fsync_timer_callback(struct timer_list *t);
-+void dm_fsync_work_callback(struct work_struct *work);
- void dm_cck_txpower_adjust(struct net_device *dev, bool  binch14);
- void dm_shadow_init(struct net_device *dev);
- void dm_initialize_txpower_tracking(struct net_device *dev);
 -- 
 2.35.1
 
