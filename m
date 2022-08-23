@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD9C59DD57
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D7D259E2CC
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357358AbiHWLRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37498 "EHLO
+        id S1352108AbiHWLRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357658AbiHWLQV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B615BD172;
-        Tue, 23 Aug 2022 02:20:07 -0700 (PDT)
+        with ESMTP id S1357559AbiHWLQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83D20BC103;
+        Tue, 23 Aug 2022 02:19:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4ADCA6121F;
-        Tue, 23 Aug 2022 09:19:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 363FBC433C1;
-        Tue, 23 Aug 2022 09:19:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48BE7B81B1F;
+        Tue, 23 Aug 2022 09:19:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6056DC433C1;
+        Tue, 23 Aug 2022 09:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246369;
-        bh=RssmReMyAViCtFFfu6NThAOv/gTYP6Orl+FpfMAARD8=;
+        s=korg; t=1661246373;
+        bh=irCBK8LTpH4tpbspjJOVgrGRJVi9IEJ+agochWcRKhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcVr04FjT0mzzNDmoQBPUkBmRbqLidPbNOsaT0MYS6PqSgBxfQE1vHbJJu2BPJU16
-         VBNkPslpCMMeJdnOcKCCN0Z3/7gbkiV9nY7flFl5gnZXAeMXv7mW0YK+n90n60ydGh
-         A2O/MvsCywJJIdRzY3VTaJ8neYYeCAmG4+XZ44lo=
+        b=kBhrxFNz8IoJxVTjt0ZWtwNvXBp9IZ9RyWY6DDC3VhiuLgcUqK4/KIekl6yvw8ayR
+         7smH5a76Wg/jfRh3qRCfKCPwyS/cA57HlC59iuZP5VtrtB/IBRznEHhzRENAubGeKw
+         vRBKY1nzYqyD47nv+EV4uOhylGjyYGg4BqM1srNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, INAGAKI Hiroshi <musashino.open@gmail.com>,
+        Nick Hainke <vincent@systemli.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/389] bus: hisi_lpc: fix missing platform_device_put() in hisi_lpc_acpi_probe()
-Date:   Tue, 23 Aug 2022 10:22:45 +0200
-Message-Id: <20220823080119.266479569@linuxfoundation.org>
+Subject: [PATCH 5.4 088/389] arm64: dts: mt7622: fix BPI-R64 WPS button
+Date:   Tue, 23 Aug 2022 10:22:46 +0200
+Message-Id: <20220823080119.301096629@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -56,72 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Nick Hainke <vincent@systemli.org>
 
-[ Upstream commit 54872fea6a5ac967ec2272aea525d1438ac6735a ]
+[ Upstream commit c98e6e683632386a3bd284acda4342e68aec4c41 ]
 
-In error case in hisi_lpc_acpi_probe() after calling platform_device_add(),
-hisi_lpc_acpi_remove() can't release the failed 'pdev', so it will be leak,
-call platform_device_put() to fix this problem.
-I'v constructed this error case and tested this patch on D05 board.
+The bananapi R64 (BPI-R64) experiences wrong WPS button signals.
+In OpenWrt pushing the WPS button while powering on the device will set
+it to recovery mode. Currently, this also happens without any user
+interaction. In particular, the wrong signals appear while booting the
+device or restarting it, e.g. after doing a system upgrade. If the
+device is in recovery mode the user needs to manually power cycle or
+restart it.
 
-Fixes: 99c0228d6ff1 ("HISI LPC: Re-Add ACPI child enumeration support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The official BPI-R64 sources set the WPS button to GPIO_ACTIVE_LOW in
+the device tree. This setting seems to suppress the unwanted WPS button
+press signals. So this commit changes the button from GPIO_ACTIVE_HIGH to
+GPIO_ACTIVE_LOW.
+
+The official BPI-R64 sources can be found on
+https://github.com/BPI-SINOVOIP/BPI-R64-openwrt
+
+Fixes: 0b6286dd96c0 ("arm64: dts: mt7622: add bananapi BPI-R64 board")
+
+Suggested-by: INAGAKI Hiroshi <musashino.open@gmail.com>
+Signed-off-by: Nick Hainke <vincent@systemli.org>
+Link: https://lore.kernel.org/r/20220630111746.4098-1-vincent@systemli.org
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/hisi_lpc.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bus/hisi_lpc.c b/drivers/bus/hisi_lpc.c
-index 2e9252d37a18..0922cbe8900b 100644
---- a/drivers/bus/hisi_lpc.c
-+++ b/drivers/bus/hisi_lpc.c
-@@ -504,13 +504,13 @@ static int hisi_lpc_acpi_probe(struct device *hostdev)
- {
- 	struct acpi_device *adev = ACPI_COMPANION(hostdev);
- 	struct acpi_device *child;
-+	struct platform_device *pdev;
- 	int ret;
+diff --git a/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts b/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
+index 83e10591e0e5..81215cc3759a 100644
+--- a/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
++++ b/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
+@@ -49,7 +49,7 @@ factory {
+ 		wps {
+ 			label = "wps";
+ 			linux,code = <KEY_WPS_BUTTON>;
+-			gpios = <&pio 102 GPIO_ACTIVE_HIGH>;
++			gpios = <&pio 102 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
  
- 	/* Only consider the children of the host */
- 	list_for_each_entry(child, &adev->children, node) {
- 		const char *hid = acpi_device_hid(child);
- 		const struct hisi_lpc_acpi_cell *cell;
--		struct platform_device *pdev;
- 		const struct resource *res;
- 		bool found = false;
- 		int num_res;
-@@ -572,22 +572,24 @@ static int hisi_lpc_acpi_probe(struct device *hostdev)
- 
- 		ret = platform_device_add_resources(pdev, res, num_res);
- 		if (ret)
--			goto fail;
-+			goto fail_put_device;
- 
- 		ret = platform_device_add_data(pdev, cell->pdata,
- 					       cell->pdata_size);
- 		if (ret)
--			goto fail;
-+			goto fail_put_device;
- 
- 		ret = platform_device_add(pdev);
- 		if (ret)
--			goto fail;
-+			goto fail_put_device;
- 
- 		acpi_device_set_enumerated(child);
- 	}
- 
- 	return 0;
- 
-+fail_put_device:
-+	platform_device_put(pdev);
- fail:
- 	hisi_lpc_acpi_remove(hostdev);
- 	return ret;
 -- 
 2.35.1
 
