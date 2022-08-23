@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7678659DFC7
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FEF959E113
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241325AbiHWLT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43812 "EHLO
+        id S1353643AbiHWKSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:18:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357419AbiHWLRY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27913BE4CE;
-        Tue, 23 Aug 2022 02:20:45 -0700 (PDT)
+        with ESMTP id S1354039AbiHWKQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:16:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EB297FFA8;
+        Tue, 23 Aug 2022 02:01:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9536B81C53;
-        Tue, 23 Aug 2022 09:20:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12C79C433C1;
-        Tue, 23 Aug 2022 09:20:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 679AF6156A;
+        Tue, 23 Aug 2022 09:01:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F9C1C433C1;
+        Tue, 23 Aug 2022 09:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246443;
-        bh=UR1QjSKF5bJAcLN55DIqh5XIbSD7Vnu68RDjqbSAYaQ=;
+        s=korg; t=1661245260;
+        bh=38z5+1E7HVbT6HeQjqkDPqJFtUVE6OakjVGr/qrHk+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ccAOgEttTmgv2CcwV95fpZELBBWD8O6syacIPSblgDwkGIfBoKE7TPuIe+YXt5miY
-         82WBs4gSN4cbhCSs4BVhiVL8xxHE5e0TYyPk2jwSYq5ysemSHY/2HUAyE+vvUfkpOL
-         RHZXct4jNkz9eFlvPivUCzthgS/sinA18DbRxH9k=
+        b=V3GdcWTKwTbNjYYhG1cdPfvVHw0ahOHPBjAx4EREqzKYWMmytjtyRpVI+QstbMiYb
+         Ozg7l0s7zBIEnghQOTbkdjTPJywCMC8VmzYdASNh11nqCrxKNjyD8WKhEoYtObZJBO
+         vmbKQmltiSxFuP/CWJZMSLPgKzDLMSAmkQYevSHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 112/389] drm/rockchip: vop: Dont crash for invalid duplicate_state()
-Date:   Tue, 23 Aug 2022 10:23:10 +0200
-Message-Id: <20220823080120.297505571@linuxfoundation.org>
+        stable@vger.kernel.org, Timur Tabi <ttabi@nvidia.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 4.19 022/287] drm/nouveau: fix another off-by-one in nvbios_addr
+Date:   Tue, 23 Aug 2022 10:23:11 +0200
+Message-Id: <20220823080101.023606978@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Timur Tabi <ttabi@nvidia.com>
 
-[ Upstream commit 1449110b0dade8b638d2c17ab7c5b0ff696bfccb ]
+commit c441d28945fb113220d48d6c86ebc0b090a2b677 upstream.
 
-It's possible for users to try to duplicate the CRTC state even when the
-state doesn't exist. drm_atomic_helper_crtc_duplicate_state() (and other
-users of __drm_atomic_helper_crtc_duplicate_state()) already guard this
-with a WARN_ON() instead of crashing, so let's do that here too.
+This check determines whether a given address is part of
+image 0 or image 1.  Image 1 starts at offset image0_size,
+so that address should be included.
 
-Fixes: 4e257d9eee23 ("drm/rockchip: get rid of rockchip_drm_crtc_mode_config")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Sean Paul <seanpaul@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220617172623.1.I62db228170b1559ada60b8d3e1637e1688424926@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4d4e9907ff572 ("drm/nouveau/bios: guard against out-of-bounds accesses to image")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: Timur Tabi <ttabi@nvidia.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220511163716.3520591-1-ttabi@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index 2e4e1933a43c..57e0396662c3 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -1288,6 +1288,9 @@ static struct drm_crtc_state *vop_crtc_duplicate_state(struct drm_crtc *crtc)
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
+@@ -33,7 +33,7 @@ nvbios_addr(struct nvkm_bios *bios, u32
  {
- 	struct rockchip_crtc_state *rockchip_state;
+ 	u32 p = *addr;
  
-+	if (WARN_ON(!crtc->state))
-+		return NULL;
-+
- 	rockchip_state = kzalloc(sizeof(*rockchip_state), GFP_KERNEL);
- 	if (!rockchip_state)
- 		return NULL;
--- 
-2.35.1
-
+-	if (*addr > bios->image0_size && bios->imaged_addr) {
++	if (*addr >= bios->image0_size && bios->imaged_addr) {
+ 		*addr -= bios->image0_size;
+ 		*addr += bios->imaged_addr;
+ 	}
 
 
