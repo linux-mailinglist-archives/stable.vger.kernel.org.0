@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C80059D549
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 494FF59D580
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241612AbiHWJHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51796 "EHLO
+        id S240087AbiHWJH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241613AbiHWJGa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:06:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BACED85FB8;
-        Tue, 23 Aug 2022 01:29:50 -0700 (PDT)
+        with ESMTP id S1347750AbiHWJGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:06:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C8C285FFE;
+        Tue, 23 Aug 2022 01:29:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 088D161475;
-        Tue, 23 Aug 2022 08:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1059FC433C1;
-        Tue, 23 Aug 2022 08:28:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AD7F61326;
+        Tue, 23 Aug 2022 08:28:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03452C4314C;
+        Tue, 23 Aug 2022 08:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243310;
-        bh=RVt6G3W9mdbfkIy7nW8MAcnxPBPOKSh1h3YBa/FUnjU=;
+        s=korg; t=1661243313;
+        bh=9vjKezl3dOytaASgrXKh7da9oZaZWQxs9UU973wrK9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TuSHLBBDoAxUXEUGETPMTwTCEJrE9bn6lZlkPHRkqSbdAecO3sgGg2TMgXQ9u5N/g
-         RTOp50UXmeIMt2gCOD7pGdc2BeuOaoue6KqhzGNrvYYKGlY0+MFLc4peF7stMGn+Hw
-         +SNP4im8UJt/X37wrSqEeEcTK5OoFn2IxACiPYBQ=
+        b=WjyeJAcc8zQA4for3QIc9Gwn6514e6AfrPM6yCe55DBpW5ntZO3bBqpHeTku+E0AQ
+         sM7bIY+e4PcDvM/bSP4jQxmsJW3q7zjT8MAH0Et5R52lxf8kHjohb6384yf9/KV4xE
+         nZ+aphSzNY/paoxzdiOY1nxr7VPFDlNSUt5EauDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sergei Antonov <saproj@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 206/365] net: dsa: mv88e6060: prevent crash on an unused port
-Date:   Tue, 23 Aug 2022 10:01:47 +0200
-Message-Id: <20220823080126.818158646@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Kochetkov <fido_max@inbox.ru>,
+        Hemant Kumar <quic_hemantk@quicinc.com>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.19 207/365] net: qrtr: start MHI channel after endpoit creation
+Date:   Tue, 23 Aug 2022 10:01:48 +0200
+Message-Id: <20220823080126.857789357@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -57,53 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Antonov <saproj@gmail.com>
+From: Maxim Kochetkov <fido_max@inbox.ru>
 
-commit 246bbf2f977ea36aaf41f5d24370fef433250728 upstream.
+commit 68a838b84effb7b57ba7d50b1863fc6ae35a54ce upstream.
 
-If the port isn't a CPU port nor a user port, 'cpu_dp'
-is a null pointer and a crash happened on dereferencing
-it in mv88e6060_setup_port():
+MHI channel may generates event/interrupt right after enabling.
+It may leads to 2 race conditions issues.
 
-[    9.575872] Unable to handle kernel NULL pointer dereference at virtual address 00000014
-...
-[    9.942216]  mv88e6060_setup from dsa_register_switch+0x814/0xe84
-[    9.948616]  dsa_register_switch from mdio_probe+0x2c/0x54
-[    9.954433]  mdio_probe from really_probe.part.0+0x98/0x2a0
-[    9.960375]  really_probe.part.0 from driver_probe_device+0x30/0x10c
-[    9.967029]  driver_probe_device from __device_attach_driver+0xb8/0x13c
-[    9.973946]  __device_attach_driver from bus_for_each_drv+0x90/0xe0
-[    9.980509]  bus_for_each_drv from __device_attach+0x110/0x184
-[    9.986632]  __device_attach from bus_probe_device+0x8c/0x94
-[    9.992577]  bus_probe_device from deferred_probe_work_func+0x78/0xa8
-[    9.999311]  deferred_probe_work_func from process_one_work+0x290/0x73c
-[   10.006292]  process_one_work from worker_thread+0x30/0x4b8
-[   10.012155]  worker_thread from kthread+0xd4/0x10c
-[   10.017238]  kthread from ret_from_fork+0x14/0x3c
+1)
+Such event may be dropped by qcom_mhi_qrtr_dl_callback() at check:
 
-Fixes: 0abfd494deef ("net: dsa: use dedicated CPU port")
-CC: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-CC: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
-Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20220811070939.1717146-1-saproj@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+	if (!qdev || mhi_res->transaction_status)
+		return;
+
+Because dev_set_drvdata(&mhi_dev->dev, qdev) may be not performed at
+this moment. In this situation qrtr-ns will be unable to enumerate
+services in device.
+---------------------------------------------------------------
+
+2)
+Such event may come at the moment after dev_set_drvdata() and
+before qrtr_endpoint_register(). In this case kernel will panic with
+accessing wrong pointer at qcom_mhi_qrtr_dl_callback():
+
+	rc = qrtr_endpoint_post(&qdev->ep, mhi_res->buf_addr,
+				mhi_res->bytes_xferd);
+
+Because endpoint is not created yet.
+--------------------------------------------------------------
+So move mhi_prepare_for_transfer_autoqueue after endpoint creation
+to fix it.
+
+Fixes: a2e2cc0dbb11 ("net: qrtr: Start MHI channels during init")
+Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+Reviewed-by: Hemant Kumar <quic_hemantk@quicinc.com>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6060.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/qrtr/mhi.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/net/dsa/mv88e6060.c
-+++ b/drivers/net/dsa/mv88e6060.c
-@@ -118,6 +118,9 @@ static int mv88e6060_setup_port(struct m
- 	int addr = REG_PORT(p);
- 	int ret;
+--- a/net/qrtr/mhi.c
++++ b/net/qrtr/mhi.c
+@@ -78,11 +78,6 @@ static int qcom_mhi_qrtr_probe(struct mh
+ 	struct qrtr_mhi_dev *qdev;
+ 	int rc;
  
-+	if (dsa_is_unused_port(priv->ds, p))
-+		return 0;
+-	/* start channels */
+-	rc = mhi_prepare_for_transfer_autoqueue(mhi_dev);
+-	if (rc)
+-		return rc;
+-
+ 	qdev = devm_kzalloc(&mhi_dev->dev, sizeof(*qdev), GFP_KERNEL);
+ 	if (!qdev)
+ 		return -ENOMEM;
+@@ -96,6 +91,13 @@ static int qcom_mhi_qrtr_probe(struct mh
+ 	if (rc)
+ 		return rc;
+ 
++	/* start channels */
++	rc = mhi_prepare_for_transfer_autoqueue(mhi_dev);
++	if (rc) {
++		qrtr_endpoint_unregister(&qdev->ep);
++		return rc;
++	}
 +
- 	/* Do not force flow control, disable Ingress and Egress
- 	 * Header tagging, disable VLAN tunneling, and set the port
- 	 * state to Forwarding.  Additionally, if this is the CPU
+ 	dev_dbg(qdev->dev, "Qualcomm MHI QRTR driver probed\n");
+ 
+ 	return 0;
 
 
