@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A1A959DD49
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:27:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E945059E0F8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356074AbiHWKxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:53:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50116 "EHLO
+        id S1358671AbiHWL46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357013AbiHWKww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:52:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DB86ABF1E;
-        Tue, 23 Aug 2022 02:13:04 -0700 (PDT)
+        with ESMTP id S1359039AbiHWL4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:56:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A78F67CB9;
+        Tue, 23 Aug 2022 02:33:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1BC66113E;
-        Tue, 23 Aug 2022 09:13:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0EF7C433C1;
-        Tue, 23 Aug 2022 09:13:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5315761335;
+        Tue, 23 Aug 2022 09:32:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5208FC433C1;
+        Tue, 23 Aug 2022 09:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245982;
-        bh=8hgEPptPotcAEFQiDmgZ8x/yHxxyNyJ3aCUqRbrzYe0=;
+        s=korg; t=1661247176;
+        bh=BLG1m5ZxveTg+8OAMSqltELUdyCKw/WsOmvoPuaHGb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ytihZ/N9wF0bVs3WJBc+aY5YMp3HJbuPjLbu8/kHd4Ay9JtQO7wt7BROG5sPkGzNA
-         BdH4KdU0QkMdMNXdK0IQbxdOANHwP8LYYpYF2p7Y249M7Qkz3d7R7GtBWKRv4eeKmY
-         RJyZsvagqdJfOVvAVs5EbYGG3cELFFRtuYmyHMzc=
+        b=iYXM44HUBZC2PVAD+7geJRGE7UzX1/GwK9oVRPOAnYUedpJ929qVhjZ7n8UG8cpGz
+         OPo2Xl1TVCkvFg9IDguErVrvUM/bhD7ZtgyokUHg7Ng3N7BW2aDmz5cBnqOjO1bTeY
+         99pgZxV4ZWPofQ4VpvJkD4r4oCm87huEvR2FhAz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mateusz Palczewski <mateusz.palczewski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 4.19 252/287] i40e: Fix to stop tx_timeout recovery if GLOBR fails
+Subject: [PATCH 5.4 343/389] i40e: Fix to stop tx_timeout recovery if GLOBR fails
 Date:   Tue, 23 Aug 2022 10:27:01 +0200
-Message-Id: <20220823080109.695712144@linuxfoundation.org>
+Message-Id: <20220823080129.863587808@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -81,7 +81,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/intel/i40e/i40e_main.c
 +++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -397,7 +397,9 @@ static void i40e_tx_timeout(struct net_d
+@@ -409,7 +409,9 @@ static void i40e_tx_timeout(struct net_d
  		set_bit(__I40E_GLOBAL_RESET_REQUESTED, pf->state);
  		break;
  	default:
