@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9110B59D5F1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D4959D4C8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243331AbiHWIc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:32:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60256 "EHLO
+        id S243646AbiHWIe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:34:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346222AbiHWIbv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:31:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D19F6DAE6;
-        Tue, 23 Aug 2022 01:16:13 -0700 (PDT)
+        with ESMTP id S1344319AbiHWIcY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:32:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C50167175;
+        Tue, 23 Aug 2022 01:16:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F5156131B;
-        Tue, 23 Aug 2022 08:15:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CF5CC433D7;
-        Tue, 23 Aug 2022 08:15:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A26361228;
+        Tue, 23 Aug 2022 08:15:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86DBEC433D6;
+        Tue, 23 Aug 2022 08:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242542;
-        bh=gZYsygsulZRaUQQNEd00HqGuo0mFJXCegFja3ncqvFY=;
+        s=korg; t=1661242547;
+        bh=NoLqcpS0ng+Lbg3o1rbtMkbo2kGPL0fu1NrGMr0k/Mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P/gk+O7OZnAaPfQkWaflVw2D19xkpj8RYMw+7VfzjYNF7OzenTFNsWhsnpd3vn1dq
-         W5PwTBxECRfZ00/k6eA53DQMTs5d/+R7hA+5rFcUXzfFAmcWgxsCx2LsVEFuA2DwDV
-         hHYcR140WsY1h0ap26qT8eTKUWkQLFl7UgzmFtQE=
+        b=OGSg/mWYz5OgZM1cBgjQF9rXh2JteRQrGUL9euce9MfVQcJ7TnKTMWWyCx5B5sqA3
+         dk5toUCpO/rjIkscaVTsDJEXCwC7F6RiYl20Lci3ofQPrUg1uleP8J1na1QQx1IGKC
+         +M3x7LyLCNHIl2KQa/tatee6HMNP23T+aFGoYHco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Michal Simek <michal.simek@amd.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.19 134/365] spi: dt-bindings: zynqmp-qspi: add missing required
-Date:   Tue, 23 Aug 2022 10:00:35 +0200
-Message-Id: <20220823080123.797522157@linuxfoundation.org>
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 5.19 135/365] dt-bindings: opp: opp-v2-kryo-cpu: Fix example binding checks
+Date:   Tue, 23 Aug 2022 10:00:36 +0200
+Message-Id: <20220823080123.850327587@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,37 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit acfc34f008c3e66bbcb7b9162c80c8327b6e800f upstream.
+commit 3b4916a6e422394aa129fe9b204f4d489ae484a6 upstream.
 
-During the conversion the bindings lost list of required properties.
+Adding missing compat entries to the cpufreq node
+Documentation/devicetree/bindings/cpufreq/qcom-cpufreq-nvmem.yaml shows up
+a dt_binding_check in this file.
 
-Fixes: c58db2abb19f ("spi: convert Xilinx Zynq UltraScale+ MPSoC GQSPI bindings to YAML")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Michal Simek <michal.simek@amd.com>
-Link: https://lore.kernel.org/r/20220704130618.199231-2-krzysztof.kozlowski@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+opp-v2-kryo-cpu.example.dtb: /: cpus:cpu@0: 'power-domains' is a required property
+opp-v2-kryo-cpu.example.dtb: /: cpus:cpu@0: 'power-domain-names' is a required property
+opp-v2-kryo-cpu.example.dtb: /: opp-table-0:opp-307200000: 'required-opps' is a required property
+
+Fixes: ec24d1d55469 ("dt-bindings: opp: Convert qcom-nvmem-cpufreq to DT schema")
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml |    7 +++++++
- 1 file changed, 7 insertions(+)
+ .../devicetree/bindings/opp/opp-v2-kryo-cpu.yaml  | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml
-+++ b/Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml
-@@ -30,6 +30,13 @@ properties:
-   clocks:
-     maxItems: 2
+diff --git a/Documentation/devicetree/bindings/opp/opp-v2-kryo-cpu.yaml b/Documentation/devicetree/bindings/opp/opp-v2-kryo-cpu.yaml
+index 30f7b596d609..59663e897dae 100644
+--- a/Documentation/devicetree/bindings/opp/opp-v2-kryo-cpu.yaml
++++ b/Documentation/devicetree/bindings/opp/opp-v2-kryo-cpu.yaml
+@@ -98,6 +98,8 @@ examples:
+                 capacity-dmips-mhz = <1024>;
+                 clocks = <&kryocc 0>;
+                 operating-points-v2 = <&cluster0_opp>;
++                power-domains = <&cpr>;
++                power-domain-names = "cpr";
+                 #cooling-cells = <2>;
+                 next-level-cache = <&L2_0>;
+                 L2_0: l2-cache {
+@@ -115,6 +117,8 @@ examples:
+                 capacity-dmips-mhz = <1024>;
+                 clocks = <&kryocc 0>;
+                 operating-points-v2 = <&cluster0_opp>;
++                power-domains = <&cpr>;
++                power-domain-names = "cpr";
+                 #cooling-cells = <2>;
+                 next-level-cache = <&L2_0>;
+             };
+@@ -128,6 +132,8 @@ examples:
+                 capacity-dmips-mhz = <1024>;
+                 clocks = <&kryocc 1>;
+                 operating-points-v2 = <&cluster1_opp>;
++                power-domains = <&cpr>;
++                power-domain-names = "cpr";
+                 #cooling-cells = <2>;
+                 next-level-cache = <&L2_1>;
+                 L2_1: l2-cache {
+@@ -145,6 +151,8 @@ examples:
+                 capacity-dmips-mhz = <1024>;
+                 clocks = <&kryocc 1>;
+                 operating-points-v2 = <&cluster1_opp>;
++                power-domains = <&cpr>;
++                power-domain-names = "cpr";
+                 #cooling-cells = <2>;
+                 next-level-cache = <&L2_1>;
+             };
+@@ -182,18 +190,21 @@ examples:
+                 opp-microvolt = <905000 905000 1140000>;
+                 opp-supported-hw = <0x7>;
+                 clock-latency-ns = <200000>;
++                required-opps = <&cpr_opp1>;
+             };
+             opp-1401600000 {
+                 opp-hz = /bits/ 64 <1401600000>;
+                 opp-microvolt = <1140000 905000 1140000>;
+                 opp-supported-hw = <0x5>;
+                 clock-latency-ns = <200000>;
++                required-opps = <&cpr_opp2>;
+             };
+             opp-1593600000 {
+                 opp-hz = /bits/ 64 <1593600000>;
+                 opp-microvolt = <1140000 905000 1140000>;
+                 opp-supported-hw = <0x1>;
+                 clock-latency-ns = <200000>;
++                required-opps = <&cpr_opp3>;
+             };
+         };
  
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clock-names
-+  - clocks
-+
- unevaluatedProperties: false
+@@ -207,24 +218,28 @@ examples:
+                 opp-microvolt = <905000 905000 1140000>;
+                 opp-supported-hw = <0x7>;
+                 clock-latency-ns = <200000>;
++                required-opps = <&cpr_opp1>;
+             };
+             opp-1804800000 {
+                 opp-hz = /bits/ 64 <1804800000>;
+                 opp-microvolt = <1140000 905000 1140000>;
+                 opp-supported-hw = <0x6>;
+                 clock-latency-ns = <200000>;
++                required-opps = <&cpr_opp4>;
+             };
+             opp-1900800000 {
+                 opp-hz = /bits/ 64 <1900800000>;
+                 opp-microvolt = <1140000 905000 1140000>;
+                 opp-supported-hw = <0x4>;
+                 clock-latency-ns = <200000>;
++                required-opps = <&cpr_opp5>;
+             };
+             opp-2150400000 {
+                 opp-hz = /bits/ 64 <2150400000>;
+                 opp-microvolt = <1140000 905000 1140000>;
+                 opp-supported-hw = <0x1>;
+                 clock-latency-ns = <200000>;
++                required-opps = <&cpr_opp6>;
+             };
+         };
  
- examples:
+-- 
+2.37.2
+
 
 
