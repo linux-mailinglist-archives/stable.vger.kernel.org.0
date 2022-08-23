@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB5959E15E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 076DA59DC1E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241320AbiHWKsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:48:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58246 "EHLO
+        id S1358550AbiHWMDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:03:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355838AbiHWKoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:44:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D20AAB05E;
-        Tue, 23 Aug 2022 02:10:35 -0700 (PDT)
+        with ESMTP id S1359745AbiHWMCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 637DDDAA37;
+        Tue, 23 Aug 2022 02:36:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D798A60EFB;
-        Tue, 23 Aug 2022 09:10:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA8BFC433C1;
-        Tue, 23 Aug 2022 09:10:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6968B81C53;
+        Tue, 23 Aug 2022 09:35:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10999C433D7;
+        Tue, 23 Aug 2022 09:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245834;
-        bh=nSVXgxZC2TqTRvLOmt8W7a5C2RKHcTGAbGR3K/+fB68=;
+        s=korg; t=1661247358;
+        bh=X5DRP4VbMCr1hi3XPf8tNMAFn+9QnQvjLkZG6L35OWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWf0VoNmWrYizqM4tHiSwTkO2M1NECZe4Qs74mcHZb2kxdii3u0WiybSTLxJ8TItA
-         E6bfT1wXiKWEQvG/t+YPAmcE6GkDEWub1U81yyHr6mdvvR0sfbgq8cMl7A/6MPtf1m
-         tULtZssdk3s+yRuNJq0JcYVG2KaRwhjR+e19jcyQ=
+        b=1UcKr73BfdbRO1gHQi6/RhQD/G5tRVUswgvr76WLjZYJTam6Y/8rrC4xbiGBBFFEr
+         WbbxsVFPKt8EGLDC1oiLj17D5DR5Ieq+cgE09diUXFaRrEarc/MEvd2vygXqRBDe6E
+         2ZQTlRCdQDPj9ewJ2ID951g0GaBeEvYtnvggPT6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 174/287] kprobes: Forbid probing on trampoline and BPF code areas
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 011/158] ALSA: usb-audio: More comprehensive mixer map for ASUS ROG Zenith II
 Date:   Tue, 23 Aug 2022 10:25:43 +0200
-Message-Id: <20220823080106.619249065@linuxfoundation.org>
+Message-Id: <20220823080046.532075874@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +52,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 28f6c37a2910f565b4f5960df52b2eccae28c891 ]
+commit 6bc2906253e723d1ab1acc652b55b83e286bfec2 upstream.
 
-kernel_text_address() treats ftrace_trampoline, kprobe_insn_slot
-and bpf_text_address as valid kprobe addresses - which is not ideal.
+ASUS ROG Zenith II has two USB interfaces, one for the front headphone
+and another for the rest I/O.  Currently we provided the mixer mapping
+for the latter but with an incomplete form.
 
-These text areas are removable and changeable without any notification
-to kprobes, and probing on them can trigger unexpected behavior:
+This patch corrects and provides more comprehensive mixer mapping, as
+well as providing the proper device names for both the front headphone
+and main audio.
 
-  https://lkml.org/lkml/2022/7/26/1148
-
-Considering that jump_label and static_call text are already
-forbiden to probe, kernel_text_address() should be replaced with
-core_kernel_text() and is_module_text_address() to check other text
-areas which are unsafe to kprobe.
-
-[ mingo: Rewrote the changelog. ]
-
-Fixes: 5b485629ba0d ("kprobes, extable: Identify kprobes trampolines as kernel text area")
-Fixes: 74451e66d516 ("bpf: make jited programs visible in traces")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20220801033719.228248-1-chenzhongjin@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211005
+Fixes: 2a48218f8e23 ("ALSA: usb-audio: Add mixer workaround for TRX40 and co")
+Link: https://lore.kernel.org/r/20220809073259.18849-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/kprobes.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/usb/card.c       |    8 ++++++++
+ sound/usb/mixer_maps.c |   34 +++++++++++++++++++++++++---------
+ 2 files changed, 33 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 993b84cc1db5..099191716d4c 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1566,7 +1566,8 @@ static int check_kprobe_address_safe(struct kprobe *p,
- 	preempt_disable();
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -379,6 +379,14 @@ static const struct usb_audio_device_nam
  
- 	/* Ensure it is not in reserved area nor out of text */
--	if (!kernel_text_address((unsigned long) p->addr) ||
-+	if (!(core_kernel_text((unsigned long) p->addr) ||
-+	    is_module_text_address((unsigned long) p->addr)) ||
- 	    within_kprobe_blacklist((unsigned long) p->addr) ||
- 	    jump_label_text_reserved(p->addr, p->addr) ||
- 	    find_bug((unsigned long)p->addr)) {
--- 
-2.35.1
-
+ 	DEVICE_NAME(0x046d, 0x0990, "Logitech, Inc.", "QuickCam Pro 9000"),
+ 
++	/* ASUS ROG Zenith II: this machine has also two devices, one for
++	 * the front headphone and another for the rest
++	 */
++	PROFILE_NAME(0x0b05, 0x1915, "ASUS", "Zenith II Front Headphone",
++		     "Zenith-II-Front-Headphone"),
++	PROFILE_NAME(0x0b05, 0x1916, "ASUS", "Zenith II Main Audio",
++		     "Zenith-II-Main-Audio"),
++
+ 	/* ASUS ROG Strix */
+ 	PROFILE_NAME(0x0b05, 0x1917,
+ 		     "Realtek", "ALC1220-VB-DT", "Realtek-ALC1220-VB-Desktop"),
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -367,13 +367,28 @@ static const struct usbmix_name_map cors
+ 	{ 0 }
+ };
+ 
+-/* Some mobos shipped with a dummy HD-audio show the invalid GET_MIN/GET_MAX
+- * response for Input Gain Pad (id=19, control=12) and the connector status
+- * for SPDIF terminal (id=18).  Skip them.
+- */
+-static const struct usbmix_name_map asus_rog_map[] = {
+-	{ 18, NULL }, /* OT, connector control */
+-	{ 19, NULL, 12 }, /* FU, Input Gain Pad */
++/* ASUS ROG Zenith II with Realtek ALC1220-VB */
++static const struct usbmix_name_map asus_zenith_ii_map[] = {
++	{ 19, NULL, 12 }, /* FU, Input Gain Pad - broken response, disabled */
++	{ 16, "Speaker" },		/* OT */
++	{ 22, "Speaker Playback" },	/* FU */
++	{ 7, "Line" },			/* IT */
++	{ 19, "Line Capture" },		/* FU */
++	{ 8, "Mic" },			/* IT */
++	{ 20, "Mic Capture" },		/* FU */
++	{ 9, "Front Mic" },		/* IT */
++	{ 21, "Front Mic Capture" },	/* FU */
++	{ 17, "IEC958" },		/* OT */
++	{ 23, "IEC958 Playback" },	/* FU */
++	{}
++};
++
++static const struct usbmix_connector_map asus_zenith_ii_connector_map[] = {
++	{ 10, 16 },	/* (Back) Speaker */
++	{ 11, 17 },	/* SPDIF */
++	{ 13, 7 },	/* Line */
++	{ 14, 8 },	/* Mic */
++	{ 15, 9 },	/* Front Mic */
+ 	{}
+ };
+ 
+@@ -590,9 +605,10 @@ static const struct usbmix_ctl_map usbmi
+ 		.map = trx40_mobo_map,
+ 		.connector_map = trx40_mobo_connector_map,
+ 	},
+-	{	/* ASUS ROG Zenith II */
++	{	/* ASUS ROG Zenith II (main audio) */
+ 		.id = USB_ID(0x0b05, 0x1916),
+-		.map = asus_rog_map,
++		.map = asus_zenith_ii_map,
++		.connector_map = asus_zenith_ii_connector_map,
+ 	},
+ 	{	/* ASUS ROG Strix */
+ 		.id = USB_ID(0x0b05, 0x1917),
 
 
