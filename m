@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53D7259D961
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE99F59D834
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240897AbiHWJxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:53:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42312 "EHLO
+        id S238703AbiHWJlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:41:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241181AbiHWJvp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D21DE9F1A4;
-        Tue, 23 Aug 2022 01:46:12 -0700 (PDT)
+        with ESMTP id S242879AbiHWJj1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:39:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC23322BC2;
+        Tue, 23 Aug 2022 01:41:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D55F2614E9;
-        Tue, 23 Aug 2022 08:45:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAB3BC433C1;
-        Tue, 23 Aug 2022 08:45:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B57E614E7;
+        Tue, 23 Aug 2022 08:40:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B3EEC433C1;
+        Tue, 23 Aug 2022 08:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244329;
-        bh=AOk+oevlxIEWe26QrP0aZwFVPDWgUz50rIsB56MoIl8=;
+        s=korg; t=1661244017;
+        bh=791j+2hWy8TOd/D1gDSC01GR07M5nk56qoSUdhg5FAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kP0TJXniWO+nAodBRPqbOs070VEu0Y11MsqFDSPlXEsXwV0z4ueSi0lHaLbGgOJD9
-         54ijxR6t6zhXhs5l/qiGUqES2dr13H3nOucxjoUIQHuFrAat2FQQJm30goUole71r1
-         nwGoWwD9B5rvbLBTnYEosU/d4H6ylOKXyAJ3WDy8=
+        b=VIh6GOuSr/7lKgPKH3szZshSvRy3n0eQBEBGdRimYKCEvF4bYP8NrlrzKgWNShkXK
+         T0dFkQ2OTaKe8FVejq0FzxP9uqJhpPEQrcuXZip7ijxrUChUhRGOse3hRfYTppco4E
+         aEmnBAGZ2TH+NmRdEF389Tdv4unUilRMQDoCm3uk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 074/244] octeontx2-af: Fix key checking for source mac
-Date:   Tue, 23 Aug 2022 10:23:53 +0200
-Message-Id: <20220823080101.530596409@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        John Stultz <jstultz@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 073/229] selftests: timers: valid-adjtimex: build fix for newer toolchains
+Date:   Tue, 23 Aug 2022 10:23:54 +0200
+Message-Id: <20220823080056.336287734@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit c3c290276927a3ae79342a4e17ec0500c138c63a upstream.
+[ Upstream commit 9a162977d20436be5678a8e21a8e58eb4616d86a ]
 
-Given a field with its location/offset in input packet,
-the key checking logic verifies whether extracting the
-field can be supported or not based on the mkex profile
-loaded in hardware. This logic is wrong wrt source mac
-and this patch fixes that.
+Toolchains with an include file 'sys/timex.h' based on 3.18 will have a
+'clock_adjtime' definition added, so it can't be static in the code:
 
-Fixes: 9b179a960a96 ("octeontx2-af: Generate key field bit mask from KEX profile")
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+valid-adjtimex.c:43:12: error: static declaration of ‘clock_adjtime’ follows non-static declaration
+
+Fixes: e03a58c320e1 ("kselftests: timers: Add adjtimex SETOFFSET validity tests")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: John Stultz <jstultz@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_npc_fs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/timers/valid-adjtimex.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc_fs.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc_fs.c
-@@ -445,7 +445,8 @@ do {									       \
- 	NPC_SCAN_HDR(NPC_VLAN_TAG1, NPC_LID_LB, NPC_LT_LB_CTAG, 2, 2);
- 	NPC_SCAN_HDR(NPC_VLAN_TAG2, NPC_LID_LB, NPC_LT_LB_STAG_QINQ, 2, 2);
- 	NPC_SCAN_HDR(NPC_DMAC, NPC_LID_LA, la_ltype, la_start, 6);
--	NPC_SCAN_HDR(NPC_SMAC, NPC_LID_LA, la_ltype, la_start, 6);
-+	/* SMAC follows the DMAC(which is 6 bytes) */
-+	NPC_SCAN_HDR(NPC_SMAC, NPC_LID_LA, la_ltype, la_start + 6, 6);
- 	/* PF_FUNC is 2 bytes at 0th byte of NPC_LT_LA_IH_NIX_ETHER */
- 	NPC_SCAN_HDR(NPC_PF_FUNC, NPC_LID_LA, NPC_LT_LA_IH_NIX_ETHER, 0, 2);
+diff --git a/tools/testing/selftests/timers/valid-adjtimex.c b/tools/testing/selftests/timers/valid-adjtimex.c
+index 5397de708d3c..48b9a803235a 100644
+--- a/tools/testing/selftests/timers/valid-adjtimex.c
++++ b/tools/testing/selftests/timers/valid-adjtimex.c
+@@ -40,7 +40,7 @@
+ #define ADJ_SETOFFSET 0x0100
+ 
+ #include <sys/syscall.h>
+-static int clock_adjtime(clockid_t id, struct timex *tx)
++int clock_adjtime(clockid_t id, struct timex *tx)
+ {
+ 	return syscall(__NR_clock_adjtime, id, tx);
  }
+-- 
+2.35.1
+
 
 
