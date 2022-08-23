@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B38059DA40
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C298659D9AE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352082AbiHWKGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:06:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46090 "EHLO
+        id S1348442AbiHWJ7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:59:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352736AbiHWKGL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:11 -0400
+        with ESMTP id S242856AbiHWJ5v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:57:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B89D371733;
-        Tue, 23 Aug 2022 01:52:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 944F0A1D04;
+        Tue, 23 Aug 2022 01:47:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 443A6611DD;
-        Tue, 23 Aug 2022 08:52:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51D59C433D6;
-        Tue, 23 Aug 2022 08:52:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0640614E9;
+        Tue, 23 Aug 2022 08:47:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70653C433D6;
+        Tue, 23 Aug 2022 08:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244756;
-        bh=0dcqyPKtuvYuqhuGOTA2PfPgKoo20KhKXVF0lcFfqyk=;
+        s=korg; t=1661244472;
+        bh=CY49xwXKB0Rto104rE1C9k3u/W9bO7VSoKqt0iyrc0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhhPioN2OfD9ppDS5SeXGSJNXVqw8q9e7cEO+kjaX7MGhB3LVhc+KeXTSIISGKrhe
-         ENpbCkhWBLJ7aKy9MqWZTuhZ6B9/x//3hp+KS29rhKr8om9dpTOHF8bR5iEqsbvFq7
-         wD2euTbKVQ4BYBGso0MSmGH3i2oFL2CwNQHpjElk=
+        b=oE+o2AH+ofoVRpg8lTA/E6/6C2Vsz/Jb+oT7jRzXHYEBJyuE/SzNdQEBUZXxbt/Zr
+         3kpqUHW2rF6cDLdcu3tkzmo5gDmTYqarM56kM+XpLNEYawP1ajnrKGRxwW5XYz3tlX
+         ptFxnH1HVbYhZHSXNNnarLdYaMhJc8Voir0k7QV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grzegorz Siwik <grzegorz.siwik@intel.com>,
-        Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>,
-        Igor Raits <igor@gooddata.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 144/244] ice: Ignore EEXIST when setting promisc mode
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E8=B0=AD=E6=A2=93=E7=85=8A?= <tanzixuan.me@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, Martin KaFai Lau <kafai@fb.com>,
+        Nick Terrell <terrelln@fb.com>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 142/229] genelf: Use HAVE_LIBCRYPTO_SUPPORT, not the never defined HAVE_LIBCRYPTO
 Date:   Tue, 23 Aug 2022 10:25:03 +0200
-Message-Id: <20220823080103.979269040@linuxfoundation.org>
+Message-Id: <20220823080058.751627291@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +64,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grzegorz Siwik <grzegorz.siwik@intel.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit 11e551a2efa4481bd4f616ab75374a2710b480e9 upstream.
+[ Upstream commit 91cea6be90e436c55cde8770a15e4dac9d3032d0 ]
 
-Ignore EEXIST error when setting promiscuous mode.
-This fix is needed because the driver could set promiscuous mode
-when it still has not cleared properly.
-Promiscuous mode could be set only once, so setting it second
-time will be rejected.
+When genelf was introduced it tested for HAVE_LIBCRYPTO not
+HAVE_LIBCRYPTO_SUPPORT, which is the define the feature test for openssl
+defines, fix it.
 
-Fixes: 5eda8afd6bcc ("ice: Add support for PF/VF promiscuous mode")
-Signed-off-by: Grzegorz Siwik <grzegorz.siwik@intel.com>
-Link: https://lore.kernel.org/all/CAK8fFZ7m-KR57M_rYX6xZN39K89O=LGooYkKsu6HKt0Bs+x6xQ@mail.gmail.com/
-Tested-by: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
-Tested-by: Igor Raits <igor@gooddata.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This also adds disables the deprecation warning, someone has to fix this
+to build with openssl 3.0 before the warning becomes a hard error.
+
+Fixes: 9b07e27f88b9cd78 ("perf inject: Add jitdump mmap injection support")
+Reported-by: 谭梓煊 <tanzixuan.me@gmail.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Nick Terrell <terrelln@fb.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/YulpPqXSOG0Q4J1o@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_switch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/genelf.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_switch.c
-+++ b/drivers/net/ethernet/intel/ice/ice_switch.c
-@@ -2614,7 +2614,7 @@ ice_set_vlan_vsi_promisc(struct ice_hw *
- 		else
- 			status = ice_set_vsi_promisc(hw, vsi_handle,
- 						     promisc_mask, vlan_id);
--		if (status)
-+		if (status && status != -EEXIST)
- 			break;
- 	}
+diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
+index c540d47583e7..ad64ff620c75 100644
+--- a/tools/perf/util/genelf.c
++++ b/tools/perf/util/genelf.c
+@@ -35,7 +35,11 @@
  
+ #define BUILD_ID_URANDOM /* different uuid for each run */
+ 
+-#ifdef HAVE_LIBCRYPTO
++// FIXME, remove this and fix the deprecation warnings before its removed and
++// We'll break for good here...
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
++
++#ifdef HAVE_LIBCRYPTO_SUPPORT
+ 
+ #define BUILD_ID_MD5
+ #undef BUILD_ID_SHA	/* does not seem to work well when linked with Java */
+-- 
+2.35.1
+
 
 
