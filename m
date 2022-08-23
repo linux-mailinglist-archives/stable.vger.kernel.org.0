@@ -2,119 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B37259EF5D
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 00:43:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23EC459EF61
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 00:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229825AbiHWWnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 18:43:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41278 "EHLO
+        id S232057AbiHWWpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 18:45:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229518AbiHWWno (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 18:43:44 -0400
-Received: from qproxy6-pub.mail.unifiedlayer.com (qproxy6-pub.mail.unifiedlayer.com [69.89.23.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD638768C
-        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 15:43:42 -0700 (PDT)
-Received: from gproxy4-pub.mail.unifiedlayer.com (unknown [69.89.23.142])
-        by qproxy6.mail.unifiedlayer.com (Postfix) with ESMTP id 4A8C28048DD1
-        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 22:43:40 +0000 (UTC)
-Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
-        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id CDCC010048A92
-        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 22:43:23 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id QccFojEX9mB5LQccFoW4aW; Tue, 23 Aug 2022 22:43:23 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=MaSpB7zf c=1 sm=1 tr=0 ts=6305580b
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=biHskzXt2R4A:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=ucdZCbjJP0blHsZw7AsA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=4hC6aCHzSbWCDPOoJZOmyf50A9wbfuB0mrWxYTOdCAg=; b=UZ19BAfxBrKG6+FJlOh9cdQ0tR
-        hPaLMS+iX/CBusdZ5y3lc+6D6WjS9Pao9+crMfQK1ZLUxgtJr4Gxl6uTvmQ6oXB9sfbffoI2GFlqY
-        pu5gcbGwLt0QZq38yoDMItr8RDGeODRlmGAKyJ9+Y9yVjWR3kH08Y0zHhXVCQuDuFdrnvrjw5+Iz2
-        TUsViNgrciEjaHCtNDu/kA2Hnw29CJ6y38KhN/VGQZHBP8gaV/LNHEFWk0rYW4F/8KQBywNqYYH59
-        nZGQpMjYG0oxckqRWhVwupYNHYImbqx3gQ94PcGuOpnRSHlvwflk+0O494wnwP0tkVQ35hSTUTOxk
-        xB/zsIag==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:41482 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1oQccD-001VLn-Ok;
-        Tue, 23 Aug 2022 16:43:21 -0600
-Subject: Re: [PATCH 5.19 000/365] 5.19.4-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220823080118.128342613@linuxfoundation.org>
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <87bb8595-5be3-76c1-5e7c-f70af4da22b9@w6rz.net>
-Date:   Tue, 23 Aug 2022 15:43:19 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S232735AbiHWWpa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 18:45:30 -0400
+Received: from mail-vk1-xa32.google.com (mail-vk1-xa32.google.com [IPv6:2607:f8b0:4864:20::a32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088557FFA5
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 15:45:30 -0700 (PDT)
+Received: by mail-vk1-xa32.google.com with SMTP id x66so6203009vkb.8
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 15:45:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=lKR1LPWV5JYNJ2MF97LLJcPqSX2EDVC07cmQNstoLM8=;
+        b=FKfVx2kFpiXPjaveiV3/KqPqJ90UUq8BDS+B6Q6meDoFBSZYDPP7LzvMNFRtnr8IKu
+         yqk2TZFqw3e+lPU4trDjsvjvpgOhc5Y2QnDlMKR54ZONC4O2056A4zSi5EBYG43hbClf
+         2xFqt9E3rMprMaaLWA3ru/F/ZJL+8R8la6+gfQ7yPyDo2iBbkk8l0J+uhr8m1CbMSz+w
+         1oC9axEZJjyZrBGOzVCTLEpcy+AhBX3VlEss8NzshQXPeFLFcgzJLI0rwa8ZKa7xo+9f
+         O/EHt9cgK2Q14ci/Jkz3VLCX21cUSwfqX92if5pnl6vwadDAN2SfKQbycvjP4iDf6nE0
+         4Aiw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=lKR1LPWV5JYNJ2MF97LLJcPqSX2EDVC07cmQNstoLM8=;
+        b=D5LEENx+EOGDSJ/swNU0+AOz1lHyxVSKLofyUfS0hzIGLhAQ7/nA3U95u56IzrZ3Y9
+         XRfJ72f/QYrWovSme+hlG1UjPtvXXt80KM6bT9vMVla/4Et4XLdzSa4ELwYJapD1S3Es
+         JUPDBhaFNsN/4/1P0YdjJiGu/RD1vFroU1Qrcx+wGpkP2HE1ktl5DbEoT2Y25zn8FsC5
+         Fdi7IY27ubgb818TH9uy9WKmBqaBGSGGUhZ8GuC7BIX7UKk75vd0QNZ2Zh1UCSmPubwH
+         EkGCfFEaUR9fKEtGGCGJ3CM18eamcjJyrdOjY/NexCsLZKtuvQOg0tL/gyvfVt/Yl8YA
+         X6nQ==
+X-Gm-Message-State: ACgBeo2JK//PM9iJWrUhT0iz+qn1McwZ/GewSJ4JB2wRSD5aPU8OA61B
+        s9FlOFnsYcV4ll8sk2NT4CwfGTt2JBPsf0xREM08oQ==
+X-Google-Smtp-Source: AA6agR4hnPm8HQUZjP3vxa46EViMW812XPaXdP3DMiFa61+rBxn3KXQ9a+ZX8y+EYAVxlMVrlvOJ72psvNRw7Yr8NBY=
+X-Received: by 2002:a1f:2ad4:0:b0:38c:5a9c:2d98 with SMTP id
+ q203-20020a1f2ad4000000b0038c5a9c2d98mr6090772vkq.24.1661294729024; Tue, 23
+ Aug 2022 15:45:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1oQccD-001VLn-Ok
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:41482
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220823221138.45602-1-peterx@redhat.com>
+In-Reply-To: <20220823221138.45602-1-peterx@redhat.com>
+From:   Yu Zhao <yuzhao@google.com>
+Date:   Tue, 23 Aug 2022 16:44:51 -0600
+Message-ID: <CAOUHufbcxL5GcqQFJHEzsLTV8htAuZ1qucRGBhNQBg65Q4JYuw@mail.gmail.com>
+Subject: Re: [PATCH] mm/mprotect: Only reference swap pfn page if type match
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Huang Ying <ying.huang@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/23/22 12:58 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.4 release.
-> There are 365 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Aug 23, 2022 at 4:11 PM Peter Xu <peterx@redhat.com> wrote:
 >
-> Responses should be made by Thu, 25 Aug 2022 08:00:15 +0000.
-> Anything received after that time might be too late.
+> Yu Zhao reported a bug after the commit "mm/swap: Add swp_offset_pfn() to
+> fetch PFN from swap entry" added a check in swp_offset_pfn() for swap type [1]:
 >
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.4-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> and the diffstat can be found below.
+>   kernel BUG at include/linux/swapops.h:117!
+>   CPU: 46 PID: 5245 Comm: EventManager_De Tainted: G S         O L 6.0.0-dbg-DEV #2
+>   RIP: 0010:pfn_swap_entry_to_page+0x72/0xf0
+>   Code: c6 48 8b 36 48 83 fe ff 74 53 48 01 d1 48 83 c1 08 48 8b 09 f6
+>   c1 01 75 7b 66 90 48 89 c1 48 8b 09 f6 c1 01 74 74 5d c3 eb 9e <0f> 0b
+>   48 ba ff ff ff ff 03 00 00 00 eb ae a9 ff 0f 00 00 75 13 48
+>   RSP: 0018:ffffa59e73fabb80 EFLAGS: 00010282
+>   RAX: 00000000ffffffe8 RBX: 0c00000000000000 RCX: ffffcd5440000000
+>   RDX: 1ffffffffff7a80a RSI: 0000000000000000 RDI: 0c0000000000042b
+>   RBP: ffffa59e73fabb80 R08: ffff9965ca6e8bb8 R09: 0000000000000000
+>   R10: ffffffffa5a2f62d R11: 0000030b372e9fff R12: ffff997b79db5738
+>   R13: 000000000000042b R14: 0c0000000000042b R15: 1ffffffffff7a80a
+>   FS:  00007f549d1bb700(0000) GS:ffff99d3cf680000(0000) knlGS:0000000000000000
+>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   CR2: 0000440d035b3180 CR3: 0000002243176004 CR4: 00000000003706e0
+>   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>   Call Trace:
+>    <TASK>
+>    change_pte_range+0x36e/0x880
+>    change_p4d_range+0x2e8/0x670
+>    change_protection_range+0x14e/0x2c0
+>    mprotect_fixup+0x1ee/0x330
+>    do_mprotect_pkey+0x34c/0x440
+>    __x64_sys_mprotect+0x1d/0x30
 >
-> thanks,
+> It triggers because pfn_swap_entry_to_page() could be called upon e.g. a
+> genuine swap entry.
 >
-> greg k-h
+> Fix it by only calling it when it's a write migration entry where the page*
+> is used.
+>
+> [1] https://lore.kernel.org/lkml/CAOUHufaVC2Za-p8m0aiHw6YkheDcrO-C3wRGixwDS32VTS+k1w@mail.gmail.com/
+>
+> Fixes: 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Yu Zhao <yuzhao@google.com>
+> Signed-off-by: Peter Xu <peterx@redhat.com>
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Thanks for the quick turnaround!
 
-Tested-by: Ron Economos <re@w6rz.net>
-
+Tested-by: Yu Zhao <yuzhao@google.com>
