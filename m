@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C84259E10A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A22559DD62
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353375AbiHWKPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:15:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        id S1358177AbiHWLwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353297AbiHWKNR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:13:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BC1379A69;
-        Tue, 23 Aug 2022 01:59:21 -0700 (PDT)
+        with ESMTP id S1358661AbiHWLue (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:50:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339BF93513;
+        Tue, 23 Aug 2022 02:31:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D23B86150F;
-        Tue, 23 Aug 2022 08:59:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19E6C433D6;
-        Tue, 23 Aug 2022 08:59:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91FB2B81C96;
+        Tue, 23 Aug 2022 09:31:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D09C433D6;
+        Tue, 23 Aug 2022 09:31:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245160;
-        bh=vSnIrq1986sz3UNgOR5G90aHMhrk+yu+kQpcWOG0tsk=;
+        s=korg; t=1661247096;
+        bh=9LN2saROmHALtmiOnpaAY1N33gGbVoxE8JDeFdfKGC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K14HfQVuULUhoH6FOXHjjIp7fpRRDeFjVhsssYPuB7/Cu78AXEEnk6MJE88mmJ24k
-         MJUHCpA4Ao2t/e/2Pl5Uc3k7H2K2MmAsxA9t5OPG77m6Y8uGV0qws++Ccj9f/BMxVK
-         Fk4p0ciZCEYZHwnoiicDHNj61HY+JdpLkQVfaqw0=
+        b=zixDSMdploOS+o1ZxTt4cc3r9xSTCK/yvt+y6qlkfT1OH49PPq6qEyGxzipukLO4Q
+         v1ip7wDlaVQp1QwGRg/Oekpn5QtZdcBkCJhvdR1IpBoehzZdTBv1s5byxCZQtH5wX6
+         Hi7hM0Get8u+6b3oE9GChSIOauq/gA/979PeohPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Ren Zhijie <renzhijie2@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 235/244] scsi: ufs: ufs-mediatek: Fix build error and type mismatch
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Matthias May <matthias.may@westermo.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 316/389] geneve: do not use RT_TOS for IPv6 flowlabel
 Date:   Tue, 23 Aug 2022 10:26:34 +0200
-Message-Id: <20220823080107.412466756@linuxfoundation.org>
+Message-Id: <20220823080128.751314179@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ren Zhijie <renzhijie2@huawei.com>
+From: Matthias May <matthias.may@westermo.com>
 
-commit f54912b228a8df6c0133e31bc75628677bb8c6e5 upstream.
+commit ca2bb69514a8bc7f83914122f0d596371352416c upstream.
 
-If CONFIG_PM_SLEEP is not set.
+According to Guillaume Nault RT_TOS should never be used for IPv6.
 
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-, will fail:
+Quote:
+RT_TOS() is an old macro used to interprete IPv4 TOS as described in
+the obsolete RFC 1349. It's conceptually wrong to use it even in IPv4
+code, although, given the current state of the code, most of the
+existing calls have no consequence.
 
-drivers/ufs/host/ufs-mediatek.c: In function ‘ufs_mtk_vreg_fix_vcc’:
-drivers/ufs/host/ufs-mediatek.c:688:46: warning: format ‘%u’ expects argument of type ‘unsigned int’, but argument 4 has type ‘long unsigned int’ [-Wformat=]
-    snprintf(vcc_name, MAX_VCC_NAME, "vcc-opt%u", res.a1);
-                                             ~^   ~~~~~~
-                                             %lu
-drivers/ufs/host/ufs-mediatek.c: In function ‘ufs_mtk_system_suspend’:
-drivers/ufs/host/ufs-mediatek.c:1371:8: error: implicit declaration of function ‘ufshcd_system_suspend’; did you mean ‘ufs_mtk_system_suspend’? [-Werror=implicit-function-declaration]
-  ret = ufshcd_system_suspend(dev);
-        ^~~~~~~~~~~~~~~~~~~~~
-        ufs_mtk_system_suspend
-drivers/ufs/host/ufs-mediatek.c: In function ‘ufs_mtk_system_resume’:
-drivers/ufs/host/ufs-mediatek.c:1386:9: error: implicit declaration of function ‘ufshcd_system_resume’; did you mean ‘ufs_mtk_system_resume’? [-Werror=implicit-function-declaration]
-  return ufshcd_system_resume(dev);
-         ^~~~~~~~~~~~~~~~~~~~
-         ufs_mtk_system_resume
-cc1: some warnings being treated as errors
+But using RT_TOS() in IPv6 code is always a bug: IPv6 never had a "TOS"
+field to be interpreted the RFC 1349 way. There's no historical
+compatibility to worry about.
 
-The declaration of func "ufshcd_system_suspend()" depends on
-CONFIG_PM_SLEEP, so the function wrapper ufs_mtk_system_suspend() should
-wrapped by CONFIG_PM_SLEEP too.
-
-Link: https://lore.kernel.org/r/20220619115432.205504-1-renzhijie2@huawei.com
-Fixes: 3fd23b8dfb54 ("scsi: ufs: ufs-mediatek: Fix the timing of configuring device regulators")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Ren Zhijie <renzhijie2@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-[only take the suspend/resume portion of the commit - gregkh]
+Fixes: 3a56f86f1be6 ("geneve: handle ipv6 priority like ipv4 tos")
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Matthias May <matthias.may@westermo.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufs-mediatek.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/geneve.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/scsi/ufs/ufs-mediatek.c
-+++ b/drivers/scsi/ufs/ufs-mediatek.c
-@@ -1139,6 +1139,7 @@ static int ufs_mtk_remove(struct platfor
- 	return 0;
- }
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -851,8 +851,7 @@ static struct dst_entry *geneve_get_v6_d
+ 		use_cache = false;
+ 	}
  
-+#ifdef CONFIG_PM_SLEEP
- int ufs_mtk_system_suspend(struct device *dev)
- {
- 	struct ufs_hba *hba = dev_get_drvdata(dev);
-@@ -1161,6 +1162,7 @@ int ufs_mtk_system_resume(struct device
- 
- 	return ufshcd_system_resume(dev);
- }
-+#endif
- 
- int ufs_mtk_runtime_suspend(struct device *dev)
- {
+-	fl6->flowlabel = ip6_make_flowinfo(RT_TOS(prio),
+-					   info->key.label);
++	fl6->flowlabel = ip6_make_flowinfo(prio, info->key.label);
+ 	dst_cache = (struct dst_cache *)&info->dst_cache;
+ 	if (use_cache) {
+ 		dst = dst_cache_get_ip6(dst_cache, &fl6->saddr);
 
 
