@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C9059D4CD
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 333FA59D5DD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:10:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242158AbiHWImq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:42:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34540 "EHLO
+        id S1344319AbiHWIjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:39:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348895AbiHWIl7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:41:59 -0400
+        with ESMTP id S1344526AbiHWIjJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:39:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB8A7AC10;
-        Tue, 23 Aug 2022 01:20:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD5BC263D;
+        Tue, 23 Aug 2022 01:18:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 619CF612FE;
-        Tue, 23 Aug 2022 08:20:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D39CEC433C1;
-        Tue, 23 Aug 2022 08:20:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4176E61344;
+        Tue, 23 Aug 2022 08:18:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4558BC433C1;
+        Tue, 23 Aug 2022 08:18:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242804;
-        bh=hG3JMbhdNDO2gZbIp193qOzFN0q0GOPDtuYxgu3A/pg=;
+        s=korg; t=1661242694;
+        bh=irptwIDxqF2pKji92Dk04MOvhgeuIDxlQ8Rc8roUWe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4tk9VYtKUXF4dqZORrAzF7QrCbsNgRjbOp+a/5DcxPs38gK8t0HW+5X4qleH4eJD
-         4d8dbp56HmqyilGTtDr4zmx8W/m+BAj8TrV+bAovkApCffXBBs763YSrO/HRtMdIYe
-         0A9T1PfltjDOVSwDAJcEQwnsW8nbeW/tHBG8S5tA=
+        b=pl6XJIo0KsjbGmuwVD4FNVtUUCgcnzabNOFEfs4LEvenfE4en1oX6T7tMF/oNTLw3
+         rLHr4WdtUmGlhM9bl7js7CZV3H364DgiEtATG9r4GWZrMRxSplPbBp330M85MeyL6x
+         LgiXUqPG/ks9GvNDI884s22lhAOrYvOSFfeMOMgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
+        stable@vger.kernel.org,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Subject: [PATCH 5.19 162/365] fs/ntfs3: Dont clear upper bits accidentally in log_replay()
-Date:   Tue, 23 Aug 2022 10:01:03 +0200
-Message-Id: <20220823080124.991671071@linuxfoundation.org>
+Subject: [PATCH 5.19 163/365] fs/ntfs3: Fix double free on remount
+Date:   Tue, 23 Aug 2022 10:01:04 +0200
+Message-Id: <20220823080125.031762428@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,34 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 
-commit 926034353d3c67db1ffeab47dcb7f6bdac02a263 upstream.
+commit cd39981fb92adf0cc736112f87e3e61602baa415 upstream.
 
-The "vcn" variable is a 64 bit.  The "log->clst_per_page" variable is a
-u32.  This means that the mask accidentally clears out the high 32 bits
-when it was only supposed to clear some low bits.  Fix this by adding a
-cast to u64.
+Pointer to options was freed twice on remount
+Fixes xfstest generic/361
+Fixes: 82cae269cfa9 ("fs/ntfs3: Add initialization of super block")
 
-Fixes: b46acd6a6a62 ("fs/ntfs3: Add NTFS journal")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs3/fslog.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ntfs3/super.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/ntfs3/fslog.c
-+++ b/fs/ntfs3/fslog.c
-@@ -5057,7 +5057,7 @@ undo_action_next:
- 		goto add_allocated_vcns;
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -30,6 +30,7 @@
+ #include <linux/fs_context.h>
+ #include <linux/fs_parser.h>
+ #include <linux/log2.h>
++#include <linux/minmax.h>
+ #include <linux/module.h>
+ #include <linux/nls.h>
+ #include <linux/seq_file.h>
+@@ -390,7 +391,7 @@ static int ntfs_fs_reconfigure(struct fs
+ 		return -EINVAL;
+ 	}
  
- 	vcn = le64_to_cpu(lrh->target_vcn);
--	vcn &= ~(log->clst_per_page - 1);
-+	vcn &= ~(u64)(log->clst_per_page - 1);
+-	memcpy(sbi->options, new_opts, sizeof(*new_opts));
++	swap(sbi->options, fc->fs_private);
  
- add_allocated_vcns:
- 	for (i = 0, vcn = le64_to_cpu(lrh->target_vcn),
+ 	return 0;
+ }
+@@ -900,6 +901,8 @@ static int ntfs_fill_super(struct super_
+ 	ref.high = 0;
+ 
+ 	sbi->sb = sb;
++	sbi->options = fc->fs_private;
++	fc->fs_private = NULL;
+ 	sb->s_flags |= SB_NODIRATIME;
+ 	sb->s_magic = 0x7366746e; // "ntfs"
+ 	sb->s_op = &ntfs_sops;
+@@ -1262,8 +1265,6 @@ load_root:
+ 		goto put_inode_out;
+ 	}
+ 
+-	fc->fs_private = NULL;
+-
+ 	return 0;
+ 
+ put_inode_out:
+@@ -1416,7 +1417,6 @@ static int ntfs_init_fs_context(struct f
+ 	mutex_init(&sbi->compress.mtx_lzx);
+ #endif
+ 
+-	sbi->options = opts;
+ 	fc->s_fs_info = sbi;
+ ok:
+ 	fc->fs_private = opts;
 
 
