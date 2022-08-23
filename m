@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0D859DCA7
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A96259DBFA
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354653AbiHWKdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:33:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51680 "EHLO
+        id S243784AbiHWLdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:33:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244071AbiHWK2r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:28:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2357A4B2D;
-        Tue, 23 Aug 2022 02:06:11 -0700 (PDT)
+        with ESMTP id S1357745AbiHWLbx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:31:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8CB890838;
+        Tue, 23 Aug 2022 02:26:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8C526159E;
-        Tue, 23 Aug 2022 09:06:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67BB1C433D6;
-        Tue, 23 Aug 2022 09:06:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5835861328;
+        Tue, 23 Aug 2022 09:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50F4AC433D6;
+        Tue, 23 Aug 2022 09:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245570;
-        bh=luHBUrRIV4gNJjcdb9dB0gLzv7xn9uBt9hJKAdIwS1c=;
+        s=korg; t=1661246758;
+        bh=8fHAmm5kuO8u3fVNM0lsNvv3FgA2v4FB+neb2g6I6+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ll2af/yfryt76RCc2hGw3TCJGPRsBwhqkoQmNCR+uNmtBPr1b9lTL7Qf9lq+UpDiK
-         X+UPw1on9ABXIgc/GYjTXiDmH7F3xpclL0LmY4be/c9uD9Bk4FyVMI49a8ezV8133N
-         r5U6TfoHjtXEnyZiudrv/DEutGTiFHkjdU1F85E4=
+        b=axtYP/YdYeRtDfPOgHpaDBWrU1bIeEDKQKWG6bNfoGHPkHcixEtGJ7thXcxjXzKUs
+         QHnNmHJpEiZPkIOSBVQTSA/2Q5JPD8Y0AVYC9VpeRgaiBKdr2dS1rBD9RbTTrdF9F6
+         Nqiwr5AEYrNsQbH8c1TdIftoJz846HtirCIlHCrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 120/287] usb: host: Fix refcount leak in ehci_hcd_ppc_of_probe
+Subject: [PATCH 5.4 211/389] tty: n_gsm: fix non flow control frames during mux flow off
 Date:   Tue, 23 Aug 2022 10:24:49 +0200
-Message-Id: <20220823080104.429242261@linuxfoundation.org>
+Message-Id: <20220823080124.428283195@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit b5c5b13cb45e2c88181308186b0001992cb41954 ]
+[ Upstream commit bec0224816d19abe4fe503586d16d51890540615 ]
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.4.6.3.6 states that FCoff stops the
+transmission on all channels except the control channel. This is already
+implemented in gsm_data_kick(). However, chapter 5.4.8.1 explains that this
+shall result in the same behavior as software flow control on the ldisc in
+advanced option mode. That means only flow control frames shall be sent
+during flow off. The current implementation does not consider this case.
 
-Fixes: 796bcae7361c ("USB: powerpc: Workaround for the PPC440EPX USBH_23 errata [take 3]")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220602110849.58549-1-linmq006@gmail.com
+Change gsm_data_kick() to send only flow control frames if constipated to
+abide the standard. gsm_read_ea_val() and gsm_is_flow_ctrl_msg() are
+introduced as helper functions for this.
+It is planned to use gsm_read_ea_val() in later code cleanups for other
+functions, too.
+
+Fixes: c01af4fec2c8 ("n_gsm : Flow control handling in Mux driver")
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220701061652.39604-5-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-ppc-of.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/n_gsm.c | 54 ++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 53 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/ehci-ppc-of.c b/drivers/usb/host/ehci-ppc-of.c
-index 576f7d79ad4e..d1dc644b215c 100644
---- a/drivers/usb/host/ehci-ppc-of.c
-+++ b/drivers/usb/host/ehci-ppc-of.c
-@@ -148,6 +148,7 @@ static int ehci_hcd_ppc_of_probe(struct platform_device *op)
- 		} else {
- 			ehci->has_amcc_usb23 = 1;
- 		}
-+		of_node_put(np);
- 	}
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 907a4d0784ac..cab30df61196 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -410,6 +410,27 @@ static int gsm_read_ea(unsigned int *val, u8 c)
+ 	return c & EA;
+ }
  
- 	if (of_get_property(dn, "big-endian", NULL)) {
++/**
++ *	gsm_read_ea_val	-	read a value until EA
++ *	@val: variable holding value
++ *	@data: buffer of data
++ *	@dlen: length of data
++ *
++ *	Processes an EA value. Updates the passed variable and
++ *	returns the processed data length.
++ */
++static unsigned int gsm_read_ea_val(unsigned int *val, const u8 *data, int dlen)
++{
++	unsigned int len = 0;
++
++	for (; dlen > 0; dlen--) {
++		len++;
++		if (gsm_read_ea(val, *data++))
++			break;
++	}
++	return len;
++}
++
+ /**
+  *	gsm_encode_modem	-	encode modem data bits
+  *	@dlci: DLCI to encode from
+@@ -657,6 +678,37 @@ static struct gsm_msg *gsm_data_alloc(struct gsm_mux *gsm, u8 addr, int len,
+ 	return m;
+ }
+ 
++/**
++ *	gsm_is_flow_ctrl_msg	-	checks if flow control message
++ *	@msg: message to check
++ *
++ *	Returns true if the given message is a flow control command of the
++ *	control channel. False is returned in any other case.
++ */
++static bool gsm_is_flow_ctrl_msg(struct gsm_msg *msg)
++{
++	unsigned int cmd;
++
++	if (msg->addr > 0)
++		return false;
++
++	switch (msg->ctrl & ~PF) {
++	case UI:
++	case UIH:
++		cmd = 0;
++		if (gsm_read_ea_val(&cmd, msg->data + 2, msg->len - 2) < 1)
++			break;
++		switch (cmd & ~PF) {
++		case CMD_FCOFF:
++		case CMD_FCON:
++			return true;
++		}
++		break;
++	}
++
++	return false;
++}
++
+ /**
+  *	gsm_data_kick		-	poke the queue
+  *	@gsm: GSM Mux
+@@ -675,7 +727,7 @@ static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
+ 	int len;
+ 
+ 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_list, list) {
+-		if (gsm->constipated && msg->addr)
++		if (gsm->constipated && !gsm_is_flow_ctrl_msg(msg))
+ 			continue;
+ 		if (gsm->encoding != 0) {
+ 			gsm->txframe[0] = GSM1_SOF;
 -- 
 2.35.1
 
