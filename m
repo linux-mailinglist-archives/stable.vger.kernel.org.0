@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B636059D589
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBCBB59D658
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242851AbiHWJD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:03:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51774 "EHLO
+        id S243601AbiHWJD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:03:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242773AbiHWJCn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:02:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3013B2AC4A;
-        Tue, 23 Aug 2022 01:28:42 -0700 (PDT)
+        with ESMTP id S240492AbiHWJCw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:02:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4A796CF49;
+        Tue, 23 Aug 2022 01:28:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6146C6148C;
-        Tue, 23 Aug 2022 08:27:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 689B2C433C1;
-        Tue, 23 Aug 2022 08:27:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1359B81C35;
+        Tue, 23 Aug 2022 08:27:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 368B3C433D6;
+        Tue, 23 Aug 2022 08:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243258;
-        bh=mvmEQi8G1j5geB8LqT0jAv7O9847yojaKS1VuX8fESg=;
+        s=korg; t=1661243261;
+        bh=3agTiGGPSeveg7MES/sVEGH2c78Dw29TGthGj9XVZyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cq+4eZHMFjAsPkTqv8U94rF1Or7GQLibZg76jrm1Y58refDIbs8D92d3lDaqDkRQv
-         ziloQAbwf8J3Kd+m+hrHWpJbC9JM2nc+QIPTuracDi21JEuHw7NwksUy8/rPGWXqql
-         Xiiq26g5CKKuJ9gx/2z6OC5//qYi/g/cqGJQgiO8=
+        b=d1I/IlwyiWsNRT69Lz+GcnSoR4ewM2DulbNkmv8PlPB1Kjk9Jq2gJFn/xvsk4Nj4t
+         hjyTDWNVi8+ZUPjHLipjH+wyrV3OW0mW/uqIpt3NqrFQIIOD1diy/KctnQ9H/hEA/G
+         rr5Q1NSSbv8Kwa4S0783itwE2737UOJB4g57k34Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Antonov <saproj@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org,
+        Rustam Subkhankulov <subkhankulov@ispras.ru>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 219/365] net: dsa: dont warn in dsa_port_set_state_now() when driver doesnt support it
-Date:   Tue, 23 Aug 2022 10:02:00 +0200
-Message-Id: <20220823080127.343140803@linuxfoundation.org>
+Subject: [PATCH 5.19 220/365] net: dsa: sja1105: fix buffer overflow in sja1105_setup_devlink_regions()
+Date:   Tue, 23 Aug 2022 10:02:01 +0200
+Message-Id: <20220823080127.381447830@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,48 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Rustam Subkhankulov <subkhankulov@ispras.ru>
 
-commit 211987f3ac734000ea1548784b2a4539a974fbc8 upstream.
+commit fd8e899cdb5ecaf8e8ee73854a99e10807eef1de upstream.
 
-ds->ops->port_stp_state_set() is, like most DSA methods, optional, and
-if absent, the port is supposed to remain in the forwarding state (as
-standalone). Such is the case with the mv88e6060 driver, which does not
-offload the bridge layer. DSA warns that the STP state can't be changed
-to FORWARDING as part of dsa_port_enable_rt(), when in fact it should not.
+If an error occurs in dsa_devlink_region_create(), then 'priv->regions'
+array will be accessed by negative index '-1'.
 
-The error message is also not up to modern standards, so take the
-opportunity to make it more descriptive.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Fixes: fd3645413197 ("net: dsa: change scope of STP state setter")
-Reported-by: Sergei Antonov <saproj@gmail.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Sergei Antonov <saproj@gmail.com>
-Link: https://lore.kernel.org/r/20220816201445.1809483-1-vladimir.oltean@nxp.com
+Signed-off-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
+Fixes: bf425b82059e ("net: dsa: sja1105: expose static config as devlink region")
+Link: https://lore.kernel.org/r/20220817003845.389644-1-subkhankulov@ispras.ru
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/port.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_devlink.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -145,11 +145,14 @@ int dsa_port_set_state(struct dsa_port *
- static void dsa_port_set_state_now(struct dsa_port *dp, u8 state,
- 				   bool do_fast_age)
- {
-+	struct dsa_switch *ds = dp->ds;
- 	int err;
+--- a/drivers/net/dsa/sja1105/sja1105_devlink.c
++++ b/drivers/net/dsa/sja1105/sja1105_devlink.c
+@@ -93,7 +93,7 @@ static int sja1105_setup_devlink_regions
  
- 	err = dsa_port_set_state(dp, state, do_fast_age);
--	if (err)
--		pr_err("DSA: failed to set STP state %u (%d)\n", state, err);
-+	if (err && err != -EOPNOTSUPP) {
-+		dev_err(ds->dev, "port %d failed to set STP state %u: %pe\n",
-+			dp->index, state, ERR_PTR(err));
-+	}
- }
- 
- int dsa_port_set_mst_state(struct dsa_port *dp,
+ 		region = dsa_devlink_region_create(ds, ops, 1, size);
+ 		if (IS_ERR(region)) {
+-			while (i-- >= 0)
++			while (--i >= 0)
+ 				dsa_devlink_region_destroy(priv->regions[i]);
+ 			return PTR_ERR(region);
+ 		}
 
 
