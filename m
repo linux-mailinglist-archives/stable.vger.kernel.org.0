@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A9C259D7B2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A234359D6C7
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351306AbiHWJjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:39:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52272 "EHLO
+        id S1352712AbiHWJlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:41:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351388AbiHWJig (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:38:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DDE06FA35;
-        Tue, 23 Aug 2022 01:41:03 -0700 (PDT)
+        with ESMTP id S242766AbiHWJj1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:39:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 016FA78BDF;
+        Tue, 23 Aug 2022 01:41:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BEDE61544;
-        Tue, 23 Aug 2022 08:40:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA9C0C433D6;
-        Tue, 23 Aug 2022 08:40:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 205E7B81C4A;
+        Tue, 23 Aug 2022 08:40:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 628CBC433C1;
+        Tue, 23 Aug 2022 08:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244011;
-        bh=MkRRZKl2vWURxdILIjwG6l67FVd+EXKjiW0BFFOjmH0=;
+        s=korg; t=1661244023;
+        bh=/bz97d8eC9tLEAccbjF2RV+Ifl5jlUarddDXwnlxLb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nIzNMtq5TxVt3vby/zDKkjT9B7VMdUS46RECKAzMV1iGU11VwOQpJlHvYC9EiVlsM
-         QYcYzYMYKjrBJ4GbH60xUJ2OZhZbwfjRRT4UCztyxucaaLkjpG8soFeQZJup5WXB4/
-         PpDeZ4yODH8cHyRCEpnasrJ+ZQF/D/T8cnRkm+6M=
+        b=L4W68bxRP3FofIL6/LDNVmDyopE3TdZhUc8xtI0NkNpc7MhglzpBfPPVg7hDodT0K
+         N0AGaq4IC4+mUlArXxqMROv+k/ikHoFCaWQtnJoBa6Uwkf9Ao1yFGuo1GMDVYI1hv5
+         leVIxLAjv7Zm5HYLd7Bwg8JGA9IdM5HCVHuu2qhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglong Li <liyonglong@chinatelecom.cn>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        John Stultz <jstultz@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 072/229] tcp: make retransmitted SKB fit into the send window
-Date:   Tue, 23 Aug 2022 10:23:53 +0200
-Message-Id: <20220823080056.295762077@linuxfoundation.org>
+Subject: [PATCH 4.14 074/229] selftests: timers: clocksource-switch: fix passing errors from child
+Date:   Tue, 23 Aug 2022 10:23:55 +0200
+Message-Id: <20220823080056.367643955@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -55,110 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglong Li <liyonglong@chinatelecom.cn>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 536a6c8e05f95e3d1118c40ae8b3022ee2d05d52 ]
+[ Upstream commit 4d8f52ac5fa9eede7b7aa2f2d67c841d9eeb655f ]
 
-current code of __tcp_retransmit_skb only check TCP_SKB_CB(skb)->seq
-in send window, and TCP_SKB_CB(skb)->seq_end maybe out of send window.
-If receiver has shrunk his window, and skb is out of new window,  it
-should retransmit a smaller portion of the payload.
+The return value from system() is a waitpid-style integer. Do not return
+it directly because with the implicit masking in exit() it will always
+return 0. Access it with appropriate macros to really pass on errors.
 
-test packetdrill script:
-    0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
-   +0 fcntl(3, F_GETFL) = 0x2 (flags O_RDWR)
-   +0 fcntl(3, F_SETFL, O_RDWR|O_NONBLOCK) = 0
-
-   +0 connect(3, ..., ...) = -1 EINPROGRESS (Operation now in progress)
-   +0 > S 0:0(0)  win 65535 <mss 1460,sackOK,TS val 100 ecr 0,nop,wscale 8>
- +.05 < S. 0:0(0) ack 1 win 6000 <mss 1000,nop,nop,sackOK>
-   +0 > . 1:1(0) ack 1
-
-   +0 write(3, ..., 10000) = 10000
-
-   +0 > . 1:2001(2000) ack 1 win 65535
-   +0 > . 2001:4001(2000) ack 1 win 65535
-   +0 > . 4001:6001(2000) ack 1 win 65535
-
- +.05 < . 1:1(0) ack 4001 win 1001
-
-and tcpdump show:
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 1:2001, ack 1, win 65535, length 2000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 2001:4001, ack 1, win 65535, length 2000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [P.], seq 4001:5001, ack 1, win 65535, length 1000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 5001:6001, ack 1, win 65535, length 1000
-192.0.2.1.8080 > 192.168.226.67.55: Flags [.], ack 4001, win 1001, length 0
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 5001:6001, ack 1, win 65535, length 1000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [P.], seq 4001:5001, ack 1, win 65535, length 1000
-
-when cient retract window to 1001, send window is [4001,5002],
-but TLP send 5001-6001 packet which is out of send window.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yonglong Li <liyonglong@chinatelecom.cn>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/1657532838-20200-1-git-send-email-liyonglong@chinatelecom.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 7290ce1423c3 ("selftests/timers: Add clocksource-switch test from timetest suite")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: John Stultz <jstultz@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ tools/testing/selftests/timers/clocksource-switch.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 5e9b7dfd9d2d..c6548155df83 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -2861,7 +2861,7 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	unsigned int cur_mss;
- 	int diff, len, err;
--
-+	int avail_wnd;
+diff --git a/tools/testing/selftests/timers/clocksource-switch.c b/tools/testing/selftests/timers/clocksource-switch.c
+index bfc974b4572d..c18313a5f357 100644
+--- a/tools/testing/selftests/timers/clocksource-switch.c
++++ b/tools/testing/selftests/timers/clocksource-switch.c
+@@ -110,10 +110,10 @@ int run_tests(int secs)
  
- 	/* Inconclusive MTU probe */
- 	if (icsk->icsk_mtup.probe_size)
-@@ -2891,17 +2891,25 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
- 		return -EHOSTUNREACH; /* Routing failure or similar. */
+ 	sprintf(buf, "./inconsistency-check -t %i", secs);
+ 	ret = system(buf);
+-	if (ret)
+-		return ret;
++	if (WIFEXITED(ret) && WEXITSTATUS(ret))
++		return WEXITSTATUS(ret);
+ 	ret = system("./nanosleep");
+-	return ret;
++	return WIFEXITED(ret) ? WEXITSTATUS(ret) : 0;
+ }
  
- 	cur_mss = tcp_current_mss(sk);
-+	avail_wnd = tcp_wnd_end(tp) - TCP_SKB_CB(skb)->seq;
  
- 	/* If receiver has shrunk his window, and skb is out of
- 	 * new window, do not retransmit it. The exception is the
- 	 * case, when window is shrunk to zero. In this case
--	 * our retransmit serves as a zero window probe.
-+	 * our retransmit of one segment serves as a zero window probe.
- 	 */
--	if (!before(TCP_SKB_CB(skb)->seq, tcp_wnd_end(tp)) &&
--	    TCP_SKB_CB(skb)->seq != tp->snd_una)
--		return -EAGAIN;
-+	if (avail_wnd <= 0) {
-+		if (TCP_SKB_CB(skb)->seq != tp->snd_una)
-+			return -EAGAIN;
-+		avail_wnd = cur_mss;
-+	}
- 
- 	len = cur_mss * segs;
-+	if (len > avail_wnd) {
-+		len = rounddown(avail_wnd, cur_mss);
-+		if (!len)
-+			len = avail_wnd;
-+	}
- 	if (skb->len > len) {
- 		if (tcp_fragment(sk, skb, len, cur_mss, GFP_ATOMIC))
- 			return -ENOMEM; /* We'll try again later. */
-@@ -2914,8 +2922,9 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
- 		diff -= tcp_skb_pcount(skb);
- 		if (diff)
- 			tcp_adjust_pcount(sk, skb, diff);
--		if (skb->len < cur_mss)
--			tcp_retrans_try_collapse(sk, skb, cur_mss);
-+		avail_wnd = min_t(int, avail_wnd, cur_mss);
-+		if (skb->len < avail_wnd)
-+			tcp_retrans_try_collapse(sk, skb, avail_wnd);
- 	}
- 
- 	/* RFC3168, section 6.1.1.1. ECN fallback */
 -- 
 2.35.1
 
