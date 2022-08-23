@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1769459DFBB
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB46659DC01
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244350AbiHWMDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52482 "EHLO
+        id S1353006AbiHWKMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:12:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376258AbiHWMCr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 291CDDAB88;
-        Tue, 23 Aug 2022 02:36:29 -0700 (PDT)
+        with ESMTP id S1352929AbiHWKJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:09:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD84C7DF69;
+        Tue, 23 Aug 2022 01:55:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA8F461485;
-        Tue, 23 Aug 2022 09:36:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3BC3C433B5;
-        Tue, 23 Aug 2022 09:36:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D6ABB81C3B;
+        Tue, 23 Aug 2022 08:55:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02C5C433D7;
+        Tue, 23 Aug 2022 08:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247389;
-        bh=xVV0l/Pd2MYjbdMgeA4Tm9OMCqwYPPiHSBBgogv6Dhk=;
+        s=korg; t=1661244945;
+        bh=FieQMfNxzXPSEp5kaQfeG0576MsAbAodd6WqEw1eqxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4NJ/SeVWQxKU35ih8ZXyMJBxNPDvOKVRnQvC66HbW8DCP4gO35oOB0d0x3QdGVCE
-         /z4Vx3AGKQhDLytw/IfisyLk6E5UsVcLpO8Qgx8PabD0U4GjJG+nzvAbTAxL+2EvC7
-         HgJUnElCC56O8pyz+xtadFvqo0UrohAju1DQ9qKQ=
+        b=VvLWGc129qyQDlCgbrMVufxbAfpNjBdOCqbVwvwvtaDk5QOWW11b9+z0/MOa+t0U+
+         CvP+Du8UnPpIxVZX/rmXa4TUgdU3cLvm/SAt2aQUt4wVEqfPm8jkb89XPTt5IldQb5
+         12xRJyxjAMhhPMjwm2p7n9Zy3jIBb1hlkQP4gQJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Lu <aaron.lu@intel.com>,
-        stable@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 003/158] x86/mm: Use proper mask when setting PUD mapping
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 176/244] usb: dwc2: gadget: remove D+ pull-up while no vbus with usb-role-switch
 Date:   Tue, 23 Aug 2022 10:25:35 +0200
-Message-Id: <20220823080046.179441523@linuxfoundation.org>
+Message-Id: <20220823080105.159639234@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Lu <aaron.lu@intel.com>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-commit 88e0a74902f894fbbc55ad3ad2cb23b4bfba555c upstream.
+[ Upstream commit db638c6500abaffb8f7770b2a69c40d003d54ae1 ]
 
-Commit c164fbb40c43f("x86/mm: thread pgprot_t through
-init_memory_mapping()") mistakenly used __pgprot() which doesn't respect
-__default_kernel_pte_mask when setting PUD mapping.
+When using usb-role-switch, D+ pull-up is set as soon as DTCL_SFTDISCON is
+cleared, whatever the vbus valid signal state is. The pull-up should not
+be set when vbus isn't present (this is determined by the drd controller).
 
-Fix it by only setting the one bit we actually need (PSE) and leaving
-the other bits (that have been properly masked) alone.
+This patch ensures that B-Session (so Peripheral role + vbus valid signal)
+is valid before clearing the DCTL_SFTDISCON bit when role switch is used.
+Keep original behavior when usb-role-switch isn't used.
 
-Fixes: c164fbb40c43 ("x86/mm: thread pgprot_t through init_memory_mapping()")
-Signed-off-by: Aaron Lu <aaron.lu@intel.com>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220622160717.314580-1-fabrice.gasnier@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/init_64.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc2/gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -645,7 +645,7 @@ phys_pud_init(pud_t *pud_page, unsigned
- 			pages++;
- 			spin_lock(&init_mm.page_table_lock);
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index e1cebf581a4a..519bb82b00e8 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -3594,7 +3594,8 @@ void dwc2_hsotg_core_disconnect(struct dwc2_hsotg *hsotg)
+ void dwc2_hsotg_core_connect(struct dwc2_hsotg *hsotg)
+ {
+ 	/* remove the soft-disconnect and let's go */
+-	dwc2_clear_bit(hsotg, DCTL, DCTL_SFTDISCON);
++	if (!hsotg->role_sw || (dwc2_readl(hsotg, GOTGCTL) & GOTGCTL_BSESVLD))
++		dwc2_clear_bit(hsotg, DCTL, DCTL_SFTDISCON);
+ }
  
--			prot = __pgprot(pgprot_val(prot) | __PAGE_KERNEL_LARGE);
-+			prot = __pgprot(pgprot_val(prot) | _PAGE_PSE);
- 
- 			set_pte_init((pte_t *)pud,
- 				     pfn_pte((paddr & PUD_MASK) >> PAGE_SHIFT,
+ /**
+-- 
+2.35.1
+
 
 
