@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE67E59E115
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A0059E155
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358247AbiHWL1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:27:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60080 "EHLO
+        id S1353937AbiHWKYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350660AbiHWLXc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:23:32 -0400
+        with ESMTP id S1354995AbiHWKWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:22:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92D0D2CE27;
-        Tue, 23 Aug 2022 02:23:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 941A225E9C;
+        Tue, 23 Aug 2022 02:03:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DBAFEB81C65;
-        Tue, 23 Aug 2022 09:23:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 369CFC433D7;
-        Tue, 23 Aug 2022 09:23:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43824B81C87;
+        Tue, 23 Aug 2022 09:03:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86658C433D6;
+        Tue, 23 Aug 2022 09:03:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246611;
-        bh=wnngqfsE+bRxrgxv6Enaz7IS0b9Cs5VTQ2A8SW40pXU=;
+        s=korg; t=1661245425;
+        bh=BXQ5aCUQqtecM1N9HQfZDNeTuSJ9kCL43SMoe39647E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUjtMe0ZAJ7WLeMrhM2b2Wwh5mm4I6IbxiKHJAA7uECGxFJvs2o+GQ2CNPGyOehZT
-         VfBOUvnxiPfAomtstN56sOJPHE9tBgsi/0grcuqm/+orYI1YbUv/lP3WIe1/j1IkGx
-         pGgb7ssKCe70z2/4VTEDZDlVBGfcPFf4UFBor1mg=
+        b=nANktytsvDREIDCdmjMGa0YgQY1IAZBZ/UVOySubd4keM7xBpLIyU7acZSEJt7mfp
+         OIUX09rEVg19k4gc+RQ8Dd8qiWRO/3Nkh+vmInlGtKV0oVUvfZqxWJU2kxfGfhXdWv
+         L1q4TuyZWQVaETjAI3eqMxrjWhhwPCx/MrmNFuec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 134/389] can: hi311x: do not report txerr and rxerr during bus-off
-Date:   Tue, 23 Aug 2022 10:23:32 +0200
-Message-Id: <20220823080121.208629866@linuxfoundation.org>
+Subject: [PATCH 4.19 044/287] ARM: dts: imx6ul: fix lcdif node compatible
+Date:   Tue, 23 Aug 2022 10:23:33 +0200
+Message-Id: <20220823080101.741727860@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit a22bd630cfff496b270211745536e50e98eb3a45 ]
+[ Upstream commit 1a884d17ca324531634cce82e9f64c0302bdf7de ]
 
-During bus off, the error count is greater than 255 and can not fit in
-a u8.
+In yaml binding "fsl,imx6ul-lcdif" is listed as compatible to imx6sx-lcdif,
+but not imx28-lcdif. Change the list accordingly. Fixes the
+dt_binding_check warning:
+lcdif@21c8000: compatible: 'oneOf' conditional failed, one must be fixed:
+['fsl,imx6ul-lcdif', 'fsl,imx28-lcdif'] is too long
+Additional items are not allowed ('fsl,imx28-lcdif' was unexpected)
+'fsl,imx6ul-lcdif' is not one of ['fsl,imx23-lcdif', 'fsl,imx28-lcdif',
+'fsl,imx6sx-lcdif']
+'fsl,imx6sx-lcdif' was expected
 
-Fixes: 57e83fb9b746 ("can: hi311x: Add Holt HI-311x CAN driver")
-Link: https://lore.kernel.org/all/20220719143550.3681-6-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/hi311x.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6ul.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/spi/hi311x.c b/drivers/net/can/spi/hi311x.c
-index 7d2315c8cacb..28273e84171a 100644
---- a/drivers/net/can/spi/hi311x.c
-+++ b/drivers/net/can/spi/hi311x.c
-@@ -670,8 +670,6 @@ static irqreturn_t hi3110_can_ist(int irq, void *dev_id)
+diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
+index 605792fa67b2..d91baa74e608 100644
+--- a/arch/arm/boot/dts/imx6ul.dtsi
++++ b/arch/arm/boot/dts/imx6ul.dtsi
+@@ -940,7 +940,7 @@ cpu_speed_grade: speed-grade@10 {
+ 			};
  
- 			txerr = hi3110_read(spi, HI3110_READ_TEC);
- 			rxerr = hi3110_read(spi, HI3110_READ_REC);
--			cf->data[6] = txerr;
--			cf->data[7] = rxerr;
- 			tx_state = txerr >= rxerr ? new_state : 0;
- 			rx_state = txerr <= rxerr ? new_state : 0;
- 			can_change_state(net, cf, tx_state, rx_state);
-@@ -684,6 +682,9 @@ static irqreturn_t hi3110_can_ist(int irq, void *dev_id)
- 					hi3110_hw_sleep(spi);
- 					break;
- 				}
-+			} else {
-+				cf->data[6] = txerr;
-+				cf->data[7] = rxerr;
- 			}
- 		}
- 
+ 			lcdif: lcdif@21c8000 {
+-				compatible = "fsl,imx6ul-lcdif", "fsl,imx28-lcdif";
++				compatible = "fsl,imx6ul-lcdif", "fsl,imx6sx-lcdif";
+ 				reg = <0x021c8000 0x4000>;
+ 				interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&clks IMX6UL_CLK_LCDIF_PIX>,
 -- 
 2.35.1
 
