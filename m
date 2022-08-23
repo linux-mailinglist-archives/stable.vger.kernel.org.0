@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A8E59D712
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6E8559D37B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349778AbiHWJY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:24:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38056 "EHLO
+        id S242549AbiHWIWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:22:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349548AbiHWJXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:23:10 -0400
+        with ESMTP id S243211AbiHWIUp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:20:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D17EC8F957;
-        Tue, 23 Aug 2022 01:35:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5933A2C664;
+        Tue, 23 Aug 2022 01:12:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEC8BB81C4D;
-        Tue, 23 Aug 2022 08:33:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C094C433D6;
-        Tue, 23 Aug 2022 08:33:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7C1FB81C22;
+        Tue, 23 Aug 2022 08:12:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 008C7C433D6;
+        Tue, 23 Aug 2022 08:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243620;
-        bh=QueCjxHMA4r1uCGTLX+Zuc00mP9QzA7Dxm10f7BgXZw=;
+        s=korg; t=1661242324;
+        bh=3ziDYwt+y+FELl9+y1MQMtELjPf4hifJ5vanJV4Z5fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PqXSKpksgWG8R7v1zUdqXT8EDTGqslS7q/aTqOJl3pscTNFxzW3Yn4+K3dkluPZVP
-         oGg3MWY9GW/1EFcN7bbXX5Wnj/Z6ZbljPUCiYf/7ICAOkwEVDTOkrhyfoJN4mjKsAq
-         Z5xR3NJhbxo4+Z0FoXylhpoRUCpN27+jJcKl8dEQ=
+        b=sRrrKKl/I5AYPxFbCr0F6hB0GQZ0PkqOfojxAIYgz2C17NNjXZKUv9K04wQ3/I2kd
+         tflkU7ni9nHRxkGHKp/c+E9yPTJIBzfaU6nQdWkeUc+fkB8Y+8Dl1wtEjMA02UdeIS
+         572P7fgxMyGNW5LaGwsU9qFA6qQBrN5+wA1pdTME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 305/365] selftests/kprobe: Do not test for GRP/ without event failures
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>
+Subject: [PATCH 4.9 053/101] ext4: update s_overhead_clusters in the superblock during an on-line resize
 Date:   Tue, 23 Aug 2022 10:03:26 +0200
-Message-Id: <20220823080130.954139426@linuxfoundation.org>
+Message-Id: <20220823080036.585623693@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit f5eab65ff2b76449286d18efc7fee3e0b72f7d9b ]
+commit de394a86658ffe4e89e5328fd4993abfe41b7435 upstream.
 
-A new feature is added where kprobes (and other probes) do not need to
-explicitly state the event name when creating a probe. The event name will
-come from what is being attached.
+When doing an online resize, the on-disk superblock on-disk wasn't
+updated.  This means that when the file system is unmounted and
+remounted, and the on-disk overhead value is non-zero, this would
+result in the results of statfs(2) to be incorrect.
 
-That is:
+This was partially fixed by Commits 10b01ee92df5 ("ext4: fix overhead
+calculation to account for the reserved gdt blocks"), 85d825dbf489
+("ext4: force overhead calculation if the s_overhead_cluster makes no
+sense"), and eb7054212eac ("ext4: update the cached overhead value in
+the superblock").
 
-  # echo 'p:foo/ vfs_read' > kprobe_events
+However, since it was too expensive to forcibly recalculate the
+overhead for bigalloc file systems at every mount, this didn't fix the
+problem for bigalloc file systems.  This commit should address the
+problem when resizing file systems with the bigalloc feature enabled.
 
-Will no longer error, but instead create an event:
-
-  # cat kprobe_events
- p:foo/p_vfs_read_0 vfs_read
-
-This should not be tested as an error case anymore. Remove it from the
-selftest as now this feature "breaks" the selftest as it no longer fails
-as expected.
-
-Link: https://lore.kernel.org/all/1656296348-16111-1-git-send-email-quic_linyyuan@quicinc.com/
-Link: https://lkml.kernel.org/r/20220712161707.6dc08a14@gandalf.local.home
-
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20220629040026.112371-1-tytso@mit.edu
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc       | 1 -
- 1 file changed, 1 deletion(-)
+ fs/ext4/resize.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-index fa928b431555..7c02509c71d0 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-@@ -21,7 +21,6 @@ check_error 'p:^/bar vfs_read'		# NO_GROUP_NAME
- check_error 'p:^12345678901234567890123456789012345678901234567890123456789012345/bar vfs_read'	# GROUP_TOO_LONG
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -1446,6 +1446,7 @@ static void ext4_update_super(struct sup
+ 	 * Update the fs overhead information
+ 	 */
+ 	ext4_calculate_overhead(sb);
++	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
  
- check_error 'p:^foo.1/bar vfs_read'	# BAD_GROUP_NAME
--check_error 'p:foo/^ vfs_read'		# NO_EVENT_NAME
- check_error 'p:foo/^12345678901234567890123456789012345678901234567890123456789012345 vfs_read'	# EVENT_TOO_LONG
- check_error 'p:foo/^bar.1 vfs_read'	# BAD_EVENT_NAME
- 
--- 
-2.35.1
-
+ 	if (test_opt(sb, DEBUG))
+ 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
 
 
