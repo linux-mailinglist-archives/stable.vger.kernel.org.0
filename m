@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D299059D907
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1410659D8B5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236912AbiHWJZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:25:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40124 "EHLO
+        id S243500AbiHWJMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:12:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349781AbiHWJY2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:24:28 -0400
+        with ESMTP id S1348571AbiHWJKc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:10:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C474490805;
-        Tue, 23 Aug 2022 01:35:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C9C86D558;
+        Tue, 23 Aug 2022 01:31:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4123BB81C4F;
-        Tue, 23 Aug 2022 08:18:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC131C433C1;
-        Tue, 23 Aug 2022 08:18:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 615B6B81C3B;
+        Tue, 23 Aug 2022 08:19:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F55C433D6;
+        Tue, 23 Aug 2022 08:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242716;
-        bh=+Z2c0OxS9hfS3VZxv8oMBN/X8wfE6XIeSWU42oMqx5g=;
+        s=korg; t=1661242759;
+        bh=vHPGp8AEhZpZ/FwWx4QLugFFEi7ycBigP5bAFx4OfiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DnvO1XDR/pMEl79/YFpUmiXmcx0Sm36gvoNb8rbDnB4OnWCc/V2eJtCUZ69EfkfiQ
-         Is5mHwKMCowINxnCmWHoZreVJcRWVTS9iL4ie+2ViT+gj7KZ05LL/fSHNh+n/H9FKV
-         vhcy2kR4s1gCghVzhl3ZLjHCRP/6OER8hZ9Pls00=
+        b=MQuo9d7xnRiIb5Ewwsd4H7m5CQid4fGBpyU9a+53okIAOxjMwVfXG1lhforGrbzp3
+         iFjRl5NQsLpVwczifhymKGus4WrTikDgJsM0T0ZheYI/Fmrnd5NyjVp1ib1iv8P5HP
+         tKk/ZMz1l79WPbFgEOBqgQP/tZiNz/ssCs+d3ldg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.19 178/365] ASoC: SOF: Intel: hda: Fix potential buffer overflow by snprintf()
-Date:   Tue, 23 Aug 2022 10:01:19 +0200
-Message-Id: <20220823080125.671237572@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.19 191/365] netfilter: nf_tables: disallow NFTA_SET_ELEM_KEY_END with NFT_SET_ELEM_INTERVAL_END flag
+Date:   Tue, 23 Aug 2022 10:01:32 +0200
+Message-Id: <20220823080126.208106436@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,36 +52,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 94c1ceb043c1a002de9649bb630c8e8347645982 upstream.
+commit 4963674c2e71fc062f8f089f0f58ffbb5533060b upstream.
 
-snprintf() returns the would-be-filled size when the string overflows
-the given buffer size, hence using this value may result in the buffer
-overflow (although it's unrealistic).
+These are mutually exclusive, actually NFTA_SET_ELEM_KEY_END replaces
+the flag notation.
 
-This patch replaces with a safer version, scnprintf() for papering
-over such a potential issue.
-
-Fixes: 29c8e4398f02 ("ASoC: SOF: Intel: hda: add extended rom status dump to error log")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20220801165420.25978-4-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 7b225d0b5c6d ("netfilter: nf_tables: add NFTA_SET_ELEM_KEY_END attribute")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/intel/hda.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -467,7 +467,7 @@ static void hda_dsp_dump_ext_rom_status(
- 	chip = get_chip_info(sdev->pdata);
- 	for (i = 0; i < HDA_EXT_ROM_STATUS_SIZE; i++) {
- 		value = snd_sof_dsp_read(sdev, HDA_DSP_BAR, chip->rom_status_reg + i * 0x4);
--		len += snprintf(msg + len, sizeof(msg) - len, " 0x%x", value);
-+		len += scnprintf(msg + len, sizeof(msg) - len, " 0x%x", value);
- 	}
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -5855,6 +5855,7 @@ static int nft_add_set_elem(struct nft_c
+ 	      nla[NFTA_SET_ELEM_EXPIRATION] ||
+ 	      nla[NFTA_SET_ELEM_USERDATA] ||
+ 	      nla[NFTA_SET_ELEM_EXPR] ||
++	      nla[NFTA_SET_ELEM_KEY_END] ||
+ 	      nla[NFTA_SET_ELEM_EXPRESSIONS]))
+ 		return -EINVAL;
  
- 	dev_printk(level, sdev->dev, "extended rom status: %s", msg);
 
 
