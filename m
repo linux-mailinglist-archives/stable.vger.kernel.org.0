@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 473A659DBB1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD92F59DDAB
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354605AbiHWK20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:28:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44752 "EHLO
+        id S242784AbiHWLhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:37:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354796AbiHWK0X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:26:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D32783F03;
-        Tue, 23 Aug 2022 02:05:45 -0700 (PDT)
+        with ESMTP id S1354335AbiHWLeg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:34:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98F17C6E9F;
+        Tue, 23 Aug 2022 02:27:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB643B81C66;
-        Tue, 23 Aug 2022 09:05:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AEFFC433D6;
-        Tue, 23 Aug 2022 09:05:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EE7B61335;
+        Tue, 23 Aug 2022 09:27:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51137C433C1;
+        Tue, 23 Aug 2022 09:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245542;
-        bh=giHMf3b1/ua7YpWmhAt7d/xUrxxdxmlJMutDmS4+LJw=;
+        s=korg; t=1661246829;
+        bh=3TWgRTmzREN+/RoU5QMMzfTYzTXBu5BXexrnyI5JOmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MCfh1LrZEJ9lcutPJ1vvRXPpz437yIiKAm97JRLGi+Dg6rad60o9O39pzxwUZ10SW
-         jfll7CxUtpy0a1zqijZaLq96Xs3QlHj807RRKlxVVkGfuCVNiu1dptoc4i61fsF4+p
-         OPn03LZrhu7RXqx1Or0fUKdyB/2GrDFYpD56Zsqw=
+        b=TihcOr2FV+pI+82ZuMRG3y/HMCv7rw776qKFXE4Rw8ORWyZqmvSTIajuTHmbPk9fy
+         IznAz5TmN06kokSwjYDtrNVM7iHlSjVGP7q0WWgoDkOYxuoRX9MIu8oW2WektaLYYb
+         +meTGP0Ar9FIoN8xMdY1mvI6B2tzjXPMxVxYV2SI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 112/287] dccp: put dccp_qpolicy_full() and dccp_qpolicy_push() in the same lock
+Subject: [PATCH 5.4 203/389] ASoC: mediatek: mt8173: Fix refcount leak in mt8173_rt5650_rt5676_dev_probe
 Date:   Tue, 23 Aug 2022 10:24:41 +0200
-Message-Id: <20220823080104.140714078@linuxfoundation.org>
+Message-Id: <20220823080124.124525145@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit a41b17ff9dacd22f5f118ee53d82da0f3e52d5e3 ]
+[ Upstream commit ae4f11c1ed2d67192fdf3d89db719ee439827c11 ]
 
-In the case of sk->dccps_qpolicy == DCCPQ_POLICY_PRIO, dccp_qpolicy_full
-will drop a skb when qpolicy is full. And the lock in dccp_sendmsg is
-released before sock_alloc_send_skb and then relocked after
-sock_alloc_send_skb. The following conditions may lead dccp_qpolicy_push
-to add skb to an already full sk_write_queue:
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Fix missing of_node_put() in error paths.
 
-thread1--->lock
-thread1--->dccp_qpolicy_full: queue is full. drop a skb
-thread1--->unlock
-thread2--->lock
-thread2--->dccp_qpolicy_full: queue is not full. no need to drop.
-thread2--->unlock
-thread1--->lock
-thread1--->dccp_qpolicy_push: add a skb. queue is full.
-thread1--->unlock
-thread2--->lock
-thread2--->dccp_qpolicy_push: add a skb!
-thread2--->unlock
-
-Fix this by moving dccp_qpolicy_full.
-
-Fixes: b1308dc015eb ("[DCCP]: Set TX Queue Length Bounds via Sysctl")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220729110027.40569-1-hbh25y@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 94319ba10eca ("ASoC: mediatek: Use platform_of_node for machine drivers")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220602034144.60159-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/proto.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/net/dccp/proto.c b/net/dccp/proto.c
-index 43733accf58e..dbbcf50aea35 100644
---- a/net/dccp/proto.c
-+++ b/net/dccp/proto.c
-@@ -769,11 +769,6 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
+index 727ff0f7f20b..8e1e60a9b45c 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
+@@ -256,14 +256,16 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 	if (!mt8173_rt5650_rt5676_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
+ 	}
+ 	mt8173_rt5650_rt5676_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node =
+ 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
+ 	if (!mt8173_rt5650_rt5676_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
+ 	}
+ 	mt8173_rt5650_rt5676_codec_conf[0].of_node =
+ 		mt8173_rt5650_rt5676_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node;
+@@ -276,7 +278,8 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 	if (!mt8173_rt5650_rt5676_dais[DAI_LINK_HDMI_I2S].codecs->of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
+ 	}
  
- 	lock_sock(sk);
+ 	card->dev = &pdev->dev;
+@@ -286,6 +289,7 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
  
--	if (dccp_qpolicy_full(sk)) {
--		rc = -EAGAIN;
--		goto out_release;
--	}
--
- 	timeo = sock_sndtimeo(sk, noblock);
- 
- 	/*
-@@ -792,6 +787,11 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 	if (skb == NULL)
- 		goto out_release;
- 
-+	if (dccp_qpolicy_full(sk)) {
-+		rc = -EAGAIN;
-+		goto out_discard;
-+	}
-+
- 	if (sk->sk_state == DCCP_CLOSED) {
- 		rc = -ENOTCONN;
- 		goto out_discard;
++put_node:
+ 	of_node_put(platform_node);
+ 	return ret;
+ }
 -- 
 2.35.1
 
