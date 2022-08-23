@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6DB59D4E6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1028659D58A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241273AbiHWI5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:57:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42236 "EHLO
+        id S1347156AbiHWInl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:43:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241489AbiHWI52 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:57:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E5F10550;
-        Tue, 23 Aug 2022 01:25:33 -0700 (PDT)
+        with ESMTP id S1345004AbiHWImN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:42:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09D0161722;
+        Tue, 23 Aug 2022 01:20:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E6ACB81C4C;
-        Tue, 23 Aug 2022 08:19:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FAECC433D7;
-        Tue, 23 Aug 2022 08:19:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C27C61212;
+        Tue, 23 Aug 2022 08:19:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C3DCC433C1;
+        Tue, 23 Aug 2022 08:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242773;
-        bh=keD4PPoxYhzM6PyquEBtEeIYUAl7WnMlu51eH/WuM1w=;
+        s=korg; t=1661242776;
+        bh=KUI2cN9pa6NkqKzcH5G8VxQkrWLwmBFwrdOxH167Smo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMKtjQ+D6b4XdxhkALtiUV6BCN9Z0PsrIvA2ljJaANLY+lj/uhuRqjUlkgv2BqE81
-         QnVqbsSIIGZGvXo5KJfzxfGYiYPpftv25H76KiXB2scEm34QINac4vVSPQZLXFqf90
-         bj+oyJHMkbuAhiRbH45oq1ET3eCYBxVH958Lm9Pw=
+        b=ifXsTVpBdqOD/x62nbeL59BfCRuDBOmCMDdJLXNzz7H4Y+sAA9rhTfPsdpnGDzusF
+         GMr0glUW7Sh2N6lasBHL3dKmYtGHN6/UDlFVYBwZaD0/9+7gvvvayJIZNfYh6hC57N
+         UoMPI+5HbPoTwTPhdqZc9LJDcshZQ8AA/D5AmhJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.19 194/365] netfilter: nf_ct_ftp: prefer skb_linearize
-Date:   Tue, 23 Aug 2022 10:01:35 +0200
-Message-Id: <20220823080126.336978835@linuxfoundation.org>
+Subject: [PATCH 5.19 195/365] netfilter: nf_ct_irc: cap packet search space to 4k
+Date:   Tue, 23 Aug 2022 10:01:36 +0200
+Message-Id: <20220823080126.378613262@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,20 +55,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Florian Westphal <fw@strlen.de>
 
-commit c783a29c7e5934eabac2b760571489ad83bf4fd1 upstream.
+commit 976bf59c69cd2e2c17f0ab20a14c0e700cba0f15 upstream.
 
 This uses a pseudo-linearization scheme with a 64k global buffer,
 but BIG TCP arrival means IPv6 TCP stack can generate skbs
 that exceed this size.
 
-Use skb_linearize.  It should be possible to rewrite this to properly
-deal with segmented skbs (i.e., only do small chunk-wise accesses),
-but this is going to be a lot more intrusive than this because every
-helper function needs to get the sk_buff instead of a pointer to a raw
-data buffer.
+In practice, IRC commands are not expected to exceed 512 bytes, plus
+this is interactive protocol, so we should not see large packets
+in practice.
 
-In practice, provided we're really looking at FTP control channel packets,
-there should never be a case where we deal with huge packets.
+Given most IRC connections nowadays use TLS so this helper could also be
+removed in the near future.
 
 Fixes: 7c4e983c4f3c ("net: allow gso_max_size to exceed 65536")
 Fixes: 0fe79f28bfaf ("net: allow gro_max_size to exceed 65536")
@@ -76,85 +74,60 @@ Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_ftp.c | 24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+ net/netfilter/nf_conntrack_irc.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_ftp.c b/net/netfilter/nf_conntrack_ftp.c
-index a414274338cf..0d9332e9cf71 100644
---- a/net/netfilter/nf_conntrack_ftp.c
-+++ b/net/netfilter/nf_conntrack_ftp.c
-@@ -34,11 +34,6 @@ MODULE_DESCRIPTION("ftp connection tracking helper");
- MODULE_ALIAS("ip_conntrack_ftp");
- MODULE_ALIAS_NFCT_HELPER(HELPER_NAME);
+diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
+index 08ee4e760a3d..1796c456ac98 100644
+--- a/net/netfilter/nf_conntrack_irc.c
++++ b/net/netfilter/nf_conntrack_irc.c
+@@ -39,6 +39,7 @@ unsigned int (*nf_nat_irc_hook)(struct sk_buff *skb,
+ EXPORT_SYMBOL_GPL(nf_nat_irc_hook);
  
--/* This is slow, but it's simple. --RR */
--static char *ftp_buffer;
--
--static DEFINE_SPINLOCK(nf_ftp_lock);
--
- #define MAX_PORTS 8
- static u_int16_t ports[MAX_PORTS];
- static unsigned int ports_c;
-@@ -398,6 +393,9 @@ static int help(struct sk_buff *skb,
+ #define HELPER_NAME "irc"
++#define MAX_SEARCH_SIZE	4095
+ 
+ MODULE_AUTHOR("Harald Welte <laforge@netfilter.org>");
+ MODULE_DESCRIPTION("IRC (DCC) connection tracking helper");
+@@ -121,6 +122,7 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+ 	int i, ret = NF_ACCEPT;
+ 	char *addr_beg_p, *addr_end_p;
+ 	typeof(nf_nat_irc_hook) nf_nat_irc;
++	unsigned int datalen;
+ 
+ 	/* If packet is coming from IRC server */
+ 	if (dir == IP_CT_DIR_REPLY)
+@@ -140,8 +142,12 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+ 	if (dataoff >= skb->len)
  		return NF_ACCEPT;
- 	}
  
-+	if (unlikely(skb_linearize(skb)))
-+		return NF_DROP;
++	datalen = skb->len - dataoff;
++	if (datalen > MAX_SEARCH_SIZE)
++		datalen = MAX_SEARCH_SIZE;
 +
- 	th = skb_header_pointer(skb, protoff, sizeof(_tcph), &_tcph);
- 	if (th == NULL)
- 		return NF_ACCEPT;
-@@ -411,12 +409,8 @@ static int help(struct sk_buff *skb,
+ 	spin_lock_bh(&irc_buffer_lock);
+-	ib_ptr = skb_header_pointer(skb, dataoff, skb->len - dataoff,
++	ib_ptr = skb_header_pointer(skb, dataoff, datalen,
+ 				    irc_buffer);
+ 	if (!ib_ptr) {
+ 		spin_unlock_bh(&irc_buffer_lock);
+@@ -149,7 +155,7 @@ static int help(struct sk_buff *skb, unsigned int protoff,
  	}
- 	datalen = skb->len - dataoff;
  
--	spin_lock_bh(&nf_ftp_lock);
--	fb_ptr = skb_header_pointer(skb, dataoff, datalen, ftp_buffer);
--	if (!fb_ptr) {
--		spin_unlock_bh(&nf_ftp_lock);
--		return NF_ACCEPT;
--	}
-+	spin_lock_bh(&ct->lock);
-+	fb_ptr = skb->data + dataoff;
+ 	data = ib_ptr;
+-	data_limit = ib_ptr + skb->len - dataoff;
++	data_limit = ib_ptr + datalen;
  
- 	ends_in_nl = (fb_ptr[datalen - 1] == '\n');
- 	seq = ntohl(th->seq) + datalen;
-@@ -544,7 +538,7 @@ static int help(struct sk_buff *skb,
- 	if (ends_in_nl)
- 		update_nl_seq(ct, seq, ct_ftp_info, dir, skb);
-  out:
--	spin_unlock_bh(&nf_ftp_lock);
-+	spin_unlock_bh(&ct->lock);
- 	return ret;
- }
+ 	/* strlen("\1DCC SENT t AAAAAAAA P\1\n")=24
+ 	 * 5+MINMATCHLEN+strlen("t AAAAAAAA P\1\n")=14 */
+@@ -251,7 +257,7 @@ static int __init nf_conntrack_irc_init(void)
+ 	irc_exp_policy.max_expected = max_dcc_channels;
+ 	irc_exp_policy.timeout = dcc_timeout;
  
-@@ -571,7 +565,6 @@ static const struct nf_conntrack_expect_policy ftp_exp_policy = {
- static void __exit nf_conntrack_ftp_fini(void)
- {
- 	nf_conntrack_helpers_unregister(ftp, ports_c * 2);
--	kfree(ftp_buffer);
- }
- 
- static int __init nf_conntrack_ftp_init(void)
-@@ -580,10 +573,6 @@ static int __init nf_conntrack_ftp_init(void)
- 
- 	NF_CT_HELPER_BUILD_BUG_ON(sizeof(struct nf_ct_ftp_master));
- 
--	ftp_buffer = kmalloc(65536, GFP_KERNEL);
--	if (!ftp_buffer)
--		return -ENOMEM;
--
- 	if (ports_c == 0)
- 		ports[ports_c++] = FTP_PORT;
- 
-@@ -603,7 +592,6 @@ static int __init nf_conntrack_ftp_init(void)
- 	ret = nf_conntrack_helpers_register(ftp, ports_c * 2);
- 	if (ret < 0) {
- 		pr_err("failed to register helpers\n");
--		kfree(ftp_buffer);
- 		return ret;
- 	}
+-	irc_buffer = kmalloc(65536, GFP_KERNEL);
++	irc_buffer = kmalloc(MAX_SEARCH_SIZE + 1, GFP_KERNEL);
+ 	if (!irc_buffer)
+ 		return -ENOMEM;
  
 -- 
 2.37.2
