@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F089659DE3A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5801D59DDE8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350943AbiHWMRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:17:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45738 "EHLO
+        id S1358770AbiHWL5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:57:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355217AbiHWMPf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A071CE9923;
-        Tue, 23 Aug 2022 02:41:03 -0700 (PDT)
+        with ESMTP id S1359143AbiHWL4R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:56:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D4DFAF0D5;
+        Tue, 23 Aug 2022 02:33:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D942B81CA1;
-        Tue, 23 Aug 2022 09:40:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D025EC433D6;
-        Tue, 23 Aug 2022 09:40:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6644AB8105C;
+        Tue, 23 Aug 2022 09:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8955FC433D7;
+        Tue, 23 Aug 2022 09:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247619;
-        bh=3TL4/x38uUL1hvU1MDgjd6By/370uGvYhov0doVhKiA=;
+        s=korg; t=1661247190;
+        bh=kGnKy4ot8MT8zCT9ellggAB0zIaX/bDGSKngr+K3OEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBPaNpOvTBAtqqWNQfVzpfS61ZcVHpeeE2MFysQhoZRUrDYkJiE3Yj1mLsIqb7q4Y
-         mbDwLO0JVMdwiQ+Qkf6g3ypBYW3lk9fd+QrmJ7cTufGIie2Jc48SP66uelhjoR0A6Z
-         H6LNWsJSznRzfLuLuJMu5P/GVhgBR1pArF7Vw4Ow=
+        b=DeaNU6bV+bjZIy/9N5Vz6YKGYATJjBOyV2DrWI/FKduIrsPHFFpXdkTNgFTQZjCxp
+         fMwpIr4LXCnS0Jz3cFmrpBL7yO6esnpFKf2SMuYhW7TS5F4xn87RikiRkN8tIcjBma
+         QIM+JMIIwbndJVnuMK40Po7D4kUKMd47w6kwdeEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 092/158] igb: Add lock to avoid data race
+        stable@vger.kernel.org, Yury Norov <yury.norov@gmail.com>,
+        Erhard Furtner <erhard_f@mailbox.org>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.4 346/389] gcc-plugins: Undefine LATENT_ENTROPY_PLUGIN when plugin disabled for a file
 Date:   Tue, 23 Aug 2022 10:27:04 +0200
-Message-Id: <20220823080049.752737191@linuxfoundation.org>
+Message-Id: <20220823080129.984894391@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,126 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Andrew Donnellan <ajd@linux.ibm.com>
 
-commit 6faee3d4ee8be0f0367d0c3d826afb3571b7a5e0 upstream.
+commit 012e8d2034f1bda8863435cd589636e618d6a659 upstream.
 
-The commit c23d92b80e0b ("igb: Teardown SR-IOV before
-unregister_netdev()") places the unregister_netdev() call after the
-igb_disable_sriov() call to avoid functionality issue.
+Commit 36d4b36b6959 ("lib/nodemask: inline next_node_in() and
+node_random()") refactored some code by moving node_random() from
+lib/nodemask.c to include/linux/nodemask.h, thus requiring nodemask.h to
+include random.h, which conditionally defines add_latent_entropy()
+depending on whether the macro LATENT_ENTROPY_PLUGIN is defined.
 
-However, it introduces several race conditions when detaching a device.
-For example, when .remove() is called, the below interleaving leads to
-use-after-free.
+This broke the build on powerpc, where nodemask.h is indirectly included
+in arch/powerpc/kernel/prom_init.c, part of the early boot machinery that
+is excluded from the latent entropy plugin using
+DISABLE_LATENT_ENTROPY_PLUGIN. It turns out that while we add a gcc flag
+to disable the actual plugin, we don't undefine LATENT_ENTROPY_PLUGIN.
 
- (FREE from device detaching)      |   (USE from netdev core)
-igb_remove                         |  igb_ndo_get_vf_config
- igb_disable_sriov                 |  vf >= adapter->vfs_allocated_count?
-  kfree(adapter->vf_data)          |
-  adapter->vfs_allocated_count = 0 |
-                                   |    memcpy(... adapter->vf_data[vf]
+This leads to the following:
 
-Moreover, the igb_disable_sriov() also suffers from data race with the
-requests from VF driver.
+    CC      arch/powerpc/kernel/prom_init.o
+  In file included from ./include/linux/nodemask.h:97,
+                   from ./include/linux/mmzone.h:17,
+                   from ./include/linux/gfp.h:7,
+                   from ./include/linux/xarray.h:15,
+                   from ./include/linux/radix-tree.h:21,
+                   from ./include/linux/idr.h:15,
+                   from ./include/linux/kernfs.h:12,
+                   from ./include/linux/sysfs.h:16,
+                   from ./include/linux/kobject.h:20,
+                   from ./include/linux/pci.h:35,
+                   from arch/powerpc/kernel/prom_init.c:24:
+  ./include/linux/random.h: In function 'add_latent_entropy':
+  ./include/linux/random.h:25:46: error: 'latent_entropy' undeclared (first use in this function); did you mean 'add_latent_entropy'?
+     25 |         add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
+        |                                              ^~~~~~~~~~~~~~
+        |                                              add_latent_entropy
+  ./include/linux/random.h:25:46: note: each undeclared identifier is reported only once for each function it appears in
+  make[2]: *** [scripts/Makefile.build:249: arch/powerpc/kernel/prom_init.o] Fehler 1
+  make[1]: *** [scripts/Makefile.build:465: arch/powerpc/kernel] Fehler 2
+  make: *** [Makefile:1855: arch/powerpc] Error 2
 
- (FREE from device detaching)      |   (USE from requests)
-igb_remove                         |  igb_msix_other
- igb_disable_sriov                 |   igb_msg_task
-  kfree(adapter->vf_data)          |    vf < adapter->vfs_allocated_count
-  adapter->vfs_allocated_count = 0 |
+Change the DISABLE_LATENT_ENTROPY_PLUGIN flags to undefine
+LATENT_ENTROPY_PLUGIN for files where the plugin is disabled.
 
-To this end, this commit first eliminates the data races from netdev
-core by using rtnl_lock (similar to commit 719479230893 ("dpaa2-eth: add
-MAC/PHY support through phylink")). And then adds a spinlock to
-eliminate races from driver requests. (similar to commit 1e53834ce541
-("ixgbe: Add locking to prevent panic when setting sriov_numvfs to zero")
-
-Fixes: c23d92b80e0b ("igb: Teardown SR-IOV before unregister_netdev()")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20220817184921.735244-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Yury Norov <yury.norov@gmail.com>
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216367
+Link: https://lore.kernel.org/linuxppc-dev/alpine.DEB.2.22.394.2208152006320.289321@ramsan.of.borg/
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+Reviewed-by: Yury Norov <yury.norov@gmail.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220816051720.44108-1-ajd@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igb/igb.h      |    2 ++
- drivers/net/ethernet/intel/igb/igb_main.c |   12 +++++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ scripts/Makefile.gcc-plugins |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/igb/igb.h
-+++ b/drivers/net/ethernet/intel/igb/igb.h
-@@ -664,6 +664,8 @@ struct igb_adapter {
- 	struct igb_mac_addr *mac_table;
- 	struct vf_mac_filter vf_macs;
- 	struct vf_mac_filter *vf_mac_list;
-+	/* lock for VF resources */
-+	spinlock_t vfs_lock;
- };
+--- a/scripts/Makefile.gcc-plugins
++++ b/scripts/Makefile.gcc-plugins
+@@ -6,7 +6,7 @@ gcc-plugin-$(CONFIG_GCC_PLUGIN_LATENT_EN
+ gcc-plugin-cflags-$(CONFIG_GCC_PLUGIN_LATENT_ENTROPY)		\
+ 		+= -DLATENT_ENTROPY_PLUGIN
+ ifdef CONFIG_GCC_PLUGIN_LATENT_ENTROPY
+-    DISABLE_LATENT_ENTROPY_PLUGIN += -fplugin-arg-latent_entropy_plugin-disable
++    DISABLE_LATENT_ENTROPY_PLUGIN += -fplugin-arg-latent_entropy_plugin-disable -ULATENT_ENTROPY_PLUGIN
+ endif
+ export DISABLE_LATENT_ENTROPY_PLUGIN
  
- /* flags controlling PTP/1588 function */
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -3638,6 +3638,7 @@ static int igb_disable_sriov(struct pci_
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct igb_adapter *adapter = netdev_priv(netdev);
- 	struct e1000_hw *hw = &adapter->hw;
-+	unsigned long flags;
- 
- 	/* reclaim resources allocated to VFs */
- 	if (adapter->vf_data) {
-@@ -3650,12 +3651,13 @@ static int igb_disable_sriov(struct pci_
- 			pci_disable_sriov(pdev);
- 			msleep(500);
- 		}
--
-+		spin_lock_irqsave(&adapter->vfs_lock, flags);
- 		kfree(adapter->vf_mac_list);
- 		adapter->vf_mac_list = NULL;
- 		kfree(adapter->vf_data);
- 		adapter->vf_data = NULL;
- 		adapter->vfs_allocated_count = 0;
-+		spin_unlock_irqrestore(&adapter->vfs_lock, flags);
- 		wr32(E1000_IOVCTL, E1000_IOVCTL_REUSE_VFQ);
- 		wrfl();
- 		msleep(100);
-@@ -3815,7 +3817,9 @@ static void igb_remove(struct pci_dev *p
- 	igb_release_hw_control(adapter);
- 
- #ifdef CONFIG_PCI_IOV
-+	rtnl_lock();
- 	igb_disable_sriov(pdev);
-+	rtnl_unlock();
- #endif
- 
- 	unregister_netdev(netdev);
-@@ -3975,6 +3979,9 @@ static int igb_sw_init(struct igb_adapte
- 
- 	spin_lock_init(&adapter->nfc_lock);
- 	spin_lock_init(&adapter->stats64_lock);
-+
-+	/* init spinlock to avoid concurrency of VF resources */
-+	spin_lock_init(&adapter->vfs_lock);
- #ifdef CONFIG_PCI_IOV
- 	switch (hw->mac.type) {
- 	case e1000_82576:
-@@ -7852,8 +7859,10 @@ unlock:
- static void igb_msg_task(struct igb_adapter *adapter)
- {
- 	struct e1000_hw *hw = &adapter->hw;
-+	unsigned long flags;
- 	u32 vf;
- 
-+	spin_lock_irqsave(&adapter->vfs_lock, flags);
- 	for (vf = 0; vf < adapter->vfs_allocated_count; vf++) {
- 		/* process any reset requests */
- 		if (!igb_check_for_rst(hw, vf))
-@@ -7867,6 +7876,7 @@ static void igb_msg_task(struct igb_adap
- 		if (!igb_check_for_ack(hw, vf))
- 			igb_rcv_ack_from_vf(adapter, vf);
- 	}
-+	spin_unlock_irqrestore(&adapter->vfs_lock, flags);
- }
- 
- /**
 
 
