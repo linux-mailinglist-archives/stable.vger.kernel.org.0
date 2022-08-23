@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 381B559E064
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B12059E28F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349783AbiHWLeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:34:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49152 "EHLO
+        id S1353653AbiHWKhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:37:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242860AbiHWLcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE33B76943;
-        Tue, 23 Aug 2022 02:26:49 -0700 (PDT)
+        with ESMTP id S1355166AbiHWKer (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:34:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A712A5C71;
+        Tue, 23 Aug 2022 02:07:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFBB761315;
-        Tue, 23 Aug 2022 09:26:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F03C433D6;
-        Tue, 23 Aug 2022 09:26:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 394E26158D;
+        Tue, 23 Aug 2022 09:07:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 077EFC433D6;
+        Tue, 23 Aug 2022 09:06:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246808;
-        bh=3xxcuQJQA/NI4ag+LK3Y2WgZoK6Y9m0qoIvOAHxyx9I=;
+        s=korg; t=1661245619;
+        bh=z4f0bDwwawu5JjlTezENU3S/+w7vDeKkbxb19Qhx/HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jn4wvhUxUvsjo9uc8VCI5NWynH6r7pMEEO1VuLBy0giDb8fCK/vZZ39aC8kfZDcVU
-         VrFg5ci7rNdwW+cb5J1Z/N2Cnn2Wa/vDXbAbU2jHppF7I3V9+IGVLEvJVmMWXmSwOh
-         vxDLFhocmzG2iFi5mzxrv7WQoJ0v2oMYptv+xby0=
+        b=wRvsjld8bt9LFc2IzicN7l5TXer9d6cXE246XUmjdZ3TG89Nm9gaaNrSzrqMZosg4
+         4o+nIun6tX6y9LgKSv49gqQ/Au3LGGrq+hkqzJiRUGr707y3CYQDd4KvcLESfl+zcv
+         fZ1MbVn+zoPwmGdPqOHydlCGi5W0QG7WIPqhLVOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 225/389] s390/zcore: fix race when reading from hardware system area
+Subject: [PATCH 4.19 134/287] RDMA/hfi1: fix potential memory leak in setup_base_ctxt()
 Date:   Tue, 23 Aug 2022 10:25:03 +0200
-Message-Id: <20220823080125.007761834@linuxfoundation.org>
+Message-Id: <20220823080104.948798574@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,81 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit 9ffed254d938c9e99eb7761c7f739294c84e0367 ]
+[ Upstream commit aa2a1df3a2c85f855af7d54466ac10bd48645d63 ]
 
-Memory buffer used for reading out data from hardware system
-area is not protected against concurrent access.
+setup_base_ctxt() allocates a memory chunk for uctxt->groups with
+hfi1_alloc_ctxt_rcv_groups(). When init_user_ctxt() fails, uctxt->groups
+is not released, which will lead to a memory leak.
 
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Fixes: 411ed3225733 ("[S390] zfcpdump support.")
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Link: https://lore.kernel.org/r/e68137f0f9a0d2558f37becc20af18e2939934f6.1658206891.git.agordeev@linux.ibm.com
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+We should release the uctxt->groups with hfi1_free_ctxt_rcv_groups()
+when init_user_ctxt() fails.
+
+Fixes: e87473bc1b6c ("IB/hfi1: Only set fd pointer when base context is completely initialized")
+Link: https://lore.kernel.org/r/20220711070718.2318320-1-niejianglei2021@163.com
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Acked-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/char/zcore.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/file_ops.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
-index 08f812475f5e..c9d172510509 100644
---- a/drivers/s390/char/zcore.c
-+++ b/drivers/s390/char/zcore.c
-@@ -53,6 +53,7 @@ static struct dentry *zcore_reipl_file;
- static struct dentry *zcore_hsa_file;
- static struct ipl_parameter_block *zcore_ipl_block;
+diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/hw/hfi1/file_ops.c
+index 64ee11542a56..be31faf6cc62 100644
+--- a/drivers/infiniband/hw/hfi1/file_ops.c
++++ b/drivers/infiniband/hw/hfi1/file_ops.c
+@@ -1222,8 +1222,10 @@ static int setup_base_ctxt(struct hfi1_filedata *fd,
+ 		goto done;
  
-+static DEFINE_MUTEX(hsa_buf_mutex);
- static char hsa_buf[PAGE_SIZE] __aligned(PAGE_SIZE);
+ 	ret = init_user_ctxt(fd, uctxt);
+-	if (ret)
++	if (ret) {
++		hfi1_free_ctxt_rcv_groups(uctxt);
+ 		goto done;
++	}
  
- /*
-@@ -69,19 +70,24 @@ int memcpy_hsa_user(void __user *dest, unsigned long src, size_t count)
- 	if (!hsa_available)
- 		return -ENODATA;
- 
-+	mutex_lock(&hsa_buf_mutex);
- 	while (count) {
- 		if (sclp_sdias_copy(hsa_buf, src / PAGE_SIZE + 2, 1)) {
- 			TRACE("sclp_sdias_copy() failed\n");
-+			mutex_unlock(&hsa_buf_mutex);
- 			return -EIO;
- 		}
- 		offset = src % PAGE_SIZE;
- 		bytes = min(PAGE_SIZE - offset, count);
--		if (copy_to_user(dest, hsa_buf + offset, bytes))
-+		if (copy_to_user(dest, hsa_buf + offset, bytes)) {
-+			mutex_unlock(&hsa_buf_mutex);
- 			return -EFAULT;
-+		}
- 		src += bytes;
- 		dest += bytes;
- 		count -= bytes;
- 	}
-+	mutex_unlock(&hsa_buf_mutex);
- 	return 0;
- }
- 
-@@ -99,9 +105,11 @@ int memcpy_hsa_kernel(void *dest, unsigned long src, size_t count)
- 	if (!hsa_available)
- 		return -ENODATA;
- 
-+	mutex_lock(&hsa_buf_mutex);
- 	while (count) {
- 		if (sclp_sdias_copy(hsa_buf, src / PAGE_SIZE + 2, 1)) {
- 			TRACE("sclp_sdias_copy() failed\n");
-+			mutex_unlock(&hsa_buf_mutex);
- 			return -EIO;
- 		}
- 		offset = src % PAGE_SIZE;
-@@ -111,6 +119,7 @@ int memcpy_hsa_kernel(void *dest, unsigned long src, size_t count)
- 		dest += bytes;
- 		count -= bytes;
- 	}
-+	mutex_unlock(&hsa_buf_mutex);
- 	return 0;
- }
+ 	user_init(uctxt);
  
 -- 
 2.35.1
