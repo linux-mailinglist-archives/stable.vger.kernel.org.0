@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 036FF59D61E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C19559D4CE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243556AbiHWIcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:32:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46292 "EHLO
+        id S243480AbiHWIca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:32:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243751AbiHWI3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:29:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F050674366;
-        Tue, 23 Aug 2022 01:15:29 -0700 (PDT)
+        with ESMTP id S243948AbiHWIam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:30:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B98724A110;
+        Tue, 23 Aug 2022 01:15:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A3A6B81C3E;
-        Tue, 23 Aug 2022 08:14:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA41C433D7;
-        Tue, 23 Aug 2022 08:14:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 574096135D;
+        Tue, 23 Aug 2022 08:14:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60AA1C433D6;
+        Tue, 23 Aug 2022 08:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242471;
-        bh=Lw6+OHZALDDUo+C/EBstKYdK92NMO1shHUb3tm6rKQk=;
+        s=korg; t=1661242477;
+        bh=A/aPAFq7veYWuIg6AGp1rPtrhNGsvacQvE4A2a/OP3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4CzQ6aYhBLU3jR2bzo6e7cojVeSF5TvoeqEGNtZxT2kPKigp0lr31SDlm6e1xte0
-         4DLRyX8bnME+VPe1BIf7gr+vo1vtxv7GiGz1UTHMQ8vAgXXkgQFGjhHIvbCOA5ulqv
-         D3XmGqFOk2qx+UZejZxr2T+baEzac/t5w4l5Zn6Q=
+        b=CKZ8y5ooogQIqSbDxDk9g8cCQ0BNDoDol2SJjmnyiwZ+zW34qlIwYP1viFll0XoCe
+         n+4tjhYjtU+46ciewOQbGWhqW8wJOlg+KyT7/Z9wexCzJEL+MEOzm/QZL7/ixuM3AB
+         7l7GJ9FlaFq9h/7laeR+OzsKLPopu3aCRZPLmmtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
         Matthias May <matthias.may@westermo.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 120/365] geneve: do not use RT_TOS for IPv6 flowlabel
-Date:   Tue, 23 Aug 2022 10:00:21 +0200
-Message-Id: <20220823080123.212222973@linuxfoundation.org>
+Subject: [PATCH 5.19 121/365] vxlan: do not use RT_TOS for IPv6 flowlabel
+Date:   Tue, 23 Aug 2022 10:00:22 +0200
+Message-Id: <20220823080123.248049136@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -56,7 +56,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Matthias May <matthias.may@westermo.com>
 
-commit ca2bb69514a8bc7f83914122f0d596371352416c upstream.
+commit e488d4f5d6e4cd1e728ba4ddbdcd7ef5f4d13a21 upstream.
 
 According to Guillaume Nault RT_TOS should never be used for IPv6.
 
@@ -70,26 +70,25 @@ But using RT_TOS() in IPv6 code is always a bug: IPv6 never had a "TOS"
 field to be interpreted the RFC 1349 way. There's no historical
 compatibility to worry about.
 
-Fixes: 3a56f86f1be6 ("geneve: handle ipv6 priority like ipv4 tos")
+Fixes: 1400615d64cf ("vxlan: allow setting ipv6 traffic class")
 Acked-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: Matthias May <matthias.may@westermo.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/vxlan/vxlan_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -876,8 +876,7 @@ static struct dst_entry *geneve_get_v6_d
- 		use_cache = false;
- 	}
- 
--	fl6->flowlabel = ip6_make_flowinfo(RT_TOS(prio),
--					   info->key.label);
-+	fl6->flowlabel = ip6_make_flowinfo(prio, info->key.label);
- 	dst_cache = (struct dst_cache *)&info->dst_cache;
- 	if (use_cache) {
- 		dst = dst_cache_get_ip6(dst_cache, &fl6->saddr);
+--- a/drivers/net/vxlan/vxlan_core.c
++++ b/drivers/net/vxlan/vxlan_core.c
+@@ -2321,7 +2321,7 @@ static struct dst_entry *vxlan6_get_rout
+ 	fl6.flowi6_oif = oif;
+ 	fl6.daddr = *daddr;
+ 	fl6.saddr = *saddr;
+-	fl6.flowlabel = ip6_make_flowinfo(RT_TOS(tos), label);
++	fl6.flowlabel = ip6_make_flowinfo(tos, label);
+ 	fl6.flowi6_mark = skb->mark;
+ 	fl6.flowi6_proto = IPPROTO_UDP;
+ 	fl6.fl6_dport = dport;
 
 
