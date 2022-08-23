@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EAA859D4F5
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF07059D6CB
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243695AbiHWIcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:32:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60562 "EHLO
+        id S1349641AbiHWJ1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:27:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245696AbiHWIbI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:31:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BA36D9E9;
-        Tue, 23 Aug 2022 01:15:57 -0700 (PDT)
+        with ESMTP id S1350464AbiHWJZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:25:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1804E90830;
+        Tue, 23 Aug 2022 01:36:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72CA06134C;
-        Tue, 23 Aug 2022 08:15:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73BDEC433D7;
-        Tue, 23 Aug 2022 08:15:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 829B6614F5;
+        Tue, 23 Aug 2022 08:35:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A867C433C1;
+        Tue, 23 Aug 2022 08:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242508;
-        bh=fy9Hbiarz6gfSjxp30zSLiolvV9NwPqMSdgxPIu22Qs=;
+        s=korg; t=1661243717;
+        bh=YPFGWF+SZ3nfFejBqr/SAmSzFD052TPPo811pYAyxFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5GpuMdOFj+DsGEJpRjzQKo1PW+xjtU2khuXDVcH+QpBWDVPqeRgMaRkK4Q/P3xlm
-         RhJjgb63LsmWiIGWHRZZQ/ZA6JYTPbcYBsv+MG33wWoLNkTpBfT0nFD9qGJko8CyLI
-         06HdPHXZEEHcRqJSWNQ1dO6t6VCHoY2UwcgbdW4w=
+        b=mJCsBt15vXH0R7p/F2hgD6OLcsoL0Q1hCK3SYz1FpkccsAIHtgNU7LYH4PTsq45ZF
+         QWYRtgvcRrafUetZIo/glmWm7Mk4/wtzt35v4jXgKksD8R3bmiKjpG3ERC+ExgCZzI
+         4okWyzlaZf/L7RuJKxg2nu2xZaE1P0sv41lY7VLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 4.9 082/101] nios2: restarts apply only to the first sigframe we build...
-Date:   Tue, 23 Aug 2022 10:03:55 +0200
-Message-Id: <20220823080037.691744892@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 335/365] ASoC: nau8821: Dont unconditionally free interrupt
+Date:   Tue, 23 Aug 2022 10:03:56 +0200
+Message-Id: <20220823080132.229436719@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
-References: <20220823080034.579196046@linuxfoundation.org>
+In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
+References: <20220823080118.128342613@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,27 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Mark Brown <broonie@kernel.org>
 
-commit 411a76b7219555c55867466c82d70ce928d6c9e1 upstream.
+[ Upstream commit 2d86cef353b8f3d20b16f8c5615742fd6938c801 ]
 
-Fixes: b53e906d255d ("nios2: Signal handling support")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The remove() operation unconditionally frees the interrupt for the device
+but we may not actually have an interrupt so there might be nothing to
+free. Since the interrupt is requested after all other resources we don't
+need the explicit free anyway, unwinding is guaranteed to be safe, so just
+delete the remove() function and let devm take care of things.
+
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Tested-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220718140405.57233-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nios2/kernel/signal.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/nau8821.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
---- a/arch/nios2/kernel/signal.c
-+++ b/arch/nios2/kernel/signal.c
-@@ -261,6 +261,7 @@ static int do_signal(struct pt_regs *reg
- 			regs->ea = restart_addr;
- 			break;
- 		}
-+		regs->orig_r2 = -1;
- 	}
+diff --git a/sound/soc/codecs/nau8821.c b/sound/soc/codecs/nau8821.c
+index ce4e7f46bb06..e078d2ffb3f6 100644
+--- a/sound/soc/codecs/nau8821.c
++++ b/sound/soc/codecs/nau8821.c
+@@ -1665,15 +1665,6 @@ static int nau8821_i2c_probe(struct i2c_client *i2c)
+ 	return ret;
+ }
  
- 	if (get_signal(&ksig)) {
+-static int nau8821_i2c_remove(struct i2c_client *i2c_client)
+-{
+-	struct nau8821 *nau8821 = i2c_get_clientdata(i2c_client);
+-
+-	devm_free_irq(nau8821->dev, nau8821->irq, nau8821);
+-
+-	return 0;
+-}
+-
+ static const struct i2c_device_id nau8821_i2c_ids[] = {
+ 	{ "nau8821", 0 },
+ 	{ }
+@@ -1703,7 +1694,6 @@ static struct i2c_driver nau8821_driver = {
+ 		.acpi_match_table = ACPI_PTR(nau8821_acpi_match),
+ 	},
+ 	.probe_new = nau8821_i2c_probe,
+-	.remove = nau8821_i2c_remove,
+ 	.id_table = nau8821_i2c_ids,
+ };
+ module_i2c_driver(nau8821_driver);
+-- 
+2.35.1
+
 
 
