@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8834A59E0D6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0050559E350
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356606AbiHWLDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:03:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35262 "EHLO
+        id S240769AbiHWMSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:18:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357435AbiHWLCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:02:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87AEBB0B32;
-        Tue, 23 Aug 2022 02:14:58 -0700 (PDT)
+        with ESMTP id S1359668AbiHWMQK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6D76EA301;
+        Tue, 23 Aug 2022 02:41:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1926D60F54;
-        Tue, 23 Aug 2022 09:14:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B95AC433B5;
-        Tue, 23 Aug 2022 09:14:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AAA1B81C89;
+        Tue, 23 Aug 2022 09:41:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867FAC433D6;
+        Tue, 23 Aug 2022 09:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246097;
-        bh=DCmXxNGvaBz6sFtTaFylHbtc7R+BzWBMnvzEmB/xHtg=;
+        s=korg; t=1661247674;
+        bh=s13R4a8PeApI8DNa3FJYBlL7I+6m6pE3xwfI2dqz9Oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KeZtlA0cQP+3/HwndepecSaS3J7hgWUJhkIRfxTa4fZpWazSjpLXcPqszBqBaIUgF
-         iN5KAXH5NssY6U/C4PhZfBEDsq0IhV9TiZAmVzXzjcf3i9nHCSCc+Ds+iFTG4QA0sH
-         VRLVta6SvroiTmt0ieKEDGK+WOs8NAKcoTDPHa5c=
+        b=lcBDLlYj7Lxww1kT8kApftP/jbzzkUtts/K2PwFE4Lf/D6N14DgeiXGg1ka7oPmCr
+         slqv4glhEf+y621qIL6TArNNegqSBi8eMAAOsa655jGdwPOpjWJemrbYo6uTwluKkv
+         UQAhjUsf+eKwIwU1LwbjpKPyp9AL8ZZDvL/XBv2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xctan <xc-tan@outlook.com>,
-        dram <dramforever@live.com>, Ruizhe Pan <c141028@gmail.com>,
-        Celeste Liu <coelacanthus@outlook.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 274/287] riscv: mmap with PROT_WRITE but no PROT_READ is invalid
+Subject: [PATCH 5.10 111/158] usb: dwc2: gadget: remove D+ pull-up while no vbus with usb-role-switch
 Date:   Tue, 23 Aug 2022 10:27:23 +0200
-Message-Id: <20220823080110.620459997@linuxfoundation.org>
+Message-Id: <20220823080050.435999238@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Celeste Liu <coelacanthus@outlook.com>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit 2139619bcad7ac44cc8f6f749089120594056613 ]
+[ Upstream commit db638c6500abaffb8f7770b2a69c40d003d54ae1 ]
 
-As mentioned in Table 4.5 in RISC-V spec Volume 2 Section 4.3, write
-but not read is "Reserved for future use.". For now, they are not valid.
-In the current code, -wx is marked as invalid, but -w- is not marked
-as invalid.
-This patch refines that judgment.
+When using usb-role-switch, D+ pull-up is set as soon as DTCL_SFTDISCON is
+cleared, whatever the vbus valid signal state is. The pull-up should not
+be set when vbus isn't present (this is determined by the drd controller).
 
-Reported-by: xctan <xc-tan@outlook.com>
-Co-developed-by: dram <dramforever@live.com>
-Signed-off-by: dram <dramforever@live.com>
-Co-developed-by: Ruizhe Pan <c141028@gmail.com>
-Signed-off-by: Ruizhe Pan <c141028@gmail.com>
-Signed-off-by: Celeste Liu <coelacanthus@outlook.com>
-Link: https://lore.kernel.org/r/PH7PR14MB559464DBDD310E755F5B21E8CEDC9@PH7PR14MB5594.namprd14.prod.outlook.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+This patch ensures that B-Session (so Peripheral role + vbus valid signal)
+is valid before clearing the DCTL_SFTDISCON bit when role switch is used.
+Keep original behavior when usb-role-switch isn't used.
+
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220622160717.314580-1-fabrice.gasnier@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/sys_riscv.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/dwc2/gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
-index db44da32701f..516aaa19daf2 100644
---- a/arch/riscv/kernel/sys_riscv.c
-+++ b/arch/riscv/kernel/sys_riscv.c
-@@ -26,9 +26,8 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
- 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
- 		return -EINVAL;
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 64485f82dc5b..da0df69cc234 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -3593,7 +3593,8 @@ void dwc2_hsotg_core_disconnect(struct dwc2_hsotg *hsotg)
+ void dwc2_hsotg_core_connect(struct dwc2_hsotg *hsotg)
+ {
+ 	/* remove the soft-disconnect and let's go */
+-	dwc2_clear_bit(hsotg, DCTL, DCTL_SFTDISCON);
++	if (!hsotg->role_sw || (dwc2_readl(hsotg, GOTGCTL) & GOTGCTL_BSESVLD))
++		dwc2_clear_bit(hsotg, DCTL, DCTL_SFTDISCON);
+ }
  
--	if ((prot & PROT_WRITE) && (prot & PROT_EXEC))
--		if (unlikely(!(prot & PROT_READ)))
--			return -EINVAL;
-+	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
-+		return -EINVAL;
- 
- 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
- 			       offset >> (PAGE_SHIFT - page_shift_offset));
+ /**
 -- 
 2.35.1
 
