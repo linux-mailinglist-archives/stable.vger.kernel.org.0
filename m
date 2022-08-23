@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3866959D707
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AB1D59D77D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349721AbiHWJ3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42514 "EHLO
+        id S1349693AbiHWJ1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350011AbiHWJ1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:27:52 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E85B77E82;
-        Tue, 23 Aug 2022 01:37:23 -0700 (PDT)
+        with ESMTP id S1350940AbiHWJ0a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:26:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4A5D915C8;
+        Tue, 23 Aug 2022 01:37:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 52009CE1B49;
-        Tue, 23 Aug 2022 08:35:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD8EC433D6;
-        Tue, 23 Aug 2022 08:35:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68AE461485;
+        Tue, 23 Aug 2022 08:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 565D3C433D6;
+        Tue, 23 Aug 2022 08:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243757;
-        bh=e+Sqdz09GdVHe1dlbhbcgQasCVxSYIYnh6jIqbIAANo=;
+        s=korg; t=1661243763;
+        bh=ck+41J0w7dpuISrQ+RvTbUpIJtkyd4sm1/cjAbIqIzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2XgeoDqUJveMEJTaJ0FeDmNaU6dIf0j1LZGFzlQsROO9CRR2rcFNQ2u0suRK8yu3H
-         t7n7mvuQN6jdZpMMMubax4VGymgs3FYpDvNxzq6hWq0I3rNvIVISo+OZg7+wdU0XNs
-         QQqTz6yngUwlgzzcKhUtaH8BzvTtQEQn6noEAtKE=
+        b=tUHsanMLZ0YxmTNXYRGU27h3296HHt3qAFADfwT8dCpM8qJj2SMoqlzH0/2tcPlHx
+         gqSZhqH3Vc1uZ7bEnU2A5JZ45M1lt5+WdDDsE5kSvYTY6amwUyYIr+MNd9GYFytVEQ
+         um9cvJq/8GuCJRA3DH4/IHRiQXbghZpugULlzbjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Ning Qiang <sohu0106@126.com>,
-        Kees Cook <keescook@chromium.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 012/229] macintosh/adb: fix oob read in do_adb_query() function
-Date:   Tue, 23 Aug 2022 10:22:53 +0200
-Message-Id: <20220823080053.828036841@linuxfoundation.org>
+        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 014/229] x86: link vdso and boot with -z noexecstack --no-warn-rwx-segments
+Date:   Tue, 23 Aug 2022 10:22:55 +0200
+Message-Id: <20220823080053.915124858@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -56,37 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ning Qiang <sohu0106@126.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit fd97e4ad6d3b0c9fce3bca8ea8e6969d9ce7423b upstream.
+commit ffcf9c5700e49c0aee42dcba9a12ba21338e8136 upstream.
 
-In do_adb_query() function of drivers/macintosh/adb.c, req->data is copied
-form userland. The parameter "req->data[2]" is missing check, the array
-size of adb_handler[] is 16, so adb_handler[req->data[2]].original_address and
-adb_handler[req->data[2]].handler_id will lead to oob read.
+Users of GNU ld (BFD) from binutils 2.39+ will observe multiple
+instances of a new warning when linking kernels in the form:
 
-Cc: stable <stable@kernel.org>
-Signed-off-by: Ning Qiang <sohu0106@126.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220713153734.2248-1-sohu0106@126.com
+  ld: warning: arch/x86/boot/pmjump.o: missing .note.GNU-stack section implies executable stack
+  ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+  ld: warning: arch/x86/boot/compressed/vmlinux has a LOAD segment with RWX permissions
+
+Generally, we would like to avoid the stack being executable.  Because
+there could be a need for the stack to be executable, assembler sources
+have to opt-in to this security feature via explicit creation of the
+.note.GNU-stack feature (which compilers create by default) or command
+line flag --noexecstack.  Or we can simply tell the linker the
+production of such sections is irrelevant and to link the stack as
+--noexecstack.
+
+LLVM's LLD linker defaults to -z noexecstack, so this flag isn't
+strictly necessary when linking with LLD, only BFD, but it doesn't hurt
+to be explicit here for all linkers IMO.  --no-warn-rwx-segments is
+currently BFD specific and only available in the current latest release,
+so it's wrapped in an ld-option check.
+
+While the kernel makes extensive usage of ELF sections, it doesn't use
+permissions from ELF segments.
+
+Link: https://lore.kernel.org/linux-block/3af4127a-f453-4cf7-f133-a181cce06f73@kernel.dk/
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
+Link: https://github.com/llvm/llvm-project/issues/57009
+Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/macintosh/adb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/boot/Makefile            |    2 +-
+ arch/x86/boot/compressed/Makefile |    4 ++++
+ arch/x86/entry/vdso/Makefile      |    2 +-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/macintosh/adb.c
-+++ b/drivers/macintosh/adb.c
-@@ -647,7 +647,7 @@ do_adb_query(struct adb_request *req)
+--- a/arch/x86/boot/Makefile
++++ b/arch/x86/boot/Makefile
+@@ -100,7 +100,7 @@ $(obj)/zoffset.h: $(obj)/compressed/vmli
+ AFLAGS_header.o += -I$(objtree)/$(obj)
+ $(obj)/header.o: $(obj)/zoffset.h
  
- 	switch(req->data[1]) {
- 	case ADB_QUERY_GETDEVINFO:
--		if (req->nbytes < 3)
-+		if (req->nbytes < 3 || req->data[2] >= 16)
- 			break;
- 		mutex_lock(&adb_handler_mutex);
- 		req->reply[0] = adb_handler[req->data[2]].original_address;
+-LDFLAGS_setup.elf	:= -m elf_i386 -T
++LDFLAGS_setup.elf	:= -m elf_i386 -z noexecstack -T
+ $(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) FORCE
+ 	$(call if_changed,ld)
+ 
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -55,6 +55,10 @@ else
+ LDFLAGS += $(shell $(LD) --help 2>&1 | grep -q "\-z noreloc-overflow" \
+ 	&& echo "-z noreloc-overflow -pie --no-dynamic-linker")
+ endif
++
++LDFLAGS += -z noexecstack
++LDFLAGS += $(call ld-option,--no-warn-rwx-segments)
++
+ LDFLAGS_vmlinux := -T
+ 
+ hostprogs-y	:= mkpiggy
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -183,7 +183,7 @@ quiet_cmd_vdso = VDSO    $@
+ 
+ VDSO_LDFLAGS = -shared $(call ld-option, --hash-style=both) \
+ 	$(call ld-option, --build-id) $(call ld-option, --eh-frame-hdr) \
+-	-Bsymbolic
++	-Bsymbolic -z noexecstack
+ GCOV_PROFILE := n
+ 
+ #
 
 
