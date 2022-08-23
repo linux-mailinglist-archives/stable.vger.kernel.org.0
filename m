@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB4C59D7E0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE5F59D57D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349037AbiHWJRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:17:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47996 "EHLO
+        id S243286AbiHWI1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:27:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350022AbiHWJQc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:16:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DF0A883FE;
-        Tue, 23 Aug 2022 01:32:48 -0700 (PDT)
+        with ESMTP id S243328AbiHWIY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:24:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 684AB1836B;
+        Tue, 23 Aug 2022 01:13:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BB67614C2;
-        Tue, 23 Aug 2022 08:32:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 300ABC433C1;
-        Tue, 23 Aug 2022 08:32:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9AB361324;
+        Tue, 23 Aug 2022 08:13:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C22B0C433C1;
+        Tue, 23 Aug 2022 08:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243554;
-        bh=LKYTZ8t1r7PSDOsdZvV9qIXBrHrd4WElWZNqWkPgLvo=;
+        s=korg; t=1661242382;
+        bh=198MJV5Vfc/FGWCXHEV8mqffz6z2Dlc0B5J2AMGuxB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hy4h0ydBBsYpJOJh6NdZjJYUrdoA4vlFPIomvQo8AFtZXqV732F5zQWY5HBd+oMNH
-         vKQN/1dSJL/1jp9wG9AKHqJ4e8Tegp69bW1FfM4EWhbQHtH0qUeGXsS1Q/bbgDlcvv
-         nlsp8MK7pJx3Q3D7siEn9eiz/dGELZorXhx/C+AY=
+        b=tzAox7Vvg2s3HR7LbJhj0OMtp/ITaM78a42faJLH+8RfabHB7twnEz9OzwenVmwWr
+         EAbLD1TJpV9PGMEJ9RBOpLSox4HD3G9CXhEt7TYBSCDavcoiS2cIroC95jdOvqTBKx
+         tvqZ3i8KSa0ajnl8tNFriTh2VoKf5WaRG9fyZ58Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wentao_Liang <Wentao_Liang_g@163.com>,
-        Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 314/365] drivers:md:fix a potential use-after-free bug
-Date:   Tue, 23 Aug 2022 10:03:35 +0200
-Message-Id: <20220823080131.317193450@linuxfoundation.org>
+        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Daniel Micay <danielmicay@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.9 063/101] nios2: time: Read timer in get_cycles only if initialized
+Date:   Tue, 23 Aug 2022 10:03:36 +0200
+Message-Id: <20220823080036.986294626@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wentao_Liang <Wentao_Liang_g@163.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 104212471b1c1817b311771d817fb692af983173 ]
+commit 65d1e3ddeae117f6a224535e10a09145f0f96508 upstream.
 
-In line 2884, "raid5_release_stripe(sh);" drops the reference to sh and
-may cause sh to be released. However, sh is subsequently used in lines
-2886 "if (sh->batch_head && sh != sh->batch_head)". This may result in an
-use-after-free bug.
+Mainline crashes as follows when running nios2 images.
 
-It can be fixed by moving "raid5_release_stripe(sh);" to the bottom of
-the function.
+On node 0 totalpages: 65536
+free_area_init_node: node 0, pgdat c8408fa0, node_mem_map c8726000
+  Normal zone: 512 pages used for memmap
+  Normal zone: 0 pages reserved
+  Normal zone: 65536 pages, LIFO batch:15
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ea = c8003cb0, ra = c81cbf40, cause = 15
+Kernel panic - not syncing: Oops
 
-Signed-off-by: Wentao_Liang <Wentao_Liang_g@163.com>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Problem is seen because get_cycles() is called before the timer it depends
+on is initialized. Returning 0 in that situation fixes the problem.
+
+Fixes: 33d72f3822d7 ("init/main.c: extract early boot entropy from the ..")
+Cc: Laura Abbott <labbott@redhat.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Daniel Micay <danielmicay@gmail.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/raid5.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/kernel/time.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 45482cebacdb..1c1310d539f2 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -2881,10 +2881,10 @@ static void raid5_end_write_request(struct bio *bi)
- 	if (!test_and_clear_bit(R5_DOUBLE_LOCKED, &sh->dev[i].flags))
- 		clear_bit(R5_LOCKED, &sh->dev[i].flags);
- 	set_bit(STRIPE_HANDLE, &sh->state);
--	raid5_release_stripe(sh);
+--- a/arch/nios2/kernel/time.c
++++ b/arch/nios2/kernel/time.c
+@@ -107,7 +107,10 @@ static struct nios2_clocksource nios2_cs
  
- 	if (sh->batch_head && sh != sh->batch_head)
- 		raid5_release_stripe(sh->batch_head);
-+	raid5_release_stripe(sh);
+ cycles_t get_cycles(void)
+ {
+-	return nios2_timer_read(&nios2_cs.cs);
++	/* Only read timer if it has been initialized */
++	if (nios2_cs.timer.base)
++		return nios2_timer_read(&nios2_cs.cs);
++	return 0;
  }
+ EXPORT_SYMBOL(get_cycles);
  
- static void raid5_error(struct mddev *mddev, struct md_rdev *rdev)
--- 
-2.35.1
-
 
 
