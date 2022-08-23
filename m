@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F95359D9B8
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 188E959D859
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243095AbiHWKA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:00:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58604 "EHLO
+        id S1349551AbiHWJ1D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:27:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239339AbiHWJ6z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:58:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAE136FA13;
-        Tue, 23 Aug 2022 01:48:07 -0700 (PDT)
+        with ESMTP id S1350215AbiHWJZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:25:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E69D6760F9;
+        Tue, 23 Aug 2022 01:36:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81462B81C66;
-        Tue, 23 Aug 2022 08:43:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D575AC433C1;
-        Tue, 23 Aug 2022 08:43:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A191361475;
+        Tue, 23 Aug 2022 08:36:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8502C433D6;
+        Tue, 23 Aug 2022 08:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244184;
-        bh=8JdS3sLV+wxFTBujS2gA+PG7URNVNxZCqEuDH7Q+Seo=;
+        s=korg; t=1661243779;
+        bh=eicEbu+IdcK/sMPONUo+LG9V3CoqePHys2TFpekNiR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXXE8H6fWeXjT3JUtViPlUYBQ3Vew5HkqiDRHzDrKG1byiBVkHoBAwwzh3LeC1LqG
-         t7GzAQB0t+bNm2LYUac/dpDijiWuO4xFc1vaHByTx8GSAi25DSPd4TpZ1nRM/Hi8Nl
-         yT7a2tKCh7Slhm+daLlNSXJo4Qcc0FVamCmXHBNI=
+        b=DAmHfIKlN+hmLTA7s2waLF0raWlOmmrKaNDbMnNaKal7012WQQ1WlbNBQb2Hnmwai
+         5+QIW960TPTXAQzLDCOTusxaClVua7OXVel+Mz7243j+vzCuPQ4s7z89wWmzklPtX3
+         z/cWl3loHutGy4Ej1ArmHhyw3EEx41vQh0YrqXpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 021/244] tracing/eprobes: Do not hardcode $comm as a string
+        stable@vger.kernel.org,
+        syzbot+760a73552f47a8cd0fd9@syzkaller.appspotmail.com,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Hou Wenlong <houwenlong.hwl@antgroup.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>
+Subject: [PATCH 4.14 019/229] KVM: x86: Mark TSS busy during LTR emulation _after_ all fault checks
 Date:   Tue, 23 Aug 2022 10:23:00 +0200
-Message-Id: <20220823080059.775899567@linuxfoundation.org>
+Message-Id: <20220823080054.129802752@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,48 +57,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 02333de90e5945e2fe7fc75b15b4eb9aee187f0a upstream.
+commit ec6e4d863258d4bfb36d48d5e3ef68140234d688 upstream.
 
-The variable $comm is hard coded as a string, which is true for both
-kprobes and uprobes, but for event probes (eprobes) it is a field name. In
-most cases the "comm" field would be a string, but there's no guarantee of
-that fact.
+Wait to mark the TSS as busy during LTR emulation until after all fault
+checks for the LTR have passed.  Specifically, don't mark the TSS busy if
+the new TSS base is non-canonical.
 
-Do not assume that comm is a string. Not to mention, it currently forces
-comm fields to fault, as string processing for event probes is currently
-broken.
+Opportunistically drop the one-off !seg_desc.PRESENT check for TR as the
+only reason for the early check was to avoid marking a !PRESENT TSS as
+busy, i.e. the common !PRESENT is now done before setting the busy bit.
 
-Link: https://lkml.kernel.org/r/20220820134400.756152112@goodmis.org
-
+Fixes: e37a75a13cda ("KVM: x86: Emulator ignores LDTR/TR extended base on LLDT/LTR")
+Reported-by: syzbot+760a73552f47a8cd0fd9@syzkaller.appspotmail.com
 Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
-Cc: Tom Zanussi <zanussi@kernel.org>
-Fixes: 7491e2c44278 ("tracing: Add a probe that attaches to trace events")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Hou Wenlong <houwenlong.hwl@antgroup.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Link: https://lore.kernel.org/r/20220711232750.1092012-2-seanjc@google.com
+Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_probe.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kvm/emulate.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/kernel/trace/trace_probe.c
-+++ b/kernel/trace/trace_probe.c
-@@ -618,9 +618,10 @@ static int traceprobe_parse_probe_arg_bo
- 
- 	/*
- 	 * Since $comm and immediate string can not be dereferenced,
--	 * we can find those by strcmp.
-+	 * we can find those by strcmp. But ignore for eprobes.
- 	 */
--	if (strcmp(arg, "$comm") == 0 || strncmp(arg, "\\\"", 2) == 0) {
-+	if (!(flags & TPARG_FL_TPOINT) &&
-+	    (strcmp(arg, "$comm") == 0 || strncmp(arg, "\\\"", 2) == 0)) {
- 		/* The type of $comm must be "string", and not an array. */
- 		if (parg->count || (t && strcmp(t, "string")))
- 			goto out;
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -1721,16 +1721,6 @@ static int __load_segment_descriptor(str
+ 	case VCPU_SREG_TR:
+ 		if (seg_desc.s || (seg_desc.type != 1 && seg_desc.type != 9))
+ 			goto exception;
+-		if (!seg_desc.p) {
+-			err_vec = NP_VECTOR;
+-			goto exception;
+-		}
+-		old_desc = seg_desc;
+-		seg_desc.type |= 2; /* busy */
+-		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
+-						  sizeof(seg_desc), &ctxt->exception);
+-		if (ret != X86EMUL_CONTINUE)
+-			return ret;
+ 		break;
+ 	case VCPU_SREG_LDTR:
+ 		if (seg_desc.s || seg_desc.type != 2)
+@@ -1771,6 +1761,15 @@ static int __load_segment_descriptor(str
+ 				((u64)base3 << 32), ctxt))
+ 			return emulate_gp(ctxt, 0);
+ 	}
++
++	if (seg == VCPU_SREG_TR) {
++		old_desc = seg_desc;
++		seg_desc.type |= 2; /* busy */
++		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
++						  sizeof(seg_desc), &ctxt->exception);
++		if (ret != X86EMUL_CONTINUE)
++			return ret;
++	}
+ load:
+ 	ctxt->ops->set_segment(ctxt, selector, &seg_desc, base3, seg);
+ 	if (desc)
 
 
