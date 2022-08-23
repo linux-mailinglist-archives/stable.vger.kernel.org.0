@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E86F059D8BE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35B0759D98C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348949AbiHWJRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:17:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47524 "EHLO
+        id S1349034AbiHWJWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:22:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349985AbiHWJQ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:16:28 -0400
+        with ESMTP id S1349727AbiHWJU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:20:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B69883E0;
-        Tue, 23 Aug 2022 01:32:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D1D8A1E9;
+        Tue, 23 Aug 2022 01:34:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42BE6B81C35;
-        Tue, 23 Aug 2022 08:32:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 899D1C433C1;
-        Tue, 23 Aug 2022 08:32:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D721DB81BF8;
+        Tue, 23 Aug 2022 08:33:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 442FFC433D6;
+        Tue, 23 Aug 2022 08:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243563;
-        bh=Wk2EN4oWzCNZy1fjsGB+gIos7yTqSgZhVXSohy2ODQE=;
+        s=korg; t=1661243598;
+        bh=Hz4IDQ1JODRnQj2XRHBXSjJFvRrsRauABgljRV7KOqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxJNnbXxmUMmdTXGLj0GbU5dEFut44r0cpvrifZTHr/5E1+yHi0jtLMKY0EajY9ZP
-         1gKUPmCpAMXVSP3iedreJo1zX4jixlJ2zApr+GPnpieEJdmL3ApZQudypXMUCjUheI
-         lSEUqavKRRlfYGQvy8hRzFKhvEkySsI8RVIdqeQk=
+        b=t9HnqP0Hh5QUSJWsKFjVhqkgVZe95VhiBMzixt0Q6vYTsyogARRs+ffphbsa+lk3B
+         ktkzaZpscqlRCF87H7EJ79OpjlbOPd7LlYqr8TMoHa5uOo6B+ZvF5JLdgwoMqrHYwT
+         u2MZYBmtuB/dxKlUpbmB/NHiHL51EHv0GJElzZak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ben Dooks <ben.dooks@sifive.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 299/365] dmaengine: dw-axi-dmac: do not print NULL LLI during error
-Date:   Tue, 23 Aug 2022 10:03:20 +0200
-Message-Id: <20220823080130.678002903@linuxfoundation.org>
+Subject: [PATCH 5.19 300/365] dmaengine: dw-axi-dmac: ignore interrupt if no descriptor
+Date:   Tue, 23 Aug 2022 10:03:21 +0200
+Message-Id: <20220823080130.725787493@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,37 +55,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ben Dooks <ben.dooks@sifive.com>
 
-[ Upstream commit 86cb0defe0e275453bc39e856bb523eb425a6537 ]
+[ Upstream commit 820f5ce999d2f99961e88c16d65cd26764df0590 ]
 
-During debugging we have seen an issue where axi_chan_dump_lli()
-is passed a NULL LLI pointer which ends up causing an OOPS due
-to trying to get fields from it. Simply print NULL LLI and exit
-to avoid this.
+If the channel has no descriptor and the interrupt is raised then the
+kernel will OOPS. Check the result of vchan_next_desc() in the handler
+axi_chan_block_xfer_complete() to avoid the error happening.
 
 Signed-off-by: Ben Dooks <ben.dooks@sifive.com>
-Link: https://lore.kernel.org/r/20220708170153.269991-3-ben.dooks@sifive.com
+Link: https://lore.kernel.org/r/20220708170153.269991-4-ben.dooks@sifive.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-index c741da02b67e..41583f01a360 100644
+index 41583f01a360..a183d93bd7e2 100644
 --- a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
 +++ b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-@@ -982,6 +982,11 @@ static int dw_axi_dma_chan_slave_config(struct dma_chan *dchan,
- static void axi_chan_dump_lli(struct axi_dma_chan *chan,
- 			      struct axi_dma_hw_desc *desc)
- {
-+	if (!desc->lli) {
-+		dev_err(dchan2dev(&chan->vc.chan), "NULL LLI\n");
-+		return;
+@@ -1054,6 +1054,11 @@ static void axi_chan_block_xfer_complete(struct axi_dma_chan *chan)
+ 
+ 	/* The completed descriptor currently is in the head of vc list */
+ 	vd = vchan_next_desc(&chan->vc);
++	if (!vd) {
++		dev_err(chan2dev(chan), "BUG: %s, IRQ with no descriptors\n",
++			axi_chan_name(chan));
++		goto out;
 +	}
-+
- 	dev_err(dchan2dev(&chan->vc.chan),
- 		"SAR: 0x%llx DAR: 0x%llx LLP: 0x%llx BTS 0x%x CTL: 0x%x:%08x",
- 		le64_to_cpu(desc->lli->sar),
+ 
+ 	if (chan->cyclic) {
+ 		desc = vd_to_axi_desc(vd);
+@@ -1083,6 +1088,7 @@ static void axi_chan_block_xfer_complete(struct axi_dma_chan *chan)
+ 		axi_chan_start_first_queued(chan);
+ 	}
+ 
++out:
+ 	spin_unlock_irqrestore(&chan->vc.lock, flags);
+ }
+ 
 -- 
 2.35.1
 
