@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DAA159DEF6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7678659DFC7
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353624AbiHWKSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:18:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55980 "EHLO
+        id S241325AbiHWLT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353768AbiHWKPx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:15:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A5CE7FE4E;
-        Tue, 23 Aug 2022 02:00:55 -0700 (PDT)
+        with ESMTP id S1357419AbiHWLRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27913BE4CE;
+        Tue, 23 Aug 2022 02:20:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4280561524;
-        Tue, 23 Aug 2022 09:00:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D705C433D6;
-        Tue, 23 Aug 2022 09:00:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9536B81C53;
+        Tue, 23 Aug 2022 09:20:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12C79C433C1;
+        Tue, 23 Aug 2022 09:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245254;
-        bh=pi9vYBZD2zfpl5KFECfULYdO7ZxPwT/FN8MkrKh2USc=;
+        s=korg; t=1661246443;
+        bh=UR1QjSKF5bJAcLN55DIqh5XIbSD7Vnu68RDjqbSAYaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ei2DdEDzr9h50gu335DFp82O3Co+iCOEyFUQvojMh3EuVodscXfYUOUjv8ZmDYPu8
-         KPQUoFYJmC2MLiHJiehQ1e3j7y0Q3SxdeV2pMbUBLXe/47a2uVNXYLACpJNeuR4CkH
-         tTEbqmbbrIr6LuFkxblaj1wMMy9f/zcP7jGeJhJE=
+        b=ccAOgEttTmgv2CcwV95fpZELBBWD8O6syacIPSblgDwkGIfBoKE7TPuIe+YXt5miY
+         82WBs4gSN4cbhCSs4BVhiVL8xxHE5e0TYyPk2jwSYq5ysemSHY/2HUAyE+vvUfkpOL
+         RHZXct4jNkz9eFlvPivUCzthgS/sinA18DbRxH9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 021/287] parisc: Fix device names in /proc/iomem
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 112/389] drm/rockchip: vop: Dont crash for invalid duplicate_state()
 Date:   Tue, 23 Aug 2022 10:23:10 +0200
-Message-Id: <20220823080100.992430625@linuxfoundation.org>
+Message-Id: <20220823080120.297505571@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Brian Norris <briannorris@chromium.org>
 
-commit cab56b51ec0e69128909cef4650e1907248d821b upstream.
+[ Upstream commit 1449110b0dade8b638d2c17ab7c5b0ff696bfccb ]
 
-Fix the output of /proc/iomem to show the real hardware device name
-including the pa_pathname, e.g. "Merlin 160 Core Centronics [8:16:0]".
-Up to now only the pa_pathname ("[8:16.0]") was shown.
+It's possible for users to try to duplicate the CRTC state even when the
+state doesn't exist. drm_atomic_helper_crtc_duplicate_state() (and other
+users of __drm_atomic_helper_crtc_duplicate_state()) already guard this
+with a WARN_ON() instead of crashing, so let's do that here too.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v4.9+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4e257d9eee23 ("drm/rockchip: get rid of rockchip_drm_crtc_mode_config")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220617172623.1.I62db228170b1559ada60b8d3e1637e1688424926@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/drivers.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/parisc/kernel/drivers.c
-+++ b/arch/parisc/kernel/drivers.c
-@@ -499,7 +499,6 @@ alloc_pa_dev(unsigned long hpa, struct h
- 	dev->id.hversion_rev = iodc_data[1] & 0x0f;
- 	dev->id.sversion = ((iodc_data[4] & 0x0f) << 16) |
- 			(iodc_data[5] << 8) | iodc_data[6];
--	dev->hpa.name = parisc_pathname(dev);
- 	dev->hpa.start = hpa;
- 	/* This is awkward.  The STI spec says that gfx devices may occupy
- 	 * 32MB or 64MB.  Unfortunately, we don't know how to tell whether
-@@ -513,10 +512,10 @@ alloc_pa_dev(unsigned long hpa, struct h
- 		dev->hpa.end = hpa + 0xfff;
- 	}
- 	dev->hpa.flags = IORESOURCE_MEM;
--	name = parisc_hardware_description(&dev->id);
--	if (name) {
--		strlcpy(dev->name, name, sizeof(dev->name));
--	}
-+	dev->hpa.name = dev->name;
-+	name = parisc_hardware_description(&dev->id) ? : "unknown";
-+	snprintf(dev->name, sizeof(dev->name), "%s [%s]",
-+		name, parisc_pathname(dev));
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+index 2e4e1933a43c..57e0396662c3 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+@@ -1288,6 +1288,9 @@ static struct drm_crtc_state *vop_crtc_duplicate_state(struct drm_crtc *crtc)
+ {
+ 	struct rockchip_crtc_state *rockchip_state;
  
- 	/* Silently fail things like mouse ports which are subsumed within
- 	 * the keyboard controller
++	if (WARN_ON(!crtc->state))
++		return NULL;
++
+ 	rockchip_state = kzalloc(sizeof(*rockchip_state), GFP_KERNEL);
+ 	if (!rockchip_state)
+ 		return NULL;
+-- 
+2.35.1
+
 
 
