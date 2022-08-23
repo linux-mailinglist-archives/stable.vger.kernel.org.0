@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F121F59DFA4
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE15959E1D6
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352614AbiHWMSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46202 "EHLO
+        id S1358965AbiHWMDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:03:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359609AbiHWMQD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:03 -0400
+        with ESMTP id S1359654AbiHWMCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58D8F3C8FC;
-        Tue, 23 Aug 2022 02:41:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A17597D61;
+        Tue, 23 Aug 2022 02:36:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5443A61460;
-        Tue, 23 Aug 2022 09:41:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECA1C433D6;
-        Tue, 23 Aug 2022 09:41:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C32B61460;
+        Tue, 23 Aug 2022 09:35:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D962C433C1;
+        Tue, 23 Aug 2022 09:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247683;
-        bh=/V+IJY6wc0xA2+IQexoTNeDbfmayvGMa12EI+QNw7rg=;
+        s=korg; t=1661247346;
+        bh=ZfhN6gBPas6paF0r6SYHnlPxLeobyhbICE7aQpwDZpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDW/CzbSP1Nd34FCcLeukOFMlcYBHv7N+pwHsVExnVFnPr0nA7OfXdsXbifOJ8pah
-         Zpai3A380nDPskH5Ym1YncvyGrhklL6Se6BtIncY4cCV0mBMKiS1kET2m5CiGt536g
-         yAOXvEcVXh4r5IE0ct7KPyqWpVnsDUqmabPWW80A=
+        b=PtCqT7DkzmTUcJ9ZAKZRmjI0WGpRMN6Phi/BUDrVFYDyLcyl23J3nkRKfBVWvcjnk
+         ZJhn/CtJDthJrHW/xB267/ofs+W9EjJB7TuaUo5l1tB7eA3oE3e2/i/vwhuQHwED4l
+         LNVmf0DW6FCQW7tkfkenPWRaRwO11CdyRzGPegto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shen <shenyang39@huawei.com>,
-        Zhangfei Gao <zhangfei.gao@linaro.org>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 114/158] uacce: Handle parent device removal or parent driver module rmmod
+        stable@vger.kernel.org, Oleg Kiselev <okiselev@amazon.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 368/389] ext4: avoid resizing to a partial cluster size
 Date:   Tue, 23 Aug 2022 10:27:26 +0200
-Message-Id: <20220823080050.542883808@linuxfoundation.org>
+Message-Id: <20220823080130.902458340@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,348 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Kiselev, Oleg <okiselev@amazon.com>
 
-[ Upstream commit 80fc671bcc0173836e9032b0c698ea74c13b9d7c ]
+[ Upstream commit 69cb8e9d8cd97cdf5e293b26d70a9dee3e35e6bd ]
 
-The uacce driver must deal with a possible removal of the parent device
-or parent driver module rmmod at any time.
+This patch avoids an attempt to resize the filesystem to an
+unaligned cluster boundary.  An online resize to a size that is not
+integral to cluster size results in the last iteration attempting to
+grow the fs by a negative amount, which trips a BUG_ON and leaves the fs
+with a corrupted in-memory superblock.
 
-Although uacce_remove(), called on device removal and on driver unbind,
-prevents future use of the uacce fops by removing the cdev, fops that
-were called before that point may still be running.
-
-Serialize uacce_fops_open() and uacce_remove() with uacce->mutex.
-Serialize other fops against uacce_remove() with q->mutex.
-Since we need to protect uacce_fops_poll() which gets called on the fast
-path, replace uacce->queues_lock with q->mutex to improve scalability.
-The other fops are only used during setup.
-
-uacce_queue_is_valid(), checked under q->mutex or uacce->mutex, denotes
-whether uacce_remove() has disabled all queues. If that is the case,
-don't go any further since the parent device is being removed and
-uacce->ops should not be called anymore.
-
-Reported-by: Yang Shen <shenyang39@huawei.com>
-Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Link: https://lore.kernel.org/r/20220701034843.7502-1-zhangfei.gao@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Oleg Kiselev <okiselev@amazon.com>
+Link: https://lore.kernel.org/r/0E92A0AB-4F16-4F1A-94B7-702CC6504FDE@amazon.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/uacce/uacce.c | 133 ++++++++++++++++++++++++-------------
- include/linux/uacce.h      |   6 +-
- 2 files changed, 91 insertions(+), 48 deletions(-)
+ fs/ext4/resize.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/misc/uacce/uacce.c b/drivers/misc/uacce/uacce.c
-index 56dd98ab5a81..95e56eb2cdd0 100644
---- a/drivers/misc/uacce/uacce.c
-+++ b/drivers/misc/uacce/uacce.c
-@@ -9,43 +9,38 @@
- 
- static struct class *uacce_class;
- static dev_t uacce_devt;
--static DEFINE_MUTEX(uacce_mutex);
- static DEFINE_XARRAY_ALLOC(uacce_xa);
- 
--static int uacce_start_queue(struct uacce_queue *q)
-+/*
-+ * If the parent driver or the device disappears, the queue state is invalid and
-+ * ops are not usable anymore.
-+ */
-+static bool uacce_queue_is_valid(struct uacce_queue *q)
- {
--	int ret = 0;
-+	return q->state == UACCE_Q_INIT || q->state == UACCE_Q_STARTED;
-+}
- 
--	mutex_lock(&uacce_mutex);
-+static int uacce_start_queue(struct uacce_queue *q)
-+{
-+	int ret;
- 
--	if (q->state != UACCE_Q_INIT) {
--		ret = -EINVAL;
--		goto out_with_lock;
--	}
-+	if (q->state != UACCE_Q_INIT)
-+		return -EINVAL;
- 
- 	if (q->uacce->ops->start_queue) {
- 		ret = q->uacce->ops->start_queue(q);
- 		if (ret < 0)
--			goto out_with_lock;
-+			return ret;
+diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
+index 306003e29c4c..f0fc7fc579e6 100644
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -1979,6 +1979,16 @@ int ext4_resize_fs(struct super_block *sb, ext4_fsblk_t n_blocks_count)
  	}
- 
- 	q->state = UACCE_Q_STARTED;
--
--out_with_lock:
--	mutex_unlock(&uacce_mutex);
--
--	return ret;
-+	return 0;
- }
- 
- static int uacce_put_queue(struct uacce_queue *q)
- {
- 	struct uacce_device *uacce = q->uacce;
- 
--	mutex_lock(&uacce_mutex);
--
--	if (q->state == UACCE_Q_ZOMBIE)
--		goto out;
--
- 	if ((q->state == UACCE_Q_STARTED) && uacce->ops->stop_queue)
- 		uacce->ops->stop_queue(q);
- 
-@@ -54,8 +49,6 @@ static int uacce_put_queue(struct uacce_queue *q)
- 		uacce->ops->put_queue(q);
- 
- 	q->state = UACCE_Q_ZOMBIE;
--out:
--	mutex_unlock(&uacce_mutex);
- 
- 	return 0;
- }
-@@ -65,20 +58,36 @@ static long uacce_fops_unl_ioctl(struct file *filep,
- {
- 	struct uacce_queue *q = filep->private_data;
- 	struct uacce_device *uacce = q->uacce;
-+	long ret = -ENXIO;
-+
-+	/*
-+	 * uacce->ops->ioctl() may take the mmap_lock when copying arg to/from
-+	 * user. Avoid a circular lock dependency with uacce_fops_mmap(), which
-+	 * gets called with mmap_lock held, by taking uacce->mutex instead of
-+	 * q->mutex. Doing this in uacce_fops_mmap() is not possible because
-+	 * uacce_fops_open() calls iommu_sva_bind_device(), which takes
-+	 * mmap_lock, while holding uacce->mutex.
-+	 */
-+	mutex_lock(&uacce->mutex);
-+	if (!uacce_queue_is_valid(q))
-+		goto out_unlock;
- 
- 	switch (cmd) {
- 	case UACCE_CMD_START_Q:
--		return uacce_start_queue(q);
--
-+		ret = uacce_start_queue(q);
-+		break;
- 	case UACCE_CMD_PUT_Q:
--		return uacce_put_queue(q);
--
-+		ret = uacce_put_queue(q);
-+		break;
- 	default:
--		if (!uacce->ops->ioctl)
--			return -EINVAL;
--
--		return uacce->ops->ioctl(q, cmd, arg);
-+		if (uacce->ops->ioctl)
-+			ret = uacce->ops->ioctl(q, cmd, arg);
-+		else
-+			ret = -EINVAL;
- 	}
-+out_unlock:
-+	mutex_unlock(&uacce->mutex);
-+	return ret;
- }
- 
- #ifdef CONFIG_COMPAT
-@@ -136,6 +145,13 @@ static int uacce_fops_open(struct inode *inode, struct file *filep)
- 	if (!q)
- 		return -ENOMEM;
- 
-+	mutex_lock(&uacce->mutex);
-+
-+	if (!uacce->parent) {
-+		ret = -EINVAL;
-+		goto out_with_mem;
-+	}
-+
- 	ret = uacce_bind_queue(uacce, q);
- 	if (ret)
- 		goto out_with_mem;
-@@ -152,10 +168,9 @@ static int uacce_fops_open(struct inode *inode, struct file *filep)
- 	filep->private_data = q;
- 	uacce->inode = inode;
- 	q->state = UACCE_Q_INIT;
--
--	mutex_lock(&uacce->queues_lock);
-+	mutex_init(&q->mutex);
- 	list_add(&q->list, &uacce->queues);
--	mutex_unlock(&uacce->queues_lock);
-+	mutex_unlock(&uacce->mutex);
- 
- 	return 0;
- 
-@@ -163,18 +178,20 @@ static int uacce_fops_open(struct inode *inode, struct file *filep)
- 	uacce_unbind_queue(q);
- out_with_mem:
- 	kfree(q);
-+	mutex_unlock(&uacce->mutex);
- 	return ret;
- }
- 
- static int uacce_fops_release(struct inode *inode, struct file *filep)
- {
- 	struct uacce_queue *q = filep->private_data;
-+	struct uacce_device *uacce = q->uacce;
- 
--	mutex_lock(&q->uacce->queues_lock);
--	list_del(&q->list);
--	mutex_unlock(&q->uacce->queues_lock);
-+	mutex_lock(&uacce->mutex);
- 	uacce_put_queue(q);
- 	uacce_unbind_queue(q);
-+	list_del(&q->list);
-+	mutex_unlock(&uacce->mutex);
- 	kfree(q);
- 
- 	return 0;
-@@ -217,10 +234,9 @@ static int uacce_fops_mmap(struct file *filep, struct vm_area_struct *vma)
- 	vma->vm_private_data = q;
- 	qfr->type = type;
- 
--	mutex_lock(&uacce_mutex);
--
--	if (q->state != UACCE_Q_INIT && q->state != UACCE_Q_STARTED) {
--		ret = -EINVAL;
-+	mutex_lock(&q->mutex);
-+	if (!uacce_queue_is_valid(q)) {
-+		ret = -ENXIO;
- 		goto out_with_lock;
- 	}
- 
-@@ -259,12 +275,12 @@ static int uacce_fops_mmap(struct file *filep, struct vm_area_struct *vma)
- 	}
- 
- 	q->qfrs[type] = qfr;
--	mutex_unlock(&uacce_mutex);
-+	mutex_unlock(&q->mutex);
- 
- 	return ret;
- 
- out_with_lock:
--	mutex_unlock(&uacce_mutex);
-+	mutex_unlock(&q->mutex);
- 	kfree(qfr);
- 	return ret;
- }
-@@ -273,12 +289,20 @@ static __poll_t uacce_fops_poll(struct file *file, poll_table *wait)
- {
- 	struct uacce_queue *q = file->private_data;
- 	struct uacce_device *uacce = q->uacce;
-+	__poll_t ret = 0;
-+
-+	mutex_lock(&q->mutex);
-+	if (!uacce_queue_is_valid(q))
-+		goto out_unlock;
- 
- 	poll_wait(file, &q->wait, wait);
-+
- 	if (uacce->ops->is_q_updated && uacce->ops->is_q_updated(q))
--		return EPOLLIN | EPOLLRDNORM;
-+		ret = EPOLLIN | EPOLLRDNORM;
- 
--	return 0;
-+out_unlock:
-+	mutex_unlock(&q->mutex);
-+	return ret;
- }
- 
- static const struct file_operations uacce_fops = {
-@@ -431,7 +455,7 @@ struct uacce_device *uacce_alloc(struct device *parent,
- 		goto err_with_uacce;
- 
- 	INIT_LIST_HEAD(&uacce->queues);
--	mutex_init(&uacce->queues_lock);
-+	mutex_init(&uacce->mutex);
- 	device_initialize(&uacce->dev);
- 	uacce->dev.devt = MKDEV(MAJOR(uacce_devt), uacce->dev_id);
- 	uacce->dev.class = uacce_class;
-@@ -489,13 +513,23 @@ void uacce_remove(struct uacce_device *uacce)
- 	if (uacce->inode)
- 		unmap_mapping_range(uacce->inode->i_mapping, 0, 0, 1);
+ 	brelse(bh);
  
 +	/*
-+	 * uacce_fops_open() may be running concurrently, even after we remove
-+	 * the cdev. Holding uacce->mutex ensures that open() does not obtain a
-+	 * removed uacce device.
++	 * For bigalloc, trim the requested size to the nearest cluster
++	 * boundary to avoid creating an unusable filesystem. We do this
++	 * silently, instead of returning an error, to avoid breaking
++	 * callers that blindly resize the filesystem to the full size of
++	 * the underlying block device.
 +	 */
-+	mutex_lock(&uacce->mutex);
- 	/* ensure no open queue remains */
--	mutex_lock(&uacce->queues_lock);
- 	list_for_each_entry_safe(q, next_q, &uacce->queues, list) {
-+		/*
-+		 * Taking q->mutex ensures that fops do not use the defunct
-+		 * uacce->ops after the queue is disabled.
-+		 */
-+		mutex_lock(&q->mutex);
- 		uacce_put_queue(q);
-+		mutex_unlock(&q->mutex);
- 		uacce_unbind_queue(q);
- 	}
--	mutex_unlock(&uacce->queues_lock);
- 
- 	/* disable sva now since no opened queues */
- 	if (uacce->flags & UACCE_DEV_SVA)
-@@ -504,6 +538,13 @@ void uacce_remove(struct uacce_device *uacce)
- 	if (uacce->cdev)
- 		cdev_device_del(uacce->cdev, &uacce->dev);
- 	xa_erase(&uacce_xa, uacce->dev_id);
-+	/*
-+	 * uacce exists as long as there are open fds, but ops will be freed
-+	 * now. Ensure that bugs cause NULL deref rather than use-after-free.
-+	 */
-+	uacce->ops = NULL;
-+	uacce->parent = NULL;
-+	mutex_unlock(&uacce->mutex);
- 	put_device(&uacce->dev);
- }
- EXPORT_SYMBOL_GPL(uacce_remove);
-diff --git a/include/linux/uacce.h b/include/linux/uacce.h
-index 48e319f40275..9ce88c28b0a8 100644
---- a/include/linux/uacce.h
-+++ b/include/linux/uacce.h
-@@ -70,6 +70,7 @@ enum uacce_q_state {
-  * @wait: wait queue head
-  * @list: index into uacce queues list
-  * @qfrs: pointer of qfr regions
-+ * @mutex: protects queue state
-  * @state: queue state machine
-  * @pasid: pasid associated to the mm
-  * @handle: iommu_sva handle returned by iommu_sva_bind_device()
-@@ -80,6 +81,7 @@ struct uacce_queue {
- 	wait_queue_head_t wait;
- 	struct list_head list;
- 	struct uacce_qfile_region *qfrs[UACCE_MAX_REGION];
-+	struct mutex mutex;
- 	enum uacce_q_state state;
- 	u32 pasid;
- 	struct iommu_sva *handle;
-@@ -97,9 +99,9 @@ struct uacce_queue {
-  * @dev_id: id of the uacce device
-  * @cdev: cdev of the uacce
-  * @dev: dev of the uacce
-+ * @mutex: protects uacce operation
-  * @priv: private pointer of the uacce
-  * @queues: list of queues
-- * @queues_lock: lock for queues list
-  * @inode: core vfs
-  */
- struct uacce_device {
-@@ -113,9 +115,9 @@ struct uacce_device {
- 	u32 dev_id;
- 	struct cdev *cdev;
- 	struct device dev;
-+	struct mutex mutex;
- 	void *priv;
- 	struct list_head queues;
--	struct mutex queues_lock;
- 	struct inode *inode;
- };
++	if (ext4_has_feature_bigalloc(sb))
++		n_blocks_count &= ~((1 << EXT4_CLUSTER_BITS(sb)) - 1);
++
+ retry:
+ 	o_blocks_count = ext4_blocks_count(es);
  
 -- 
 2.35.1
