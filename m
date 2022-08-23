@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAC159E253
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5430559DB54
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354191AbiHWKYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:24:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
+        id S1347044AbiHWLYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:24:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354864AbiHWKWU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:22:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF9512A81;
-        Tue, 23 Aug 2022 02:03:40 -0700 (PDT)
+        with ESMTP id S1345467AbiHWLWk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:22:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154003F1DD;
+        Tue, 23 Aug 2022 02:23:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 236F16153D;
-        Tue, 23 Aug 2022 09:03:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24731C433D7;
-        Tue, 23 Aug 2022 09:03:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA788B81C63;
+        Tue, 23 Aug 2022 09:23:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C292C433D7;
+        Tue, 23 Aug 2022 09:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245418;
-        bh=XHWCVtSrF+AMjw1APiPb2rOv6uozkaDffbknLY9v3tM=;
+        s=korg; t=1661246608;
+        bh=k6l0jTys9X4jNwGOb/WlS1JIPlY5G2K38bc4mbzN3tQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmMIFoprIT2Oa1pin/D3fWxrHxBVyVpXhXDXjj5h5u4Xzi54Ztlb9FGx7KUicPYQS
-         zZRrrOv3bM5YfBcxqCXhRtQb+RbDFwJDbmVgoF+/nDq8awVl50lea6LKOP+QPzmuBE
-         sVIHF1HhVjjOBOVP3u7dBbw9vZc3aJPpxKTTRVVE=
+        b=ud9i4oMOOyvQuV+we60q+kcboF/GyrMgJ8c49C+Xd4VkQcoZzPiCAYC3DkDxZ3Bmd
+         Cey7IGjqz99tWEhREXW8X3vDAE8LZw1yEkkzzoxNi58VH5itxOFeLYnrwWcafiAg0n
+         PsS7BQDnutpuaP5ExzHoqt+ffBjE+WeKSUQVVOVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/287] ARM: dts: imx6ul: add missing properties for sram
+Subject: [PATCH 5.4 133/389] can: sja1000: do not report txerr and rxerr during bus-off
 Date:   Tue, 23 Aug 2022 10:23:31 +0200
-Message-Id: <20220823080101.682933583@linuxfoundation.org>
+Message-Id: <20220823080121.177102706@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 5655699cf5cff9f4c4ee703792156bdd05d1addf ]
+[ Upstream commit 164d7cb2d5a30f1b3a5ab4fab1a27731fb1494a8 ]
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check
-warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+During bus off, the error count is greater than 255 and can not fit in
+a u8.
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 215db1856e83 ("can: sja1000: Consolidate and unify state change handling")
+Link: https://lore.kernel.org/all/20220719143550.3681-4-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6ul.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/can/sja1000/sja1000.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
-index adecd6e08468..07850587ee0a 100644
---- a/arch/arm/boot/dts/imx6ul.dtsi
-+++ b/arch/arm/boot/dts/imx6ul.dtsi
-@@ -169,6 +169,9 @@ soc {
- 		ocram: sram@900000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00900000 0x20000>;
-+			ranges = <0 0x00900000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 		};
+diff --git a/drivers/net/can/sja1000/sja1000.c b/drivers/net/can/sja1000/sja1000.c
+index 9f107798f904..e7327ceabb76 100644
+--- a/drivers/net/can/sja1000/sja1000.c
++++ b/drivers/net/can/sja1000/sja1000.c
+@@ -405,9 +405,6 @@ static int sja1000_err(struct net_device *dev, uint8_t isrc, uint8_t status)
+ 	txerr = priv->read_reg(priv, SJA1000_TXERR);
+ 	rxerr = priv->read_reg(priv, SJA1000_RXERR);
  
- 		dma_apbh: dma-apbh@1804000 {
+-	cf->data[6] = txerr;
+-	cf->data[7] = rxerr;
+-
+ 	if (isrc & IRQ_DOI) {
+ 		/* data overrun interrupt */
+ 		netdev_dbg(dev, "data overrun interrupt\n");
+@@ -429,6 +426,10 @@ static int sja1000_err(struct net_device *dev, uint8_t isrc, uint8_t status)
+ 		else
+ 			state = CAN_STATE_ERROR_ACTIVE;
+ 	}
++	if (state != CAN_STATE_BUS_OFF) {
++		cf->data[6] = txerr;
++		cf->data[7] = rxerr;
++	}
+ 	if (isrc & IRQ_BEI) {
+ 		/* bus error interrupt */
+ 		priv->can.can_stats.bus_error++;
 -- 
 2.35.1
 
