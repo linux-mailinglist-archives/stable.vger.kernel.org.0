@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE1A59D6EA
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16D3959D7A3
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244479AbiHWJmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:42:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53338 "EHLO
+        id S243032AbiHWJ5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:57:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352084AbiHWJkz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:40:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081F545041;
-        Tue, 23 Aug 2022 01:41:47 -0700 (PDT)
+        with ESMTP id S1351787AbiHWJzz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:55:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B2E54C603;
+        Tue, 23 Aug 2022 01:46:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75F99B81C69;
-        Tue, 23 Aug 2022 08:41:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B5FC433C1;
-        Tue, 23 Aug 2022 08:41:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 501D3B81C39;
+        Tue, 23 Aug 2022 08:46:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809F4C433C1;
+        Tue, 23 Aug 2022 08:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244087;
-        bh=6o7dFMo7ClTdnFjrVOtoQR+dS9HFFHcI3I/lUGs2dLs=;
+        s=korg; t=1661244399;
+        bh=zB3vcfByeeRaNK19bHJNOfxahrTKbnldYjcp2+CARZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=17fsAOGYS3LkFdWTsVaFOCRC+uwAp9DAL9B2UDD6rg19XE1ZMK8EC21dotMlXqKMe
-         K2/sXgVkv26rWp87er0NNmOxP6ELg338TNTAZAeaWenyZgkWauDkaP7j1IDX02RNOk
-         3ooP05QRGGimmFhbo/WhB4EVv/ByLj3081ihjOck=
+        b=uqpIXsMFSsOkOYM7h55uHmyW7ReiUEoalITM7pzU8zbqAPDGUcc4IjhtXj/bngVFf
+         Pa6oLdz9Dtj4+sVw431kAPQcNZjZ3fNNHAvyrjrJwvnzCFkTuuAb9v8nSwX5Gdu9Ka
+         cyc3tm+Iz5oiyLoadeHU4bMN+K3KUnMuGgICiQ4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 084/229] can: usb_8dev: do not report txerr and rxerr during bus-off
-Date:   Tue, 23 Aug 2022 10:24:05 +0200
-Message-Id: <20220823080056.731785849@linuxfoundation.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Michal Simek <michal.simek@amd.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 088/244] spi: dt-bindings: zynqmp-qspi: add missing required
+Date:   Tue, 23 Aug 2022 10:24:07 +0200
+Message-Id: <20220823080101.965367455@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit aebe8a2433cd090ccdc222861f44bddb75eb01de ]
+commit acfc34f008c3e66bbcb7b9162c80c8327b6e800f upstream.
 
-During bus off, the error count is greater than 255 and can not fit in
-a u8.
+During the conversion the bindings lost list of required properties.
 
-Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
-Link: https://lore.kernel.org/all/20220719143550.3681-10-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c58db2abb19f ("spi: convert Xilinx Zynq UltraScale+ MPSoC GQSPI bindings to YAML")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Michal Simek <michal.simek@amd.com>
+Link: https://lore.kernel.org/r/20220704130618.199231-2-krzysztof.kozlowski@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/usb_8dev.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/can/usb/usb_8dev.c b/drivers/net/can/usb/usb_8dev.c
-index 232f45f722f0..5cb5be4dc941 100644
---- a/drivers/net/can/usb/usb_8dev.c
-+++ b/drivers/net/can/usb/usb_8dev.c
-@@ -453,9 +453,10 @@ static void usb_8dev_rx_err_msg(struct usb_8dev_priv *priv,
+diff --git a/Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml b/Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml
+index ea72c8001256..fafde1c06be6 100644
+--- a/Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml
++++ b/Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml
+@@ -30,6 +30,13 @@ properties:
+   clocks:
+     maxItems: 2
  
- 	if (rx_errors)
- 		stats->rx_errors++;
--
--	cf->data[6] = txerr;
--	cf->data[7] = rxerr;
-+	if (priv->can.state != CAN_STATE_BUS_OFF) {
-+		cf->data[6] = txerr;
-+		cf->data[7] = rxerr;
-+	}
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clock-names
++  - clocks
++
+ unevaluatedProperties: false
  
- 	priv->bec.txerr = txerr;
- 	priv->bec.rxerr = rxerr;
+ examples:
 -- 
-2.35.1
+2.37.2
 
 
 
