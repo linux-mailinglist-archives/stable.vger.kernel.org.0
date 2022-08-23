@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B883459D7FB
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41FCD59D7D8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243572AbiHWJlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:41:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52354 "EHLO
+        id S242597AbiHWJlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:41:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344258AbiHWJkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:40:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA22E78BFA;
-        Tue, 23 Aug 2022 01:41:23 -0700 (PDT)
+        with ESMTP id S1351684AbiHWJkB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:40:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D5FD48E8F;
+        Tue, 23 Aug 2022 01:41:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 782426155E;
-        Tue, 23 Aug 2022 08:40:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 774D6C433D7;
-        Tue, 23 Aug 2022 08:40:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4319361458;
+        Tue, 23 Aug 2022 08:40:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A089C433D6;
+        Tue, 23 Aug 2022 08:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244026;
-        bh=N1qxb1d5A0ahyPnmnnSrdHQ4ijl9mV+imj7CvZo3YMY=;
+        s=korg; t=1661244038;
+        bh=t5e8m7zUSZLlKDZ0aO+vYJnddTUtFWDaqH96W3GXM0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKcjXJceHAGcpx7xyiUDOJjsk83FOzQTvrzUF9ib/ge9BjitUFbVb5TidB+hZ7Jam
-         5CTJy8B72QIaKrzQjliEPG9XsSSYMoxUkHzhq4ohjzUnD2py2iXK8ed9I8XJscw5dM
-         sy4yz5L/JgWg9BfSKBhe++nRtvseP6pGKP6146Hk=
+        b=jh5P11yMlIoDuaItuE7nf+PUSBZVv/6tq+o0pfGkPUuGCLT/Ehueq8iyO2R6I980a
+         nh2YSjGEzEQcoCzw4NxaH0fbwpEIoNRXd0NIT2AMDKrjpHgDAaYNVOyzYpEmosa9Bm
+         xrKgtb/1sHKks29pFdB3oekcUf0cuB153LZDm/+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.15 026/244] dt-bindings: usb: mtk-xhci: Allow wakeup interrupt-names to be optional
-Date:   Tue, 23 Aug 2022 10:23:05 +0200
-Message-Id: <20220823080059.925877376@linuxfoundation.org>
+        Gerhard Uttenthaler <uttenthaler@ems-wuensche.com>,
+        Sebastian Haas <haas@ems-wuensche.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 027/244] can: ems_usb: fix clangs -Wunaligned-access warning
+Date:   Tue, 23 Aug 2022 10:23:06 +0200
+Message-Id: <20220823080059.964579394@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -46,42 +45,75 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit b2c510ffe29f20a5f6ff31ae28d32ffa494b8cfb upstream.
+commit a4cb6e62ea4d36e53fb3c0f18ea4503d7b76674f upstream.
 
-Add missing "minItems: 1" to the interrupt-names property to allow the
-second interrupt-names, "wakeup", to be optional.
+clang emits a -Wunaligned-access warning on struct __packed
+ems_cpc_msg.
 
-Fixes: fe8e488058c4 ("dt-bindings: usb: mtk-xhci: add wakeup interrupt")
-Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20220623193702.817996-2-nfraprado@collabora.com
+The reason is that the anonymous union msg (not declared as packed) is
+being packed right after some non naturally aligned variables (3*8
+bits + 2*32) inside a packed struct:
+
+| struct __packed ems_cpc_msg {
+| 	u8 type;	/* type of message */
+| 	u8 length;	/* length of data within union 'msg' */
+| 	u8 msgid;	/* confirmation handle */
+| 	__le32 ts_sec;	/* timestamp in seconds */
+| 	__le32 ts_nsec;	/* timestamp in nano seconds */
+|	/* ^ not naturally aligned */
+|
+| 	union {
+| 	/* ^ not declared as packed */
+| 		u8 generic[64];
+| 		struct cpc_can_msg can_msg;
+| 		struct cpc_can_params can_params;
+| 		struct cpc_confirm confirmation;
+| 		struct cpc_overrun overrun;
+| 		struct cpc_can_error error;
+| 		struct cpc_can_err_counter err_counter;
+| 		u8 can_state;
+| 	} msg;
+| };
+
+Starting from LLVM 14, having an unpacked struct nested in a packed
+struct triggers a warning. c.f. [1].
+
+Fix the warning by marking the anonymous union as packed.
+
+[1] https://github.com/llvm/llvm-project/issues/55520
+
+Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
+Link: https://lore.kernel.org/all/20220802094021.959858-1-mkl@pengutronix.de
+Cc: Gerhard Uttenthaler <uttenthaler@ems-wuensche.com>
+Cc: Sebastian Haas <haas@ems-wuensche.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/usb/mediatek,mtk-xhci.yaml |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/usb/ems_usb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/usb/mediatek,mtk-xhci.yaml
-+++ b/Documentation/devicetree/bindings/usb/mediatek,mtk-xhci.yaml
-@@ -56,6 +56,7 @@ properties:
-       - description: optional, wakeup interrupt used to support runtime PM
+--- a/drivers/net/can/usb/ems_usb.c
++++ b/drivers/net/can/usb/ems_usb.c
+@@ -194,7 +194,7 @@ struct __packed ems_cpc_msg {
+ 	__le32 ts_sec;	/* timestamp in seconds */
+ 	__le32 ts_nsec;	/* timestamp in nano seconds */
  
-   interrupt-names:
-+    minItems: 1
-     items:
-       - const: host
-       - const: wakeup
+-	union {
++	union __packed {
+ 		u8 generic[64];
+ 		struct cpc_can_msg can_msg;
+ 		struct cpc_can_params can_params;
 
 
