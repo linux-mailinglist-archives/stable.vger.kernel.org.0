@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DCC459E0ED
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBB6259E10E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358889AbiHWLzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:55:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
+        id S1356694AbiHWKym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358750AbiHWLxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:53:46 -0400
+        with ESMTP id S1357097AbiHWKxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:53:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBA8D59BA;
-        Tue, 23 Aug 2022 02:33:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 208E0ACA04;
+        Tue, 23 Aug 2022 02:13:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DCF8B81C99;
-        Tue, 23 Aug 2022 09:33:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8583CC433D7;
-        Tue, 23 Aug 2022 09:32:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 660A8B81C66;
+        Tue, 23 Aug 2022 09:13:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6A05C433C1;
+        Tue, 23 Aug 2022 09:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247180;
+        s=korg; t=1661245985;
         bh=NSWtoY/b14STqguOXNn0kkCnYB/ON/ex+GeP1Dr7dog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toTHpqLfA7jWea2wWRsp/2VBijWPmqgUiZHPa5EjDH7WKQ/DH1DIu51unNiDujVfD
-         fOPZV3RcK4U3glu8z2g0udlZ1+Vrn9iLN0uG60i5z5kZbjcPQvpZ9St49o3hLcKoZQ
-         wN54DqBQ0sdVmO0fgBvdBXuSomjRV4iSFeDuAJ3s=
+        b=nnFOZPD591/xW/HK5V9pbvaK7Wu+GEC1pKpCSQt4ucAMsJBj5PS840H69mYTeJZjz
+         nCiPqr21yoBdjgZyr/VLDjuiPOOFJw9c37AKvu2oBASG10JHojuqp7ivLf0cRoM97b
+         klxWL6QYR3Xjkxnf7pH+aOKNhbamjdij7bs2C47c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Cs=C3=B3k=C3=A1s=20Bence?= <csokas.bence@prolan.hu>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 344/389] fec: Fix timer capture timing in `fec_ptp_enable_pps()`
+Subject: [PATCH 4.19 253/287] fec: Fix timer capture timing in `fec_ptp_enable_pps()`
 Date:   Tue, 23 Aug 2022 10:27:02 +0200
-Message-Id: <20220823080129.912443511@linuxfoundation.org>
+Message-Id: <20220823080109.746251659@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
