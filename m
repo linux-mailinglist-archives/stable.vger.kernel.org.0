@@ -2,122 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70DCC59D547
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C84959D7AD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344835AbiHWIhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:37:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
+        id S1349325AbiHWJWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:22:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345554AbiHWIfp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:35:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF7FE760FD;
-        Tue, 23 Aug 2022 01:17:05 -0700 (PDT)
+        with ESMTP id S1350647AbiHWJWD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:22:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 507188E0DA;
+        Tue, 23 Aug 2022 01:34:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2DEF6131B;
-        Tue, 23 Aug 2022 08:17:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE0F4C433C1;
-        Tue, 23 Aug 2022 08:17:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3BF96151B;
+        Tue, 23 Aug 2022 08:34:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC9DCC43470;
+        Tue, 23 Aug 2022 08:34:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242624;
-        bh=WnMkrFmRqTr/C6KW7WcHvuKKxCCcy1TaXXmxhygiNlc=;
+        s=korg; t=1661243691;
+        bh=vtUXON8ZPY2JWNUwIGTSBD4cwQhMoCHe7RqNx/KHnSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d4XaXvpTh3XxVNzZ+Epitm6b1As9LQa73pqF+VuRyVmeT51PCP/Lo1kDN/B095XdC
-         bmx1KrcQi+pyv/cHhPotTkWIW4CLiYJ8t8FrTvi0WNk1yAd8G+6BQOPCM3nTKWwkqq
-         b16jStfX/7a1voW2y1i2LpU8dUaW6a/202i2XCE4=
+        b=0fWsxUXgqxFOtyW2KKTtIh6tkl05/3P0uetAe8FKZydVLR7ck8Lz06OY6h4126m3D
+         unyhrBkLCCqAnFhQCRbz33tjBoH/BFbOLwK6VeF6Y8wg2H4cJjURabXZkksgfv/nvW
+         hpcmvUzPg38vwzXnfEJ3Rv4hgddd1xQ27oxS5sg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 101/101] MIPS: tlbex: Explicitly compare _PAGE_NO_EXEC against 0
-Date:   Tue, 23 Aug 2022 10:04:14 +0200
-Message-Id: <20220823080038.398671207@linuxfoundation.org>
+Subject: [PATCH 5.19 357/365] smb3: check xattr value length earlier
+Date:   Tue, 23 Aug 2022 10:04:18 +0200
+Message-Id: <20220823080133.225187338@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
-References: <20220823080034.579196046@linuxfoundation.org>
+In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
+References: <20220823080118.128342613@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 74de14fe05dd6b151d73cb0c73c8ec874cbdcde6 ]
+[ Upstream commit 5fa2cffba0b82336a2244d941322eb1627ff787b ]
 
-When CONFIG_XPA is enabled, Clang warns:
+Coverity complains about assigning a pointer based on
+value length before checking that value length goes
+beyond the end of the SMB.  Although this is even more
+unlikely as value length is a single byte, and the
+pointer is not dereferenced until laterm, it is clearer
+to check the lengths first.
 
-  arch/mips/mm/tlbex.c:629:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
-          if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
-                              ^
-  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
-  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
-                                     ^
-  arch/mips/mm/tlbex.c:2568:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
-          if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
-                                ^
-  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
-  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
-                                     ^
-  2 errors generated.
-
-_PAGE_NO_EXEC can be '0' or '1 << _PAGE_NO_EXEC_SHIFT' depending on the
-build and runtime configuration, which is what the negation operators
-are trying to convey. To silence the warning, explicitly compare against
-0 so the result of the '<<' operator is not implicitly converted to a
-boolean.
-
-According to its documentation, GCC enables -Wint-in-bool-context with
--Wall but this warning is not visible when building the same
-configuration with GCC. It appears GCC only warns when compiling C++,
-not C, although the documentation makes no note of this:
-https://godbolt.org/z/x39q3brxf
-
-Reported-by: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Addresses-Coverity: 1467704 ("Speculative execution data leak")
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/tlbex.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/smb2ops.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
-index f625fd20b21e..65fed205383e 100644
---- a/arch/mips/mm/tlbex.c
-+++ b/arch/mips/mm/tlbex.c
-@@ -637,7 +637,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
- 		return;
- 	}
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 8802995b2d3d..aa4c1d403708 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1145,9 +1145,7 @@ move_smb2_ea_to_cifs(char *dst, size_t dst_size,
+ 	size_t name_len, value_len, user_name_len;
  
--	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
-+	if (cpu_has_rixi && _PAGE_NO_EXEC != 0) {
- 		if (fill_includes_sw_bits) {
- 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
- 		} else {
-@@ -2518,7 +2518,7 @@ static void check_pabits(void)
- 	unsigned long entry;
- 	unsigned pabits, fillbits;
+ 	while (src_size > 0) {
+-		name = &src->ea_data[0];
+ 		name_len = (size_t)src->ea_name_length;
+-		value = &src->ea_data[src->ea_name_length + 1];
+ 		value_len = (size_t)le16_to_cpu(src->ea_value_length);
  
--	if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
-+	if (!cpu_has_rixi || _PAGE_NO_EXEC == 0) {
- 		/*
- 		 * We'll only be making use of the fact that we can rotate bits
- 		 * into the fill if the CPU supports RIXI, so don't bother
+ 		if (name_len == 0)
+@@ -1159,6 +1157,9 @@ move_smb2_ea_to_cifs(char *dst, size_t dst_size,
+ 			goto out;
+ 		}
+ 
++		name = &src->ea_data[0];
++		value = &src->ea_data[src->ea_name_length + 1];
++
+ 		if (ea_name) {
+ 			if (ea_name_len == name_len &&
+ 			    memcmp(ea_name, name, name_len) == 0) {
 -- 
 2.35.1
 
