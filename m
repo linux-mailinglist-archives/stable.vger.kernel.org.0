@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1281D59D86F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C191B59D8CD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239989AbiHWJq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:46:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48066 "EHLO
+        id S241797AbiHWJvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:51:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351916AbiHWJpl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:45:41 -0400
+        with ESMTP id S1351651AbiHWJut (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:50:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80DDB2F7;
-        Tue, 23 Aug 2022 01:43:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E10C9DFBC;
+        Tue, 23 Aug 2022 01:45:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EDD4B81C4F;
-        Tue, 23 Aug 2022 08:43:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A1B2C433D6;
-        Tue, 23 Aug 2022 08:43:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C6D1B81C6A;
+        Tue, 23 Aug 2022 08:45:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E08B2C433C1;
+        Tue, 23 Aug 2022 08:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244180;
-        bh=wvDu/ipmfAlirHb5j2FpWgwFya3KrOeJTyYaZnia1G8=;
+        s=korg; t=1661244317;
+        bh=v72sCb1UKg/hUfqN4kpl6JgOnAKHwuo/rcMINgfYefU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CdHDgkxv9ioSHTRq9P0KRjNy/4t4kgWU6FkAj7L2NNPtTA1u8laAXlvFu9n+iTPvF
-         tJErhwXKTCMRGJ6tl5SVxZGywEpu0rcD5/2VGSCMyZGmr8yMyNj9Rnb1++1DDV2adk
-         7cfS7/35s77wW9XbS8l3SIZOWQFAagdZ06kv4BO4=
+        b=UbH0oSPTbP7YkJUzn7jxkl/BhgJ8jyGGiyQXctU3OpnKtw+tGuupc07aT7OqYcCtq
+         1xYQd/gk3u+y7pwuXB82lmyeHLoXGd1qZ05qBdFlOGNz5MV7A5m9wt34hRAHVj+ZWT
+         fMlZ2qe8wYcKLqGjnVF3YnCvAt/q7Gj1RgBaSNsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bo-Chen Chen <rex-bc.chen@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/229] drm/mediatek: dpi: Remove output format of YUV
-Date:   Tue, 23 Aug 2022 10:23:50 +0200
-Message-Id: <20220823080056.184219976@linuxfoundation.org>
+        stable@vger.kernel.org, Harman Kalra <hkalra@marvell.com>,
+        Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 072/244] octeontx2-af: suppress external profile loading warning
+Date:   Tue, 23 Aug 2022 10:23:51 +0200
+Message-Id: <20220823080101.466987922@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bo-Chen Chen <rex-bc.chen@mediatek.com>
+From: Harman Kalra <hkalra@marvell.com>
 
-[ Upstream commit c9ed0713b3c35fc45677707ba47f432cad95da56 ]
+commit cf2437626502b5271d19686b03dea306efe17ea0 upstream.
 
-DPI is not support output format as YUV, but there is the setting of
-configuring output YUV. Therefore, remove them in this patch.
+The packet parser profile supplied as firmware may not
+be present all the time and default profile is used mostly.
+Hence suppress firmware loading warning from kernel due to
+absence of firmware in kernel image.
 
-Fixes: 9e629c17aa8d ("drm/mediatek: Add DPI sub driver")
-Signed-off-by: Bo-Chen Chen <rex-bc.chen@mediatek.com>
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220701035845.16458-5-rex-bc.chen@mediatek.com/
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3a7244152f9c ("octeontx2-af: add support for custom KPU entries")
+Signed-off-by: Harman Kalra <hkalra@marvell.com>
+Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dpi.c | 31 ++++++------------------------
- 1 file changed, 6 insertions(+), 25 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
-index e80a603e5fb0..6b12be8ca33e 100644
---- a/drivers/gpu/drm/mediatek/mtk_dpi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
-@@ -51,13 +51,7 @@ enum mtk_dpi_out_channel_swap {
- };
- 
- enum mtk_dpi_out_color_format {
--	MTK_DPI_COLOR_FORMAT_RGB,
--	MTK_DPI_COLOR_FORMAT_RGB_FULL,
--	MTK_DPI_COLOR_FORMAT_YCBCR_444,
--	MTK_DPI_COLOR_FORMAT_YCBCR_422,
--	MTK_DPI_COLOR_FORMAT_XV_YCC,
--	MTK_DPI_COLOR_FORMAT_YCBCR_444_FULL,
--	MTK_DPI_COLOR_FORMAT_YCBCR_422_FULL
-+	MTK_DPI_COLOR_FORMAT_RGB
- };
- 
- struct mtk_dpi {
-@@ -346,24 +340,11 @@ static void mtk_dpi_config_2n_h_fre(struct mtk_dpi *dpi)
- static void mtk_dpi_config_color_format(struct mtk_dpi *dpi,
- 					enum mtk_dpi_out_color_format format)
- {
--	if ((format == MTK_DPI_COLOR_FORMAT_YCBCR_444) ||
--	    (format == MTK_DPI_COLOR_FORMAT_YCBCR_444_FULL)) {
--		mtk_dpi_config_yuv422_enable(dpi, false);
--		mtk_dpi_config_csc_enable(dpi, true);
--		mtk_dpi_config_swap_input(dpi, false);
--		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_BGR);
--	} else if ((format == MTK_DPI_COLOR_FORMAT_YCBCR_422) ||
--		   (format == MTK_DPI_COLOR_FORMAT_YCBCR_422_FULL)) {
--		mtk_dpi_config_yuv422_enable(dpi, true);
--		mtk_dpi_config_csc_enable(dpi, true);
--		mtk_dpi_config_swap_input(dpi, true);
--		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
--	} else {
--		mtk_dpi_config_yuv422_enable(dpi, false);
--		mtk_dpi_config_csc_enable(dpi, false);
--		mtk_dpi_config_swap_input(dpi, false);
--		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
--	}
-+	/* only support RGB888 */
-+	mtk_dpi_config_yuv422_enable(dpi, false);
-+	mtk_dpi_config_csc_enable(dpi, false);
-+	mtk_dpi_config_swap_input(dpi, false);
-+	mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
- }
- 
- static void mtk_dpi_power_off(struct mtk_dpi *dpi, enum mtk_dpi_power_ctl pctl)
--- 
-2.35.1
-
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+@@ -1650,7 +1650,7 @@ static void npc_load_kpu_profile(struct
+ 	 * Firmware database method.
+ 	 * Default KPU profile.
+ 	 */
+-	if (!request_firmware(&fw, kpu_profile, rvu->dev)) {
++	if (!request_firmware_direct(&fw, kpu_profile, rvu->dev)) {
+ 		dev_info(rvu->dev, "Loading KPU profile from firmware: %s\n",
+ 			 kpu_profile);
+ 		rvu->kpu_fwdata = kzalloc(fw->size, GFP_KERNEL);
 
 
