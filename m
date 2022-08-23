@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5137F59E296
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F93E59DC5F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351826AbiHWMRl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:17:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51486 "EHLO
+        id S1356162AbiHWLCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:02:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359641AbiHWMQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129CB98D1A;
-        Tue, 23 Aug 2022 02:41:33 -0700 (PDT)
+        with ESMTP id S1357217AbiHWLBn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:01:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44F63AF4A1;
+        Tue, 23 Aug 2022 02:14:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46EADB81B1F;
-        Tue, 23 Aug 2022 09:40:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A29F2C433C1;
-        Tue, 23 Aug 2022 09:40:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D95B66113E;
+        Tue, 23 Aug 2022 09:14:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5CFAC433C1;
+        Tue, 23 Aug 2022 09:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247655;
-        bh=4jrCeDH5htUTAKRPY4r395KdKhET1ApCrWau5EWtYyM=;
+        s=korg; t=1661246066;
+        bh=ajC9fmuZ+CPDrrB+BCdmcpwg5awUxWuQoxY0RGRfBJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=equF9FAebRAWJiuyXYRFLaCIsa3qfFYyeqkIJHdkzF5Utir6sNj2HuBvaxjtmwQqx
-         137c6FSBmNRhMHfA4LBphbGz3YSDQ5lEpdFAvjuLbPnzWhalgFlVaP0ijnYaLpJbGz
-         H3aNn3sZLN3dNP6uBpTnPU5yZWQ5y0CBde0b/aRQ=
+        b=x74m5uFGudiM/dZAwb3itbsHcgxdDeT9fPOQh5XRwnvckcQcsWoebX+sKMzMSqtV/
+         Y9PDRPKIh79TIXkH4mt8AXCSFvvnw/kJGJEhwyModoK+2N0ezo9GLg0AnO0nP0eFP8
+         ypwGub+0E5lvvrdh+FUtR9ZAAC9Ivi8LNUEVsVdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 074/158] ASoC: tas2770: Fix handling of mute/unmute
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Matthias May <matthias.may@westermo.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 237/287] geneve: do not use RT_TOS for IPv6 flowlabel
 Date:   Tue, 23 Aug 2022 10:26:46 +0200
-Message-Id: <20220823080049.036054652@linuxfoundation.org>
+Message-Id: <20220823080109.030375355@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,132 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Matthias May <matthias.may@westermo.com>
 
-commit 1e5907bcb3a3b569be0a03ebe668bba2ed320a50 upstream.
+commit ca2bb69514a8bc7f83914122f0d596371352416c upstream.
 
-Because the PWR_CTRL field is modeled as the power state of the DAC
-widget, and at the same time it is used to implement mute/unmute, we
-need some additional book-keeping to have the right end result no matter
-the sequence of calls. Without this fix, one can mute an ongoing stream
-by toggling a speaker pin control.
+According to Guillaume Nault RT_TOS should never be used for IPv6.
 
-Fixes: 1a476abc723e ("tas2770: add tas2770 smart PA kernel driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220808141246.5749-5-povik+lin@cutebit.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Quote:
+RT_TOS() is an old macro used to interprete IPv4 TOS as described in
+the obsolete RFC 1349. It's conceptually wrong to use it even in IPv4
+code, although, given the current state of the code, most of the
+existing calls have no consequence.
+
+But using RT_TOS() in IPv6 code is always a bug: IPv6 never had a "TOS"
+field to be interpreted the RFC 1349 way. There's no historical
+compatibility to worry about.
+
+Fixes: 3a56f86f1be6 ("geneve: handle ipv6 priority like ipv4 tos")
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Matthias May <matthias.may@westermo.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/tas2770.c |   57 +++++++++++++++++++++++----------------------
- sound/soc/codecs/tas2770.h |    2 +
- 2 files changed, 32 insertions(+), 27 deletions(-)
+ drivers/net/geneve.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/soc/codecs/tas2770.c
-+++ b/sound/soc/codecs/tas2770.c
-@@ -46,6 +46,26 @@ static void tas2770_reset(struct tas2770
- 	usleep_range(1000, 2000);
- }
- 
-+static int tas2770_update_pwr_ctrl(struct tas2770_priv *tas2770)
-+{
-+	struct snd_soc_component *component = tas2770->component;
-+	unsigned int val;
-+	int ret;
-+
-+	if (tas2770->dac_powered)
-+		val = tas2770->unmuted ?
-+			TAS2770_PWR_CTRL_ACTIVE : TAS2770_PWR_CTRL_MUTE;
-+	else
-+		val = TAS2770_PWR_CTRL_SHUTDOWN;
-+
-+	ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
-+					    TAS2770_PWR_CTRL_MASK, val);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
- #ifdef CONFIG_PM
- static int tas2770_codec_suspend(struct snd_soc_component *component)
- {
-@@ -82,9 +102,7 @@ static int tas2770_codec_resume(struct s
- 		gpiod_set_value_cansleep(tas2770->sdz_gpio, 1);
- 		usleep_range(1000, 2000);
- 	} else {
--		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
--						    TAS2770_PWR_CTRL_MASK,
--						    TAS2770_PWR_CTRL_ACTIVE);
-+		ret = tas2770_update_pwr_ctrl(tas2770);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -120,24 +138,19 @@ static int tas2770_dac_event(struct snd_
- 
- 	switch (event) {
- 	case SND_SOC_DAPM_POST_PMU:
--		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
--						    TAS2770_PWR_CTRL_MASK,
--						    TAS2770_PWR_CTRL_MUTE);
-+		tas2770->dac_powered = 1;
-+		ret = tas2770_update_pwr_ctrl(tas2770);
- 		break;
- 	case SND_SOC_DAPM_PRE_PMD:
--		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
--						    TAS2770_PWR_CTRL_MASK,
--						    TAS2770_PWR_CTRL_SHUTDOWN);
-+		tas2770->dac_powered = 0;
-+		ret = tas2770_update_pwr_ctrl(tas2770);
- 		break;
- 	default:
- 		dev_err(tas2770->dev, "Not supported evevt\n");
- 		return -EINVAL;
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -799,8 +799,7 @@ static struct dst_entry *geneve_get_v6_d
+ 		use_cache = false;
  	}
  
--	if (ret < 0)
--		return ret;
--
--	return 0;
-+	return ret;
- }
- 
- static const struct snd_kcontrol_new isense_switch =
-@@ -171,21 +184,11 @@ static const struct snd_soc_dapm_route t
- static int tas2770_mute(struct snd_soc_dai *dai, int mute, int direction)
- {
- 	struct snd_soc_component *component = dai->component;
--	int ret;
--
--	if (mute)
--		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
--						    TAS2770_PWR_CTRL_MASK,
--						    TAS2770_PWR_CTRL_MUTE);
--	else
--		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
--						    TAS2770_PWR_CTRL_MASK,
--						    TAS2770_PWR_CTRL_ACTIVE);
--
--	if (ret < 0)
--		return ret;
-+	struct tas2770_priv *tas2770 =
-+			snd_soc_component_get_drvdata(component);
- 
--	return 0;
-+	tas2770->unmuted = !mute;
-+	return tas2770_update_pwr_ctrl(tas2770);
- }
- 
- static int tas2770_set_bitwidth(struct tas2770_priv *tas2770, int bitwidth)
---- a/sound/soc/codecs/tas2770.h
-+++ b/sound/soc/codecs/tas2770.h
-@@ -138,6 +138,8 @@ struct tas2770_priv {
- 	struct device *dev;
- 	int v_sense_slot;
- 	int i_sense_slot;
-+	bool dac_powered;
-+	bool unmuted;
- };
- 
- #endif /* __TAS2770__ */
+-	fl6->flowlabel = ip6_make_flowinfo(RT_TOS(prio),
+-					   info->key.label);
++	fl6->flowlabel = ip6_make_flowinfo(prio, info->key.label);
+ 	dst_cache = (struct dst_cache *)&info->dst_cache;
+ 	if (use_cache) {
+ 		dst = dst_cache_get_ip6(dst_cache, &fl6->saddr);
 
 
