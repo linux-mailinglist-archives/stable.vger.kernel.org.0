@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9459059DFD3
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEACF59DC7D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349560AbiHWLZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:25:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59726 "EHLO
+        id S1353878AbiHWKYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242451AbiHWLXU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:23:20 -0400
+        with ESMTP id S1354176AbiHWKUk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:20:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23C36BD76;
-        Tue, 23 Aug 2022 02:23:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58888AA;
+        Tue, 23 Aug 2022 02:02:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51146B81C53;
-        Tue, 23 Aug 2022 09:23:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88256C433C1;
-        Tue, 23 Aug 2022 09:23:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 025A0B81C52;
+        Tue, 23 Aug 2022 09:02:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51914C433D6;
+        Tue, 23 Aug 2022 09:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246618;
-        bh=yO/+0w+QZpL9FyWrE4hrpJ2hjLScgiQtI3GR94o+23I=;
+        s=korg; t=1661245332;
+        bh=2Q6uC91jPhXMNwvXTNlweCMJW7/Dv/kBwANwkf/4XXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWygxrdFfmMY+nFtn5mZSCA0A4yWyfNlLHz4w5zfKeLfhPyIYtmPgeq3YXFlIFema
-         IrPkLpvRBOevnlVGFHUeUDsXX20TtY6aq8LiBzmMzOO25DEoPWNPPfmFla1f1uUnQS
-         18+RqjHZzqT2vxklm6GWQpnR5HqLtOoQywO8w+js=
+        b=bTju2G0HjjItM0Z01s9hb9DdRUOaQJb54GEL71ggj7UXipY5Uby3QUto6V0W2xa2K
+         qw+ItT3qg5k6aAaAhhmjEXjkSzlwMf0rBH0T7nciISerTXonw57fBtzV2lFeuJ0Szv
+         w1cm0Nu6jRYSG72NF/76jgpNx+YQ14NYBniF8kVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 136/389] can: kvaser_usb_hydra: do not report txerr and rxerr during bus-off
-Date:   Tue, 23 Aug 2022 10:23:34 +0200
-Message-Id: <20220823080121.297047011@linuxfoundation.org>
+Subject: [PATCH 4.19 046/287] ARM: OMAP2+: display: Fix refcount leak bug
+Date:   Tue, 23 Aug 2022 10:23:35 +0200
+Message-Id: <20220823080101.800771065@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 936e90595376e64b6247c72d3ea8b8b164b7ac96 ]
+[ Upstream commit 50b87a32a79bca6e275918a711fb8cc55e16d739 ]
 
-During bus off, the error count is greater than 255 and can not fit in
-a u8.
+In omapdss_init_fbdev(), of_find_node_by_name() will return a node
+pointer with refcount incremented. We should use of_node_put() when
+it is not used anymore.
 
-Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
-Link: https://lore.kernel.org/all/20220719143550.3681-8-mailhol.vincent@wanadoo.fr
-CC: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Liang He <windhl@126.com>
+Message-Id: <20220617145803.4050918-1-windhl@126.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/arm/mach-omap2/display.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-index a7c408acb0c0..01d4a731b579 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-@@ -890,8 +890,10 @@ static void kvaser_usb_hydra_update_state(struct kvaser_usb_net_priv *priv,
- 	    new_state < CAN_STATE_BUS_OFF)
- 		priv->can.can_stats.restarts++;
+diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
+index 5d73f2c0b117..dd2ff10790ab 100644
+--- a/arch/arm/mach-omap2/display.c
++++ b/arch/arm/mach-omap2/display.c
+@@ -211,6 +211,7 @@ static int __init omapdss_init_fbdev(void)
+ 	node = of_find_node_by_name(NULL, "omap4_padconf_global");
+ 	if (node)
+ 		omap4_dsi_mux_syscon = syscon_node_to_regmap(node);
++	of_node_put(node);
  
--	cf->data[6] = bec->txerr;
--	cf->data[7] = bec->rxerr;
-+	if (new_state != CAN_STATE_BUS_OFF) {
-+		cf->data[6] = bec->txerr;
-+		cf->data[7] = bec->rxerr;
-+	}
- 
- 	stats = &netdev->stats;
- 	stats->rx_packets++;
-@@ -1045,8 +1047,10 @@ kvaser_usb_hydra_error_frame(struct kvaser_usb_net_priv *priv,
- 	shhwtstamps->hwtstamp = hwtstamp;
- 
- 	cf->can_id |= CAN_ERR_BUSERROR;
--	cf->data[6] = bec.txerr;
--	cf->data[7] = bec.rxerr;
-+	if (new_state != CAN_STATE_BUS_OFF) {
-+		cf->data[6] = bec.txerr;
-+		cf->data[7] = bec.rxerr;
-+	}
- 
- 	stats->rx_packets++;
- 	stats->rx_bytes += cf->can_dlc;
+ 	return 0;
+ }
 -- 
 2.35.1
 
