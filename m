@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0BD59DDFF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B3F59DEBD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355456AbiHWKxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:53:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36952 "EHLO
+        id S1358496AbiHWLwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356089AbiHWKtC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:49:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54C24AB077;
-        Tue, 23 Aug 2022 02:12:29 -0700 (PDT)
+        with ESMTP id S1359033AbiHWLvf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:51:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 069A213D04;
+        Tue, 23 Aug 2022 02:32:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ED6B60F4B;
-        Tue, 23 Aug 2022 09:12:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D9EDC433C1;
-        Tue, 23 Aug 2022 09:12:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A3F2613EF;
+        Tue, 23 Aug 2022 09:32:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82C39C433D6;
+        Tue, 23 Aug 2022 09:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245947;
-        bh=t9EAyhTB6WaOrs6vp1R5UqNAeAWhZro/XkIxBgAHZao=;
+        s=korg; t=1661247142;
+        bh=wAb9caDwUzbk7UBhI7cFlk+Z8maI1Aajsuhg8IEI720=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xg6FmpnZvrQJ2MFLt2C+cIXJJPXS5yMbL2v5u/OsrR6gZ/Nr3xeLE81LucYD7yCaC
-         jhogKzJOYStbhkrYa6c3tMTuRLpRShTfFJ95ME141/8JOIlwH4oI8kZa3sbA1CkehV
-         7i3XHQu4zsVLpwegH7khkmRk3k8pPTFSTldrRdAE=
+        b=GOgJmHiT/t5BhAzLKHpqSShEZ0WNpR89itKYDEUHNeaVWeZg5axpBX2N9FbJb5lYM
+         vaVh10JTbf9dW5wKIPhr07O7vCqTFToRFmp2QP3eWIaDyby6iOiyeiknxIavKkNV+u
+         WjxyuMRKU7xMvV189R0r+awh/C7j/MNfo4hVORLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 4.19 209/287] Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm regression
-Date:   Tue, 23 Aug 2022 10:26:18 +0200
-Message-Id: <20220823080107.964795748@linuxfoundation.org>
+        stable@vger.kernel.org, Qifu Zhang <zhangqifu@bytedance.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 301/389] Documentation: ACPI: EINJ: Fix obsolete example
+Date:   Tue, 23 Aug 2022 10:26:19 +0200
+Message-Id: <20220823080128.142322534@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Qifu Zhang <zhangqifu@bytedance.com>
 
-commit 332f1795ca202489c665a75e62e18ff6284de077 upstream.
+commit 9066e151c37950af92c3be6a7270daa8e8063db9 upstream.
 
-The patch d0be8347c623: "Bluetooth: L2CAP: Fix use-after-free caused
-by l2cap_chan_put" from Jul 21, 2022, leads to the following Smatch
-static checker warning:
+Since commit 488dac0c9237 ("libfs: fix error cast of negative value in
+simple_attr_write()"), the EINJ debugfs interface no longer accepts
+negative values as input. Attempt to do so will result in EINVAL.
 
-        net/bluetooth/l2cap_core.c:1977 l2cap_global_chan_by_psm()
-        error: we previously assumed 'c' could be null (see line 1996)
-
-Fixes: d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
+Signed-off-by: Qifu Zhang <zhangqifu@bytedance.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ Documentation/firmware-guide/acpi/apei/einj.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1804,11 +1804,11 @@ static struct l2cap_chan *l2cap_global_c
- 						   bdaddr_t *dst,
- 						   u8 link_type)
- {
--	struct l2cap_chan *c, *c1 = NULL;
-+	struct l2cap_chan *c, *tmp, *c1 = NULL;
+--- a/Documentation/firmware-guide/acpi/apei/einj.rst
++++ b/Documentation/firmware-guide/acpi/apei/einj.rst
+@@ -168,7 +168,7 @@ An error injection example::
+   0x00000008	Memory Correctable
+   0x00000010	Memory Uncorrectable non-fatal
+   # echo 0x12345000 > param1		# Set memory address for injection
+-  # echo $((-1 << 12)) > param2		# Mask 0xfffffffffffff000 - anywhere in this page
++  # echo 0xfffffffffffff000 > param2		# Mask - anywhere in this page
+   # echo 0x8 > error_type			# Choose correctable memory error
+   # echo 1 > error_inject			# Inject now
  
- 	read_lock(&chan_list_lock);
- 
--	list_for_each_entry(c, &chan_list, global_l) {
-+	list_for_each_entry_safe(c, tmp, &chan_list, global_l) {
- 		if (state && c->state != state)
- 			continue;
- 
-@@ -1827,11 +1827,10 @@ static struct l2cap_chan *l2cap_global_c
- 			dst_match = !bacmp(&c->dst, dst);
- 			if (src_match && dst_match) {
- 				c = l2cap_chan_hold_unless_zero(c);
--				if (!c)
--					continue;
--
--				read_unlock(&chan_list_lock);
--				return c;
-+				if (c) {
-+					read_unlock(&chan_list_lock);
-+					return c;
-+				}
- 			}
- 
- 			/* Closest match */
 
 
