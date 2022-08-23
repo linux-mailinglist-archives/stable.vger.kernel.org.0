@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26A2E59DF93
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE89359E37F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359285AbiHWMDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46126 "EHLO
+        id S241826AbiHWMWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:22:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359691AbiHWMCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1396D97D71;
-        Tue, 23 Aug 2022 02:36:17 -0700 (PDT)
+        with ESMTP id S1355560AbiHWMVN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:21:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D759B1116;
+        Tue, 23 Aug 2022 02:43:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9523361469;
-        Tue, 23 Aug 2022 09:35:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0829C433D6;
-        Tue, 23 Aug 2022 09:35:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B1F1B81B1F;
+        Tue, 23 Aug 2022 09:42:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC712C433D7;
+        Tue, 23 Aug 2022 09:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247319;
-        bh=JBtUajIUUTvXn1dwEIei/vptr1iv5ncaSZumZ5qjilw=;
+        s=korg; t=1661247770;
+        bh=2Zsb1hqE25E9V2rnBZ4mNC6XuYeWpu5H7ltzpA7QFUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OUQTmBLW1lWTwQ6vzlAZlWaeEei7ohQkS+ju0vJpvdFhtseiljw5pKSg12n8IFOuH
-         O3iOJhxWf1cPPJbprSh+ERpyyYhX+QZKdfqhJLU8wFJUA7fO8RODtJ17UCt1Jlm2bh
-         4ZreNoFrVmLOQKoADmgLRPwUudpnBRheT6U+1xik=
+        b=edNAz0PYxvjT53/IZesEBQ9bUzWt5VuCjPvAOyLgdIim3ZiA9mJ8brVG/gARRh0he
+         KfovU9Mh4889gYUMZ+/X/MpZ+Q9PlNxF70kJUIF3v7srSmDAnG1cDRQSrDbzLSygYh
+         WkRcyWplQYn5gTLuXzk5nqqJeNKwYfbMnitMhv2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 387/389] can: j1939: j1939_session_destroy(): fix memory leak of skbs
-Date:   Tue, 23 Aug 2022 10:27:45 +0200
-Message-Id: <20220823080131.742034120@linuxfoundation.org>
+        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 134/158] vfio: Clear the caps->buf to NULL after free
+Date:   Tue, 23 Aug 2022 10:27:46 +0200
+Message-Id: <20220823080051.258431613@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Schspa Shi <schspa@gmail.com>
 
-commit 8c21c54a53ab21842f5050fa090f26b03c0313d6 upstream.
+[ Upstream commit 6641085e8d7b3f061911517f79a2a15a0a21b97b ]
 
-We need to drop skb references taken in j1939_session_skb_queue() when
-destroying a session in j1939_session_destroy(). Otherwise those skbs
-would be lost.
+On buffer resize failure, vfio_info_cap_add() will free the buffer,
+report zero for the size, and return -ENOMEM.  As additional
+hardening, also clear the buffer pointer to prevent any chance of a
+double free.
 
-Link to Syzkaller info and repro: https://forge.ispras.ru/issues/11743.
-
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-V1: https://lore.kernel.org/all/20220708175949.539064-1-pchelkin@ispras.ru
-
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Suggested-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20220805150216.66313-1-pchelkin@ispras.ru
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Link: https://lore.kernel.org/r/20220629022948.55608-1-schspa@gmail.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/transport.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/vfio/vfio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -260,6 +260,8 @@ static void __j1939_session_drop(struct
- 
- static void j1939_session_destroy(struct j1939_session *session)
- {
-+	struct sk_buff *skb;
-+
- 	if (session->err)
- 		j1939_sk_errqueue(session, J1939_ERRQUEUE_ABORT);
- 	else
-@@ -270,7 +272,11 @@ static void j1939_session_destroy(struct
- 	WARN_ON_ONCE(!list_empty(&session->sk_session_queue_entry));
- 	WARN_ON_ONCE(!list_empty(&session->active_session_list_entry));
- 
--	skb_queue_purge(&session->skb_queue);
-+	while ((skb = skb_dequeue(&session->skb_queue)) != NULL) {
-+		/* drop ref taken in j1939_session_skb_queue() */
-+		skb_unref(skb);
-+		kfree_skb(skb);
-+	}
- 	__j1939_session_drop(session);
- 	j1939_priv_put(session->priv);
- 	kfree(session);
+diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
+index f886f2db8153..90db9d66867c 100644
+--- a/drivers/vfio/vfio.c
++++ b/drivers/vfio/vfio.c
+@@ -1783,6 +1783,7 @@ struct vfio_info_cap_header *vfio_info_cap_add(struct vfio_info_cap *caps,
+ 	buf = krealloc(caps->buf, caps->size + size, GFP_KERNEL);
+ 	if (!buf) {
+ 		kfree(caps->buf);
++		caps->buf = NULL;
+ 		caps->size = 0;
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+-- 
+2.35.1
+
 
 
