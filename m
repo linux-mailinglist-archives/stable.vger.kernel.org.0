@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F9259DCAA
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C33759E2D4
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354499AbiHWLeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:34:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49384 "EHLO
+        id S1355102AbiHWKiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:38:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357859AbiHWLc2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BF0DC6B68;
-        Tue, 23 Aug 2022 02:26:55 -0700 (PDT)
+        with ESMTP id S1355645AbiHWKgs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:36:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD42A61CD;
+        Tue, 23 Aug 2022 02:07:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA4C061328;
-        Tue, 23 Aug 2022 09:26:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5176C433D6;
-        Tue, 23 Aug 2022 09:26:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25851B81C94;
+        Tue, 23 Aug 2022 09:07:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E459C433C1;
+        Tue, 23 Aug 2022 09:07:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246814;
-        bh=x2NuveE8ONFScI78iZ8cTXF/d02hhkTjxBWlxNHqsnY=;
+        s=korg; t=1661245631;
+        bh=SrbAtyQryqiIjUrEYkpoAKvWYRMpR7d+M4Tnh4zVXZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBvXkbtM2cXH+ifrMPinw/YcA7Jg+ioPXM8kcpgv5cxnOm4w9X0PVpQ31uyDidb+9
-         6RPTSgvV30yLmFEnRWgASZhZNb/oJRAP2Jg4RKUKR75yQwWl8Phz5f3I84+ClM/Xr8
-         /UgGpDMsuqxRgL3tdE+c3FZbkznO1rLaild35QQ0=
+        b=gL/V6suVV2YxdKBwb3xn2neqUNfNTcR0fmIUglAO8n9a8Do2aKhBQ/8JN6ajYo3I/
+         jPGFgF8lmRghHGbKcY+BLYQS3m/iCcGf0ga6CaeTZfiP4rbE5L7l6KmqQUlWL+sdPf
+         AsWY1g4nqJm3RTLbFFkY8Hkcijtznx5JaJPMxn30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 198/389] null_blk: fix ida error handling in null_add_dev()
+        kernel test robot <lkp@intel.com>,
+        Ammar Faizi <ammarfaizi2@gnuweeb.org>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 107/287] wifi: wil6210: debugfs: fix uninitialized variable use in `wil_write_file_wmi()`
 Date:   Tue, 23 Aug 2022 10:24:36 +0200
-Message-Id: <20220823080123.911913944@linuxfoundation.org>
+Message-Id: <20220823080103.981225238@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 
-[ Upstream commit ee452a8d984f94fa8e894f003a52e776e4572881 ]
+[ Upstream commit d578e0af3a003736f6c440188b156483d451b329 ]
 
-There needs to be some error checking if ida_simple_get() fails.
-Also call ida_free() if there are errors later.
+Commit 7a4836560a61 changes simple_write_to_buffer() with memdup_user()
+but it forgets to change the value to be returned that came from
+simple_write_to_buffer() call. It results in the following warning:
 
-Fixes: 94bc02e30fb8 ("nullb: use ida to manage index")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YtEhXsr6vJeoiYhd@kili
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  warning: variable 'rc' is uninitialized when used here [-Wuninitialized]
+           return rc;
+                  ^~
+
+Remove rc variable and just return the passed in length if the
+memdup_user() succeeds.
+
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 7a4836560a6198d245d5732e26f94898b12eb760 ("wifi: wil6210: debugfs: fix info leak in wil_write_file_wmi()")
+Fixes: ff974e4083341383d3dd4079e52ed30f57f376f0 ("wil6210: debugfs interface to send raw WMI command")
+Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220724202452.61846-1-ammar.faizi@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk_main.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/wil6210/debugfs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
-index 13eae973eaea..6cbdd8a691d2 100644
---- a/drivers/block/null_blk_main.c
-+++ b/drivers/block/null_blk_main.c
-@@ -1711,8 +1711,13 @@ static int null_add_dev(struct nullb_device *dev)
- 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, nullb->q);
+diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
+index 675b2829b4c7..3a46b319e9f1 100644
+--- a/drivers/net/wireless/ath/wil6210/debugfs.c
++++ b/drivers/net/wireless/ath/wil6210/debugfs.c
+@@ -1002,7 +1002,7 @@ static ssize_t wil_write_file_wmi(struct file *file, const char __user *buf,
+ 	void *cmd;
+ 	int cmdlen = len - sizeof(struct wmi_cmd_hdr);
+ 	u16 cmdid;
+-	int rc, rc1;
++	int rc1;
  
- 	mutex_lock(&lock);
--	nullb->index = ida_simple_get(&nullb_indexes, 0, 0, GFP_KERNEL);
--	dev->index = nullb->index;
-+	rv = ida_simple_get(&nullb_indexes, 0, 0, GFP_KERNEL);
-+	if (rv < 0) {
-+		mutex_unlock(&lock);
-+		goto out_cleanup_zone;
-+	}
-+	nullb->index = rv;
-+	dev->index = rv;
- 	mutex_unlock(&lock);
+ 	if (cmdlen < 0 || *ppos != 0)
+ 		return -EINVAL;
+@@ -1019,7 +1019,7 @@ static ssize_t wil_write_file_wmi(struct file *file, const char __user *buf,
  
- 	blk_queue_logical_block_size(nullb->q, dev->blocksize);
-@@ -1724,13 +1729,16 @@ static int null_add_dev(struct nullb_device *dev)
+ 	wil_info(wil, "0x%04x[%d] -> %d\n", cmdid, cmdlen, rc1);
  
- 	rv = null_gendisk_register(nullb);
- 	if (rv)
--		goto out_cleanup_zone;
-+		goto out_ida_free;
+-	return rc;
++	return len;
+ }
  
- 	mutex_lock(&lock);
- 	list_add_tail(&nullb->list, &nullb_list);
- 	mutex_unlock(&lock);
- 
- 	return 0;
-+
-+out_ida_free:
-+	ida_free(&nullb_indexes, nullb->index);
- out_cleanup_zone:
- 	if (dev->zoned)
- 		null_zone_exit(dev);
+ static const struct file_operations fops_wmi = {
 -- 
 2.35.1
 
