@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB59F59D5BD
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:10:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9110B59D5F1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239862AbiHWIm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:42:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46526 "EHLO
+        id S243331AbiHWIc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:32:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347040AbiHWIkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:40:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6818778235;
-        Tue, 23 Aug 2022 01:19:04 -0700 (PDT)
+        with ESMTP id S1346222AbiHWIbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:31:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D19F6DAE6;
+        Tue, 23 Aug 2022 01:16:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26051B81C3D;
-        Tue, 23 Aug 2022 08:18:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 658F3C433D7;
-        Tue, 23 Aug 2022 08:18:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F5156131B;
+        Tue, 23 Aug 2022 08:15:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CF5CC433D7;
+        Tue, 23 Aug 2022 08:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242685;
-        bh=/carbxVV3VvTz4u1LFowtEwvPwCtkus8sQIzpgS3zJk=;
+        s=korg; t=1661242542;
+        bh=gZYsygsulZRaUQQNEd00HqGuo0mFJXCegFja3ncqvFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doDimdvGBft8EOv7hceLZuzNlDEPajNzr2uEwvc9O2xm5mAre/gAmOFBPNnfNWpoX
-         fsRGHT5Fx8L5s5FblfOq+iCOIGvtpjHSNqjgUx73zhstyBY7NahIaYBiO0mCI6D4Yy
-         fJ0BZDIUjTgKaPq84Jh6qSTtiRJ8R6BB67VgILn4=
+        b=P/gk+O7OZnAaPfQkWaflVw2D19xkpj8RYMw+7VfzjYNF7OzenTFNsWhsnpd3vn1dq
+         W5PwTBxECRfZ00/k6eA53DQMTs5d/+R7hA+5rFcUXzfFAmcWgxsCx2LsVEFuA2DwDV
+         hHYcR140WsY1h0ap26qT8eTKUWkQLFl7UgzmFtQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Michal Simek <michal.simek@amd.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.19 133/365] spi: dt-bindings: cadence: add missing required
-Date:   Tue, 23 Aug 2022 10:00:34 +0200
-Message-Id: <20220823080123.753330405@linuxfoundation.org>
+Subject: [PATCH 5.19 134/365] spi: dt-bindings: zynqmp-qspi: add missing required
+Date:   Tue, 23 Aug 2022 10:00:35 +0200
+Message-Id: <20220823080123.797522157@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -57,25 +57,25 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 6eee27c598fde65988723b785a9c9192d5ffb93a upstream.
+commit acfc34f008c3e66bbcb7b9162c80c8327b6e800f upstream.
 
 During the conversion the bindings lost list of required properties.
 
-Fixes: aa7968682a2b ("spi: convert Cadence SPI bindings to YAML")
+Fixes: c58db2abb19f ("spi: convert Xilinx Zynq UltraScale+ MPSoC GQSPI bindings to YAML")
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Reviewed-by: Michal Simek <michal.simek@amd.com>
-Link: https://lore.kernel.org/r/20220704130618.199231-1-krzysztof.kozlowski@linaro.org
+Link: https://lore.kernel.org/r/20220704130618.199231-2-krzysztof.kozlowski@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/spi/spi-cadence.yaml |    7 +++++++
+ Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml |    7 +++++++
  1 file changed, 7 insertions(+)
 
---- a/Documentation/devicetree/bindings/spi/spi-cadence.yaml
-+++ b/Documentation/devicetree/bindings/spi/spi-cadence.yaml
-@@ -49,6 +49,13 @@ properties:
-     enum: [ 0, 1 ]
-     default: 0
+--- a/Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml
++++ b/Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.yaml
+@@ -30,6 +30,13 @@ properties:
+   clocks:
+     maxItems: 2
  
 +required:
 +  - compatible
