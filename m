@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2952D59DC14
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C2259DC35
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352566AbiHWKMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:12:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60680 "EHLO
+        id S1355171AbiHWMNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:13:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352885AbiHWKJ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:09:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041547D7A0;
-        Tue, 23 Aug 2022 01:55:17 -0700 (PDT)
+        with ESMTP id S1352035AbiHWMMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:12:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A00CE68CF;
+        Tue, 23 Aug 2022 02:39:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82CF6B81C35;
-        Tue, 23 Aug 2022 08:55:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1856C433C1;
-        Tue, 23 Aug 2022 08:55:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACB4A61499;
+        Tue, 23 Aug 2022 09:39:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3DB2C433C1;
+        Tue, 23 Aug 2022 09:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244914;
-        bh=bN3EKTlsIxDcvLIM4ArOYD58V+iKRrzDHbCvOFH9Ogw=;
+        s=korg; t=1661247546;
+        bh=4nsgT5C/m+bixdAE9Y8NUb2nLWbf4acscREgyVVzC7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0vdfaWXkCSzGDH9fcwtxgJQqF+PqtR7W+gn0yVUYt/ydqx6RMeJElwq+Ra7uFteE
-         o9ntCAB2zl/LbUi0pHe3HgskvVkBS/R4fyHX+dOTFb1Gi3AsFMYReQGebn1tDmAty1
-         FwGyKDb6rHfBaDELUsC+4UEre5NK9qAklzAe/RT8=
+        b=KJiipDmlRsamXp2k0amt2DeWGQZnT3HgQVO3IfgIbvjYm4vH0eLqRWad+ayC+sYLW
+         ZKmdD/O/w7oVhAy6hHdhKGhVel1+CPgMdQfEFSRYSWJNLlWKO80ZoUvYKqMhwMOecc
+         qB2v1Iah+oOGeGYGNI7Ydzho7b5TUnw9qrxpE2RY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 211/229] drm/meson: Fix refcount bugs in meson_vpu_has_available_connectors()
-Date:   Tue, 23 Aug 2022 10:26:12 +0200
-Message-Id: <20220823080101.180969502@linuxfoundation.org>
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Samuel Holland <samuel@sholland.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.10 041/158] pinctrl: sunxi: Add I/O bias setting for H6 R-PIO
+Date:   Tue, 23 Aug 2022 10:26:13 +0200
+Message-Id: <20220823080047.711646818@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 91b3c8dbe898df158fd2a84675f3a284ff6666f7 ]
+commit fc153c8f283bf5925615195fc9d4056414d7b168 upstream.
 
-In this function, there are two refcount leak bugs:
-(1) when breaking out of for_each_endpoint_of_node(), we need call
-the of_node_put() for the 'ep';
-(2) we should call of_node_put() for the reference returned by
-of_graph_get_remote_port() when it is not used anymore.
+H6 requires I/O bias configuration on both of its PIO devices.
+Previously it was only done for the main PIO.
 
-Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
-Signed-off-by: Liang He <windhl@126.com>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220726010722.1319416-1-windhl@126.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The setting for Port L is at bit 0, so the bank calculation needs to
+account for the pin base. Otherwise the wrong bit is used.
+
+Fixes: cc62383fcebe ("pinctrl: sunxi: Support I/O bias voltage setting on H6")
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/r/20220713025233.27248-3-samuel@sholland.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/meson/meson_drv.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c |    1 +
+ drivers/pinctrl/sunxi/pinctrl-sunxi.c       |    7 ++++---
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
-index 2d5f2ed3b0b2..0da33f7af654 100644
---- a/drivers/gpu/drm/meson/meson_drv.c
-+++ b/drivers/gpu/drm/meson/meson_drv.c
-@@ -136,8 +136,11 @@ static bool meson_vpu_has_available_connectors(struct device *dev)
- 	for_each_endpoint_of_node(dev->of_node, ep) {
- 		/* If the endpoint node exists, consider it enabled */
- 		remote = of_graph_get_remote_port(ep);
--		if (remote)
-+		if (remote) {
-+			of_node_put(remote);
-+			of_node_put(ep);
- 			return true;
-+		}
- 	}
+--- a/drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c
+@@ -105,6 +105,7 @@ static const struct sunxi_pinctrl_desc s
+ 	.npins = ARRAY_SIZE(sun50i_h6_r_pins),
+ 	.pin_base = PL_BASE,
+ 	.irq_banks = 2,
++	.io_bias_cfg_variant = BIAS_VOLTAGE_PIO_POW_MODE_SEL,
+ };
  
- 	return false;
--- 
-2.35.1
-
+ static int sun50i_h6_r_pinctrl_probe(struct platform_device *pdev)
+--- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+@@ -624,7 +624,7 @@ static int sunxi_pinctrl_set_io_bias_cfg
+ 					 unsigned pin,
+ 					 struct regulator *supply)
+ {
+-	unsigned short bank = pin / PINS_PER_BANK;
++	unsigned short bank;
+ 	unsigned long flags;
+ 	u32 val, reg;
+ 	int uV;
+@@ -640,6 +640,9 @@ static int sunxi_pinctrl_set_io_bias_cfg
+ 	if (uV == 0)
+ 		return 0;
+ 
++	pin -= pctl->desc->pin_base;
++	bank = pin / PINS_PER_BANK;
++
+ 	switch (pctl->desc->io_bias_cfg_variant) {
+ 	case BIAS_VOLTAGE_GRP_CONFIG:
+ 		/*
+@@ -657,8 +660,6 @@ static int sunxi_pinctrl_set_io_bias_cfg
+ 		else
+ 			val = 0xD; /* 3.3V */
+ 
+-		pin -= pctl->desc->pin_base;
+-
+ 		reg = readl(pctl->membase + sunxi_grp_config_reg(pin));
+ 		reg &= ~IO_BIAS_MASK;
+ 		writel(reg | val, pctl->membase + sunxi_grp_config_reg(pin));
 
 
