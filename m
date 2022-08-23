@@ -2,138 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF0859D721
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2C8959D36A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239930AbiHWJ0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:26:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40098 "EHLO
+        id S230495AbiHWIMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:12:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349420AbiHWJX5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:23:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0C7A8FD69;
-        Tue, 23 Aug 2022 01:35:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6004FB81C5A;
-        Tue, 23 Aug 2022 08:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF6A3C433C1;
-        Tue, 23 Aug 2022 08:35:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243736;
-        bh=b1NcyPeOU0MnkxOjOob0ZNsoHSNkdbDkrTUKTqRcK7A=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWM10ixog4v1kPye/sTjgc/xU0uwEaqz/wZgqgId6gABQkRMTLpdAK8Ssut1TZRlo
-         86DJTHBemhwlqhh6TamEbxTbB/SnQVZlfS+q0ZCrx028y9idO/wWo27tJ4nxp6f5x/
-         c0r8lGcts+eDnx2NYNwHMyass251Romq8otstCww=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 365/365] Revert "ALSA: hda: Fix page fault in snd_hda_codec_shutdown()"
-Date:   Tue, 23 Aug 2022 10:04:26 +0200
-Message-Id: <20220823080133.591066874@linuxfoundation.org>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S241520AbiHWIJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:09:29 -0400
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41CDD6744A;
+        Tue, 23 Aug 2022 01:06:20 -0700 (PDT)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-11cab7d7e0fso14731655fac.6;
+        Tue, 23 Aug 2022 01:06:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=3DUNim7WTmzHmRObYLAWDZd3QPXFrzWMAVJ6u950fVw=;
+        b=PEfKzVZ9zdDK7xpYNrTaOE8LDRrYuccID4DJC18ZZ1dOGcM/PFel+HYpWII3aKbIeF
+         DWC52FU81Nk6KSpVp4uhLoJusR/zqCu0JxHLuRXzPlJVYhVVh7+wgUCecv/5N6zsniIx
+         QvDxhVIuMs/EghKCfi/T39Sz+o9TQQaQXXA9k7Mo5jS0wfJcezhj4E8fkG3R75mS/MOr
+         n1ULmf4rkLai8G/6SCv55h0BGAWvJH87B0IvIdLCJ0EyM22FH8AIfJndotB+YyGD0hRS
+         K9As7UA+MPl9h+9Fa89Ygw7FFNqg7YRIl6gspf3za/PHuxAI/xFLO81HxY/QSBj4UIEM
+         Wz0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=3DUNim7WTmzHmRObYLAWDZd3QPXFrzWMAVJ6u950fVw=;
+        b=DslT6HfCfSaOk48qI7tcWj4PNM9/7IgIoeeO/qb6lNZJ+ebQYIWpUfPCRvez5SmBXb
+         7gr3sLdyTh8NI4ZPw1BzOqAWv3pfuvkMBu+ydXvcB1v1zcy/7afK+iudz6xeIBOeLEDW
+         m+f5C76bj4UxuDBo8pawGIzBVhrjclvLHZQWlXJ54rbV2JvTdr7LsMZcuGEHqtcF/Zz6
+         6pcHAj2ev+VcK/SvCopjWqjpLsf4GvIp7HVgE/rLOEQj1tfLJQSwpyMeB8jidKYCii3e
+         j8Lm4Uj46Hs7dCA75eCOS23RuOQAYRyj+SJP/fxY6EnyruCQyf1cL+kCev/7fkEVNo9u
+         k9tg==
+X-Gm-Message-State: ACgBeo1HSHF2dhSfK8T4F0yjlEpuWuoZH0So18F5GAHpoKr+lBjGeHsd
+        X0Sh4gKlbWJP68+v30CU6F0LuAAplLNcreI4GL+lVlv7
+X-Google-Smtp-Source: AA6agR7u0uAvaNIkWvMT1B9z9RQ3S+vI04sURkMJs02g+rhl0HQ6KWE6yptMMcC6zUNNTZ6gciyBV1GEw8LrC624xeM=
+X-Received: by 2002:a05:6870:8912:b0:11b:a59c:f533 with SMTP id
+ i18-20020a056870891200b0011ba59cf533mr894982oao.220.1661241979113; Tue, 23
+ Aug 2022 01:06:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <202208221854.8ASrzjKa-lkp@intel.com> <20220823030056.123709-1-bagasdotme@gmail.com>
+In-Reply-To: <20220823030056.123709-1-bagasdotme@gmail.com>
+From:   Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Date:   Tue, 23 Aug 2022 11:06:08 +0300
+Message-ID: <CAHNKnsRUJzRGJ+muGfYAW-5EM91_j9AK-WTeV9pBZeXjH6L_6g@mail.gmail.com>
+Subject: Re: [PATCH] mips: pci: remove extraneous asterisk from top level
+ comment of ar2315 PCI driver
+To:     Bagas Sanjaya <bagasdotme@gmail.com>
+Cc:     linux-doc@vger.kernel.org, linux-mips@vger.kernel.org,
+        open list <linux-kernel@vger.kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Aditya Srivastava <yashsri421@gmail.com>,
+        kernel test robot <lkp@intel.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+On Tue, Aug 23, 2022 at 6:01 AM Bagas Sanjaya <bagasdotme@gmail.com> wrote:
+>
+> kernel test robot reported kernel-doc warning:
+>
+> arch/mips/pci/pci-ar2315.c:6: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+>     * Both AR2315 and AR2316 chips have PCI interface unit, which supports DMA
+>
+> The warning above is caused by an extraneous asterisk on the top level
+> (description) comment of pci-ar2315.c, for which the comment is confused as
+> kernel-doc comment instead.
+>
+> Remove the asterisk.
+>
+> Link: https://lore.kernel.org/linux-doc/202208221854.8ASrzjKa-lkp@intel.com/
+> Fixes: 3ed7a2a702dc0f ("MIPS: ath25: add AR2315 PCI host controller driver")
+> Fixes: 3e58e839150db0 ("scripts: kernel-doc: add warning for comment not following kernel-doc syntax")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Cc: stable@vger.kernel.org # v5.15, v5.19
+> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-commit 53f07e9b010b966017e32be1ca1bbcbcc4cee73d upstream.
-
-This reverts commit 980b3a8790b402e959a6d773b38b771019682be1.
-
-The commit didn't consider the fact that ASoC hdac-hda driver
-initializes the HD-audio stuff without calling
-snd_hda_codec_device_init().  Hence this caused a regression leading
-to Oops.
-
-Revert the commit to restore the behavior.
-
-Fixes: 980b3a8790b4 ("ALSA: hda: Fix page fault in snd_hda_codec_shutdown()")
-Link: https://lore.kernel.org/r/3c40df55-3aee-1e08-493b-7b30cd84dc00@linux.intel.com
-Link: https://lore.kernel.org/r/20220715182903.19594-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/pci/hda/hda_codec.c |   41 +++++++++++++++++++++--------------------
- 1 file changed, 21 insertions(+), 20 deletions(-)
-
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -931,28 +931,8 @@ snd_hda_codec_device_init(struct hda_bus
- 	}
- 
- 	codec->bus = bus;
--	codec->depop_delay = -1;
--	codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
--	codec->core.dev.release = snd_hda_codec_dev_release;
--	codec->core.exec_verb = codec_exec_verb;
- 	codec->core.type = HDA_DEV_LEGACY;
- 
--	mutex_init(&codec->spdif_mutex);
--	mutex_init(&codec->control_mutex);
--	snd_array_init(&codec->mixers, sizeof(struct hda_nid_item), 32);
--	snd_array_init(&codec->nids, sizeof(struct hda_nid_item), 32);
--	snd_array_init(&codec->init_pins, sizeof(struct hda_pincfg), 16);
--	snd_array_init(&codec->driver_pins, sizeof(struct hda_pincfg), 16);
--	snd_array_init(&codec->cvt_setups, sizeof(struct hda_cvt_setup), 8);
--	snd_array_init(&codec->spdif_out, sizeof(struct hda_spdif_out), 16);
--	snd_array_init(&codec->jacktbl, sizeof(struct hda_jack_tbl), 16);
--	snd_array_init(&codec->verbs, sizeof(struct hda_verb *), 8);
--	INIT_LIST_HEAD(&codec->conn_list);
--	INIT_LIST_HEAD(&codec->pcm_list_head);
--	INIT_DELAYED_WORK(&codec->jackpoll_work, hda_jackpoll_work);
--	refcount_set(&codec->pcm_ref, 1);
--	init_waitqueue_head(&codec->remove_sleep);
--
- 	return codec;
- }
- EXPORT_SYMBOL_GPL(snd_hda_codec_device_init);
-@@ -1000,8 +980,29 @@ int snd_hda_codec_device_new(struct hda_
- 	if (snd_BUG_ON(codec_addr > HDA_MAX_CODEC_ADDRESS))
- 		return -EINVAL;
- 
-+	codec->core.dev.release = snd_hda_codec_dev_release;
-+	codec->core.exec_verb = codec_exec_verb;
-+
- 	codec->card = card;
- 	codec->addr = codec_addr;
-+	mutex_init(&codec->spdif_mutex);
-+	mutex_init(&codec->control_mutex);
-+	snd_array_init(&codec->mixers, sizeof(struct hda_nid_item), 32);
-+	snd_array_init(&codec->nids, sizeof(struct hda_nid_item), 32);
-+	snd_array_init(&codec->init_pins, sizeof(struct hda_pincfg), 16);
-+	snd_array_init(&codec->driver_pins, sizeof(struct hda_pincfg), 16);
-+	snd_array_init(&codec->cvt_setups, sizeof(struct hda_cvt_setup), 8);
-+	snd_array_init(&codec->spdif_out, sizeof(struct hda_spdif_out), 16);
-+	snd_array_init(&codec->jacktbl, sizeof(struct hda_jack_tbl), 16);
-+	snd_array_init(&codec->verbs, sizeof(struct hda_verb *), 8);
-+	INIT_LIST_HEAD(&codec->conn_list);
-+	INIT_LIST_HEAD(&codec->pcm_list_head);
-+	refcount_set(&codec->pcm_ref, 1);
-+	init_waitqueue_head(&codec->remove_sleep);
-+
-+	INIT_DELAYED_WORK(&codec->jackpoll_work, hda_jackpoll_work);
-+	codec->depop_delay = -1;
-+	codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
- 
- #ifdef CONFIG_PM
- 	codec->power_jiffies = jiffies;
-
-
+Acked-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
