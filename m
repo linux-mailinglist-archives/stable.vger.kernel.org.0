@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B2659E05A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9710659E218
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242898AbiHWLVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:21:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50710 "EHLO
+        id S1354178AbiHWKY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357694AbiHWLUv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:20:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5AA18C456;
-        Tue, 23 Aug 2022 02:22:47 -0700 (PDT)
+        with ESMTP id S1354540AbiHWKVm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:21:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64ED582760;
+        Tue, 23 Aug 2022 02:02:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DC6460F91;
-        Tue, 23 Aug 2022 09:22:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EF5DC433C1;
-        Tue, 23 Aug 2022 09:22:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBB92B81C54;
+        Tue, 23 Aug 2022 09:02:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44554C433D6;
+        Tue, 23 Aug 2022 09:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246565;
-        bh=EIQDczlUsFr93qzTTKiSq1vVOgh6UgqC2s8V7cuUAqU=;
+        s=korg; t=1661245376;
+        bh=Bj8CgMYA2fxI+RpD8jD7zNYFs0yEL1HzpHHAhRb91yQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CoI50iagdDY/6oMzV/0BccHAh+tkgbQZ4RHTzrXQEQmlEXHz574TyivtuSvC5p9jg
-         8Mc9ZbWexYtYoBmZBRaNruwQ6394GxA5D+NbhGrhi+C8d3ZQnANaTR61N0BwUvu4+j
-         lemsvKw3oByo19BiZqAAJVuHCgHuoFDhD79RCS8c=
+        b=Bpwo9tDNn1vU+qYyxtMu6Qsf31JTNSToqHkU8swsJ2yvg8A0ljzg9m3o+k2ACtDdA
+         hYHv4MkInfjGvIcnEV5m+oTMyt65z4XL2MU2/52Qkj/AHY1Un9la0NaW2wmdPWWwcq
+         25vnC3jKEyyopzucG1HSfKMSscXBlIg8/Q3JeiPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ad24705d3fd6463b18c6@syzkaller.appspotmail.com,
-        Jakub Kicinski <kuba@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 150/389] netdevsim: Avoid allocation warnings triggered from user space
+Subject: [PATCH 4.19 059/287] ARM: OMAP2+: Fix refcount leak in omap3xxx_prm_late_init
 Date:   Tue, 23 Aug 2022 10:23:48 +0200
-Message-Id: <20220823080121.869067858@linuxfoundation.org>
+Message-Id: <20220823080102.224716596@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit d0b80a9edb1a029ff913e81b47540e57ad034329 ]
+[ Upstream commit 942228fbf5d4901112178b93d41225be7c0dd9de ]
 
-We need to suppress warnings from sily map sizes. Also switch
-from GFP_USER to GFP_KERNEL_ACCOUNT, I'm pretty sure I misunderstood
-the flags when writing this code.
+of_find_matching_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 395cacb5f1a0 ("netdevsim: bpf: support fake map offload")
-Reported-by: syzbot+ad24705d3fd6463b18c6@syzkaller.appspotmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220726213605.154204-1-kuba@kernel.org
+Fixes: 1e037794f7f0 ("ARM: OMAP3+: PRM: register interrupt information from DT")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Message-Id: <20220526073724.21169-1-linmq006@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/netdevsim/bpf.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm/mach-omap2/prm3xxx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/netdevsim/bpf.c b/drivers/net/netdevsim/bpf.c
-index e0a4acc6144b..8e47755cc159 100644
---- a/drivers/net/netdevsim/bpf.c
-+++ b/drivers/net/netdevsim/bpf.c
-@@ -347,10 +347,12 @@ nsim_map_alloc_elem(struct bpf_offloaded_map *offmap, unsigned int idx)
- {
- 	struct nsim_bpf_bound_map *nmap = offmap->dev_priv;
+diff --git a/arch/arm/mach-omap2/prm3xxx.c b/arch/arm/mach-omap2/prm3xxx.c
+index dfa65fc2c82b..30445849b5e3 100644
+--- a/arch/arm/mach-omap2/prm3xxx.c
++++ b/arch/arm/mach-omap2/prm3xxx.c
+@@ -711,6 +711,7 @@ static int omap3xxx_prm_late_init(void)
+ 	}
  
--	nmap->entry[idx].key = kmalloc(offmap->map.key_size, GFP_USER);
-+	nmap->entry[idx].key = kmalloc(offmap->map.key_size,
-+				       GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
- 	if (!nmap->entry[idx].key)
- 		return -ENOMEM;
--	nmap->entry[idx].value = kmalloc(offmap->map.value_size, GFP_USER);
-+	nmap->entry[idx].value = kmalloc(offmap->map.value_size,
-+					 GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
- 	if (!nmap->entry[idx].value) {
- 		kfree(nmap->entry[idx].key);
- 		nmap->entry[idx].key = NULL;
-@@ -492,7 +494,7 @@ nsim_bpf_map_alloc(struct netdevsim *ns, struct bpf_offloaded_map *offmap)
- 	if (offmap->map.map_flags)
- 		return -EINVAL;
- 
--	nmap = kzalloc(sizeof(*nmap), GFP_USER);
-+	nmap = kzalloc(sizeof(*nmap), GFP_KERNEL_ACCOUNT);
- 	if (!nmap)
- 		return -ENOMEM;
+ 	irq_num = of_irq_get(np, 0);
++	of_node_put(np);
+ 	if (irq_num == -EPROBE_DEFER)
+ 		return irq_num;
  
 -- 
 2.35.1
