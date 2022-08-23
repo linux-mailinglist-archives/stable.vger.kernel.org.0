@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9609959DF48
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E025A59E2C2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357918AbiHWLmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:42:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59846 "EHLO
+        id S242125AbiHWLmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:42:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358228AbiHWLlS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:41:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95091796BA;
-        Tue, 23 Aug 2022 02:28:56 -0700 (PDT)
+        with ESMTP id S1358249AbiHWLlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:41:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF384915DA;
+        Tue, 23 Aug 2022 02:28:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B36961174;
-        Tue, 23 Aug 2022 09:28:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 446C7C433D6;
-        Tue, 23 Aug 2022 09:28:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B386661384;
+        Tue, 23 Aug 2022 09:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 744BFC433C1;
+        Tue, 23 Aug 2022 09:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246934;
-        bh=/aztHlH5HHXIVtljODHpAVEb0ZwqTgdiruIxscLrmRw=;
+        s=korg; t=1661246938;
+        bh=mDUD6X7hd0XBnBBWrF1dnehGnWJdI8S5zoWzjyBZ3IA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y5gaQZ+SMmruP7oir13wyWYAgHxaGXZoQL3l0mWMK4g/M5UsPfDJy+v79Y0CfwVgZ
-         R3I06N4+h2ZcJJN/htuQmTrScZMz4wx3voAHcazoKfIWcdc+bKZfRzjsfCQzPcVtmn
-         mKg/rpXPVVUXI/E5MP76GLka3oLVH9k7wZV66T94=
+        b=PjU7JhBNUk+OdNN77seXstnzOOAUpRKY4hZx7jjVElhxEkuPxZEqIf+USCdcknsez
+         bahGZD3tToRdOs8e/SzB1C6ASn1DdNKaaB6kKYWTB+mbSghOykiYmyVDyuPkA/iMrO
+         +BdLDW76VNbXnkvJv2sfPzONxp8RUQD34wnJlnDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 235/389] powerpc/xive: Fix refcount leak in xive_get_max_prio
-Date:   Tue, 23 Aug 2022 10:25:13 +0200
-Message-Id: <20220823080125.399030631@linuxfoundation.org>
+Subject: [PATCH 5.4 236/389] powerpc/cell/axon_msi: Fix refcount leak in setup_msi_msg_address
+Date:   Tue, 23 Aug 2022 10:25:14 +0200
+Message-Id: <20220823080125.438397913@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -56,33 +56,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 255b650cbec6849443ce2e0cdd187fd5e61c218c ]
+[ Upstream commit df5d4b616ee76abc97e5bd348e22659c2b095b1c ]
 
-of_find_node_by_path() returns a node pointer with
-refcount incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+of_get_next_parent() returns a node pointer with refcount incremented,
+we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() in the error path to avoid refcount leak.
 
-Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
+Fixes: ce21b3c9648a ("[CELL] add support for MSI on Axon-based Cell systems")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220605053225.56125-1-linmq006@gmail.com
+Link: https://lore.kernel.org/r/20220605065129.63906-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/spapr.c | 1 +
+ arch/powerpc/platforms/cell/axon_msi.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
-index 3f15615712b5..b21d71badaec 100644
---- a/arch/powerpc/sysdev/xive/spapr.c
-+++ b/arch/powerpc/sysdev/xive/spapr.c
-@@ -683,6 +683,7 @@ static bool xive_get_max_prio(u8 *max_prio)
+diff --git a/arch/powerpc/platforms/cell/axon_msi.c b/arch/powerpc/platforms/cell/axon_msi.c
+index 57c4e0e86c88..ba33140e671d 100644
+--- a/arch/powerpc/platforms/cell/axon_msi.c
++++ b/arch/powerpc/platforms/cell/axon_msi.c
+@@ -226,6 +226,7 @@ static int setup_msi_msg_address(struct pci_dev *dev, struct msi_msg *msg)
+ 	if (!prop) {
+ 		dev_dbg(&dev->dev,
+ 			"axon_msi: no msi-address-(32|64) properties found\n");
++		of_node_put(dn);
+ 		return -ENOENT;
  	}
  
- 	reg = of_get_property(rootdn, "ibm,plat-res-int-priorities", &len);
-+	of_node_put(rootdn);
- 	if (!reg) {
- 		pr_err("Failed to read 'ibm,plat-res-int-priorities' property\n");
- 		return false;
 -- 
 2.35.1
 
