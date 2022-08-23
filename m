@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 927DC59D8F5
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D967559DA07
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243850AbiHWJxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:53:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39328 "EHLO
+        id S1352110AbiHWKEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:04:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239498AbiHWJvp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57B739F199;
-        Tue, 23 Aug 2022 01:46:06 -0700 (PDT)
+        with ESMTP id S1352511AbiHWKCB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:02:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71037A223B;
+        Tue, 23 Aug 2022 01:49:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FDFE61538;
-        Tue, 23 Aug 2022 08:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C088C433D6;
-        Tue, 23 Aug 2022 08:45:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EB088CE1B44;
+        Tue, 23 Aug 2022 08:49:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D60FC433C1;
+        Tue, 23 Aug 2022 08:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244308;
-        bh=RV5lvrGojSt03S8hfAZkFwEi+RNIqI0sjsluXw/4lY0=;
+        s=korg; t=1661244594;
+        bh=HWPvRsRbImhp+mxkyDgXuQ+z0w/UFpkDqwsXmE51S2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rcunCx1iXGi9M6ZC2V07KBb7hoVFdSI0K955khr1sqboeW5x/NHXEZLN4wK66coBv
-         6VC1mXnNr/zZjmAtEd5f93ogR6jOXCaBWk3stNwv3sOOqhuG6IHB6UADzNe/x5UuEM
-         R7eHfZBFsAa6v3V4EDGzF+oyrCP5RQeruG4ybr/8=
+        b=cZi5STJr8EQyrXV39dOuUZdt3MT3xvjHligxuzrbzuvaZJY3w0kCNdcZqcRyyTYo9
+         dnQfOwf1roZTO/B0WcUdHFCkzhS0p9ItwCV/U1/SDc3upv3mP4FMfII3YJiTxP1bnP
+         KnaMGQvDNKOhLqpd8lgcfuuPCM2W47213h2OKvYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 117/229] jbd2: fix assertion jh->b_frozen_data == NULL failure when journal aborted
-Date:   Tue, 23 Aug 2022 10:24:38 +0200
-Message-Id: <20220823080057.872861919@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 120/244] ASoC: tas2770: Drop conflicting set_bias_level power setting
+Date:   Tue, 23 Aug 2022 10:24:39 +0200
+Message-Id: <20220823080103.043380931@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,109 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 4a734f0869f970b8a9b65062ea40b09a5da9dba8 ]
+commit 482c23fbc7e9bf5a7a74defd0735d5346215db58 upstream.
 
-Following process will fail assertion 'jh->b_frozen_data == NULL' in
-jbd2_journal_dirty_metadata():
+The driver is setting the PWR_CTRL field in both the set_bias_level
+callback and on DAPM events of the DAC widget (and also in the
+mute_stream method). Drop the set_bias_level callback altogether as the
+power setting it does is in conflict with the other code paths.
 
-                   jbd2_journal_commit_transaction
-unlink(dir/a)
- jh->b_transaction = trans1
- jh->b_jlist = BJ_Metadata
-                    journal->j_running_transaction = NULL
-                    trans1->t_state = T_COMMIT
-unlink(dir/b)
- handle->h_trans = trans2
- do_get_write_access
-  jh->b_modified = 0
-  jh->b_frozen_data = frozen_buffer
-  jh->b_next_transaction = trans2
- jbd2_journal_dirty_metadata
-  is_handle_aborted
-   is_journal_aborted // return false
-
-           --> jbd2 abort <--
-
-                     while (commit_transaction->t_buffers)
-                      if (is_journal_aborted)
-                       jbd2_journal_refile_buffer
-                        __jbd2_journal_refile_buffer
-                         WRITE_ONCE(jh->b_transaction,
-						jh->b_next_transaction)
-                         WRITE_ONCE(jh->b_next_transaction, NULL)
-                         __jbd2_journal_file_buffer(jh, BJ_Reserved)
-        J_ASSERT_JH(jh, jh->b_frozen_data == NULL) // assertion failure !
-
-The reproducer (See detail in [Link]) reports:
- ------------[ cut here ]------------
- kernel BUG at fs/jbd2/transaction.c:1629!
- invalid opcode: 0000 [#1] PREEMPT SMP
- CPU: 2 PID: 584 Comm: unlink Tainted: G        W
- 5.19.0-rc6-00115-g4a57a8400075-dirty #697
- RIP: 0010:jbd2_journal_dirty_metadata+0x3c5/0x470
- RSP: 0018:ffffc90000be7ce0 EFLAGS: 00010202
- Call Trace:
-  <TASK>
-  __ext4_handle_dirty_metadata+0xa0/0x290
-  ext4_handle_dirty_dirblock+0x10c/0x1d0
-  ext4_delete_entry+0x104/0x200
-  __ext4_unlink+0x22b/0x360
-  ext4_unlink+0x275/0x390
-  vfs_unlink+0x20b/0x4c0
-  do_unlinkat+0x42f/0x4c0
-  __x64_sys_unlink+0x37/0x50
-  do_syscall_64+0x35/0x80
-
-After journal aborting, __jbd2_journal_refile_buffer() is executed with
-holding @jh->b_state_lock, we can fix it by moving 'is_handle_aborted()'
-into the area protected by @jh->b_state_lock.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216251
-Fixes: 470decc613ab20 ("[PATCH] jbd2: initial copy of files from jbd")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Link: https://lore.kernel.org/r/20220715125152.4022726-1-chengzhihao1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1a476abc723e ("tas2770: add tas2770 smart PA kernel driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220808141246.5749-4-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jbd2/transaction.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ sound/soc/codecs/tas2770.c |   33 ---------------------------------
+ 1 file changed, 33 deletions(-)
 
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index 3311b1e684de..7eb4f7c0a43b 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -1338,8 +1338,6 @@ int jbd2_journal_dirty_metadata(handle_t *handle, struct buffer_head *bh)
- 	struct journal_head *jh;
- 	int ret = 0;
+--- a/sound/soc/codecs/tas2770.c
++++ b/sound/soc/codecs/tas2770.c
+@@ -46,38 +46,6 @@ static void tas2770_reset(struct tas2770
+ 	usleep_range(1000, 2000);
+ }
  
--	if (is_handle_aborted(handle))
--		return -EROFS;
- 	if (!buffer_jbd(bh))
- 		return -EUCLEAN;
- 
-@@ -1386,6 +1384,18 @@ int jbd2_journal_dirty_metadata(handle_t *handle, struct buffer_head *bh)
- 	journal = transaction->t_journal;
- 	jbd_lock_bh_state(bh);
- 
-+	if (is_handle_aborted(handle)) {
-+		/*
-+		 * Check journal aborting with @jh->b_state_lock locked,
-+		 * since 'jh->b_transaction' could be replaced with
-+		 * 'jh->b_next_transaction' during old transaction
-+		 * committing if journal aborted, which may fail
-+		 * assertion on 'jh->b_frozen_data == NULL'.
-+		 */
-+		ret = -EROFS;
-+		goto out_unlock_bh;
-+	}
-+
- 	if (jh->b_modified == 0) {
- 		/*
- 		 * This buffer's got modified and becoming part
--- 
-2.35.1
-
+-static int tas2770_set_bias_level(struct snd_soc_component *component,
+-				 enum snd_soc_bias_level level)
+-{
+-	struct tas2770_priv *tas2770 =
+-			snd_soc_component_get_drvdata(component);
+-
+-	switch (level) {
+-	case SND_SOC_BIAS_ON:
+-		snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-					      TAS2770_PWR_CTRL_MASK,
+-					      TAS2770_PWR_CTRL_ACTIVE);
+-		break;
+-	case SND_SOC_BIAS_STANDBY:
+-	case SND_SOC_BIAS_PREPARE:
+-		snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-					      TAS2770_PWR_CTRL_MASK,
+-					      TAS2770_PWR_CTRL_MUTE);
+-		break;
+-	case SND_SOC_BIAS_OFF:
+-		snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-					      TAS2770_PWR_CTRL_MASK,
+-					      TAS2770_PWR_CTRL_SHUTDOWN);
+-		break;
+-
+-	default:
+-		dev_err(tas2770->dev, "wrong power level setting %d\n", level);
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+ #ifdef CONFIG_PM
+ static int tas2770_codec_suspend(struct snd_soc_component *component)
+ {
+@@ -555,7 +523,6 @@ static const struct snd_soc_component_dr
+ 	.probe			= tas2770_codec_probe,
+ 	.suspend		= tas2770_codec_suspend,
+ 	.resume			= tas2770_codec_resume,
+-	.set_bias_level = tas2770_set_bias_level,
+ 	.controls		= tas2770_snd_controls,
+ 	.num_controls		= ARRAY_SIZE(tas2770_snd_controls),
+ 	.dapm_widgets		= tas2770_dapm_widgets,
 
 
