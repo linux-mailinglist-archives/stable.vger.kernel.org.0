@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C04A59E387
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C64759DD61
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242287AbiHWMW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:22:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58588 "EHLO
+        id S1352839AbiHWMDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:03:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349443AbiHWMUV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:20:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D22CF0755;
-        Tue, 23 Aug 2022 02:42:56 -0700 (PDT)
+        with ESMTP id S1359637AbiHWMCF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C15DCDFA4;
+        Tue, 23 Aug 2022 02:36:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 432FCB81C65;
-        Tue, 23 Aug 2022 09:42:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85FE5C433C1;
-        Tue, 23 Aug 2022 09:42:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB9C66146C;
+        Tue, 23 Aug 2022 09:35:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB151C433D6;
+        Tue, 23 Aug 2022 09:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247739;
-        bh=Sw8sZaaV+SLQFmYNa5RCXouWlQlH5UNh2cXBCCpME04=;
+        s=korg; t=1661247310;
+        bh=+S4AP+SgKWzKUqXmGAJcbbq4UXWAs0qNYiM96icuxXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fHufDvrjiQCYk+BZmLjVXZ1sr0Q5Q3XKMOANakFrIO7ioWwFc2ID8uimiMS86x5tI
-         34KIB/92UADCxvW4QkKfgh+IS0ox77+tdlZZ4ZtTVwlTMRtA7BbY77TWdGmpiqnLVH
-         /KSE1jRLp9ZQzRLmG7ZGut7TBrLLEdvZkJLuQRa4=
+        b=K9nNY+W+xSPDTYv6yLmo+3VDEIBijE8ndbbSUDJtA5jhJ+2L53ofS7mvYi0ravM0h
+         P2Md0xeQGOrxTc4/5wUzeeGMJtyH+vZaGV5QxdlrYvRXXVMR2wUq/pDaTyOXbXRmWe
+         VbUGPvpVckSdXJdGJhPcOp7RZMkC/ofxtL8YU/Lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org,
+        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 130/158] ext4: avoid remove directory when directory is corrupted
+Subject: [PATCH 5.4 384/389] MIPS: tlbex: Explicitly compare _PAGE_NO_EXEC against 0
 Date:   Tue, 23 Aug 2022 10:27:42 +0200
-Message-Id: <20220823080051.123560650@linuxfoundation.org>
+Message-Id: <20220823080131.619315426@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit b24e77ef1c6d4dbf42749ad4903c97539cc9755a ]
+[ Upstream commit 74de14fe05dd6b151d73cb0c73c8ec874cbdcde6 ]
 
-Now if check directoy entry is corrupted, ext4_empty_dir may return true
-then directory will be removed when file system mounted with "errors=continue".
-In order not to make things worse just return false when directory is corrupted.
+When CONFIG_XPA is enabled, Clang warns:
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220622090223.682234-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+  arch/mips/mm/tlbex.c:629:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
+                              ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  arch/mips/mm/tlbex.c:2568:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
+                                ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  2 errors generated.
+
+_PAGE_NO_EXEC can be '0' or '1 << _PAGE_NO_EXEC_SHIFT' depending on the
+build and runtime configuration, which is what the negation operators
+are trying to convey. To silence the warning, explicitly compare against
+0 so the result of the '<<' operator is not implicitly converted to a
+boolean.
+
+According to its documentation, GCC enables -Wint-in-bool-context with
+-Wall but this warning is not visible when building the same
+configuration with GCC. It appears GCC only warns when compiling C++,
+not C, although the documentation makes no note of this:
+https://godbolt.org/z/x39q3brxf
+
+Reported-by: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ arch/mips/mm/tlbex.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index afc20d32c9fd..58b0f1b12095 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2961,11 +2961,8 @@ bool ext4_empty_dir(struct inode *inode)
- 		de = (struct ext4_dir_entry_2 *) (bh->b_data +
- 					(offset & (sb->s_blocksize - 1)));
- 		if (ext4_check_dir_entry(inode, NULL, de, bh,
--					 bh->b_data, bh->b_size, offset)) {
--			offset = (offset | (sb->s_blocksize - 1)) + 1;
--			continue;
--		}
--		if (le32_to_cpu(de->inode)) {
-+					 bh->b_data, bh->b_size, offset) ||
-+		    le32_to_cpu(de->inode)) {
- 			brelse(bh);
- 			return false;
- 		}
+diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+index 547d813ead48..061dc5c97d5a 100644
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -629,7 +629,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
+ 		return;
+ 	}
+ 
+-	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
++	if (cpu_has_rixi && _PAGE_NO_EXEC != 0) {
+ 		if (fill_includes_sw_bits) {
+ 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
+ 		} else {
+@@ -2568,7 +2568,7 @@ static void check_pabits(void)
+ 	unsigned long entry;
+ 	unsigned pabits, fillbits;
+ 
+-	if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
++	if (!cpu_has_rixi || _PAGE_NO_EXEC == 0) {
+ 		/*
+ 		 * We'll only be making use of the fact that we can rotate bits
+ 		 * into the fill if the CPU supports RIXI, so don't bother
 -- 
 2.35.1
 
