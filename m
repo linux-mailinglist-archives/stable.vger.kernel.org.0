@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2376C59DC0A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3EB159DB93
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353250AbiHWKOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:14:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34062 "EHLO
+        id S1355664AbiHWKr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:47:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352908AbiHWKMo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:12:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7B124BD24;
-        Tue, 23 Aug 2022 01:58:57 -0700 (PDT)
+        with ESMTP id S1355887AbiHWKp2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:45:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EF2C6CF59;
+        Tue, 23 Aug 2022 02:11:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93F0DB81C28;
-        Tue, 23 Aug 2022 08:58:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01658C433C1;
-        Tue, 23 Aug 2022 08:58:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19D6B60F54;
+        Tue, 23 Aug 2022 09:11:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BD76C433D7;
+        Tue, 23 Aug 2022 09:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245135;
-        bh=iX9bfe+ORv3IQGMdd+YgIjHQjRAB9HYr5kNWTyjhKAA=;
+        s=korg; t=1661245874;
+        bh=ltfQgSNyWjNYjljJhQLDIuB+VrweU0tvjkY1jwvjRzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XhhqX99r4Y6vwycKtERexj9BRnIKkiY8MFQ73ol0y1YC/iElwdL7wXa7ofapbJEyp
-         QbOAK1WgEJN3H1D5Wo0yRyr4ZMjoOE1VKBIKH27K7OtDmC77Lrs0Z8VHQSyMJR7SHT
-         q2YhKwcI9ecegTMpkVqDdyq/sz29Uui9/dezc/FI=
+        b=sMbSg04TcRUYRGDFE8qapwH62jl6kB7Ek8ql2lEwo+U2m93GNKZ1fhICAu3yvVKLp
+         vQuqSO5jUz6LxkTtdk8keqq4P6q2pLbppWdH6t7C7m45YA/wZg18MJf0l2f8gN70p7
+         tz7VJKhQz0w93Ce13rvVT0FPmGEYraEOmJNbt8nA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 228/244] f2fs: fix to do sanity check on segment type in build_sit_entries()
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 218/287] mmc: pxamci: Fix another error handling path in pxamci_probe()
 Date:   Tue, 23 Aug 2022 10:26:27 +0200
-Message-Id: <20220823080107.164193772@linuxfoundation.org>
+Message-Id: <20220823080108.297829640@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao.yu@oppo.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 09beadf289d6e300553e60d6e76f13c0427ecab3 ]
+commit b886f54c300d31c109d2e4336b22922b64e7ba7d upstream.
 
-As Wenqing Liu <wenqingliu0120@gmail.com> reported in bugzilla:
+The commit in Fixes: has introduced an new error handling without branching
+to the existing error handling path.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=216285
+Update it now and release some resources if pxamci_init_ocr() fails.
 
-RIP: 0010:memcpy_erms+0x6/0x10
- f2fs_update_meta_page+0x84/0x570 [f2fs]
- change_curseg.constprop.0+0x159/0xbd0 [f2fs]
- f2fs_do_replace_block+0x5c7/0x18a0 [f2fs]
- f2fs_replace_block+0xeb/0x180 [f2fs]
- recover_data+0x1abd/0x6f50 [f2fs]
- f2fs_recover_fsync_data+0x12ce/0x3250 [f2fs]
- f2fs_fill_super+0x4459/0x6190 [f2fs]
- mount_bdev+0x2cf/0x3b0
- legacy_get_tree+0xed/0x1d0
- vfs_get_tree+0x81/0x2b0
- path_mount+0x47e/0x19d0
- do_mount+0xce/0xf0
- __x64_sys_mount+0x12c/0x1a0
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-The root cause is segment type is invalid, so in f2fs_do_replace_block(),
-f2fs accesses f2fs_sm_info::curseg_array with out-of-range segment type,
-result in accessing invalid curseg->sum_blk during memcpy in
-f2fs_update_meta_page(). Fix this by adding sanity check on segment type
-in build_sit_entries().
-
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 61951fd6cb49 ("mmc: pxamci: let mmc core handle regulators")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/07a2dcebf8ede69b484103de8f9df043f158cffd.1658862932.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/segment.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/mmc/host/pxamci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 841a978da083..e98c90bd8ef6 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -4537,6 +4537,12 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
- 				return err;
- 			seg_info_from_raw_sit(se, &sit);
+--- a/drivers/mmc/host/pxamci.c
++++ b/drivers/mmc/host/pxamci.c
+@@ -677,7 +677,7 @@ static int pxamci_probe(struct platform_
  
-+			if (se->type >= NR_PERSISTENT_LOG) {
-+				f2fs_err(sbi, "Invalid segment type: %u, segno: %u",
-+							se->type, start);
-+				return -EFSCORRUPTED;
-+			}
-+
- 			sit_valid_blocks[SE_PAGETYPE(se)] += se->valid_blocks;
+ 	ret = pxamci_init_ocr(host);
+ 	if (ret < 0)
+-		return ret;
++		goto out;
  
- 			if (f2fs_block_unit_discard(sbi)) {
-@@ -4585,6 +4591,13 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
- 			break;
- 		seg_info_from_raw_sit(se, &sit);
- 
-+		if (se->type >= NR_PERSISTENT_LOG) {
-+			f2fs_err(sbi, "Invalid segment type: %u, segno: %u",
-+							se->type, start);
-+			err = -EFSCORRUPTED;
-+			break;
-+		}
-+
- 		sit_valid_blocks[SE_PAGETYPE(se)] += se->valid_blocks;
- 
- 		if (f2fs_block_unit_discard(sbi)) {
--- 
-2.35.1
-
+ 	mmc->caps = 0;
+ 	host->cmdat = 0;
 
 
