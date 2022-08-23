@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD69B59D93D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A5CE59D974
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350830AbiHWJct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:32:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36118 "EHLO
+        id S1351249AbiHWJfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:35:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351304AbiHWJbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:31:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3259B2CC88;
-        Tue, 23 Aug 2022 01:38:38 -0700 (PDT)
+        with ESMTP id S1351130AbiHWJeX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:34:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C1FE48E83;
+        Tue, 23 Aug 2022 01:39:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D51B161530;
-        Tue, 23 Aug 2022 08:37:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C46BDC433D6;
-        Tue, 23 Aug 2022 08:37:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8B7AB81C65;
+        Tue, 23 Aug 2022 08:38:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E0AC433D6;
+        Tue, 23 Aug 2022 08:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243847;
-        bh=7oHLfdxUfI49xPBE6W9NwDX0o2JYr7uHVpkexMqKnlc=;
+        s=korg; t=1661243881;
+        bh=mB+QeLdtXDfUxawUS97f6jMYGaHxQ+B3Mh18ctmz3eM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hn2eEI2pTRjWZpUrLnKHwGaRnX4973R1Mwa/ORNn6RzS2r3h58d8i1j9xJ9le8g/b
-         7B7vYEVrHWmrZ+4/lRAFdvh4ohYV2uEezXc3p0U9HZpq0C+o4IKF7kXgCBi4WVjppe
-         c+HMbAnUzkfuEghNZcMDp+cNWZ3FBYL7yqeVJpbA=
+        b=MmAMBu6+Z9V+4EtCLixbsmCb90TKlhB/mQsyRE8xUNGNt3Z2ipzB69wLiLu10AKh+
+         3LVCKdNyKpraEYgRUWWmv6WdUys5as+pAOwYlc21yfBBi5UehlOS3BOoFoZzqHWK2c
+         fFMNlmqt4fzazThe+gis5PVtSiEM5NEJn4GPJy2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 033/229] PCI: Add defines for normal and subtractive PCI bridges
-Date:   Tue, 23 Aug 2022 10:23:14 +0200
-Message-Id: <20220823080054.708220842@linuxfoundation.org>
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 034/229] powerpc/fsl-pci: Fix Class Code of PCIe Root Port
+Date:   Tue, 23 Aug 2022 10:23:15 +0200
+Message-Id: <20220823080054.759237296@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -58,38 +56,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 904b10fb189cc15376e9bfce1ef0282e68b0b004 upstream.
+commit 0c551abfa004ce154d487d91777bf221c808a64f upstream.
 
-Add these PCI class codes to pci_ids.h:
+By default old pre-3.0 Freescale PCIe controllers reports invalid PCI Class
+Code 0x0b20 for PCIe Root Port. It can be seen by lspci -b output on P2020
+board which has this pre-3.0 controller:
 
-  PCI_CLASS_BRIDGE_PCI_NORMAL
-  PCI_CLASS_BRIDGE_PCI_SUBTRACTIVE
+  $ lspci -bvnn
+  00:00.0 Power PC [0b20]: Freescale Semiconductor Inc P2020E [1957:0070] (rev 21)
+          !!! Invalid class 0b20 for header type 01
+          Capabilities: [4c] Express Root Port (Slot-), MSI 00
 
-Use these defines in all kernel code for describing PCI class codes for
-normal and subtractive PCI bridges.
+Fix this issue by programming correct PCI Class Code 0x0604 for PCIe Root
+Port to the Freescale specific PCIe register 0x474.
 
-[bhelgaas: similar change in pci-mvebu.c]
-Link: https://lore.kernel.org/r/20220214114109.26809-1-pali@kernel.org
+With this change lspci -b output is:
+
+  $ lspci -bvnn
+  00:00.0 PCI bridge [0604]: Freescale Semiconductor Inc P2020E [1957:0070] (rev 21) (prog-if 00 [Normal decode])
+          Capabilities: [4c] Express Root Port (Slot-), MSI 00
+
+Without any "Invalid class" error. So class code was properly reflected
+into standard (read-only) PCI register 0x08.
+
+Same fix is already implemented in U-Boot pcie_fsl.c driver in commit:
+http://source.denx.de/u-boot/u-boot/-/commit/d18d06ac35229345a0af80977a408cfbe1d1015b
+
+Fix activated by U-Boot stay active also after booting Linux kernel.
+But boards which use older U-Boot version without that fix are affected and
+still require this fix.
+
+So implement this class code fix also in kernel fsl_pci.c driver.
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Guenter Roeck <linux@roeck-us.net>a
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
-[ gregkh - take only the pci_ids.h portion for stable backports ]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220706101043.4867-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/pci_ids.h |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/sysdev/fsl_pci.c |    8 ++++++++
+ arch/powerpc/sysdev/fsl_pci.h |    1 +
+ 2 files changed, 9 insertions(+)
 
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -59,6 +59,8 @@
- #define PCI_CLASS_BRIDGE_EISA		0x0602
- #define PCI_CLASS_BRIDGE_MC		0x0603
- #define PCI_CLASS_BRIDGE_PCI		0x0604
-+#define PCI_CLASS_BRIDGE_PCI_NORMAL		0x060400
-+#define PCI_CLASS_BRIDGE_PCI_SUBTRACTIVE	0x060401
- #define PCI_CLASS_BRIDGE_PCMCIA		0x0605
- #define PCI_CLASS_BRIDGE_NUBUS		0x0606
- #define PCI_CLASS_BRIDGE_CARDBUS	0x0607
+--- a/arch/powerpc/sysdev/fsl_pci.c
++++ b/arch/powerpc/sysdev/fsl_pci.c
+@@ -523,6 +523,7 @@ int fsl_add_bridge(struct platform_devic
+ 	struct resource rsrc;
+ 	const int *bus_range;
+ 	u8 hdr_type, progif;
++	u32 class_code;
+ 	struct device_node *dev;
+ 	struct ccsr_pci __iomem *pci;
+ 	u16 temp;
+@@ -596,6 +597,13 @@ int fsl_add_bridge(struct platform_devic
+ 			PPC_INDIRECT_TYPE_SURPRESS_PRIMARY_BUS;
+ 		if (fsl_pcie_check_link(hose))
+ 			hose->indirect_type |= PPC_INDIRECT_TYPE_NO_PCIE_LINK;
++		/* Fix Class Code to PCI_CLASS_BRIDGE_PCI_NORMAL for pre-3.0 controller */
++		if (in_be32(&pci->block_rev1) < PCIE_IP_REV_3_0) {
++			early_read_config_dword(hose, 0, 0, PCIE_FSL_CSR_CLASSCODE, &class_code);
++			class_code &= 0xff;
++			class_code |= PCI_CLASS_BRIDGE_PCI_NORMAL << 8;
++			early_write_config_dword(hose, 0, 0, PCIE_FSL_CSR_CLASSCODE, class_code);
++		}
+ 	} else {
+ 		/*
+ 		 * Set PBFR(PCI Bus Function Register)[10] = 1 to
+--- a/arch/powerpc/sysdev/fsl_pci.h
++++ b/arch/powerpc/sysdev/fsl_pci.h
+@@ -23,6 +23,7 @@ struct platform_device;
+ 
+ #define PCIE_LTSSM	0x0404		/* PCIE Link Training and Status */
+ #define PCIE_LTSSM_L0	0x16		/* L0 state */
++#define PCIE_FSL_CSR_CLASSCODE	0x474	/* FSL GPEX CSR */
+ #define PCIE_IP_REV_2_2		0x02080202 /* PCIE IP block version Rev2.2 */
+ #define PCIE_IP_REV_3_0		0x02080300 /* PCIE IP block version Rev3.0 */
+ #define PIWAR_EN		0x80000000	/* Enable */
 
 
