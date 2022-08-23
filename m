@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6673859D9E0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A59F559D9E4
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351790AbiHWKDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:03:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58366 "EHLO
+        id S1351846AbiHWKDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:03:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352261AbiHWKBd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42D107B79B;
-        Tue, 23 Aug 2022 01:49:10 -0700 (PDT)
+        with ESMTP id S1352318AbiHWKBk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2BC82FB8;
+        Tue, 23 Aug 2022 01:49:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5575E6122F;
-        Tue, 23 Aug 2022 08:49:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 446A5C433D6;
-        Tue, 23 Aug 2022 08:49:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59EC9B81BF8;
+        Tue, 23 Aug 2022 08:49:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98111C433C1;
+        Tue, 23 Aug 2022 08:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244549;
-        bh=EkgEL8VNg3xEP7YC4/zdUsjn0OhSMPb/3b8UAiUZx84=;
+        s=korg; t=1661244556;
+        bh=fxlNh0LwhOpWUkF19exROe077tMNe7vdcr/NJnAVD5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKGQhJG/sLxl5Xl5TzviSP9G84n7LL2fT6m8RXOUZUStORKoAe1Dxhvn7GmrKJtV0
-         z5gG8dCsQDkkNEX7MMDmodtctXKJB7a7XAPk0hZB89Ct1/OHJLVFmx6jkV/tH5GaBZ
-         4tPuNig/eJlirqhC8h13gJJKN6RCYpcgeU/Gp1Eo=
+        b=zjRrD1TyCzWVQjegqugJ1qb121IBtSnWPQY34ozu9BqmMdSJ8xwCbpWDjZrJcdly+
+         Nq5ksBYHUlo0AnIgxfaTStOueI01Vflzikkj68kaOsep/mDZ3gGXv7VzYvqXzuHcAU
+         9W8cVOfh0MjVVzszVFAE5o+xZOTUcbEP8HeYrlOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.15 110/244] nios2: dont leave NULLs in sys_call_table[]
-Date:   Tue, 23 Aug 2022 10:24:29 +0200
-Message-Id: <20220823080102.700405674@linuxfoundation.org>
+Subject: [PATCH 5.15 111/244] nios2: traced syscall does need to check the syscall number
+Date:   Tue, 23 Aug 2022 10:24:30 +0200
+Message-Id: <20220823080102.729748247@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -55,37 +55,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 45ec746c65097c25e77d24eae8fee0def5b6cc5d upstream.
+commit 25ba820ef36bdbaf9884adeac69b6e1821a7df76 upstream.
 
-fill the gaps in there with sys_ni_syscall, as everyone does...
+all checks done before letting the tracer modify the register
+state are worthless...
 
 Fixes: 82ed08dd1b0e ("nios2: Exception handling")
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/kernel/entry.S         |    1 -
- arch/nios2/kernel/syscall_table.c |    1 +
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/kernel/entry.S |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 --- a/arch/nios2/kernel/entry.S
 +++ b/arch/nios2/kernel/entry.S
-@@ -193,7 +193,6 @@ local_restart:
- 	movhi	r11, %hiadj(sys_call_table)
+@@ -255,9 +255,9 @@ traced_system_call:
+ 	ldw	r6, PT_R6(sp)
+ 	ldw	r7, PT_R7(sp)
+ 
+-	/* Fetch the syscall function, we don't need to check the boundaries
+-	 * since this is already done.
+-	 */
++	/* Fetch the syscall function. */
++	movui	r1, __NR_syscalls
++	bgeu	r2, r1, traced_invsyscall
+ 	slli	r1, r2, 2
+ 	movhi	r11,%hiadj(sys_call_table)
  	add	r1, r1, r11
- 	ldw	r1, %lo(sys_call_table)(r1)
--	beq	r1, r0, ret_invsyscall
+@@ -287,6 +287,11 @@ end_translate_rc_and_ret2:
+ 	RESTORE_SWITCH_STACK
+ 	br	ret_from_exception
  
- 	/* Check if we are being traced */
- 	GET_THREAD_INFO r11
---- a/arch/nios2/kernel/syscall_table.c
-+++ b/arch/nios2/kernel/syscall_table.c
-@@ -13,5 +13,6 @@
- #define __SYSCALL(nr, call) [nr] = (call),
- 
- void *sys_call_table[__NR_syscalls] = {
-+	[0 ... __NR_syscalls-1] = sys_ni_syscall,
- #include <asm/unistd.h>
- };
++	/* If the syscall number was invalid return ENOSYS */
++traced_invsyscall:
++	movi	r2, -ENOSYS
++	br	translate_rc_and_ret2
++
+ Luser_return:
+ 	GET_THREAD_INFO	r11			/* get thread_info pointer */
+ 	ldw	r10, TI_FLAGS(r11)		/* get thread_info->flags */
 
 
