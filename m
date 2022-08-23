@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F9A259E268
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE5ED59DBAD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357254AbiHWLK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:10:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55358 "EHLO
+        id S1357121AbiHWLMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:12:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357190AbiHWLJy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:09:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99256883FE;
-        Tue, 23 Aug 2022 02:16:53 -0700 (PDT)
+        with ESMTP id S1357491AbiHWLLG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:11:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A08F0B7EF6;
+        Tue, 23 Aug 2022 02:17:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F619B8105C;
-        Tue, 23 Aug 2022 09:16:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B697C433D7;
-        Tue, 23 Aug 2022 09:16:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FE3860F54;
+        Tue, 23 Aug 2022 09:17:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36668C433C1;
+        Tue, 23 Aug 2022 09:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246210;
-        bh=7M4uIosGCQ+JVXn5ixS/gPXhPLLzxgVy6nzH25ETjwQ=;
+        s=korg; t=1661246244;
+        bh=7pMGTLfm7+yf402Et0WC41HMCYeZJIfscGaDIL9XAwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJK9siP8IirNEzmRJsPB06dZq4G1+ALLsVleRTG7wCnqOH+eIeKbo9BXUukhGZNeG
-         +4DViwZO50n4zHMEwU1iaRo+FbOBOF3G1v2Z5SIiTzw6vLBccPWbmfg+Gj9h5Fu69d
-         HkyDylejg/I5odIBkdmDubVktCpbXIcvMOR9myjI=
+        b=14naSlA/iCy0MwR8aVj7px/7mJ1JFIGcKveDImepEkIuMUDulyVXZWZpN6qvDSMnl
+         QZm7kV8PkKesWqASe48SQAFaJ5AjRt+QFTPqerjyI06UgUWSIHVtqk6VRNEpbT4rMi
+         1iV5V/1gDG9rdbiLPoa7D6bBaX1zQcFnbTDnQM7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 029/389] parisc: Fix device names in /proc/iomem
-Date:   Tue, 23 Aug 2022 10:21:47 +0200
-Message-Id: <20220823080116.907959741@linuxfoundation.org>
+Subject: [PATCH 5.4 030/389] parisc: io_pgetevents_time64() needs compat syscall in 32-bit compat mode
+Date:   Tue, 23 Aug 2022 10:21:48 +0200
+Message-Id: <20220823080116.947594802@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,43 +54,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Helge Deller <deller@gmx.de>
 
-commit cab56b51ec0e69128909cef4650e1907248d821b upstream.
+commit 6431e92fc827bdd2d28f79150d90415ba9ce0d21 upstream.
 
-Fix the output of /proc/iomem to show the real hardware device name
-including the pa_pathname, e.g. "Merlin 160 Core Centronics [8:16:0]".
-Up to now only the pa_pathname ("[8:16.0]") was shown.
+For all syscalls in 32-bit compat mode on 64-bit kernels the upper
+32-bits of the 64-bit registers are zeroed out, so a negative 32-bit
+signed value will show up as positive 64-bit signed value.
 
+This behaviour breaks the io_pgetevents_time64() syscall which expects
+signed 64-bit values for the "min_nr" and "nr" parameters.
+Fix this by switching to the compat_sys_io_pgetevents_time64() syscall,
+which uses "compat_long_t" types for those parameters.
+
+Cc: <stable@vger.kernel.org> # v5.1+
 Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v4.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/drivers.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/parisc/kernel/syscalls/syscall.tbl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/kernel/drivers.c
-+++ b/arch/parisc/kernel/drivers.c
-@@ -520,7 +520,6 @@ alloc_pa_dev(unsigned long hpa, struct h
- 	dev->id.hversion_rev = iodc_data[1] & 0x0f;
- 	dev->id.sversion = ((iodc_data[4] & 0x0f) << 16) |
- 			(iodc_data[5] << 8) | iodc_data[6];
--	dev->hpa.name = parisc_pathname(dev);
- 	dev->hpa.start = hpa;
- 	/* This is awkward.  The STI spec says that gfx devices may occupy
- 	 * 32MB or 64MB.  Unfortunately, we don't know how to tell whether
-@@ -534,10 +533,10 @@ alloc_pa_dev(unsigned long hpa, struct h
- 		dev->hpa.end = hpa + 0xfff;
- 	}
- 	dev->hpa.flags = IORESOURCE_MEM;
--	name = parisc_hardware_description(&dev->id);
--	if (name) {
--		strlcpy(dev->name, name, sizeof(dev->name));
--	}
-+	dev->hpa.name = dev->name;
-+	name = parisc_hardware_description(&dev->id) ? : "unknown";
-+	snprintf(dev->name, sizeof(dev->name), "%s [%s]",
-+		name, parisc_pathname(dev));
- 
- 	/* Silently fail things like mouse ports which are subsumed within
- 	 * the keyboard controller
+--- a/arch/parisc/kernel/syscalls/syscall.tbl
++++ b/arch/parisc/kernel/syscalls/syscall.tbl
+@@ -413,7 +413,7 @@
+ 412	32	utimensat_time64		sys_utimensat			sys_utimensat
+ 413	32	pselect6_time64			sys_pselect6			compat_sys_pselect6_time64
+ 414	32	ppoll_time64			sys_ppoll			compat_sys_ppoll_time64
+-416	32	io_pgetevents_time64		sys_io_pgetevents		sys_io_pgetevents
++416	32	io_pgetevents_time64		sys_io_pgetevents		compat_sys_io_pgetevents_time64
+ 417	32	recvmmsg_time64			sys_recvmmsg			compat_sys_recvmmsg_time64
+ 418	32	mq_timedsend_time64		sys_mq_timedsend		sys_mq_timedsend
+ 419	32	mq_timedreceive_time64		sys_mq_timedreceive		sys_mq_timedreceive
 
 
