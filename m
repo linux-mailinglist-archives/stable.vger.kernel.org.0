@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB03559DCAC
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02FEF59E303
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353421AbiHWKNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:13:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36374 "EHLO
+        id S1353206AbiHWKNK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353542AbiHWKLi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3403AC3C;
-        Tue, 23 Aug 2022 01:57:16 -0700 (PDT)
+        with ESMTP id S1353279AbiHWKLL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5BA7E82B;
+        Tue, 23 Aug 2022 01:56:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C78FF61524;
-        Tue, 23 Aug 2022 08:57:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA856C433D7;
-        Tue, 23 Aug 2022 08:57:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A0F7B81C39;
+        Tue, 23 Aug 2022 08:56:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EFB6C433C1;
+        Tue, 23 Aug 2022 08:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245035;
-        bh=L2kbwHsu7mISqjTwShhCSkl2t+nfdjFXCjhkhiPZprA=;
+        s=korg; t=1661244975;
+        bh=kmauTnMR3HAoOyBOAkL6MvXio1F+6vYPbBFtfh7SbRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/xvVOSjOCbUBkOM11VdICgKkXOHBM22KKVfcSlvYnHXTiRJFpZKlIaec0ou9BV6g
-         ks5Ple0hZ89ZgkCqXLiVoMopR8SPc0hSLafnrt+F8vyRhsNFTAdrNs8FuiWcvXi+5n
-         5LbQBPiWUXMm9WV3WYuM9KT5ngZJzy/aO+gGd6dY=
+        b=I4Cq9PPdPETk+l65Ey2Qy0m2AJWxEbT6StX8f6tsrGLfHVd8CVxzjOwTADQK0QkXf
+         0z7o3VWhwjnUtDQ9DxLYNGPY44AzoD2zqyc4H3pHDebDfe//5F9Jh1LUwYCXOblJzs
+         yUUHY+CXeiO3P1hJm3BUtnaLd9jg4T7LUksSq7ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Dooks <ben.dooks@sifive.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 194/244] dmaengine: dw-axi-dmac: ignore interrupt if no descriptor
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+b03f55bf128f9a38f064@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 192/229] vsock: Fix memory leak in vsock_connect()
 Date:   Tue, 23 Aug 2022 10:25:53 +0200
-Message-Id: <20220823080105.889179972@linuxfoundation.org>
+Message-Id: <20220823080100.470225294@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Dooks <ben.dooks@sifive.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit 820f5ce999d2f99961e88c16d65cd26764df0590 ]
+commit 7e97cfed9929eaabc41829c395eb0d1350fccb9d upstream.
 
-If the channel has no descriptor and the interrupt is raised then the
-kernel will OOPS. Check the result of vchan_next_desc() in the handler
-axi_chan_block_xfer_complete() to avoid the error happening.
+An O_NONBLOCK vsock_connect() request may try to reschedule
+@connect_work.  Imagine the following sequence of vsock_connect()
+requests:
 
-Signed-off-by: Ben Dooks <ben.dooks@sifive.com>
-Link: https://lore.kernel.org/r/20220708170153.269991-4-ben.dooks@sifive.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  1. The 1st, non-blocking request schedules @connect_work, which will
+     expire after 200 jiffies.  Socket state is now SS_CONNECTING;
+
+  2. Later, the 2nd, blocking request gets interrupted by a signal after
+     a few jiffies while waiting for the connection to be established.
+     Socket state is back to SS_UNCONNECTED, but @connect_work is still
+     pending, and will expire after 100 jiffies.
+
+  3. Now, the 3rd, non-blocking request tries to schedule @connect_work
+     again.  Since @connect_work is already scheduled,
+     schedule_delayed_work() silently returns.  sock_hold() is called
+     twice, but sock_put() will only be called once in
+     vsock_connect_timeout(), causing a memory leak reported by syzbot:
+
+  BUG: memory leak
+  unreferenced object 0xffff88810ea56a40 (size 1232):
+    comm "syz-executor756", pid 3604, jiffies 4294947681 (age 12.350s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+      28 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  (..@............
+    backtrace:
+      [<ffffffff837c830e>] sk_prot_alloc+0x3e/0x1b0 net/core/sock.c:1930
+      [<ffffffff837cbe22>] sk_alloc+0x32/0x2e0 net/core/sock.c:1989
+      [<ffffffff842ccf68>] __vsock_create.constprop.0+0x38/0x320 net/vmw_vsock/af_vsock.c:734
+      [<ffffffff842ce8f1>] vsock_create+0xc1/0x2d0 net/vmw_vsock/af_vsock.c:2203
+      [<ffffffff837c0cbb>] __sock_create+0x1ab/0x2b0 net/socket.c:1468
+      [<ffffffff837c3acf>] sock_create net/socket.c:1519 [inline]
+      [<ffffffff837c3acf>] __sys_socket+0x6f/0x140 net/socket.c:1561
+      [<ffffffff837c3bba>] __do_sys_socket net/socket.c:1570 [inline]
+      [<ffffffff837c3bba>] __se_sys_socket net/socket.c:1568 [inline]
+      [<ffffffff837c3bba>] __x64_sys_socket+0x1a/0x20 net/socket.c:1568
+      [<ffffffff84512815>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+      [<ffffffff84512815>] do_syscall_64+0x35/0x80 arch/x86/entry/common.c:80
+      [<ffffffff84600068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+  <...>
+
+Use mod_delayed_work() instead: if @connect_work is already scheduled,
+reschedule it, and undo sock_hold() to keep the reference count
+balanced.
+
+Reported-and-tested-by: syzbot+b03f55bf128f9a38f064@syzkaller.appspotmail.com
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Co-developed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/vmw_vsock/af_vsock.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-index 8f765e2d7c72..48de8d2b32f2 100644
---- a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-+++ b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-@@ -1016,6 +1016,11 @@ static void axi_chan_block_xfer_complete(struct axi_dma_chan *chan)
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1222,7 +1222,14 @@ static int vsock_stream_connect(struct s
+ 			 * timeout fires.
+ 			 */
+ 			sock_hold(sk);
+-			schedule_delayed_work(&vsk->connect_work, timeout);
++
++			/* If the timeout function is already scheduled,
++			 * reschedule it, then ungrab the socket refcount to
++			 * keep it balanced.
++			 */
++			if (mod_delayed_work(system_wq, &vsk->connect_work,
++					     timeout))
++				sock_put(sk);
  
- 	/* The completed descriptor currently is in the head of vc list */
- 	vd = vchan_next_desc(&chan->vc);
-+	if (!vd) {
-+		dev_err(chan2dev(chan), "BUG: %s, IRQ with no descriptors\n",
-+			axi_chan_name(chan));
-+		goto out;
-+	}
- 
- 	if (chan->cyclic) {
- 		desc = vd_to_axi_desc(vd);
-@@ -1045,6 +1050,7 @@ static void axi_chan_block_xfer_complete(struct axi_dma_chan *chan)
- 		axi_chan_start_first_queued(chan);
- 	}
- 
-+out:
- 	spin_unlock_irqrestore(&chan->vc.lock, flags);
- }
- 
--- 
-2.35.1
-
+ 			/* Skip ahead to preserve error code set above. */
+ 			goto out_wait;
 
 
