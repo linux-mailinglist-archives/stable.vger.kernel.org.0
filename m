@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F45F59D3BF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 959A459D40F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242773AbiHWISq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:18:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42108 "EHLO
+        id S242749AbiHWISh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:18:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243053AbiHWIQb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:16:31 -0400
+        with ESMTP id S243074AbiHWIQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:16:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1EE869F4B;
-        Tue, 23 Aug 2022 01:11:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08EDEC06;
+        Tue, 23 Aug 2022 01:11:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 13F4461257;
-        Tue, 23 Aug 2022 08:11:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9F5C433C1;
-        Tue, 23 Aug 2022 08:11:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E6B1612D8;
+        Tue, 23 Aug 2022 08:11:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A4E5C433C1;
+        Tue, 23 Aug 2022 08:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242265;
-        bh=X64jWE4sYmXdajzHGjPAcpzNUpOWDxH6QKW+V8PUFBw=;
+        s=korg; t=1661242271;
+        bh=I1xhZSiC9DRvT8rxyQAW4Nh+0v4H2XNl/oVbjpuEVrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kyo9z05no06eVUUDySlDZIoHHoG7Zq/+379K/6Q5wQB8rgtEI3RjmxkB9S6hT01+i
-         REqaNbZB8BuUEFNay7Ob/AfRYppn40xX+L5X5x2bMj7HzUoc4klLPIF5HZ6vJ0tKy4
-         h3bTe9aWZVeHQHiKtqrRj/6yxgsiWNpo5dQSc+qc=
+        b=GIsp5bDGrka/7kTMNZFq4vbNlp+3ZTGoYiJKqvc7gCxd2jt1I2cJlSCLdNRqUopWM
+         1T3ucJEHM7ijM0HC6muejccz+kO7C6vEVZPhIub2xKX6t3G4iuFAnCaDiMT9kpUJ87
+         5FRvlbly4J+RaLk8d4jqBmupQ3kmcKxbF6gbZEIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Sandor Bodo-Merle <sbodomerle@gmail.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 085/365] net: dsa: felix: suppress non-changes to the tagging protocol
-Date:   Tue, 23 Aug 2022 09:59:46 +0200
-Message-Id: <20220823080121.746982636@linuxfoundation.org>
+Subject: [PATCH 5.19 086/365] net: bgmac: Fix a BUG triggered by wrong bytes_compl
+Date:   Tue, 23 Aug 2022 09:59:47 +0200
+Message-Id: <20220823080121.788256867@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,74 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Sandor Bodo-Merle <sbodomerle@gmail.com>
 
-commit 4c46bb49460ee14c69629e813640d8b929e88941 upstream.
+commit 1b7680c6c1f6de9904f1d9b05c952f0c64a03350 upstream.
 
-The way in which dsa_tree_change_tag_proto() works is that when
-dsa_tree_notify() fails, it doesn't know whether the operation failed
-mid way in a multi-switch tree, or it failed for a single-switch tree.
-So even though drivers need to fail cleanly in
-ds->ops->change_tag_protocol(), DSA will still call dsa_tree_notify()
-again, to restore the old tag protocol for potential switches in the
-tree where the change did succeeed (before failing for others).
+On one of our machines we got:
 
-This means for the felix driver that if we report an error in
-felix_change_tag_protocol(), we'll get another call where proto_ops ==
-old_proto_ops. If we proceed to act upon that, we may do unexpected
-things. For example, we will call dsa_tag_8021q_register() twice in a
-row, without any dsa_tag_8021q_unregister() in between. Then we will
-actually call dsa_tag_8021q_unregister() via old_proto_ops->teardown,
-which (if it manages to run at all, after walking through corrupted data
-structures) will leave the ports inoperational anyway.
+kernel BUG at lib/dynamic_queue_limits.c:27!
+Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
+CPU: 0 PID: 1166 Comm: irq/41-bgmac Tainted: G        W  O    4.14.275-rt132 #1
+Hardware name: BRCM XGS iProc
+task: ee3415c0 task.stack: ee32a000
+PC is at dql_completed+0x168/0x178
+LR is at bgmac_poll+0x18c/0x6d8
+pc : [<c03b9430>]    lr : [<c04b5a18>]    psr: 800a0313
+sp : ee32be14  ip : 000005ea  fp : 00000bd4
+r10: ee558500  r9 : c0116298  r8 : 00000002
+r7 : 00000000  r6 : ef128810  r5 : 01993267  r4 : 01993851
+r3 : ee558000  r2 : 000070e1  r1 : 00000bd4  r0 : ee52c180
+Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+Control: 12c5387d  Table: 8e88c04a  DAC: 00000051
+Process irq/41-bgmac (pid: 1166, stack limit = 0xee32a210)
+Stack: (0xee32be14 to 0xee32c000)
+be00:                                              ee558520 ee52c100 ef128810
+be20: 00000000 00000002 c0116298 c04b5a18 00000000 c0a0c8c4 c0951780 00000040
+be40: c0701780 ee558500 ee55d520 ef05b340 ef6f9780 ee558520 00000001 00000040
+be60: ffffe000 c0a56878 ef6fa040 c0952040 0000012c c0528744 ef6f97b0 fffcfb6a
+be80: c0a04104 2eda8000 c0a0c4ec c0a0d368 ee32bf44 c0153534 ee32be98 ee32be98
+bea0: ee32bea0 ee32bea0 ee32bea8 ee32bea8 00000000 c01462e4 ffffe000 ef6f22a8
+bec0: ffffe000 00000008 ee32bee4 c0147430 ffffe000 c094a2a8 00000003 ffffe000
+bee0: c0a54528 00208040 0000000c c0a0c8c4 c0a65980 c0124d3c 00000008 ee558520
+bf00: c094a23c c0a02080 00000000 c07a9910 ef136970 ef136970 ee30a440 ef136900
+bf20: ee30a440 00000001 ef136900 ee30a440 c016d990 00000000 c0108db0 c012500c
+bf40: ef136900 c016da14 ee30a464 ffffe000 00000001 c016dd14 00000000 c016db28
+bf60: ffffe000 ee21a080 ee30a400 00000000 ee32a000 ee30a440 c016dbfc ee25fd70
+bf80: ee21a09c c013edcc ee32a000 ee30a400 c013ec7c 00000000 00000000 00000000
+bfa0: 00000000 00000000 00000000 c0108470 00000000 00000000 00000000 00000000
+bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+bfe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+[<c03b9430>] (dql_completed) from [<c04b5a18>] (bgmac_poll+0x18c/0x6d8)
+[<c04b5a18>] (bgmac_poll) from [<c0528744>] (net_rx_action+0x1c4/0x494)
+[<c0528744>] (net_rx_action) from [<c0124d3c>] (do_current_softirqs+0x1ec/0x43c)
+[<c0124d3c>] (do_current_softirqs) from [<c012500c>] (__local_bh_enable+0x80/0x98)
+[<c012500c>] (__local_bh_enable) from [<c016da14>] (irq_forced_thread_fn+0x84/0x98)
+[<c016da14>] (irq_forced_thread_fn) from [<c016dd14>] (irq_thread+0x118/0x1c0)
+[<c016dd14>] (irq_thread) from [<c013edcc>] (kthread+0x150/0x158)
+[<c013edcc>] (kthread) from [<c0108470>] (ret_from_fork+0x14/0x24)
+Code: a83f15e0 0200001a 0630a0e1 c3ffffea (f201f0e7)
 
-The bug can be readily reproduced if we force an error while in
-tag_8021q mode; this crashes the kernel.
+The issue seems similar to commit 90b3b339364c ("net: hisilicon: Fix a BUG
+trigered by wrong bytes_compl") and potentially introduced by commit
+b38c83dd0866 ("bgmac: simplify tx ring index handling").
 
-echo ocelot-8021q > /sys/class/net/eno2/dsa/tagging
-echo edsa > /sys/class/net/eno2/dsa/tagging # -EPROTONOSUPPORT
+If there is an RX interrupt between setting ring->end
+and netdev_sent_queue() we can hit the BUG_ON as bgmac_dma_tx_free()
+can miscalculate the queue size while called from bgmac_poll().
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000014
-Call trace:
- vcap_entry_get+0x24/0x124
- ocelot_vcap_filter_del+0x198/0x270
- felix_tag_8021q_vlan_del+0xd4/0x21c
- dsa_switch_tag_8021q_vlan_del+0x168/0x2cc
- dsa_switch_event+0x68/0x1170
- dsa_tree_notify+0x14/0x34
- dsa_port_tag_8021q_vlan_del+0x84/0x110
- dsa_tag_8021q_unregister+0x15c/0x1c0
- felix_tag_8021q_teardown+0x16c/0x180
- felix_change_tag_protocol+0x1bc/0x230
- dsa_switch_event+0x14c/0x1170
- dsa_tree_change_tag_proto+0x118/0x1c0
+The machine which triggered the BUG runs a v4.14 RT kernel - but the issue
+seems present in mainline too.
 
-Fixes: 7a29d220f4c0 ("net: dsa: felix: reimplement tagging protocol change with function pointers")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: b38c83dd0866 ("bgmac: simplify tx ring index handling")
+Signed-off-by: Sandor Bodo-Merle <sbodomerle@gmail.com>
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220808125127.3344094-1-vladimir.oltean@nxp.com
+Link: https://lore.kernel.org/r/20220808173939.193804-1-sbodomerle@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/ocelot/felix.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/broadcom/bgmac.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
-index 859196898a7d..aadb0bd7c24f 100644
---- a/drivers/net/dsa/ocelot/felix.c
-+++ b/drivers/net/dsa/ocelot/felix.c
-@@ -610,6 +610,9 @@ static int felix_change_tag_protocol(struct dsa_switch *ds,
+--- a/drivers/net/ethernet/broadcom/bgmac.c
++++ b/drivers/net/ethernet/broadcom/bgmac.c
+@@ -189,8 +189,8 @@ static netdev_tx_t bgmac_dma_tx_add(stru
+ 	}
  
- 	old_proto_ops = felix->tag_proto_ops;
+ 	slot->skb = skb;
+-	ring->end += nr_frags + 1;
+ 	netdev_sent_queue(net_dev, skb->len);
++	ring->end += nr_frags + 1;
  
-+	if (proto_ops == old_proto_ops)
-+		return 0;
-+
- 	err = proto_ops->setup(ds);
- 	if (err)
- 		goto setup_failed;
--- 
-2.37.2
-
+ 	wmb();
+ 
 
 
