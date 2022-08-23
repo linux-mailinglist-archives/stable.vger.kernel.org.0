@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E1759DFBE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2C5859DBF7
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242413AbiHWLml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:42:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59880 "EHLO
+        id S1351163AbiHWKno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:43:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358392AbiHWLlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:41:44 -0400
+        with ESMTP id S1356317AbiHWKlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBCD0CC309;
-        Tue, 23 Aug 2022 02:29:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B55A9270;
+        Tue, 23 Aug 2022 02:09:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1521DB81C88;
-        Tue, 23 Aug 2022 09:29:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E9C5C433D7;
-        Tue, 23 Aug 2022 09:29:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F43CB81C4E;
+        Tue, 23 Aug 2022 09:09:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11B9EC433C1;
+        Tue, 23 Aug 2022 09:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246950;
-        bh=zVySbhQmCrYQm9KPBepVFw8ABGXfVmDjaPbNpaUnL0M=;
+        s=korg; t=1661245756;
+        bh=Tmyi9bk+1bbxmTO9xBpQGKNVA74gTxDUx72W9Ihj6ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZaxsSH7vNaKuw3DV2WDznZvWcPdJqRPn8fQIA2KsIKnXWnHObJA1JTg7J4WHxr6E
-         ODhfsRQEbMJ+4Zt6WBffDdbnX9jcpno6Ux+87Z7ILq1C4t/hoUnvAF1QSpYF/JTScO
-         FJU1kwnRTkGAqL5LfxCqWezt26Xe3ErPd/LSu0c0=
+        b=YCWeV8WTpEl1XPHmCIGQwwI8D6qS+xCL/+f9YydMUp2Y1IMgWynNB9TiZoLpZEm7h
+         FmhS8EsLwRUYf/odDrE7L9VO5uD7XDl9ElvLgwBzItTE2dY/wrlu2TOo1TTMPmW0db
+         f8L1zHEdfVuCsfQJDsIF8SzO0I3LgQH0i25SPeLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 271/389] ACPI: CPPC: Do not prevent CPPC from working in the future
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 180/287] tools/thermal: Fix possible path truncations
 Date:   Tue, 23 Aug 2022 10:25:49 +0200
-Message-Id: <20220823080126.879035447@linuxfoundation.org>
+Message-Id: <20220823080106.841588426@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,124 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 4f4179fcf420873002035cf1941d844c9e0e7cb3 upstream.
+[ Upstream commit 6c58cf40e3a1d2f47c09d3489857e9476316788a ]
 
-There is a problem with the current revision checks in
-is_cppc_supported() that they essentially prevent the CPPC support
-from working if a new _CPC package format revision being a proper
-superset of the v3 and only causing _CPC to return a package with more
-entries (while retaining the types and meaning of the entries defined by
-the v3) is introduced in the future and used by the platform firmware.
+A build with -D_FORTIFY_SOURCE=2 enabled will produce the following warnings:
 
-In that case, as long as the number of entries in the _CPC return
-package is at least CPPC_V3_NUM_ENT, it should be perfectly fine to
-use the v3 support code and disregard the additional package entries
-added by the new package format revision.
+sysfs.c:63:30: warning: '%s' directive output may be truncated writing up to 255 bytes into a region of size between 0 and 255 [-Wformat-truncation=]
+  snprintf(filepath, 256, "%s/%s", path, filename);
+                              ^~
+Bump up the buffer to PATH_MAX which is the limit and account for all of
+the possible NUL and separators that could lead to exceeding the
+allocated buffer sizes.
 
-For this reason, drop is_cppc_supported() altogether, put the revision
-checks directly into acpi_cppc_processor_probe() so they are easier to
-follow and rework them to take the case mentioned above into account.
-
-Fixes: 4773e77cdc9b ("ACPI / CPPC: Add support for CPPC v3")
-Cc: 4.18+ <stable@vger.kernel.org> # 4.18+
+Fixes: 94f69966faf8 ("tools/thermal: Introduce tmon, a tool for thermal subsystem")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/cppc_acpi.c |   54 ++++++++++++++++++++---------------------------
- include/acpi/cppc_acpi.h |    2 -
- 2 files changed, 25 insertions(+), 31 deletions(-)
+ tools/thermal/tmon/sysfs.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/drivers/acpi/cppc_acpi.c
-+++ b/drivers/acpi/cppc_acpi.c
-@@ -626,33 +626,6 @@ int pcc_data_alloc(int pcc_ss_id)
- 	return 0;
- }
+diff --git a/tools/thermal/tmon/sysfs.c b/tools/thermal/tmon/sysfs.c
+index 18f523557983..1b17cbc54c9d 100644
+--- a/tools/thermal/tmon/sysfs.c
++++ b/tools/thermal/tmon/sysfs.c
+@@ -22,6 +22,7 @@
+ #include <stdint.h>
+ #include <dirent.h>
+ #include <libintl.h>
++#include <limits.h>
+ #include <ctype.h>
+ #include <time.h>
+ #include <syslog.h>
+@@ -42,9 +43,9 @@ int sysfs_set_ulong(char *path, char *filename, unsigned long val)
+ {
+ 	FILE *fd;
+ 	int ret = -1;
+-	char filepath[256];
++	char filepath[PATH_MAX + 2]; /* NUL and '/' */
  
--/* Check if CPPC revision + num_ent combination is supported */
--static bool is_cppc_supported(int revision, int num_ent)
--{
--	int expected_num_ent;
--
--	switch (revision) {
--	case CPPC_V2_REV:
--		expected_num_ent = CPPC_V2_NUM_ENT;
--		break;
--	case CPPC_V3_REV:
--		expected_num_ent = CPPC_V3_NUM_ENT;
--		break;
--	default:
--		pr_debug("Firmware exports unsupported CPPC revision: %d\n",
--			revision);
--		return false;
--	}
--
--	if (expected_num_ent != num_ent) {
--		pr_debug("Firmware exports %d entries. Expected: %d for CPPC rev:%d\n",
--			num_ent, expected_num_ent, revision);
--		return false;
--	}
--
--	return true;
--}
--
- /*
-  * An example CPC table looks like the following.
-  *
-@@ -748,7 +721,6 @@ int acpi_cppc_processor_probe(struct acp
- 				cpc_obj->type);
- 		goto out_free;
- 	}
--	cpc_ptr->num_entries = num_ent;
+-	snprintf(filepath, 256, "%s/%s", path, filename);
++	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
  
- 	/* Second entry should be revision. */
- 	cpc_obj = &out_obj->package.elements[1];
-@@ -759,10 +731,32 @@ int acpi_cppc_processor_probe(struct acp
- 				cpc_obj->type);
- 		goto out_free;
- 	}
--	cpc_ptr->version = cpc_rev;
+ 	fd = fopen(filepath, "w");
+ 	if (!fd) {
+@@ -66,9 +67,9 @@ static int sysfs_get_ulong(char *path, char *filename, unsigned long *p_ulong)
+ {
+ 	FILE *fd;
+ 	int ret = -1;
+-	char filepath[256];
++	char filepath[PATH_MAX + 2]; /* NUL and '/' */
  
--	if (!is_cppc_supported(cpc_rev, num_ent))
-+	if (cpc_rev < CPPC_V2_REV) {
-+		pr_debug("Unsupported _CPC Revision (%d) for CPU:%d\n", cpc_rev,
-+			 pr->id);
- 		goto out_free;
-+	}
-+
-+	/*
-+	 * Disregard _CPC if the number of entries in the return pachage is not
-+	 * as expected, but support future revisions being proper supersets of
-+	 * the v3 and only causing more entries to be returned by _CPC.
-+	 */
-+	if ((cpc_rev == CPPC_V2_REV && num_ent != CPPC_V2_NUM_ENT) ||
-+	    (cpc_rev == CPPC_V3_REV && num_ent != CPPC_V3_NUM_ENT) ||
-+	    (cpc_rev > CPPC_V3_REV && num_ent <= CPPC_V3_NUM_ENT)) {
-+		pr_debug("Unexpected number of _CPC return package entries (%d) for CPU:%d\n",
-+			 num_ent, pr->id);
-+		goto out_free;
-+	}
-+	if (cpc_rev > CPPC_V3_REV) {
-+		num_ent = CPPC_V3_NUM_ENT;
-+		cpc_rev = CPPC_V3_REV;
-+	}
-+
-+	cpc_ptr->num_entries = num_ent;
-+	cpc_ptr->version = cpc_rev;
+-	snprintf(filepath, 256, "%s/%s", path, filename);
++	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
  
- 	/* Iterate through remaining entries in _CPC */
- 	for (i = 2; i < num_ent; i++) {
---- a/include/acpi/cppc_acpi.h
-+++ b/include/acpi/cppc_acpi.h
-@@ -16,7 +16,7 @@
- #include <acpi/pcc.h>
- #include <acpi/processor.h>
+ 	fd = fopen(filepath, "r");
+ 	if (!fd) {
+@@ -85,9 +86,9 @@ static int sysfs_get_string(char *path, char *filename, char *str)
+ {
+ 	FILE *fd;
+ 	int ret = -1;
+-	char filepath[256];
++	char filepath[PATH_MAX + 2]; /* NUL and '/' */
  
--/* Support CPPCv2 and CPPCv3  */
-+/* CPPCv2 and CPPCv3 support */
- #define CPPC_V2_REV	2
- #define CPPC_V3_REV	3
- #define CPPC_V2_NUM_ENT	21
+-	snprintf(filepath, 256, "%s/%s", path, filename);
++	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
+ 
+ 	fd = fopen(filepath, "r");
+ 	if (!fd) {
+@@ -208,8 +209,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
+ {
+ 	unsigned long trip_instance = 0;
+ 	char cdev_name_linked[256];
+-	char cdev_name[256];
+-	char cdev_trip_name[256];
++	char cdev_name[PATH_MAX];
++	char cdev_trip_name[PATH_MAX];
+ 	int cdev_id;
+ 
+ 	if (nl->d_type == DT_LNK) {
+@@ -222,7 +223,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
+ 			return -EINVAL;
+ 		}
+ 		/* find the link to real cooling device record binding */
+-		snprintf(cdev_name, 256, "%s/%s", tz_name, nl->d_name);
++		snprintf(cdev_name, sizeof(cdev_name) - 2, "%s/%s",
++			 tz_name, nl->d_name);
+ 		memset(cdev_name_linked, 0, sizeof(cdev_name_linked));
+ 		if (readlink(cdev_name, cdev_name_linked,
+ 				sizeof(cdev_name_linked) - 1) != -1) {
+@@ -235,8 +237,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
+ 			/* find the trip point in which the cdev is binded to
+ 			 * in this tzone
+ 			 */
+-			snprintf(cdev_trip_name, 256, "%s%s", nl->d_name,
+-				"_trip_point");
++			snprintf(cdev_trip_name, sizeof(cdev_trip_name) - 1,
++				"%s%s", nl->d_name, "_trip_point");
+ 			sysfs_get_ulong(tz_name, cdev_trip_name,
+ 					&trip_instance);
+ 			/* validate trip point range, e.g. trip could return -1
+-- 
+2.35.1
+
 
 
