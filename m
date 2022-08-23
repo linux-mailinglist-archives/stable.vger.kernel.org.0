@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 308BB59E2A2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5913859DC1A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355847AbiHWKuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:50:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40006 "EHLO
+        id S1353621AbiHWKPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:15:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355902AbiHWKsU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:48:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7912F74DED;
-        Tue, 23 Aug 2022 02:12:05 -0700 (PDT)
+        with ESMTP id S1353488AbiHWKNi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:13:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F0F86BCDF;
+        Tue, 23 Aug 2022 01:59:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E5BFB81C4E;
-        Tue, 23 Aug 2022 09:12:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B51AC433C1;
-        Tue, 23 Aug 2022 09:12:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D9CD6155E;
+        Tue, 23 Aug 2022 08:59:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C06FC433C1;
+        Tue, 23 Aug 2022 08:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245922;
-        bh=qIoP2uuXfmMzLc+/YOuIVXKKJuiDH36N6oU21shCADY=;
+        s=korg; t=1661245182;
+        bh=PgyVFjM/sJzqAes88J3V0mrgRt5TxTayDfFQcvuLosU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sT5v0bIqOn9fOusCY/ZgSOPTJ80/Hp2JrWBvz09d3+dTw0PlR6W95iFxnRFSCxBS+
-         380UbpwoN20/mTjMq4fMAPgOQOAxtcDTViWVgOx0Q1ev5UFHSlo5sFrLafengtoTAL
-         PHPh9x8YXLSTK2QC+JdYWJ89NnWGlAqehAwOva/I=
+        b=ETy0rjJnSnG5In2P4BeGlbzOPdCiI/iWAWHUPcWL6ze1BFTbRGRaWZp3m4Rb9G2y8
+         V1zJVOJr4fMAj1MALrdlpLqQCVh8r3GzeVXDQYMd5BcDaELtq34MU9R17bBFdJ5O6g
+         at5ffxj+Nf4hhI9NOoyQj34BZTB32TDoHB0sJabM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.19 232/287] NFSv4/pnfs: Fix a use-after-free bug in open
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <david@fromorbit.com>,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 242/244] xfs: fix soft lockup via spinning in filestream ag selection loop
 Date:   Tue, 23 Aug 2022 10:26:41 +0200
-Message-Id: <20220823080108.853280173@linuxfoundation.org>
+Message-Id: <20220823080107.705143443@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Brian Foster <bfoster@redhat.com>
 
-commit 2135e5d56278ffdb1c2e6d325dc6b87f669b9dac upstream.
+[ Upstream commit f650df7171b882dca737ddbbeb414100b31f16af ]
 
-If someone cancels the open RPC call, then we must not try to free
-either the open slot or the layoutget operation arguments, since they
-are likely still in use by the hung RPC call.
+The filestream AG selection loop uses pagf data to aid in AG
+selection, which depends on pagf initialization. If the in-core
+structure is not initialized, the caller invokes the AGF read path
+to do so and carries on. If another task enters the loop and finds
+a pagf init already in progress, the AGF read returns -EAGAIN and
+the task continues the loop. This does not increment the current ag
+index, however, which means the task spins on the current AGF buffer
+until unlocked.
 
-Fixes: 6949493884fe ("NFSv4: Don't hold the layoutget locks across multiple RPC calls")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+If the AGF read I/O submitted by the initial task happens to be
+delayed for whatever reason, this results in soft lockup warnings
+via the spinning task. This is reproduced by xfs/170. To avoid this
+problem, fix the AGF trylock failure path to properly iterate to the
+next AG. If a task iterates all AGs without making progress, the
+trylock behavior is dropped in favor of blocking locks and thus a
+soft lockup is no longer possible.
+
+Fixes: f48e2df8a877ca1c ("xfs: make xfs_*read_agf return EAGAIN to ALLOC_FLAG_TRYLOCK callers")
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/xfs/xfs_filestream.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -2920,12 +2920,13 @@ static int _nfs4_open_and_get_state(stru
- 	}
- 
- out:
--	if (opendata->lgp) {
--		nfs4_lgopen_release(opendata->lgp);
--		opendata->lgp = NULL;
--	}
--	if (!opendata->cancelled)
-+	if (!opendata->cancelled) {
-+		if (opendata->lgp) {
-+			nfs4_lgopen_release(opendata->lgp);
-+			opendata->lgp = NULL;
-+		}
- 		nfs4_sequence_free_slot(&opendata->o_res.seq_res);
-+	}
- 	return ret;
- }
+--- a/fs/xfs/xfs_filestream.c
++++ b/fs/xfs/xfs_filestream.c
+@@ -128,11 +128,12 @@ xfs_filestream_pick_ag(
+ 		if (!pag->pagf_init) {
+ 			err = xfs_alloc_pagf_init(mp, NULL, ag, trylock);
+ 			if (err) {
+-				xfs_perag_put(pag);
+-				if (err != -EAGAIN)
++				if (err != -EAGAIN) {
++					xfs_perag_put(pag);
+ 					return err;
++				}
+ 				/* Couldn't lock the AGF, skip this AG. */
+-				continue;
++				goto next_ag;
+ 			}
+ 		}
  
 
 
