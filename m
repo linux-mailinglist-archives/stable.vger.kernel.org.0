@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94B9C59D54D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA4F59D52E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242799AbiHWI1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:27:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46468 "EHLO
+        id S243283AbiHWI1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:27:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243716AbiHWIZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:25:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E7252831;
-        Tue, 23 Aug 2022 01:13:58 -0700 (PDT)
+        with ESMTP id S243790AbiHWIZ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:25:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87D4172878;
+        Tue, 23 Aug 2022 01:14:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42024B81C20;
-        Tue, 23 Aug 2022 08:13:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78C1AC43141;
-        Tue, 23 Aug 2022 08:13:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C60B761242;
+        Tue, 23 Aug 2022 08:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD5E6C433D6;
+        Tue, 23 Aug 2022 08:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242435;
-        bh=aWL0Z/O80bkDY1YmKqPRMfINCZANIFsBbAcWpD1QGP0=;
+        s=korg; t=1661242441;
+        bh=OQlvZM+K22KXk20z/y80Vu43gP5UH4g2hFg4EP4s7Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nd+x3dzp4FYtDM5VKHpX43id1Y0NBOGSWSXpd5wK4fq178jk0JUwc+8Zcha5z+tLP
-         dDMRCL5UqhLRinhYSNcAhytYUZ8gA5O46USmROYJQTAR9X79Q1Y3BncU89AnGZMznR
-         MD15C0ZBzfaGubUPRRmIzTnDUqqec1pzhc8HKyb0=
+        b=tTyhsHBKDp9sX+/UYMQV2jNXjYU+NRIwRXGRevcCEFCbORHJlubPs5dblOTHwyf7c
+         eQ8P4V8p8UdxfFp2jBD4P55VjfbK9vzbtQCqVespyfwKx5kZseH60h0IUxIBbnJbpz
+         kpiF9mKeVIZhdPQdq3hVzk3F/NfAy2GErvf5LppI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Xianwei <zhang.xianwei8@zte.com.cn>,
-        Yi Wang <wang.yi59@zte.com.cn>,
+        stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.9 071/101] NFSv4.1: RECLAIM_COMPLETE must handle EACCES
-Date:   Tue, 23 Aug 2022 10:03:44 +0200
-Message-Id: <20220823080037.269266210@linuxfoundation.org>
+Subject: [PATCH 4.9 072/101] SUNRPC: Reinitialise the backchannel request buffers before reuse
+Date:   Tue, 23 Aug 2022 10:03:45 +0200
+Message-Id: <20220823080037.304300421@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -54,38 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xianwei <zhang.xianwei8@zte.com.cn>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit e35a5e782f67ed76a65ad0f23a484444a95f000f upstream.
+commit 6622e3a73112fc336c1c2c582428fb5ef18e456a upstream.
 
-A client should be able to handle getting an EACCES error while doing
-a mount operation to reclaim state due to NFS4CLNT_RECLAIM_REBOOT
-being set. If the server returns RPC_AUTH_BADCRED because authentication
-failed when we execute "exportfs -au", then RECLAIM_COMPLETE will go a
-wrong way. After mount succeeds, all OPEN call will fail due to an
-NFS4ERR_GRACE error being returned. This patch is to fix it by resending
-a RPC request.
+When we're reusing the backchannel requests instead of freeing them,
+then we should reinitialise any values of the send/receive xdr_bufs so
+that they reflect the available space.
 
-Signed-off-by: Zhang Xianwei <zhang.xianwei8@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Fixes: aa5190d0ed7d ("NFSv4: Kill nfs4_async_handle_error() abuses by NFSv4.1")
+Fixes: 0d2a970d0ae5 ("SUNRPC: Fix a backchannel race")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/sunrpc/backchannel_rqst.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -8229,6 +8229,9 @@ static int nfs41_reclaim_complete_handle
- 		rpc_delay(task, NFS4_POLL_RETRY_MAX);
- 		/* fall through */
- 	case -NFS4ERR_RETRY_UNCACHED_REP:
-+	case -EACCES:
-+		dprintk("%s: failed to reclaim complete error %d for server %s, retrying\n",
-+			__func__, task->tk_status, clp->cl_hostname);
- 		return -EAGAIN;
- 	case -NFS4ERR_BADSESSION:
- 	case -NFS4ERR_DEADSESSION:
+--- a/net/sunrpc/backchannel_rqst.c
++++ b/net/sunrpc/backchannel_rqst.c
+@@ -69,6 +69,17 @@ static void xprt_free_allocation(struct
+ 	kfree(req);
+ }
+ 
++static void xprt_bc_reinit_xdr_buf(struct xdr_buf *buf)
++{
++	buf->head[0].iov_len = PAGE_SIZE;
++	buf->tail[0].iov_len = 0;
++	buf->pages = NULL;
++	buf->page_len = 0;
++	buf->flags = 0;
++	buf->len = 0;
++	buf->buflen = PAGE_SIZE;
++}
++
+ static int xprt_alloc_xdr_buf(struct xdr_buf *buf, gfp_t gfp_flags)
+ {
+ 	struct page *page;
+@@ -291,6 +302,9 @@ void xprt_free_bc_rqst(struct rpc_rqst *
+ 	 */
+ 	spin_lock_bh(&xprt->bc_pa_lock);
+ 	if (xprt_need_to_requeue(xprt)) {
++		xprt_bc_reinit_xdr_buf(&req->rq_snd_buf);
++		xprt_bc_reinit_xdr_buf(&req->rq_rcv_buf);
++		req->rq_rcv_buf.len = PAGE_SIZE;
+ 		list_add_tail(&req->rq_bc_pa_list, &xprt->bc_pa_list);
+ 		xprt->bc_alloc_count++;
+ 		req = NULL;
 
 
