@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E390A59DFE1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B4F59E0BA
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355513AbiHWKnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54632 "EHLO
+        id S1352684AbiHWKNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356131AbiHWKlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:31 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9EB6A832A;
-        Tue, 23 Aug 2022 02:09:02 -0700 (PDT)
+        with ESMTP id S1353208AbiHWKLD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C743F7E330;
+        Tue, 23 Aug 2022 01:56:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 43263CE1B5E;
-        Tue, 23 Aug 2022 09:08:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55C1AC433C1;
-        Tue, 23 Aug 2022 09:08:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABF34614E7;
+        Tue, 23 Aug 2022 08:56:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACCA7C433C1;
+        Tue, 23 Aug 2022 08:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245734;
-        bh=BFHdUfVLvuzmPj3StTaNGcKfMuD3Bv/9nflGru3EY54=;
+        s=korg; t=1661244972;
+        bh=kGnKy4ot8MT8zCT9ellggAB0zIaX/bDGSKngr+K3OEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wg7qGXIVXBgusr0fH4BIsD1QgsDYTFKZZW8hpZTXn9CTgAoA0C6sWkUA38lXpWgSQ
-         TdK/qIxk4HiyS4VyiOTDV5ta1cBgR9+ColSJ98pzVgy+DCifC8WDP3pYyEZchEnlsk
-         gqRIJEmLUuteEfSTKBZEJJMAIiqRGFgcqU+foupM=
+        b=HAHpxZ4yp9vXmGp+3I4b3o7MTsI0nQfY0M5IsP5An2cdAJOBRjfaXS97S37nP0sSk
+         3i8TkIFQBEbgiylTUHqtZdZseytkY7sSFnn1jF7RTPybYN95ad5i3vRJHMNST+G83y
+         aBfDki3hR3ge7qmDH7wIfqDrAaPwvlvmKydJqZmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com,
-        Zhu Yanjun <yanjun.zhu@linux.dev>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 142/287] RDMA/rxe: Fix error unwind in rxe_create_qp()
+        stable@vger.kernel.org, Yury Norov <yury.norov@gmail.com>,
+        Erhard Furtner <erhard_f@mailbox.org>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.15 152/244] gcc-plugins: Undefine LATENT_ENTROPY_PLUGIN when plugin disabled for a file
 Date:   Tue, 23 Aug 2022 10:25:11 +0200
-Message-Id: <20220823080105.292434955@linuxfoundation.org>
+Message-Id: <20220823080104.259578002@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
+From: Andrew Donnellan <ajd@linux.ibm.com>
 
-[ Upstream commit fd5382c5805c4bcb50fd25b7246247d3f7114733 ]
+commit 012e8d2034f1bda8863435cd589636e618d6a659 upstream.
 
-In the function rxe_create_qp(), rxe_qp_from_init() is called to
-initialize qp, internally things like the spin locks are not setup until
-rxe_qp_init_req().
+Commit 36d4b36b6959 ("lib/nodemask: inline next_node_in() and
+node_random()") refactored some code by moving node_random() from
+lib/nodemask.c to include/linux/nodemask.h, thus requiring nodemask.h to
+include random.h, which conditionally defines add_latent_entropy()
+depending on whether the macro LATENT_ENTROPY_PLUGIN is defined.
 
-If an error occures before this point then the unwind will call
-rxe_cleanup() and eventually to rxe_qp_do_cleanup()/rxe_cleanup_task()
-which will oops when trying to access the uninitialized spinlock.
+This broke the build on powerpc, where nodemask.h is indirectly included
+in arch/powerpc/kernel/prom_init.c, part of the early boot machinery that
+is excluded from the latent entropy plugin using
+DISABLE_LATENT_ENTROPY_PLUGIN. It turns out that while we add a gcc flag
+to disable the actual plugin, we don't undefine LATENT_ENTROPY_PLUGIN.
 
-Move the spinlock initializations earlier before any failures.
+This leads to the following:
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20220731063621.298405-1-yanjun.zhu@linux.dev
-Reported-by: syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com
-Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    CC      arch/powerpc/kernel/prom_init.o
+  In file included from ./include/linux/nodemask.h:97,
+                   from ./include/linux/mmzone.h:17,
+                   from ./include/linux/gfp.h:7,
+                   from ./include/linux/xarray.h:15,
+                   from ./include/linux/radix-tree.h:21,
+                   from ./include/linux/idr.h:15,
+                   from ./include/linux/kernfs.h:12,
+                   from ./include/linux/sysfs.h:16,
+                   from ./include/linux/kobject.h:20,
+                   from ./include/linux/pci.h:35,
+                   from arch/powerpc/kernel/prom_init.c:24:
+  ./include/linux/random.h: In function 'add_latent_entropy':
+  ./include/linux/random.h:25:46: error: 'latent_entropy' undeclared (first use in this function); did you mean 'add_latent_entropy'?
+     25 |         add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
+        |                                              ^~~~~~~~~~~~~~
+        |                                              add_latent_entropy
+  ./include/linux/random.h:25:46: note: each undeclared identifier is reported only once for each function it appears in
+  make[2]: *** [scripts/Makefile.build:249: arch/powerpc/kernel/prom_init.o] Fehler 1
+  make[1]: *** [scripts/Makefile.build:465: arch/powerpc/kernel] Fehler 2
+  make: *** [Makefile:1855: arch/powerpc] Error 2
+
+Change the DISABLE_LATENT_ENTROPY_PLUGIN flags to undefine
+LATENT_ENTROPY_PLUGIN for files where the plugin is disabled.
+
+Cc: Yury Norov <yury.norov@gmail.com>
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216367
+Link: https://lore.kernel.org/linuxppc-dev/alpine.DEB.2.22.394.2208152006320.289321@ramsan.of.borg/
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+Reviewed-by: Yury Norov <yury.norov@gmail.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220816051720.44108-1-ajd@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/sw/rxe/rxe_qp.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ scripts/Makefile.gcc-plugins |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 4798b718b085..a4b5374deac8 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -210,6 +210,14 @@ static void rxe_qp_init_misc(struct rxe_dev *rxe, struct rxe_qp *qp,
- 	spin_lock_init(&qp->grp_lock);
- 	spin_lock_init(&qp->state_lock);
+--- a/scripts/Makefile.gcc-plugins
++++ b/scripts/Makefile.gcc-plugins
+@@ -6,7 +6,7 @@ gcc-plugin-$(CONFIG_GCC_PLUGIN_LATENT_EN
+ gcc-plugin-cflags-$(CONFIG_GCC_PLUGIN_LATENT_ENTROPY)		\
+ 		+= -DLATENT_ENTROPY_PLUGIN
+ ifdef CONFIG_GCC_PLUGIN_LATENT_ENTROPY
+-    DISABLE_LATENT_ENTROPY_PLUGIN += -fplugin-arg-latent_entropy_plugin-disable
++    DISABLE_LATENT_ENTROPY_PLUGIN += -fplugin-arg-latent_entropy_plugin-disable -ULATENT_ENTROPY_PLUGIN
+ endif
+ export DISABLE_LATENT_ENTROPY_PLUGIN
  
-+	spin_lock_init(&qp->req.task.state_lock);
-+	spin_lock_init(&qp->resp.task.state_lock);
-+	spin_lock_init(&qp->comp.task.state_lock);
-+
-+	spin_lock_init(&qp->sq.sq_lock);
-+	spin_lock_init(&qp->rq.producer_lock);
-+	spin_lock_init(&qp->rq.consumer_lock);
-+
- 	atomic_set(&qp->ssn, 0);
- 	atomic_set(&qp->skb_out, 0);
- }
-@@ -258,7 +266,6 @@ static int rxe_qp_init_req(struct rxe_dev *rxe, struct rxe_qp *qp,
- 	qp->req.opcode		= -1;
- 	qp->comp.opcode		= -1;
- 
--	spin_lock_init(&qp->sq.sq_lock);
- 	skb_queue_head_init(&qp->req_pkts);
- 
- 	rxe_init_task(rxe, &qp->req.task, qp,
-@@ -308,9 +315,6 @@ static int rxe_qp_init_resp(struct rxe_dev *rxe, struct rxe_qp *qp,
- 		}
- 	}
- 
--	spin_lock_init(&qp->rq.producer_lock);
--	spin_lock_init(&qp->rq.consumer_lock);
--
- 	skb_queue_head_init(&qp->resp_pkts);
- 
- 	rxe_init_task(rxe, &qp->resp.task, qp,
--- 
-2.35.1
-
 
 
