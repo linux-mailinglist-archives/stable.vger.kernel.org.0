@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C562F59D373
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBA9459D3A6
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242163AbiHWIMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:12:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58754 "EHLO
+        id S241826AbiHWIM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:12:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242542AbiHWILb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:11:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B71AA4C603;
-        Tue, 23 Aug 2022 01:08:46 -0700 (PDT)
+        with ESMTP id S241809AbiHWILl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:11:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09E086B64F;
+        Tue, 23 Aug 2022 01:08:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95726B81BF8;
-        Tue, 23 Aug 2022 08:08:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E61F8C433D7;
-        Tue, 23 Aug 2022 08:08:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22CA8611A8;
+        Tue, 23 Aug 2022 08:08:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E5ADC433C1;
+        Tue, 23 Aug 2022 08:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242125;
-        bh=vLgp0CHZ1YqZI9BsiEypEmU+NLd3HoKiXZv/xrBOgBU=;
+        s=korg; t=1661242131;
+        bh=sVRq6GYr36EyWxxaM/Q4HPEpxh0pt9Zt099fApkr6Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NCxEMAmQUjXaMoc3he7Gl9Xu6850DC9vcjiRH/UhCSQzolKjvVZgbmMU9CRHx2Mcf
-         f00fgWH86GBuyprPChv5MbQuqQgcnTRDtEvwYYo6tDe+dxe5KmFxkdjceXPetobGjP
-         dJt0RVdh3E9R/gxFMyBnBDwxYvjJ8LB7JSnWD5kU=
+        b=zOvHfCOZ84H8McuFHwspe35LOILoIXGLB1RzvExAPda9fMG7QGLy8waBbjSjX3r5S
+         2dNy2p91Lib2DqpG5GyVjkU0OfrkS1vJL1zFEc23+O1zJr3nB3UOx8n6/Xjx2Dh1Y9
+         TwTqOVRwvoIopO7sxZJZaxV7dUI2Uhal+y+qd8hA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.9 022/101] ACPI: video: Shortening quirk list by identifying Clevo by board_name only
-Date:   Tue, 23 Aug 2022 10:02:55 +0200
-Message-Id: <20220823080035.413929654@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
+Subject: [PATCH 4.9 023/101] random: only call boot_init_stack_canary() once
+Date:   Tue, 23 Aug 2022 10:02:56 +0200
+Message-Id: <20220823080035.453767597@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -54,75 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
 
-commit f0341e67b3782603737f7788e71bd3530012a4f4 upstream.
+In commit 166a592cad36 ("random: move rand_initialize() earlier") the
+boot_init_stack_canary() call was added after the new random_init()
+call.
 
-Taking a recent change in the i8042 quirklist to this one: Clevo
-board_names are somewhat unique, and if not: The generic Board_-/Sys_Vendor
-string "Notebook" doesn't help much anyway. So identifying the devices just
-by the board_name helps keeping the list significantly shorter and might
-even hit more devices requiring the fix.
+However, the upstream commit d55535232c3d ("random: move
+rand_initialize() earlier") also included removing the earlier call to
+boot_init_stack_canary(), making sure this call is done after
+random_init().
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Fixes: c844d22fe0c0 ("ACPI: video: Force backlight native for Clevo NL5xRU and NL5xNU")
-Cc: All applicable <stable@vger.kernel.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Hence fix what I assume is a wrong merge conflict resolution on the
+linux-4.9.y stable branch.
+
+Signed-off-by: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   34 ----------------------------------
- 1 file changed, 34 deletions(-)
+ init/main.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -150,23 +150,6 @@ static const struct dmi_system_id video_
- 	.callback = video_detect_force_native,
- 	.ident = "Clevo NL5xRU",
- 	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xRU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xRU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
- 		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
- 		},
- 	},
-@@ -190,23 +173,6 @@ static const struct dmi_system_id video_
- 	.callback = video_detect_force_native,
- 	.ident = "Clevo NL5xNU",
- 	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xNU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xNU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
- 		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
- 		},
- 	},
+--- a/init/main.c
++++ b/init/main.c
+@@ -500,13 +500,6 @@ asmlinkage __visible void __init start_k
+ 	page_address_init();
+ 	pr_notice("%s", linux_banner);
+ 	setup_arch(&command_line);
+-	/*
+-	 * Set up the the initial canary and entropy after arch
+-	 * and after adding latent and command line entropy.
+-	 */
+-	add_latent_entropy();
+-	add_device_randomness(command_line, strlen(command_line));
+-	boot_init_stack_canary();
+ 	mm_init_cpumask(&init_mm);
+ 	setup_command_line(command_line);
+ 	setup_nr_cpu_ids();
 
 
