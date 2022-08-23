@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7038659DFB0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0DB59E22A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349711AbiHWKnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:43:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49400 "EHLO
+        id S1353200AbiHWKNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356307AbiHWKlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96D486709;
-        Tue, 23 Aug 2022 02:09:24 -0700 (PDT)
+        with ESMTP id S1353275AbiHWKLL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF26E7E837;
+        Tue, 23 Aug 2022 01:56:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 003F1615AB;
-        Tue, 23 Aug 2022 09:09:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E19E2C433C1;
-        Tue, 23 Aug 2022 09:09:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68380B81C3B;
+        Tue, 23 Aug 2022 08:56:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A21CCC433D6;
+        Tue, 23 Aug 2022 08:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245750;
-        bh=/RaeS7m5dAmIU2S1dxom5JWgLdGUIw6c/w0E9WlM5zo=;
+        s=korg; t=1661244978;
+        bh=6JiylxBtWlmdCkRFM3rD+4knp9Wk7t4RBOSPjliPdRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGu24JnU/bRQHwPm6m+mGiyqZyHYSz+apHX34yVSDK6B8RJvSrb43uErH8ihjafEe
-         5WiLBpP0bJBaxeRCdtk7fZo9NZYQIcqbDYNrmgGcZQ+mxSRHwcHsj4/lihgScW652g
-         kdI3s0wEGmmF1JMfNwVnh5aW5TF3Fv64w6Fp/kPo=
+        b=rhGAqT7tk7LRdY6TS7xwFbxaO7dGqZ9FoT6sQjNfzIFcdVYWuPxFzGwxGC2B7WJgq
+         KNpKAobp466MH+MNXgVzPw/2JJA2Gj4mgPtkpnfi0FSiAuLs7O3o5PLAFnk065lZdo
+         RE4Rjz3hooIWHuexYh2AAT8MtH8BmNO6jS2nbF80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Robert Richter <rric@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 137/287] mmc: cavium-thunderx: Add of_node_put() when breaking out of loop
+        stable@vger.kernel.org, Alan Brady <alan.brady@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 147/244] i40e: Fix to stop tx_timeout recovery if GLOBR fails
 Date:   Tue, 23 Aug 2022 10:25:06 +0200
-Message-Id: <20220823080105.081402755@linuxfoundation.org>
+Message-Id: <20220823080104.080986957@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Alan Brady <alan.brady@intel.com>
 
-[ Upstream commit 7ee480795e41db314f2c445c65ed854a5d6e8e32 ]
+commit 57c942bc3bef0970f0b21f8e0998e76a900ea80d upstream.
 
-In thunder_mmc_probe(), we should call of_node_put() when breaking
-out of for_each_child_of_node() which has increased and decreased
-the refcount during each iteration.
+When a tx_timeout fires, the PF attempts to recover by incrementally
+resetting.  First we try a PFR, then CORER and finally a GLOBR.  If the
+GLOBR fails, then we keep hitting the tx_timeout and incrementing the
+recovery level and issuing dmesgs, which is both annoying to the user
+and accomplishes nothing.
 
-Fixes: 166bac38c3c5 ("mmc: cavium: Add MMC PCI driver for ThunderX SOCs")
-Signed-off-by: Liang He <windhl@126.com>
-Acked-by: Robert Richter <rric@kernel.org>
-Link: https://lore.kernel.org/r/20220719095216.1241601-2-windhl@126.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If the GLOBR fails, then we're pretty much totally hosed, and there's
+not much else we can do to recover, so this makes it such that we just
+kill the VSI and stop hitting the tx_timeout in such a case.
+
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Alan Brady <alan.brady@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/cavium-thunderx.c | 4 +++-
+ drivers/net/ethernet/intel/i40e/i40e_main.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/cavium-thunderx.c b/drivers/mmc/host/cavium-thunderx.c
-index eee08d81b242..f79806e31e7e 100644
---- a/drivers/mmc/host/cavium-thunderx.c
-+++ b/drivers/mmc/host/cavium-thunderx.c
-@@ -138,8 +138,10 @@ static int thunder_mmc_probe(struct pci_dev *pdev,
- 				continue;
- 
- 			ret = cvm_mmc_of_slot_probe(&host->slot_pdev[i]->dev, host);
--			if (ret)
-+			if (ret) {
-+				of_node_put(child_node);
- 				goto error;
-+			}
- 		}
- 		i++;
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -383,7 +383,9 @@ static void i40e_tx_timeout(struct net_d
+ 		set_bit(__I40E_GLOBAL_RESET_REQUESTED, pf->state);
+ 		break;
+ 	default:
+-		netdev_err(netdev, "tx_timeout recovery unsuccessful\n");
++		netdev_err(netdev, "tx_timeout recovery unsuccessful, device is in non-recoverable state.\n");
++		set_bit(__I40E_DOWN_REQUESTED, pf->state);
++		set_bit(__I40E_VSI_DOWN_REQUESTED, vsi->state);
+ 		break;
  	}
--- 
-2.35.1
-
+ 
 
 
