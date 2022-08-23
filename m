@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E09F59DFFF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F20C59E066
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353104AbiHWKNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:13:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57576 "EHLO
+        id S1357944AbiHWLm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:42:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352642AbiHWKJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:09:45 -0400
+        with ESMTP id S1358128AbiHWLk4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:40:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D3057E013;
-        Tue, 23 Aug 2022 01:55:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566E479A78;
+        Tue, 23 Aug 2022 02:28:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BC97614E7;
-        Tue, 23 Aug 2022 08:55:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A38F9C433D6;
-        Tue, 23 Aug 2022 08:55:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9D6361321;
+        Tue, 23 Aug 2022 09:28:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9930BC433C1;
+        Tue, 23 Aug 2022 09:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244957;
-        bh=zWkpsM+SDxRe9i4P1nc7g3lxW/BQ0Z1ag1r4NHSl9aI=;
+        s=korg; t=1661246928;
+        bh=fxqOlcdMXJw0hkRG/HqAzz/cN+6V0X3/5ww6yAtHWJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iaSCFF7hnYrLMSi+jXXASnWBNgphoDFYH0jRETMfJTc0894A3XTYGvyamT3EKTmw7
-         ffClKEmeQ6BmnKadqOtT+YdFfCjTyN7JYa9ukXrTzW/Ol9R0Vjbu2HVqiUWSrLFmkG
-         howf+YaLrrWRqwbaMebmfnfK91zhQhVhi6HNaDvA=
+        b=TKDnp5hEkPXGfzD7a49XDsiWjzT49LYhU09/g+DKx5pS17gzPRkbws9op8vnMUg+A
+         rMGmIyk8lIFwDFAmyJ9py0F/VkbxnL7Kulg1EDCqvvH5gnu+WzIWO0mbjsAzvtznAM
+         mbfnPr0pvjVlyQxyjtNX0M+O08BMbaakPztxhhsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.15 151/244] kbuild: fix the modules order between drivers and libs
-Date:   Tue, 23 Aug 2022 10:25:10 +0200
-Message-Id: <20220823080104.219938671@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 233/389] powerpc/pci: Prefer PCI domain assignment via DT linux,pci-domain and alias
+Date:   Tue, 23 Aug 2022 10:25:11 +0200
+Message-Id: <20220823080125.323251170@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Pali Rohár <pali@kernel.org>
 
-commit 113147510b48e764e624e3d0e6707a1e48bc05a9 upstream.
+[ Upstream commit 0fe1e96fef0a5c53b4c0d1500d356f3906000f81 ]
 
-Commit b2c885549122 ("kbuild: update modules.order only when contained
-modules are updated") accidentally changed the modules order.
+Other Linux architectures use DT property 'linux,pci-domain' for
+specifying fixed PCI domain of PCI controller specified in Device-Tree.
 
-Prior to that commit, the modules order was determined based on
-vmlinux-dirs, which lists core-y/m, drivers-y/m, libs-y/m, in this order.
+And lot of Freescale powerpc boards have defined numbered pci alias in
+Device-Tree for every PCIe controller which number specify preferred PCI
+domain.
 
-Now, subdir-modorder lists them in a different order: core-y/m, libs-y/m,
-drivers-y/m.
+So prefer usage of DT property 'linux,pci-domain' (via function
+of_get_pci_domain_nr()) and DT pci alias (via function
+of_alias_get_id()) on powerpc architecture for assigning PCI domain to
+PCI controller.
 
-Presumably, there was no practical issue because the modules in drivers
-and libs are orthogonal, but there is no reason to have this distortion.
-
-Get back to the original order.
-
-Fixes: b2c885549122 ("kbuild: update modules.order only when contained modules are updated")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 63a72284b159 ("powerpc/pci: Assign fixed PHB number based on device-tree properties")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220706102148.5060-2-pali@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/pci-common.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -1155,13 +1155,11 @@ vmlinux-alldirs	:= $(sort $(vmlinux-dirs
- 		     $(patsubst %/,%,$(filter %/, $(core-) \
- 			$(drivers-) $(libs-))))
+diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
+index a2c258a8d736..1e827e3769a8 100644
+--- a/arch/powerpc/kernel/pci-common.c
++++ b/arch/powerpc/kernel/pci-common.c
+@@ -73,16 +73,30 @@ void set_pci_dma_ops(const struct dma_map_ops *dma_ops)
+ static int get_phb_number(struct device_node *dn)
+ {
+ 	int ret, phb_id = -1;
+-	u32 prop_32;
+ 	u64 prop;
  
--subdir-modorder := $(addsuffix modules.order,$(filter %/, \
--			$(core-y) $(core-m) $(libs-y) $(libs-m) \
--			$(drivers-y) $(drivers-m)))
--
- build-dirs	:= $(vmlinux-dirs)
- clean-dirs	:= $(vmlinux-alldirs)
+ 	/*
+ 	 * Try fixed PHB numbering first, by checking archs and reading
+-	 * the respective device-tree properties. Firstly, try powernv by
+-	 * reading "ibm,opal-phbid", only present in OPAL environment.
++	 * the respective device-tree properties. Firstly, try reading
++	 * standard "linux,pci-domain", then try reading "ibm,opal-phbid"
++	 * (only present in powernv OPAL environment), then try device-tree
++	 * alias and as the last try to use lower bits of "reg" property.
+ 	 */
+-	ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
++	ret = of_get_pci_domain_nr(dn);
++	if (ret >= 0) {
++		prop = ret;
++		ret = 0;
++	}
++	if (ret)
++		ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
++	if (ret)
++		ret = of_alias_get_id(dn, "pci");
++	if (ret >= 0) {
++		prop = ret;
++		ret = 0;
++	}
+ 	if (ret) {
++		u32 prop_32;
+ 		ret = of_property_read_u32_index(dn, "reg", 1, &prop_32);
+ 		prop = prop_32;
+ 	}
+@@ -94,10 +108,7 @@ static int get_phb_number(struct device_node *dn)
+ 	if ((phb_id >= 0) && !test_and_set_bit(phb_id, phb_bitmap))
+ 		return phb_id;
  
-+subdir-modorder := $(addsuffix /modules.order, $(build-dirs))
-+
- # Externally visible symbols (used by link-vmlinux.sh)
- KBUILD_VMLINUX_OBJS := $(head-y) $(patsubst %/,%/built-in.a, $(core-y))
- KBUILD_VMLINUX_OBJS += $(addsuffix built-in.a, $(filter %/, $(libs-y)))
+-	/*
+-	 * If not pseries nor powernv, or if fixed PHB numbering tried to add
+-	 * the same PHB number twice, then fallback to dynamic PHB numbering.
+-	 */
++	/* If everything fails then fallback to dynamic PHB numbering. */
+ 	phb_id = find_first_zero_bit(phb_bitmap, MAX_PHBS);
+ 	BUG_ON(phb_id >= MAX_PHBS);
+ 	set_bit(phb_id, phb_bitmap);
+-- 
+2.35.1
+
 
 
