@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C59D59D659
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25F9F59D637
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:11:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243295AbiHWI12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:27:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45280 "EHLO
+        id S243360AbiHWI1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:27:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243657AbiHWIZp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:25:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9938B6B169;
-        Tue, 23 Aug 2022 01:13:41 -0700 (PDT)
+        with ESMTP id S243715AbiHWIZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:25:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 268D871BFD;
+        Tue, 23 Aug 2022 01:13:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21970B81C29;
-        Tue, 23 Aug 2022 08:13:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 743D4C433D7;
-        Tue, 23 Aug 2022 08:13:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D940461324;
+        Tue, 23 Aug 2022 08:13:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E62D1C433B5;
+        Tue, 23 Aug 2022 08:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242419;
-        bh=ckMBl119NctqlvjDKtx+0nKMG/fB7D6nQeW4nRBcDOg=;
+        s=korg; t=1661242425;
+        bh=mWzM5TMrwuksgZqLJpC/Uv/KW7zVtYjKYra4nX9Cxis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3K3MAOmN/waxmPQAkaoTmVrLU8wyxZokPXSY2qA9sNmHPLfPi3EB/1s2kxMUuDOk
-         yAIpM6oGwrSXrTbB+9QwhwNAu9Ib1G8z7BdHpekaDkelpXXbIyUm+UId+S5JnXPRCw
-         VBam0vf58qKDKdqC5AU0csvNxQNDM9QHr6ozZBwQ=
+        b=F8dH16AzI4tda/DmR4j2wj2BHkQYqBktDqpb3VXKG2kRza1BZ8HqPI2aVckhSWJ1W
+         ldW+P6A1RPwzAbDebf2pHuzXd/sciP+lJscIWpIRACNSPneKqywo7TVFjWNDkvF00T
+         oQn58uSynPLxyOcc/XhyRtCEEXSyweT6uoJYtGD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff LaBundy <jeff@labundy.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.19 112/365] dt-bindings: input: iqs7222: Extend slider-mapped GPIO to IQS7222C
-Date:   Tue, 23 Aug 2022 10:00:13 +0200
-Message-Id: <20220823080122.897868947@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.19 113/365] um: Add missing apply_returns()
+Date:   Tue, 23 Aug 2022 10:00:14 +0200
+Message-Id: <20220823080122.931986610@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,75 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff LaBundy <jeff@labundy.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit f0ea452715d72bc365d2b401ceb458f5ae82eeec upstream.
+commit 637285e7f8d6da70a70c64e7895cb0672357a1f7 upstream.
 
-Although the IQS7222C does not offer slider gesture support, the
-press/release event can still be mapped to any of the IQS7222C's
-three GPIO pins. Update the binding to reflect this relationship.
+Implement apply_returns() stub for UM, just like all the other patching
+routines.
 
-Fixes: 44dc42d254bf ("dt-bindings: input: Add bindings for Azoteq IQS7222A/B/C")
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-Link: https://lore.kernel.org/r/20220626072412.475211-10-jeff@labundy.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 15e67227c49a ("x86: Undo return-thunk damage")
+Reported-by: Randy Dunlap <rdunlap@infradead.org)
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../bindings/input/azoteq,iqs7222.yaml        | 21 ++++++++++++-------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ arch/um/kernel/um_arch.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
-index c9c3a1e9bcae..32d0d5190334 100644
---- a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
-+++ b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
-@@ -611,16 +611,15 @@ patternProperties:
-           azoteq,gpio-select:
-             $ref: /schemas/types.yaml#/definitions/uint32-array
-             minItems: 1
--            maxItems: 1
-+            maxItems: 3
-             items:
-               minimum: 0
--              maximum: 0
-+              maximum: 2
-             description: |
--              Specifies an individual GPIO mapped to a tap, swipe or flick
--              gesture as follows:
-+              Specifies one or more GPIO mapped to the event as follows:
-               0: GPIO0
--              1: GPIO3 (reserved)
--              2: GPIO4 (reserved)
-+              1: GPIO3 (IQS7222C only)
-+              2: GPIO4 (IQS7222C only)
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -444,6 +444,10 @@ void apply_returns(s32 *start, s32 *end)
+ {
+ }
  
-               Note that although multiple events can be mapped to a single
-               GPIO, they must all be of the same type (proximity, touch or
-@@ -705,6 +704,14 @@ allOf:
-               multipleOf: 4
-               maximum: 1020
- 
-+          patternProperties:
-+            "^event-(press|tap|(swipe|flick)-(pos|neg))$":
-+              properties:
-+                azoteq,gpio-select:
-+                  maxItems: 1
-+                  items:
-+                    maximum: 0
++void apply_returns(s32 *start, s32 *end)
++{
++}
 +
-     else:
-       patternProperties:
-         "^channel-([0-9]|1[0-9])$":
-@@ -721,8 +728,6 @@ allOf:
- 
-                 azoteq,gesture-dist: false
- 
--                azoteq,gpio-select: false
--
- required:
-   - compatible
-   - reg
--- 
-2.37.2
-
+ void apply_alternatives(struct alt_instr *start, struct alt_instr *end)
+ {
+ }
 
 
