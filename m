@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B911159E166
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00AA459DB68
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352922AbiHWKOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:14:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47050 "EHLO
+        id S1358702AbiHWLw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353860AbiHWKMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:12:14 -0400
+        with ESMTP id S1358257AbiHWLtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:49:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9027A1E3C0;
-        Tue, 23 Aug 2022 01:58:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F166692F4B;
+        Tue, 23 Aug 2022 02:31:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F21C2B81C39;
-        Tue, 23 Aug 2022 08:58:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B9D2C433C1;
-        Tue, 23 Aug 2022 08:58:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 126FBB81C66;
+        Tue, 23 Aug 2022 09:31:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F39CC433D6;
+        Tue, 23 Aug 2022 09:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245108;
-        bh=52X8ueirCEs1RRLjzB6/6HU1F5t+GkJ8GyQeQKlbkq8=;
+        s=korg; t=1661247061;
+        bh=8l5hSGeYSih64kUsq+WUZDdJtmqEdmuHwlFS06RQjCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMrGSHcYq+ZNKd3Z5azKuYfWErFpLrhiJCnm6jMSQjviuuyTZV79S3QuLZ0svgAON
-         +y8WjtuH6eKjnv8HvDK/OUddzODcOUzjXgNiQszuUdTd8ZTQWJ85ZRj9xx3piMEnas
-         4N6VJrgxMkE0NovsVHsDnHiSKF/rFXIXkzjfNaTc=
+        b=K/8kwN2HRsBvU9XJ2vRiMyAYEHSCfqUhHncr2Pyus37aghwr5OzkFkZHXfMEgcl6R
+         1Od/J2g3AZRObchTe20a6g+ziik+ly7DRN8fsw9rGSbpqv22ITznVajWnERVHUaux+
+         rMNEPwDVJNPyT0UDSFiWJRVXIEjGCVwQEFjjyIxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 224/229] ALSA: core: Add async signal helpers
+        stable@vger.kernel.org,
+        =?UTF-8?q?Sebastian=20W=C3=BCrl?= <sebastian.wuerl@ororatech.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 307/389] can: mcp251x: Fix race condition on receive interrupt
 Date:   Tue, 23 Aug 2022 10:26:25 +0200
-Message-Id: <20220823080101.640634307@linuxfoundation.org>
+Message-Id: <20220823080128.404948971@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,158 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sebastian Würl <sebastian.wuerl@ororatech.com>
 
-[ Upstream commit ef34a0ae7a2654bc9e58675e36898217fb2799d8 ]
+commit d80d60b0db6ff3dd2e29247cc2a5166d7e9ae37e upstream.
 
-Currently the call of kill_fasync() from an interrupt handler might
-lead to potential spin deadlocks, as spotted by syzkaller.
-Unfortunately, it's not so trivial to fix this lock chain as it's
-involved with the tasklist_lock that is touched in allover places.
+The mcp251x driver uses both receiving mailboxes of the CAN controller
+chips. For retrieving the CAN frames from the controller via SPI, it checks
+once per interrupt which mailboxes have been filled and will retrieve the
+messages accordingly.
 
-As a temporary workaround, this patch provides the way to defer the
-async signal notification in a work.  The new helper functions,
-snd_fasync_helper() and snd_kill_faync() are replacements for
-fasync_helper() and kill_fasync(), respectively.  In addition,
-snd_fasync_free() needs to be called at the destructor of the relevant
-file object.
+This introduces a race condition, as another CAN frame can enter mailbox 1
+while mailbox 0 is emptied. If now another CAN frame enters mailbox 0 until
+the interrupt handler is called next, mailbox 0 is emptied before
+mailbox 1, leading to out-of-order CAN frames in the network device.
 
-Link: https://lore.kernel.org/r/20220728125945.29533-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is fixed by checking the interrupt flags once again after freeing
+mailbox 0, to correctly also empty mailbox 1 before leaving the handler.
+
+For reproducing the bug I created the following setup:
+ - Two CAN devices, one Raspberry Pi with MCP2515, the other can be any.
+ - Setup CAN to 1 MHz
+ - Spam bursts of 5 CAN-messages with increasing CAN-ids
+ - Continue sending the bursts while sleeping a second between the bursts
+ - Check on the RPi whether the received messages have increasing CAN-ids
+ - Without this patch, every burst of messages will contain a flipped pair
+
+v3: https://lore.kernel.org/all/20220804075914.67569-1-sebastian.wuerl@ororatech.com
+v2: https://lore.kernel.org/all/20220804064803.63157-1-sebastian.wuerl@ororatech.com
+v1: https://lore.kernel.org/all/20220803153300.58732-1-sebastian.wuerl@ororatech.com
+
+Fixes: bf66f3736a94 ("can: mcp251x: Move to threaded interrupts instead of workqueues.")
+Signed-off-by: Sebastian Würl <sebastian.wuerl@ororatech.com>
+Link: https://lore.kernel.org/all/20220804081411.68567-1-sebastian.wuerl@ororatech.com
+[mkl: reduce scope of intf1, eflag1]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/sound/core.h |  8 ++++
- sound/core/misc.c    | 94 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 102 insertions(+)
+ drivers/net/can/spi/mcp251x.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/include/sound/core.h b/include/sound/core.h
-index 4104a9d1001f..9d04e700b855 100644
---- a/include/sound/core.h
-+++ b/include/sound/core.h
-@@ -442,4 +442,12 @@ snd_pci_quirk_lookup_id(u16 vendor, u16 device,
- }
- #endif
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -756,9 +756,6 @@ static irqreturn_t mcp251x_can_ist(int i
  
-+/* async signal helpers */
-+struct snd_fasync;
-+
-+int snd_fasync_helper(int fd, struct file *file, int on,
-+		      struct snd_fasync **fasyncp);
-+void snd_kill_fasync(struct snd_fasync *fasync, int signal, int poll);
-+void snd_fasync_free(struct snd_fasync *fasync);
-+
- #endif /* __SOUND_CORE_H */
-diff --git a/sound/core/misc.c b/sound/core/misc.c
-index 0f818d593c9e..d100feba26b5 100644
---- a/sound/core/misc.c
-+++ b/sound/core/misc.c
-@@ -25,6 +25,7 @@
- #include <linux/time.h>
- #include <linux/slab.h>
- #include <linux/ioport.h>
-+#include <linux/fs.h>
- #include <sound/core.h>
+ 		mcp251x_read_2regs(spi, CANINTF, &intf, &eflag);
  
- #ifdef CONFIG_SND_DEBUG
-@@ -160,3 +161,96 @@ snd_pci_quirk_lookup(struct pci_dev *pci, const struct snd_pci_quirk *list)
- }
- EXPORT_SYMBOL(snd_pci_quirk_lookup);
- #endif
+-		/* mask out flags we don't care about */
+-		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
+-
+ 		/* receive buffer 0 */
+ 		if (intf & CANINTF_RX0IF) {
+ 			mcp251x_hw_rx(spi, 0);
+@@ -768,6 +765,18 @@ static irqreturn_t mcp251x_can_ist(int i
+ 			if (mcp251x_is_2510(spi))
+ 				mcp251x_write_bits(spi, CANINTF,
+ 						   CANINTF_RX0IF, 0x00);
 +
-+/*
-+ * Deferred async signal helpers
-+ *
-+ * Below are a few helper functions to wrap the async signal handling
-+ * in the deferred work.  The main purpose is to avoid the messy deadlock
-+ * around tasklist_lock and co at the kill_fasync() invocation.
-+ * fasync_helper() and kill_fasync() are replaced with snd_fasync_helper()
-+ * and snd_kill_fasync(), respectively.  In addition, snd_fasync_free() has
-+ * to be called at releasing the relevant file object.
-+ */
-+struct snd_fasync {
-+	struct fasync_struct *fasync;
-+	int signal;
-+	int poll;
-+	int on;
-+	struct list_head list;
-+};
++			/* check if buffer 1 is already known to be full, no need to re-read */
++			if (!(intf & CANINTF_RX1IF)) {
++				u8 intf1, eflag1;
 +
-+static DEFINE_SPINLOCK(snd_fasync_lock);
-+static LIST_HEAD(snd_fasync_list);
++				/* intf needs to be read again to avoid a race condition */
++				mcp251x_read_2regs(spi, CANINTF, &intf1, &eflag1);
 +
-+static void snd_fasync_work_fn(struct work_struct *work)
-+{
-+	struct snd_fasync *fasync;
++				/* combine flags from both operations for error handling */
++				intf |= intf1;
++				eflag |= eflag1;
++			}
+ 		}
+ 
+ 		/* receive buffer 1 */
+@@ -778,6 +787,9 @@ static irqreturn_t mcp251x_can_ist(int i
+ 				clear_intf |= CANINTF_RX1IF;
+ 		}
+ 
++		/* mask out flags we don't care about */
++		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
 +
-+	spin_lock_irq(&snd_fasync_lock);
-+	while (!list_empty(&snd_fasync_list)) {
-+		fasync = list_first_entry(&snd_fasync_list, struct snd_fasync, list);
-+		list_del_init(&fasync->list);
-+		spin_unlock_irq(&snd_fasync_lock);
-+		if (fasync->on)
-+			kill_fasync(&fasync->fasync, fasync->signal, fasync->poll);
-+		spin_lock_irq(&snd_fasync_lock);
-+	}
-+	spin_unlock_irq(&snd_fasync_lock);
-+}
-+
-+static DECLARE_WORK(snd_fasync_work, snd_fasync_work_fn);
-+
-+int snd_fasync_helper(int fd, struct file *file, int on,
-+		      struct snd_fasync **fasyncp)
-+{
-+	struct snd_fasync *fasync = NULL;
-+
-+	if (on) {
-+		fasync = kzalloc(sizeof(*fasync), GFP_KERNEL);
-+		if (!fasync)
-+			return -ENOMEM;
-+		INIT_LIST_HEAD(&fasync->list);
-+	}
-+
-+	spin_lock_irq(&snd_fasync_lock);
-+	if (*fasyncp) {
-+		kfree(fasync);
-+		fasync = *fasyncp;
-+	} else {
-+		if (!fasync) {
-+			spin_unlock_irq(&snd_fasync_lock);
-+			return 0;
-+		}
-+		*fasyncp = fasync;
-+	}
-+	fasync->on = on;
-+	spin_unlock_irq(&snd_fasync_lock);
-+	return fasync_helper(fd, file, on, &fasync->fasync);
-+}
-+EXPORT_SYMBOL_GPL(snd_fasync_helper);
-+
-+void snd_kill_fasync(struct snd_fasync *fasync, int signal, int poll)
-+{
-+	unsigned long flags;
-+
-+	if (!fasync || !fasync->on)
-+		return;
-+	spin_lock_irqsave(&snd_fasync_lock, flags);
-+	fasync->signal = signal;
-+	fasync->poll = poll;
-+	list_move(&fasync->list, &snd_fasync_list);
-+	schedule_work(&snd_fasync_work);
-+	spin_unlock_irqrestore(&snd_fasync_lock, flags);
-+}
-+EXPORT_SYMBOL_GPL(snd_kill_fasync);
-+
-+void snd_fasync_free(struct snd_fasync *fasync)
-+{
-+	if (!fasync)
-+		return;
-+	fasync->on = 0;
-+	flush_work(&snd_fasync_work);
-+	kfree(fasync);
-+}
-+EXPORT_SYMBOL_GPL(snd_fasync_free);
--- 
-2.35.1
-
+ 		/* any error or tx interrupt we need to clear? */
+ 		if (intf & (CANINTF_ERR | CANINTF_TX))
+ 			clear_intf |= intf & (CANINTF_ERR | CANINTF_TX);
 
 
