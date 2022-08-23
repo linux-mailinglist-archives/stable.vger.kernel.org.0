@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ADEC59E333
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7CA59E336
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243441AbiHWMSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56376 "EHLO
+        id S244559AbiHWMTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:19:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376430AbiHWMRJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:17:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B474299254;
-        Tue, 23 Aug 2022 02:42:17 -0700 (PDT)
+        with ESMTP id S1349781AbiHWMRg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:17:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5BB9ED03D;
+        Tue, 23 Aug 2022 02:42:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22AE7614C7;
-        Tue, 23 Aug 2022 09:42:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BE2EC433D6;
-        Tue, 23 Aug 2022 09:42:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD8C4B81C98;
+        Tue, 23 Aug 2022 09:42:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25536C433D7;
+        Tue, 23 Aug 2022 09:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247723;
-        bh=t1roUgaSTodrFE5Q67YXj8K4EuRG/7oWKG6ZxMhzEgA=;
+        s=korg; t=1661247726;
+        bh=FgwR4aXtmzzTFYLoZrL2jwdkqYQYh2btw61lFkusETI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MhuX+QungUmmPiJs+JswsPm0wgj7MpuTAw9B1lKI6OzD0ii9gkkIthPm+nBM6fTjc
-         5WYDT5VUw6uhXKcQx/6k336hptswP+nLKstaNRGa4Zyhoa1qaOvrXBKQ4+r7YE+gMW
-         1fzgeoq1h0KOGZ67engmLcc2dLVKnOgqw2oJBLqE=
+        b=ZpYEZibu1X487BQXn82D2OqhK/oZPTZM0iZ0qsJFknkDpe5CEgAsFkka86z8wRMiM
+         fojyliUSiF8onMvjPiinyBA5hpWnNAGX9e/KXEGBeAmrDVMNYZT9TjXiblkasrt/pT
+         fvYo05CGOLrnQFnMMBb9Go/2wOqObKId2Xt/09Ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 126/158] dmaengine: sprd: Cleanup in .remove() after pm_runtime_get_sync() failed
-Date:   Tue, 23 Aug 2022 10:27:38 +0200
-Message-Id: <20220823080050.988301001@linuxfoundation.org>
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Christoph Hellwig <hch@lst.de>, Song Liu <song@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 127/158] md: Notify sysfs sync_completed in md_reap_sync_thread()
+Date:   Tue, 23 Aug 2022 10:27:39 +0200
+Message-Id: <20220823080051.022774454@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
 References: <20220823080046.056825146@linuxfoundation.org>
@@ -56,45 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 1e42f82cbec7b2cc4873751e7791e6611901c5fc ]
+[ Upstream commit 9973f0fa7d20269fe6fefe6333997fb5914449c1 ]
 
-It's not allowed to quit remove early without cleaning up completely.
-Otherwise this results in resource leaks that probably yield graver
-problems later. Here for example some tasklets might survive the lifetime
-of the sprd-dma device and access sdev which is freed after .remove()
-returns.
+The mdadm test 07layouts randomly produces a kernel hung task deadlock.
+The deadlock is caused by the suspend_lo/suspend_hi files being set by
+the mdadm background process during reshape and not being cleared
+because the process hangs. (Leaving aside the issue of the fragility of
+freezing kernel tasks by buggy userspace processes...)
 
-As none of the device freeing requires an active device, just ignore the
-return value of pm_runtime_get_sync().
+When the background mdadm process hangs it, is waiting (without a
+timeout) on a change to the sync_completed file signalling that the
+reshape has completed. The process is woken up a couple times when
+the reshape finishes but it is woken up before MD_RECOVERY_RUNNING
+is cleared so sync_completed_show() reports 0 instead of "none".
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
-Link: https://lore.kernel.org/r/20220721204054.323602-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+To fix this, notify the sysfs file in md_reap_sync_thread() after
+MD_RECOVERY_RUNNING has been cleared. This wakes up mdadm and causes
+it to continue and write to suspend_lo/suspend_hi to allow IO to
+continue.
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sprd-dma.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/md/md.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
-index 4357d2395e6b..60115d8d4083 100644
---- a/drivers/dma/sprd-dma.c
-+++ b/drivers/dma/sprd-dma.c
-@@ -1236,11 +1236,8 @@ static int sprd_dma_remove(struct platform_device *pdev)
- {
- 	struct sprd_dma_dev *sdev = platform_get_drvdata(pdev);
- 	struct sprd_dma_chn *c, *cn;
--	int ret;
- 
--	ret = pm_runtime_get_sync(&pdev->dev);
--	if (ret < 0)
--		return ret;
-+	pm_runtime_get_sync(&pdev->dev);
- 
- 	/* explicitly free the irq */
- 	if (sdev->irq > 0)
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 4463ef3e3729..884317ee1759 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -9424,6 +9424,7 @@ void md_reap_sync_thread(struct mddev *mddev)
+ 	wake_up(&resync_wait);
+ 	/* flag recovery needed just to double check */
+ 	set_bit(MD_RECOVERY_NEEDED, &mddev->recovery);
++	sysfs_notify_dirent_safe(mddev->sysfs_completed);
+ 	sysfs_notify_dirent_safe(mddev->sysfs_action);
+ 	md_new_event(mddev);
+ 	if (mddev->event_work.func)
 -- 
 2.35.1
 
