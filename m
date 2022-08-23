@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 383F759E2AF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4FF59E34B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359165AbiHWMDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51772 "EHLO
+        id S1354399AbiHWMSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:18:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359307AbiHWMBJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:01:09 -0400
+        with ESMTP id S1376263AbiHWMQm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6C4D9E83;
-        Tue, 23 Aug 2022 02:35:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43DFE7A741;
+        Tue, 23 Aug 2022 02:41:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4694B81C89;
-        Tue, 23 Aug 2022 09:34:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 221ECC433C1;
-        Tue, 23 Aug 2022 09:34:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3155BB81C53;
+        Tue, 23 Aug 2022 09:41:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92220C433C1;
+        Tue, 23 Aug 2022 09:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247280;
-        bh=oxPVV2m77GTW/SkQcS6bwbMb6sbrxTJSZLBOV8s6PN0=;
+        s=korg; t=1661247711;
+        bh=gXkiTwvGwjEX7Jks6q69GMcomfJJiygVMvTyHR5nY/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1Y7Nko8rc10UpsnxSX2LpMiW6SRNreCX5Sxc3qqqwcLW4J2Ru3bbxC4dhAA/F6+g
-         6oJlK3hqhTlblqhL4oAGoSAwkHPFlQeIo+rgYwHPzIhUr3ElZax6q/W592ixXQF3if
-         z6TlwPLvxp7dl676gs2IIZZmlKo2a4bw8DXfgoxg=
+        b=0QmJBLKS3Vz6En1CEjEoKRB0mAD4y/mWmkc9J7TK5vi4LpJms1igvhYQo0MlpPbat
+         YGmy4hiiP7KGHQ+th+xkDvezg9pwcjwDf0fSMOU7716q9kmjYe7kJGgAzEqIonV8cs
+         +CJpkd/i1oqFdo0FlrXSXG5z9SC59ZsBlJ5Y0L3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurent Dufour <ldufour@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 376/389] watchdog: export lockup_detector_reconfigure
+Subject: [PATCH 5.10 122/158] um: add "noreboot" command line option for PANIC_TIMEOUT=-1 setups
 Date:   Tue, 23 Aug 2022 10:27:34 +0200
-Message-Id: <20220823080131.258753866@linuxfoundation.org>
+Message-Id: <20220823080050.835248507@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,113 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Dufour <ldufour@linux.ibm.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 7c56a8733d0a2a4be2438a7512566e5ce552fccf ]
+[ Upstream commit dda520d07b95072a0b63f6c52a8eb566d08ea897 ]
 
-In some circumstances it may be interesting to reconfigure the watchdog
-from inside the kernel.
+QEMU has a -no-reboot option, which halts instead of reboots when the
+guest asks to reboot. This is invaluable when used with
+CONFIG_PANIC_TIMEOUT=-1 (and panic_on_warn), because it allows panics
+and warnings to be caught immediately in CI. Implement this in UML too,
+by way of a basic setup param.
 
-On PowerPC, this may helpful before and after a LPAR migration (LPM) is
-initiated, because it implies some latencies, watchdog, and especially NMI
-watchdog is expected to be triggered during this operation. Reconfiguring
-the watchdog with a factor, would prevent it to happen too frequently
-during LPM.
-
-Rename lockup_detector_reconfigure() as __lockup_detector_reconfigure() and
-create a new function lockup_detector_reconfigure() calling
-__lockup_detector_reconfigure() under the protection of watchdog_mutex.
-
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
-[mpe: Squash in build fix from Laurent, reported by Sachin]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220713154729.80789-3-ldufour@linux.ibm.com
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/nmi.h |  2 ++
- kernel/watchdog.c   | 21 ++++++++++++++++-----
- 2 files changed, 18 insertions(+), 5 deletions(-)
+ arch/um/os-Linux/skas/process.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/nmi.h b/include/linux/nmi.h
-index 9003e29cde46..e972d1ae1ee6 100644
---- a/include/linux/nmi.h
-+++ b/include/linux/nmi.h
-@@ -122,6 +122,8 @@ int watchdog_nmi_probe(void);
- int watchdog_nmi_enable(unsigned int cpu);
- void watchdog_nmi_disable(unsigned int cpu);
+diff --git a/arch/um/os-Linux/skas/process.c b/arch/um/os-Linux/skas/process.c
+index 94a7c4125ebc..eecde73b2e78 100644
+--- a/arch/um/os-Linux/skas/process.c
++++ b/arch/um/os-Linux/skas/process.c
+@@ -5,6 +5,7 @@
+  */
  
-+void lockup_detector_reconfigure(void);
+ #include <stdlib.h>
++#include <stdbool.h>
+ #include <unistd.h>
+ #include <sched.h>
+ #include <errno.h>
+@@ -644,10 +645,24 @@ void halt_skas(void)
+ 	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_HALT);
+ }
+ 
++static bool noreboot;
 +
- /**
-  * touch_nmi_watchdog - restart NMI watchdog timeout.
-  *
-diff --git a/kernel/watchdog.c b/kernel/watchdog.c
-index cbd3cf503c90..a3d0e928305c 100644
---- a/kernel/watchdog.c
-+++ b/kernel/watchdog.c
-@@ -568,7 +568,7 @@ int lockup_detector_offline_cpu(unsigned int cpu)
- 	return 0;
- }
- 
--static void lockup_detector_reconfigure(void)
-+static void __lockup_detector_reconfigure(void)
- {
- 	cpus_read_lock();
- 	watchdog_nmi_stop();
-@@ -588,6 +588,13 @@ static void lockup_detector_reconfigure(void)
- 	__lockup_detector_cleanup();
- }
- 
-+void lockup_detector_reconfigure(void)
++static int __init noreboot_cmd_param(char *str, int *add)
 +{
-+	mutex_lock(&watchdog_mutex);
-+	__lockup_detector_reconfigure();
-+	mutex_unlock(&watchdog_mutex);
++	noreboot = true;
++	return 0;
 +}
 +
- /*
-  * Create the watchdog thread infrastructure and configure the detector(s).
-  *
-@@ -608,13 +615,13 @@ static __init void lockup_detector_setup(void)
- 		return;
- 
- 	mutex_lock(&watchdog_mutex);
--	lockup_detector_reconfigure();
-+	__lockup_detector_reconfigure();
- 	softlockup_initialized = true;
- 	mutex_unlock(&watchdog_mutex);
- }
- 
- #else /* CONFIG_SOFTLOCKUP_DETECTOR */
--static void lockup_detector_reconfigure(void)
-+static void __lockup_detector_reconfigure(void)
++__uml_setup("noreboot", noreboot_cmd_param,
++"noreboot\n"
++"    Rather than rebooting, exit always, akin to QEMU's -no-reboot option.\n"
++"    This is useful if you're using CONFIG_PANIC_TIMEOUT in order to catch\n"
++"    crashes in CI\n");
++
+ void reboot_skas(void)
  {
- 	cpus_read_lock();
- 	watchdog_nmi_stop();
-@@ -622,9 +629,13 @@ static void lockup_detector_reconfigure(void)
- 	watchdog_nmi_start();
- 	cpus_read_unlock();
- }
-+void lockup_detector_reconfigure(void)
-+{
-+	__lockup_detector_reconfigure();
-+}
- static inline void lockup_detector_setup(void)
- {
--	lockup_detector_reconfigure();
-+	__lockup_detector_reconfigure();
- }
- #endif /* !CONFIG_SOFTLOCKUP_DETECTOR */
- 
-@@ -664,7 +675,7 @@ static void proc_watchdog_update(void)
- {
- 	/* Remove impossible cpus to keep sysctl output clean. */
- 	cpumask_and(&watchdog_cpumask, &watchdog_cpumask, cpu_possible_mask);
--	lockup_detector_reconfigure();
-+	__lockup_detector_reconfigure();
+ 	block_signals_trace();
+-	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_REBOOT);
++	UML_LONGJMP(&initial_jmpbuf, noreboot ? INIT_JMP_HALT : INIT_JMP_REBOOT);
  }
  
- /*
+ void __switch_mm(struct mm_id *mm_idp)
 -- 
 2.35.1
 
