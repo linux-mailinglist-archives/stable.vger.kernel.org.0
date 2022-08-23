@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C40059DD98
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4BBF59E06A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353578AbiHWKPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:15:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50884 "EHLO
+        id S1355868AbiHWKsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:48:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353257AbiHWKNP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:13:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED2C71BFD;
-        Tue, 23 Aug 2022 01:59:16 -0700 (PDT)
+        with ESMTP id S1355984AbiHWKqG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:46:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E27274DF6;
+        Tue, 23 Aug 2022 02:11:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FDF6B81C3A;
-        Tue, 23 Aug 2022 08:59:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8639AC433C1;
-        Tue, 23 Aug 2022 08:59:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1E1460F85;
+        Tue, 23 Aug 2022 09:11:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C233C433B5;
+        Tue, 23 Aug 2022 09:11:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245153;
-        bh=7fWuYtg1B+J9a2WfNzdv9rvcTUNgHSU4aummuoGeZCw=;
+        s=korg; t=1661245894;
+        bh=o5kMqKGNeYaD1QjftcGevNh2DTWdrdudlXdleTnx8zM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQvtq5HkKpp4h1SW0KxL/j3g84T8VJ1mU5FWa5532eM5vt2MJ/msJRoueznAa33oi
-         i6MOxDRQ7Ql+uLe9rfdb3IZwy/WY3QM8w4GSSe+rIfmfcL7RRXG7ddiCeOYvw5PVuC
-         1cdqTlbZ4f7H1i4inFT0yvhaCQ3gXR3TtdkwIazU=
+        b=vh9Iedn+mFjnUK19RPXvM/I//mIuujd0TbWfz+P+yITn39BGtugUjCRPIaChlI7xl
+         K3O48o3vxSTS5tIbMLLI2ZiZNdAnW8yMnroQVK04Udip1Cfbqkw0qPREtjkRAhbmbV
+         sTpQCjLysEKQvuobtkuKZOO60od+iPlVeuoeH95A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 233/244] MIPS: tlbex: Explicitly compare _PAGE_NO_EXEC against 0
+        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 4.19 223/287] apparmor: fix quiet_denied for file rules
 Date:   Tue, 23 Aug 2022 10:26:32 +0200
-Message-Id: <20220823080107.338166314@linuxfoundation.org>
+Message-Id: <20220823080108.509062348@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,70 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: John Johansen <john.johansen@canonical.com>
 
-[ Upstream commit 74de14fe05dd6b151d73cb0c73c8ec874cbdcde6 ]
+commit 68ff8540cc9e4ab557065b3f635c1ff4c96e1f1c upstream.
 
-When CONFIG_XPA is enabled, Clang warns:
+Global quieting of denied AppArmor generated file events is not
+handled correctly. Unfortunately the is checking if quieting of all
+audit events is set instead of just denied events.
 
-  arch/mips/mm/tlbex.c:629:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
-          if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
-                              ^
-  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
-  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
-                                     ^
-  arch/mips/mm/tlbex.c:2568:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
-          if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
-                                ^
-  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
-  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
-                                     ^
-  2 errors generated.
-
-_PAGE_NO_EXEC can be '0' or '1 << _PAGE_NO_EXEC_SHIFT' depending on the
-build and runtime configuration, which is what the negation operators
-are trying to convey. To silence the warning, explicitly compare against
-0 so the result of the '<<' operator is not implicitly converted to a
-boolean.
-
-According to its documentation, GCC enables -Wint-in-bool-context with
--Wall but this warning is not visible when building the same
-configuration with GCC. It appears GCC only warns when compiling C++,
-not C, although the documentation makes no note of this:
-https://godbolt.org/z/x39q3brxf
-
-Reported-by: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 67012e8209df ("AppArmor: basic auditing infrastructure.")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/mm/tlbex.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/apparmor/audit.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
-index 046d51a454af..3471a089bc05 100644
---- a/arch/mips/mm/tlbex.c
-+++ b/arch/mips/mm/tlbex.c
-@@ -634,7 +634,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
- 		return;
+--- a/security/apparmor/audit.c
++++ b/security/apparmor/audit.c
+@@ -143,7 +143,7 @@ int aa_audit(int type, struct aa_profile
  	}
+ 	if (AUDIT_MODE(profile) == AUDIT_QUIET ||
+ 	    (type == AUDIT_APPARMOR_DENIED &&
+-	     AUDIT_MODE(profile) == AUDIT_QUIET))
++	     AUDIT_MODE(profile) == AUDIT_QUIET_DENIED))
+ 		return aad(sa)->error;
  
--	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
-+	if (cpu_has_rixi && _PAGE_NO_EXEC != 0) {
- 		if (fill_includes_sw_bits) {
- 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
- 		} else {
-@@ -2573,7 +2573,7 @@ static void check_pabits(void)
- 	unsigned long entry;
- 	unsigned pabits, fillbits;
- 
--	if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
-+	if (!cpu_has_rixi || _PAGE_NO_EXEC == 0) {
- 		/*
- 		 * We'll only be making use of the fact that we can rotate bits
- 		 * into the fill if the CPU supports RIXI, so don't bother
--- 
-2.35.1
-
+ 	if (KILL_MODE(profile) && type == AUDIT_APPARMOR_DENIED)
 
 
