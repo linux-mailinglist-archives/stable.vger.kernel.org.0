@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A2DC59E060
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D97AB59DD0A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:26:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359153AbiHWMDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47394 "EHLO
+        id S1357386AbiHWLGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:06:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359366AbiHWMBT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:01:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C5A595AD0;
-        Tue, 23 Aug 2022 02:35:42 -0700 (PDT)
+        with ESMTP id S1356905AbiHWLEK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:04:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2993B2D8C;
+        Tue, 23 Aug 2022 02:15:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EBB36148C;
-        Tue, 23 Aug 2022 09:35:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30850C433C1;
-        Tue, 23 Aug 2022 09:35:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75719B81C89;
+        Tue, 23 Aug 2022 09:14:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D66EAC433D7;
+        Tue, 23 Aug 2022 09:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247331;
-        bh=TN/x55yLpmLQrDF6tZthviXQbzSPtd4gFj3kiA9aBO4=;
+        s=korg; t=1661246069;
+        bh=MCE+uIiIuB/Uh9Iht3jUtdPKJvJ8Z8u25fHMsaDGZCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMhqi0/4wjGnzQpBfmLurnUYLYlgpEEuqOjmpOLZqxUgxxJZZZ8eWYoxOHer4gaBs
-         6rnx4vveDiKIVqhTglK4fzCJqY3LZ9UVJ0WgRuQbz0J98YkNfmVmif+qWLDPlCoOXp
-         QhAtIC1IbOpfLmgQ8kFz3zr+IrmszKUe6VwtSKP4=
+        b=rkZ68ZnTeQs2+iWkLpdJsRG4yjxTpH/Neglz1ge2XKH8yc/0zw28MdzFZRd3u8Cyp
+         +S/2e8fXOHKSxJnSI1LxJi4qvi5QtLYxhC30RkU0PXcNQh03CFkQ+6TbnW9fCHqEBX
+         jaKnsUfijVfWspbzzIDjZ4NPokGYzBc9dGNaYCIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 363/389] selftests/kprobe: Do not test for GRP/ without event failures
+Subject: [PATCH 4.19 272/287] vfio: Clear the caps->buf to NULL after free
 Date:   Tue, 23 Aug 2022 10:27:21 +0200
-Message-Id: <20220823080130.717497993@linuxfoundation.org>
+Message-Id: <20220823080110.542528037@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Schspa Shi <schspa@gmail.com>
 
-[ Upstream commit f5eab65ff2b76449286d18efc7fee3e0b72f7d9b ]
+[ Upstream commit 6641085e8d7b3f061911517f79a2a15a0a21b97b ]
 
-A new feature is added where kprobes (and other probes) do not need to
-explicitly state the event name when creating a probe. The event name will
-come from what is being attached.
+On buffer resize failure, vfio_info_cap_add() will free the buffer,
+report zero for the size, and return -ENOMEM.  As additional
+hardening, also clear the buffer pointer to prevent any chance of a
+double free.
 
-That is:
-
-  # echo 'p:foo/ vfs_read' > kprobe_events
-
-Will no longer error, but instead create an event:
-
-  # cat kprobe_events
- p:foo/p_vfs_read_0 vfs_read
-
-This should not be tested as an error case anymore. Remove it from the
-selftest as now this feature "breaks" the selftest as it no longer fails
-as expected.
-
-Link: https://lore.kernel.org/all/1656296348-16111-1-git-send-email-quic_linyyuan@quicinc.com/
-Link: https://lkml.kernel.org/r/20220712161707.6dc08a14@gandalf.local.home
-
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Link: https://lore.kernel.org/r/20220629022948.55608-1-schspa@gmail.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc       | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/vfio/vfio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-index ef1e9bafb098..728c2762ee58 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-@@ -24,7 +24,6 @@ check_error 'p:^/bar vfs_read'		# NO_GROUP_NAME
- check_error 'p:^12345678901234567890123456789012345678901234567890123456789012345/bar vfs_read'	# GROUP_TOO_LONG
- 
- check_error 'p:^foo.1/bar vfs_read'	# BAD_GROUP_NAME
--check_error 'p:foo/^ vfs_read'		# NO_EVENT_NAME
- check_error 'p:foo/^12345678901234567890123456789012345678901234567890123456789012345 vfs_read'	# EVENT_TOO_LONG
- check_error 'p:foo/^bar.1 vfs_read'	# BAD_EVENT_NAME
- 
+diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
+index 7a386fb30bf1..0d146b45e0b4 100644
+--- a/drivers/vfio/vfio.c
++++ b/drivers/vfio/vfio.c
+@@ -1808,6 +1808,7 @@ struct vfio_info_cap_header *vfio_info_cap_add(struct vfio_info_cap *caps,
+ 	buf = krealloc(caps->buf, caps->size + size, GFP_KERNEL);
+ 	if (!buf) {
+ 		kfree(caps->buf);
++		caps->buf = NULL;
+ 		caps->size = 0;
+ 		return ERR_PTR(-ENOMEM);
+ 	}
 -- 
 2.35.1
 
