@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F59B59DE15
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B77B159DBFF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356505AbiHWKzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:55:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46528 "EHLO
+        id S1349278AbiHWMSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:18:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356019AbiHWKxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:53:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D18F7ABF36;
-        Tue, 23 Aug 2022 02:13:12 -0700 (PDT)
+        with ESMTP id S1356480AbiHWMPm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CAD67960C;
+        Tue, 23 Aug 2022 02:41:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B857561227;
-        Tue, 23 Aug 2022 09:13:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDE79C43140;
-        Tue, 23 Aug 2022 09:13:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C8B62CE1B5A;
+        Tue, 23 Aug 2022 09:40:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D103DC433C1;
+        Tue, 23 Aug 2022 09:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245991;
-        bh=kGnKy4ot8MT8zCT9ellggAB0zIaX/bDGSKngr+K3OEw=;
+        s=korg; t=1661247622;
+        bh=cVGm+Vjxw8Jv+M9DnbQRMTUqK+6WagTBRZOsSNTMfpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tAJGKOpbfPqFW4CiWxPFOkg2ItmLzy77Ubt+KfI4k6uVHOsaIDe9jKI1XsRK/X0lJ
-         f+ng20pEiBanVMr2OVroQObadcrig9lmP76aMYATAv+Ra1nRyTNrvlsxr+ERqtUzH+
-         RsMMTRgQJttRIRfuXoz1xJQ2aYfffMlEj5YJse+c=
+        b=03G0+TGmKLFDp84gaW2Z5qr6Wmf4tz1fQEyJZZ20eT3KQYVB3MNL3kYx4GgPbVcvR
+         WiTn+HxpQn2dyOS9meZBOUTC5UMNNSLJ0onEq9vHk9FExJWXBzc1DGhdS2Twf45+bx
+         1t7j7W47U+vvtj3rK8AoWb9SW9+TAaNr0xq3ROpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yury Norov <yury.norov@gmail.com>,
-        Erhard Furtner <erhard_f@mailbox.org>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.19 255/287] gcc-plugins: Undefine LATENT_ENTROPY_PLUGIN when plugin disabled for a file
-Date:   Tue, 23 Aug 2022 10:27:04 +0200
-Message-Id: <20220823080109.831885813@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.10 093/158] kbuild: fix the modules order between drivers and libs
+Date:   Tue, 23 Aug 2022 10:27:05 +0200
+Message-Id: <20220823080049.801391859@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Donnellan <ajd@linux.ibm.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 012e8d2034f1bda8863435cd589636e618d6a659 upstream.
+commit 113147510b48e764e624e3d0e6707a1e48bc05a9 upstream.
 
-Commit 36d4b36b6959 ("lib/nodemask: inline next_node_in() and
-node_random()") refactored some code by moving node_random() from
-lib/nodemask.c to include/linux/nodemask.h, thus requiring nodemask.h to
-include random.h, which conditionally defines add_latent_entropy()
-depending on whether the macro LATENT_ENTROPY_PLUGIN is defined.
+Commit b2c885549122 ("kbuild: update modules.order only when contained
+modules are updated") accidentally changed the modules order.
 
-This broke the build on powerpc, where nodemask.h is indirectly included
-in arch/powerpc/kernel/prom_init.c, part of the early boot machinery that
-is excluded from the latent entropy plugin using
-DISABLE_LATENT_ENTROPY_PLUGIN. It turns out that while we add a gcc flag
-to disable the actual plugin, we don't undefine LATENT_ENTROPY_PLUGIN.
+Prior to that commit, the modules order was determined based on
+vmlinux-dirs, which lists core-y/m, drivers-y/m, libs-y/m, in this order.
 
-This leads to the following:
+Now, subdir-modorder lists them in a different order: core-y/m, libs-y/m,
+drivers-y/m.
 
-    CC      arch/powerpc/kernel/prom_init.o
-  In file included from ./include/linux/nodemask.h:97,
-                   from ./include/linux/mmzone.h:17,
-                   from ./include/linux/gfp.h:7,
-                   from ./include/linux/xarray.h:15,
-                   from ./include/linux/radix-tree.h:21,
-                   from ./include/linux/idr.h:15,
-                   from ./include/linux/kernfs.h:12,
-                   from ./include/linux/sysfs.h:16,
-                   from ./include/linux/kobject.h:20,
-                   from ./include/linux/pci.h:35,
-                   from arch/powerpc/kernel/prom_init.c:24:
-  ./include/linux/random.h: In function 'add_latent_entropy':
-  ./include/linux/random.h:25:46: error: 'latent_entropy' undeclared (first use in this function); did you mean 'add_latent_entropy'?
-     25 |         add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
-        |                                              ^~~~~~~~~~~~~~
-        |                                              add_latent_entropy
-  ./include/linux/random.h:25:46: note: each undeclared identifier is reported only once for each function it appears in
-  make[2]: *** [scripts/Makefile.build:249: arch/powerpc/kernel/prom_init.o] Fehler 1
-  make[1]: *** [scripts/Makefile.build:465: arch/powerpc/kernel] Fehler 2
-  make: *** [Makefile:1855: arch/powerpc] Error 2
+Presumably, there was no practical issue because the modules in drivers
+and libs are orthogonal, but there is no reason to have this distortion.
 
-Change the DISABLE_LATENT_ENTROPY_PLUGIN flags to undefine
-LATENT_ENTROPY_PLUGIN for files where the plugin is disabled.
+Get back to the original order.
 
-Cc: Yury Norov <yury.norov@gmail.com>
-Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216367
-Link: https://lore.kernel.org/linuxppc-dev/alpine.DEB.2.22.394.2208152006320.289321@ramsan.of.borg/
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-Reviewed-by: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220816051720.44108-1-ajd@linux.ibm.com
+Fixes: b2c885549122 ("kbuild: update modules.order only when contained modules are updated")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/Makefile.gcc-plugins |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Makefile |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/scripts/Makefile.gcc-plugins
-+++ b/scripts/Makefile.gcc-plugins
-@@ -6,7 +6,7 @@ gcc-plugin-$(CONFIG_GCC_PLUGIN_LATENT_EN
- gcc-plugin-cflags-$(CONFIG_GCC_PLUGIN_LATENT_ENTROPY)		\
- 		+= -DLATENT_ENTROPY_PLUGIN
- ifdef CONFIG_GCC_PLUGIN_LATENT_ENTROPY
--    DISABLE_LATENT_ENTROPY_PLUGIN += -fplugin-arg-latent_entropy_plugin-disable
-+    DISABLE_LATENT_ENTROPY_PLUGIN += -fplugin-arg-latent_entropy_plugin-disable -ULATENT_ENTROPY_PLUGIN
- endif
- export DISABLE_LATENT_ENTROPY_PLUGIN
+--- a/Makefile
++++ b/Makefile
+@@ -1133,13 +1133,11 @@ vmlinux-alldirs	:= $(sort $(vmlinux-dirs
+ 		     $(patsubst %/,%,$(filter %/, $(core-) \
+ 			$(drivers-) $(libs-))))
  
+-subdir-modorder := $(addsuffix modules.order,$(filter %/, \
+-			$(core-y) $(core-m) $(libs-y) $(libs-m) \
+-			$(drivers-y) $(drivers-m)))
+-
+ build-dirs	:= $(vmlinux-dirs)
+ clean-dirs	:= $(vmlinux-alldirs)
+ 
++subdir-modorder := $(addsuffix /modules.order, $(build-dirs))
++
+ # Externally visible symbols (used by link-vmlinux.sh)
+ KBUILD_VMLINUX_OBJS := $(head-y) $(patsubst %/,%/built-in.a, $(core-y))
+ KBUILD_VMLINUX_OBJS += $(addsuffix built-in.a, $(filter %/, $(libs-y)))
 
 
