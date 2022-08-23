@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1317859D53A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A9A59D5D7
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:10:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243935AbiHWImu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60764 "EHLO
+        id S241155AbiHWImK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:42:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348940AbiHWImG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:42:06 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8651279A56;
-        Tue, 23 Aug 2022 01:20:17 -0700 (PDT)
+        with ESMTP id S1347175AbiHWIkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:40:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25855785AF;
+        Tue, 23 Aug 2022 01:19:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 80480CE1B3B;
-        Tue, 23 Aug 2022 08:19:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CE45C433C1;
-        Tue, 23 Aug 2022 08:19:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4A14612FE;
+        Tue, 23 Aug 2022 08:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8976C433D6;
+        Tue, 23 Aug 2022 08:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242743;
-        bh=7wVN8IvfazuS84SzkZjlK5R+FeYjsoVJzWDg/BbbF1M=;
+        s=korg; t=1661242746;
+        bh=nKU8y2dvnO/CDH+Ggz7JkTDok6mbH9SjMtG+BKseyec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/OEkvk8NObS7kCq0txdgr5pq/cCmFYFCStWggwRmQqCVY+poK6qFGmMLWCdlADHj
-         jrhxxlE6vIpJolyNE8TUTTC2AETbH4xCQou2yZfHQTBGKITIGF3UT/F6leY3xy3H+E
-         DS8BRXYT1SEySzRl+WnXJH+u5VA2at0Z8x6eRRbg=
+        b=Qc+2YOIdnD96U/rKkhQRqnzLcIOtNXyCn3L6btanHdg3hhOxOxoDjfuP2fOzjSs0B
+         qD8JuslSo6T5tJSCPxGqpu0wcpki23/om6loIQNZzlw4CHPCEdpIf5gy364hjemZhI
+         VIrB3IlPMJEYiZwS2VNX0nWLjAJiDWLMskd2J5TY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
+        stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        Kees Cook <keescook@chromium.org>,
         Leon Romanovsky <leon@kernel.org>
-Subject: [PATCH 5.19 186/365] RDMA/mlx5: Use the proper number of ports
-Date:   Tue, 23 Aug 2022 10:01:27 +0200
-Message-Id: <20220823080126.002460213@linuxfoundation.org>
+Subject: [PATCH 5.19 187/365] RDMA/cxgb4: fix accept failure due to increased cpl_t5_pass_accept_rpl size
+Date:   Tue, 23 Aug 2022 10:01:28 +0200
+Message-Id: <20220823080126.041595996@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,70 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Bloch <mbloch@nvidia.com>
+From: Potnuri Bharat Teja <bharat@chelsio.com>
 
-commit 4b83c3caf289b80acecc539c79f10a6937cc42dd upstream.
+commit ef0162298abf46b881e4a4d0c604d1a066228647 upstream.
 
-The cited commit allowed the driver to operate over HCAs that have
-4 physical ports. Use the number of ports of the RDMA device in the for
-loop instead of using the struct size.
+Commit 'c2ed5611afd7' has increased the cpl_t5_pass_accept_rpl{} structure
+size by 8B to avoid roundup. cpl_t5_pass_accept_rpl{} is a HW specific
+structure and increasing its size will lead to unwanted adapter errors.
+Current commit reverts the cpl_t5_pass_accept_rpl{} back to its original
+and allocates zeroed skb buffer there by avoiding the memset for iss field.
+Reorder code to minimize chip type checks.
 
-Fixes: 4cd14d44b11d ("net/mlx5: Support devices with more than 2 ports")
-Link: https://lore.kernel.org/r/a54a56c2ede16044a29d119209b35189c662ac72.1659944855.git.leonro@nvidia.com
-Signed-off-by: Mark Bloch <mbloch@nvidia.com>
+Fixes: c2ed5611afd7 ("iw_cxgb4: Use memset_startat() for cpl_t5_pass_accept_rpl")
+Link: https://lore.kernel.org/r/20220809184118.2029-1-rahul.lakkireddy@chelsio.com
+Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 34 +++++++++++++++----------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+ drivers/infiniband/hw/cxgb4/cm.c            | 25 ++++++++-------------
+ drivers/net/ethernet/chelsio/cxgb4/t4_msg.h |  2 +-
+ 2 files changed, 10 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index a174a0eee8dc..fc94a1b25485 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -2738,26 +2738,24 @@ static int set_has_smi_cap(struct mlx5_ib_dev *dev)
- 	int err;
- 	int port;
- 
--	for (port = 1; port <= ARRAY_SIZE(dev->port_caps); port++) {
--		dev->port_caps[port - 1].has_smi = false;
--		if (MLX5_CAP_GEN(dev->mdev, port_type) ==
--		    MLX5_CAP_PORT_TYPE_IB) {
--			if (MLX5_CAP_GEN(dev->mdev, ib_virt)) {
--				err = mlx5_query_hca_vport_context(dev->mdev, 0,
--								   port, 0,
--								   &vport_ctx);
--				if (err) {
--					mlx5_ib_err(dev, "query_hca_vport_context for port=%d failed %d\n",
--						    port, err);
--					return err;
--				}
--				dev->port_caps[port - 1].has_smi =
--					vport_ctx.has_smi;
--			} else {
--				dev->port_caps[port - 1].has_smi = true;
--			}
-+	if (MLX5_CAP_GEN(dev->mdev, port_type) != MLX5_CAP_PORT_TYPE_IB)
-+		return 0;
-+
-+	for (port = 1; port <= dev->num_ports; port++) {
-+		if (!MLX5_CAP_GEN(dev->mdev, ib_virt)) {
-+			dev->port_caps[port - 1].has_smi = true;
-+			continue;
- 		}
-+		err = mlx5_query_hca_vport_context(dev->mdev, 0, port, 0,
-+						   &vport_ctx);
-+		if (err) {
-+			mlx5_ib_err(dev, "query_hca_vport_context for port=%d failed %d\n",
-+				    port, err);
-+			return err;
-+		}
-+		dev->port_caps[port - 1].has_smi = vport_ctx.has_smi;
+diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
+index c16017f6e8db..14392c942f49 100644
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -2468,31 +2468,24 @@ static int accept_cr(struct c4iw_ep *ep, struct sk_buff *skb,
+ 			opt2 |= CCTRL_ECN_V(1);
  	}
-+
- 	return 0;
- }
  
+-	skb_get(skb);
+-	rpl = cplhdr(skb);
+ 	if (!is_t4(adapter_type)) {
+-		BUILD_BUG_ON(sizeof(*rpl5) != roundup(sizeof(*rpl5), 16));
+-		skb_trim(skb, sizeof(*rpl5));
+-		rpl5 = (void *)rpl;
+-		INIT_TP_WR(rpl5, ep->hwtid);
+-	} else {
+-		skb_trim(skb, sizeof(*rpl));
+-		INIT_TP_WR(rpl, ep->hwtid);
+-	}
+-	OPCODE_TID(rpl) = cpu_to_be32(MK_OPCODE_TID(CPL_PASS_ACCEPT_RPL,
+-						    ep->hwtid));
+-
+-	if (CHELSIO_CHIP_VERSION(adapter_type) > CHELSIO_T4) {
+ 		u32 isn = (prandom_u32() & ~7UL) - 1;
++
++		skb = get_skb(skb, roundup(sizeof(*rpl5), 16), GFP_KERNEL);
++		rpl5 = __skb_put_zero(skb, roundup(sizeof(*rpl5), 16));
++		rpl = (void *)rpl5;
++		INIT_TP_WR_CPL(rpl5, CPL_PASS_ACCEPT_RPL, ep->hwtid);
+ 		opt2 |= T5_OPT_2_VALID_F;
+ 		opt2 |= CONG_CNTRL_V(CONG_ALG_TAHOE);
+ 		opt2 |= T5_ISS_F;
+-		rpl5 = (void *)rpl;
+-		memset_after(rpl5, 0, iss);
+ 		if (peer2peer)
+ 			isn += 4;
+ 		rpl5->iss = cpu_to_be32(isn);
+ 		pr_debug("iss %u\n", be32_to_cpu(rpl5->iss));
++	} else {
++		skb = get_skb(skb, sizeof(*rpl), GFP_KERNEL);
++		rpl = __skb_put_zero(skb, sizeof(*rpl));
++		INIT_TP_WR_CPL(rpl, CPL_PASS_ACCEPT_RPL, ep->hwtid);
+ 	}
+ 
+ 	rpl->opt0 = cpu_to_be64(opt0);
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_msg.h b/drivers/net/ethernet/chelsio/cxgb4/t4_msg.h
+index 26433a62d7f0..fed5f93bf620 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_msg.h
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_msg.h
+@@ -497,7 +497,7 @@ struct cpl_t5_pass_accept_rpl {
+ 	__be32 opt2;
+ 	__be64 opt0;
+ 	__be32 iss;
+-	__be32 rsvd[3];
++	__be32 rsvd;
+ };
+ 
+ struct cpl_act_open_req {
 -- 
 2.37.2
 
