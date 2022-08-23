@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6031C59DE38
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 317B459DEC7
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347573AbiHWLLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1343492AbiHWLLY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Aug 2022 07:11:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60356 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357337AbiHWLKm (ORCPT
+        with ESMTP id S1357344AbiHWLKm (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:10:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B76B7281;
-        Tue, 23 Aug 2022 02:17:15 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C53A753A1;
+        Tue, 23 Aug 2022 02:17:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72FA3B8105C;
-        Tue, 23 Aug 2022 09:17:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 982B0C433C1;
-        Tue, 23 Aug 2022 09:17:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8252361224;
+        Tue, 23 Aug 2022 09:17:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C9F9C433C1;
+        Tue, 23 Aug 2022 09:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246232;
-        bh=aeKgcCW7EPklbx02gqS/C5Ij9ode8V+OH5K+HJGxJr0=;
+        s=korg; t=1661246234;
+        bh=flN9k+ds4/58lHtR1LHei387fLhLZwzBVYI88WDmaiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+oOAHsVV7pFEA78/WLWjdpDgec7qSW5BC41yAc6t/RcPw+W1WEGGUEtiIhKn29Q0
-         bvwUH8fCiCHcokPDM0QZutM5+h6XNKIPI7bzpAT1QDFP8GNs4ONiQwsw/D6fRDLSQm
-         iJzeLgJL/GlqX5s+Cj3iirFKilpUPJoZpCTm1pyI=
+        b=Osakp/P2asCp9IUBC72pKgQGFIktzZLe51e56HigymUheYn/hwCLWSebJCbMe5T4/
+         nxg7ZUBzxZ41q+rxv4yKbnxHzJQrEr98LEtOfpBW6RfkRITsKOX6YZPdvtC4NN8ZG4
+         AEF59QM/7zplcIPAW3s/Zd0BtVjN2jQYqNazKi5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 5.4 044/389] coresight: Clear the connection field properly
-Date:   Tue, 23 Aug 2022 10:22:02 +0200
-Message-Id: <20220823080117.452010552@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+Subject: [PATCH 5.4 045/389] USB: HCD: Fix URB giveback issue in tasklet function
+Date:   Tue, 23 Aug 2022 10:22:03 +0200
+Message-Id: <20220823080117.493712710@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -56,118 +54,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
 
-commit 2af89ebacf299b7fba5f3087d35e8a286ec33706 upstream.
+commit 26c6c2f8a907c9e3a2f24990552a4d77235791e6 upstream.
 
-coresight devices track their connections (output connections) and
-hold a reference to the fwnode. When a device goes away, we walk through
-the devices on the coresight bus and make sure that the references
-are dropped. This happens both ways:
- a) For all output connections from the device, drop the reference to
-    the target device via coresight_release_platform_data()
+Usb core introduce the mechanism of giveback of URB in tasklet context to
+reduce hardware interrupt handling time. On some test situation(such as
+FIO with 4KB block size), when tasklet callback function called to
+giveback URB, interrupt handler add URB node to the bh->head list also.
+If check bh->head list again after finish all URB giveback of local_list,
+then it may introduce a "dynamic balance" between giveback URB and add URB
+to bh->head list. This tasklet callback function may not exit for a long
+time, which will cause other tasklet function calls to be delayed. Some
+real-time applications(such as KB and Mouse) will see noticeable lag.
 
-b) Iterate over all the devices on the coresight bus and drop the
-   reference to fwnode if *this* device is the target of the output
-   connection, via coresight_remove_conns()->coresight_remove_match().
+In order to prevent the tasklet function from occupying the cpu for a long
+time at a time, new URBS will not be added to the local_list even though
+the bh->head list is not empty. But also need to ensure the left URB
+giveback to be processed in time, so add a member high_prio for structure
+giveback_urb_bh to prioritize tasklet and schelule this tasklet again if
+bh->head list is not empty.
 
-However, the coresight_remove_match() doesn't clear the fwnode field,
-after dropping the reference, this causes use-after-free and
-additional refcount drops on the fwnode.
+At the same time, we are able to prioritize tasklet through structure
+member high_prio. So, replace the local high_prio_bh variable with this
+structure member in usb_hcd_giveback_urb.
 
-e.g., if we have two devices, A and B, with a connection, A -> B.
-If we remove B first, B would clear the reference on B, from A
-via coresight_remove_match(). But when A is removed, it still has
-a connection with fwnode still pointing to B. Thus it tries to  drops
-the reference in coresight_release_platform_data(), raising the bells
-like :
-
-[   91.990153] ------------[ cut here ]------------
-[   91.990163] refcount_t: addition on 0; use-after-free.
-[   91.990212] WARNING: CPU: 0 PID: 461 at lib/refcount.c:25 refcount_warn_saturate+0xa0/0x144
-[   91.990260] Modules linked in: coresight_funnel coresight_replicator coresight_etm4x(-)
- crct10dif_ce coresight ip_tables x_tables ipv6 [last unloaded: coresight_cpu_debug]
-[   91.990398] CPU: 0 PID: 461 Comm: rmmod Tainted: G        W       T 5.19.0-rc2+ #53
-[   91.990418] Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Feb  1 2019
-[   91.990434] pstate: 600000c5 (nZCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[   91.990454] pc : refcount_warn_saturate+0xa0/0x144
-[   91.990476] lr : refcount_warn_saturate+0xa0/0x144
-[   91.990496] sp : ffff80000c843640
-[   91.990509] x29: ffff80000c843640 x28: ffff800009957c28 x27: ffff80000c8439a8
-[   91.990560] x26: ffff00097eff1990 x25: ffff8000092b6ad8 x24: ffff00097eff19a8
-[   91.990610] x23: ffff80000c8439a8 x22: 0000000000000000 x21: ffff80000c8439c2
-[   91.990659] x20: 0000000000000000 x19: ffff00097eff1a10 x18: ffff80000ab99c40
-[   91.990708] x17: 0000000000000000 x16: 0000000000000000 x15: ffff80000abf6fa0
-[   91.990756] x14: 000000000000001d x13: 0a2e656572662d72 x12: 657466612d657375
-[   91.990805] x11: 203b30206e6f206e x10: 6f69746964646120 x9 : ffff8000081aba28
-[   91.990854] x8 : 206e6f206e6f6974 x7 : 69646461203a745f x6 : 746e756f63666572
-[   91.990903] x5 : ffff00097648ec58 x4 : 0000000000000000 x3 : 0000000000000027
-[   91.990952] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff00080260ba00
-[   91.991000] Call trace:
-[   91.991012]  refcount_warn_saturate+0xa0/0x144
-[   91.991034]  kobject_get+0xac/0xb0
-[   91.991055]  of_node_get+0x2c/0x40
-[   91.991076]  of_fwnode_get+0x40/0x60
-[   91.991094]  fwnode_handle_get+0x3c/0x60
-[   91.991116]  fwnode_get_nth_parent+0xf4/0x110
-[   91.991137]  fwnode_full_name_string+0x48/0xc0
-[   91.991158]  device_node_string+0x41c/0x530
-[   91.991178]  pointer+0x320/0x3ec
-[   91.991198]  vsnprintf+0x23c/0x750
-[   91.991217]  vprintk_store+0x104/0x4b0
-[   91.991238]  vprintk_emit+0x8c/0x360
-[   91.991257]  vprintk_default+0x44/0x50
-[   91.991276]  vprintk+0xcc/0xf0
-[   91.991295]  _printk+0x68/0x90
-[   91.991315]  of_node_release+0x13c/0x14c
-[   91.991334]  kobject_put+0x98/0x114
-[   91.991354]  of_node_put+0x24/0x34
-[   91.991372]  of_fwnode_put+0x40/0x5c
-[   91.991390]  fwnode_handle_put+0x38/0x50
-[   91.991411]  coresight_release_platform_data+0x74/0xb0 [coresight]
-[   91.991472]  coresight_unregister+0x64/0xcc [coresight]
-[   91.991525]  etm4_remove_dev+0x64/0x78 [coresight_etm4x]
-[   91.991563]  etm4_remove_amba+0x1c/0x2c [coresight_etm4x]
-[   91.991598]  amba_remove+0x3c/0x19c
-
-Reproducible by: (Build all coresight components as modules):
-
-  #!/bin/sh
-  while true
-  do
-     for m in tmc stm cpu_debug etm4x replicator funnel
-     do
-     	modprobe coresight_${m}
-     done
-
-     for m in tmc stm cpu_debug etm4x replicator funnel
-     do
-     	rmmode coresight_${m}
-     done
-  done
-
-Cc: stable@vger.kernel.org
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Fixes: 37ea1ffddffa ("coresight: Use fwnode handle instead of device names")
-Link: https://lore.kernel.org/r/20220614214024.3005275-1-suzuki.poulose@arm.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: 94dfd7edfd5c ("USB: HCD: support giveback of URB in tasklet context")
+Cc: stable <stable@kernel.org>
+Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+Link: https://lore.kernel.org/r/20220726074918.5114-1-WeitaoWang-oc@zhaoxin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/core/hcd.c  |   26 +++++++++++++++-----------
+ include/linux/usb/hcd.h |    1 +
+ 2 files changed, 16 insertions(+), 11 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight.c
-+++ b/drivers/hwtracing/coresight/coresight.c
-@@ -1073,6 +1073,7 @@ static int coresight_remove_match(struct
- 			 * platform data.
- 			 */
- 			fwnode_handle_put(conn->child_fwnode);
-+			conn->child_fwnode = NULL;
- 			/* No need to continue */
- 			break;
- 		}
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -1688,7 +1688,6 @@ static void usb_giveback_urb_bh(unsigned
+ 
+ 	spin_lock_irq(&bh->lock);
+ 	bh->running = true;
+- restart:
+ 	list_replace_init(&bh->head, &local_list);
+ 	spin_unlock_irq(&bh->lock);
+ 
+@@ -1702,10 +1701,17 @@ static void usb_giveback_urb_bh(unsigned
+ 		bh->completing_ep = NULL;
+ 	}
+ 
+-	/* check if there are new URBs to giveback */
++	/*
++	 * giveback new URBs next time to prevent this function
++	 * from not exiting for a long time.
++	 */
+ 	spin_lock_irq(&bh->lock);
+-	if (!list_empty(&bh->head))
+-		goto restart;
++	if (!list_empty(&bh->head)) {
++		if (bh->high_prio)
++			tasklet_hi_schedule(&bh->bh);
++		else
++			tasklet_schedule(&bh->bh);
++	}
+ 	bh->running = false;
+ 	spin_unlock_irq(&bh->lock);
+ }
+@@ -1730,7 +1736,7 @@ static void usb_giveback_urb_bh(unsigned
+ void usb_hcd_giveback_urb(struct usb_hcd *hcd, struct urb *urb, int status)
+ {
+ 	struct giveback_urb_bh *bh;
+-	bool running, high_prio_bh;
++	bool running;
+ 
+ 	/* pass status to tasklet via unlinked */
+ 	if (likely(!urb->unlinked))
+@@ -1741,13 +1747,10 @@ void usb_hcd_giveback_urb(struct usb_hcd
+ 		return;
+ 	}
+ 
+-	if (usb_pipeisoc(urb->pipe) || usb_pipeint(urb->pipe)) {
++	if (usb_pipeisoc(urb->pipe) || usb_pipeint(urb->pipe))
+ 		bh = &hcd->high_prio_bh;
+-		high_prio_bh = true;
+-	} else {
++	else
+ 		bh = &hcd->low_prio_bh;
+-		high_prio_bh = false;
+-	}
+ 
+ 	spin_lock(&bh->lock);
+ 	list_add_tail(&urb->urb_list, &bh->head);
+@@ -1756,7 +1759,7 @@ void usb_hcd_giveback_urb(struct usb_hcd
+ 
+ 	if (running)
+ 		;
+-	else if (high_prio_bh)
++	else if (bh->high_prio)
+ 		tasklet_hi_schedule(&bh->bh);
+ 	else
+ 		tasklet_schedule(&bh->bh);
+@@ -2796,6 +2799,7 @@ int usb_add_hcd(struct usb_hcd *hcd,
+ 
+ 	/* initialize tasklets */
+ 	init_giveback_urb_bh(&hcd->high_prio_bh);
++	hcd->high_prio_bh.high_prio = true;
+ 	init_giveback_urb_bh(&hcd->low_prio_bh);
+ 
+ 	/* enable irqs just before we start the controller,
+--- a/include/linux/usb/hcd.h
++++ b/include/linux/usb/hcd.h
+@@ -66,6 +66,7 @@
+ 
+ struct giveback_urb_bh {
+ 	bool running;
++	bool high_prio;
+ 	spinlock_t lock;
+ 	struct list_head  head;
+ 	struct tasklet_struct bh;
 
 
