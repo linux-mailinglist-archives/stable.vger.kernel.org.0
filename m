@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB6B59DDC2
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F020C59DD2B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357205AbiHWLOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:14:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36830 "EHLO
+        id S1357902AbiHWLRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357219AbiHWLNu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:13:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89F9BD9B;
-        Tue, 23 Aug 2022 02:18:15 -0700 (PDT)
+        with ESMTP id S1357193AbiHWLOu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:14:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BF30B9585;
+        Tue, 23 Aug 2022 02:18:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D58AB8105C;
-        Tue, 23 Aug 2022 09:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD453C433C1;
-        Tue, 23 Aug 2022 09:18:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04E0360959;
+        Tue, 23 Aug 2022 09:18:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D996C433C1;
+        Tue, 23 Aug 2022 09:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246291;
-        bh=38z5+1E7HVbT6HeQjqkDPqJFtUVE6OakjVGr/qrHk+k=;
+        s=korg; t=1661246294;
+        bh=gLRa4JDFNT1WAc43y93C/nn0NTx58M+fI/5frMkkNeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=THrpYpeyf2DT/QABUrGVTqDF1f6EbE9GzeN70yAnM7w3nErdAwh+XD9iMP3l00SB5
-         vxCzB1UgH4YqdyY4Uwcn5nD2s62Ft8E7FDqTei6+yhgNmwTnSzDn8LcdX3nfQnxcc7
-         7i+8Fxnyh6C2LaZmAGYsr9//lWvhi+W0/25JvaKk=
+        b=pRCONYYKTzB887x4hEbfi4QL+ZH3zPKOUkINlP8ORwNyphw8oY/bnp7GtsfmZVzjy
+         biiVm7h3Ir42npbeoWe58kfN/TlLqMJiz+3X/6g/HrRf6/9NHCEEPKdDm4nWMTniox
+         IeO0ccsu5HFVcSnCFSTa33+47HAjBiBnA3iPTm+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timur Tabi <ttabi@nvidia.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.4 032/389] drm/nouveau: fix another off-by-one in nvbios_addr
-Date:   Tue, 23 Aug 2022 10:21:50 +0200
-Message-Id: <20220823080117.027456498@linuxfoundation.org>
+        stable@vger.kernel.org, Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.4 033/389] drm/amdgpu: Check BOs requested pinning domains against its preferred_domains
+Date:   Tue, 23 Aug 2022 10:21:51 +0200
+Message-Id: <20220823080117.059782553@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,35 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timur Tabi <ttabi@nvidia.com>
+From: Leo Li <sunpeng.li@amd.com>
 
-commit c441d28945fb113220d48d6c86ebc0b090a2b677 upstream.
+commit f5ba14043621f4afdf3ad5f92ee2d8dbebbe4340 upstream.
 
-This check determines whether a given address is part of
-image 0 or image 1.  Image 1 starts at offset image0_size,
-so that address should be included.
+When pinning a buffer, we should check to see if there are any
+additional restrictions imposed by bo->preferred_domains. This will
+prevent the BO from being moved to an invalid domain when pinning.
 
-Fixes: 4d4e9907ff572 ("drm/nouveau/bios: guard against out-of-bounds accesses to image")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: Timur Tabi <ttabi@nvidia.com>
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220511163716.3520591-1-ttabi@nvidia.com
+For example, this can happen if the user requests to create a BO in GTT
+domain for display scanout. amdgpu_dm will allow pinning to either VRAM
+or GTT domains, since DCN can scanout from either or. However, in
+amdgpu_bo_pin_restricted(), pinning to VRAM is preferred if there is
+adequate carveout. This can lead to pinning to VRAM despite the user
+requesting GTT placement for the BO.
+
+v2: Allow the kernel to override the domain, which can happen when
+    exporting a BO to a V4L camera (for example).
+
+Signed-off-by: Leo Li <sunpeng.li@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
-@@ -33,7 +33,7 @@ nvbios_addr(struct nvkm_bios *bios, u32
- {
- 	u32 p = *addr;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -892,6 +892,10 @@ int amdgpu_bo_pin_restricted(struct amdg
+ 	if (WARN_ON_ONCE(min_offset > max_offset))
+ 		return -EINVAL;
  
--	if (*addr > bios->image0_size && bios->imaged_addr) {
-+	if (*addr >= bios->image0_size && bios->imaged_addr) {
- 		*addr -= bios->image0_size;
- 		*addr += bios->imaged_addr;
- 	}
++	/* Check domain to be pinned to against preferred domains */
++	if (bo->preferred_domains & domain)
++		domain = bo->preferred_domains & domain;
++
+ 	/* A shared bo cannot be migrated to VRAM */
+ 	if (bo->prime_shared_count) {
+ 		if (domain & AMDGPU_GEM_DOMAIN_GTT)
 
 
