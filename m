@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6E959DFA9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD59559DE4A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241877AbiHWL2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:28:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37910 "EHLO
+        id S1352940AbiHWK1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:27:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358024AbiHWL1I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:27:08 -0400
+        with ESMTP id S1354383AbiHWKZ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:25:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F136DF89;
-        Tue, 23 Aug 2022 02:24:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5D43832E9;
+        Tue, 23 Aug 2022 02:04:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5ACD6098A;
-        Tue, 23 Aug 2022 09:24:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC13C433D6;
-        Tue, 23 Aug 2022 09:24:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4591261584;
+        Tue, 23 Aug 2022 09:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 407A9C433C1;
+        Tue, 23 Aug 2022 09:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246689;
-        bh=GF4TbJ1hutDZOonw/FVmEopGTSDIsLj01qpR16/WWcE=;
+        s=korg; t=1661245498;
+        bh=XZPsukZTb+hTMSm+/vEq+mEJkXlwXdR0DPErYIV/FtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6NXa5z7gm6xzRGPSz3PVO/Y3E6ABawV0Drv3tUL2lAeRhqd9huGoQ/dxbOdI64x/
-         +ZINUwC4XVF8KgFsBdgSCoKgLI3xPcwyii1xx76v5t7hWKe46UPnQKYqCcwyAUmWla
-         h/CAh6xncFgb5Ov4yROudlgkTmXUuYKtZ1YBzsuQ=
+        b=DN5FpuZjEq5qDRsucJaXEBT/Bk6iE+cd4URqYFTqpFJaVpxkLlmTag51F3+5avfc/
+         Pc+gGad3/K7pHrYqRTKzH0mNQQvUhEpM1CJDn8CsQHjdzNxh84aIJTPvneFCpOgB5+
+         aYA+BIzbis4MAO/fNya5XIdjoX0k0PKOkXDOQfUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 188/389] gpio: gpiolib-of: Fix refcount bugs in of_mm_gpiochip_add_data()
+Subject: [PATCH 4.19 097/287] can: hi311x: do not report txerr and rxerr during bus-off
 Date:   Tue, 23 Aug 2022 10:24:26 +0200
-Message-Id: <20220823080123.494544792@linuxfoundation.org>
+Message-Id: <20220823080103.623190342@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 5d07a692f9562f9c06e62cce369e9dd108173a0f ]
+[ Upstream commit a22bd630cfff496b270211745536e50e98eb3a45 ]
 
-We should use of_node_get() when a new reference of device_node
-is created. It is noted that the old reference stored in
-'mm_gc->gc.of_node' should also be decreased.
+During bus off, the error count is greater than 255 and can not fit in
+a u8.
 
-This patch is based on the fact that there is a call site in function
-'qe_add_gpiochips()' of src file 'drivers\soc\fsl\qe\gpio.c'. In this
-function, of_mm_gpiochip_add_data() is contained in an iteration of
-for_each_compatible_node() which will automatically increase and
-decrease the refcount. So we need additional of_node_get() for the
-reference escape in of_mm_gpiochip_add_data().
-
-Fixes: a19e3da5bc5f ("of/gpio: Kill of_gpio_chip and add members directly to gpio_chip")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Fixes: 57e83fb9b746 ("can: hi311x: Add Holt HI-311x CAN driver")
+Link: https://lore.kernel.org/all/20220719143550.3681-6-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-of.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/can/spi/hi311x.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
-index b1dcd2dd52e6..73807c897391 100644
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -734,7 +734,8 @@ int of_mm_gpiochip_add_data(struct device_node *np,
- 	if (mm_gc->save_regs)
- 		mm_gc->save_regs(mm_gc);
+diff --git a/drivers/net/can/spi/hi311x.c b/drivers/net/can/spi/hi311x.c
+index 472175e37055..5f730f791c27 100644
+--- a/drivers/net/can/spi/hi311x.c
++++ b/drivers/net/can/spi/hi311x.c
+@@ -688,8 +688,6 @@ static irqreturn_t hi3110_can_ist(int irq, void *dev_id)
  
--	mm_gc->gc.of_node = np;
-+	of_node_put(mm_gc->gc.of_node);
-+	mm_gc->gc.of_node = of_node_get(np);
+ 			txerr = hi3110_read(spi, HI3110_READ_TEC);
+ 			rxerr = hi3110_read(spi, HI3110_READ_REC);
+-			cf->data[6] = txerr;
+-			cf->data[7] = rxerr;
+ 			tx_state = txerr >= rxerr ? new_state : 0;
+ 			rx_state = txerr <= rxerr ? new_state : 0;
+ 			can_change_state(net, cf, tx_state, rx_state);
+@@ -702,6 +700,9 @@ static irqreturn_t hi3110_can_ist(int irq, void *dev_id)
+ 					hi3110_hw_sleep(spi);
+ 					break;
+ 				}
++			} else {
++				cf->data[6] = txerr;
++				cf->data[7] = rxerr;
+ 			}
+ 		}
  
- 	ret = gpiochip_add_data(gc, data);
- 	if (ret)
-@@ -742,6 +743,7 @@ int of_mm_gpiochip_add_data(struct device_node *np,
- 
- 	return 0;
- err2:
-+	of_node_put(np);
- 	iounmap(mm_gc->regs);
- err1:
- 	kfree(gc->label);
 -- 
 2.35.1
 
