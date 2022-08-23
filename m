@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8A7D59E557
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 16:50:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A67559E675
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 18:02:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239989AbiHWOt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 10:49:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
+        id S244441AbiHWQCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 12:02:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240407AbiHWOtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 10:49:05 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C113797B21;
-        Tue, 23 Aug 2022 05:12:03 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id r83-20020a1c4456000000b003a5cb389944so9446608wma.4;
-        Tue, 23 Aug 2022 05:12:03 -0700 (PDT)
+        with ESMTP id S244210AbiHWQAa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 12:00:30 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD3B23DF27;
+        Tue, 23 Aug 2022 05:12:12 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id k9so16786154wri.0;
+        Tue, 23 Aug 2022 05:12:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=Sow7EIgFIOPe6XEmV+aS5N5loSVChyRYxntO1B69FSs=;
-        b=Ky8649mVE+WHzwqepaqT2FgpL0wDvjUR3zZFJPYgGbr4jIbE0rIAQeHfHhSNPKKz25
-         mneeC29stBXPCdO84HZEw+/nFiZTIQEJrYo7objtWSjDkjYcl+VxXRmrovOniIhXnNe2
-         s3HREC7+Nc+/Ra/3SA/5nLVg3gzQblL0kmiYg6OGbtu85HdyHWLRDYwvCs2Y6mra+bF9
-         5xGtI2UtwBCjbuGyIK9w3aJeaiThVWCnRNrvLnKgWl/YFixItO1gcbHdEWSr+l9sxAW1
-         yKC6Q5WSAVMod3SrSgiVWzsxP5/Rrbo0ZlJfsCB5Y0CATN8hwGF6DW7ksTGk0u+NeChs
-         CnYA==
+        bh=f8IqA0rpja1ryiZArx8DZuQ4CdrVRu4KVeHRxdOu9GI=;
+        b=CsIGt9C4asU+NYNytquhInvoQbT9oe+codzK0OaRlvg2WwtOoSVv7JxzQAPTkzk+XX
+         UwLlQ7zasv2ZfdS8Bp/+G9VUL9QwRF6z6teKb/sGjJ51jdzRFCQGhDXPH4lr+KGEs6Gq
+         GnRb7ukT6f6xSD6JSe7/xY4IBxupIpJ1ijPKrGGdOk8e6BQO+T/yE0eoJTJtm5E7y+4J
+         9GnCWv5jSPBnY3lfYyiwQkYXPePHE0l9LC44A2kkYDwqCQqF3oSQHk1PzkGlFxtrfSzQ
+         MJm1bz6M6T1k62Sx6o1AS4qCRskAnfyTv7vm8pyJpsmoPKsUfSDCMTea14aMnWnS5b7N
+         shwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=Sow7EIgFIOPe6XEmV+aS5N5loSVChyRYxntO1B69FSs=;
-        b=mU0N17G2sjobCFgO2KrxBbFc0trsCwWwIoYPh5GxhorZQHstj7ck7SaatRbYR5KOMv
-         lofXWmvVP4J0aQnKmEgCJXTSU4D9m1vkNcv2RN/s+UPqXnuLskY/T2ExD+SOBoE11is4
-         JySLid3gQWBwrrwUM9zXvwGJZar0/w1Ck8PVynkQ7oC5dy+QR+2SzORyBv6ElcxF8i/u
-         DjDuoL95hy2Wh44s4itvbWV+NQNt8wjOsgstF0aVELuCygV6F+k4yy/kwzt/h+C7KO0r
-         JSQLYwukGAwiOQTShQoOn/8+cWqCDXD5sET2XoewOnrmQmVPks5GHgVtQG7VdYMzDtun
-         djpA==
-X-Gm-Message-State: ACgBeo378UwbqX+X2sEVdmzPkgy/ne2AD3hysaCG8kScGu/o7cSNKlFD
-        7N7xBkWgEmya/2Ju4KoTu5DYadFliHU=
-X-Google-Smtp-Source: AA6agR7oAH/cSRHFfc4FSK2qKs7uJVSinXKvXhgxBHNr1phYKGTWcmQlGdzio6TXvzTMrLjIOor41w==
-X-Received: by 2002:a7b:cb9a:0:b0:3a6:632d:5ee8 with SMTP id m26-20020a7bcb9a000000b003a6632d5ee8mr1944457wmi.175.1661256703534;
-        Tue, 23 Aug 2022 05:11:43 -0700 (PDT)
+        bh=f8IqA0rpja1ryiZArx8DZuQ4CdrVRu4KVeHRxdOu9GI=;
+        b=fw6mdA1XCxeVOT/cPEsTh5NvVe3y71aNLCsPrcnvvXkOU3Ai3FZWJCT9AdIMrk3u3I
+         U6A2ePQXvjQqEG6VfvV9JbUFi511zgUyKlDCO3FM8YMunpVJSu+pCWwQ6nJqR2SNmlJ7
+         jRKMfAvXQ8iAi0+bi/jfuaFUMDcEvHAOHonLyZrVSW+wUQCOp93rDFYzdUSvfwsd9RRY
+         OxuHDyTPbVS5xHenOQ18H/UguRvBvkqpnUVb+oKP2j0zEsevFSggGvW0ShuDSt7aPV//
+         0WwG5rOu125HYv5aGIoFMrvoIMA4CTG4avZZ1XhD0RybcE7MF6z2TLNtD5PjaADGB4Ap
+         GXvw==
+X-Gm-Message-State: ACgBeo2dbq2UIp4mkJOdIgYem77CzVOkR40JFW2VFGl/vSn/qLqHQSTN
+        Kb7tlRx/WAgmHoTDfmO3oRQ=
+X-Google-Smtp-Source: AA6agR7QAecD3Uza+N1Psk5KAyKqmg9ikvTmMDSFLjRdGmzB1CrPo9LKPLKEXJN3YpJrlaWZdlGWng==
+X-Received: by 2002:a05:6000:1885:b0:225:5d24:7ccf with SMTP id a5-20020a056000188500b002255d247ccfmr4191966wri.215.1661256710688;
+        Tue, 23 Aug 2022 05:11:50 -0700 (PDT)
 Received: from amir-ThinkPad-T480.lan ([77.137.66.49])
-        by smtp.gmail.com with ESMTPSA id g11-20020a05600c4ecb00b003a4c6e67f01sm24681879wmq.6.2022.08.23.05.11.42
+        by smtp.gmail.com with ESMTPSA id g11-20020a05600c4ecb00b003a4c6e67f01sm24681879wmq.6.2022.08.23.05.11.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Aug 2022 05:11:43 -0700 (PDT)
+        Tue, 23 Aug 2022 05:11:50 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -56,10 +56,11 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Adam Manzanares <a.manzanares@samsung.com>,
         linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.10 v2 1/6] xfs: prevent a WARN_ONCE() in xfs_ioc_attr_list()
-Date:   Tue, 23 Aug 2022 15:11:31 +0300
-Message-Id: <20220823121136.1806820-2-amir73il@gmail.com>
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <brauner@kernel.org>
+Subject: [PATCH 5.10 v2 5/6] xfs: return errors in xfs_fs_sync_fs
+Date:   Tue, 23 Aug 2022 15:11:35 +0300
+Message-Id: <20220823121136.1806820-6-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220823121136.1806820-1-amir73il@gmail.com>
 References: <20220823121136.1806820-1-amir73il@gmail.com>
@@ -75,60 +76,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 6ed6356b07714e0198be3bc3ecccc8b40a212de4 upstream.
+commit 2d86293c70750e4331e9616aded33ab6b47c299d upstream.
 
-The "bufsize" comes from the root user.  If "bufsize" is negative then,
-because of type promotion, neither of the validation checks at the start
-of the function are able to catch it:
+Now that the VFS will do something with the return values from
+->sync_fs, make ours pass on error codes.
 
-	if (bufsize < sizeof(struct xfs_attrlist) ||
-	    bufsize > XFS_XATTR_LIST_MAX)
-		return -EINVAL;
-
-This means "bufsize" will trigger (WARN_ON_ONCE(size > INT_MAX)) in
-kvmalloc_node().  Fix this by changing the type from int to size_t.
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Christian Brauner <brauner@kernel.org>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_ioctl.c | 2 +-
- fs/xfs/xfs_ioctl.h | 5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_super.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
-index 646735aad45d..d973350d5946 100644
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -371,7 +371,7 @@ int
- xfs_ioc_attr_list(
- 	struct xfs_inode		*dp,
- 	void __user			*ubuf,
--	int				bufsize,
-+	size_t				bufsize,
- 	int				flags,
- 	struct xfs_attrlist_cursor __user *ucursor)
+diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
+index 6323974d6b3e..ff686cb16c7b 100644
+--- a/fs/xfs/xfs_super.c
++++ b/fs/xfs/xfs_super.c
+@@ -757,6 +757,7 @@ xfs_fs_sync_fs(
+ 	int			wait)
  {
-diff --git a/fs/xfs/xfs_ioctl.h b/fs/xfs/xfs_ioctl.h
-index bab6a5a92407..416e20de66e7 100644
---- a/fs/xfs/xfs_ioctl.h
-+++ b/fs/xfs/xfs_ioctl.h
-@@ -38,8 +38,9 @@ xfs_readlink_by_handle(
- int xfs_ioc_attrmulti_one(struct file *parfilp, struct inode *inode,
- 		uint32_t opcode, void __user *uname, void __user *value,
- 		uint32_t *len, uint32_t flags);
--int xfs_ioc_attr_list(struct xfs_inode *dp, void __user *ubuf, int bufsize,
--	int flags, struct xfs_attrlist_cursor __user *ucursor);
-+int xfs_ioc_attr_list(struct xfs_inode *dp, void __user *ubuf,
-+		      size_t bufsize, int flags,
-+		      struct xfs_attrlist_cursor __user *ucursor);
+ 	struct xfs_mount	*mp = XFS_M(sb);
++	int			error;
  
- extern struct dentry *
- xfs_handle_to_dentry(
+ 	/*
+ 	 * Doing anything during the async pass would be counterproductive.
+@@ -764,7 +765,10 @@ xfs_fs_sync_fs(
+ 	if (!wait)
+ 		return 0;
+ 
+-	xfs_log_force(mp, XFS_LOG_SYNC);
++	error = xfs_log_force(mp, XFS_LOG_SYNC);
++	if (error)
++		return error;
++
+ 	if (laptop_mode) {
+ 		/*
+ 		 * The disk must be active because we're syncing.
 -- 
 2.25.1
 
