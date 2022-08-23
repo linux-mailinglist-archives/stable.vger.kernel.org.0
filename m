@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 973F759DA08
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9013B59D886
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352139AbiHWKEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:04:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44494 "EHLO
+        id S240901AbiHWJ53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:57:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352696AbiHWKCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:02:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 770417C741;
-        Tue, 23 Aug 2022 01:50:30 -0700 (PDT)
+        with ESMTP id S243431AbiHWJwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:52:44 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCACF9E108;
+        Tue, 23 Aug 2022 01:46:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0635F6122F;
-        Tue, 23 Aug 2022 08:50:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D687C433D6;
-        Tue, 23 Aug 2022 08:50:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2FAC7CE1B51;
+        Tue, 23 Aug 2022 08:45:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47555C433C1;
+        Tue, 23 Aug 2022 08:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244629;
-        bh=7XvzYG1/pjFVKJRC1vdT57a3gpQ/VTg3095N79BMJe8=;
+        s=korg; t=1661244347;
+        bh=0knbD/ImRv9PdrlmhmwIx+OgZjRdA+sNf0/I295lEzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wqm2P+kjjpAQ0i09Ovk+mC2xEgzXV/213ZKlnaQ6rfIEpimk6WuLxI2aa3WRTqHZA
-         5CERb7Jix20PbRvsY7IuQf0WgcOEmGFae3E6UYOa6CizFz/GBm8p5M6FzPwu/up4Da
-         XPV5PqCCiBa0kbCQaJWyOlk43IUeZSIfjkzZC0oI=
+        b=eOBW/kErdfoQGS9ZVZe79gQ6SxL6Az9dAVEb4pGVdCh8UBWhniE0RiqowtGA3LK14
+         wGaM2EObjdsC8ekUM9/jORo57BqxhlTd95mIOWlNbi+4MXc3ZoBJINYi1dlsVqi2r0
+         +bfZM0xilTcUwQCTlGkNjJnGVJooI0YecCgcsFHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 125/244] netfilter: nf_tables: disallow NFTA_SET_ELEM_KEY_END with NFT_SET_ELEM_INTERVAL_END flag
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 123/229] tty: n_gsm: fix packet re-transmission without open control channel
 Date:   Tue, 23 Aug 2022 10:24:44 +0200
-Message-Id: <20220823080103.250852622@linuxfoundation.org>
+Message-Id: <20220823080058.112909767@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,29 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-commit 4963674c2e71fc062f8f089f0f58ffbb5533060b upstream.
+[ Upstream commit 4fae831b3a71fc5a44cc5c7d0b8c1267ee7659f5 ]
 
-These are mutually exclusive, actually NFTA_SET_ELEM_KEY_END replaces
-the flag notation.
+In the current implementation control packets are re-transmitted even if
+the control channel closed down during T2. This is wrong.
+Check whether the control channel is open before re-transmitting any
+packets. Note that control channel open/close is handled by T1 and not T2
+and remains unaffected by this.
 
-Fixes: 7b225d0b5c6d ("netfilter: nf_tables: add NFTA_SET_ELEM_KEY_END attribute")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220701061652.39604-7-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/n_gsm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -5768,6 +5768,7 @@ static int nft_add_set_elem(struct nft_c
- 	      nla[NFTA_SET_ELEM_EXPIRATION] ||
- 	      nla[NFTA_SET_ELEM_USERDATA] ||
- 	      nla[NFTA_SET_ELEM_EXPR] ||
-+	      nla[NFTA_SET_ELEM_KEY_END] ||
- 	      nla[NFTA_SET_ELEM_EXPRESSIONS]))
- 		return -EINVAL;
- 
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index a838ec4f2715..62af08e5caa5 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1394,7 +1394,7 @@ static void gsm_control_retransmit(unsigned long data)
+ 	spin_lock_irqsave(&gsm->control_lock, flags);
+ 	ctrl = gsm->pending_cmd;
+ 	if (ctrl) {
+-		if (gsm->cretries == 0) {
++		if (gsm->cretries == 0 || !gsm->dlci[0] || gsm->dlci[0]->dead) {
+ 			gsm->pending_cmd = NULL;
+ 			ctrl->error = -ETIMEDOUT;
+ 			ctrl->done = 1;
+-- 
+2.35.1
+
 
 
