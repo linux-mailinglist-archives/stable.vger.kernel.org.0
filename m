@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7391A59DF0F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 251DD59DF42
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357904AbiHWLRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42116 "EHLO
+        id S1357911AbiHWLRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357323AbiHWLPG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:15:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2963EB95B0;
-        Tue, 23 Aug 2022 02:18:59 -0700 (PDT)
+        with ESMTP id S1357335AbiHWLP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:15:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A649B9FBE;
+        Tue, 23 Aug 2022 02:19:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 134856121F;
-        Tue, 23 Aug 2022 09:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19D82C433C1;
-        Tue, 23 Aug 2022 09:18:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C75E1B81C89;
+        Tue, 23 Aug 2022 09:18:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E256C433C1;
+        Tue, 23 Aug 2022 09:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246331;
-        bh=KTHkY+Sh3wrd/pSN6IT6Z3SVXzYTUQtNiLHtrjVgw5Y=;
+        s=korg; t=1661246334;
+        bh=r8VC5k8yCnxrmhJJjc40MMt9lv8g2qFUnZotxUDIYhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSQs4UPgude+a/dHmTWG+fBjFDqJMn1BBrSnxL/SC2G/6H48wBOFnLOqhk1v/nFsb
-         6dotiz/Iq1PQM6Gv/AWIiIUKBWoGB/5VPIecOY3LCMlAlx4j0EKYhPLMRpWEzYH+RL
-         v9zJyrJbQ/fewRULCxhbrLq5R2pg6GKYuKPBlIXE=
+        b=tUBnr2xx94NA7vTd1yVy0GuFLtOgxi5q+QooPIany2Rl7ZSmC3264/jRtCHXp1Ipy
+         cEd0T2uVDzVD2tFGCOdz3tk7XSynp/hPCXKpd3LUns1RqsyfcN5PhA0Zq4Nh64eLtk
+         72IyoLvjroD/sjxATpPQBpo8O5Xiw2tw6Y+izaTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/389] ARM: bcm: Fix refcount leak in bcm_kona_smc_init
-Date:   Tue, 23 Aug 2022 10:22:34 +0200
-Message-Id: <20220823080118.830754665@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 077/389] x86/pmem: Fix platform-device leak in error path
+Date:   Tue, 23 Aug 2022 10:22:35 +0200
+Message-Id: <20220823080118.872573631@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,34 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit cb23389a2458c2e4bfd6c86a513cbbe1c4d35e76 ]
+[ Upstream commit 229e73d46994f15314f58b2d39bf952111d89193 ]
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+Make sure to free the platform device in the unlikely event that
+registration fails.
 
-Fixes: b8eb35fd594a ("ARM: bcm281xx: Add L2 cache enable code")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 7a67832c7e44 ("libnvdimm, e820: make CONFIG_X86_PMEM_LEGACY a tristate option")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220620140723.9810-1-johan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-bcm/bcm_kona_smc.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/pmem.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-bcm/bcm_kona_smc.c b/arch/arm/mach-bcm/bcm_kona_smc.c
-index 541e850a736c..9175c130967e 100644
---- a/arch/arm/mach-bcm/bcm_kona_smc.c
-+++ b/arch/arm/mach-bcm/bcm_kona_smc.c
-@@ -54,6 +54,7 @@ int __init bcm_kona_smc_init(void)
- 		return -ENODEV;
- 
- 	prop_val = of_get_address(node, 0, &prop_size, NULL);
-+	of_node_put(node);
- 	if (!prop_val)
- 		return -EINVAL;
- 
+diff --git a/arch/x86/kernel/pmem.c b/arch/x86/kernel/pmem.c
+index 6b07faaa1579..23154d24b117 100644
+--- a/arch/x86/kernel/pmem.c
++++ b/arch/x86/kernel/pmem.c
+@@ -27,6 +27,11 @@ static __init int register_e820_pmem(void)
+ 	 * simply here to trigger the module to load on demand.
+ 	 */
+ 	pdev = platform_device_alloc("e820_pmem", -1);
+-	return platform_device_add(pdev);
++
++	rc = platform_device_add(pdev);
++	if (rc)
++		platform_device_put(pdev);
++
++	return rc;
+ }
+ device_initcall(register_e820_pmem);
 -- 
 2.35.1
 
