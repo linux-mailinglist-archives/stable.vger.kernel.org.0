@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8432759D383
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5083E59D41D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242131AbiHWIOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:14:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42170 "EHLO
+        id S242132AbiHWIPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:15:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242134AbiHWINv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:13:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E456C770;
-        Tue, 23 Aug 2022 01:09:27 -0700 (PDT)
+        with ESMTP id S242321AbiHWIOH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:14:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CFEE6CD15;
+        Tue, 23 Aug 2022 01:09:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8506DCE1B34;
-        Tue, 23 Aug 2022 08:09:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84FE8C433C1;
-        Tue, 23 Aug 2022 08:09:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1250E6123D;
+        Tue, 23 Aug 2022 08:09:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2699C433D6;
+        Tue, 23 Aug 2022 08:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242164;
-        bh=6RUbOO660W57gg9vcDPO2ChUAqzUiVW0WI9kwpLZkTU=;
+        s=korg; t=1661242170;
+        bh=zjmr6neCiFuwjeP/Muhm6zQ44AF2WoXz10x0IeQreJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDWVEAqp25v+VSPfuFTr//4hUzicjdHSqWpSrG/iNF0flAiZJceTDJel+vvyGUtGI
-         aT7j0FRHyR+weJJMNJE/dsnqkD6kGaSyW7uFJ4tGONfxYe/jzYFfsRQ691wBOaKil3
-         HzSjHPxgTv/4/MlnXwyTzMDJEYMamjOp6+7lAQvk=
+        b=b552BISAR2W6qkrax9VyOhWi+1zThYc+seeUZY6QRnCx3b3l82LNFU6JVWDouTwCs
+         MpgDuBngpNIYMh4y2132fDmxPg51Sir1uefchjWmmnQg2P37/uvN1Skte1Dqy7be26
+         nAEFtTnlevjpx+gtHt5AXLN6PanFLOy4I3UPSiFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.19 070/365] can: j1939: j1939_session_destroy(): fix memory leak of skbs
-Date:   Tue, 23 Aug 2022 09:59:31 +0200
-Message-Id: <20220823080121.115741318@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Chia-Lin Kao (AceLan)" <acelan.kao@canonical.com>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 071/365] net: atlantic: fix aq_vec index out of range error
+Date:   Tue, 23 Aug 2022 09:59:32 +0200
+Message-Id: <20220823080121.165131350@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,55 +55,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
 
-commit 8c21c54a53ab21842f5050fa090f26b03c0313d6 upstream.
+commit 2ba5e47fb75fbb8fab45f5c1bc8d5c33d8834bd3 upstream.
 
-We need to drop skb references taken in j1939_session_skb_queue() when
-destroying a session in j1939_session_destroy(). Otherwise those skbs
-would be lost.
+The final update statement of the for loop exceeds the array range, the
+dereference of self->aq_vec[i] is not checked and then leads to the
+index out of range error.
+Also fixed this kind of coding style in other for loop.
 
-Link to Syzkaller info and repro: https://forge.ispras.ru/issues/11743.
+[   97.937604] UBSAN: array-index-out-of-bounds in drivers/net/ethernet/aquantia/atlantic/aq_nic.c:1404:48
+[   97.937607] index 8 is out of range for type 'aq_vec_s *[8]'
+[   97.937608] CPU: 38 PID: 3767 Comm: kworker/u256:18 Not tainted 5.19.0+ #2
+[   97.937610] Hardware name: Dell Inc. Precision 7865 Tower/, BIOS 1.0.0 06/12/2022
+[   97.937611] Workqueue: events_unbound async_run_entry_fn
+[   97.937616] Call Trace:
+[   97.937617]  <TASK>
+[   97.937619]  dump_stack_lvl+0x49/0x63
+[   97.937624]  dump_stack+0x10/0x16
+[   97.937626]  ubsan_epilogue+0x9/0x3f
+[   97.937627]  __ubsan_handle_out_of_bounds.cold+0x44/0x49
+[   97.937629]  ? __scm_send+0x348/0x440
+[   97.937632]  ? aq_vec_stop+0x72/0x80 [atlantic]
+[   97.937639]  aq_nic_stop+0x1b6/0x1c0 [atlantic]
+[   97.937644]  aq_suspend_common+0x88/0x90 [atlantic]
+[   97.937648]  aq_pm_suspend_poweroff+0xe/0x20 [atlantic]
+[   97.937653]  pci_pm_suspend+0x7e/0x1a0
+[   97.937655]  ? pci_pm_suspend_noirq+0x2b0/0x2b0
+[   97.937657]  dpm_run_callback+0x54/0x190
+[   97.937660]  __device_suspend+0x14c/0x4d0
+[   97.937661]  async_suspend+0x23/0x70
+[   97.937663]  async_run_entry_fn+0x33/0x120
+[   97.937664]  process_one_work+0x21f/0x3f0
+[   97.937666]  worker_thread+0x4a/0x3c0
+[   97.937668]  ? process_one_work+0x3f0/0x3f0
+[   97.937669]  kthread+0xf0/0x120
+[   97.937671]  ? kthread_complete_and_exit+0x20/0x20
+[   97.937672]  ret_from_fork+0x22/0x30
+[   97.937676]  </TASK>
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+v2. fixed "warning: variable 'aq_vec' set but not used"
 
-V1: https://lore.kernel.org/all/20220708175949.539064-1-pchelkin@ispras.ru
+v3. simplified a for loop
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Suggested-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20220805150216.66313-1-pchelkin@ispras.ru
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 97bde5c4f909 ("net: ethernet: aquantia: Support for NIC-specific code")
+Signed-off-by: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
+Acked-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Link: https://lore.kernel.org/r/20220808081845.42005-1-acelan.kao@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/j1939/transport.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_nic.c |   21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -260,6 +260,8 @@ static void __j1939_session_drop(struct
- 
- static void j1939_session_destroy(struct j1939_session *session)
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
+@@ -265,12 +265,10 @@ static void aq_nic_service_timer_cb(stru
+ static void aq_nic_polling_timer_cb(struct timer_list *t)
  {
-+	struct sk_buff *skb;
-+
- 	if (session->transmission) {
- 		if (session->err)
- 			j1939_sk_errqueue(session, J1939_ERRQUEUE_TX_ABORT);
-@@ -274,7 +276,11 @@ static void j1939_session_destroy(struct
- 	WARN_ON_ONCE(!list_empty(&session->sk_session_queue_entry));
- 	WARN_ON_ONCE(!list_empty(&session->active_session_list_entry));
+ 	struct aq_nic_s *self = from_timer(self, t, polling_timer);
+-	struct aq_vec_s *aq_vec = NULL;
+ 	unsigned int i = 0U;
  
--	skb_queue_purge(&session->skb_queue);
-+	while ((skb = skb_dequeue(&session->skb_queue)) != NULL) {
-+		/* drop ref taken in j1939_session_skb_queue() */
-+		skb_unref(skb);
-+		kfree_skb(skb);
-+	}
- 	__j1939_session_drop(session);
- 	j1939_priv_put(session->priv);
- 	kfree(session);
+-	for (i = 0U, aq_vec = self->aq_vec[0];
+-		self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i])
+-		aq_vec_isr(i, (void *)aq_vec);
++	for (i = 0U; self->aq_vecs > i; ++i)
++		aq_vec_isr(i, (void *)self->aq_vec[i]);
+ 
+ 	mod_timer(&self->polling_timer, jiffies +
+ 		  AQ_CFG_POLLING_TIMER_INTERVAL);
+@@ -1014,7 +1012,6 @@ int aq_nic_get_regs_count(struct aq_nic_
+ 
+ u64 *aq_nic_get_stats(struct aq_nic_s *self, u64 *data)
+ {
+-	struct aq_vec_s *aq_vec = NULL;
+ 	struct aq_stats_s *stats;
+ 	unsigned int count = 0U;
+ 	unsigned int i = 0U;
+@@ -1064,11 +1061,11 @@ u64 *aq_nic_get_stats(struct aq_nic_s *s
+ 	data += i;
+ 
+ 	for (tc = 0U; tc < self->aq_nic_cfg.tcs; tc++) {
+-		for (i = 0U, aq_vec = self->aq_vec[0];
+-		     aq_vec && self->aq_vecs > i;
+-		     ++i, aq_vec = self->aq_vec[i]) {
++		for (i = 0U; self->aq_vecs > i; ++i) {
++			if (!self->aq_vec[i])
++				break;
+ 			data += count;
+-			count = aq_vec_get_sw_stats(aq_vec, tc, data);
++			count = aq_vec_get_sw_stats(self->aq_vec[i], tc, data);
+ 		}
+ 	}
+ 
+@@ -1382,7 +1379,6 @@ int aq_nic_set_loopback(struct aq_nic_s
+ 
+ int aq_nic_stop(struct aq_nic_s *self)
+ {
+-	struct aq_vec_s *aq_vec = NULL;
+ 	unsigned int i = 0U;
+ 
+ 	netif_tx_disable(self->ndev);
+@@ -1400,9 +1396,8 @@ int aq_nic_stop(struct aq_nic_s *self)
+ 
+ 	aq_ptp_irq_free(self);
+ 
+-	for (i = 0U, aq_vec = self->aq_vec[0];
+-		self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i])
+-		aq_vec_stop(aq_vec);
++	for (i = 0U; self->aq_vecs > i; ++i)
++		aq_vec_stop(self->aq_vec[i]);
+ 
+ 	aq_ptp_ring_stop(self);
+ 
 
 
