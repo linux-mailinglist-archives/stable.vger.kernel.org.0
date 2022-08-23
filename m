@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5769859DF75
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17AD959DEAF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355517AbiHWKni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:43:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49218 "EHLO
+        id S1352877AbiHWKJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:09:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356134AbiHWKlc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:32 -0400
+        with ESMTP id S1352857AbiHWKGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA67DA832B;
-        Tue, 23 Aug 2022 02:09:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F56863EF;
+        Tue, 23 Aug 2022 01:53:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56FAC615A6;
-        Tue, 23 Aug 2022 09:09:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A7F7C433B5;
-        Tue, 23 Aug 2022 09:09:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED960611DD;
+        Tue, 23 Aug 2022 08:53:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E67BEC433D7;
+        Tue, 23 Aug 2022 08:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245740;
-        bh=68PQZ3i6lgVIXHof1iJFd+XT/OEODkQkKmzla8hRj6w=;
+        s=korg; t=1661244800;
+        bh=mfXabLGDY9gETB+b3ZUJCxSsB/UQoJhhDwkWQHOl0eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErfpjQmGOexNr6/qxgRk9aMuZbpNhZJWakprP1l+XAH2v9s9rKdJZlbIpBpYesuNH
-         c1rIRKateascqt2hQAdbuTf80xQYInFJf/WpIhT0gAl84oRDFUbcCtFMBCnNt1k85Z
-         RBcI9IXJDWC5Kk2pOtoPFXyltfL0xT+UhRf64WO8=
+        b=p4vHnKrqr3HBCucTvpgRYOsETuwctNneXlzZ4BIhsB6SeIcUUXD1J2jjqgCYgBshZ
+         B2bAHaLE6zccAG0AZMIwwKKVPXEBMzTIk76Rr6ejnXwYMJObjjEWoqtywLVvNSuMNT
+         r9s6zkLqd5zPlWXlz0VbYkqOKTWtvXFjzFI/K/fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Lingfeng <lilingfeng3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org,
+        Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/287] ext4: recover csum seed of tmp_inode after migrating to extents
+Subject: [PATCH 5.15 154/244] drm/imx/dcss: get rid of HPD warning message
 Date:   Tue, 23 Aug 2022 10:25:13 +0200
-Message-Id: <20220823080105.382394553@linuxfoundation.org>
+Message-Id: <20220823080104.340461036@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Lingfeng <lilingfeng3@huawei.com>
+From: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
 
-[ Upstream commit 07ea7a617d6b278fb7acedb5cbe1a81ce2de7d0c ]
+[ Upstream commit 30bdc36b8c776cd4fce5de2a96ff28b37f96942f ]
 
-When migrating to extents, the checksum seed of temporary inode
-need to be replaced by inode's, otherwise the inode checksums
-will be incorrect when swapping the inodes data.
+When DCSS + MIPI_DSI is used, and the last bridge in the chain supports
+HPD, we can see a "Hot plug detection already enabled" warning stack
+trace dump that's thrown when DCSS is initialized.
 
-However, the temporary inode can not match it's checksum to
-itself since it has lost it's own checksum seed.
+The problem appeared when HPD was enabled by default in the
+bridge_connector initialization, which made the
+drm_bridge_connector_enable_hpd() call, in DCSS init path, redundant.
+So, let's remove that call.
 
-mkfs.ext4 -F /dev/sdc
-mount /dev/sdc /mnt/sdc
-xfs_io -fc "pwrite 4k 4k" -c "fsync" /mnt/sdc/testfile
-chattr -e /mnt/sdc/testfile
-chattr +e /mnt/sdc/testfile
-umount /dev/sdc
-fsck -fn /dev/sdc
-
-========
-...
-Pass 1: Checking inodes, blocks, and sizes
-Inode 13 passes checks, but checksum does not match inode.  Fix? no
-...
-========
-
-The fix is simple, save the checksum seed of temporary inode, and
-recover it after migrating to extents.
-
-Fixes: e81c9302a6c3 ("ext4: set csum seed in tmp inode while migrating to extents")
-Signed-off-by: Li Lingfeng <lilingfeng3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220617062515.2113438-1-lilingfeng3@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 09077bc311658 ("drm/bridge_connector: enable HPD by default if supported")
+Signed-off-by: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220721120912.6639-1-laurentiu.palcu@oss.nxp.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/migrate.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/imx/dcss/dcss-kms.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/fs/ext4/migrate.c b/fs/ext4/migrate.c
-index 9adfe217b39d..37ce665ae1d2 100644
---- a/fs/ext4/migrate.c
-+++ b/fs/ext4/migrate.c
-@@ -435,7 +435,7 @@ int ext4_ext_migrate(struct inode *inode)
- 	struct inode *tmp_inode = NULL;
- 	struct migrate_struct lb;
- 	unsigned long max_entries;
--	__u32 goal;
-+	__u32 goal, tmp_csum_seed;
- 	uid_t owner[2];
+diff --git a/drivers/gpu/drm/imx/dcss/dcss-kms.c b/drivers/gpu/drm/imx/dcss/dcss-kms.c
+index 9b84df34a6a1..8cf3352d8858 100644
+--- a/drivers/gpu/drm/imx/dcss/dcss-kms.c
++++ b/drivers/gpu/drm/imx/dcss/dcss-kms.c
+@@ -142,8 +142,6 @@ struct dcss_kms_dev *dcss_kms_attach(struct dcss_dev *dcss)
  
- 	/*
-@@ -483,6 +483,7 @@ int ext4_ext_migrate(struct inode *inode)
- 	 * the migration.
- 	 */
- 	ei = EXT4_I(inode);
-+	tmp_csum_seed = EXT4_I(tmp_inode)->i_csum_seed;
- 	EXT4_I(tmp_inode)->i_csum_seed = ei->i_csum_seed;
- 	i_size_write(tmp_inode, i_size_read(inode));
- 	/*
-@@ -593,6 +594,7 @@ int ext4_ext_migrate(struct inode *inode)
- 	 * the inode is not visible to user space.
- 	 */
- 	tmp_inode->i_blocks = 0;
-+	EXT4_I(tmp_inode)->i_csum_seed = tmp_csum_seed;
+ 	drm_kms_helper_poll_init(drm);
  
- 	/* Reset the extent details */
- 	ext4_ext_tree_init(handle, tmp_inode);
+-	drm_bridge_connector_enable_hpd(kms->connector);
+-
+ 	ret = drm_dev_register(drm, 0);
+ 	if (ret)
+ 		goto cleanup_crtc;
 -- 
 2.35.1
 
