@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF42159D522
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4714B59D735
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243700AbiHWIcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:32:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34400 "EHLO
+        id S1348624AbiHWJRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:17:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346299AbiHWIby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:31:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C7996DAE5;
-        Tue, 23 Aug 2022 01:16:13 -0700 (PDT)
+        with ESMTP id S1349401AbiHWJP4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:15:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4C16DAE5;
+        Tue, 23 Aug 2022 01:32:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13007B81C39;
-        Tue, 23 Aug 2022 08:15:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59E86C433C1;
-        Tue, 23 Aug 2022 08:15:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E0D06123D;
+        Tue, 23 Aug 2022 08:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A68F3C433D6;
+        Tue, 23 Aug 2022 08:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242529;
-        bh=MEyPEQu33UrEyYdLAvPi0L0i3N561Iev1cfZTRp8dhY=;
+        s=korg; t=1661243539;
+        bh=TmwB1yyIO7hlQxEEZ3YP1Hse/khGDr1TusJ9UJG8jgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HM90hG2xMMQ/fqPDtaqxyEI8NSpW+RxMyWfT9duyuAJAChDkcoPFOQLDvb64mnnFT
-         b33e9M6wWm0n+XBBS1THGMoB+zBiGJUyc7AdGVQFvd5Q2WY9uxKzfzTzQMLuh3xeSm
-         bz2gqZ+TTUfWyiKXQPj0i3rSXsB6ULOkYzeenr4M=
+        b=KCBR+26xAnyk1YQjv5JdDVTIM8F/AsaRGYO4ew1ReG/eACdxMRFZroWc66BvYZEHK
+         IMdkI3peg283gi5yUW2KxU99pmy2EFXZ0+ha+QfqWFi6DWqeRkQGj7T0eenknJGwUR
+         qva+cUYbmdcf8HTAF55pWfc/yEYubPs0PT1zWgdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenpeng Lin <zplin@u.northwestern.edu>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Kamal Mostafa <kamal@canonical.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 057/101] net_sched: cls_route: remove from list when handle is 0
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Stafford Horne <shorne@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 309/365] openrisc: io: Define iounmap argument as volatile
 Date:   Tue, 23 Aug 2022 10:03:30 +0200
-Message-Id: <20220823080036.741699554@linuxfoundation.org>
+Message-Id: <20220823080131.102623174@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
-References: <20220823080034.579196046@linuxfoundation.org>
+In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
+References: <20220823080118.128342613@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Stafford Horne <shorne@gmail.com>
 
-commit 9ad36309e2719a884f946678e0296be10f0bb4c1 upstream.
+[ Upstream commit 52e0ea900202d23843daee8f7089817e81dd3dd7 ]
 
-When a route filter is replaced and the old filter has a 0 handle, the old
-one won't be removed from the hashtable, while it will still be freed.
+When OpenRISC enables PCI it allows for more drivers to be compiled
+resulting in exposing the following with -Werror.
 
-The test was there since before commit 1109c00547fc ("net: sched: RCU
-cls_route"), when a new filter was not allocated when there was an old one.
-The old filter was reused and the reinserting would only be necessary if an
-old filter was replaced. That was still wrong for the same case where the
-old handle was 0.
+    drivers/video/fbdev/riva/fbdev.c: In function 'rivafb_probe':
+    drivers/video/fbdev/riva/fbdev.c:2062:42: error:
+	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
 
-Remove the old filter from the list independently from its handle value.
+    drivers/video/fbdev/nvidia/nvidia.c: In function 'nvidiafb_probe':
+    drivers/video/fbdev/nvidia/nvidia.c:1414:20: error:
+	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
 
-This fixes CVE-2022-2588, also reported as ZDI-CAN-17440.
+    drivers/scsi/aic7xxx/aic7xxx_osm.c: In function 'ahc_platform_free':
+    drivers/scsi/aic7xxx/aic7xxx_osm.c:1231:41: error:
+	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
 
-Reported-by: Zhenpeng Lin <zplin@u.northwestern.edu>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Reviewed-by: Kamal Mostafa <kamal@canonical.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Link: https://lore.kernel.org/r/20220809170518.164662-1-cascardo@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Most architectures define the iounmap argument to be volatile.  To fix this
+issue we do the same for OpenRISC.  This patch must go before PCI is enabled on
+OpenRISC to avoid any compile failures.
+
+Link: https://lore.kernel.org/lkml/20220729033728.GA2195022@roeck-us.net/
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_route.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/openrisc/include/asm/io.h | 2 +-
+ arch/openrisc/mm/ioremap.c     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -534,7 +534,7 @@ static int route4_change(struct net *net
- 	rcu_assign_pointer(f->next, f1);
- 	rcu_assign_pointer(*fp, f);
+diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
+index c298061c70a7..8aa3e78181e9 100644
+--- a/arch/openrisc/include/asm/io.h
++++ b/arch/openrisc/include/asm/io.h
+@@ -31,7 +31,7 @@
+ void __iomem *ioremap(phys_addr_t offset, unsigned long size);
  
--	if (fold && fold->handle && f->handle != fold->handle) {
-+	if (fold) {
- 		th = to_hash(fold->handle);
- 		h = from_hash(fold->handle >> 16);
- 		b = rtnl_dereference(head->table[th]);
+ #define iounmap iounmap
+-extern void iounmap(void __iomem *addr);
++extern void iounmap(volatile void __iomem *addr);
+ 
+ #include <asm-generic/io.h>
+ 
+diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
+index daae13a76743..8ec0dafecf25 100644
+--- a/arch/openrisc/mm/ioremap.c
++++ b/arch/openrisc/mm/ioremap.c
+@@ -77,7 +77,7 @@ void __iomem *__ref ioremap(phys_addr_t addr, unsigned long size)
+ }
+ EXPORT_SYMBOL(ioremap);
+ 
+-void iounmap(void __iomem *addr)
++void iounmap(volatile void __iomem *addr)
+ {
+ 	/* If the page is from the fixmap pool then we just clear out
+ 	 * the fixmap mapping.
+-- 
+2.35.1
+
 
 
