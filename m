@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 935A959E325
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6FD359E1A2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351039AbiHWLeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:34:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48870 "EHLO
+        id S1353583AbiHWKe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:34:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358034AbiHWLcR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6BF76955;
-        Tue, 23 Aug 2022 02:26:36 -0700 (PDT)
+        with ESMTP id S1353768AbiHWKcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:32:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5C04A59A4;
+        Tue, 23 Aug 2022 02:06:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 007CE6126A;
-        Tue, 23 Aug 2022 09:26:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 036E5C433D7;
-        Tue, 23 Aug 2022 09:26:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EDD91CE1B55;
+        Tue, 23 Aug 2022 09:06:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1AB9C433B5;
+        Tue, 23 Aug 2022 09:06:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246795;
-        bh=OljP5Wp7IRqp18z0rfBnNxL4uZJ/3GrwNncwpfW1U0w=;
+        s=korg; t=1661245607;
+        bh=cJuu4ZZl0EdtOSaY9llk/P3EaNJAf4mMjEgnCGzH9V0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8XS4BTJeMwE9IGN4jmxoJk9j8Deq/tvIEWGJ0o6UnZTGDNFDVu4Zqjasi+VJdKGJ
-         3hDitdZYQO+IPK8jEBT/ujc8PHrd4XJ9TSO4dtv5hqSWsjDW6a30a8+yEm0TgVslvV
-         FisrL11qA0qv1NuJDsrdGX1DOgqvRx0tMxMySKuA=
+        b=DDBGSm1megKgwGYpUdHVSTZriqaur8vVDdCkQuf8YgU6zxVzQxE1LGMoFHLOkgDgw
+         ghaacQa6KpyyKbg0VFMGnvf8NEaq7L2Pf3/PO0FAc2ezWuYTtNDYSyLclsOjU4+Kkf
+         O9ccLGVK+dIhtkEKTOdFpEToW34EzHT/LEMD/j5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Yao Hongbo <yaohongbo@linux.alibaba.com>,
+        Naveen Naidu <naveennaidu479@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 222/389] mfd: t7l66xb: Drop platform disable callback
+Subject: [PATCH 4.19 131/287] PCI/portdrv: Dont disable AER reporting in get_port_device_capability()
 Date:   Tue, 23 Aug 2022 10:25:00 +0200
-Message-Id: <20220823080124.862814671@linuxfoundation.org>
+Message-Id: <20220823080104.822064956@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +60,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Stefan Roese <sr@denx.de>
 
-[ Upstream commit 128ac294e1b437cb8a7f2ff8ede1cde9082bddbe ]
+[ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
 
-None of the in-tree instantiations of struct t7l66xb_platform_data
-provides a disable callback. So better don't dereference this function
-pointer unconditionally. As there is no user, drop it completely instead
-of calling it conditional.
+AER reporting is currently disabled in the DevCtl registers of all non Root
+Port PCIe devices on systems using pcie_ports_native || host->native_aer,
+disabling AER completely in such systems. This is because 2bd50dd800b5
+("PCI: PCIe: Disable PCIe port services during port initialization"), added
+a call to pci_disable_pcie_error_reporting() *after* the AER setup was
+completed for the PCIe device tree.
 
-This is a preparation for making platform remove callbacks return void.
+Here a longer analysis about the current status of AER enabling /
+disabling upon bootup provided by Bjorn:
 
-Fixes: 1f192015ca5b ("mfd: driver for the T7L66XB TMIO SoC")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220530192430.2108217-3-u.kleine-koenig@pengutronix.de
+  pcie_portdrv_probe
+    pcie_port_device_register
+      get_port_device_capability
+        pci_disable_pcie_error_reporting
+          clear CERE NFERE FERE URRE               # <-- disable for RP USP DSP
+      pcie_device_init
+        device_register                            # new AER service device
+          aer_probe
+            aer_enable_rootport                    # RP only
+              set_downstream_devices_error_reporting
+                set_device_error_reporting         # self (RP)
+                  if (RP || USP || DSP)
+                    pci_enable_pcie_error_reporting
+                      set CERE NFERE FERE URRE     # <-- enable for RP
+                pci_walk_bus
+                  set_device_error_reporting
+                    if (RP || USP || DSP)
+                      pci_enable_pcie_error_reporting
+                        set CERE NFERE FERE URRE   # <-- enable for USP DSP
+
+In a typical Root Port -> Endpoint hierarchy, the above:
+  - Disables Error Reporting for the Root Port,
+  - Enables Error Reporting for the Root Port,
+  - Does NOT enable Error Reporting for the Endpoint because it is not a
+    Root Port or Switch Port.
+
+In a deeper Root Port -> Upstream Switch Port -> Downstream Switch
+Port -> Endpoint hierarchy:
+  - Disables Error Reporting for the Root Port,
+  - Enables Error Reporting for the Root Port,
+  - Enables Error Reporting for both Switch Ports,
+  - Does NOT enable Error Reporting for the Endpoint because it is not a
+    Root Port or Switch Port,
+  - Disables Error Reporting for the Switch Ports when pcie_portdrv_probe()
+    claims them.  AER does not re-enable it because these are not Root
+    Ports.
+
+Remove this call to pci_disable_pcie_error_reporting() from
+get_port_device_capability(), leaving the already enabled AER configuration
+intact. With this change, AER is enabled in the Root Port and the PCIe
+switch upstream and downstream ports. Only the PCIe Endpoints don't have
+AER enabled yet. A follow-up patch will take care of this Endpoint
+enabling.
+
+Fixes: 2bd50dd800b5 ("PCI: PCIe: Disable PCIe port services during port initialization")
+Link: https://lore.kernel.org/r/20220125071820.2247260-3-sr@denx.de
+Signed-off-by: Stefan Roese <sr@denx.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Pali Rohár <pali@kernel.org>
+Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
+Cc: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: Yao Hongbo <yaohongbo@linux.alibaba.com>
+Cc: Naveen Naidu <naveennaidu479@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/t7l66xb.c       | 6 +-----
- include/linux/mfd/t7l66xb.h | 1 -
- 2 files changed, 1 insertion(+), 6 deletions(-)
+ drivers/pci/pcie/portdrv_core.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/mfd/t7l66xb.c b/drivers/mfd/t7l66xb.c
-index 70da0c4ae457..58811c5ab564 100644
---- a/drivers/mfd/t7l66xb.c
-+++ b/drivers/mfd/t7l66xb.c
-@@ -405,11 +405,8 @@ static int t7l66xb_probe(struct platform_device *dev)
+diff --git a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
+index 7c37d815229e..216dd6e61624 100644
+--- a/drivers/pci/pcie/portdrv_core.c
++++ b/drivers/pci/pcie/portdrv_core.c
+@@ -218,15 +218,8 @@ static int get_port_device_capability(struct pci_dev *dev)
  
- static int t7l66xb_remove(struct platform_device *dev)
- {
--	struct t7l66xb_platform_data *pdata = dev_get_platdata(&dev->dev);
- 	struct t7l66xb *t7l66xb = platform_get_drvdata(dev);
--	int ret;
- 
--	ret = pdata->disable(dev);
- 	clk_disable_unprepare(t7l66xb->clk48m);
- 	clk_put(t7l66xb->clk48m);
- 	clk_disable_unprepare(t7l66xb->clk32k);
-@@ -420,8 +417,7 @@ static int t7l66xb_remove(struct platform_device *dev)
- 	mfd_remove_devices(&dev->dev);
- 	kfree(t7l66xb);
- 
--	return ret;
+ #ifdef CONFIG_PCIEAER
+ 	if (dev->aer_cap && pci_aer_available() &&
+-	    (pcie_ports_native || host->native_aer)) {
++	    (pcie_ports_native || host->native_aer))
+ 		services |= PCIE_PORT_SERVICE_AER;
 -
-+	return 0;
- }
+-		/*
+-		 * Disable AER on this port in case it's been enabled by the
+-		 * BIOS (the AER service driver will enable it when necessary).
+-		 */
+-		pci_disable_pcie_error_reporting(dev);
+-	}
+ #endif
  
- static struct platform_driver t7l66xb_platform_driver = {
-diff --git a/include/linux/mfd/t7l66xb.h b/include/linux/mfd/t7l66xb.h
-index 69632c1b07bd..ae3e7a5c5219 100644
---- a/include/linux/mfd/t7l66xb.h
-+++ b/include/linux/mfd/t7l66xb.h
-@@ -12,7 +12,6 @@
- 
- struct t7l66xb_platform_data {
- 	int (*enable)(struct platform_device *dev);
--	int (*disable)(struct platform_device *dev);
- 	int (*suspend)(struct platform_device *dev);
- 	int (*resume)(struct platform_device *dev);
- 
+ 	/*
 -- 
 2.35.1
 
