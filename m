@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F5059D584
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5645A59D6ED
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346860AbiHWImn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:42:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46618 "EHLO
+        id S237080AbiHWJ0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:26:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347128AbiHWIko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:40:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFCC4DF04;
-        Tue, 23 Aug 2022 01:19:00 -0700 (PDT)
+        with ESMTP id S1349360AbiHWJXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:23:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0868FD44;
+        Tue, 23 Aug 2022 01:35:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 567076137C;
-        Tue, 23 Aug 2022 08:18:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B399C433C1;
-        Tue, 23 Aug 2022 08:18:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE824B81C55;
+        Tue, 23 Aug 2022 08:33:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11B21C433B5;
+        Tue, 23 Aug 2022 08:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242682;
-        bh=4w3lDk5hzKUuT+9+ilwQbT7hBop2B7aR7/BqfQaQuMM=;
+        s=korg; t=1661243632;
+        bh=okV8wTqSRwwrc7yagPrgh3wP5C7ga5hywXWTASOpLHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RrdHCQaGAB4NPAECdyMJcpdnZO9/gXFLz9Qa4a031J4onVGwYy4GU/7SnV+BQlalS
-         BNzBHOKNnzh4O3z6EsF4xyAn8xgkGDdz1VThpeJZcmTOUeiXW2ltptsyfWkfhDQl+O
-         9U0OXfo6tSVPwCDgPcvUpt0AqUfNTODe1iImwPi0=
+        b=YaEvRlgGRw+6bhG2eWGIuCZ3ouoAUpCZmZ/C0NBiVClD9XqYd8VZ7163kVWrcZjIe
+         N6xx7AlR1aEd/luY60RbX2q7spV6hF3IQM9gxerKPBb4y00+jsKAN/AL8U1LYc27yG
+         En54bUhb4q7KBK1ozahJ5ANKTDViaDYdBxE6xJLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 087/101] irqchip/tegra: Fix overflow implicit truncation warnings
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 339/365] ASoC: SOF: Intel: hda: add sanity check on SSP index reported by NHLT
 Date:   Tue, 23 Aug 2022 10:04:00 +0200
-Message-Id: <20220823080037.865505015@linuxfoundation.org>
+Message-Id: <20220823080132.400854557@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
-References: <20220823080034.579196046@linuxfoundation.org>
+In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
+References: <20220823080118.128342613@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 443685992bda9bb4f8b17fc02c9f6c60e62b1461 ]
+[ Upstream commit e51699505042fb365df3a0ce68b850ccd9ad0108 ]
 
-Fix -Woverflow warnings for tegra irqchip driver which is a result
-of moving arm64 custom MMIO accessor macros to asm-generic function
-implementations giving a bonus type-checking now and uncovering these
-overflow warnings.
+We should have a limited trust in the BIOS and verify that the SSP
+index reported in NHLT is valid for each platform.
 
-drivers/irqchip/irq-tegra.c: In function ‘tegra_ictlr_suspend’:
-drivers/irqchip/irq-tegra.c:151:18: warning: large integer implicitly truncated to unsigned type [-Woverflow]
-   writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
-                  ^
-
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220725195343.145603-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-tegra.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/soc/sof/intel/hda.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/irqchip/irq-tegra.c b/drivers/irqchip/irq-tegra.c
-index 3973a14bb15b..02ffefd5011a 100644
---- a/drivers/irqchip/irq-tegra.c
-+++ b/drivers/irqchip/irq-tegra.c
-@@ -157,10 +157,10 @@ static int tegra_ictlr_suspend(void)
- 		lic->cop_iep[i] = readl_relaxed(ictlr + ICTLR_COP_IEP_CLASS);
+diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
+index ed495b7ad1a9..17f2f3a982c3 100644
+--- a/sound/soc/sof/intel/hda.c
++++ b/sound/soc/sof/intel/hda.c
+@@ -1395,6 +1395,7 @@ struct snd_soc_acpi_mach *hda_machine_select(struct snd_sof_dev *sdev)
  
- 		/* Disable COP interrupts */
--		writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_COP_IER_CLR);
+ 		if (mach->tplg_quirk_mask & SND_SOC_ACPI_TPLG_INTEL_SSP_NUMBER &&
+ 		    mach->mach_params.i2s_link_mask) {
++			const struct sof_intel_dsp_desc *chip = get_chip_info(sdev->pdata);
+ 			int ssp_num;
  
- 		/* Disable CPU interrupts */
--		writel_relaxed(~0ul, ictlr + ICTLR_CPU_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_CPU_IER_CLR);
+ 			if (hweight_long(mach->mach_params.i2s_link_mask) > 1 &&
+@@ -1404,6 +1405,12 @@ struct snd_soc_acpi_mach *hda_machine_select(struct snd_sof_dev *sdev)
+ 			/* fls returns 1-based results, SSPs indices are 0-based */
+ 			ssp_num = fls(mach->mach_params.i2s_link_mask) - 1;
  
- 		/* Enable the wakeup sources of ictlr */
- 		writel_relaxed(lic->ictlr_wake_mask[i], ictlr + ICTLR_CPU_IER_SET);
-@@ -181,12 +181,12 @@ static void tegra_ictlr_resume(void)
- 
- 		writel_relaxed(lic->cpu_iep[i],
- 			       ictlr + ICTLR_CPU_IEP_CLASS);
--		writel_relaxed(~0ul, ictlr + ICTLR_CPU_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_CPU_IER_CLR);
- 		writel_relaxed(lic->cpu_ier[i],
- 			       ictlr + ICTLR_CPU_IER_SET);
- 		writel_relaxed(lic->cop_iep[i],
- 			       ictlr + ICTLR_COP_IEP_CLASS);
--		writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_COP_IER_CLR);
- 		writel_relaxed(lic->cop_ier[i],
- 			       ictlr + ICTLR_COP_IER_SET);
- 	}
-@@ -321,7 +321,7 @@ static int __init tegra_ictlr_init(struct device_node *node,
- 		lic->base[i] = base;
- 
- 		/* Disable all interrupts */
--		writel_relaxed(~0UL, base + ICTLR_CPU_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), base + ICTLR_CPU_IER_CLR);
- 		/* All interrupts target IRQ */
- 		writel_relaxed(0, base + ICTLR_CPU_IEP_CLASS);
- 
++			if (ssp_num >= chip->ssp_count) {
++				dev_err(sdev->dev, "Invalid SSP %d, max on this platform is %d\n",
++					ssp_num, chip->ssp_count);
++				return NULL;
++			}
++
+ 			tplg_filename = devm_kasprintf(sdev->dev, GFP_KERNEL,
+ 						       "%s%s%d",
+ 						       sof_pdata->tplg_filename,
 -- 
 2.35.1
 
