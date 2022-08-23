@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 388AD59DA50
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0907659D905
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352254AbiHWKHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:07:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44496 "EHLO
+        id S236144AbiHWJxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352171AbiHWKEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:04:37 -0400
+        with ESMTP id S1352421AbiHWJvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C155C7CA8D;
-        Tue, 23 Aug 2022 01:51:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8E7E7AC3B;
+        Tue, 23 Aug 2022 01:46:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E09BB8105C;
-        Tue, 23 Aug 2022 08:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD9ADC433B5;
-        Tue, 23 Aug 2022 08:51:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06643B81BF8;
+        Tue, 23 Aug 2022 08:44:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37933C433D7;
+        Tue, 23 Aug 2022 08:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244694;
-        bh=9nBzl6UABDLghwFHO1nasarlpDPMZDFE+Q6xgbY2Q+U=;
+        s=korg; t=1661244292;
+        bh=W3VFKsovqPE52cx//52StwJtQgVcG17ZcO2tXb6pBBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4xfycDGUCypPdc8uEFQtUBU9anyXuLbMtaWcje6ovlMzEH3ZVmHjDC5M1kib+w5v
-         n2JRYPiyDUOb5FuMrAAMqyLsllvGQCiukKR38n6QkD2+47TCVc0A4aH+grsJSIhX9H
-         bxwxXfOaqWhS2O5mXBnEfEyOUDMgJECwtV2/10Zk=
+        b=Nvprk2L9qmHu0A8Hldvc+jeIflgJYqg4CnvqFHZOCQ9I/Jfm/A6pBuao8Npu4EVZW
+         iaJnSTzHLMh1I5fAn8n4zHw1Cx01uz/6EGfTCi9TtD2oAMZ2y3w+HDZ8eqYEofi149
+         mNIhxlZ/NSHavdr/z83A43xjDS4Chkf8kwE5LRwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 117/244] ASoC: SOF: debug: Fix potential buffer overflow by snprintf()
+        stable@vger.kernel.org,
+        syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com,
+        Zhu Yanjun <yanjun.zhu@linux.dev>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 115/229] RDMA/rxe: Fix error unwind in rxe_create_qp()
 Date:   Tue, 23 Aug 2022 10:24:36 +0200
-Message-Id: <20220823080102.925360091@linuxfoundation.org>
+Message-Id: <20220823080057.796238049@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-commit 1eb123ce985e6cf302ac6e3f19862d132d86fa8f upstream.
+[ Upstream commit fd5382c5805c4bcb50fd25b7246247d3f7114733 ]
 
-snprintf() returns the would-be-filled size when the string overflows
-the given buffer size, hence using this value may result in the buffer
-overflow (although it's unrealistic).
+In the function rxe_create_qp(), rxe_qp_from_init() is called to
+initialize qp, internally things like the spin locks are not setup until
+rxe_qp_init_req().
 
-This patch replaces with a safer version, scnprintf() for papering
-over such a potential issue.
+If an error occures before this point then the unwind will call
+rxe_cleanup() and eventually to rxe_qp_do_cleanup()/rxe_cleanup_task()
+which will oops when trying to access the uninitialized spinlock.
 
-Fixes: 5b10b6298921 ("ASoC: SOF: Add `memory_info` file to debugfs")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20220801165420.25978-3-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Move the spinlock initializations earlier before any failures.
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20220731063621.298405-1-yanjun.zhu@linux.dev
+Reported-by: syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/debug.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/sound/soc/sof/debug.c
-+++ b/sound/soc/sof/debug.c
-@@ -668,9 +668,9 @@ static int memory_info_update(struct snd
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 28c7b91531b6..6964e843bbae 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -220,6 +220,14 @@ static void rxe_qp_init_misc(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 	spin_lock_init(&qp->grp_lock);
+ 	spin_lock_init(&qp->state_lock);
+ 
++	spin_lock_init(&qp->req.task.state_lock);
++	spin_lock_init(&qp->resp.task.state_lock);
++	spin_lock_init(&qp->comp.task.state_lock);
++
++	spin_lock_init(&qp->sq.sq_lock);
++	spin_lock_init(&qp->rq.producer_lock);
++	spin_lock_init(&qp->rq.consumer_lock);
++
+ 	atomic_set(&qp->ssn, 0);
+ 	atomic_set(&qp->skb_out, 0);
+ }
+@@ -267,7 +275,6 @@ static int rxe_qp_init_req(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 	qp->req.opcode		= -1;
+ 	qp->comp.opcode		= -1;
+ 
+-	spin_lock_init(&qp->sq.sq_lock);
+ 	skb_queue_head_init(&qp->req_pkts);
+ 
+ 	rxe_init_task(rxe, &qp->req.task, qp,
+@@ -317,9 +324,6 @@ static int rxe_qp_init_resp(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 		}
  	}
  
- 	for (i = 0, len = 0; i < reply->num_elems; i++) {
--		ret = snprintf(buf + len, buff_size - len, "zone %d.%d used %#8x free %#8x\n",
--			       reply->elems[i].zone, reply->elems[i].id,
--			       reply->elems[i].used, reply->elems[i].free);
-+		ret = scnprintf(buf + len, buff_size - len, "zone %d.%d used %#8x free %#8x\n",
-+				reply->elems[i].zone, reply->elems[i].id,
-+				reply->elems[i].used, reply->elems[i].free);
- 		if (ret < 0)
- 			goto error;
- 		len += ret;
+-	spin_lock_init(&qp->rq.producer_lock);
+-	spin_lock_init(&qp->rq.consumer_lock);
+-
+ 	skb_queue_head_init(&qp->resp_pkts);
+ 
+ 	rxe_init_task(rxe, &qp->resp.task, qp,
+-- 
+2.35.1
+
 
 
