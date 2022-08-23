@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B34359E0AB
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 063A659E10B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353241AbiHWKNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:13:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35704 "EHLO
+        id S1358179AbiHWLt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:49:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353286AbiHWKLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:12 -0400
+        with ESMTP id S1358510AbiHWLtM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:49:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DADF87E83D;
-        Tue, 23 Aug 2022 01:56:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 646C7D2928;
+        Tue, 23 Aug 2022 02:30:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B835B81C3E;
-        Tue, 23 Aug 2022 08:56:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C256BC433C1;
-        Tue, 23 Aug 2022 08:56:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F9D8B81C85;
+        Tue, 23 Aug 2022 09:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C65A7C433C1;
+        Tue, 23 Aug 2022 09:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244981;
-        bh=EKvWYv2oRvwWVhIgF6Am3ZkEka/EGkblTHkR/o9hnYc=;
+        s=korg; t=1661247052;
+        bh=tlXaeYOTBR4BxZS8c9V7BazF3L0omHcyLCdBs2LcKhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLCJqtpsf9rymknU6mpEGEka4n/vvo5m5hRLXdoJweM7ojHO8hBvKXXdaZX8Z1Bst
-         RfrUvtnBhlnqiRKvATzGLSYGzEO4Q2ugw9PTatnZeAmH0YXsM8cd3YTQwsBlDgcMd+
-         3Ce2nrEXHeZQGyPJ93luzNLAQAn5fEv33wrd/HSA=
+        b=JDrer+KTTqStsebW2ln0V03NTxBRsCgSLVdRzgnN4MrR2vYYBkgySpxGBTb7M99bq
+         UMEP731T3aKWBHo4+Xe6EG+JBBEvLCv94l5jS5GtJd8f2dvaosMDtMBuHbHqCoFTfj
+         N3O6w9TNsRumWI6KbadIOL15cRuKFQpTwGjP7ncs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Kiselev <okiselev@amazon.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 220/229] ext4: avoid resizing to a partial cluster size
-Date:   Tue, 23 Aug 2022 10:26:21 +0200
-Message-Id: <20220823080101.500040103@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.4 304/389] NFSv4: Fix races in the legacy idmapper upcall
+Date:   Tue, 23 Aug 2022 10:26:22 +0200
+Message-Id: <20220823080128.266299242@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiselev, Oleg <okiselev@amazon.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 69cb8e9d8cd97cdf5e293b26d70a9dee3e35e6bd ]
+commit 51fd2eb52c0ca8275a906eed81878ef50ae94eb0 upstream.
 
-This patch avoids an attempt to resize the filesystem to an
-unaligned cluster boundary.  An online resize to a size that is not
-integral to cluster size results in the last iteration attempting to
-grow the fs by a negative amount, which trips a BUG_ON and leaves the fs
-with a corrupted in-memory superblock.
+nfs_idmap_instantiate() will cause the process that is waiting in
+request_key_with_auxdata() to wake up and exit. If there is a second
+process waiting for the idmap->idmap_mutex, then it may wake up and
+start a new call to request_key_with_auxdata(). If the call to
+idmap_pipe_downcall() from the first process has not yet finished
+calling nfs_idmap_complete_pipe_upcall_locked(), then we may end up
+triggering the WARN_ON_ONCE() in nfs_idmap_prepare_pipe_upcall().
 
-Signed-off-by: Oleg Kiselev <okiselev@amazon.com>
-Link: https://lore.kernel.org/r/0E92A0AB-4F16-4F1A-94B7-702CC6504FDE@amazon.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The fix is to ensure that we clear idmap->idmap_upcall_data before
+calling nfs_idmap_instantiate().
+
+Fixes: e9ab41b620e4 ("NFSv4: Clean up the legacy idmapper upcall")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/resize.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/nfs/nfs4idmap.c |   46 ++++++++++++++++++++++++----------------------
+ 1 file changed, 24 insertions(+), 22 deletions(-)
 
-diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
-index a50eabffa411..30b2798244fa 100644
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1951,6 +1951,16 @@ int ext4_resize_fs(struct super_block *sb, ext4_fsblk_t n_blocks_count)
+--- a/fs/nfs/nfs4idmap.c
++++ b/fs/nfs/nfs4idmap.c
+@@ -560,22 +560,20 @@ nfs_idmap_prepare_pipe_upcall(struct idm
+ 	return true;
+ }
+ 
+-static void
+-nfs_idmap_complete_pipe_upcall_locked(struct idmap *idmap, int ret)
++static void nfs_idmap_complete_pipe_upcall(struct idmap_legacy_upcalldata *data,
++					   int ret)
+ {
+-	struct key *authkey = idmap->idmap_upcall_data->authkey;
+-
+-	kfree(idmap->idmap_upcall_data);
+-	idmap->idmap_upcall_data = NULL;
+-	complete_request_key(authkey, ret);
+-	key_put(authkey);
++	complete_request_key(data->authkey, ret);
++	key_put(data->authkey);
++	kfree(data);
+ }
+ 
+-static void
+-nfs_idmap_abort_pipe_upcall(struct idmap *idmap, int ret)
++static void nfs_idmap_abort_pipe_upcall(struct idmap *idmap,
++					struct idmap_legacy_upcalldata *data,
++					int ret)
+ {
+-	if (idmap->idmap_upcall_data != NULL)
+-		nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
++	if (cmpxchg(&idmap->idmap_upcall_data, data, NULL) == data)
++		nfs_idmap_complete_pipe_upcall(data, ret);
+ }
+ 
+ static int nfs_idmap_legacy_upcall(struct key *authkey, void *aux)
+@@ -612,7 +610,7 @@ static int nfs_idmap_legacy_upcall(struc
+ 
+ 	ret = rpc_queue_upcall(idmap->idmap_pipe, msg);
+ 	if (ret < 0)
+-		nfs_idmap_abort_pipe_upcall(idmap, ret);
++		nfs_idmap_abort_pipe_upcall(idmap, data, ret);
+ 
+ 	return ret;
+ out2:
+@@ -668,6 +666,7 @@ idmap_pipe_downcall(struct file *filp, c
+ 	struct request_key_auth *rka;
+ 	struct rpc_inode *rpci = RPC_I(file_inode(filp));
+ 	struct idmap *idmap = (struct idmap *)rpci->private;
++	struct idmap_legacy_upcalldata *data;
+ 	struct key *authkey;
+ 	struct idmap_msg im;
+ 	size_t namelen_in;
+@@ -677,10 +676,11 @@ idmap_pipe_downcall(struct file *filp, c
+ 	 * will have been woken up and someone else may now have used
+ 	 * idmap_key_cons - so after this point we may no longer touch it.
+ 	 */
+-	if (idmap->idmap_upcall_data == NULL)
++	data = xchg(&idmap->idmap_upcall_data, NULL);
++	if (data == NULL)
+ 		goto out_noupcall;
+ 
+-	authkey = idmap->idmap_upcall_data->authkey;
++	authkey = data->authkey;
+ 	rka = get_request_key_auth(authkey);
+ 
+ 	if (mlen != sizeof(im)) {
+@@ -702,18 +702,17 @@ idmap_pipe_downcall(struct file *filp, c
+ 	if (namelen_in == 0 || namelen_in == IDMAP_NAMESZ) {
+ 		ret = -EINVAL;
+ 		goto out;
+-}
++	}
+ 
+-	ret = nfs_idmap_read_and_verify_message(&im,
+-			&idmap->idmap_upcall_data->idmap_msg,
+-			rka->target_key, authkey);
++	ret = nfs_idmap_read_and_verify_message(&im, &data->idmap_msg,
++						rka->target_key, authkey);
+ 	if (ret >= 0) {
+ 		key_set_timeout(rka->target_key, nfs_idmap_cache_timeout);
+ 		ret = mlen;
  	}
- 	brelse(bh);
  
-+	/*
-+	 * For bigalloc, trim the requested size to the nearest cluster
-+	 * boundary to avoid creating an unusable filesystem. We do this
-+	 * silently, instead of returning an error, to avoid breaking
-+	 * callers that blindly resize the filesystem to the full size of
-+	 * the underlying block device.
-+	 */
-+	if (ext4_has_feature_bigalloc(sb))
-+		n_blocks_count &= ~((1 << EXT4_CLUSTER_BITS(sb)) - 1);
-+
- retry:
- 	o_blocks_count = ext4_blocks_count(es);
+ out:
+-	nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
++	nfs_idmap_complete_pipe_upcall(data, ret);
+ out_noupcall:
+ 	return ret;
+ }
+@@ -727,7 +726,7 @@ idmap_pipe_destroy_msg(struct rpc_pipe_m
+ 	struct idmap *idmap = data->idmap;
  
--- 
-2.35.1
-
+ 	if (msg->errno)
+-		nfs_idmap_abort_pipe_upcall(idmap, msg->errno);
++		nfs_idmap_abort_pipe_upcall(idmap, data, msg->errno);
+ }
+ 
+ static void
+@@ -735,8 +734,11 @@ idmap_release_pipe(struct inode *inode)
+ {
+ 	struct rpc_inode *rpci = RPC_I(inode);
+ 	struct idmap *idmap = (struct idmap *)rpci->private;
++	struct idmap_legacy_upcalldata *data;
+ 
+-	nfs_idmap_abort_pipe_upcall(idmap, -EPIPE);
++	data = xchg(&idmap->idmap_upcall_data, NULL);
++	if (data)
++		nfs_idmap_complete_pipe_upcall(data, -EPIPE);
+ }
+ 
+ int nfs_map_name_to_uid(const struct nfs_server *server, const char *name, size_t namelen, kuid_t *uid)
 
 
