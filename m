@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FE6059DBE9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C63E859E281
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347970AbiHWMGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:06:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48756 "EHLO
+        id S1352856AbiHWKJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:09:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359373AbiHWMDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:03:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D37BDCFFB;
-        Tue, 23 Aug 2022 02:37:17 -0700 (PDT)
+        with ESMTP id S1352341AbiHWKH0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:07:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77AE3F336;
+        Tue, 23 Aug 2022 01:53:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 528626146C;
-        Tue, 23 Aug 2022 09:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57E3FC433D7;
-        Tue, 23 Aug 2022 09:36:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68B0FB81B90;
+        Tue, 23 Aug 2022 08:53:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8993C433C1;
+        Tue, 23 Aug 2022 08:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247413;
-        bh=MCxlSMJOR6HhiMSpgL2jvCmdzjbKMba/TcDZg6n5OjI=;
+        s=korg; t=1661244836;
+        bh=fxlNh0LwhOpWUkF19exROe077tMNe7vdcr/NJnAVD5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jf3VxXpt83uxwO49PMx2q635FGo+kuin2dEmr9sqjj2fWNKrIkRc4OvnLSEG3DqUz
-         31xkn/TaeyNpo9RXgleJ/p2W0IEVm/L4HynVPIfUv6i9LtZjvZd0rFvheegHTDKrKI
-         GK+uKXyAQycyIL60INYQTySBe897099ziJ1Qo2ak=
+        b=jWZWPJr5uIgDPUnfRj/X0FT4ZZ5hWIbSl3JOQRn+cgIltBEesyIQZoxrZX2PMvaFD
+         UfjgsVsZtKnXLAU9FfqoHJ2569sjd42TbsDc9kkIwhLh5VwTn5iqA8Bb5jZBm58QAM
+         xabpB4jbqXVa8nTHlPvnYS1RLJ6h2aLYWqasudt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 028/158] bpf: Acquire map uref in .init_seq_private for hash map iterator
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 4.14 199/229] nios2: traced syscall does need to check the syscall number
 Date:   Tue, 23 Aug 2022 10:26:00 +0200
-Message-Id: <20220823080047.230320318@linuxfoundation.org>
+Message-Id: <20220823080100.745222101@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit ef1e93d2eeb58a1f08c37b22a2314b94bc045f15 upstream.
+commit 25ba820ef36bdbaf9884adeac69b6e1821a7df76 upstream.
 
-bpf_iter_attach_map() acquires a map uref, and the uref may be released
-before or in the middle of iterating map elements. For example, the uref
-could be released in bpf_iter_detach_map() as part of
-bpf_link_release(), or could be released in bpf_map_put_with_uref() as
-part of bpf_map_release().
+all checks done before letting the tracer modify the register
+state are worthless...
 
-So acquiring an extra map uref in bpf_iter_init_hash_map() and
-releasing it in bpf_iter_fini_hash_map().
-
-Fixes: d6c4503cc296 ("bpf: Implement bpf iterator for hash maps")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20220810080538.1845898-3-houtao@huaweicloud.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 82ed08dd1b0e ("nios2: Exception handling")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/hashtab.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/nios2/kernel/entry.S |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -1801,6 +1801,7 @@ static int bpf_iter_init_hash_map(void *
- 		seq_info->percpu_value_buf = value_buf;
- 	}
+--- a/arch/nios2/kernel/entry.S
++++ b/arch/nios2/kernel/entry.S
+@@ -255,9 +255,9 @@ traced_system_call:
+ 	ldw	r6, PT_R6(sp)
+ 	ldw	r7, PT_R7(sp)
  
-+	bpf_map_inc_with_uref(map);
- 	seq_info->map = map;
- 	seq_info->htab = container_of(map, struct bpf_htab, map);
- 	return 0;
-@@ -1810,6 +1811,7 @@ static void bpf_iter_fini_hash_map(void
- {
- 	struct bpf_iter_seq_hash_map_info *seq_info = priv_data;
+-	/* Fetch the syscall function, we don't need to check the boundaries
+-	 * since this is already done.
+-	 */
++	/* Fetch the syscall function. */
++	movui	r1, __NR_syscalls
++	bgeu	r2, r1, traced_invsyscall
+ 	slli	r1, r2, 2
+ 	movhi	r11,%hiadj(sys_call_table)
+ 	add	r1, r1, r11
+@@ -287,6 +287,11 @@ end_translate_rc_and_ret2:
+ 	RESTORE_SWITCH_STACK
+ 	br	ret_from_exception
  
-+	bpf_map_put_with_uref(seq_info->map);
- 	kfree(seq_info->percpu_value_buf);
- }
- 
++	/* If the syscall number was invalid return ENOSYS */
++traced_invsyscall:
++	movi	r2, -ENOSYS
++	br	translate_rc_and_ret2
++
+ Luser_return:
+ 	GET_THREAD_INFO	r11			/* get thread_info pointer */
+ 	ldw	r10, TI_FLAGS(r11)		/* get thread_info->flags */
 
 
