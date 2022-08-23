@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D579959D520
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55AE259D4D0
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235813AbiHWJCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:02:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42418 "EHLO
+        id S1347530AbiHWJDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241632AbiHWJBv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:01:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6077E233;
-        Tue, 23 Aug 2022 01:28:17 -0700 (PDT)
+        with ESMTP id S240826AbiHWJCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:02:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F26E228E2A;
+        Tue, 23 Aug 2022 01:28:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C29D61326;
-        Tue, 23 Aug 2022 08:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 305CAC433D7;
-        Tue, 23 Aug 2022 08:27:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDE576148F;
+        Tue, 23 Aug 2022 08:27:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F770C433C1;
+        Tue, 23 Aug 2022 08:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243236;
-        bh=gFrB6xe1KXgTAI+7ObVJ1Fp1IKo64uT9FKvA9uEdWR8=;
+        s=korg; t=1661243240;
+        bh=IFaID+CQU1LWumGJBq/pb2DyzIiBuMz6+s+qtnvsl/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obk91VtWGTwE/3sfnlOD/ZS+mtx4agY5M2nX/ptsDJcWUKyb/1Z9L3hfiJA2A316t
-         7eEICRcmDnAYFTSVg/yjwUemY04ur/hfSztWknw3E/b0mtYdGavTE389o9kBiovxWs
-         8g8eGeQ+kF2jJefPrKObzRbw9ZalzwLI2UL1p0xk=
+        b=DnghjkmoT99KFqdTC/EhdaZhbh9AxGYytKMghKSS+MG3x8k/dK2G5/G6SxT+cXOKs
+         9JksQxdGDdKd2Bp9iW8FdoBGBa5EFnnL2k42Pv0klxOKAT68qI4udWWzj64bXs0dW4
+         bHsB0MUF7s4PhairOfmUY0B5FKtzossDhAeYGrt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
+        stable@vger.kernel.org,
+        Arun Ramadoss <arun.ramadoss@microchip.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 213/365] net: sched: fix misuse of qcpu->backlog in gnet_stats_add_queue_cpu
-Date:   Tue, 23 Aug 2022 10:01:54 +0200
-Message-Id: <20220823080127.120619852@linuxfoundation.org>
+Subject: [PATCH 5.19 214/365] net: dsa: microchip: ksz9477: fix fdb_dump last invalid entry
+Date:   Tue, 23 Aug 2022 10:01:55 +0200
+Message-Id: <20220823080127.159146679@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,32 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Arun Ramadoss <arun.ramadoss@microchip.com>
 
-commit de64b6b6fb6f369840d171b7c5a9baf31b8b2630 upstream.
+commit 36c0d935015766bf20d621c18313f17691bda5e3 upstream.
 
-In the gnet_stats_add_queue_cpu function, the qstats->qlen statistics
-are incorrectly set to qcpu->backlog.
+In the ksz9477_fdb_dump function it reads the ALU control register and
+exit from the timeout loop if there is valid entry or search is
+complete. After exiting the loop, it reads the alu entry and report to
+the user space irrespective of entry is valid. It works till the valid
+entry. If the loop exited when search is complete, it reads the alu
+table. The table returns all ones and it is reported to user space. So
+bridge fdb show gives ff:ff:ff:ff:ff:ff as last entry for every port.
+To fix it, after exiting the loop the entry is reported only if it is
+valid one.
 
-Fixes: 448e163f8b9b ("gen_stats: Add gnet_stats_add_queue()")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20220815030848.276746-1-shaozhengchao@huawei.com
+Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
+Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220816105516.18350-1-arun.ramadoss@microchip.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/gen_stats.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/microchip/ksz9477.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/core/gen_stats.c
-+++ b/net/core/gen_stats.c
-@@ -345,7 +345,7 @@ static void gnet_stats_add_queue_cpu(str
- 	for_each_possible_cpu(i) {
- 		const struct gnet_stats_queue *qcpu = per_cpu_ptr(q, i);
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -658,6 +658,9 @@ static int ksz9477_port_fdb_dump(struct
+ 			goto exit;
+ 		}
  
--		qstats->qlen += qcpu->backlog;
-+		qstats->qlen += qcpu->qlen;
- 		qstats->backlog += qcpu->backlog;
- 		qstats->drops += qcpu->drops;
- 		qstats->requeues += qcpu->requeues;
++		if (!(ksz_data & ALU_VALID))
++			continue;
++
+ 		/* read ALU table */
+ 		ksz9477_read_table(dev, alu_table);
+ 
 
 
