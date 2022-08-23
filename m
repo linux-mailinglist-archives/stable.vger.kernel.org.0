@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27C2A59E00E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1894859E01C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244076AbiHWMEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59204 "EHLO
+        id S1353381AbiHWKNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359289AbiHWMDg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:03:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D34FDD756;
-        Tue, 23 Aug 2022 02:37:10 -0700 (PDT)
+        with ESMTP id S1353644AbiHWKLr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF3F14F1BD;
+        Tue, 23 Aug 2022 01:57:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5DCF61389;
-        Tue, 23 Aug 2022 09:37:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2D6EC433D6;
-        Tue, 23 Aug 2022 09:37:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C78F6123D;
+        Tue, 23 Aug 2022 08:57:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46741C433C1;
+        Tue, 23 Aug 2022 08:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247429;
-        bh=Da3VX1ansjmk8r5ZZzofsjUfgE11Ot+/ZhI1/uTkoJo=;
+        s=korg; t=1661245074;
+        bh=5QEhkpbOIt5ZQhJj4twQe+roC+RNayxcEOZD8bg916A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nko5iZ74D2IAEKY1YnWR8R4q7TaponPsQoejH1RhlI5jEZj0BPqYfWAYnfUhRWM6E
-         qK3DdeFyE8vZtI9R+LYZ2nSH2fDPkS9oKjXp445Stm6ZfJjGMATacEvZyUYWcNSk3R
-         mlXFBpA7hRYHxQ+OYr0JBz2uvo53sN417NhLFHqs=
+        b=aPuvZJC/NO7OHNpcFfLLLDQ3XvSZsAlJm/Pqw7fxfPeTUECx4rekPvgyuQZUdK8eo
+         4A5+aC9WO7JctGIlxHyilf3q8+rqmjR9ojeHIKmuUoV8QdeE3ZH4dfFdbf0xUw2kj4
+         vJklpbP3FfEt3B0k+JkI5tsP0OZ/GCTNVldsrRys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Sebastian=20W=C3=BCrl?= <sebastian.wuerl@ororatech.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 032/158] can: mcp251x: Fix race condition on receive interrupt
-Date:   Tue, 23 Aug 2022 10:26:04 +0200
-Message-Id: <20220823080047.376758021@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 206/244] lib/list_debug.c: Detect uninitialized lists
+Date:   Tue, 23 Aug 2022 10:26:05 +0200
+Message-Id: <20220823080106.380597402@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Würl <sebastian.wuerl@ororatech.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit d80d60b0db6ff3dd2e29247cc2a5166d7e9ae37e upstream.
+[ Upstream commit 0cc011c576aaa4de505046f7a6c90933d7c749a9 ]
 
-The mcp251x driver uses both receiving mailboxes of the CAN controller
-chips. For retrieving the CAN frames from the controller via SPI, it checks
-once per interrupt which mailboxes have been filled and will retrieve the
-messages accordingly.
+In some circumstances, attempts are made to add entries to or to remove
+entries from an uninitialized list.  A prime example is
+amdgpu_bo_vm_destroy(): It is indirectly called from
+ttm_bo_init_reserved() if that function fails, and tries to remove an
+entry from a list.  However, that list is only initialized in
+amdgpu_bo_create_vm() after the call to ttm_bo_init_reserved() returned
+success.  This results in crashes such as
 
-This introduces a race condition, as another CAN frame can enter mailbox 1
-while mailbox 0 is emptied. If now another CAN frame enters mailbox 0 until
-the interrupt handler is called next, mailbox 0 is emptied before
-mailbox 1, leading to out-of-order CAN frames in the network device.
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP NOPTI
+ CPU: 1 PID: 1479 Comm: chrome Not tainted 5.10.110-15768-g29a72e65dae5
+ Hardware name: Google Grunt/Grunt, BIOS Google_Grunt.11031.149.0 07/15/2020
+ RIP: 0010:__list_del_entry_valid+0x26/0x7d
+ ...
+ Call Trace:
+  amdgpu_bo_vm_destroy+0x48/0x8b
+  ttm_bo_init_reserved+0x1d7/0x1e0
+  amdgpu_bo_create+0x212/0x476
+  ? amdgpu_bo_user_destroy+0x23/0x23
+  ? kmem_cache_alloc+0x60/0x271
+  amdgpu_bo_create_vm+0x40/0x7d
+  amdgpu_vm_pt_create+0xe8/0x24b
+ ...
 
-This is fixed by checking the interrupt flags once again after freeing
-mailbox 0, to correctly also empty mailbox 1 before leaving the handler.
+Check if the list's prev and next pointers are NULL to catch such problems.
 
-For reproducing the bug I created the following setup:
- - Two CAN devices, one Raspberry Pi with MCP2515, the other can be any.
- - Setup CAN to 1 MHz
- - Spam bursts of 5 CAN-messages with increasing CAN-ids
- - Continue sending the bursts while sleeping a second between the bursts
- - Check on the RPi whether the received messages have increasing CAN-ids
- - Without this patch, every burst of messages will contain a flipped pair
-
-v3: https://lore.kernel.org/all/20220804075914.67569-1-sebastian.wuerl@ororatech.com
-v2: https://lore.kernel.org/all/20220804064803.63157-1-sebastian.wuerl@ororatech.com
-v1: https://lore.kernel.org/all/20220803153300.58732-1-sebastian.wuerl@ororatech.com
-
-Fixes: bf66f3736a94 ("can: mcp251x: Move to threaded interrupts instead of workqueues.")
-Signed-off-by: Sebastian Würl <sebastian.wuerl@ororatech.com>
-Link: https://lore.kernel.org/all/20220804081411.68567-1-sebastian.wuerl@ororatech.com
-[mkl: reduce scope of intf1, eflag1]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20220531222951.92073-1-linux@roeck-us.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/mcp251x.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ lib/list_debug.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/spi/mcp251x.c
-+++ b/drivers/net/can/spi/mcp251x.c
-@@ -1074,9 +1074,6 @@ static irqreturn_t mcp251x_can_ist(int i
+diff --git a/lib/list_debug.c b/lib/list_debug.c
+index 5d5424b51b74..413daa72a3d8 100644
+--- a/lib/list_debug.c
++++ b/lib/list_debug.c
+@@ -20,7 +20,11 @@
+ bool __list_add_valid(struct list_head *new, struct list_head *prev,
+ 		      struct list_head *next)
+ {
+-	if (CHECK_DATA_CORRUPTION(next->prev != prev,
++	if (CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_add corruption. prev is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next == NULL,
++			"list_add corruption. next is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next->prev != prev,
+ 			"list_add corruption. next->prev should be prev (%px), but was %px. (next=%px).\n",
+ 			prev, next->prev, next) ||
+ 	    CHECK_DATA_CORRUPTION(prev->next != next,
+@@ -42,7 +46,11 @@ bool __list_del_entry_valid(struct list_head *entry)
+ 	prev = entry->prev;
+ 	next = entry->next;
  
- 		mcp251x_read_2regs(spi, CANINTF, &intf, &eflag);
- 
--		/* mask out flags we don't care about */
--		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
--
- 		/* receive buffer 0 */
- 		if (intf & CANINTF_RX0IF) {
- 			mcp251x_hw_rx(spi, 0);
-@@ -1086,6 +1083,18 @@ static irqreturn_t mcp251x_can_ist(int i
- 			if (mcp251x_is_2510(spi))
- 				mcp251x_write_bits(spi, CANINTF,
- 						   CANINTF_RX0IF, 0x00);
-+
-+			/* check if buffer 1 is already known to be full, no need to re-read */
-+			if (!(intf & CANINTF_RX1IF)) {
-+				u8 intf1, eflag1;
-+
-+				/* intf needs to be read again to avoid a race condition */
-+				mcp251x_read_2regs(spi, CANINTF, &intf1, &eflag1);
-+
-+				/* combine flags from both operations for error handling */
-+				intf |= intf1;
-+				eflag |= eflag1;
-+			}
- 		}
- 
- 		/* receive buffer 1 */
-@@ -1096,6 +1105,9 @@ static irqreturn_t mcp251x_can_ist(int i
- 				clear_intf |= CANINTF_RX1IF;
- 		}
- 
-+		/* mask out flags we don't care about */
-+		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
-+
- 		/* any error or tx interrupt we need to clear? */
- 		if (intf & (CANINTF_ERR | CANINTF_TX))
- 			clear_intf |= intf & (CANINTF_ERR | CANINTF_TX);
+-	if (CHECK_DATA_CORRUPTION(next == LIST_POISON1,
++	if (CHECK_DATA_CORRUPTION(next == NULL,
++			"list_del corruption, %px->next is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_del corruption, %px->prev is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(next == LIST_POISON1,
+ 			"list_del corruption, %px->next is LIST_POISON1 (%px)\n",
+ 			entry, LIST_POISON1) ||
+ 	    CHECK_DATA_CORRUPTION(prev == LIST_POISON2,
+-- 
+2.35.1
+
 
 
