@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B6D59E1E3
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1549459DC2A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355523AbiHWKiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38384 "EHLO
+        id S234825AbiHWL2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:28:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355765AbiHWKhC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:37:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24484A6C4C;
-        Tue, 23 Aug 2022 02:07:30 -0700 (PDT)
+        with ESMTP id S1358184AbiHWL1a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:27:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A541C3F58;
+        Tue, 23 Aug 2022 02:25:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B32D7B81C97;
-        Tue, 23 Aug 2022 09:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 038C1C433D6;
-        Tue, 23 Aug 2022 09:07:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6006C61220;
+        Tue, 23 Aug 2022 09:25:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F5CFC433D6;
+        Tue, 23 Aug 2022 09:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245647;
-        bh=xmnsuXtUw8sGw9bxdWq+/4tnHuPDrOAAJeRf/dZAQZ8=;
+        s=korg; t=1661246709;
+        bh=ayePQ4jSZQclIGH4CsY3QCuzA/aCfLhd204WTXX4Rq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qWz3f9UN/TVtF9x5zp5L0DVZtem/DK8PcypKugo7eo4mUaTEwBki0xkcANUUJCUs
-         tdfdbE0QNLi6XjMuDzA8Oftm4Wj72svErfURuf0B7sIb6Ix2TmBfY1I+igFqrv1uJj
-         k+WwYCgyLrkfr2pIHNXKn1sNg0qpbuyk86mp7O+U=
+        b=wjt8ur2vRoajTBcTmVINt+zdgkWdR8eMWlfBmgkYhiMOUdgp9xL8zjvO/a6vbIzRb
+         uRQzT8HhwdpIdxK8S4K9MT5+pkywGu1Rioy/dKEUn1s2lC6jQrwt+wyAyLUs1ONCQP
+         vekVKTfnokIJmOuEj49h7IbMcaPLXag8nn7djZ0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Vidya Sagar <vidyas@nvidia.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/287] can: error: specify the values of data[5..7] of CAN error frames
+Subject: [PATCH 5.4 193/389] PCI: tegra194: Fix link up retry sequence
 Date:   Tue, 23 Aug 2022 10:24:31 +0200
-Message-Id: <20220823080103.799245643@linuxfoundation.org>
+Message-Id: <20220823080123.689370273@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit e70a3263a7eed768d5f947b8f2aff8d2a79c9d97 ]
+[ Upstream commit e05fd6ae77c3e2cc0dba283005d24b6d56d2b1fa ]
 
-Currently, data[5..7] of struct can_frame, when used as a CAN error
-frame, are defined as being "controller specific". Device specific
-behaviours are problematic because it prevents someone from writing
-code which is portable between devices.
+Add the missing DLF capability offset while clearing DL_FEATURE_EXCHANGE_EN
+bit during link up retry.
 
-As a matter of fact, data[5] is never used, data[6] is always used to
-report TX error counter and data[7] is always used to report RX error
-counter. can-utils also relies on this.
-
-This patch updates the comment in the uapi header to specify that
-data[5] is reserved (and thus should not be used) and that data[6..7]
-are used for error counters.
-
-Fixes: 0d66548a10cb ("[CAN]: Add PF_CAN core module")
-Link: https://lore.kernel.org/all/20220719143550.3681-11-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20220721142052.25971-15-vidyas@nvidia.com
+Fixes: 56e15a238d92 ("PCI: tegra: Add Tegra194 PCIe support")
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/can/error.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/can/error.h b/include/uapi/linux/can/error.h
-index bfc4b5d22a5e..383f3d508a53 100644
---- a/include/uapi/linux/can/error.h
-+++ b/include/uapi/linux/can/error.h
-@@ -120,6 +120,9 @@
- #define CAN_ERR_TRX_CANL_SHORT_TO_GND  0x70 /* 0111 0000 */
- #define CAN_ERR_TRX_CANL_SHORT_TO_CANH 0x80 /* 1000 0000 */
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index c7ac61a6080b..120d64c1a27f 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -854,7 +854,7 @@ static int tegra_pcie_dw_host_init(struct pcie_port *pp)
+ 		offset = dw_pcie_find_ext_capability(pci, PCI_EXT_CAP_ID_DLF);
+ 		val = dw_pcie_readl_dbi(pci, offset + PCI_DLF_CAP);
+ 		val &= ~PCI_DLF_EXCHANGE_ENABLE;
+-		dw_pcie_writel_dbi(pci, offset, val);
++		dw_pcie_writel_dbi(pci, offset + PCI_DLF_CAP, val);
  
--/* controller specific additional information / data[5..7] */
-+/* data[5] is reserved (do not use) */
-+
-+/* TX error counter / data[6] */
-+/* RX error counter / data[7] */
+ 		tegra_pcie_prepare_host(pp);
  
- #endif /* _UAPI_CAN_ERROR_H */
 -- 
 2.35.1
 
