@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D967559DA07
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9336459D8BB
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352110AbiHWKEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:04:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44742 "EHLO
+        id S243012AbiHWJ5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:57:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352511AbiHWKCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:02:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71037A223B;
-        Tue, 23 Aug 2022 01:49:57 -0700 (PDT)
+        with ESMTP id S243219AbiHWJwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:52:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04C37B78A;
+        Tue, 23 Aug 2022 01:46:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EB088CE1B44;
-        Tue, 23 Aug 2022 08:49:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D60FC433C1;
-        Tue, 23 Aug 2022 08:49:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8282CB81C53;
+        Tue, 23 Aug 2022 08:45:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E690AC433C1;
+        Tue, 23 Aug 2022 08:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244594;
-        bh=HWPvRsRbImhp+mxkyDgXuQ+z0w/UFpkDqwsXmE51S2M=;
+        s=korg; t=1661244314;
+        bh=OIFz9Puy2x0e9AK+d1L7NJn2m8YPZnlzGVGHvm1SSgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZi5STJr8EQyrXV39dOuUZdt3MT3xvjHligxuzrbzuvaZJY3w0kCNdcZqcRyyTYo9
-         dnQfOwf1roZTO/B0WcUdHFCkzhS0p9ItwCV/U1/SDc3upv3mP4FMfII3YJiTxP1bnP
-         KnaMGQvDNKOhLqpd8lgcfuuPCM2W47213h2OKvYg=
+        b=mtK2VeYkMUPGo7bihZHvYN48T03TepmRCSYPYZRsDiKKpypI1P/dEKVAsUV/1rWN+
+         TOviHoiExTcQv7OUe6crxPABS9510xdvw6EkrmJz0oUWiddmIHcAsxqPajj5ABAE0j
+         /Eo4a09bV1uF+QFr/8Vfi5BVRcP3DXyUSD1qksLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 120/244] ASoC: tas2770: Drop conflicting set_bias_level power setting
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 118/229] ASoC: mediatek: mt8173: Fix refcount leak in mt8173_rt5650_rt5676_dev_probe
 Date:   Tue, 23 Aug 2022 10:24:39 +0200
-Message-Id: <20220823080103.043380931@linuxfoundation.org>
+Message-Id: <20220823080057.908983731@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 482c23fbc7e9bf5a7a74defd0735d5346215db58 upstream.
+[ Upstream commit ae4f11c1ed2d67192fdf3d89db719ee439827c11 ]
 
-The driver is setting the PWR_CTRL field in both the set_bias_level
-callback and on DAPM events of the DAC widget (and also in the
-mute_stream method). Drop the set_bias_level callback altogether as the
-power setting it does is in conflict with the other code paths.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Fix missing of_node_put() in error paths.
 
-Fixes: 1a476abc723e ("tas2770: add tas2770 smart PA kernel driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220808141246.5749-4-povik+lin@cutebit.org
+Fixes: 94319ba10eca ("ASoC: mediatek: Use platform_of_node for machine drivers")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220602034144.60159-1-linmq006@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tas2770.c |   33 ---------------------------------
- 1 file changed, 33 deletions(-)
+ sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/sound/soc/codecs/tas2770.c
-+++ b/sound/soc/codecs/tas2770.c
-@@ -46,38 +46,6 @@ static void tas2770_reset(struct tas2770
- 	usleep_range(1000, 2000);
- }
- 
--static int tas2770_set_bias_level(struct snd_soc_component *component,
--				 enum snd_soc_bias_level level)
--{
--	struct tas2770_priv *tas2770 =
--			snd_soc_component_get_drvdata(component);
--
--	switch (level) {
--	case SND_SOC_BIAS_ON:
--		snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
--					      TAS2770_PWR_CTRL_MASK,
--					      TAS2770_PWR_CTRL_ACTIVE);
--		break;
--	case SND_SOC_BIAS_STANDBY:
--	case SND_SOC_BIAS_PREPARE:
--		snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
--					      TAS2770_PWR_CTRL_MASK,
--					      TAS2770_PWR_CTRL_MUTE);
--		break;
--	case SND_SOC_BIAS_OFF:
--		snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
--					      TAS2770_PWR_CTRL_MASK,
--					      TAS2770_PWR_CTRL_SHUTDOWN);
--		break;
--
--	default:
--		dev_err(tas2770->dev, "wrong power level setting %d\n", level);
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
+index 61b0d8f8678e..90606b177eaf 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
+@@ -255,14 +255,16 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 	if (!mt8173_rt5650_rt5676_codecs[0].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
 -		return -EINVAL;
--	}
--
--	return 0;
--}
--
- #ifdef CONFIG_PM
- static int tas2770_codec_suspend(struct snd_soc_component *component)
- {
-@@ -555,7 +523,6 @@ static const struct snd_soc_component_dr
- 	.probe			= tas2770_codec_probe,
- 	.suspend		= tas2770_codec_suspend,
- 	.resume			= tas2770_codec_resume,
--	.set_bias_level = tas2770_set_bias_level,
- 	.controls		= tas2770_snd_controls,
- 	.num_controls		= ARRAY_SIZE(tas2770_snd_controls),
- 	.dapm_widgets		= tas2770_dapm_widgets,
++		ret = -EINVAL;
++		goto put_node;
+ 	}
+ 	mt8173_rt5650_rt5676_codecs[1].of_node =
+ 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
+ 	if (!mt8173_rt5650_rt5676_codecs[1].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
+ 	}
+ 	mt8173_rt5650_rt5676_codec_conf[0].of_node =
+ 		mt8173_rt5650_rt5676_codecs[1].of_node;
+@@ -275,7 +277,8 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 	if (!mt8173_rt5650_rt5676_dais[DAI_LINK_HDMI_I2S].codec_of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
+ 	}
+ 
+ 	card->dev = &pdev->dev;
+@@ -285,6 +288,7 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
+ 
++put_node:
+ 	of_node_put(platform_node);
+ 	return ret;
+ }
+-- 
+2.35.1
+
 
 
