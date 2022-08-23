@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8847C59D5A9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64AD559D646
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242894AbiHWI1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:27:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33462 "EHLO
+        id S241896AbiHWI1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:27:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243281AbiHWIYP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:24:15 -0400
+        with ESMTP id S243556AbiHWIZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:25:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5371F26E8;
-        Tue, 23 Aug 2022 01:13:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 087F85F12C;
+        Tue, 23 Aug 2022 01:13:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B16D8B81C20;
-        Tue, 23 Aug 2022 08:13:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D4BC433C1;
-        Tue, 23 Aug 2022 08:13:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A1FAB81C20;
+        Tue, 23 Aug 2022 08:13:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A7E8C433D6;
+        Tue, 23 Aug 2022 08:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242407;
-        bh=2YyPwhEPNlXy6bkw80TQrnvTxmp42HXmghTdlFH98xE=;
+        s=korg; t=1661242416;
+        bh=HIut+ifAS/YY2VN6FjXSCaSRFQIQTRFcNbZeJN5myoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AnbFxEB8ara9zZEBaSoKm2cvdmgInE2wm1UTuX73u0XwzlBveORA5kgrsokDBJBQi
-         RofvVj7/5SODyypMC9BOztnBN+mN/5M5qYxCempiNhInvz/hE9lut5tqyRRnbGU/CQ
-         jXREonfl5BCRwmeQeuSvRih+47QB99DG4fcTpkEk=
+        b=Sjs4s6S59270ruUYtkoVoD20TibODD27At/iAO1kb32JVPNO0UrlMQoD1O8J3hyBP
+         dYvgyoxpL1aQU8dqAsKy+Rs/+SapcnxV57d0MaLs8AWXLLUZxa4UFTDci0O+HRliG7
+         FtGUribHQUDa15ohKeOeMunRG2ukegcNt5b7MIjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 067/101] rds: add missing barrier to release_refill
-Date:   Tue, 23 Aug 2022 10:03:40 +0200
-Message-Id: <20220823080037.128726077@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Hannes Reinecke <hare@suse.de>
+Subject: [PATCH 4.9 068/101] ata: libata-eh: Add missing command name
+Date:   Tue, 23 Aug 2022 10:03:41 +0200
+Message-Id: <20220823080037.158674349@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -53,33 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 9f414eb409daf4f778f011cf8266d36896bb930b upstream.
+commit d3122bf9aa4c974f5e2c0112f799757b3a2779da upstream.
 
-The functions clear_bit and set_bit do not imply a memory barrier, thus it
-may be possible that the waitqueue_active function (which does not take
-any locks) is moved before clear_bit and it could miss a wakeup event.
+Add the missing command name for ATA_CMD_NCQ_NON_DATA to
+ata_get_cmd_name().
 
-Fix this bug by adding a memory barrier after clear_bit.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Fixes: 661ce1f0c4a6 ("libata/libsas: Define ATA_CMD_NCQ_NON_DATA")
 Cc: stable@vger.kernel.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rds/ib_recv.c |    1 +
+ drivers/ata/libata-eh.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/net/rds/ib_recv.c
-+++ b/net/rds/ib_recv.c
-@@ -356,6 +356,7 @@ static int acquire_refill(struct rds_con
- static void release_refill(struct rds_connection *conn)
- {
- 	clear_bit(RDS_RECV_REFILL, &conn->c_flags);
-+	smp_mb__after_atomic();
- 
- 	/* We don't use wait_on_bit()/wake_up_bit() because our waking is in a
- 	 * hot path and finding waiters is very rare.  We don't want to walk
+--- a/drivers/ata/libata-eh.c
++++ b/drivers/ata/libata-eh.c
+@@ -2439,6 +2439,7 @@ const char *ata_get_cmd_descript(u8 comm
+ 		{ ATA_CMD_WRITE_QUEUED_FUA_EXT, "WRITE DMA QUEUED FUA EXT" },
+ 		{ ATA_CMD_FPDMA_READ,		"READ FPDMA QUEUED" },
+ 		{ ATA_CMD_FPDMA_WRITE,		"WRITE FPDMA QUEUED" },
++		{ ATA_CMD_NCQ_NON_DATA,		"NCQ NON-DATA" },
+ 		{ ATA_CMD_FPDMA_SEND,		"SEND FPDMA QUEUED" },
+ 		{ ATA_CMD_FPDMA_RECV,		"RECEIVE FPDMA QUEUED" },
+ 		{ ATA_CMD_PIO_READ,		"READ SECTOR(S)" },
 
 
