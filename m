@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12D7059DBB7
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D956A59E0AD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357338AbiHWLmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:42:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59558 "EHLO
+        id S1357844AbiHWLmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:42:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357927AbiHWLjd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:39:33 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95FE567462;
-        Tue, 23 Aug 2022 02:28:30 -0700 (PDT)
+        with ESMTP id S1358001AbiHWLkS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:40:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B421779632;
+        Tue, 23 Aug 2022 02:28:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BC84BCE1B40;
-        Tue, 23 Aug 2022 09:28:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D74A7C433C1;
-        Tue, 23 Aug 2022 09:28:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B061F61174;
+        Tue, 23 Aug 2022 09:28:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A74ABC433D6;
+        Tue, 23 Aug 2022 09:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246906;
-        bh=XIyPzMQLBgtYoio64LREgctipDK0aA5owJ2+ONDYE6k=;
+        s=korg; t=1661246921;
+        bh=2gIMAlHBijR6NYq4wraQ4wNTunf1yxbOHYK0ZS1AzLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qTDXuCrL9Sr/qT9p/5AnrjNqM6HMSTHsHdYOGCpDS2hAXNCfJpFA7NPjKAWe9LZ21
-         WhpyqiRgxH78LwpdJL+5U/BrOAwqDRgNv1c5vU+PzdLgQXzCg66jByQ5hPTGQ5d+j+
-         PxKHHFM6wmdGkg6YHZ5gF6GEr71WskLSwJd99TwY=
+        b=m1paBw7J5Jk+9Mh7aL7kSQXFf12i20hK8/yMs4ydGY8AyXvKlNhenojj0ZtXuVnqp
+         JfWXGjK47GNzHJLi417Mzq4M8jVZrytO02KM6CT7hyQHvOV4/TWcLfETMnmdFWBSBc
+         D3bnQ0BSGsdWb+9S4vDAal02mWoQkNkLW7prWUP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        stable@vger.kernel.org,
+        Rustam Subkhankulov <subkhankulov@ispras.ru>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 230/389] video: fbdev: amba-clcd: Fix refcount leak bugs
-Date:   Tue, 23 Aug 2022 10:25:08 +0200
-Message-Id: <20220823080125.204491240@linuxfoundation.org>
+Subject: [PATCH 5.4 231/389] video: fbdev: sis: fix typos in SiS_GetModeID()
+Date:   Tue, 23 Aug 2022 10:25:09 +0200
+Message-Id: <20220823080125.248033246@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -53,76 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Rustam Subkhankulov <subkhankulov@ispras.ru>
 
-[ Upstream commit 26c2b7d9fac42eb8317f3ceefa4c1a9a9170ca69 ]
+[ Upstream commit 3eb8fccc244bfb41a7961969e4db280d44911226 ]
 
-In clcdfb_of_init_display(), we should call of_node_put() for the
-references returned by of_graph_get_next_endpoint() and
-of_graph_get_remote_port_parent() which have increased the refcount.
+The second operand of a '&&' operator has no impact on expression
+result for cases 400 and 512 in SiS_GetModeID().
 
-Besides, we should call of_node_put() both in fail path or when
-the references are not used anymore.
+Judging by the logic and the names of the variables, in both cases a
+typo was made.
 
-Fixes: d10715be03bd ("video: ARM CLCD: Add DT support")
-Signed-off-by: Liang He <windhl@126.com>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Signed-off-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/amba-clcd.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/video/fbdev/sis/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/amba-clcd.c b/drivers/video/fbdev/amba-clcd.c
-index 3b7a7c74bf0a..09774ada36fb 100644
---- a/drivers/video/fbdev/amba-clcd.c
-+++ b/drivers/video/fbdev/amba-clcd.c
-@@ -714,16 +714,18 @@ static int clcdfb_of_init_display(struct clcd_fb *fb)
- 		return -ENODEV;
- 
- 	panel = of_graph_get_remote_port_parent(endpoint);
--	if (!panel)
--		return -ENODEV;
-+	if (!panel) {
-+		err = -ENODEV;
-+		goto out_endpoint_put;
-+	}
- 
- 	err = clcdfb_of_get_backlight(panel, fb->panel);
- 	if (err)
--		return err;
-+		goto out_panel_put;
- 
- 	err = clcdfb_of_get_mode(&fb->dev->dev, panel, fb->panel);
- 	if (err)
--		return err;
-+		goto out_panel_put;
- 
- 	err = of_property_read_u32(fb->dev->dev.of_node, "max-memory-bandwidth",
- 			&max_bandwidth);
-@@ -752,11 +754,21 @@ static int clcdfb_of_init_display(struct clcd_fb *fb)
- 
- 	if (of_property_read_u32_array(endpoint,
- 			"arm,pl11x,tft-r0g0b0-pads",
--			tft_r0b0g0, ARRAY_SIZE(tft_r0b0g0)) != 0)
--		return -ENOENT;
-+			tft_r0b0g0, ARRAY_SIZE(tft_r0b0g0)) != 0) {
-+		err = -ENOENT;
-+		goto out_panel_put;
-+	}
-+
-+	of_node_put(panel);
-+	of_node_put(endpoint);
- 
- 	return clcdfb_of_init_tft_panel(fb, tft_r0b0g0[0],
- 					tft_r0b0g0[1],  tft_r0b0g0[2]);
-+out_panel_put:
-+	of_node_put(panel);
-+out_endpoint_put:
-+	of_node_put(endpoint);
-+	return err;
- }
- 
- static int clcdfb_of_vram_setup(struct clcd_fb *fb)
+diff --git a/drivers/video/fbdev/sis/init.c b/drivers/video/fbdev/sis/init.c
+index fde27feae5d0..d6b2ce95a859 100644
+--- a/drivers/video/fbdev/sis/init.c
++++ b/drivers/video/fbdev/sis/init.c
+@@ -355,12 +355,12 @@ SiS_GetModeID(int VGAEngine, unsigned int VBFlags, int HDisplay, int VDisplay,
+ 		}
+ 		break;
+ 	case 400:
+-		if((!(VBFlags & CRT1_LCDA)) || ((LCDwidth >= 800) && (LCDwidth >= 600))) {
++		if((!(VBFlags & CRT1_LCDA)) || ((LCDwidth >= 800) && (LCDheight >= 600))) {
+ 			if(VDisplay == 300) ModeIndex = ModeIndex_400x300[Depth];
+ 		}
+ 		break;
+ 	case 512:
+-		if((!(VBFlags & CRT1_LCDA)) || ((LCDwidth >= 1024) && (LCDwidth >= 768))) {
++		if((!(VBFlags & CRT1_LCDA)) || ((LCDwidth >= 1024) && (LCDheight >= 768))) {
+ 			if(VDisplay == 384) ModeIndex = ModeIndex_512x384[Depth];
+ 		}
+ 		break;
 -- 
 2.35.1
 
