@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9515259DEA1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BA3A59E1F5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358515AbiHWLtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:49:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46338 "EHLO
+        id S1355824AbiHWKsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:48:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358336AbiHWLrm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:47:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011A5D2905;
-        Tue, 23 Aug 2022 02:30:46 -0700 (PDT)
+        with ESMTP id S1355859AbiHWKo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:44:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F5047B81;
+        Tue, 23 Aug 2022 02:10:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A277B81C85;
-        Tue, 23 Aug 2022 09:30:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D33CCC433D7;
-        Tue, 23 Aug 2022 09:30:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45CF5608D5;
+        Tue, 23 Aug 2022 09:10:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D9A7C433D6;
+        Tue, 23 Aug 2022 09:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247043;
-        bh=ueeu1O7WxTB5W7eT1aqQvjP1jaD0aS1iXFRsRpMLeAA=;
+        s=korg; t=1661245852;
+        bh=qvYNxEp4BkVpp0o3cY2gldmCMqgQYuRgKAATdhdUjZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2YkJmksqqHgZ6tQOqji0LOqUIua6uCWWh0chcQjspomZDIvJfSiwL2HM1PfYUe9S
-         /4g/WIJGLco68P71D3q12x9xGlMvcpqn/Fvk0JX6UKrp68dVY0zYDucr6gM7cdoTnX
-         DB0OeJ5InmudmJ7Dt0MA7OT+oG3Lc8KV4GL1QJuA=
+        b=RMqj3/w6douiztT7LCD7bc+yrbQcJ7fXJkMC4uX+1U8evJiSNbHTju0ppgh5QT5hN
+         q0hvGyK8k/7Tlmu3Va7kMOhg/YkxAaryqJOKb+mKxB38svc5C8js7jUg6Kze831fpU
+         aXPfgQ/AphvduuzUPjnew63eVLXMoOgxLkfkT1ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>
-Subject: [PATCH 5.4 260/389] ext4: update s_overhead_clusters in the superblock during an on-line resize
-Date:   Tue, 23 Aug 2022 10:25:38 +0200
-Message-Id: <20220823080126.446266632@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 170/287] powerpc/pci: Prefer PCI domain assignment via DT linux,pci-domain and alias
+Date:   Tue, 23 Aug 2022 10:25:39 +0200
+Message-Id: <20220823080106.487551248@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Pali Rohár <pali@kernel.org>
 
-commit de394a86658ffe4e89e5328fd4993abfe41b7435 upstream.
+[ Upstream commit 0fe1e96fef0a5c53b4c0d1500d356f3906000f81 ]
 
-When doing an online resize, the on-disk superblock on-disk wasn't
-updated.  This means that when the file system is unmounted and
-remounted, and the on-disk overhead value is non-zero, this would
-result in the results of statfs(2) to be incorrect.
+Other Linux architectures use DT property 'linux,pci-domain' for
+specifying fixed PCI domain of PCI controller specified in Device-Tree.
 
-This was partially fixed by Commits 10b01ee92df5 ("ext4: fix overhead
-calculation to account for the reserved gdt blocks"), 85d825dbf489
-("ext4: force overhead calculation if the s_overhead_cluster makes no
-sense"), and eb7054212eac ("ext4: update the cached overhead value in
-the superblock").
+And lot of Freescale powerpc boards have defined numbered pci alias in
+Device-Tree for every PCIe controller which number specify preferred PCI
+domain.
 
-However, since it was too expensive to forcibly recalculate the
-overhead for bigalloc file systems at every mount, this didn't fix the
-problem for bigalloc file systems.  This commit should address the
-problem when resizing file systems with the bigalloc feature enabled.
+So prefer usage of DT property 'linux,pci-domain' (via function
+of_get_pci_domain_nr()) and DT pci alias (via function
+of_alias_get_id()) on powerpc architecture for assigning PCI domain to
+PCI controller.
 
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20220629040026.112371-1-tytso@mit.edu
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 63a72284b159 ("powerpc/pci: Assign fixed PHB number based on device-tree properties")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220706102148.5060-2-pali@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/resize.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/pci-common.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1483,6 +1483,7 @@ static void ext4_update_super(struct sup
- 	 * Update the fs overhead information
- 	 */
- 	ext4_calculate_overhead(sb);
-+	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
+diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
+index 74628aca2bf1..b0bd55f2ce3a 100644
+--- a/arch/powerpc/kernel/pci-common.c
++++ b/arch/powerpc/kernel/pci-common.c
+@@ -82,16 +82,30 @@ EXPORT_SYMBOL(get_pci_dma_ops);
+ static int get_phb_number(struct device_node *dn)
+ {
+ 	int ret, phb_id = -1;
+-	u32 prop_32;
+ 	u64 prop;
  
- 	if (test_opt(sb, DEBUG))
- 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
+ 	/*
+ 	 * Try fixed PHB numbering first, by checking archs and reading
+-	 * the respective device-tree properties. Firstly, try powernv by
+-	 * reading "ibm,opal-phbid", only present in OPAL environment.
++	 * the respective device-tree properties. Firstly, try reading
++	 * standard "linux,pci-domain", then try reading "ibm,opal-phbid"
++	 * (only present in powernv OPAL environment), then try device-tree
++	 * alias and as the last try to use lower bits of "reg" property.
+ 	 */
+-	ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
++	ret = of_get_pci_domain_nr(dn);
++	if (ret >= 0) {
++		prop = ret;
++		ret = 0;
++	}
++	if (ret)
++		ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
++	if (ret)
++		ret = of_alias_get_id(dn, "pci");
++	if (ret >= 0) {
++		prop = ret;
++		ret = 0;
++	}
+ 	if (ret) {
++		u32 prop_32;
+ 		ret = of_property_read_u32_index(dn, "reg", 1, &prop_32);
+ 		prop = prop_32;
+ 	}
+@@ -103,10 +117,7 @@ static int get_phb_number(struct device_node *dn)
+ 	if ((phb_id >= 0) && !test_and_set_bit(phb_id, phb_bitmap))
+ 		return phb_id;
+ 
+-	/*
+-	 * If not pseries nor powernv, or if fixed PHB numbering tried to add
+-	 * the same PHB number twice, then fallback to dynamic PHB numbering.
+-	 */
++	/* If everything fails then fallback to dynamic PHB numbering. */
+ 	phb_id = find_first_zero_bit(phb_bitmap, MAX_PHBS);
+ 	BUG_ON(phb_id >= MAX_PHBS);
+ 	set_bit(phb_id, phb_bitmap);
+-- 
+2.35.1
+
 
 
