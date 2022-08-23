@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF23E59DE78
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B8FA59E311
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346826AbiHWMRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:17:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45738 "EHLO
+        id S1358800AbiHWL5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:57:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359532AbiHWMPv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B73EA179;
-        Tue, 23 Aug 2022 02:41:29 -0700 (PDT)
+        with ESMTP id S1359208AbiHWL4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:56:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65CEFA2856;
+        Tue, 23 Aug 2022 02:34:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2880B81C98;
-        Tue, 23 Aug 2022 09:40:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3552FC433D6;
-        Tue, 23 Aug 2022 09:40:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAD43B81C89;
+        Tue, 23 Aug 2022 09:33:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50410C433D6;
+        Tue, 23 Aug 2022 09:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247637;
-        bh=293vTp1CgMyRI+K0+5RHsWrq1xWl2wb3QrirNBXUiwc=;
+        s=korg; t=1661247205;
+        bh=SXrx+DlaLHzX4I2b5Q7/9xvnCK8Sl1fsEV9Ilr6BdHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/+Kmb9R9Q+S1Q7nqbVr4Q1SgCCS0sQJjL5csJ9KaGUL6RJ5vzpZhB1D3Y04fXQ8o
-         VyDBx1Pd/yDjR2c/SByVuAN+HLtOV7EslMNb/zGswYPS21J0yhqla3zr/ys3a9J7f4
-         Ka/PmBRetLv2dUHlpImjXYqGeCq5kL4Uu/lDgBXs=
+        b=xKuFK7T17Z7lAtYP7+dHkWWh7bQl+E14hUEFOsp+7hSbyQ0l6/RANJuUQRXKiplSh
+         HPuroHShlSI+WUYNJ+KHmbGCuExU2tf01wYwl46KEpsu8Od8X9aLVSRqZs/uBINBl9
+         drQRAqzCOvC360isGEr4OX+YAaAZlRXDlgjmHI40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 097/158] drm/meson: Fix refcount bugs in meson_vpu_has_available_connectors()
+Subject: [PATCH 5.4 351/389] usb: gadget: uvc: call uvc uvcg_warn on completed status instead of uvcg_info
 Date:   Tue, 23 Aug 2022 10:27:09 +0200
-Message-Id: <20220823080049.964655502@linuxfoundation.org>
+Message-Id: <20220823080130.204809747@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit 91b3c8dbe898df158fd2a84675f3a284ff6666f7 ]
+[ Upstream commit a725d0f6dfc5d3739d6499f30ec865305ba3544d ]
 
-In this function, there are two refcount leak bugs:
-(1) when breaking out of for_each_endpoint_of_node(), we need call
-the of_node_put() for the 'ep';
-(2) we should call of_node_put() for the reference returned by
-of_graph_get_remote_port() when it is not used anymore.
+Likewise to the uvcvideo hostside driver, this patch is changing the
+usb_request message of an non zero completion handler call from dev_info
+to dev_warn.
 
-Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
-Signed-off-by: Liang He <windhl@126.com>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220726010722.1319416-1-windhl@126.com
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20220529223848.105914-4-m.grzeschik@pengutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_drv.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/uvc_video.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
-index 728fea509412..2d022f3fb437 100644
---- a/drivers/gpu/drm/meson/meson_drv.c
-+++ b/drivers/gpu/drm/meson/meson_drv.c
-@@ -116,8 +116,11 @@ static bool meson_vpu_has_available_connectors(struct device *dev)
- 	for_each_endpoint_of_node(dev->of_node, ep) {
- 		/* If the endpoint node exists, consider it enabled */
- 		remote = of_graph_get_remote_port(ep);
--		if (remote)
-+		if (remote) {
-+			of_node_put(remote);
-+			of_node_put(ep);
- 			return true;
-+		}
- 	}
+diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+index 5c042f380708..f9fad639a489 100644
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -191,7 +191,7 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
+ 		goto requeue;
  
- 	return false;
+ 	default:
+-		uvcg_info(&video->uvc->func,
++		uvcg_warn(&video->uvc->func,
+ 			  "VS request completed with status %d.\n",
+ 			  req->status);
+ 		uvcg_queue_cancel(queue, 0);
 -- 
 2.35.1
 
