@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90FBA59E103
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB17559DB70
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357292AbiHWLRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38052 "EHLO
+        id S1350736AbiHWLRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357603AbiHWLQL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60010BD102;
-        Tue, 23 Aug 2022 02:20:00 -0700 (PDT)
+        with ESMTP id S1357546AbiHWLQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05CBEBCCE1;
+        Tue, 23 Aug 2022 02:19:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A96DDB81C65;
-        Tue, 23 Aug 2022 09:19:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06CA9C433D6;
-        Tue, 23 Aug 2022 09:19:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EA09B81C89;
+        Tue, 23 Aug 2022 09:19:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5052C433D6;
+        Tue, 23 Aug 2022 09:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246347;
-        bh=Dmx4oOnZlzw9wzNSiNks7f7+LAxIbZSjqe1MP8P4Bjw=;
+        s=korg; t=1661246382;
+        bh=E2WSbuDq4C8F2YgMV7Map4BepoZ8zpRFLXYj2ouMi6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPeoOCwfbykJFxR0EIUt1XkMO3TFICLZ2iO7wLXwsqewUQiPk/y+QXXEVLOtxFnbL
-         xfDVsKOqNA8Gqgnbs75/13mRuopWaMya758FYja+lh68h4yaE+whuC3YRxYs2I+C/E
-         1u6P8tObZkd0yV2ilTFZcliItECFEk2DqqnMSRHU=
+        b=kQcodNgDoDYVuUIJd0sGUddJG16GAJMNXKpdTaZhBOk4ycQQkwxAXcczqZC3nU9GN
+         /IjhBzWhRwHpW8zwxU1/UOqBjgc8RBjlvABuXcDZT2/VrMXniZ+76T6B/z2iAN8Yrv
+         UHonnrMzlLPemUPTQNwVN7NvyY6l1Q2WIJYfoGX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Guo Mengqi <guomengqi3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/389] spi: synquacer: Add missing clk_disable_unprepare()
-Date:   Tue, 23 Aug 2022 10:22:21 +0200
-Message-Id: <20220823080118.241880247@linuxfoundation.org>
+Subject: [PATCH 5.4 064/389] ARM: OMAP2+: display: Fix refcount leak bug
+Date:   Tue, 23 Aug 2022 10:22:22 +0200
+Message-Id: <20220823080118.278171207@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -55,33 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Mengqi <guomengqi3@huawei.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 917e43de2a56d9b82576f1cc94748261f1988458 ]
+[ Upstream commit 50b87a32a79bca6e275918a711fb8cc55e16d739 ]
 
-Add missing clk_disable_unprepare() in synquacer_spi_resume().
+In omapdss_init_fbdev(), of_find_node_by_name() will return a node
+pointer with refcount incremented. We should use of_node_put() when
+it is not used anymore.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Guo Mengqi <guomengqi3@huawei.com>
-Link: https://lore.kernel.org/r/20220624005614.49434-1-guomengqi3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Liang He <windhl@126.com>
+Message-Id: <20220617145803.4050918-1-windhl@126.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-synquacer.c | 1 +
+ arch/arm/mach-omap2/display.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-synquacer.c b/drivers/spi/spi-synquacer.c
-index 785e7c445123..1e10af6e10a9 100644
---- a/drivers/spi/spi-synquacer.c
-+++ b/drivers/spi/spi-synquacer.c
-@@ -784,6 +784,7 @@ static int __maybe_unused synquacer_spi_resume(struct device *dev)
+diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
+index 1bd64f6ba8cf..d3b531d5d920 100644
+--- a/arch/arm/mach-omap2/display.c
++++ b/arch/arm/mach-omap2/display.c
+@@ -211,6 +211,7 @@ static int __init omapdss_init_fbdev(void)
+ 	node = of_find_node_by_name(NULL, "omap4_padconf_global");
+ 	if (node)
+ 		omap4_dsi_mux_syscon = syscon_node_to_regmap(node);
++	of_node_put(node);
  
- 		ret = synquacer_spi_enable(master);
- 		if (ret) {
-+			clk_disable_unprepare(sspi->clk);
- 			dev_err(dev, "failed to enable spi (%d)\n", ret);
- 			return ret;
- 		}
+ 	return 0;
+ }
 -- 
 2.35.1
 
