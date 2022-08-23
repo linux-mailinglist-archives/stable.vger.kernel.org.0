@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D0359E32A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5025759E145
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355350AbiHWMSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55440 "EHLO
+        id S1358856AbiHWLy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:54:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354348AbiHWMP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:29 -0400
+        with ESMTP id S1358720AbiHWLxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:53:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379C7E9939;
-        Tue, 23 Aug 2022 02:40:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4BFD5711;
+        Tue, 23 Aug 2022 02:32:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C64B2614D1;
-        Tue, 23 Aug 2022 09:39:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F19C433D6;
-        Tue, 23 Aug 2022 09:39:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9A1C60F50;
+        Tue, 23 Aug 2022 09:32:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F9DC433C1;
+        Tue, 23 Aug 2022 09:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247585;
-        bh=G4vUUcbTC3wk22PLjx9tPddjoJp2bdeLQwk8tm6Cz14=;
+        s=korg; t=1661247155;
+        bh=hH9EABSe28KlyoKoCa/fmsYDX15i5Xi3gViSaf2aJNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqI7uecwimR1wRrSo7WgoSHjzMvzuM5XarbYHTtxH6SeOWiR7ddxXft8H3pVTUzRt
-         LdIU9/FJCNYtwW5FTRdIzEHeOz2pPBwLuSbIYe2P38DKuR4Tu3MmOOU70blvY7HIhp
-         CkxTbw5GSjs9v199vv+E+cN2DCy7OmhMtJCOIR7E=
+        b=C11U5nzjgSRslYmWcuVrRFMymdebMbP6mAuVuK74rdbwS5+YBceEVTGTeH2KqH6VL
+         uKFcNM8ShACV+hcEIOnnWPlvRklz9gijH4uxatfoadvPHGu/YdMSvlLZsUwDO/jU93
+         gOVTIxFi1G3iEJbuYRgGAayMFKpkRp0NZIf0TgLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arun Ramadoss <arun.ramadoss@microchip.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 082/158] net: dsa: microchip: ksz9477: fix fdb_dump last invalid entry
+        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Alexander Kochetkov <al.kochet@gmail.com>
+Subject: [PATCH 5.4 336/389] clk: rockchip: add sclk_mac_lbtest to rk3188_critical_clocks
 Date:   Tue, 23 Aug 2022 10:26:54 +0200
-Message-Id: <20220823080049.363280513@linuxfoundation.org>
+Message-Id: <20220823080129.556787490@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Ramadoss <arun.ramadoss@microchip.com>
+From: Alex Bee <knaerzche@gmail.com>
 
-commit 36c0d935015766bf20d621c18313f17691bda5e3 upstream.
+commit ef990bcad58cf1d13c5a49191a2c2342eb8d6709 upstream.
 
-In the ksz9477_fdb_dump function it reads the ALU control register and
-exit from the timeout loop if there is valid entry or search is
-complete. After exiting the loop, it reads the alu entry and report to
-the user space irrespective of entry is valid. It works till the valid
-entry. If the loop exited when search is complete, it reads the alu
-table. The table returns all ones and it is reported to user space. So
-bridge fdb show gives ff:ff:ff:ff:ff:ff as last entry for every port.
-To fix it, after exiting the loop the entry is reported only if it is
-valid one.
+Since the loopbacktest clock is not exported and is not touched in the
+driver, it has to be added to rk3188_critical_clocks to be protected from
+being disabled and in order to get the emac working.
 
-Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
-Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20220816105516.18350-1-arun.ramadoss@microchip.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Alex Bee <knaerzche@gmail.com>
+Link: https://lore.kernel.org/r/20200722161820.5316-1-knaerzche@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Cc: Alexander Kochetkov <al.kochet@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/microchip/ksz9477.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/rockchip/clk-rk3188.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/dsa/microchip/ksz9477.c
-+++ b/drivers/net/dsa/microchip/ksz9477.c
-@@ -762,6 +762,9 @@ static int ksz9477_port_fdb_dump(struct
- 			goto exit;
- 		}
+--- a/drivers/clk/rockchip/clk-rk3188.c
++++ b/drivers/clk/rockchip/clk-rk3188.c
+@@ -751,6 +751,7 @@ static const char *const rk3188_critical
+ 	"pclk_peri",
+ 	"hclk_cpubus",
+ 	"hclk_vio_bus",
++	"sclk_mac_lbtest",
+ };
  
-+		if (!(ksz_data & ALU_VALID))
-+			continue;
-+
- 		/* read ALU table */
- 		ksz9477_read_table(dev, alu_table);
- 
+ static struct rockchip_clk_provider *__init rk3188_common_clk_init(struct device_node *np)
 
 
