@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2275359D973
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4C559D8FD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351477AbiHWJhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:37:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53574 "EHLO
+        id S1350002AbiHWJbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:31:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352013AbiHWJgO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:36:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9AEA2FFDD;
-        Tue, 23 Aug 2022 01:40:33 -0700 (PDT)
+        with ESMTP id S1350706AbiHWJao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:30:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1556F91D3F;
+        Tue, 23 Aug 2022 01:37:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5538661485;
-        Tue, 23 Aug 2022 08:40:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 595BDC433D6;
-        Tue, 23 Aug 2022 08:40:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D4A2B81C48;
+        Tue, 23 Aug 2022 08:36:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8651FC433D6;
+        Tue, 23 Aug 2022 08:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244032;
-        bh=4Cb4EScxWu5uEnn14G8m0os0jWAhkF8wAszG1ZWvLFw=;
+        s=korg; t=1661243770;
+        bh=mfyyL8DMutEJjf4ziH8V3LsgaPzBtQTeXlYzsqiDMag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fa144yv2zYtV7wh5sBf9hmej8dGqLGdLAj79QRo1BnPF6MBgvte3YJj0tR2RkhnMS
-         n09lmtIVX5fWuKGBxhPHYhC9zhsNBX1MDjbUy0eOoQfuIaV0KxYtV5kof+ARNs2G1I
-         ULxalASQbNyGRZjKNuA2kP5FgK/smTB3PbxpB/7Q=
+        b=oDALQdg0bMNSo1MO2NPnAQyKbHziPkS5RBb6qpRDR0cyPL1uBDvYvWRfcHSiQ5oEQ
+         t6/uge9oGzaim+3frYN+DXVL57jnW2y12Nrm0bzFvAGDXrH2UcwlMDQ379CdtZJD7Z
+         IZnmylzbCGX0OBwGjf5gf0X98FzpLsQaxhX31W9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.15 018/244] x86/kprobes: Fix JNG/JNLE emulation
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 016/229] add barriers to buffer_uptodate and set_buffer_uptodate
 Date:   Tue, 23 Aug 2022 10:22:57 +0200
-Message-Id: <20220823080059.681664163@linuxfoundation.org>
+Message-Id: <20220823080053.992559325@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 8924779df820c53875abaeb10c648e9cb75b46d4 upstream.
+commit d4252071b97d2027d246f6a82cbee4d52f618b47 upstream.
 
-When kprobes emulates JNG/JNLE instructions on x86 it uses the wrong
-condition. For JNG (opcode: 0F 8E), according to Intel SDM, the jump is
-performed if (ZF == 1 or SF != OF). However the kernel emulation
-currently uses 'and' instead of 'or'.
+Let's have a look at this piece of code in __bread_slow:
 
-As a result, setting a kprobe on JNG/JNLE might cause the kernel to
-behave incorrectly whenever the kprobe is hit.
+	get_bh(bh);
+	bh->b_end_io = end_buffer_read_sync;
+	submit_bh(REQ_OP_READ, 0, bh);
+	wait_on_buffer(bh);
+	if (buffer_uptodate(bh))
+		return bh;
 
-Fix by changing the 'and' to 'or'.
+Neither wait_on_buffer nor buffer_uptodate contain any memory barrier.
+Consequently, if someone calls sb_bread and then reads the buffer data,
+the read of buffer data may be executed before wait_on_buffer(bh) on
+architectures with weak memory ordering and it may return invalid data.
 
-Fixes: 6256e668b7af ("x86/kprobes: Use int3 instead of debug trap for single-step")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fix this bug by adding a memory barrier to set_buffer_uptodate and an
+acquire barrier to buffer_uptodate (in a similar way as
+folio_test_uptodate and folio_mark_uptodate).
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220813225943.143767-1-namit@vmware.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/kprobes/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/buffer_head.h |   25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -495,7 +495,7 @@ static void kprobe_emulate_jcc(struct kp
- 		match = ((regs->flags & X86_EFLAGS_SF) >> X86_EFLAGS_SF_BIT) ^
- 			((regs->flags & X86_EFLAGS_OF) >> X86_EFLAGS_OF_BIT);
- 		if (p->ainsn.jcc.type >= 0xe)
--			match = match && (regs->flags & X86_EFLAGS_ZF);
-+			match = match || (regs->flags & X86_EFLAGS_ZF);
- 	}
- 	__kprobe_emulate_jmp(p, regs, (match && !invert) || (!match && invert));
- }
+--- a/include/linux/buffer_head.h
++++ b/include/linux/buffer_head.h
+@@ -114,7 +114,6 @@ static __always_inline int test_clear_bu
+  * of the form "mark_buffer_foo()".  These are higher-level functions which
+  * do something in addition to setting a b_state bit.
+  */
+-BUFFER_FNS(Uptodate, uptodate)
+ BUFFER_FNS(Dirty, dirty)
+ TAS_BUFFER_FNS(Dirty, dirty)
+ BUFFER_FNS(Lock, locked)
+@@ -132,6 +131,30 @@ BUFFER_FNS(Meta, meta)
+ BUFFER_FNS(Prio, prio)
+ BUFFER_FNS(Defer_Completion, defer_completion)
+ 
++static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
++{
++	/*
++	 * make it consistent with folio_mark_uptodate
++	 * pairs with smp_load_acquire in buffer_uptodate
++	 */
++	smp_mb__before_atomic();
++	set_bit(BH_Uptodate, &bh->b_state);
++}
++
++static __always_inline void clear_buffer_uptodate(struct buffer_head *bh)
++{
++	clear_bit(BH_Uptodate, &bh->b_state);
++}
++
++static __always_inline int buffer_uptodate(const struct buffer_head *bh)
++{
++	/*
++	 * make it consistent with folio_test_uptodate
++	 * pairs with smp_mb__before_atomic in set_buffer_uptodate
++	 */
++	return (smp_load_acquire(&bh->b_state) & (1UL << BH_Uptodate)) != 0;
++}
++
+ #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
+ 
+ /* If we *know* page->private refers to buffer_heads */
 
 
