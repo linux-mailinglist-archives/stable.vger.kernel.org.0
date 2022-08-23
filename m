@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D82C59D33B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FFB259D42E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242412AbiHWIOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:14:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33314 "EHLO
+        id S242299AbiHWIQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:16:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242162AbiHWIOD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:14:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497276C74B;
-        Tue, 23 Aug 2022 01:09:28 -0700 (PDT)
+        with ESMTP id S242221AbiHWIOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:14:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3366A6CD28;
+        Tue, 23 Aug 2022 01:09:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0187611DD;
-        Tue, 23 Aug 2022 08:09:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF6E9C433D6;
-        Tue, 23 Aug 2022 08:09:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D65E611DD;
+        Tue, 23 Aug 2022 08:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42005C433C1;
+        Tue, 23 Aug 2022 08:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242167;
-        bh=6aPiWU1DmthuuDEU+s0sTpbF8usqvd3MVqimuy22VTM=;
+        s=korg; t=1661242173;
+        bh=P8UEV1N27KxK4rVs22ewqoJc9ap4u38E5X9Mm+pEotI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUPCawR5rtI4Ut8XaSjIHgnB7o9iNrQ5xA3LA35iqau8D6sFTstADG63pjfvi8LHu
-         Mqo/AivpFpgd8aEoEhJkpHh8s187lfryv881l/K8IJr/2YaQ8f4C4j8FHWyBoRiOsZ
-         4UMcutgsJAvRYeIFw/shi1773p6BGmcPKVV43hT0=
+        b=jCn4Mt+MbfOwkr+qNiRsZRNYRNEKylseFLQzEDuIzD3RVFUs4scfIQNKQWTQf6j8t
+         tHInW0KSbia+raG9F7Pw7SsZheV3s7T4pMctYwslCoIePrfe9YbbHZ5r7ngK8HogzV
+         CKkDr7DVkrdkxgrhgU6GJgqMY+iL36pRQtBD3uh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+760a73552f47a8cd0fd9@syzkaller.appspotmail.com,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Hou Wenlong <houwenlong.hwl@antgroup.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>
-Subject: [PATCH 4.9 030/101] KVM: x86: Mark TSS busy during LTR emulation _after_ all fault checks
-Date:   Tue, 23 Aug 2022 10:03:03 +0200
-Message-Id: <20220823080035.739214317@linuxfoundation.org>
+        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 031/101] ALSA: hda/conexant: Add quirk for LENOVO 20149 Notebook model
+Date:   Tue, 23 Aug 2022 10:03:04 +0200
+Message-Id: <20220823080035.773347754@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -57,66 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Meng Tang <tangmeng@uniontech.com>
 
-commit ec6e4d863258d4bfb36d48d5e3ef68140234d688 upstream.
+commit f83bb2592482fe94c6eea07a8121763c80f36ce5 upstream.
 
-Wait to mark the TSS as busy during LTR emulation until after all fault
-checks for the LTR have passed.  Specifically, don't mark the TSS busy if
-the new TSS base is non-canonical.
+There is another LENOVO 20149 (Type1Sku0) Notebook model with
+CX20590, the device PCI SSID is 17aa:3977, which headphones are
+not responding, that requires the quirk CXT_PINCFG_LENOVO_NOTEBOOK.
+Add the corresponding entry to the quirk table.
 
-Opportunistically drop the one-off !seg_desc.PRESENT check for TR as the
-only reason for the early check was to avoid marking a !PRESENT TSS as
-busy, i.e. the common !PRESENT is now done before setting the busy bit.
-
-Fixes: e37a75a13cda ("KVM: x86: Emulator ignores LDTR/TR extended base on LLDT/LTR")
-Reported-by: syzbot+760a73552f47a8cd0fd9@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Hou Wenlong <houwenlong.hwl@antgroup.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220711232750.1092012-2-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220808073406.19460-1-tangmeng@uniontech.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ sound/pci/hda/patch_conexant.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -1713,16 +1713,6 @@ static int __load_segment_descriptor(str
- 	case VCPU_SREG_TR:
- 		if (seg_desc.s || (seg_desc.type != 1 && seg_desc.type != 9))
- 			goto exception;
--		if (!seg_desc.p) {
--			err_vec = NP_VECTOR;
--			goto exception;
--		}
--		old_desc = seg_desc;
--		seg_desc.type |= 2; /* busy */
--		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
--						  sizeof(seg_desc), &ctxt->exception);
--		if (ret != X86EMUL_CONTINUE)
--			return ret;
- 		break;
- 	case VCPU_SREG_LDTR:
- 		if (seg_desc.s || seg_desc.type != 2)
-@@ -1763,6 +1753,15 @@ static int __load_segment_descriptor(str
- 					     ((u64)base3 << 32)))
- 			return emulate_gp(ctxt, 0);
- 	}
-+
-+	if (seg == VCPU_SREG_TR) {
-+		old_desc = seg_desc;
-+		seg_desc.type |= 2; /* busy */
-+		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
-+						  sizeof(seg_desc), &ctxt->exception);
-+		if (ret != X86EMUL_CONTINUE)
-+			return ret;
-+	}
- load:
- 	ctxt->ops->set_segment(ctxt, selector, &seg_desc, base3, seg);
- 	if (desc)
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -238,6 +238,7 @@ enum {
+ 	CXT_PINCFG_LEMOTE_A1205,
+ 	CXT_PINCFG_COMPAQ_CQ60,
+ 	CXT_FIXUP_STEREO_DMIC,
++	CXT_PINCFG_LENOVO_NOTEBOOK,
+ 	CXT_FIXUP_INC_MIC_BOOST,
+ 	CXT_FIXUP_HEADPHONE_MIC_PIN,
+ 	CXT_FIXUP_HEADPHONE_MIC,
+@@ -698,6 +699,14 @@ static const struct hda_fixup cxt_fixups
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = cxt_fixup_stereo_dmic,
+ 	},
++	[CXT_PINCFG_LENOVO_NOTEBOOK] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x1a, 0x05d71030 },
++			{ }
++		},
++		.chain_id = CXT_FIXUP_STEREO_DMIC,
++	},
+ 	[CXT_FIXUP_INC_MIC_BOOST] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = cxt5066_increase_mic_boost,
+@@ -860,7 +869,7 @@ static const struct snd_pci_quirk cxt506
+ 	SND_PCI_QUIRK(0x17aa, 0x3905, "Lenovo G50-30", CXT_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x390b, "Lenovo G50-80", CXT_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3975, "Lenovo U300s", CXT_FIXUP_STEREO_DMIC),
+-	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_FIXUP_STEREO_DMIC),
++	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_PINCFG_LENOVO_NOTEBOOK),
+ 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo G50-70", CXT_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x397b, "Lenovo S205", CXT_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK_VENDOR(0x17aa, "Thinkpad", CXT_FIXUP_THINKPAD_ACPI),
 
 
