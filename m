@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9336459D8BB
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 870A859D9FB
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243012AbiHWJ5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:57:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37310 "EHLO
+        id S1348957AbiHWKEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:04:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243219AbiHWJwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:52:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04C37B78A;
-        Tue, 23 Aug 2022 01:46:19 -0700 (PDT)
+        with ESMTP id S1352539AbiHWKCF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:02:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F13FF7C514;
+        Tue, 23 Aug 2022 01:50:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8282CB81C53;
-        Tue, 23 Aug 2022 08:45:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E690AC433C1;
-        Tue, 23 Aug 2022 08:45:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D79C46123D;
+        Tue, 23 Aug 2022 08:50:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7D29C433C1;
+        Tue, 23 Aug 2022 08:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244314;
-        bh=OIFz9Puy2x0e9AK+d1L7NJn2m8YPZnlzGVGHvm1SSgI=;
+        s=korg; t=1661244600;
+        bh=4jrCeDH5htUTAKRPY4r395KdKhET1ApCrWau5EWtYyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mtK2VeYkMUPGo7bihZHvYN48T03TepmRCSYPYZRsDiKKpypI1P/dEKVAsUV/1rWN+
-         TOviHoiExTcQv7OUe6crxPABS9510xdvw6EkrmJz0oUWiddmIHcAsxqPajj5ABAE0j
-         /Eo4a09bV1uF+QFr/8Vfi5BVRcP3DXyUSD1qksLE=
+        b=Db5ZcyM1bVvq93OkttBBS/qNOLT2ionqBGtOczhXxz2K4zLHovTG/FTNirOa5Hpbz
+         S7cNKOEQU7OvZ4LPZGVpkYfrQYXclY0X7lEhA4khXgTISAxyHrzdToNb/T5S+jLvsI
+         DarNnBvpLHgTw60CDnFGKfpvYnUxdYj5gah9u/lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 118/229] ASoC: mediatek: mt8173: Fix refcount leak in mt8173_rt5650_rt5676_dev_probe
-Date:   Tue, 23 Aug 2022 10:24:39 +0200
-Message-Id: <20220823080057.908983731@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 121/244] ASoC: tas2770: Fix handling of mute/unmute
+Date:   Tue, 23 Aug 2022 10:24:40 +0200
+Message-Id: <20220823080103.082949163@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit ae4f11c1ed2d67192fdf3d89db719ee439827c11 ]
+commit 1e5907bcb3a3b569be0a03ebe668bba2ed320a50 upstream.
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Fix missing of_node_put() in error paths.
+Because the PWR_CTRL field is modeled as the power state of the DAC
+widget, and at the same time it is used to implement mute/unmute, we
+need some additional book-keeping to have the right end result no matter
+the sequence of calls. Without this fix, one can mute an ongoing stream
+by toggling a speaker pin control.
 
-Fixes: 94319ba10eca ("ASoC: mediatek: Use platform_of_node for machine drivers")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220602034144.60159-1-linmq006@gmail.com
+Fixes: 1a476abc723e ("tas2770: add tas2770 smart PA kernel driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220808141246.5749-5-povik+lin@cutebit.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ sound/soc/codecs/tas2770.c |   57 +++++++++++++++++++++++----------------------
+ sound/soc/codecs/tas2770.h |    2 +
+ 2 files changed, 32 insertions(+), 27 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
-index 61b0d8f8678e..90606b177eaf 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
-@@ -255,14 +255,16 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
- 	if (!mt8173_rt5650_rt5676_codecs[0].of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_node;
- 	}
- 	mt8173_rt5650_rt5676_codecs[1].of_node =
- 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
- 	if (!mt8173_rt5650_rt5676_codecs[1].of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_node;
- 	}
- 	mt8173_rt5650_rt5676_codec_conf[0].of_node =
- 		mt8173_rt5650_rt5676_codecs[1].of_node;
-@@ -275,7 +277,8 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
- 	if (!mt8173_rt5650_rt5676_dais[DAI_LINK_HDMI_I2S].codec_of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_node;
- 	}
- 
- 	card->dev = &pdev->dev;
-@@ -285,6 +288,7 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
- 
-+put_node:
- 	of_node_put(platform_node);
- 	return ret;
+--- a/sound/soc/codecs/tas2770.c
++++ b/sound/soc/codecs/tas2770.c
+@@ -46,6 +46,26 @@ static void tas2770_reset(struct tas2770
+ 	usleep_range(1000, 2000);
  }
--- 
-2.35.1
-
+ 
++static int tas2770_update_pwr_ctrl(struct tas2770_priv *tas2770)
++{
++	struct snd_soc_component *component = tas2770->component;
++	unsigned int val;
++	int ret;
++
++	if (tas2770->dac_powered)
++		val = tas2770->unmuted ?
++			TAS2770_PWR_CTRL_ACTIVE : TAS2770_PWR_CTRL_MUTE;
++	else
++		val = TAS2770_PWR_CTRL_SHUTDOWN;
++
++	ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
++					    TAS2770_PWR_CTRL_MASK, val);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
+ #ifdef CONFIG_PM
+ static int tas2770_codec_suspend(struct snd_soc_component *component)
+ {
+@@ -82,9 +102,7 @@ static int tas2770_codec_resume(struct s
+ 		gpiod_set_value_cansleep(tas2770->sdz_gpio, 1);
+ 		usleep_range(1000, 2000);
+ 	} else {
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_ACTIVE);
++		ret = tas2770_update_pwr_ctrl(tas2770);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+@@ -120,24 +138,19 @@ static int tas2770_dac_event(struct snd_
+ 
+ 	switch (event) {
+ 	case SND_SOC_DAPM_POST_PMU:
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_MUTE);
++		tas2770->dac_powered = 1;
++		ret = tas2770_update_pwr_ctrl(tas2770);
+ 		break;
+ 	case SND_SOC_DAPM_PRE_PMD:
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_SHUTDOWN);
++		tas2770->dac_powered = 0;
++		ret = tas2770_update_pwr_ctrl(tas2770);
+ 		break;
+ 	default:
+ 		dev_err(tas2770->dev, "Not supported evevt\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	if (ret < 0)
+-		return ret;
+-
+-	return 0;
++	return ret;
+ }
+ 
+ static const struct snd_kcontrol_new isense_switch =
+@@ -171,21 +184,11 @@ static const struct snd_soc_dapm_route t
+ static int tas2770_mute(struct snd_soc_dai *dai, int mute, int direction)
+ {
+ 	struct snd_soc_component *component = dai->component;
+-	int ret;
+-
+-	if (mute)
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_MUTE);
+-	else
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_ACTIVE);
+-
+-	if (ret < 0)
+-		return ret;
++	struct tas2770_priv *tas2770 =
++			snd_soc_component_get_drvdata(component);
+ 
+-	return 0;
++	tas2770->unmuted = !mute;
++	return tas2770_update_pwr_ctrl(tas2770);
+ }
+ 
+ static int tas2770_set_bitwidth(struct tas2770_priv *tas2770, int bitwidth)
+--- a/sound/soc/codecs/tas2770.h
++++ b/sound/soc/codecs/tas2770.h
+@@ -138,6 +138,8 @@ struct tas2770_priv {
+ 	struct device *dev;
+ 	int v_sense_slot;
+ 	int i_sense_slot;
++	bool dac_powered;
++	bool unmuted;
+ };
+ 
+ #endif /* __TAS2770__ */
 
 
