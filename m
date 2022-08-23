@@ -2,103 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F13E59D920
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE48059D9DF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242349AbiHWJsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:48:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54538 "EHLO
+        id S1351777AbiHWKDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:03:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238966AbiHWJrW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:47:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 899DA9C8CE;
-        Tue, 23 Aug 2022 01:44:34 -0700 (PDT)
+        with ESMTP id S1352239AbiHWKB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20396786D0;
+        Tue, 23 Aug 2022 01:49:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B12AB81C4A;
-        Tue, 23 Aug 2022 08:44:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9733BC433B5;
-        Tue, 23 Aug 2022 08:43:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ACB8EB81BF8;
+        Tue, 23 Aug 2022 08:49:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2156EC433D6;
+        Tue, 23 Aug 2022 08:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244239;
-        bh=azrkHgPOnQs884ZEUGFFFLQT6q0lJFF7yhUhaKnD080=;
+        s=korg; t=1661244543;
+        bh=FiKJFq3p3hNMNAz/G+j1Jr63XmO/Uxj1ECLA2jSv+YM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWExlh+fyrRuwMbIxKr/2863jpg53DDS8GIMBy9wXUfwpcEfm5lEdzncqx4HV/QIo
-         GFBOPINW6aH4pFTiOpn3xO2LHWozElYjn+OK+n3cOFWu7ez00L8yU+0ggTBIkJUtR7
-         EyJFUNkXLA7b8cC7QT1I/ALs35hStapQ42VD9cYQ=
+        b=WLW8ocrZTRLVw+0iTzyBtq0ziXGapSsY6WFyG+sGSaxcr1+1yx1tSW3yEQOvHF358
+         nKekLydVm8zonVTX4kG/VeDATG1UZ0+WXqpHdScaaREHeRAI822jrCZ+R3c47Y29m3
+         i0XTxa0qYmjXzHPRncbF+WBoAX6f8NpTtb8R6xUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Raviteja Garimella <raviteja.garimella@broadcom.com>,
-        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 107/229] usb: gadget: udc: amd5536 depends on HAS_DMA
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 5.15 109/244] nios2: page fault et.al. are *not* restartable syscalls...
 Date:   Tue, 23 Aug 2022 10:24:28 +0200
-Message-Id: <20220823080057.502281644@linuxfoundation.org>
+Message-Id: <20220823080102.654952638@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_ABUSE_SURBL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 8097cf2fb3b2205257f1c76f4808e3398d66b6d9 ]
+commit 8535c239ac674f7ead0f2652932d35c52c4123b2 upstream.
 
-USB_AMD5536UDC should depend on HAS_DMA since it selects USB_SNP_CORE,
-which depends on HAS_DMA and since 'select' does not follow any
-dependency chains.
+make sure that ->orig_r2 is negative for everything except
+the syscalls.
 
-Fixes this kconfig warning:
-
-WARNING: unmet direct dependencies detected for USB_SNP_CORE
-  Depends on [n]: USB_SUPPORT [=y] && USB_GADGET [=y] && (USB_AMD5536UDC [=y] || USB_SNP_UDC_PLAT [=n]) && HAS_DMA [=n]
-  Selected by [y]:
-  - USB_AMD5536UDC [=y] && USB_SUPPORT [=y] && USB_GADGET [=y] && USB_PCI [=y]
-
-Fixes: 97b3ffa233b9 ("usb: gadget: udc: amd5536: split core and PCI layer")
-Cc: Raviteja Garimella <raviteja.garimella@broadcom.com>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: linux-usb@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20220709013601.7536-1-rdunlap@infradead.org
+Fixes: 82ed08dd1b0e ("nios2: Exception handling")
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/include/asm/entry.h |    3 ++-
+ arch/nios2/kernel/entry.S      |    4 +---
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
-index 3291ea22853c..4c6eaf2a3b73 100644
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -309,7 +309,7 @@ source "drivers/usb/gadget/udc/bdc/Kconfig"
+--- a/arch/nios2/include/asm/entry.h
++++ b/arch/nios2/include/asm/entry.h
+@@ -50,7 +50,8 @@
+ 	stw	r13, PT_R13(sp)
+ 	stw	r14, PT_R14(sp)
+ 	stw	r15, PT_R15(sp)
+-	stw	r2, PT_ORIG_R2(sp)
++	movi	r24, -1
++	stw	r24, PT_ORIG_R2(sp)
+ 	stw	r7, PT_ORIG_R7(sp)
  
- config USB_AMD5536UDC
- 	tristate "AMD5536 UDC"
--	depends on USB_PCI
-+	depends on USB_PCI && HAS_DMA
- 	select USB_SNP_CORE
- 	help
- 	   The AMD5536 UDC is part of the AMD Geode CS5536, an x86 southbridge.
--- 
-2.35.1
-
+ 	stw	ra, PT_RA(sp)
+--- a/arch/nios2/kernel/entry.S
++++ b/arch/nios2/kernel/entry.S
+@@ -185,6 +185,7 @@ ENTRY(handle_system_call)
+ 	ldw	r5, PT_R5(sp)
+ 
+ local_restart:
++	stw	r2, PT_ORIG_R2(sp)
+ 	/* Check that the requested system call is within limits */
+ 	movui	r1, __NR_syscalls
+ 	bgeu	r2, r1, ret_invsyscall
+@@ -336,9 +337,6 @@ external_interrupt:
+ 	/* skip if no interrupt is pending */
+ 	beq	r12, r0, ret_from_interrupt
+ 
+-	movi	r24, -1
+-	stw	r24, PT_ORIG_R2(sp)
+-
+ 	/*
+ 	 * Process an external hardware interrupt.
+ 	 */
 
 
