@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F133259D942
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1FE059D964
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348876AbiHWJRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:17:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50214 "EHLO
+        id S234451AbiHWJTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:19:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349601AbiHWJQH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:16:07 -0400
+        with ESMTP id S243529AbiHWJQt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:16:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94A267539B;
-        Tue, 23 Aug 2022 01:32:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A694C895D5;
+        Tue, 23 Aug 2022 01:33:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25184614C2;
-        Tue, 23 Aug 2022 08:32:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A5E6C43140;
-        Tue, 23 Aug 2022 08:32:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B492614C5;
+        Tue, 23 Aug 2022 08:32:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FF8EC433D6;
+        Tue, 23 Aug 2022 08:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243548;
-        bh=gm4JWmFIYfwLgfO8bC1MN2J9LdWEiHeJg2NX56k84FU=;
+        s=korg; t=1661243557;
+        bh=ToAhFeKSCUYqwfV7WJxRcx6njmv1ANxzF4hd+UQt+d0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XU4tSjREz96PFMwsO6RSfe5Dm2mcG5Z7QYGBf4s38+zzriYPlbW8eHUx3wiDDxaFV
-         t1FuK19dpj0nFC1AESNDe/78VBha6gx7yUVqkMnbiu36+NPOTj5kkjP7QyyPRh/wF4
-         FUPnjtq96XhmSAAXNcVCUpnwmKjaaS8pLn5yZEPc=
+        b=F1gFo8saXOKrgw8lv/m4zuAxNMqbCGy0MBzq+DVnlNlSBv+fPjghGielyzpS8nksf
+         qGoojgyO6zH+1DNuZ4SibsVAyppk417VSA1cz0iBO1QdzZeQImGfPesJkd/Je4ZGeo
+         niL/evEabkYg/N1sDNxsh32jR512GGKjUYgz2WiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 312/365] md/raid5: Make logic blocking check consistent with logic that blocks
-Date:   Tue, 23 Aug 2022 10:03:33 +0200
-Message-Id: <20220823080131.232792593@linuxfoundation.org>
+Subject: [PATCH 5.19 315/365] ext4: avoid remove directory when directory is corrupted
+Date:   Tue, 23 Aug 2022 10:03:36 +0200
+Message-Id: <20220823080131.358191611@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,46 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 6e3f50d30af847bebce072182bd735e90a294c6a ]
+[ Upstream commit b24e77ef1c6d4dbf42749ad4903c97539cc9755a ]
 
-The check in raid5_make_request differs very slightly from the logic
-that causes it to block lower down. This likely does not cause a bug
-as the check is fuzzy anyway (as reshape may move on between the first
-check and the subsequent check). However, make it consistent so it can
-be cleaned up in a subsequent patch.
+Now if check directoy entry is corrupted, ext4_empty_dir may return true
+then directory will be removed when file system mounted with "errors=continue".
+In order not to make things worse just return false when directory is corrupted.
 
-The condition which causes the schedule is:
-
- !(mddev->reshape_backwards ? logical_sector < conf->reshape_progress :
-   logical_sector >= conf->reshape_progress) &&
-  (mddev->reshape_backwards ? logical_sector < conf->reshape_safe :
-   logical_sector >= conf->reshape_safe)
-
-The condition that causes the early bailout is made to match this.
-
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220622090223.682234-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/namei.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index c8539d0e12dd..45482cebacdb 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -5841,7 +5841,7 @@ static bool raid5_make_request(struct mddev *mddev, struct bio * bi)
- 	if ((bi->bi_opf & REQ_NOWAIT) &&
- 	    (conf->reshape_progress != MaxSector) &&
- 	    (mddev->reshape_backwards
--	    ? (logical_sector > conf->reshape_progress && logical_sector <= conf->reshape_safe)
-+	    ? (logical_sector >= conf->reshape_progress && logical_sector < conf->reshape_safe)
- 	    : (logical_sector >= conf->reshape_safe && logical_sector < conf->reshape_progress))) {
- 		bio_wouldblock_error(bi);
- 		if (rw == WRITE)
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 4af441494e09..3a31b662f661 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3090,11 +3090,8 @@ bool ext4_empty_dir(struct inode *inode)
+ 		de = (struct ext4_dir_entry_2 *) (bh->b_data +
+ 					(offset & (sb->s_blocksize - 1)));
+ 		if (ext4_check_dir_entry(inode, NULL, de, bh,
+-					 bh->b_data, bh->b_size, offset)) {
+-			offset = (offset | (sb->s_blocksize - 1)) + 1;
+-			continue;
+-		}
+-		if (le32_to_cpu(de->inode)) {
++					 bh->b_data, bh->b_size, offset) ||
++		    le32_to_cpu(de->inode)) {
+ 			brelse(bh);
+ 			return false;
+ 		}
 -- 
 2.35.1
 
