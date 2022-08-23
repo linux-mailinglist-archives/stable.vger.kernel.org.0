@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2548C59DE66
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF5559E292
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351139AbiHWKpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:45:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56286 "EHLO
+        id S243203AbiHWLtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:49:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241147AbiHWKnA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:43:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420ADAB04E;
-        Tue, 23 Aug 2022 02:10:24 -0700 (PDT)
+        with ESMTP id S1358405AbiHWLs3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:48:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BCF0D21EF;
+        Tue, 23 Aug 2022 02:30:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F8C660E8C;
-        Tue, 23 Aug 2022 09:10:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 973FFC433D6;
-        Tue, 23 Aug 2022 09:10:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 885ADB81C89;
+        Tue, 23 Aug 2022 09:30:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C6BBC433C1;
+        Tue, 23 Aug 2022 09:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245822;
-        bh=tb0L+48kVum/RpT77dxjdesXw3jG6b7yOUw6rS0m9R0=;
+        s=korg; t=1661247024;
+        bh=gykyd7vy2/LGzhsLkKz6gT5jYGTf6OFhhH8pxOHS/Kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qh95W/mLxWIg/F10d3/Dhm8AcDhnyTwSywISgCC7UwT7JFfP0mW1hRvSz8M7rsR9D
-         AFTn51NIorZZebcctY030TVYSS1q5rDVHjXSxzAdk3hm4xx7u8peJxHniYKBYwrDDl
-         tXOfKBWu7m8qlPWPw6YYwT/3bNLpsX7ss5XFlq1E=
+        b=dYO0BK08RMIuvn8PYb6Xh5kvEcuqFsoCYQPUk2iV8v0vA/Z9ZM1RsLK2J6rO68h0P
+         Ojl7GRFmK1RDCsKhc1b4v8RTQqQ+IJcJTrC21fR+NODoENiGZnZ5bKbI8ZNEIrXd0Y
+         oBoMOKBowBblKJlVL5/pX7fZNchiznW4y6NJsgQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 173/287] powerpc/cell/axon_msi: Fix refcount leak in setup_msi_msg_address
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable <stable@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 5.4 264/389] intel_th: pci: Add Raptor Lake-S CPU support
 Date:   Tue, 23 Aug 2022 10:25:42 +0200
-Message-Id: <20220823080106.585804636@linuxfoundation.org>
+Message-Id: <20220823080126.599335444@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit df5d4b616ee76abc97e5bd348e22659c2b095b1c ]
+commit ff46a601afc5a66a81c3945b83d0a2caeb88e8bc upstream.
 
-of_get_next_parent() returns a node pointer with refcount incremented,
-we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() in the error path to avoid refcount leak.
+Add support for the Trace Hub in Raptor Lake-S CPU.
 
-Fixes: ce21b3c9648a ("[CELL] add support for MSI on Axon-based Cell systems")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220605065129.63906-1-linmq006@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20220705082637.59979-7-alexander.shishkin@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/cell/axon_msi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwtracing/intel_th/pci.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/powerpc/platforms/cell/axon_msi.c b/arch/powerpc/platforms/cell/axon_msi.c
-index 326d34e2aa02..946a09ae9fb2 100644
---- a/arch/powerpc/platforms/cell/axon_msi.c
-+++ b/arch/powerpc/platforms/cell/axon_msi.c
-@@ -230,6 +230,7 @@ static int setup_msi_msg_address(struct pci_dev *dev, struct msi_msg *msg)
- 	if (!prop) {
- 		dev_dbg(&dev->dev,
- 			"axon_msi: no msi-address-(32|64) properties found\n");
-+		of_node_put(dn);
- 		return -ENOENT;
- 	}
- 
--- 
-2.35.1
-
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -280,6 +280,11 @@ static const struct pci_device_id intel_
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
+ 	{
++		/* Raptor Lake-S CPU */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa76f),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
++	{
+ 		/* Rocket Lake CPU */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4c19),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 
 
