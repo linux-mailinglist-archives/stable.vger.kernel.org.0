@@ -2,57 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9D159D6FC
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5826659D748
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242102AbiHWJ5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:57:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56580 "EHLO
+        id S239431AbiHWJqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352066AbiHWJ4V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:56:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A5896F569;
-        Tue, 23 Aug 2022 01:47:14 -0700 (PDT)
+        with ESMTP id S1351930AbiHWJpm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:45:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3C32AE03;
+        Tue, 23 Aug 2022 01:43:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0281061377;
-        Tue, 23 Aug 2022 08:47:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D365AC433D7;
-        Tue, 23 Aug 2022 08:47:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 102CD61538;
+        Tue, 23 Aug 2022 08:42:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09457C433C1;
+        Tue, 23 Aug 2022 08:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244433;
-        bh=69ovCRcumfGslh/oGLivZ4DIr8oJgQGwFuXGEqHGW5k=;
+        s=korg; t=1661244149;
+        bh=6bjpeb1yXqMnkg9+2/fYr7o7Pa+WhVmDu5sIiWvdvEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQxgqL2KgWzCKRnMVfjab2ZAUFyYUEVWVEF26pCj6zZFczFmfdAyGQICYPGWLXxga
-         L4KaxEwVWPXbt7ITdk7ettvTS3XdJJvEfiuY1ff1cgbqD3dCnZ7U6GW0hAHl4rK5Z4
-         PXF5Tu9DJ3V3jZsUxlWmtf8K4wAEwkIhbUhU01cQ=
+        b=HHxHIztraFrj8Ir6NBhJq4+GkpWrEZ/89Nxa1ZUVsdP0G1lwfDPUzMp1Lt7JeD+zY
+         htX/J0qwEcdywRvwLoiZI6w/zDmiwQiEQ2drQm4kZj3khbVS33AYsKIjc2QZxPL4Bu
+         cfNtWFWd94L5JJ/eCq9pCzluhVWgGl4tZtHwOPQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, llvm@lists.linux.dev,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Song Liu <song@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.15 093/244] tools build: Switch to new openssl API for test-libcrypto
-Date:   Tue, 23 Aug 2022 10:24:12 +0200
-Message-Id: <20220823080102.118945451@linuxfoundation.org>
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 093/229] dccp: put dccp_qpolicy_full() and dccp_qpolicy_push() in the same lock
+Date:   Tue, 23 Aug 2022 10:24:14 +0200
+Message-Id: <20220823080057.037313606@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,70 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit 5b245985a6de5ac18b5088c37068816d413fb8ed upstream.
+[ Upstream commit a41b17ff9dacd22f5f118ee53d82da0f3e52d5e3 ]
 
-Switch to new EVP API for detecting libcrypto, as Fedora 36 returns an
-error when it encounters the deprecated function MD5_Init() and the others.
+In the case of sk->dccps_qpolicy == DCCPQ_POLICY_PRIO, dccp_qpolicy_full
+will drop a skb when qpolicy is full. And the lock in dccp_sendmsg is
+released before sock_alloc_send_skb and then relocked after
+sock_alloc_send_skb. The following conditions may lead dccp_qpolicy_push
+to add skb to an already full sk_write_queue:
 
-The error would be interpreted as missing libcrypto, while in reality it is
-not.
+thread1--->lock
+thread1--->dccp_qpolicy_full: queue is full. drop a skb
+thread1--->unlock
+thread2--->lock
+thread2--->dccp_qpolicy_full: queue is not full. no need to drop.
+thread2--->unlock
+thread1--->lock
+thread1--->dccp_qpolicy_push: add a skb. queue is full.
+thread1--->unlock
+thread2--->lock
+thread2--->dccp_qpolicy_push: add a skb!
+thread2--->unlock
 
-Fixes: 6e8ccb4f624a73c5 ("tools/bpf: properly account for libbfd variations")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: bpf@vger.kernel.org
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: llvm@lists.linux.dev
-Cc: Martin KaFai Lau <martin.lau@linux.dev>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Quentin Monnet <quentin@isovalent.com>
-Cc: Song Liu <song@kernel.org>
-Cc: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/20220719170555.2576993-4-roberto.sassu@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by moving dccp_qpolicy_full.
+
+Fixes: b1308dc015eb ("[DCCP]: Set TX Queue Length Bounds via Sysctl")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20220729110027.40569-1-hbh25y@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/build/feature/test-libcrypto.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ net/dccp/proto.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/tools/build/feature/test-libcrypto.c
-+++ b/tools/build/feature/test-libcrypto.c
-@@ -1,16 +1,23 @@
- // SPDX-License-Identifier: GPL-2.0
-+#include <openssl/evp.h>
- #include <openssl/sha.h>
- #include <openssl/md5.h>
+diff --git a/net/dccp/proto.c b/net/dccp/proto.c
+index 936dab12f99f..e552009b6cc5 100644
+--- a/net/dccp/proto.c
++++ b/net/dccp/proto.c
+@@ -764,11 +764,6 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
  
- int main(void)
- {
--	MD5_CTX context;
-+	EVP_MD_CTX *mdctx;
- 	unsigned char md[MD5_DIGEST_LENGTH + SHA_DIGEST_LENGTH];
- 	unsigned char dat[] = "12345";
-+	unsigned int digest_len;
+ 	lock_sock(sk);
  
--	MD5_Init(&context);
--	MD5_Update(&context, &dat[0], sizeof(dat));
--	MD5_Final(&md[0], &context);
-+	mdctx = EVP_MD_CTX_new();
-+	if (!mdctx)
-+		return 0;
+-	if (dccp_qpolicy_full(sk)) {
+-		rc = -EAGAIN;
+-		goto out_release;
+-	}
+-
+ 	timeo = sock_sndtimeo(sk, noblock);
+ 
+ 	/*
+@@ -787,6 +782,11 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 	if (skb == NULL)
+ 		goto out_release;
+ 
++	if (dccp_qpolicy_full(sk)) {
++		rc = -EAGAIN;
++		goto out_discard;
++	}
 +
-+	EVP_DigestInit_ex(mdctx, EVP_md5(), NULL);
-+	EVP_DigestUpdate(mdctx, &dat[0], sizeof(dat));
-+	EVP_DigestFinal_ex(mdctx, &md[0], &digest_len);
-+	EVP_MD_CTX_free(mdctx);
- 
- 	SHA1(&dat[0], sizeof(dat), &md[0]);
- 
+ 	if (sk->sk_state == DCCP_CLOSED) {
+ 		rc = -ENOTCONN;
+ 		goto out_discard;
+-- 
+2.35.1
+
 
 
