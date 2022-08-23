@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AD7659D9D5
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3191559D869
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347776AbiHWKDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:03:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57710 "EHLO
+        id S242038AbiHWJrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:47:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352083AbiHWKBM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAEDA30F50;
-        Tue, 23 Aug 2022 01:48:44 -0700 (PDT)
+        with ESMTP id S1352506AbiHWJqa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E81199C234;
+        Tue, 23 Aug 2022 01:44:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 032D2B81C28;
-        Tue, 23 Aug 2022 08:48:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54825C433D6;
-        Tue, 23 Aug 2022 08:48:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 01BEFCE1B2C;
+        Tue, 23 Aug 2022 08:43:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D614BC433C1;
+        Tue, 23 Aug 2022 08:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244521;
-        bh=W9WxLmYxGODJ81TG+pLggD5KFLjXaVnyk550yao84Bs=;
+        s=korg; t=1661244223;
+        bh=7BvALsoWs5iJliUehLucGEc6+Br7a+GqGnGcUgeAe0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhbyQToBvU9PEvhS5i0hQG1C9MSVKvMRT4OuIB5bwK5mRKFLE12crKDYsyuQ6MmIJ
-         h2qpM1ehIWBsIxzV7c4V9KW3bjLo6Mw++pZ1a4RomYoTTKKXqkPPv5M9zQhGs60h9M
-         A4p0bcIXCboFY1fAZv7nQQvLdNfo5opoyPELyWSA=
+        b=gDJDdVZ7dWChtrORvG/62huSTS1qbgC9QEbnIdHB0p9ZJQnYZXfl9jCI8XKLNpc+V
+         MsD3LPRxEAFAPAA0OAq8OkWhLZWdcYClDgycneZ9r7nYWLC5//NpIAmJ9QxLqF6Z67
+         1g/FFWa5r4rOiKWyqCQD2QwrmsDJlVyeFyGN0zNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Subject: [PATCH 5.15 106/244] fs/ntfs3: Fix double free on remount
-Date:   Tue, 23 Aug 2022 10:24:25 +0200
-Message-Id: <20220823080102.559168824@linuxfoundation.org>
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Karl Olsen <karl@micro-technic.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 105/229] mmc: sdhci-of-at91: fix set_uhs_signaling rewriting of MC1R
+Date:   Tue, 23 Aug 2022 10:24:26 +0200
+Message-Id: <20220823080057.440384775@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-commit cd39981fb92adf0cc736112f87e3e61602baa415 upstream.
+[ Upstream commit 5987e6ded29d52e42fc7b06aa575c60a25eee38e ]
 
-Pointer to options was freed twice on remount
-Fixes xfstest generic/361
-Fixes: 82cae269cfa9 ("fs/ntfs3: Add initialization of super block")
+In set_uhs_signaling, the DDR bit is being set by fully writing the MC1R
+register.
+This can lead to accidental erase of certain bits in this register.
+Avoid this by doing a read-modify-write operation.
 
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d0918764c17b ("mmc: sdhci-of-at91: fix MMC_DDR_52 timing selection")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Tested-by: Karl Olsen <karl@micro-technic.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20220630090926.15061-1-eugen.hristev@microchip.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/super.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci-of-at91.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/ntfs3/super.c
-+++ b/fs/ntfs3/super.c
-@@ -30,6 +30,7 @@
- #include <linux/fs_context.h>
- #include <linux/fs_parser.h>
- #include <linux/log2.h>
-+#include <linux/minmax.h>
- #include <linux/module.h>
- #include <linux/nls.h>
- #include <linux/seq_file.h>
-@@ -390,7 +391,7 @@ static int ntfs_fs_reconfigure(struct fs
- 		return -EINVAL;
- 	}
+diff --git a/drivers/mmc/host/sdhci-of-at91.c b/drivers/mmc/host/sdhci-of-at91.c
+index 78c9ac33b562..8a5f87bbe393 100644
+--- a/drivers/mmc/host/sdhci-of-at91.c
++++ b/drivers/mmc/host/sdhci-of-at91.c
+@@ -116,8 +116,13 @@ static void sdhci_at91_set_power(struct sdhci_host *host, unsigned char mode,
  
--	memcpy(sbi->options, new_opts, sizeof(*new_opts));
-+	swap(sbi->options, fc->fs_private);
- 
- 	return 0;
+ void sdhci_at91_set_uhs_signaling(struct sdhci_host *host, unsigned int timing)
+ {
+-	if (timing == MMC_TIMING_MMC_DDR52)
+-		sdhci_writeb(host, SDMMC_MC1R_DDR, SDMMC_MC1R);
++	u8 mc1r;
++
++	if (timing == MMC_TIMING_MMC_DDR52) {
++		mc1r = sdhci_readb(host, SDMMC_MC1R);
++		mc1r |= SDMMC_MC1R_DDR;
++		sdhci_writeb(host, mc1r, SDMMC_MC1R);
++	}
+ 	sdhci_set_uhs_signaling(host, timing);
  }
-@@ -901,6 +902,8 @@ static int ntfs_fill_super(struct super_
- 	ref.high = 0;
  
- 	sbi->sb = sb;
-+	sbi->options = fc->fs_private;
-+	fc->fs_private = NULL;
- 	sb->s_flags |= SB_NODIRATIME;
- 	sb->s_magic = 0x7366746e; // "ntfs"
- 	sb->s_op = &ntfs_sops;
-@@ -1264,8 +1267,6 @@ load_root:
- 		goto put_inode_out;
- 	}
- 
--	fc->fs_private = NULL;
--
- 	return 0;
- 
- put_inode_out:
-@@ -1418,7 +1419,6 @@ static int ntfs_init_fs_context(struct f
- 	mutex_init(&sbi->compress.mtx_lzx);
- #endif
- 
--	sbi->options = opts;
- 	fc->s_fs_info = sbi;
- ok:
- 	fc->fs_private = opts;
+-- 
+2.35.1
+
 
 
