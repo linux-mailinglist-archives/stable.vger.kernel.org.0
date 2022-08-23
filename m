@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA9A059DA5D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0364259DA75
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352367AbiHWKH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:07:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46754 "EHLO
+        id S1351922AbiHWKIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:08:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352820AbiHWKGU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:20 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC54D1E0;
-        Tue, 23 Aug 2022 01:53:13 -0700 (PDT)
+        with ESMTP id S1352960AbiHWKGc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F011BE94;
+        Tue, 23 Aug 2022 01:53:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 65A66CE1B41;
-        Tue, 23 Aug 2022 08:53:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F57C433D6;
-        Tue, 23 Aug 2022 08:53:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 905216153D;
+        Tue, 23 Aug 2022 08:53:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88DB3C433D6;
+        Tue, 23 Aug 2022 08:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244790;
-        bh=wfxCBtMasHoEFMn9oqLYg4hdLmiDL38+6fTcxBgzW1k=;
+        s=korg; t=1661244824;
+        bh=KBS0Bw+5URDBqS6bBdmXuY9kF7ZqSJW7N+F4TsqBqPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iI8VXE41VYyu8+fkTbYT4s+JZ7gxRmyC6XGsQ3u+V0+d2RdtorTwkGG3GXuirO2MN
-         p5Ub47d5beX6dbfXKK4TH1Wj5I6SNs8mClaSOBON5TBVduB2+V4OWbikOuaCDKxUZV
-         vjW5woFWS2mYhNUod9bvIIIrR3N+C6TypkpV3fzQ=
+        b=n7ZfCEnexg8GzjMApSEtDf3VuhL62kZZfHzZ4RytmG7LBJoyoRPZ7z6xeDNHIaONL
+         lBnjABUY3lFODzxRfAGoBOobyylv1YXr+Gm6+Ey29UXCq1Lb2GvXecbo9Uf5E09hSA
+         1FVwAZr17Mkq7bm1gXXq40WZpkJo5rlH8IT9NBG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Cs=C3=B3k=C3=A1s=20Bence?= <csokas.bence@prolan.hu>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 148/244] fec: Fix timer capture timing in `fec_ptp_enable_pps()`
-Date:   Tue, 23 Aug 2022 10:25:07 +0200
-Message-Id: <20220823080104.111648482@linuxfoundation.org>
+Subject: [PATCH 5.15 149/244] stmmac: intel: Add a missing clk_disable_unprepare() call in intel_eth_pci_remove()
+Date:   Tue, 23 Aug 2022 10:25:08 +0200
+Message-Id: <20220823080104.141086166@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -54,36 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Csókás Bence <csokas.bence@prolan.hu>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 61d5e2a251fb20c2c5e998c3f1d52ed6d5360319 upstream.
+commit 5c23d6b717e4e956376f3852b90f58e262946b50 upstream.
 
-Code reimplements functionality already in `fec_ptp_read()`,
-but misses check for FEC_QUIRK_BUG_CAPTURE. Replace with function call.
+Commit 09f012e64e4b ("stmmac: intel: Fix clock handling on error and remove
+paths") removed this clk_disable_unprepare()
 
-Fixes: 28b5f058cf1d ("net: fec: ptp: fix convergence issue to support LinuxPTP stack")
-Signed-off-by: Csókás Bence <csokas.bence@prolan.hu>
-Link: https://lore.kernel.org/r/20220811101348.13755-1-csokas.bence@prolan.hu
+This was partly revert by commit ac322f86b56c ("net: stmmac: Fix clock
+handling on remove path") which removed this clk_disable_unprepare()
+because:
+"
+   While unloading the dwmac-intel driver, clk_disable_unprepare() is
+   being called twice in stmmac_dvr_remove() and
+   intel_eth_pci_remove(). This causes kernel panic on the second call.
+"
+
+However later on, commit 5ec55823438e8 ("net: stmmac: add clocks management
+for gmac driver") has updated stmmac_dvr_remove() which do not call
+clk_disable_unprepare() anymore.
+
+So this call should now be called from intel_eth_pci_remove().
+
+Fixes: 5ec55823438e8 ("net: stmmac: add clocks management for gmac driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/d7c8c1dadf40df3a7c9e643f76ffadd0ccc1ad1b.1660659689.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fec_ptp.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/freescale/fec_ptp.c
-+++ b/drivers/net/ethernet/freescale/fec_ptp.c
-@@ -136,11 +136,7 @@ static int fec_ptp_enable_pps(struct fec
- 		 * NSEC_PER_SEC - ts.tv_nsec. Add the remaining nanoseconds
- 		 * to current timer would be next second.
- 		 */
--		tempval = readl(fep->hwp + FEC_ATIME_CTRL);
--		tempval |= FEC_T_CTRL_CAPTURE;
--		writel(tempval, fep->hwp + FEC_ATIME_CTRL);
--
--		tempval = readl(fep->hwp + FEC_ATIME);
-+		tempval = fep->cc.read(&fep->cc);
- 		/* Convert the ptp local counter to 1588 timestamp */
- 		ns = timecounter_cyc2time(&fep->tc, tempval);
- 		ts = ns_to_timespec64(ns);
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+@@ -1098,6 +1098,7 @@ static void intel_eth_pci_remove(struct
+ 
+ 	stmmac_dvr_remove(&pdev->dev);
+ 
++	clk_disable_unprepare(priv->plat->stmmac_clk);
+ 	clk_unregister_fixed_rate(priv->plat->stmmac_clk);
+ 
+ 	pcim_iounmap_regions(pdev, BIT(0));
 
 
