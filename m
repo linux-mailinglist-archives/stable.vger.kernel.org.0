@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B31B59DD10
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 692BD59DF01
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358173AbiHWLrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:47:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42010 "EHLO
+        id S1359236AbiHWMFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:05:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358213AbiHWLoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:44:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4161D11EA;
-        Tue, 23 Aug 2022 02:29:58 -0700 (PDT)
+        with ESMTP id S1359331AbiHWMDl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:03:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4431BDCFFA;
+        Tue, 23 Aug 2022 02:37:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C68A661227;
-        Tue, 23 Aug 2022 09:29:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA883C433D6;
-        Tue, 23 Aug 2022 09:29:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D840161467;
+        Tue, 23 Aug 2022 09:37:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9B71C433D7;
+        Tue, 23 Aug 2022 09:37:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246997;
-        bh=QXKbbD2rBMM2SVJ7jtAh4BSriiVTIwVcRFRHymGJ04g=;
+        s=korg; t=1661247426;
+        bh=SZ+/sgtHqCsEHpNeUbek1EZlYk4KcpR5xLQujRwlQ7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z0CmEd7+xlJ7bczPYlGUzSTqlBduqG2wFA9QnPv2aN8CGPeby1a/+ljBcracTvU5M
-         zewdCB36ATFAIPyZKi5aMbJCMcRVt2CcBWyIXJDFBcE4uQVhnhDSxQFHoh2RnMbYd6
-         cjnkWUaTCu5X1Mc9QJEyRsdunjUVESLTdvt786sU=
+        b=0B3Dp8DhHRTMG96pa+poYz+aID5Gr6v6dfwV6TL3ERfLr7POyDpDUlJv2ZPuUZRvg
+         WJ5De3W2Hn3NzPIvRaK6kRu3Dwtt58S3yWx16LfsM+Hgmknq4lIa8bV76C3Z1PivEu
+         Ym2hwU8kzYN1nhx4McQ8DSGYk7YHO6AFTqrc4XpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 285/389] net_sched: cls_route: disallow handle of 0
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Yonghong Song <yhs@fb.com>, Martin KaFai Lau <kafai@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.10 031/158] bpf: Check the validity of max_rdwr_access for sock local storage map iterator
 Date:   Tue, 23 Aug 2022 10:26:03 +0200
-Message-Id: <20220823080127.462084731@linuxfoundation.org>
+Message-Id: <20220823080047.340687367@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamal Hadi Salim <jhs@mojatatu.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit 02799571714dc5dd6948824b9d080b44a295f695 upstream.
+commit 52bd05eb7c88e1ad8541a48873188ccebca9da26 upstream.
 
-Follows up on:
-https://lore.kernel.org/all/20220809170518.164662-1-cascardo@canonical.com/
+The value of sock local storage map is writable in map iterator, so check
+max_rdwr_access instead of max_rdonly_access.
 
-handle of 0 implies from/to of universe realm which is not very
-sensible.
-
-Lets see what this patch will do:
-$sudo tc qdisc add dev $DEV root handle 1:0 prio
-
-//lets manufacture a way to insert handle of 0
-$sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 \
-route to 0 from 0 classid 1:10 action ok
-
-//gets rejected...
-Error: handle of 0 is not valid.
-We have an error talking to the kernel, -1
-
-//lets create a legit entry..
-sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 route from 10 \
-classid 1:10 action ok
-
-//what did the kernel insert?
-$sudo tc filter ls dev $DEV parent 1:0
-filter protocol ip pref 100 route chain 0
-filter protocol ip pref 100 route chain 0 fh 0x000a8000 flowid 1:10 from 10
-	action order 1: gact action pass
-	 random type none pass val 0
-	 index 1 ref 1 bind 1
-
-//Lets try to replace that legit entry with a handle of 0
-$ sudo tc filter replace dev $DEV parent 1:0 protocol ip prio 100 \
-handle 0x000a8000 route to 0 from 0 classid 1:10 action drop
-
-Error: Replacing with handle of 0 is invalid.
-We have an error talking to the kernel, -1
-
-And last, lets run Cascardo's POC:
-$ ./poc
-0
-0
--22
--22
--22
-
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Acked-by: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5ce6e77c7edf ("bpf: Implement bpf iterator for sock local storage map")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/r/20220810080538.1845898-6-houtao@huaweicloud.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_route.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/core/bpf_sk_storage.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -424,6 +424,11 @@ static int route4_set_parms(struct net *
- 			return -EINVAL;
+--- a/net/core/bpf_sk_storage.c
++++ b/net/core/bpf_sk_storage.c
+@@ -823,7 +823,7 @@ static int bpf_iter_attach_map(struct bp
+ 	if (map->map_type != BPF_MAP_TYPE_SK_STORAGE)
+ 		goto put_map;
+ 
+-	if (prog->aux->max_rdonly_access > map->value_size) {
++	if (prog->aux->max_rdwr_access > map->value_size) {
+ 		err = -EACCES;
+ 		goto put_map;
  	}
- 
-+	if (!nhandle) {
-+		NL_SET_ERR_MSG(extack, "Replacing with handle of 0 is invalid");
-+		return -EINVAL;
-+	}
-+
- 	h1 = to_hash(nhandle);
- 	b = rtnl_dereference(head->table[h1]);
- 	if (!b) {
-@@ -477,6 +482,11 @@ static int route4_change(struct net *net
- 	int err;
- 	bool new = true;
- 
-+	if (!handle) {
-+		NL_SET_ERR_MSG(extack, "Creating with handle of 0 is invalid");
-+		return -EINVAL;
-+	}
-+
- 	if (opt == NULL)
- 		return handle ? -EINVAL : 0;
- 
 
 
