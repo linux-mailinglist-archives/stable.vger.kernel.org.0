@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 565B659DEB6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E7E459E2E1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358031AbiHWLom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:44:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44942 "EHLO
+        id S1353358AbiHWKNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358067AbiHWLnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:43:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B417DD0239;
-        Tue, 23 Aug 2022 02:29:49 -0700 (PDT)
+        with ESMTP id S1353603AbiHWKLm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:11:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9947417E39;
+        Tue, 23 Aug 2022 01:57:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBC2D61227;
-        Tue, 23 Aug 2022 09:29:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2B2FC433C1;
-        Tue, 23 Aug 2022 09:29:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C54BB81C35;
+        Tue, 23 Aug 2022 08:57:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 837DEC433C1;
+        Tue, 23 Aug 2022 08:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246988;
-        bh=hoW8gNIAGLEsM0fWmTZQ90WaIxQHpc7DjZgA0ZdiBN0=;
+        s=korg; t=1661245059;
+        bh=cQUKwcbiut4+VNBJPGTQbCoxxw+3gT62RRW+DGnk7Tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KuLatMV/Cvq9q9b+MVlsU3wxmW9B5JMSoMAzQ9L2793F97si1xRJ/EmXihXuOqG/C
-         YpAdQkIEKDtGMiFv7yn3ED2gBz9AL5gW9Zh8NP8SyqS0vT6Ts5PISV+Ufo2o7mq1Yk
-         JYnbEccLaK9OwSGvajhh9BMkEmUnYHejIrDATtmE=
+        b=OF6h8j5woJJ1etHYaWD9Tz6R8/IywsHshGVpCv6nayoxwVel83EpMZDubwhGiEh3G
+         nXtJhBTCiBLIVUJAg3ve7d9l4Xl+o3jNycsV49zGwHDHdIjarjOOA9aRrOU4EMUPAz
+         Qo55NExK0fZLNVUosfZgNrSXQ0bTMEr/hClQzKS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronald Wahl <ronald.wahl@raritan.com>,
-        Jose Alonso <joalonsof@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 282/389] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Christoph Hellwig <hch@lst.de>, Song Liu <song@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 201/244] md: Notify sysfs sync_completed in md_reap_sync_thread()
 Date:   Tue, 23 Aug 2022 10:26:00 +0200
-Message-Id: <20220823080127.325707289@linuxfoundation.org>
+Message-Id: <20220823080106.194739462@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Alonso <joalonsof@gmail.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-commit 6fd2c17fb6e02a8c0ab51df1cfec82ce96b8e83d upstream.
+[ Upstream commit 9973f0fa7d20269fe6fefe6333997fb5914449c1 ]
 
-This reverts commit 36a15e1cb134c0395261ba1940762703f778438c.
+The mdadm test 07layouts randomly produces a kernel hung task deadlock.
+The deadlock is caused by the suspend_lo/suspend_hi files being set by
+the mdadm background process during reshape and not being cleared
+because the process hangs. (Leaving aside the issue of the fragility of
+freezing kernel tasks by buggy userspace processes...)
 
-The usage of FLAG_SEND_ZLP causes problems to other firmware/hardware
-versions that have no issues.
+When the background mdadm process hangs it, is waiting (without a
+timeout) on a change to the sync_completed file signalling that the
+reshape has completed. The process is woken up a couple times when
+the reshape finishes but it is woken up before MD_RECOVERY_RUNNING
+is cleared so sync_completed_show() reports 0 instead of "none".
 
-The FLAG_SEND_ZLP is not safe to use in this context.
-See:
-https://patchwork.ozlabs.org/project/netdev/patch/1270599787.8900.8.camel@Linuxdev4-laptop/#118378
-The original problem needs another way to solve.
+To fix this, notify the sysfs file in md_reap_sync_thread() after
+MD_RECOVERY_RUNNING has been cleared. This wakes up mdadm and causes
+it to continue and write to suspend_lo/suspend_hi to allow IO to
+continue.
 
-Fixes: 36a15e1cb134 ("net: usb: ax88179_178a needs FLAG_SEND_ZLP")
-Cc: stable@vger.kernel.org
-Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216327
-Link: https://bugs.archlinux.org/task/75491
-Signed-off-by: Jose Alonso <joalonsof@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/ax88179_178a.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/md/md.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1690,7 +1690,7 @@ static const struct driver_info ax88179_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1703,7 +1703,7 @@ static const struct driver_info ax88178a
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1716,7 +1716,7 @@ static const struct driver_info cypress_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1729,7 +1729,7 @@ static const struct driver_info dlink_du
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1742,7 +1742,7 @@ static const struct driver_info sitecom_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1755,7 +1755,7 @@ static const struct driver_info samsung_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1768,7 +1768,7 @@ static const struct driver_info lenovo_i
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1781,7 +1781,7 @@ static const struct driver_info belkin_i
- 	.link_reset = ax88179_link_reset,
- 	.reset	= ax88179_reset,
- 	.stop	= ax88179_stop,
--	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
-+	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 4bfaf7d4977d..33946adb0d6f 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -9467,6 +9467,7 @@ void md_reap_sync_thread(struct mddev *mddev)
+ 	wake_up(&resync_wait);
+ 	/* flag recovery needed just to double check */
+ 	set_bit(MD_RECOVERY_NEEDED, &mddev->recovery);
++	sysfs_notify_dirent_safe(mddev->sysfs_completed);
+ 	sysfs_notify_dirent_safe(mddev->sysfs_action);
+ 	md_new_event(mddev);
+ 	if (mddev->event_work.func)
+-- 
+2.35.1
+
 
 
