@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 792E459D783
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7741859D674
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243886AbiHWJRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:17:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44858 "EHLO
+        id S1346279AbiHWJJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:09:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349256AbiHWJO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:14:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F27E6CD30;
-        Tue, 23 Aug 2022 01:32:07 -0700 (PDT)
+        with ESMTP id S1347706AbiHWJHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:07:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052A185A9B;
+        Tue, 23 Aug 2022 01:30:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC010B81C48;
-        Tue, 23 Aug 2022 08:32:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 406BEC433C1;
-        Tue, 23 Aug 2022 08:32:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8436D61475;
+        Tue, 23 Aug 2022 08:30:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CECAC433C1;
+        Tue, 23 Aug 2022 08:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243524;
-        bh=p8YLk0fXbdEGd5ts6snZ/bCE06HJyPgd8xx/jdf47A4=;
+        s=korg; t=1661243422;
+        bh=x+inPP9lpVSclSuJHHc1IGDwhLIHcBfFqLoOpXMbt/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIU1UaD5miu96wYN/E6OkhN22hmh3Lc7+0vHVXQOgEhzCU3kB7xtr3pSPT2fSONmg
-         roKTaK0J8mCW0KpQkWafniwGBYEzqi9NniqcHtM28kiil/CfkEdwNh6mBDHrJnzf85
-         Fi5M6jZ2Yhihc7QFaxaGUWlsiVvLyk5k5FHBHihg=
+        b=uqcTgx0vSxFjEeULFGK8QVMIKQ+GZdhz6vtPyOZmKnaVDEMlmiEFzdZiEqXzp4ijN
+         lRidbGSKjw1p1vNlaz/2iyGzQ1Udza4bJuAkmCEsaskStR2Gy6bq7iV4czYELrZ8qp
+         JI9mqKBNntE7LCY+gkrdPKcmgQLM/2nOamDZ+rwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Li <Frank.Li@nxp.com>,
-        Faqiang Zhu <faqiang.zhu@nxp.com>,
+        stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 264/365] usb: cdns3 fix use-after-free at workaround 2
-Date:   Tue, 23 Aug 2022 10:02:45 +0200
-Message-Id: <20220823080129.222428320@linuxfoundation.org>
+Subject: [PATCH 5.19 265/365] usb: gadget: uvc: calculate the number of request depending on framesize
+Date:   Tue, 23 Aug 2022 10:02:46 +0200
+Message-Id: <20220823080129.262270738@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,51 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Li <Frank.Li@nxp.com>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit 7d602f30149a117eea260208b1661bc404c21dfd ]
+[ Upstream commit 87d76b5f1d8eeb49efa16e2018e188864cbb9401 ]
 
-BUG: KFENCE: use-after-free read in __list_del_entry_valid+0x10/0xac
+The current limitation of possible number of requests being handled is
+dependent on the gadget speed. It makes more sense to depend on the
+typical frame size when calculating the number of requests. This patch
+is changing this and is using the previous limits as boundaries for
+reasonable minimum and maximum number of requests.
 
-cdns3_wa2_remove_old_request()
-{
-	...
-	kfree(priv_req->request.buf);
-	cdns3_gadget_ep_free_request(&priv_ep->endpoint, &priv_req->request);
-	list_del_init(&priv_req->list);
-	^^^ use after free
-	...
-}
+For a 1080p jpeg encoded video stream with a maximum imagesize of
+e.g. 800kB with a maxburst of 8 and an multiplier of 1 the resulting
+number of requests is calculated to 49.
 
-cdns3_gadget_ep_free_request() free the space pointed by priv_req,
-but priv_req is used in the following list_del_init().
+        800768         1
+nreqs = ------ * -------------- ~= 49
+          2      (1024 * 8 * 1)
 
-This patch move list_del_init() before cdns3_gadget_ep_free_request().
-
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Signed-off-by: Faqiang Zhu <faqiang.zhu@nxp.com>
-Link: https://lore.kernel.org/r/20220608190430.2814358-1-Frank.Li@nxp.com
+Tested-by: Dan Vacura <w36195@motorola.com>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20220529223848.105914-2-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/uvc_queue.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index 87cfa91a758d..d21b69997e75 100644
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -625,9 +625,9 @@ static void cdns3_wa2_remove_old_request(struct cdns3_endpoint *priv_ep)
- 		trace_cdns3_wa2(priv_ep, "removes eldest request");
+diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
+index 951934aa4454..ec500ee499ee 100644
+--- a/drivers/usb/gadget/function/uvc_queue.c
++++ b/drivers/usb/gadget/function/uvc_queue.c
+@@ -44,7 +44,8 @@ static int uvc_queue_setup(struct vb2_queue *vq,
+ {
+ 	struct uvc_video_queue *queue = vb2_get_drv_priv(vq);
+ 	struct uvc_video *video = container_of(queue, struct uvc_video, queue);
+-	struct usb_composite_dev *cdev = video->uvc->func.config->cdev;
++	unsigned int req_size;
++	unsigned int nreq;
  
- 		kfree(priv_req->request.buf);
-+		list_del_init(&priv_req->list);
- 		cdns3_gadget_ep_free_request(&priv_ep->endpoint,
- 					     &priv_req->request);
--		list_del_init(&priv_req->list);
- 		--priv_ep->wa2_counter;
+ 	if (*nbuffers > UVC_MAX_VIDEO_BUFFERS)
+ 		*nbuffers = UVC_MAX_VIDEO_BUFFERS;
+@@ -53,10 +54,16 @@ static int uvc_queue_setup(struct vb2_queue *vq,
  
- 		if (!chain)
+ 	sizes[0] = video->imagesize;
+ 
+-	if (cdev->gadget->speed < USB_SPEED_SUPER)
+-		video->uvc_num_requests = 4;
+-	else
+-		video->uvc_num_requests = 64;
++	req_size = video->ep->maxpacket
++		 * max_t(unsigned int, video->ep->maxburst, 1)
++		 * (video->ep->mult);
++
++	/* We divide by two, to increase the chance to run
++	 * into fewer requests for smaller framesizes.
++	 */
++	nreq = DIV_ROUND_UP(DIV_ROUND_UP(sizes[0], 2), req_size);
++	nreq = clamp(nreq, 4U, 64U);
++	video->uvc_num_requests = nreq;
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
