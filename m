@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B589959D5D9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:10:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5DF759D55B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243922AbiHWIdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:33:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60264 "EHLO
+        id S244077AbiHWIhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:37:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346992AbiHWIcK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:32:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 337C374E23;
-        Tue, 23 Aug 2022 01:16:22 -0700 (PDT)
+        with ESMTP id S1345385AbiHWIfk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:35:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22FBE75FC1;
+        Tue, 23 Aug 2022 01:16:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CA5661238;
-        Tue, 23 Aug 2022 08:16:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3950CC433D6;
-        Tue, 23 Aug 2022 08:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4117A611DD;
+        Tue, 23 Aug 2022 08:16:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B27BC433C1;
+        Tue, 23 Aug 2022 08:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242581;
-        bh=2cnvJBgNQeP6YaccfYEAUaqtV2LiY3X/dI5JdqXJ8wg=;
+        s=korg; t=1661242587;
+        bh=1e9KjvU5ZaXcqUBiFyeUVgiokV8izTmy6Xit8Plxk3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zrNftSmdBrA1CMyT/AtlPjCXCt3aB9jixH8LfdZC8Qho5k3PCqJWuccGBAaho/p4D
-         KvbpghxthJWGfRMftJmY4spTP1dQGTyh8tfTL/8Usb2VxGsznRvF/tinwB4Rc2610Q
-         j2jccqHnxfX29fYu/TP6Q6qG7+UL5uuJqF6Mx378=
+        b=gM+ddHL5cqH9CtBH9nBV/0oUKT+0kndozH0Ftf+z0NFXpe9VPNiGStB6jiZ0boXMF
+         vPhBBz/cJGtkNeEo5L05Wc5yniLBpxi86tHEOgxAY9w6sMerg9f/ZghE7mKzd+gUFA
+         rq0AoVDA4LaqAvynV0VAPhx1ELasfYD74VNEnvyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.19 140/365] ceph: dont leak snap_rwsem in handle_cap_grant
-Date:   Tue, 23 Aug 2022 10:00:41 +0200
-Message-Id: <20220823080124.073498675@linuxfoundation.org>
+        stable@vger.kernel.org, Jacky Bai <ping.bai@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>, Abel Vesa <abel.vesa@linaro.org>
+Subject: [PATCH 5.19 141/365] clk: imx93: Correct the edma1s parent clock
+Date:   Tue, 23 Aug 2022 10:00:42 +0200
+Message-Id: <20220823080124.126432044@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,63 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Jacky Bai <ping.bai@nxp.com>
 
-commit 58dd4385577ed7969b80cdc9e2a31575aba6c712 upstream.
+commit ebb4f1eb9360036be5ea70de82c5703ca0e64d43 upstream.
 
-When handle_cap_grant is called on an IMPORT op, then the snap_rwsem is
-held and the function is expected to release it before returning. It
-currently fails to do that in all cases which could lead to a deadlock.
+For EDMA1 in AONMIX, its parent clock should be from cm33_root,
+so Correct it.
 
-Fixes: 6f05b30ea063 ("ceph: reset i_requested_max_size if file write is not wanted")
-Link: https://tracker.ceph.com/issues/55857
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Luís Henriques <lhenriques@suse.de>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: 24defbe194b65("clk: imx: add i.MX93 clk")
+Signed-off-by: Jacky Bai <ping.bai@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Abel Vesa <abel.vesa@linaro.org>
+Link: https://lore.kernel.org/r/20220609132902.3504651-4-peng.fan@oss.nxp.com
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/caps.c |   27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/clk/imx/clk-imx93.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -3578,24 +3578,23 @@ static void handle_cap_grant(struct inod
- 			fill_inline = true;
- 	}
- 
--	if (ci->i_auth_cap == cap &&
--	    le32_to_cpu(grant->op) == CEPH_CAP_OP_IMPORT) {
--		if (newcaps & ~extra_info->issued)
--			wake = true;
-+	if (le32_to_cpu(grant->op) == CEPH_CAP_OP_IMPORT) {
-+		if (ci->i_auth_cap == cap) {
-+			if (newcaps & ~extra_info->issued)
-+				wake = true;
- 
--		if (ci->i_requested_max_size > max_size ||
--		    !(le32_to_cpu(grant->wanted) & CEPH_CAP_ANY_FILE_WR)) {
--			/* re-request max_size if necessary */
--			ci->i_requested_max_size = 0;
--			wake = true;
--		}
-+			if (ci->i_requested_max_size > max_size ||
-+			    !(le32_to_cpu(grant->wanted) & CEPH_CAP_ANY_FILE_WR)) {
-+				/* re-request max_size if necessary */
-+				ci->i_requested_max_size = 0;
-+				wake = true;
-+			}
- 
--		ceph_kick_flushing_inode_caps(session, ci);
--		spin_unlock(&ci->i_ceph_lock);
-+			ceph_kick_flushing_inode_caps(session, ci);
-+		}
- 		up_read(&session->s_mdsc->snap_rwsem);
--	} else {
--		spin_unlock(&ci->i_ceph_lock);
- 	}
-+	spin_unlock(&ci->i_ceph_lock);
- 
- 	if (fill_inline)
- 		ceph_fill_inline_data(inode, NULL, extra_info->inline_data,
+diff --git a/drivers/clk/imx/clk-imx93.c b/drivers/clk/imx/clk-imx93.c
+index 26885bd3971c..f5c9fa40491c 100644
+--- a/drivers/clk/imx/clk-imx93.c
++++ b/drivers/clk/imx/clk-imx93.c
+@@ -160,7 +160,7 @@ static const struct imx93_clk_ccgr {
+ 	{ IMX93_CLK_SEMA2_GATE,		"sema2",	"bus_wakeup_root",	0x8480, },
+ 	{ IMX93_CLK_MU_A_GATE,		"mu_a",		"bus_aon_root",		0x84c0, },
+ 	{ IMX93_CLK_MU_B_GATE,		"mu_b",		"bus_aon_root",		0x8500, },
+-	{ IMX93_CLK_EDMA1_GATE,		"edma1",	"wakeup_axi_root",	0x8540, },
++	{ IMX93_CLK_EDMA1_GATE,		"edma1",	"m33_root",		0x8540, },
+ 	{ IMX93_CLK_EDMA2_GATE,		"edma2",	"wakeup_axi_root",	0x8580, },
+ 	{ IMX93_CLK_FLEXSPI1_GATE,	"flexspi",	"flexspi_root",		0x8640, },
+ 	{ IMX93_CLK_GPIO1_GATE,		"gpio1",	"m33_root",		0x8880, },
+-- 
+2.37.2
+
 
 
