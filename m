@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE46659D714
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 734A159D802
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:02:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350286AbiHWJbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:31:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51124 "EHLO
+        id S241180AbiHWJrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:47:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350274AbiHWJ3M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:29:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2DD791D3B;
-        Tue, 23 Aug 2022 01:37:29 -0700 (PDT)
+        with ESMTP id S1352361AbiHWJqS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575F68D3FB;
+        Tue, 23 Aug 2022 01:43:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0E8E61517;
-        Tue, 23 Aug 2022 08:36:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9D4AC433C1;
-        Tue, 23 Aug 2022 08:36:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DF6EB81C20;
+        Tue, 23 Aug 2022 08:42:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 998FCC433C1;
+        Tue, 23 Aug 2022 08:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243776;
-        bh=+6p6i+rNtRJweP0roXLoLTkhcZV/0hxAM7C3fBVXD18=;
+        s=korg; t=1661244168;
+        bh=v4KGrEVskcMrBDA4KqT7FNFEnwx3XEfxBHbjvZzK7pY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/r1+BeJTcR+x2aCTXy/D9IMSvtvfbVYsoIwDQXZFim4GnpdgORhgCedpkvl98tmZ
-         qM0nSqpQnhIuGjHFdc90j1P54bzLXq8OaBvPOU8Wz46+DRu7IY4a3E18wqkmNse+r4
-         +rlop/JgD3gD5ZubtaTLBa3wku7ELEqXnWb40wnQ=
+        b=1dm//0fp6o1VYWHtV8BuLUEB1XZaXGkjwwWbxG/ncmFyKdtU0Ur5aRaRiXef3H/gh
+         orK4Qi+g0gqx2hE5Ep+nN4FOJLbo7PNSUAEjE7Rf1fciZ7IE5cZDcYhYlMgxvKYwm2
+         Xyg9wdGKhyn6P+rPPclTvgC8yLakwh4nR/oYtvDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 018/229] KVM: SVM: Dont BUG if userspace injects an interrupt with GIF=0
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
+        Tom Zanussi <zanussi@kernel.org>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 020/244] tracing/eprobes: Do not allow eprobes to use $stack, or % for regs
 Date:   Tue, 23 Aug 2022 10:22:59 +0200
-Message-Id: <20220823080054.084215205@linuxfoundation.org>
+Message-Id: <20220823080059.741045306@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +57,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit f17c31c48e5cde9895a491d91c424eeeada3e134 upstream.
+commit 2673c60ee67e71f2ebe34386e62d348f71edee47 upstream.
 
-Don't BUG/WARN on interrupt injection due to GIF being cleared,
-since it's trivial for userspace to force the situation via
-KVM_SET_VCPU_EVENTS (even if having at least a WARN there would be correct
-for KVM internally generated injections).
+While playing with event probes (eprobes), I tried to see what would
+happen if I attempted to retrieve the instruction pointer (%rip) knowing
+that event probes do not use pt_regs. The result was:
 
-  kernel BUG at arch/x86/kvm/svm/svm.c:3386!
-  invalid opcode: 0000 [#1] SMP
-  CPU: 15 PID: 926 Comm: smm_test Not tainted 5.17.0-rc3+ #264
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:svm_inject_irq+0xab/0xb0 [kvm_amd]
-  Code: <0f> 0b 0f 1f 00 0f 1f 44 00 00 80 3d ac b3 01 00 00 55 48 89 f5 53
-  RSP: 0018:ffffc90000b37d88 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffff88810a234ac0 RCX: 0000000000000006
-  RDX: 0000000000000000 RSI: ffffc90000b37df7 RDI: ffff88810a234ac0
-  RBP: ffffc90000b37df7 R08: ffff88810a1fa410 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-  R13: ffff888109571000 R14: ffff88810a234ac0 R15: 0000000000000000
-  FS:  0000000001821380(0000) GS:ffff88846fdc0000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f74fc550008 CR3: 000000010a6fe000 CR4: 0000000000350ea0
-  Call Trace:
-   <TASK>
-   inject_pending_event+0x2f7/0x4c0 [kvm]
-   kvm_arch_vcpu_ioctl_run+0x791/0x17a0 [kvm]
-   kvm_vcpu_ioctl+0x26d/0x650 [kvm]
-   __x64_sys_ioctl+0x82/0xb0
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-   </TASK>
+ BUG: kernel NULL pointer dereference, address: 0000000000000024
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 1 PID: 1847 Comm: trace-cmd Not tainted 5.19.0-rc5-test+ #309
+ Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01
+v03.03 07/14/2016
+ RIP: 0010:get_event_field.isra.0+0x0/0x50
+ Code: ff 48 c7 c7 c0 8f 74 a1 e8 3d 8b f5 ff e8 88 09 f6 ff 4c 89 e7 e8
+50 6a 13 00 48 89 ef 5b 5d 41 5c 41 5d e9 42 6a 13 00 66 90 <48> 63 47 24
+8b 57 2c 48 01 c6 8b 47 28 83 f8 02 74 0e 83 f8 04 74
+ RSP: 0018:ffff916c394bbaf0 EFLAGS: 00010086
+ RAX: ffff916c854041d8 RBX: ffff916c8d9fbf50 RCX: ffff916c255d2000
+ RDX: 0000000000000000 RSI: ffff916c255d2008 RDI: 0000000000000000
+ RBP: 0000000000000000 R08: ffff916c3a2a0c08 R09: ffff916c394bbda8
+ R10: 0000000000000000 R11: 0000000000000000 R12: ffff916c854041d8
+ R13: ffff916c854041b0 R14: 0000000000000000 R15: 0000000000000000
+ FS:  0000000000000000(0000) GS:ffff916c9ea40000(0000)
+knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000024 CR3: 000000011b60a002 CR4: 00000000001706e0
+ Call Trace:
+  <TASK>
+  get_eprobe_size+0xb4/0x640
+  ? __mod_node_page_state+0x72/0xc0
+  __eprobe_trace_func+0x59/0x1a0
+  ? __mod_lruvec_page_state+0xaa/0x1b0
+  ? page_remove_file_rmap+0x14/0x230
+  ? page_remove_rmap+0xda/0x170
+  event_triggers_call+0x52/0xe0
+  trace_event_buffer_commit+0x18f/0x240
+  trace_event_raw_event_sched_wakeup_template+0x7a/0xb0
+  try_to_wake_up+0x260/0x4c0
+  __wake_up_common+0x80/0x180
+  __wake_up_common_lock+0x7c/0xc0
+  do_notify_parent+0x1c9/0x2a0
+  exit_notify+0x1a9/0x220
+  do_exit+0x2ba/0x450
+  do_group_exit+0x2d/0x90
+  __x64_sys_exit_group+0x14/0x20
+  do_syscall_64+0x3b/0x90
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Fixes: 219b65dcf6c0 ("KVM: SVM: Improve nested interrupt injection")
+Obviously this is not the desired result.
+
+Move the testing for TPARG_FL_TPOINT which is only used for event probes
+to the top of the "$" variable check, as all the other variables are not
+used for event probes. Also add a check in the register parsing "%" to
+fail if an event probe is used.
+
+Link: https://lkml.kernel.org/r/20220820134400.564426983@goodmis.org
+
 Cc: stable@vger.kernel.org
-Co-developed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
-Message-Id: <35426af6e123cbe91ec7ce5132ce72521f02b1b5.1651440202.git.maciej.szmigiero@oracle.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
+Cc: Tom Zanussi <zanussi@kernel.org>
+Fixes: 7491e2c44278 ("tracing: Add a probe that attaches to trace events")
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm.c |    2 --
- 1 file changed, 2 deletions(-)
+ kernel/trace/trace_probe.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -4611,8 +4611,6 @@ static void svm_set_irq(struct kvm_vcpu
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -279,7 +279,14 @@ static int parse_probe_vars(char *arg, c
+ 	int ret = 0;
+ 	int len;
  
--	BUG_ON(!(gif_set(svm)));
--
- 	trace_kvm_inj_virq(vcpu->arch.interrupt.nr);
- 	++vcpu->stat.irq_injections;
+-	if (strcmp(arg, "retval") == 0) {
++	if (flags & TPARG_FL_TPOINT) {
++		if (code->data)
++			return -EFAULT;
++		code->data = kstrdup(arg, GFP_KERNEL);
++		if (!code->data)
++			return -ENOMEM;
++		code->op = FETCH_OP_TP_ARG;
++	} else if (strcmp(arg, "retval") == 0) {
+ 		if (flags & TPARG_FL_RETURN) {
+ 			code->op = FETCH_OP_RETVAL;
+ 		} else {
+@@ -319,13 +326,6 @@ static int parse_probe_vars(char *arg, c
+ 		code->op = FETCH_OP_ARG;
+ 		code->param = (unsigned int)param - 1;
+ #endif
+-	} else if (flags & TPARG_FL_TPOINT) {
+-		if (code->data)
+-			return -EFAULT;
+-		code->data = kstrdup(arg, GFP_KERNEL);
+-		if (!code->data)
+-			return -ENOMEM;
+-		code->op = FETCH_OP_TP_ARG;
+ 	} else
+ 		goto inval_var;
  
+@@ -380,6 +380,11 @@ parse_probe_arg(char *arg, const struct
+ 		break;
+ 
+ 	case '%':	/* named register */
++		if (flags & TPARG_FL_TPOINT) {
++			/* eprobes do not handle registers */
++			trace_probe_log_err(offs, BAD_VAR);
++			break;
++		}
+ 		ret = regs_query_register_offset(arg + 1);
+ 		if (ret >= 0) {
+ 			code->op = FETCH_OP_REG;
 
 
