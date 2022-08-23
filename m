@@ -2,57 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F3559DEB4
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6204F59E1B1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359476AbiHWMIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:08:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59532 "EHLO
+        id S1358656AbiHWLwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359252AbiHWMHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:07:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E30A565E3;
-        Tue, 23 Aug 2022 02:38:21 -0700 (PDT)
+        with ESMTP id S1358584AbiHWLt5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:49:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DAC77EB0;
+        Tue, 23 Aug 2022 02:31:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 864BB61467;
-        Tue, 23 Aug 2022 09:38:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57479C433C1;
-        Tue, 23 Aug 2022 09:38:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CB36B81C66;
+        Tue, 23 Aug 2022 09:31:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA4BC433D6;
+        Tue, 23 Aug 2022 09:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247500;
-        bh=69ovCRcumfGslh/oGLivZ4DIr8oJgQGwFuXGEqHGW5k=;
+        s=korg; t=1661247072;
+        bh=IOsgaTxVBzA63oEuZIQOdrHHKRDvYavH/H8To3RGHZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gsPa9kEgtLU+FR/qnzFc0olVYq3Wwx5OMjvEUyfS2fi8ntQoBSB/WUOIJjF74OSA6
-         DtQHMDmtfmu3/CEJu6COle5cF+6R5J3ZlnU5aIDwq/ML7Q54lQ4YQrfdtqQmDyxpr5
-         qwWPJY4KkJgi3R6/vNEKMHUFmbs8o8Z2MSLR/HHo=
+        b=o08S1V/ClCCbakgLGCZOUtAvYrVU5BvbnSqIO/IxBNjgp61AoODA9Y31mOGggMxqd
+         Ds4Hptcd7YUy/qpH+YGNBdb3xC+UiqDqvduBY2OpBm6h/3UkFw5rOl4MpDaNprP8OU
+         CYnZcvuq5+uy7AwVeBs0EZVeqVLudEcgulwVj8/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, llvm@lists.linux.dev,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Song Liu <song@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 056/158] tools build: Switch to new openssl API for test-libcrypto
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 310/389] devlink: Fix use-after-free after a failed reload
 Date:   Tue, 23 Aug 2022 10:26:28 +0200
-Message-Id: <20220823080048.357389373@linuxfoundation.org>
+Message-Id: <20220823080128.524086837@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,70 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit 5b245985a6de5ac18b5088c37068816d413fb8ed upstream.
+commit 6b4db2e528f650c7fb712961aac36455468d5902 upstream.
 
-Switch to new EVP API for detecting libcrypto, as Fedora 36 returns an
-error when it encounters the deprecated function MD5_Init() and the others.
+After a failed devlink reload, devlink parameters are still registered,
+which means user space can set and get their values. In the case of the
+mlxsw "acl_region_rehash_interval" parameter, these operations will
+trigger a use-after-free [1].
 
-The error would be interpreted as missing libcrypto, while in reality it is
-not.
+Fix this by rejecting set and get operations while in the failed state.
+Return the "-EOPNOTSUPP" error code which does not abort the parameters
+dump, but instead causes it to skip over the problematic parameter.
 
-Fixes: 6e8ccb4f624a73c5 ("tools/bpf: properly account for libbfd variations")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: bpf@vger.kernel.org
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: llvm@lists.linux.dev
-Cc: Martin KaFai Lau <martin.lau@linux.dev>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Quentin Monnet <quentin@isovalent.com>
-Cc: Song Liu <song@kernel.org>
-Cc: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/20220719170555.2576993-4-roberto.sassu@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Another possible fix is to perform these checks in the mlxsw parameter
+callbacks, but other drivers might be affected by the same problem and I
+am not aware of scenarios where these stricter checks will cause a
+regression.
+
+[1]
+mlxsw_spectrum3 0000:00:10.0: Port 125: Failed to register netdev
+mlxsw_spectrum3 0000:00:10.0: Failed to create ports
+
+==================================================================
+BUG: KASAN: use-after-free in mlxsw_sp_acl_tcam_vregion_rehash_intrvl_get+0xbd/0xd0 drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c:904
+Read of size 4 at addr ffff8880099dcfd8 by task kworker/u4:4/777
+
+CPU: 1 PID: 777 Comm: kworker/u4:4 Not tainted 5.19.0-rc7-custom-126601-gfe26f28c586d #1
+Hardware name: QEMU MSN4700, BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+Workqueue: netns cleanup_net
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x92/0xbd lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:313 [inline]
+ print_report.cold+0x5e/0x5cf mm/kasan/report.c:429
+ kasan_report+0xb9/0xf0 mm/kasan/report.c:491
+ __asan_report_load4_noabort+0x14/0x20 mm/kasan/report_generic.c:306
+ mlxsw_sp_acl_tcam_vregion_rehash_intrvl_get+0xbd/0xd0 drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c:904
+ mlxsw_sp_acl_region_rehash_intrvl_get+0x49/0x60 drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c:1106
+ mlxsw_sp_params_acl_region_rehash_intrvl_get+0x33/0x80 drivers/net/ethernet/mellanox/mlxsw/spectrum.c:3854
+ devlink_param_get net/core/devlink.c:4981 [inline]
+ devlink_nl_param_fill+0x238/0x12d0 net/core/devlink.c:5089
+ devlink_param_notify+0xe5/0x230 net/core/devlink.c:5168
+ devlink_ns_change_notify net/core/devlink.c:4417 [inline]
+ devlink_ns_change_notify net/core/devlink.c:4396 [inline]
+ devlink_reload+0x15f/0x700 net/core/devlink.c:4507
+ devlink_pernet_pre_exit+0x112/0x1d0 net/core/devlink.c:12272
+ ops_pre_exit_list net/core/net_namespace.c:152 [inline]
+ cleanup_net+0x494/0xc00 net/core/net_namespace.c:582
+ process_one_work+0x9fc/0x1710 kernel/workqueue.c:2289
+ worker_thread+0x675/0x10b0 kernel/workqueue.c:2436
+ kthread+0x30c/0x3d0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+ </TASK>
+
+The buggy address belongs to the physical page:
+page:ffffea0000267700 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x99dc
+flags: 0x100000000000000(node=0|zone=1)
+raw: 0100000000000000 0000000000000000 dead000000000122 0000000000000000
+raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8880099dce80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff8880099dcf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>ffff8880099dcf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                                                    ^
+ ffff8880099dd000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff8880099dd080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+==================================================================
+
+Fixes: 98bbf70c1c41 ("mlxsw: spectrum: add "acl_region_rehash_interval" devlink param")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/build/feature/test-libcrypto.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ net/core/devlink.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/build/feature/test-libcrypto.c
-+++ b/tools/build/feature/test-libcrypto.c
-@@ -1,16 +1,23 @@
- // SPDX-License-Identifier: GPL-2.0
-+#include <openssl/evp.h>
- #include <openssl/sha.h>
- #include <openssl/md5.h>
- 
- int main(void)
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -2953,7 +2953,7 @@ static int devlink_param_get(struct devl
+ 			     const struct devlink_param *param,
+ 			     struct devlink_param_gset_ctx *ctx)
  {
--	MD5_CTX context;
-+	EVP_MD_CTX *mdctx;
- 	unsigned char md[MD5_DIGEST_LENGTH + SHA_DIGEST_LENGTH];
- 	unsigned char dat[] = "12345";
-+	unsigned int digest_len;
- 
--	MD5_Init(&context);
--	MD5_Update(&context, &dat[0], sizeof(dat));
--	MD5_Final(&md[0], &context);
-+	mdctx = EVP_MD_CTX_new();
-+	if (!mdctx)
-+		return 0;
-+
-+	EVP_DigestInit_ex(mdctx, EVP_md5(), NULL);
-+	EVP_DigestUpdate(mdctx, &dat[0], sizeof(dat));
-+	EVP_DigestFinal_ex(mdctx, &md[0], &digest_len);
-+	EVP_MD_CTX_free(mdctx);
- 
- 	SHA1(&dat[0], sizeof(dat), &md[0]);
- 
+-	if (!param->get)
++	if (!param->get || devlink->reload_failed)
+ 		return -EOPNOTSUPP;
+ 	return param->get(devlink, param->id, ctx);
+ }
+@@ -2962,7 +2962,7 @@ static int devlink_param_set(struct devl
+ 			     const struct devlink_param *param,
+ 			     struct devlink_param_gset_ctx *ctx)
+ {
+-	if (!param->set)
++	if (!param->set || devlink->reload_failed)
+ 		return -EOPNOTSUPP;
+ 	return param->set(devlink, param->id, ctx);
+ }
 
 
