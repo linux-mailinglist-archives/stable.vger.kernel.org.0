@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA4559DA3C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D82F59D998
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352005AbiHWKGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46528 "EHLO
+        id S244003AbiHWJ6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:58:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243465AbiHWKFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:05:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9E1A262D;
-        Tue, 23 Aug 2022 01:51:57 -0700 (PDT)
+        with ESMTP id S1352190AbiHWJ4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:56:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3676A0332;
+        Tue, 23 Aug 2022 01:47:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 754286123D;
-        Tue, 23 Aug 2022 08:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 749F7C433D6;
-        Tue, 23 Aug 2022 08:51:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3CC5B81C35;
+        Tue, 23 Aug 2022 08:47:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B8F9C4347C;
+        Tue, 23 Aug 2022 08:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244715;
-        bh=j77QJl1TcNYkGHqZiSjCkKoxYzy27qIOtLmaK1Cnxb4=;
+        s=korg; t=1661244436;
+        bh=teXgXwagCJhheI7Y+/QuiPceXborMnBt0F32WtrSM8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWCKcINgZ+uizg6URZOvVOhbgAZKlpFWr3/EvbdJEMRYpxFpWQEAH0+D9kHL5wTBJ
-         rdNLliWJHKSGLR3UYd4iuLREs7tbg24yhirINbSRmpj51rHgWD9Sw5EslWgwwnI9vl
-         jgSXAFrugGWEQ+FFTpPAtDgcvTjSSbGwfeOONc0o=
+        b=xEjzXuya6OYYWVwFFGgsSQXB88X9n6rkg4dnu4/dmk0onySCZLcJfHKSif/yxv2Gm
+         bHrN+rdc7ZzUjojOZbg05rNGl1xYeb4eEWAltQlifeZU1nA6MTGzVVdfcErw8MJoSY
+         ef7to1si416t6DZTGdr7EWeqSY+DvWl+dWxPPH7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 138/244] net: fix potential refcount leak in ndisc_router_discovery()
-Date:   Tue, 23 Aug 2022 10:24:57 +0200
-Message-Id: <20220823080103.755618325@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 137/229] powerpc/spufs: Fix refcount leak in spufs_init_isolated_loader
+Date:   Tue, 23 Aug 2022 10:24:58 +0200
+Message-Id: <20220823080058.586853140@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 7396ba87f1edf549284869451665c7c4e74ecd4f upstream.
+[ Upstream commit 6ac059dacffa8ab2f7798f20e4bd3333890c541c ]
 
-The issue happens on specific paths in the function. After both the
-object `rt` and `neigh` are grabbed successfully, when `lifetime` is
-nonzero but the metric needs change, the function just deletes the
-route and set `rt` to NULL. Then, it may try grabbing `rt` and `neigh`
-again if above conditions hold. The function simply overwrite `neigh`
-if succeeds or returns if fails, without decreasing the reference
-count of previous `neigh`. This may result in memory leaks.
+of_find_node_by_path() returns remote device nodepointer with
+refcount incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Fix it by decrementing the reference count of `neigh` in place.
-
-Fixes: 6b2e04bc240f ("net: allow user to set metric on default route learned via Router Advertisement")
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0afacde3df4c ("[POWERPC] spufs: allow isolated mode apps by starting the SPE loader")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220603121543.22884-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ndisc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/platforms/cell/spufs/inode.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/ndisc.c
-+++ b/net/ipv6/ndisc.c
-@@ -1317,6 +1317,9 @@ static void ndisc_router_discovery(struc
- 	if (!rt && lifetime) {
- 		ND_PRINTK(3, info, "RA: adding default router\n");
+diff --git a/arch/powerpc/platforms/cell/spufs/inode.c b/arch/powerpc/platforms/cell/spufs/inode.c
+index 9558d725a99b..37ba89f2fd80 100644
+--- a/arch/powerpc/platforms/cell/spufs/inode.c
++++ b/arch/powerpc/platforms/cell/spufs/inode.c
+@@ -684,6 +684,7 @@ spufs_init_isolated_loader(void)
+ 		return;
  
-+		if (neigh)
-+			neigh_release(neigh);
-+
- 		rt = rt6_add_dflt_router(net, &ipv6_hdr(skb)->saddr,
- 					 skb->dev, pref, defrtr_usr_metric);
- 		if (!rt) {
+ 	loader = of_get_property(dn, "loader", &size);
++	of_node_put(dn);
+ 	if (!loader)
+ 		return;
+ 
+-- 
+2.35.1
+
 
 
