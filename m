@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7D259E2CC
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F34E59DED5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:33:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352108AbiHWLRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:17:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
+        id S1357192AbiHWLRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357559AbiHWLQF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83D20BC103;
+        with ESMTP id S1357565AbiHWLQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:16:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EE80BD104;
         Tue, 23 Aug 2022 02:19:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48BE7B81B1F;
-        Tue, 23 Aug 2022 09:19:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6056DC433C1;
-        Tue, 23 Aug 2022 09:19:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A7A361228;
+        Tue, 23 Aug 2022 09:19:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ED9CC433C1;
+        Tue, 23 Aug 2022 09:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246373;
-        bh=irCBK8LTpH4tpbspjJOVgrGRJVi9IEJ+agochWcRKhg=;
+        s=korg; t=1661246375;
+        bh=NhE0F3P1YJzIxv1DXafKxFY9WtmZk3vNc9SJfc+eUL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBhrxFNz8IoJxVTjt0ZWtwNvXBp9IZ9RyWY6DDC3VhiuLgcUqK4/KIekl6yvw8ayR
-         7smH5a76Wg/jfRh3qRCfKCPwyS/cA57HlC59iuZP5VtrtB/IBRznEHhzRENAubGeKw
-         vRBKY1nzYqyD47nv+EV4uOhylGjyYGg4BqM1srNE=
+        b=xtxqn3UXquMVbW5SrXiZMepkVLnjJ/bf6L3F707T1aRz9gWasLjVSayZTE++RpQFa
+         mJ6sxbS7hFkeVEZtmGqLQnRQdRp/3h2Sihz+4zXFLkR5Kr5T1CkMlh+K8NiuZzXbme
+         rDi8XPm2H2vZL+ytWlfT58qVBWg+ruJmrc6bZO58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, INAGAKI Hiroshi <musashino.open@gmail.com>,
-        Nick Hainke <vincent@systemli.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        stable@vger.kernel.org, Liu Jinbao <liujinbao1@xiaomi.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 088/389] arm64: dts: mt7622: fix BPI-R64 WPS button
-Date:   Tue, 23 Aug 2022 10:22:46 +0200
-Message-Id: <20220823080119.301096629@linuxfoundation.org>
+Subject: [PATCH 5.4 089/389] erofs: avoid consecutive detection for Highmem memory
+Date:   Tue, 23 Aug 2022 10:22:47 +0200
+Message-Id: <20220823080119.341036548@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -55,50 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Hainke <vincent@systemli.org>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit c98e6e683632386a3bd284acda4342e68aec4c41 ]
+[ Upstream commit 448b5a1548d87c246c3d0c3df8480d3c6eb6c11a ]
 
-The bananapi R64 (BPI-R64) experiences wrong WPS button signals.
-In OpenWrt pushing the WPS button while powering on the device will set
-it to recovery mode. Currently, this also happens without any user
-interaction. In particular, the wrong signals appear while booting the
-device or restarting it, e.g. after doing a system upgrade. If the
-device is in recovery mode the user needs to manually power cycle or
-restart it.
+Currently, vmap()s are avoided if physical addresses are
+consecutive for decompressed buffers.
 
-The official BPI-R64 sources set the WPS button to GPIO_ACTIVE_LOW in
-the device tree. This setting seems to suppress the unwanted WPS button
-press signals. So this commit changes the button from GPIO_ACTIVE_HIGH to
-GPIO_ACTIVE_LOW.
+I observed that is very common for 4KiB pclusters since the
+numbers of decompressed pages are almost 2 or 3.
 
-The official BPI-R64 sources can be found on
-https://github.com/BPI-SINOVOIP/BPI-R64-openwrt
+However, such detection doesn't work for Highmem pages on
+32-bit machines, let's fix it now.
 
-Fixes: 0b6286dd96c0 ("arm64: dts: mt7622: add bananapi BPI-R64 board")
-
-Suggested-by: INAGAKI Hiroshi <musashino.open@gmail.com>
-Signed-off-by: Nick Hainke <vincent@systemli.org>
-Link: https://lore.kernel.org/r/20220630111746.4098-1-vincent@systemli.org
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Reported-by: Liu Jinbao <liujinbao1@xiaomi.com>
+Fixes: 7fc45dbc938a ("staging: erofs: introduce generic decompression backend")
+Link: https://lore.kernel.org/r/20220708101001.21242-1-hsiangkao@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/erofs/decompressor.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts b/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
-index 83e10591e0e5..81215cc3759a 100644
---- a/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
-@@ -49,7 +49,7 @@ factory {
- 		wps {
- 			label = "wps";
- 			linux,code = <KEY_WPS_BUTTON>;
--			gpios = <&pio 102 GPIO_ACTIVE_HIGH>;
-+			gpios = <&pio 102 GPIO_ACTIVE_LOW>;
- 		};
- 	};
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 23b74b8e8f96..38eeec5e3032 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -56,14 +56,18 @@ static int z_erofs_lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
  
+ 		if (page) {
+ 			__clear_bit(j, bounced);
+-			if (kaddr) {
+-				if (kaddr + PAGE_SIZE == page_address(page))
++			if (!PageHighMem(page)) {
++				if (!i) {
++					kaddr = page_address(page);
++					continue;
++				}
++				if (kaddr &&
++				    kaddr + PAGE_SIZE == page_address(page)) {
+ 					kaddr += PAGE_SIZE;
+-				else
+-					kaddr = NULL;
+-			} else if (!i) {
+-				kaddr = page_address(page);
++					continue;
++				}
+ 			}
++			kaddr = NULL;
+ 			continue;
+ 		}
+ 		kaddr = NULL;
 -- 
 2.35.1
 
