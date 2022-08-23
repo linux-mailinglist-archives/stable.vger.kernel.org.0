@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C852B59DFBC
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E6759E156
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347099AbiHWLdT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:33:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48868 "EHLO
+        id S1354794AbiHWK3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:29:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357490AbiHWLbj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:31:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D76B6612E;
-        Tue, 23 Aug 2022 02:25:48 -0700 (PDT)
+        with ESMTP id S1354273AbiHWK1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:27:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A7B84ED3;
+        Tue, 23 Aug 2022 02:06:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A8A46130E;
-        Tue, 23 Aug 2022 09:25:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB2E6C433D6;
-        Tue, 23 Aug 2022 09:25:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C6DFB81C86;
+        Tue, 23 Aug 2022 09:05:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7673BC43148;
+        Tue, 23 Aug 2022 09:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246746;
-        bh=OJLTec2hXfd6nyC4dMNAnRYZc1Klp15sXbFH0oMSZsE=;
+        s=korg; t=1661245557;
+        bh=ZWz5xNRGqs4DFUsiTNXMxvF7ZS3YmBi3o4+3EdUiwWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmf/quD2uHYQa02t92WZNqleCjouVTu6tIKT/5ujfSN2mww91HOSB53CSTY0ZeeBB
-         /zJafIYOvCNQ3qu6eS1O6n0/kOlLSiZnj9GDaBfme3J1TTkMOJ32v1hQjr5yQm2l2w
-         ioMbKGaJOZp+15b+0D15fWNwfeDRDLilmXHDN/8o=
+        b=R/GaJmr3oa9em2R1XO6AiqjF/nnjPK+u/yoTLODznWYpVkq/gM273BnB9Jz9zmwKi
+         JiMWxqtK1XtBSUBN+PPWfAOCoUvK9p5PcPiCttKodudtN675uvpp3UVZNH6IErXMiD
+         GBFJIMbk3l3pR95Ct4jBrovpSfPhFFpeZMscC+jk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 207/389] serial: 8250_dw: Store LSR into lsr_saved_flags in dw8250_tx_wait_empty()
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 116/287] HID: cp2112: prevent a buffer overflow in cp2112_xfer()
 Date:   Tue, 23 Aug 2022 10:24:45 +0200
-Message-Id: <20220823080124.280771589@linuxfoundation.org>
+Message-Id: <20220823080104.297228396@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit af14f3007e2dca0d112f10f6717ba43093f74e81 ]
+[ Upstream commit 381583845d19cb4bd21c8193449385f3fefa9caf ]
 
-Make sure LSR flags are preserved in dw8250_tx_wait_empty(). This
-function is called from a low-level out function and therefore cannot
-call serial_lsr_in() as it would lead to infinite recursion.
+Smatch warnings:
+drivers/hid/hid-cp2112.c:793 cp2112_xfer() error: __memcpy()
+'data->block[1]' too small (33 vs 255)
+drivers/hid/hid-cp2112.c:793 cp2112_xfer() error: __memcpy() 'buf' too
+small (64 vs 255)
 
-It is borderline if the flags need to be saved here at all since this
-code relates to writing LCR register which usually implies no important
-characters should be arriving.
+The 'read_length' variable is provided by 'data->block[0]' which comes
+from user and it(read_length) can take a value between 0-255. Add an
+upper bound to 'read_length' variable to prevent a buffer overflow in
+memcpy().
 
-Fixes: 914eaf935ec7 ("serial: 8250_dw: Allow TX FIFO to drain before writing to UART_LCR")
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220608095431.18376-7-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 542134c0375b ("HID: cp2112: Fix I2C_BLOCK_DATA transactions")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_dw.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-cp2112.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
-index 381c5117aec1..2d5a039229ac 100644
---- a/drivers/tty/serial/8250/8250_dw.c
-+++ b/drivers/tty/serial/8250/8250_dw.c
-@@ -110,12 +110,15 @@ static void dw8250_check_lcr(struct uart_port *p, int value)
- /* Returns once the transmitter is empty or we run out of retries */
- static void dw8250_tx_wait_empty(struct uart_port *p)
- {
-+	struct uart_8250_port *up = up_to_u8250p(p);
- 	unsigned int tries = 20000;
- 	unsigned int delay_threshold = tries - 1000;
- 	unsigned int lsr;
- 
- 	while (tries--) {
- 		lsr = readb (p->membase + (UART_LSR << p->regshift));
-+		up->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 6f65f5257236..637a7ce281c6 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -794,6 +794,11 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
+ 		data->word = le16_to_cpup((__le16 *)buf);
+ 		break;
+ 	case I2C_SMBUS_I2C_BLOCK_DATA:
++		if (read_length > I2C_SMBUS_BLOCK_MAX) {
++			ret = -EINVAL;
++			goto power_normal;
++		}
 +
- 		if (lsr & UART_LSR_TEMT)
- 			break;
- 
+ 		memcpy(data->block + 1, buf, read_length);
+ 		break;
+ 	case I2C_SMBUS_BLOCK_DATA:
 -- 
 2.35.1
 
