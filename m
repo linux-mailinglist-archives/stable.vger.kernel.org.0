@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 918E459E03A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6BDA59E193
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240270AbiHWMDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47450 "EHLO
+        id S236669AbiHWKnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:43:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358698AbiHWMCk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:02:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20C67DB04D;
-        Tue, 23 Aug 2022 02:36:40 -0700 (PDT)
+        with ESMTP id S1356315AbiHWKlv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0EA18605C;
+        Tue, 23 Aug 2022 02:09:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 406E3B81C63;
-        Tue, 23 Aug 2022 09:36:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F003C433D6;
-        Tue, 23 Aug 2022 09:36:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A5116069D;
+        Tue, 23 Aug 2022 09:09:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34F9FC433D6;
+        Tue, 23 Aug 2022 09:09:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247382;
-        bh=uPEDf+H+9p9j/UybwHupxb1s2C5Sf1klNm8f8v4Kf9c=;
+        s=korg; t=1661245762;
+        bh=Lveu6uFlMWa/CVBVxi5kfsSkEcxc8ilbail2ZMSOKDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05ocJnVBz4XrL92IqO/gNuALxCWv+URODjzNq+o9uehJMLz6IzoUDcoFArLDk3CCV
-         pqclshA4UfJ6skGEnB2T02a2jQigkjtKNCf+eL/+DPn+kDCDnluenUh3QteKEfNE0h
-         plZRklJ/HBFjiTdCjvGw20xgIy4JogYZJwz2lmo8=
+        b=DCYLo3LSCkSEZSULbgNLbnAaZ0drbiiU8c1Fyh4GXajFijLfWjabKwzR+d9s7A1Sm
+         YvIcPwB5Q1+wqKiStoI+zIrm5nh75w6RpT87YJzv1GFtw8WmQVlw25LV9Xjl27JBr9
+         4qMP29Gjov3Ieic74hxzusXfG+kC+rOfMHQK9D0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.10 019/158] apparmor: fix reference count leak in aa_pivotroot()
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 182/287] video: fbdev: arkfb: Check the size of screen before memset_io()
 Date:   Tue, 23 Aug 2022 10:25:51 +0200
-Message-Id: <20220823080046.854786103@linuxfoundation.org>
+Message-Id: <20220823080106.912266749@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 11c3627ec6b56c1525013f336f41b79a983b4d46 upstream.
+[ Upstream commit 96b550971c65d54d64728d8ba973487878a06454 ]
 
-The aa_pivotroot() function has a reference counting bug in a specific
-path. When aa_replace_current_label() returns on success, the function
-forgets to decrement the reference count of “target”, which is
-increased earlier by build_pivotroot(), causing a reference leak.
+In the function arkfb_set_par(), the value of 'screen_size' is
+calculated by the user input. If the user provides the improper value,
+the value of 'screen_size' may larger than 'info->screen_size', which
+may cause the following bug:
 
-Fix it by decreasing the refcount of “target” in that path.
+[  659.399066] BUG: unable to handle page fault for address: ffffc90003000000
+[  659.399077] #PF: supervisor write access in kernel mode
+[  659.399079] #PF: error_code(0x0002) - not-present page
+[  659.399094] RIP: 0010:memset_orig+0x33/0xb0
+[  659.399116] Call Trace:
+[  659.399122]  arkfb_set_par+0x143f/0x24c0
+[  659.399130]  fb_set_var+0x604/0xeb0
+[  659.399161]  do_fb_ioctl+0x234/0x670
+[  659.399189]  fb_ioctl+0xdd/0x130
 
-Fixes: 2ea3ffb7782a ("apparmor: add mount mediation")
-Co-developed-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Co-developed-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix the this by checking the value of 'screen_size' before memset_io().
+
+Fixes: 681e14730c73 ("arkfb: new framebuffer driver for ARK Logic cards")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/mount.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/arkfb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/security/apparmor/mount.c
-+++ b/security/apparmor/mount.c
-@@ -719,6 +719,7 @@ int aa_pivotroot(struct aa_label *label,
- 			aa_put_label(target);
- 			goto out;
- 		}
-+		aa_put_label(target);
- 	} else
- 		/* already audited error */
- 		error = PTR_ERR(target);
+diff --git a/drivers/video/fbdev/arkfb.c b/drivers/video/fbdev/arkfb.c
+index bfa221b68d71..f7920987dd24 100644
+--- a/drivers/video/fbdev/arkfb.c
++++ b/drivers/video/fbdev/arkfb.c
+@@ -794,6 +794,8 @@ static int arkfb_set_par(struct fb_info *info)
+ 	value = ((value * hmul / hdiv) / 8) - 5;
+ 	vga_wcrt(par->state.vgabase, 0x42, (value + 1) / 2);
+ 
++	if (screen_size > info->screen_size)
++		screen_size = info->screen_size;
+ 	memset_io(info->screen_base, 0x00, screen_size);
+ 	/* Device and screen back on */
+ 	svga_wcrt_mask(par->state.vgabase, 0x17, 0x80, 0x80);
+-- 
+2.35.1
+
 
 
