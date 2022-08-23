@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7D3459DD9F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C13659E04B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352745AbiHWKPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:15:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37888 "EHLO
+        id S240584AbiHWKt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:49:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353380AbiHWKN2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:13:28 -0400
+        with ESMTP id S1355685AbiHWKr5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:47:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE4572680;
-        Tue, 23 Aug 2022 01:59:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9269F86C18;
+        Tue, 23 Aug 2022 02:12:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25BC16153F;
-        Tue, 23 Aug 2022 08:59:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E3F9C433C1;
-        Tue, 23 Aug 2022 08:59:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E31E60F85;
+        Tue, 23 Aug 2022 09:12:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F9A7C433D6;
+        Tue, 23 Aug 2022 09:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245176;
-        bh=XDCk/CMGdbuJUzUm77jkj2+obB1j5D4sSTZ14pTCW4U=;
+        s=korg; t=1661245919;
+        bh=Q4K1n/gCWk4R0nhTBAqldyQaNxCFu9Nsl2oB7WC7y1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=utdOSbL+Ob2XSGKCg8u9izndbczceiupVmMuSXQq8nD/tE8NTN1okPth6Ji84jdEa
-         cG2auWrR/L1/6GB6uOzWekknbH+S0xj3MPJmRgIisRVc+SbFda8yvHrx62/8FJZuO0
-         AgcoQK9ByubD1+sHe6WeW096iKxdpP4rphGJHrgI=
+        b=ZOIAnN82wYLjoMcd4aUCezzxB1EvcMSgv9qAkTJ5dj3WoBi5Wf9vrPOcF9dw24BO+
+         TCT7orQYMetlCN/BwoxbyCT0ooL1pyTxLno/lLUsoYW75UHPLfzYqcFCwUfcLZT8WT
+         DOkhBrSbTiRwPys9eFywYt03EGGad7CR2ET3Xvro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Chinner <dchinner@redhat.com>,
-        Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 240/244] xfs: always succeed at setting the reserve pool size
-Date:   Tue, 23 Aug 2022 10:26:39 +0200
-Message-Id: <20220823080107.629436819@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Xianwei <zhang.xianwei8@zte.com.cn>,
+        Yi Wang <wang.yi59@zte.com.cn>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.19 231/287] NFSv4.1: RECLAIM_COMPLETE must handle EACCES
+Date:   Tue, 23 Aug 2022 10:26:40 +0200
+Message-Id: <20220823080108.814584086@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Zhang Xianwei <zhang.xianwei8@zte.com.cn>
 
-[ Upstream commit 0baa2657dc4d79202148be79a3dc36c35f425060 ]
+commit e35a5e782f67ed76a65ad0f23a484444a95f000f upstream.
 
-Nowadays, xfs_mod_fdblocks will always choose to fill the reserve pool
-with freed blocks before adding to fdblocks.  Therefore, we can change
-the behavior of xfs_reserve_blocks slightly -- setting the target size
-of the pool should always succeed, since a deficiency will eventually
-be made up as blocks get freed.
+A client should be able to handle getting an EACCES error while doing
+a mount operation to reclaim state due to NFS4CLNT_RECLAIM_REBOOT
+being set. If the server returns RPC_AUTH_BADCRED because authentication
+failed when we execute "exportfs -au", then RECLAIM_COMPLETE will go a
+wrong way. After mount succeeds, all OPEN call will fail due to an
+NFS4ERR_GRACE error being returned. This patch is to fix it by resending
+a RPC request.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Zhang Xianwei <zhang.xianwei8@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Fixes: aa5190d0ed7d ("NFSv4: Kill nfs4_async_handle_error() abuses by NFSv4.1")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_fsops.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/nfs/nfs4proc.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/xfs/xfs_fsops.c
-+++ b/fs/xfs/xfs_fsops.c
-@@ -434,11 +434,14 @@ xfs_reserve_blocks(
- 	 * The code below estimates how many blocks it can request from
- 	 * fdblocks to stash in the reserve pool.  This is a classic TOCTOU
- 	 * race since fdblocks updates are not always coordinated via
--	 * m_sb_lock.
-+	 * m_sb_lock.  Set the reserve size even if there's not enough free
-+	 * space to fill it because mod_fdblocks will refill an undersized
-+	 * reserve when it can.
- 	 */
- 	free = percpu_counter_sum(&mp->m_fdblocks) -
- 						xfs_fdblocks_unavailable(mp);
- 	delta = request - mp->m_resblks;
-+	mp->m_resblks = request;
- 	if (delta > 0 && free > 0) {
- 		/*
- 		 * We'll either succeed in getting space from the free block
-@@ -455,10 +458,8 @@ xfs_reserve_blocks(
- 		 * Update the reserve counters if blocks have been successfully
- 		 * allocated.
- 		 */
--		if (!error) {
--			mp->m_resblks += fdblks_delta;
-+		if (!error)
- 			mp->m_resblks_avail += fdblks_delta;
--		}
- 	}
- out:
- 	if (outval) {
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -8701,6 +8701,9 @@ static int nfs41_reclaim_complete_handle
+ 		rpc_delay(task, NFS4_POLL_RETRY_MAX);
+ 		/* fall through */
+ 	case -NFS4ERR_RETRY_UNCACHED_REP:
++	case -EACCES:
++		dprintk("%s: failed to reclaim complete error %d for server %s, retrying\n",
++			__func__, task->tk_status, clp->cl_hostname);
+ 		return -EAGAIN;
+ 	case -NFS4ERR_BADSESSION:
+ 	case -NFS4ERR_DEADSESSION:
 
 
