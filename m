@@ -2,54 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63D9759DFC0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7681B59DFD5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358584AbiHWLwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:52:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52688 "EHLO
+        id S1358553AbiHWLwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358871AbiHWLvJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:51:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4CCFD347C;
-        Tue, 23 Aug 2022 02:31:58 -0700 (PDT)
+        with ESMTP id S1358911AbiHWLvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:51:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C451BD345A;
+        Tue, 23 Aug 2022 02:32:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4C48B81C98;
-        Tue, 23 Aug 2022 09:31:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E569BC433D6;
-        Tue, 23 Aug 2022 09:31:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF872B81C97;
+        Tue, 23 Aug 2022 09:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22E32C433D6;
+        Tue, 23 Aug 2022 09:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247115;
-        bh=69ovCRcumfGslh/oGLivZ4DIr8oJgQGwFuXGEqHGW5k=;
+        s=korg; t=1661247121;
+        bh=UfA2D+Yn9Vkzxi9TLQAdixu5obpAF7LAI9CvtDbERPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NBMv1LGnpeev5Y3mrmaDaqsyMV18S60tPbN1xy2dDsZDuoroyypnJtV6i2p0PkXWN
-         XhNgAdPx1dFtyQnae66pkGRfW1K9QinJJknioaFcJV8iWrJdrMCVE3bjx1Ks7BEIBZ
-         mw66GMI1yrouvPqXRwVM2qk+YvhSkInUuh+bXeJs=
+        b=IGW+MGQbj6k4POBJqJDWJ+hpMsMCxaKr3m7A594Lh7d4gQwLGsaErrAoYgVCJTjyZ
+         IXOMQU2o3PPsm0yAcn86YPsp5EbmIcxu5MGjh6wY2doLz8omeVZlzKcnthToyxz4qt
+         tvOMSOJj0DFalYpfrkKepv+qgys2bRbHLbqjshJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, llvm@lists.linux.dev,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Song Liu <song@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 322/389] tools build: Switch to new openssl API for test-libcrypto
-Date:   Tue, 23 Aug 2022 10:26:40 +0200
-Message-Id: <20220823080128.985378948@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jon Mason <jdmason@kudzu.us>
+Subject: [PATCH 5.4 323/389] NTB: ntb_tool: uninitialized heap data in tool_fn_write()
+Date:   Tue, 23 Aug 2022 10:26:41 +0200
+Message-Id: <20220823080129.020395526@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -67,70 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 5b245985a6de5ac18b5088c37068816d413fb8ed upstream.
+commit 45e1058b77feade4e36402828bfe3e0d3363177b upstream.
 
-Switch to new EVP API for detecting libcrypto, as Fedora 36 returns an
-error when it encounters the deprecated function MD5_Init() and the others.
+The call to:
 
-The error would be interpreted as missing libcrypto, while in reality it is
-not.
+	ret = simple_write_to_buffer(buf, size, offp, ubuf, size);
 
-Fixes: 6e8ccb4f624a73c5 ("tools/bpf: properly account for libbfd variations")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: bpf@vger.kernel.org
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: llvm@lists.linux.dev
-Cc: Martin KaFai Lau <martin.lau@linux.dev>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Quentin Monnet <quentin@isovalent.com>
-Cc: Song Liu <song@kernel.org>
-Cc: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/20220719170555.2576993-4-roberto.sassu@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+will return success if it is able to write even one byte to "buf".
+The value of "*offp" controls which byte.  This could result in
+reading uninitialized data when we do the sscanf() on the next line.
+
+This code is not really desigined to handle partial writes where
+*offp is non-zero and the "buf" is preserved and re-used between writes.
+Just ban partial writes and replace the simple_write_to_buffer() with
+copy_from_user().
+
+Fixes: 578b881ba9c4 ("NTB: Add tool test client")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/build/feature/test-libcrypto.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/ntb/test/ntb_tool.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/tools/build/feature/test-libcrypto.c
-+++ b/tools/build/feature/test-libcrypto.c
-@@ -1,16 +1,23 @@
- // SPDX-License-Identifier: GPL-2.0
-+#include <openssl/evp.h>
- #include <openssl/sha.h>
- #include <openssl/md5.h>
+--- a/drivers/ntb/test/ntb_tool.c
++++ b/drivers/ntb/test/ntb_tool.c
+@@ -367,14 +367,16 @@ static ssize_t tool_fn_write(struct tool
+ 	u64 bits;
+ 	int n;
  
- int main(void)
- {
--	MD5_CTX context;
-+	EVP_MD_CTX *mdctx;
- 	unsigned char md[MD5_DIGEST_LENGTH + SHA_DIGEST_LENGTH];
- 	unsigned char dat[] = "12345";
-+	unsigned int digest_len;
- 
--	MD5_Init(&context);
--	MD5_Update(&context, &dat[0], sizeof(dat));
--	MD5_Final(&md[0], &context);
-+	mdctx = EVP_MD_CTX_new();
-+	if (!mdctx)
++	if (*offp)
 +		return 0;
 +
-+	EVP_DigestInit_ex(mdctx, EVP_md5(), NULL);
-+	EVP_DigestUpdate(mdctx, &dat[0], sizeof(dat));
-+	EVP_DigestFinal_ex(mdctx, &md[0], &digest_len);
-+	EVP_MD_CTX_free(mdctx);
+ 	buf = kmalloc(size + 1, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
  
- 	SHA1(&dat[0], sizeof(dat), &md[0]);
+-	ret = simple_write_to_buffer(buf, size, offp, ubuf, size);
+-	if (ret < 0) {
++	if (copy_from_user(buf, ubuf, size)) {
+ 		kfree(buf);
+-		return ret;
++		return -EFAULT;
+ 	}
  
+ 	buf[size] = 0;
 
 
