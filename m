@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1098F59DF3E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B0159E2B0
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355796AbiHWKo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:44:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58428 "EHLO
+        id S1352965AbiHWKJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:09:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356597AbiHWKmk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:42:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5C9AA3F2;
-        Tue, 23 Aug 2022 02:10:10 -0700 (PDT)
+        with ESMTP id S1352589AbiHWKIM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:08:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595A15A814;
+        Tue, 23 Aug 2022 01:54:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A19C560112;
-        Tue, 23 Aug 2022 09:10:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A22C433C1;
-        Tue, 23 Aug 2022 09:10:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC5FD614E7;
+        Tue, 23 Aug 2022 08:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE709C433C1;
+        Tue, 23 Aug 2022 08:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245809;
-        bh=GL7FVCMLMUajBVsDTtBKya4wQvKsTuUXtyR7+Ono7rM=;
+        s=korg; t=1661244869;
+        bh=wHY68nJcyo2katdIxL+WELqzCPei9l12nIZdOUziNv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DB5uAwoCXTfMnzpdNDywhY/jfuQT3NKLlL2Ek7oAG2L+/vmRqAneh+Gbu6yIScvIN
-         P4tijSyMj7BtlxNmYT4tnPU4ynNRbM3+Q/sP0o5y8k97XbU0rzoXaW5UqRpyLPXqp/
-         ohgK0LNVPBrxZPnIfKtkJovpZ/55l9fK5tV16Cd0=
+        b=Y+168JPCPzowtSf3/HLkwfCPZpDFOxUx/DSxRXTJhgtqaU2JWLlJP7kkwGT7/m83J
+         nBkGhs1yQXvtQUr7NseMjR/4M8KC44r9CgvYjKz8h9vfAsN3kh7ZuzYG7GTDnIa5W6
+         uxhBxAgdrYqSs+pob6yLJAXbeyjE0QahZzViIS88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        stable <stable@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Subject: [PATCH 4.19 196/287] intel_th: pci: Add Meteor Lake-P support
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 204/229] powerpc/pci: Fix get_phb_number() locking
 Date:   Tue, 23 Aug 2022 10:26:05 +0200
-Message-Id: <20220823080107.439060196@linuxfoundation.org>
+Message-Id: <20220823080100.943073812@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 802a9a0b1d91274ef10d9fe429b4cc1e8c200aef upstream.
+commit 8d48562a2729742f767b0fdd994d6b2a56a49c63 upstream.
 
-Add support for the Trace Hub in Meteor Lake-P.
+The recent change to get_phb_number() causes a DEBUG_ATOMIC_SLEEP
+warning on some systems:
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Link: https://lore.kernel.org/r/20220705082637.59979-5-alexander.shishkin@linux.intel.com
+  BUG: sleeping function called from invalid context at kernel/locking/mutex.c:580
+  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: swapper
+  preempt_count: 1, expected: 0
+  RCU nest depth: 0, expected: 0
+  1 lock held by swapper/1:
+   #0: c157efb0 (hose_spinlock){+.+.}-{2:2}, at: pcibios_alloc_controller+0x64/0x220
+  Preemption disabled at:
+  [<00000000>] 0x0
+  CPU: 0 PID: 1 Comm: swapper Not tainted 5.19.0-yocto-standard+ #1
+  Call Trace:
+  [d101dc90] [c073b264] dump_stack_lvl+0x50/0x8c (unreliable)
+  [d101dcb0] [c0093b70] __might_resched+0x258/0x2a8
+  [d101dcd0] [c0d3e634] __mutex_lock+0x6c/0x6ec
+  [d101dd50] [c0a84174] of_alias_get_id+0x50/0xf4
+  [d101dd80] [c002ec78] pcibios_alloc_controller+0x1b8/0x220
+  [d101ddd0] [c140c9dc] pmac_pci_init+0x198/0x784
+  [d101de50] [c140852c] discover_phbs+0x30/0x4c
+  [d101de60] [c0007fd4] do_one_initcall+0x94/0x344
+  [d101ded0] [c1403b40] kernel_init_freeable+0x1a8/0x22c
+  [d101df10] [c00086e0] kernel_init+0x34/0x160
+  [d101df30] [c001b334] ret_from_kernel_thread+0x5c/0x64
+
+This is because pcibios_alloc_controller() holds hose_spinlock but
+of_alias_get_id() takes of_mutex which can sleep.
+
+The hose_spinlock protects the phb_bitmap, and also the hose_list, but
+it doesn't need to be held while get_phb_number() calls the OF routines,
+because those are only looking up information in the device tree.
+
+So fix it by having get_phb_number() take the hose_spinlock itself, only
+where required, and then dropping the lock before returning.
+pcibios_alloc_controller() then needs to take the lock again before the
+list_add() but that's safe, the order of the list is not important.
+
+Fixes: 0fe1e96fef0a ("powerpc/pci: Prefer PCI domain assignment via DT 'linux,pci-domain' and alias")
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220815065550.1303620-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/intel_th/pci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/powerpc/kernel/pci-common.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -256,6 +256,11 @@ static const struct pci_device_id intel_
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
- 	{
-+		/* Meteor Lake-P */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x7e24),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
-+	{
- 		/* Rocket Lake CPU */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4c19),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+--- a/arch/powerpc/kernel/pci-common.c
++++ b/arch/powerpc/kernel/pci-common.c
+@@ -73,10 +73,6 @@ const struct dma_map_ops *get_pci_dma_op
+ }
+ EXPORT_SYMBOL(get_pci_dma_ops);
+ 
+-/*
+- * This function should run under locking protection, specifically
+- * hose_spinlock.
+- */
+ static int get_phb_number(struct device_node *dn)
+ {
+ 	int ret, phb_id = -1;
+@@ -113,15 +109,20 @@ static int get_phb_number(struct device_
+ 	if (!ret)
+ 		phb_id = (int)(prop & (MAX_PHBS - 1));
+ 
++	spin_lock(&hose_spinlock);
++
+ 	/* We need to be sure to not use the same PHB number twice. */
+ 	if ((phb_id >= 0) && !test_and_set_bit(phb_id, phb_bitmap))
+-		return phb_id;
++		goto out_unlock;
+ 
+ 	/* If everything fails then fallback to dynamic PHB numbering. */
+ 	phb_id = find_first_zero_bit(phb_bitmap, MAX_PHBS);
+ 	BUG_ON(phb_id >= MAX_PHBS);
+ 	set_bit(phb_id, phb_bitmap);
+ 
++out_unlock:
++	spin_unlock(&hose_spinlock);
++
+ 	return phb_id;
+ }
+ 
+@@ -132,10 +133,13 @@ struct pci_controller *pcibios_alloc_con
+ 	phb = zalloc_maybe_bootmem(sizeof(struct pci_controller), GFP_KERNEL);
+ 	if (phb == NULL)
+ 		return NULL;
+-	spin_lock(&hose_spinlock);
++
+ 	phb->global_number = get_phb_number(dev);
++
++	spin_lock(&hose_spinlock);
+ 	list_add_tail(&phb->list_node, &hose_list);
+ 	spin_unlock(&hose_spinlock);
++
+ 	phb->dn = dev;
+ 	phb->is_dynamic = slab_is_available();
+ #ifdef CONFIG_PPC64
 
 
