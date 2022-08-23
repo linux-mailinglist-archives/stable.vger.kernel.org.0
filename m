@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 581E459DBE8
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 632A359DC6D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357739AbiHWLiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:38:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59094 "EHLO
+        id S1355341AbiHWKjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:39:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358047AbiHWLgl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:36:41 -0400
+        with ESMTP id S1355158AbiHWKh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:37:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A28EE915D1;
-        Tue, 23 Aug 2022 02:27:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B43A6C50;
+        Tue, 23 Aug 2022 02:07:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F025B81C99;
-        Tue, 23 Aug 2022 09:27:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DAB1C43140;
-        Tue, 23 Aug 2022 09:27:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB881B81C4E;
+        Tue, 23 Aug 2022 09:07:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E27FC433C1;
+        Tue, 23 Aug 2022 09:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246870;
-        bh=wF1A5vtd8tvVocO+QjQ6jbB4zTb2fIRPK/24cR2VM5c=;
+        s=korg; t=1661245650;
+        bh=suZdBRjpDXFWDEa7jpSVWd8gmAmyH/rauzQmD1kwnvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CBhRv4CmhJrFkacCsnsw5FZZEksGzYQ/FC1iRcNJy/a8uJK7ZyBavNtxBwER99hAR
-         86Dr7AOkJZh1Gb8iagk6KGzHZi4chjroB0JBV9Po1gsGa7kzuyp8UqS0DQuzVrx2Wg
-         67K+slFuG/c9SyVMROFeedVyYZmniMZ4MaN7eyrk=
+        b=JUbkabSoxxXdeArssyE7Ch5JJeBargAo44sCH6V5lyNH1aKX5hefwzC+6ljlOPWWl
+         MvtM5mUfCSWdzNtQjdX6dVA/MYU5u6h6f59f+u5O+3LkkdJBGoZrF5d+xftdTy2NL6
+         bk7GrKHm7CVXOBhlUfLGa2xlKj23M4wR9E7QENWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
-        William Dean <williamsukatube@gmail.com>,
-        Marek Beh=C3=BAn <kabel@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 229/389] watchdog: armada_37xx_wdt: check the return value of devm_ioremap() in armada_37xx_wdt_probe()
+        stable@vger.kernel.org, Artem Borisov <dedsa2002@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 138/287] HID: alps: Declare U1_UNICORN_LEGACY support
 Date:   Tue, 23 Aug 2022 10:25:07 +0200
-Message-Id: <20220823080125.164292444@linuxfoundation.org>
+Message-Id: <20220823080105.120210342@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,39 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dean <williamsukatube@gmail.com>
+From: Artem Borisov <dedsa2002@gmail.com>
 
-[ Upstream commit 2d27e52841092e5831dd41f313028c668d816eb0 ]
+[ Upstream commit 1117d182c5d72abd7eb8b7d5e7b8c3373181c3ab ]
 
-The function devm_ioremap() in armada_37xx_wdt_probe() can fail, so
-its return value should be checked.
+U1_UNICORN_LEGACY id was added to the driver, but was not declared
+in the device id table, making it impossible to use.
 
-Fixes: 54e3d9b518c8a ("watchdog: Add support for Armada 37xx CPU watchdog")
-Reported-by: Hacash Robot <hacashRobot@santino.com>
-Signed-off-by: William Dean <williamsukatube@gmail.com>
-Reviewed-by: Marek Beh=C3=BAn <kabel@kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220722030938.2925156-1-williamsukatube@163.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: 640e403 ("HID: alps: Add AUI1657 device ID")
+Signed-off-by: Artem Borisov <dedsa2002@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/armada_37xx_wdt.c | 2 ++
+ drivers/hid/hid-alps.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/watchdog/armada_37xx_wdt.c b/drivers/watchdog/armada_37xx_wdt.c
-index e5dcb26d85f0..dcb3ffda3fad 100644
---- a/drivers/watchdog/armada_37xx_wdt.c
-+++ b/drivers/watchdog/armada_37xx_wdt.c
-@@ -274,6 +274,8 @@ static int armada_37xx_wdt_probe(struct platform_device *pdev)
- 	if (!res)
- 		return -ENODEV;
- 	dev->reg = devm_ioremap(&pdev->dev, res->start, resource_size(res));
-+	if (!dev->reg)
-+		return -ENOMEM;
- 
- 	/* init clock */
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index 3eddd8f73b57..116ece4be2c9 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -835,6 +835,8 @@ static const struct hid_device_id alps_id[] = {
+ 		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1_DUAL) },
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
+ 		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1) },
++	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
++		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY) },
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
+ 		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_T4_BTNLESS) },
+ 	{ }
 -- 
 2.35.1
 
