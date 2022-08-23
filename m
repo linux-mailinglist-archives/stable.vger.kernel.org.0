@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 195EE59DFD0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1107259DF82
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240303AbiHWLWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:22:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55360 "EHLO
+        id S1353938AbiHWKYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357896AbiHWLVW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:21:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3CAA8E473;
-        Tue, 23 Aug 2022 02:23:11 -0700 (PDT)
+        with ESMTP id S1354691AbiHWKWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:22:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE3546140;
+        Tue, 23 Aug 2022 02:03:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D89D861174;
-        Tue, 23 Aug 2022 09:23:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD75AC4314B;
-        Tue, 23 Aug 2022 09:23:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 806E1B81C53;
+        Tue, 23 Aug 2022 09:03:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4B1CC433D6;
+        Tue, 23 Aug 2022 09:03:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246590;
-        bh=TOkOChexb3xBoqLim2uMn4EOROVQrWdPD/gVHuPVRlQ=;
+        s=korg; t=1661245402;
+        bh=xrT7sCDqJzbwaabInFSOooM42pz6YylOw5GrLACf6Gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4WFBNHyB95kvjyWUhlea/KAJL2oLAaM3+aZTY8YwcMtIep3V+Ba5vhu3taB27/JC
-         9/aCP3G5gfILSBdywvjCMMnr+RxW1Fbcj286X3WoafxEN77eVhnuTwl1zLP21UY3pP
-         kuY9YzygvdmervKejuEVDVWmXJgKS4kr/yn3d/P0=
+        b=P2TBSylCESE11zt+nS1HEoul/g7IBImdu7V8ysLYKX4MRuc3Ul67t4f9wiLdtDW1i
+         ch8FriSa9n9bu0J5XEcCAlqJgvOmr/JBb48ltkKLeEBhAnz7eUp8qOfeOGGRX+crPY
+         EY+ZXQDPoIF6v1SDR6qXVRE3jLcefQ2M/8Zdgp6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/389] HID: cp2112: prevent a buffer overflow in cp2112_xfer()
+        stable@vger.kernel.org, Markus Mayer <mmayer@broadcom.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>,
+        =?UTF-8?q?Alejandro=20Gonz=C3=A1lez?= 
+        <alejandro.gonzalez.correo@gmail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 066/287] thermal/tools/tmon: Include pthread and time headers in tmon.h
 Date:   Tue, 23 Aug 2022 10:23:55 +0200
-Message-Id: <20220823080122.160717191@linuxfoundation.org>
+Message-Id: <20220823080102.455071090@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +58,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Markus Mayer <mmayer@broadcom.com>
 
-[ Upstream commit 381583845d19cb4bd21c8193449385f3fefa9caf ]
+[ Upstream commit 0cf51bfe999524377fbb71becb583b4ca6d07cfc ]
 
-Smatch warnings:
-drivers/hid/hid-cp2112.c:793 cp2112_xfer() error: __memcpy()
-'data->block[1]' too small (33 vs 255)
-drivers/hid/hid-cp2112.c:793 cp2112_xfer() error: __memcpy() 'buf' too
-small (64 vs 255)
+Include sys/time.h and pthread.h in tmon.h, so that types
+"pthread_mutex_t" and "struct timeval tv" are known when tmon.h
+references them.
 
-The 'read_length' variable is provided by 'data->block[0]' which comes
-from user and it(read_length) can take a value between 0-255. Add an
-upper bound to 'read_length' variable to prevent a buffer overflow in
-memcpy().
+Without these headers, compiling tmon against musl-libc will fail with
+these errors:
 
-Fixes: 542134c0375b ("HID: cp2112: Fix I2C_BLOCK_DATA transactions")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+In file included from sysfs.c:31:0:
+tmon.h:47:8: error: unknown type name 'pthread_mutex_t'
+ extern pthread_mutex_t input_lock;
+        ^~~~~~~~~~~~~~~
+make[3]: *** [<builtin>: sysfs.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+In file included from tui.c:31:0:
+tmon.h:54:17: error: field 'tv' has incomplete type
+  struct timeval tv;
+                 ^~
+make[3]: *** [<builtin>: tui.o] Error 1
+make[2]: *** [Makefile:83: tmon] Error 2
+
+Signed-off-by: Markus Mayer <mmayer@broadcom.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
+Acked-by: Alejandro González <alejandro.gonzalez.correo@gmail.com>
+Tested-by: Alejandro González <alejandro.gonzalez.correo@gmail.com>
+Fixes: 94f69966faf8 ("tools/thermal: Introduce tmon, a tool for thermal  subsystem")
+Link: https://lore.kernel.org/r/20220718031040.44714-1-f.fainelli@gmail.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-cp2112.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ tools/thermal/tmon/tmon.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index db1b55df0d13..340408f8c8ab 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -787,6 +787,11 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
- 		data->word = le16_to_cpup((__le16 *)buf);
- 		break;
- 	case I2C_SMBUS_I2C_BLOCK_DATA:
-+		if (read_length > I2C_SMBUS_BLOCK_MAX) {
-+			ret = -EINVAL;
-+			goto power_normal;
-+		}
+diff --git a/tools/thermal/tmon/tmon.h b/tools/thermal/tmon/tmon.h
+index 9e3c49c547ac..7b090a6c95b6 100644
+--- a/tools/thermal/tmon/tmon.h
++++ b/tools/thermal/tmon/tmon.h
+@@ -36,6 +36,9 @@
+ #define NR_LINES_TZDATA 1
+ #define TMON_LOG_FILE "/var/tmp/tmon.log"
+ 
++#include <sys/time.h>
++#include <pthread.h>
 +
- 		memcpy(data->block + 1, buf, read_length);
- 		break;
- 	case I2C_SMBUS_BLOCK_DATA:
+ extern unsigned long ticktime;
+ extern double time_elapsed;
+ extern unsigned long target_temp_user;
 -- 
 2.35.1
 
