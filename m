@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3E0459E202
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FF3D59E05E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351916AbiHWMDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45546 "EHLO
+        id S1355916AbiHWKs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:48:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359563AbiHWMBz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:01:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E31678591;
-        Tue, 23 Aug 2022 02:36:10 -0700 (PDT)
+        with ESMTP id S1355852AbiHWKo4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:44:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E203574E0E;
+        Tue, 23 Aug 2022 02:10:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B007AB81C63;
-        Tue, 23 Aug 2022 09:36:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1104EC433C1;
-        Tue, 23 Aug 2022 09:36:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91B2CB81C66;
+        Tue, 23 Aug 2022 09:10:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09B8BC433C1;
+        Tue, 23 Aug 2022 09:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247367;
-        bh=QQ3eWDx/UzEsjdEWteiakKgZ4UiJlFvdIgg8vViaTng=;
+        s=korg; t=1661245843;
+        bh=blwVWMpUy9hCuLKBJidBkAIAlZ68adKolCiqqm6WzoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhqUufxuA7fMjWcOBErhSmnoukzafkOpfxEmnfsfJN/Pd6nzIAJjxlCNqtLKv7e7w
-         0xfVJf8FouLmxpKybZHgXpA4UwZ3T1lovP8l3Vv1vClLN06UYE6UqUwRtgNChrnQhl
-         dh+Nn4HGd9xZi5xtc7+NL6ehyUukKxruiMM67F1Y=
+        b=hp+Fdv3lgGJN5YQx3vPGqIhE201itmh1yzzn+K0ghJL1OvEAwjC5E0WKpOfjWjNTA
+         LUZyaZ+dq4XHWusd+K6tRsxN6/oD+i6yNC2eQHboDdR0nOr4qbnI4kTcSlDvwIfjIc
+         xE8OtPTkPsvSFeAN0cNcY9VwNFX3CqTdZRL+yNAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.10 014/158] apparmor: fix absroot causing audited secids to begin with =
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 177/287] scripts/faddr2line: Fix vmlinux detection on arm64
 Date:   Tue, 23 Aug 2022 10:25:46 +0200
-Message-Id: <20220823080046.648897715@linuxfoundation.org>
+Message-Id: <20220823080106.731482839@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 511f7b5b835726e844a5fc7444c18e4b8672edfd upstream.
+[ Upstream commit b6a5068854cfe372da7dee3224dcf023ed5b00cb ]
 
-AppArmor is prefixing secids that are converted to secctx with the =
-to indicate the secctx should only be parsed from an absolute root
-POV. This allows catching errors where secctx are reparsed back into
-internal labels.
+Since commit dcea997beed6 ("faddr2line: Fix overlapping text section
+failures, the sequel"), faddr2line is completely broken on arm64.
 
-Unfortunately because audit is using secid to secctx conversion this
-means that subject and object labels can result in a very unfortunate
-== that can break audit parsing.
+For some reason, on arm64, the vmlinux ELF object file type is ET_DYN
+rather than ET_EXEC.  Check for both when determining whether the object
+is vmlinux.
 
-eg. the subj==unconfined term in the below audit message
+Modules and vmlinux.o have type ET_REL on all arches.
 
-type=USER_LOGIN msg=audit(1639443365.233:160): pid=1633 uid=0 auid=1000
-ses=3 subj==unconfined msg='op=login id=1000 exe="/usr/sbin/sshd"
-hostname=192.168.122.1 addr=192.168.122.1 terminal=/dev/pts/1 res=success'
-
-Fix this by switch the prepending of = to a _. This still works as a
-special character to flag this case without breaking audit. Also move
-this check behind debug as it should not be needed during normal
-operqation.
-
-Fixes: 26b7899510ae ("apparmor: add support for absolute root view based labels")
-Reported-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: dcea997beed6 ("faddr2line: Fix overlapping text section failures, the sequel")
+Reported-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/dad1999737471b06d6188ce4cdb11329aa41682c.1658426357.git.jpoimboe@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/include/lib.h |    5 +++++
- security/apparmor/label.c       |    7 ++++---
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ scripts/faddr2line | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/security/apparmor/include/lib.h
-+++ b/security/apparmor/include/lib.h
-@@ -22,6 +22,11 @@
-  */
+diff --git a/scripts/faddr2line b/scripts/faddr2line
+index 2571caac3156..70f8c3ecd555 100755
+--- a/scripts/faddr2line
++++ b/scripts/faddr2line
+@@ -112,7 +112,9 @@ __faddr2line() {
+ 	# section offsets.
+ 	local file_type=$(${READELF} --file-header $objfile |
+ 		${AWK} '$1 == "Type:" { print $2; exit }')
+-	[[ $file_type = "EXEC" ]] && is_vmlinux=1
++	if [[ $file_type = "EXEC" ]] || [[ $file_type == "DYN" ]]; then
++		is_vmlinux=1
++	fi
  
- #define DEBUG_ON (aa_g_debug)
-+/*
-+ * split individual debug cases out in preparation for finer grained
-+ * debug controls in the future.
-+ */
-+#define AA_DEBUG_LABEL DEBUG_ON
- #define dbg_printk(__fmt, __args...) pr_debug(__fmt, ##__args)
- #define AA_DEBUG(fmt, args...)						\
- 	do {								\
---- a/security/apparmor/label.c
-+++ b/security/apparmor/label.c
-@@ -1632,9 +1632,9 @@ int aa_label_snxprint(char *str, size_t
- 	AA_BUG(!str && size != 0);
- 	AA_BUG(!label);
- 
--	if (flags & FLAG_ABS_ROOT) {
-+	if (AA_DEBUG_LABEL && (flags & FLAG_ABS_ROOT)) {
- 		ns = root_ns;
--		len = snprintf(str, size, "=");
-+		len = snprintf(str, size, "_");
- 		update_for_len(total, len, size, str);
- 	} else if (!ns) {
- 		ns = labels_ns(label);
-@@ -1896,7 +1896,8 @@ struct aa_label *aa_label_strn_parse(str
- 	AA_BUG(!str);
- 
- 	str = skipn_spaces(str, n);
--	if (str == NULL || (*str == '=' && base != &root_ns->unconfined->label))
-+	if (str == NULL || (AA_DEBUG_LABEL && *str == '_' &&
-+			    base != &root_ns->unconfined->label))
- 		return ERR_PTR(-EINVAL);
- 
- 	len = label_count_strn_entries(str, end - str);
+ 	# Go through each of the object's symbols which match the func name.
+ 	# In rare cases there might be duplicates, in which case we print all
+-- 
+2.35.1
+
 
 
