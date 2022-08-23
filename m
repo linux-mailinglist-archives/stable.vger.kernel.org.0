@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E5E259D87B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 302E759D848
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238512AbiHWJv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239307AbiHWJv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Aug 2022 05:51:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56376 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351913AbiHWJvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C4149E2D7;
-        Tue, 23 Aug 2022 01:45:41 -0700 (PDT)
+        with ESMTP id S1352022AbiHWJvJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE5226E2C6;
+        Tue, 23 Aug 2022 01:45:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5E03B81C4D;
-        Tue, 23 Aug 2022 08:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE16CC433C1;
-        Tue, 23 Aug 2022 08:44:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0997E6155E;
+        Tue, 23 Aug 2022 08:45:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08768C433C1;
+        Tue, 23 Aug 2022 08:45:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244289;
-        bh=DR1snfRLybVmdH1tOb3/8khLmueGUFR93/TihdxZuYM=;
+        s=korg; t=1661244305;
+        bh=5UpOLZ6OrQwDiORlh4EtbzwciMIiSRov6coIlyhCNLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LgN/ROKslviYay73BT5PFe37Z9xKdY2gAOnXXsG0u/s01EwSs8zZao1wFMn/HcEAN
-         5Mg/opfFZC7GP7x5/PP36cYr6wT2bCrp6CPi8VHfniifTFx7/PjMNKZpqnSFWAY888
-         P6bFUI+sO2wmOP7MOxJTasQ7Ethb7l4TKrSh9igI=
+        b=dFoFR4qx7waNUY9JY67luN7MvvvVBzvMXxKO/YWTZahYIwNY2EKi4Wnrqih3QnUAu
+         qX9yp9mCTv0rHSNe874LSoIS5MYJI+eYhILSZ+1FiakV03egZQHHIdfmuzfefB9UOc
+         dAxAlH549WvkovNc2xUYrSYwBftTE8eTFdz6duCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.15 068/244] Input: exc3000 - fix return value check of wait_for_completion_timeout
-Date:   Tue, 23 Aug 2022 10:23:47 +0200
-Message-Id: <20220823080101.347387951@linuxfoundation.org>
+        stable@vger.kernel.org, Naveen Mamindlapalli <naveenm@marvell.com>,
+        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 070/244] octeontx2-pf: Fix NIX_AF_TL3_TL2X_LINKX_CFG register configuration
+Date:   Tue, 23 Aug 2022 10:23:49 +0200
+Message-Id: <20220823080101.407966747@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -53,46 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Naveen Mamindlapalli <naveenm@marvell.com>
 
-commit 6bb7144c3fa16a5efb54a8e2aff1817b4168018e upstream.
+commit 13c9f4dc102f2856e80b92486c41841e25e23772 upstream.
 
-wait_for_completion_timeout() returns unsigned long not int.
-It returns 0 if timed out, and positive if completed.
-The check for <= 0 is ambiguous and should be == 0 here
-indicating timeout which is the only error case.
+For packets scheduled to RPM and LBK, NIX_AF_PSE_CHANNEL_LEVEL[BP_LEVEL]
+selects the TL3 or TL2 scheduling level as the one used for link/channel
+selection and backpressure. For each scheduling queue at the selected
+level: Setting NIX_AF_TL3_TL2(0..255)_LINK(0..12)_CFG[ENA] = 1 allows
+the TL3/TL2 queue to schedule packets to a specified RPM or LBK link
+and channel.
 
-Fixes: 102feb1ddfd0 ("Input: exc3000 - factor out vendor data request")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220411105828.22140-1-linmq006@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+There is an issue in the code where NIX_AF_PSE_CHANNEL_LEVEL[BP_LEVEL]
+is set to TL3 where as the NIX_AF_TL3_TL2(0..255)_LINK(0..12)_CFG is
+configured for TL2 queue in some cases. As a result packets will not
+transmit on that link/channel. This patch fixes the issue by configuring
+the NIX_AF_TL3_TL2(0..255)_LINK(0..12)_CFG register depending on the
+NIX_AF_PSE_CHANNEL_LEVEL[BP_LEVEL] value.
+
+Fixes: caa2da34fd25a ("octeontx2-pf: Initialize and config queues")
+Signed-off-by: Naveen Mamindlapalli <naveenm@marvell.com>
+Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
+Link: https://lore.kernel.org/r/20220802142813.25031-1-naveenm@marvell.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/exc3000.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c |   19 +++++++++++----
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h |    1 
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
---- a/drivers/input/touchscreen/exc3000.c
-+++ b/drivers/input/touchscreen/exc3000.c
-@@ -220,6 +220,7 @@ static int exc3000_vendor_data_request(s
- {
- 	u8 buf[EXC3000_LEN_VENDOR_REQUEST] = { 0x67, 0x00, 0x42, 0x00, 0x03 };
- 	int ret;
-+	unsigned long time_left;
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -631,6 +631,12 @@ int otx2_txschq_config(struct otx2_nic *
+ 		req->num_regs++;
+ 		req->reg[1] = NIX_AF_TL3X_SCHEDULE(schq);
+ 		req->regval[1] = dwrr_val;
++		if (lvl == hw->txschq_link_cfg_lvl) {
++			req->num_regs++;
++			req->reg[2] = NIX_AF_TL3_TL2X_LINKX_CFG(schq, hw->tx_link);
++			/* Enable this queue and backpressure */
++			req->regval[2] = BIT_ULL(13) | BIT_ULL(12);
++		}
+ 	} else if (lvl == NIX_TXSCH_LVL_TL2) {
+ 		parent =  hw->txschq_list[NIX_TXSCH_LVL_TL1][0];
+ 		req->reg[0] = NIX_AF_TL2X_PARENT(schq);
+@@ -640,11 +646,12 @@ int otx2_txschq_config(struct otx2_nic *
+ 		req->reg[1] = NIX_AF_TL2X_SCHEDULE(schq);
+ 		req->regval[1] = TXSCH_TL1_DFLT_RR_PRIO << 24 | dwrr_val;
  
- 	mutex_lock(&data->query_lock);
+-		req->num_regs++;
+-		req->reg[2] = NIX_AF_TL3_TL2X_LINKX_CFG(schq, hw->tx_link);
+-		/* Enable this queue and backpressure */
+-		req->regval[2] = BIT_ULL(13) | BIT_ULL(12);
+-
++		if (lvl == hw->txschq_link_cfg_lvl) {
++			req->num_regs++;
++			req->reg[2] = NIX_AF_TL3_TL2X_LINKX_CFG(schq, hw->tx_link);
++			/* Enable this queue and backpressure */
++			req->regval[2] = BIT_ULL(13) | BIT_ULL(12);
++		}
+ 	} else if (lvl == NIX_TXSCH_LVL_TL1) {
+ 		/* Default config for TL1.
+ 		 * For VF this is always ignored.
+@@ -1563,6 +1570,8 @@ void mbox_handler_nix_txsch_alloc(struct
+ 		for (schq = 0; schq < rsp->schq[lvl]; schq++)
+ 			pf->hw.txschq_list[lvl][schq] =
+ 				rsp->schq_list[lvl][schq];
++
++	pf->hw.txschq_link_cfg_lvl = rsp->link_cfg_lvl;
+ }
+ EXPORT_SYMBOL(mbox_handler_nix_txsch_alloc);
  
-@@ -233,9 +234,9 @@ static int exc3000_vendor_data_request(s
- 		goto out_unlock;
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+@@ -182,6 +182,7 @@ struct otx2_hw {
+ 	u16			sqb_size;
  
- 	if (response) {
--		ret = wait_for_completion_timeout(&data->wait_event,
--						  timeout * HZ);
--		if (ret <= 0) {
-+		time_left = wait_for_completion_timeout(&data->wait_event,
-+							timeout * HZ);
-+		if (time_left == 0) {
- 			ret = -ETIMEDOUT;
- 			goto out_unlock;
- 		}
+ 	/* NIX */
++	u8			txschq_link_cfg_lvl;
+ 	u16		txschq_list[NIX_TXSCH_LVL_CNT][MAX_TXSCHQ_PER_FUNC];
+ 	u16			matchall_ipolicer;
+ 	u32			dwrr_mtu;
 
 
