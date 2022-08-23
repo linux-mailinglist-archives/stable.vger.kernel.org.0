@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 162F959DD85
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD1B59DF57
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355754AbiHWKr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:47:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57486 "EHLO
+        id S243718AbiHWLwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:52:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354595AbiHWKpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:45:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DABC6CD05;
-        Tue, 23 Aug 2022 02:10:58 -0700 (PDT)
+        with ESMTP id S1358633AbiHWLu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:50:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2ED2923FB;
+        Tue, 23 Aug 2022 02:31:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5C45B81C4E;
-        Tue, 23 Aug 2022 09:10:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24129C433C1;
-        Tue, 23 Aug 2022 09:10:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86449612D6;
+        Tue, 23 Aug 2022 09:31:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AAC4C433C1;
+        Tue, 23 Aug 2022 09:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245855;
-        bh=T+cjKnqP5c+d0j/ipL7rhJOCgCi5Mifx3c2EKwNwMCE=;
+        s=korg; t=1661247084;
+        bh=RvjSZfdVXccz8CkWmcCeyG9PczJS9MftdpEwo4a8NfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqCNAfteGwzA9T1PNnX6AW00S/me6gJTTbZkoqkGmTC6mP6QOqJpd2HBJIfrMNUNB
-         EigsBFJChY9YgOb5xfi+vG8um7cmgpiJuVpdgmiv57BvynUWeZVviKm12wTZMr5pas
-         94TKcuXwi6wU1W8XkdqNInS9YMk4i5X6OoAxoRMI=
+        b=FxLeNf5kYss4G5C7IHkY1C2yOqBcr9mPNbkWg1CzaE6NsmInstgU8e7TCmrZ5bMXL
+         wc+IlHsAy5m2IclPKwnkdh9Whz0AlTHbfm5/ne0IQE/Gnx5gGLmlJvmf/ZmjEO/uZ3
+         hRhjsL8lfHfb60wdBqtNMp6kXP8K3dgnN9JG/5ME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 4.19 204/287] KVM: x86: Check lapic_in_kernel() before attempting to set a SynIC irq
+        stable@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>,
+        John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.4 295/389] apparmor: fix absroot causing audited secids to begin with =
 Date:   Tue, 23 Aug 2022 10:26:13 +0200
-Message-Id: <20220823080107.757910945@linuxfoundation.org>
+Message-Id: <20220823080127.883579954@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: John Johansen <john.johansen@canonical.com>
 
-commit 7ec37d1cbe17d8189d9562178d8b29167fe1c31a upstream
+commit 511f7b5b835726e844a5fc7444c18e4b8672edfd upstream.
 
-When KVM_CAP_HYPERV_SYNIC{,2} is activated, KVM already checks for
-irqchip_in_kernel() so normally SynIC irqs should never be set. It is,
-however,  possible for a misbehaving VMM to write to SYNIC/STIMER MSRs
-causing erroneous behavior.
+AppArmor is prefixing secids that are converted to secctx with the =
+to indicate the secctx should only be parsed from an absolute root
+POV. This allows catching errors where secctx are reparsed back into
+internal labels.
 
-The immediate issue being fixed is that kvm_irq_delivery_to_apic()
-(kvm_irq_delivery_to_apic_fast()) crashes when called with
-'irq.shorthand = APIC_DEST_SELF' and 'src == NULL'.
+Unfortunately because audit is using secid to secctx conversion this
+means that subject and object labels can result in a very unfortunate
+== that can break audit parsing.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220325132140.25650-2-vkuznets@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
+eg. the subj==unconfined term in the below audit message
+
+type=USER_LOGIN msg=audit(1639443365.233:160): pid=1633 uid=0 auid=1000
+ses=3 subj==unconfined msg='op=login id=1000 exe="/usr/sbin/sshd"
+hostname=192.168.122.1 addr=192.168.122.1 terminal=/dev/pts/1 res=success'
+
+Fix this by switch the prepending of = to a _. This still works as a
+special character to flag this case without breaking audit. Also move
+this check behind debug as it should not be needed during normal
+operqation.
+
+Fixes: 26b7899510ae ("apparmor: add support for absolute root view based labels")
+Reported-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/hyperv.c |    3 +++
- 1 file changed, 3 insertions(+)
+ security/apparmor/include/lib.h |    5 +++++
+ security/apparmor/label.c       |    7 ++++---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -341,6 +341,9 @@ static int synic_set_irq(struct kvm_vcpu
- 	struct kvm_lapic_irq irq;
- 	int ret, vector;
+--- a/security/apparmor/include/lib.h
++++ b/security/apparmor/include/lib.h
+@@ -22,6 +22,11 @@
+  */
  
-+	if (KVM_BUG_ON(!lapic_in_kernel(vcpu), vcpu->kvm))
-+		return -EINVAL;
-+
- 	if (sint >= ARRAY_SIZE(synic->sint))
- 		return -EINVAL;
+ #define DEBUG_ON (aa_g_debug)
++/*
++ * split individual debug cases out in preparation for finer grained
++ * debug controls in the future.
++ */
++#define AA_DEBUG_LABEL DEBUG_ON
+ #define dbg_printk(__fmt, __args...) pr_debug(__fmt, ##__args)
+ #define AA_DEBUG(fmt, args...)						\
+ 	do {								\
+--- a/security/apparmor/label.c
++++ b/security/apparmor/label.c
+@@ -1637,9 +1637,9 @@ int aa_label_snxprint(char *str, size_t
+ 	AA_BUG(!str && size != 0);
+ 	AA_BUG(!label);
  
+-	if (flags & FLAG_ABS_ROOT) {
++	if (AA_DEBUG_LABEL && (flags & FLAG_ABS_ROOT)) {
+ 		ns = root_ns;
+-		len = snprintf(str, size, "=");
++		len = snprintf(str, size, "_");
+ 		update_for_len(total, len, size, str);
+ 	} else if (!ns) {
+ 		ns = labels_ns(label);
+@@ -1901,7 +1901,8 @@ struct aa_label *aa_label_strn_parse(str
+ 	AA_BUG(!str);
+ 
+ 	str = skipn_spaces(str, n);
+-	if (str == NULL || (*str == '=' && base != &root_ns->unconfined->label))
++	if (str == NULL || (AA_DEBUG_LABEL && *str == '_' &&
++			    base != &root_ns->unconfined->label))
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	len = label_count_strn_entries(str, end - str);
 
 
