@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE03D59D57F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C8359D4E7
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243828AbiHWIc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
+        id S243269AbiHWIc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:32:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243649AbiHWI3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:29:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB6274CD0;
-        Tue, 23 Aug 2022 01:15:10 -0700 (PDT)
+        with ESMTP id S243031AbiHWI3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:29:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50DE07392F;
+        Tue, 23 Aug 2022 01:15:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAAECB81C3B;
-        Tue, 23 Aug 2022 08:14:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEAFBC433D6;
-        Tue, 23 Aug 2022 08:14:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 487EE61338;
+        Tue, 23 Aug 2022 08:14:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33756C433D6;
+        Tue, 23 Aug 2022 08:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242459;
-        bh=AOk+oevlxIEWe26QrP0aZwFVPDWgUz50rIsB56MoIl8=;
+        s=korg; t=1661242465;
+        bh=sZA4j3WfRODB02016YMFjVMHgF4nnVisj24HWC5yEA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoVZBKugIZrh/ZPMuUOFX1eP3exfuXbmCqPjB47uZ4VBrgJrzL05xKlyijhXsij/9
-         315rr3tJqoaX3ZH5JAnkX3feOsx5OTC/2e1mu2AOFyMkxrsia/snF3U+9TYnSRCWQe
-         t1D4BE8yJkQoiothRZgkdt/HgYsuAHZA1p0eEquE=
+        b=nP1YcKdQk2xQYYczAAbp2FngtkMlrN1+yy/Q6t8pSgeAqHdHoxnAnKBYQ6NlNEBWe
+         7zzH7UELKKK9jy8mxtD3F7tLDW/S0745cLdLpLLxa+Ka9usPFafYKHTp3E57ffltOf
+         7vbojNkjIt9Mtz1jB9fPFCdXxP1UImhMGNtwAPD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 118/365] octeontx2-af: Fix key checking for source mac
-Date:   Tue, 23 Aug 2022 10:00:19 +0200
-Message-Id: <20220823080123.141532991@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.19 119/365] ACPI: property: Return type of acpi_add_nondev_subnodes() should be bool
+Date:   Tue, 23 Aug 2022 10:00:20 +0200
+Message-Id: <20220823080123.173129219@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,36 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit c3c290276927a3ae79342a4e17ec0500c138c63a upstream.
+commit 85140ef275f577f64e8a2c5789447222dfc14fc4 upstream.
 
-Given a field with its location/offset in input packet,
-the key checking logic verifies whether extracting the
-field can be supported or not based on the mkex profile
-loaded in hardware. This logic is wrong wrt source mac
-and this patch fixes that.
+The value acpi_add_nondev_subnodes() returns is bool so change the return
+type of the function to match that.
 
-Fixes: 9b179a960a96 ("octeontx2-af: Generate key field bit mask from KEX profile")
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 445b0eb058f5 ("ACPI / property: Add support for data-only subnodes")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_npc_fs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/acpi/property.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc_fs.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc_fs.c
-@@ -445,7 +445,8 @@ do {									       \
- 	NPC_SCAN_HDR(NPC_VLAN_TAG1, NPC_LID_LB, NPC_LT_LB_CTAG, 2, 2);
- 	NPC_SCAN_HDR(NPC_VLAN_TAG2, NPC_LID_LB, NPC_LT_LB_STAG_QINQ, 2, 2);
- 	NPC_SCAN_HDR(NPC_DMAC, NPC_LID_LA, la_ltype, la_start, 6);
--	NPC_SCAN_HDR(NPC_SMAC, NPC_LID_LA, la_ltype, la_start, 6);
-+	/* SMAC follows the DMAC(which is 6 bytes) */
-+	NPC_SCAN_HDR(NPC_SMAC, NPC_LID_LA, la_ltype, la_start + 6, 6);
- 	/* PF_FUNC is 2 bytes at 0th byte of NPC_LT_LA_IH_NIX_ETHER */
- 	NPC_SCAN_HDR(NPC_PF_FUNC, NPC_LID_LA, NPC_LT_LA_IH_NIX_ETHER, 0, 2);
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -155,10 +155,10 @@ static bool acpi_nondev_subnode_ok(acpi_
+ 	return acpi_nondev_subnode_data_ok(handle, link, list, parent);
  }
+ 
+-static int acpi_add_nondev_subnodes(acpi_handle scope,
+-				    const union acpi_object *links,
+-				    struct list_head *list,
+-				    struct fwnode_handle *parent)
++static bool acpi_add_nondev_subnodes(acpi_handle scope,
++				     const union acpi_object *links,
++				     struct list_head *list,
++				     struct fwnode_handle *parent)
+ {
+ 	bool ret = false;
+ 	int i;
 
 
