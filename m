@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D1459D68F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5334259D39F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348700AbiHWJMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:12:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33236 "EHLO
+        id S242043AbiHWIMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:12:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348272AbiHWJKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:10:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82AD3C8F9;
-        Tue, 23 Aug 2022 01:30:57 -0700 (PDT)
+        with ESMTP id S242132AbiHWIKn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:10:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 785FF69F6C;
+        Tue, 23 Aug 2022 01:07:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 841456147B;
-        Tue, 23 Aug 2022 08:30:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 836E7C433C1;
-        Tue, 23 Aug 2022 08:30:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14CA26123F;
+        Tue, 23 Aug 2022 08:07:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A7FFC433C1;
+        Tue, 23 Aug 2022 08:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243456;
-        bh=+i4OAVjsezCjpE4qAdcOFuVqKcJU3N0nC8AZ8789inQ=;
+        s=korg; t=1661242074;
+        bh=HGZuHszCVXMKiPLMwr7I2qv6J3qZJWqweO7wKCDi7TU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cl68uBwdvY1wuaiS2+P1j9t8QD4OZ4JD8coL4GhsFJE8G2zQeeENYwX5VNhC7LhjW
-         rnOOqy0DBdxLnQmJCVayIrfHCKtYGCpbMo1zRWyapLpJLYtQvmRVHNtCVBHVpId6mD
-         SrbyCymq4fW+nReW7RDQ3hy5AwYKrDstHFfg3Dt0=
+        b=eWBkwSH5vctso18R54dKOKIMCC6sGN4R5dwTiHh8t7dKj9Z4KWtL4BEzeerE57kp3
+         T2/GcxGkvuqcn38NcdcdzEgOy3VmwO9vfGhbrUpYHQOIjqXtYIDQPJ2aBL7hx/T2B5
+         CZx3XMeybHjhQhQ07JvgsevgU87RZTu3kgvfRlUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 266/365] usb: gadget: uvc: call uvc uvcg_warn on completed status instead of uvcg_info
-Date:   Tue, 23 Aug 2022 10:02:47 +0200
-Message-Id: <20220823080129.306009002@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Alexander Grund <theflamefire89@gmail.com>
+Subject: [PATCH 4.9 015/101] selinux: fix inode_doinit_with_dentry() LABEL_INVALID error handling
+Date:   Tue, 23 Aug 2022 10:02:48 +0200
+Message-Id: <20220823080035.146702826@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit a725d0f6dfc5d3739d6499f30ec865305ba3544d ]
+commit 200ea5a2292dc444a818b096ae6a32ba3caa51b9 upstream.
 
-Likewise to the uvcvideo hostside driver, this patch is changing the
-usb_request message of an non zero completion handler call from dev_info
-to dev_warn.
+A previous fix, commit 83370b31a915 ("selinux: fix error initialization
+in inode_doinit_with_dentry()"), changed how failures were handled
+before a SELinux policy was loaded.  Unfortunately that patch was
+potentially problematic for two reasons: it set the isec->initialized
+state without holding a lock, and it didn't set the inode's SELinux
+label to the "default" for the particular filesystem.  The later can
+be a problem if/when a later attempt to revalidate the inode fails
+and SELinux reverts to the existing inode label.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220529223848.105914-4-m.grzeschik@pengutronix.de
+This patch should restore the default inode labeling that existed
+before the original fix, without affecting the LABEL_INVALID marking
+such that revalidation will still be attempted in the future.
+
+Fixes: 83370b31a915 ("selinux: fix error initialization in inode_doinit_with_dentry()")
+Reported-by: Sven Schnelle <svens@linux.ibm.com>
+Tested-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Alexander Grund <theflamefire89@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_video.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/hooks.c |   31 +++++++++++++------------------
+ 1 file changed, 13 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index ce421d9cc241..c00ce0e91f5d 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -261,7 +261,7 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
- 		break;
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1450,13 +1450,7 @@ static int inode_doinit_with_dentry(stru
+ 			 * inode_doinit with a dentry, before these inodes could
+ 			 * be used again by userspace.
+ 			 */
+-			isec->initialized = LABEL_INVALID;
+-			/*
+-			 * There is nothing useful to jump to the "out"
+-			 * label, except a needless spin lock/unlock
+-			 * cycle.
+-			 */
+-			return 0;
++			goto out_invalid;
+ 		}
  
- 	default:
--		uvcg_info(&video->uvc->func,
-+		uvcg_warn(&video->uvc->func,
- 			  "VS request completed with status %d.\n",
- 			  req->status);
- 		uvcg_queue_cancel(queue, 0);
--- 
-2.35.1
-
+ 		len = INITCONTEXTLEN;
+@@ -1564,15 +1558,8 @@ static int inode_doinit_with_dentry(stru
+ 			 * inode_doinit() with a dentry, before these inodes
+ 			 * could be used again by userspace.
+ 			 */
+-			if (!dentry) {
+-				isec->initialized = LABEL_INVALID;
+-				/*
+-				 * There is nothing useful to jump to the "out"
+-				 * label, except a needless spin lock/unlock
+-				 * cycle.
+-				 */
+-				return 0;
+-			}
++			if (!dentry)
++				goto out_invalid;
+ 			rc = selinux_genfs_get_sid(dentry, sclass,
+ 						   sbsec->flags, &sid);
+ 			dput(dentry);
+@@ -1585,11 +1572,10 @@ static int inode_doinit_with_dentry(stru
+ out:
+ 	spin_lock(&isec->lock);
+ 	if (isec->initialized == LABEL_PENDING) {
+-		if (!sid || rc) {
++		if (rc) {
+ 			isec->initialized = LABEL_INVALID;
+ 			goto out_unlock;
+ 		}
+-
+ 		isec->initialized = LABEL_INITIALIZED;
+ 		isec->sid = sid;
+ 	}
+@@ -1597,6 +1583,15 @@ out:
+ out_unlock:
+ 	spin_unlock(&isec->lock);
+ 	return rc;
++
++out_invalid:
++	spin_lock(&isec->lock);
++	if (isec->initialized == LABEL_PENDING) {
++		isec->initialized = LABEL_INVALID;
++		isec->sid = sid;
++	}
++	spin_unlock(&isec->lock);
++	return 0;
+ }
+ 
+ /* Convert a Linux signal to an access vector. */
 
 
