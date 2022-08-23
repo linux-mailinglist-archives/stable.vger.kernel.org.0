@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D1959DA0C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58BC859DA0F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243818AbiHWKEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:04:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44750 "EHLO
+        id S1352184AbiHWKEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:04:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352733AbiHWKC0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:02:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 716CF7C52E;
-        Tue, 23 Aug 2022 01:50:41 -0700 (PDT)
+        with ESMTP id S1352749AbiHWKC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:02:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804907C748;
+        Tue, 23 Aug 2022 01:50:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6C34B8105C;
-        Tue, 23 Aug 2022 08:50:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C41CC433D6;
-        Tue, 23 Aug 2022 08:50:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F05E8B8105C;
+        Tue, 23 Aug 2022 08:50:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AB8AC433D6;
+        Tue, 23 Aug 2022 08:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244638;
-        bh=hEUNJb7IAicBZVfgahbqM6ydvks3bcoQGC/znlVEVbs=;
+        s=korg; t=1661244644;
+        bh=MJ9PmoMD6d/lpjd/2z9GkI5gkqaZpktyZICEJxlwDDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=blqU+WJEeTRoc+wRKaC3rGKTfq243USOROI3zycNs5NcT0eFL7yMIu6rz+dCrbXeX
-         KtA+ZUdrojxer0kNvG+vKB4L47S16h8PbqxH5p30mDlQU03Ca3ay+wyV8EjFNfxLcn
-         q2/4+Bv9pD+TxRR+bOzWCp+Z0cV0YAq3FWFGwEhg=
+        b=ImyXeCIhxzUKEjemGlRiPqOwF/W59dv9lJXIc+6wa5+9IX1/qy+gaa+L2jbLIXi5x
+         ydxRRxVRbonMN73+WRth9kSkmGvsNZIFq+B3UZELfR7G6x6NYHmBi9YOIf0CTHFIkf
+         PjFg08r5tTVt3M4oVDgeKgJv0jfmKs9/OFlZz01M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 4.14 168/229] KVM: x86: Avoid theoretical NULL pointer dereference in kvm_irq_delivery_to_apic_fast()
-Date:   Tue, 23 Aug 2022 10:25:29 +0200
-Message-Id: <20220823080059.653148604@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Wei Wang <weiwan@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 169/229] tcp: fix over estimation in sk_forced_mem_schedule()
+Date:   Tue, 23 Aug 2022 10:25:30 +0200
+Message-Id: <20220823080059.684450676@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
 References: <20220823080053.202747790@linuxfoundation.org>
@@ -54,36 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 00b5f37189d24ac3ed46cb7f11742094778c46ce upstream
+commit c4ee118561a0f74442439b7b5b486db1ac1ddfeb upstream.
 
-When kvm_irq_delivery_to_apic_fast() is called with APIC_DEST_SELF
-shorthand, 'src' must not be NULL. Crash the VM with KVM_BUG_ON()
-instead of crashing the host.
+sk_forced_mem_schedule() has a bug similar to ones fixed
+in commit 7c80b038d23e ("net: fix sk_wmem_schedule() and
+sk_rmem_schedule() errors")
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220325132140.25650-3-vkuznets@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
+While this bug has little chance to trigger in old kernels,
+we need to fix it before the following patch.
+
+Fixes: d83769a580f1 ("tcp: fix possible deadlock in tcp_send_fin()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Wei Wang <weiwan@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/lapic.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/tcp_output.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -894,6 +894,10 @@ bool kvm_irq_delivery_to_apic_fast(struc
- 	*r = -1;
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -3086,11 +3086,12 @@ void tcp_xmit_retransmit_queue(struct so
+  */
+ void sk_forced_mem_schedule(struct sock *sk, int size)
+ {
+-	int amt;
++	int delta, amt;
  
- 	if (irq->shorthand == APIC_DEST_SELF) {
-+		if (KVM_BUG_ON(!src, kvm)) {
-+			*r = 0;
-+			return true;
-+		}
- 		*r = kvm_apic_set_irq(src->vcpu, irq, dest_map);
- 		return true;
- 	}
+-	if (size <= sk->sk_forward_alloc)
++	delta = size - sk->sk_forward_alloc;
++	if (delta <= 0)
+ 		return;
+-	amt = sk_mem_pages(size);
++	amt = sk_mem_pages(delta);
+ 	sk->sk_forward_alloc += amt * SK_MEM_QUANTUM;
+ 	sk_memory_allocated_add(sk, amt);
+ 
 
 
