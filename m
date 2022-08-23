@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55DD159E1FB
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BED559DE33
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355893AbiHWKsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:48:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34048 "EHLO
+        id S1352567AbiHWMNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355907AbiHWKpi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:45:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A4F56CF45;
-        Tue, 23 Aug 2022 02:11:25 -0700 (PDT)
+        with ESMTP id S1354491AbiHWMMe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:12:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55365E42FA;
+        Tue, 23 Aug 2022 02:39:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C714260DB4;
-        Tue, 23 Aug 2022 09:11:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB8DBC433D7;
-        Tue, 23 Aug 2022 09:11:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C87A961494;
+        Tue, 23 Aug 2022 09:38:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE13EC433D6;
+        Tue, 23 Aug 2022 09:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245884;
-        bh=Sre9OUNT1C+sApeMd7ViCEj8XBfVPEfA34NRRnDMWGU=;
+        s=korg; t=1661247508;
+        bh=bscVAE5S6VHBuepQqS3D/xc941T/WKO+yPSMHz6aUrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aT+UaxF6VTs9YJqCsvpMlcFlbhepuDwTg9d6GHIiCyYZnwbK/zh6h6QgwxDls0Hdk
-         pgCiy1/z+Wk9WEZ7z6cdmrphxXzECDqn+hJEWpFl34jdBIQt9iIEGf2qOD6N5QYAMW
-         7/P6FZP9QCuK7d1wPVp82QSMvPsr9zSKKXo28uUU=
+        b=aPSUNpqTPh6leGjNY88eaeNO6mWwFf529g/bfqvq+dLX0AwhuFz04i6CDU3205Qdz
+         PAmc3tP9sH5TmGWh9y2b8qHspeQOfIqR3+H0QD4pGS8SWNNymJwKjZ11tzu+CzJVm4
+         kaBtIJaai5BKEOs5a6p/N+5Vf6YNHeG4CurKU+tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 221/287] tracing: Have filter accept "common_cpu" to be consistent
+        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
+        Yu Xiao <yu.xiao@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 058/158] nfp: ethtool: fix the display error of `ethtool -m DEVNAME`
 Date:   Tue, 23 Aug 2022 10:26:30 +0200
-Message-Id: <20220823080108.418975031@linuxfoundation.org>
+Message-Id: <20220823080048.419386503@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Yu Xiao <yu.xiao@corigine.com>
 
-commit b2380577d4fe1c0ef3fa50417f1e441c016e4cbe upstream.
+commit 4ae97cae07e15d41e5c0ebabba64c6eefdeb0bbe upstream.
 
-Make filtering consistent with histograms. As "cpu" can be a field of an
-event, allow for "common_cpu" to keep it from being confused with the
-"cpu" field of the event.
+The port flag isn't set to `NFP_PORT_CHANGED` when using
+`ethtool -m DEVNAME` before, so the port state (e.g. interface)
+cannot be updated. Therefore, it caused that `ethtool -m DEVNAME`
+sometimes cannot read the correct information.
 
-Link: https://lkml.kernel.org/r/20220820134401.513062765@goodmis.org
-Link: https://lore.kernel.org/all/20220820220920.e42fa32b70505b1904f0a0ad@kernel.org/
+E.g. `ethtool -m DEVNAME` cannot work when load driver before plug
+in optical module, as the port interface is still NONE without port
+update.
 
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
-Cc: Tom Zanussi <zanussi@kernel.org>
-Fixes: 1e3bac71c5053 ("tracing/histogram: Rename "cpu" to "common_cpu"")
-Suggested-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Now update the port state before sending info to NIC to ensure that
+port interface is correct (latest state).
+
+Fixes: 61f7c6f44870 ("nfp: implement ethtool get module EEPROM")
+Reviewed-by: Louis Peens <louis.peens@corigine.com>
+Signed-off-by: Yu Xiao <yu.xiao@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20220802093355.69065-1-simon.horman@corigine.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -173,6 +173,7 @@ static int trace_define_generic_fields(v
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+@@ -1225,6 +1225,8 @@ nfp_port_get_module_info(struct net_devi
+ 	u8 data;
  
- 	__generic_field(int, CPU, FILTER_CPU);
- 	__generic_field(int, cpu, FILTER_CPU);
-+	__generic_field(int, common_cpu, FILTER_CPU);
- 	__generic_field(char *, COMM, FILTER_COMM);
- 	__generic_field(char *, comm, FILTER_COMM);
- 
+ 	port = nfp_port_from_netdev(netdev);
++	/* update port state to get latest interface */
++	set_bit(NFP_PORT_CHANGED, &port->flags);
+ 	eth_port = nfp_port_get_eth_port(port);
+ 	if (!eth_port)
+ 		return -EOPNOTSUPP;
 
 
