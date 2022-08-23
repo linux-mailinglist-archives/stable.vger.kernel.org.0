@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E5F559E3E1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 981E159E3BF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243818AbiHWMjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43438 "EHLO
+        id S240269AbiHWMdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:33:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243807AbiHWMi4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:38:56 -0400
+        with ESMTP id S1346005AbiHWMbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:31:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF52107F0D;
-        Tue, 23 Aug 2022 02:49:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 568144DB75;
+        Tue, 23 Aug 2022 02:45:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDDA96148E;
-        Tue, 23 Aug 2022 09:43:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A2BC433D7;
-        Tue, 23 Aug 2022 09:43:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF80F61518;
+        Tue, 23 Aug 2022 09:44:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C12B2C433C1;
+        Tue, 23 Aug 2022 09:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247838;
-        bh=vB1QglllVjVmyLvs9SY4E5kAiJ6FpYz7jp3X8/Tkb20=;
+        s=korg; t=1661247841;
+        bh=IrQE/OdA4dTwgK/LAcOymfmZkt/0y4akRUBb8y17lVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XliYvKh3FghmAhIqXD5dZ5X2oEi5rGUVEh5kEG4f7+41Y+FOFHXghJ9aWJUW4S15i
-         CMZV91dAA6PiK2rZq4mvoztcfcwj+Y+i44U6DAxT/oHb1gNi9tOOMgwBqSCj4APWvA
-         VxfftQnf56eaHAV069sJBKf8c007R3VTOxZ1kCsM=
+        b=lBd+w+tI1z+ajAvh7XHpkmV6qYoiseTLDSV2M6qoBXudvA0dNQqOFiJ1GKk/YFsaH
+         jDo/7SiIWjqUSQnqlEZ31R9uvUqqYHpjM2sJ0VmPMOpnnDQHWB0lWXScH37yvsxu3M
+         MJayFJDPjXsslPjAsHB+m6uM+pJJxuAaVpcI5hIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurent Dufour <ldufour@linux.ibm.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 140/158] watchdog: export lockup_detector_reconfigure
-Date:   Tue, 23 Aug 2022 10:27:52 +0200
-Message-Id: <20220823080051.479481548@linuxfoundation.org>
+Subject: [PATCH 5.10 141/158] powerpc/32: Dont always pass -mcpu=powerpc to the compiler
+Date:   Tue, 23 Aug 2022 10:27:53 +0200
+Message-Id: <20220823080051.515499932@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
 References: <20220823080046.056825146@linuxfoundation.org>
@@ -54,113 +58,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Dufour <ldufour@linux.ibm.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 7c56a8733d0a2a4be2438a7512566e5ce552fccf ]
+[ Upstream commit 446cda1b21d9a6b3697fe399c6a3a00ff4a285f5 ]
 
-In some circumstances it may be interesting to reconfigure the watchdog
-from inside the kernel.
+Since commit 4bf4f42a2feb ("powerpc/kbuild: Set default generic
+machine type for 32-bit compile"), when building a 32 bits kernel
+with a bi-arch version of GCC, or when building a book3s/32 kernel,
+the option -mcpu=powerpc is passed to GCC at all time, relying on it
+being eventually overriden by a subsequent -mcpu=xxxx.
 
-On PowerPC, this may helpful before and after a LPAR migration (LPM) is
-initiated, because it implies some latencies, watchdog, and especially NMI
-watchdog is expected to be triggered during this operation. Reconfiguring
-the watchdog with a factor, would prevent it to happen too frequently
-during LPM.
+But when building the same kernel with a 32 bits only version of GCC,
+that is not done, relying on gcc being built with the expected default
+CPU.
 
-Rename lockup_detector_reconfigure() as __lockup_detector_reconfigure() and
-create a new function lockup_detector_reconfigure() calling
-__lockup_detector_reconfigure() under the protection of watchdog_mutex.
+This logic has two problems. First, it is a bit fragile to rely on
+whether the GCC version is bi-arch or not, because today we can have
+bi-arch versions of GCC configured with a 32 bits default. Second,
+there are some versions of GCC which don't support -mcpu=powerpc,
+for instance for e500 SPE-only versions.
 
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
-[mpe: Squash in build fix from Laurent, reported by Sachin]
+So, stop relying on this approximative logic and allow the user to
+decide whether he/she wants to use the toolchain's default CPU or if
+he/she wants to set one, and allow only possible CPUs based on the
+selected target.
+
+Reported-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Tested-by: Pali Rohár <pali@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220713154729.80789-3-ldufour@linux.ibm.com
+Link: https://lore.kernel.org/r/d4df724691351531bf46d685d654689e5dfa0d74.1657549153.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/nmi.h |  2 ++
- kernel/watchdog.c   | 21 ++++++++++++++++-----
- 2 files changed, 18 insertions(+), 5 deletions(-)
+ arch/powerpc/Makefile                  | 26 +-------------------------
+ arch/powerpc/platforms/Kconfig.cputype | 21 ++++++++++++++++++---
+ 2 files changed, 19 insertions(+), 28 deletions(-)
 
-diff --git a/include/linux/nmi.h b/include/linux/nmi.h
-index 750c7f395ca9..f700ff2df074 100644
---- a/include/linux/nmi.h
-+++ b/include/linux/nmi.h
-@@ -122,6 +122,8 @@ int watchdog_nmi_probe(void);
- int watchdog_nmi_enable(unsigned int cpu);
- void watchdog_nmi_disable(unsigned int cpu);
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index 7a96cdefbd4e..59175651f0b9 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -17,23 +17,6 @@ HAS_BIARCH	:= $(call cc-option-yn, -m32)
+ # Set default 32 bits cross compilers for vdso and boot wrapper
+ CROSS32_COMPILE ?=
  
-+void lockup_detector_reconfigure(void);
+-ifeq ($(HAS_BIARCH),y)
+-ifeq ($(CROSS32_COMPILE),)
+-ifdef CONFIG_PPC32
+-# These options will be overridden by any -mcpu option that the CPU
+-# or platform code sets later on the command line, but they are needed
+-# to set a sane 32-bit cpu target for the 64-bit cross compiler which
+-# may default to the wrong ISA.
+-KBUILD_CFLAGS		+= -mcpu=powerpc
+-KBUILD_AFLAGS		+= -mcpu=powerpc
+-endif
+-endif
+-endif
+-
+-ifdef CONFIG_PPC_BOOK3S_32
+-KBUILD_CFLAGS		+= -mcpu=powerpc
+-endif
+-
+ # If we're on a ppc/ppc64/ppc64le machine use that defconfig, otherwise just use
+ # ppc64_defconfig because we have nothing better to go on.
+ uname := $(shell uname -m)
+@@ -190,6 +173,7 @@ endif
+ endif
+ 
+ CFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
++AFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
+ 
+ # Altivec option not allowed with e500mc64 in GCC.
+ ifdef CONFIG_ALTIVEC
+@@ -200,14 +184,6 @@ endif
+ CFLAGS-$(CONFIG_E5500_CPU) += $(E5500_CPU)
+ CFLAGS-$(CONFIG_E6500_CPU) += $(call cc-option,-mcpu=e6500,$(E5500_CPU))
+ 
+-ifdef CONFIG_PPC32
+-ifdef CONFIG_PPC_E500MC
+-CFLAGS-y += $(call cc-option,-mcpu=e500mc,-mcpu=powerpc)
+-else
+-CFLAGS-$(CONFIG_E500) += $(call cc-option,-mcpu=8540 -msoft-float,-mcpu=powerpc)
+-endif
+-endif
+-
+ asinstr := $(call as-instr,lis 9$(comma)foo@high,-DHAVE_AS_ATHIGH=1)
+ 
+ KBUILD_CPPFLAGS	+= -I $(srctree)/arch/$(ARCH) $(asinstr)
+diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
+index 75ebfbff4deb..84f9dd476bbb 100644
+--- a/arch/powerpc/platforms/Kconfig.cputype
++++ b/arch/powerpc/platforms/Kconfig.cputype
+@@ -119,9 +119,9 @@ config GENERIC_CPU
+ 	depends on PPC64 && CPU_LITTLE_ENDIAN
+ 	select ARCH_HAS_FAST_MULTIPLIER
+ 
+-config GENERIC_CPU
++config POWERPC_CPU
+ 	bool "Generic 32 bits powerpc"
+-	depends on PPC32 && !PPC_8xx
++	depends on PPC32 && !PPC_8xx && !PPC_85xx
+ 
+ config CELL_CPU
+ 	bool "Cell Broadband Engine"
+@@ -175,11 +175,23 @@ config G4_CPU
+ 	depends on PPC_BOOK3S_32
+ 	select ALTIVEC
+ 
++config E500_CPU
++	bool "e500 (8540)"
++	depends on PPC_85xx && !PPC_E500MC
 +
- /**
-  * touch_nmi_watchdog - restart NMI watchdog timeout.
-  *
-diff --git a/kernel/watchdog.c b/kernel/watchdog.c
-index 01bf977090dc..ec34d9f2eab2 100644
---- a/kernel/watchdog.c
-+++ b/kernel/watchdog.c
-@@ -518,7 +518,7 @@ int lockup_detector_offline_cpu(unsigned int cpu)
- 	return 0;
- }
- 
--static void lockup_detector_reconfigure(void)
-+static void __lockup_detector_reconfigure(void)
- {
- 	cpus_read_lock();
- 	watchdog_nmi_stop();
-@@ -538,6 +538,13 @@ static void lockup_detector_reconfigure(void)
- 	__lockup_detector_cleanup();
- }
- 
-+void lockup_detector_reconfigure(void)
-+{
-+	mutex_lock(&watchdog_mutex);
-+	__lockup_detector_reconfigure();
-+	mutex_unlock(&watchdog_mutex);
-+}
++config E500MC_CPU
++	bool "e500mc"
++	depends on PPC_85xx && PPC_E500MC
 +
- /*
-  * Create the watchdog thread infrastructure and configure the detector(s).
-  *
-@@ -558,13 +565,13 @@ static __init void lockup_detector_setup(void)
- 		return;
++config TOOLCHAIN_DEFAULT_CPU
++	bool "Rely on the toolchain's implicit default CPU"
++	depends on PPC32
++
+ endchoice
  
- 	mutex_lock(&watchdog_mutex);
--	lockup_detector_reconfigure();
-+	__lockup_detector_reconfigure();
- 	softlockup_initialized = true;
- 	mutex_unlock(&watchdog_mutex);
- }
+ config TARGET_CPU_BOOL
+ 	bool
+-	default !GENERIC_CPU
++	default !GENERIC_CPU && !TOOLCHAIN_DEFAULT_CPU
  
- #else /* CONFIG_SOFTLOCKUP_DETECTOR */
--static void lockup_detector_reconfigure(void)
-+static void __lockup_detector_reconfigure(void)
- {
- 	cpus_read_lock();
- 	watchdog_nmi_stop();
-@@ -572,9 +579,13 @@ static void lockup_detector_reconfigure(void)
- 	watchdog_nmi_start();
- 	cpus_read_unlock();
- }
-+void lockup_detector_reconfigure(void)
-+{
-+	__lockup_detector_reconfigure();
-+}
- static inline void lockup_detector_setup(void)
- {
--	lockup_detector_reconfigure();
-+	__lockup_detector_reconfigure();
- }
- #endif /* !CONFIG_SOFTLOCKUP_DETECTOR */
+ config TARGET_CPU
+ 	string
+@@ -194,6 +206,9 @@ config TARGET_CPU
+ 	default "e300c2" if E300C2_CPU
+ 	default "e300c3" if E300C3_CPU
+ 	default "G4" if G4_CPU
++	default "8540" if E500_CPU
++	default "e500mc" if E500MC_CPU
++	default "powerpc" if POWERPC_CPU
  
-@@ -614,7 +625,7 @@ static void proc_watchdog_update(void)
- {
- 	/* Remove impossible cpus to keep sysctl output clean. */
- 	cpumask_and(&watchdog_cpumask, &watchdog_cpumask, cpu_possible_mask);
--	lockup_detector_reconfigure();
-+	__lockup_detector_reconfigure();
- }
- 
- /*
+ config PPC_BOOK3S
+ 	def_bool y
 -- 
 2.35.1
 
