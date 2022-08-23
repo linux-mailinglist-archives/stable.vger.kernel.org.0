@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F13F59E0B9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12CEE59E104
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242926AbiHWLZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:25:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55592 "EHLO
+        id S1354258AbiHWKYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243051AbiHWLXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:23:21 -0400
+        with ESMTP id S1354192AbiHWKUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:20:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C676C101;
-        Tue, 23 Aug 2022 02:23:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EAFAAD;
+        Tue, 23 Aug 2022 02:02:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AED6C60F91;
-        Tue, 23 Aug 2022 09:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C1FC433C1;
-        Tue, 23 Aug 2022 09:23:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C862E61579;
+        Tue, 23 Aug 2022 09:02:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B26BC433C1;
+        Tue, 23 Aug 2022 09:02:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246621;
-        bh=GqRCdQk5gcrQtkUm0Jh9s9TsuaLzbGufsrzGeFlIiVM=;
+        s=korg; t=1661245336;
+        bh=B+3p/GQqQOtvQA60D7Hg3pIgqOkJKFL3MaPiyOP8loE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8zMx/iyUrjOAxJuqK9hYuxIwlwT4ncOd/9CFOBfUUrGWyHiRJMJYza2ODo3u6WVB
-         1V+Gl3KdpPLb6/QRiiZ5FISieLGSTi0XxWvsk6Kijj289GtebGDlNIfuDTOXjBfEnO
-         b1lghVpRGyAbF2hEn10/+NW/4CvTlvwyIliRsU0s=
+        b=kNN63geELsPNlG9YOK6/u5UmBGmGtVW/n1lcSHvjncTwECpSDo0Muom3f8quqJNWs
+         CiC/DFIorbdCJBRpNboA0laNdTR3PsZ1aMqnI7odBDeF+wbxvn7Bil1bPSKRHE4kQ2
+         xjq4ihtgjmx3XR9GTdQV9rV4XfzuR8TRVVT9KfL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 137/389] can: kvaser_usb_leaf: do not report txerr and rxerr during bus-off
-Date:   Tue, 23 Aug 2022 10:23:35 +0200
-Message-Id: <20220823080121.328868318@linuxfoundation.org>
+Subject: [PATCH 4.19 047/287] ACPI: EC: Remove duplicate ThinkPad X1 Carbon 6th entry from DMI quirks
+Date:   Tue, 23 Aug 2022 10:23:36 +0200
+Message-Id: <20220823080101.840676854@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit a57732084e06791d37ea1ea447cca46220737abd ]
+[ Upstream commit 0dd6db359e5f206cbf1dd1fd40dd211588cd2725 ]
 
-During bus off, the error count is greater than 255 and can not fit in
-a u8.
+Somehow the "ThinkPad X1 Carbon 6th" entry ended up twice in the
+struct dmi_system_id acpi_ec_no_wakeup[] array. Remove one of
+the entries.
 
-Fixes: 7259124eac7d1 ("can: kvaser_usb: Split driver into kvaser_usb_core.c and kvaser_usb_leaf.c")
-Link: https://lore.kernel.org/all/20220719143550.3681-9-mailhol.vincent@wanadoo.fr
-CC: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/acpi/ec.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index 0e0403dd0550..5e281249ad5f 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -857,8 +857,10 @@ static void kvaser_usb_leaf_rx_error(const struct kvaser_usb *dev,
- 		break;
- 	}
- 
--	cf->data[6] = es->txerr;
--	cf->data[7] = es->rxerr;
-+	if (new_state != CAN_STATE_BUS_OFF) {
-+		cf->data[6] = es->txerr;
-+		cf->data[7] = es->rxerr;
-+	}
- 
- 	stats->rx_packets++;
- 	stats->rx_bytes += cf->can_dlc;
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index e3df3dda0332..3394ec64fe95 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -2118,13 +2118,6 @@ static const struct dmi_system_id acpi_ec_no_wakeup[] = {
+ 			DMI_MATCH(DMI_PRODUCT_FAMILY, "Thinkpad X1 Carbon 6th"),
+ 		},
+ 	},
+-	{
+-		.ident = "ThinkPad X1 Carbon 6th",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+-			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Carbon 6th"),
+-		},
+-	},
+ 	{
+ 		.ident = "ThinkPad X1 Yoga 3rd",
+ 		.matches = {
 -- 
 2.35.1
 
