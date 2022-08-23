@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF4A59DA3A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F48959DA5B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351983AbiHWKGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:06:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44490 "EHLO
+        id S1352318AbiHWKHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:07:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352609AbiHWKF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:05:56 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0860B7C757;
-        Tue, 23 Aug 2022 01:52:15 -0700 (PDT)
+        with ESMTP id S1352646AbiHWKGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85BB56308;
+        Tue, 23 Aug 2022 01:52:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5C24ACE1B4A;
-        Tue, 23 Aug 2022 08:52:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A319C433C1;
-        Tue, 23 Aug 2022 08:52:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E626B8105C;
+        Tue, 23 Aug 2022 08:52:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85167C433C1;
+        Tue, 23 Aug 2022 08:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244731;
-        bh=yRfbSEmiNTKD8CgTYYkOZDifnY/nDW1hQjWqoS4iblc=;
+        s=korg; t=1661244737;
+        bh=f6OXRID0uCEqVUMBcp3Ki0tg3pVmjI2z9M8ylE8p0OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=saJZZkN+zwbEXKeS9LJD0lwQUyhj2/YFZTyeYhE2rVJMIY0+FWQK2vvNW9TLuwO9O
-         x0HbC4xHyw0SsP1YkRG93GpCuwpo1TG9ZnlpOtaTGwl53NlknadYl8PWTS7+He85cU
-         Rd4GkS96a5L7L2rv+meWplI9ADMB+G9Se4aIGOF0=
+        b=QJo5bn2c7MGKGiGbzif5OiF05wMd5hvpH56CdH3YWQWGLBlkng3s5A5peQmsMY8cc
+         FSdajP7FkQbj8UiVq5G56Dwo8tC3/lTa+Qs077m99O+p0QXCtOWc9TduH2FxlqIcJg
+         XpHPlTf+IUyUMQbkQmFjh4tZcu7FzTBs0B6G6TFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org,
+        syzbot+dc54d9ba8153b216cae0@syzkaller.appspotmail.com,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 140/244] net: dsa: felix: fix ethtool 256-511 and 512-1023 TX packet counters
-Date:   Tue, 23 Aug 2022 10:24:59 +0200
-Message-Id: <20220823080103.837697151@linuxfoundation.org>
+Subject: [PATCH 5.15 141/244] net: genl: fix error path memory leak in policy dumping
+Date:   Tue, 23 Aug 2022 10:25:00 +0200
+Message-Id: <20220823080103.868849234@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
 References: <20220823080059.091088642@linuxfoundation.org>
@@ -53,32 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 40d21c4565bce064c73a03b79a157a3493c518b9 upstream.
+commit 249801360db3dec4f73768c502192020bfddeacc upstream.
 
-What the driver actually reports as 256-511 is in fact 512-1023, and the
-TX packets in the 256-511 bucket are not reported. Fix that.
+If construction of the array of policies fails when recording
+non-first policy we need to unwind.
 
-Fixes: 56051948773e ("net: dsa: ocelot: add driver for Felix switch family")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+netlink_policy_dump_add_policy() itself also needs fixing as
+it currently gives up on error without recording the allocated
+pointer in the pstate pointer.
+
+Reported-by: syzbot+dc54d9ba8153b216cae0@syzkaller.appspotmail.com
+Fixes: 50a896cf2d6f ("genetlink: properly support per-op policy dumping")
+Link: https://lore.kernel.org/r/20220816161939.577583-1-kuba@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/ocelot/felix_vsc9959.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netlink/genetlink.c |    6 +++++-
+ net/netlink/policy.c    |   14 ++++++++++++--
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/net/dsa/ocelot/felix_vsc9959.c
-+++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
-@@ -578,7 +578,8 @@ static const struct ocelot_stat_layout v
- 	{ .offset = 0x87,	.name = "tx_frames_below_65_octets", },
- 	{ .offset = 0x88,	.name = "tx_frames_65_to_127_octets", },
- 	{ .offset = 0x89,	.name = "tx_frames_128_255_octets", },
--	{ .offset = 0x8B,	.name = "tx_frames_256_511_octets", },
-+	{ .offset = 0x8A,	.name = "tx_frames_256_511_octets", },
-+	{ .offset = 0x8B,	.name = "tx_frames_512_1023_octets", },
- 	{ .offset = 0x8C,	.name = "tx_frames_1024_1526_octets", },
- 	{ .offset = 0x8D,	.name = "tx_frames_over_1526_octets", },
- 	{ .offset = 0x8E,	.name = "tx_yellow_prio_0", },
+--- a/net/netlink/genetlink.c
++++ b/net/netlink/genetlink.c
+@@ -1174,13 +1174,17 @@ static int ctrl_dumppolicy_start(struct
+ 							     op.policy,
+ 							     op.maxattr);
+ 			if (err)
+-				return err;
++				goto err_free_state;
+ 		}
+ 	}
+ 
+ 	if (!ctx->state)
+ 		return -ENODATA;
+ 	return 0;
++
++err_free_state:
++	netlink_policy_dump_free(ctx->state);
++	return err;
+ }
+ 
+ static void *ctrl_dumppolicy_prep(struct sk_buff *skb,
+--- a/net/netlink/policy.c
++++ b/net/netlink/policy.c
+@@ -144,7 +144,7 @@ int netlink_policy_dump_add_policy(struc
+ 
+ 	err = add_policy(&state, policy, maxtype);
+ 	if (err)
+-		return err;
++		goto err_try_undo;
+ 
+ 	for (policy_idx = 0;
+ 	     policy_idx < state->n_alloc && state->policies[policy_idx].policy;
+@@ -164,7 +164,7 @@ int netlink_policy_dump_add_policy(struc
+ 						 policy[type].nested_policy,
+ 						 policy[type].len);
+ 				if (err)
+-					return err;
++					goto err_try_undo;
+ 				break;
+ 			default:
+ 				break;
+@@ -174,6 +174,16 @@ int netlink_policy_dump_add_policy(struc
+ 
+ 	*pstate = state;
+ 	return 0;
++
++err_try_undo:
++	/* Try to preserve reasonable unwind semantics - if we're starting from
++	 * scratch clean up fully, otherwise record what we got and caller will.
++	 */
++	if (!*pstate)
++		netlink_policy_dump_free(state);
++	else
++		*pstate = state;
++	return err;
+ }
+ 
+ static bool
 
 
