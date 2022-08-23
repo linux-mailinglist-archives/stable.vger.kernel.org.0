@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF3D59E05E
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B203059E0A2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355916AbiHWKs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:48:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36070 "EHLO
+        id S1358415AbiHWLtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:49:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355852AbiHWKo4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:44:56 -0400
+        with ESMTP id S1358425AbiHWLsb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:48:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E203574E0E;
-        Tue, 23 Aug 2022 02:10:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7374691D12;
+        Tue, 23 Aug 2022 02:30:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91B2CB81C66;
-        Tue, 23 Aug 2022 09:10:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09B8BC433C1;
-        Tue, 23 Aug 2022 09:10:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41DBDB81C66;
+        Tue, 23 Aug 2022 09:30:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94555C433C1;
+        Tue, 23 Aug 2022 09:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245843;
-        bh=blwVWMpUy9hCuLKBJidBkAIAlZ68adKolCiqqm6WzoU=;
+        s=korg; t=1661247036;
+        bh=LwL12v2JZCHVCYBFKCdnt4K1gRHCqnB4Q5Hp61rNmaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hp+Fdv3lgGJN5YQx3vPGqIhE201itmh1yzzn+K0ghJL1OvEAwjC5E0WKpOfjWjNTA
-         LUZyaZ+dq4XHWusd+K6tRsxN6/oD+i6yNC2eQHboDdR0nOr4qbnI4kTcSlDvwIfjIc
-         xE8OtPTkPsvSFeAN0cNcY9VwNFX3CqTdZRL+yNAI=
+        b=rmI/ehL28JKv8mbJlViGog5SMeDSqXKMqOGEVpAx2g6fOYLMz6Gx9cp68YH5Oxy/c
+         Su+S2RFtbKlXeoM7Z+lhDi12jgwKtLt7FfS+O+KHzCAZiZ42y4ogGYhxm1qUCWBimy
+         O5dzdWqjH0riJkx2LaR1b8OEGIhog8FWOY7SH8QQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 177/287] scripts/faddr2line: Fix vmlinux detection on arm64
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.4 268/389] dm raid: fix address sanitizer warning in raid_status
 Date:   Tue, 23 Aug 2022 10:25:46 +0200
-Message-Id: <20220823080106.731482839@linuxfoundation.org>
+Message-Id: <20220823080126.762138246@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit b6a5068854cfe372da7dee3224dcf023ed5b00cb ]
+commit 1fbeea217d8f297fe0e0956a1516d14ba97d0396 upstream.
 
-Since commit dcea997beed6 ("faddr2line: Fix overlapping text section
-failures, the sequel"), faddr2line is completely broken on arm64.
+There is this warning when using a kernel with the address sanitizer
+and running this testsuite:
+https://gitlab.com/cki-project/kernel-tests/-/tree/main/storage/swraid/scsi_raid
 
-For some reason, on arm64, the vmlinux ELF object file type is ET_DYN
-rather than ET_EXEC.  Check for both when determining whether the object
-is vmlinux.
+==================================================================
+BUG: KASAN: slab-out-of-bounds in raid_status+0x1747/0x2820 [dm_raid]
+Read of size 4 at addr ffff888079d2c7e8 by task lvcreate/13319
+CPU: 0 PID: 13319 Comm: lvcreate Not tainted 5.18.0-0.rc3.<snip> #1
+Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x6a/0x9c
+ print_address_description.constprop.0+0x1f/0x1e0
+ print_report.cold+0x55/0x244
+ kasan_report+0xc9/0x100
+ raid_status+0x1747/0x2820 [dm_raid]
+ dm_ima_measure_on_table_load+0x4b8/0xca0 [dm_mod]
+ table_load+0x35c/0x630 [dm_mod]
+ ctl_ioctl+0x411/0x630 [dm_mod]
+ dm_ctl_ioctl+0xa/0x10 [dm_mod]
+ __x64_sys_ioctl+0x12a/0x1a0
+ do_syscall_64+0x5b/0x80
 
-Modules and vmlinux.o have type ET_REL on all arches.
+The warning is caused by reading conf->max_nr_stripes in raid_status. The
+code in raid_status reads mddev->private, casts it to struct r5conf and
+reads the entry max_nr_stripes.
 
-Fixes: dcea997beed6 ("faddr2line: Fix overlapping text section failures, the sequel")
-Reported-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: John Garry <john.garry@huawei.com>
-Link: https://lore.kernel.org/r/dad1999737471b06d6188ce4cdb11329aa41682c.1658426357.git.jpoimboe@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, if we have different raid type than 4/5/6, mddev->private
+doesn't point to struct r5conf; it may point to struct r0conf, struct
+r1conf, struct r10conf or struct mpconf. If we cast a pointer to one
+of these structs to struct r5conf, we will be reading invalid memory
+and KASAN warns about it.
+
+Fix this bug by reading struct r5conf only if raid type is 4, 5 or 6.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/faddr2line | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/dm-raid.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/faddr2line b/scripts/faddr2line
-index 2571caac3156..70f8c3ecd555 100755
---- a/scripts/faddr2line
-+++ b/scripts/faddr2line
-@@ -112,7 +112,9 @@ __faddr2line() {
- 	# section offsets.
- 	local file_type=$(${READELF} --file-header $objfile |
- 		${AWK} '$1 == "Type:" { print $2; exit }')
--	[[ $file_type = "EXEC" ]] && is_vmlinux=1
-+	if [[ $file_type = "EXEC" ]] || [[ $file_type == "DYN" ]]; then
-+		is_vmlinux=1
-+	fi
- 
- 	# Go through each of the object's symbols which match the func name.
- 	# In rare cases there might be duplicates, in which case we print all
--- 
-2.35.1
-
+--- a/drivers/md/dm-raid.c
++++ b/drivers/md/dm-raid.c
+@@ -3528,7 +3528,7 @@ static void raid_status(struct dm_target
+ {
+ 	struct raid_set *rs = ti->private;
+ 	struct mddev *mddev = &rs->md;
+-	struct r5conf *conf = mddev->private;
++	struct r5conf *conf = rs_is_raid456(rs) ? mddev->private : NULL;
+ 	int i, max_nr_stripes = conf ? conf->max_nr_stripes : 0;
+ 	unsigned long recovery;
+ 	unsigned int raid_param_cnt = 1; /* at least 1 for chunksize */
 
 
