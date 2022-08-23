@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F6A59DB40
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8544459DFA3
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242831AbiHWLSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:18:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43374 "EHLO
+        id S1353770AbiHWKSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:18:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357459AbiHWLRf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:35 -0400
+        with ESMTP id S1354269AbiHWKQ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:16:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D400789805;
-        Tue, 23 Aug 2022 02:20:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A3C804B9;
+        Tue, 23 Aug 2022 02:01:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EF1FB81C63;
-        Tue, 23 Aug 2022 09:20:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2278C433D7;
-        Tue, 23 Aug 2022 09:20:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5E0DB81C28;
+        Tue, 23 Aug 2022 09:01:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4A4CC433D7;
+        Tue, 23 Aug 2022 09:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246455;
-        bh=rtyC8TSFqyWOCi2oMAoUTVzznfmn4eslyFZqWLXOZ9I=;
+        s=korg; t=1661245270;
+        bh=m/+UT3IGIZxmHrmJUxw8JVcxDX3xMPoOkXj1qI9/loc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Tx0PTdHjmRjBLwtkPeOGvNw5HzGSqy/J4aR+MmwZxyRLudQpH9q1gJOPQuxvQes+
-         4a5zI6Qn2IE4p5/lcb2TgYhSwiAQIPTwJKDO1mKBGTIuP6tH5NWYzL+ArVEaBc0Mj6
-         LhdTYx4hsV2OVAkAzYvTAPm2snQWAoKsyb+Zf8U8=
+        b=hmTrOU1E+XF650cgIdhQZ9JriiQx+RyKSsOtzcmW+HgzsJ/giSM7sQdRzqCydYHMm
+         EinA8cULoguUESsO8Bm5tHAH4SJOd6Oq4/5n2MrFGe7+Gi3vy/J+14opiYUkTjaoAe
+         PD6iRhlaipgFCDRCDJ8aqhh1ryIIjnUDc2l+OxEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Ranquet <granquet@baylibre.com>,
-        Bo-Chen Chen <rex-bc.chen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 115/389] drm/mediatek: dpi: Only enable dpi after the bridge is enabled
-Date:   Tue, 23 Aug 2022 10:23:13 +0200
-Message-Id: <20220823080120.426632009@linuxfoundation.org>
+        Stanislav Fomichev <sdf@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 025/287] selftests/bpf: Fix test_align verifier log patterns
+Date:   Tue, 23 Aug 2022 10:23:14 +0200
+Message-Id: <20220823080101.125479106@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,48 +54,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Ranquet <granquet@baylibre.com>
+From: Ovidiu Panait <ovidiu.panait@windriver.com>
 
-[ Upstream commit aed61ef6beb911cc043af0f2f291167663995065 ]
+From: Stanislav Fomichev <sdf@google.com>
 
-Enabling the dpi too early causes glitches on screen.
+commit 5366d2269139ba8eb6a906d73a0819947e3e4e0a upstream.
 
-Move the call to mtk_dpi_enable() at the end of the bridge_enable
-callback to ensure everything is setup properly before enabling dpi.
+Commit 294f2fc6da27 ("bpf: Verifer, adjust_scalar_min_max_vals to always
+call update_reg_bounds()") changed the way verifier logs some of its state,
+adjust the test_align accordingly. Where possible, I tried to not copy-paste
+the entire log line and resorted to dropping the last closing brace instead.
 
-Fixes: 9e629c17aa8d ("drm/mediatek: Add DPI sub driver")
-Signed-off-by: Guillaume Ranquet <granquet@baylibre.com>
-Signed-off-by: Bo-Chen Chen <rex-bc.chen@mediatek.com>
-Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220701035845.16458-16-rex-bc.chen@mediatek.com/
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 294f2fc6da27 ("bpf: Verifer, adjust_scalar_min_max_vals to always call update_reg_bounds()")
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20200515194904.229296-1-sdf@google.com
+[OP: adjust for 4.19 selftests]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/bpf/test_align.c |   41 +++++++++++++++----------------
+ 1 file changed, 21 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
-index 8f4a9f245a9a..4a64d8aed9da 100644
---- a/drivers/gpu/drm/mediatek/mtk_dpi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
-@@ -394,7 +394,6 @@ static int mtk_dpi_power_on(struct mtk_dpi *dpi)
- 	if (dpi->pinctrl && dpi->pins_dpi)
- 		pinctrl_select_state(dpi->pinctrl, dpi->pins_dpi);
- 
--	mtk_dpi_enable(dpi);
- 	return 0;
- 
- err_pixel:
-@@ -538,6 +537,7 @@ static void mtk_dpi_encoder_enable(struct drm_encoder *encoder)
- 
- 	mtk_dpi_power_on(dpi);
- 	mtk_dpi_set_display_mode(dpi, &dpi->mode);
-+	mtk_dpi_enable(dpi);
- }
- 
- static int mtk_dpi_atomic_check(struct drm_encoder *encoder,
--- 
-2.35.1
-
+--- a/tools/testing/selftests/bpf/test_align.c
++++ b/tools/testing/selftests/bpf/test_align.c
+@@ -359,15 +359,15 @@ static struct bpf_align_test tests[] = {
+ 			 * is still (4n), fixed offset is not changed.
+ 			 * Also, we create a new reg->id.
+ 			 */
+-			{29, "R5_w=pkt(id=4,off=18,r=0,umax_value=2040,var_off=(0x0; 0x7fc))"},
++			{29, "R5_w=pkt(id=4,off=18,r=0,umax_value=2040,var_off=(0x0; 0x7fc)"},
+ 			/* At the time the word size load is performed from R5,
+ 			 * its total fixed offset is NET_IP_ALIGN + reg->off (18)
+ 			 * which is 20.  Then the variable offset is (4n), so
+ 			 * the total offset is 4-byte aligned and meets the
+ 			 * load's requirements.
+ 			 */
+-			{33, "R4=pkt(id=4,off=22,r=22,umax_value=2040,var_off=(0x0; 0x7fc))"},
+-			{33, "R5=pkt(id=4,off=18,r=22,umax_value=2040,var_off=(0x0; 0x7fc))"},
++			{33, "R4=pkt(id=4,off=22,r=22,umax_value=2040,var_off=(0x0; 0x7fc)"},
++			{33, "R5=pkt(id=4,off=18,r=22,umax_value=2040,var_off=(0x0; 0x7fc)"},
+ 		},
+ 	},
+ 	{
+@@ -410,15 +410,15 @@ static struct bpf_align_test tests[] = {
+ 			/* Adding 14 makes R6 be (4n+2) */
+ 			{9, "R6_w=inv(id=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc))"},
+ 			/* Packet pointer has (4n+2) offset */
+-			{11, "R5_w=pkt(id=1,off=0,r=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc))"},
+-			{13, "R4=pkt(id=1,off=4,r=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc))"},
++			{11, "R5_w=pkt(id=1,off=0,r=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc)"},
++			{13, "R4=pkt(id=1,off=4,r=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc)"},
+ 			/* At the time the word size load is performed from R5,
+ 			 * its total fixed offset is NET_IP_ALIGN + reg->off (0)
+ 			 * which is 2.  Then the variable offset is (4n+2), so
+ 			 * the total offset is 4-byte aligned and meets the
+ 			 * load's requirements.
+ 			 */
+-			{15, "R5=pkt(id=1,off=0,r=4,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc))"},
++			{15, "R5=pkt(id=1,off=0,r=4,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc)"},
+ 			/* Newly read value in R6 was shifted left by 2, so has
+ 			 * known alignment of 4.
+ 			 */
+@@ -426,15 +426,15 @@ static struct bpf_align_test tests[] = {
+ 			/* Added (4n) to packet pointer's (4n+2) var_off, giving
+ 			 * another (4n+2).
+ 			 */
+-			{19, "R5_w=pkt(id=2,off=0,r=0,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc))"},
+-			{21, "R4=pkt(id=2,off=4,r=0,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc))"},
++			{19, "R5_w=pkt(id=2,off=0,r=0,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc)"},
++			{21, "R4=pkt(id=2,off=4,r=0,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc)"},
+ 			/* At the time the word size load is performed from R5,
+ 			 * its total fixed offset is NET_IP_ALIGN + reg->off (0)
+ 			 * which is 2.  Then the variable offset is (4n+2), so
+ 			 * the total offset is 4-byte aligned and meets the
+ 			 * load's requirements.
+ 			 */
+-			{23, "R5=pkt(id=2,off=0,r=4,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc))"},
++			{23, "R5=pkt(id=2,off=0,r=4,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc)"},
+ 		},
+ 	},
+ 	{
+@@ -469,16 +469,16 @@ static struct bpf_align_test tests[] = {
+ 		.matches = {
+ 			{4, "R5_w=pkt_end(id=0,off=0,imm=0)"},
+ 			/* (ptr - ptr) << 2 == unknown, (4n) */
+-			{6, "R5_w=inv(id=0,smax_value=9223372036854775804,umax_value=18446744073709551612,var_off=(0x0; 0xfffffffffffffffc))"},
++			{6, "R5_w=inv(id=0,smax_value=9223372036854775804,umax_value=18446744073709551612,var_off=(0x0; 0xfffffffffffffffc)"},
+ 			/* (4n) + 14 == (4n+2).  We blow our bounds, because
+ 			 * the add could overflow.
+ 			 */
+-			{7, "R5=inv(id=0,var_off=(0x2; 0xfffffffffffffffc))"},
++			{7, "R5=inv(id=0,smin_value=-9223372036854775806,smax_value=9223372036854775806,umin_value=2,umax_value=18446744073709551614,var_off=(0x2; 0xfffffffffffffffc)"},
+ 			/* Checked s>=0 */
+-			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
++			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
+ 			/* packet pointer + nonnegative (4n+2) */
+-			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
+-			{13, "R4=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
++			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
++			{13, "R4=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
+ 			/* NET_IP_ALIGN + (4n+2) == (4n), alignment is fine.
+ 			 * We checked the bounds, but it might have been able
+ 			 * to overflow if the packet pointer started in the
+@@ -486,7 +486,7 @@ static struct bpf_align_test tests[] = {
+ 			 * So we did not get a 'range' on R6, and the access
+ 			 * attempt will fail.
+ 			 */
+-			{15, "R6=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
++			{15, "R6=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
+ 		}
+ 	},
+ 	{
+@@ -528,7 +528,7 @@ static struct bpf_align_test tests[] = {
+ 			/* New unknown value in R7 is (4n) */
+ 			{11, "R7_w=inv(id=0,umax_value=1020,var_off=(0x0; 0x3fc))"},
+ 			/* Subtracting it from R6 blows our unsigned bounds */
+-			{12, "R6=inv(id=0,smin_value=-1006,smax_value=1034,var_off=(0x2; 0xfffffffffffffffc))"},
++			{12, "R6=inv(id=0,smin_value=-1006,smax_value=1034,umin_value=2,umax_value=18446744073709551614,var_off=(0x2; 0xfffffffffffffffc)"},
+ 			/* Checked s>= 0 */
+ 			{14, "R6=inv(id=0,umin_value=2,umax_value=1034,var_off=(0x2; 0x7fc))"},
+ 			/* At the time the word size load is performed from R5,
+@@ -537,7 +537,8 @@ static struct bpf_align_test tests[] = {
+ 			 * the total offset is 4-byte aligned and meets the
+ 			 * load's requirements.
+ 			 */
+-			{20, "R5=pkt(id=1,off=0,r=4,umin_value=2,umax_value=1034,var_off=(0x2; 0x7fc))"},
++			{20, "R5=pkt(id=1,off=0,r=4,umin_value=2,umax_value=1034,var_off=(0x2; 0x7fc)"},
++
+ 		},
+ 	},
+ 	{
+@@ -579,18 +580,18 @@ static struct bpf_align_test tests[] = {
+ 			/* Adding 14 makes R6 be (4n+2) */
+ 			{11, "R6_w=inv(id=0,umin_value=14,umax_value=74,var_off=(0x2; 0x7c))"},
+ 			/* Subtracting from packet pointer overflows ubounds */
+-			{13, "R5_w=pkt(id=1,off=0,r=8,umin_value=18446744073709551542,umax_value=18446744073709551602,var_off=(0xffffffffffffff82; 0x7c))"},
++			{13, "R5_w=pkt(id=1,off=0,r=8,umin_value=18446744073709551542,umax_value=18446744073709551602,var_off=(0xffffffffffffff82; 0x7c)"},
+ 			/* New unknown value in R7 is (4n), >= 76 */
+ 			{15, "R7_w=inv(id=0,umin_value=76,umax_value=1096,var_off=(0x0; 0x7fc))"},
+ 			/* Adding it to packet pointer gives nice bounds again */
+-			{16, "R5_w=pkt(id=2,off=0,r=0,umin_value=2,umax_value=1082,var_off=(0x2; 0x7fc))"},
++			{16, "R5_w=pkt(id=2,off=0,r=0,umin_value=2,umax_value=1082,var_off=(0x2; 0xfffffffc)"},
+ 			/* At the time the word size load is performed from R5,
+ 			 * its total fixed offset is NET_IP_ALIGN + reg->off (0)
+ 			 * which is 2.  Then the variable offset is (4n+2), so
+ 			 * the total offset is 4-byte aligned and meets the
+ 			 * load's requirements.
+ 			 */
+-			{20, "R5=pkt(id=2,off=0,r=4,umin_value=2,umax_value=1082,var_off=(0x2; 0x7fc))"},
++			{20, "R5=pkt(id=2,off=0,r=4,umin_value=2,umax_value=1082,var_off=(0x2; 0xfffffffc)"},
+ 		},
+ 	},
+ };
 
 
