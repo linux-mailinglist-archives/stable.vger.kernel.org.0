@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADBB159DD1F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:27:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E41BC59E063
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353166AbiHWKNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:13:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
+        id S1352931AbiHWMMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:12:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352717AbiHWKJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:09:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076927E022;
-        Tue, 23 Aug 2022 01:56:05 -0700 (PDT)
+        with ESMTP id S1359327AbiHWML0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:11:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC02EE0FFC;
+        Tue, 23 Aug 2022 02:39:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D74AB81C28;
-        Tue, 23 Aug 2022 08:56:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0F94C433D6;
-        Tue, 23 Aug 2022 08:56:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C6DAB81C53;
+        Tue, 23 Aug 2022 09:37:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5111C433C1;
+        Tue, 23 Aug 2022 09:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244963;
-        bh=9+9TAGae0fTA/X972osI2oujsoHgyW6Ylmjy3Vai+/w=;
+        s=korg; t=1661247472;
+        bh=9pALSKMLn+fRZb6k9Le6LFFrcfVLYUuYMzrfmZuBViE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2ToNMwaudLlzle8Ttqe+SCy0YjY1gvdsO4HghECzGttD4lRoB93c7KNcFsi4Wzru
-         4lGtfCdNdbVxGyHtvI3w0dccKg1plvKDuaYhteCt9qdo4jFE+Ii7SMw05YhDYODmFz
-         XgazA3jAu2x6Y5lb89qt7z3Go3QEcoKLMYLXcw9s=
+        b=xK/1yuMK/5gaOQzWzhGafgxip7cqdeP2B41g1HjWQMcQCYk+FczhI3l0fyuviXvSg
+         GupojXCjukKfq1bwMAiEXYdQGASkHZfMwFR4gNi8afn67scVmxk9KPXmXGfOmenKuy
+         5XE95yqY9jXZw+Q/yOFLTov6tAQnb6sLXMTB61IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wentao_Liang <Wentao_Liang_g@163.com>,
-        Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 218/229] drivers:md:fix a potential use-after-free bug
-Date:   Tue, 23 Aug 2022 10:26:19 +0200
-Message-Id: <20220823080101.432971186@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+b03f55bf128f9a38f064@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 048/158] vsock: Fix memory leak in vsock_connect()
+Date:   Tue, 23 Aug 2022 10:26:20 +0200
+Message-Id: <20220823080048.034289837@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wentao_Liang <Wentao_Liang_g@163.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit 104212471b1c1817b311771d817fb692af983173 ]
+commit 7e97cfed9929eaabc41829c395eb0d1350fccb9d upstream.
 
-In line 2884, "raid5_release_stripe(sh);" drops the reference to sh and
-may cause sh to be released. However, sh is subsequently used in lines
-2886 "if (sh->batch_head && sh != sh->batch_head)". This may result in an
-use-after-free bug.
+An O_NONBLOCK vsock_connect() request may try to reschedule
+@connect_work.  Imagine the following sequence of vsock_connect()
+requests:
 
-It can be fixed by moving "raid5_release_stripe(sh);" to the bottom of
-the function.
+  1. The 1st, non-blocking request schedules @connect_work, which will
+     expire after 200 jiffies.  Socket state is now SS_CONNECTING;
 
-Signed-off-by: Wentao_Liang <Wentao_Liang_g@163.com>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  2. Later, the 2nd, blocking request gets interrupted by a signal after
+     a few jiffies while waiting for the connection to be established.
+     Socket state is back to SS_UNCONNECTED, but @connect_work is still
+     pending, and will expire after 100 jiffies.
+
+  3. Now, the 3rd, non-blocking request tries to schedule @connect_work
+     again.  Since @connect_work is already scheduled,
+     schedule_delayed_work() silently returns.  sock_hold() is called
+     twice, but sock_put() will only be called once in
+     vsock_connect_timeout(), causing a memory leak reported by syzbot:
+
+  BUG: memory leak
+  unreferenced object 0xffff88810ea56a40 (size 1232):
+    comm "syz-executor756", pid 3604, jiffies 4294947681 (age 12.350s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+      28 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  (..@............
+    backtrace:
+      [<ffffffff837c830e>] sk_prot_alloc+0x3e/0x1b0 net/core/sock.c:1930
+      [<ffffffff837cbe22>] sk_alloc+0x32/0x2e0 net/core/sock.c:1989
+      [<ffffffff842ccf68>] __vsock_create.constprop.0+0x38/0x320 net/vmw_vsock/af_vsock.c:734
+      [<ffffffff842ce8f1>] vsock_create+0xc1/0x2d0 net/vmw_vsock/af_vsock.c:2203
+      [<ffffffff837c0cbb>] __sock_create+0x1ab/0x2b0 net/socket.c:1468
+      [<ffffffff837c3acf>] sock_create net/socket.c:1519 [inline]
+      [<ffffffff837c3acf>] __sys_socket+0x6f/0x140 net/socket.c:1561
+      [<ffffffff837c3bba>] __do_sys_socket net/socket.c:1570 [inline]
+      [<ffffffff837c3bba>] __se_sys_socket net/socket.c:1568 [inline]
+      [<ffffffff837c3bba>] __x64_sys_socket+0x1a/0x20 net/socket.c:1568
+      [<ffffffff84512815>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+      [<ffffffff84512815>] do_syscall_64+0x35/0x80 arch/x86/entry/common.c:80
+      [<ffffffff84600068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+  <...>
+
+Use mod_delayed_work() instead: if @connect_work is already scheduled,
+reschedule it, and undo sock_hold() to keep the reference count
+balanced.
+
+Reported-and-tested-by: syzbot+b03f55bf128f9a38f064@syzkaller.appspotmail.com
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Co-developed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/raid5.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/vmw_vsock/af_vsock.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 1e52443f3aca..866ba1743f9f 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -2668,10 +2668,10 @@ static void raid5_end_write_request(struct bio *bi)
- 	if (!test_and_clear_bit(R5_DOUBLE_LOCKED, &sh->dev[i].flags))
- 		clear_bit(R5_LOCKED, &sh->dev[i].flags);
- 	set_bit(STRIPE_HANDLE, &sh->state);
--	raid5_release_stripe(sh);
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1347,7 +1347,14 @@ static int vsock_stream_connect(struct s
+ 			 * timeout fires.
+ 			 */
+ 			sock_hold(sk);
+-			schedule_delayed_work(&vsk->connect_work, timeout);
++
++			/* If the timeout function is already scheduled,
++			 * reschedule it, then ungrab the socket refcount to
++			 * keep it balanced.
++			 */
++			if (mod_delayed_work(system_wq, &vsk->connect_work,
++					     timeout))
++				sock_put(sk);
  
- 	if (sh->batch_head && sh != sh->batch_head)
- 		raid5_release_stripe(sh->batch_head);
-+	raid5_release_stripe(sh);
- }
- 
- static void raid5_error(struct mddev *mddev, struct md_rdev *rdev)
--- 
-2.35.1
-
+ 			/* Skip ahead to preserve error code set above. */
+ 			goto out_wait;
 
 
