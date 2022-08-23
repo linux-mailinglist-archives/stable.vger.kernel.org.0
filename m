@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B12059E28F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1779059E0EF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353653AbiHWKhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:37:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42368 "EHLO
+        id S1348715AbiHWLeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:34:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355166AbiHWKer (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:34:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A712A5C71;
-        Tue, 23 Aug 2022 02:07:01 -0700 (PDT)
+        with ESMTP id S1357951AbiHWLc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1399290C6F;
+        Tue, 23 Aug 2022 02:26:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 394E26158D;
-        Tue, 23 Aug 2022 09:07:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 077EFC433D6;
-        Tue, 23 Aug 2022 09:06:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BAF761330;
+        Tue, 23 Aug 2022 09:26:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15346C433C1;
+        Tue, 23 Aug 2022 09:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245619;
-        bh=z4f0bDwwawu5JjlTezENU3S/+w7vDeKkbxb19Qhx/HI=;
+        s=korg; t=1661246811;
+        bh=+NeAf9h5pfFDUXnKms+x2U0x3UtSbInesnl7Zo/kjxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRvsjld8bt9LFc2IzicN7l5TXer9d6cXE246XUmjdZ3TG89Nm9gaaNrSzrqMZosg4
-         4o+nIun6tX6y9LgKSv49gqQ/Au3LGGrq+hkqzJiRUGr707y3CYQDd4KvcLESfl+zcv
-         fZ1MbVn+zoPwmGdPqOHydlCGi5W0QG7WIPqhLVOI=
+        b=xkCQiJi2UVeA8A2WBOuujoXM2SuMBjV4yPPSR9yxgQiD0S/XxO6aNuYR9CnT6uY0R
+         Boj5NZ9eoDA4XC5IokvB6tB3uXNn/UruXT9df+8gvPrg6rRm3WlVeApcqcsr5U/Uab
+         GWF1bd68nHRNFnDItmwwLo02mqNLQKoULAdHPF0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 134/287] RDMA/hfi1: fix potential memory leak in setup_base_ctxt()
-Date:   Tue, 23 Aug 2022 10:25:03 +0200
-Message-Id: <20220823080104.948798574@linuxfoundation.org>
+Subject: [PATCH 5.4 226/389] ASoC: qcom: q6dsp: Fix an off-by-one in q6adm_alloc_copp()
+Date:   Tue, 23 Aug 2022 10:25:04 +0200
+Message-Id: <20220823080125.041533349@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit aa2a1df3a2c85f855af7d54466ac10bd48645d63 ]
+[ Upstream commit 673f58f62ca6fc98979d1cf3fe89c3ff33f29b2e ]
 
-setup_base_ctxt() allocates a memory chunk for uctxt->groups with
-hfi1_alloc_ctxt_rcv_groups(). When init_user_ctxt() fails, uctxt->groups
-is not released, which will lead to a memory leak.
+find_first_zero_bit() returns MAX_COPPS_PER_PORT at max here.
+So 'idx' should be tested with ">=" or the test can't match.
 
-We should release the uctxt->groups with hfi1_free_ctxt_rcv_groups()
-when init_user_ctxt() fails.
-
-Fixes: e87473bc1b6c ("IB/hfi1: Only set fd pointer when base context is completely initialized")
-Link: https://lore.kernel.org/r/20220711070718.2318320-1-niejianglei2021@163.com
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Acked-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: 7b20b2be51e1 ("ASoC: qdsp6: q6adm: Add q6adm driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/0fca3271649736053eb9649d87e1ca01b056be40.1658394124.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/file_ops.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/qcom/qdsp6/q6adm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/hw/hfi1/file_ops.c
-index 64ee11542a56..be31faf6cc62 100644
---- a/drivers/infiniband/hw/hfi1/file_ops.c
-+++ b/drivers/infiniband/hw/hfi1/file_ops.c
-@@ -1222,8 +1222,10 @@ static int setup_base_ctxt(struct hfi1_filedata *fd,
- 		goto done;
+diff --git a/sound/soc/qcom/qdsp6/q6adm.c b/sound/soc/qcom/qdsp6/q6adm.c
+index da242515e146..8e3539941fad 100644
+--- a/sound/soc/qcom/qdsp6/q6adm.c
++++ b/sound/soc/qcom/qdsp6/q6adm.c
+@@ -217,7 +217,7 @@ static struct q6copp *q6adm_alloc_copp(struct q6adm *adm, int port_idx)
+ 	idx = find_first_zero_bit(&adm->copp_bitmap[port_idx],
+ 				  MAX_COPPS_PER_PORT);
  
- 	ret = init_user_ctxt(fd, uctxt);
--	if (ret)
-+	if (ret) {
-+		hfi1_free_ctxt_rcv_groups(uctxt);
- 		goto done;
-+	}
+-	if (idx > MAX_COPPS_PER_PORT)
++	if (idx >= MAX_COPPS_PER_PORT)
+ 		return ERR_PTR(-EBUSY);
  
- 	user_init(uctxt);
- 
+ 	c = kzalloc(sizeof(*c), GFP_ATOMIC);
 -- 
 2.35.1
 
