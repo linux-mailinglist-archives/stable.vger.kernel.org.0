@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F6BF59DC79
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE73359DC81
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356843AbiHWLHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:07:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49490 "EHLO
+        id S1350363AbiHWLHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:07:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357342AbiHWLGn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:06:43 -0400
+        with ESMTP id S1357186AbiHWLGQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:06:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABAB6B5E40;
-        Tue, 23 Aug 2022 02:16:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 723CEB4428;
+        Tue, 23 Aug 2022 02:15:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D98660F85;
-        Tue, 23 Aug 2022 09:15:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 058C4C433D6;
-        Tue, 23 Aug 2022 09:15:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DBAB6113E;
+        Tue, 23 Aug 2022 09:15:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DB62C433D6;
+        Tue, 23 Aug 2022 09:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246139;
-        bh=poR64Q7NdP/zWw8p7/bd0QrYnDE4VlKoNml6p77JwL8=;
+        s=korg; t=1661246142;
+        bh=mDlYbZ72tFL3h6CgQb2aswkXH6xQo02++k4Kfhq0lG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t8tUcAkNfYGkce1LGyi0+M/Kd98lINNOGm6hkUkXQJSytgT7YbLBXa6NDkB/VVWXJ
-         IEdClVQNOymlJTenDmyriHPF/Cytdx4LIishk5wftM9d5jRZrs52/r//v6TwVZDPM9
-         fv2z5N1PXdak/4lz6bae+douPr7ZpqKnzAqvPPW4=
+        b=zGz60ejMkcgItNYt0anbNWv4zJD0RcEBfrSyW5XlexuhZ+DKF/pCzSJXwBBr3+5dL
+         qvk6h2ULGF6SylQteFINCywRNg6cwX3QWftQLu8PJquddECyn1pSl34vTM+/oAMum0
+         xOa7gbaKWzbmZ41udAeLCmF9h3AQnY5c6mMX/kzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
+        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 014/389] KVM: SVM: Dont BUG if userspace injects an interrupt with GIF=0
-Date:   Tue, 23 Aug 2022 10:21:32 +0200
-Message-Id: <20220823080116.288210576@linuxfoundation.org>
+Subject: [PATCH 5.4 015/389] KVM: nVMX: Let userspace set nVMX MSR to any _host_ supported value
+Date:   Tue, 23 Aug 2022 10:21:33 +0200
+Message-Id: <20220823080116.324525248@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,62 +54,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit f17c31c48e5cde9895a491d91c424eeeada3e134 upstream.
+commit f8ae08f9789ad59d318ea75b570caa454aceda81 upstream.
 
-Don't BUG/WARN on interrupt injection due to GIF being cleared,
-since it's trivial for userspace to force the situation via
-KVM_SET_VCPU_EVENTS (even if having at least a WARN there would be correct
-for KVM internally generated injections).
+Restrict the nVMX MSRs based on KVM's config, not based on the guest's
+current config.  Using the guest's config to audit the new config
+prevents userspace from restoring the original config (KVM's config) if
+at any point in the past the guest's config was restricted in any way.
 
-  kernel BUG at arch/x86/kvm/svm/svm.c:3386!
-  invalid opcode: 0000 [#1] SMP
-  CPU: 15 PID: 926 Comm: smm_test Not tainted 5.17.0-rc3+ #264
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:svm_inject_irq+0xab/0xb0 [kvm_amd]
-  Code: <0f> 0b 0f 1f 00 0f 1f 44 00 00 80 3d ac b3 01 00 00 55 48 89 f5 53
-  RSP: 0018:ffffc90000b37d88 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffff88810a234ac0 RCX: 0000000000000006
-  RDX: 0000000000000000 RSI: ffffc90000b37df7 RDI: ffff88810a234ac0
-  RBP: ffffc90000b37df7 R08: ffff88810a1fa410 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-  R13: ffff888109571000 R14: ffff88810a234ac0 R15: 0000000000000000
-  FS:  0000000001821380(0000) GS:ffff88846fdc0000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f74fc550008 CR3: 000000010a6fe000 CR4: 0000000000350ea0
-  Call Trace:
-   <TASK>
-   inject_pending_event+0x2f7/0x4c0 [kvm]
-   kvm_arch_vcpu_ioctl_run+0x791/0x17a0 [kvm]
-   kvm_vcpu_ioctl+0x26d/0x650 [kvm]
-   __x64_sys_ioctl+0x82/0xb0
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-   </TASK>
-
-Fixes: 219b65dcf6c0 ("KVM: SVM: Improve nested interrupt injection")
+Fixes: 62cc6b9dc61e ("KVM: nVMX: support restore of VMX capability MSRs")
 Cc: stable@vger.kernel.org
-Co-developed-by: Sean Christopherson <seanjc@google.com>
+Cc: David Matlack <dmatlack@google.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
-Message-Id: <35426af6e123cbe91ec7ce5132ce72521f02b1b5.1651440202.git.maciej.szmigiero@oracle.com>
+Message-Id: <20220607213604.3346000-6-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c |   70 ++++++++++++++++++++++++----------------------
+ 1 file changed, 37 insertions(+), 33 deletions(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -5137,8 +5137,6 @@ static void svm_set_irq(struct kvm_vcpu
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -1060,7 +1060,7 @@ static int vmx_restore_vmx_basic(struct
+ 		BIT_ULL(49) | BIT_ULL(54) | BIT_ULL(55) |
+ 		/* reserved */
+ 		BIT_ULL(31) | GENMASK_ULL(47, 45) | GENMASK_ULL(63, 56);
+-	u64 vmx_basic = vmx->nested.msrs.basic;
++	u64 vmx_basic = vmcs_config.nested.basic;
+ 
+ 	if (!is_bitwise_subset(vmx_basic, data, feature_and_reserved))
+ 		return -EINVAL;
+@@ -1083,36 +1083,42 @@ static int vmx_restore_vmx_basic(struct
+ 	return 0;
+ }
+ 
+-static int
+-vmx_restore_control_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
++static void vmx_get_control_msr(struct nested_vmx_msrs *msrs, u32 msr_index,
++				u32 **low, u32 **high)
  {
- 	struct vcpu_svm *svm = to_svm(vcpu);
- 
--	BUG_ON(!(gif_set(svm)));
+-	u64 supported;
+-	u32 *lowp, *highp;
 -
- 	trace_kvm_inj_virq(vcpu->arch.interrupt.nr);
- 	++vcpu->stat.irq_injections;
+ 	switch (msr_index) {
+ 	case MSR_IA32_VMX_TRUE_PINBASED_CTLS:
+-		lowp = &vmx->nested.msrs.pinbased_ctls_low;
+-		highp = &vmx->nested.msrs.pinbased_ctls_high;
++		*low = &msrs->pinbased_ctls_low;
++		*high = &msrs->pinbased_ctls_high;
+ 		break;
+ 	case MSR_IA32_VMX_TRUE_PROCBASED_CTLS:
+-		lowp = &vmx->nested.msrs.procbased_ctls_low;
+-		highp = &vmx->nested.msrs.procbased_ctls_high;
++		*low = &msrs->procbased_ctls_low;
++		*high = &msrs->procbased_ctls_high;
+ 		break;
+ 	case MSR_IA32_VMX_TRUE_EXIT_CTLS:
+-		lowp = &vmx->nested.msrs.exit_ctls_low;
+-		highp = &vmx->nested.msrs.exit_ctls_high;
++		*low = &msrs->exit_ctls_low;
++		*high = &msrs->exit_ctls_high;
+ 		break;
+ 	case MSR_IA32_VMX_TRUE_ENTRY_CTLS:
+-		lowp = &vmx->nested.msrs.entry_ctls_low;
+-		highp = &vmx->nested.msrs.entry_ctls_high;
++		*low = &msrs->entry_ctls_low;
++		*high = &msrs->entry_ctls_high;
+ 		break;
+ 	case MSR_IA32_VMX_PROCBASED_CTLS2:
+-		lowp = &vmx->nested.msrs.secondary_ctls_low;
+-		highp = &vmx->nested.msrs.secondary_ctls_high;
++		*low = &msrs->secondary_ctls_low;
++		*high = &msrs->secondary_ctls_high;
+ 		break;
+ 	default:
+ 		BUG();
+ 	}
++}
++
++static int
++vmx_restore_control_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
++{
++	u32 *lowp, *highp;
++	u64 supported;
++
++	vmx_get_control_msr(&vmcs_config.nested, msr_index, &lowp, &highp);
  
+ 	supported = vmx_control_msr(*lowp, *highp);
+ 
+@@ -1124,6 +1130,7 @@ vmx_restore_control_msr(struct vcpu_vmx
+ 	if (!is_bitwise_subset(supported, data, GENMASK_ULL(63, 32)))
+ 		return -EINVAL;
+ 
++	vmx_get_control_msr(&vmx->nested.msrs, msr_index, &lowp, &highp);
+ 	*lowp = data;
+ 	*highp = data >> 32;
+ 	return 0;
+@@ -1137,10 +1144,8 @@ static int vmx_restore_vmx_misc(struct v
+ 		BIT_ULL(28) | BIT_ULL(29) | BIT_ULL(30) |
+ 		/* reserved */
+ 		GENMASK_ULL(13, 9) | BIT_ULL(31);
+-	u64 vmx_misc;
+-
+-	vmx_misc = vmx_control_msr(vmx->nested.msrs.misc_low,
+-				   vmx->nested.msrs.misc_high);
++	u64 vmx_misc = vmx_control_msr(vmcs_config.nested.misc_low,
++				       vmcs_config.nested.misc_high);
+ 
+ 	if (!is_bitwise_subset(vmx_misc, data, feature_and_reserved_bits))
+ 		return -EINVAL;
+@@ -1168,10 +1173,8 @@ static int vmx_restore_vmx_misc(struct v
+ 
+ static int vmx_restore_vmx_ept_vpid_cap(struct vcpu_vmx *vmx, u64 data)
+ {
+-	u64 vmx_ept_vpid_cap;
+-
+-	vmx_ept_vpid_cap = vmx_control_msr(vmx->nested.msrs.ept_caps,
+-					   vmx->nested.msrs.vpid_caps);
++	u64 vmx_ept_vpid_cap = vmx_control_msr(vmcs_config.nested.ept_caps,
++					       vmcs_config.nested.vpid_caps);
+ 
+ 	/* Every bit is either reserved or a feature bit. */
+ 	if (!is_bitwise_subset(vmx_ept_vpid_cap, data, -1ULL))
+@@ -1182,20 +1185,21 @@ static int vmx_restore_vmx_ept_vpid_cap(
+ 	return 0;
+ }
+ 
+-static int vmx_restore_fixed0_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
++static u64 *vmx_get_fixed0_msr(struct nested_vmx_msrs *msrs, u32 msr_index)
+ {
+-	u64 *msr;
+-
+ 	switch (msr_index) {
+ 	case MSR_IA32_VMX_CR0_FIXED0:
+-		msr = &vmx->nested.msrs.cr0_fixed0;
+-		break;
++		return &msrs->cr0_fixed0;
+ 	case MSR_IA32_VMX_CR4_FIXED0:
+-		msr = &vmx->nested.msrs.cr4_fixed0;
+-		break;
++		return &msrs->cr4_fixed0;
+ 	default:
+ 		BUG();
+ 	}
++}
++
++static int vmx_restore_fixed0_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
++{
++	const u64 *msr = vmx_get_fixed0_msr(&vmcs_config.nested, msr_index);
+ 
+ 	/*
+ 	 * 1 bits (which indicates bits which "must-be-1" during VMX operation)
+@@ -1204,7 +1208,7 @@ static int vmx_restore_fixed0_msr(struct
+ 	if (!is_bitwise_subset(data, *msr, -1ULL))
+ 		return -EINVAL;
+ 
+-	*msr = data;
++	*vmx_get_fixed0_msr(&vmx->nested.msrs, msr_index) = data;
+ 	return 0;
+ }
+ 
+@@ -1265,7 +1269,7 @@ int vmx_set_vmx_msr(struct kvm_vcpu *vcp
+ 		vmx->nested.msrs.vmcs_enum = data;
+ 		return 0;
+ 	case MSR_IA32_VMX_VMFUNC:
+-		if (data & ~vmx->nested.msrs.vmfunc_controls)
++		if (data & ~vmcs_config.nested.vmfunc_controls)
+ 			return -EINVAL;
+ 		vmx->nested.msrs.vmfunc_controls = data;
+ 		return 0;
 
 
