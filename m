@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E4459DB6C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48CCD59DC67
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354306AbiHWKYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44164 "EHLO
+        id S1354075AbiHWKYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355127AbiHWKW5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:22:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2EAC83052;
-        Tue, 23 Aug 2022 02:04:09 -0700 (PDT)
+        with ESMTP id S1355160AbiHWKXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FF0189929;
+        Tue, 23 Aug 2022 02:04:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D816D6157B;
-        Tue, 23 Aug 2022 09:04:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB28C433C1;
-        Tue, 23 Aug 2022 09:04:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1243B81C65;
+        Tue, 23 Aug 2022 09:04:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D96FC433D7;
+        Tue, 23 Aug 2022 09:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245448;
-        bh=xkG7HBVSpzEct9/zDdbjFzkOFGecZni2qgP8RFOi378=;
+        s=korg; t=1661245451;
+        bh=rK2GHts97T+cgSqgvSvFBdvim0m1FZpcglrP9sZr150=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwaFwPK1HLZn9pBxaWcGnwopX5OHqk+4+VenFpK2ZcPO9AfLYHZ8JJk0U929jzFC1
-         NyvtF+KTxQ66H9UFpubVBX8wMWsdCnzoUJ+1l4yBaVgbCUouvSbSoP3XIrGrvMJ1i3
-         1aEOr1PfJUD1/GqXVYEaWDVWv9fwk9sQe+ktEbJU=
+        b=Fti1pRgAjfIqHxiDqBiXin4rW78+Z9bZcmCFYTV3iX3GpyHmZofcLOtH29yRnpH2j
+         Xz6g5qXGOZE/ZRQP2zlDo82jzbp2u3QaxdX51inPu1cude/PlwsTMh40dCFO9NQ/2j
+         M1GE7yFwGWaS1GgUuiMkXdFoD2MUszMyVO1HEQwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 082/287] drm/msm/mdp5: Fix global state lock backoff
-Date:   Tue, 23 Aug 2022 10:24:11 +0200
-Message-Id: <20220823080103.031636281@linuxfoundation.org>
+Subject: [PATCH 4.19 083/287] crypto: hisilicon - Kunpeng916 crypto driver dont sleep when in softirq
+Date:   Tue, 23 Aug 2022 10:24:12 +0200
+Message-Id: <20220823080103.080573227@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
 References: <20220823080100.268827165@linuxfoundation.org>
@@ -54,82 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 92ef86ab513593c6329d04146e61f9a670e72fc5 ]
+[ Upstream commit 68740ab505431f268dc1ee26a54b871e75f0ddaa ]
 
-We need to grab the lock after the early return for !hwpipe case.
-Otherwise, we could have hit contention yet still returned 0.
+When kunpeng916 encryption driver is used to deencrypt and decrypt
+packets during the softirq, it is not allowed to use mutex lock.
 
-Fixes an issue that the new CONFIG_DRM_DEBUG_MODESET_LOCK stuff flagged
-in CI:
-
-   WARNING: CPU: 0 PID: 282 at drivers/gpu/drm/drm_modeset_lock.c:296 drm_modeset_lock+0xf8/0x154
-   Modules linked in:
-   CPU: 0 PID: 282 Comm: kms_cursor_lega Tainted: G        W         5.19.0-rc2-15930-g875cc8bc536a #1
-   Hardware name: Qualcomm Technologies, Inc. DB820c (DT)
-   pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-   pc : drm_modeset_lock+0xf8/0x154
-   lr : drm_atomic_get_private_obj_state+0x84/0x170
-   sp : ffff80000cfab6a0
-   x29: ffff80000cfab6a0 x28: 0000000000000000 x27: ffff000083bc4d00
-   x26: 0000000000000038 x25: 0000000000000000 x24: ffff80000957ca58
-   x23: 0000000000000000 x22: ffff000081ace080 x21: 0000000000000001
-   x20: ffff000081acec18 x19: ffff80000cfabb80 x18: 0000000000000038
-   x17: 0000000000000000 x16: 0000000000000000 x15: fffffffffffea0d0
-   x14: 0000000000000000 x13: 284e4f5f4e524157 x12: 5f534b434f4c5f47
-   x11: ffff80000a386aa8 x10: 0000000000000029 x9 : ffff80000cfab610
-   x8 : 0000000000000029 x7 : 0000000000000014 x6 : 0000000000000000
-   x5 : 0000000000000001 x4 : ffff8000081ad904 x3 : 0000000000000029
-   x2 : ffff0000801db4c0 x1 : ffff80000cfabb80 x0 : ffff000081aceb58
-   Call trace:
-    drm_modeset_lock+0xf8/0x154
-    drm_atomic_get_private_obj_state+0x84/0x170
-    mdp5_get_global_state+0x54/0x6c
-    mdp5_pipe_release+0x2c/0xd4
-    mdp5_plane_atomic_check+0x2ec/0x414
-    drm_atomic_helper_check_planes+0xd8/0x210
-    drm_atomic_helper_check+0x54/0xb0
-    ...
-   ---[ end trace 0000000000000000 ]---
-   drm_modeset_lock attempting to lock a contended lock without backoff:
-      drm_modeset_lock+0x148/0x154
-      mdp5_get_global_state+0x30/0x6c
-      mdp5_pipe_release+0x2c/0xd4
-      mdp5_plane_atomic_check+0x290/0x414
-      drm_atomic_helper_check_planes+0xd8/0x210
-      drm_atomic_helper_check+0x54/0xb0
-      drm_atomic_check_only+0x4b0/0x8f4
-      drm_atomic_commit+0x68/0xe0
-
-Fixes: d59be579fa93 ("drm/msm/mdp5: Return error code in mdp5_pipe_release when deadlock is detected")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/492701/
-Link: https://lore.kernel.org/r/20220707162040.1594855-1-robdclark@gmail.com
+Fixes: 915e4e8413da ("crypto: hisilicon - SEC security accelerator driver")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/crypto/hisilicon/sec/sec_algs.c | 14 +++++++-------
+ drivers/crypto/hisilicon/sec/sec_drv.h  |  2 +-
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
-index 88de12225582..69fe09b41087 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
-@@ -134,12 +134,13 @@ int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
- {
- 	struct msm_drm_private *priv = s->dev->dev_private;
- 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
--	struct mdp5_global_state *state = mdp5_get_global_state(s);
-+	struct mdp5_global_state *state;
- 	struct mdp5_hw_pipe_state *new_state;
+diff --git a/drivers/crypto/hisilicon/sec/sec_algs.c b/drivers/crypto/hisilicon/sec/sec_algs.c
+index 3e3cc28d5cfe..f672dc1ecfac 100644
+--- a/drivers/crypto/hisilicon/sec/sec_algs.c
++++ b/drivers/crypto/hisilicon/sec/sec_algs.c
+@@ -457,7 +457,7 @@ static void sec_skcipher_alg_callback(struct sec_bd_info *sec_resp,
+ 		 */
+ 	}
  
- 	if (!hwpipe)
- 		return 0;
+-	mutex_lock(&ctx->queue->queuelock);
++	spin_lock_bh(&ctx->queue->queuelock);
+ 	/* Put the IV in place for chained cases */
+ 	switch (ctx->cipher_alg) {
+ 	case SEC_C_AES_CBC_128:
+@@ -517,7 +517,7 @@ static void sec_skcipher_alg_callback(struct sec_bd_info *sec_resp,
+ 			list_del(&backlog_req->backlog_head);
+ 		}
+ 	}
+-	mutex_unlock(&ctx->queue->queuelock);
++	spin_unlock_bh(&ctx->queue->queuelock);
  
-+	state = mdp5_get_global_state(s);
- 	if (IS_ERR(state))
- 		return PTR_ERR(state);
+ 	mutex_lock(&sec_req->lock);
+ 	list_del(&sec_req_el->head);
+@@ -806,7 +806,7 @@ static int sec_alg_skcipher_crypto(struct skcipher_request *skreq,
+ 	 */
+ 
+ 	/* Grab a big lock for a long time to avoid concurrency issues */
+-	mutex_lock(&queue->queuelock);
++	spin_lock_bh(&queue->queuelock);
+ 
+ 	/*
+ 	 * Can go on to queue if we have space in either:
+@@ -822,15 +822,15 @@ static int sec_alg_skcipher_crypto(struct skcipher_request *skreq,
+ 		ret = -EBUSY;
+ 		if ((skreq->base.flags & CRYPTO_TFM_REQ_MAY_BACKLOG)) {
+ 			list_add_tail(&sec_req->backlog_head, &ctx->backlog);
+-			mutex_unlock(&queue->queuelock);
++			spin_unlock_bh(&queue->queuelock);
+ 			goto out;
+ 		}
+ 
+-		mutex_unlock(&queue->queuelock);
++		spin_unlock_bh(&queue->queuelock);
+ 		goto err_free_elements;
+ 	}
+ 	ret = sec_send_request(sec_req, queue);
+-	mutex_unlock(&queue->queuelock);
++	spin_unlock_bh(&queue->queuelock);
+ 	if (ret)
+ 		goto err_free_elements;
+ 
+@@ -889,7 +889,7 @@ static int sec_alg_skcipher_init(struct crypto_skcipher *tfm)
+ 	if (IS_ERR(ctx->queue))
+ 		return PTR_ERR(ctx->queue);
+ 
+-	mutex_init(&ctx->queue->queuelock);
++	spin_lock_init(&ctx->queue->queuelock);
+ 	ctx->queue->havesoftqueue = false;
+ 
+ 	return 0;
+diff --git a/drivers/crypto/hisilicon/sec/sec_drv.h b/drivers/crypto/hisilicon/sec/sec_drv.h
+index 2d2f186674ba..ddc5d6bd7574 100644
+--- a/drivers/crypto/hisilicon/sec/sec_drv.h
++++ b/drivers/crypto/hisilicon/sec/sec_drv.h
+@@ -347,7 +347,7 @@ struct sec_queue {
+ 	DECLARE_BITMAP(unprocessed, SEC_QUEUE_LEN);
+ 	DECLARE_KFIFO_PTR(softqueue, typeof(struct sec_request_el *));
+ 	bool havesoftqueue;
+-	struct mutex queuelock;
++	spinlock_t queuelock;
+ 	void *shadow[SEC_QUEUE_LEN];
+ };
  
 -- 
 2.35.1
