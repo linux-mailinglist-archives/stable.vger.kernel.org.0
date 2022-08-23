@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C298659D9AE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8924059DA52
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348442AbiHWJ7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:59:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56420 "EHLO
+        id S1352257AbiHWKHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:07:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242856AbiHWJ5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:57:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 944F0A1D04;
-        Tue, 23 Aug 2022 01:47:54 -0700 (PDT)
+        with ESMTP id S1352761AbiHWKGP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:06:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B6367CB7B;
+        Tue, 23 Aug 2022 01:52:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0640614E9;
-        Tue, 23 Aug 2022 08:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70653C433D6;
-        Tue, 23 Aug 2022 08:47:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B746CB81C1C;
+        Tue, 23 Aug 2022 08:52:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21BC9C433C1;
+        Tue, 23 Aug 2022 08:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244472;
-        bh=CY49xwXKB0Rto104rE1C9k3u/W9bO7VSoKqt0iyrc0Q=;
+        s=korg; t=1661244765;
+        bh=A6bFZv0bjISMgnH2QlTdPywLgKoNC1AA0iEbtLhYWN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oE+o2AH+ofoVRpg8lTA/E6/6C2Vsz/Jb+oT7jRzXHYEBJyuE/SzNdQEBUZXxbt/Zr
-         3kpqUHW2rF6cDLdcu3tkzmo5gDmTYqarM56kM+XpLNEYawP1ajnrKGRxwW5XYz3tlX
-         ptFxnH1HVbYhZHSXNNnarLdYaMhJc8Voir0k7QV4=
+        b=INEAlfR+uYTnwv2padIrWR4nc3p3p3xNUGLCx1F3FG5s77zmWKnRFV/tGOd4xhGVB
+         dJr6j5l11iAivs7sOxVDa1gE+qdwuRzRFtByKGRglgUBo97x11QHZzpZ3BPIPIcyp8
+         qrizKpNyoufdMDkdoGfT3L1QqAzJRgTylnxaBM5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?=E8=B0=AD=E6=A2=93=E7=85=8A?= <tanzixuan.me@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Martin KaFai Lau <kafai@fb.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 142/229] genelf: Use HAVE_LIBCRYPTO_SUPPORT, not the never defined HAVE_LIBCRYPTO
-Date:   Tue, 23 Aug 2022 10:25:03 +0200
-Message-Id: <20220823080058.751627291@linuxfoundation.org>
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.15 145/244] i2c: imx: Make sure to unregister adapter on remove()
+Date:   Tue, 23 Aug 2022 10:25:04 +0200
+Message-Id: <20220823080104.010296633@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,55 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 91cea6be90e436c55cde8770a15e4dac9d3032d0 ]
+commit d98bdd3a5b50446d8e010be5b04ce81c4eabf728 upstream.
 
-When genelf was introduced it tested for HAVE_LIBCRYPTO not
-HAVE_LIBCRYPTO_SUPPORT, which is the define the feature test for openssl
-defines, fix it.
+If for whatever reasons pm_runtime_resume_and_get() fails and .remove() is
+exited early, the i2c adapter stays around and the irq still calls its
+handler, while the driver data and the register mapping go away. So if
+later the i2c adapter is accessed or the irq triggers this results in
+havoc accessing freed memory and unmapped registers.
 
-This also adds disables the deprecation warning, someone has to fix this
-to build with openssl 3.0 before the warning becomes a hard error.
+So unregister the software resources even if resume failed, and only skip
+the hardware access in that case.
 
-Fixes: 9b07e27f88b9cd78 ("perf inject: Add jitdump mmap injection support")
-Reported-by: 谭梓煊 <tanzixuan.me@gmail.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/YulpPqXSOG0Q4J1o@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 588eb93ea49f ("i2c: imx: add runtime pm support to improve the performance")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/genelf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-imx.c |   20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
-index c540d47583e7..ad64ff620c75 100644
---- a/tools/perf/util/genelf.c
-+++ b/tools/perf/util/genelf.c
-@@ -35,7 +35,11 @@
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1487,9 +1487,7 @@ static int i2c_imx_remove(struct platfor
+ 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
+ 	int irq, ret;
  
- #define BUILD_ID_URANDOM /* different uuid for each run */
+-	ret = pm_runtime_resume_and_get(&pdev->dev);
+-	if (ret < 0)
+-		return ret;
++	ret = pm_runtime_get_sync(&pdev->dev);
  
--#ifdef HAVE_LIBCRYPTO
-+// FIXME, remove this and fix the deprecation warnings before its removed and
-+// We'll break for good here...
-+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+ 	/* remove adapter */
+ 	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
+@@ -1498,17 +1496,21 @@ static int i2c_imx_remove(struct platfor
+ 	if (i2c_imx->dma)
+ 		i2c_imx_dma_free(i2c_imx);
+ 
+-	/* setup chip registers to defaults */
+-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
+-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
+-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
+-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
++	if (ret == 0) {
++		/* setup chip registers to defaults */
++		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
++		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
++		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
++		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
++		clk_disable(i2c_imx->clk);
++	}
+ 
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq >= 0)
+ 		free_irq(irq, i2c_imx);
+-	clk_disable_unprepare(i2c_imx->clk);
 +
-+#ifdef HAVE_LIBCRYPTO_SUPPORT
++	clk_unprepare(i2c_imx->clk);
  
- #define BUILD_ID_MD5
- #undef BUILD_ID_SHA	/* does not seem to work well when linked with Java */
--- 
-2.35.1
-
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
 
 
