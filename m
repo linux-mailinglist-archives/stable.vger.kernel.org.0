@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C329159D7EF
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D03259D790
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350891AbiHWJe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:34:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41454 "EHLO
+        id S241763AbiHWJrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:47:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350897AbiHWJeJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:34:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3458C94EDA;
-        Tue, 23 Aug 2022 01:39:10 -0700 (PDT)
+        with ESMTP id S1352412AbiHWJqY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E43112ABA;
+        Tue, 23 Aug 2022 01:43:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9FF761446;
-        Tue, 23 Aug 2022 08:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCE26C433D6;
-        Tue, 23 Aug 2022 08:39:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8892B81C5A;
+        Tue, 23 Aug 2022 08:42:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 387CFC433D6;
+        Tue, 23 Aug 2022 08:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243949;
-        bh=4X2N5YLZivTElO/vwNdZbZrGvbTCeJ9ZbtX65VpGyDY=;
+        s=korg; t=1661244146;
+        bh=tCIZSBHSTdC7kRiDBIByJknVqxiKMBmDybpMDbx77pM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LTzHoro25J7UgTLDN4iWveIY2YJ7ov34+cykJJG/QighiwlIIuNjgrChLaBEilajh
-         kCFAmYCwq5GeeUq4BwjcOCnknppylWSybJ/1B3trgRGHoVe0A9zTEChnWeMw8FQIQW
-         waIhpyXMmndIi1IYIyAhFdUsTmJzmoA1Eazb1vhk=
+        b=UGk9kucJUIBYz5lndRokMFoPMHAGqlPSq9WsaOIrKUtl9bHWlBMJVbyIM5Wk1Xfec
+         iz0WseAWJs3EJm2N592adXQNPR2TPwm1rl+bWa5AANwMtgZFcovGSdODahMotTESNU
+         ojIEZZwV0cxeZCNNTjFdMiLtuIDzn4mJgE4Nbtz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 4.14 036/229] MIPS: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-Date:   Tue, 23 Aug 2022 10:23:17 +0200
-Message-Id: <20220823080054.849049647@linuxfoundation.org>
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.15 043/244] bpf: Dont reinit map value in prealloc_lru_pop
+Date:   Tue, 23 Aug 2022 10:23:22 +0200
+Message-Id: <20220823080100.501638085@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit e1a534f5d074db45ae5cbac41d8912b98e96a006 upstream.
+commit 275c30bcee66a27d1aa97a215d607ad6d49804cb upstream.
 
-When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
-cpu_max_bits_warn() generates a runtime warning similar as below while
-we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
-instead of NR_CPUS to iterate CPUs.
+The LRU map that is preallocated may have its elements reused while
+another program holds a pointer to it from bpf_map_lookup_elem. Hence,
+only check_and_free_fields is appropriate when the element is being
+deleted, as it ensures proper synchronization against concurrent access
+of the map value. After that, we cannot call check_and_init_map_value
+again as it may rewrite bpf_spin_lock, bpf_timer, and kptr fields while
+they can be concurrently accessed from a BPF program.
 
-[    3.052463] ------------[ cut here ]------------
-[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
-[    3.070072] Modules linked in: efivarfs autofs4
-[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-[    3.084034] Hardware name: Loongson Loongson-3A4000-7A1000-1w-V0.1-CRB/Loongson-LS3A4000-7A1000-1w-EVB-V1.21, BIOS Loongson-UDK2018-V2.0.04082-beta7 04/27
-[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
-[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
-[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
-[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
-[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
-[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
-[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
-[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
-[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
-[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
-[    3.195868]         ...
-[    3.199917] Call Trace:
-[    3.203941] [<98000000002086d8>] show_stack+0x38/0x14c
-[    3.210666] [<9800000000cf846c>] dump_stack_lvl+0x60/0x88
-[    3.217625] [<980000000023d268>] __warn+0xd0/0x100
-[    3.223958] [<9800000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
-[    3.231150] [<9800000000210220>] show_cpuinfo+0x5e8/0x5f0
-[    3.238080] [<98000000004f578c>] seq_read_iter+0x354/0x4b4
-[    3.245098] [<98000000004c2e90>] new_sync_read+0x17c/0x1c4
-[    3.252114] [<98000000004c5174>] vfs_read+0x138/0x1d0
-[    3.258694] [<98000000004c55f8>] ksys_read+0x70/0x100
-[    3.265265] [<9800000000cfde9c>] do_syscall+0x7c/0x94
-[    3.271820] [<9800000000202fe4>] handle_syscall+0xc4/0x160
-[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
+This is safe to do as when the map entry is deleted, concurrent access
+is protected against by check_and_free_fields, i.e. an existing timer
+would be freed, and any existing kptr will be released by it. The
+program can create further timers and kptrs after check_and_free_fields,
+but they will eventually be released once the preallocated items are
+freed on map destruction, even if the item is never reused again. Hence,
+the deleted item sitting in the free list can still have resources
+attached to it, and they would never leak.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+With spin_lock, we never touch the field at all on delete or update, as
+we may end up modifying the state of the lock. Since the verifier
+ensures that a bpf_spin_lock call is always paired with bpf_spin_unlock
+call, the program will eventually release the lock so that on reuse the
+new user of the value can take the lock.
+
+Essentially, for the preallocated case, we must assume that the map
+value may always be in use by the program, even when it is sitting in
+the freelist, and handle things accordingly, i.e. use proper
+synchronization inside check_and_free_fields, and never reinitialize the
+special fields when it is reused on update.
+
+Fixes: 68134668c17f ("bpf: Add map side support for bpf timers.")
+Acked-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/r/20220809213033.24147-3-memxor@gmail.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/kernel/proc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/hashtab.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/arch/mips/kernel/proc.c
-+++ b/arch/mips/kernel/proc.c
-@@ -164,7 +164,7 @@ static void *c_start(struct seq_file *m,
- {
- 	unsigned long i = *pos;
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -291,12 +291,8 @@ static struct htab_elem *prealloc_lru_po
+ 	struct htab_elem *l;
  
--	return i < NR_CPUS ? (void *) (i + 1) : NULL;
-+	return i < nr_cpu_ids ? (void *) (i + 1) : NULL;
- }
+ 	if (node) {
+-		u32 key_size = htab->map.key_size;
+-
+ 		l = container_of(node, struct htab_elem, lru_node);
+-		memcpy(l->key, key, key_size);
+-		check_and_init_map_value(&htab->map,
+-					 l->key + round_up(key_size, 8));
++		memcpy(l->key, key, htab->map.key_size);
+ 		return l;
+ 	}
  
- static void *c_next(struct seq_file *m, void *v, loff_t *pos)
 
 
