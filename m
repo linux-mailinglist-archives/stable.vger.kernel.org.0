@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6803659D7D6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC66A59D3A4
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344548AbiHWJRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:17:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51534 "EHLO
+        id S242732AbiHWISg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:18:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347542AbiHWJPc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:15:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 437646DAE1;
-        Tue, 23 Aug 2022 01:32:11 -0700 (PDT)
+        with ESMTP id S243081AbiHWIQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:16:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21540C6D;
+        Tue, 23 Aug 2022 01:11:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79B4CB81C4D;
-        Tue, 23 Aug 2022 08:32:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B204CC433C1;
-        Tue, 23 Aug 2022 08:32:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1F38612DA;
+        Tue, 23 Aug 2022 08:11:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D893C433D6;
+        Tue, 23 Aug 2022 08:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243528;
-        bh=lNsKvYULFuuzdlBwjeh6X66QvKsJxp5dxnGGth5+T8E=;
+        s=korg; t=1661242275;
+        bh=VBY8pSavty0a8/be3ESWT8pu5JPwtob0ZB5UChZI1Fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DhYs0J5YdFDA1qT2WLL/asf73ma/wDOmYHoPNv55wDFj+iBFz1vJVI2E92eQpGidg
-         YhS3D8W1WVSvkRe+ce7qrpBWSlzwc4KTL5XI0ZI176B32kXNbLjxrqedRQgbGSY5hi
-         Bocct2XlUHUyo9gYn3oCEFPlDJvgz+DoKkO17KpY=
+        b=TvrNcQFl8RqnBoekP9GA5ksXnvjzJXIUQhkPIgHRaCXuL88w2r6+e4RIkMfZnHqoo
+         eMbISDkG7BZjwqlPfJ4veHP9x8Z/cEnRaQJkjm2R0KXvLCYw4DgMGLquo/RAY/D0JD
+         0es6HQ+EU7mMYRwWsuoNWmC9COzMbMJDWubAFRY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Frank Rowand <frank.rowand@sony.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 298/365] of: overlay: Move devicetree_corrupt() check up
+        stable@vger.kernel.org, mingi cho <mgcho.minic@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.9 046/101] netfilter: nf_tables: fix null deref due to zeroed list head
 Date:   Tue, 23 Aug 2022 10:03:19 +0200
-Message-Id: <20220823080130.638816561@linuxfoundation.org>
+Message-Id: <20220823080036.308057139@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
-References: <20220823080118.128342613@linuxfoundation.org>
+In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
+References: <20220823080034.579196046@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit e385b0ba6a137f34953e746d70d543660c2de1a0 ]
+commit 580077855a40741cf511766129702d97ff02f4d9 upstream.
 
-There is no point in doing several preparatory steps in
-of_overlay_fdt_apply(), only to see of_overlay_apply() return early
-because of a corrupt device tree.
+In nf_tables_updtable, if nf_tables_table_enable returns an error,
+nft_trans_destroy is called to free the transaction object.
 
-Move the check for a corrupt device tree from of_overlay_apply() to
-of_overlay_fdt_apply(), to check for this as early as possible.
+nft_trans_destroy() calls list_del(), but the transaction was never
+placed on a list -- the list head is all zeroes, this results in
+a null dereference:
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Frank Rowand <frank.rowand@sony.com>
-Tested-by: Frank Rowand <frank.rowand@sony.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/c91ce7112eb5167ea46a43d8a980e76b920010ba.1657893306.git.geert+renesas@glider.be
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BUG: KASAN: null-ptr-deref in nft_trans_destroy+0x26/0x59
+Call Trace:
+ nft_trans_destroy+0x26/0x59
+ nf_tables_newtable+0x4bc/0x9bc
+ [..]
+
+Its sane to assume that nft_trans_destroy() can be called
+on the transaction object returned by nft_trans_alloc(), so
+make sure the list head is initialised.
+
+Fixes: 55dd6f93076b ("netfilter: nf_tables: use new transaction infrastructure to handle table")
+Reported-by: mingi cho <mgcho.minic@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/of/overlay.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ net/netfilter/nf_tables_api.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 4044ddcb02c6..84a8d402009c 100644
---- a/drivers/of/overlay.c
-+++ b/drivers/of/overlay.c
-@@ -903,12 +903,6 @@ static int of_overlay_apply(struct overlay_changeset *ovcs)
- {
- 	int ret = 0, ret_revert, ret_tmp;
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -119,6 +119,7 @@ static struct nft_trans *nft_trans_alloc
+ 	if (trans == NULL)
+ 		return NULL;
  
--	if (devicetree_corrupt()) {
--		pr_err("devicetree state suspect, refuse to apply overlay\n");
--		ret = -EBUSY;
--		goto out;
--	}
--
- 	ret = of_resolve_phandles(ovcs->overlay_root);
- 	if (ret)
- 		goto out;
-@@ -983,6 +977,11 @@ int of_overlay_fdt_apply(const void *overlay_fdt, u32 overlay_fdt_size,
++	INIT_LIST_HEAD(&trans->list);
+ 	trans->msg_type = msg_type;
+ 	trans->ctx	= *ctx;
  
- 	*ret_ovcs_id = 0;
- 
-+	if (devicetree_corrupt()) {
-+		pr_err("devicetree state suspect, refuse to apply overlay\n");
-+		return -EBUSY;
-+	}
-+
- 	if (overlay_fdt_size < sizeof(struct fdt_header) ||
- 	    fdt_check_header(overlay_fdt)) {
- 		pr_err("Invalid overlay_fdt header\n");
--- 
-2.35.1
-
 
 
