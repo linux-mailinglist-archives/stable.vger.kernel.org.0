@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BA3A59E1F5
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBBDE59DE6C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355824AbiHWKsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:48:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53490 "EHLO
+        id S1352466AbiHWMG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:06:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355859AbiHWKo7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:44:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F5047B81;
-        Tue, 23 Aug 2022 02:10:53 -0700 (PDT)
+        with ESMTP id S1359515AbiHWMGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:06:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AAB7DF4D8;
+        Tue, 23 Aug 2022 02:37:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45CF5608D5;
-        Tue, 23 Aug 2022 09:10:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D9A7C433D6;
-        Tue, 23 Aug 2022 09:10:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BE236149B;
+        Tue, 23 Aug 2022 09:37:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC2DC433D6;
+        Tue, 23 Aug 2022 09:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245852;
-        bh=qvYNxEp4BkVpp0o3cY2gldmCMqgQYuRgKAATdhdUjZU=;
+        s=korg; t=1661247445;
+        bh=XXnsT8YnvLr5n07bfMayojz6yEaBHQq9iwO02OlXMVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RMqj3/w6douiztT7LCD7bc+yrbQcJ7fXJkMC4uX+1U8evJiSNbHTju0ppgh5QT5hN
-         q0hvGyK8k/7Tlmu3Va7kMOhg/YkxAaryqJOKb+mKxB38svc5C8js7jUg6Kze831fpU
-         aXPfgQ/AphvduuzUPjnew63eVLXMoOgxLkfkT1ts=
+        b=S8cc5pQgl3sotyCE+y5+5XbdmnM4gCkS3UOGqQqM2EoT1OLUZ1ZXpgP1iNGSPFeUM
+         YODD5bV3bLKXMiw16BStTE1/+ZZe35oGpUdSXDtEG2+rO1nkgVPH7TFGv5NfFj87Ks
+         f2k1OlQazbPH/YloT3Gx/EvW30z4j5TKDxM46pHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 170/287] powerpc/pci: Prefer PCI domain assignment via DT linux,pci-domain and alias
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 007/158] mmc: pxamci: Fix an error handling path in pxamci_probe()
 Date:   Tue, 23 Aug 2022 10:25:39 +0200
-Message-Id: <20220823080106.487551248@linuxfoundation.org>
+Message-Id: <20220823080046.359281137@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,84 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 0fe1e96fef0a5c53b4c0d1500d356f3906000f81 ]
+commit 98d7c5e5792b8ce3e1352196dac7f404bb1b46ec upstream.
 
-Other Linux architectures use DT property 'linux,pci-domain' for
-specifying fixed PCI domain of PCI controller specified in Device-Tree.
+The commit in Fixes: has moved some code around without updating gotos to
+the error handling path.
 
-And lot of Freescale powerpc boards have defined numbered pci alias in
-Device-Tree for every PCIe controller which number specify preferred PCI
-domain.
+Update it now and release some resources if pxamci_of_init() fails.
 
-So prefer usage of DT property 'linux,pci-domain' (via function
-of_get_pci_domain_nr()) and DT pci alias (via function
-of_alias_get_id()) on powerpc architecture for assigning PCI domain to
-PCI controller.
-
-Fixes: 63a72284b159 ("powerpc/pci: Assign fixed PHB number based on device-tree properties")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220706102148.5060-2-pali@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fa3a5115469c ("mmc: pxamci: call mmc_of_parse()")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/6d75855ad4e2470e9ed99e0df21bc30f0c925a29.1658862932.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/pci-common.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/mmc/host/pxamci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
-index 74628aca2bf1..b0bd55f2ce3a 100644
---- a/arch/powerpc/kernel/pci-common.c
-+++ b/arch/powerpc/kernel/pci-common.c
-@@ -82,16 +82,30 @@ EXPORT_SYMBOL(get_pci_dma_ops);
- static int get_phb_number(struct device_node *dn)
- {
- 	int ret, phb_id = -1;
--	u32 prop_32;
- 	u64 prop;
+--- a/drivers/mmc/host/pxamci.c
++++ b/drivers/mmc/host/pxamci.c
+@@ -648,7 +648,7 @@ static int pxamci_probe(struct platform_
  
- 	/*
- 	 * Try fixed PHB numbering first, by checking archs and reading
--	 * the respective device-tree properties. Firstly, try powernv by
--	 * reading "ibm,opal-phbid", only present in OPAL environment.
-+	 * the respective device-tree properties. Firstly, try reading
-+	 * standard "linux,pci-domain", then try reading "ibm,opal-phbid"
-+	 * (only present in powernv OPAL environment), then try device-tree
-+	 * alias and as the last try to use lower bits of "reg" property.
- 	 */
--	ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
-+	ret = of_get_pci_domain_nr(dn);
-+	if (ret >= 0) {
-+		prop = ret;
-+		ret = 0;
-+	}
-+	if (ret)
-+		ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
-+	if (ret)
-+		ret = of_alias_get_id(dn, "pci");
-+	if (ret >= 0) {
-+		prop = ret;
-+		ret = 0;
-+	}
- 	if (ret) {
-+		u32 prop_32;
- 		ret = of_property_read_u32_index(dn, "reg", 1, &prop_32);
- 		prop = prop_32;
- 	}
-@@ -103,10 +117,7 @@ static int get_phb_number(struct device_node *dn)
- 	if ((phb_id >= 0) && !test_and_set_bit(phb_id, phb_bitmap))
- 		return phb_id;
+ 	ret = pxamci_of_init(pdev, mmc);
+ 	if (ret)
+-		return ret;
++		goto out;
  
--	/*
--	 * If not pseries nor powernv, or if fixed PHB numbering tried to add
--	 * the same PHB number twice, then fallback to dynamic PHB numbering.
--	 */
-+	/* If everything fails then fallback to dynamic PHB numbering. */
- 	phb_id = find_first_zero_bit(phb_bitmap, MAX_PHBS);
- 	BUG_ON(phb_id >= MAX_PHBS);
- 	set_bit(phb_id, phb_bitmap);
--- 
-2.35.1
-
+ 	host = mmc_priv(mmc);
+ 	host->mmc = mmc;
 
 
