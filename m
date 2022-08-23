@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8332359DC07
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F089659DE3A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355718AbiHWK52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:57:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50694 "EHLO
+        id S1350943AbiHWMRk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:17:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356195AbiHWKxu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:53:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C2DACA1E;
-        Tue, 23 Aug 2022 02:13:11 -0700 (PDT)
+        with ESMTP id S1355217AbiHWMPf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A071CE9923;
+        Tue, 23 Aug 2022 02:41:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B90B260F54;
-        Tue, 23 Aug 2022 09:13:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF011C433D6;
-        Tue, 23 Aug 2022 09:13:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D942B81CA1;
+        Tue, 23 Aug 2022 09:40:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D025EC433D6;
+        Tue, 23 Aug 2022 09:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245988;
-        bh=mk06jj6MbL5QFxtDlRxFQHkJxI/1mx3SV16Q8Vf7LFQ=;
+        s=korg; t=1661247619;
+        bh=3TL4/x38uUL1hvU1MDgjd6By/370uGvYhov0doVhKiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N20rNeMj92gWepP3zltwIWp/d9/80xU0x+9Uz+tkFIUTHlNXC/D539qJqC7HMr64J
-         LmcgTOM5HbCZpxNpZuiZQJsNBq3X1Q+2JqmMjV2gYxWQcVSMUL9LRWIfdkS5ByaSQQ
-         bANNonFBjtgxwnD7dsCab0zu+gXzyKVj50euZLTM=
+        b=kBPaNpOvTBAtqqWNQfVzpfS61ZcVHpeeE2MFysQhoZRUrDYkJiE3Yj1mLsIqb7q4Y
+         mbDwLO0JVMdwiQ+Qkf6g3ypBYW3lk9fd+QrmJ7cTufGIie2Jc48SP66uelhjoR0A6Z
+         H6LNWsJSznRzfLuLuJMu5P/GVhgBR1pArF7Vw4Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Konrad Jankowski <konrad0.jankowski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 254/287] igb: Add lock to avoid data race
-Date:   Tue, 23 Aug 2022 10:27:03 +0200
-Message-Id: <20220823080109.787999007@linuxfoundation.org>
+Subject: [PATCH 5.10 092/158] igb: Add lock to avoid data race
+Date:   Tue, 23 Aug 2022 10:27:04 +0200
+Message-Id: <20220823080049.752737191@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/intel/igb/igb.h
 +++ b/drivers/net/ethernet/intel/igb/igb.h
-@@ -594,6 +594,8 @@ struct igb_adapter {
+@@ -664,6 +664,8 @@ struct igb_adapter {
  	struct igb_mac_addr *mac_table;
  	struct vf_mac_filter vf_macs;
  	struct vf_mac_filter *vf_mac_list;
@@ -114,7 +114,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /* flags controlling PTP/1588 function */
 --- a/drivers/net/ethernet/intel/igb/igb_main.c
 +++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -3517,6 +3517,7 @@ static int igb_disable_sriov(struct pci_
+@@ -3638,6 +3638,7 @@ static int igb_disable_sriov(struct pci_
  	struct net_device *netdev = pci_get_drvdata(pdev);
  	struct igb_adapter *adapter = netdev_priv(netdev);
  	struct e1000_hw *hw = &adapter->hw;
@@ -122,7 +122,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	/* reclaim resources allocated to VFs */
  	if (adapter->vf_data) {
-@@ -3529,12 +3530,13 @@ static int igb_disable_sriov(struct pci_
+@@ -3650,12 +3651,13 @@ static int igb_disable_sriov(struct pci_
  			pci_disable_sriov(pdev);
  			msleep(500);
  		}
@@ -137,7 +137,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		wr32(E1000_IOVCTL, E1000_IOVCTL_REUSE_VFQ);
  		wrfl();
  		msleep(100);
-@@ -3694,7 +3696,9 @@ static void igb_remove(struct pci_dev *p
+@@ -3815,7 +3817,9 @@ static void igb_remove(struct pci_dev *p
  	igb_release_hw_control(adapter);
  
  #ifdef CONFIG_PCI_IOV
@@ -147,7 +147,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif
  
  	unregister_netdev(netdev);
-@@ -3855,6 +3859,9 @@ static int igb_sw_init(struct igb_adapte
+@@ -3975,6 +3979,9 @@ static int igb_sw_init(struct igb_adapte
  
  	spin_lock_init(&adapter->nfc_lock);
  	spin_lock_init(&adapter->stats64_lock);
@@ -157,7 +157,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #ifdef CONFIG_PCI_IOV
  	switch (hw->mac.type) {
  	case e1000_82576:
-@@ -7601,8 +7608,10 @@ unlock:
+@@ -7852,8 +7859,10 @@ unlock:
  static void igb_msg_task(struct igb_adapter *adapter)
  {
  	struct e1000_hw *hw = &adapter->hw;
@@ -168,7 +168,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	for (vf = 0; vf < adapter->vfs_allocated_count; vf++) {
  		/* process any reset requests */
  		if (!igb_check_for_rst(hw, vf))
-@@ -7616,6 +7625,7 @@ static void igb_msg_task(struct igb_adap
+@@ -7867,6 +7876,7 @@ static void igb_msg_task(struct igb_adap
  		if (!igb_check_for_ack(hw, vf))
  			igb_rcv_ack_from_vf(adapter, vf);
  	}
