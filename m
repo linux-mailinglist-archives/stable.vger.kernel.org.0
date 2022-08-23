@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 992E159DFF0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 486F159E351
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356273AbiHWLCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:02:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37056 "EHLO
+        id S1354881AbiHWMS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:18:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357346AbiHWLCI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:02:08 -0400
+        with ESMTP id S1376294AbiHWMQq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03441AF49B;
-        Tue, 23 Aug 2022 02:14:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D58C5EC4D5;
+        Tue, 23 Aug 2022 02:41:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA71C60F85;
-        Tue, 23 Aug 2022 09:14:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE943C433C1;
-        Tue, 23 Aug 2022 09:14:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C92F8612D6;
+        Tue, 23 Aug 2022 09:41:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF45C433D6;
+        Tue, 23 Aug 2022 09:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246088;
-        bh=IAjqu88HBmrdhnXFGvH85PF6S4vUjcTeTg1KNkSXmXU=;
+        s=korg; t=1661247714;
+        bh=c/6VzAsYv+gnK5VyepI2p2EwSqHQf9tsNnTDEQudJ4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlkTSMDZc1pBzvC+HviUGr1TeoDiGQS2NbYfJU9/ucIEGRr0hWPi149lpw9VpjmoJ
-         itD/XRGmyAnluN8eRI2tMyXFdCu4Jdu5xk5ma2DlfalvyUlKIpQNBcOn/7N1enZMWO
-         HK0Y/+/AAqmUMkEmL93KjAfr1H03sY3i9yyXJebI=
+        b=JkOuWfdF/lSpuDUsX+TsSRdn0549eoH0XRgwD9HDTjooRoSxKx18cAKFwZu2vbZxP
+         euCd1wNVSDk01fDvnRKsMHaoWwkn8a/P+G+ZpcimjCua0h56G6XfepT9KusbYbFL/g
+         1ycgisT7EHfsuNb1yE8a+y2OCGGsHQau+uO3fcI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Qu Wenruo <wqu@suse.com>
-Subject: [PATCH 4.19 286/287] btrfs: only write the sectors in the vertical stripe which has data stripes
+        stable@vger.kernel.org, Bob Pearson <rpearsonhpe@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 123/158] RDMA/rxe: Limit the number of calls to each tasklet
 Date:   Tue, 23 Aug 2022 10:27:35 +0200
-Message-Id: <20220823080111.167623816@linuxfoundation.org>
+Message-Id: <20220823080050.870680726@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,163 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-commit bd8f7e627703ca5707833d623efcd43f104c7b3f upstream.
+[ Upstream commit eff6d998ca297cb0b2e53b032a56cf8e04dd8b17 ]
 
-If we have only 8K partial write at the beginning of a full RAID56
-stripe, we will write the following contents:
+Limit the maximum number of calls to each tasklet from rxe_do_task()
+before yielding the cpu. When the limit is reached reschedule the tasklet
+and exit the calling loop. This patch prevents one tasklet from consuming
+100% of a cpu core and causing a deadlock or soft lockup.
 
-                    0  8K           32K             64K
-Disk 1	(data):     |XX|            |               |
-Disk 2  (data):     |               |               |
-Disk 3  (parity):   |XXXXXXXXXXXXXXX|XXXXXXXXXXXXXXX|
-
-|X| means the sector will be written back to disk.
-
-Note that, although we won't write any sectors from disk 2, but we will
-write the full 64KiB of parity to disk.
-
-This behavior is fine for now, but not for the future (especially for
-RAID56J, as we waste quite some space to journal the unused parity
-stripes).
-
-So here we will also utilize the btrfs_raid_bio::dbitmap, anytime we
-queue a higher level bio into an rbio, we will update rbio::dbitmap to
-indicate which vertical stripes we need to writeback.
-
-And at finish_rmw(), we also check dbitmap to see if we need to write
-any sector in the vertical stripe.
-
-So after the patch, above example will only lead to the following
-writeback pattern:
-
-                    0  8K           32K             64K
-Disk 1	(data):     |XX|            |               |
-Disk 2  (data):     |               |               |
-Disk 3  (parity):   |XX|            |               |
-
-Acked-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220630190425.2251-9-rpearsonhpe@gmail.com
+Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/raid56.c |   55 ++++++++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 51 insertions(+), 4 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_param.h |  6 ++++++
+ drivers/infiniband/sw/rxe/rxe_task.c  | 16 ++++++++++++----
+ 2 files changed, 18 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -318,6 +318,9 @@ static void merge_rbio(struct btrfs_raid
- {
- 	bio_list_merge(&dest->bio_list, &victim->bio_list);
- 	dest->bio_list_bytes += victim->bio_list_bytes;
-+	/* Also inherit the bitmaps from @victim. */
-+	bitmap_or(dest->dbitmap, victim->dbitmap, dest->dbitmap,
-+		  dest->stripe_npages);
- 	dest->generic_bio_cnt += victim->generic_bio_cnt;
- 	bio_list_init(&victim->bio_list);
- }
-@@ -862,6 +865,12 @@ static void rbio_orig_end_io(struct btrf
+diff --git a/drivers/infiniband/sw/rxe/rxe_param.h b/drivers/infiniband/sw/rxe/rxe_param.h
+index f9fb56ec6dfd..dca86422b0a2 100644
+--- a/drivers/infiniband/sw/rxe/rxe_param.h
++++ b/drivers/infiniband/sw/rxe/rxe_param.h
+@@ -98,6 +98,12 @@ enum rxe_device_param {
+ 	RXE_INFLIGHT_SKBS_PER_QP_HIGH	= 64,
+ 	RXE_INFLIGHT_SKBS_PER_QP_LOW	= 16,
  
- 	if (rbio->generic_bio_cnt)
- 		btrfs_bio_counter_sub(rbio->fs_info, rbio->generic_bio_cnt);
-+	/*
-+	 * Clear the data bitmap, as the rbio may be cached for later usage.
-+	 * do this before before unlock_stripe() so there will be no new bio
-+	 * for this bio.
++	/* Max number of interations of each tasklet
++	 * before yielding the cpu to let other
++	 * work make progress
 +	 */
-+	bitmap_clear(rbio->dbitmap, 0, rbio->stripe_npages);
++	RXE_MAX_ITERATIONS		= 1024,
++
+ 	/* Delay before calling arbiter timer */
+ 	RXE_NSEC_ARB_TIMER_DELAY	= 200,
  
- 	/*
- 	 * At this moment, rbio->bio_list is empty, however since rbio does not
-@@ -1196,6 +1205,9 @@ static noinline void finish_rmw(struct b
- 	else
- 		BUG();
+diff --git a/drivers/infiniband/sw/rxe/rxe_task.c b/drivers/infiniband/sw/rxe/rxe_task.c
+index 6951fdcb31bf..568cf56c236b 100644
+--- a/drivers/infiniband/sw/rxe/rxe_task.c
++++ b/drivers/infiniband/sw/rxe/rxe_task.c
+@@ -8,7 +8,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/hardirq.h>
  
-+	/* We should have at least one data sector. */
-+	ASSERT(bitmap_weight(rbio->dbitmap, rbio->stripe_npages));
-+
- 	/* at this point we either have a full stripe,
- 	 * or we've read the full stripe from the drive.
- 	 * recalculate the parity and write the new results.
-@@ -1269,6 +1281,11 @@ static noinline void finish_rmw(struct b
- 	for (stripe = 0; stripe < rbio->real_stripes; stripe++) {
- 		for (pagenr = 0; pagenr < rbio->stripe_npages; pagenr++) {
- 			struct page *page;
-+
-+			/* This vertical stripe has no data, skip it. */
-+			if (!test_bit(pagenr, rbio->dbitmap))
-+				continue;
-+
- 			if (stripe < rbio->nr_data) {
- 				page = page_in_rbio(rbio, stripe, pagenr, 1);
- 				if (!page)
-@@ -1293,6 +1310,11 @@ static noinline void finish_rmw(struct b
+-#include "rxe_task.h"
++#include "rxe.h"
  
- 		for (pagenr = 0; pagenr < rbio->stripe_npages; pagenr++) {
- 			struct page *page;
-+
-+			/* This vertical stripe has no data, skip it. */
-+			if (!test_bit(pagenr, rbio->dbitmap))
-+				continue;
-+
- 			if (stripe < rbio->nr_data) {
- 				page = page_in_rbio(rbio, stripe, pagenr, 1);
- 				if (!page)
-@@ -1733,6 +1755,33 @@ static void btrfs_raid_unplug(struct blk
- 	run_plug(plug);
- }
+ int __rxe_do_task(struct rxe_task *task)
  
-+/* Add the original bio into rbio->bio_list, and update rbio::dbitmap. */
-+static void rbio_add_bio(struct btrfs_raid_bio *rbio, struct bio *orig_bio)
-+{
-+	const struct btrfs_fs_info *fs_info = rbio->fs_info;
-+	const u64 orig_logical = orig_bio->bi_iter.bi_sector << SECTOR_SHIFT;
-+	const u64 full_stripe_start = rbio->bbio->raid_map[0];
-+	const u32 orig_len = orig_bio->bi_iter.bi_size;
-+	const u32 sectorsize = fs_info->sectorsize;
-+	u64 cur_logical;
-+
-+	ASSERT(orig_logical >= full_stripe_start &&
-+	       orig_logical + orig_len <= full_stripe_start +
-+	       rbio->nr_data * rbio->stripe_len);
-+
-+	bio_list_add(&rbio->bio_list, orig_bio);
-+	rbio->bio_list_bytes += orig_bio->bi_iter.bi_size;
-+
-+	/* Update the dbitmap. */
-+	for (cur_logical = orig_logical; cur_logical < orig_logical + orig_len;
-+	     cur_logical += sectorsize) {
-+		int bit = ((u32)(cur_logical - full_stripe_start) >>
-+			   PAGE_SHIFT) % rbio->stripe_npages;
-+
-+		set_bit(bit, rbio->dbitmap);
-+	}
-+}
-+
- /*
-  * our main entry point for writes from the rest of the FS.
-  */
-@@ -1749,9 +1798,8 @@ int raid56_parity_write(struct btrfs_fs_
- 		btrfs_put_bbio(bbio);
- 		return PTR_ERR(rbio);
- 	}
--	bio_list_add(&rbio->bio_list, bio);
--	rbio->bio_list_bytes = bio->bi_iter.bi_size;
- 	rbio->operation = BTRFS_RBIO_WRITE;
-+	rbio_add_bio(rbio, bio);
+@@ -34,6 +34,7 @@ void rxe_do_task(struct tasklet_struct *t)
+ 	int ret;
+ 	unsigned long flags;
+ 	struct rxe_task *task = from_tasklet(task, t, tasklet);
++	unsigned int iterations = RXE_MAX_ITERATIONS;
  
- 	btrfs_bio_counter_inc_noblocked(fs_info);
- 	rbio->generic_bio_cnt = 1;
-@@ -2155,8 +2203,7 @@ int raid56_parity_recover(struct btrfs_f
- 	}
+ 	spin_lock_irqsave(&task->state_lock, flags);
+ 	switch (task->state) {
+@@ -62,13 +63,20 @@ void rxe_do_task(struct tasklet_struct *t)
+ 		spin_lock_irqsave(&task->state_lock, flags);
+ 		switch (task->state) {
+ 		case TASK_STATE_BUSY:
+-			if (ret)
++			if (ret) {
+ 				task->state = TASK_STATE_START;
+-			else
++			} else if (iterations--) {
+ 				cont = 1;
++			} else {
++				/* reschedule the tasklet and exit
++				 * the loop to give up the cpu
++				 */
++				tasklet_schedule(&task->tasklet);
++				task->state = TASK_STATE_START;
++			}
+ 			break;
  
- 	rbio->operation = BTRFS_RBIO_READ_REBUILD;
--	bio_list_add(&rbio->bio_list, bio);
--	rbio->bio_list_bytes = bio->bi_iter.bi_size;
-+	rbio_add_bio(rbio, bio);
- 
- 	rbio->faila = find_logical_bio_stripe(rbio, bio);
- 	if (rbio->faila == -1) {
+-		/* soneone tried to run the task since the last time we called
++		/* someone tried to run the task since the last time we called
+ 		 * func, so we will call one more time regardless of the
+ 		 * return value
+ 		 */
+-- 
+2.35.1
+
 
 
