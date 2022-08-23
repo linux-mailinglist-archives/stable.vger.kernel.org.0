@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2730959DD8C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6419F59DE0E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353609AbiHWK0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:26:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43876 "EHLO
+        id S242567AbiHWL2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:28:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355341AbiHWKXg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94930A3D62;
-        Tue, 23 Aug 2022 02:04:35 -0700 (PDT)
+        with ESMTP id S1357957AbiHWL1A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:27:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845DEC12F3;
+        Tue, 23 Aug 2022 02:24:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B066B81C53;
-        Tue, 23 Aug 2022 09:04:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C957C433D6;
-        Tue, 23 Aug 2022 09:04:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EA88B81C65;
+        Tue, 23 Aug 2022 09:24:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94ACFC433D6;
+        Tue, 23 Aug 2022 09:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245473;
-        bh=/bz97d8eC9tLEAccbjF2RV+Ifl5jlUarddDXwnlxLb8=;
+        s=korg; t=1661246667;
+        bh=o4+svEQh+kCeH8x0IK+/Otv0tVlul1T6L2BE/rXdnyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UzC7Kj6ifG0PSulkkKDMnf3QYLKlzQz+czHLBfXI/ki24ojYNNH8PHUgFe6YZJIfL
-         lWuTCca+xsiZAAsBwmAkxL8Z0OVBVCihgPW+mv4UE/U+i+4CJ1onCWGRHwnecrjy5X
-         kR8yTIzgtS911ADfNdpO5unHcaGpPEeuhBnf/C3Y=
+        b=s/YmkLfcXdcS8Y/fuxCaJF/czSTegz5W08AAD3DM3UWUb6AdhqVLrtGrm2TIgtE5p
+         c69hohclig0drzRWxBRBlcLMsbiFXglMsNKACk+iE2cSVgnRpu+VgB8faUF/MAvfck
+         6O5TFHnQbp6iwwI3l6F/Tb8HBwbypztP/sRMylfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        John Stultz <jstultz@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Karl Olsen <karl@micro-technic.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 089/287] selftests: timers: clocksource-switch: fix passing errors from child
-Date:   Tue, 23 Aug 2022 10:24:18 +0200
-Message-Id: <20220823080103.295693302@linuxfoundation.org>
+Subject: [PATCH 5.4 181/389] mmc: sdhci-of-at91: fix set_uhs_signaling rewriting of MC1R
+Date:   Tue, 23 Aug 2022 10:24:19 +0200
+Message-Id: <20220823080123.197119384@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 4d8f52ac5fa9eede7b7aa2f2d67c841d9eeb655f ]
+[ Upstream commit 5987e6ded29d52e42fc7b06aa575c60a25eee38e ]
 
-The return value from system() is a waitpid-style integer. Do not return
-it directly because with the implicit masking in exit() it will always
-return 0. Access it with appropriate macros to really pass on errors.
+In set_uhs_signaling, the DDR bit is being set by fully writing the MC1R
+register.
+This can lead to accidental erase of certain bits in this register.
+Avoid this by doing a read-modify-write operation.
 
-Fixes: 7290ce1423c3 ("selftests/timers: Add clocksource-switch test from timetest suite")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: John Stultz <jstultz@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: d0918764c17b ("mmc: sdhci-of-at91: fix MMC_DDR_52 timing selection")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Tested-by: Karl Olsen <karl@micro-technic.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20220630090926.15061-1-eugen.hristev@microchip.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/timers/clocksource-switch.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/mmc/host/sdhci-of-at91.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/timers/clocksource-switch.c b/tools/testing/selftests/timers/clocksource-switch.c
-index bfc974b4572d..c18313a5f357 100644
---- a/tools/testing/selftests/timers/clocksource-switch.c
-+++ b/tools/testing/selftests/timers/clocksource-switch.c
-@@ -110,10 +110,10 @@ int run_tests(int secs)
- 
- 	sprintf(buf, "./inconsistency-check -t %i", secs);
- 	ret = system(buf);
--	if (ret)
--		return ret;
-+	if (WIFEXITED(ret) && WEXITSTATUS(ret))
-+		return WEXITSTATUS(ret);
- 	ret = system("./nanosleep");
--	return ret;
-+	return WIFEXITED(ret) ? WEXITSTATUS(ret) : 0;
+diff --git a/drivers/mmc/host/sdhci-of-at91.c b/drivers/mmc/host/sdhci-of-at91.c
+index 881f8138e7de..03698d78a402 100644
+--- a/drivers/mmc/host/sdhci-of-at91.c
++++ b/drivers/mmc/host/sdhci-of-at91.c
+@@ -109,8 +109,13 @@ static void sdhci_at91_set_power(struct sdhci_host *host, unsigned char mode,
+ static void sdhci_at91_set_uhs_signaling(struct sdhci_host *host,
+ 					 unsigned int timing)
+ {
+-	if (timing == MMC_TIMING_MMC_DDR52)
+-		sdhci_writeb(host, SDMMC_MC1R_DDR, SDMMC_MC1R);
++	u8 mc1r;
++
++	if (timing == MMC_TIMING_MMC_DDR52) {
++		mc1r = sdhci_readb(host, SDMMC_MC1R);
++		mc1r |= SDMMC_MC1R_DDR;
++		sdhci_writeb(host, mc1r, SDMMC_MC1R);
++	}
+ 	sdhci_set_uhs_signaling(host, timing);
  }
- 
  
 -- 
 2.35.1
