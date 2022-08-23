@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE9D59D94C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8888F59D8EF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241877AbiHWJlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:41:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49708 "EHLO
+        id S1350250AbiHWJbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:31:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243247AbiHWJj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:39:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A46D696F6;
-        Tue, 23 Aug 2022 01:41:03 -0700 (PDT)
+        with ESMTP id S1351019AbiHWJbK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:31:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A37B9351B;
+        Tue, 23 Aug 2022 01:38:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8747BB81C55;
-        Tue, 23 Aug 2022 08:41:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2E71C433C1;
-        Tue, 23 Aug 2022 08:41:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0621061538;
+        Tue, 23 Aug 2022 08:36:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03FCDC43140;
+        Tue, 23 Aug 2022 08:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244062;
-        bh=LP5BzgqKsxL6/kCUIrjEs8eLaEKoR1gKWjg9bD0cpqg=;
+        s=korg; t=1661243816;
+        bh=MSkgAf1zIqW/oIhnY3v5vqHnCfp7wiwThy3eGepHuUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acqsz9Sv2/fHKYqRZEqMRygfgxuvmHz+v75Q47PsSU/vQRbtDvG2LthdbCGH9L3+W
-         qoCuTDLAZJqS3nYIKM7d5qDrc3m2cALgy5gTC1Ve4VcYZi83Bet0YzUVahwURyMZYB
-         fQJJ/0U6U/v/8dnBDeUF2AM3hlGaIU/aTC6vPkRg=
+        b=F6+9y8Np4FzyzxkmC5PO2s4kEeJcSjJrs831dzxQ/LLjObXweHxV+q2ZtqHemvwsB
+         v1WtbaWPNugrZKrlet1guTPmJbKrS5Gmew1cVV8TJNmyN2IfOgDiAx5Rrw/XGJXPt5
+         dHDSpYp76omHIpg+b/eomWry6I49Awl6Zaax+EEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.15 031/244] apparmor: fix aa_label_asxprint return check
-Date:   Tue, 23 Aug 2022 10:23:10 +0200
-Message-Id: <20220823080100.097762623@linuxfoundation.org>
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.14 030/229] fuse: limit nsec
+Date:   Tue, 23 Aug 2022 10:23:11 +0200
+Message-Id: <20220823080054.572703405@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 3e2a3a0830a2090e766d0d887d52c67de2a6f323 upstream.
+commit 47912eaa061a6a81e4aa790591a1874c650733c0 upstream.
 
-Clang static analysis reports this issue
-label.c:1802:3: warning: 2nd function call argument
-  is an uninitialized value
-  pr_info("%s", str);
-  ^~~~~~~~~~~~~~~~~~
+Limit nanoseconds to 0..999999999.
 
-str is set from a successful call to aa_label_asxprint(&str, ...)
-On failure a negative value is returned, not a -1.  So change
-the check.
-
-Fixes: f1bd904175e8 ("apparmor: add the base fns() for domain labels")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fixes: d8a5ba45457e ("[PATCH] FUSE - core")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/apparmor/label.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/fuse/inode.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/security/apparmor/label.c
-+++ b/security/apparmor/label.c
-@@ -1745,7 +1745,7 @@ void aa_label_xaudit(struct audit_buffer
- 	if (!use_label_hname(ns, label, flags) ||
- 	    display_mode(ns, label, flags)) {
- 		len  = aa_label_asxprint(&name, ns, label, flags, gfp);
--		if (len == -1) {
-+		if (len < 0) {
- 			AA_DEBUG("label print error");
- 			return;
- 		}
-@@ -1773,7 +1773,7 @@ void aa_label_seq_xprint(struct seq_file
- 		int len;
- 
- 		len = aa_label_asxprint(&str, ns, label, flags, gfp);
--		if (len == -1) {
-+		if (len < 0) {
- 			AA_DEBUG("label print error");
- 			return;
- 		}
-@@ -1796,7 +1796,7 @@ void aa_label_xprintk(struct aa_ns *ns,
- 		int len;
- 
- 		len = aa_label_asxprint(&str, ns, label, flags, gfp);
--		if (len == -1) {
-+		if (len < 0) {
- 			AA_DEBUG("label print error");
- 			return;
- 		}
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -174,6 +174,12 @@ void fuse_change_attributes_common(struc
+ 	inode->i_uid     = make_kuid(&init_user_ns, attr->uid);
+ 	inode->i_gid     = make_kgid(&init_user_ns, attr->gid);
+ 	inode->i_blocks  = attr->blocks;
++
++	/* Sanitize nsecs */
++	attr->atimensec = min_t(u32, attr->atimensec, NSEC_PER_SEC - 1);
++	attr->mtimensec = min_t(u32, attr->mtimensec, NSEC_PER_SEC - 1);
++	attr->ctimensec = min_t(u32, attr->ctimensec, NSEC_PER_SEC - 1);
++
+ 	inode->i_atime.tv_sec   = attr->atime;
+ 	inode->i_atime.tv_nsec  = attr->atimensec;
+ 	/* mtime from server may be stale due to local buffered write */
 
 
