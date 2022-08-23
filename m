@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC5A59E217
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B2B59DF40
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244063AbiHWK07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:26:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38700 "EHLO
+        id S229874AbiHWL2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:28:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353843AbiHWKX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:23:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0659EA3D4C;
-        Tue, 23 Aug 2022 02:04:44 -0700 (PDT)
+        with ESMTP id S1357884AbiHWL04 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:26:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27AB5C04DF;
+        Tue, 23 Aug 2022 02:24:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67A7C61589;
-        Tue, 23 Aug 2022 09:04:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ADB2C433B5;
-        Tue, 23 Aug 2022 09:04:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FE44B81C96;
+        Tue, 23 Aug 2022 09:24:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B044BC433C1;
+        Tue, 23 Aug 2022 09:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245482;
-        bh=UnsYK3CCZV3d4U2OT6f8xJcmMIqfdF3LWGKXGLp2kE4=;
+        s=korg; t=1661246676;
+        bh=bFP8WNIAi/xpN+RuABosBRmY0Hj9c/EwfxNDVdA0MPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wp+o2TCfC6SgQxji6J+i0tfHIbd5d8qJTOp4F6Myy00aIGq6Pe/Y31bdTugGUTIGu
-         H5GqAYPMXFmij005RuDKd7UmDrmIwZDMa3+c34vn/xWzhvoN3maMEm653HjP1NnX9/
-         K4LlbuysMrMY1oh0wISgmUb10Zb6djlnu9rQHn4k=
+        b=umHRHl0TgrVf3sBGAi6Mz9dJrYgNodZwlE4PoaEwW4x3naG9m/rCd74HheRkj3YUn
+         uUz/0daA8D8vsh2dN5tXSuukeD/qTI0b+13+nQCYqfzLsqqnXFAjT5ELyNHn88jfip
+         LNNJaF4i5rbTlJ6f6ni534nprLpnzd3Ps1Q90ezs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 092/287] wifi: p54: Fix an error handling path in p54spi_probe()
-Date:   Tue, 23 Aug 2022 10:24:21 +0200
-Message-Id: <20220823080103.406277168@linuxfoundation.org>
+        Raviteja Garimella <raviteja.garimella@broadcom.com>,
+        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 184/389] usb: gadget: udc: amd5536 depends on HAS_DMA
+Date:   Tue, 23 Aug 2022 10:24:22 +0200
+Message-Id: <20220823080123.321428081@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 83781f0162d080fec7dcb911afd1bc2f5ad04471 ]
+[ Upstream commit 8097cf2fb3b2205257f1c76f4808e3398d66b6d9 ]
 
-If an error occurs after a successful call to p54spi_request_firmware(), it
-must be undone by a corresponding release_firmware() as already done in
-the error handling path of p54spi_request_firmware() and in the .remove()
-function.
+USB_AMD5536UDC should depend on HAS_DMA since it selects USB_SNP_CORE,
+which depends on HAS_DMA and since 'select' does not follow any
+dependency chains.
 
-Add the missing call in the error handling path and remove it from
-p54spi_request_firmware() now that it is the responsibility of the caller
-to release the firmware
+Fixes this kconfig warning:
 
-Fixes: cd8d3d321285 ("p54spi: p54spi driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/297d2547ff2ee627731662abceeab9dbdaf23231.1655068321.git.christophe.jaillet@wanadoo.fr
+WARNING: unmet direct dependencies detected for USB_SNP_CORE
+  Depends on [n]: USB_SUPPORT [=y] && USB_GADGET [=y] && (USB_AMD5536UDC [=y] || USB_SNP_UDC_PLAT [=n]) && HAS_DMA [=n]
+  Selected by [y]:
+  - USB_AMD5536UDC [=y] && USB_SUPPORT [=y] && USB_GADGET [=y] && USB_PCI [=y]
+
+Fixes: 97b3ffa233b9 ("usb: gadget: udc: amd5536: split core and PCI layer")
+Cc: Raviteja Garimella <raviteja.garimella@broadcom.com>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: linux-usb@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20220709013601.7536-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intersil/p54/p54spi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intersil/p54/p54spi.c b/drivers/net/wireless/intersil/p54/p54spi.c
-index e41bf042352e..3dcfad5b61ff 100644
---- a/drivers/net/wireless/intersil/p54/p54spi.c
-+++ b/drivers/net/wireless/intersil/p54/p54spi.c
-@@ -177,7 +177,7 @@ static int p54spi_request_firmware(struct ieee80211_hw *dev)
+diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
+index f985bb4a42db..ccf2c736d495 100644
+--- a/drivers/usb/gadget/udc/Kconfig
++++ b/drivers/usb/gadget/udc/Kconfig
+@@ -311,7 +311,7 @@ source "drivers/usb/gadget/udc/bdc/Kconfig"
  
- 	ret = p54_parse_firmware(dev, priv->firmware);
- 	if (ret) {
--		release_firmware(priv->firmware);
-+		/* the firmware is released by the caller */
- 		return ret;
- 	}
- 
-@@ -672,6 +672,7 @@ static int p54spi_probe(struct spi_device *spi)
- 	return 0;
- 
- err_free_common:
-+	release_firmware(priv->firmware);
- 	free_irq(gpio_to_irq(p54spi_gpio_irq), spi);
- err_free_gpio_irq:
- 	gpio_free(p54spi_gpio_irq);
+ config USB_AMD5536UDC
+ 	tristate "AMD5536 UDC"
+-	depends on USB_PCI
++	depends on USB_PCI && HAS_DMA
+ 	select USB_SNP_CORE
+ 	help
+ 	   The AMD5536 UDC is part of the AMD Geode CS5536, an x86 southbridge.
 -- 
 2.35.1
 
