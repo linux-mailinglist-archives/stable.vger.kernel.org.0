@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C63E859E281
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01CA059E0CE
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352856AbiHWKJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:09:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60644 "EHLO
+        id S1355719AbiHWKoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:44:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352341AbiHWKH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:07:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77AE3F336;
-        Tue, 23 Aug 2022 01:53:58 -0700 (PDT)
+        with ESMTP id S1356499AbiHWKm0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:42:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078D8AA3D0;
+        Tue, 23 Aug 2022 02:09:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68B0FB81B90;
-        Tue, 23 Aug 2022 08:53:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8993C433C1;
-        Tue, 23 Aug 2022 08:53:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55BD160112;
+        Tue, 23 Aug 2022 09:09:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 426DAC433C1;
+        Tue, 23 Aug 2022 09:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244836;
-        bh=fxlNh0LwhOpWUkF19exROe077tMNe7vdcr/NJnAVD5A=;
+        s=korg; t=1661245793;
+        bh=DnpzbKthLavNueaPHkVIQtqpVn8Kryaf8GGCHKbV0DM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWZWPJr5uIgDPUnfRj/X0FT4ZZ5hWIbSl3JOQRn+cgIltBEesyIQZoxrZX2PMvaFD
-         UfjgsVsZtKnXLAU9FfqoHJ2569sjd42TbsDc9kkIwhLh5VwTn5iqA8Bb5jZBm58QAM
-         xabpB4jbqXVa8nTHlPvnYS1RLJ6h2aLYWqasudt0=
+        b=2SvVshs2oMYms6RiPhbG79zhm5XJDSjgMD4WayqFur+seuybfJUd5Aq3mCme3Zqif
+         N97E/bWa55nTIyI1aFxeTEap01CKXxEw3q8yYLmm3G23PU/iCBLcMj6vZNpt0dNtVA
+         VVRJ3sKi8QMmsSXWGU+JNLGpudkOdA8V/TZakqQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 4.14 199/229] nios2: traced syscall does need to check the syscall number
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Eric Whitney <enwlinux@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 191/287] ext4: fix extent status tree race in writeback error recovery path
 Date:   Tue, 23 Aug 2022 10:26:00 +0200
-Message-Id: <20220823080100.745222101@linuxfoundation.org>
+Message-Id: <20220823080107.251245068@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Eric Whitney <enwlinux@gmail.com>
 
-commit 25ba820ef36bdbaf9884adeac69b6e1821a7df76 upstream.
+commit 7f0d8e1d607c1a4fa9a27362a108921d82230874 upstream.
 
-all checks done before letting the tracer modify the register
-state are worthless...
+A race can occur in the unlikely event ext4 is unable to allocate a
+physical cluster for a delayed allocation in a bigalloc file system
+during writeback.  Failure to allocate a cluster forces error recovery
+that includes a call to mpage_release_unused_pages().  That function
+removes any corresponding delayed allocated blocks from the extent
+status tree.  If a new delayed write is in progress on the same cluster
+simultaneously, resulting in the addition of an new extent containing
+one or more blocks in that cluster to the extent status tree, delayed
+block accounting can be thrown off if that delayed write then encounters
+a similar cluster allocation failure during future writeback.
 
-Fixes: 82ed08dd1b0e ("nios2: Exception handling")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Write lock the i_data_sem in mpage_release_unused_pages() to fix this
+problem.  Ext4's block/cluster accounting code for bigalloc relies on
+i_data_sem for mutual exclusion, as is found in the delayed write path,
+and the locking in mpage_release_unused_pages() is missing.
+
+Cc: stable@kernel.org
+Reported-by: Ye Bin <yebin10@huawei.com>
+Signed-off-by: Eric Whitney <enwlinux@gmail.com>
+Link: https://lore.kernel.org/r/20220615160530.1928801-1-enwlinux@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/kernel/entry.S |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/nios2/kernel/entry.S
-+++ b/arch/nios2/kernel/entry.S
-@@ -255,9 +255,9 @@ traced_system_call:
- 	ldw	r6, PT_R6(sp)
- 	ldw	r7, PT_R7(sp)
- 
--	/* Fetch the syscall function, we don't need to check the boundaries
--	 * since this is already done.
--	 */
-+	/* Fetch the syscall function. */
-+	movui	r1, __NR_syscalls
-+	bgeu	r2, r1, traced_invsyscall
- 	slli	r1, r2, 2
- 	movhi	r11,%hiadj(sys_call_table)
- 	add	r1, r1, r11
-@@ -287,6 +287,11 @@ end_translate_rc_and_ret2:
- 	RESTORE_SWITCH_STACK
- 	br	ret_from_exception
- 
-+	/* If the syscall number was invalid return ENOSYS */
-+traced_invsyscall:
-+	movi	r2, -ENOSYS
-+	br	translate_rc_and_ret2
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1755,7 +1755,14 @@ static void mpage_release_unused_pages(s
+ 		ext4_lblk_t start, last;
+ 		start = index << (PAGE_SHIFT - inode->i_blkbits);
+ 		last = end << (PAGE_SHIFT - inode->i_blkbits);
 +
- Luser_return:
- 	GET_THREAD_INFO	r11			/* get thread_info pointer */
- 	ldw	r10, TI_FLAGS(r11)		/* get thread_info->flags */
++		/*
++		 * avoid racing with extent status tree scans made by
++		 * ext4_insert_delayed_block()
++		 */
++		down_write(&EXT4_I(inode)->i_data_sem);
+ 		ext4_es_remove_extent(inode, start, last - start + 1);
++		up_write(&EXT4_I(inode)->i_data_sem);
+ 	}
+ 
+ 	pagevec_init(&pvec);
 
 
