@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2D7D59DB97
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6AB259DB76
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357878AbiHWLmp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:42:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59904 "EHLO
+        id S1353090AbiHWKNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357979AbiHWLkI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:40:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE01792D2;
-        Tue, 23 Aug 2022 02:28:39 -0700 (PDT)
+        with ESMTP id S1352669AbiHWKJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:09:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8A8C7E01B;
+        Tue, 23 Aug 2022 01:56:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63CC561321;
-        Tue, 23 Aug 2022 09:28:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B291C433C1;
-        Tue, 23 Aug 2022 09:28:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74A18B81C35;
+        Tue, 23 Aug 2022 08:56:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9E9CC433C1;
+        Tue, 23 Aug 2022 08:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246917;
-        bh=P5zsGTLjzAISYbxpTaeLg4BjhrF3FWX6sCFB2Kc6raA=;
+        s=korg; t=1661244960;
+        bh=0SRfYvpbI5vP3rsuSx3MCV1WVj9+zFGLzEe2YE+I6kY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EBF7Di38uiNTZJiQISTGUA85qJZguQOIkBcK4g4KmZ8wfFVhF7oOWcQWk7SFZhx+R
-         ahUnTXhQiHxnoeVTsuvw2VjKxsRVscGDrKDoNO0jSuhdETlSP9OhtifNYSfkzVMlUj
-         +gbQeadLh22NwYyMzqsd8HvovvZzAgvv7038Azgs=
+        b=JVeq8N1zxmROjftGxc1KjbO2MtMsl+nuXReJM/iq0kUaxiL32N/Ipc44mdqPsEO6M
+         gnLIuAUkllofsttzDiVfmZ0d8+7O4TL38eamI1ieQ5OAiCbgEkpzImCiGffuh8hGr3
+         BB6D7kU455CY864at8zSPKxuAiyMUY56SSldXVlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 259/389] ext4: fix use-after-free in ext4_xattr_set_entry
+        stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 178/244] clk: qcom: ipq8074: dont disable gcc_sleep_clk_src
 Date:   Tue, 23 Aug 2022 10:25:37 +0200
-Message-Id: <20220823080126.406961120@linuxfoundation.org>
+Message-Id: <20220823080105.243559340@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,123 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Robert Marko <robimarko@gmail.com>
 
-commit 67d7d8ad99beccd9fe92d585b87f1760dc9018e3 upstream.
+[ Upstream commit 1bf7305e79aab095196131bdc87a97796e0e3fac ]
 
-Hulk Robot reported a issue:
-==================================================================
-BUG: KASAN: use-after-free in ext4_xattr_set_entry+0x18ab/0x3500
-Write of size 4105 at addr ffff8881675ef5f4 by task syz-executor.0/7092
+Once the usb sleep clocks are disabled, clock framework is trying to
+disable the sleep clock source also.
 
-CPU: 1 PID: 7092 Comm: syz-executor.0 Not tainted 4.19.90-dirty #17
-Call Trace:
-[...]
- memcpy+0x34/0x50 mm/kasan/kasan.c:303
- ext4_xattr_set_entry+0x18ab/0x3500 fs/ext4/xattr.c:1747
- ext4_xattr_ibody_inline_set+0x86/0x2a0 fs/ext4/xattr.c:2205
- ext4_xattr_set_handle+0x940/0x1300 fs/ext4/xattr.c:2386
- ext4_xattr_set+0x1da/0x300 fs/ext4/xattr.c:2498
- __vfs_setxattr+0x112/0x170 fs/xattr.c:149
- __vfs_setxattr_noperm+0x11b/0x2a0 fs/xattr.c:180
- __vfs_setxattr_locked+0x17b/0x250 fs/xattr.c:238
- vfs_setxattr+0xed/0x270 fs/xattr.c:255
- setxattr+0x235/0x330 fs/xattr.c:520
- path_setxattr+0x176/0x190 fs/xattr.c:539
- __do_sys_lsetxattr fs/xattr.c:561 [inline]
- __se_sys_lsetxattr fs/xattr.c:557 [inline]
- __x64_sys_lsetxattr+0xc2/0x160 fs/xattr.c:557
- do_syscall_64+0xdf/0x530 arch/x86/entry/common.c:298
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x459fe9
-RSP: 002b:00007fa5e54b4c08 EFLAGS: 00000246 ORIG_RAX: 00000000000000bd
-RAX: ffffffffffffffda RBX: 000000000051bf60 RCX: 0000000000459fe9
-RDX: 00000000200003c0 RSI: 0000000020000180 RDI: 0000000020000140
-RBP: 000000000051bf60 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000000001009 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffc73c93fc0 R14: 000000000051bf60 R15: 00007fa5e54b4d80
-[...]
-==================================================================
+However, it seems that it cannot be disabled and trying to do so produces:
+[  245.436390] ------------[ cut here ]------------
+[  245.441233] gcc_sleep_clk_src status stuck at 'on'
+[  245.441254] WARNING: CPU: 2 PID: 223 at clk_branch_wait+0x130/0x140
+[  245.450435] Modules linked in: xhci_plat_hcd xhci_hcd dwc3 dwc3_qcom leds_gpio
+[  245.456601] CPU: 2 PID: 223 Comm: sh Not tainted 5.18.0-rc4 #215
+[  245.463889] Hardware name: Xiaomi AX9000 (DT)
+[  245.470050] pstate: 204000c5 (nzCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  245.474307] pc : clk_branch_wait+0x130/0x140
+[  245.481073] lr : clk_branch_wait+0x130/0x140
+[  245.485588] sp : ffffffc009f2bad0
+[  245.489838] x29: ffffffc009f2bad0 x28: ffffff8003e6c800 x27: 0000000000000000
+[  245.493057] x26: 0000000000000000 x25: 0000000000000000 x24: ffffff800226ef20
+[  245.500175] x23: ffffffc0089ff550 x22: 0000000000000000 x21: ffffffc008476ad0
+[  245.507294] x20: 0000000000000000 x19: ffffffc00965ac70 x18: fffffffffffc51a7
+[  245.514413] x17: 68702e3030303837 x16: 3a6d726f6674616c x15: ffffffc089f2b777
+[  245.521531] x14: ffffffc0095c9d18 x13: 0000000000000129 x12: 0000000000000129
+[  245.528649] x11: 00000000ffffffea x10: ffffffc009621d18 x9 : 0000000000000001
+[  245.535767] x8 : 0000000000000001 x7 : 0000000000017fe8 x6 : 0000000000000001
+[  245.542885] x5 : ffffff803fdca6d8 x4 : 0000000000000000 x3 : 0000000000000027
+[  245.550002] x2 : 0000000000000027 x1 : 0000000000000023 x0 : 0000000000000026
+[  245.557122] Call trace:
+[  245.564229]  clk_branch_wait+0x130/0x140
+[  245.566490]  clk_branch2_disable+0x2c/0x40
+[  245.570656]  clk_core_disable+0x60/0xb0
+[  245.574561]  clk_core_disable+0x68/0xb0
+[  245.578293]  clk_disable+0x30/0x50
+[  245.582113]  dwc3_qcom_remove+0x60/0xc0 [dwc3_qcom]
+[  245.585588]  platform_remove+0x28/0x60
+[  245.590361]  device_remove+0x4c/0x80
+[  245.594179]  device_release_driver_internal+0x1dc/0x230
+[  245.597914]  device_driver_detach+0x18/0x30
+[  245.602861]  unbind_store+0xec/0x110
+[  245.607027]  drv_attr_store+0x24/0x40
+[  245.610847]  sysfs_kf_write+0x44/0x60
+[  245.614405]  kernfs_fop_write_iter+0x128/0x1c0
+[  245.618052]  new_sync_write+0xc0/0x130
+[  245.622391]  vfs_write+0x1d4/0x2a0
+[  245.626123]  ksys_write+0x58/0xe0
+[  245.629508]  __arm64_sys_write+0x1c/0x30
+[  245.632895]  invoke_syscall.constprop.0+0x5c/0x110
+[  245.636890]  do_el0_svc+0xa0/0x150
+[  245.641488]  el0_svc+0x18/0x60
+[  245.644872]  el0t_64_sync_handler+0xa4/0x130
+[  245.647914]  el0t_64_sync+0x174/0x178
+[  245.652340] ---[ end trace 0000000000000000 ]---
 
-Above issue may happen as follows:
--------------------------------------
-ext4_xattr_set
-  ext4_xattr_set_handle
-    ext4_xattr_ibody_find
-      >> s->end < s->base
-      >> no EXT4_STATE_XATTR
-      >> xattr_check_inode is not executed
-    ext4_xattr_ibody_set
-      ext4_xattr_set_entry
-       >> size_t min_offs = s->end - s->base
-       >> UAF in memcpy
+So, add CLK_IS_CRITICAL flag to the clock so that the kernel won't try
+to disable the sleep clock.
 
-we can easily reproduce this problem with the following commands:
-    mkfs.ext4 -F /dev/sda
-    mount -o debug_want_extra_isize=128 /dev/sda /mnt
-    touch /mnt/file
-    setfattr -n user.cat -v `seq -s z 4096|tr -d '[:digit:]'` /mnt/file
-
-In ext4_xattr_ibody_find, we have the following assignment logic:
-  header = IHDR(inode, raw_inode)
-         = raw_inode + EXT4_GOOD_OLD_INODE_SIZE + i_extra_isize
-  is->s.base = IFIRST(header)
-             = header + sizeof(struct ext4_xattr_ibody_header)
-  is->s.end = raw_inode + s_inode_size
-
-In ext4_xattr_set_entry
-  min_offs = s->end - s->base
-           = s_inode_size - EXT4_GOOD_OLD_INODE_SIZE - i_extra_isize -
-	     sizeof(struct ext4_xattr_ibody_header)
-  last = s->first
-  free = min_offs - ((void *)last - s->base) - sizeof(__u32)
-       = s_inode_size - EXT4_GOOD_OLD_INODE_SIZE - i_extra_isize -
-         sizeof(struct ext4_xattr_ibody_header) - sizeof(__u32)
-
-In the calculation formula, all values except s_inode_size and
-i_extra_size are fixed values. When i_extra_size is the maximum value
-s_inode_size - EXT4_GOOD_OLD_INODE_SIZE, min_offs is -4 and free is -8.
-The value overflows. As a result, the preceding issue is triggered when
-memcpy is executed.
-
-Therefore, when finding xattr or setting xattr, check whether
-there is space for storing xattr in the inode to resolve this issue.
-
-Cc: stable@kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220616021358.2504451-3-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Robert Marko <robimarko@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220515210048.483898-10-robimarko@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/clk/qcom/gcc-ipq8074.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2184,8 +2184,9 @@ int ext4_xattr_ibody_find(struct inode *
- 	struct ext4_inode *raw_inode;
- 	int error;
- 
--	if (EXT4_I(inode)->i_extra_isize == 0)
-+	if (!EXT4_INODE_HAS_XATTR_SPACE(inode))
- 		return 0;
-+
- 	raw_inode = ext4_raw_inode(&is->iloc);
- 	header = IHDR(inode, raw_inode);
- 	is->s.base = is->s.first = IFIRST(header);
-@@ -2213,8 +2214,9 @@ int ext4_xattr_ibody_inline_set(handle_t
- 	struct ext4_xattr_search *s = &is->s;
- 	int error;
- 
--	if (EXT4_I(inode)->i_extra_isize == 0)
-+	if (!EXT4_INODE_HAS_XATTR_SPACE(inode))
- 		return -ENOSPC;
-+
- 	error = ext4_xattr_set_entry(i, s, handle, inode, false /* is_block */);
- 	if (error)
- 		return error;
+diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
+index 2c2ecfc5e61f..d6d5defb82c9 100644
+--- a/drivers/clk/qcom/gcc-ipq8074.c
++++ b/drivers/clk/qcom/gcc-ipq8074.c
+@@ -662,6 +662,7 @@ static struct clk_branch gcc_sleep_clk_src = {
+ 			},
+ 			.num_parents = 1,
+ 			.ops = &clk_branch2_ops,
++			.flags = CLK_IS_CRITICAL,
+ 		},
+ 	},
+ };
+-- 
+2.35.1
+
 
 
