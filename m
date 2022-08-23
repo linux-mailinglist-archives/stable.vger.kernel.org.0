@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2BF59D339
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F341D59D390
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242148AbiHWIMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:12:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32810 "EHLO
+        id S242035AbiHWIMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:12:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241880AbiHWIJs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:09:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E3067C8B;
-        Tue, 23 Aug 2022 01:06:29 -0700 (PDT)
+        with ESMTP id S241889AbiHWIJz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:09:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD7166119;
+        Tue, 23 Aug 2022 01:06:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB710610AA;
-        Tue, 23 Aug 2022 08:06:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEA1CC433C1;
-        Tue, 23 Aug 2022 08:06:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72431B81C18;
+        Tue, 23 Aug 2022 08:06:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3A0C433D6;
+        Tue, 23 Aug 2022 08:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661241988;
-        bh=+BJTvkYDRr0aE4L6o5TNcyJvj52o/Lx/16ryarOswAU=;
+        s=korg; t=1661241994;
+        bh=2R7Y5R9JfnX2Fl+Ax/fCrXRtAjPJytLM6eEWo9LB3W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4KEurRnMiI958y+rMC3CnOz2a4oacVPHKtDmjwrRCbGZWKYHvvCeJzMgru+gbU7v
-         DDrQStLGNw8+XZ1fEuCsiL7defpqElnj813iTj8beOMZDi6lc7bfZKeEuw6atj16Kb
-         QlFLtIzaL5/99+bRTN5pTAA3o4L6uEY5/tLQ5/hI=
+        b=Oh/ueC49IXOisnFeQVk8K1d8GdUtJfXREXp39sOKo29FWXkIUa3ZVMmV9+PRocNVC
+         awIijVVXQkO19EJEFnjrDqFd8kngpC5kRrgtsStl9SZoMjpaaKUUJ951mtJ2AzAWaN
+         AQvubDgqwfmQH/MEfC2MvhL22RcKjtTheZ8B/bbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.19 041/365] apparmor: fix quiet_denied for file rules
-Date:   Tue, 23 Aug 2022 09:59:02 +0200
-Message-Id: <20220823080119.910765071@linuxfoundation.org>
+        stable@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>,
+        John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.19 042/365] apparmor: fix absroot causing audited secids to begin with =
+Date:   Tue, 23 Aug 2022 09:59:03 +0200
+Message-Id: <20220823080119.940480611@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,29 +55,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: John Johansen <john.johansen@canonical.com>
 
-commit 68ff8540cc9e4ab557065b3f635c1ff4c96e1f1c upstream.
+commit 511f7b5b835726e844a5fc7444c18e4b8672edfd upstream.
 
-Global quieting of denied AppArmor generated file events is not
-handled correctly. Unfortunately the is checking if quieting of all
-audit events is set instead of just denied events.
+AppArmor is prefixing secids that are converted to secctx with the =
+to indicate the secctx should only be parsed from an absolute root
+POV. This allows catching errors where secctx are reparsed back into
+internal labels.
 
-Fixes: 67012e8209df ("AppArmor: basic auditing infrastructure.")
+Unfortunately because audit is using secid to secctx conversion this
+means that subject and object labels can result in a very unfortunate
+== that can break audit parsing.
+
+eg. the subj==unconfined term in the below audit message
+
+type=USER_LOGIN msg=audit(1639443365.233:160): pid=1633 uid=0 auid=1000
+ses=3 subj==unconfined msg='op=login id=1000 exe="/usr/sbin/sshd"
+hostname=192.168.122.1 addr=192.168.122.1 terminal=/dev/pts/1 res=success'
+
+Fix this by switch the prepending of = to a _. This still works as a
+special character to flag this case without breaking audit. Also move
+this check behind debug as it should not be needed during normal
+operqation.
+
+Fixes: 26b7899510ae ("apparmor: add support for absolute root view based labels")
+Reported-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/apparmor/audit.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/apparmor/include/lib.h |    5 +++++
+ security/apparmor/label.c       |    7 ++++---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
---- a/security/apparmor/audit.c
-+++ b/security/apparmor/audit.c
-@@ -137,7 +137,7 @@ int aa_audit(int type, struct aa_profile
- 	}
- 	if (AUDIT_MODE(profile) == AUDIT_QUIET ||
- 	    (type == AUDIT_APPARMOR_DENIED &&
--	     AUDIT_MODE(profile) == AUDIT_QUIET))
-+	     AUDIT_MODE(profile) == AUDIT_QUIET_DENIED))
- 		return aad(sa)->error;
+--- a/security/apparmor/include/lib.h
++++ b/security/apparmor/include/lib.h
+@@ -22,6 +22,11 @@
+  */
  
- 	if (KILL_MODE(profile) && type == AUDIT_APPARMOR_DENIED)
+ #define DEBUG_ON (aa_g_debug)
++/*
++ * split individual debug cases out in preparation for finer grained
++ * debug controls in the future.
++ */
++#define AA_DEBUG_LABEL DEBUG_ON
+ #define dbg_printk(__fmt, __args...) pr_debug(__fmt, ##__args)
+ #define AA_DEBUG(fmt, args...)						\
+ 	do {								\
+--- a/security/apparmor/label.c
++++ b/security/apparmor/label.c
+@@ -1631,9 +1631,9 @@ int aa_label_snxprint(char *str, size_t
+ 	AA_BUG(!str && size != 0);
+ 	AA_BUG(!label);
+ 
+-	if (flags & FLAG_ABS_ROOT) {
++	if (AA_DEBUG_LABEL && (flags & FLAG_ABS_ROOT)) {
+ 		ns = root_ns;
+-		len = snprintf(str, size, "=");
++		len = snprintf(str, size, "_");
+ 		update_for_len(total, len, size, str);
+ 	} else if (!ns) {
+ 		ns = labels_ns(label);
+@@ -1895,7 +1895,8 @@ struct aa_label *aa_label_strn_parse(str
+ 	AA_BUG(!str);
+ 
+ 	str = skipn_spaces(str, n);
+-	if (str == NULL || (*str == '=' && base != &root_ns->unconfined->label))
++	if (str == NULL || (AA_DEBUG_LABEL && *str == '_' &&
++			    base != &root_ns->unconfined->label))
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	len = label_count_strn_entries(str, end - str);
 
 
