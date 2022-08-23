@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AABA59D40B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09B959D368
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241983AbiHWIL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:11:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58898 "EHLO
+        id S242070AbiHWIMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:12:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242125AbiHWIKl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:10:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 450CA69F4F;
-        Tue, 23 Aug 2022 01:07:52 -0700 (PDT)
+        with ESMTP id S242137AbiHWIKp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:10:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66DFD69F79;
+        Tue, 23 Aug 2022 01:07:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D75B761257;
-        Tue, 23 Aug 2022 08:07:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D427BC433D6;
-        Tue, 23 Aug 2022 08:07:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02F7F6125A;
+        Tue, 23 Aug 2022 08:07:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8E5C433C1;
+        Tue, 23 Aug 2022 08:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242071;
-        bh=+fiLNvK/jrxtzfqvF1MMl97JGRcM/wzb8f52HN2rxYg=;
+        s=korg; t=1661242077;
+        bh=zW9GOKdgBwtfC4XKSkr+hf13NidY6ZR2lj8tB2nxVEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0j6A+RlsvzwOB1mxSbzo6wS7n40/OKbTI3JSe2CkW1kHLNC2XqxLDLBBV7d0Umi46
-         PtZ1+0WNFboEGaHuY3e26291NgZv1BHuWdlWWLDEeC5Co3LLy0oy4wDEaFGepQ+E2d
-         B7ONxQTVOpRHHvXH1YxIKLTT2xPENQ+FQIc6M2lQ=
+        b=izSQzBcydbTwZb6XqIDWFHOAeabxUiUo9KAaCjeePAeCR77gMEz/6kADTTKeHOsn3
+         9HEPYSLMZLdh6C7CT49rM97vWwOl95pkiwzcXDimsFN68Tt72Ack8t93uzSHjNQe0t
+         Gl32r4c9L0rwwGG/fqxl99ICsvE5rlI6arm0gGLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Zhang Xianwei <zhang.xianwei8@zte.com.cn>,
+        Yi Wang <wang.yi59@zte.com.cn>,
         Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.19 054/365] NFSv4: Fix races in the legacy idmapper upcall
-Date:   Tue, 23 Aug 2022 09:59:15 +0200
-Message-Id: <20220823080120.451541368@linuxfoundation.org>
+Subject: [PATCH 5.19 055/365] NFSv4.1: RECLAIM_COMPLETE must handle EACCES
+Date:   Tue, 23 Aug 2022 09:59:16 +0200
+Message-Id: <20220823080120.490852500@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,138 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Zhang Xianwei <zhang.xianwei8@zte.com.cn>
 
-commit 51fd2eb52c0ca8275a906eed81878ef50ae94eb0 upstream.
+commit e35a5e782f67ed76a65ad0f23a484444a95f000f upstream.
 
-nfs_idmap_instantiate() will cause the process that is waiting in
-request_key_with_auxdata() to wake up and exit. If there is a second
-process waiting for the idmap->idmap_mutex, then it may wake up and
-start a new call to request_key_with_auxdata(). If the call to
-idmap_pipe_downcall() from the first process has not yet finished
-calling nfs_idmap_complete_pipe_upcall_locked(), then we may end up
-triggering the WARN_ON_ONCE() in nfs_idmap_prepare_pipe_upcall().
+A client should be able to handle getting an EACCES error while doing
+a mount operation to reclaim state due to NFS4CLNT_RECLAIM_REBOOT
+being set. If the server returns RPC_AUTH_BADCRED because authentication
+failed when we execute "exportfs -au", then RECLAIM_COMPLETE will go a
+wrong way. After mount succeeds, all OPEN call will fail due to an
+NFS4ERR_GRACE error being returned. This patch is to fix it by resending
+a RPC request.
 
-The fix is to ensure that we clear idmap->idmap_upcall_data before
-calling nfs_idmap_instantiate().
-
-Fixes: e9ab41b620e4 ("NFSv4: Clean up the legacy idmapper upcall")
+Signed-off-by: Zhang Xianwei <zhang.xianwei8@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Fixes: aa5190d0ed7d ("NFSv4: Kill nfs4_async_handle_error() abuses by NFSv4.1")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4idmap.c |   46 ++++++++++++++++++++++++----------------------
- 1 file changed, 24 insertions(+), 22 deletions(-)
+ fs/nfs/nfs4proc.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/nfs/nfs4idmap.c
-+++ b/fs/nfs/nfs4idmap.c
-@@ -561,22 +561,20 @@ nfs_idmap_prepare_pipe_upcall(struct idm
- 	return true;
- }
- 
--static void
--nfs_idmap_complete_pipe_upcall_locked(struct idmap *idmap, int ret)
-+static void nfs_idmap_complete_pipe_upcall(struct idmap_legacy_upcalldata *data,
-+					   int ret)
- {
--	struct key *authkey = idmap->idmap_upcall_data->authkey;
--
--	kfree(idmap->idmap_upcall_data);
--	idmap->idmap_upcall_data = NULL;
--	complete_request_key(authkey, ret);
--	key_put(authkey);
-+	complete_request_key(data->authkey, ret);
-+	key_put(data->authkey);
-+	kfree(data);
- }
- 
--static void
--nfs_idmap_abort_pipe_upcall(struct idmap *idmap, int ret)
-+static void nfs_idmap_abort_pipe_upcall(struct idmap *idmap,
-+					struct idmap_legacy_upcalldata *data,
-+					int ret)
- {
--	if (idmap->idmap_upcall_data != NULL)
--		nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
-+	if (cmpxchg(&idmap->idmap_upcall_data, data, NULL) == data)
-+		nfs_idmap_complete_pipe_upcall(data, ret);
- }
- 
- static int nfs_idmap_legacy_upcall(struct key *authkey, void *aux)
-@@ -613,7 +611,7 @@ static int nfs_idmap_legacy_upcall(struc
- 
- 	ret = rpc_queue_upcall(idmap->idmap_pipe, msg);
- 	if (ret < 0)
--		nfs_idmap_abort_pipe_upcall(idmap, ret);
-+		nfs_idmap_abort_pipe_upcall(idmap, data, ret);
- 
- 	return ret;
- out2:
-@@ -669,6 +667,7 @@ idmap_pipe_downcall(struct file *filp, c
- 	struct request_key_auth *rka;
- 	struct rpc_inode *rpci = RPC_I(file_inode(filp));
- 	struct idmap *idmap = (struct idmap *)rpci->private;
-+	struct idmap_legacy_upcalldata *data;
- 	struct key *authkey;
- 	struct idmap_msg im;
- 	size_t namelen_in;
-@@ -678,10 +677,11 @@ idmap_pipe_downcall(struct file *filp, c
- 	 * will have been woken up and someone else may now have used
- 	 * idmap_key_cons - so after this point we may no longer touch it.
- 	 */
--	if (idmap->idmap_upcall_data == NULL)
-+	data = xchg(&idmap->idmap_upcall_data, NULL);
-+	if (data == NULL)
- 		goto out_noupcall;
- 
--	authkey = idmap->idmap_upcall_data->authkey;
-+	authkey = data->authkey;
- 	rka = get_request_key_auth(authkey);
- 
- 	if (mlen != sizeof(im)) {
-@@ -703,18 +703,17 @@ idmap_pipe_downcall(struct file *filp, c
- 	if (namelen_in == 0 || namelen_in == IDMAP_NAMESZ) {
- 		ret = -EINVAL;
- 		goto out;
--}
-+	}
- 
--	ret = nfs_idmap_read_and_verify_message(&im,
--			&idmap->idmap_upcall_data->idmap_msg,
--			rka->target_key, authkey);
-+	ret = nfs_idmap_read_and_verify_message(&im, &data->idmap_msg,
-+						rka->target_key, authkey);
- 	if (ret >= 0) {
- 		key_set_timeout(rka->target_key, nfs_idmap_cache_timeout);
- 		ret = mlen;
- 	}
- 
- out:
--	nfs_idmap_complete_pipe_upcall_locked(idmap, ret);
-+	nfs_idmap_complete_pipe_upcall(data, ret);
- out_noupcall:
- 	return ret;
- }
-@@ -728,7 +727,7 @@ idmap_pipe_destroy_msg(struct rpc_pipe_m
- 	struct idmap *idmap = data->idmap;
- 
- 	if (msg->errno)
--		nfs_idmap_abort_pipe_upcall(idmap, msg->errno);
-+		nfs_idmap_abort_pipe_upcall(idmap, data, msg->errno);
- }
- 
- static void
-@@ -736,8 +735,11 @@ idmap_release_pipe(struct inode *inode)
- {
- 	struct rpc_inode *rpci = RPC_I(inode);
- 	struct idmap *idmap = (struct idmap *)rpci->private;
-+	struct idmap_legacy_upcalldata *data;
- 
--	nfs_idmap_abort_pipe_upcall(idmap, -EPIPE);
-+	data = xchg(&idmap->idmap_upcall_data, NULL);
-+	if (data)
-+		nfs_idmap_complete_pipe_upcall(data, -EPIPE);
- }
- 
- int nfs_map_name_to_uid(const struct nfs_server *server, const char *name, size_t namelen, kuid_t *uid)
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -9475,6 +9475,9 @@ static int nfs41_reclaim_complete_handle
+ 		rpc_delay(task, NFS4_POLL_RETRY_MAX);
+ 		fallthrough;
+ 	case -NFS4ERR_RETRY_UNCACHED_REP:
++	case -EACCES:
++		dprintk("%s: failed to reclaim complete error %d for server %s, retrying\n",
++			__func__, task->tk_status, clp->cl_hostname);
+ 		return -EAGAIN;
+ 	case -NFS4ERR_BADSESSION:
+ 	case -NFS4ERR_DEADSESSION:
 
 
