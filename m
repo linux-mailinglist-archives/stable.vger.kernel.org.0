@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC33359DDA9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2031C59DB59
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358441AbiHWLxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:53:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57052 "EHLO
+        id S1353226AbiHWKRe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:17:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359138AbiHWLvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:51:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD6214038;
-        Tue, 23 Aug 2022 02:32:29 -0700 (PDT)
+        with ESMTP id S1353186AbiHWKPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:15:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF297434D;
+        Tue, 23 Aug 2022 02:00:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 840CC612D8;
-        Tue, 23 Aug 2022 09:32:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C14DC433C1;
-        Tue, 23 Aug 2022 09:32:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D066E6157F;
+        Tue, 23 Aug 2022 09:00:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5D11C433D7;
+        Tue, 23 Aug 2022 09:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247145;
-        bh=bf3ZD9frY4GoYPiarVVKdEvqceAeI8cdWcW5itv8Yk8=;
+        s=korg; t=1661245210;
+        bh=mZ1Eal+wbCJp/DyeVGMHEXpw1g7FqIdE0Oc7xwcTgtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0w1XZyU2spaK/IznFBJLvCBwL6H6iPMZTWkSvvwNVqtaXspird7/4qo2McnX0fMmi
-         KldT0PDAwxUKO56fCihl6bPrduXe0vUfKnvJ2BRwlZw2w3FlBNuEydJn4sdYG668sq
-         QIUQWmSrkBA9EoIAeK7mDcqYa49vjiLfP5pJ0xnk=
+        b=Y6zbjlrINU8f7xEk0uYga8BFjdpCkL0XiauAhHUuaxphEWSQHN4qIQ01TUQ3TNbpW
+         qxqN3Pd1GCupqJs/ja2f2/hVr+gJQ4/pCWet/te9JxeZXwzi4oPsZiyCk0JHIE10oN
+         NfY30RUBIt23/lJ7RiOsLeVrRanphrgwoPdjQoL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.4 302/389] NFSv4.1: Dont decrease the value of seq_nr_highest_sent
-Date:   Tue, 23 Aug 2022 10:26:20 +0200
-Message-Id: <20220823080128.188093466@linuxfoundation.org>
+        stable@vger.kernel.org, Alois Wohlschlager <alois1@gmx-topmail.de>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 222/244] ovl: warn if trusted xattr creation fails
+Date:   Tue, 23 Aug 2022 10:26:21 +0200
+Message-Id: <20220823080106.954894142@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit f07a5d2427fc113dc50c5c818eba8929bc27b8ca upstream.
+[ Upstream commit b10b85fe5149ee8b39fbbf86095b303632dde2cd ]
 
-When we're trying to figure out what the server may or may not have seen
-in terms of request numbers, do not assume that requests with a larger
-number were missed, just because we saw a reply to a request with a
-smaller number.
+When mounting overlayfs in an unprivileged user namespace, trusted xattr
+creation will fail.  This will lead to failures in some file operations,
+e.g. in the following situation:
 
-Fixes: 3453d5708b33 ("NFSv4.1: Avoid false retries when RPC calls are interrupted")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  mkdir lower upper work merged
+  mkdir lower/directory
+  mount -toverlay -olowerdir=lower,upperdir=upper,workdir=work none merged
+  rmdir merged/directory
+  mkdir merged/directory
+
+The last mkdir will fail:
+
+  mkdir: cannot create directory 'merged/directory': Input/output error
+
+The cause for these failures is currently extremely non-obvious and hard to
+debug.  Hence, warn the user and suggest using the userxattr mount option,
+if it is not already supplied and xattr creation fails during the
+self-check.
+
+Reported-by: Alois Wohlschlager <alois1@gmx-topmail.de>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/overlayfs/super.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -779,10 +779,9 @@ static void nfs4_slot_sequence_record_se
- 	if ((s32)(seqnr - slot->seq_nr_highest_sent) > 0)
- 		slot->seq_nr_highest_sent = seqnr;
- }
--static void nfs4_slot_sequence_acked(struct nfs4_slot *slot,
--		u32 seqnr)
-+static void nfs4_slot_sequence_acked(struct nfs4_slot *slot, u32 seqnr)
- {
--	slot->seq_nr_highest_sent = seqnr;
-+	nfs4_slot_sequence_record_sent(slot, seqnr);
- 	slot->seq_nr_last_acked = seqnr;
- }
- 
+diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
+index 7bb0a47cb615..9837aaf9caf1 100644
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -1413,11 +1413,12 @@ static int ovl_make_workdir(struct super_block *sb, struct ovl_fs *ofs,
+ 	 */
+ 	err = ovl_do_setxattr(ofs, ofs->workdir, OVL_XATTR_OPAQUE, "0", 1);
+ 	if (err) {
++		pr_warn("failed to set xattr on upper\n");
+ 		ofs->noxattr = true;
+ 		if (ofs->config.index || ofs->config.metacopy) {
+ 			ofs->config.index = false;
+ 			ofs->config.metacopy = false;
+-			pr_warn("upper fs does not support xattr, falling back to index=off,metacopy=off.\n");
++			pr_warn("...falling back to index=off,metacopy=off.\n");
+ 		}
+ 		/*
+ 		 * xattr support is required for persistent st_ino.
+@@ -1425,8 +1426,10 @@ static int ovl_make_workdir(struct super_block *sb, struct ovl_fs *ofs,
+ 		 */
+ 		if (ofs->config.xino == OVL_XINO_AUTO) {
+ 			ofs->config.xino = OVL_XINO_OFF;
+-			pr_warn("upper fs does not support xattr, falling back to xino=off.\n");
++			pr_warn("...falling back to xino=off.\n");
+ 		}
++		if (err == -EPERM && !ofs->config.userxattr)
++			pr_info("try mounting with 'userxattr' option\n");
+ 		err = 0;
+ 	} else {
+ 		ovl_do_removexattr(ofs, ofs->workdir, OVL_XATTR_OPAQUE);
+-- 
+2.35.1
+
 
 
