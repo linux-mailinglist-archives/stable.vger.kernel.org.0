@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8C7B59D938
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EA8659D971
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350875AbiHWJgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:36:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38908 "EHLO
+        id S1350940AbiHWJdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:33:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351348AbiHWJf3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:35:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB4E9751C;
-        Tue, 23 Aug 2022 01:39:51 -0700 (PDT)
+        with ESMTP id S1350344AbiHWJb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:31:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B4943E52;
+        Tue, 23 Aug 2022 01:38:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A21E461326;
-        Tue, 23 Aug 2022 08:38:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4711C433C1;
-        Tue, 23 Aug 2022 08:38:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 416A1B81C6B;
+        Tue, 23 Aug 2022 08:37:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 552E5C433C1;
+        Tue, 23 Aug 2022 08:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243924;
-        bh=jW7R1X5fVt9SZ7CcWc7egTN9A/dldQ6+CaJL5v2cE9A=;
+        s=korg; t=1661243831;
+        bh=ljrqwzOrbT0JrmQUw2UjpfLFC5dyyN3a2eOKGBHBJcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JV9EUYsXKNOdmICIsOdK2j6UP+lgZKXrYyteU483ch14j9u4xtNuk8aHHCKSSx/IZ
-         p5B/YrYKN3ofAw1AT+IcTysfU3sIrpGcQiQYL2zWb0UZiwPxeOl6xU9x9DN6beT2b+
-         uL4ap2c6CKKzaFadkr/Vo/qTNDeQbB0fbctM751w=
+        b=xkcNuQtU1zq65TlSGZjzB+Y4xYOPQUMz6jM5u7r8HFlyDM/Mhih+q2pGciBE6C5Ct
+         Hb0/A644C3is/CmTxdSncEdblduoSXpHD5wvXhJEZ6bGQenaHYOJZm/7MreTx0OgPw
+         mcX+nOuBug1J9f+EFs8ksnbPdaaEpR4QdbuWWcak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Chris Park <Chris.Park@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 009/244] drm/amd/display: Check correct bounds for stream encoder instances for DCN303
-Date:   Tue, 23 Aug 2022 10:22:48 +0200
-Message-Id: <20220823080059.393790523@linuxfoundation.org>
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "Justin M. Forbes" <jforbes@fedoraproject.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Nicolas Pitre <nico@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 4.14 008/229] ARM: crypto: comment out gcc warning that breaks clang builds
+Date:   Tue, 23 Aug 2022 10:22:49 +0200
+Message-Id: <20220823080053.626188301@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,41 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurabindo Pillai <aurabindo.pillai@amd.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 89b008222c2bf21e50219725caed31590edfd9d1 upstream.
+The gcc build warning prevents all clang-built kernels from working
+properly, so comment it out to fix the build.
 
-[Why & How]
-eng_id for DCN303 cannot be more than 1, since we have only two
-instances of stream encoders.
+This is a -stable kernel only patch for now, it will be resolved
+differently in mainline releases in the future.
 
-Check the correct boundary condition for engine ID for DCN303 prevent
-the potential out of bounds access.
-
-Fixes: cd6d421e3d1a ("drm/amd/display: Initial DC support for Beige Goby")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Chris Park <Chris.Park@amd.com>
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: "Justin M. Forbes" <jforbes@fedoraproject.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Nicolas Pitre <nico@linaro.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn303/dcn303_resource.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/lib/xor-neon.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn303/dcn303_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn303/dcn303_resource.c
-@@ -500,7 +500,7 @@ static struct stream_encoder *dcn303_str
- 	int afmt_inst;
+--- a/arch/arm/lib/xor-neon.c
++++ b/arch/arm/lib/xor-neon.c
+@@ -29,8 +29,9 @@ MODULE_LICENSE("GPL");
+  * While older versions of GCC do not generate incorrect code, they fail to
+  * recognize the parallel nature of these functions, and emit plain ARM code,
+  * which is known to be slower than the optimized ARM code in asm-arm/xor.h.
++ *
++ * #warning This code requires at least version 4.6 of GCC
+  */
+-#warning This code requires at least version 4.6 of GCC
+ #endif
  
- 	/* Mapping of VPG, AFMT, DME register blocks to DIO block instance */
--	if (eng_id <= ENGINE_ID_DIGE) {
-+	if (eng_id <= ENGINE_ID_DIGB) {
- 		vpg_inst = eng_id;
- 		afmt_inst = eng_id;
- 	} else
+ #pragma GCC diagnostic ignored "-Wunused-variable"
 
 
