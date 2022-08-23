@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4745B59DE0A
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D81959E23F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242566AbiHWLVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:21:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43656 "EHLO
+        id S242649AbiHWLVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:21:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357614AbiHWLUi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:20:38 -0400
+        with ESMTP id S1357666AbiHWLUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:20:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E588C018;
-        Tue, 23 Aug 2022 02:22:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2AC78C02B;
+        Tue, 23 Aug 2022 02:22:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 297F36122D;
-        Tue, 23 Aug 2022 09:22:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 316C6C433C1;
-        Tue, 23 Aug 2022 09:22:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DDE26121F;
+        Tue, 23 Aug 2022 09:22:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 425F9C433D6;
+        Tue, 23 Aug 2022 09:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246559;
-        bh=/DeAmAkZLsLUJ1rMm66Za+XJ3MYFeZHDpaX7It3ToiI=;
+        s=korg; t=1661246562;
+        bh=eCa0mB0c5GsKscPjdyXyKcwbYEbh4le6XWboPcUYGiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dPsy7KseuqVFp9lSZsvUsFzgdWmZ9iSaQc7TxDpJ/l6XPE17f8IMPTOItScEkNUgy
-         baXka1ITKuUuZFRreQEBklwIw4DHSB5ehOtSCD+narLf6OdJHS5N38xPE2IEe2txRF
-         a3MeuoO85H+KuWp7EQdcp0wGKm1RF9LK11rcIic0=
+        b=RJvU9u6miqJtGN3Poo61B+IOwQ+mlTeWhZ1C7+wrieQmaCtgNl42+o6PUtWIhhJzM
+         E1WP2GVUMwvXfWYzmsG2doo48VeaaFPSUZ25TOEhZ6o3Tc1P4B+CnYEMGf5eG9NMN4
+         HPlAmidjwGwGc7DTWJJjTfIdiiJjHxQc8plZRKGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Jun Zhang <xuejun.zhang@intel.com>,
+        Bharathi Sreenivas <bharathi.sreenivas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 148/389] crypto: inside-secure - Add missing MODULE_DEVICE_TABLE for of
-Date:   Tue, 23 Aug 2022 10:23:46 +0200
-Message-Id: <20220823080121.786293719@linuxfoundation.org>
+Subject: [PATCH 5.4 149/389] iavf: Fix max_rate limiting
+Date:   Tue, 23 Aug 2022 10:23:47 +0200
+Message-Id: <20220823080121.818079376@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -56,36 +57,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
 
-[ Upstream commit fa4d57b85786ec0e16565c75a51c208834b0c24d ]
+[ Upstream commit ec60d54cb9a3d43a02c5612a03093c18233e6601 ]
 
-Without MODULE_DEVICE_TABLE, crypto_safexcel.ko module is not automatically
-loaded on platforms where inside-secure crypto HW is specified in device
-tree (e.g. Armada 3720). So add missing MODULE_DEVICE_TABLE for of.
+Fix max_rate option in TC, check for proper quanta boundaries.
+Check for minimum value provided and if it fits expected 50Mbps
+quanta.
 
-Fixes: 1b44c5a60c13 ("crypto: inside-secure - add SafeXcel EIP197 crypto engine driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Acked-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Without this patch, iavf could send settings for max_rate limiting
+that would be accepted from by PF even the max_rate option is less
+than expected 50Mbps quanta. It results in no rate limiting
+on traffic as rate limiting will be floored to 0.
+
+Example:
+tc qdisc add dev $vf root mqprio num_tc 3 map 0 2 1 queues \
+2@0 2@2 2@4 hw 1 mode channel shaper bw_rlimit \
+max_rate 50Mbps 500Mbps 500Mbps
+
+Should limit TC0 to circa 50 Mbps
+
+tc qdisc add dev $vf root mqprio num_tc 3 map 0 2 1 queues \
+2@0 2@2 2@4 hw 1 mode channel shaper bw_rlimit \
+max_rate 0Mbps 100Kbit 500Mbps
+
+Should return error
+
+Fixes: d5b33d024496 ("i40evf: add ndo_setup_tc callback to i40evf")
+Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Signed-off-by: Jun Zhang <xuejun.zhang@intel.com>
+Tested-by: Bharathi Sreenivas <bharathi.sreenivas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/inside-secure/safexcel.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/iavf/iavf.h      |  1 +
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 25 +++++++++++++++++++--
+ 2 files changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/inside-secure/safexcel.c b/drivers/crypto/inside-secure/safexcel.c
-index 4d9d97c59ee3..9534f52210af 100644
---- a/drivers/crypto/inside-secure/safexcel.c
-+++ b/drivers/crypto/inside-secure/safexcel.c
-@@ -1658,6 +1658,8 @@ static const struct of_device_id safexcel_of_match_table[] = {
- 	{},
- };
+diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
+index 81ca6472937d..85275b6ede4d 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf.h
++++ b/drivers/net/ethernet/intel/iavf/iavf.h
+@@ -86,6 +86,7 @@ struct iavf_vsi {
+ #define IAVF_HKEY_ARRAY_SIZE ((IAVF_VFQF_HKEY_MAX_INDEX + 1) * 4)
+ #define IAVF_HLUT_ARRAY_SIZE ((IAVF_VFQF_HLUT_MAX_INDEX + 1) * 4)
+ #define IAVF_MBPS_DIVISOR	125000 /* divisor to convert to Mbps */
++#define IAVF_MBPS_QUANTA	50
  
-+MODULE_DEVICE_TABLE(of, safexcel_of_match_table);
+ #define IAVF_VIRTCHNL_VF_RESOURCE_SIZE (sizeof(struct virtchnl_vf_resource) + \
+ 					(IAVF_MAX_VF_VSI * \
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index e8850ba5604c..4c41bb47fc1a 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -2581,6 +2581,7 @@ static int iavf_validate_ch_config(struct iavf_adapter *adapter,
+ 				   struct tc_mqprio_qopt_offload *mqprio_qopt)
+ {
+ 	u64 total_max_rate = 0;
++	u32 tx_rate_rem = 0;
+ 	int i, num_qps = 0;
+ 	u64 tx_rate = 0;
+ 	int ret = 0;
+@@ -2595,12 +2596,32 @@ static int iavf_validate_ch_config(struct iavf_adapter *adapter,
+ 			return -EINVAL;
+ 		if (mqprio_qopt->min_rate[i]) {
+ 			dev_err(&adapter->pdev->dev,
+-				"Invalid min tx rate (greater than 0) specified\n");
++				"Invalid min tx rate (greater than 0) specified for TC%d\n",
++				i);
+ 			return -EINVAL;
+ 		}
+-		/*convert to Mbps */
 +
- static struct platform_driver  crypto_safexcel = {
- 	.probe		= safexcel_probe,
- 	.remove		= safexcel_remove,
++		/* convert to Mbps */
+ 		tx_rate = div_u64(mqprio_qopt->max_rate[i],
+ 				  IAVF_MBPS_DIVISOR);
++
++		if (mqprio_qopt->max_rate[i] &&
++		    tx_rate < IAVF_MBPS_QUANTA) {
++			dev_err(&adapter->pdev->dev,
++				"Invalid max tx rate for TC%d, minimum %dMbps\n",
++				i, IAVF_MBPS_QUANTA);
++			return -EINVAL;
++		}
++
++		(void)div_u64_rem(tx_rate, IAVF_MBPS_QUANTA, &tx_rate_rem);
++
++		if (tx_rate_rem != 0) {
++			dev_err(&adapter->pdev->dev,
++				"Invalid max tx rate for TC%d, not divisible by %d\n",
++				i, IAVF_MBPS_QUANTA);
++			return -EINVAL;
++		}
++
+ 		total_max_rate += tx_rate;
+ 		num_qps += mqprio_qopt->qopt.count[i];
+ 	}
 -- 
 2.35.1
 
