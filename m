@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD7C59E0B0
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C852B59DFBC
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243572AbiHWLcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:32:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49050 "EHLO
+        id S1347099AbiHWLdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:33:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357592AbiHWLbn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:31:43 -0400
+        with ESMTP id S1357490AbiHWLbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:31:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D6FC6525;
-        Tue, 23 Aug 2022 02:25:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D76B6612E;
+        Tue, 23 Aug 2022 02:25:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1393661174;
-        Tue, 23 Aug 2022 09:25:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F626C433C1;
-        Tue, 23 Aug 2022 09:25:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A8A46130E;
+        Tue, 23 Aug 2022 09:25:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB2E6C433D6;
+        Tue, 23 Aug 2022 09:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246743;
-        bh=d2B1m8MM4bVmRkRwklottmo9MO/y4rhCSkyjB7cHVMs=;
+        s=korg; t=1661246746;
+        bh=OJLTec2hXfd6nyC4dMNAnRYZc1Klp15sXbFH0oMSZsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+FJD7jam2jmAhWJ8J9QB0lwX75H2Yc0K0jT+rmZ62gIbu5rkfrSk/2Co1WFmxuqR
-         RXlT2EeNzx0UTlYLFFXOLWw4Va1zW7865v9YY/VuxzP11/VaS4UyhtwfGI4JPhKCYJ
-         mSkdwsNN5bai7KMjbhBO1XiyWS2q+RRd9BgSv7xA=
+        b=wmf/quD2uHYQa02t92WZNqleCjouVTu6tIKT/5ujfSN2mww91HOSB53CSTY0ZeeBB
+         /zJafIYOvCNQ3qu6eS1O6n0/kOlLSiZnj9GDaBfme3J1TTkMOJ32v1hQjr5yQm2l2w
+         ioMbKGaJOZp+15b+0D15fWNwfeDRDLilmXHDN/8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 206/389] ASoC: mediatek: mt8173-rt5650: Fix refcount leak in mt8173_rt5650_dev_probe
-Date:   Tue, 23 Aug 2022 10:24:44 +0200
-Message-Id: <20220823080124.247317721@linuxfoundation.org>
+Subject: [PATCH 5.4 207/389] serial: 8250_dw: Store LSR into lsr_saved_flags in dw8250_tx_wait_empty()
+Date:   Tue, 23 Aug 2022 10:24:45 +0200
+Message-Id: <20220823080124.280771589@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
 References: <20220823080115.331990024@linuxfoundation.org>
@@ -54,64 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit efe2178d1a32492f99e7f1f2568eea5c88a85729 ]
+[ Upstream commit af14f3007e2dca0d112f10f6717ba43093f74e81 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Fix refcount leak in some error paths.
+Make sure LSR flags are preserved in dw8250_tx_wait_empty(). This
+function is called from a low-level out function and therefore cannot
+call serial_lsr_in() as it would lead to infinite recursion.
 
-Fixes: 0f83f9296d5c ("ASoC: mediatek: Add machine driver for ALC5650 codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220603124243.31358-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+It is borderline if the flags need to be saved here at all since this
+code relates to writing LCR register which usually implies no important
+characters should be arriving.
+
+Fixes: 914eaf935ec7 ("serial: 8250_dw: Allow TX FIFO to drain before writing to UART_LCR")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220608095431.18376-7-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-rt5650.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_dw.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-index 21e7d4d3ded5..cdfc697ad94e 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-@@ -266,7 +266,8 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
- 	if (!mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_platform_node;
- 	}
- 	mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node =
- 		mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node;
-@@ -279,7 +280,7 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
- 			dev_err(&pdev->dev,
- 				"%s codec_capture_dai name fail %d\n",
- 				__func__, ret);
--			return ret;
-+			goto put_platform_node;
- 		}
- 		mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[1].dai_name =
- 			codec_capture_dai;
-@@ -301,7 +302,8 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
- 	if (!mt8173_rt5650_dais[DAI_LINK_HDMI_I2S].codecs->of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_platform_node;
- 	}
- 	card->dev = &pdev->dev;
+diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
+index 381c5117aec1..2d5a039229ac 100644
+--- a/drivers/tty/serial/8250/8250_dw.c
++++ b/drivers/tty/serial/8250/8250_dw.c
+@@ -110,12 +110,15 @@ static void dw8250_check_lcr(struct uart_port *p, int value)
+ /* Returns once the transmitter is empty or we run out of retries */
+ static void dw8250_tx_wait_empty(struct uart_port *p)
+ {
++	struct uart_8250_port *up = up_to_u8250p(p);
+ 	unsigned int tries = 20000;
+ 	unsigned int delay_threshold = tries - 1000;
+ 	unsigned int lsr;
  
-@@ -310,6 +312,7 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
+ 	while (tries--) {
+ 		lsr = readb (p->membase + (UART_LSR << p->regshift));
++		up->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
++
+ 		if (lsr & UART_LSR_TEMT)
+ 			break;
  
-+put_platform_node:
- 	of_node_put(platform_node);
- 	return ret;
- }
 -- 
 2.35.1
 
