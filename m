@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D8A359D9D1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B95059D8C2
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243083AbiHWKC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44488 "EHLO
+        id S241602AbiHWJrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:47:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352016AbiHWKBF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:01:05 -0400
+        with ESMTP id S1352329AbiHWJqQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6544127B2D;
-        Tue, 23 Aug 2022 01:48:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09BAA8E996;
+        Tue, 23 Aug 2022 01:43:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20EEC61386;
-        Tue, 23 Aug 2022 08:48:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 262B7C433C1;
-        Tue, 23 Aug 2022 08:48:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FCDC614E7;
+        Tue, 23 Aug 2022 08:43:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78081C433C1;
+        Tue, 23 Aug 2022 08:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244515;
-        bh=hG3JMbhdNDO2gZbIp193qOzFN0q0GOPDtuYxgu3A/pg=;
+        s=korg; t=1661244216;
+        bh=yogE9+4Ce06XGXVLmnH/jr0Qcnm8JpE9HUPjVLFTfMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmSd4gVelAHIb39fyTlN3tGL3HgPR/IBUNPOnXJZ9xpBUTwg5R/4EOx0w/oo/xaul
-         suf+5WHq9YUI85TSeN7wnGjeVrS74heHYmuT0XWMrbZBB0UpGIDFZqCc9Wcrnb3f6/
-         bgBB1qI5ovOJtzwafX/xODvrc7JOW2ebaTrpuUug=
+        b=1x0yC0kPciJaG77Zh/M5qLxUmJEVxw58nAlfZXKxqvfG8EaWU7ZjhVDjhqHrbw3to
+         ijCxCCg0GVlD7ZQXyLaaamzc3T8En6suxjbyKDvgxc5LeBhQAm4JwGMpiwede0mNdx
+         STd3y7PDMHK+dAMd/zEtvNaI1QWMJCraI1r0aCz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Subject: [PATCH 5.15 105/244] fs/ntfs3: Dont clear upper bits accidentally in log_replay()
-Date:   Tue, 23 Aug 2022 10:24:24 +0200
-Message-Id: <20220823080102.523538028@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 104/229] memstick/ms_block: Fix a memory leak
+Date:   Tue, 23 Aug 2022 10:24:25 +0200
+Message-Id: <20220823080057.408800714@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 926034353d3c67db1ffeab47dcb7f6bdac02a263 upstream.
+[ Upstream commit 54eb7a55be6779c4d0c25eaf5056498a28595049 ]
 
-The "vcn" variable is a 64 bit.  The "log->clst_per_page" variable is a
-u32.  This means that the mask accidentally clears out the high 32 bits
-when it was only supposed to clear some low bits.  Fix this by adding a
-cast to u64.
+'erased_blocks_bitmap' is never freed. As it is allocated at the same time
+as 'used_blocks_bitmap', it is likely that it should be freed also at the
+same time.
 
-Fixes: b46acd6a6a62 ("fs/ntfs3: Add NTFS journal")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add the corresponding bitmap_free() in msb_data_clear().
+
+Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/b3b78926569445962ea5c3b6e9102418a9effb88.1656155715.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/fslog.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/memstick/core/ms_block.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ntfs3/fslog.c
-+++ b/fs/ntfs3/fslog.c
-@@ -5057,7 +5057,7 @@ undo_action_next:
- 		goto add_allocated_vcns;
- 
- 	vcn = le64_to_cpu(lrh->target_vcn);
--	vcn &= ~(log->clst_per_page - 1);
-+	vcn &= ~(u64)(log->clst_per_page - 1);
- 
- add_allocated_vcns:
- 	for (i = 0, vcn = le64_to_cpu(lrh->target_vcn),
+diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
+index 7138062733ba..55525f696c6c 100644
+--- a/drivers/memstick/core/ms_block.c
++++ b/drivers/memstick/core/ms_block.c
+@@ -1961,6 +1961,7 @@ static void msb_data_clear(struct msb_data *msb)
+ {
+ 	kfree(msb->boot_page);
+ 	bitmap_free(msb->used_blocks_bitmap);
++	bitmap_free(msb->erased_blocks_bitmap);
+ 	kfree(msb->lba_to_pba_table);
+ 	kfree(msb->cache);
+ 	msb->card = NULL;
+-- 
+2.35.1
+
 
 
