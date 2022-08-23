@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49BAD59E0E5
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 611B759E0BC
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354220AbiHWKYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:24:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40692 "EHLO
+        id S240921AbiHWL1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:27:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355096AbiHWKWv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:22:51 -0400
+        with ESMTP id S241767AbiHWLYs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:24:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D22782FBF;
-        Tue, 23 Aug 2022 02:04:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6381482D08;
+        Tue, 23 Aug 2022 02:23:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B9B6B81C66;
-        Tue, 23 Aug 2022 09:04:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A5EBC433C1;
-        Tue, 23 Aug 2022 09:04:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AF26B8105C;
+        Tue, 23 Aug 2022 09:23:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D7BC433D7;
+        Tue, 23 Aug 2022 09:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245444;
-        bh=l18Qu+IXvPl5b9AOPNjTpkiodeySE+AZif4LocecDSc=;
+        s=korg; t=1661246633;
+        bh=eR0tZIvRvaH/L5ucyop9lSP+vc7zcIFE4nTjR/Nsrr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9jY2a/xxr4wUdJhuNTEF+887vuuBGgdyLiDPCY9H9TFTDEUMrF5+6EQK55PFRIE/
-         BWMtoOzefdYlfFsoKug2epxaVw8SKrlQbw0147yF4E6VxEd4SkJyi1YsckBiViqQmL
-         Jt5m4R2giH+MU6/bI+imC/0X+XO4HRWI4KZeLKO8=
+        b=pq3OqZ+7PtTm80XkqC3QNwJonca5ZeLCr8UgKm0SbovALzrz7iGsL7c7xwySPVyO4
+         ZNZ5ByqfQNyUt5uH81+XrDFi/gnI9cSWG+f3kc9IStlA0Bcnbh1xxXMXJdrCFueAjY
+         iPVxcM6XU5a4JLxuPiVaO+NxcH8hXvSFDaKOZ1Kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
+        stable@vger.kernel.org,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
         Robert Foss <robert.foss@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 081/287] drm: bridge: sii8620: fix possible off-by-one
+Subject: [PATCH 5.4 172/389] clk: qcom: camcc-sdm845: Fix topology around titan_top power domain
 Date:   Tue, 23 Aug 2022 10:24:10 +0200
-Message-Id: <20220823080103.001961180@linuxfoundation.org>
+Message-Id: <20220823080122.809903029@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit 21779cc21c732c5eff8ea1624be6590450baa30f ]
+[ Upstream commit 103dd2338bbff567bce7acd00fc5a09c806b38ec ]
 
-The next call to sii8620_burst_get_tx_buf will result in off-by-one
-When ctx->burst.tx_count + size == ARRAY_SIZE(ctx->burst.tx_buf). The same
-thing happens in sii8620_burst_get_rx_buf.
+On SDM845 two found VFE GDSC power domains shall not be operated, if
+titan top is turned off, thus the former power domains will be set as
+subdomains by a GDSC registration routine.
 
-This patch also change tx_count and tx_buf to rx_count and rx_buf in
-sii8620_burst_get_rx_buf. It is unreasonable to check tx_buf's size and
-use rx_buf.
-
-Fixes: e19e9c692f81 ("drm/bridge/sii8620: add support for burst eMSC transmissions")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220518065856.18936-1-hbh25y@gmail.com
+Fixes: 78412c262004 ("clk: qcom: Add camera clock controller driver for SDM845")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220519214133.1728979-2-vladimir.zapolskiy@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/sil-sii8620.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/qcom/camcc-sdm845.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index ea433bb189ca..c72092319a53 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -607,7 +607,7 @@ static void *sii8620_burst_get_tx_buf(struct sii8620 *ctx, int len)
- 	u8 *buf = &ctx->burst.tx_buf[ctx->burst.tx_count];
- 	int size = len + 2;
+diff --git a/drivers/clk/qcom/camcc-sdm845.c b/drivers/clk/qcom/camcc-sdm845.c
+index 1b2cefef7431..a8a2cfa83290 100644
+--- a/drivers/clk/qcom/camcc-sdm845.c
++++ b/drivers/clk/qcom/camcc-sdm845.c
+@@ -1521,6 +1521,8 @@ static struct clk_branch cam_cc_sys_tmr_clk = {
+ 	},
+ };
  
--	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
-+	if (ctx->burst.tx_count + size >= ARRAY_SIZE(ctx->burst.tx_buf)) {
- 		dev_err(ctx->dev, "TX-BLK buffer exhausted\n");
- 		ctx->error = -EINVAL;
- 		return NULL;
-@@ -624,7 +624,7 @@ static u8 *sii8620_burst_get_rx_buf(struct sii8620 *ctx, int len)
- 	u8 *buf = &ctx->burst.rx_buf[ctx->burst.rx_count];
- 	int size = len + 1;
++static struct gdsc titan_top_gdsc;
++
+ static struct gdsc bps_gdsc = {
+ 	.gdscr = 0x6004,
+ 	.pd = {
+@@ -1554,6 +1556,7 @@ static struct gdsc ife_0_gdsc = {
+ 		.name = "ife_0_gdsc",
+ 	},
+ 	.flags = POLL_CFG_GDSCR,
++	.parent = &titan_top_gdsc.pd,
+ 	.pwrsts = PWRSTS_OFF_ON,
+ };
  
--	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
-+	if (ctx->burst.rx_count + size >= ARRAY_SIZE(ctx->burst.rx_buf)) {
- 		dev_err(ctx->dev, "RX-BLK buffer exhausted\n");
- 		ctx->error = -EINVAL;
- 		return NULL;
+@@ -1563,6 +1566,7 @@ static struct gdsc ife_1_gdsc = {
+ 		.name = "ife_1_gdsc",
+ 	},
+ 	.flags = POLL_CFG_GDSCR,
++	.parent = &titan_top_gdsc.pd,
+ 	.pwrsts = PWRSTS_OFF_ON,
+ };
+ 
 -- 
 2.35.1
 
