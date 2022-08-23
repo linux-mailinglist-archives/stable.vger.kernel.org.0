@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 324AB59E169
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6FB59DF55
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354291AbiHWK1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:27:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52624 "EHLO
+        id S242142AbiHWL15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:27:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354550AbiHWKZy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:25:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C234D74DC0;
-        Tue, 23 Aug 2022 02:05:20 -0700 (PDT)
+        with ESMTP id S1357777AbiHWL0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:26:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0304E8FD48;
+        Tue, 23 Aug 2022 02:24:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB3D4B81C86;
-        Tue, 23 Aug 2022 09:05:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A31C433C1;
-        Tue, 23 Aug 2022 09:05:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23493B81C97;
+        Tue, 23 Aug 2022 09:24:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D879C4314B;
+        Tue, 23 Aug 2022 09:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245517;
-        bh=9yJpKcuASDlp32Z391P93jbdRGoOwrig8KBbizf0sRA=;
+        s=korg; t=1661246663;
+        bh=DGDNu2art7hAa52l3xxktqslUjIw4By6ta+2UGBncT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIpv+JbdvvjHp3fZo5rMoUmvezV4DIOnfiEdrRJfikG7jEls1bkWzruoXWji7toS8
-         vQaoX9Hh75PpBZ2ewWmbkscc9lLlyjiYtXsei0mtXtRDEUdwI0w2NzDpGN+EgNgqM1
-         9ZizaXAFONUwtAbU4v6cUcagn+9ZICvKdWPSrnGI=
+        b=WU7A09TBF/gYMOPvnwvwQkKLs0dFCKBZU6m1q9Ybf5Y2fvInCtQCbnzEyOy/gYknL
+         ynXr65hjJDklaiFNQt9i+zuSfS9vIReuJ/xq9gJ3TtXy+sHq4AUO58Xd07Vw7ydkLH
+         2kWeW3MEqqIcQNAtlGEEUy0pDzKSw+rD4vVqgfdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Wang <vulab@iscas.ac.cn>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 072/287] i2c: Fix a potential use after free
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Miaoqian Lin <linmq006@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 163/389] usb: ohci-nxp: Fix refcount leak in ohci_hcd_nxp_probe
 Date:   Tue, 23 Aug 2022 10:24:01 +0200
-Message-Id: <20220823080102.653454607@linuxfoundation.org>
+Message-Id: <20220823080122.427896643@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Wang <vulab@iscas.ac.cn>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit e4c72c06c367758a14f227c847f9d623f1994ecf ]
+[ Upstream commit 302970b4cad3ebfda2c05ce06c322ccdc447d17e ]
 
-Free the adap structure only after we are done using it.
-This patch just moves the put_device() down a bit to avoid the
-use after free.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 611e12ea0f12 ("i2c: core: manage i2c bus device refcount in i2c_[get|put]_adapter")
-Signed-off-by: Xu Wang <vulab@iscas.ac.cn>
-[wsa: added comment to the code, added Fixes tag]
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 73108aa90cbf ("USB: ohci-nxp: Use isp1301 driver")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220603141231.979-1-linmq006@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/ohci-nxp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 2a43f4e46af0..9079be0d51d1 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -2273,8 +2273,9 @@ void i2c_put_adapter(struct i2c_adapter *adap)
- 	if (!adap)
- 		return;
+diff --git a/drivers/usb/host/ohci-nxp.c b/drivers/usb/host/ohci-nxp.c
+index c561881d0e79..07cee8c7c25e 100644
+--- a/drivers/usb/host/ohci-nxp.c
++++ b/drivers/usb/host/ohci-nxp.c
+@@ -164,6 +164,7 @@ static int ohci_hcd_nxp_probe(struct platform_device *pdev)
+ 	}
  
--	put_device(&adap->dev);
- 	module_put(adap->owner);
-+	/* Should be last, otherwise we risk use-after-free with 'adap' */
-+	put_device(&adap->dev);
- }
- EXPORT_SYMBOL(i2c_put_adapter);
+ 	isp1301_i2c_client = isp1301_get_client(isp1301_node);
++	of_node_put(isp1301_node);
+ 	if (!isp1301_i2c_client)
+ 		return -EPROBE_DEFER;
  
 -- 
 2.35.1
