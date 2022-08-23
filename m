@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AEF759DE26
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3226559DC0E
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355985AbiHWMEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:04:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58804 "EHLO
+        id S1358200AbiHWLoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:44:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359225AbiHWMD0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:03:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5D4DDA99;
-        Tue, 23 Aug 2022 02:37:15 -0700 (PDT)
+        with ESMTP id S1358599AbiHWLmJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:42:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E43DCE441;
+        Tue, 23 Aug 2022 02:29:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0D04B81C53;
-        Tue, 23 Aug 2022 09:36:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11862C433C1;
-        Tue, 23 Aug 2022 09:36:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE35961380;
+        Tue, 23 Aug 2022 09:29:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5DA8C433D6;
+        Tue, 23 Aug 2022 09:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247407;
-        bh=PxGQ830qFOzB3iy4ED34T7miCNgnpGT15TyrDUDHxXc=;
+        s=korg; t=1661246982;
+        bh=PJKzizzqAfbi8LBs5mZ2OL7SdtwX+AE6FNfVSHMJHq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NNEECGr0r/53puWquEvBFVSbdKVTJK5OcNQsj0nXv2MJGAiZEZlBwtICs9Szgokkz
-         Rt2DHzYSaglzUPbRPlUjhYe8n5doE+dJv8RSCTWHU/CNj5h2m79rHO8i8DsPubdrsC
-         OakJRXKljxzxHePTHVnooTkBhcUSXaY+QzyNqtug=
+        b=vHEGy70hFypxQDJxqzRQ4hqDCfIbGyVnBr19gRtSx6Inp8foXsTi9hsJJvLeiAURs
+         d+U5y0bRrkZ4yzBVpFnKATAUxAUFQUjNGeOZ50QDNnmczPnuYMjyqZ0ivRIwaPg0Ol
+         AEJ8nHGrhMqvIviw7XrE8Ty0VsWfqJriY8A7j7vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.10 026/158] NFSv4/pnfs: Fix a use-after-free bug in open
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Wei Wang <weiwan@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 280/389] tcp: fix over estimation in sk_forced_mem_schedule()
 Date:   Tue, 23 Aug 2022 10:25:58 +0200
-Message-Id: <20220823080047.146410880@linuxfoundation.org>
+Message-Id: <20220823080127.235681374@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 2135e5d56278ffdb1c2e6d325dc6b87f669b9dac upstream.
+commit c4ee118561a0f74442439b7b5b486db1ac1ddfeb upstream.
 
-If someone cancels the open RPC call, then we must not try to free
-either the open slot or the layoutget operation arguments, since they
-are likely still in use by the hung RPC call.
+sk_forced_mem_schedule() has a bug similar to ones fixed
+in commit 7c80b038d23e ("net: fix sk_wmem_schedule() and
+sk_rmem_schedule() errors")
 
-Fixes: 6949493884fe ("NFSv4: Don't hold the layoutget locks across multiple RPC calls")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+While this bug has little chance to trigger in old kernels,
+we need to fix it before the following patch.
+
+Fixes: d83769a580f1 ("tcp: fix possible deadlock in tcp_send_fin()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Wei Wang <weiwan@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/ipv4/tcp_output.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -3084,12 +3084,13 @@ static int _nfs4_open_and_get_state(stru
- 	}
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -3143,11 +3143,12 @@ void tcp_xmit_retransmit_queue(struct so
+  */
+ void sk_forced_mem_schedule(struct sock *sk, int size)
+ {
+-	int amt;
++	int delta, amt;
  
- out:
--	if (opendata->lgp) {
--		nfs4_lgopen_release(opendata->lgp);
--		opendata->lgp = NULL;
--	}
--	if (!opendata->cancelled)
-+	if (!opendata->cancelled) {
-+		if (opendata->lgp) {
-+			nfs4_lgopen_release(opendata->lgp);
-+			opendata->lgp = NULL;
-+		}
- 		nfs4_sequence_free_slot(&opendata->o_res.seq_res);
-+	}
- 	return ret;
- }
+-	if (size <= sk->sk_forward_alloc)
++	delta = size - sk->sk_forward_alloc;
++	if (delta <= 0)
+ 		return;
+-	amt = sk_mem_pages(size);
++	amt = sk_mem_pages(delta);
+ 	sk->sk_forward_alloc += amt * SK_MEM_QUANTUM;
+ 	sk_memory_allocated_add(sk, amt);
  
 
 
