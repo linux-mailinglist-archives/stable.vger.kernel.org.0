@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC88A59DFDE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5865259DE94
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355851AbiHWKsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:48:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56670 "EHLO
+        id S1353529AbiHWKPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355946AbiHWKp5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:45:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DB126CF51;
-        Tue, 23 Aug 2022 02:11:28 -0700 (PDT)
+        with ESMTP id S1353224AbiHWKNM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:13:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F237647F0;
+        Tue, 23 Aug 2022 01:59:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 177326069D;
-        Tue, 23 Aug 2022 09:11:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A0FBC433D6;
-        Tue, 23 Aug 2022 09:11:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3003EB81C1C;
+        Tue, 23 Aug 2022 08:59:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84537C433C1;
+        Tue, 23 Aug 2022 08:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245887;
-        bh=xbUiAn6roGKlOVmttkOBenGDG4+k4twIaoCVAlzAAPA=;
+        s=korg; t=1661245147;
+        bh=OojDaQ+Fj1kBMmiaCQt6cXVPGlHuy71ux3UaODHdAoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b8cD+AjInpX6PsiVFHXP3OP2WPxfwWYGoZ6QFuVxp765nF5tt9Le1qBtgFT1gB6YP
-         3CWSlPh00yQoYGR5Suz7CHhEWd+HGxgZHp0eQeLwJLy9CD9mKO3jJzrBdKgqiHhrX7
-         kRtD+svXAwarEMBlM91xm50I2vxiTJfe7JlKBVCc=
+        b=nHAycYi7cqbJj1WyvQI5U3ZW6ZsqzoNt7rcoPPDBhdjVw4mzgePcSfarWTSzmGu2v
+         xgiYgpVdZncC5OjR99tev5oZOXVnbZveJJSVlriBwycZ7+9BK8RIdZ4DQJ//vELZ0N
+         X0efaPljh8Eh2jFihM8L9LGAsXZlpNC7vp02gCXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerhard Uttenthaler <uttenthaler@ems-wuensche.com>,
-        Sebastian Haas <haas@ems-wuensche.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 222/287] can: ems_usb: fix clangs -Wunaligned-access warning
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 232/244] video: fbdev: i740fb: Check the argument of i740_calc_vclk()
 Date:   Tue, 23 Aug 2022 10:26:31 +0200
-Message-Id: <20220823080108.467764856@linuxfoundation.org>
+Message-Id: <20220823080107.304219698@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit a4cb6e62ea4d36e53fb3c0f18ea4503d7b76674f upstream.
+[ Upstream commit 40bf722f8064f50200b8c4f8946cd625b441dda9 ]
 
-clang emits a -Wunaligned-access warning on struct __packed
-ems_cpc_msg.
+Since the user can control the arguments of the ioctl() from the user
+space, under special arguments that may result in a divide-by-zero bug.
 
-The reason is that the anonymous union msg (not declared as packed) is
-being packed right after some non naturally aligned variables (3*8
-bits + 2*32) inside a packed struct:
+If the user provides an improper 'pixclock' value that makes the argumet
+of i740_calc_vclk() less than 'I740_RFREQ_FIX', it will cause a
+divide-by-zero bug in:
+    drivers/video/fbdev/i740fb.c:353 p_best = min(15, ilog2(I740_MAX_VCO_FREQ / (freq / I740_RFREQ_FIX)));
 
-| struct __packed ems_cpc_msg {
-| 	u8 type;	/* type of message */
-| 	u8 length;	/* length of data within union 'msg' */
-| 	u8 msgid;	/* confirmation handle */
-| 	__le32 ts_sec;	/* timestamp in seconds */
-| 	__le32 ts_nsec;	/* timestamp in nano seconds */
-|	/* ^ not naturally aligned */
-|
-| 	union {
-| 	/* ^ not declared as packed */
-| 		u8 generic[64];
-| 		struct cpc_can_msg can_msg;
-| 		struct cpc_can_params can_params;
-| 		struct cpc_confirm confirmation;
-| 		struct cpc_overrun overrun;
-| 		struct cpc_can_error error;
-| 		struct cpc_can_err_counter err_counter;
-| 		u8 can_state;
-| 	} msg;
-| };
+The following log can reveal it:
 
-Starting from LLVM 14, having an unpacked struct nested in a packed
-struct triggers a warning. c.f. [1].
+divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+RIP: 0010:i740_calc_vclk drivers/video/fbdev/i740fb.c:353 [inline]
+RIP: 0010:i740fb_decode_var drivers/video/fbdev/i740fb.c:646 [inline]
+RIP: 0010:i740fb_set_par+0x163f/0x3b70 drivers/video/fbdev/i740fb.c:742
+Call Trace:
+ fb_set_var+0x604/0xeb0 drivers/video/fbdev/core/fbmem.c:1034
+ do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
+ fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
 
-Fix the warning by marking the anonymous union as packed.
+Fix this by checking the argument of i740_calc_vclk() first.
 
-[1] https://github.com/llvm/llvm-project/issues/55520
-
-Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
-Link: https://lore.kernel.org/all/20220802094021.959858-1-mkl@pengutronix.de
-Cc: Gerhard Uttenthaler <uttenthaler@ems-wuensche.com>
-Cc: Sebastian Haas <haas@ems-wuensche.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/ems_usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/i740fb.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/usb/ems_usb.c
-+++ b/drivers/net/can/usb/ems_usb.c
-@@ -206,7 +206,7 @@ struct __packed ems_cpc_msg {
- 	__le32 ts_sec;	/* timestamp in seconds */
- 	__le32 ts_nsec;	/* timestamp in nano seconds */
+diff --git a/drivers/video/fbdev/i740fb.c b/drivers/video/fbdev/i740fb.c
+index 52cce0db8bd3..ad5ced4ef972 100644
+--- a/drivers/video/fbdev/i740fb.c
++++ b/drivers/video/fbdev/i740fb.c
+@@ -400,7 +400,7 @@ static int i740fb_decode_var(const struct fb_var_screeninfo *var,
+ 	u32 xres, right, hslen, left, xtotal;
+ 	u32 yres, lower, vslen, upper, ytotal;
+ 	u32 vxres, xoffset, vyres, yoffset;
+-	u32 bpp, base, dacspeed24, mem;
++	u32 bpp, base, dacspeed24, mem, freq;
+ 	u8 r7;
+ 	int i;
  
--	union {
-+	union __packed {
- 		u8 generic[64];
- 		struct cpc_can_msg can_msg;
- 		struct cpc_can_params can_params;
+@@ -643,7 +643,12 @@ static int i740fb_decode_var(const struct fb_var_screeninfo *var,
+ 	par->atc[VGA_ATC_OVERSCAN] = 0;
+ 
+ 	/* Calculate VCLK that most closely matches the requested dot clock */
+-	i740_calc_vclk((((u32)1e9) / var->pixclock) * (u32)(1e3), par);
++	freq = (((u32)1e9) / var->pixclock) * (u32)(1e3);
++	if (freq < I740_RFREQ_FIX) {
++		fb_dbg(info, "invalid pixclock\n");
++		freq = I740_RFREQ_FIX;
++	}
++	i740_calc_vclk(freq, par);
+ 
+ 	/* Since we program the clocks ourselves, always use VCLK2. */
+ 	par->misc |= 0x0C;
+-- 
+2.35.1
+
 
 
