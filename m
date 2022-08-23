@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B72F59E08F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA02D59DE64
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353699AbiHWKSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:18:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53228 "EHLO
+        id S242696AbiHWLT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:19:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354342AbiHWKRK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:17:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25C580B5A;
-        Tue, 23 Aug 2022 02:01:25 -0700 (PDT)
+        with ESMTP id S1357503AbiHWLRi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A14F28981C;
+        Tue, 23 Aug 2022 02:21:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98D5C61459;
-        Tue, 23 Aug 2022 09:01:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2EFC433D6;
-        Tue, 23 Aug 2022 09:01:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5FEC6121F;
+        Tue, 23 Aug 2022 09:21:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4FFEC433C1;
+        Tue, 23 Aug 2022 09:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245283;
-        bh=k99rQfAN/Lt2RYkkU5H2EoGW+vQy2MUMH4d2va9jXms=;
+        s=korg; t=1661246470;
+        bh=UPVFrsRN7v3UVF8oZxitCqKb2oKaLkQ8wK6pWsKIqkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oKFkLDk1w3mGccHmsXwpBa9OrTrXLiV/b6zDXoaMFK7Y3/Og8YVCaLDiWhoo4pEE9
-         /cRSk/p7kopfOTRWKRf7YPWv0lhhrxrfqxG92+AhD4BmvYqQNjXjns7MsEOUu2/RX0
-         +2cTAxiGWOFXYykoacA1ovu30HjVTHGf6nITrgLE=
+        b=xxxStGBGgfzEkZG6gAlT/8+TN2//IhEcO1yZhhwQT7reuk018UKhKfPkGFvCswIVD
+         HpVvgFN7ocfnOTv9m433wpUkduSIbkC8kUDIWkSSoW1jc21WA8ullgV5u+qf9O3raM
+         Jfw5MmiMIc5K4JMDBS0vk1lP0AZuKN/dDOl12AQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Guo <yi.guo@cavium.com>,
-        Nadav Haklai <nadavh@marvell.com>,
-        Narendra Hadke <nhadke@marvell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 4.19 029/287] serial: mvebu-uart: uart2 error bits clearing
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 120/389] mediatek: mt76: mac80211: Fix missing of_node_put() in mt76_led_init()
 Date:   Tue, 23 Aug 2022 10:23:18 +0200
-Message-Id: <20220823080101.256900175@linuxfoundation.org>
+Message-Id: <20220823080120.618684376@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Narendra Hadke <nhadke@marvell.com>
+From: Liang He <windhl@126.com>
 
-commit a7209541239e5dd44d981289e5f9059222d40fd1 upstream.
+[ Upstream commit 0a14c1d0113f121151edf34333cdf212dd209190 ]
 
-For mvebu uart2, error bits are not cleared on buffer read.
-This causes interrupt loop and system hang.
+We should use of_node_put() for the reference 'np' returned by
+of_get_child_by_name() which will increase the refcount.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Yi Guo <yi.guo@cavium.com>
-Reviewed-by: Nadav Haklai <nadavh@marvell.com>
-Signed-off-by: Narendra Hadke <nhadke@marvell.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20220726091221.12358-1-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 17f1de56df05 ("mt76: add common code shared between multiple chipsets")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/mvebu-uart.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mac80211.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -237,6 +237,7 @@ static void mvebu_uart_rx_chars(struct u
- 	struct tty_port *tport = &port->state->port;
- 	unsigned char ch = 0;
- 	char flag = 0;
-+	int ret;
+diff --git a/drivers/net/wireless/mediatek/mt76/mac80211.c b/drivers/net/wireless/mediatek/mt76/mac80211.c
+index 8bd191347b9f..179337eb39ba 100644
+--- a/drivers/net/wireless/mediatek/mt76/mac80211.c
++++ b/drivers/net/wireless/mediatek/mt76/mac80211.c
+@@ -103,6 +103,7 @@ static int mt76_led_init(struct mt76_dev *dev)
+ 		if (!of_property_read_u32(np, "led-sources", &led_pin))
+ 			dev->led_pin = led_pin;
+ 		dev->led_al = of_property_read_bool(np, "led-active-low");
++		of_node_put(np);
+ 	}
  
- 	do {
- 		if (status & STAT_RX_RDY(port)) {
-@@ -249,6 +250,16 @@ static void mvebu_uart_rx_chars(struct u
- 				port->icount.parity++;
- 		}
- 
-+		/*
-+		 * For UART2, error bits are not cleared on buffer read.
-+		 * This causes interrupt loop and system hang.
-+		 */
-+		if (IS_EXTENDED(port) && (status & STAT_BRK_ERR)) {
-+			ret = readl(port->membase + UART_STAT);
-+			ret |= STAT_BRK_ERR;
-+			writel(ret, port->membase + UART_STAT);
-+		}
-+
- 		if (status & STAT_BRK_DET) {
- 			port->icount.brk++;
- 			status &= ~(STAT_FRM_ERR | STAT_PAR_ERR);
+ 	return led_classdev_register(dev->dev, &dev->led_cdev);
+-- 
+2.35.1
+
 
 
