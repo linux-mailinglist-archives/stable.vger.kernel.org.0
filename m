@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3606759E2EA
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C5759DB61
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240329AbiHWLhP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:37:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49070 "EHLO
+        id S1355418AbiHWKiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:38:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349802AbiHWLdj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:33:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1A46C6CF3;
-        Tue, 23 Aug 2022 02:27:04 -0700 (PDT)
+        with ESMTP id S1355734AbiHWKg6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:36:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D72A6C38;
+        Tue, 23 Aug 2022 02:07:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9DB66133A;
-        Tue, 23 Aug 2022 09:27:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD755C433D6;
-        Tue, 23 Aug 2022 09:27:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 731A3B81C89;
+        Tue, 23 Aug 2022 09:07:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4195C433D6;
+        Tue, 23 Aug 2022 09:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246823;
-        bh=+nrm8rt8GRkyPlcrkGTD0rMmIru5+ErV50pcg9tTFSM=;
+        s=korg; t=1661245644;
+        bh=YrtYR5uzYTGHvW1l1duOpFLg7RFtdbzcLZIhVMmPlcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hsd3CKUigjcC3aKkj0uIcxHyHHfZ1QkgbZ+vcrc36S/kkVdwWlsn7WNAz12TrLWQx
-         skXtFWce4VnEjmYKcv2fbJm7tRltFa3tcdYFF7Uk/U9nqj2K7lXJ9/FlWwFPTh8/2R
-         DCKD0l5G5DmHiZ+FzNBPsfKyMdgTdpLYsRtOrb0A=
+        b=HooSGEnZeecdagB0+kQsxM506ftYGTKw+34qGWFlpYuKQNNtOZMxfXyCfcWKYKaOv
+         FY65ThT6U2ttUvQUanpY+nJC8bh4qnmb5bnTtt/uGuCHXriY8K3k9PAydYZ5nSQ5Sw
+         Z+b6E4VU7eU6P0KTWr1XVFcdLrAHdZ2xfB7AciG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 201/389] jbd2: fix assertion jh->b_frozen_data == NULL failure when journal aborted
-Date:   Tue, 23 Aug 2022 10:24:39 +0200
-Message-Id: <20220823080124.042681302@linuxfoundation.org>
+        stable@vger.kernel.org, Bernard Pidoux <f6bvp@free.fr>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 111/287] net: rose: fix netdev reference changes
+Date:   Tue, 23 Aug 2022 10:24:40 +0200
+Message-Id: <20220823080104.106110987@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 4a734f0869f970b8a9b65062ea40b09a5da9dba8 ]
+[ Upstream commit 931027820e4dafabc78aff82af59f8c1c4bd3128 ]
 
-Following process will fail assertion 'jh->b_frozen_data == NULL' in
-jbd2_journal_dirty_metadata():
+Bernard reported that trying to unload rose module would lead
+to infamous messages:
 
-                   jbd2_journal_commit_transaction
-unlink(dir/a)
- jh->b_transaction = trans1
- jh->b_jlist = BJ_Metadata
-                    journal->j_running_transaction = NULL
-                    trans1->t_state = T_COMMIT
-unlink(dir/b)
- handle->h_trans = trans2
- do_get_write_access
-  jh->b_modified = 0
-  jh->b_frozen_data = frozen_buffer
-  jh->b_next_transaction = trans2
- jbd2_journal_dirty_metadata
-  is_handle_aborted
-   is_journal_aborted // return false
+unregistered_netdevice: waiting for rose0 to become free. Usage count = xx
 
-           --> jbd2 abort <--
+This patch solves the issue, by making sure each socket referring to
+a netdevice holds a reference count on it, and properly releases it
+in rose_release().
 
-                     while (commit_transaction->t_buffers)
-                      if (is_journal_aborted)
-                       jbd2_journal_refile_buffer
-                        __jbd2_journal_refile_buffer
-                         WRITE_ONCE(jh->b_transaction,
-						jh->b_next_transaction)
-                         WRITE_ONCE(jh->b_next_transaction, NULL)
-                         __jbd2_journal_file_buffer(jh, BJ_Reserved)
-        J_ASSERT_JH(jh, jh->b_frozen_data == NULL) // assertion failure !
+rose_dev_first() is also fixed to take a device reference
+before leaving the rcu_read_locked section.
 
-The reproducer (See detail in [Link]) reports:
- ------------[ cut here ]------------
- kernel BUG at fs/jbd2/transaction.c:1629!
- invalid opcode: 0000 [#1] PREEMPT SMP
- CPU: 2 PID: 584 Comm: unlink Tainted: G        W
- 5.19.0-rc6-00115-g4a57a8400075-dirty #697
- RIP: 0010:jbd2_journal_dirty_metadata+0x3c5/0x470
- RSP: 0018:ffffc90000be7ce0 EFLAGS: 00010202
- Call Trace:
-  <TASK>
-  __ext4_handle_dirty_metadata+0xa0/0x290
-  ext4_handle_dirty_dirblock+0x10c/0x1d0
-  ext4_delete_entry+0x104/0x200
-  __ext4_unlink+0x22b/0x360
-  ext4_unlink+0x275/0x390
-  vfs_unlink+0x20b/0x4c0
-  do_unlinkat+0x42f/0x4c0
-  __x64_sys_unlink+0x37/0x50
-  do_syscall_64+0x35/0x80
+Following patch will add ref_tracker annotations to ease
+future bug hunting.
 
-After journal aborting, __jbd2_journal_refile_buffer() is executed with
-holding @jh->b_state_lock, we can fix it by moving 'is_handle_aborted()'
-into the area protected by @jh->b_state_lock.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216251
-Fixes: 470decc613ab20 ("[PATCH] jbd2: initial copy of files from jbd")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Link: https://lore.kernel.org/r/20220715125152.4022726-1-chengzhihao1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Bernard Pidoux <f6bvp@free.fr>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Tested-by: Bernard Pidoux <f6bvp@free.fr>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/transaction.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ net/rose/af_rose.c    | 11 +++++++++--
+ net/rose/rose_route.c |  2 ++
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index be05fb96757c..e0bd73140415 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -1375,8 +1375,6 @@ int jbd2_journal_dirty_metadata(handle_t *handle, struct buffer_head *bh)
- 	struct journal_head *jh;
- 	int ret = 0;
+diff --git a/net/rose/af_rose.c b/net/rose/af_rose.c
+index d00a0ef39a56..03a1ee221112 100644
+--- a/net/rose/af_rose.c
++++ b/net/rose/af_rose.c
+@@ -194,6 +194,7 @@ static void rose_kill_by_device(struct net_device *dev)
+ 			rose_disconnect(s, ENETUNREACH, ROSE_OUT_OF_ORDER, 0);
+ 			if (rose->neighbour)
+ 				rose->neighbour->use--;
++			dev_put(rose->device);
+ 			rose->device = NULL;
+ 		}
+ 	}
+@@ -594,6 +595,8 @@ static struct sock *rose_make_new(struct sock *osk)
+ 	rose->idle	= orose->idle;
+ 	rose->defer	= orose->defer;
+ 	rose->device	= orose->device;
++	if (rose->device)
++		dev_hold(rose->device);
+ 	rose->qbitincl	= orose->qbitincl;
  
--	if (is_handle_aborted(handle))
--		return -EROFS;
- 	if (!buffer_jbd(bh))
- 		return -EUCLEAN;
+ 	return sk;
+@@ -647,6 +650,7 @@ static int rose_release(struct socket *sock)
+ 		break;
+ 	}
  
-@@ -1423,6 +1421,18 @@ int jbd2_journal_dirty_metadata(handle_t *handle, struct buffer_head *bh)
- 	journal = transaction->t_journal;
- 	jbd_lock_bh_state(bh);
++	dev_put(rose->device);
+ 	sock->sk = NULL;
+ 	release_sock(sk);
+ 	sock_put(sk);
+@@ -721,7 +725,6 @@ static int rose_connect(struct socket *sock, struct sockaddr *uaddr, int addr_le
+ 	struct rose_sock *rose = rose_sk(sk);
+ 	struct sockaddr_rose *addr = (struct sockaddr_rose *)uaddr;
+ 	unsigned char cause, diagnostic;
+-	struct net_device *dev;
+ 	ax25_uid_assoc *user;
+ 	int n, err = 0;
  
-+	if (is_handle_aborted(handle)) {
-+		/*
-+		 * Check journal aborting with @jh->b_state_lock locked,
-+		 * since 'jh->b_transaction' could be replaced with
-+		 * 'jh->b_next_transaction' during old transaction
-+		 * committing if journal aborted, which may fail
-+		 * assertion on 'jh->b_frozen_data == NULL'.
-+		 */
-+		ret = -EROFS;
-+		goto out_unlock_bh;
-+	}
+@@ -778,9 +781,12 @@ static int rose_connect(struct socket *sock, struct sockaddr *uaddr, int addr_le
+ 	}
+ 
+ 	if (sock_flag(sk, SOCK_ZAPPED)) {	/* Must bind first - autobinding in this may or may not work */
++		struct net_device *dev;
 +
- 	if (jh->b_modified == 0) {
- 		/*
- 		 * This buffer's got modified and becoming part
+ 		sock_reset_flag(sk, SOCK_ZAPPED);
+ 
+-		if ((dev = rose_dev_first()) == NULL) {
++		dev = rose_dev_first();
++		if (!dev) {
+ 			err = -ENETUNREACH;
+ 			goto out_release;
+ 		}
+@@ -788,6 +794,7 @@ static int rose_connect(struct socket *sock, struct sockaddr *uaddr, int addr_le
+ 		user = ax25_findbyuid(current_euid());
+ 		if (!user) {
+ 			err = -EINVAL;
++			dev_put(dev);
+ 			goto out_release;
+ 		}
+ 
+diff --git a/net/rose/rose_route.c b/net/rose/rose_route.c
+index 46ae92d70324..5671853bef83 100644
+--- a/net/rose/rose_route.c
++++ b/net/rose/rose_route.c
+@@ -616,6 +616,8 @@ struct net_device *rose_dev_first(void)
+ 			if (first == NULL || strncmp(dev->name, first->name, 3) < 0)
+ 				first = dev;
+ 	}
++	if (first)
++		dev_hold(first);
+ 	rcu_read_unlock();
+ 
+ 	return first;
 -- 
 2.35.1
 
