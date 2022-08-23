@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD6959D382
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C0E59D345
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241744AbiHWIJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51360 "EHLO
+        id S241793AbiHWIJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:09:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241741AbiHWIIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:08:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE6615FD5;
-        Tue, 23 Aug 2022 01:05:37 -0700 (PDT)
+        with ESMTP id S241631AbiHWII1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:08:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E28B56CD01;
+        Tue, 23 Aug 2022 01:05:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 627C9CE1B29;
-        Tue, 23 Aug 2022 08:05:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6367AC433C1;
-        Tue, 23 Aug 2022 08:05:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8987A611DD;
+        Tue, 23 Aug 2022 08:05:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BF20C433C1;
+        Tue, 23 Aug 2022 08:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661241914;
-        bh=p5L1RJmEecqNIfPyT3QRQLYh4wl0EhjOa21pZM+hFrE=;
+        s=korg; t=1661241918;
+        bh=8u3wijuX4ETCv7WV+Sw2MPFZfSqAw8ruOcubsYmUVNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=blmD1hZBE3AzsX/24YuZpnPjGCa7S0BkkMIppyf/hCHTmxO23PLQvs4XaYfRxj1Jw
-         JcxkiVxuGmVGssiL5FiI2MMXCvy90kFmOT9xMzjdSx7GQJDkAZr4nRPCpgY2OO6cZP
-         UMaktVlOOLDoMfIWdrj+43ECCxVb39zNdZ0MDNcI=
+        b=ufgXN2kNhqPSvt//z2dR5B/JrqNbMmTuXl5AqWJNlJKEGA6kxFQPWE5MJrMyoTDBv
+         1tzK4BwdB+ZOJgmvOvrO3UI95QqCdGagCEH9OM+UsnyM2E0rnZab7JZINrOAbBHsGV
+         c8faVeIMG/ejike7GqObDaHl3jiFDA8aweO+M/IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
-        Nikolay Borisov <nborisov@suse.com>,
-        Zixuan Fu <r33s3n6@gmail.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.19 018/365] btrfs: unset reloc control if transaction commit fails in prepare_to_relocate()
-Date:   Tue, 23 Aug 2022 09:58:39 +0200
-Message-Id: <20220823080118.950572230@linuxfoundation.org>
+        stable@vger.kernel.org, Boris Burkov <boris@bur.io>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.19 019/365] btrfs: reset RO counter on block group if we fail to relocate
+Date:   Tue, 23 Aug 2022 09:58:40 +0200
+Message-Id: <20220823080119.003247301@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,102 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zixuan Fu <r33s3n6@gmail.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 85f02d6c856b9f3a0acf5219de6e32f58b9778eb upstream.
+commit 74944c873602a3ed8d16ff7af3f64af80c0f9dac upstream.
 
-In btrfs_relocate_block_group(), the rc is allocated.  Then
-btrfs_relocate_block_group() calls
+With the automatic block group reclaim code we will preemptively try to
+mark the block group RO before we start the relocation.  We do this to
+make sure we should actually try to relocate the block group.
 
-relocate_block_group()
-  prepare_to_relocate()
-    set_reloc_control()
+However if we hit an error during the actual relocation we won't clean
+up our RO counter and the block group will remain RO.  This was observed
+internally with file systems reporting less space available from df when
+we had failed background relocations.
 
-that assigns rc to the variable fs_info->reloc_ctl. When
-prepare_to_relocate() returns, it calls
+Fix this by doing the dec_ro in the error case.
 
-btrfs_commit_transaction()
-  btrfs_start_dirty_block_groups()
-    btrfs_alloc_path()
-      kmem_cache_zalloc()
-
-which may fail for example (or other errors could happen). When the
-failure occurs, btrfs_relocate_block_group() detects the error and frees
-rc and doesn't set fs_info->reloc_ctl to NULL. After that, in
-btrfs_init_reloc_root(), rc is retrieved from fs_info->reloc_ctl and
-then used, which may cause a use-after-free bug.
-
-This possible bug can be triggered by calling btrfs_ioctl_balance()
-before calling btrfs_ioctl_defrag().
-
-To fix this possible bug, in prepare_to_relocate(), check if
-btrfs_commit_transaction() fails. If the failure occurs,
-unset_reloc_control() is called to set fs_info->reloc_ctl to NULL.
-
-The error log in our fault-injection testing is shown as follows:
-
-  [   58.751070] BUG: KASAN: use-after-free in btrfs_init_reloc_root+0x7ca/0x920 [btrfs]
-  ...
-  [   58.753577] Call Trace:
-  ...
-  [   58.755800]  kasan_report+0x45/0x60
-  [   58.756066]  btrfs_init_reloc_root+0x7ca/0x920 [btrfs]
-  [   58.757304]  record_root_in_trans+0x792/0xa10 [btrfs]
-  [   58.757748]  btrfs_record_root_in_trans+0x463/0x4f0 [btrfs]
-  [   58.758231]  start_transaction+0x896/0x2950 [btrfs]
-  [   58.758661]  btrfs_defrag_root+0x250/0xc00 [btrfs]
-  [   58.759083]  btrfs_ioctl_defrag+0x467/0xa00 [btrfs]
-  [   58.759513]  btrfs_ioctl+0x3c95/0x114e0 [btrfs]
-  ...
-  [   58.768510] Allocated by task 23683:
-  [   58.768777]  ____kasan_kmalloc+0xb5/0xf0
-  [   58.769069]  __kmalloc+0x227/0x3d0
-  [   58.769325]  alloc_reloc_control+0x10a/0x3d0 [btrfs]
-  [   58.769755]  btrfs_relocate_block_group+0x7aa/0x1e20 [btrfs]
-  [   58.770228]  btrfs_relocate_chunk+0xf1/0x760 [btrfs]
-  [   58.770655]  __btrfs_balance+0x1326/0x1f10 [btrfs]
-  [   58.771071]  btrfs_balance+0x3150/0x3d30 [btrfs]
-  [   58.771472]  btrfs_ioctl_balance+0xd84/0x1410 [btrfs]
-  [   58.771902]  btrfs_ioctl+0x4caa/0x114e0 [btrfs]
-  ...
-  [   58.773337] Freed by task 23683:
-  ...
-  [   58.774815]  kfree+0xda/0x2b0
-  [   58.775038]  free_reloc_control+0x1d6/0x220 [btrfs]
-  [   58.775465]  btrfs_relocate_block_group+0x115c/0x1e20 [btrfs]
-  [   58.775944]  btrfs_relocate_chunk+0xf1/0x760 [btrfs]
-  [   58.776369]  __btrfs_balance+0x1326/0x1f10 [btrfs]
-  [   58.776784]  btrfs_balance+0x3150/0x3d30 [btrfs]
-  [   58.777185]  btrfs_ioctl_balance+0xd84/0x1410 [btrfs]
-  [   58.777621]  btrfs_ioctl+0x4caa/0x114e0 [btrfs]
-  ...
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Fixes: 18bb8bbf13c1 ("btrfs: zoned: automatically reclaim zones")
 CC: stable@vger.kernel.org # 5.15+
-Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
+Reviewed-by: Boris Burkov <boris@bur.io>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/relocation.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/btrfs/block-group.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -3573,7 +3573,12 @@ int prepare_to_relocate(struct reloc_con
- 		 */
- 		return PTR_ERR(trans);
- 	}
--	return btrfs_commit_transaction(trans);
-+
-+	ret = btrfs_commit_transaction(trans);
-+	if (ret)
-+		unset_reloc_control(rc);
-+
-+	return ret;
- }
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -1640,9 +1640,11 @@ void btrfs_reclaim_bgs_work(struct work_
+ 				div64_u64(zone_unusable * 100, bg->length));
+ 		trace_btrfs_reclaim_block_group(bg);
+ 		ret = btrfs_relocate_chunk(fs_info, bg->start);
+-		if (ret)
++		if (ret) {
++			btrfs_dec_block_group_ro(bg);
+ 			btrfs_err(fs_info, "error relocating chunk %llu",
+ 				  bg->start);
++		}
  
- static noinline_for_stack int relocate_block_group(struct reloc_control *rc)
+ next:
+ 		btrfs_put_block_group(bg);
 
 
