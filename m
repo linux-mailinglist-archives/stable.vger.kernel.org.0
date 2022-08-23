@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5390159D50C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EAA859D4F5
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243703AbiHWIcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:32:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59138 "EHLO
+        id S243695AbiHWIcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:32:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243412AbiHWIaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:30:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0338974E0B;
-        Tue, 23 Aug 2022 01:15:17 -0700 (PDT)
+        with ESMTP id S245696AbiHWIbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:31:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BA36D9E9;
+        Tue, 23 Aug 2022 01:15:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 71974CE1B35;
-        Tue, 23 Aug 2022 08:15:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 879BCC433D7;
-        Tue, 23 Aug 2022 08:15:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72CA06134C;
+        Tue, 23 Aug 2022 08:15:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73BDEC433D7;
+        Tue, 23 Aug 2022 08:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242502;
-        bh=74BDVeIvMBWQuIu/Rh+9XV75YMCsgnfcdiv4ClaKEQU=;
+        s=korg; t=1661242508;
+        bh=fy9Hbiarz6gfSjxp30zSLiolvV9NwPqMSdgxPIu22Qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faJo7Th67wI3Y8hrR1CeMEKasabHROba2H7QK58JoivYuQATcinlfIlRfOulbzrlS
-         MYCOs2I54Xey4PTPLtXQXe7aFnpb0vCZ69m5rx0M9W6mFzRs52trJIXMzasWS42VRb
-         bvQdmP9BMVRTwmCK2GKI/jKiBb3oH4m/W8YYp9gA=
+        b=p5GpuMdOFj+DsGEJpRjzQKo1PW+xjtU2khuXDVcH+QpBWDVPqeRgMaRkK4Q/P3xlm
+         RhJjgb63LsmWiIGWHRZZQ/ZA6JYTPbcYBsv+MG33wWoLNkTpBfT0nFD9qGJko8CyLI
+         06HdPHXZEEHcRqJSWNQ1dO6t6VCHoY2UwcgbdW4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 4.9 081/101] nios2: fix syscall restart checks
-Date:   Tue, 23 Aug 2022 10:03:54 +0200
-Message-Id: <20220823080037.661864419@linuxfoundation.org>
+Subject: [PATCH 4.9 082/101] nios2: restarts apply only to the first sigframe we build...
+Date:   Tue, 23 Aug 2022 10:03:55 +0200
+Message-Id: <20220823080037.691744892@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080034.579196046@linuxfoundation.org>
 References: <20220823080034.579196046@linuxfoundation.org>
@@ -55,33 +55,25 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 2d631bd58fe0ea3e3350212e23c9aba1fb606514 upstream.
-
-sys_foo() returns -512 (aka -ERESTARTSYS) => do_signal() sees
-512 in r2 and 1 in r1.
-
-sys_foo() returns 512 => do_signal() sees 512 in r2 and 0 in r1.
-
-The former is restart-worthy; the latter obviously isn't.
+commit 411a76b7219555c55867466c82d70ce928d6c9e1 upstream.
 
 Fixes: b53e906d255d ("nios2: Signal handling support")
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/kernel/signal.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/kernel/signal.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/arch/nios2/kernel/signal.c
 +++ b/arch/nios2/kernel/signal.c
-@@ -240,7 +240,7 @@ static int do_signal(struct pt_regs *reg
- 	/*
- 	 * If we were from a system call, check for system call restarting...
- 	 */
--	if (regs->orig_r2 >= 0) {
-+	if (regs->orig_r2 >= 0 && regs->r1) {
- 		continue_addr = regs->ea;
- 		restart_addr = continue_addr - 4;
- 		retval = regs->r2;
+@@ -261,6 +261,7 @@ static int do_signal(struct pt_regs *reg
+ 			regs->ea = restart_addr;
+ 			break;
+ 		}
++		regs->orig_r2 = -1;
+ 	}
+ 
+ 	if (get_signal(&ksig)) {
 
 
