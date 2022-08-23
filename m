@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D915659E342
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCADC59E005
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350430AbiHWMSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:18:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56020 "EHLO
+        id S1358774AbiHWLyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:54:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356514AbiHWMPm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:15:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC28098D22;
-        Tue, 23 Aug 2022 02:41:08 -0700 (PDT)
+        with ESMTP id S1358674AbiHWLwl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:52:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF9ADD5717;
+        Tue, 23 Aug 2022 02:32:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B867D614C7;
-        Tue, 23 Aug 2022 09:40:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3253C433D6;
-        Tue, 23 Aug 2022 09:40:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC423B81C50;
+        Tue, 23 Aug 2022 09:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37911C433D7;
+        Tue, 23 Aug 2022 09:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247604;
-        bh=8abBVobj0M1tTJjPmNRvhvxyiACx1wxIn8CgGIfsnbE=;
+        s=korg; t=1661247170;
+        bh=ndWiiY4NeHQG8/CTphvxdicS3nDa17lUBfCluKN6RgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/Oa2s4sB+dNEtV21l/aoHlcsjY7IuAAbT6Rta8V2crjJlyq+GzlB+/r0fgtqjm8X
-         EtoEBrKNOiWBDpfo7HEIA6A34IHwD6STjMsnQxB5KTLZZaa1CFNG4pJz65CcSNxC61
-         ooz0RI6++ba/8qmQkf+Xhdmn6y0WOxfx/CsJaJ9w=
+        b=ywI+qmKp2uHq2OlYYNc0W+Ww/e83mNIcfJXs/9xQNH+rGREWutL9uE7o8jdQkAx2T
+         ddlTB0hWnVKsjpzlJwPyMEAC2Y/O7DdyOquMhA50YrWcUzMlnCBrCdtduwvcWLQtyP
+         RoQSUa9NKPekgDyfcTNiE5mgA/BOYrlhF8R9+KdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.10 087/158] i2c: imx: Make sure to unregister adapter on remove()
+        Arun Ramadoss <arun.ramadoss@microchip.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 341/389] net: dsa: microchip: ksz9477: fix fdb_dump last invalid entry
 Date:   Tue, 23 Aug 2022 10:26:59 +0200
-Message-Id: <20220823080049.573801282@linuxfoundation.org>
+Message-Id: <20220823080129.781184318@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
-References: <20220823080046.056825146@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,68 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Arun Ramadoss <arun.ramadoss@microchip.com>
 
-commit d98bdd3a5b50446d8e010be5b04ce81c4eabf728 upstream.
+commit 36c0d935015766bf20d621c18313f17691bda5e3 upstream.
 
-If for whatever reasons pm_runtime_resume_and_get() fails and .remove() is
-exited early, the i2c adapter stays around and the irq still calls its
-handler, while the driver data and the register mapping go away. So if
-later the i2c adapter is accessed or the irq triggers this results in
-havoc accessing freed memory and unmapped registers.
+In the ksz9477_fdb_dump function it reads the ALU control register and
+exit from the timeout loop if there is valid entry or search is
+complete. After exiting the loop, it reads the alu entry and report to
+the user space irrespective of entry is valid. It works till the valid
+entry. If the loop exited when search is complete, it reads the alu
+table. The table returns all ones and it is reported to user space. So
+bridge fdb show gives ff:ff:ff:ff:ff:ff as last entry for every port.
+To fix it, after exiting the loop the entry is reported only if it is
+valid one.
 
-So unregister the software resources even if resume failed, and only skip
-the hardware access in that case.
-
-Fixes: 588eb93ea49f ("i2c: imx: add runtime pm support to improve the performance")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
+Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220816105516.18350-1-arun.ramadoss@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-imx.c |   20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/dsa/microchip/ksz9477.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1280,9 +1280,7 @@ static int i2c_imx_remove(struct platfor
- 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
- 	int irq, ret;
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -766,6 +766,9 @@ static int ksz9477_port_fdb_dump(struct
+ 			goto exit;
+ 		}
  
--	ret = pm_runtime_resume_and_get(&pdev->dev);
--	if (ret < 0)
--		return ret;
-+	ret = pm_runtime_get_sync(&pdev->dev);
- 
- 	/* remove adapter */
- 	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
-@@ -1291,17 +1289,21 @@ static int i2c_imx_remove(struct platfor
- 	if (i2c_imx->dma)
- 		i2c_imx_dma_free(i2c_imx);
- 
--	/* setup chip registers to defaults */
--	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
--	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
--	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
--	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
-+	if (ret == 0) {
-+		/* setup chip registers to defaults */
-+		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
-+		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
-+		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
-+		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
-+		clk_disable(i2c_imx->clk);
-+	}
- 
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq >= 0)
- 		free_irq(irq, i2c_imx);
--	clk_disable_unprepare(i2c_imx->clk);
++		if (!(ksz_data & ALU_VALID))
++			continue;
 +
-+	clk_unprepare(i2c_imx->clk);
+ 		/* read ALU table */
+ 		ksz9477_read_table(dev, alu_table);
  
- 	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
 
 
