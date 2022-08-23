@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1916559E219
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5137F59E296
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358596AbiHWL4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:56:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57062 "EHLO
+        id S1351826AbiHWMRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:17:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358776AbiHWLyK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:54:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9017BD5DEC;
-        Tue, 23 Aug 2022 02:33:12 -0700 (PDT)
+        with ESMTP id S1359641AbiHWMQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129CB98D1A;
+        Tue, 23 Aug 2022 02:41:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEA41B81C4B;
-        Tue, 23 Aug 2022 09:33:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31023C433D6;
-        Tue, 23 Aug 2022 09:33:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46EADB81B1F;
+        Tue, 23 Aug 2022 09:40:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A29F2C433C1;
+        Tue, 23 Aug 2022 09:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247186;
-        bh=vxz0XatBq9pQ2L23H7ry7CKtCaMUuGXXCzKN3n+RX8E=;
+        s=korg; t=1661247655;
+        bh=4jrCeDH5htUTAKRPY4r395KdKhET1ApCrWau5EWtYyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FQKOoAkn3EWiweN2JYCTohLMKAI9SYgraJVtrUnNG/SDKZv9IBZMc8/WwiIQehckv
-         Z+v3HFJcH7dAiWcMzpPRNw83vWEkOfG37S4UR0tdOXS5uP/aEHAXLlqMI1RLKWB4P9
-         EiuW/Q5SvLuQ3qNrLUrbntLfNaZsdOkjcUOvgqOA=
+        b=equF9FAebRAWJiuyXYRFLaCIsa3qfFYyeqkIJHdkzF5Utir6sNj2HuBvaxjtmwQqx
+         137c6FSBmNRhMHfA4LBphbGz3YSDQ5lEpdFAvjuLbPnzWhalgFlVaP0ijnYaLpJbGz
+         H3aNn3sZLN3dNP6uBpTnPU5yZWQ5y0CBde0b/aRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nimish Mishra <neelam.nimish@gmail.com>,
-        Anirban Chakraborty <ch.anirban00727@gmail.com>,
-        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
-        Jerome Forissier <jerome.forissier@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 328/389] tee: add overflow check in register_shm_helper()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 074/158] ASoC: tas2770: Fix handling of mute/unmute
 Date:   Tue, 23 Aug 2022 10:26:46 +0200
-Message-Id: <20220823080129.221336436@linuxfoundation.org>
+Message-Id: <20220823080049.036054652@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,61 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-commit 573ae4f13f630d6660008f1974c0a8a29c30e18a upstream.
+commit 1e5907bcb3a3b569be0a03ebe668bba2ed320a50 upstream.
 
-With special lengths supplied by user space, register_shm_helper() has
-an integer overflow when calculating the number of pages covered by a
-supplied user space memory region.
+Because the PWR_CTRL field is modeled as the power state of the DAC
+widget, and at the same time it is used to implement mute/unmute, we
+need some additional book-keeping to have the right end result no matter
+the sequence of calls. Without this fix, one can mute an ongoing stream
+by toggling a speaker pin control.
 
-This causes internal_get_user_pages_fast() a helper function of
-pin_user_pages_fast() to do a NULL pointer dereference:
-
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
-  Modules linked in:
-  CPU: 1 PID: 173 Comm: optee_example_a Not tainted 5.19.0 #11
-  Hardware name: QEMU QEMU Virtual Machine, BIOS 0.0.0 02/06/2015
-  pc : internal_get_user_pages_fast+0x474/0xa80
-  Call trace:
-   internal_get_user_pages_fast+0x474/0xa80
-   pin_user_pages_fast+0x24/0x4c
-   register_shm_helper+0x194/0x330
-   tee_shm_register_user_buf+0x78/0x120
-   tee_ioctl+0xd0/0x11a0
-   __arm64_sys_ioctl+0xa8/0xec
-   invoke_syscall+0x48/0x114
-
-Fix this by adding an an explicit call to access_ok() in
-tee_shm_register_user_buf() to catch an invalid user space address
-early.
-
-Fixes: 033ddf12bcf5 ("tee: add register user memory")
-Cc: stable@vger.kernel.org
-Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
-Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
-Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
-Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[JW: backport to stable-5.4 + update commit message]
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Fixes: 1a476abc723e ("tas2770: add tas2770 smart PA kernel driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220808141246.5749-5-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/tee_core.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/tas2770.c |   57 +++++++++++++++++++++++----------------------
+ sound/soc/codecs/tas2770.h |    2 +
+ 2 files changed, 32 insertions(+), 27 deletions(-)
 
---- a/drivers/tee/tee_core.c
-+++ b/drivers/tee/tee_core.c
-@@ -182,6 +182,9 @@ tee_ioctl_shm_register(struct tee_contex
- 	if (data.flags)
- 		return -EINVAL;
+--- a/sound/soc/codecs/tas2770.c
++++ b/sound/soc/codecs/tas2770.c
+@@ -46,6 +46,26 @@ static void tas2770_reset(struct tas2770
+ 	usleep_range(1000, 2000);
+ }
  
-+	if (!access_ok((void __user *)(unsigned long)data.addr, data.length))
-+		return -EFAULT;
++static int tas2770_update_pwr_ctrl(struct tas2770_priv *tas2770)
++{
++	struct snd_soc_component *component = tas2770->component;
++	unsigned int val;
++	int ret;
 +
- 	shm = tee_shm_register(ctx, data.addr, data.length,
- 			       TEE_SHM_DMA_BUF | TEE_SHM_USER_MAPPED);
- 	if (IS_ERR(shm))
++	if (tas2770->dac_powered)
++		val = tas2770->unmuted ?
++			TAS2770_PWR_CTRL_ACTIVE : TAS2770_PWR_CTRL_MUTE;
++	else
++		val = TAS2770_PWR_CTRL_SHUTDOWN;
++
++	ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
++					    TAS2770_PWR_CTRL_MASK, val);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
+ #ifdef CONFIG_PM
+ static int tas2770_codec_suspend(struct snd_soc_component *component)
+ {
+@@ -82,9 +102,7 @@ static int tas2770_codec_resume(struct s
+ 		gpiod_set_value_cansleep(tas2770->sdz_gpio, 1);
+ 		usleep_range(1000, 2000);
+ 	} else {
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_ACTIVE);
++		ret = tas2770_update_pwr_ctrl(tas2770);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+@@ -120,24 +138,19 @@ static int tas2770_dac_event(struct snd_
+ 
+ 	switch (event) {
+ 	case SND_SOC_DAPM_POST_PMU:
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_MUTE);
++		tas2770->dac_powered = 1;
++		ret = tas2770_update_pwr_ctrl(tas2770);
+ 		break;
+ 	case SND_SOC_DAPM_PRE_PMD:
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_SHUTDOWN);
++		tas2770->dac_powered = 0;
++		ret = tas2770_update_pwr_ctrl(tas2770);
+ 		break;
+ 	default:
+ 		dev_err(tas2770->dev, "Not supported evevt\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	if (ret < 0)
+-		return ret;
+-
+-	return 0;
++	return ret;
+ }
+ 
+ static const struct snd_kcontrol_new isense_switch =
+@@ -171,21 +184,11 @@ static const struct snd_soc_dapm_route t
+ static int tas2770_mute(struct snd_soc_dai *dai, int mute, int direction)
+ {
+ 	struct snd_soc_component *component = dai->component;
+-	int ret;
+-
+-	if (mute)
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_MUTE);
+-	else
+-		ret = snd_soc_component_update_bits(component, TAS2770_PWR_CTRL,
+-						    TAS2770_PWR_CTRL_MASK,
+-						    TAS2770_PWR_CTRL_ACTIVE);
+-
+-	if (ret < 0)
+-		return ret;
++	struct tas2770_priv *tas2770 =
++			snd_soc_component_get_drvdata(component);
+ 
+-	return 0;
++	tas2770->unmuted = !mute;
++	return tas2770_update_pwr_ctrl(tas2770);
+ }
+ 
+ static int tas2770_set_bitwidth(struct tas2770_priv *tas2770, int bitwidth)
+--- a/sound/soc/codecs/tas2770.h
++++ b/sound/soc/codecs/tas2770.h
+@@ -138,6 +138,8 @@ struct tas2770_priv {
+ 	struct device *dev;
+ 	int v_sense_slot;
+ 	int i_sense_slot;
++	bool dac_powered;
++	bool unmuted;
+ };
+ 
+ #endif /* __TAS2770__ */
 
 
