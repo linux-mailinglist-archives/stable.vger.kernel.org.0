@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C371059D996
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1281D59D86F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243957AbiHWJ6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:58:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41890 "EHLO
+        id S239989AbiHWJq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:46:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243052AbiHWJwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:52:24 -0400
+        with ESMTP id S1351916AbiHWJpl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:45:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C34C49F751;
-        Tue, 23 Aug 2022 01:46:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80DDB2F7;
+        Tue, 23 Aug 2022 01:43:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8544FB81C65;
-        Tue, 23 Aug 2022 08:45:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED888C433C1;
-        Tue, 23 Aug 2022 08:45:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EDD4B81C4F;
+        Tue, 23 Aug 2022 08:43:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A1B2C433D6;
+        Tue, 23 Aug 2022 08:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244311;
-        bh=cx2ysTK87stMeHPikefVBj+1WkzeP9H1M67m6Mj+Bvg=;
+        s=korg; t=1661244180;
+        bh=wvDu/ipmfAlirHb5j2FpWgwFya3KrOeJTyYaZnia1G8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JU1AgNEtkmpLXWAxeVBa7shcEYET+OysNQ76CZPBM9mZkemWPti5q0pCUvlQyYaI1
-         BX3jMdChVhBZncM9gB5U9zjuRNU4aCNSnDI+n22bbpHFJcPkNH76aQJdmzxm6X5SN8
-         wUZIFbQrvOKiLsSFTw72ezWro/CeLQ5PFpk9xTz0=
+        b=CdHDgkxv9ioSHTRq9P0KRjNy/4t4kgWU6FkAj7L2NNPtTA1u8laAXlvFu9n+iTPvF
+         tJErhwXKTCMRGJ6tl5SVxZGywEpu0rcD5/2VGSCMyZGmr8yMyNj9Rnb1++1DDV2adk
+         7cfS7/35s77wW9XbS8l3SIZOWQFAagdZ06kv4BO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislaw Kardach <skardach@marvell.com>,
-        Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 071/244] octeontx2-af: Apply tx nibble fixup always
+        stable@vger.kernel.org, Bo-Chen Chen <rex-bc.chen@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 069/229] drm/mediatek: dpi: Remove output format of YUV
 Date:   Tue, 23 Aug 2022 10:23:50 +0200
-Message-Id: <20220823080101.437283560@linuxfoundation.org>
+Message-Id: <20220823080056.184219976@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislaw Kardach <skardach@marvell.com>
+From: Bo-Chen Chen <rex-bc.chen@mediatek.com>
 
-commit dd1d1a8a6b29b6b472fd0d449b29eb806c411dd2 upstream.
+[ Upstream commit c9ed0713b3c35fc45677707ba47f432cad95da56 ]
 
-NPC_PARSE_NIBBLE for TX interface has to be equal to the RX one for some
-silicon revisions. Mistakenly this fixup was only applied to the default
-MKEX profile while it should also be applied to any loaded profile.
+DPI is not support output format as YUV, but there is the setting of
+configuring output YUV. Therefore, remove them in this patch.
 
-Fixes: 1c1935c9945d ("octeontx2-af: Add NIX1 interfaces to NPC")
-Signed-off-by: Stanislaw Kardach <skardach@marvell.com>
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9e629c17aa8d ("drm/mediatek: Add DPI sub driver")
+Signed-off-by: Bo-Chen Chen <rex-bc.chen@mediatek.com>
+Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220701035845.16458-5-rex-bc.chen@mediatek.com/
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_dpi.c | 31 ++++++------------------------
+ 1 file changed, 6 insertions(+), 25 deletions(-)
 
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-@@ -1915,6 +1915,7 @@ static void rvu_npc_hw_init(struct rvu *
+diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
+index e80a603e5fb0..6b12be8ca33e 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dpi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
+@@ -51,13 +51,7 @@ enum mtk_dpi_out_channel_swap {
+ };
  
- static void rvu_npc_setup_interfaces(struct rvu *rvu, int blkaddr)
+ enum mtk_dpi_out_color_format {
+-	MTK_DPI_COLOR_FORMAT_RGB,
+-	MTK_DPI_COLOR_FORMAT_RGB_FULL,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_444,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_422,
+-	MTK_DPI_COLOR_FORMAT_XV_YCC,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_444_FULL,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_422_FULL
++	MTK_DPI_COLOR_FORMAT_RGB
+ };
+ 
+ struct mtk_dpi {
+@@ -346,24 +340,11 @@ static void mtk_dpi_config_2n_h_fre(struct mtk_dpi *dpi)
+ static void mtk_dpi_config_color_format(struct mtk_dpi *dpi,
+ 					enum mtk_dpi_out_color_format format)
  {
-+	struct npc_mcam_kex *mkex = rvu->kpu.mkex;
- 	struct npc_mcam *mcam = &rvu->hw->mcam;
- 	struct rvu_hwinfo *hw = rvu->hw;
- 	u64 nibble_ena, rx_kex, tx_kex;
-@@ -1927,15 +1928,15 @@ static void rvu_npc_setup_interfaces(str
- 	mcam->counters.max--;
- 	mcam->rx_miss_act_cntr = mcam->counters.max;
+-	if ((format == MTK_DPI_COLOR_FORMAT_YCBCR_444) ||
+-	    (format == MTK_DPI_COLOR_FORMAT_YCBCR_444_FULL)) {
+-		mtk_dpi_config_yuv422_enable(dpi, false);
+-		mtk_dpi_config_csc_enable(dpi, true);
+-		mtk_dpi_config_swap_input(dpi, false);
+-		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_BGR);
+-	} else if ((format == MTK_DPI_COLOR_FORMAT_YCBCR_422) ||
+-		   (format == MTK_DPI_COLOR_FORMAT_YCBCR_422_FULL)) {
+-		mtk_dpi_config_yuv422_enable(dpi, true);
+-		mtk_dpi_config_csc_enable(dpi, true);
+-		mtk_dpi_config_swap_input(dpi, true);
+-		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
+-	} else {
+-		mtk_dpi_config_yuv422_enable(dpi, false);
+-		mtk_dpi_config_csc_enable(dpi, false);
+-		mtk_dpi_config_swap_input(dpi, false);
+-		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
+-	}
++	/* only support RGB888 */
++	mtk_dpi_config_yuv422_enable(dpi, false);
++	mtk_dpi_config_csc_enable(dpi, false);
++	mtk_dpi_config_swap_input(dpi, false);
++	mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
+ }
  
--	rx_kex = npc_mkex_default.keyx_cfg[NIX_INTF_RX];
--	tx_kex = npc_mkex_default.keyx_cfg[NIX_INTF_TX];
-+	rx_kex = mkex->keyx_cfg[NIX_INTF_RX];
-+	tx_kex = mkex->keyx_cfg[NIX_INTF_TX];
- 	nibble_ena = FIELD_GET(NPC_PARSE_NIBBLE, rx_kex);
- 
- 	nibble_ena = rvu_npc_get_tx_nibble_cfg(rvu, nibble_ena);
- 	if (nibble_ena) {
- 		tx_kex &= ~NPC_PARSE_NIBBLE;
- 		tx_kex |= FIELD_PREP(NPC_PARSE_NIBBLE, nibble_ena);
--		npc_mkex_default.keyx_cfg[NIX_INTF_TX] = tx_kex;
-+		mkex->keyx_cfg[NIX_INTF_TX] = tx_kex;
- 	}
- 
- 	/* Configure RX interfaces */
+ static void mtk_dpi_power_off(struct mtk_dpi *dpi, enum mtk_dpi_power_ctl pctl)
+-- 
+2.35.1
+
 
 
