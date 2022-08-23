@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 959BA59D875
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF1159D97B
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241972AbiHWJv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:51:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41040 "EHLO
+        id S1351594AbiHWJi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:38:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352024AbiHWJvJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02CD09E2DA;
-        Tue, 23 Aug 2022 01:45:41 -0700 (PDT)
+        with ESMTP id S1351645AbiHWJiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:38:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC36A98591;
+        Tue, 23 Aug 2022 01:40:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B348614E7;
-        Tue, 23 Aug 2022 08:44:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12153C433D6;
-        Tue, 23 Aug 2022 08:44:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04DE56153A;
+        Tue, 23 Aug 2022 08:39:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF13C433C1;
+        Tue, 23 Aug 2022 08:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244277;
-        bh=yMB+nDLTD/CtAiCCGvVNDEAEOnYChjmtyxH/gkHlNcw=;
+        s=korg; t=1661243973;
+        bh=S91jLsmDc1tZj5ujADBa85XorHb6hMV7HBp03U4iFcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RMVocivEfS3XOKQxK+DV5pyZAG3wwIT87OZic8gD0aEiDQ8dKDq3cYwN0+mE7d1LN
-         bnxjEq6iu9rDH/YIJ8w6+PUkDBEP8+CaGWnn4yLqCskGNsjDzMdAFRkaV1jKwMoyuu
-         tmHkaicekXJ0Ymv8jZXYT+lRkdr1eWisWHahxO7Y=
+        b=cmTWEp1rfc3tPPHERK1278DiVcwn2dl06BWt9ut5wFKfJ5XQGhlEX+Uj4z5p5lJwU
+         K5kDetjUnxvKUWSUUyBPnB5MwiwjHsFYMNKBNAWOhrysJHdT/HkcIgxtCen6wneQFq
+         Gl+R/tJYeiYrJt3vM4RVnEykXtNxrMLVRKoCA+Zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Samuel Holland <samuel@sholland.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.15 066/244] pinctrl: sunxi: Add I/O bias setting for H6 R-PIO
+        stable@vger.kernel.org,
+        Alexey Kodanev <aleksei.kodanev@bell-sw.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 064/229] wifi: iwlegacy: 4965: fix potential off-by-one overflow in il4965_rs_fill_link_cmd()
 Date:   Tue, 23 Aug 2022 10:23:45 +0200
-Message-Id: <20220823080101.285051026@linuxfoundation.org>
+Message-Id: <20220823080056.017384397@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
+In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
+References: <20220823080053.202747790@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
 
-commit fc153c8f283bf5925615195fc9d4056414d7b168 upstream.
+[ Upstream commit a8eb8e6f7159c7c20c0ddac428bde3d110890aa7 ]
 
-H6 requires I/O bias configuration on both of its PIO devices.
-Previously it was only done for the main PIO.
+As a result of the execution of the inner while loop, the value
+of 'idx' can be equal to LINK_QUAL_MAX_RETRY_NUM. However, this
+is not checked after the loop and 'idx' is used to write the
+LINK_QUAL_MAX_RETRY_NUM size array 'lq_cmd->rs_table[idx]' below
+in the outer loop.
 
-The setting for Port L is at bit 0, so the bank calculation needs to
-account for the pin base. Otherwise the wrong bit is used.
+The fix is to check the new value of 'idx' inside the nested loop,
+and break both loops if index equals the size. Checking it at the
+start is now pointless, so let's remove it.
 
-Fixes: cc62383fcebe ("pinctrl: sunxi: Support I/O bias voltage setting on H6")
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Tested-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Link: https://lore.kernel.org/r/20220713025233.27248-3-samuel@sholland.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Detected using the static analysis tool - Svace.
+
+Fixes: be663ab67077 ("iwlwifi: split the drivers for agn and legacy devices 3945/4965")
+Signed-off-by: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220608171614.28891-1-aleksei.kodanev@bell-sw.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c |    1 +
- drivers/pinctrl/sunxi/pinctrl-sunxi.c       |    7 ++++---
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlegacy/4965-rs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sun50i-h6-r.c
-@@ -107,6 +107,7 @@ static const struct sunxi_pinctrl_desc s
- 	.npins = ARRAY_SIZE(sun50i_h6_r_pins),
- 	.pin_base = PL_BASE,
- 	.irq_banks = 2,
-+	.io_bias_cfg_variant = BIAS_VOLTAGE_PIO_POW_MODE_SEL,
- };
+diff --git a/drivers/net/wireless/intel/iwlegacy/4965-rs.c b/drivers/net/wireless/intel/iwlegacy/4965-rs.c
+index c055f6da11c6..623ee20b2c19 100644
+--- a/drivers/net/wireless/intel/iwlegacy/4965-rs.c
++++ b/drivers/net/wireless/intel/iwlegacy/4965-rs.c
+@@ -2424,7 +2424,7 @@ il4965_rs_fill_link_cmd(struct il_priv *il, struct il_lq_sta *lq_sta,
+ 		/* Repeat initial/next rate.
+ 		 * For legacy IL_NUMBER_TRY == 1, this loop will not execute.
+ 		 * For HT IL_HT_NUMBER_TRY == 3, this executes twice. */
+-		while (repeat_rate > 0 && idx < LINK_QUAL_MAX_RETRY_NUM) {
++		while (repeat_rate > 0) {
+ 			if (is_legacy(tbl_type.lq_type)) {
+ 				if (ant_toggle_cnt < NUM_TRY_BEFORE_ANT_TOGGLE)
+ 					ant_toggle_cnt++;
+@@ -2443,6 +2443,8 @@ il4965_rs_fill_link_cmd(struct il_priv *il, struct il_lq_sta *lq_sta,
+ 			    cpu_to_le32(new_rate);
+ 			repeat_rate--;
+ 			idx++;
++			if (idx >= LINK_QUAL_MAX_RETRY_NUM)
++				goto out;
+ 		}
  
- static int sun50i_h6_r_pinctrl_probe(struct platform_device *pdev)
---- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-@@ -624,7 +624,7 @@ static int sunxi_pinctrl_set_io_bias_cfg
- 					 unsigned pin,
- 					 struct regulator *supply)
- {
--	unsigned short bank = pin / PINS_PER_BANK;
-+	unsigned short bank;
- 	unsigned long flags;
- 	u32 val, reg;
- 	int uV;
-@@ -640,6 +640,9 @@ static int sunxi_pinctrl_set_io_bias_cfg
- 	if (uV == 0)
- 		return 0;
+ 		il4965_rs_get_tbl_info_from_mcs(new_rate, lq_sta->band,
+@@ -2487,6 +2489,7 @@ il4965_rs_fill_link_cmd(struct il_priv *il, struct il_lq_sta *lq_sta,
+ 		repeat_rate--;
+ 	}
  
-+	pin -= pctl->desc->pin_base;
-+	bank = pin / PINS_PER_BANK;
-+
- 	switch (pctl->desc->io_bias_cfg_variant) {
- 	case BIAS_VOLTAGE_GRP_CONFIG:
- 		/*
-@@ -657,8 +660,6 @@ static int sunxi_pinctrl_set_io_bias_cfg
- 		else
- 			val = 0xD; /* 3.3V */
++out:
+ 	lq_cmd->agg_params.agg_frame_cnt_limit = LINK_QUAL_AGG_FRAME_LIMIT_DEF;
+ 	lq_cmd->agg_params.agg_dis_start_th = LINK_QUAL_AGG_DISABLE_START_DEF;
  
--		pin -= pctl->desc->pin_base;
--
- 		reg = readl(pctl->membase + sunxi_grp_config_reg(pin));
- 		reg &= ~IO_BIAS_MASK;
- 		writel(reg | val, pctl->membase + sunxi_grp_config_reg(pin));
+-- 
+2.35.1
+
 
 
