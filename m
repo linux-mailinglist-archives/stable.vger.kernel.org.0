@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A22559DD62
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D3859DC38
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358177AbiHWLwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:52:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53200 "EHLO
+        id S1355982AbiHWKsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:48:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358661AbiHWLue (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:50:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339BF93513;
-        Tue, 23 Aug 2022 02:31:39 -0700 (PDT)
+        with ESMTP id S1356303AbiHWKq6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:46:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC7186B51;
+        Tue, 23 Aug 2022 02:11:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91FB2B81C96;
-        Tue, 23 Aug 2022 09:31:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D09C433D6;
-        Tue, 23 Aug 2022 09:31:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC0E3B81C66;
+        Tue, 23 Aug 2022 09:11:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C9DAC433D7;
+        Tue, 23 Aug 2022 09:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247096;
-        bh=9LN2saROmHALtmiOnpaAY1N33gGbVoxE8JDeFdfKGC8=;
+        s=korg; t=1661245900;
+        bh=3snwoiy4cWBHxDU94g4Zjmdhsk/Y6rI8r/5Xx86zFWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zixDSMdploOS+o1ZxTt4cc3r9xSTCK/yvt+y6qlkfT1OH49PPq6qEyGxzipukLO4Q
-         v1ip7wDlaVQp1QwGRg/Oekpn5QtZdcBkCJhvdR1IpBoehzZdTBv1s5byxCZQtH5wX6
-         Hi7hM0Get8u+6b3oE9GChSIOauq/gA/979PeohPg=
+        b=TNp8oYI3yx6FF2A5d+kSN8lHBsc2wWuIq7B8O+6w8SAQB9xvVNJHxk63agtTxwDgQ
+         3Q4E1EQpPb6zlWcKRI5qcaI6bq72AL9mkATRIbjgy87Mpl948GTy9Q0NcJ2LnKqV+G
+         GZoq7Y7kdXmccIinfNs+BP2KYYvNJXw5kiSL7R5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Matthias May <matthias.may@westermo.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 316/389] geneve: do not use RT_TOS for IPv6 flowlabel
+        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 4.19 225/287] apparmor: Fix failed mount permission check error message
 Date:   Tue, 23 Aug 2022 10:26:34 +0200
-Message-Id: <20220823080128.751314179@linuxfoundation.org>
+Message-Id: <20220823080108.572386086@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias May <matthias.may@westermo.com>
+From: John Johansen <john.johansen@canonical.com>
 
-commit ca2bb69514a8bc7f83914122f0d596371352416c upstream.
+commit ec240b5905bbb09a03dccffee03062cf39e38dc2 upstream.
 
-According to Guillaume Nault RT_TOS should never be used for IPv6.
+When the mount check fails due to a permission check failure instead
+of explicitly at one of the subcomponent checks, AppArmor is reporting
+a failure in the flags match. However this is not true and AppArmor
+can not attribute the error at this point to any particular component,
+and should only indicate the mount failed due to missing permissions.
 
-Quote:
-RT_TOS() is an old macro used to interprete IPv4 TOS as described in
-the obsolete RFC 1349. It's conceptually wrong to use it even in IPv4
-code, although, given the current state of the code, most of the
-existing calls have no consequence.
-
-But using RT_TOS() in IPv6 code is always a bug: IPv6 never had a "TOS"
-field to be interpreted the RFC 1349 way. There's no historical
-compatibility to worry about.
-
-Fixes: 3a56f86f1be6 ("geneve: handle ipv6 priority like ipv4 tos")
-Acked-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Matthias May <matthias.may@westermo.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2ea3ffb7782a ("apparmor: add mount mediation")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ security/apparmor/mount.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -851,8 +851,7 @@ static struct dst_entry *geneve_get_v6_d
- 		use_cache = false;
+--- a/security/apparmor/mount.c
++++ b/security/apparmor/mount.c
+@@ -232,7 +232,8 @@ static const char * const mnt_info_table
+ 	"failed srcname match",
+ 	"failed type match",
+ 	"failed flags match",
+-	"failed data match"
++	"failed data match",
++	"failed perms check"
+ };
+ 
+ /*
+@@ -287,8 +288,8 @@ static int do_match_mnt(struct aa_dfa *d
+ 			return 0;
  	}
  
--	fl6->flowlabel = ip6_make_flowinfo(RT_TOS(prio),
--					   info->key.label);
-+	fl6->flowlabel = ip6_make_flowinfo(prio, info->key.label);
- 	dst_cache = (struct dst_cache *)&info->dst_cache;
- 	if (use_cache) {
- 		dst = dst_cache_get_ip6(dst_cache, &fl6->saddr);
+-	/* failed at end of flags match */
+-	return 4;
++	/* failed at perms check, don't confuse with flags match */
++	return 6;
+ }
+ 
+ 
 
 
