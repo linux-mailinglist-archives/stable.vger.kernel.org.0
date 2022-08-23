@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1E959D8F9
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C371059D996
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239137AbiHWJmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:42:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
+        id S243957AbiHWJ6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:58:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352645AbiHWJlm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:41:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46F9699269;
-        Tue, 23 Aug 2022 01:42:20 -0700 (PDT)
+        with ESMTP id S243052AbiHWJwY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:52:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C34C49F751;
+        Tue, 23 Aug 2022 01:46:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E952A614E9;
-        Tue, 23 Aug 2022 08:42:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B756C433D6;
-        Tue, 23 Aug 2022 08:42:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8544FB81C65;
+        Tue, 23 Aug 2022 08:45:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED888C433C1;
+        Tue, 23 Aug 2022 08:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244134;
-        bh=3YWFN+XdT8fZR01BOiGHTKj+hLvtm2wKp6jWFyaFJ34=;
+        s=korg; t=1661244311;
+        bh=cx2ysTK87stMeHPikefVBj+1WkzeP9H1M67m6Mj+Bvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+orXx6TQk0XQu3Zqn//M2qVPuoxoKvpX3CG7qJpUo8Newmr9P/U8o+ob508gWhoV
-         P5rY8P0Sg6nXk8xXx73TmNlP2kyRzY7YJJuY/2u4k+TYOkthCBC0TX3QvwWDGQfkVH
-         P2Rcys7qSSfB6cVU9m8JyT6W5+rO6ZUXw5t7zzek=
+        b=JU1AgNEtkmpLXWAxeVBa7shcEYET+OysNQ76CZPBM9mZkemWPti5q0pCUvlQyYaI1
+         BX3jMdChVhBZncM9gB5U9zjuRNU4aCNSnDI+n22bbpHFJcPkNH76aQJdmzxm6X5SN8
+         wUZIFbQrvOKiLsSFTw72ezWro/CeLQ5PFpk9xTz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 068/229] drm/rockchip: vop: Dont crash for invalid duplicate_state()
-Date:   Tue, 23 Aug 2022 10:23:49 +0200
-Message-Id: <20220823080056.147646905@linuxfoundation.org>
+        stable@vger.kernel.org, Stanislaw Kardach <skardach@marvell.com>,
+        Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 071/244] octeontx2-af: Apply tx nibble fixup always
+Date:   Tue, 23 Aug 2022 10:23:50 +0200
+Message-Id: <20220823080101.437283560@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Stanislaw Kardach <skardach@marvell.com>
 
-[ Upstream commit 1449110b0dade8b638d2c17ab7c5b0ff696bfccb ]
+commit dd1d1a8a6b29b6b472fd0d449b29eb806c411dd2 upstream.
 
-It's possible for users to try to duplicate the CRTC state even when the
-state doesn't exist. drm_atomic_helper_crtc_duplicate_state() (and other
-users of __drm_atomic_helper_crtc_duplicate_state()) already guard this
-with a WARN_ON() instead of crashing, so let's do that here too.
+NPC_PARSE_NIBBLE for TX interface has to be equal to the RX one for some
+silicon revisions. Mistakenly this fixup was only applied to the default
+MKEX profile while it should also be applied to any loaded profile.
 
-Fixes: 4e257d9eee23 ("drm/rockchip: get rid of rockchip_drm_crtc_mode_config")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Sean Paul <seanpaul@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220617172623.1.I62db228170b1559ada60b8d3e1637e1688424926@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1c1935c9945d ("octeontx2-af: Add NIX1 interfaces to NPC")
+Signed-off-by: Stanislaw Kardach <skardach@marvell.com>
+Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index 80a65eaed0be..feb6a458f82d 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -1068,6 +1068,9 @@ static struct drm_crtc_state *vop_crtc_duplicate_state(struct drm_crtc *crtc)
- {
- 	struct rockchip_crtc_state *rockchip_state;
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+@@ -1915,6 +1915,7 @@ static void rvu_npc_hw_init(struct rvu *
  
-+	if (WARN_ON(!crtc->state))
-+		return NULL;
-+
- 	rockchip_state = kzalloc(sizeof(*rockchip_state), GFP_KERNEL);
- 	if (!rockchip_state)
- 		return NULL;
--- 
-2.35.1
-
+ static void rvu_npc_setup_interfaces(struct rvu *rvu, int blkaddr)
+ {
++	struct npc_mcam_kex *mkex = rvu->kpu.mkex;
+ 	struct npc_mcam *mcam = &rvu->hw->mcam;
+ 	struct rvu_hwinfo *hw = rvu->hw;
+ 	u64 nibble_ena, rx_kex, tx_kex;
+@@ -1927,15 +1928,15 @@ static void rvu_npc_setup_interfaces(str
+ 	mcam->counters.max--;
+ 	mcam->rx_miss_act_cntr = mcam->counters.max;
+ 
+-	rx_kex = npc_mkex_default.keyx_cfg[NIX_INTF_RX];
+-	tx_kex = npc_mkex_default.keyx_cfg[NIX_INTF_TX];
++	rx_kex = mkex->keyx_cfg[NIX_INTF_RX];
++	tx_kex = mkex->keyx_cfg[NIX_INTF_TX];
+ 	nibble_ena = FIELD_GET(NPC_PARSE_NIBBLE, rx_kex);
+ 
+ 	nibble_ena = rvu_npc_get_tx_nibble_cfg(rvu, nibble_ena);
+ 	if (nibble_ena) {
+ 		tx_kex &= ~NPC_PARSE_NIBBLE;
+ 		tx_kex |= FIELD_PREP(NPC_PARSE_NIBBLE, nibble_ena);
+-		npc_mkex_default.keyx_cfg[NIX_INTF_TX] = tx_kex;
++		mkex->keyx_cfg[NIX_INTF_TX] = tx_kex;
+ 	}
+ 
+ 	/* Configure RX interfaces */
 
 
