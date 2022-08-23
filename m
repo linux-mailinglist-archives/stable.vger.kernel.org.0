@@ -2,54 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 150D159E06D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE59F59DE42
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244969AbiHWLh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:37:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49678 "EHLO
+        id S1354453AbiHWKm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:42:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245319AbiHWLfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:35:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53AEEC6E8C;
-        Tue, 23 Aug 2022 02:27:30 -0700 (PDT)
+        with ESMTP id S1355426AbiHWKiX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:38:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3A1A720F;
+        Tue, 23 Aug 2022 02:07:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84FF661227;
-        Tue, 23 Aug 2022 09:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 445A6C433D6;
-        Tue, 23 Aug 2022 09:27:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AFE5B81C65;
+        Tue, 23 Aug 2022 09:07:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F92C433C1;
+        Tue, 23 Aug 2022 09:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246848;
-        bh=3PkGHcka/DfFwtOsUWVB+ZlnkYOjRyZCig8SvtQSvBQ=;
+        s=korg; t=1661245663;
+        bh=5Yabsf9P9O//Eym2yywOLLQ57DVHSg+BZbAaS79Jszs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xihmgdn3ahcWHcXVdfnkFPnZnQbxQ47MHxR21DDlGQkc9zXEwuHZxrtqbt7AcJm3m
-         RkCVH6ezJzzQUoEhJjgdW1TeFo8olb0Oef1zAX/ucqKQiqLRKUw+raf0Zx7GCDgLqk
-         Z1X8a21oaM5YVhSfMhB4LGM7Cr/ENzWUcGw+mY2E=
+        b=KL6NdvaMjez7UwcLEg3oYA/enpqul4I7Czn6q7dEaa7UbHCW428ZtSNdvRC+MrgZZ
+         tnZPKU3pfHoAzrtg+CFMbH1TpBMjKoHG+qiblr2J0PhrGEaA6+8Drw9xoXsx1/xnwv
+         dnWINX608e0nBx6wV4ArJ8/EwKFmpN0VVpEnNd4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?=E8=B0=AD=E6=A2=93=E7=85=8A?= <tanzixuan.me@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Martin KaFai Lau <kafai@fb.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 240/389] genelf: Use HAVE_LIBCRYPTO_SUPPORT, not the never defined HAVE_LIBCRYPTO
-Date:   Tue, 23 Aug 2022 10:25:18 +0200
-Message-Id: <20220823080125.588289313@linuxfoundation.org>
+Subject: [PATCH 4.19 150/287] serial: 8250_dw: Store LSR into lsr_saved_flags in dw8250_tx_wait_empty()
+Date:   Tue, 23 Aug 2022 10:25:19 +0200
+Message-Id: <20220823080105.646601472@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,53 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 91cea6be90e436c55cde8770a15e4dac9d3032d0 ]
+[ Upstream commit af14f3007e2dca0d112f10f6717ba43093f74e81 ]
 
-When genelf was introduced it tested for HAVE_LIBCRYPTO not
-HAVE_LIBCRYPTO_SUPPORT, which is the define the feature test for openssl
-defines, fix it.
+Make sure LSR flags are preserved in dw8250_tx_wait_empty(). This
+function is called from a low-level out function and therefore cannot
+call serial_lsr_in() as it would lead to infinite recursion.
 
-This also adds disables the deprecation warning, someone has to fix this
-to build with openssl 3.0 before the warning becomes a hard error.
+It is borderline if the flags need to be saved here at all since this
+code relates to writing LCR register which usually implies no important
+characters should be arriving.
 
-Fixes: 9b07e27f88b9cd78 ("perf inject: Add jitdump mmap injection support")
-Reported-by: 谭梓煊 <tanzixuan.me@gmail.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/YulpPqXSOG0Q4J1o@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 914eaf935ec7 ("serial: 8250_dw: Allow TX FIFO to drain before writing to UART_LCR")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220608095431.18376-7-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/genelf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_dw.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
-index f9f18b8b1df9..17b74aba8b9a 100644
---- a/tools/perf/util/genelf.c
-+++ b/tools/perf/util/genelf.c
-@@ -35,7 +35,11 @@
+diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
+index c73d0eddd9b8..cc9d1f416db8 100644
+--- a/drivers/tty/serial/8250/8250_dw.c
++++ b/drivers/tty/serial/8250/8250_dw.c
+@@ -140,12 +140,15 @@ static void dw8250_check_lcr(struct uart_port *p, int value)
+ /* Returns once the transmitter is empty or we run out of retries */
+ static void dw8250_tx_wait_empty(struct uart_port *p)
+ {
++	struct uart_8250_port *up = up_to_u8250p(p);
+ 	unsigned int tries = 20000;
+ 	unsigned int delay_threshold = tries - 1000;
+ 	unsigned int lsr;
  
- #define BUILD_ID_URANDOM /* different uuid for each run */
- 
--#ifdef HAVE_LIBCRYPTO
-+// FIXME, remove this and fix the deprecation warnings before its removed and
-+// We'll break for good here...
-+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+ 	while (tries--) {
+ 		lsr = readb (p->membase + (UART_LSR << p->regshift));
++		up->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
 +
-+#ifdef HAVE_LIBCRYPTO_SUPPORT
+ 		if (lsr & UART_LSR_TEMT)
+ 			break;
  
- #define BUILD_ID_MD5
- #undef BUILD_ID_SHA	/* does not seem to work well when linked with Java */
 -- 
 2.35.1
 
