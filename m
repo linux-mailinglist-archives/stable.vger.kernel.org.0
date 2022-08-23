@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBF0E59E134
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE7759DCCA
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:25:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244037AbiHWK1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:27:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44764 "EHLO
+        id S242500AbiHWL2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:28:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354207AbiHWKZM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:25:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03330A405C;
-        Tue, 23 Aug 2022 02:04:52 -0700 (PDT)
+        with ESMTP id S1357956AbiHWL1A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:27:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EADD7C2E92;
+        Tue, 23 Aug 2022 02:24:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A51CB8105C;
-        Tue, 23 Aug 2022 09:04:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE4D2C433C1;
-        Tue, 23 Aug 2022 09:04:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 022A561220;
+        Tue, 23 Aug 2022 09:24:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D7A6C433C1;
+        Tue, 23 Aug 2022 09:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245489;
-        bh=DWD3GZq6j5zEbQtORBVne/OcWKHdw1NZa8O3C6p2FYQ=;
+        s=korg; t=1661246682;
+        bh=rOXRs+cEF6Ndqay1whYFl0PTAxARK1CrGIZ3Y4I9US8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDMENSr9znHagoxOCSTAhblZbcbb0DB1Xuspaakv+NFVA5Da8OLhM4sUDdotPIKA8
-         0CJHSytTT/hoSTI+ukNEbfLua8RiPu4G8hdUrOPo6pJZNTxzQMswwK0d+dgUiQUskY
-         1YwZpDNRJZY1YyT/UT6y4AY2nTjtRc1zmm0YKDnU=
+        b=SHKlZaJCHyTiU84Eq+YjovUKduqyuhmW01xiXtZwg3Ai8DKvsiShd3803/Far7DSV
+         TmAv5BS8FnX8/6oNN7FzkivwNQTsSBB/sFbOznqLasjTt4GY0L2yoBcJUUHkyzS8zI
+         uQlylfnhIyP9nruYBXQ5MKMSnfMO9+SLPK5xwvdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Cheng Xu <chengyou@linux.alibaba.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 094/287] can: pch_can: do not report txerr and rxerr during bus-off
-Date:   Tue, 23 Aug 2022 10:24:23 +0200
-Message-Id: <20220823080103.494719635@linuxfoundation.org>
+Subject: [PATCH 5.4 186/389] RDMA/siw: Fix duplicated reported IW_CM_EVENT_CONNECT_REPLY event
+Date:   Tue, 23 Aug 2022 10:24:24 +0200
+Message-Id: <20220823080123.410104734@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Cheng Xu <chengyou@linux.alibaba.com>
 
-[ Upstream commit 3a5c7e4611ddcf0ef37a3a17296b964d986161a6 ]
+[ Upstream commit 3056fc6c32e613b760422b94c7617ac9a24a4721 ]
 
-During bus off, the error count is greater than 255 and can not fit in
-a u8.
+If siw_recv_mpa_rr returns -EAGAIN, it means that the MPA reply hasn't
+been received completely, and should not report IW_CM_EVENT_CONNECT_REPLY
+in this case. This may trigger a call trace in iw_cm. A simple way to
+trigger this:
+ server: ib_send_lat
+ client: ib_send_lat -R <server_ip>
 
-Fixes: 0c78ab76a05c ("pch_can: Add setting TEC/REC statistics processing")
-Link: https://lore.kernel.org/all/20220719143550.3681-2-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+The call trace looks like this:
+
+ kernel BUG at drivers/infiniband/core/iwcm.c:894!
+ invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+ <...>
+ Workqueue: iw_cm_wq cm_work_handler [iw_cm]
+ Call Trace:
+  <TASK>
+  cm_work_handler+0x1dd/0x370 [iw_cm]
+  process_one_work+0x1e2/0x3b0
+  worker_thread+0x49/0x2e0
+  ? rescuer_thread+0x370/0x370
+  kthread+0xe5/0x110
+  ? kthread_complete_and_exit+0x20/0x20
+  ret_from_fork+0x1f/0x30
+  </TASK>
+
+Fixes: 6c52fdc244b5 ("rdma/siw: connection management")
+Link: https://lore.kernel.org/r/dae34b5fd5c2ea2bd9744812c1d2653a34a94c67.1657706960.git.chengyou@linux.alibaba.com
+Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/pch_can.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/sw/siw/siw_cm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/can/pch_can.c b/drivers/net/can/pch_can.c
-index ced11ea89269..3e1d71c70b0d 100644
---- a/drivers/net/can/pch_can.c
-+++ b/drivers/net/can/pch_can.c
-@@ -507,6 +507,9 @@ static void pch_can_error(struct net_device *ndev, u32 status)
- 		cf->can_id |= CAN_ERR_BUSOFF;
- 		priv->can.can_stats.bus_off++;
- 		can_bus_off(ndev);
-+	} else {
-+		cf->data[6] = errc & PCH_TEC;
-+		cf->data[7] = (errc & PCH_REC) >> 8;
+diff --git a/drivers/infiniband/sw/siw/siw_cm.c b/drivers/infiniband/sw/siw/siw_cm.c
+index 3aed597103d3..69fcf21eaf52 100644
+--- a/drivers/infiniband/sw/siw/siw_cm.c
++++ b/drivers/infiniband/sw/siw/siw_cm.c
+@@ -725,11 +725,11 @@ static int siw_proc_mpareply(struct siw_cep *cep)
+ 	enum mpa_v2_ctrl mpa_p2p_mode = MPA_V2_RDMA_NO_RTR;
+ 
+ 	rv = siw_recv_mpa_rr(cep);
+-	if (rv != -EAGAIN)
+-		siw_cancel_mpatimer(cep);
+ 	if (rv)
+ 		goto out_err;
+ 
++	siw_cancel_mpatimer(cep);
++
+ 	rep = &cep->mpa.hdr;
+ 
+ 	if (__mpa_rr_revision(rep->params.bits) > MPA_REVISION_2) {
+@@ -895,7 +895,8 @@ static int siw_proc_mpareply(struct siw_cep *cep)
  	}
  
- 	errc = ioread32(&priv->regs->errc);
-@@ -567,9 +570,6 @@ static void pch_can_error(struct net_device *ndev, u32 status)
- 		break;
- 	}
+ out_err:
+-	siw_cm_upcall(cep, IW_CM_EVENT_CONNECT_REPLY, -EINVAL);
++	if (rv != -EAGAIN)
++		siw_cm_upcall(cep, IW_CM_EVENT_CONNECT_REPLY, -EINVAL);
  
--	cf->data[6] = errc & PCH_TEC;
--	cf->data[7] = (errc & PCH_REC) >> 8;
--
- 	priv->can.state = state;
- 	netif_receive_skb(skb);
- 
+ 	return rv;
+ }
 -- 
 2.35.1
 
