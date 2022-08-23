@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D81C59DEEC
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46A759E375
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242665AbiHWMDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48218 "EHLO
+        id S239108AbiHWMWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:22:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359302AbiHWMBI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:01:08 -0400
+        with ESMTP id S231941AbiHWMT6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:19:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D3C78596;
-        Tue, 23 Aug 2022 02:35:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317FBEF038;
+        Tue, 23 Aug 2022 02:42:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAEF760F85;
-        Tue, 23 Aug 2022 09:35:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39A2C433C1;
-        Tue, 23 Aug 2022 09:35:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8AC46138B;
+        Tue, 23 Aug 2022 09:42:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD4E7C433D6;
+        Tue, 23 Aug 2022 09:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247316;
-        bh=ou72801z8mN71VTlq2a6SZCJ4zfndl7r4LyeKMh+suU=;
+        s=korg; t=1661247745;
+        bh=5QEhkpbOIt5ZQhJj4twQe+roC+RNayxcEOZD8bg916A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+mDNN/8YEyTHXTVwR+qbWZ09mZHTHRq5vga6LCmos1vj95vRxiPc/vMTsRdAC9e7
-         ODLe4tABqr+AVHci7cmaD0gC+IlwIhQhNeR7qVy5i7gko6JsLuGFWdC5kJoEAlAgVB
-         pvSw3wJiftU1blYvJvVH6f7vyGz9Rf5yeyR+WSnM=
+        b=Hu4dn9a5vfDTjDyXz4w1FPKIT5NIulTjd8J2oSJOz/bi16fH8+NqTp1WeWmaI3ZUY
+         qqyFj4VcT22BMNNsANw/KWMRt8k5mkpqtUc9hkYHb5TVtvec5zR2WVrPDYxf74r+o/
+         Fk0Aap04XF24tGaxl4xl+Ybbp8GaI8lKgvf8ll/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 386/389] can: j1939: j1939_sk_queue_activate_next_locked(): replace WARN_ON_ONCE with netdev_warn_once()
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 132/158] lib/list_debug.c: Detect uninitialized lists
 Date:   Tue, 23 Aug 2022 10:27:44 +0200
-Message-Id: <20220823080131.695842881@linuxfoundation.org>
+Message-Id: <20220823080051.197162529@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 8ef49f7f8244424adcf4a546dba4cbbeb0b09c09 upstream.
+[ Upstream commit 0cc011c576aaa4de505046f7a6c90933d7c749a9 ]
 
-We should warn user-space that it is doing something wrong when trying
-to activate sessions with identical parameters but WARN_ON_ONCE macro
-can not be used here as it serves a different purpose.
+In some circumstances, attempts are made to add entries to or to remove
+entries from an uninitialized list.  A prime example is
+amdgpu_bo_vm_destroy(): It is indirectly called from
+ttm_bo_init_reserved() if that function fails, and tries to remove an
+entry from a list.  However, that list is only initialized in
+amdgpu_bo_create_vm() after the call to ttm_bo_init_reserved() returned
+success.  This results in crashes such as
 
-So it would be good to replace it with netdev_warn_once() message.
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP NOPTI
+ CPU: 1 PID: 1479 Comm: chrome Not tainted 5.10.110-15768-g29a72e65dae5
+ Hardware name: Google Grunt/Grunt, BIOS Google_Grunt.11031.149.0 07/15/2020
+ RIP: 0010:__list_del_entry_valid+0x26/0x7d
+ ...
+ Call Trace:
+  amdgpu_bo_vm_destroy+0x48/0x8b
+  ttm_bo_init_reserved+0x1d7/0x1e0
+  amdgpu_bo_create+0x212/0x476
+  ? amdgpu_bo_user_destroy+0x23/0x23
+  ? kmem_cache_alloc+0x60/0x271
+  amdgpu_bo_create_vm+0x40/0x7d
+  amdgpu_vm_pt_create+0xe8/0x24b
+ ...
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+Check if the list's prev and next pointers are NULL to catch such problems.
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20220729143655.1108297-1-pchelkin@ispras.ru
-[mkl: fix indention]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20220531222951.92073-1-linux@roeck-us.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/socket.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ lib/list_debug.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -178,7 +178,10 @@ activate_next:
- 	if (!first)
- 		return;
+diff --git a/lib/list_debug.c b/lib/list_debug.c
+index 5d5424b51b74..413daa72a3d8 100644
+--- a/lib/list_debug.c
++++ b/lib/list_debug.c
+@@ -20,7 +20,11 @@
+ bool __list_add_valid(struct list_head *new, struct list_head *prev,
+ 		      struct list_head *next)
+ {
+-	if (CHECK_DATA_CORRUPTION(next->prev != prev,
++	if (CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_add corruption. prev is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next == NULL,
++			"list_add corruption. next is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next->prev != prev,
+ 			"list_add corruption. next->prev should be prev (%px), but was %px. (next=%px).\n",
+ 			prev, next->prev, next) ||
+ 	    CHECK_DATA_CORRUPTION(prev->next != next,
+@@ -42,7 +46,11 @@ bool __list_del_entry_valid(struct list_head *entry)
+ 	prev = entry->prev;
+ 	next = entry->next;
  
--	if (WARN_ON_ONCE(j1939_session_activate(first))) {
-+	if (j1939_session_activate(first)) {
-+		netdev_warn_once(first->priv->ndev,
-+				 "%s: 0x%p: Identical session is already activated.\n",
-+				 __func__, first);
- 		first->err = -EBUSY;
- 		goto activate_next;
- 	} else {
+-	if (CHECK_DATA_CORRUPTION(next == LIST_POISON1,
++	if (CHECK_DATA_CORRUPTION(next == NULL,
++			"list_del corruption, %px->next is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_del corruption, %px->prev is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(next == LIST_POISON1,
+ 			"list_del corruption, %px->next is LIST_POISON1 (%px)\n",
+ 			entry, LIST_POISON1) ||
+ 	    CHECK_DATA_CORRUPTION(prev == LIST_POISON2,
+-- 
+2.35.1
+
 
 
