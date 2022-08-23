@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 085C059E1D1
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C960B59DCCD
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358194AbiHWLtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:49:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56840 "EHLO
+        id S1355921AbiHWKsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:48:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358489AbiHWLtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:49:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CACDAD25DE;
-        Tue, 23 Aug 2022 02:30:43 -0700 (PDT)
+        with ESMTP id S1355645AbiHWKo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:44:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC88E6CD2E;
+        Tue, 23 Aug 2022 02:10:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD54E61381;
-        Tue, 23 Aug 2022 09:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30BEDC433D7;
-        Tue, 23 Aug 2022 09:30:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2490B81C63;
+        Tue, 23 Aug 2022 09:10:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12B21C433C1;
+        Tue, 23 Aug 2022 09:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247040;
-        bh=ACoImR6W7EWMDucrtFWpbZUx7o4KsqUX9cagvLNoOK8=;
+        s=korg; t=1661245846;
+        bh=DL8DDS1N7fZYVKITeuH0f7IEW0g5uIjiciMQzAzvZsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdPRurHxUKK+JaX/bQtgU3opEqmMJtrMMwGNQymx5H2bzKMPIDFdBWlnwtE1DW77j
-         mwB+raHg5FAEenh47E/1gS5cmm7uIfwY+/7ZNBEGP6wOrhF1Y+eds5THH5RrhEWDys
-         a5vLp7VeQz5rW8dVRPuBWDgoGG4cnkbNgEd0j0zQ=
+        b=v/hFJSCFpK0IFP64+OF8lJ9qC0b1ErmG2RWKkGUKV2ItM+RsKFNnutZoW8UqWYnh7
+         tvAyGng2yp0AY8f20cEPBTbzSAMtD6TRsG+AZtoFNXVFtFoCMdCM8JsqFIVUxlWArk
+         k0+nx/GWhrljsq4nB2W0+c3pSzX/cvw8Ow8dWVMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Luo Meng <luomeng12@huawei.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.4 269/389] dm thin: fix use-after-free crash in dm_sm_register_threshold_callback
+        stable@vger.kernel.org, Siddh Raman Pant <code@siddh.me>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 178/287] x86/numa: Use cpumask_available instead of hardcoded NULL check
 Date:   Tue, 23 Aug 2022 10:25:47 +0200
-Message-Id: <20220823080126.798951833@linuxfoundation.org>
+Message-Id: <20220823080106.765499324@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,88 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Meng <luomeng12@huawei.com>
+From: Siddh Raman Pant <code@siddh.me>
 
-commit 3534e5a5ed2997ca1b00f44a0378a075bd05e8a3 upstream.
+[ Upstream commit 625395c4a0f4775e0fe00f616888d2e6c1ba49db ]
 
-Fault inject on pool metadata device reports:
-  BUG: KASAN: use-after-free in dm_pool_register_metadata_threshold+0x40/0x80
-  Read of size 8 at addr ffff8881b9d50068 by task dmsetup/950
+GCC-12 started triggering a new warning:
 
-  CPU: 7 PID: 950 Comm: dmsetup Tainted: G        W         5.19.0-rc6 #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x34/0x44
-   print_address_description.constprop.0.cold+0xeb/0x3f4
-   kasan_report.cold+0xe6/0x147
-   dm_pool_register_metadata_threshold+0x40/0x80
-   pool_ctr+0xa0a/0x1150
-   dm_table_add_target+0x2c8/0x640
-   table_load+0x1fd/0x430
-   ctl_ioctl+0x2c4/0x5a0
-   dm_ctl_ioctl+0xa/0x10
-   __x64_sys_ioctl+0xb3/0xd0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+  arch/x86/mm/numa.c: In function ‘cpumask_of_node’:
+  arch/x86/mm/numa.c:916:39: warning: the comparison will always evaluate as ‘false’ for the address of ‘node_to_cpumask_map’ will never be NULL [-Waddress]
+    916 |         if (node_to_cpumask_map[node] == NULL) {
+        |                                       ^~
 
-This can be easily reproduced using:
-  echo offline > /sys/block/sda/device/state
-  dd if=/dev/zero of=/dev/mapper/thin bs=4k count=10
-  dmsetup load pool --table "0 20971520 thin-pool /dev/sda /dev/sdb 128 0 0"
+node_to_cpumask_map is of type cpumask_var_t[].
 
-If a metadata commit fails, the transaction will be aborted and the
-metadata space maps will be destroyed. If a DM table reload then
-happens for this failed thin-pool, a use-after-free will occur in
-dm_sm_register_threshold_callback (called from
-dm_pool_register_metadata_threshold).
+When CONFIG_CPUMASK_OFFSTACK is set, cpumask_var_t is typedef'd to a
+pointer for dynamic allocation, else to an array of one element. The
+"wicked game" can be checked on line 700 of include/linux/cpumask.h.
 
-Fix this by in dm_pool_register_metadata_threshold() by returning the
--EINVAL error if the thin-pool is in fail mode. Also fail pool_ctr()
-with a new error message: "Error registering metadata threshold".
+The original code in debug_cpumask_set_cpu() and cpumask_of_node() were
+probably written by the original authors with CONFIG_CPUMASK_OFFSTACK=y
+(i.e. dynamic allocation) in mind, checking if the cpumask was available
+via a direct NULL check.
 
-Fixes: ac8c3f3df65e4 ("dm thin: generate event when metadata threshold passed")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When CONFIG_CPUMASK_OFFSTACK is not set, GCC gives the above warning
+while compiling the kernel.
+
+Fix that by using cpumask_available(), which does the NULL check when
+CONFIG_CPUMASK_OFFSTACK is set, otherwise returns true. Use it wherever
+such checks are made.
+
+Conditional definitions of cpumask_available() can be found along with
+the definition of cpumask_var_t. Check the cpumask.h reference mentioned
+above.
+
+Fixes: c032ef60d1aa ("cpumask: convert node_to_cpumask_map[] to cpumask_var_t")
+Fixes: de2d9445f162 ("x86: Unify node_to_cpumask_map handling between 32 and 64bit")
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20220731160913.632092-1-code@siddh.me
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-thin-metadata.c |    7 +++++--
- drivers/md/dm-thin.c          |    4 +++-
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ arch/x86/mm/numa.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -2060,10 +2060,13 @@ int dm_pool_register_metadata_threshold(
- 					dm_sm_threshold_fn fn,
- 					void *context)
- {
--	int r;
-+	int r = -EINVAL;
- 
- 	pmd_write_lock_in_core(pmd);
--	r = dm_sm_register_threshold_callback(pmd->metadata_sm, threshold, fn, context);
-+	if (!pmd->fail_io) {
-+		r = dm_sm_register_threshold_callback(pmd->metadata_sm,
-+						      threshold, fn, context);
-+	}
- 	pmd_write_unlock(pmd);
- 
- 	return r;
---- a/drivers/md/dm-thin.c
-+++ b/drivers/md/dm-thin.c
-@@ -3425,8 +3425,10 @@ static int pool_ctr(struct dm_target *ti
- 						calc_metadata_threshold(pt),
- 						metadata_low_callback,
- 						pool);
--	if (r)
-+	if (r) {
-+		ti->error = "Error registering metadata threshold";
- 		goto out_flags_changed;
-+	}
- 
- 	pt->callbacks.congested_fn = pool_is_congested;
- 	dm_table_add_target_callbacks(ti->table, &pt->callbacks);
+diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
+index fa150855647c..b4ff063a4371 100644
+--- a/arch/x86/mm/numa.c
++++ b/arch/x86/mm/numa.c
+@@ -826,7 +826,7 @@ void debug_cpumask_set_cpu(int cpu, int node, bool enable)
+ 		return;
+ 	}
+ 	mask = node_to_cpumask_map[node];
+-	if (!mask) {
++	if (!cpumask_available(mask)) {
+ 		pr_err("node_to_cpumask_map[%i] NULL\n", node);
+ 		dump_stack();
+ 		return;
+@@ -872,7 +872,7 @@ const struct cpumask *cpumask_of_node(int node)
+ 		dump_stack();
+ 		return cpu_none_mask;
+ 	}
+-	if (node_to_cpumask_map[node] == NULL) {
++	if (!cpumask_available(node_to_cpumask_map[node])) {
+ 		printk(KERN_WARNING
+ 			"cpumask_of_node(%d): no node_to_cpumask_map!\n",
+ 			node);
+-- 
+2.35.1
+
 
 
