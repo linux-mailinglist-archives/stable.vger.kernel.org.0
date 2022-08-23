@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56CBA59E0F6
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8AAE59DC73
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242506AbiHWLWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43422 "EHLO
+        id S1354004AbiHWKYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:24:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357558AbiHWLUc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:20:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 000048B986;
-        Tue, 23 Aug 2022 02:22:36 -0700 (PDT)
+        with ESMTP id S1354482AbiHWKVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:21:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1E06DF6F;
+        Tue, 23 Aug 2022 02:02:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB000B81C63;
-        Tue, 23 Aug 2022 09:22:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A83B1C433D7;
-        Tue, 23 Aug 2022 09:22:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95E0AB81C54;
+        Tue, 23 Aug 2022 09:02:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3E51C433D6;
+        Tue, 23 Aug 2022 09:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246553;
-        bh=/tIkQtSpPq+c3m2A9ero6NZsH9yARtLiAe0HR4VYEBw=;
+        s=korg; t=1661245370;
+        bh=pRaXC91DvIHgqE68Sjaz/8NETFxUC89d4VwXxGdM7S8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APgKds9DrMn/GRn6av65AMw5vi650b1GAKMmQTtarJuQ9ttKBt3QbEKpX+OCr7P3Y
-         kxRKWoGPNbsYubFup12Jta675BM8fEH1afrxTayCw75su/WNPRWFJ559Y3tOCFo1mX
-         i8pcMQPvx71o3qd3Y/+c1F3BFa/XzeBJ+y5ipvYc=
+        b=vQhvfLIJQXbjLq2/G4eW5JRLtU4soKZPlyPiHnuzhUw5Y19wCxcOjBhu4Ylua9Jbs
+         g4LP4BgPaGt64o47c1mhE5o/lCxgjlAdoE2q8/8emabtSIQ7NxOr0gSMDYMubOKJ2W
+         8iTItS1Vy0pLQ1Z/5F0RwRRo3dXsgt8J9CxgjU5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 147/389] net/mlx5e: Fix the value of MLX5E_MAX_RQ_NUM_MTTS
-Date:   Tue, 23 Aug 2022 10:23:45 +0200
-Message-Id: <20220823080121.745421965@linuxfoundation.org>
+Subject: [PATCH 4.19 057/287] ARM: dts: ast2500-evb: fix board compatible
+Date:   Tue, 23 Aug 2022 10:23:46 +0200
+Message-Id: <20220823080102.163745102@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 562696c3c62c7c23dd896e9447252ce9268cb812 ]
+[ Upstream commit 30b276fca5c0644f3cb17bceb1bd6a626c670184 ]
 
-MLX5E_MAX_RQ_NUM_MTTS should be the maximum value, so that
-MLX5_MTT_OCTW(MLX5E_MAX_RQ_NUM_MTTS) fits into u16. The current value of
-1 << 17 results in MLX5_MTT_OCTW(1 << 17) = 1 << 16, which doesn't fit
-into u16. This commit replaces it with the maximum value that still
-fits u16.
+The AST2500 EVB board should have dedicated compatible.
 
-Fixes: 73281b78a37a ("net/mlx5e: Derive Striding RQ size from MTU")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 02440622656d ("arm/dst: Add Aspeed ast2500 device tree")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220529104928.79636-4-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h | 2 +-
+ arch/arm/boot/dts/aspeed-ast2500-evb.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index b5c8afe8cd10..3209decdcff0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -101,7 +101,7 @@ struct page_pool;
- #define MLX5E_LOG_ALIGNED_MPWQE_PPW	(ilog2(MLX5E_REQUIRED_WQE_MTTS))
- #define MLX5E_REQUIRED_MTTS(wqes)	(wqes * MLX5E_REQUIRED_WQE_MTTS)
- #define MLX5E_MAX_RQ_NUM_MTTS	\
--	((1 << 16) * 2) /* So that MLX5_MTT_OCTW(num_mtts) fits into u16 */
-+	(ALIGN_DOWN(U16_MAX, 4) * 2) /* So that MLX5_MTT_OCTW(num_mtts) fits into u16 */
- #define MLX5E_ORDER2_MAX_PACKET_MTU (order_base_2(10 * 1024))
- #define MLX5E_PARAMS_MAXIMUM_LOG_RQ_SIZE_MPW	\
- 		(ilog2(MLX5E_MAX_RQ_NUM_MTTS / MLX5E_REQUIRED_WQE_MTTS))
+diff --git a/arch/arm/boot/dts/aspeed-ast2500-evb.dts b/arch/arm/boot/dts/aspeed-ast2500-evb.dts
+index 2375449c02d0..10626452878a 100644
+--- a/arch/arm/boot/dts/aspeed-ast2500-evb.dts
++++ b/arch/arm/boot/dts/aspeed-ast2500-evb.dts
+@@ -5,7 +5,7 @@
+ 
+ / {
+ 	model = "AST2500 EVB";
+-	compatible = "aspeed,ast2500";
++	compatible = "aspeed,ast2500-evb", "aspeed,ast2500";
+ 
+ 	aliases {
+ 		serial4 = &uart5;
 -- 
 2.35.1
 
