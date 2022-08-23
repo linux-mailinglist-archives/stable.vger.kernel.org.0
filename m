@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F341D59D390
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 443C659D402
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 10:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242035AbiHWIMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:12:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32862 "EHLO
+        id S241745AbiHWILp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:11:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241889AbiHWIJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:09:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD7166119;
-        Tue, 23 Aug 2022 01:06:36 -0700 (PDT)
+        with ESMTP id S241902AbiHWIJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:09:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73EA766A60;
+        Tue, 23 Aug 2022 01:06:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72431B81C18;
-        Tue, 23 Aug 2022 08:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3A0C433D6;
-        Tue, 23 Aug 2022 08:06:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF05C611DD;
+        Tue, 23 Aug 2022 08:06:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01527C433D6;
+        Tue, 23 Aug 2022 08:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661241994;
-        bh=2R7Y5R9JfnX2Fl+Ax/fCrXRtAjPJytLM6eEWo9LB3W4=;
+        s=korg; t=1661242000;
+        bh=pq5jl0liAQqHiKcuVEOGf6QiN0IET6PLiMh34kv50FY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oh/ueC49IXOisnFeQVk8K1d8GdUtJfXREXp39sOKo29FWXkIUa3ZVMmV9+PRocNVC
-         awIijVVXQkO19EJEFnjrDqFd8kngpC5kRrgtsStl9SZoMjpaaKUUJ951mtJ2AzAWaN
-         AQvubDgqwfmQH/MEfC2MvhL22RcKjtTheZ8B/bbI=
+        b=XGeelUshXeID6gN2scK4xCghVQ3TiTPbKTAkWxwXGVTxezsseImXFEB4whIu7ajOw
+         bsDX2dcvH/Wj87dnQJVEfdo31o+pxl3yOWVZoyI4o0CQqhvcr5zdaqKiDh//oD5RPH
+         7gxEx3zNeAoWySeyd7FENKoNSaOTPtHeukofBndw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.19 042/365] apparmor: fix absroot causing audited secids to begin with =
-Date:   Tue, 23 Aug 2022 09:59:03 +0200
-Message-Id: <20220823080119.940480611@linuxfoundation.org>
+        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.19 043/365] apparmor: Fix failed mount permission check error message
+Date:   Tue, 23 Aug 2022 09:59:04 +0200
+Message-Id: <20220823080119.976579673@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,74 +54,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: John Johansen <john.johansen@canonical.com>
 
-commit 511f7b5b835726e844a5fc7444c18e4b8672edfd upstream.
+commit ec240b5905bbb09a03dccffee03062cf39e38dc2 upstream.
 
-AppArmor is prefixing secids that are converted to secctx with the =
-to indicate the secctx should only be parsed from an absolute root
-POV. This allows catching errors where secctx are reparsed back into
-internal labels.
+When the mount check fails due to a permission check failure instead
+of explicitly at one of the subcomponent checks, AppArmor is reporting
+a failure in the flags match. However this is not true and AppArmor
+can not attribute the error at this point to any particular component,
+and should only indicate the mount failed due to missing permissions.
 
-Unfortunately because audit is using secid to secctx conversion this
-means that subject and object labels can result in a very unfortunate
-== that can break audit parsing.
-
-eg. the subj==unconfined term in the below audit message
-
-type=USER_LOGIN msg=audit(1639443365.233:160): pid=1633 uid=0 auid=1000
-ses=3 subj==unconfined msg='op=login id=1000 exe="/usr/sbin/sshd"
-hostname=192.168.122.1 addr=192.168.122.1 terminal=/dev/pts/1 res=success'
-
-Fix this by switch the prepending of = to a _. This still works as a
-special character to flag this case without breaking audit. Also move
-this check behind debug as it should not be needed during normal
-operqation.
-
-Fixes: 26b7899510ae ("apparmor: add support for absolute root view based labels")
-Reported-by: Casey Schaufler <casey@schaufler-ca.com>
+Fixes: 2ea3ffb7782a ("apparmor: add mount mediation")
 Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/apparmor/include/lib.h |    5 +++++
- security/apparmor/label.c       |    7 ++++---
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ security/apparmor/mount.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/security/apparmor/include/lib.h
-+++ b/security/apparmor/include/lib.h
-@@ -22,6 +22,11 @@
-  */
+--- a/security/apparmor/mount.c
++++ b/security/apparmor/mount.c
+@@ -229,7 +229,8 @@ static const char * const mnt_info_table
+ 	"failed srcname match",
+ 	"failed type match",
+ 	"failed flags match",
+-	"failed data match"
++	"failed data match",
++	"failed perms check"
+ };
  
- #define DEBUG_ON (aa_g_debug)
-+/*
-+ * split individual debug cases out in preparation for finer grained
-+ * debug controls in the future.
-+ */
-+#define AA_DEBUG_LABEL DEBUG_ON
- #define dbg_printk(__fmt, __args...) pr_debug(__fmt, ##__args)
- #define AA_DEBUG(fmt, args...)						\
- 	do {								\
---- a/security/apparmor/label.c
-+++ b/security/apparmor/label.c
-@@ -1631,9 +1631,9 @@ int aa_label_snxprint(char *str, size_t
- 	AA_BUG(!str && size != 0);
- 	AA_BUG(!label);
+ /*
+@@ -284,8 +285,8 @@ static int do_match_mnt(struct aa_dfa *d
+ 			return 0;
+ 	}
  
--	if (flags & FLAG_ABS_ROOT) {
-+	if (AA_DEBUG_LABEL && (flags & FLAG_ABS_ROOT)) {
- 		ns = root_ns;
--		len = snprintf(str, size, "=");
-+		len = snprintf(str, size, "_");
- 		update_for_len(total, len, size, str);
- 	} else if (!ns) {
- 		ns = labels_ns(label);
-@@ -1895,7 +1895,8 @@ struct aa_label *aa_label_strn_parse(str
- 	AA_BUG(!str);
+-	/* failed at end of flags match */
+-	return 4;
++	/* failed at perms check, don't confuse with flags match */
++	return 6;
+ }
  
- 	str = skipn_spaces(str, n);
--	if (str == NULL || (*str == '=' && base != &root_ns->unconfined->label))
-+	if (str == NULL || (AA_DEBUG_LABEL && *str == '_' &&
-+			    base != &root_ns->unconfined->label))
- 		return ERR_PTR(-EINVAL);
  
- 	len = label_count_strn_entries(str, end - str);
 
 
