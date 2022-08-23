@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FFB759DC1F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E263A59DF1C
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353900AbiHWKTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:19:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60660 "EHLO
+        id S1357471AbiHWLTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:19:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354364AbiHWKRR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:17:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A29804BB;
-        Tue, 23 Aug 2022 02:01:28 -0700 (PDT)
+        with ESMTP id S1357505AbiHWLRi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED4E28981E;
+        Tue, 23 Aug 2022 02:21:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93B7E6156F;
-        Tue, 23 Aug 2022 09:01:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8349CC433C1;
-        Tue, 23 Aug 2022 09:01:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8C1EB81C53;
+        Tue, 23 Aug 2022 09:21:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6C92C433C1;
+        Tue, 23 Aug 2022 09:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245286;
-        bh=lCJwgimLILYvLx/aFd2pEMdOir8WQIr+v0G9trHUm6c=;
+        s=korg; t=1661246473;
+        bh=cyfN+59jNgkanq4FoOQTalAigzTyoMHShmnVag08GSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBj+WFca1Daaq070NlO2HGb7NVpdElhRvPXbh6nG1ilCpL51uwWd90xFTbwgPYHef
-         rFdssvKtUk5KRGud41BN3HD6BAVKHtzki8JcMUq4KRMfpCzF56s+O3Ex3Q54VkLE4w
-         3+k0t5KRnqIogFj9xZ4r7U3QW3Tqv1QMI9Zta3wo=
+        b=S1xfOh5RlEx0i+MRKtgnSgGz2rMSzYAMOcXuIfeQ/i2J/iesFKvAYDq68eUtYAX0h
+         I9kX6tkmo9aG79ROve4npS34qbi76FgZX0vZEPlFhe9Qrm2LRgWvVMpd6qZ2lCTD9T
+         WhD7AeJo+b2xLosGiWND2kfToPaEn3j6gh0g3hSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 030/287] md-raid10: fix KASAN warning
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Jian Zhang <zhangjian210@huawei.com>,
+        Inki Dae <inki.dae@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 121/389] drm/exynos/exynos7_drm_decon: free resources when clk_set_parent() failed.
 Date:   Tue, 23 Aug 2022 10:23:19 +0200
-Message-Id: <20220823080101.286235099@linuxfoundation.org>
+Message-Id: <20220823080120.651635678@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,148 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Jian Zhang <zhangjian210@huawei.com>
 
-commit d17f744e883b2f8d13cca252d71cfe8ace346f7d upstream.
+[ Upstream commit 48b927770f8ad3f8cf4a024a552abf272af9f592 ]
 
-There's a KASAN warning in raid10_remove_disk when running the lvm
-test lvconvert-raid-reshape.sh. We fix this warning by verifying that the
-value "number" is valid.
+In exynos7_decon_resume, When it fails, we must use clk_disable_unprepare()
+to free resource that have been used.
 
-BUG: KASAN: slab-out-of-bounds in raid10_remove_disk+0x61/0x2a0 [raid10]
-Read of size 8 at addr ffff889108f3d300 by task mdX_raid10/124682
-
-CPU: 3 PID: 124682 Comm: mdX_raid10 Not tainted 5.19.0-rc6 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_report.cold+0x45/0x57a
- ? __lock_text_start+0x18/0x18
- ? raid10_remove_disk+0x61/0x2a0 [raid10]
- kasan_report+0xa8/0xe0
- ? raid10_remove_disk+0x61/0x2a0 [raid10]
- raid10_remove_disk+0x61/0x2a0 [raid10]
-Buffer I/O error on dev dm-76, logical block 15344, async page read
- ? __mutex_unlock_slowpath.constprop.0+0x1e0/0x1e0
- remove_and_add_spares+0x367/0x8a0 [md_mod]
- ? super_written+0x1c0/0x1c0 [md_mod]
- ? mutex_trylock+0xac/0x120
- ? _raw_spin_lock+0x72/0xc0
- ? _raw_spin_lock_bh+0xc0/0xc0
- md_check_recovery+0x848/0x960 [md_mod]
- raid10d+0xcf/0x3360 [raid10]
- ? sched_clock_cpu+0x185/0x1a0
- ? rb_erase+0x4d4/0x620
- ? var_wake_function+0xe0/0xe0
- ? psi_group_change+0x411/0x500
- ? preempt_count_sub+0xf/0xc0
- ? _raw_spin_lock_irqsave+0x78/0xc0
- ? __lock_text_start+0x18/0x18
- ? raid10_sync_request+0x36c0/0x36c0 [raid10]
- ? preempt_count_sub+0xf/0xc0
- ? _raw_spin_unlock_irqrestore+0x19/0x40
- ? del_timer_sync+0xa9/0x100
- ? try_to_del_timer_sync+0xc0/0xc0
- ? _raw_spin_lock_irqsave+0x78/0xc0
- ? __lock_text_start+0x18/0x18
- ? _raw_spin_unlock_irq+0x11/0x24
- ? __list_del_entry_valid+0x68/0xa0
- ? finish_wait+0xa3/0x100
- md_thread+0x161/0x260 [md_mod]
- ? unregister_md_personality+0xa0/0xa0 [md_mod]
- ? _raw_spin_lock_irqsave+0x78/0xc0
- ? prepare_to_wait_event+0x2c0/0x2c0
- ? unregister_md_personality+0xa0/0xa0 [md_mod]
- kthread+0x148/0x180
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x1f/0x30
- </TASK>
-
-Allocated by task 124495:
- kasan_save_stack+0x1e/0x40
- __kasan_kmalloc+0x80/0xa0
- setup_conf+0x140/0x5c0 [raid10]
- raid10_run+0x4cd/0x740 [raid10]
- md_run+0x6f9/0x1300 [md_mod]
- raid_ctr+0x2531/0x4ac0 [dm_raid]
- dm_table_add_target+0x2b0/0x620 [dm_mod]
- table_load+0x1c8/0x400 [dm_mod]
- ctl_ioctl+0x29e/0x560 [dm_mod]
- dm_compat_ctl_ioctl+0x7/0x20 [dm_mod]
- __do_compat_sys_ioctl+0xfa/0x160
- do_syscall_64+0x90/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Last potentially related work creation:
- kasan_save_stack+0x1e/0x40
- __kasan_record_aux_stack+0x9e/0xc0
- kvfree_call_rcu+0x84/0x480
- timerfd_release+0x82/0x140
-L __fput+0xfa/0x400
- task_work_run+0x80/0xc0
- exit_to_user_mode_prepare+0x155/0x160
- syscall_exit_to_user_mode+0x12/0x40
- do_syscall_64+0x42/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Second to last potentially related work creation:
- kasan_save_stack+0x1e/0x40
- __kasan_record_aux_stack+0x9e/0xc0
- kvfree_call_rcu+0x84/0x480
- timerfd_release+0x82/0x140
- __fput+0xfa/0x400
- task_work_run+0x80/0xc0
- exit_to_user_mode_prepare+0x155/0x160
- syscall_exit_to_user_mode+0x12/0x40
- do_syscall_64+0x42/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-The buggy address belongs to the object at ffff889108f3d200
- which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 0 bytes to the right of
- 256-byte region [ffff889108f3d200, ffff889108f3d300)
-
-The buggy address belongs to the physical page:
-page:000000007ef2a34c refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1108f3c
-head:000000007ef2a34c order:2 compound_mapcount:0 compound_pincount:0
-flags: 0x4000000000010200(slab|head|zone=2)
-raw: 4000000000010200 0000000000000000 dead000000000001 ffff889100042b40
-raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff889108f3d200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff889108f3d280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff889108f3d300: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                   ^
- ffff889108f3d380: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff889108f3d400: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6f83d20838c09 ("drm/exynos: use DRM_DEV_ERROR to print out error
+message")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Jian Zhang <zhangjian210@huawei.com>
+Signed-off-by: Inki Dae <inki.dae@samsung.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid10.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/exynos/exynos7_drm_decon.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/md/raid10.c
-+++ b/drivers/md/raid10.c
-@@ -1863,9 +1863,12 @@ static int raid10_remove_disk(struct mdd
- 	int err = 0;
- 	int number = rdev->raid_disk;
- 	struct md_rdev **rdevp;
--	struct raid10_info *p = conf->mirrors + number;
-+	struct raid10_info *p;
+diff --git a/drivers/gpu/drm/exynos/exynos7_drm_decon.c b/drivers/gpu/drm/exynos/exynos7_drm_decon.c
+index 6fd40410dfd2..afca5fc46020 100644
+--- a/drivers/gpu/drm/exynos/exynos7_drm_decon.c
++++ b/drivers/gpu/drm/exynos/exynos7_drm_decon.c
+@@ -800,31 +800,40 @@ static int exynos7_decon_resume(struct device *dev)
+ 	if (ret < 0) {
+ 		DRM_DEV_ERROR(dev, "Failed to prepare_enable the pclk [%d]\n",
+ 			      ret);
+-		return ret;
++		goto err_pclk_enable;
+ 	}
  
- 	print_conf(conf);
-+	if (unlikely(number >= mddev->raid_disks))
-+		return 0;
-+	p = conf->mirrors + number;
- 	if (rdev == p->rdev)
- 		rdevp = &p->rdev;
- 	else if (rdev == p->replacement)
+ 	ret = clk_prepare_enable(ctx->aclk);
+ 	if (ret < 0) {
+ 		DRM_DEV_ERROR(dev, "Failed to prepare_enable the aclk [%d]\n",
+ 			      ret);
+-		return ret;
++		goto err_aclk_enable;
+ 	}
+ 
+ 	ret = clk_prepare_enable(ctx->eclk);
+ 	if  (ret < 0) {
+ 		DRM_DEV_ERROR(dev, "Failed to prepare_enable the eclk [%d]\n",
+ 			      ret);
+-		return ret;
++		goto err_eclk_enable;
+ 	}
+ 
+ 	ret = clk_prepare_enable(ctx->vclk);
+ 	if  (ret < 0) {
+ 		DRM_DEV_ERROR(dev, "Failed to prepare_enable the vclk [%d]\n",
+ 			      ret);
+-		return ret;
++		goto err_vclk_enable;
+ 	}
+ 
+ 	return 0;
++
++err_vclk_enable:
++	clk_disable_unprepare(ctx->eclk);
++err_eclk_enable:
++	clk_disable_unprepare(ctx->aclk);
++err_aclk_enable:
++	clk_disable_unprepare(ctx->pclk);
++err_pclk_enable:
++	return ret;
+ }
+ #endif
+ 
+-- 
+2.35.1
+
 
 
