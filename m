@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A477359D79C
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D403459D66F
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:12:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241557AbiHWJrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:47:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54110 "EHLO
+        id S1347980AbiHWJIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352245AbiHWJqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:46:06 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D0E86050A;
-        Tue, 23 Aug 2022 01:43:47 -0700 (PDT)
+        with ESMTP id S240955AbiHWJHZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:07:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04E0861CF;
+        Tue, 23 Aug 2022 01:30:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 96C79CE1B41;
-        Tue, 23 Aug 2022 08:28:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B33A0C433D6;
-        Tue, 23 Aug 2022 08:28:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8113B81C57;
+        Tue, 23 Aug 2022 08:28:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2347DC433B5;
+        Tue, 23 Aug 2022 08:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243332;
-        bh=j1xQ+IIYNGAXrtO8PnOzFliezrN84TmBv/RgoyfbKOo=;
+        s=korg; t=1661243335;
+        bh=HoReviJIiaDBHeMOZIQuLCNx7ec42U1K2fgXMEpQAJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I03ve2DhgVglL7mwGz0DlcrplVEzpozn0C6ObDpiYyOd/UM75hGhXetivz95wyRuN
-         HMNV8kZGkWzIsmWF9hAUuCry1C+qjLh7rRSVno2aEgs5gLnH3fQ4XzqnyWXLMJPsKW
-         bKOWUQDVtovFHjXAsiOx/CY1ETkEyX/VVHQ9wzoo=
+        b=U2DlweHaW+6laPOoM5SRVZ4xH8IjS2KR4jVjN/UbHgk/6sez4XrxCeO5S8Y7DaVD+
+         78tDeGJKbwQVJTRyaVQcTtbSFN7RWxHRPfmo19kl+f6IFnL+neZsMXFafF45FDNdmO
+         dT0A7yQDX+tqYNI5smt2bwNDjGXNSbbXZS9cqa5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Ramalingam C <ramalingam.c@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 244/365] drm/i915/ttm: dont leak the ccs state
-Date:   Tue, 23 Aug 2022 10:02:25 +0200
-Message-Id: <20220823080128.429516312@linuxfoundation.org>
+Subject: [PATCH 5.19 245/365] drm/amdgpu: Avoid another list of reset devices
+Date:   Tue, 23 Aug 2022 10:02:26 +0200
+Message-Id: <20220823080128.470688262@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -57,75 +55,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Lijo Lazar <lijo.lazar@amd.com>
 
-[ Upstream commit 232d150fa15606e96c0e01e5c7a2d4e03f621787 ]
+[ Upstream commit 0a83bb35d8a6ff3d18c2772afe616780c23293a6 ]
 
-The kernel only manages the ccs state with lmem-only objects, however
-the kernel should still take care not to leak the CCS state from the
-previous user.
+A list of devices to be reset is already created in
+amdgpu_device_gpu_recover function. Creating another list with the
+same nodes is incorrect and not supported in list_head. Instead, pass
+the device list as part of reset context.
 
-Fixes: 48760ffe923a ("drm/i915/gt: Clear compress metadata for Flat-ccs objects")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Reviewed-by: Ramalingam C <ramalingam.c@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220727164346.282407-1-matthew.auld@intel.com
-(cherry picked from commit 353819d85f87be46aeb9c1dd929d445a006fc6ec)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: 9e08564727fc (drm/amdgpu: Refactor mode2 reset logic for v13.0.2)
+Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_migrate.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/aldebaran.c     | 45 +++++++---------------
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |  2 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_reset.h  |  1 +
+ 3 files changed, 17 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_migrate.c b/drivers/gpu/drm/i915/gt/intel_migrate.c
-index 2c35324b5f68..2b10b96b17b5 100644
---- a/drivers/gpu/drm/i915/gt/intel_migrate.c
-+++ b/drivers/gpu/drm/i915/gt/intel_migrate.c
-@@ -708,7 +708,7 @@ intel_context_migrate_copy(struct intel_context *ce,
- 	u8 src_access, dst_access;
- 	struct i915_request *rq;
- 	int src_sz, dst_sz;
--	bool ccs_is_src;
-+	bool ccs_is_src, overwrite_ccs;
- 	int err;
+diff --git a/drivers/gpu/drm/amd/amdgpu/aldebaran.c b/drivers/gpu/drm/amd/amdgpu/aldebaran.c
+index c6cc493a5486..2b97b8a96fb4 100644
+--- a/drivers/gpu/drm/amd/amdgpu/aldebaran.c
++++ b/drivers/gpu/drm/amd/amdgpu/aldebaran.c
+@@ -148,30 +148,22 @@ aldebaran_mode2_perform_reset(struct amdgpu_reset_control *reset_ctl,
+ 			      struct amdgpu_reset_context *reset_context)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)reset_ctl->handle;
++	struct list_head *reset_device_list = reset_context->reset_device_list;
+ 	struct amdgpu_device *tmp_adev = NULL;
+-	struct list_head reset_device_list;
+ 	int r = 0;
  
- 	GEM_BUG_ON(ce->vm != ce->engine->gt->migrate.context->vm);
-@@ -749,6 +749,8 @@ intel_context_migrate_copy(struct intel_context *ce,
- 			get_ccs_sg_sgt(&it_ccs, bytes_to_cpy);
+ 	dev_dbg(adev->dev, "aldebaran perform hw reset\n");
++
++	if (reset_device_list == NULL)
++		return -EINVAL;
++
+ 	if (adev->ip_versions[MP1_HWIP][0] == IP_VERSION(13, 0, 2) &&
+ 	    reset_context->hive == NULL) {
+ 		/* Wrong context, return error */
+ 		return -EINVAL;
  	}
  
-+	overwrite_ccs = HAS_FLAT_CCS(i915) && !ccs_bytes_to_cpy && dst_is_lmem;
-+
- 	src_offset = 0;
- 	dst_offset = CHUNK_SZ;
- 	if (HAS_64K_PAGES(ce->engine->i915)) {
-@@ -852,6 +854,25 @@ intel_context_migrate_copy(struct intel_context *ce,
- 			if (err)
- 				goto out_rq;
- 			ccs_bytes_to_cpy -= ccs_sz;
-+		} else if (overwrite_ccs) {
-+			err = rq->engine->emit_flush(rq, EMIT_INVALIDATE);
-+			if (err)
-+				goto out_rq;
-+
-+			/*
-+			 * While we can't always restore/manage the CCS state,
-+			 * we still need to ensure we don't leak the CCS state
-+			 * from the previous user, so make sure we overwrite it
-+			 * with something.
-+			 */
-+			err = emit_copy_ccs(rq, dst_offset, INDIRECT_ACCESS,
-+					    dst_offset, DIRECT_ACCESS, len);
-+			if (err)
-+				goto out_rq;
-+
-+			err = rq->engine->emit_flush(rq, EMIT_INVALIDATE);
-+			if (err)
-+				goto out_rq;
- 		}
+-	INIT_LIST_HEAD(&reset_device_list);
+-	if (reset_context->hive) {
+-		list_for_each_entry (tmp_adev,
+-				     &reset_context->hive->device_list,
+-				     gmc.xgmi.head)
+-			list_add_tail(&tmp_adev->reset_list,
+-				      &reset_device_list);
+-	} else {
+-		list_add_tail(&reset_context->reset_req_dev->reset_list,
+-			      &reset_device_list);
+-	}
+-
+-	list_for_each_entry (tmp_adev, &reset_device_list, reset_list) {
++	list_for_each_entry(tmp_adev, reset_device_list, reset_list) {
+ 		mutex_lock(&tmp_adev->reset_cntl->reset_lock);
+ 		tmp_adev->reset_cntl->active_reset = AMD_RESET_METHOD_MODE2;
+ 	}
+@@ -179,7 +171,7 @@ aldebaran_mode2_perform_reset(struct amdgpu_reset_control *reset_ctl,
+ 	 * Mode2 reset doesn't need any sync between nodes in XGMI hive, instead launch
+ 	 * them together so that they can be completed asynchronously on multiple nodes
+ 	 */
+-	list_for_each_entry (tmp_adev, &reset_device_list, reset_list) {
++	list_for_each_entry(tmp_adev, reset_device_list, reset_list) {
+ 		/* For XGMI run all resets in parallel to speed up the process */
+ 		if (tmp_adev->gmc.xgmi.num_physical_nodes > 1) {
+ 			if (!queue_work(system_unbound_wq,
+@@ -197,7 +189,7 @@ aldebaran_mode2_perform_reset(struct amdgpu_reset_control *reset_ctl,
  
- 		/* Arbitration is re-enabled between requests. */
+ 	/* For XGMI wait for all resets to complete before proceed */
+ 	if (!r) {
+-		list_for_each_entry (tmp_adev, &reset_device_list, reset_list) {
++		list_for_each_entry(tmp_adev, reset_device_list, reset_list) {
+ 			if (tmp_adev->gmc.xgmi.num_physical_nodes > 1) {
+ 				flush_work(&tmp_adev->reset_cntl->reset_work);
+ 				r = tmp_adev->asic_reset_res;
+@@ -207,7 +199,7 @@ aldebaran_mode2_perform_reset(struct amdgpu_reset_control *reset_ctl,
+ 		}
+ 	}
+ 
+-	list_for_each_entry (tmp_adev, &reset_device_list, reset_list) {
++	list_for_each_entry(tmp_adev, reset_device_list, reset_list) {
+ 		mutex_unlock(&tmp_adev->reset_cntl->reset_lock);
+ 		tmp_adev->reset_cntl->active_reset = AMD_RESET_METHOD_NONE;
+ 	}
+@@ -339,10 +331,13 @@ static int
+ aldebaran_mode2_restore_hwcontext(struct amdgpu_reset_control *reset_ctl,
+ 				  struct amdgpu_reset_context *reset_context)
+ {
++	struct list_head *reset_device_list = reset_context->reset_device_list;
+ 	struct amdgpu_device *tmp_adev = NULL;
+-	struct list_head reset_device_list;
+ 	int r;
+ 
++	if (reset_device_list == NULL)
++		return -EINVAL;
++
+ 	if (reset_context->reset_req_dev->ip_versions[MP1_HWIP][0] ==
+ 		    IP_VERSION(13, 0, 2) &&
+ 	    reset_context->hive == NULL) {
+@@ -350,19 +345,7 @@ aldebaran_mode2_restore_hwcontext(struct amdgpu_reset_control *reset_ctl,
+ 		return -EINVAL;
+ 	}
+ 
+-	INIT_LIST_HEAD(&reset_device_list);
+-	if (reset_context->hive) {
+-		list_for_each_entry (tmp_adev,
+-				     &reset_context->hive->device_list,
+-				     gmc.xgmi.head)
+-			list_add_tail(&tmp_adev->reset_list,
+-				      &reset_device_list);
+-	} else {
+-		list_add_tail(&reset_context->reset_req_dev->reset_list,
+-			      &reset_device_list);
+-	}
+-
+-	list_for_each_entry (tmp_adev, &reset_device_list, reset_list) {
++	list_for_each_entry(tmp_adev, reset_device_list, reset_list) {
+ 		dev_info(tmp_adev->dev,
+ 			 "GPU reset succeeded, trying to resume\n");
+ 		r = aldebaran_mode2_restore_ip(tmp_adev);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 58df107e3beb..3adebb63680e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -4746,6 +4746,8 @@ int amdgpu_do_asic_reset(struct list_head *device_list_handle,
+ 	tmp_adev = list_first_entry(device_list_handle, struct amdgpu_device,
+ 				    reset_list);
+ 	amdgpu_reset_reg_dumps(tmp_adev);
++
++	reset_context->reset_device_list = device_list_handle;
+ 	r = amdgpu_reset_perform_reset(tmp_adev, reset_context);
+ 	/* If reset handler not implemented, continue; otherwise return */
+ 	if (r == -ENOSYS)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_reset.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_reset.h
+index 1949dbe28a86..0c3ad85d84a4 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_reset.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_reset.h
+@@ -37,6 +37,7 @@ struct amdgpu_reset_context {
+ 	struct amdgpu_device *reset_req_dev;
+ 	struct amdgpu_job *job;
+ 	struct amdgpu_hive_info *hive;
++	struct list_head *reset_device_list;
+ 	unsigned long flags;
+ };
+ 
 -- 
 2.35.1
 
