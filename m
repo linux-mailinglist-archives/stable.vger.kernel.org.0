@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B18CE59D562
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3457059D5A0
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243688AbiHWI3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:29:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46636 "EHLO
+        id S243130AbiHWI1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:27:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344833AbiHWI1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:27:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E609074BAA;
-        Tue, 23 Aug 2022 01:14:50 -0700 (PDT)
+        with ESMTP id S244293AbiHWI0b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:26:31 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16FCE72FFB;
+        Tue, 23 Aug 2022 01:14:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86FCBB81C21;
-        Tue, 23 Aug 2022 08:14:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB72BC433D7;
-        Tue, 23 Aug 2022 08:14:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C5167CE1B35;
+        Tue, 23 Aug 2022 08:14:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCFA3C433C1;
+        Tue, 23 Aug 2022 08:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242444;
-        bh=v72sCb1UKg/hUfqN4kpl6JgOnAKHwuo/rcMINgfYefU=;
+        s=korg; t=1661242453;
+        bh=71pQm5UX7KUdV3OYns4yypzPi12FmpAs/Vlutlh9J9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYTeQJRKG9ybpQlvs5rwoZBa5zwW5kB+ehrwCCYCfoo7arHBxuwgIjMAXWmqObhl2
-         kSmTu+SedQTQhJ/FMINAa9yHUhm+iaxJ5PNZguPu8kKBrTCikjeS+BZdLIJGbZuOPY
-         cSFjCFNaVmUWMApP1OYl4ouyp2OvFLW6qehuSHLE=
+        b=FC2nS6fjQhptsuZbmhQYUXNumaLWcE7xU9F3yOOYZfOx1bhaVWwEqnjSegdt71cdd
+         X1KjgJJR9MVKxF5hGbOkpE26mZhEQCwJoYWuO5Nu2EeJV6P/RfsPMb2e1AAVmtj6Dn
+         frX3ZY1F2zooNo976NEo2JIvs853X6GLVhQxrZ9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harman Kalra <hkalra@marvell.com>,
-        Subbaraya Sundeep <sbhatta@marvell.com>,
+        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
         Sunil Goutham <sgoutham@marvell.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 116/365] octeontx2-af: suppress external profile loading warning
-Date:   Tue, 23 Aug 2022 10:00:17 +0200
-Message-Id: <20220823080123.060484442@linuxfoundation.org>
+Subject: [PATCH 5.19 117/365] octeontx2-af: Fix mcam entry resource leak
+Date:   Tue, 23 Aug 2022 10:00:18 +0200
+Message-Id: <20220823080123.101243885@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -55,35 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harman Kalra <hkalra@marvell.com>
+From: Subbaraya Sundeep <sbhatta@marvell.com>
 
-commit cf2437626502b5271d19686b03dea306efe17ea0 upstream.
+commit 3f8fe40ab7730cf8eb6f8b8ff412012f7f6f8f48 upstream.
 
-The packet parser profile supplied as firmware may not
-be present all the time and default profile is used mostly.
-Hence suppress firmware loading warning from kernel due to
-absence of firmware in kernel image.
+The teardown sequence in FLR handler returns if no NIX LF
+is attached to PF/VF because it indicates that graceful
+shutdown of resources already happened. But there is a
+chance of all allocated MCAM entries not being freed by
+PF/VF. Hence free mcam entries even in case of detached LF.
 
-Fixes: 3a7244152f9c ("octeontx2-af: add support for custom KPU entries")
-Signed-off-by: Harman Kalra <hkalra@marvell.com>
+Fixes: c554f9c1574e ("octeontx2-af: Teardown NPA, NIX LF upon receiving FLR")
 Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
 Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu.c     |    6 ++++++
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c |    6 ++++++
+ 2 files changed, 12 insertions(+)
 
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
+@@ -2564,6 +2564,12 @@ static void __rvu_flr_handler(struct rvu
+ 	rvu_blklf_teardown(rvu, pcifunc, BLKADDR_NPA);
+ 	rvu_reset_lmt_map_tbl(rvu, pcifunc);
+ 	rvu_detach_rsrcs(rvu, NULL, pcifunc);
++	/* In scenarios where PF/VF drivers detach NIXLF without freeing MCAM
++	 * entries, check and free the MCAM entries explicitly to avoid leak.
++	 * Since LF is detached use LF number as -1.
++	 */
++	rvu_npc_free_mcam_entries(rvu, pcifunc, -1);
++
+ 	mutex_unlock(&rvu->flr_lock);
+ }
+ 
 --- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
 +++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-@@ -1650,7 +1650,7 @@ static void npc_load_kpu_profile(struct
- 	 * Firmware database method.
- 	 * Default KPU profile.
+@@ -1096,6 +1096,9 @@ static void npc_enadis_default_entries(s
+ 
+ void rvu_npc_disable_default_entries(struct rvu *rvu, u16 pcifunc, int nixlf)
+ {
++	if (nixlf < 0)
++		return;
++
+ 	npc_enadis_default_entries(rvu, pcifunc, nixlf, false);
+ 
+ 	/* Delete multicast and promisc MCAM entries */
+@@ -1107,6 +1110,9 @@ void rvu_npc_disable_default_entries(str
+ 
+ void rvu_npc_enable_default_entries(struct rvu *rvu, u16 pcifunc, int nixlf)
+ {
++	if (nixlf < 0)
++		return;
++
+ 	/* Enables only broadcast match entry. Promisc/Allmulti are enabled
+ 	 * in set_rx_mode mbox handler.
  	 */
--	if (!request_firmware(&fw, kpu_profile, rvu->dev)) {
-+	if (!request_firmware_direct(&fw, kpu_profile, rvu->dev)) {
- 		dev_info(rvu->dev, "Loading KPU profile from firmware: %s\n",
- 			 kpu_profile);
- 		rvu->kpu_fwdata = kzalloc(fw->size, GFP_KERNEL);
 
 
