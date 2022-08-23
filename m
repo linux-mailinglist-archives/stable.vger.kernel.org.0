@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE9659DEFE
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D0359DB2A
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:18:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357446AbiHWLh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:37:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58492 "EHLO
+        id S1354675AbiHWKm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:42:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357843AbiHWLgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:36:25 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 269CFC7BB2;
-        Tue, 23 Aug 2022 02:27:41 -0700 (PDT)
+        with ESMTP id S1355495AbiHWKij (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:38:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334401EEF5;
+        Tue, 23 Aug 2022 02:07:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C28CECE1B40;
-        Tue, 23 Aug 2022 09:27:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5B43C43470;
-        Tue, 23 Aug 2022 09:27:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCB9F6159E;
+        Tue, 23 Aug 2022 09:07:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B57E0C433C1;
+        Tue, 23 Aug 2022 09:07:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246858;
-        bh=2ABQeTaiivDcrlC5faO0wA2XSbDIrWekcbpo1kVetIY=;
+        s=korg; t=1661245669;
+        bh=boTzLUsBAj1F2wZ4ou4VPjMXnGttbkrUw1RUr52Rtk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YVrEE+4GarfEg8areo5IytIFFsdY5btVTzxaGmZIMQfF6B/P405NGm8B4a7qr93MM
-         nojxGqRx1G7lmRk3VBnW2Pe7ue5Hg71edavzn2k8V+4M1J0FSwOrdf9CUdNIChx0fn
-         LWO08Ilcb+ZLJ8PWLSMS8Pr8pzheuhR70jHtpceQ=
+        b=JG0Jtf+re1XvJnpW2gquyZUiSIg0EBTfTLEmL1a8gwzPjB1b3c+RNzhDXLQLvqyi2
+         NsReil7pCmrgm1m9L5cT4ctsBRpnVU9a13r78SnS6GXNV4XUEM+xt6SwRPhQiJNbxJ
+         Ph44O/kChSlvgSRZbrRzC0nXPgxVqcP6yKEYOPLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 243/389] video: fbdev: arkfb: Fix a divide-by-zero bug in ark_set_pixclock()
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 152/287] tty: n_gsm: fix non flow control frames during mux flow off
 Date:   Tue, 23 Aug 2022 10:25:21 +0200
-Message-Id: <20220823080125.716606426@linuxfoundation.org>
+Message-Id: <20220823080105.730518417@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 2f1c4523f7a3aaabe7e53d3ebd378292947e95c8 ]
+[ Upstream commit bec0224816d19abe4fe503586d16d51890540615 ]
 
-Since the user can control the arguments of the ioctl() from the user
-space, under special arguments that may result in a divide-by-zero bug
-in:
-  drivers/video/fbdev/arkfb.c:784: ark_set_pixclock(info, (hdiv * info->var.pixclock) / hmul);
-with hdiv=1, pixclock=1 and hmul=2 you end up with (1*1)/2 = (int) 0.
-and then in:
-  drivers/video/fbdev/arkfb.c:504: rv = dac_set_freq(par->dac, 0, 1000000000 / pixclock);
-we'll get a division-by-zero.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.4.6.3.6 states that FCoff stops the
+transmission on all channels except the control channel. This is already
+implemented in gsm_data_kick(). However, chapter 5.4.8.1 explains that this
+shall result in the same behavior as software flow control on the ldisc in
+advanced option mode. That means only flow control frames shall be sent
+during flow off. The current implementation does not consider this case.
 
-The following log can reveal it:
+Change gsm_data_kick() to send only flow control frames if constipated to
+abide the standard. gsm_read_ea_val() and gsm_is_flow_ctrl_msg() are
+introduced as helper functions for this.
+It is planned to use gsm_read_ea_val() in later code cleanups for other
+functions, too.
 
-divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-RIP: 0010:ark_set_pixclock drivers/video/fbdev/arkfb.c:504 [inline]
-RIP: 0010:arkfb_set_par+0x10fc/0x24c0 drivers/video/fbdev/arkfb.c:784
-Call Trace:
- fb_set_var+0x604/0xeb0 drivers/video/fbdev/core/fbmem.c:1034
- do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
- fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
-
-Fix this by checking the argument of ark_set_pixclock() first.
-
-Fixes: 681e14730c73 ("arkfb: new framebuffer driver for ARK Logic cards")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: c01af4fec2c8 ("n_gsm : Flow control handling in Mux driver")
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220701061652.39604-5-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/arkfb.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/tty/n_gsm.c | 54 ++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 53 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/arkfb.c b/drivers/video/fbdev/arkfb.c
-index f940e8b66b85..311f7ea57625 100644
---- a/drivers/video/fbdev/arkfb.c
-+++ b/drivers/video/fbdev/arkfb.c
-@@ -778,7 +778,12 @@ static int arkfb_set_par(struct fb_info *info)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 5d2bb4d95186..baadac224c8d 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -410,6 +410,27 @@ static int gsm_read_ea(unsigned int *val, u8 c)
+ 	return c & EA;
+ }
  
--	ark_set_pixclock(info, (hdiv * info->var.pixclock) / hmul);
-+	value = (hdiv * info->var.pixclock) / hmul;
-+	if (!value) {
-+		fb_dbg(info, "invalid pixclock\n");
-+		value = 1;
++/**
++ *	gsm_read_ea_val	-	read a value until EA
++ *	@val: variable holding value
++ *	@data: buffer of data
++ *	@dlen: length of data
++ *
++ *	Processes an EA value. Updates the passed variable and
++ *	returns the processed data length.
++ */
++static unsigned int gsm_read_ea_val(unsigned int *val, const u8 *data, int dlen)
++{
++	unsigned int len = 0;
++
++	for (; dlen > 0; dlen--) {
++		len++;
++		if (gsm_read_ea(val, *data++))
++			break;
 +	}
-+	ark_set_pixclock(info, value);
- 	svga_set_timings(par->state.vgabase, &ark_timing_regs, &(info->var), hmul, hdiv,
- 			 (info->var.vmode & FB_VMODE_DOUBLE)     ? 2 : 1,
- 			 (info->var.vmode & FB_VMODE_INTERLACED) ? 2 : 1,
++	return len;
++}
++
+ /**
+  *	gsm_encode_modem	-	encode modem data bits
+  *	@dlci: DLCI to encode from
+@@ -657,6 +678,37 @@ static struct gsm_msg *gsm_data_alloc(struct gsm_mux *gsm, u8 addr, int len,
+ 	return m;
+ }
+ 
++/**
++ *	gsm_is_flow_ctrl_msg	-	checks if flow control message
++ *	@msg: message to check
++ *
++ *	Returns true if the given message is a flow control command of the
++ *	control channel. False is returned in any other case.
++ */
++static bool gsm_is_flow_ctrl_msg(struct gsm_msg *msg)
++{
++	unsigned int cmd;
++
++	if (msg->addr > 0)
++		return false;
++
++	switch (msg->ctrl & ~PF) {
++	case UI:
++	case UIH:
++		cmd = 0;
++		if (gsm_read_ea_val(&cmd, msg->data + 2, msg->len - 2) < 1)
++			break;
++		switch (cmd & ~PF) {
++		case CMD_FCOFF:
++		case CMD_FCON:
++			return true;
++		}
++		break;
++	}
++
++	return false;
++}
++
+ /**
+  *	gsm_data_kick		-	poke the queue
+  *	@gsm: GSM Mux
+@@ -675,7 +727,7 @@ static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
+ 	int len;
+ 
+ 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_list, list) {
+-		if (gsm->constipated && msg->addr)
++		if (gsm->constipated && !gsm_is_flow_ctrl_msg(msg))
+ 			continue;
+ 		if (gsm->encoding != 0) {
+ 			gsm->txframe[0] = GSM1_SOF;
 -- 
 2.35.1
 
