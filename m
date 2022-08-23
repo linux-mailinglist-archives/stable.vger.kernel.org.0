@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F78B59DD73
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E269059DD65
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:28:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354987AbiHWKeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:34:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59308 "EHLO
+        id S1349951AbiHWLeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:34:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355574AbiHWKcm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:32:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B7F3A5985;
-        Tue, 23 Aug 2022 02:06:45 -0700 (PDT)
+        with ESMTP id S1358029AbiHWLcR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8869A76764;
+        Tue, 23 Aug 2022 02:26:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 246CD6155D;
-        Tue, 23 Aug 2022 09:06:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3129EC433C1;
-        Tue, 23 Aug 2022 09:06:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C228DB81C86;
+        Tue, 23 Aug 2022 09:26:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2862AC433D6;
+        Tue, 23 Aug 2022 09:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245604;
-        bh=1VwcYKQjh+FqBxB9bypplF9vur1PhNErQ57grdAmqtQ=;
+        s=korg; t=1661246792;
+        bh=VcJODswRVZuEAW++eVTNWJbDr0yJFXm/WUOOUHGzxns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DoGhhFQ5gD0zKSmbAZzzyyjzGDXbBvG7DI2rPAxXK6LcLrRQDPc+YoXiHh9OCL25R
-         Cj4h6y7gstFhy+HSR6Wdkh52xx8fnv8TPLN2QUTxJuQ+5bTJYhYzbg1OTtJZuWPQ5Q
-         EVqwgdXVdBqppcnwJ0FWxEY7XCw5Zz0+jcSSnFFM=
+        b=RvFQFMBaAt25FpoL5BWUjaGVjm1Shm4nqe71KfFTkZ93ezU1lmAvK89xV5S3GoyVl
+         nwEi20doXmAe2jQnHiT/NaDHMA02tSpRMag6JvJ42/D22CpHRIccEM/YL+C3axmQ4l
+         ypiij/ZLqf33KyMs/9yk9kozNqqqShKq09E+UDuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Karl Olsen <karl@micro-technic.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stefani Seibold <stefani@seibold.net>,
+        Randy Dunlap <randy.dunlap@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 130/287] mmc: sdhci-of-at91: fix set_uhs_signaling rewriting of MC1R
+Subject: [PATCH 5.4 221/389] kfifo: fix kfifo_to_user() return type
 Date:   Tue, 23 Aug 2022 10:24:59 +0200
-Message-Id: <20220823080104.784447534@linuxfoundation.org>
+Message-Id: <20220823080124.813899278@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,46 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5987e6ded29d52e42fc7b06aa575c60a25eee38e ]
+[ Upstream commit 045ed31e23aea840648c290dbde04797064960db ]
 
-In set_uhs_signaling, the DDR bit is being set by fully writing the MC1R
-register.
-This can lead to accidental erase of certain bits in this register.
-Avoid this by doing a read-modify-write operation.
+The kfifo_to_user() macro is supposed to return zero for success or
+negative error codes.  Unfortunately, there is a signedness bug so it
+returns unsigned int.  This only affects callers which try to save the
+result in ssize_t and as far as I can see the only place which does that
+is line6_hwdep_read().
 
-Fixes: d0918764c17b ("mmc: sdhci-of-at91: fix MMC_DDR_52 timing selection")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Tested-by: Karl Olsen <karl@micro-technic.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20220630090926.15061-1-eugen.hristev@microchip.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+TL;DR: s/_uint/_int/.
+
+Link: https://lkml.kernel.org/r/YrVL3OJVLlNhIMFs@kili
+Fixes: 144ecf310eb5 ("kfifo: fix kfifo_alloc() to return a signed int value")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Stefani Seibold <stefani@seibold.net>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-at91.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ include/linux/kfifo.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-of-at91.c b/drivers/mmc/host/sdhci-of-at91.c
-index 8cd1794768ba..70ce977cfeec 100644
---- a/drivers/mmc/host/sdhci-of-at91.c
-+++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -117,8 +117,13 @@ static void sdhci_at91_set_power(struct sdhci_host *host, unsigned char mode,
- static void sdhci_at91_set_uhs_signaling(struct sdhci_host *host,
- 					 unsigned int timing)
- {
--	if (timing == MMC_TIMING_MMC_DDR52)
--		sdhci_writeb(host, SDMMC_MC1R_DDR, SDMMC_MC1R);
-+	u8 mc1r;
-+
-+	if (timing == MMC_TIMING_MMC_DDR52) {
-+		mc1r = sdhci_readb(host, SDMMC_MC1R);
-+		mc1r |= SDMMC_MC1R_DDR;
-+		sdhci_writeb(host, mc1r, SDMMC_MC1R);
-+	}
- 	sdhci_set_uhs_signaling(host, timing);
- }
- 
+diff --git a/include/linux/kfifo.h b/include/linux/kfifo.h
+index fc4b0b10210f..d3e0f9dc2587 100644
+--- a/include/linux/kfifo.h
++++ b/include/linux/kfifo.h
+@@ -615,7 +615,7 @@ __kfifo_uint_must_check_helper( \
+  * writer, you don't need extra locking to use these macro.
+  */
+ #define	kfifo_to_user(fifo, to, len, copied) \
+-__kfifo_uint_must_check_helper( \
++__kfifo_int_must_check_helper( \
+ ({ \
+ 	typeof((fifo) + 1) __tmp = (fifo); \
+ 	void __user *__to = (to); \
 -- 
 2.35.1
 
