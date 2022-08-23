@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A689759DF19
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01FE759DDD4
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244018AbiHWKSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:18:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47190 "EHLO
+        id S245547AbiHWLR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353969AbiHWKQ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:16:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B2B7FE75;
-        Tue, 23 Aug 2022 02:00:59 -0700 (PDT)
+        with ESMTP id S1357933AbiHWLR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48DEA804B5;
+        Tue, 23 Aug 2022 02:20:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B62D6123D;
-        Tue, 23 Aug 2022 09:00:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C8ACC433B5;
-        Tue, 23 Aug 2022 09:00:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3654B81C86;
+        Tue, 23 Aug 2022 09:20:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E67B9C433C1;
+        Tue, 23 Aug 2022 09:20:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245257;
-        bh=zx4gx2c7NUuB/8D90F7t4/tp3sdXtHdzmmcbUvr3UC4=;
+        s=korg; t=1661246449;
+        bh=5Eg+mOfgK0nOXc2WZG4g5gtNOFCOyYxaBjt1GGpN1z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xLArfx27Ktaba8STeQ5v5Tvjg9h4FtQhCB4UdI+yl5dCqEhqej1EX5q5RKrmP9+i
-         QeZ2kSt5CVnE5TakMM8ilBMOfZnfucmVMPYR5yAlTtX1RB5aBzo6xKvv1AdP9ca5J+
-         9tdR3BILecG7f+0FD8vlmK1YSIm8tKRhztrGNpZA=
+        b=AhxuFO/nz1iaXFbM0zl4z6lSZySlO4YcfSV0ShOdYL/79FJzSD15VPWZkMd2k/ZUa
+         iknTSxel9Hv4s6JzQySTRVf2As4O/bDWyHfLIJu07MsjlCgi9ncuKE0flw9VsH23BO
+         WsWgzL5ziO9PSR0AErz6BMDK/eE6hX5v9vr9oDy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeongik Cha <jeongik@google.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 004/287] wifi: mac80211_hwsim: fix race condition in pending packet
-Date:   Tue, 23 Aug 2022 10:22:53 +0200
-Message-Id: <20220823080100.416660485@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 096/389] wifi: rtlwifi: fix error codes in rtl_debugfs_set_write_h2c()
+Date:   Tue, 23 Aug 2022 10:22:54 +0200
+Message-Id: <20220823080119.622749193@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,88 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeongik Cha <jeongik@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 4ee186fa7e40ae06ebbfbad77e249e3746e14114 upstream.
+[ Upstream commit b88d28146c30a8e14f0f012d56ebf19b68a348f4 ]
 
-A pending packet uses a cookie as an unique key, but it can be duplicated
-because it didn't use atomic operators.
+If the copy_from_user() fails or the user gives invalid date then the
+correct thing to do is to return a negative error code.  (Currently it
+returns success).
 
-And also, a pending packet can be null in hwsim_tx_info_frame_received_nl
-due to race condition with mac80211_hwsim_stop.
+I made a copy additional related cleanups:
+1) There is no need to check "buffer" for NULL.  That's handled by
+copy_from_user().
+2) The "h2c_len" variable cannot be negative because it is unsigned
+and because sscanf() does not return negative error codes.
 
-For this,
- * Use an atomic type and operator for a cookie
- * Add a lock around the loop for pending packets
-
-Signed-off-by: Jeongik Cha <jeongik@google.com>
-Link: https://lore.kernel.org/r/20220704084354.3556326-1-jeongik@google.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 610247f46feb ("rtlwifi: Improve debugging by using debugfs")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/YoOLnDkHgVltyXK7@kili
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/debug.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -552,7 +552,7 @@ struct mac80211_hwsim_data {
- 	bool ps_poll_pending;
- 	struct dentry *debugfs;
+diff --git a/drivers/net/wireless/realtek/rtlwifi/debug.c b/drivers/net/wireless/realtek/rtlwifi/debug.c
+index 55db71c766fe..ec0da33da4f8 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/debug.c
++++ b/drivers/net/wireless/realtek/rtlwifi/debug.c
+@@ -349,8 +349,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
  
--	uintptr_t pending_cookie;
-+	atomic64_t pending_cookie;
- 	struct sk_buff_head pending;	/* packets pending */
- 	/*
- 	 * Only radios in the same group can communicate together (the
-@@ -1067,7 +1067,7 @@ static void mac80211_hwsim_tx_frame_nl(s
- 	int i;
- 	struct hwsim_tx_rate tx_attempts[IEEE80211_TX_MAX_RATES];
- 	struct hwsim_tx_rate_flag tx_attempts_flags[IEEE80211_TX_MAX_RATES];
--	uintptr_t cookie;
-+	u64 cookie;
+ 	tmp_len = (count > sizeof(tmp) - 1 ? sizeof(tmp) - 1 : count);
  
- 	if (data->ps != PS_DISABLED)
- 		hdr->frame_control |= cpu_to_le16(IEEE80211_FCTL_PM);
-@@ -1136,8 +1136,7 @@ static void mac80211_hwsim_tx_frame_nl(s
- 		goto nla_put_failure;
+-	if (!buffer || copy_from_user(tmp, buffer, tmp_len))
+-		return count;
++	if (copy_from_user(tmp, buffer, tmp_len))
++		return -EFAULT;
  
- 	/* We create a cookie to identify this skb */
--	data->pending_cookie++;
--	cookie = data->pending_cookie;
-+	cookie = (u64)atomic64_inc_return(&data->pending_cookie);
- 	info->rate_driver_data[0] = (void *)cookie;
- 	if (nla_put_u64_64bit(skb, HWSIM_ATTR_COOKIE, cookie, HWSIM_ATTR_PAD))
- 		goto nla_put_failure;
-@@ -3120,6 +3119,7 @@ static int hwsim_tx_info_frame_received_
- 	const u8 *src;
- 	unsigned int hwsim_flags;
- 	int i;
-+	unsigned long flags;
- 	bool found = false;
+ 	tmp[tmp_len] = '\0';
  
- 	if (!info->attrs[HWSIM_ATTR_ADDR_TRANSMITTER] ||
-@@ -3144,18 +3144,20 @@ static int hwsim_tx_info_frame_received_
- 		goto out;
+@@ -360,8 +360,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
+ 			 &h2c_data[4], &h2c_data[5],
+ 			 &h2c_data[6], &h2c_data[7]);
  
- 	/* look for the skb matching the cookie passed back from user */
-+	spin_lock_irqsave(&data2->pending.lock, flags);
- 	skb_queue_walk_safe(&data2->pending, skb, tmp) {
- 		u64 skb_cookie;
+-	if (h2c_len <= 0)
+-		return count;
++	if (h2c_len == 0)
++		return -EINVAL;
  
- 		txi = IEEE80211_SKB_CB(skb);
--		skb_cookie = (u64)(uintptr_t)txi->rate_driver_data[0];
-+		skb_cookie = (u64)txi->rate_driver_data[0];
- 
- 		if (skb_cookie == ret_skb_cookie) {
--			skb_unlink(skb, &data2->pending);
-+			__skb_unlink(skb, &data2->pending);
- 			found = true;
- 			break;
- 		}
- 	}
-+	spin_unlock_irqrestore(&data2->pending.lock, flags);
- 
- 	/* not found */
- 	if (!found)
+ 	for (i = 0; i < h2c_len; i++)
+ 		h2c_data_packed[i] = (u8)h2c_data[i];
+-- 
+2.35.1
+
 
 
