@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F20C59E066
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E390A59DFE1
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357944AbiHWLm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:42:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59512 "EHLO
+        id S1355513AbiHWKnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:43:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358128AbiHWLk4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:40:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566E479A78;
-        Tue, 23 Aug 2022 02:28:48 -0700 (PDT)
+        with ESMTP id S1356131AbiHWKlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:41:31 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9EB6A832A;
+        Tue, 23 Aug 2022 02:09:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9D6361321;
-        Tue, 23 Aug 2022 09:28:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9930BC433C1;
-        Tue, 23 Aug 2022 09:28:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 43263CE1B5E;
+        Tue, 23 Aug 2022 09:08:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55C1AC433C1;
+        Tue, 23 Aug 2022 09:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246928;
-        bh=fxqOlcdMXJw0hkRG/HqAzz/cN+6V0X3/5ww6yAtHWJg=;
+        s=korg; t=1661245734;
+        bh=BFHdUfVLvuzmPj3StTaNGcKfMuD3Bv/9nflGru3EY54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKDnp5hEkPXGfzD7a49XDsiWjzT49LYhU09/g+DKx5pS17gzPRkbws9op8vnMUg+A
-         rMGmIyk8lIFwDFAmyJ9py0F/VkbxnL7Kulg1EDCqvvH5gnu+WzIWO0mbjsAzvtznAM
-         mbfnPr0pvjVlyQxyjtNX0M+O08BMbaakPztxhhsM=
+        b=Wg7qGXIVXBgusr0fH4BIsD1QgsDYTFKZZW8hpZTXn9CTgAoA0C6sWkUA38lXpWgSQ
+         TdK/qIxk4HiyS4VyiOTDV5ta1cBgR9+ColSJ98pzVgy+DCifC8WDP3pYyEZchEnlsk
+         gqRIJEmLUuteEfSTKBZEJJMAIiqRGFgcqU+foupM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com,
+        Zhu Yanjun <yanjun.zhu@linux.dev>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 233/389] powerpc/pci: Prefer PCI domain assignment via DT linux,pci-domain and alias
+Subject: [PATCH 4.19 142/287] RDMA/rxe: Fix error unwind in rxe_create_qp()
 Date:   Tue, 23 Aug 2022 10:25:11 +0200
-Message-Id: <20220823080125.323251170@linuxfoundation.org>
+Message-Id: <20220823080105.292434955@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-[ Upstream commit 0fe1e96fef0a5c53b4c0d1500d356f3906000f81 ]
+[ Upstream commit fd5382c5805c4bcb50fd25b7246247d3f7114733 ]
 
-Other Linux architectures use DT property 'linux,pci-domain' for
-specifying fixed PCI domain of PCI controller specified in Device-Tree.
+In the function rxe_create_qp(), rxe_qp_from_init() is called to
+initialize qp, internally things like the spin locks are not setup until
+rxe_qp_init_req().
 
-And lot of Freescale powerpc boards have defined numbered pci alias in
-Device-Tree for every PCIe controller which number specify preferred PCI
-domain.
+If an error occures before this point then the unwind will call
+rxe_cleanup() and eventually to rxe_qp_do_cleanup()/rxe_cleanup_task()
+which will oops when trying to access the uninitialized spinlock.
 
-So prefer usage of DT property 'linux,pci-domain' (via function
-of_get_pci_domain_nr()) and DT pci alias (via function
-of_alias_get_id()) on powerpc architecture for assigning PCI domain to
-PCI controller.
+Move the spinlock initializations earlier before any failures.
 
-Fixes: 63a72284b159 ("powerpc/pci: Assign fixed PHB number based on device-tree properties")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220706102148.5060-2-pali@kernel.org
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20220731063621.298405-1-yanjun.zhu@linux.dev
+Reported-by: syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/pci-common.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
-index a2c258a8d736..1e827e3769a8 100644
---- a/arch/powerpc/kernel/pci-common.c
-+++ b/arch/powerpc/kernel/pci-common.c
-@@ -73,16 +73,30 @@ void set_pci_dma_ops(const struct dma_map_ops *dma_ops)
- static int get_phb_number(struct device_node *dn)
- {
- 	int ret, phb_id = -1;
--	u32 prop_32;
- 	u64 prop;
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 4798b718b085..a4b5374deac8 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -210,6 +210,14 @@ static void rxe_qp_init_misc(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 	spin_lock_init(&qp->grp_lock);
+ 	spin_lock_init(&qp->state_lock);
  
- 	/*
- 	 * Try fixed PHB numbering first, by checking archs and reading
--	 * the respective device-tree properties. Firstly, try powernv by
--	 * reading "ibm,opal-phbid", only present in OPAL environment.
-+	 * the respective device-tree properties. Firstly, try reading
-+	 * standard "linux,pci-domain", then try reading "ibm,opal-phbid"
-+	 * (only present in powernv OPAL environment), then try device-tree
-+	 * alias and as the last try to use lower bits of "reg" property.
- 	 */
--	ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
-+	ret = of_get_pci_domain_nr(dn);
-+	if (ret >= 0) {
-+		prop = ret;
-+		ret = 0;
-+	}
-+	if (ret)
-+		ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
-+	if (ret)
-+		ret = of_alias_get_id(dn, "pci");
-+	if (ret >= 0) {
-+		prop = ret;
-+		ret = 0;
-+	}
- 	if (ret) {
-+		u32 prop_32;
- 		ret = of_property_read_u32_index(dn, "reg", 1, &prop_32);
- 		prop = prop_32;
++	spin_lock_init(&qp->req.task.state_lock);
++	spin_lock_init(&qp->resp.task.state_lock);
++	spin_lock_init(&qp->comp.task.state_lock);
++
++	spin_lock_init(&qp->sq.sq_lock);
++	spin_lock_init(&qp->rq.producer_lock);
++	spin_lock_init(&qp->rq.consumer_lock);
++
+ 	atomic_set(&qp->ssn, 0);
+ 	atomic_set(&qp->skb_out, 0);
+ }
+@@ -258,7 +266,6 @@ static int rxe_qp_init_req(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 	qp->req.opcode		= -1;
+ 	qp->comp.opcode		= -1;
+ 
+-	spin_lock_init(&qp->sq.sq_lock);
+ 	skb_queue_head_init(&qp->req_pkts);
+ 
+ 	rxe_init_task(rxe, &qp->req.task, qp,
+@@ -308,9 +315,6 @@ static int rxe_qp_init_resp(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 		}
  	}
-@@ -94,10 +108,7 @@ static int get_phb_number(struct device_node *dn)
- 	if ((phb_id >= 0) && !test_and_set_bit(phb_id, phb_bitmap))
- 		return phb_id;
  
--	/*
--	 * If not pseries nor powernv, or if fixed PHB numbering tried to add
--	 * the same PHB number twice, then fallback to dynamic PHB numbering.
--	 */
-+	/* If everything fails then fallback to dynamic PHB numbering. */
- 	phb_id = find_first_zero_bit(phb_bitmap, MAX_PHBS);
- 	BUG_ON(phb_id >= MAX_PHBS);
- 	set_bit(phb_id, phb_bitmap);
+-	spin_lock_init(&qp->rq.producer_lock);
+-	spin_lock_init(&qp->rq.consumer_lock);
+-
+ 	skb_queue_head_init(&qp->resp_pkts);
+ 
+ 	rxe_init_task(rxe, &qp->resp.task, qp,
 -- 
 2.35.1
 
