@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D255359D78F
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC3959D6FB
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:58:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242342AbiHWJjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:39:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52568 "EHLO
+        id S241706AbiHWJwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:52:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351689AbiHWJim (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:38:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB43225EB1;
-        Tue, 23 Aug 2022 01:41:06 -0700 (PDT)
+        with ESMTP id S1352100AbiHWJvR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:51:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF0BC9E2E9;
+        Tue, 23 Aug 2022 01:45:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D11D16153C;
-        Tue, 23 Aug 2022 08:39:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B084AC433D6;
-        Tue, 23 Aug 2022 08:39:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1665BB81C3E;
+        Tue, 23 Aug 2022 08:44:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D995C433C1;
+        Tue, 23 Aug 2022 08:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243999;
-        bh=3nNFgxHraRJWA0ShV22x8RUpKDKlePeNDiV/IlDMamg=;
+        s=korg; t=1661244295;
+        bh=7Rn4cdXpRAM5OklFmWT4YS51CyztgZROwx8ZSo8Jkk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQmJUufWNUijtmn5P/GDwEbN+d+WfmB9xU8INGKmbJ4rffpVfEXLB85N8Wa2cHWSM
-         liD/nOlxM1VIZD1QKqQYnLiJ30FPXVS6D9T75s7/2EPmiLsJZPTbGXBkwgDc3F0Dkz
-         jyaRVG12Ign2O+Kf7djQ0ifEklCM+gU+28q3BY+s=
+        b=Tx36S5NiuVZvdZ/d0nqdZOzDm7z3gh1MuOjw+Kq60Jwb6mR9L61Hj7WvHTi1tupIr
+         B5dAM4Ck314pKZ4wZN1MetV4ww0oHfgqU0zmwi3kNz4adI03Dlc+yZ9yo4pP6X5RDP
+         zAAsYQPMzKjJKUINnjpOsA1H6u8z9h/nFdyfd3Ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 066/229] media: hdpvr: fix error value returns in hdpvr_read
-Date:   Tue, 23 Aug 2022 10:23:47 +0200
-Message-Id: <20220823080056.079825043@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.15 069/244] um: Add missing apply_returns()
+Date:   Tue, 23 Aug 2022 10:23:48 +0200
+Message-Id: <20220823080101.377073102@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080053.202747790@linuxfoundation.org>
-References: <20220823080053.202747790@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 359c27c6ddbde404f44a9c0d3ec88ccd1e2042f2 ]
+commit 637285e7f8d6da70a70c64e7895cb0672357a1f7 upstream.
 
-Error return values are supposed to be negative in hdpvr_read. Most
-error returns are currently handled via an unsigned integer "ret". When
-setting a negative error value to "ret", the value actually becomes a
-large positive value, because "ret" is unsigned. Later on, the "ret"
-value is returned. But as ssize_t is a 64-bit signed number, the error
-return value stays a large positive integer instead of a negative
-integer. This can cause an error value to be interpreted as the read
-size, which can cause a buffer overread for applications relying on the
-returned size.
+Implement apply_returns() stub for UM, just like all the other patching
+routines.
 
-Fixes: 9aba42efe85b ("V4L/DVB (11096): V4L2 Driver for the Hauppauge HD PVR usb capture device")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 15e67227c49a ("x86: Undo return-thunk damage")
+Reported-by: Randy Dunlap <rdunlap@infradead.org)
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/hdpvr/hdpvr-video.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/um/kernel/um_arch.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/usb/hdpvr/hdpvr-video.c b/drivers/media/usb/hdpvr/hdpvr-video.c
-index 1cecb37e16d2..59bd44736fae 100644
---- a/drivers/media/usb/hdpvr/hdpvr-video.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-video.c
-@@ -413,7 +413,7 @@ static ssize_t hdpvr_read(struct file *file, char __user *buffer, size_t count,
- 	struct hdpvr_device *dev = video_drvdata(file);
- 	struct hdpvr_buffer *buf = NULL;
- 	struct urb *urb;
--	unsigned int ret = 0;
-+	int ret = 0;
- 	int rem, cnt;
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -437,6 +437,10 @@ void apply_returns(s32 *start, s32 *end)
+ {
+ }
  
- 	if (*pos)
--- 
-2.35.1
-
++void apply_returns(s32 *start, s32 *end)
++{
++}
++
+ void apply_alternatives(struct alt_instr *start, struct alt_instr *end)
+ {
+ }
 
 
