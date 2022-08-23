@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BED4F59E31D
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE72059E2F8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353934AbiHWKYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:24:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38832 "EHLO
+        id S237406AbiHWLVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:21:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354236AbiHWKU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:20:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 468CFBFB;
-        Tue, 23 Aug 2022 02:02:20 -0700 (PDT)
+        with ESMTP id S1357433AbiHWLSx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:18:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C464A89CE4;
+        Tue, 23 Aug 2022 02:22:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D43416153F;
-        Tue, 23 Aug 2022 09:02:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE00FC433D7;
-        Tue, 23 Aug 2022 09:02:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 750E3B81B1F;
+        Tue, 23 Aug 2022 09:22:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1CFEC433C1;
+        Tue, 23 Aug 2022 09:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245339;
-        bh=MYOMFbptAUcIePjYdRyu8OSVn7/0hfV7tcqXeEefLR0=;
+        s=korg; t=1661246528;
+        bh=jGYDKm0Tw+bfYKYZH5hqWm2mnwiYORDMGSxt/7Z6A0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCye2oUfT//JTqQQ12iLDUL6RwmBNIEa6BuTZk3CZGKKI5wY5eUrngtK+tLHS/JB7
-         /TYJ9VG71lNFxslQmXYDeDg0q+z+xgYaaAU/lbm6vjEAMKfjVIRSS/8h1sr4t4M0q2
-         l77HJRlCeGkTbHyK5+rV9k9RaINErjJsnzWUc5RM=
+        b=kU+ml71MBZCC/M2yxWfyZeHqftx1APlS/066QEZki5aQWN7fbteJHPgWSykGSfuZ0
+         a6rH5bAYB1aLIiLkHgV591GSs21F18/IvNHmYB6NqnqBnlKiVQv/L5rWplmmfzgkTM
+         yojfndfj81aJ1wpZ6xQBW24rE3vqCH8tGmQ7Fn5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manyi Li <limanyi@uniontech.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 048/287] ACPI: PM: save NVS memory for Lenovo G40-45
+Subject: [PATCH 5.4 139/389] can: error: specify the values of data[5..7] of CAN error frames
 Date:   Tue, 23 Aug 2022 10:23:37 +0200
-Message-Id: <20220823080101.870203128@linuxfoundation.org>
+Message-Id: <20220823080121.418829283@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manyi Li <limanyi@uniontech.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 4b7ef7b05afcde44142225c184bf43a0cd9e2178 ]
+[ Upstream commit e70a3263a7eed768d5f947b8f2aff8d2a79c9d97 ]
 
-[821d6f0359b0614792ab8e2fb93b503e25a65079] is to make machines
-produced from 2012 to now not saving NVS region to accelerate S3.
+Currently, data[5..7] of struct can_frame, when used as a CAN error
+frame, are defined as being "controller specific". Device specific
+behaviours are problematic because it prevents someone from writing
+code which is portable between devices.
 
-But, Lenovo G40-45, a platform released in 2015, still needs NVS memory
-saving during S3. A quirk is introduced for this platform.
+As a matter of fact, data[5] is never used, data[6] is always used to
+report TX error counter and data[7] is always used to report RX error
+counter. can-utils also relies on this.
 
-Signed-off-by: Manyi Li <limanyi@uniontech.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This patch updates the comment in the uapi header to specify that
+data[5] is reserved (and thus should not be used) and that data[6..7]
+are used for error counters.
+
+Fixes: 0d66548a10cb ("[CAN]: Add PF_CAN core module")
+Link: https://lore.kernel.org/all/20220719143550.3681-11-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/sleep.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/uapi/linux/can/error.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
-index 847db3edcb5b..a3b4ac97793f 100644
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -359,6 +359,14 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "80E3"),
- 		},
- 	},
-+	{
-+	.callback = init_nvs_save_s3,
-+	.ident = "Lenovo G40-45",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "80E1"),
-+		},
-+	},
- 	/*
- 	 * https://bugzilla.kernel.org/show_bug.cgi?id=196907
- 	 * Some Dell XPS13 9360 cannot do suspend-to-idle using the Low Power
+diff --git a/include/uapi/linux/can/error.h b/include/uapi/linux/can/error.h
+index 34633283de64..a1000cb63063 100644
+--- a/include/uapi/linux/can/error.h
++++ b/include/uapi/linux/can/error.h
+@@ -120,6 +120,9 @@
+ #define CAN_ERR_TRX_CANL_SHORT_TO_GND  0x70 /* 0111 0000 */
+ #define CAN_ERR_TRX_CANL_SHORT_TO_CANH 0x80 /* 1000 0000 */
+ 
+-/* controller specific additional information / data[5..7] */
++/* data[5] is reserved (do not use) */
++
++/* TX error counter / data[6] */
++/* RX error counter / data[7] */
+ 
+ #endif /* _UAPI_CAN_ERROR_H */
 -- 
 2.35.1
 
