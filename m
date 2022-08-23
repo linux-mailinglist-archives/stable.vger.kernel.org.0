@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ABD859E324
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 381B559E064
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353489AbiHWKhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:37:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35406 "EHLO
+        id S1349783AbiHWLeP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:34:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355112AbiHWKed (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:34:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95887A5C65;
-        Tue, 23 Aug 2022 02:06:59 -0700 (PDT)
+        with ESMTP id S242860AbiHWLcZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:32:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE33B76943;
+        Tue, 23 Aug 2022 02:26:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A06D6B81C95;
-        Tue, 23 Aug 2022 09:06:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09B99C433B5;
-        Tue, 23 Aug 2022 09:06:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AFBB761315;
+        Tue, 23 Aug 2022 09:26:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F03C433D6;
+        Tue, 23 Aug 2022 09:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245616;
-        bh=lNOn6QaHW8plvFamaLgqEtt38KC5LSM6pyNKcHZruUQ=;
+        s=korg; t=1661246808;
+        bh=3xxcuQJQA/NI4ag+LK3Y2WgZoK6Y9m0qoIvOAHxyx9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/E991gOiGGa09gYyIViMFa3mshBUa/ZA/SaaK4SLHktBddEvHuF+hpIVWsgMDIvg
-         ZPR3XPEUgxyb5x3hGpF4NQatCo43FqINz1z/Hr1kSTn2lrLS6rm28Ry5gMfZgvALPz
-         xhyA9Twofs/CONdEiY5s6oXLpHqpNT3wqgBfrauA=
+        b=jn4wvhUxUvsjo9uc8VCI5NWynH6r7pMEEO1VuLBy0giDb8fCK/vZZ39aC8kfZDcVU
+         VrFg5ci7rNdwW+cb5J1Z/N2Cnn2Wa/vDXbAbU2jHppF7I3V9+IGVLEvJVmMWXmSwOh
+         vxDLFhocmzG2iFi5mzxrv7WQoJ0v2oMYptv+xby0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Raviteja Garimella <raviteja.garimella@broadcom.com>,
-        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
-        Randy Dunlap <rdunlap@infradead.org>,
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 133/287] usb: gadget: udc: amd5536 depends on HAS_DMA
-Date:   Tue, 23 Aug 2022 10:25:02 +0200
-Message-Id: <20220823080104.909987977@linuxfoundation.org>
+Subject: [PATCH 5.4 225/389] s390/zcore: fix race when reading from hardware system area
+Date:   Tue, 23 Aug 2022 10:25:03 +0200
+Message-Id: <20220823080125.007761834@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit 8097cf2fb3b2205257f1c76f4808e3398d66b6d9 ]
+[ Upstream commit 9ffed254d938c9e99eb7761c7f739294c84e0367 ]
 
-USB_AMD5536UDC should depend on HAS_DMA since it selects USB_SNP_CORE,
-which depends on HAS_DMA and since 'select' does not follow any
-dependency chains.
+Memory buffer used for reading out data from hardware system
+area is not protected against concurrent access.
 
-Fixes this kconfig warning:
-
-WARNING: unmet direct dependencies detected for USB_SNP_CORE
-  Depends on [n]: USB_SUPPORT [=y] && USB_GADGET [=y] && (USB_AMD5536UDC [=y] || USB_SNP_UDC_PLAT [=n]) && HAS_DMA [=n]
-  Selected by [y]:
-  - USB_AMD5536UDC [=y] && USB_SUPPORT [=y] && USB_GADGET [=y] && USB_PCI [=y]
-
-Fixes: 97b3ffa233b9 ("usb: gadget: udc: amd5536: split core and PCI layer")
-Cc: Raviteja Garimella <raviteja.garimella@broadcom.com>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: linux-usb@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20220709013601.7536-1-rdunlap@infradead.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Fixes: 411ed3225733 ("[S390] zfcpdump support.")
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Link: https://lore.kernel.org/r/e68137f0f9a0d2558f37becc20af18e2939934f6.1658206891.git.agordeev@linux.ibm.com
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/char/zcore.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
-index d83d93c6ef9e..33b5648b2819 100644
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -309,7 +309,7 @@ source "drivers/usb/gadget/udc/bdc/Kconfig"
+diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
+index 08f812475f5e..c9d172510509 100644
+--- a/drivers/s390/char/zcore.c
++++ b/drivers/s390/char/zcore.c
+@@ -53,6 +53,7 @@ static struct dentry *zcore_reipl_file;
+ static struct dentry *zcore_hsa_file;
+ static struct ipl_parameter_block *zcore_ipl_block;
  
- config USB_AMD5536UDC
- 	tristate "AMD5536 UDC"
--	depends on USB_PCI
-+	depends on USB_PCI && HAS_DMA
- 	select USB_SNP_CORE
- 	help
- 	   The AMD5536 UDC is part of the AMD Geode CS5536, an x86 southbridge.
++static DEFINE_MUTEX(hsa_buf_mutex);
+ static char hsa_buf[PAGE_SIZE] __aligned(PAGE_SIZE);
+ 
+ /*
+@@ -69,19 +70,24 @@ int memcpy_hsa_user(void __user *dest, unsigned long src, size_t count)
+ 	if (!hsa_available)
+ 		return -ENODATA;
+ 
++	mutex_lock(&hsa_buf_mutex);
+ 	while (count) {
+ 		if (sclp_sdias_copy(hsa_buf, src / PAGE_SIZE + 2, 1)) {
+ 			TRACE("sclp_sdias_copy() failed\n");
++			mutex_unlock(&hsa_buf_mutex);
+ 			return -EIO;
+ 		}
+ 		offset = src % PAGE_SIZE;
+ 		bytes = min(PAGE_SIZE - offset, count);
+-		if (copy_to_user(dest, hsa_buf + offset, bytes))
++		if (copy_to_user(dest, hsa_buf + offset, bytes)) {
++			mutex_unlock(&hsa_buf_mutex);
+ 			return -EFAULT;
++		}
+ 		src += bytes;
+ 		dest += bytes;
+ 		count -= bytes;
+ 	}
++	mutex_unlock(&hsa_buf_mutex);
+ 	return 0;
+ }
+ 
+@@ -99,9 +105,11 @@ int memcpy_hsa_kernel(void *dest, unsigned long src, size_t count)
+ 	if (!hsa_available)
+ 		return -ENODATA;
+ 
++	mutex_lock(&hsa_buf_mutex);
+ 	while (count) {
+ 		if (sclp_sdias_copy(hsa_buf, src / PAGE_SIZE + 2, 1)) {
+ 			TRACE("sclp_sdias_copy() failed\n");
++			mutex_unlock(&hsa_buf_mutex);
+ 			return -EIO;
+ 		}
+ 		offset = src % PAGE_SIZE;
+@@ -111,6 +119,7 @@ int memcpy_hsa_kernel(void *dest, unsigned long src, size_t count)
+ 		dest += bytes;
+ 		count -= bytes;
+ 	}
++	mutex_unlock(&hsa_buf_mutex);
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
