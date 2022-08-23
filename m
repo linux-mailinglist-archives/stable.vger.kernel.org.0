@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5560559E1AC
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEBEE59E33D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359194AbiHWMDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 08:03:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51390 "EHLO
+        id S244107AbiHWMRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 08:17:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359279AbiHWMBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:01:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B80E956B4;
-        Tue, 23 Aug 2022 02:35:34 -0700 (PDT)
+        with ESMTP id S1376311AbiHWMQt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 08:16:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 823599925B;
+        Tue, 23 Aug 2022 02:41:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 315C461460;
-        Tue, 23 Aug 2022 09:34:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 394E3C433D6;
-        Tue, 23 Aug 2022 09:34:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93B7861460;
+        Tue, 23 Aug 2022 09:41:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B046C433D7;
+        Tue, 23 Aug 2022 09:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661247277;
-        bh=IRbIsN0AupDAgZNVGkixlOAzpjRVaFRHazxcux/MI2k=;
+        s=korg; t=1661247708;
+        bh=YN7hsJzAs5oj+GODhyYpaGyRXv7Zw0L+eTzt7H41l3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ngbQ7Ig83h54zVaLbk9c2Vglrp3xb4xRrOrMjI5OGSP4WIfZD8TxIj3roF9YWzMW4
-         3Jd+N1GqNzeVUrWrxu8K9ZTpNz6BQoK1CObpSwBDrIKFqXCPv3Il4wb5ZPxCNpGMps
-         Ry0qapn3yzRlXeRJnzIE1wwkNQ+155oMsiIz2Yo4=
+        b=kyx9I8rfCdexyn9CuMu4sTSKZlmySn/ELG4TJKnD57yYjHf2cdat4AIhqSGvNg0W6
+         lNp5MST0V6sRt8elBHsoILF9g1uq5WQ1uhjYrhRJHNtk4gWerWbVHgDFRNL4/Bkkdu
+         Atm3RwmoJsXEpoqsvbgn8Yfk0znJp2iS1chezWv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
-        Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 375/389] RISC-V: Add fast call path of crash_kexec()
+Subject: [PATCH 5.10 121/158] PCI/ACPI: Guard ARM64-specific mcfg_quirks
 Date:   Tue, 23 Aug 2022 10:27:33 +0200
-Message-Id: <20220823080131.217915484@linuxfoundation.org>
+Message-Id: <20220823080050.795112958@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080046.056825146@linuxfoundation.org>
+References: <20220823080046.056825146@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-[ Upstream commit 3f1901110a89b0e2e13adb2ac8d1a7102879ea98 ]
+[ Upstream commit 40a6cc141b4b9580de140bcb3e893445708acc5d ]
 
-Currently, almost all archs (x86, arm64, mips...) support fast call
-of crash_kexec() when "regs && kexec_should_crash()" is true. But
-RISC-V not, it can only enter crash system via panic(). However panic()
-doesn't pass the regs of the real accident scene to crash_kexec(),
-it caused we can't get accurate backtrace via gdb,
-	$ riscv64-linux-gnu-gdb vmlinux vmcore
-	Reading symbols from vmlinux...
-	[New LWP 95]
-	#0  console_unlock () at kernel/printk/printk.c:2557
-	2557                    if (do_cond_resched)
-	(gdb) bt
-	#0  console_unlock () at kernel/printk/printk.c:2557
-	#1  0x0000000000000000 in ?? ()
+Guard ARM64-specific quirks with CONFIG_ARM64 to avoid build errors,
+since mcfg_quirks will be shared by more than one architectures.
 
-With the patch we can get the accurate backtrace,
-	$ riscv64-linux-gnu-gdb vmlinux vmcore
-	Reading symbols from vmlinux...
-	[New LWP 95]
-	#0  0xffffffe00063a4e0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
-	81             *(int *)p = 0xdead;
-	(gdb)
-	(gdb) bt
-	#0  0xffffffe00064d5c0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
-	#1  0x0000000000000000 in ?? ()
-
-Test code to produce NULL address dereference in test_crash.c,
-	void *p = NULL;
-	*(int *)p = 0xdead;
-
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Tested-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220606082308.2883458-1-xianting.tian@linux.alibaba.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/r/20220714124216.1489304-2-chenhuacai@loongson.cn
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/traps.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/acpi/pci_mcfg.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 473de3ae8bb7..ae462037910b 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -15,6 +15,7 @@
- #include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/irq.h>
-+#include <linux/kexec.h>
+diff --git a/drivers/acpi/pci_mcfg.c b/drivers/acpi/pci_mcfg.c
+index 95f23acd5b80..2709ef2b0351 100644
+--- a/drivers/acpi/pci_mcfg.c
++++ b/drivers/acpi/pci_mcfg.c
+@@ -41,6 +41,8 @@ struct mcfg_fixup {
+ static struct mcfg_fixup mcfg_quirks[] = {
+ /*	{ OEM_ID, OEM_TABLE_ID, REV, SEGMENT, BUS_RANGE, ops, cfgres }, */
  
- #include <asm/processor.h>
- #include <asm/ptrace.h>
-@@ -43,6 +44,9 @@ void die(struct pt_regs *regs, const char *str)
- 
- 	ret = notify_die(DIE_OOPS, str, regs, 0, regs->scause, SIGSEGV);
- 
-+	if (regs && kexec_should_crash(current))
-+		crash_kexec(regs);
++#ifdef CONFIG_ARM64
 +
- 	bust_spinlocks(0);
- 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
- 	spin_unlock_irq(&die_lock);
+ #define AL_ECAM(table_id, rev, seg, ops) \
+ 	{ "AMAZON", table_id, rev, seg, MCFG_BUS_ANY, ops }
+ 
+@@ -162,6 +164,7 @@ static struct mcfg_fixup mcfg_quirks[] = {
+ 	ALTRA_ECAM_QUIRK(1, 13),
+ 	ALTRA_ECAM_QUIRK(1, 14),
+ 	ALTRA_ECAM_QUIRK(1, 15),
++#endif /* ARM64 */
+ };
+ 
+ static char mcfg_oem_id[ACPI_OEM_ID_SIZE];
 -- 
 2.35.1
 
