@@ -2,50 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6668B59D753
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DC8B59D60D
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:11:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344264AbiHWJpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:45:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35106 "EHLO
+        id S241190AbiHWIzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:55:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238995AbiHWJnM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:43:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 796C29A98D;
-        Tue, 23 Aug 2022 01:42:48 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DB6F61544;
-        Tue, 23 Aug 2022 08:42:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FB2DC433B5;
-        Tue, 23 Aug 2022 08:42:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661244164;
-        bh=jB3YNJsFdpWo6NSXnr57ykLaI5aOJvdDCj4JEpWaiYM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3z/JtOEaQ+ic2kImswrVPV1dJBl2+M8GU0AlLn6plH4vda35QJn9Jj7jVF9FfKKP
-         GrYi+c6eDPTiQSuyFIyT+NOed1ACNWA52g1fSiD0JHW7b6tU+AIMBQdXo6uXghjkvU
-         XBgz7XQz39k0qTVtCgKxNAQ4y7X1OTV2LPkx+5/0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Yonghong Song <yhs@fb.com>, Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 046/244] bpf: Acquire map uref in .init_seq_private for sock local storage map iterator
-Date:   Tue, 23 Aug 2022 10:23:25 +0200
-Message-Id: <20220823080100.596719094@linuxfoundation.org>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
-References: <20220823080059.091088642@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S241298AbiHWIzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:55:08 -0400
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89EC37F086
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 01:24:20 -0700 (PDT)
+Received: by mail-lj1-x22c.google.com with SMTP id bx38so12785437ljb.10
+        for <stable@vger.kernel.org>; Tue, 23 Aug 2022 01:24:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=H4fKbvQy47LJY22TJrPVC0zWABgw1+ITLVe3ov0As3A=;
+        b=YzicVcwE+831q/YdyUOPJseZ9D0r1zEXflcFFcy0u5TSYPsqds72r52c9YmYYDetNF
+         CFrXEfHo8tD07jYQJvqtgL43B0uxV/fUzjfZPMjN9iQcV3zCV8Nh1SiTdcWyd5/scGui
+         p4FBtyzYEWGMXs73D39vcWaa3qPykT3RXEj5EKqnT0CYCz/CJoTVg1snEWBMTZfRxGg4
+         WsXlxoKLnyx5tMo5ZH5M+d1TIE9w2L51D3DQi9TkHAuZOLx3XJLkDG2Q5Fts5mjeoayi
+         8hsca/L5UG/OKTwYSxUKBRUtQ5bfGRL9l//WuM5sijmgaJ4TYgKlriB58ZNkBqCdC0oj
+         zYgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=H4fKbvQy47LJY22TJrPVC0zWABgw1+ITLVe3ov0As3A=;
+        b=gdOnWwzlKZF3xekpmYZDMViMWyoMraAMij8epkTwrjpe7nHfUJ8vMkumDMaFTCFTAI
+         q1bXqVz399NKkoqfB1b9oIVWn8rWXYdHiq2AvavLK1B0PKsE+s9Y0UqniHvaVsl1vFEq
+         Xz5C0CIzib4KPVW13uuZnxatGktKICpdqZPQugQfK7sK2XGdcJv2+WDyLhgb9rJXWQKJ
+         IPw7vnDpRLobkBNKvm5FVrqA9axERTmG7CtI7pNBfn5RMxR1aNEYvxtbfnU4+Num4IB7
+         j4nPQQcSprA4vSA0Nm+OnBB9rY/IeGQFjsgkWPPbQmNXu/Ta9VZuX6+AFPsMUlY4+X9X
+         q0lA==
+X-Gm-Message-State: ACgBeo1tgG4Q+jjWMvjVwTD1XyIfBi3d7rwhX6VWoAyA8S2dd2A2YkoK
+        wPOQC+oMnWikwELDmlg7azQi08HbjNIs/w==
+X-Google-Smtp-Source: AA6agR5NUfiikrGeSA7mf+4N2DaumtJ5L69IDNIygv+rfWjGQ2aGfAru56Eau1Q8CLl5XjqX+ArLpg==
+X-Received: by 2002:a05:651c:2127:b0:261:be89:e086 with SMTP id a39-20020a05651c212700b00261be89e086mr5186788ljq.524.1661243009727;
+        Tue, 23 Aug 2022 01:23:29 -0700 (PDT)
+Received: from jade.urgonet (h-79-136-84-253.A175.priv.bahnhof.se. [79.136.84.253])
+        by smtp.gmail.com with ESMTPSA id a9-20020a056512200900b0048a7c86f4e7sm852056lfb.291.2022.08.23.01.23.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Aug 2022 01:23:28 -0700 (PDT)
+From:   Jens Wiklander <jens.wiklander@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Pavel Machek <pavel@denx.de>
+Subject: [PATCH for 5.10.y] tee: fix memory leak in tee_shm_register()
+Date:   Tue, 23 Aug 2022 10:23:26 +0200
+Message-Id: <20220823082326.9155-1-jens.wiklander@linaro.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,59 +68,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+Moves the access_ok() check for valid memory range from user space from
+the function tee_shm_register() to tee_ioctl_shm_register(). With this
+we error out early before anything is done that must be undone on error.
 
-commit 3c5f6e698b5c538bbb23cd453b22e1e4922cffd8 upstream.
-
-bpf_iter_attach_map() acquires a map uref, and the uref may be released
-before or in the middle of iterating map elements. For example, the uref
-could be released in bpf_iter_detach_map() as part of
-bpf_link_release(), or could be released in bpf_map_put_with_uref() as
-part of bpf_map_release().
-
-So acquiring an extra map uref in bpf_iter_init_sk_storage_map() and
-releasing it in bpf_iter_fini_sk_storage_map().
-
-Fixes: 5ce6e77c7edf ("bpf: Implement bpf iterator for sock local storage map")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/r/20220810080538.1845898-4-houtao@huaweicloud.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 578c349570d2 ("tee: add overflow check in register_shm_helper()")
+Cc: stable@vger.kernel.org # 5.10
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 ---
- net/core/bpf_sk_storage.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+Hi,
 
---- a/net/core/bpf_sk_storage.c
-+++ b/net/core/bpf_sk_storage.c
-@@ -865,10 +865,18 @@ static int bpf_iter_init_sk_storage_map(
- {
- 	struct bpf_iter_seq_sk_storage_map_info *seq_info = priv_data;
- 
-+	bpf_map_inc_with_uref(aux->map);
- 	seq_info->map = aux->map;
- 	return 0;
- }
- 
-+static void bpf_iter_fini_sk_storage_map(void *priv_data)
-+{
-+	struct bpf_iter_seq_sk_storage_map_info *seq_info = priv_data;
-+
-+	bpf_map_put_with_uref(seq_info->map);
-+}
-+
- static int bpf_iter_attach_map(struct bpf_prog *prog,
- 			       union bpf_iter_link_info *linfo,
- 			       struct bpf_iter_aux_info *aux)
-@@ -914,7 +922,7 @@ static const struct seq_operations bpf_s
- static const struct bpf_iter_seq_info iter_seq_info = {
- 	.seq_ops		= &bpf_sk_storage_map_seq_ops,
- 	.init_seq_private	= bpf_iter_init_sk_storage_map,
--	.fini_seq_private	= NULL,
-+	.fini_seq_private	= bpf_iter_fini_sk_storage_map,
- 	.seq_priv_size		= sizeof(struct bpf_iter_seq_sk_storage_map_info),
- };
- 
+This patch targets the 5.10.y release to take care of a recently introduced
+issue there.
 
+Thanks,
+Jens
+
+ drivers/tee/tee_core.c | 3 +++
+ drivers/tee/tee_shm.c  | 3 ---
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/tee/tee_core.c b/drivers/tee/tee_core.c
+index e07f997cf8dd..9cc4a7b63b0d 100644
+--- a/drivers/tee/tee_core.c
++++ b/drivers/tee/tee_core.c
+@@ -334,6 +334,9 @@ tee_ioctl_shm_register(struct tee_context *ctx,
+ 	if (data.flags)
+ 		return -EINVAL;
+ 
++	if (!access_ok((void __user *)(unsigned long)data.addr, data.length))
++		return -EFAULT;
++
+ 	shm = tee_shm_register(ctx, data.addr, data.length,
+ 			       TEE_SHM_DMA_BUF | TEE_SHM_USER_MAPPED);
+ 	if (IS_ERR(shm))
+diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
+index 6e662fb131d5..499fccba3d74 100644
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -222,9 +222,6 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+ 		goto err;
+ 	}
+ 
+-	if (!access_ok((void __user *)addr, length))
+-		return ERR_PTR(-EFAULT);
+-
+ 	mutex_lock(&teedev->mutex);
+ 	shm->id = idr_alloc(&teedev->idr, shm, 1, 0, GFP_KERNEL);
+ 	mutex_unlock(&teedev->mutex);
+-- 
+2.31.1
 
