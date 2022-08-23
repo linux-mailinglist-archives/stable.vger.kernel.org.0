@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 447E559DDCC
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E09F59DFFF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:36:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351276AbiHWLmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:42:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58980 "EHLO
+        id S1353104AbiHWKNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:13:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358071AbiHWLkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:40:43 -0400
+        with ESMTP id S1352642AbiHWKJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:09:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6817969B;
-        Tue, 23 Aug 2022 02:28:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D3057E013;
+        Tue, 23 Aug 2022 01:55:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA95361330;
-        Tue, 23 Aug 2022 09:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC43C433D6;
-        Tue, 23 Aug 2022 09:28:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BC97614E7;
+        Tue, 23 Aug 2022 08:55:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A38F9C433D6;
+        Tue, 23 Aug 2022 08:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246924;
-        bh=YYKqtCLix3sh2n+eNYIcMsNafWZ6asrVCqB5FDnPqiQ=;
+        s=korg; t=1661244957;
+        bh=zWkpsM+SDxRe9i4P1nc7g3lxW/BQ0Z1ag1r4NHSl9aI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtmLcAHANTQLU15+6N9ZMC70CZ+GKdRp0DHxSPhHCug8VKmlGXRoIKGyAMEB9fQLo
-         z/AbdxrMtWQUJjQgi99shiFq1svfd4aFp8j9LmaF2md0NWO1MPoJJSKfoyVm8qypDE
-         QkVYKzIv/lZt7RUa+InTsZf/TBQOV+x/YmRsBWH8=
+        b=iaSCFF7hnYrLMSi+jXXASnWBNgphoDFYH0jRETMfJTc0894A3XTYGvyamT3EKTmw7
+         ffClKEmeQ6BmnKadqOtT+YdFfCjTyN7JYa9ukXrTzW/Ol9R0Vjbu2HVqiUWSrLFmkG
+         howf+YaLrrWRqwbaMebmfnfK91zhQhVhi6HNaDvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 232/389] powerpc/32: Do not allow selection of e5500 or e6500 CPUs on PPC32
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.15 151/244] kbuild: fix the modules order between drivers and libs
 Date:   Tue, 23 Aug 2022 10:25:10 +0200
-Message-Id: <20220823080125.281832481@linuxfoundation.org>
+Message-Id: <20220823080104.219938671@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080059.091088642@linuxfoundation.org>
+References: <20220823080059.091088642@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 9be013b2a9ecb29b5168e4b9db0e48ed53acf37c ]
+commit 113147510b48e764e624e3d0e6707a1e48bc05a9 upstream.
 
-Commit 0e00a8c9fd92 ("powerpc: Allow CPU selection also on PPC32")
-enlarged the CPU selection logic to PPC32 by removing depend to
-PPC64, and failed to restrict that depend to E5500_CPU and E6500_CPU.
-Fortunately that got unnoticed because -mcpu=8540 will override the
--mcpu=e500mc64 or -mpcu=e6500 as they are ealier, but that's
-fragile and may no be right in the future.
+Commit b2c885549122 ("kbuild: update modules.order only when contained
+modules are updated") accidentally changed the modules order.
 
-Add back the depend PPC64 on E5500_CPU and E6500_CPU.
+Prior to that commit, the modules order was determined based on
+vmlinux-dirs, which lists core-y/m, drivers-y/m, libs-y/m, in this order.
 
-Fixes: 0e00a8c9fd92 ("powerpc: Allow CPU selection also on PPC32")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/8abab4888da69ff78b73a56f64d9678a7bf684e9.1657549153.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Now, subdir-modorder lists them in a different order: core-y/m, libs-y/m,
+drivers-y/m.
+
+Presumably, there was no practical issue because the modules in drivers
+and libs are orthogonal, but there is no reason to have this distortion.
+
+Get back to the original order.
+
+Fixes: b2c885549122 ("kbuild: update modules.order only when contained modules are updated")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/Kconfig.cputype | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Makefile |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-index f0330ce498d1..a9b20aa1dfd4 100644
---- a/arch/powerpc/platforms/Kconfig.cputype
-+++ b/arch/powerpc/platforms/Kconfig.cputype
-@@ -151,11 +151,11 @@ config POWER9_CPU
+--- a/Makefile
++++ b/Makefile
+@@ -1155,13 +1155,11 @@ vmlinux-alldirs	:= $(sort $(vmlinux-dirs
+ 		     $(patsubst %/,%,$(filter %/, $(core-) \
+ 			$(drivers-) $(libs-))))
  
- config E5500_CPU
- 	bool "Freescale e5500"
--	depends on E500
-+	depends on PPC64 && E500
+-subdir-modorder := $(addsuffix modules.order,$(filter %/, \
+-			$(core-y) $(core-m) $(libs-y) $(libs-m) \
+-			$(drivers-y) $(drivers-m)))
+-
+ build-dirs	:= $(vmlinux-dirs)
+ clean-dirs	:= $(vmlinux-alldirs)
  
- config E6500_CPU
- 	bool "Freescale e6500"
--	depends on E500
-+	depends on PPC64 && E500
- 
- config 860_CPU
- 	bool "8xx family"
--- 
-2.35.1
-
++subdir-modorder := $(addsuffix /modules.order, $(build-dirs))
++
+ # Externally visible symbols (used by link-vmlinux.sh)
+ KBUILD_VMLINUX_OBJS := $(head-y) $(patsubst %/,%/built-in.a, $(core-y))
+ KBUILD_VMLINUX_OBJS += $(addsuffix built-in.a, $(filter %/, $(libs-y)))
 
 
