@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 970F359DC32
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:23:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9980A59DE18
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:29:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354703AbiHWKdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:33:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57388 "EHLO
+        id S1354570AbiHWKc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354939AbiHWKaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:30:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3B54A50DC;
-        Tue, 23 Aug 2022 02:06:25 -0700 (PDT)
+        with ESMTP id S1354549AbiHWKaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:30:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16478857C4;
+        Tue, 23 Aug 2022 02:06:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46416B81C53;
-        Tue, 23 Aug 2022 09:06:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93A24C433C1;
-        Tue, 23 Aug 2022 09:06:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D771B81C65;
+        Tue, 23 Aug 2022 09:06:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE34CC433C1;
+        Tue, 23 Aug 2022 09:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245583;
-        bh=++8srLu9qMltxs9/aQ1G24uHuH8gkzgiijuKZw5hfGU=;
+        s=korg; t=1661245586;
+        bh=D/kRph6kdlqXHX8PSyZzIozbd9Uo2OIlFJXCTzXYSdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwVupt6eDDSkh9ItWbqAWXYXuhashxQ/PpffkWgzRJnXhmReB+BHjxF5feTk/GXjb
-         hWhqdPLCCY2ubioxsGAbxvP9OWJLOwu+b+8ogrTSkesd6oohA2+uRy7SOQLURKemBX
-         rt5/0zgY6HTogQ9760eFxuTJKX7zPKTZfGlmbHgc=
+        b=hDKz/TrBcKivuyOy1nUdHuZUOsbxkAOjZ4PN+o6b0TbQ6jUg5McouujhcsyOa77PM
+         vq3iUdBwYGMmkmIkKSg7o3QI3SnHGuq0Iy1NiCrQcyPrWnS2sx2cg8LOIyyuLqmLcE
+         TlnQTyoaX1HPuE7rbR0fPOVkf8w8w4uiU5u9uBKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 123/287] clk: qcom: ipq8074: fix NSS port frequency tables
-Date:   Tue, 23 Aug 2022 10:24:52 +0200
-Message-Id: <20220823080104.540878719@linuxfoundation.org>
+Subject: [PATCH 4.19 124/287] clk: qcom: ipq8074: set BRANCH_HALT_DELAY flag for UBI clocks
+Date:   Tue, 23 Aug 2022 10:24:53 +0200
+Message-Id: <20220823080104.570608580@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
 References: <20220823080100.268827165@linuxfoundation.org>
@@ -56,72 +56,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Robert Marko <robimarko@gmail.com>
 
-[ Upstream commit 0e9e61a2815b5cd34f1b495b2d72e8127ce9b794 ]
+[ Upstream commit 2bd357e698207e2e65db03007e4be65bf9d6a7b3 ]
 
-NSS port 5 and 6 frequency tables are currently broken and are causing a
-wide ranges of issue like 1G not working at all on port 6 or port 5 being
-clocked with 312 instead of 125 MHz as UNIPHY1 gets selected.
+Currently, attempting to enable the UBI clocks will cause the stuck at
+off warning to be printed and clk_enable will fail.
 
-So, update the frequency tables with the ones from the downstream QCA 5.4
-based kernel which has already fixed this.
+[   14.936694] gcc_ubi1_ahb_clk status stuck at 'off'
 
-Fixes: 7117a51ed303 ("clk: qcom: ipq8074: add NSS ethernet port clocks")
+Downstream 5.4 QCA kernel has fixed this by seting the BRANCH_HALT_DELAY
+flag on UBI clocks, so lets do the same.
+
+Fixes: 5736294aef83 ("clk: qcom: ipq8074: add NSS clocks")
 Signed-off-by: Robert Marko <robimarko@gmail.com>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220515210048.483898-3-robimarko@gmail.com
+Link: https://lore.kernel.org/r/20220515210048.483898-6-robimarko@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-ipq8074.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/clk/qcom/gcc-ipq8074.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
-index 708c486a6e96..d9ac10b6624f 100644
+index d9ac10b6624f..c93161d6824a 100644
 --- a/drivers/clk/qcom/gcc-ipq8074.c
 +++ b/drivers/clk/qcom/gcc-ipq8074.c
-@@ -1796,8 +1796,10 @@ static struct clk_regmap_div nss_port4_tx_div_clk_src = {
- static const struct freq_tbl ftbl_nss_port5_rx_clk_src[] = {
- 	F(19200000, P_XO, 1, 0, 0),
- 	F(25000000, P_UNIPHY1_RX, 12.5, 0, 0),
-+	F(25000000, P_UNIPHY0_RX, 5, 0, 0),
- 	F(78125000, P_UNIPHY1_RX, 4, 0, 0),
- 	F(125000000, P_UNIPHY1_RX, 2.5, 0, 0),
-+	F(125000000, P_UNIPHY0_RX, 1, 0, 0),
- 	F(156250000, P_UNIPHY1_RX, 2, 0, 0),
- 	F(312500000, P_UNIPHY1_RX, 1, 0, 0),
- 	{ }
-@@ -1836,8 +1838,10 @@ static struct clk_regmap_div nss_port5_rx_div_clk_src = {
- static const struct freq_tbl ftbl_nss_port5_tx_clk_src[] = {
- 	F(19200000, P_XO, 1, 0, 0),
- 	F(25000000, P_UNIPHY1_TX, 12.5, 0, 0),
-+	F(25000000, P_UNIPHY0_TX, 5, 0, 0),
- 	F(78125000, P_UNIPHY1_TX, 4, 0, 0),
- 	F(125000000, P_UNIPHY1_TX, 2.5, 0, 0),
-+	F(125000000, P_UNIPHY0_TX, 1, 0, 0),
- 	F(156250000, P_UNIPHY1_TX, 2, 0, 0),
- 	F(312500000, P_UNIPHY1_TX, 1, 0, 0),
- 	{ }
-@@ -1875,8 +1879,10 @@ static struct clk_regmap_div nss_port5_tx_div_clk_src = {
+@@ -3362,6 +3362,7 @@ static struct clk_branch gcc_nssnoc_ubi1_ahb_clk = {
  
- static const struct freq_tbl ftbl_nss_port6_rx_clk_src[] = {
- 	F(19200000, P_XO, 1, 0, 0),
-+	F(25000000, P_UNIPHY2_RX, 5, 0, 0),
- 	F(25000000, P_UNIPHY2_RX, 12.5, 0, 0),
- 	F(78125000, P_UNIPHY2_RX, 4, 0, 0),
-+	F(125000000, P_UNIPHY2_RX, 1, 0, 0),
- 	F(125000000, P_UNIPHY2_RX, 2.5, 0, 0),
- 	F(156250000, P_UNIPHY2_RX, 2, 0, 0),
- 	F(312500000, P_UNIPHY2_RX, 1, 0, 0),
-@@ -1915,8 +1921,10 @@ static struct clk_regmap_div nss_port6_rx_div_clk_src = {
+ static struct clk_branch gcc_ubi0_ahb_clk = {
+ 	.halt_reg = 0x6820c,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x6820c,
+ 		.enable_mask = BIT(0),
+@@ -3379,6 +3380,7 @@ static struct clk_branch gcc_ubi0_ahb_clk = {
  
- static const struct freq_tbl ftbl_nss_port6_tx_clk_src[] = {
- 	F(19200000, P_XO, 1, 0, 0),
-+	F(25000000, P_UNIPHY2_TX, 5, 0, 0),
- 	F(25000000, P_UNIPHY2_TX, 12.5, 0, 0),
- 	F(78125000, P_UNIPHY2_TX, 4, 0, 0),
-+	F(125000000, P_UNIPHY2_TX, 1, 0, 0),
- 	F(125000000, P_UNIPHY2_TX, 2.5, 0, 0),
- 	F(156250000, P_UNIPHY2_TX, 2, 0, 0),
- 	F(312500000, P_UNIPHY2_TX, 1, 0, 0),
+ static struct clk_branch gcc_ubi0_axi_clk = {
+ 	.halt_reg = 0x68200,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x68200,
+ 		.enable_mask = BIT(0),
+@@ -3396,6 +3398,7 @@ static struct clk_branch gcc_ubi0_axi_clk = {
+ 
+ static struct clk_branch gcc_ubi0_nc_axi_clk = {
+ 	.halt_reg = 0x68204,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x68204,
+ 		.enable_mask = BIT(0),
+@@ -3413,6 +3416,7 @@ static struct clk_branch gcc_ubi0_nc_axi_clk = {
+ 
+ static struct clk_branch gcc_ubi0_core_clk = {
+ 	.halt_reg = 0x68210,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x68210,
+ 		.enable_mask = BIT(0),
+@@ -3430,6 +3434,7 @@ static struct clk_branch gcc_ubi0_core_clk = {
+ 
+ static struct clk_branch gcc_ubi0_mpt_clk = {
+ 	.halt_reg = 0x68208,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x68208,
+ 		.enable_mask = BIT(0),
+@@ -3447,6 +3452,7 @@ static struct clk_branch gcc_ubi0_mpt_clk = {
+ 
+ static struct clk_branch gcc_ubi1_ahb_clk = {
+ 	.halt_reg = 0x6822c,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x6822c,
+ 		.enable_mask = BIT(0),
+@@ -3464,6 +3470,7 @@ static struct clk_branch gcc_ubi1_ahb_clk = {
+ 
+ static struct clk_branch gcc_ubi1_axi_clk = {
+ 	.halt_reg = 0x68220,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x68220,
+ 		.enable_mask = BIT(0),
+@@ -3481,6 +3488,7 @@ static struct clk_branch gcc_ubi1_axi_clk = {
+ 
+ static struct clk_branch gcc_ubi1_nc_axi_clk = {
+ 	.halt_reg = 0x68224,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x68224,
+ 		.enable_mask = BIT(0),
+@@ -3498,6 +3506,7 @@ static struct clk_branch gcc_ubi1_nc_axi_clk = {
+ 
+ static struct clk_branch gcc_ubi1_core_clk = {
+ 	.halt_reg = 0x68230,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x68230,
+ 		.enable_mask = BIT(0),
+@@ -3515,6 +3524,7 @@ static struct clk_branch gcc_ubi1_core_clk = {
+ 
+ static struct clk_branch gcc_ubi1_mpt_clk = {
+ 	.halt_reg = 0x68228,
++	.halt_check = BRANCH_HALT_DELAY,
+ 	.clkr = {
+ 		.enable_reg = 0x68228,
+ 		.enable_mask = BIT(0),
 -- 
 2.35.1
 
