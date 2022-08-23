@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E3A059E1DB
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39AC859DB86
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:20:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242815AbiHWL2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 07:28:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38210 "EHLO
+        id S1354022AbiHWK1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 06:27:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358070AbiHWL1P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:27:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5518C2EB6;
-        Tue, 23 Aug 2022 02:24:57 -0700 (PDT)
+        with ESMTP id S1354522AbiHWKZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:25:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D0377C309;
+        Tue, 23 Aug 2022 02:05:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 736F161298;
-        Tue, 23 Aug 2022 09:24:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 361FDC433C1;
-        Tue, 23 Aug 2022 09:24:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBF3CB81C85;
+        Tue, 23 Aug 2022 09:05:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 086BEC433C1;
+        Tue, 23 Aug 2022 09:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661246695;
-        bh=/RaeS7m5dAmIU2S1dxom5JWgLdGUIw6c/w0E9WlM5zo=;
+        s=korg; t=1661245511;
+        bh=GqRCdQk5gcrQtkUm0Jh9s9TsuaLzbGufsrzGeFlIiVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qyhi5t+EUApExrirMXkZi6IUS88sh3zS+yS9AuZSzWgdIF+7EjxGe9pFDtXLKEX6M
-         837KpacI9JmmHNsJpZ6AT5ROiC/E8mrm7nrltNzEEIYzmZn/36kry/sIzsQa/7N6T0
-         qtjVwZPhErVJzfzLspDBydySc4Hfe/1ulULE5gZM=
+        b=xt/CIyKP5s40uygA5pNyRcOkUWE76hwQnncrKTUwk1ll1F6WPmXv0OhYICCn5wPu5
+         TQW7xolBcP7dFUd3lOw9mPmtPyhty2sHrSy53gK3m0Zqw8UF6GdgLuEB5+UrtLfg7q
+         Jsfpe2IuV10H8KwizHTQb+E7f7iNSicvNdTApQxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Robert Richter <rric@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 190/389] mmc: cavium-thunderx: Add of_node_put() when breaking out of loop
-Date:   Tue, 23 Aug 2022 10:24:28 +0200
-Message-Id: <20220823080123.560573012@linuxfoundation.org>
+Subject: [PATCH 4.19 100/287] can: kvaser_usb_leaf: do not report txerr and rxerr during bus-off
+Date:   Tue, 23 Aug 2022 10:24:29 +0200
+Message-Id: <20220823080103.727574984@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
-References: <20220823080115.331990024@linuxfoundation.org>
+In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
+References: <20220823080100.268827165@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 7ee480795e41db314f2c445c65ed854a5d6e8e32 ]
+[ Upstream commit a57732084e06791d37ea1ea447cca46220737abd ]
 
-In thunder_mmc_probe(), we should call of_node_put() when breaking
-out of for_each_child_of_node() which has increased and decreased
-the refcount during each iteration.
+During bus off, the error count is greater than 255 and can not fit in
+a u8.
 
-Fixes: 166bac38c3c5 ("mmc: cavium: Add MMC PCI driver for ThunderX SOCs")
-Signed-off-by: Liang He <windhl@126.com>
-Acked-by: Robert Richter <rric@kernel.org>
-Link: https://lore.kernel.org/r/20220719095216.1241601-2-windhl@126.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 7259124eac7d1 ("can: kvaser_usb: Split driver into kvaser_usb_core.c and kvaser_usb_leaf.c")
+Link: https://lore.kernel.org/all/20220719143550.3681-9-mailhol.vincent@wanadoo.fr
+CC: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/cavium-thunderx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/cavium-thunderx.c b/drivers/mmc/host/cavium-thunderx.c
-index eee08d81b242..f79806e31e7e 100644
---- a/drivers/mmc/host/cavium-thunderx.c
-+++ b/drivers/mmc/host/cavium-thunderx.c
-@@ -138,8 +138,10 @@ static int thunder_mmc_probe(struct pci_dev *pdev,
- 				continue;
- 
- 			ret = cvm_mmc_of_slot_probe(&host->slot_pdev[i]->dev, host);
--			if (ret)
-+			if (ret) {
-+				of_node_put(child_node);
- 				goto error;
-+			}
- 		}
- 		i++;
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+index 0e0403dd0550..5e281249ad5f 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -857,8 +857,10 @@ static void kvaser_usb_leaf_rx_error(const struct kvaser_usb *dev,
+ 		break;
  	}
+ 
+-	cf->data[6] = es->txerr;
+-	cf->data[7] = es->rxerr;
++	if (new_state != CAN_STATE_BUS_OFF) {
++		cf->data[6] = es->txerr;
++		cf->data[7] = es->rxerr;
++	}
+ 
+ 	stats->rx_packets++;
+ 	stats->rx_bytes += cf->can_dlc;
 -- 
 2.35.1
 
