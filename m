@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C75059DE45
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8063C59E2CF
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 14:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353519AbiHWKRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 06:17:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53436 "EHLO
+        id S232388AbiHWLRt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 07:17:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353632AbiHWKP0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 06:15:26 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAB497F258;
-        Tue, 23 Aug 2022 02:00:48 -0700 (PDT)
+        with ESMTP id S1346593AbiHWLRN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 07:17:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C9DBD75E;
+        Tue, 23 Aug 2022 02:20:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 49997CE1B44;
-        Tue, 23 Aug 2022 09:00:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B775C433D6;
-        Tue, 23 Aug 2022 09:00:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB1DB60F85;
+        Tue, 23 Aug 2022 09:20:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBF29C433D7;
+        Tue, 23 Aug 2022 09:20:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661245245;
-        bh=YnIuqChPj6bKBvxhJENAKsQXlxMUH9ekhkPP69V7ilY=;
+        s=korg; t=1661246434;
+        bh=I84a5gVb/NLiQQOrHwz9RdfRGp+3FyR7lZPvKAxpz2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p7ri4lAONOkhvvWlDJBp5j1f0fpi+DAIki00n1WAVGjqLlNYN3feVZrUPspuw7Um3
-         g+kdQBYfi1C4TfZJytwe09HE0wePqtNrYCbl4Cx8xHIE1WQtfb55J/YL/up1BbR+M/
-         a6qh3/uWNiPi76tL7R1phOqfBASzhixROtTdnLjA=
+        b=SeQ5xqJgJ8irXhPvFqgk6/N+VKC++eqbIkN8orPCYiIr6E2YleRsmEkOYiC0j74E8
+         flPoHyniogiN/taCD19+kvh1D1t0zEneiCWt/rsBoPUabwTdD0x/1IsPpu4WYVM53X
+         7OFsdldGO062//28CLTYEm5I5u4/xsAmPEdbsOJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 018/287] fbcon: Fix boundary checks for fbcon=vc:n1-n2 parameters
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 109/389] drm/vc4: plane: Fix margin calculations for the right/bottom edges
 Date:   Tue, 23 Aug 2022 10:23:07 +0200
-Message-Id: <20220823080100.891574261@linuxfoundation.org>
+Message-Id: <20220823080120.160869237@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220823080100.268827165@linuxfoundation.org>
-References: <20220823080100.268827165@linuxfoundation.org>
+In-Reply-To: <20220823080115.331990024@linuxfoundation.org>
+References: <20220823080115.331990024@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-commit cad564ca557f8d3bb3b1fa965d9a2b3f6490ec69 upstream.
+[ Upstream commit b7c3d6821627861f4ea3e1f2b595d0ed9e80aac8 ]
 
-The user may use the fbcon=vc:<n1>-<n2> option to tell fbcon to take
-over the given range (n1...n2) of consoles. The value for n1 and n2
-needs to be a positive number and up to (MAX_NR_CONSOLES - 1).
-The given values were not fully checked against those boundaries yet.
+The current plane margin calculation code clips the right and bottom
+edges of the range based using the left and top margins.
 
-To fix the issue, convert first_fb_vc and last_fb_vc to unsigned
-integers and check them against the upper boundary, and make sure that
-first_fb_vc is smaller than last_fb_vc.
+This is obviously wrong, so let's fix it.
 
-Cc: stable@vger.kernel.org # v4.19+
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/YpkYRMojilrtZIgM@p100
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 666e73587f90 ("drm/vc4: Take margin setup into account when updating planes")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://lore.kernel.org/r/20220613144800.326124-6-maxime@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vc4/vc4_plane.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -103,8 +103,8 @@ static int logo_lines;
-    enums.  */
- static int logo_shown = FBCON_LOGO_CANSHOW;
- /* console mappings */
--static int first_fb_vc;
--static int last_fb_vc = MAX_NR_CONSOLES - 1;
-+static unsigned int first_fb_vc;
-+static unsigned int last_fb_vc = MAX_NR_CONSOLES - 1;
- static int fbcon_is_default = 1; 
- static int fbcon_has_exited;
- static int primary_device = -1;
-@@ -456,10 +456,12 @@ static int __init fb_console_setup(char
- 			options += 3;
- 			if (*options)
- 				first_fb_vc = simple_strtoul(options, &options, 10) - 1;
--			if (first_fb_vc < 0)
-+			if (first_fb_vc >= MAX_NR_CONSOLES)
- 				first_fb_vc = 0;
- 			if (*options++ == '-')
- 				last_fb_vc = simple_strtoul(options, &options, 10) - 1;
-+			if (last_fb_vc < first_fb_vc || last_fb_vc >= MAX_NR_CONSOLES)
-+				last_fb_vc = MAX_NR_CONSOLES - 1;
- 			fbcon_is_default = 0; 
- 			continue;
- 		}
+diff --git a/drivers/gpu/drm/vc4/vc4_plane.c b/drivers/gpu/drm/vc4/vc4_plane.c
+index 6e787f684e52..cdcd19698b3c 100644
+--- a/drivers/gpu/drm/vc4/vc4_plane.c
++++ b/drivers/gpu/drm/vc4/vc4_plane.c
+@@ -288,16 +288,16 @@ static int vc4_plane_margins_adj(struct drm_plane_state *pstate)
+ 					       adjhdisplay,
+ 					       crtc_state->mode.hdisplay);
+ 	vc4_pstate->crtc_x += left;
+-	if (vc4_pstate->crtc_x > crtc_state->mode.hdisplay - left)
+-		vc4_pstate->crtc_x = crtc_state->mode.hdisplay - left;
++	if (vc4_pstate->crtc_x > crtc_state->mode.hdisplay - right)
++		vc4_pstate->crtc_x = crtc_state->mode.hdisplay - right;
+ 
+ 	adjvdisplay = crtc_state->mode.vdisplay - (top + bottom);
+ 	vc4_pstate->crtc_y = DIV_ROUND_CLOSEST(vc4_pstate->crtc_y *
+ 					       adjvdisplay,
+ 					       crtc_state->mode.vdisplay);
+ 	vc4_pstate->crtc_y += top;
+-	if (vc4_pstate->crtc_y > crtc_state->mode.vdisplay - top)
+-		vc4_pstate->crtc_y = crtc_state->mode.vdisplay - top;
++	if (vc4_pstate->crtc_y > crtc_state->mode.vdisplay - bottom)
++		vc4_pstate->crtc_y = crtc_state->mode.vdisplay - bottom;
+ 
+ 	vc4_pstate->crtc_w = DIV_ROUND_CLOSEST(vc4_pstate->crtc_w *
+ 					       adjhdisplay,
+-- 
+2.35.1
+
 
 
