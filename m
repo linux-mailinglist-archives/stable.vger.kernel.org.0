@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB16859D927
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DCB59D977
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 12:07:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236890AbiHWJWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:22:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37890 "EHLO
+        id S236710AbiHWJWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:22:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229697AbiHWJWK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:22:10 -0400
+        with ESMTP id S1350011AbiHWJVY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:21:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA1C08E0FB;
-        Tue, 23 Aug 2022 01:34:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11F5F8B99B;
+        Tue, 23 Aug 2022 01:34:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47EE6B81C1C;
-        Tue, 23 Aug 2022 08:33:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 844B1C433D6;
-        Tue, 23 Aug 2022 08:33:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53C5DB81C29;
+        Tue, 23 Aug 2022 08:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD894C433B5;
+        Tue, 23 Aug 2022 08:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243608;
-        bh=TPy/KETqUmQZnZolpNzXaphI9rczF7IPRF6bkrILUNM=;
+        s=korg; t=1661243611;
+        bh=lFI0+KLWRHDwjEi/LS3WyQnU8XrSg5yvyMJoMLq3Zbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJj7kE49icp3SDmC4ZMcnu5r8Lj5UD3RVcnoPFVEvh4KZsXzPiGhh2Caeg7iz4Nh9
-         fMruXXdvuPfcjR8lYfwEfopIK+h3NQ/ndrHsckGAJ0Nacee+tpX99y4/lVXFjGVlay
-         ePFyQ0Qe7Bl9g3ewdc1NmQNpG5BxY2vDX2VIrH5s=
+        b=0YghMQJSLr2xWSDFThmXLMYHzs0GJ2cvN3/BijrmLstPkyKnT6SnhldoaNoLQ0wPc
+         tNnEwk+/SD/+Q3ZkkFr1S6fE5Ne1ExEt+stzHdPpUXUp5QtamzMSP8wYjkTSeokL0I
+         g2f2om4XSnEGUvP9T1aNwmgVj2NTetnJ3rF7mOhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Takeshi Saito <takeshi.saito.xv@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 301/365] mmc: renesas_sdhi: newer SoCs dont need manual tap correction
-Date:   Tue, 23 Aug 2022 10:03:22 +0200
-Message-Id: <20220823080130.777525058@linuxfoundation.org>
+Subject: [PATCH 5.19 302/365] ACPI: PPTT: Leave the table mapped for the runtime usage
+Date:   Tue, 23 Aug 2022 10:03:23 +0200
+Message-Id: <20220823080130.818824528@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -57,106 +56,241 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Saito <takeshi.saito.xv@renesas.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 00e8c11c137b2e4b2bf54dc9881cf32e3441ddb4 ]
+[ Upstream commit 0c80f9e165f8f9cca743d7b6cbdb54362da297e0 ]
 
-The newest Gen3 SoCs and Gen4 SoCs do not need manual tap correction
-with HS400 anymore. So, instead of checking the SDHI version, add a
-quirk flag and set manual tap correction only for affected SoCs.
+Currently, everytime an information needs to be fetched from the PPTT,
+the table is mapped via acpi_get_table() and unmapped after the use via
+acpi_put_table() which is fine. However we do this at runtime especially
+when the CPU is hotplugged out and plugged in back since we re-populate
+the cache topology and other information.
 
-Signed-off-by: Takeshi Saito <takeshi.saito.xv@renesas.com>
-[wsa: rebased, renamed the quirk variable, removed stale comment]
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20220720072901.1266-1-wsa+renesas@sang-engineering.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+However, with the support to fetch LLC information from the PPTT in the
+cpuhotplug path which is executed in the atomic context, it is preferred
+to avoid mapping and unmapping of the PPTT for every single use as the
+acpi_get_table() might sleep waiting for a mutex.
+
+In order to avoid the same, the table is needs to just mapped once on
+the boot CPU and is never unmapped allowing it to be used at runtime
+with out the hassle of mapping and unmapping the table.
+
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+
+--
+
+Hi Rafael,
+
+Sorry to bother you again on this PPTT changes. Guenter reported an issue
+with lockdep enabled in -next that include my cacheinfo/arch_topology changes
+to utilise LLC from PPTT in the CPU hotplug path.
+
+Please ack the change once you are happy so that I can get it merged with
+other fixes via Greg's tree.
+
+Regards,
+Sudeep
+
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20220720-arch_topo_fixes-v3-2-43d696288e84@arm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/renesas_sdhi.h               | 1 +
- drivers/mmc/host/renesas_sdhi_core.c          | 5 ++---
- drivers/mmc/host/renesas_sdhi_internal_dmac.c | 6 ++++++
- 3 files changed, 9 insertions(+), 3 deletions(-)
+ drivers/acpi/pptt.c | 102 ++++++++++++++++++++------------------------
+ 1 file changed, 47 insertions(+), 55 deletions(-)
 
-diff --git a/drivers/mmc/host/renesas_sdhi.h b/drivers/mmc/host/renesas_sdhi.h
-index 1a1e3e020a8c..c4abfee1ebae 100644
---- a/drivers/mmc/host/renesas_sdhi.h
-+++ b/drivers/mmc/host/renesas_sdhi.h
-@@ -43,6 +43,7 @@ struct renesas_sdhi_quirks {
- 	bool hs400_4taps;
- 	bool fixed_addr_mode;
- 	bool dma_one_rx_only;
-+	bool manual_tap_correction;
- 	u32 hs400_bad_taps;
- 	const u8 (*hs400_calib_table)[SDHI_CALIB_TABLE_MAX];
- };
-diff --git a/drivers/mmc/host/renesas_sdhi_core.c b/drivers/mmc/host/renesas_sdhi_core.c
-index 55f7b27c3de7..6edbf5c161ab 100644
---- a/drivers/mmc/host/renesas_sdhi_core.c
-+++ b/drivers/mmc/host/renesas_sdhi_core.c
-@@ -380,8 +380,7 @@ static void renesas_sdhi_hs400_complete(struct mmc_host *mmc)
- 	sd_scc_write32(host, priv, SH_MOBILE_SDHI_SCC_DT2FF,
- 		       priv->scc_tappos_hs400);
+diff --git a/drivers/acpi/pptt.c b/drivers/acpi/pptt.c
+index 701f61c01359..3ad2823eb6f8 100644
+--- a/drivers/acpi/pptt.c
++++ b/drivers/acpi/pptt.c
+@@ -532,21 +532,37 @@ static int topology_get_acpi_cpu_tag(struct acpi_table_header *table,
+ 	return -ENOENT;
+ }
  
--	/* Gen3 can't do automatic tap correction with HS400, so disable it */
--	if (sd_ctrl_read16(host, CTL_VERSION) == SDHI_VER_GEN3_SDMMC)
-+	if (priv->quirks && priv->quirks->manual_tap_correction)
- 		sd_scc_write32(host, priv, SH_MOBILE_SDHI_SCC_RVSCNTL,
- 			       ~SH_MOBILE_SDHI_SCC_RVSCNTL_RVSEN &
- 			       sd_scc_read32(host, priv, SH_MOBILE_SDHI_SCC_RVSCNTL));
-@@ -718,7 +717,7 @@ static bool renesas_sdhi_manual_correction(struct tmio_mmc_host *host, bool use_
- 	sd_scc_write32(host, priv, SH_MOBILE_SDHI_SCC_RVSREQ, 0);
++
++static struct acpi_table_header *acpi_get_pptt(void)
++{
++	static struct acpi_table_header *pptt;
++	acpi_status status;
++
++	/*
++	 * PPTT will be used at runtime on every CPU hotplug in path, so we
++	 * don't need to call acpi_put_table() to release the table mapping.
++	 */
++	if (!pptt) {
++		status = acpi_get_table(ACPI_SIG_PPTT, 0, &pptt);
++		if (ACPI_FAILURE(status))
++			acpi_pptt_warn_missing();
++	}
++
++	return pptt;
++}
++
+ static int find_acpi_cpu_topology_tag(unsigned int cpu, int level, int flag)
+ {
+ 	struct acpi_table_header *table;
+-	acpi_status status;
+ 	int retval;
  
- 	/* Change TAP position according to correction status */
--	if (sd_ctrl_read16(host, CTL_VERSION) == SDHI_VER_GEN3_SDMMC &&
-+	if (priv->quirks && priv->quirks->manual_tap_correction &&
- 	    host->mmc->ios.timing == MMC_TIMING_MMC_HS400) {
- 		u32 bad_taps = priv->quirks ? priv->quirks->hs400_bad_taps : 0;
- 		/*
-diff --git a/drivers/mmc/host/renesas_sdhi_internal_dmac.c b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-index 3084b15ae2cb..52915404eb07 100644
---- a/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-+++ b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-@@ -170,6 +170,7 @@ static const struct renesas_sdhi_quirks sdhi_quirks_4tap_nohs400_one_rx = {
- static const struct renesas_sdhi_quirks sdhi_quirks_4tap = {
- 	.hs400_4taps = true,
- 	.hs400_bad_taps = BIT(2) | BIT(3) | BIT(6) | BIT(7),
-+	.manual_tap_correction = true,
- };
+-	status = acpi_get_table(ACPI_SIG_PPTT, 0, &table);
+-	if (ACPI_FAILURE(status)) {
+-		acpi_pptt_warn_missing();
++	table = acpi_get_pptt();
++	if (!table)
+ 		return -ENOENT;
+-	}
++
+ 	retval = topology_get_acpi_cpu_tag(table, cpu, level, flag);
+ 	pr_debug("Topology Setup ACPI CPU %d, level %d ret = %d\n",
+ 		 cpu, level, retval);
+-	acpi_put_table(table);
  
- static const struct renesas_sdhi_quirks sdhi_quirks_nohs400 = {
-@@ -182,25 +183,30 @@ static const struct renesas_sdhi_quirks sdhi_quirks_fixed_addr = {
+ 	return retval;
+ }
+@@ -567,16 +583,13 @@ static int find_acpi_cpu_topology_tag(unsigned int cpu, int level, int flag)
+ static int check_acpi_cpu_flag(unsigned int cpu, int rev, u32 flag)
+ {
+ 	struct acpi_table_header *table;
+-	acpi_status status;
+ 	u32 acpi_cpu_id = get_acpi_id_for_cpu(cpu);
+ 	struct acpi_pptt_processor *cpu_node = NULL;
+ 	int ret = -ENOENT;
  
- static const struct renesas_sdhi_quirks sdhi_quirks_bad_taps1357 = {
- 	.hs400_bad_taps = BIT(1) | BIT(3) | BIT(5) | BIT(7),
-+	.manual_tap_correction = true,
- };
+-	status = acpi_get_table(ACPI_SIG_PPTT, 0, &table);
+-	if (ACPI_FAILURE(status)) {
+-		acpi_pptt_warn_missing();
+-		return ret;
+-	}
++	table = acpi_get_pptt();
++	if (!table)
++		return -ENOENT;
  
- static const struct renesas_sdhi_quirks sdhi_quirks_bad_taps2367 = {
- 	.hs400_bad_taps = BIT(2) | BIT(3) | BIT(6) | BIT(7),
-+	.manual_tap_correction = true,
- };
+ 	if (table->revision >= rev)
+ 		cpu_node = acpi_find_processor_node(table, acpi_cpu_id);
+@@ -584,8 +597,6 @@ static int check_acpi_cpu_flag(unsigned int cpu, int rev, u32 flag)
+ 	if (cpu_node)
+ 		ret = (cpu_node->flags & flag) != 0;
  
- static const struct renesas_sdhi_quirks sdhi_quirks_r8a7796_es13 = {
- 	.hs400_4taps = true,
- 	.hs400_bad_taps = BIT(2) | BIT(3) | BIT(6) | BIT(7),
- 	.hs400_calib_table = r8a7796_es13_calib_table,
-+	.manual_tap_correction = true,
- };
+-	acpi_put_table(table);
+-
+ 	return ret;
+ }
  
- static const struct renesas_sdhi_quirks sdhi_quirks_r8a77965 = {
- 	.hs400_bad_taps = BIT(2) | BIT(3) | BIT(6) | BIT(7),
- 	.hs400_calib_table = r8a77965_calib_table,
-+	.manual_tap_correction = true,
- };
+@@ -604,18 +615,15 @@ int acpi_find_last_cache_level(unsigned int cpu)
+ 	u32 acpi_cpu_id;
+ 	struct acpi_table_header *table;
+ 	int number_of_levels = 0;
+-	acpi_status status;
++
++	table = acpi_get_pptt();
++	if (!table)
++		return -ENOENT;
  
- static const struct renesas_sdhi_quirks sdhi_quirks_r8a77990 = {
- 	.hs400_calib_table = r8a77990_calib_table,
-+	.manual_tap_correction = true,
- };
+ 	pr_debug("Cache Setup find last level CPU=%d\n", cpu);
  
- /*
+ 	acpi_cpu_id = get_acpi_id_for_cpu(cpu);
+-	status = acpi_get_table(ACPI_SIG_PPTT, 0, &table);
+-	if (ACPI_FAILURE(status)) {
+-		acpi_pptt_warn_missing();
+-	} else {
+-		number_of_levels = acpi_find_cache_levels(table, acpi_cpu_id);
+-		acpi_put_table(table);
+-	}
++	number_of_levels = acpi_find_cache_levels(table, acpi_cpu_id);
+ 	pr_debug("Cache Setup find last level level=%d\n", number_of_levels);
+ 
+ 	return number_of_levels;
+@@ -637,20 +645,16 @@ int acpi_find_last_cache_level(unsigned int cpu)
+ int cache_setup_acpi(unsigned int cpu)
+ {
+ 	struct acpi_table_header *table;
+-	acpi_status status;
+ 
+-	pr_debug("Cache Setup ACPI CPU %d\n", cpu);
+-
+-	status = acpi_get_table(ACPI_SIG_PPTT, 0, &table);
+-	if (ACPI_FAILURE(status)) {
+-		acpi_pptt_warn_missing();
++	table = acpi_get_pptt();
++	if (!table)
+ 		return -ENOENT;
+-	}
++
++	pr_debug("Cache Setup ACPI CPU %d\n", cpu);
+ 
+ 	cache_setup_acpi_cpu(table, cpu);
+-	acpi_put_table(table);
+ 
+-	return status;
++	return 0;
+ }
+ 
+ /**
+@@ -766,50 +770,38 @@ int find_acpi_cpu_topology_package(unsigned int cpu)
+ int find_acpi_cpu_topology_cluster(unsigned int cpu)
+ {
+ 	struct acpi_table_header *table;
+-	acpi_status status;
+ 	struct acpi_pptt_processor *cpu_node, *cluster_node;
+ 	u32 acpi_cpu_id;
+ 	int retval;
+ 	int is_thread;
+ 
+-	status = acpi_get_table(ACPI_SIG_PPTT, 0, &table);
+-	if (ACPI_FAILURE(status)) {
+-		acpi_pptt_warn_missing();
++	table = acpi_get_pptt();
++	if (!table)
+ 		return -ENOENT;
+-	}
+ 
+ 	acpi_cpu_id = get_acpi_id_for_cpu(cpu);
+ 	cpu_node = acpi_find_processor_node(table, acpi_cpu_id);
+-	if (cpu_node == NULL || !cpu_node->parent) {
+-		retval = -ENOENT;
+-		goto put_table;
+-	}
++	if (!cpu_node || !cpu_node->parent)
++		return -ENOENT;
+ 
+ 	is_thread = cpu_node->flags & ACPI_PPTT_ACPI_PROCESSOR_IS_THREAD;
+ 	cluster_node = fetch_pptt_node(table, cpu_node->parent);
+-	if (cluster_node == NULL) {
+-		retval = -ENOENT;
+-		goto put_table;
+-	}
++	if (!cluster_node)
++		return -ENOENT;
++
+ 	if (is_thread) {
+-		if (!cluster_node->parent) {
+-			retval = -ENOENT;
+-			goto put_table;
+-		}
++		if (!cluster_node->parent)
++			return -ENOENT;
++
+ 		cluster_node = fetch_pptt_node(table, cluster_node->parent);
+-		if (cluster_node == NULL) {
+-			retval = -ENOENT;
+-			goto put_table;
+-		}
++		if (!cluster_node)
++			return -ENOENT;
+ 	}
+ 	if (cluster_node->flags & ACPI_PPTT_ACPI_PROCESSOR_ID_VALID)
+ 		retval = cluster_node->acpi_processor_id;
+ 	else
+ 		retval = ACPI_PTR_DIFF(cluster_node, table);
+ 
+-put_table:
+-	acpi_put_table(table);
+-
+ 	return retval;
+ }
+ 
 -- 
 2.35.1
 
