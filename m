@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58FAC59D60B
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:11:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C80059D549
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347742AbiHWJGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 05:06:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51894 "EHLO
+        id S241612AbiHWJHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 05:07:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348118AbiHWJFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:05:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD05E85F9E;
-        Tue, 23 Aug 2022 01:29:46 -0700 (PDT)
+        with ESMTP id S241613AbiHWJGa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 05:06:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BACED85FB8;
+        Tue, 23 Aug 2022 01:29:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1932161257;
-        Tue, 23 Aug 2022 08:28:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F624C433D7;
-        Tue, 23 Aug 2022 08:28:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 088D161475;
+        Tue, 23 Aug 2022 08:28:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1059FC433C1;
+        Tue, 23 Aug 2022 08:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661243307;
-        bh=/0xUtoBD7lVWZLLkImr4H5x1++n8+L53UF+qUa8F/D0=;
+        s=korg; t=1661243310;
+        bh=RVt6G3W9mdbfkIy7nW8MAcnxPBPOKSh1h3YBa/FUnjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnipR9Gdr1LQKXmpZpu90OVVNu0W75NDjtCAw4pHyy1FDVRjaKKIJH5w9ZOB5F1l7
-         JIy4Gbx8R7DEQLda8pB4hF7gijDTKDn8TN8YSmgmfIrUGfG86AlFHXbxKpyWlo0DmF
-         XByY9sUvBzVSR0CMBcOjJGRkzPw2LdQ14mVwZqr8=
+        b=TuSHLBBDoAxUXEUGETPMTwTCEJrE9bn6lZlkPHRkqSbdAecO3sgGg2TMgXQ9u5N/g
+         RTOp50UXmeIMt2gCOD7pGdc2BeuOaoue6KqhzGNrvYYKGlY0+MFLc4peF7stMGn+Hw
+         +SNP4im8UJt/X37wrSqEeEcTK5OoFn2IxACiPYBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.19 205/365] net/sunrpc: fix potential memory leaks in rpc_sysfs_xprt_state_change()
-Date:   Tue, 23 Aug 2022 10:01:46 +0200
-Message-Id: <20220823080126.779775500@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sergei Antonov <saproj@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 206/365] net: dsa: mv88e6060: prevent crash on an unused port
+Date:   Tue, 23 Aug 2022 10:01:47 +0200
+Message-Id: <20220823080126.818158646@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -54,43 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Sergei Antonov <saproj@gmail.com>
 
-commit bfc48f1b0505ffcb03a6d749139b7577d6b81ae0 upstream.
+commit 246bbf2f977ea36aaf41f5d24370fef433250728 upstream.
 
-The issue happens on some error handling paths. When the function
-fails to grab the object `xprt`, it simply returns 0, forgetting to
-decrease the reference count of another object `xps`, which is
-increased by rpc_sysfs_xprt_kobj_get_xprt_switch(), causing refcount
-leaks. Also, the function forgets to check whether `xps` is valid
-before using it, which may result in NULL-dereferencing issues.
+If the port isn't a CPU port nor a user port, 'cpu_dp'
+is a null pointer and a crash happened on dereferencing
+it in mv88e6060_setup_port():
 
-Fix it by adding proper error handling code when either `xprt` or
-`xps` is NULL.
+[    9.575872] Unable to handle kernel NULL pointer dereference at virtual address 00000014
+...
+[    9.942216]  mv88e6060_setup from dsa_register_switch+0x814/0xe84
+[    9.948616]  dsa_register_switch from mdio_probe+0x2c/0x54
+[    9.954433]  mdio_probe from really_probe.part.0+0x98/0x2a0
+[    9.960375]  really_probe.part.0 from driver_probe_device+0x30/0x10c
+[    9.967029]  driver_probe_device from __device_attach_driver+0xb8/0x13c
+[    9.973946]  __device_attach_driver from bus_for_each_drv+0x90/0xe0
+[    9.980509]  bus_for_each_drv from __device_attach+0x110/0x184
+[    9.986632]  __device_attach from bus_probe_device+0x8c/0x94
+[    9.992577]  bus_probe_device from deferred_probe_work_func+0x78/0xa8
+[    9.999311]  deferred_probe_work_func from process_one_work+0x290/0x73c
+[   10.006292]  process_one_work from worker_thread+0x30/0x4b8
+[   10.012155]  worker_thread from kthread+0xd4/0x10c
+[   10.017238]  kthread from ret_from_fork+0x14/0x3c
 
-Fixes: 5b7eb78486cd ("SUNRPC: take a xprt offline using sysfs")
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0abfd494deef ("net: dsa: use dedicated CPU port")
+CC: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+CC: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Sergei Antonov <saproj@gmail.com>
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220811070939.1717146-1-saproj@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/sysfs.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/dsa/mv88e6060.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/sunrpc/sysfs.c
-+++ b/net/sunrpc/sysfs.c
-@@ -291,8 +291,10 @@ static ssize_t rpc_sysfs_xprt_state_chan
- 	int offline = 0, online = 0, remove = 0;
- 	struct rpc_xprt_switch *xps = rpc_sysfs_xprt_kobj_get_xprt_switch(kobj);
+--- a/drivers/net/dsa/mv88e6060.c
++++ b/drivers/net/dsa/mv88e6060.c
+@@ -118,6 +118,9 @@ static int mv88e6060_setup_port(struct m
+ 	int addr = REG_PORT(p);
+ 	int ret;
  
--	if (!xprt)
--		return 0;
-+	if (!xprt || !xps) {
-+		count = 0;
-+		goto out_put;
-+	}
- 
- 	if (!strncmp(buf, "offline", 7))
- 		offline = 1;
++	if (dsa_is_unused_port(priv->ds, p))
++		return 0;
++
+ 	/* Do not force flow control, disable Ingress and Egress
+ 	 * Header tagging, disable VLAN tunneling, and set the port
+ 	 * state to Forwarding.  Additionally, if this is the CPU
 
 
