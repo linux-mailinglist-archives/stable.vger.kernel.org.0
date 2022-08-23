@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC06759D528
-	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 679F059D4D8
+	for <lists+stable@lfdr.de>; Tue, 23 Aug 2022 11:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346369AbiHWIjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 04:39:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46850 "EHLO
+        id S1346987AbiHWIuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 04:50:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344922AbiHWIjR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:39:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A4A636F;
-        Tue, 23 Aug 2022 01:18:20 -0700 (PDT)
+        with ESMTP id S1347018AbiHWIt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 04:49:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6BA77C337;
+        Tue, 23 Aug 2022 01:22:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7648EB81C29;
-        Tue, 23 Aug 2022 08:17:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC99FC433C1;
-        Tue, 23 Aug 2022 08:17:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EFD16CE1B39;
+        Tue, 23 Aug 2022 08:17:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDAE4C433D6;
+        Tue, 23 Aug 2022 08:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661242627;
-        bh=UfA2D+Yn9Vkzxi9TLQAdixu5obpAF7LAI9CvtDbERPU=;
+        s=korg; t=1661242630;
+        bh=yp8FAvLDJNDsj4jRUbxa7J/2sW+6J1jRQ0jGvMPpTno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NA97XWWXyydbDhhW+lCf1ejAfhoKo5ypaes5ng8cccyZs4uxMTmarr2nXTyWf9Ysv
-         4gJJrgTGHp7pjSjT6CK5CuRsJMPMzAOOmoRN7SvBhKypqLfobSa+y9JqQJSpKHsQWx
-         iY1Uhs/giwVcEJKJ/z6Qpn0xsWFwXNK7AyZ/hfdE=
+        b=zKdKLBI90eZrOqESnpUPSfiIBJeyJ1vy1Wy2iLrkoMky+dcjPrem5EW5PUynR1h+L
+         W4+gDSBB3jJS+WRAUang61rf21L70F3bfy5z6ZwebbGvB035v6AjdJ863IxHyGNYnr
+         G1wX2oTJoOo4Y6tc/Cxt3A3N57NQup/x1zh8sSxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jon Mason <jdmason@kudzu.us>
-Subject: [PATCH 5.19 147/365] NTB: ntb_tool: uninitialized heap data in tool_fn_write()
-Date:   Tue, 23 Aug 2022 10:00:48 +0200
-Message-Id: <20220823080124.365784424@linuxfoundation.org>
+        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
+        Yu Xiao <yu.xiao@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 148/365] nfp: ethtool: fix the display error of `ethtool -m DEVNAME`
+Date:   Tue, 23 Aug 2022 10:00:49 +0200
+Message-Id: <20220823080124.407732769@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220823080118.128342613@linuxfoundation.org>
 References: <20220823080118.128342613@linuxfoundation.org>
@@ -53,52 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Yu Xiao <yu.xiao@corigine.com>
 
-commit 45e1058b77feade4e36402828bfe3e0d3363177b upstream.
+commit 4ae97cae07e15d41e5c0ebabba64c6eefdeb0bbe upstream.
 
-The call to:
+The port flag isn't set to `NFP_PORT_CHANGED` when using
+`ethtool -m DEVNAME` before, so the port state (e.g. interface)
+cannot be updated. Therefore, it caused that `ethtool -m DEVNAME`
+sometimes cannot read the correct information.
 
-	ret = simple_write_to_buffer(buf, size, offp, ubuf, size);
+E.g. `ethtool -m DEVNAME` cannot work when load driver before plug
+in optical module, as the port interface is still NONE without port
+update.
 
-will return success if it is able to write even one byte to "buf".
-The value of "*offp" controls which byte.  This could result in
-reading uninitialized data when we do the sscanf() on the next line.
+Now update the port state before sending info to NIC to ensure that
+port interface is correct (latest state).
 
-This code is not really desigined to handle partial writes where
-*offp is non-zero and the "buf" is preserved and re-used between writes.
-Just ban partial writes and replace the simple_write_to_buffer() with
-copy_from_user().
-
-Fixes: 578b881ba9c4 ("NTB: Add tool test client")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Fixes: 61f7c6f44870 ("nfp: implement ethtool get module EEPROM")
+Reviewed-by: Louis Peens <louis.peens@corigine.com>
+Signed-off-by: Yu Xiao <yu.xiao@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20220802093355.69065-1-simon.horman@corigine.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ntb/test/ntb_tool.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/ntb/test/ntb_tool.c
-+++ b/drivers/ntb/test/ntb_tool.c
-@@ -367,14 +367,16 @@ static ssize_t tool_fn_write(struct tool
- 	u64 bits;
- 	int n;
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+@@ -1230,6 +1230,8 @@ nfp_port_get_module_info(struct net_devi
+ 	u8 data;
  
-+	if (*offp)
-+		return 0;
-+
- 	buf = kmalloc(size + 1, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
- 
--	ret = simple_write_to_buffer(buf, size, offp, ubuf, size);
--	if (ret < 0) {
-+	if (copy_from_user(buf, ubuf, size)) {
- 		kfree(buf);
--		return ret;
-+		return -EFAULT;
- 	}
- 
- 	buf[size] = 0;
+ 	port = nfp_port_from_netdev(netdev);
++	/* update port state to get latest interface */
++	set_bit(NFP_PORT_CHANGED, &port->flags);
+ 	eth_port = nfp_port_get_eth_port(port);
+ 	if (!eth_port)
+ 		return -EOPNOTSUPP;
 
 
