@@ -2,42 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1251159EFC0
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 01:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7414059F142
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 04:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231834AbiHWXgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 19:36:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40626 "EHLO
+        id S232937AbiHXCHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 22:07:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiHWXgc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 19:36:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145D0E082;
-        Tue, 23 Aug 2022 16:36:31 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B41B9B820D1;
-        Tue, 23 Aug 2022 23:36:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69A2DC433C1;
-        Tue, 23 Aug 2022 23:36:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1661297788;
-        bh=kjDkkEXS76J8IeTZ8zZRRGgE2fO5askwcnUKuuuwGk0=;
-        h=Date:To:From:Subject:From;
-        b=mPccGiHkozwcGg6+N0Imptjpz7uPq8NBx6NuTUDK78QGSyzeDzf1B+CX41oR/5JzR
-         KzBG91024GMXTgL+dNoPrS9rg7q/r/PhS/DDDY2y7MFZuLWl0qXTsFeWdzba/4ntBe
-         k+6v4GXwRH/xzmzGjJq/Y3TCgSar3VXbScMxRFlM=
-Date:   Tue, 23 Aug 2022 16:36:27 -0700
-To:     mm-commits@vger.kernel.org, yuzhao@google.com,
-        ying.huang@intel.com, stable@vger.kernel.org, david@redhat.com,
-        peterx@redhat.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-mprotect-only-reference-swap-pfn-page-if-type-match.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220823233628.69A2DC433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        with ESMTP id S232125AbiHXCHh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 22:07:37 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 481D871BEF;
+        Tue, 23 Aug 2022 19:07:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BW0HOr41CDsV/wGrunk2Lm/J85BAU40eEviEHRs5HMkeP/sEftGmpDq3jpPFAZoATKUIRb+aDlxf4/oANzS05JhunIQtgPPct0ut54CyS0gHR1nNmDas1oBgjPRe5xm8QOlb0EREAQ/FL6HZh3hhAZLVEbPkbB1iSwZ6+L2TZHxIP/o19HZyki1wWgsuDT+BnMqPbwmioR/KTCCyQKRSCkgsFYjyK7npbTjNGj+W7ObCYniAU1bLSMMONx4HU97gHc02svu3BvB2Boq549aJSK1JlkF6ToLt5jONjiTSV/8/wdPLtZoTK3U7UPlv0h0L0MUvHLUrikWaxHOwkYmXvw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/EsHsBSpkl01Xgx6E992Gm8GA/HDYoWLZnjRlByMO6c=;
+ b=i/Pb4VlzU5vTjxaaqGRkwEPTK7M3uHrfzzF2un4WZk0DwVr3VueGmNPwgdj9YzvEGNuKUqbpS1KO/iU3NvPmL/0lmcmB4PVVR11ELFZXrso41NOyz3NJXoZmx1cONlLuVwW3EZTclhr4UQzBwciV/OGLrje2XqLrnJi7dQrU8TCQHgF/400q1qd+bVR99cnslBs3JFPL2LsRKJRU4LbYfK0QRAXnOORS5KREjy7JBn45l4ErO78CuOWF9fvcrusi91At+UlOlb6eY/4uLwqvxJqlGyE9mIoqmkR+0ZdogXAcw5rewccsdcnFb55L+TqgnHSyme3j3NK5LeMkN0auuw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/EsHsBSpkl01Xgx6E992Gm8GA/HDYoWLZnjRlByMO6c=;
+ b=QWOxPO9Z2UDNra3ELXopKNR8DJ4hwzrnvL6BevAQlnbwv0irnyb7EBFGFvZylVGQIJoEyggjmXxsNxw20HivdHUkyS5BAQAnYDpA1B/w3NmV/7oX1HD2sRqwEeuTXUZxGGXjfLMxp5HR7+Vm7PNfV0x6gNbnbnwJcgBmZCmWhEy3Te0j6wO8OQ7MRw0sRSkX2BMts7IGJUc6tEI+S9ex/0xhxFN7mrmRSTnCgosTAtDiNHJKUeXh9XMv2esPTbJA8akB8ZE5ya6doyob6WXDT+xgw0RbHggp1XCjVar2SvtXvAEJ7vnMnQnQIbe+7YnGOL5gz/wF8I3uEpPtixfBaQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from BYAPR12MB3176.namprd12.prod.outlook.com (2603:10b6:a03:134::26)
+ by BY5PR12MB4918.namprd12.prod.outlook.com (2603:10b6:a03:1df::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5546.18; Wed, 24 Aug
+ 2022 02:07:34 +0000
+Received: from BYAPR12MB3176.namprd12.prod.outlook.com
+ ([fe80::7432:2749:aa27:722c]) by BYAPR12MB3176.namprd12.prod.outlook.com
+ ([fe80::7432:2749:aa27:722c%7]) with mapi id 15.20.5546.022; Wed, 24 Aug 2022
+ 02:07:33 +0000
+References: <6e77914685ede036c419fa65b6adc27f25a6c3e9.1660635033.git-series.apopple@nvidia.com>
+ <CAC=cRTPGiXWjk=CYnCrhJnLx3mdkGDXZpvApo6yTbeW7+ZGajA@mail.gmail.com>
+ <Yvv/eGfi3LW8WxPZ@xz-m1.local> <871qtfvdlw.fsf@nvdebian.thelocal>
+ <YvxWUY9eafFJ27ef@xz-m1.local> <87o7wjtn2g.fsf@nvdebian.thelocal>
+ <87tu6bbaq7.fsf@yhuang6-desk2.ccr.corp.intel.com>
+ <1D2FB37E-831B-445E-ADDC-C1D3FF0425C1@gmail.com>
+ <Yv1BJKb5he3dOHdC@xz-m1.local>
+ <87czcyawl6.fsf@yhuang6-desk2.ccr.corp.intel.com>
+ <Yv5QXkS4Bm9pTBeG@xz-m1.local>
+ <874jy9aqts.fsf@yhuang6-desk2.ccr.corp.intel.com>
+User-agent: mu4e 1.6.9; emacs 27.1
+From:   Alistair Popple <apopple@nvidia.com>
+To:     "Huang, Ying" <ying.huang@intel.com>
+Cc:     Peter Xu <peterx@redhat.com>, Nadav Amit <nadav.amit@gmail.com>,
+        huang ying <huang.ying.caritas@gmail.com>,
+        Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Sierra Guiza, Alejandro (Alex)" <alex.sierra@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Logan Gunthorpe <logang@deltatee.com>, paulus@ozlabs.org,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] mm/migrate_device.c: Copy pte dirty bit to page
+Date:   Wed, 24 Aug 2022 11:56:25 +1000
+In-reply-to: <874jy9aqts.fsf@yhuang6-desk2.ccr.corp.intel.com>
+Message-ID: <87czcqiecd.fsf@nvdebian.thelocal>
+Content-Type: text/plain
+X-ClientProxiedBy: SJ0PR03CA0191.namprd03.prod.outlook.com
+ (2603:10b6:a03:2ef::16) To BYAPR12MB3176.namprd12.prod.outlook.com
+ (2603:10b6:a03:134::26)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a5fc7fcf-eb26-4461-e1d3-08da85756851
+X-MS-TrafficTypeDiagnostic: BY5PR12MB4918:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: AZ0ERyiZQbgOuusr6wIrkirtipLx3fxd0p93qmdogTeS0jvGNpoLpsdSxunIB5vtIlsxyPB4EO8IU75QXFPJ6b0AwYgx6MIG+l/f5r6WMU3jDZEzaU7Drq9CclGy2Tk72Rd+SSkOxryOkoAVISfIrBHpHP6dRwClvawmf4sZplj84FaaljpYGXAjsZa0+8VQosUSy3XALE9AtQMNzNLmoMVVBj6ILkYoubbjDES0FIVIhmtZttE9NHHpbTmyH0C3cXE/nBlVHMNKdGJznrvCS7Yf0oaQJI1WxM/nBx4JKkxuqR80CkE24+TILt1Wtdm/5TdHUdQCas75LexjYOwEhv3i7WZUCKpOOVty2kHgH8alXAx2Om0Q6EkJuGg7/Sagem+uSR19Vxrn27V7rRQimwAMHoV0fh8gww9WbBbT3Fe1py+ydTA+H6XNcSHmHi8jfepA7sswCGHr4FhFgvN2m9g1qrzm46OjQp15bXo66n590EziaGIJHR8AhW1rhhDSP6LK4RWwdCuAFVImswFLeUQ5EdVXTesn6+xttXffiNPybNBESKD6ZnPE3V+663uuQ1rtqghHaMedu2WWaTwnNulzUrgd/WpyqMnaQJPlWlDylUn6ENIUoED8e5ugKE+THbJquGJ2AoQ8NHEpH51Y87roGj1SQ1oUh04ZIQNngVT1zGVOKhI8tgBH56atp7DizeI4oDJSkmePn3Ajzcpd0dcw2RdTzaGyN9QCCaQ/Hh4GZXdm1rI9MB8eHz5fGovG
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB3176.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(396003)(39860400002)(136003)(376002)(366004)(346002)(26005)(2906002)(86362001)(6506007)(6512007)(9686003)(186003)(38100700002)(83380400001)(54906003)(6916009)(8936002)(316002)(4326008)(66476007)(6666004)(66946007)(8676002)(66556008)(478600001)(6486002)(7416002)(5660300002)(41300700001)(14143004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?/6fK4Tc8EN+t3UKDjkLLwN1vrOkj2LEFVherEZU190HpKJL6++AEvqw4HDTp?=
+ =?us-ascii?Q?iZ+iWnPK7wppbWZqIQnoU7C4BTlYp1qmOs7wHh76T3LohfX+g0stMN9NIZ84?=
+ =?us-ascii?Q?cP6/6k/bcOP7FT2LF6tatb5d0to5GFXGy3dkYC6AnPr8qe7MrUfwvsCjAxC5?=
+ =?us-ascii?Q?Oq6H56XWBGB6MNHf2UAB5/WIHZ2LQg04rGnTbtsrfvz8xRicSS21DUOoul8j?=
+ =?us-ascii?Q?xM7U4asLqVbnfH2284H+gz1ilvDyEmu1c5zQq6lM/EB259W+Z6Y2/JkN7rHw?=
+ =?us-ascii?Q?/ULtweEd9eXNFhliL8E762OzesWYiXoeG/6DCH05SOrfido0dEm7dS44EdP+?=
+ =?us-ascii?Q?jdBNRwep+oTmu9i+AqIdEulCin+Umd6qJThNyDx4lDAbFR62XiKBD4QwHMYY?=
+ =?us-ascii?Q?iAsyvNZCY2SZiWo6yng2TaR94SlHb2ehUGDUhtKTK3Udd3b7ronbiWJyYHzM?=
+ =?us-ascii?Q?OkccaHwqL8RL9+z80w39i4zRmYrmfyJ2BiVfwlif5nFv281SuRjNXIt+PWiK?=
+ =?us-ascii?Q?QPAVjksGT7xhWgPExRa0dsKcO6TZUUCsZ+rxFlBxnfY5wgSamBdaUgJxh91G?=
+ =?us-ascii?Q?s5I0y/E4xl2mG9+sjmRVcULOh6p1Yy+CLZu0Vh3zOOGJNkho8wCGaRtSqJBv?=
+ =?us-ascii?Q?JHLSu/1rZLDdGqQTOAr59+pBtR3ySzaghM6X2CgLqgedkA9BomViZAMFNSfg?=
+ =?us-ascii?Q?H4xzOdk0uvYtZcG3B3gIaFCy+JbMVJqnQ0SUFYDoxVvO4uqZ3dsWfd3UhUZp?=
+ =?us-ascii?Q?vnQ7cZpfPD6Z59h7KP2ohSEIyF9OYbt1cRhgtc/FHYwMd9H+1KQ/4k/Sk0Tg?=
+ =?us-ascii?Q?AoIB0yyFe01P5wgbkp+A27ZYDYXapmnffZpgXaMyCViFUxSfjVk/NWNauJNb?=
+ =?us-ascii?Q?xRpw/w77h8MsAGBD3RG2QJW0sAnZwGOwgdGP4EcH75UOdEw7Oznuh74evVtw?=
+ =?us-ascii?Q?aCe3IsELi2mPCxQtBuXiBFgB2Dlt6iLxarWCwNpZAcJWTyH3DmA1D5348GqM?=
+ =?us-ascii?Q?/bW+9NZ4PQzxHQ7OqDpd2Cuiv2cVKbHSw3MV8yc9pr2WzwLSENW0n2BsHGtS?=
+ =?us-ascii?Q?iEubZqKQ0JNRmT/TTIwlfcuTJ+25E3a2cO/5wOdqT9MWw3HIAMuO64lqWcVF?=
+ =?us-ascii?Q?xxJCFp8RbBWqZUtavLRXY8B4KMOC0n6Ot+IR6dss67dfEUoVaVnjCzXFkRRy?=
+ =?us-ascii?Q?QeyYcizh0xcoNj5qBFuOT1kgAY+I2eP/Xra7Yvkn8glp1F1xlLC+XYCqXy21?=
+ =?us-ascii?Q?WNoORWc0Bij5x7+hL53yT/LFfXMURNJD+oDH5dQSCcOvmbRoeYM+l5GgoGgl?=
+ =?us-ascii?Q?0VK+rJ67WzStwmzCr9bYZXxDQa5EgRZQLEJPGXKMAJn7TpnnPiHJHkMK+Hkm?=
+ =?us-ascii?Q?s5bWhEVXqhxnQ8dW0jefgCzAGAKklOr+W8jl6qzUxYlDJxlplhH8GoBHq4nR?=
+ =?us-ascii?Q?wq7TWpaDW4tqoyDGeEmJX7HVkl9MxvcsjlJSkydbMSdCfzuvzsAPXG93ieGN?=
+ =?us-ascii?Q?gykzrgcmX6uooBSacv6Plqy4XYHDCRnERaae/Roq9CPJErxquzm5FodoISU1?=
+ =?us-ascii?Q?D1TrxP02fMPG3Xu0QnZheLrY3NVIrp9wVpTbOt48?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a5fc7fcf-eb26-4461-e1d3-08da85756851
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB3176.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Aug 2022 02:07:33.7335
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: RQXgCX74IYU1+4DNPdhzNTO0u8EKAa7l7w1vu6iXDq717ms42rJt/KrnrRLj8KRJmYEBHogq/6UIbtFMZC8l6Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4918
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=no autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,110 +137,59 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/mprotect: Only reference swap pfn page if type match
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-mprotect-only-reference-swap-pfn-page-if-type-match.patch
+"Huang, Ying" <ying.huang@intel.com> writes:
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-mprotect-only-reference-swap-pfn-page-if-type-match.patch
+> Peter Xu <peterx@redhat.com> writes:
+>
+>> On Thu, Aug 18, 2022 at 02:34:45PM +0800, Huang, Ying wrote:
+>>> > In this specific case, the only way to do safe tlb batching in my mind is:
+>>> >
+>>> > 	pte_offset_map_lock();
+>>> > 	arch_enter_lazy_mmu_mode();
+>>> >         // If any pending tlb, do it now
+>>> >         if (mm_tlb_flush_pending())
+>>> > 		flush_tlb_range(vma, start, end);
+>>> >         else
+>>> >                 flush_tlb_batched_pending();
+>>>
+>>> I don't think we need the above 4 lines.  Because we will flush TLB
+>>> before we access the pages.
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+I agree. For migration the TLB flush is only important if the PTE is
+present, and in that case we do a TLB flush anyway.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+>> Could you elaborate?
+>
+> As you have said below, we don't use non-present PTEs and flush present
+> PTEs before we access the pages.
+>
+>>> Can you find any issue if we don't use the above 4 lines?
+>>
+>> It seems okay to me to leave stall tlb at least within the scope of this
+>> function. It only collects present ptes and flush propoerly for them.  I
+>> don't quickly see any other implications to other not touched ptes - unlike
+>> e.g. mprotect(), there's a strong barrier of not allowing further write
+>> after mprotect() returns.
+>
+> Yes.  I think so too.
+>
+>> Still I don't know whether there'll be any side effect of having stall tlbs
+>> in !present ptes because I'm not familiar enough with the private dev swap
+>> migration code.  But I think having them will be safe, even if redundant.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+What side-effect were you thinking of? I don't see any issue with not
+TLB flushing stale device-private TLBs prior to the migration because
+they're not accessible anyway and shouldn't be in any TLB.
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
+> I don't think it's a good idea to be redundant.  That may hide the real
+> issue.
+>
+> Best Regards,
+> Huang, Ying
 
-------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/mprotect: Only reference swap pfn page if type match
-Date: Tue, 23 Aug 2022 18:11:38 -0400
+Thanks all for the discussion. Having done some more reading I agree
+that it's safe to assume HW dirty bits are write-through, so will remove
+the ptep_clear_flush() and use ptep_get_and_clear() instead. Will split
+out the TLB flushing fix into a separate patch in this series.
 
-Yu Zhao reported a bug after the commit "mm/swap: Add swp_offset_pfn() to
-fetch PFN from swap entry" added a check in swp_offset_pfn() for swap type [1]:
-
-  kernel BUG at include/linux/swapops.h:117!
-  CPU: 46 PID: 5245 Comm: EventManager_De Tainted: G S         O L 6.0.0-dbg-DEV #2
-  RIP: 0010:pfn_swap_entry_to_page+0x72/0xf0
-  Code: c6 48 8b 36 48 83 fe ff 74 53 48 01 d1 48 83 c1 08 48 8b 09 f6
-  c1 01 75 7b 66 90 48 89 c1 48 8b 09 f6 c1 01 74 74 5d c3 eb 9e <0f> 0b
-  48 ba ff ff ff ff 03 00 00 00 eb ae a9 ff 0f 00 00 75 13 48
-  RSP: 0018:ffffa59e73fabb80 EFLAGS: 00010282
-  RAX: 00000000ffffffe8 RBX: 0c00000000000000 RCX: ffffcd5440000000
-  RDX: 1ffffffffff7a80a RSI: 0000000000000000 RDI: 0c0000000000042b
-  RBP: ffffa59e73fabb80 R08: ffff9965ca6e8bb8 R09: 0000000000000000
-  R10: ffffffffa5a2f62d R11: 0000030b372e9fff R12: ffff997b79db5738
-  R13: 000000000000042b R14: 0c0000000000042b R15: 1ffffffffff7a80a
-  FS:  00007f549d1bb700(0000) GS:ffff99d3cf680000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000440d035b3180 CR3: 0000002243176004 CR4: 00000000003706e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   <TASK>
-   change_pte_range+0x36e/0x880
-   change_p4d_range+0x2e8/0x670
-   change_protection_range+0x14e/0x2c0
-   mprotect_fixup+0x1ee/0x330
-   do_mprotect_pkey+0x34c/0x440
-   __x64_sys_mprotect+0x1d/0x30
-
-It triggers because pfn_swap_entry_to_page() could be called upon e.g. a
-genuine swap entry.
-
-Fix it by only calling it when it's a write migration entry where the page*
-is used.
-
-[1] https://lore.kernel.org/lkml/CAOUHufaVC2Za-p8m0aiHw6YkheDcrO-C3wRGixwDS32VTS+k1w@mail.gmail.com/
-
-Link: https://lkml.kernel.org/r/20220823221138.45602-1-peterx@redhat.com
-Fixes: 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Yu Zhao <yuzhao@google.com>
-Tested-by: Yu Zhao <yuzhao@google.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: "Huang, Ying" <ying.huang@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/mprotect.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- a/mm/mprotect.c~mm-mprotect-only-reference-swap-pfn-page-if-type-match
-+++ a/mm/mprotect.c
-@@ -196,10 +196,11 @@ static unsigned long change_pte_range(st
- 			pages++;
- 		} else if (is_swap_pte(oldpte)) {
- 			swp_entry_t entry = pte_to_swp_entry(oldpte);
--			struct page *page = pfn_swap_entry_to_page(entry);
- 			pte_t newpte;
- 
- 			if (is_writable_migration_entry(entry)) {
-+				struct page *page = pfn_swap_entry_to_page(entry);
-+
- 				/*
- 				 * A protection check is difficult so
- 				 * just be safe and disable write
-_
-
-Patches currently in -mm which might be from peterx@redhat.com are
-
-mm-mprotect-only-reference-swap-pfn-page-if-type-match.patch
-mm-x86-use-swp_type_bits-in-3-level-swap-macros.patch
-mm-swap-comment-all-the-ifdef-in-swapopsh.patch
-mm-swap-add-swp_offset_pfn-to-fetch-pfn-from-swap-entry.patch
-mm-thp-carry-over-dirty-bit-when-thp-splits-on-pmd.patch
-mm-remember-young-dirty-bit-for-page-migrations.patch
-mm-swap-cache-maximum-swapfile-size-when-init-swap.patch
-mm-swap-cache-swap-migration-a-d-bits-support.patch
-
+ - Alistair
