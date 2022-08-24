@@ -2,134 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7E659F4AB
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 10:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 083D959F4D1
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 10:12:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235351AbiHXIDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 04:03:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43286 "EHLO
+        id S231569AbiHXIMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 04:12:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235597AbiHXIDL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 04:03:11 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C743B83F2D;
-        Wed, 24 Aug 2022 01:03:08 -0700 (PDT)
-Date:   Wed, 24 Aug 2022 08:03:05 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1661328186;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=fMC31QZsCePHeMFSj02/iaLnOUX/ksL6PNDDb0owKtk=;
-        b=4sREGs+pM/62fkI9etbbxv+De/Xn9nvUBdFl3JEvqBAkbpIm+xJNzaFe4kZXvIpL5rRqc3
-        BF/vjddSMe+2w7KKt7VIY/agVU1bQ6ceIWcFrG6SMCa+cRK3eo66I7pKikOho+3Ix7AqP0
-        ntZ28AWygR7B2vlTFSBmG7iEemtmMKaqslZGApI3uQxctgQPkhzASFsq35INl/SYMIRY6u
-        cydaUGiKWZtJSTuXUlOYWySq57xryeicG62I1btde+fjbO4rdOTqqzhk27P/roP9/B/pKs
-        WUN++MAYmZnzaJfEZrWAAMdI5+6AqCXpFlvwPoZawA0ZRIQ5UdlkoTik3AS0vw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1661328186;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=fMC31QZsCePHeMFSj02/iaLnOUX/ksL6PNDDb0owKtk=;
-        b=9SqbUNAuzCynmZnB625IQhoJepipy3sqE5BW62BJE1ZApvSFoYGI6WU5iM18Bvgl8WhY/Z
-        47knitLqjLEOBYDA==
-From:   "tip-bot2 for Tom Lendacky" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/sev: Don't use cc_platform_has() for early
- SEV-SNP calls
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
-        x86@kernel.org, linux-kernel@vger.kernel.org
+        with ESMTP id S231207AbiHXIMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 04:12:52 -0400
+Received: from sender-of-o50.zoho.in (sender-of-o50.zoho.in [103.117.158.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A99E685AB1;
+        Wed, 24 Aug 2022 01:12:49 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1661328756; cv=none; 
+        d=zohomail.in; s=zohoarc; 
+        b=DSlC6MNqXJEKuLWWv9hD5ReOtHPCoIIspX9WVJYwx76RtxpYjqB3NGMU3dedRU3CL1lSicqv3EZfUcnhQ1EJIyaNSME4Ri4EKFI9jmwB5/XzPNh0OL9ammAtpqD7c+41CFO2mL6ydJ8/IvNIpIRJHgo7BvTjDy/4c6AI/9+xwus=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.in; s=zohoarc; 
+        t=1661328756; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=nxuDlBnh7rD26c84GHsAUGHCF7GK79bwk7nQ3eQxjyY=; 
+        b=eLZ9qpm4vxcJ0enFIjDW/CuyYqacaj3hvYJNWkUIU3lQ6Qmp2Snj7Q1uCQEVHyZaoLtKVXmJ+pb6dSbFJDou1TXhFrAQWVyQ65YIjaWtEQrf11pFVd8nEkcEa75iS3JIAgg8JmVKNe8q3sQ/4V6fxnRE8UyNxwJLN+MVlZbBbo8=
+ARC-Authentication-Results: i=1; mx.zohomail.in;
+        dkim=pass  header.i=siddh.me;
+        spf=pass  smtp.mailfrom=code@siddh.me;
+        dmarc=pass header.from=<code@siddh.me>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1661328756;
+        s=zmail; d=siddh.me; i=code@siddh.me;
+        h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:References:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+        bh=nxuDlBnh7rD26c84GHsAUGHCF7GK79bwk7nQ3eQxjyY=;
+        b=QXUy31uj4dbboP+XiXGdXmL43R95UeAcwm0xOMj/EcZneZkZEKQG6FCsq/pMFLcU
+        mlWD6fj6JCJ9uOXfnN/r9w616HiOgvi2fB8VSl+IxO65Kzi7SB0N2+i5MmCFcs+wT+A
+        +zSVw/g3xbbuxu0s5eMM9Z9DXsRVvezkiOxewFWs=
+Received: from mail.zoho.in by mx.zoho.in
+        with SMTP id 1661328745149618.5620763655653; Wed, 24 Aug 2022 13:42:25 +0530 (IST)
+Date:   Wed, 24 Aug 2022 13:42:25 +0530
+From:   Siddh Raman Pant <code@siddh.me>
+To:     "Jens Axboe" <axboe@kernel.dk>
+Cc:     "linux-kernel-mentees" 
+        <linux-kernel-mentees@lists.linuxfoundation.org>,
+        "stable" <stable@vger.kernel.org>,
+        "linux-block" <linux-block@vger.kernel.org>,
+        "linux-kernel" <linux-kernel@vger.kernel.org>,
+        "syzbot+a8e049cd3abd342936b6" 
+        <syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com>
+Message-ID: <182cee8e2a7.5a62eb4811173.7413734946973464259@siddh.me>
+In-Reply-To: <166127140632.124225.483036207879834754.b4-ty@kernel.dk>
+References: <20220823160810.181275-1-code@siddh.me> <166127140632.124225.483036207879834754.b4-ty@kernel.dk>
+Subject: Re: [PATCH v2] loop: Check for overflow while configuring loop
 MIME-Version: 1.0
-Message-ID: <166132818542.401.9222834659601554463.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Importance: Medium
+User-Agent: Zoho Mail
+X-Mailer: Zoho Mail
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Tue, 23 Aug 2022 21:46:46 +0530  Jens Axboe  wrote:
+> Applied, thanks!
+> 
+> [1/1] loop: Check for overflow while configuring loop
+>       commit: f11ebc7347340d291ba032a3872e40d3283fc351
 
-Commit-ID:     cdaa0a407f1acd3a44861e3aea6e3c7349e668f1
-Gitweb:        https://git.kernel.org/tip/cdaa0a407f1acd3a44861e3aea6e3c7349e668f1
-Author:        Tom Lendacky <thomas.lendacky@amd.com>
-AuthorDate:    Tue, 23 Aug 2022 16:55:51 -05:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Wed, 24 Aug 2022 09:54:32 +02:00
+Thanks!
 
-x86/sev: Don't use cc_platform_has() for early SEV-SNP calls
+Though, it seems that you have used the mailing list's address
+(linux-kernel-mentees@lists.linuxfoundation.org) in the author
+field instead of the Signed-off email.
 
-When running identity-mapped and depending on the kernel configuration,
-it is possible that the compiler uses jump tables when generating code
-for cc_platform_has().
-
-This causes a boot failure because the jump table uses un-mapped kernel
-virtual addresses, not identity-mapped addresses. This has been seen
-with CONFIG_RETPOLINE=n.
-
-Similar to sme_encrypt_kernel(), use an open-coded direct check for the
-status of SNP rather than trying to eliminate the jump table. This
-preserves any code optimization in cc_platform_has() that can be useful
-post boot. It also limits the changes to SEV-specific files so that
-future compiler features won't necessarily require possible build changes
-just because they are not compatible with running identity-mapped.
-
-  [ bp: Massage commit message. ]
-
-Fixes: 5e5ccff60a29 ("x86/sev: Add helper for validating pages in early enc attribute changes")
-Reported-by: Sean Christopherson <seanjc@google.com>
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org> # 5.19.x
-Link: https://lore.kernel.org/all/YqfabnTRxFSM+LoX@google.com/
----
- arch/x86/kernel/sev.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 63dc626..4f84c3f 100644
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -701,7 +701,13 @@ e_term:
- void __init early_snp_set_memory_private(unsigned long vaddr, unsigned long paddr,
- 					 unsigned int npages)
- {
--	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
-+	/*
-+	 * This can be invoked in early boot while running identity mapped, so
-+	 * use an open coded check for SNP instead of using cc_platform_has().
-+	 * This eliminates worries about jump tables or checking boot_cpu_data
-+	 * in the cc_platform_has() function.
-+	 */
-+	if (!(sev_status & MSR_AMD64_SEV_SNP_ENABLED))
- 		return;
- 
- 	 /*
-@@ -717,7 +723,13 @@ void __init early_snp_set_memory_private(unsigned long vaddr, unsigned long padd
- void __init early_snp_set_memory_shared(unsigned long vaddr, unsigned long paddr,
- 					unsigned int npages)
- {
--	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
-+	/*
-+	 * This can be invoked in early boot while running identity mapped, so
-+	 * use an open coded check for SNP instead of using cc_platform_has().
-+	 * This eliminates worries about jump tables or checking boot_cpu_data
-+	 * in the cc_platform_has() function.
-+	 */
-+	if (!(sev_status & MSR_AMD64_SEV_SNP_ENABLED))
- 		return;
- 
- 	/* Invalidate the memory pages before they are marked shared in the RMP table. */
+Thanks,
+Siddh
