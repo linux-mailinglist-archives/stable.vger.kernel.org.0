@@ -2,56 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C3659F49C
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 09:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7E659F4AB
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 10:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234953AbiHXHz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 03:55:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38890 "EHLO
+        id S235351AbiHXIDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 04:03:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233456AbiHXHz4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 03:55:56 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8464884ECB;
-        Wed, 24 Aug 2022 00:55:52 -0700 (PDT)
-Date:   Wed, 24 Aug 2022 07:55:47 -0000
+        with ESMTP id S235597AbiHXIDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 04:03:11 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C743B83F2D;
+        Wed, 24 Aug 2022 01:03:08 -0700 (PDT)
+Date:   Wed, 24 Aug 2022 08:03:05 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1661327750;
+        s=2020; t=1661328186;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=RqO7cPBchLBpZJwMWF5WuJhfv0vBB4rQmXh3A6TUueo=;
-        b=NPw5GD31FlHYtyCGbO+Rl1Vmj3IFxDhxZ+uGgNNri9Yx1a8wha+dHnTAuehc/ySLH71Onv
-        JZn9bwvh50YItOcJ0zE/jficatsUNeUkzylVs6GXXs7NKnd/+0XlASVlz800s2Mnrcxv+S
-        OR3pN3vMWuhVBjO33uKWihA4LkzEiovDX+Cuuk1NnKaJnpbX2yAQ2/7UPJMzyrw6vpAxUk
-        ND4zndEJReccqSBG1YgkjPmH/zj7ewt+RJUOvvOx66NCtI5xBmO4jWAZQQ0K66UTLlhNWc
-        mgimHnjZIxAc+y88pozeFWIuonNlsJ+n+Y/4ysbnxtY38X3Ah8uwjyDopu5TyA==
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=fMC31QZsCePHeMFSj02/iaLnOUX/ksL6PNDDb0owKtk=;
+        b=4sREGs+pM/62fkI9etbbxv+De/Xn9nvUBdFl3JEvqBAkbpIm+xJNzaFe4kZXvIpL5rRqc3
+        BF/vjddSMe+2w7KKt7VIY/agVU1bQ6ceIWcFrG6SMCa+cRK3eo66I7pKikOho+3Ix7AqP0
+        ntZ28AWygR7B2vlTFSBmG7iEemtmMKaqslZGApI3uQxctgQPkhzASFsq35INl/SYMIRY6u
+        cydaUGiKWZtJSTuXUlOYWySq57xryeicG62I1btde+fjbO4rdOTqqzhk27P/roP9/B/pKs
+        WUN++MAYmZnzaJfEZrWAAMdI5+6AqCXpFlvwPoZawA0ZRIQ5UdlkoTik3AS0vw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1661327750;
+        s=2020e; t=1661328186;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=RqO7cPBchLBpZJwMWF5WuJhfv0vBB4rQmXh3A6TUueo=;
-        b=E/HyooXtINpkPP91QrjafI7AQgUiiPP0OK1K1KH2bJoUgq+KpL1N3LYxpupOoOO25VTajh
-        lz9btSPcQSYILsBA==
-From:   "tip-bot2 for Michael Roth" <tip-bot2@linutronix.de>
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=fMC31QZsCePHeMFSj02/iaLnOUX/ksL6PNDDb0owKtk=;
+        b=9SqbUNAuzCynmZnB625IQhoJepipy3sqE5BW62BJE1ZApvSFoYGI6WU5iM18Bvgl8WhY/Z
+        47knitLqjLEOBYDA==
+From:   "tip-bot2 for Tom Lendacky" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/boot: Don't propagate uninitialized
- boot_params->cc_blob_address
-Cc:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
-        watnuss@gmx.de, Michael Roth <michael.roth@amd.com>,
-        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org,
+Subject: [tip: x86/urgent] x86/sev: Don't use cc_platform_has() for early
+ SEV-SNP calls
+Cc:     Sean Christopherson <seanjc@google.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
         x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20220823160734.89036-1-michael.roth@amd.com>
-References: <20220823160734.89036-1-michael.roth@amd.com>
 MIME-Version: 1.0
-Message-ID: <166132774791.401.13991431396549405975.tip-bot2@tip-bot2>
+Message-ID: <166132818542.401.9222834659601554463.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -68,87 +62,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     4b1c742407571eff58b6de9881889f7ca7c4b4dc
-Gitweb:        https://git.kernel.org/tip/4b1c742407571eff58b6de9881889f7ca7c4b4dc
-Author:        Michael Roth <michael.roth@amd.com>
-AuthorDate:    Tue, 23 Aug 2022 11:07:34 -05:00
+Commit-ID:     cdaa0a407f1acd3a44861e3aea6e3c7349e668f1
+Gitweb:        https://git.kernel.org/tip/cdaa0a407f1acd3a44861e3aea6e3c7349e668f1
+Author:        Tom Lendacky <thomas.lendacky@amd.com>
+AuthorDate:    Tue, 23 Aug 2022 16:55:51 -05:00
 Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Wed, 24 Aug 2022 09:03:04 +02:00
+CommitterDate: Wed, 24 Aug 2022 09:54:32 +02:00
 
-x86/boot: Don't propagate uninitialized boot_params->cc_blob_address
+x86/sev: Don't use cc_platform_has() for early SEV-SNP calls
 
-In some cases, bootloaders will leave boot_params->cc_blob_address
-uninitialized rather than zeroing it out. This field is only meant to be
-set by the boot/compressed kernel in order to pass information to the
-uncompressed kernel when SEV-SNP support is enabled.
+When running identity-mapped and depending on the kernel configuration,
+it is possible that the compiler uses jump tables when generating code
+for cc_platform_has().
 
-Therefore, there are no cases where the bootloader-provided values
-should be treated as anything other than garbage. Otherwise, the
-uncompressed kernel may attempt to access this bogus address, leading to
-a crash during early boot.
+This causes a boot failure because the jump table uses un-mapped kernel
+virtual addresses, not identity-mapped addresses. This has been seen
+with CONFIG_RETPOLINE=n.
 
-Normally, sanitize_boot_params() would be used to clear out such fields
-but that happens too late: sev_enable() may have already initialized
-it to a valid value that should not be zeroed out. Instead, have
-sev_enable() zero it out unconditionally beforehand.
+Similar to sme_encrypt_kernel(), use an open-coded direct check for the
+status of SNP rather than trying to eliminate the jump table. This
+preserves any code optimization in cc_platform_has() that can be useful
+post boot. It also limits the changes to SEV-specific files so that
+future compiler features won't necessarily require possible build changes
+just because they are not compatible with running identity-mapped.
 
-Also ensure this happens for !CONFIG_AMD_MEM_ENCRYPT as well by also
-including this handling in the sev_enable() stub function.
+  [ bp: Massage commit message. ]
 
-  [ bp: Massage commit message and comments. ]
-
-Fixes: b190a043c49a ("x86/sev: Add SEV-SNP feature detection/setup")
-Reported-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Reported-by: watnuss@gmx.de
-Signed-off-by: Michael Roth <michael.roth@amd.com>
+Fixes: 5e5ccff60a29 ("x86/sev: Add helper for validating pages in early enc attribute changes")
+Reported-by: Sean Christopherson <seanjc@google.com>
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216387
-Link: https://lore.kernel.org/r/20220823160734.89036-1-michael.roth@amd.com
+Cc: <stable@vger.kernel.org> # 5.19.x
+Link: https://lore.kernel.org/all/YqfabnTRxFSM+LoX@google.com/
 ---
- arch/x86/boot/compressed/misc.h | 12 +++++++++++-
- arch/x86/boot/compressed/sev.c  |  8 ++++++++
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ arch/x86/kernel/sev.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 4910bf2..62208ec 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -132,7 +132,17 @@ void snp_set_page_private(unsigned long paddr);
- void snp_set_page_shared(unsigned long paddr);
- void sev_prep_identity_maps(unsigned long top_level_pgt);
- #else
--static inline void sev_enable(struct boot_params *bp) { }
-+static inline void sev_enable(struct boot_params *bp)
-+{
-+	/*
-+	 * bp->cc_blob_address should only be set by boot/compressed kernel.
-+	 * Initialize it to 0 unconditionally (thus here in this stub too) to
-+	 * ensure that uninitialized values from buggy bootloaders aren't
-+	 * propagated.
-+	 */
-+	if (bp)
-+		bp->cc_blob_address = 0;
-+}
- static inline void sev_es_shutdown_ghcb(void) { }
- static inline bool sev_es_check_ghcb_fault(unsigned long address)
+diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
+index 63dc626..4f84c3f 100644
+--- a/arch/x86/kernel/sev.c
++++ b/arch/x86/kernel/sev.c
+@@ -701,7 +701,13 @@ e_term:
+ void __init early_snp_set_memory_private(unsigned long vaddr, unsigned long paddr,
+ 					 unsigned int npages)
  {
-diff --git a/arch/x86/boot/compressed/sev.c b/arch/x86/boot/compressed/sev.c
-index 52f989f..c93930d 100644
---- a/arch/x86/boot/compressed/sev.c
-+++ b/arch/x86/boot/compressed/sev.c
-@@ -277,6 +277,14 @@ void sev_enable(struct boot_params *bp)
- 	bool snp;
- 
- 	/*
-+	 * bp->cc_blob_address should only be set by boot/compressed kernel.
-+	 * Initialize it to 0 to ensure that uninitialized values from
-+	 * buggy bootloaders aren't propagated.
-+	 */
-+	if (bp)
-+		bp->cc_blob_address = 0;
-+
+-	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
 +	/*
- 	 * Setup/preliminary detection of SNP. This will be sanity-checked
- 	 * against CPUID/MSR values later.
- 	 */
++	 * This can be invoked in early boot while running identity mapped, so
++	 * use an open coded check for SNP instead of using cc_platform_has().
++	 * This eliminates worries about jump tables or checking boot_cpu_data
++	 * in the cc_platform_has() function.
++	 */
++	if (!(sev_status & MSR_AMD64_SEV_SNP_ENABLED))
+ 		return;
+ 
+ 	 /*
+@@ -717,7 +723,13 @@ void __init early_snp_set_memory_private(unsigned long vaddr, unsigned long padd
+ void __init early_snp_set_memory_shared(unsigned long vaddr, unsigned long paddr,
+ 					unsigned int npages)
+ {
+-	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
++	/*
++	 * This can be invoked in early boot while running identity mapped, so
++	 * use an open coded check for SNP instead of using cc_platform_has().
++	 * This eliminates worries about jump tables or checking boot_cpu_data
++	 * in the cc_platform_has() function.
++	 */
++	if (!(sev_status & MSR_AMD64_SEV_SNP_ENABLED))
+ 		return;
+ 
+ 	/* Invalidate the memory pages before they are marked shared in the RMP table. */
