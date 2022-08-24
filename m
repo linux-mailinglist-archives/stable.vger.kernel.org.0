@@ -2,57 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7A4D5A029B
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 22:19:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D15A5A02A8
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 22:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239947AbiHXUT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 16:19:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43236 "EHLO
+        id S240310AbiHXUZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 16:25:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232844AbiHXUT2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 16:19:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909BD3E74A;
-        Wed, 24 Aug 2022 13:19:27 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35491617FF;
-        Wed, 24 Aug 2022 20:19:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6530C433C1;
-        Wed, 24 Aug 2022 20:19:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661372366;
-        bh=ccfR9j7H5+zwytd5yJssldgbE67m5JiYpCDczl7Vyd0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nbE9LA9Kklk3QcaZY3gKIg//jDIRDyS7nx3MLg6fkpOpRPzQa1rlZXPxHnP+Prmb+
-         zEx4KniX38txlsePASkExz7HArpgttcf251MhgokOXhOTVaUXDWBktUkZp2S/RbY2t
-         zss3cIR+PoMGZG52KhiUzN4OijeMfnCDNNR8J2oZ0EZ8wpaB+upajMxSrpRcMPtYSt
-         nj4HND4iNYutJsynl03ETAVJV7gPEpgM8YG3eieQwpIgf6zY3mbZHABrqvfwfOXZcQ
-         7POzXUZDCYNiGPhRWmF2CaJ6tbZBkG00j1GVoYGee9E6wsuO1nRKR753xdXxujVCGJ
-         mpjC0HrAw36Kg==
-Date:   Wed, 24 Aug 2022 13:19:23 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com,
-        clang-built-linux <clang-built-linux@googlegroups.com>
-Subject: Re: [PATCH 5.19 000/362] 5.19.4-rc2 review
-Message-ID: <YwaHy9An68xJkxdu@dev-arch.thelio-3990X>
-References: <20220824065936.861377531@linuxfoundation.org>
- <CA+G9fYuTOvKfHz7t0GppiNqLx-9n-yycsLX-rdMQogrh9guX_w@mail.gmail.com>
+        with ESMTP id S240350AbiHXUZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 16:25:52 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F123DBC0
+        for <stable@vger.kernel.org>; Wed, 24 Aug 2022 13:25:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1661372749;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=WcGllBx/E+hwvIFs2WxQDGDJChMuYQJTiL0H+5A7OM0=;
+        b=TU36UDUF5tc3Y4XVjVatqgkZdgawz+vG3zQBs25yaq4wU4QkL7hTEK+s+drxT+Y6tCibRs
+        nuG1MmHD0cIKaUfA6agjh+tSihzH9zGE86R51aG1o66DDqL4ZgBPELsvG5KE2GCreMQU9/
+        EGlBm4kIIw+Y8zvT8Gv3LlpgAMIx+ck=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-300-RqeRlbo1OueNBtk5qUBVhA-1; Wed, 24 Aug 2022 16:25:48 -0400
+X-MC-Unique: RqeRlbo1OueNBtk5qUBVhA-1
+Received: by mail-qt1-f197.google.com with SMTP id i19-20020ac85e53000000b00342f05b902cso13552354qtx.7
+        for <stable@vger.kernel.org>; Wed, 24 Aug 2022 13:25:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+        bh=WcGllBx/E+hwvIFs2WxQDGDJChMuYQJTiL0H+5A7OM0=;
+        b=wf5VyZ+22fY/kOv1dZ7X3MvLVUoYuIE0jVAdRfxuOKJxYrNa4JzP6kxyI+HDKO5GiN
+         QmBDZk5+GFGWC37T/LSYOlRCLZON/PEjqPEApgDTHdqXuP1+TH4GlT1/hL6N7DsdYyv1
+         gj3emEmtt9INEBjZAiW6eQikjFiGNk5sAH/xofJFSPTh+6y/86fX39uIGoZzDtCiEKmE
+         yS87GCvnWPic4gSyM0DvxV76cSTIqRkDFGfRnpzsDpU/cfKzTV8AN0Vfw3lenQRbZU90
+         Gw8KmUFCQPNxtO/von3/fXcERjUjJNkvyMFL6fknDysdd4guOYoPnvT/ltsSvRJcO+SL
+         LSxg==
+X-Gm-Message-State: ACgBeo24zq1JgqcGx20/eoiBCSTRMj9Ng0JWoW1vQsJVPgnDhZUs5r/U
+        wvjtuL7rdfMWsO2FSEvm8P6lUgiuTbP/joVKzaTDLyHorX5FubaUlT7Mq3GuSPWktX6CjhD4Cfe
+        kJ6UH30o33iBbS3+J
+X-Received: by 2002:ac8:7e83:0:b0:344:7ee0:1241 with SMTP id w3-20020ac87e83000000b003447ee01241mr889824qtj.587.1661372747558;
+        Wed, 24 Aug 2022 13:25:47 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4At86RE03P4mlSnr4jeclId4tDLoIpgKf+KL9cAcwLzF1s7WEI2JSHt6UJKgXWx7E14+/57Q==
+X-Received: by 2002:ac8:7e83:0:b0:344:7ee0:1241 with SMTP id w3-20020ac87e83000000b003447ee01241mr889808qtj.587.1661372747336;
+        Wed, 24 Aug 2022 13:25:47 -0700 (PDT)
+Received: from xz-m1.local (bras-base-aurron9127w-grc-35-70-27-3-10.dsl.bell.ca. [70.27.3.10])
+        by smtp.gmail.com with ESMTPSA id v16-20020a05620a0f1000b006b97151d2b3sm16098374qkl.67.2022.08.24.13.25.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Aug 2022 13:25:46 -0700 (PDT)
+Date:   Wed, 24 Aug 2022 16:25:44 -0400
+From:   Peter Xu <peterx@redhat.com>
+To:     Alistair Popple <apopple@nvidia.com>
+Cc:     "Huang, Ying" <ying.huang@intel.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        huang ying <huang.ying.caritas@gmail.com>,
+        Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Sierra Guiza, Alejandro (Alex)" <alex.sierra@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Logan Gunthorpe <logang@deltatee.com>, paulus@ozlabs.org,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] mm/migrate_device.c: Copy pte dirty bit to page
+Message-ID: <YwaJSBnp2eyMlkjw@xz-m1.local>
+References: <871qtfvdlw.fsf@nvdebian.thelocal>
+ <YvxWUY9eafFJ27ef@xz-m1.local>
+ <87o7wjtn2g.fsf@nvdebian.thelocal>
+ <87tu6bbaq7.fsf@yhuang6-desk2.ccr.corp.intel.com>
+ <1D2FB37E-831B-445E-ADDC-C1D3FF0425C1@gmail.com>
+ <Yv1BJKb5he3dOHdC@xz-m1.local>
+ <87czcyawl6.fsf@yhuang6-desk2.ccr.corp.intel.com>
+ <Yv5QXkS4Bm9pTBeG@xz-m1.local>
+ <874jy9aqts.fsf@yhuang6-desk2.ccr.corp.intel.com>
+ <87czcqiecd.fsf@nvdebian.thelocal>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYuTOvKfHz7t0GppiNqLx-9n-yycsLX-rdMQogrh9guX_w@mail.gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+In-Reply-To: <87czcqiecd.fsf@nvdebian.thelocal>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,56 +99,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Naresh,
-
-On Thu, Aug 25, 2022 at 01:43:09AM +0530, Naresh Kamboju wrote:
-> On Wed, 24 Aug 2022 at 12:31, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.19.4 release.
-> > There are 362 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Fri, 26 Aug 2022 06:58:34 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.4-rc2.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On Wed, Aug 24, 2022 at 11:56:25AM +1000, Alistair Popple wrote:
+> >> Still I don't know whether there'll be any side effect of having stall tlbs
+> >> in !present ptes because I'm not familiar enough with the private dev swap
+> >> migration code.  But I think having them will be safe, even if redundant.
 > 
-> Results from Linaro's test farm.
-> No regressions on arm64, arm, x86_64, and i386.
-> 
-> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> NOTE:
-> x86_64 and arm64 clang nightly allmodconfig build failed.
-> sound/soc/atmel/mchp-spdiftx.c:508:20: error: implicit truncation from
-> 'int' to bit-field changes value from 1 to -1
-> [-Werror,-Wbitfield-constant-conversion]
-> dev->gclk_enabled = 1;
->                   ^ ~
-> 1 error generated.
+> What side-effect were you thinking of? I don't see any issue with not
+> TLB flushing stale device-private TLBs prior to the migration because
+> they're not accessible anyway and shouldn't be in any TLB.
 
-This should be fixed in mainline soon:
+Sorry to be misleading, I never meant we must add them.  As I said it's
+just that I don't know the code well so I don't know whether it's safe to
+not have it.
 
-https://git.kernel.org/broonie/sound/c/5c5c2baad2b55cc0a4b190266889959642298f79
-https://github.com/ClangBuiltLinux/linux/issues/1686
+IIUC it's about whether having stall system-ram stall tlb in other
+processor would matter or not here.  E.g. some none pte that this code
+collected (boosted both "cpages" and "npages" for a none pte) could have
+stall tlb in other cores that makes the page writable there.
 
-It will conflict due to a lack of commit 403fcb5118a0 ("ASoC:
-mchp-spdiftx: remove references to mchp_i2s_caps") in the stable trees
-but I think that change can just be taken along with my change to
-minimize any future conflicts. I'll send a separate email with that
-information when my patch hits mainline.
+When I said I'm not familiar with the code, it's majorly about one thing I
+never figured out myself, in that migrate_vma_collect_pmd() has this
+optimization to trylock on the page, collect if it succeeded:
 
-Thanks as always for all the testing that you do!
+  /*
+   * Optimize for the common case where page is only mapped once
+   * in one process. If we can lock the page, then we can safely
+   * set up a special migration page table entry now.
+   */
+   if (trylock_page(page)) {
+          ...
+   } else {
+          put_page(page);
+          mpfn = 0;
+   }
 
-Cheers,
-Nathan
+But it's kind of against a pure "optimization" in that if trylock failed,
+we'll clear the mpfn so the src[i] will be zero at last.  Then will we
+directly give up on this page, or will we try to lock_page() again
+somewhere?
+
+The future unmap op is also based on this "cpages", not "npages":
+
+	if (args->cpages)
+		migrate_vma_unmap(args);
+
+So I never figured out how this code really works.  It'll be great if you
+could shed some light to it.
+
+Thanks,
+
+-- 
+Peter Xu
+
