@@ -2,85 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8375D59FF57
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 18:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC3759FFDA
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 18:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239254AbiHXQUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 12:20:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41290 "EHLO
+        id S236041AbiHXQy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 12:54:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239555AbiHXQU3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 12:20:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CEBE558FF;
-        Wed, 24 Aug 2022 09:20:26 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D2E3B825A4;
-        Wed, 24 Aug 2022 16:20:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAAD6C433C1;
-        Wed, 24 Aug 2022 16:20:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661358024;
-        bh=bd5Ai7gyV3dh6KUli/6kO2E3a9PeCam1mN3CjAw1CiU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R6VypjWzakqTzUG5kNIyxNgICq9VgEKkXEQrDwe/VZ75GbX0OLRIrcfjrwmW+ZK2k
-         MwxRcvCQjt5W1BRDJqF23neebKRZU9WMRlnKOu3Bg/HQUVvpLBkfGXQaF+dOpLyUMK
-         Qggczk1zGqQty/Wc5BR8cyji7GY2zv/qiBkGoDtY=
-Date:   Wed, 24 Aug 2022 18:20:21 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jean-Philippe Brucker <jean-philippe@linaro.org>
+        with ESMTP id S236806AbiHXQy6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 12:54:58 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF13AE7C;
+        Wed, 24 Aug 2022 09:54:55 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id x23so16175940pll.7;
+        Wed, 24 Aug 2022 09:54:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc;
+        bh=KqNFaFPHcc3gAC4NXdiDPBYjVvtei+p83QWy8+fa+Io=;
+        b=bHJY6ZHgS0cVaG8dhhHyEhYI3myRY0I06v1Fw7fckGjpZSiJ+IZ5szJVtHWFK6h+/T
+         n/OmH7RJT38/zWhX2ELeBfabYLt8cUuusNm54VCuXsIHUeoeNiQy0iT9KXLwrwPY+BQm
+         JQeEHWIGxjn4ry25TBPjgKVepT0EBNKrRdyzOqb5Pw9UFKvnZPgaq/v62TPNb+j99UUd
+         CHhvKpFbo8kZFDlRi/AbeqG0ueFGoOHv3rdQgEFvkwPM4cDFWrED8pDB33DkHq7iAFS6
+         4GjVsrt/qn5IJDH2D9vHoyYfLUxb7jQDMMmyRwtiCkjOJno11Y7GMS6BP5OG8WogOxDa
+         x4Cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
+        bh=KqNFaFPHcc3gAC4NXdiDPBYjVvtei+p83QWy8+fa+Io=;
+        b=gGTE9jFZA3+L8UFaGjUs6gb/+CwoNp8qsZ/agqspKANs7/+Gx72EKcMQp7eC3OG+3L
+         InXhRI6+qsxheItEGgO1Hvbem8DiBBb3jbGGdaws6+Z9CayIjFNOkRrmUEWq8lexLqtW
+         ThjyZjrlPnXecCj0yzqiU5XFqW6GPIEPixjL00xIcTo1bn01sL8gjTrjRnuCl0FiVDTw
+         jPmnDDsihsVEC0VvsVE5d1OmhedE1Kk/1J9BFVmO7/qULkIk6l31g+bsYzMcJc8/2g6J
+         hIct4lxjRWqfn92704IW+D0Nglr78FzLCot4oL/JC68FMAi5ZMttUBkiTNmzHm3WMTIq
+         p4gg==
+X-Gm-Message-State: ACgBeo2X3M0WOkrs3/xlJC+uO9IdXxIj7cSerU+kJiJHXC/einSRkZyj
+        Y1dasuQ5qv/75p8yf0iKi8o=
+X-Google-Smtp-Source: AA6agR4mMWrUFg4IZ/EGX0Lf7f4Rnc+qklbnToH8LnXW2ZaqJ+V5RL0GQKuEe0mP8G4wJk2T51NcHw==
+X-Received: by 2002:a17:90a:3e48:b0:1fa:99af:d881 with SMTP id t8-20020a17090a3e4800b001fa99afd881mr9334107pjm.243.1661360094740;
+        Wed, 24 Aug 2022 09:54:54 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id bg8-20020a056a02010800b0042a59ecdbdfsm8967781pgb.84.2022.08.24.09.54.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Aug 2022 09:54:53 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 24 Aug 2022 09:54:51 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Stanislav Fomichev <sdf@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: Re: [PATCH 4.19 025/287] selftests/bpf: Fix test_align verifier log
- patterns
-Message-ID: <YwZPxdeZt/dtleeZ@kroah.com>
-References: <20220823080100.268827165@linuxfoundation.org>
- <20220823080101.125479106@linuxfoundation.org>
- <YwZOQv/dqReP8XfU@myrica>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.10 000/157] 5.10.138-rc3 review
+Message-ID: <20220824165451.GA708846@roeck-us.net>
+References: <20220824065856.174558929@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YwZOQv/dqReP8XfU@myrica>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220824065856.174558929@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 24, 2022 at 05:13:54PM +0100, Jean-Philippe Brucker wrote:
-> Hi,
+On Wed, Aug 24, 2022 at 09:00:52AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.138 release.
+> There are 157 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> On Tue, Aug 23, 2022 at 10:23:14AM +0200, Greg Kroah-Hartman wrote:
-> > From: Ovidiu Panait <ovidiu.panait@windriver.com>
-> > 
-> > From: Stanislav Fomichev <sdf@google.com>
-> > 
-> > commit 5366d2269139ba8eb6a906d73a0819947e3e4e0a upstream.
-> > 
-> > Commit 294f2fc6da27 ("bpf: Verifer, adjust_scalar_min_max_vals to always
-> > call update_reg_bounds()") changed the way verifier logs some of its state,
-> > adjust the test_align accordingly. Where possible, I tried to not copy-paste
-> > the entire log line and resorted to dropping the last closing brace instead.
-> > 
-> > Fixes: 294f2fc6da27 ("bpf: Verifer, adjust_scalar_min_max_vals to always call update_reg_bounds()")
-> > Signed-off-by: Stanislav Fomichev <sdf@google.com>
-> > Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-> > Link: https://lore.kernel.org/bpf/20200515194904.229296-1-sdf@google.com
-> > [OP: adjust for 4.19 selftests]
-> > Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Responses should be made by Fri, 26 Aug 2022 06:58:27 +0000.
+> Anything received after that time might be too late.
 > 
-> I believe this one shouldn't be applied as-is either, only partially. See
-> https://lore.kernel.org/stable/20220824144327.277365-1-jean-philippe@linaro.org/
 
-Now dropped, thanks
+Build results:
+	total: 163 pass: 163 fail: 0
+Qemu test results:
+	total: 474 pass: 474 fail: 0
 
-greg k-h
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
