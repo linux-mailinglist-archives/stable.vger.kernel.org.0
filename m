@@ -2,231 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2DB259F588
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 10:46:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB91459F5B0
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 10:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233729AbiHXIqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 04:46:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
+        id S233729AbiHXIt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 04:49:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236169AbiHXIqE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 04:46:04 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37CBC74DE3;
-        Wed, 24 Aug 2022 01:46:00 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1oQm1O-0005uy-OU; Wed, 24 Aug 2022 10:45:58 +0200
-Message-ID: <64f160e0-dd9d-ff01-08bd-464da5725f01@leemhuis.info>
-Date:   Wed, 24 Aug 2022 10:45:58 +0200
+        with ESMTP id S236226AbiHXIt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 04:49:28 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6852F7822D;
+        Wed, 24 Aug 2022 01:49:08 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id F1B551C000B; Wed, 24 Aug 2022 10:49:06 +0200 (CEST)
+Date:   Wed, 24 Aug 2022 10:49:06 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 00/98] 4.9.326-rc2 review
+Message-ID: <20220824084906.GA31669@duo.ucw.cz>
+References: <20220824072526.750357674@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Subject: Re: Regression in 5.19.0: USB errors during boot
-Content-Language: en-US
-To:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <25342.20092.262450.330346@wylie.me.uk>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <25342.20092.262450.330346@wylie.me.uk>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1661330761;a6886e98;
-X-HE-SMSGID: 1oQm1O-0005uy-OU
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Disposition: inline
+In-Reply-To: <20220824072526.750357674@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[TLDR: I'm adding this regression report to the list of tracked
-regressions; all text from me you find below is based on a few templates
-paragraphs you might have encountered already already in similar form.]
 
-On 18.08.22 16:36, Alan J. Wylie wrote:
-> 
-> Apologies for the delay in reporting this: I messed up my first attempt at
-> bisecting, then I've spent a week going to, enjoying, returning from and
-> recovering from a music festival.
-> 
-> Up to and including 5.18.18 things are fine. With 5.19.0 (and .1 and .2)  I see
-> lots of errors and hangs on the USB2 chipset, e.g.
-> 
-> $ grep "usb 9-4" dmesg.5.19.2
-> [    6.669075] usb 9-4: new full-speed USB device number 2 using ohci-pci
-> [    6.829087] usb 9-4: device descriptor read/64, error -32
-> [    7.097094] usb 9-4: device descriptor read/64, error -32
-> [    7.361087] usb 9-4: new full-speed USB device number 3 using ohci-pci
-> [    7.521152] usb 9-4: device descriptor read/64, error -32
-> [    7.789066] usb 9-4: device descriptor read/64, error -32
-> [    8.081070] usb 9-4: new full-speed USB device number 4 using ohci-pci
-> [    8.497138] usb 9-4: device not accepting address 4, error -32
-> [    8.653140] usb 9-4: new full-speed USB device number 5 using ohci-pci
-> [    9.069141] usb 9-4: device not accepting address 5, error -32
-> $
-> 
-> $ grep "usb 1-2" dmesg.5.19.2
-> [    5.917102] usb 1-2: new high-speed USB device number 2 using ehci-pci
-> [    6.277076] usb 1-2: device descriptor read/64, error -71
-> [    6.513143] usb 1-2: device descriptor read/64, error -32
-> [    6.753146] usb 1-2: new high-speed USB device number 3 using ehci-pci
-> [    6.881143] usb 1-2: device descriptor read/64, error -32
-> [    7.117144] usb 1-2: device descriptor read/64, error -32
-> [    7.429141] usb 1-2: new high-speed USB device number 4 using ehci-pci
-> [    7.845134] usb 1-2: device not accepting address 4, error -32
-> [    7.977142] usb 1-2: new high-speed USB device number 5 using ehci-pci
-> [    8.393158] usb 1-2: device not accepting address 5, error -32
-> $
-> 
-> the USB port is then no longer usable
-> 
-> This is not reproducible on the other chipset (USB3) on this machine,
-> nor on two other systems. Swapping USB cables doesn't help.
-> 
-> I have bisected it to
-> 
-> $ git bisect bad
-> 78013eaadf696d2105982abb4018fbae394ca08f is the first bad commit
-> commit 78013eaadf696d2105982abb4018fbae394ca08f
-> Author: Christoph Hellwig <hch@lst.de>
-> Date:   Mon Feb 14 14:11:44 2022 +0100
-> 
->     x86: remove the IOMMU table infrastructure
-> 
-> however it will not easily revert
-> 
-> I'll be more than happy to assist with any debugging/testing.
-> 
-> $ git revert 78013eaadf696d2105982abb4018fbae394ca08f
-> Auto-merging arch/x86/include/asm/dma-mapping.h
-> CONFLICT (content): Merge conflict in arch/x86/include/asm/dma-mapping.h
-> Auto-merging arch/x86/include/asm/iommu.h
-> Auto-merging arch/x86/include/asm/xen/swiotlb-xen.h
-> Auto-merging arch/x86/kernel/Makefile
-> Auto-merging arch/x86/kernel/pci-dma.c
-> CONFLICT (content): Merge conflict in arch/x86/kernel/pci-dma.c
-> Auto-merging arch/x86/kernel/vmlinux.lds.S
-> Auto-merging drivers/iommu/amd/init.c
-> Auto-merging drivers/iommu/amd/iommu.c
-> CONFLICT (content): Merge conflict in drivers/iommu/amd/iommu.c
-> Auto-merging drivers/iommu/intel/dmar.c
-> error: could not revert 78013eaadf69... x86: remove the IOMMU table infrastructure
-> 
-> # dmidecode  | grep -A2 "^Base Board"
-> Base Board Information
->      Manufacturer: Gigabyte Technology Co., Ltd.
->      Product Name: 970A-DS3P
-> #
-> 
-> # lspci -nn | grep -i usb
-> 00:12.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
-> 00:12.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
-> 00:13.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
-> 00:13.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
-> 00:14.5 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI2 Controller [1002:4399]
-> 00:16.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
-> 00:16.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
-> 02:00.0 USB controller [0c03]: VIA Technologies, Inc. VL805/806 xHCI USB 3.0 Controller [1106:3483] (rev 01)
-> #
-> 
-> # lspci -v -s 00:12
-> 00:12.0 USB controller: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller (prog-if 10 [OHCI])
-> 	Subsystem: Gigabyte Technology Co., Ltd GA-880GMA-USB3
-> 	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 18
-> 	Memory at fe50a000 (32-bit, non-prefetchable) [size=4K]
-> 	Kernel driver in use: ohci-pci
-> 				 	Kernel modules: ohci_pci
-> 00:12.2 USB controller: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller (prog-if 20 [EHCI])
-> 	Subsystem: Gigabyte Technology Co., Ltd GA-880GMA-USB3
-> 	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 17
-> 	Memory at fe509000 (32-bit, non-prefetchable) [size=256]
-> 	Capabilities: [c0] Power Management version 2
-> 	Capabilities: [e4] Debug port: BAR=1 offset=00e0
-> 	Kernel driver in use: ehci-pci
-> 	Kernel modules: ehci_pci
-> #
-> 
-> # lsusb
-> Bus 005 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-> Bus 009 Device 002: ID 067b:2303 Prolific Technology, Inc. PL2303 Serial Port / Mobile Action MA-8910P
-> Bus 009 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-> Bus 008 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-> Bus 004 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-> Bus 007 Device 002: ID 03f0:0317 HP, Inc LaserJet 1200
-> Bus 007 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-> Bus 001 Device 002: ID 04e8:6860 Samsung Electronics Co., Ltd Galaxy A5 (MTP)
-> Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-> Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-> Bus 003 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
-> Bus 002 Device 002: ID 2109:3431 VIA Labs, Inc. Hub
-> Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-> #
-> 
-> $ git bisect log
-> git bisect start
-> # good: [4b0986a3613c92f4ec1bdc7f60ec66fea135991f] Linux 5.18
-> git bisect good 4b0986a3613c92f4ec1bdc7f60ec66fea135991f
-> # good: [07e0b709cab7dc987b5071443789865e20481119] Linux 5.18.18
-> git bisect good 07e0b709cab7dc987b5071443789865e20481119
-> # bad: [3d7cb6b04c3f3115719235cc6866b10326de34cd] Linux 5.19
-> git bisect bad 3d7cb6b04c3f3115719235cc6866b10326de34cd
-> # bad: [c011dd537ffe47462051930413fed07dbdc80313] Merge tag 'arm-soc-5.19' of git://git.kernel.org/pub/scm/linux/kernel/git/soc/soc
-> git bisect bad c011dd537ffe47462051930413fed07dbdc80313
-> # good: [7e062cda7d90543ac8c7700fc7c5527d0c0f22ad] Merge tag 'net-next-5.19' of git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next
-> git bisect good 7e062cda7d90543ac8c7700fc7c5527d0c0f22ad
-> # good: [f8122500a039abeabfff41b0ad8b6a2c94c1107d] Merge branch 'etnaviv/next' of https://git.pengutronix.de/git/lst/linux into drm-next
-> git bisect good f8122500a039abeabfff41b0ad8b6a2c94c1107d
-> # good: [2518f226c60d8e04d18ba4295500a5b0b8ac7659] Merge tag 'drm-next-2022-05-25' of git://anongit.freedesktop.org/drm/drm
-> git bisect good 2518f226c60d8e04d18ba4295500a5b0b8ac7659
-> # good: [f7a344468105ef8c54086dfdc800e6f5a8417d3e] ASoC: max98090: Move check for invalid values before casting in max98090_put_enab_tlv()
-> git bisect good f7a344468105ef8c54086dfdc800e6f5a8417d3e
-> # good: [fbe86daca0ba878b04fa241b85e26e54d17d4229] Merge tag 'scsi-misc' of git://git.kernel.org/pub/scm/linux/kernel/git/jejb/scsi
-> git bisect good fbe86daca0ba878b04fa241b85e26e54d17d4229
-> # good: [709c8632597c3276cd21324b0256628f1a7fd4df] xfs: rework deferred attribute operation setup
-> git bisect good 709c8632597c3276cd21324b0256628f1a7fd4df
-> # bad: [babf0bb978e3c9fce6c4eba6b744c8754fd43d8e] Merge tag 'xfs-5.19-for-linus' of git://git.kernel.org/pub/scm/fs/xfs/xfs-linux
-> git bisect bad babf0bb978e3c9fce6c4eba6b744c8754fd43d8e
-> # bad: [8b728edc5be161799434cc17e1279db2f8eabe29] Merge tag 'fs_for_v5.19-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs
-> git bisect bad 8b728edc5be161799434cc17e1279db2f8eabe29
-> # bad: [3f70356edf5611c28a68d8d5a9c2b442c9eb81e6] swiotlb: merge swiotlb-xen initialization into swiotlb
-> git bisect bad 3f70356edf5611c28a68d8d5a9c2b442c9eb81e6
-> # good: [f39f8d0eb081407e470396fd4cc376c526d13066] MIPS/octeon: use swiotlb_init instead of open coding it
-> git bisect good f39f8d0eb081407e470396fd4cc376c526d13066
-> # bad: [c6af2aa9ffc9763826607bc2664ef3ea4475ed18] swiotlb: make the swiotlb_init interface more useful
-> git bisect bad c6af2aa9ffc9763826607bc2664ef3ea4475ed18
-> # bad: [a3e230926708125205ffd06d3dc2175a8263ae7e] x86: centralize setting SWIOTLB_FORCE when guest memory encryption is enabled
-> git bisect bad a3e230926708125205ffd06d3dc2175a8263ae7e
-> # bad: [78013eaadf696d2105982abb4018fbae394ca08f] x86: remove the IOMMU table infrastructure
-> git bisect bad 78013eaadf696d2105982abb4018fbae394ca08f
-> # first bad commit: [78013eaadf696d2105982abb4018fbae394ca08f] x86: remove the IOMMU table infrastructure
-> $
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for the report. To be sure below issue doesn't fall through the
-cracks unnoticed, I'm adding it to regzbot, my Linux kernel regression
-tracking bot:
+Hi!
 
-#regzbot ^introduced 78013eaadf696d2105982abb4018fbae394ca08
-#regzbot title dma/iommu/gart/usb: USB errors during boot
-#regzbot ignore-activity
+> This is the start of the stable review cycle for the 4.9.326 release.
+> There are 98 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-This isn't a regression? This issue or a fix for it are already
-discussed somewhere else? It was fixed already? You want to clarify when
-the regression started to happen? Or point out I got the title or
-something else totally wrong? Then just reply -- ideally with also
-telling regzbot about it, as explained here:
-https://linux-regtracking.leemhuis.info/tracked-regression/
+CIP testing did not find any problems here:
 
-Reminder for developers: When fixing the issue, add 'Link:' tags
-pointing to the report (the mail this one replies to), as explained for
-in the Linux kernel's documentation; above webpage explains why this is
-important for tracked regressions.
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.9.y
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYwXmAgAKCRAw5/Bqldv6
+8orYAJ9cSHQXF1s6CyDTOWn9yxSCC3k3KACfbRiHkgmXlleC+qycjv0obQyNPbQ=
+=wjLW
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--
