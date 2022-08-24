@@ -2,167 +2,231 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78CB459F513
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 10:22:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DB259F588
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 10:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235987AbiHXIW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 04:22:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32846 "EHLO
+        id S233729AbiHXIqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 04:46:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235986AbiHXIWJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 04:22:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1930956A3
-        for <stable@vger.kernel.org>; Wed, 24 Aug 2022 01:21:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661329318;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kaKoJSFhkLs3j9BMMpW4Sul91GROScQNC38GatdEuPY=;
-        b=ftOp+I0P4rEOIt2ICz80cqZsX8j9OFF0uiUtQQFsEZ5AG7dAI/bJZWI156rvxdyq/mgGkV
-        sPuvLq2en/7teneaD7ZL2/fESrKvnj+IgIwT8fBS4M7lmGkAUxU657II6bTFZG2FAaqM78
-        wn1hp2vTav0wWNfVnQPQSQtKsJmtSKA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-382-z_pYiZ0ZPpWSNP_L2wDy6g-1; Wed, 24 Aug 2022 04:21:57 -0400
-X-MC-Unique: z_pYiZ0ZPpWSNP_L2wDy6g-1
-Received: by mail-wm1-f70.google.com with SMTP id ay21-20020a05600c1e1500b003a6271a9718so8872138wmb.0
-        for <stable@vger.kernel.org>; Wed, 24 Aug 2022 01:21:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc;
-        bh=kaKoJSFhkLs3j9BMMpW4Sul91GROScQNC38GatdEuPY=;
-        b=UkibgRCFm1PUCjOteq3YFr5Ey2THEuNLRkeukagJnPii8yiGd/nLTpngngmEtV1Gja
-         9F6f/G+C9aE6g3p+3hCr3g2O9nXWXnr1xL2VwRKlrY5bBGOzXB73oG/8SRxi7TP7jm5X
-         n6mPQwlhKhn4MPgAnfGHT8DFtfPIZSREQjtEOMWsUUDUPqEUUvSnjT5dMSwiiDGjDa3i
-         HkgF1kgjizDNCldfJeV4753isVzs23Q+2Bq0PHZd2mYVSlM+yUC9XPaC8aRrjxYhHz01
-         f3auQhlQtTxeXNwsessSqDWUl5ZXVXXsOOzYRmwtt2MdPUHrwDhp8iRnG7ExAz6aVCkN
-         0Cyw==
-X-Gm-Message-State: ACgBeo1pPbY8mxZ2RjeB2T2euxPIXA0RyTQHGF56ncAeDYArKzRlMUat
-        HCFA8kUwfmBSbO0L+bj9Ajj3PffpJfCcA3M5jcHjdmz5cSjEFuYwK6g82oQsS6yRawVAX9KIhFo
-        Etx/afi88n88zIOfD
-X-Received: by 2002:adf:f644:0:b0:225:4cb4:c2f6 with SMTP id x4-20020adff644000000b002254cb4c2f6mr9491240wrp.552.1661329316184;
-        Wed, 24 Aug 2022 01:21:56 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4X7X3tYyJSmiUUp6I0Ru0wIROQJojmCwOUf92jP2yjlZsNTJSwC4WCw77h1/+kLqgmchleqA==
-X-Received: by 2002:adf:f644:0:b0:225:4cb4:c2f6 with SMTP id x4-20020adff644000000b002254cb4c2f6mr9491224wrp.552.1661329315912;
-        Wed, 24 Aug 2022 01:21:55 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c707:c500:5445:cf40:2e32:6e73? (p200300cbc707c5005445cf402e326e73.dip0.t-ipconnect.de. [2003:cb:c707:c500:5445:cf40:2e32:6e73])
-        by smtp.gmail.com with ESMTPSA id v5-20020a1cac05000000b003a626055569sm1122379wme.16.2022.08.24.01.21.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 24 Aug 2022 01:21:55 -0700 (PDT)
-Message-ID: <86b0622d-06eb-cfab-2ff1-8a0eaf823f8a@redhat.com>
-Date:   Wed, 24 Aug 2022 10:21:54 +0200
+        with ESMTP id S236169AbiHXIqE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 04:46:04 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37CBC74DE3;
+        Wed, 24 Aug 2022 01:46:00 -0700 (PDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1oQm1O-0005uy-OU; Wed, 24 Aug 2022 10:45:58 +0200
+Message-ID: <64f160e0-dd9d-ff01-08bd-464da5725f01@leemhuis.info>
+Date:   Wed, 24 Aug 2022 10:45:58 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: [PATCH v3 1/3] mm/migrate_device.c: Flush TLB while holding PTL
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
+Subject: Re: Regression in 5.19.0: USB errors during boot
 Content-Language: en-US
-To:     Alistair Popple <apopple@nvidia.com>, linux-mm@kvack.org,
-        akpm@linux-foundation.org
-Cc:     Peter Xu <peterx@redhat.com>, Nadav Amit <nadav.amit@gmail.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "Sierra Guiza, Alejandro (Alex)" <alex.sierra@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
-        Logan Gunthorpe <logang@deltatee.com>, paulus@ozlabs.org,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-References: <3b01af093515ce2960ac39bb16ff77473150d179.1661309831.git-series.apopple@nvidia.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <3b01af093515ce2960ac39bb16ff77473150d179.1661309831.git-series.apopple@nvidia.com>
+To:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <25342.20092.262450.330346@wylie.me.uk>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <25342.20092.262450.330346@wylie.me.uk>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1661330761;a6886e98;
+X-HE-SMSGID: 1oQm1O-0005uy-OU
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 24.08.22 05:03, Alistair Popple wrote:
-> When clearing a PTE the TLB should be flushed whilst still holding the
-> PTL to avoid a potential race with madvise/munmap/etc. For example
-> consider the following sequence:
-> 
->   CPU0                          CPU1
->   ----                          ----
-> 
->   migrate_vma_collect_pmd()
->   pte_unmap_unlock()
->                                 madvise(MADV_DONTNEED)
->                                 -> zap_pte_range()
->                                 pte_offset_map_lock()
->                                 [ PTE not present, TLB not flushed ]
->                                 pte_unmap_unlock()
->                                 [ page is still accessible via stale TLB ]
->   flush_tlb_range()
-> 
-> In this case the page may still be accessed via the stale TLB entry
-> after madvise returns. Fix this by flushing the TLB while holding the
-> PTL.
-> 
-> Signed-off-by: Alistair Popple <apopple@nvidia.com>
-> Reported-by: Nadav Amit <nadav.amit@gmail.com>
-> Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
-> Cc: stable@vger.kernel.org
-> 
-> ---
-> 
-> Changes for v3:
-> 
->  - New for v3
-> ---
->  mm/migrate_device.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/mm/migrate_device.c b/mm/migrate_device.c
-> index 27fb37d..6a5ef9f 100644
-> --- a/mm/migrate_device.c
-> +++ b/mm/migrate_device.c
-> @@ -254,13 +254,14 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
->  		migrate->dst[migrate->npages] = 0;
->  		migrate->src[migrate->npages++] = mpfn;
->  	}
-> -	arch_leave_lazy_mmu_mode();
-> -	pte_unmap_unlock(ptep - 1, ptl);
->  
->  	/* Only flush the TLB if we actually modified any entries */
->  	if (unmapped)
->  		flush_tlb_range(walk->vma, start, end);
->  
-> +	arch_leave_lazy_mmu_mode();
-> +	pte_unmap_unlock(ptep - 1, ptl);
-> +
->  	return 0;
->  }
->  
-> 
-> base-commit: ffcf9c5700e49c0aee42dcba9a12ba21338e8136
+[TLDR: I'm adding this regression report to the list of tracked
+regressions; all text from me you find below is based on a few templates
+paragraphs you might have encountered already already in similar form.]
 
-I'm not a TLB-flushing expert, but this matches my understanding (and a
-TLB flushing Linux documentation I stumbled over some while ago but
-cannot quickly find).
+On 18.08.22 16:36, Alan J. Wylie wrote:
+> 
+> Apologies for the delay in reporting this: I messed up my first attempt at
+> bisecting, then I've spent a week going to, enjoying, returning from and
+> recovering from a music festival.
+> 
+> Up to and including 5.18.18 things are fine. With 5.19.0 (and .1 and .2)  I see
+> lots of errors and hangs on the USB2 chipset, e.g.
+> 
+> $ grep "usb 9-4" dmesg.5.19.2
+> [    6.669075] usb 9-4: new full-speed USB device number 2 using ohci-pci
+> [    6.829087] usb 9-4: device descriptor read/64, error -32
+> [    7.097094] usb 9-4: device descriptor read/64, error -32
+> [    7.361087] usb 9-4: new full-speed USB device number 3 using ohci-pci
+> [    7.521152] usb 9-4: device descriptor read/64, error -32
+> [    7.789066] usb 9-4: device descriptor read/64, error -32
+> [    8.081070] usb 9-4: new full-speed USB device number 4 using ohci-pci
+> [    8.497138] usb 9-4: device not accepting address 4, error -32
+> [    8.653140] usb 9-4: new full-speed USB device number 5 using ohci-pci
+> [    9.069141] usb 9-4: device not accepting address 5, error -32
+> $
+> 
+> $ grep "usb 1-2" dmesg.5.19.2
+> [    5.917102] usb 1-2: new high-speed USB device number 2 using ehci-pci
+> [    6.277076] usb 1-2: device descriptor read/64, error -71
+> [    6.513143] usb 1-2: device descriptor read/64, error -32
+> [    6.753146] usb 1-2: new high-speed USB device number 3 using ehci-pci
+> [    6.881143] usb 1-2: device descriptor read/64, error -32
+> [    7.117144] usb 1-2: device descriptor read/64, error -32
+> [    7.429141] usb 1-2: new high-speed USB device number 4 using ehci-pci
+> [    7.845134] usb 1-2: device not accepting address 4, error -32
+> [    7.977142] usb 1-2: new high-speed USB device number 5 using ehci-pci
+> [    8.393158] usb 1-2: device not accepting address 5, error -32
+> $
+> 
+> the USB port is then no longer usable
+> 
+> This is not reproducible on the other chipset (USB3) on this machine,
+> nor on two other systems. Swapping USB cables doesn't help.
+> 
+> I have bisected it to
+> 
+> $ git bisect bad
+> 78013eaadf696d2105982abb4018fbae394ca08f is the first bad commit
+> commit 78013eaadf696d2105982abb4018fbae394ca08f
+> Author: Christoph Hellwig <hch@lst.de>
+> Date:   Mon Feb 14 14:11:44 2022 +0100
+> 
+>     x86: remove the IOMMU table infrastructure
+> 
+> however it will not easily revert
+> 
+> I'll be more than happy to assist with any debugging/testing.
+> 
+> $ git revert 78013eaadf696d2105982abb4018fbae394ca08f
+> Auto-merging arch/x86/include/asm/dma-mapping.h
+> CONFLICT (content): Merge conflict in arch/x86/include/asm/dma-mapping.h
+> Auto-merging arch/x86/include/asm/iommu.h
+> Auto-merging arch/x86/include/asm/xen/swiotlb-xen.h
+> Auto-merging arch/x86/kernel/Makefile
+> Auto-merging arch/x86/kernel/pci-dma.c
+> CONFLICT (content): Merge conflict in arch/x86/kernel/pci-dma.c
+> Auto-merging arch/x86/kernel/vmlinux.lds.S
+> Auto-merging drivers/iommu/amd/init.c
+> Auto-merging drivers/iommu/amd/iommu.c
+> CONFLICT (content): Merge conflict in drivers/iommu/amd/iommu.c
+> Auto-merging drivers/iommu/intel/dmar.c
+> error: could not revert 78013eaadf69... x86: remove the IOMMU table infrastructure
+> 
+> # dmidecode  | grep -A2 "^Base Board"
+> Base Board Information
+>      Manufacturer: Gigabyte Technology Co., Ltd.
+>      Product Name: 970A-DS3P
+> #
+> 
+> # lspci -nn | grep -i usb
+> 00:12.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
+> 00:12.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
+> 00:13.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
+> 00:13.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
+> 00:14.5 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI2 Controller [1002:4399]
+> 00:16.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
+> 00:16.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
+> 02:00.0 USB controller [0c03]: VIA Technologies, Inc. VL805/806 xHCI USB 3.0 Controller [1106:3483] (rev 01)
+> #
+> 
+> # lspci -v -s 00:12
+> 00:12.0 USB controller: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller (prog-if 10 [OHCI])
+> 	Subsystem: Gigabyte Technology Co., Ltd GA-880GMA-USB3
+> 	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 18
+> 	Memory at fe50a000 (32-bit, non-prefetchable) [size=4K]
+> 	Kernel driver in use: ohci-pci
+> 				 	Kernel modules: ohci_pci
+> 00:12.2 USB controller: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller (prog-if 20 [EHCI])
+> 	Subsystem: Gigabyte Technology Co., Ltd GA-880GMA-USB3
+> 	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 17
+> 	Memory at fe509000 (32-bit, non-prefetchable) [size=256]
+> 	Capabilities: [c0] Power Management version 2
+> 	Capabilities: [e4] Debug port: BAR=1 offset=00e0
+> 	Kernel driver in use: ehci-pci
+> 	Kernel modules: ehci_pci
+> #
+> 
+> # lsusb
+> Bus 005 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+> Bus 009 Device 002: ID 067b:2303 Prolific Technology, Inc. PL2303 Serial Port / Mobile Action MA-8910P
+> Bus 009 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+> Bus 008 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+> Bus 004 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+> Bus 007 Device 002: ID 03f0:0317 HP, Inc LaserJet 1200
+> Bus 007 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+> Bus 001 Device 002: ID 04e8:6860 Samsung Electronics Co., Ltd Galaxy A5 (MTP)
+> Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+> Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+> Bus 003 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+> Bus 002 Device 002: ID 2109:3431 VIA Labs, Inc. Hub
+> Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+> #
+> 
+> $ git bisect log
+> git bisect start
+> # good: [4b0986a3613c92f4ec1bdc7f60ec66fea135991f] Linux 5.18
+> git bisect good 4b0986a3613c92f4ec1bdc7f60ec66fea135991f
+> # good: [07e0b709cab7dc987b5071443789865e20481119] Linux 5.18.18
+> git bisect good 07e0b709cab7dc987b5071443789865e20481119
+> # bad: [3d7cb6b04c3f3115719235cc6866b10326de34cd] Linux 5.19
+> git bisect bad 3d7cb6b04c3f3115719235cc6866b10326de34cd
+> # bad: [c011dd537ffe47462051930413fed07dbdc80313] Merge tag 'arm-soc-5.19' of git://git.kernel.org/pub/scm/linux/kernel/git/soc/soc
+> git bisect bad c011dd537ffe47462051930413fed07dbdc80313
+> # good: [7e062cda7d90543ac8c7700fc7c5527d0c0f22ad] Merge tag 'net-next-5.19' of git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next
+> git bisect good 7e062cda7d90543ac8c7700fc7c5527d0c0f22ad
+> # good: [f8122500a039abeabfff41b0ad8b6a2c94c1107d] Merge branch 'etnaviv/next' of https://git.pengutronix.de/git/lst/linux into drm-next
+> git bisect good f8122500a039abeabfff41b0ad8b6a2c94c1107d
+> # good: [2518f226c60d8e04d18ba4295500a5b0b8ac7659] Merge tag 'drm-next-2022-05-25' of git://anongit.freedesktop.org/drm/drm
+> git bisect good 2518f226c60d8e04d18ba4295500a5b0b8ac7659
+> # good: [f7a344468105ef8c54086dfdc800e6f5a8417d3e] ASoC: max98090: Move check for invalid values before casting in max98090_put_enab_tlv()
+> git bisect good f7a344468105ef8c54086dfdc800e6f5a8417d3e
+> # good: [fbe86daca0ba878b04fa241b85e26e54d17d4229] Merge tag 'scsi-misc' of git://git.kernel.org/pub/scm/linux/kernel/git/jejb/scsi
+> git bisect good fbe86daca0ba878b04fa241b85e26e54d17d4229
+> # good: [709c8632597c3276cd21324b0256628f1a7fd4df] xfs: rework deferred attribute operation setup
+> git bisect good 709c8632597c3276cd21324b0256628f1a7fd4df
+> # bad: [babf0bb978e3c9fce6c4eba6b744c8754fd43d8e] Merge tag 'xfs-5.19-for-linus' of git://git.kernel.org/pub/scm/fs/xfs/xfs-linux
+> git bisect bad babf0bb978e3c9fce6c4eba6b744c8754fd43d8e
+> # bad: [8b728edc5be161799434cc17e1279db2f8eabe29] Merge tag 'fs_for_v5.19-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs
+> git bisect bad 8b728edc5be161799434cc17e1279db2f8eabe29
+> # bad: [3f70356edf5611c28a68d8d5a9c2b442c9eb81e6] swiotlb: merge swiotlb-xen initialization into swiotlb
+> git bisect bad 3f70356edf5611c28a68d8d5a9c2b442c9eb81e6
+> # good: [f39f8d0eb081407e470396fd4cc376c526d13066] MIPS/octeon: use swiotlb_init instead of open coding it
+> git bisect good f39f8d0eb081407e470396fd4cc376c526d13066
+> # bad: [c6af2aa9ffc9763826607bc2664ef3ea4475ed18] swiotlb: make the swiotlb_init interface more useful
+> git bisect bad c6af2aa9ffc9763826607bc2664ef3ea4475ed18
+> # bad: [a3e230926708125205ffd06d3dc2175a8263ae7e] x86: centralize setting SWIOTLB_FORCE when guest memory encryption is enabled
+> git bisect bad a3e230926708125205ffd06d3dc2175a8263ae7e
+> # bad: [78013eaadf696d2105982abb4018fbae394ca08f] x86: remove the IOMMU table infrastructure
+> git bisect bad 78013eaadf696d2105982abb4018fbae394ca08f
+> # first bad commit: [78013eaadf696d2105982abb4018fbae394ca08f] x86: remove the IOMMU table infrastructure
+> $
 
-In the ordinary try_to_migrate_one() path, flushing would happen via
-ptep_clear_flush() (just like we do for the anon_exclusive case here as
-well), correct?
+Thanks for the report. To be sure below issue doesn't fall through the
+cracks unnoticed, I'm adding it to regzbot, my Linux kernel regression
+tracking bot:
 
--- 
-Thanks,
+#regzbot ^introduced 78013eaadf696d2105982abb4018fbae394ca08
+#regzbot title dma/iommu/gart/usb: USB errors during boot
+#regzbot ignore-activity
 
-David / dhildenb
+This isn't a regression? This issue or a fix for it are already
+discussed somewhere else? It was fixed already? You want to clarify when
+the regression started to happen? Or point out I got the title or
+something else totally wrong? Then just reply -- ideally with also
+telling regzbot about it, as explained here:
+https://linux-regtracking.leemhuis.info/tracked-regression/
 
+Reminder for developers: When fixing the issue, add 'Link:' tags
+pointing to the report (the mail this one replies to), as explained for
+in the Linux kernel's documentation; above webpage explains why this is
+important for tracked regressions.
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
