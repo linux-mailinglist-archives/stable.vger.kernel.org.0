@@ -2,176 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3EB359FC39
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 15:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D9459FC56
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 15:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238709AbiHXNwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 09:52:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51294 "EHLO
+        id S235966AbiHXNzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 09:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237446AbiHXNwT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 09:52:19 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6547198CA0
-        for <stable@vger.kernel.org>; Wed, 24 Aug 2022 06:48:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1661348899; x=1692884899;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=GXdPhCs+OiXL6atbTQKesx51GVza2ZRqHVt6nYJiM6g=;
-  b=NdKUNoPMdB9IjL6yCL0dbhnzrMwk2xnXgDMDATRF3UktinG+vfWtGjz4
-   AhMpDdknhDqnzNO3HU0x6TKcCIbQFGiwj3S5xck5JEu8MBqKAfNVzoQUv
-   TZkE+pIR2ZHP4uMyWlWIwIw561OlpN5y7ffQJ0obBDhiuWqAnjdjAl4V7
-   gj8EY8QzYylIeX9BJQRXqNLzOwnSn/T5Of5uMlNrwkW3sXeQgszIv38Vf
-   jgdo/G8SppEd3w57Rcde+g+9HJp3rESRu7KcxxpmW6LAGpc14VgLLvzjh
-   cnf556Hs21t0fyeX3pUMHPBu4qRleoI94iRAOgvzflQNw76QNon4lactc
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10449"; a="320031012"
-X-IronPort-AV: E=Sophos;i="5.93,260,1654585200"; 
-   d="scan'208";a="320031012"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2022 06:46:43 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,260,1654585200"; 
-   d="scan'208";a="609764547"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.59])
-  by orsmga002.jf.intel.com with SMTP; 24 Aug 2022 06:46:40 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 24 Aug 2022 16:46:39 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     dri-devel@lists.freedesktop.org
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH v2] drm/edid: Handle EDID 1.4 range descriptor h/vfreq offsets
-Date:   Wed, 24 Aug 2022 16:46:39 +0300
-Message-Id: <20220824134639.8454-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220819092728.14753-1-ville.syrjala@linux.intel.com>
-References: <20220819092728.14753-1-ville.syrjala@linux.intel.com>
+        with ESMTP id S235274AbiHXNyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 09:54:50 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB8C84ED9
+        for <stable@vger.kernel.org>; Wed, 24 Aug 2022 06:52:29 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 2D3933438E;
+        Wed, 24 Aug 2022 13:52:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1661349148; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=UBVLAYB9K4zmo9TpX8miaAEpcH8Dab5FCfyS14SUX24=;
+        b=oBaa3LMpCYpvXveNcirVOlKG1B4rTnR0gIGEeC/lIsgWpqZn/bte0Yt7y861AGbqJghUVk
+        beVaZ84sxNnhb0GpPnMgmg9Sf2HBQbSusz08bX9b6gkopfyGzEbSO7qzJBKJeHDNZzkPGO
+        AcmDsdftBlEA/wwF4S5QBI9R4Qr9Cyc=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 068A613780;
+        Wed, 24 Aug 2022 13:52:28 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id bWMbABwtBmNcdgAAMHmgww
+        (envelope-from <jgross@suse.com>); Wed, 24 Aug 2022 13:52:28 +0000
+Message-ID: <1199e064-3311-09cd-283f-d74d5f5c48e3@suse.com>
+Date:   Wed, 24 Aug 2022 15:52:27 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: Backport request
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+References: <f02f8fb3-2e68-a405-aaef-adc769754bd3@suse.com>
+ <YwYVIgnHnKUnoChu@kroah.com>
+From:   Juergen Gross <jgross@suse.com>
+In-Reply-To: <YwYVIgnHnKUnoChu@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------0Ho7txo44F4Pz1EBqHbGrKoo"
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------0Ho7txo44F4Pz1EBqHbGrKoo
+Content-Type: multipart/mixed; boundary="------------tUyxgDTQAqmIJA8oEnyUuwpp";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "stable@vger.kernel.org" <stable@vger.kernel.org>,
+ Lai Jiangshan <jiangshanlai@gmail.com>,
+ "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+Message-ID: <1199e064-3311-09cd-283f-d74d5f5c48e3@suse.com>
+Subject: Re: Backport request
+References: <f02f8fb3-2e68-a405-aaef-adc769754bd3@suse.com>
+ <YwYVIgnHnKUnoChu@kroah.com>
+In-Reply-To: <YwYVIgnHnKUnoChu@kroah.com>
 
-EDID 1.4 introduced some extra flags in the range
-descriptor to support min/max h/vfreq >= 255. Consult them
-to correctly parse the vfreq limits.
+--------------tUyxgDTQAqmIJA8oEnyUuwpp
+Content-Type: multipart/mixed; boundary="------------3Prv0lK3oZQzkdrsP0xjOYXj"
 
-Note that some combinations of the flags are documented
-as "reserved" (as are some other values in the descriptor)
-but explicitly checking for those doesn't seem particularly
-worthwile since we end up with bogus results whether we
-decode them or not.
+--------------3Prv0lK3oZQzkdrsP0xjOYXj
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-v2: Increase the storage to u16 to make it work (Jani)
-    Note the "reserved" values situation (Jani)
+T24gMjQuMDguMjIgMTQ6MTAsIEdyZWcgS3JvYWgtSGFydG1hbiB3cm90ZToNCj4gT24gV2Vk
+LCBBdWcgMjQsIDIwMjIgYXQgMDE6MjA6MjJQTSArMDIwMCwgSnVlcmdlbiBHcm9zcyB3cm90
+ZToNCj4+IEhpIEdyZWcsDQo+Pg0KPj4gc3RhYmxlIGtlcm5lbHMgNS4xOCBhbmQgNS4xNSBz
+ZWVtIHRvIGJlIG1pc3NpbmcgdXBzdHJlYW0gcGF0Y2gNCj4+IGM2NGNjMjgwMmE3OCAoIng4
+Ni9lbnRyeTogTW92ZSBDTEQgdG8gdGhlIHN0YXJ0IG9mIHRoZSBpZHRlbnRyeSBtYWNybyIp
+Lg0KPj4gVGhpcyBpcyBhIHByZXJlcXVpc2l0ZSBwYXRjaCBmb3IgNjRjYmQwYWNiNTgyICgi
+eDg2L2VudHJ5OiBEb24ndCBjYWxsDQo+PiBlcnJvcl9lbnRyeSgpIGZvciBYRU5QViIpLCB3
+aGljaCBpcyBpbmNsdWRlZCBpbiA1LjE1LnkgYW5kIDUuMTgueS4NCj4+DQo+PiBDb3VsZCB5
+b3UgcGxlYXNlIHRha2UgYzY0Y2MyODAyYTc4IGZvciA1LjE1IGFuZCA1LjE4Pw0KPiANCj4g
+NS4xOCBpcyBlbmQtb2YtbGlmZSwgc28gdGhhdCdzIGltcG9zc2libGUgdG8gZG8gbm93IDoo
+DQo+IA0KPiBGb3IgNS4xNS55LCB0aGUgY29tbWl0IGRvZXMgbm90IGFwcGx5IGNsZWFubHks
+IGNhbiB5b3UgcHJvdmlkZSBhIHdvcmtpbmcNCj4gYmFja3BvcnQ/DQoNCkF0dGFjaGVkLg0K
+DQoNCkp1ZXJnZW4NCg0K
+--------------3Prv0lK3oZQzkdrsP0xjOYXj
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-x86-entry-Move-CLD-to-the-start-of-the-idtentry-macr.patch"
+Content-Disposition: attachment;
+ filename*0="0001-x86-entry-Move-CLD-to-the-start-of-the-idtentry-macr.pa";
+ filename*1="tch"
+Content-Transfer-Encoding: base64
 
-Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6519
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/drm_edid.c  | 24 ++++++++++++++++++------
- include/drm/drm_connector.h |  4 ++--
- include/drm/drm_edid.h      |  5 +++++
- 3 files changed, 25 insertions(+), 8 deletions(-)
+RnJvbSAwODJmNDBlODBjMTVjN2IxMTczYzA4NTcwMTRlMzBlZWYxNDcxYWZkIE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBMYWkgSmlhbmdzaGFuIDxqaWFuZ3NoYW4ubGpzQGFu
+dGdyb3VwLmNvbT4KRGF0ZTogVGh1LCAyMSBBcHIgMjAyMiAyMjoxMDo1MSArMDgwMApTdWJq
+ZWN0OiBbUEFUQ0hdIHg4Ni9lbnRyeTogTW92ZSBDTEQgdG8gdGhlIHN0YXJ0IG9mIHRoZSBp
+ZHRlbnRyeSBtYWNybwoKY29tbWl0IGM2NGNjMjgwMmE3ODRlY2ZkMjVkMzk5NDVlNTdlN2Ex
+NDc4NTRhNWIgdXBzdHJlYW0uCgpNb3ZlIGl0IGFmdGVyIENMQUMuCgpTdWdnZXN0ZWQtYnk6
+IFBldGVyIFppamxzdHJhIDxwZXRlcnpAaW5mcmFkZWFkLm9yZz4KU2lnbmVkLW9mZi1ieTog
+TGFpIEppYW5nc2hhbiA8amlhbmdzaGFuLmxqc0BhbnRncm91cC5jb20+ClNpZ25lZC1vZmYt
+Ynk6IEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5kZT4KTGluazogaHR0cHM6Ly9sb3JlLmtl
+cm5lbC5vcmcvci8yMDIyMDUwMzAzMjEwNy42ODAxOTAtNS1qaWFuZ3NoYW5sYWlAZ21haWwu
+Y29tClNpZ25lZC1vZmYtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4KLS0t
+CiBhcmNoL3g4Ni9lbnRyeS9lbnRyeV82NC5TIHwgOCArKysrKy0tLQogMSBmaWxlIGNoYW5n
+ZWQsIDUgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9hcmNo
+L3g4Ni9lbnRyeS9lbnRyeV82NC5TIGIvYXJjaC94ODYvZW50cnkvZW50cnlfNjQuUwppbmRl
+eCA3NjNmZjI0M2FlY2EuLmEzYWYyYTkxNTliMSAxMDA2NDQKLS0tIGEvYXJjaC94ODYvZW50
+cnkvZW50cnlfNjQuUworKysgYi9hcmNoL3g4Ni9lbnRyeS9lbnRyeV82NC5TCkBAIC0zNzMs
+NiArMzczLDcgQEAgU1lNX0NPREVfRU5EKHhlbl9lcnJvcl9lbnRyeSkKIFNZTV9DT0RFX1NU
+QVJUKFxhc21zeW0pCiAJVU5XSU5EX0hJTlRfSVJFVF9SRUdTIG9mZnNldD1caGFzX2Vycm9y
+X2NvZGUqOAogCUFTTV9DTEFDCisJY2xkCiAKIAkuaWYgXGhhc19lcnJvcl9jb2RlID09IDAK
+IAkJcHVzaHEJJC0xCQkJLyogT1JJR19SQVg6IG5vIHN5c2NhbGwgdG8gcmVzdGFydCAqLwpA
+QCAtNDQwLDYgKzQ0MSw3IEBAIFNZTV9DT0RFX0VORChcYXNtc3ltKQogU1lNX0NPREVfU1RB
+UlQoXGFzbXN5bSkKIAlVTldJTkRfSElOVF9JUkVUX1JFR1MKIAlBU01fQ0xBQworCWNsZAog
+CiAJcHVzaHEJJC0xCQkJLyogT1JJR19SQVg6IG5vIHN5c2NhbGwgdG8gcmVzdGFydCAqLwog
+CkBAIC00OTUsNiArNDk3LDcgQEAgU1lNX0NPREVfRU5EKFxhc21zeW0pCiBTWU1fQ09ERV9T
+VEFSVChcYXNtc3ltKQogCVVOV0lORF9ISU5UX0lSRVRfUkVHUwogCUFTTV9DTEFDCisJY2xk
+CiAKIAkvKgogCSAqIElmIHRoZSBlbnRyeSBpcyBmcm9tIHVzZXJzcGFjZSwgc3dpdGNoIHN0
+YWNrcyBhbmQgdHJlYXQgaXQgYXMKQEAgLTU1Nyw2ICs1NjAsNyBAQCBTWU1fQ09ERV9FTkQo
+XGFzbXN5bSkKIFNZTV9DT0RFX1NUQVJUKFxhc21zeW0pCiAJVU5XSU5EX0hJTlRfSVJFVF9S
+RUdTIG9mZnNldD04CiAJQVNNX0NMQUMKKwljbGQKIAogCS8qIHBhcmFub2lkX2VudHJ5IHJl
+dHVybnMgR1MgaW5mb3JtYXRpb24gZm9yIHBhcmFub2lkX2V4aXQgaW4gRUJYLiAqLwogCWNh
+bGwJcGFyYW5vaWRfZW50cnkKQEAgLTg3Niw3ICs4ODAsNiBAQCBTWU1fQ09ERV9FTkQoeGVu
+X2ZhaWxzYWZlX2NhbGxiYWNrKQogICovCiBTWU1fQ09ERV9TVEFSVF9MT0NBTChwYXJhbm9p
+ZF9lbnRyeSkKIAlVTldJTkRfSElOVF9GVU5DCi0JY2xkCiAJUFVTSF9BTkRfQ0xFQVJfUkVH
+UyBzYXZlX3JldD0xCiAJRU5DT0RFX0ZSQU1FX1BPSU5URVIgOAogCkBAIC0xMDEyLDcgKzEw
+MTUsNiBAQCBTWU1fQ09ERV9FTkQocGFyYW5vaWRfZXhpdCkKICAqLwogU1lNX0NPREVfU1RB
+UlRfTE9DQUwoZXJyb3JfZW50cnkpCiAJVU5XSU5EX0hJTlRfRlVOQwotCWNsZAogCiAJUFVT
+SF9BTkRfQ0xFQVJfUkVHUyBzYXZlX3JldD0xCiAJRU5DT0RFX0ZSQU1FX1BPSU5URVIgOApA
+QCAtMTE1NSw2ICsxMTU3LDcgQEAgU1lNX0NPREVfU1RBUlQoYXNtX2V4Y19ubWkpCiAJICov
+CiAKIAlBU01fQ0xBQworCWNsZAogCiAJLyogVXNlICVyZHggYXMgb3VyIHRlbXAgdmFyaWFi
+bGUgdGhyb3VnaG91dCAqLwogCXB1c2hxCSVyZHgKQEAgLTExNzQsNyArMTE3Nyw2IEBAIFNZ
+TV9DT0RFX1NUQVJUKGFzbV9leGNfbm1pKQogCSAqLwogCiAJc3dhcGdzCi0JY2xkCiAJRkVO
+Q0VfU1dBUEdTX1VTRVJfRU5UUlkKIAlTV0lUQ0hfVE9fS0VSTkVMX0NSMyBzY3JhdGNoX3Jl
+Zz0lcmR4CiAJbW92cQklcnNwLCAlcmR4Ci0tIAoyLjM1LjMKCg==
+--------------3Prv0lK3oZQzkdrsP0xjOYXj
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index 90a5e26eafa8..4005dab6147d 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -6020,12 +6020,14 @@ static void drm_parse_cea_ext(struct drm_connector *connector,
- }
- 
- static
--void get_monitor_range(const struct detailed_timing *timing,
--		       void *info_monitor_range)
-+void get_monitor_range(const struct detailed_timing *timing, void *c)
- {
--	struct drm_monitor_range_info *monitor_range = info_monitor_range;
-+	struct detailed_mode_closure *closure = c;
-+	struct drm_display_info *info = &closure->connector->display_info;
-+	struct drm_monitor_range_info *monitor_range = &info->monitor_range;
- 	const struct detailed_non_pixel *data = &timing->data.other_data;
- 	const struct detailed_data_monitor_range *range = &data->data.range;
-+	const struct edid *edid = closure->drm_edid->edid;
- 
- 	if (!is_display_descriptor(timing, EDID_DETAIL_MONITOR_RANGE))
- 		return;
-@@ -6041,18 +6043,28 @@ void get_monitor_range(const struct detailed_timing *timing,
- 
- 	monitor_range->min_vfreq = range->min_vfreq;
- 	monitor_range->max_vfreq = range->max_vfreq;
-+
-+	if (edid->revision >= 4) {
-+		if (data->pad2 & DRM_EDID_RANGE_OFFSET_MIN_VFREQ)
-+			monitor_range->min_vfreq += 255;
-+		if (data->pad2 & DRM_EDID_RANGE_OFFSET_MAX_VFREQ)
-+			monitor_range->max_vfreq += 255;
-+	}
- }
- 
- static void drm_get_monitor_range(struct drm_connector *connector,
- 				  const struct drm_edid *drm_edid)
- {
--	struct drm_display_info *info = &connector->display_info;
-+	const struct drm_display_info *info = &connector->display_info;
-+	struct detailed_mode_closure closure = {
-+		.connector = connector,
-+		.drm_edid = drm_edid,
-+	};
- 
- 	if (!version_greater(drm_edid, 1, 1))
- 		return;
- 
--	drm_for_each_detailed_block(drm_edid, get_monitor_range,
--				    &info->monitor_range);
-+	drm_for_each_detailed_block(drm_edid, get_monitor_range, &closure);
- 
- 	DRM_DEBUG_KMS("Supported Monitor Refresh rate range is %d Hz - %d Hz\n",
- 		      info->monitor_range.min_vfreq,
-diff --git a/include/drm/drm_connector.h b/include/drm/drm_connector.h
-index 248206bbd975..56aee949c6fa 100644
---- a/include/drm/drm_connector.h
-+++ b/include/drm/drm_connector.h
-@@ -319,8 +319,8 @@ enum drm_panel_orientation {
-  *             EDID's detailed monitor range
-  */
- struct drm_monitor_range_info {
--	u8 min_vfreq;
--	u8 max_vfreq;
-+	u16 min_vfreq;
-+	u16 max_vfreq;
- };
- 
- /**
-diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
-index 2181977ae683..d81da97cad6e 100644
---- a/include/drm/drm_edid.h
-+++ b/include/drm/drm_edid.h
-@@ -92,6 +92,11 @@ struct detailed_data_string {
- 	u8 str[13];
- } __attribute__((packed));
- 
-+#define DRM_EDID_RANGE_OFFSET_MIN_VFREQ (1 << 0)
-+#define DRM_EDID_RANGE_OFFSET_MAX_VFREQ (1 << 1)
-+#define DRM_EDID_RANGE_OFFSET_MIN_HFREQ (1 << 2)
-+#define DRM_EDID_RANGE_OFFSET_MAX_HFREQ (1 << 3)
-+
- #define DRM_EDID_DEFAULT_GTF_SUPPORT_FLAG   0x00
- #define DRM_EDID_RANGE_LIMITS_ONLY_FLAG     0x01
- #define DRM_EDID_SECONDARY_GTF_SUPPORT_FLAG 0x02
--- 
-2.35.1
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------3Prv0lK3oZQzkdrsP0xjOYXj--
+
+--------------tUyxgDTQAqmIJA8oEnyUuwpp--
+
+--------------0Ho7txo44F4Pz1EBqHbGrKoo
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmMGLRsFAwAAAAAACgkQsN6d1ii/Ey+8
+Dgf/YIZjCyYdv3wDl6Dn2odZQG5UsbRNCx3ISZvCtQ2xGAGU+OBjtc3sBDnWYIniEkjHTrGT3HhV
+wfDuDBQzM3L0HzTnEuAbvLTejKAFKw4qTejCrQxhmbBK0DrHAHt2uRSIJn5sXq37U6DPk6SMeTnC
+IPZDovExn6RUUg0Vlfyw+Maq0YGF1ESnoLRFIZfYQ1z6KSGVOpXhUKfLAMirpRH5Q1uozSA98UFs
+9iexxQe0kDW6TFSzdejWHJzHaVVzlAv1Ev3gmots012A9/ZjzQ3IksOqREZFhUJuWt04eLkkrZ/6
+fF8SAhkhcSqhQuYjVSoaslmWGbbD8Gdu92o1PbtooA==
+=W4tC
+-----END PGP SIGNATURE-----
+
+--------------0Ho7txo44F4Pz1EBqHbGrKoo--
