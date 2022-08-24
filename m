@@ -2,118 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B135959F762
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 12:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D41859F835
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 12:53:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236444AbiHXKXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 06:23:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37952 "EHLO
+        id S236189AbiHXKx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 06:53:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236724AbiHXKXf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 06:23:35 -0400
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B5D74CDC
-        for <stable@vger.kernel.org>; Wed, 24 Aug 2022 03:23:33 -0700 (PDT)
-Received: by mail-wm1-x336.google.com with SMTP id h1so8529656wmd.3
-        for <stable@vger.kernel.org>; Wed, 24 Aug 2022 03:23:33 -0700 (PDT)
+        with ESMTP id S234115AbiHXKx5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 06:53:57 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B223D59B;
+        Wed, 24 Aug 2022 03:53:56 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id y4so15339103plb.2;
+        Wed, 24 Aug 2022 03:53:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc;
-        bh=yz74Ngza1/9c+/7faceWu/qG1cVkpiiucFVOt6nZTzU=;
-        b=BGfmKnMGXzIc1ZBxis4k/ZJhKCwXiDuXTHMbDTbfA2iOELxAZ8MmU9SG0Hu4jjAefY
-         Q24GNcqOzFAn7G1pjdFmJCytTaUDv3Ar/4D0pcBVr3OCd+Aaz4gLTLBgsKdCrXdhCQVo
-         kIhvVBfLKfl770FTQOY5sL1bww4UxTyzOxuizDO6RuUEIlI92AiBrJdzKDFPRZNQ0039
-         XVtVKWIPO3danPoLXwHWnlQrzHaH+kRXxc18B+f/DVWy++yWuF205f1FeHZfxi7zo5eU
-         Hjh8DIXbnKU6oQuRwoBt+Ikpps6l4EaKkxNNb9njGqmn/XVhGkFFh74gnXqga1JMqNM7
-         mguw==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc;
+        bh=KgFV3e5vXq3+ij7enQ64VujlULz+GJAURwvCalzDnrA=;
+        b=V2rNdPmXjcwmCJyqt9VuXc06BRVMsw3YBR9ps5RZtDEvTkSMIRoV9f0Y2P+ZlCs7zS
+         d0WWyfFzvA35qWRUeUcnpe67ItPK6vaXkHKrV72kcvEEAQUyNghibi/kMcuwrJL7AHS7
+         qrK5ht4/wT/ffDxQ0HVs5Z5UN3H3kKuaHr1HZeELaTI6w02H3sFi9v395kDEk/mYGNnX
+         LIpgLBQu6nbYiWvLtf/EGuF1uLgX19uo/K0VSmGosEF03RoCDC+hf80R9MT9vFU3yHdA
+         5Qe9gXg4XYtwCc/kIhEC2eHEBVKYBuf6wsAnOH7PH4yJfXZAKD5ezsX/uyYuU9Q7TwOT
+         I61g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=yz74Ngza1/9c+/7faceWu/qG1cVkpiiucFVOt6nZTzU=;
-        b=rSVZ9yUjWq1qBU4zt6mjY3rSBkFiFpVgzHRUfqZauGDQ1Y0FSQgZ06JT3NYd80uQge
-         ynpgccC+hv8vCs2a1lfFOfTVbxQSGI8kbjreDBrW89Xn0iHasamyMXE02MO5gczZY665
-         Aepe71pNEe9tDE640nvi2w/YLuGIB6BRVVNPO7tPLfNu2rGdKxioFsiBZM/0C9bPrWyI
-         dcIqcOEJAiyso4Xhz/uq9sSdLmBNiUw0AVA29SgL0nk4jdOFAr572IzFIfqO7Ye2fe5A
-         lV+ug1c0OmVW2SU/bLPyGwMT3IOWDZ48OIjXTc8sy1PbIn8myTPKniC8V6SRL1HD6Vs/
-         LBug==
-X-Gm-Message-State: ACgBeo0dGv36hTqvlXxN3vWTN/DXA7zvr6qFvZT94i/WAVceyUr2agQI
-        pT6OsbbjqJL9r19e/tY/139XOA==
-X-Google-Smtp-Source: AA6agR4zuTRt0NDnGFMkDiyNsfe7QXkfipgC8+kycHbpP+6wqJmmXsiGVyx+jgQtnUrFzecn5/zvRw==
-X-Received: by 2002:a05:600c:3508:b0:3a6:10a9:8115 with SMTP id h8-20020a05600c350800b003a610a98115mr4998318wmq.164.1661336612221;
-        Wed, 24 Aug 2022 03:23:32 -0700 (PDT)
-Received: from [192.168.86.238] (cpc90716-aztw32-2-0-cust825.18-1.cable.virginm.net. [86.26.103.58])
-        by smtp.googlemail.com with ESMTPSA id w7-20020adfd4c7000000b002216d6f8ad6sm16522482wrk.2.2022.08.24.03.23.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 24 Aug 2022 03:23:31 -0700 (PDT)
-Message-ID: <39011753-38aa-2979-c6f7-eeff015e515c@linaro.org>
-Date:   Wed, 24 Aug 2022 11:23:29 +0100
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
+        bh=KgFV3e5vXq3+ij7enQ64VujlULz+GJAURwvCalzDnrA=;
+        b=DLk71+3DdnrkFF0uBoegcrEcFsILHQjin4kS6Ev4X09cfOTDj2Jm2HhPR4mCJetXep
+         IPPHblRJ5vBQLF6BJM9pVr2j0XT0fFVHGLgLa18iAn6S/GzbDe/vUcy8wc/bWsnT6mPT
+         x71KFXTPKjwQrdzVvYaIdm8ZwQBu+3akGwPuCOSdZHDSm+YaY0cSyGwvhpVrdCEmHtAK
+         7nJgkFkCnnW/yd+KtcAhmrtOqm+GE1Jxm9bdYmOl49VAw8zw2Q/FNtEdCnnieUWI9u77
+         dkOQistPogpDnuPNSdP2K/SXbuLFBOmagkaxHfEK/XTAaSaLdrz9cL6gH/7HrUpM9f9q
+         SNhQ==
+X-Gm-Message-State: ACgBeo0ZzKK8k/NJaNiX0T/e8Bw9ir1iQbmjrCiyRkWMLr/kNQE/FDFL
+        Cgdqk4uxQRBOD+Olau5j/l8=
+X-Google-Smtp-Source: AA6agR7CavhF7aRf+1jPxZJxKAbi/kcq3ys2LwVFgEk88xO6U4Tb7ktle04vpiGiq4WQtxDm0/3mQw==
+X-Received: by 2002:a17:90b:1c0c:b0:1fb:6b2c:ca9f with SMTP id oc12-20020a17090b1c0c00b001fb6b2cca9fmr6572310pjb.90.1661338435829;
+        Wed, 24 Aug 2022 03:53:55 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id a82-20020a621a55000000b005367c28fd32sm7064209pfa.185.2022.08.24.03.53.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Aug 2022 03:53:54 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 24 Aug 2022 03:53:54 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.19 000/362] 5.19.4-rc2 review
+Message-ID: <20220824105354.GB13261@roeck-us.net>
+References: <20220824065936.861377531@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: Patch "soundwire: qcom: Check device status before reading devid"
- has been added to the 5.15-stable tree
-Content-Language: en-US
-To:     Vinod Koul <vkoul@kernel.org>, Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, stable-commits@vger.kernel.org
-References: <16604006172842@kroah.com> <YwT537rlrckb0/VV@matsya>
- <YwXHtBc2Du+a+rY3@kroah.com> <YwXwaSflH+XCxxWP@matsya>
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-In-Reply-To: <YwXwaSflH+XCxxWP@matsya>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220824065936.861377531@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Vinod,
-
-On 24/08/2022 10:33, Vinod Koul wrote:
-> On 24-08-22, 08:39, Greg KH wrote:
->> On Tue, Aug 23, 2022 at 09:31:35PM +0530, Vinod Koul wrote:
->>> On 13-08-22, 16:23, gregkh@linuxfoundation.org wrote:
->>>>
->>>> This is a note to let you know that I've just added the patch titled
->>>>
->>>>      soundwire: qcom: Check device status before reading devid
->>>>
->>>> to the 5.15-stable tree which can be found at:
->>>>      http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
->>>>
->>>> The filename of the patch is:
->>>>       soundwire-qcom-check-device-status-before-reading-devid.patch
->>>> and it can be found in the queue-5.15 subdirectory.
->>>>
->>>> If you, or anyone else, feels it should not be added to the stable tree,
->>>> please let <stable@vger.kernel.org> know about it.
->>>
->>> This is causing regression in rc1 so can this be dropped from stable
->>> please
->>
->> This is already in the following released kernels:
->> 	5.15.61 5.18.18 5.19.2
->> so when you get this resolved in Linus's tree, be sure to also add a cc:
->> stable to the patch so it will get picked up properly.
-
-This is the patch 
-https://www.spinics.net/lists/linux-arm-msm/msg117502.html that fixes 
-the issue, Amit confirmed it.
-
-Can you check in on 5.15 incase you have a setup to try it.
-
-thanks,
---srini
-
+On Wed, Aug 24, 2022 at 09:01:14AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.4 release.
+> There are 362 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Thanks will do!
-
+> Responses should be made by Fri, 26 Aug 2022 06:58:34 +0000.
+> Anything received after that time might be too late.
 > 
+
+Now I get this build error:
+
+Building s390:allmodconfig ... failed
+--------------
+Error log:
+In file included from include/linux/string.h:253,
+                 from include/linux/bitmap.h:11,
+                 from include/linux/cpumask.h:12,
+                 from include/linux/smp.h:13,
+                 from include/linux/lockdep.h:14,
+                 from include/linux/spinlock.h:62,
+                 from include/linux/mmzone.h:8,
+                 from include/linux/gfp.h:6,
+                 from include/linux/slab.h:15,
+                 from kernel/fork.c:16:
+In function 'fortify_memcpy_chk',
+    inlined from 'copy_signal' at kernel/fork.c:1716:2:
+include/linux/fortify-string.h:344:25: error: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror=attribute-warning]
+  344 |                         __write_overflow_field(p_size_field, size);
+
+This is with gcc 11.3.0.
+
+Builds are not complete, so there may be more failures.
+
+Guenter
