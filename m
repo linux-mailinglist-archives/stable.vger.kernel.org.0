@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F23159F1D1
-	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 05:05:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDCB59F1D8
+	for <lists+stable@lfdr.de>; Wed, 24 Aug 2022 05:06:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234469AbiHXDFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Aug 2022 23:05:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43750 "EHLO
+        id S234686AbiHXDF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Aug 2022 23:05:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234626AbiHXDE7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 23:04:59 -0400
+        with ESMTP id S234555AbiHXDFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Aug 2022 23:05:10 -0400
 Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2054.outbound.protection.outlook.com [40.107.237.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D098001A;
-        Tue, 23 Aug 2022 20:03:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E062857C0;
+        Tue, 23 Aug 2022 20:03:52 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lvrhnmJ6FNTPQbCslVVU2j/0iw+JUFf4gWQsVHCsNQeTH/xTGO6qf98I+pryxoKxx9eYoKoXX6q98HMaDAu1mPa6l2GVzpaNk5wVzGwp3y+1rZvIq3LaG6YCY3k/3sPdAFUDBfONdnl/O7oCHRbmprGWfos9lC7PVXeaawOOJ/mQVIksAceZdygeDVotA+sR5StVhMqptamoz/EiDd8qZ0dxiF1NbAzh8lKHGJ5e8ysfwoMGxX9VCSdo7YIq+0wwmjYy+GfMHWhZp01gPimfSjI6zqv3iId51fXLLIMwwk8zhZlx0HlUQoidUrONFFOJgXA28MXdubDf0yw0KENz/Q==
+ b=B/E+l+T6Q4YzJKTWUeeeofNAz8wQeEil8WUM19cgy7Z59WFbQEsc2YYIwbamIknnkwvQgRmj7H5jvDNLju2wvlnPXrnsF/mxb9hM+P8BdH0h7TA6/GISrKNo90rnVNLWmNnGY49a7v5uqx3ofhpBcCILeMKJBmkEfOH1YfBUVzbFFOd3ZDIYB9jdq/0V7L/zhtYDHMso2c0XXuC8wRsUB6FCwEjSjO6GyVuwGzovCVlOjg2wu5maK35tNuIUZkhitaFwIlfYV1nbm7feRts7ZaKKFIhqUi2MkLQtXNZnmp0Jsi8UUrr1y1iR17ViLAxeuA0YcFvu1UEdd/glJBMy3Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=bbxR+OCYU2G/04rFdWWgpbEcYTHFk46Ar6Hr4DZBQf4=;
- b=H1YQUgvxNBOG2c82Ai3GhdJk/c5GtrLEOO1d/sfqW1PA1BYpWa9IVYjVSJtprJUwNxNxySEvp5HzSWZBvBJWlKek/2i0NQu61eZnI55PnhIgC1DVSAFy+t4bxBAAAqdmKjYRqEKVw0ue36Fq2Y6VTso8wR5kJkI9dlHafG6eJAmBgQgFzGdtCpPv5nma8Fc/0n1AcwMYfGi+9EpGXij3NA1FGkGCy4gLKEvq1BxGBpsmmDMVAsG0LOihlul4VdjmyzJfXeLVwa5gAcFbWxMWwSTC1EZ3DRb/42IdNcnI2VjFO0e/yNJDMH8RjsFk72tDqV6kGzJcQxVsO3HCJzkp2Q==
+ bh=snVPulbAKBAi9Wd3KFPYZ5rYVHb8mY3ptG8l5yLntdE=;
+ b=Vs5Pu9sDiwrhW3JeGDZv5wZj7aIHscwNUD+B1yFaENCF9lLTEC3xliYgbdEw40ocd/Be73XLialRLem8PKYa/nY5si97kPAUWG5lAlOExL+0WI6cFUXemGWY6vHwK7H90tsiF5FzdoPKH66I3EQ+aLwWDdQ1R0zgmXxdS26+57vRJ2/KSAKX+6PPHerOj5KgfUvo4B2qYLgKNHJdmUxbnMz+R9Cirqvcw7/r1ZQIxC4egBZ5cUiU7GQTIEOpJNADHgvSD1Dt/Bs5TsVOYsmjX1bEkVVOnH/iATWxXbffjeuQ9MD+vpSswVlXQqgZhhUHQLFeo3L7tRM5vZAJF/EG6g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bbxR+OCYU2G/04rFdWWgpbEcYTHFk46Ar6Hr4DZBQf4=;
- b=gEvu/Dl56U9nMwHvmxxVdo3BXjnlGBXHhgWiGa5FuV1/7jym1emr8qFAt4Cxnbn8YL2eL2SgAoNTI0w9cZt9DzjyhYOzfh1c7aoJezhidx4GcSrzMU966GyN1a+PUi1sYONxcuCWyT8Cr1Aqf+cGVoAOs0LQEdEY7IVu1HwIrZTBShHzTwgwbOC0KQECMnR+E0g9b2oqo6ydMUez9lwY9gm7USCJCQMGWC0PSJuRMsCaZjDQXqZ+jdCeiSDcJXhN84J2V+L3ytPVIhDFX4/+XDu+ee0NcOKb9QW4/q7NStg/DmHKxJv/G4Ufs8EBbtBbktilTEKJcELX3lx4A660RQ==
+ bh=snVPulbAKBAi9Wd3KFPYZ5rYVHb8mY3ptG8l5yLntdE=;
+ b=N9r3BBevrOsLQ8P5gSvHSSuOS0fUYjYp8SiyuvUIpmAok3JdCAHK3STK6cCQpRn9ZefzOFMIMNU8AQYXALt+G2u/eq3zWc/7yrvaA9aQIlM++g8a/J4A3mcd+nTmyMN4dOlk+k2O6nkFSwb4l2ZN6pa3LTte5lKnLNbv3c4ZITIcXY3XSFjYL+tfpPprsdzmHwz+DTb0GSLEgBqeGT+pesKU9hW5wdorbxpiBTHfrXKpobjK36arsI+fOHS64rAhfKyM1eibU0BFnym4lpno7gtlFBzePNFpBJ47RBkLcxo00SFy03CDETS0jrm2+Pz5+Ix1v5aoSBkBkTpnNuWGjA==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from BYAPR12MB3176.namprd12.prod.outlook.com (2603:10b6:a03:134::26)
  by LV2PR12MB5774.namprd12.prod.outlook.com (2603:10b6:408:17a::14) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5546.23; Wed, 24 Aug
- 2022 03:03:47 +0000
+ 2022 03:03:50 +0000
 Received: from BYAPR12MB3176.namprd12.prod.outlook.com
  ([fe80::7432:2749:aa27:722c]) by BYAPR12MB3176.namprd12.prod.outlook.com
  ([fe80::7432:2749:aa27:722c%7]) with mapi id 15.20.5546.022; Wed, 24 Aug 2022
- 03:03:47 +0000
+ 03:03:50 +0000
 From:   Alistair Popple <apopple@nvidia.com>
 To:     linux-mm@kvack.org, akpm@linux-foundation.org
 Cc:     Peter Xu <peterx@redhat.com>, Nadav Amit <nadav.amit@gmail.com>,
@@ -56,66 +56,65 @@ Cc:     Peter Xu <peterx@redhat.com>, Nadav Amit <nadav.amit@gmail.com>,
         Karol Herbst <kherbst@redhat.com>,
         Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
         Logan Gunthorpe <logang@deltatee.com>, paulus@ozlabs.org,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org,
-        Huang Ying <ying.huang@intel.com>
-Subject: [PATCH v3 2/3] mm/migrate_device.c: Copy pte dirty bit to page
-Date:   Wed, 24 Aug 2022 13:03:38 +1000
-Message-Id: <ffbc824af5daa2c44b91c66834a341894fba4ce6.1661309831.git-series.apopple@nvidia.com>
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+Subject: [PATCH v3 3/3] selftests/hmm-tests: Add test for dirty bits
+Date:   Wed, 24 Aug 2022 13:03:39 +1000
+Message-Id: <8e425a8ec191682fa2036260c575f065eeb56a53.1661309831.git-series.apopple@nvidia.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <3b01af093515ce2960ac39bb16ff77473150d179.1661309831.git-series.apopple@nvidia.com>
 References: <3b01af093515ce2960ac39bb16ff77473150d179.1661309831.git-series.apopple@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: SJ0PR03CA0032.namprd03.prod.outlook.com
- (2603:10b6:a03:33e::7) To BYAPR12MB3176.namprd12.prod.outlook.com
+X-ClientProxiedBy: SJ0PR05CA0113.namprd05.prod.outlook.com
+ (2603:10b6:a03:334::28) To BYAPR12MB3176.namprd12.prod.outlook.com
  (2603:10b6:a03:134::26)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 3ccdb7f2-72f7-4c0f-301f-08da857d430a
+X-MS-Office365-Filtering-Correlation-Id: 8f693d62-88fc-4a34-6fc3-08da857d451b
 X-MS-TrafficTypeDiagnostic: LV2PR12MB5774:EE_
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: MZWgOnCDZpyEhnPPQeuL5XCEWKrcOcEDEARbMQf1CvtZmwmGm6FsIODMTt43Zwln2zXSyZSjQoOrrV9uMKuEq8/ZXSa4kFi+Is94GaVBuMKUUkAYFQrmoxkfJofuW8cHkWQndF+MjZFEuWNHEN1pMxo/C6VzWR3TZVFgL+7yTu3240YvzzyvP2g4LwMs2nC7tWCSUb7J+Uh4dIzIWxsXedCJJSkk9aoQBr8OFiy7lv9BR1XAtG2liEsACb906j5TMuGpukat60DYfAFCnaECWcBBF8i+B6XsPvIyKXbW8XnucW2ioij0oOMGwXz7Icrrq7evsBzlNR+KaoCHygL+/VwhX624sL52HO6rttT1db6pZmghoawWNRxxAnoRgN0tcV2zK5GFtwZkHzXvWKsNkWzaJTxILknFb4cgkKvPxEbkkPrF7HYl/ljrBPKmFUay4TGV6esjpuk5SHuuj+M5A44fuAn9bwWPXjPHNYa7/ac9viIba4SEtI628ASSTNywWG0znSOgc934A6Efe5F28zi16qgM6HZWpqDzw5tizvy2QPuUMe0seJVIZEzbrfWR9+Bkp+/cc2CLwnzCObd6NPR9uGC2gfaGetiyPc7CFLB6+ix1gDx+6cBBLft0StyCyhuqxl5eVw3GPJ7wlLew96mvYkjV9c6WaRS+oHGjpmWmzJdU/lG6SDguDbKNe3X2LowREvYqiZuMgX3y3z1yv8Kkt/VXu+tu+jNHCbFaFoE/YgaoEJHhmhNIieaVKurJYDbPHpkZffSN07WTYDql0w==
+X-Microsoft-Antispam-Message-Info: bZmzRAFqR2cu83C/EuVCfmxhlHyqrLyPS3M/bUwnQHD7qdvSTkAEUdKNJpogGeDWjDfedcmOYikq5zwy6aMTRlXQoHIxRlwj7naji0D2vkFNFV0OtP585OWdzC7Q4cafdDfxd333+ZzmLxkgRM61z/RUouKMGRGXlqxo896/Ye6GQrz0jeSUC7RxJbEttijST2jzoL/tLNkYQM8N29TwKHbjLZdXxlJeONGptHdqhBxH4+tqHQ8TNlpc89l6hLqXri6cqJpvTn6QQpGqnFxIM94loQER7E8Ynus/a8uiuslJxyiKyE86q0cZ/8nK2JXVOCrXA6ahO/SyCMhcDZa3yblZfSSRdvLCMm/k2j3sl9rzydZHv4tKgtkLxLXxEtnoob1hzqNZkmoQfSbW6yxsbsQEGBhjejPerch6KmWZY994cUOBhhidVu8tmMrVUJ52rGl+GvD68qJ3qZhV0xAFTApW1pvmgodj3UXhXBR3+gz66Ig/fISAyEFoWoG+6HFR21DyXGzCA0sFbj1X2zsmVcZPJHQVN2IhgXM0JF7KZJBKC710Hs/Wbaq7JiB1jfuMXRVlFEd9uv5rK12jrPHr0Mk3rxhqawxF3/NFf6Sw96OwBSog6TSq7c9toF1jv/C7OJKufrXypKA3zvg/aPuOVztLLypxNxkB7Ed20WzQ9qI3DuJFH3BhdFWXk2p7fupBkkaYB6W2a3WhseK2p/Q2tz7vjz8USrZdJ8xEj1Qai1MON1X38ZvF1TjNlN+XRP3XQXOpN8yx5P6iYgYOZYmldA==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB3176.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(376002)(136003)(396003)(346002)(39860400002)(83380400001)(478600001)(66556008)(66476007)(66946007)(2616005)(4326008)(186003)(8676002)(36756003)(8936002)(41300700001)(6666004)(6512007)(2906002)(6486002)(6506007)(26005)(86362001)(7416002)(5660300002)(316002)(54906003)(38100700002)(14143004);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Wl5KCcNKEwPWlwnqBs30F+D+TJEqdhGP0ITdzW9wpSEWDmrmxmqabXJwq64T?=
- =?us-ascii?Q?O3zD7nVVfydBb84+qJYmNtLyHqipykVykAN+JBwaRZpAl8unYubB2R4Rvjef?=
- =?us-ascii?Q?MWCjkvmZ/EoFp6Bk3aN2+YzWAshnCabpGtLWnlaKVW6VINAf1bq8txXwgO4C?=
- =?us-ascii?Q?ZUdLYec14Vy+R4spe6bf7Apc8cNbR+BbUiHGGFh5SaxxqkI9COqibH45jL7Y?=
- =?us-ascii?Q?XSl9ZnsyYVgiYssFgWz9JoSHHo+s5yl/Zwea0HECuN3V+nZViOC70lhitW9b?=
- =?us-ascii?Q?VCfmxTQoX94Vnyk+pnq+yDzvrnDMeJKpifTqml6mcbVB+tIFJPDORFbGVzUq?=
- =?us-ascii?Q?PrGBfdyLurK7Z2fVxC2aP/cNeVG4STxA4HQQ6fvKRICgSICG3nUWE8tuHsX7?=
- =?us-ascii?Q?2HOE5QNzCxD9q195FdRbLyfgNs++DxEfQth1VHWKCwDazCUOZt1r0g2kzIdD?=
- =?us-ascii?Q?qJx227LroLX5QP9vk5L7dmqapfrD+nhHU5WiOQOYhS0vgVKXeL9fyY3t/D30?=
- =?us-ascii?Q?R5u4QhfdllbEactyEXCfPHyTQqN831gFzJF98DUCAfqqZ0Gz3O5clPnKikw8?=
- =?us-ascii?Q?1e2P1SE3mP7ovvvKJzVKLXKSCOf0NTX8hbrGBXS8TkpoZwvHbbQZRQdYGx7m?=
- =?us-ascii?Q?y06jbY9SKOBgISYPOgzh/m02O3LP90ixWxASj3dKGL2E3J8hbLoBWMMiidyG?=
- =?us-ascii?Q?K6S9RX46Yu+S8UAWAOCu0LdgZhm8uRl5xtjG/nuq7HLQj0HtFnR7jslM/aae?=
- =?us-ascii?Q?aRChccZGPhHi/3MLlaFRYYBZyvOFmZH3xcNWHPpezhaA+/MBEMN9J699/TAG?=
- =?us-ascii?Q?bzZ3iuieuD+jv776IQvhEyiij5uu4Wmk+0AsiTIUN0rE59V2ptLmeV6+IvZQ?=
- =?us-ascii?Q?agBy+XE97mNFHRbmvqP1am9CTR87Lu7q44YG4ahPZ/V8DO6DJj+9weLDKeVP?=
- =?us-ascii?Q?n4wFpodsygzcPG091X1DJLk4SXJIuPdI4fky6bAxt7WUxRf/JO+f2YDi71E+?=
- =?us-ascii?Q?nff07rLthww7yJuS5dJFBiWMt87AS9oj23Kj9HKpBl6YaX18f5Kqr0EXbBKI?=
- =?us-ascii?Q?J01FHEHcnbvXXtIIYuACaOk8WneaKSlAEDw0bpNaWS+2ezf8hbhtTR7nTW6J?=
- =?us-ascii?Q?azcbP/ubO4p53nxVHeQ8VbRgzFPdMrQlbJnqAgx1qGhlvpmkU+iiGO7qm80N?=
- =?us-ascii?Q?PRXemqO+Al5eA3NEmSFfxzBp2goXKy4FJ89C02pDB2O4y3UEktdpN+xXAnLm?=
- =?us-ascii?Q?C6kwa9UP+TChf8pSWIjTcu+JvWfnEpMhUayzLH5WFJP3s8D7F3/6qD0dJBZ2?=
- =?us-ascii?Q?9cF61KIkrudk8g1Wx6yQ59reIu9sTTaqr9ZQPJUanRBzHsww6c8i8Lou41Sy?=
- =?us-ascii?Q?kzGs2wILg34iAZbXVW91ZHblcSPeFWcuoAknyQFQl5cBgl+WWXii1fN7v5r+?=
- =?us-ascii?Q?r6HiJ7Dz1bQ8K5HcJK5tc9Pg8UIWoJ3LC8tHTmWELxLy5koUsKBDwzxwnCUy?=
- =?us-ascii?Q?HCqyFOLuW8WHthi9j+3cWC5coODKXAyjRNK4C76UuZQ65msJqwYA5j9PlHAM?=
- =?us-ascii?Q?TGJyGkkc16NymwDBJBFVZAIRg8vGLTlTNXSmkpcL?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Vi06MaBhg7VPeMAIg2aX3mngHgnPkB/9LTIrlWZfM2I61oFXUT5Qxwneylgt?=
+ =?us-ascii?Q?vQOHI26GDs03DoRAxeYCQqfdV8oiN0elQAynVxAlhR0ZfP7Mq2gw5MskwJsx?=
+ =?us-ascii?Q?/9hsDyO14zSv6tlfrjgfRbmNpZYNxz5BCtDr27mVkkpHpUkRBL/hNsQGXSnc?=
+ =?us-ascii?Q?9qHxtyMnUJcPu4Di/g9corFfcjTKUAeEVeVcHQ5pNRd72CKt/Fh4tB0zDylG?=
+ =?us-ascii?Q?uFLLOMzmNaq4rzS9nxWWBoHtEZqR+R7s5rEH1Xn52JR7rKO8nDj8b8+DpEUp?=
+ =?us-ascii?Q?CYIiwMRsfi88Dsb6pcXnEeSxxOIc+ZAgDbIi9eJLFuAVCULlhGe+3GpFeKw/?=
+ =?us-ascii?Q?2RE+0sB4s6R+miTqdNi7zIViI0TBccUVNdc7W9YOQyTpMaWzzMnJek4okLhm?=
+ =?us-ascii?Q?SuiZyrv/Wr4hNKE5fdQE8/gVrZPAjPhXaxtV/ZMSc5BpGWu7SKs8tM0//KDk?=
+ =?us-ascii?Q?kHnmEwXzf+nVEr43uRwlRsmA+FmnYw5UIPjEhu1a/YMn8ssWaAv4h2ryvQDo?=
+ =?us-ascii?Q?uucv2MzNEyc5h/rx/P5CJ2sr2y1LZoV+V8k6epyDp+gj1Wo1ECL9s7Sk+T++?=
+ =?us-ascii?Q?HsajAauEkhXofJ3AfE+ykgHeIczKKg2mUFkzn73Bny4VfAKPOCiA7N+MjTXq?=
+ =?us-ascii?Q?w1/ev8YD8zvqx6+eFp6PeMjCQIprDUrvLc8h1ODdmXpmzfilLAz2AboHZwFl?=
+ =?us-ascii?Q?U1Nw3bActgE8hWzinbZRmnDbiezJXniJlfooca5xpknf5ZZAGqBSUzsOgbUs?=
+ =?us-ascii?Q?UdgfKr6nYtSBMiTQRCEGg2jnV8UnKqvbUTmbG/NigXER/TCsZuNmxByKxRi0?=
+ =?us-ascii?Q?FetJ+ET0aBCregDzahMhBmxQASbVmP8SDW4FWjsR0ifkdNHeAjNBVIDBeawm?=
+ =?us-ascii?Q?Ul4nAGr0Z2v55DnqdN1s9aP86POBepwVkcliVQD/N249QtPJuKZKm6kgJ0zV?=
+ =?us-ascii?Q?5uGDt9O2+6hUPWxpNYJolnQEnhCqRUGrGe1uQIwTETsJXDOTBK9FV+G7r+Ik?=
+ =?us-ascii?Q?W+B5IBCNxP8MlR4Iemk1Ybzc36ldSpNP1KLIHaSzMxvR0LviymXHU9gZrHbS?=
+ =?us-ascii?Q?y0l9wEe4sT5NR++E1+nVpTAbdNYcUG2jX6jmt1wdZy7kWAQSeOQIGcwoY6HO?=
+ =?us-ascii?Q?d5TQoHtuQH/3QW/YyphoMnjzSC9422rvoiNkhzMyw9VA9ZLyZXzbEkkTve0O?=
+ =?us-ascii?Q?7zQ82tBo68szMjbfFVerbkRGHuDqwHIXzwYJY8Hi0bMPPSp6H+u13PBskjt1?=
+ =?us-ascii?Q?r08mGDYO69T6JWflk++7pMsJKpwQB5rcDw9FzF/KI5131/99FwXuUcyVxGfv?=
+ =?us-ascii?Q?j0LGJq5ukSrBfeVQRpbg3eKSf7DSpxV43yrXxIzR9Hjl0Zr2RwBRfCgJPCeL?=
+ =?us-ascii?Q?ULMqpNy4baYvBIjF0tkE1AEFBP0ayVFKHXF5UlJjl6ekvx8n7Xkzz+s8HcfC?=
+ =?us-ascii?Q?G2E2uHFJYEbh3es2czSnVunpFSxd369pdIejGa/LBa9weTRgaltTm7veA5Ky?=
+ =?us-ascii?Q?rXgKyjFRmJ8sm8N+A1G6lLV4GeulZ+v0H7DKr0ZIYEfEYN2fpfh0p0sA1PsU?=
+ =?us-ascii?Q?38ay9/KDVe+/bDzUixb9TFx5l7tnx+sKBrBUo5J5?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3ccdb7f2-72f7-4c0f-301f-08da857d430a
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8f693d62-88fc-4a34-6fc3-08da857d451b
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB3176.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Aug 2022 03:03:47.0837
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Aug 2022 03:03:50.4741
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: csHTlJV/69iQt7MWQfo2oXOdJiWyqOC1jq7AUPl2m8IBwdiGEyWbAD0duRtfn0ZF0hhkAcxbe/6hLa1oylXdAg==
+X-MS-Exchange-CrossTenant-UserPrincipalName: F4qkStYyDB6rG+wwdhwWs4iDxmijQGEFtsaBY1wyFVB+h2S0kyyU7Z/4rJw97hh2qranG7Ql0XPPfljL+Ea2YQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5774
 X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
@@ -128,87 +127,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-migrate_vma_setup() has a fast path in migrate_vma_collect_pmd() that
-installs migration entries directly if it can lock the migrating page.
-When removing a dirty pte the dirty bit is supposed to be carried over
-to the underlying page to prevent it being lost.
-
-Currently migrate_vma_*() can only be used for private anonymous
-mappings. That means loss of the dirty bit usually doesn't result in
-data loss because these pages are typically not file-backed. However
-pages may be backed by swap storage which can result in data loss if an
-attempt is made to migrate a dirty page that doesn't yet have the
-PageDirty flag set.
-
-In this case migration will fail due to unexpected references but the
-dirty pte bit will be lost. If the page is subsequently reclaimed data
-won't be written back to swap storage as it is considered uptodate,
-resulting in data loss if the page is subsequently accessed.
-
-Prevent this by copying the dirty bit to the page when removing the pte
-to match what try_to_migrate_one() does.
+We were not correctly copying PTE dirty bits to pages during
+migrate_vma_setup() calls. This could potentially lead to data loss, so
+add a test for this.
 
 Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Reported-by: Huang Ying <ying.huang@intel.com>
-Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
-Cc: stable@vger.kernel.org
-
 ---
+ tools/testing/selftests/vm/hmm-tests.c | 124 ++++++++++++++++++++++++++-
+ 1 file changed, 124 insertions(+)
 
-Changes for v3:
-
- - Defer TLB flushing
- - Split a TLB flushing fix into a separate change.
-
-Changes for v2:
-
- - Fixed up Reported-by tag.
- - Added Peter's Acked-by.
- - Atomically read and clear the pte to prevent the dirty bit getting
-   set after reading it.
- - Added fixes tag
----
- mm/migrate_device.c |  9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/mm/migrate_device.c b/mm/migrate_device.c
-index 6a5ef9f..51d9afa 100644
---- a/mm/migrate_device.c
-+++ b/mm/migrate_device.c
-@@ -7,6 +7,7 @@
- #include <linux/export.h>
- #include <linux/memremap.h>
- #include <linux/migrate.h>
-+#include <linux/mm.h>
- #include <linux/mm_inline.h>
- #include <linux/mmu_notifier.h>
- #include <linux/oom.h>
-@@ -196,7 +197,7 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
- 			anon_exclusive = PageAnon(page) && PageAnonExclusive(page);
- 			if (anon_exclusive) {
- 				flush_cache_page(vma, addr, pte_pfn(*ptep));
--				ptep_clear_flush(vma, addr, ptep);
-+				pte = ptep_clear_flush(vma, addr, ptep);
+diff --git a/tools/testing/selftests/vm/hmm-tests.c b/tools/testing/selftests/vm/hmm-tests.c
+index 529f53b..70fdb49 100644
+--- a/tools/testing/selftests/vm/hmm-tests.c
++++ b/tools/testing/selftests/vm/hmm-tests.c
+@@ -1200,6 +1200,130 @@ TEST_F(hmm, migrate_multiple)
+ 	}
+ }
  
- 				if (page_try_share_anon_rmap(page)) {
- 					set_pte_at(mm, addr, ptep, pte);
-@@ -206,11 +207,15 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
- 					goto next;
- 				}
- 			} else {
--				ptep_get_and_clear(mm, addr, ptep);
-+				pte = ptep_get_and_clear(mm, addr, ptep);
- 			}
- 
- 			migrate->cpages++;
- 
-+			/* Set the dirty flag on the folio now the pte is gone. */
-+			if (pte_dirty(pte))
-+				folio_mark_dirty(page_folio(page));
++static char cgroup[] = "/sys/fs/cgroup/hmm-test-XXXXXX";
++static int write_cgroup_param(char *cgroup_path, char *param, long value)
++{
++	int ret;
++	FILE *f;
++	char *filename;
 +
- 			/* Setup special migration page table entry */
- 			if (mpfn & MIGRATE_PFN_WRITE)
- 				entry = make_writable_migration_entry(
++	if (asprintf(&filename, "%s/%s", cgroup_path, param) < 0)
++		return -1;
++
++	f = fopen(filename, "w");
++	if (!f) {
++		ret = -1;
++		goto out;
++	}
++
++	ret = fprintf(f, "%ld\n", value);
++	if (ret < 0)
++		goto out1;
++
++	ret = 0;
++
++out1:
++	fclose(f);
++out:
++	free(filename);
++
++	return ret;
++}
++
++static int setup_cgroup(void)
++{
++	pid_t pid = getpid();
++	int ret;
++
++	if (!mkdtemp(cgroup))
++		return -1;
++
++	ret = write_cgroup_param(cgroup, "cgroup.procs", pid);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static int destroy_cgroup(void)
++{
++	pid_t pid = getpid();
++	int ret;
++
++	ret = write_cgroup_param("/sys/fs/cgroup/cgroup.procs",
++				"cgroup.proc", pid);
++	if (ret)
++		return ret;
++
++	if (rmdir(cgroup))
++		return -1;
++
++	return 0;
++}
++
++/*
++ * Try and migrate a dirty page that has previously been swapped to disk. This
++ * checks that we don't loose dirty bits.
++ */
++TEST_F(hmm, migrate_dirty_page)
++{
++	struct hmm_buffer *buffer;
++	unsigned long npages;
++	unsigned long size;
++	unsigned long i;
++	int *ptr;
++	int tmp = 0;
++
++	npages = ALIGN(HMM_BUFFER_SIZE, self->page_size) >> self->page_shift;
++	ASSERT_NE(npages, 0);
++	size = npages << self->page_shift;
++
++	buffer = malloc(sizeof(*buffer));
++	ASSERT_NE(buffer, NULL);
++
++	buffer->fd = -1;
++	buffer->size = size;
++	buffer->mirror = malloc(size);
++	ASSERT_NE(buffer->mirror, NULL);
++
++	ASSERT_EQ(setup_cgroup(), 0);
++
++	buffer->ptr = mmap(NULL, size,
++			   PROT_READ | PROT_WRITE,
++			   MAP_PRIVATE | MAP_ANONYMOUS,
++			   buffer->fd, 0);
++	ASSERT_NE(buffer->ptr, MAP_FAILED);
++
++	/* Initialize buffer in system memory. */
++	for (i = 0, ptr = buffer->ptr; i < size / sizeof(*ptr); ++i)
++		ptr[i] = 0;
++
++	ASSERT_FALSE(write_cgroup_param(cgroup, "memory.reclaim", 1UL<<30));
++
++	/* Fault pages back in from swap as clean pages */
++	for (i = 0, ptr = buffer->ptr; i < size / sizeof(*ptr); ++i)
++		tmp += ptr[i];
++
++	/* Dirty the pte */
++	for (i = 0, ptr = buffer->ptr; i < size / sizeof(*ptr); ++i)
++		ptr[i] = i;
++
++	/*
++	 * Attempt to migrate memory to device, which should fail because
++	 * hopefully some pages are backed by swap storage.
++	 */
++	ASSERT_TRUE(hmm_migrate_sys_to_dev(self->fd, buffer, npages));
++
++	ASSERT_FALSE(write_cgroup_param(cgroup, "memory.reclaim", 1UL<<30));
++
++	/* Check we still see the updated data after restoring from swap. */
++	for (i = 0, ptr = buffer->ptr; i < size / sizeof(*ptr); ++i)
++		ASSERT_EQ(ptr[i], i);
++
++	hmm_buffer_free(buffer);
++	destroy_cgroup();
++}
++
+ /*
+  * Read anonymous memory multiple times.
+  */
 -- 
 git-series 0.9.1
