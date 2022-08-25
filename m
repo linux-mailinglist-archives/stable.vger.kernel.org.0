@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E13A5A0E47
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D05C15A0E49
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241339AbiHYKqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 06:46:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37106 "EHLO
+        id S241311AbiHYKrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 06:47:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241318AbiHYKq1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:46:27 -0400
+        with ESMTP id S236033AbiHYKrA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:47:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25DE4AA3E4
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:46:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72CE49C1D4
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:46:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCE85618CB
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:46:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D81CAC433C1;
-        Thu, 25 Aug 2022 10:46:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FF5A618CB
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:46:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA74EC433C1;
+        Thu, 25 Aug 2022 10:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661424366;
-        bh=03rfIWpLz79eSGjQZn3oTtx3sG2EuB7EiR0rqBcSTsQ=;
+        s=korg; t=1661424412;
+        bh=7ysnkc9EY07rwB9dEnV17ikBHbLSoXH6mlvkzqHlnXc=;
         h=Subject:To:Cc:From:Date:From;
-        b=zpQJ57QXaL+QLgISFgDDS3+V3LsP4QQXzE0ua/W52aQ6+YRbUwaFwdRx+WI7iMLyd
-         y7EW5tqWRYM6AYrcq3aaA2vYE20AcMnbHzmQ7FXdLwS32pVBuigv5Y7XKSTPU2S+Ja
-         byVlx7/RrG8BDEZk1txVW3DoZLmGak5kiUvIVyeU=
-Subject: FAILED: patch "[PATCH] NFS: Fix another fsync() issue after a server reboot" failed to apply to 5.10-stable tree
-To:     trond.myklebust@hammerspace.com
+        b=T7WEKSgquxpNrr6k0BvmtpRzaKmDW/t6nPTcLpZ25dAkeuqeuwQtpEj2kFblUWhUX
+         IEDptmEQIideYRYNpD2KOk18Iu95kdEBSmJHnC1ZbBiqtilvnnlJLGoCJmC4EnQfB/
+         l63zuaIC30KjsPll/ftPIeb51eL2JNXPnNq+0MVE=
+Subject: FAILED: patch "[PATCH] cgroup/cpuset: Fix a race between cpuset_attach() and cpu" failed to apply to 5.19-stable tree
+To:     zhangqiao22@huawei.com, longman@redhat.com, mkoutny@suse.com,
+        tj@kernel.org, zhaogongyi@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Aug 2022 12:45:55 +0200
-Message-ID: <1661424355112221@kroah.com>
+Date:   Thu, 25 Aug 2022 12:46:49 +0200
+Message-ID: <1661424409122135@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,115 +60,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 67f4b5dc49913abcdb5cc736e73674e2f352f81d Mon Sep 17 00:00:00 2001
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
-Date: Sat, 13 Aug 2022 08:22:25 -0400
-Subject: [PATCH] NFS: Fix another fsync() issue after a server reboot
+From 05c7b7a92cc87ff8d7fde189d0fade250697573c Mon Sep 17 00:00:00 2001
+From: Zhang Qiao <zhangqiao22@huawei.com>
+Date: Fri, 21 Jan 2022 18:12:10 +0800
+Subject: [PATCH] cgroup/cpuset: Fix a race between cpuset_attach() and cpu
+ hotplug
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Currently, when the writeback code detects a server reboot, it redirties
-any pages that were not committed to disk, and it sets the flag
-NFS_CONTEXT_RESEND_WRITES in the nfs_open_context of the file descriptor
-that dirtied the file. While this allows the file descriptor in question
-to redrive its own writes, it violates the fsync() requirement that we
-should be synchronising all writes to disk.
-While the problem is infrequent, we do see corner cases where an
-untimely server reboot causes the fsync() call to abandon its attempt to
-sync data to disk and causing data corruption issues due to missed error
-conditions or similar.
+As previously discussed(https://lkml.org/lkml/2022/1/20/51),
+cpuset_attach() is affected with similar cpu hotplug race,
+as follow scenario:
 
-In order to tighted up the client's ability to deal with this situation
-without introducing livelocks, add a counter that records the number of
-times pages are redirtied due to a server reboot-like condition, and use
-that in fsync() to redrive the sync to disk.
+     cpuset_attach()				cpu hotplug
+    ---------------------------            ----------------------
+    down_write(cpuset_rwsem)
+    guarantee_online_cpus() // (load cpus_attach)
+					sched_cpu_deactivate
+					  set_cpu_active()
+					  // will change cpu_active_mask
+    set_cpus_allowed_ptr(cpus_attach)
+      __set_cpus_allowed_ptr_locked()
+       // (if the intersection of cpus_attach and
+         cpu_active_mask is empty, will return -EINVAL)
+    up_write(cpuset_rwsem)
 
-Fixes: 2197e9b06c22 ("NFS: Fix up fsync() when the server rebooted")
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+To avoid races such as described above, protect cpuset_attach() call
+with cpu_hotplug_lock.
 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index 54237a231687..749e5487df50 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -221,8 +221,10 @@ nfs_file_fsync_commit(struct file *file, int datasync)
- int
- nfs_file_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- {
--	struct nfs_open_context *ctx = nfs_file_open_context(file);
- 	struct inode *inode = file_inode(file);
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+	long save_nredirtied = atomic_long_read(&nfsi->redirtied_pages);
-+	long nredirtied;
- 	int ret;
+Fixes: be367d099270 ("cgroups: let ss->can_attach and ss->attach do whole threadgroups at a time")
+Cc: stable@vger.kernel.org # v2.6.32+
+Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
+Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
+Acked-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 4c7254e8f49a..97c53f3cc917 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2289,6 +2289,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
+ 	cgroup_taskset_first(tset, &css);
+ 	cs = css_cs(css);
  
- 	trace_nfs_fsync_enter(inode);
-@@ -237,15 +239,10 @@ nfs_file_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- 		ret = pnfs_sync_inode(inode, !!datasync);
- 		if (ret != 0)
- 			break;
--		if (!test_and_clear_bit(NFS_CONTEXT_RESEND_WRITES, &ctx->flags))
-+		nredirtied = atomic_long_read(&nfsi->redirtied_pages);
-+		if (nredirtied == save_nredirtied)
- 			break;
--		/*
--		 * If nfs_file_fsync_commit detected a server reboot, then
--		 * resend all dirty pages that might have been covered by
--		 * the NFS_CONTEXT_RESEND_WRITES flag
--		 */
--		start = 0;
--		end = LLONG_MAX;
-+		save_nredirtied = nredirtied;
- 	}
++	cpus_read_lock();
+ 	percpu_down_write(&cpuset_rwsem);
  
- 	trace_nfs_fsync_exit(inode, ret);
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index b4e46b0ffa2d..bea7c005119c 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -426,6 +426,7 @@ nfs_ilookup(struct super_block *sb, struct nfs_fattr *fattr, struct nfs_fh *fh)
- static void nfs_inode_init_regular(struct nfs_inode *nfsi)
- {
- 	atomic_long_set(&nfsi->nrequests, 0);
-+	atomic_long_set(&nfsi->redirtied_pages, 0);
- 	INIT_LIST_HEAD(&nfsi->commit_info.list);
- 	atomic_long_set(&nfsi->commit_info.ncommit, 0);
- 	atomic_set(&nfsi->commit_info.rpcs_out, 0);
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 4a3796811b4b..989c734cf91d 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -1420,10 +1420,12 @@ static void nfs_initiate_write(struct nfs_pgio_header *hdr,
-  */
- static void nfs_redirty_request(struct nfs_page *req)
- {
-+	struct nfs_inode *nfsi = NFS_I(page_file_mapping(req->wb_page)->host);
-+
- 	/* Bump the transmission count */
- 	req->wb_nio++;
- 	nfs_mark_request_dirty(req);
--	set_bit(NFS_CONTEXT_RESEND_WRITES, &nfs_req_openctx(req)->flags);
-+	atomic_long_inc(&nfsi->redirtied_pages);
- 	nfs_end_page_writeback(req);
- 	nfs_release_request(req);
+ 	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
+@@ -2342,6 +2343,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
+ 		wake_up(&cpuset_attach_wq);
+ 
+ 	percpu_up_write(&cpuset_rwsem);
++	cpus_read_unlock();
  }
-@@ -1904,7 +1906,7 @@ static void nfs_commit_release_pages(struct nfs_commit_data *data)
- 		/* We have a mismatch. Write the page again */
- 		dprintk_cont(" mismatch\n");
- 		nfs_mark_request_dirty(req);
--		set_bit(NFS_CONTEXT_RESEND_WRITES, &nfs_req_openctx(req)->flags);
-+		atomic_long_inc(&NFS_I(data->inode)->redirtied_pages);
- 	next:
- 		nfs_unlock_and_release_request(req);
- 		/* Latency breaker */
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index b32ed68e7dc4..f08e581f0161 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -182,6 +182,7 @@ struct nfs_inode {
- 		/* Regular file */
- 		struct {
- 			atomic_long_t	nrequests;
-+			atomic_long_t	redirtied_pages;
- 			struct nfs_mds_commit_info commit_info;
- 			struct mutex	commit_mutex;
- 		};
+ 
+ /* The various types of files and directories in a cpuset file system */
 
