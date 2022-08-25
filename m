@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9919A5A0E63
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:49:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA8C5A0E64
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:49:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241267AbiHYKtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 06:49:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45248 "EHLO
+        id S241268AbiHYKtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 06:49:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241262AbiHYKtb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:49:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ABCBA99C0
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:49:30 -0700 (PDT)
+        with ESMTP id S241261AbiHYKte (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:49:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19AD3AA370
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:49:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA6BDB827B0
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:49:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A2B6C433C1;
-        Thu, 25 Aug 2022 10:49:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9CBDB827B0
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:49:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AA33C433D6;
+        Thu, 25 Aug 2022 10:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661424567;
-        bh=R2WEnp7Q3c0K6o4erHndkckN9K8q2fnzeGL8DwB47KE=;
+        s=korg; t=1661424570;
+        bh=F27FwyDxJU9In3xTY+67qNHjmZXA2kjJIlekgSYuwE8=;
         h=Subject:To:Cc:From:Date:From;
-        b=GtW7ExqHizZA0k+G38Gv0IzjZgyQ2kzzzuOT2BrM/u56fLYfBqbZFbxZXTrbKMYaU
-         CEBsa7450loWSnFH4bcKRPVVa8Z7p5FTR1XEpGP++J98Vpz7EtZHja1wiwPKdH6PeJ
-         g393bZkQ7ZYAaWyYGz89KM7qwZCVosGI+wTWJGeI=
-Subject: FAILED: patch "[PATCH] mm/hugetlb: fix hugetlb not supporting softdirty tracking" failed to apply to 4.14-stable tree
+        b=i2mztf1NbHGE0SYKO9aQH2RmQygMKlIEjVgqO2mWlDmvGHrNd2wvmtm4DrTdki6SS
+         AaJmNBeIaz9L7iJEUkhjzT1cTHTzdsxk++sBLmzj6QgQkqDPcAu6ToNpPdse1frpHW
+         XlvrUHDhWHPGPNenGS4AHuWcoXo5hiMv3w1+Y0UY=
+Subject: FAILED: patch "[PATCH] mm/hugetlb: fix hugetlb not supporting softdirty tracking" failed to apply to 4.9-stable tree
 To:     david@redhat.com, akpm@linux-foundation.org, bhelgaas@google.com,
         gorcunov@openvz.org, hughd@google.com, jamieliu@google.com,
         kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
@@ -37,8 +37,8 @@ To:     david@redhat.com, akpm@linux-foundation.org, bhelgaas@google.com,
         xemul@parallels.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Aug 2022 12:49:21 +0200
-Message-ID: <166142456144251@kroah.com>
+Date:   Thu, 25 Aug 2022 12:49:24 +0200
+Message-ID: <1661424564121192@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -53,7 +53,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
