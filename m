@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 436925A0E50
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF8D95A0E4F
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241217AbiHYKre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 06:47:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37272 "EHLO
+        id S241138AbiHYKsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 06:48:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241238AbiHYKrL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:47:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F67319C0B
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:47:10 -0700 (PDT)
+        with ESMTP id S241267AbiHYKr7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:47:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 268DDA2230
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:47:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D33536194B
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:47:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2505C433C1;
-        Thu, 25 Aug 2022 10:47:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4EF2B82733
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:47:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BFE5C433D6;
+        Thu, 25 Aug 2022 10:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661424429;
-        bh=lIFcngkYJtN8zQH+6EiWqxGl8UCiqtbYbtld0QgPwT0=;
+        s=korg; t=1661424475;
+        bh=VFdjVCIhj2x79B6TnZdBqhzsxrLKX/8ztwedl7GSlkg=;
         h=Subject:To:Cc:From:Date:From;
-        b=loMgko0yvNA7UIWYN3wdv4NMOQU2Ap3WcxHnTntHWt+vfiIVRhPl1Nb0jTatoT96E
-         D5j5ba72zjbfJpkIiCokcgZsOxAO+fsRa+fvZH/z02CIE+re4iODR21gXPYf3WoqBv
-         ePhUY1bwxrUDLHWCjhQbvIzzxP3iM2CYkgiZIIcE=
-Subject: FAILED: patch "[PATCH] cgroup/cpuset: Fix a race between cpuset_attach() and cpu" failed to apply to 4.14-stable tree
-To:     zhangqiao22@huawei.com, longman@redhat.com, mkoutny@suse.com,
-        tj@kernel.org, zhaogongyi@huawei.com
+        b=cYy2pWOLEPYsO7Q6gXv/wq2ryKWAQ/PHEddXI1Y583fcY8e0XREC9IWJ+XEaCehkY
+         QsBP31AbFNPz5nEWsxzKJIWytQihmfiBpYTDL+xUzhooJ3iHjJVK5DmfT64v2lnx5w
+         tujAzO2Oji7kAyIKFmJcdyLYtVqvUl8k72XKi3hY=
+Subject: FAILED: patch "[PATCH] kernel/sys_ni: add compat entry for fadvise64_64" failed to apply to 4.9-stable tree
+To:     rdunlap@infradead.org, akpm@linux-foundation.org,
+        aou@eecs.berkeley.edu, arnd@arndb.de, josh@joshtriplett.org,
+        palmer@dabbelt.com, paul.walmsley@sifive.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Aug 2022 12:46:54 +0200
-Message-ID: <16614244144127@kroah.com>
+Date:   Thu, 25 Aug 2022 12:47:44 +0200
+Message-ID: <1661424464255169@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -49,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,61 +62,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 05c7b7a92cc87ff8d7fde189d0fade250697573c Mon Sep 17 00:00:00 2001
-From: Zhang Qiao <zhangqiao22@huawei.com>
-Date: Fri, 21 Jan 2022 18:12:10 +0800
-Subject: [PATCH] cgroup/cpuset: Fix a race between cpuset_attach() and cpu
- hotplug
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From a8faed3a02eeb75857a3b5d660fa80fe79db77a3 Mon Sep 17 00:00:00 2001
+From: Randy Dunlap <rdunlap@infradead.org>
+Date: Sun, 7 Aug 2022 15:09:34 -0700
+Subject: [PATCH] kernel/sys_ni: add compat entry for fadvise64_64
 
-As previously discussed(https://lkml.org/lkml/2022/1/20/51),
-cpuset_attach() is affected with similar cpu hotplug race,
-as follow scenario:
+When CONFIG_ADVISE_SYSCALLS is not set/enabled and CONFIG_COMPAT is
+set/enabled, the riscv compat_syscall_table references
+'compat_sys_fadvise64_64', which is not defined:
 
-     cpuset_attach()				cpu hotplug
-    ---------------------------            ----------------------
-    down_write(cpuset_rwsem)
-    guarantee_online_cpus() // (load cpus_attach)
-					sched_cpu_deactivate
-					  set_cpu_active()
-					  // will change cpu_active_mask
-    set_cpus_allowed_ptr(cpus_attach)
-      __set_cpus_allowed_ptr_locked()
-       // (if the intersection of cpus_attach and
-         cpu_active_mask is empty, will return -EINVAL)
-    up_write(cpuset_rwsem)
+riscv64-linux-ld: arch/riscv/kernel/compat_syscall_table.o:(.rodata+0x6f8):
+undefined reference to `compat_sys_fadvise64_64'
 
-To avoid races such as described above, protect cpuset_attach() call
-with cpu_hotplug_lock.
+Add 'fadvise64_64' to kernel/sys_ni.c as a conditional COMPAT function so
+that when CONFIG_ADVISE_SYSCALLS is not set, there is a fallback function
+available.
 
-Fixes: be367d099270 ("cgroups: let ss->can_attach and ss->attach do whole threadgroups at a time")
-Cc: stable@vger.kernel.org # v2.6.32+
-Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
-Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
-Acked-by: Waiman Long <longman@redhat.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Link: https://lkml.kernel.org/r/20220807220934.5689-1-rdunlap@infradead.org
+Fixes: d3ac21cacc24 ("mm: Support compiling out madvise and fadvise")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index 4c7254e8f49a..97c53f3cc917 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -2289,6 +2289,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
- 	cgroup_taskset_first(tset, &css);
- 	cs = css_cs(css);
+diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
+index a492f159624f..860b2dcf3ac4 100644
+--- a/kernel/sys_ni.c
++++ b/kernel/sys_ni.c
+@@ -277,6 +277,7 @@ COND_SYSCALL(landlock_restrict_self);
  
-+	cpus_read_lock();
- 	percpu_down_write(&cpuset_rwsem);
+ /* mm/fadvise.c */
+ COND_SYSCALL(fadvise64_64);
++COND_SYSCALL_COMPAT(fadvise64_64);
  
- 	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
-@@ -2342,6 +2343,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
- 		wake_up(&cpuset_attach_wq);
- 
- 	percpu_up_write(&cpuset_rwsem);
-+	cpus_read_unlock();
- }
- 
- /* The various types of files and directories in a cpuset file system */
+ /* mm/, CONFIG_MMU only */
+ COND_SYSCALL(swapon);
 
