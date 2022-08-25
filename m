@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D05C15A0E49
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9426C5A0E4B
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:47:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241311AbiHYKrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 06:47:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36724 "EHLO
+        id S241343AbiHYKrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 06:47:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236033AbiHYKrA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:47:00 -0400
+        with ESMTP id S241267AbiHYKrC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:47:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72CE49C1D4
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:46:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 923E8A9C31
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:46:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FF5A618CB
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:46:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA74EC433C1;
-        Thu, 25 Aug 2022 10:46:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EB7C618CB
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:46:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D807C433D7;
+        Thu, 25 Aug 2022 10:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661424412;
-        bh=7ysnkc9EY07rwB9dEnV17ikBHbLSoXH6mlvkzqHlnXc=;
+        s=korg; t=1661424415;
+        bh=cMXVqG5DoffW8+04isphSg/tZNi7CcSa3IlDDE+OcYg=;
         h=Subject:To:Cc:From:Date:From;
-        b=T7WEKSgquxpNrr6k0BvmtpRzaKmDW/t6nPTcLpZ25dAkeuqeuwQtpEj2kFblUWhUX
-         IEDptmEQIideYRYNpD2KOk18Iu95kdEBSmJHnC1ZbBiqtilvnnlJLGoCJmC4EnQfB/
-         l63zuaIC30KjsPll/ftPIeb51eL2JNXPnNq+0MVE=
-Subject: FAILED: patch "[PATCH] cgroup/cpuset: Fix a race between cpuset_attach() and cpu" failed to apply to 5.19-stable tree
+        b=sHnltQJEfH1401nU43h3nnwY1FdoBy+mSOff5Iwo03skpLTqKNBfN+TyYeY6uX2H+
+         v91vXBimDhZsfcmKXFfS3IE7EoW0DWkOsrB0j5iUei/H4dnW2SzIbqdcA0hUs2iZj2
+         KsrikBgScwbJ9Z1sAxrIOvGmq3obaK2eriNoMkoE=
+Subject: FAILED: patch "[PATCH] cgroup/cpuset: Fix a race between cpuset_attach() and cpu" failed to apply to 5.15-stable tree
 To:     zhangqiao22@huawei.com, longman@redhat.com, mkoutny@suse.com,
         tj@kernel.org, zhaogongyi@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Aug 2022 12:46:49 +0200
-Message-ID: <1661424409122135@kroah.com>
+Date:   Thu, 25 Aug 2022 12:46:50 +0200
+Message-ID: <166142441016313@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
