@@ -2,55 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCD785A06C6
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:48:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7005A06AC
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:45:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235913AbiHYBrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:47:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42796 "EHLO
+        id S235750AbiHYBog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:44:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235537AbiHYBod (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:44:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27AD9E0FF;
-        Wed, 24 Aug 2022 18:40:06 -0700 (PDT)
+        with ESMTP id S235714AbiHYBoC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:44:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E738B12AB6;
+        Wed, 24 Aug 2022 18:39:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4CB8CB826E1;
-        Thu, 25 Aug 2022 01:39:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31FC4C433C1;
-        Thu, 25 Aug 2022 01:39:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5422861B19;
+        Thu, 25 Aug 2022 01:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0AFBC433D6;
+        Thu, 25 Aug 2022 01:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391585;
-        bh=T9ii3XIJ7wJWiIYN9uF7PyNAz9LEtyT9eKTmXWjtFLU=;
+        s=k20201202; t=1661391589;
+        bh=ZYBgH2FIuzIL5lnTg9JpERmr3mQXVkh5N9FCybZmjAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7xhrHRSBktuf4c6+EQvIVTMvhsSMB4kDPCJraXw6ZvHb39fD+5NFoM6m7rUTI4FD
-         TwuaFVGkRSa2oRjLz7E9LiPEAFESubtiN3wp+aZLMtVJwwOwG6mvLAbEG/nzS/Snmh
-         efnGXraBpxgtOWhGJE8p/AdrsAyc6Eb0K9F4XjasnB5j710Y7FEVnKGXzOOY7vOa0q
-         ZlylD0h4yZZVpIE33A97hEUMoGQaOBr5pFoYiAh93nWsYXBidPVSRwXGLIZ3j9MIoH
-         fzx/YWUhtdtLgYOE9Ouz2HvLbM7Q2CcpW+YVujvJwWLMjOcUCMX/kkGExz7y3gWPOO
-         +LVlOSi+8BKsg==
+        b=dhT1Xe8n8aHcRKJ9T/o3q8k5HZ6MrtIizQ6vbJ9Uzdq54zuVSucSSz8nzmS4Wvmwq
+         YtByeuyE3OgKgIhL/IZ2DDj5YIczSVHXW7ZJuvCbli3EkW2OwMVNi3quUcf+i2p4+J
+         JWaTXsz32ypmOGsuZtgkR/VxCbt7UlRJ3O/6f9Y32Sc95OXq/juVe+oszxjbAYR9ps
+         lMg2Gd6uEhFV+26MU7iJNlofgoH1ApqIrPZlQ8TozjiOFbdayRyKV7vsWYwox8av5+
+         RyqeFv6iUCbdhX16chYwa+e+G6OjcjygfTKzup1LHlIfJOMTZ07SBKgu+X6EC4m7n9
+         Jkgpm71YScbMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Denis V. Lunev" <den@openvz.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        David Ahern <dsahern@kernel.org>,
-        Yajun Deng <yajun.deng@linux.dev>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        Christian Brauner <brauner@kernel.org>, netdev@vger.kernel.org,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
-        Konstantin Khorenko <khorenko@virtuozzo.com>,
-        kernel@openvz.org, devel@openvz.org,
-        Sasha Levin <sashal@kernel.org>, wangyuweihx@gmail.com
-Subject: [PATCH AUTOSEL 5.4 3/8] neigh: fix possible DoS due to net iface start/stop loop
-Date:   Wed, 24 Aug 2022 21:39:22 -0400
-Message-Id: <20220825013932.23467-3-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 4/8] s390/hypfs: avoid error message under KVM
+Date:   Wed, 24 Aug 2022 21:39:23 -0400
+Message-Id: <20220825013932.23467-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013932.23467-1-sashal@kernel.org>
 References: <20220825013932.23467-1-sashal@kernel.org>
@@ -68,127 +59,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Denis V. Lunev" <den@openvz.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 66ba215cb51323e4e55e38fd5f250e0fae0cbc94 ]
+[ Upstream commit 7b6670b03641ac308aaa6fa2e6f964ac993b5ea3 ]
 
-Normal processing of ARP request (usually this is Ethernet broadcast
-packet) coming to the host is looking like the following:
-* the packet comes to arp_process() call and is passed through routing
-  procedure
-* the request is put into the queue using pneigh_enqueue() if
-  corresponding ARP record is not local (common case for container
-  records on the host)
-* the request is processed by timer (within 80 jiffies by default) and
-  ARP reply is sent from the same arp_process() using
-  NEIGH_CB(skb)->flags & LOCALLY_ENQUEUED condition (flag is set inside
-  pneigh_enqueue())
+When booting under KVM the following error messages are issued:
 
-And here the problem comes. Linux kernel calls pneigh_queue_purge()
-which destroys the whole queue of ARP requests on ANY network interface
-start/stop event through __neigh_ifdown().
+hypfs.7f5705: The hardware system does not support hypfs
+hypfs.7a79f0: Initialization of hypfs failed with rc=-61
 
-This is actually not a problem within the original world as network
-interface start/stop was accessible to the host 'root' only, which
-could do more destructive things. But the world is changed and there
-are Linux containers available. Here container 'root' has an access
-to this API and could be considered as untrusted user in the hosting
-(container's) world.
+Demote the severity of first message from "error" to "info" and issue
+the second message only in other error cases.
 
-Thus there is an attack vector to other containers on node when
-container's root will endlessly start/stop interfaces. We have observed
-similar situation on a real production node when docker container was
-doing such activity and thus other containers on the node become not
-accessible.
-
-The patch proposed doing very simple thing. It drops only packets from
-the same namespace in the pneigh_queue_purge() where network interface
-state change is detected. This is enough to prevent the problem for the
-whole node preserving original semantics of the code.
-
-v2:
-	- do del_timer_sync() if queue is empty after pneigh_queue_purge()
-v3:
-	- rebase to net tree
-
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: David Ahern <dsahern@kernel.org>
-Cc: Yajun Deng <yajun.deng@linux.dev>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Cc: Konstantin Khorenko <khorenko@virtuozzo.com>
-Cc: kernel@openvz.org
-Cc: devel@openvz.org
-Investigated-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Signed-off-by: Denis V. Lunev <den@openvz.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220620094534.18967-1-jgross@suse.com
+[arch/s390/hypfs/hypfs_diag.c changed description]
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ arch/s390/hypfs/hypfs_diag.c | 2 +-
+ arch/s390/hypfs/inode.c      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 8b6140e67e7f..6056b8e54565 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -280,14 +280,23 @@ static int neigh_del_timer(struct neighbour *n)
- 	return 0;
- }
+diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
+index f0bc4dc3e9bf..6511d15ace45 100644
+--- a/arch/s390/hypfs/hypfs_diag.c
++++ b/arch/s390/hypfs/hypfs_diag.c
+@@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
+ 	int rc;
  
--static void pneigh_queue_purge(struct sk_buff_head *list)
-+static void pneigh_queue_purge(struct sk_buff_head *list, struct net *net)
- {
-+	unsigned long flags;
- 	struct sk_buff *skb;
- 
--	while ((skb = skb_dequeue(list)) != NULL) {
--		dev_put(skb->dev);
--		kfree_skb(skb);
-+	spin_lock_irqsave(&list->lock, flags);
-+	skb = skb_peek(list);
-+	while (skb != NULL) {
-+		struct sk_buff *skb_next = skb_peek_next(skb, list);
-+		if (net == NULL || net_eq(dev_net(skb->dev), net)) {
-+			__skb_unlink(skb, list);
-+			dev_put(skb->dev);
-+			kfree_skb(skb);
-+		}
-+		skb = skb_next;
+ 	if (diag204_probe()) {
+-		pr_err("The hardware system does not support hypfs\n");
++		pr_info("The hardware system does not support hypfs\n");
+ 		return -ENODATA;
  	}
-+	spin_unlock_irqrestore(&list->lock, flags);
- }
  
- static void neigh_flush_dev(struct neigh_table *tbl, struct net_device *dev,
-@@ -358,9 +367,9 @@ static int __neigh_ifdown(struct neigh_table *tbl, struct net_device *dev,
- 	write_lock_bh(&tbl->lock);
- 	neigh_flush_dev(tbl, dev, skip_perm);
- 	pneigh_ifdown_and_unlock(tbl, dev);
--
--	del_timer_sync(&tbl->proxy_timer);
--	pneigh_queue_purge(&tbl->proxy_queue);
-+	pneigh_queue_purge(&tbl->proxy_queue, dev_net(dev));
-+	if (skb_queue_empty_lockless(&tbl->proxy_queue))
-+		del_timer_sync(&tbl->proxy_timer);
- 	return 0;
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index 70139d0791b6..ca4fc66a361f 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -501,9 +501,9 @@ static int __init hypfs_init(void)
+ 	hypfs_vm_exit();
+ fail_hypfs_diag_exit:
+ 	hypfs_diag_exit();
++	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ fail_dbfs_exit:
+ 	hypfs_dbfs_exit();
+-	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ 	return rc;
  }
- 
-@@ -1741,7 +1750,7 @@ int neigh_table_clear(int index, struct neigh_table *tbl)
- 	/* It is not clean... Fix it to unload IPv6 module safely */
- 	cancel_delayed_work_sync(&tbl->gc_work);
- 	del_timer_sync(&tbl->proxy_timer);
--	pneigh_queue_purge(&tbl->proxy_queue);
-+	pneigh_queue_purge(&tbl->proxy_queue, NULL);
- 	neigh_ifdown(tbl, NULL);
- 	if (atomic_read(&tbl->entries))
- 		pr_crit("neighbour leakage\n");
+ device_initcall(hypfs_init)
 -- 
 2.35.1
 
