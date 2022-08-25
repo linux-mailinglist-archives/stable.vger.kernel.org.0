@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5480E5A0693
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AB835A067A
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233785AbiHYBmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:42:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39784 "EHLO
+        id S230002AbiHYBmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234248AbiHYBla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:41:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 978019D8EF;
-        Wed, 24 Aug 2022 18:38:37 -0700 (PDT)
+        with ESMTP id S234944AbiHYBmI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:42:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D20339AFEA;
+        Wed, 24 Aug 2022 18:38:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E73E61AF3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 439CBB826E0;
+        Thu, 25 Aug 2022 01:38:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F43C433C1;
         Thu, 25 Aug 2022 01:38:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED376C4347C;
-        Thu, 25 Aug 2022 01:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391504;
-        bh=8N+mzoNMN7tQAB6gKqF+atcRFl7OB0EncNmJEg7+B8U=;
+        s=k20201202; t=1661391508;
+        bh=zPdJRTP/zJaTHE1aJVg+Okvx5FewFAL1H6bhpK9msgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvGbfRhKFhHMQ/QYljq6ycIj0VsFAF0jQYWXVUEZn+am+8oVTaq49LlFppA+BomTn
-         7pEarfRBVapDOWGG74Qeejkj+/90SPOEc0zp/JSwzbwkDWWd0MeFfSs27Dm/eW6g1Y
-         NLeqHJciwJfq7O84Ok0cmUoRqdAVhsEnzE8/mfJ6H1N4aCIK8gG9+T4XgHGB5PSsYv
-         g9gnYDpR+2F9aKGPn3hZehWAVTGtknTCz3Sy1Ji0YePz3KypLz/ebzbqK7YOwhsDUS
-         8s6h/yyfsvCuk9JKx7B/xUmPpdBQ1ok039PFEH9SjCo1N7MgAurjyWzIoPqPcFFSZe
-         miEo0lYOUHKzw==
+        b=WbkdyEiBN4T2TrP5tbfbeN/jsDu0BFMzh4Q6XL6AR5XY0b0tsAOS/GwBzWRGN0Mbk
+         CQI4S9N3Ur2CkgTAt3eowFaDh2Ly2YRtYK3ozUE9dFAWpGiISnOAe6nH//mJP+in9f
+         UfcyjLukR9yj+CNik4uxylA0TzsABDkPy9fDcHSed3dOPknluv1/8kzFDzydVhNw04
+         b/5wEt3AHhtbud/UPh/Dvk2UgwvoATt/sGWtMU0P8fMf55qymgKzm7MJf+Ix7ZRINE
+         /H4mp12GsitP7A9eg1Sf3sYnXTqgOylqildI8lvhRJXSUDItccfwQkRHmT7c7uopsn
+         H+9NBsz8bWP5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, clm@fb.com,
         linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 17/20] btrfs: move lockdep class helpers to locking.c
-Date:   Wed, 24 Aug 2022 21:37:09 -0400
-Message-Id: <20220825013713.22656-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 18/20] btrfs: fix lockdep splat with reloc root extent buffers
+Date:   Wed, 24 Aug 2022 21:37:10 -0400
+Message-Id: <20220825013713.22656-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013713.22656-1-sashal@kernel.org>
 References: <20220825013713.22656-1-sashal@kernel.org>
@@ -60,244 +59,363 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 0a27a0474d146eb79e09ec88bf0d4229f4cfc1b8 ]
+[ Upstream commit b40130b23ca4a08c5785d5a3559805916bddba3c ]
 
-These definitions exist in disk-io.c, which is not related to the
-locking.  Move this over to locking.h/c where it makes more sense.
+We have been hitting the following lockdep splat with btrfs/187 recently
 
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+  WARNING: possible circular locking dependency detected
+  5.19.0-rc8+ #775 Not tainted
+  ------------------------------------------------------
+  btrfs/752500 is trying to acquire lock:
+  ffff97e1875a97b8 (btrfs-treloc-02#2){+.+.}-{3:3}, at: __btrfs_tree_lock+0x24/0x110
+
+  but task is already holding lock:
+  ffff97e1875a9278 (btrfs-tree-01/1){+.+.}-{3:3}, at: __btrfs_tree_lock+0x24/0x110
+
+  which lock already depends on the new lock.
+
+  the existing dependency chain (in reverse order) is:
+
+  -> #2 (btrfs-tree-01/1){+.+.}-{3:3}:
+	 down_write_nested+0x41/0x80
+	 __btrfs_tree_lock+0x24/0x110
+	 btrfs_init_new_buffer+0x7d/0x2c0
+	 btrfs_alloc_tree_block+0x120/0x3b0
+	 __btrfs_cow_block+0x136/0x600
+	 btrfs_cow_block+0x10b/0x230
+	 btrfs_search_slot+0x53b/0xb70
+	 btrfs_lookup_inode+0x2a/0xa0
+	 __btrfs_update_delayed_inode+0x5f/0x280
+	 btrfs_async_run_delayed_root+0x24c/0x290
+	 btrfs_work_helper+0xf2/0x3e0
+	 process_one_work+0x271/0x590
+	 worker_thread+0x52/0x3b0
+	 kthread+0xf0/0x120
+	 ret_from_fork+0x1f/0x30
+
+  -> #1 (btrfs-tree-01){++++}-{3:3}:
+	 down_write_nested+0x41/0x80
+	 __btrfs_tree_lock+0x24/0x110
+	 btrfs_search_slot+0x3c3/0xb70
+	 do_relocation+0x10c/0x6b0
+	 relocate_tree_blocks+0x317/0x6d0
+	 relocate_block_group+0x1f1/0x560
+	 btrfs_relocate_block_group+0x23e/0x400
+	 btrfs_relocate_chunk+0x4c/0x140
+	 btrfs_balance+0x755/0xe40
+	 btrfs_ioctl+0x1ea2/0x2c90
+	 __x64_sys_ioctl+0x88/0xc0
+	 do_syscall_64+0x38/0x90
+	 entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+  -> #0 (btrfs-treloc-02#2){+.+.}-{3:3}:
+	 __lock_acquire+0x1122/0x1e10
+	 lock_acquire+0xc2/0x2d0
+	 down_write_nested+0x41/0x80
+	 __btrfs_tree_lock+0x24/0x110
+	 btrfs_lock_root_node+0x31/0x50
+	 btrfs_search_slot+0x1cb/0xb70
+	 replace_path+0x541/0x9f0
+	 merge_reloc_root+0x1d6/0x610
+	 merge_reloc_roots+0xe2/0x260
+	 relocate_block_group+0x2c8/0x560
+	 btrfs_relocate_block_group+0x23e/0x400
+	 btrfs_relocate_chunk+0x4c/0x140
+	 btrfs_balance+0x755/0xe40
+	 btrfs_ioctl+0x1ea2/0x2c90
+	 __x64_sys_ioctl+0x88/0xc0
+	 do_syscall_64+0x38/0x90
+	 entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+  other info that might help us debug this:
+
+  Chain exists of:
+    btrfs-treloc-02#2 --> btrfs-tree-01 --> btrfs-tree-01/1
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(btrfs-tree-01/1);
+				 lock(btrfs-tree-01);
+				 lock(btrfs-tree-01/1);
+    lock(btrfs-treloc-02#2);
+
+   *** DEADLOCK ***
+
+  7 locks held by btrfs/752500:
+   #0: ffff97e292fdf460 (sb_writers#12){.+.+}-{0:0}, at: btrfs_ioctl+0x208/0x2c90
+   #1: ffff97e284c02050 (&fs_info->reclaim_bgs_lock){+.+.}-{3:3}, at: btrfs_balance+0x55f/0xe40
+   #2: ffff97e284c00878 (&fs_info->cleaner_mutex){+.+.}-{3:3}, at: btrfs_relocate_block_group+0x236/0x400
+   #3: ffff97e292fdf650 (sb_internal#2){.+.+}-{0:0}, at: merge_reloc_root+0xef/0x610
+   #4: ffff97e284c02378 (btrfs_trans_num_writers){++++}-{0:0}, at: join_transaction+0x1a8/0x5a0
+   #5: ffff97e284c023a0 (btrfs_trans_num_extwriters){++++}-{0:0}, at: join_transaction+0x1a8/0x5a0
+   #6: ffff97e1875a9278 (btrfs-tree-01/1){+.+.}-{3:3}, at: __btrfs_tree_lock+0x24/0x110
+
+  stack backtrace:
+  CPU: 1 PID: 752500 Comm: btrfs Not tainted 5.19.0-rc8+ #775
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  Call Trace:
+
+   dump_stack_lvl+0x56/0x73
+   check_noncircular+0xd6/0x100
+   ? lock_is_held_type+0xe2/0x140
+   __lock_acquire+0x1122/0x1e10
+   lock_acquire+0xc2/0x2d0
+   ? __btrfs_tree_lock+0x24/0x110
+   down_write_nested+0x41/0x80
+   ? __btrfs_tree_lock+0x24/0x110
+   __btrfs_tree_lock+0x24/0x110
+   btrfs_lock_root_node+0x31/0x50
+   btrfs_search_slot+0x1cb/0xb70
+   ? lock_release+0x137/0x2d0
+   ? _raw_spin_unlock+0x29/0x50
+   ? release_extent_buffer+0x128/0x180
+   replace_path+0x541/0x9f0
+   merge_reloc_root+0x1d6/0x610
+   merge_reloc_roots+0xe2/0x260
+   relocate_block_group+0x2c8/0x560
+   btrfs_relocate_block_group+0x23e/0x400
+   btrfs_relocate_chunk+0x4c/0x140
+   btrfs_balance+0x755/0xe40
+   btrfs_ioctl+0x1ea2/0x2c90
+   ? lock_is_held_type+0xe2/0x140
+   ? lock_is_held_type+0xe2/0x140
+   ? __x64_sys_ioctl+0x88/0xc0
+   __x64_sys_ioctl+0x88/0xc0
+   do_syscall_64+0x38/0x90
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+This isn't necessarily new, it's just tricky to hit in practice.  There
+are two competing things going on here.  With relocation we create a
+snapshot of every fs tree with a reloc tree.  Any extent buffers that
+get initialized here are initialized with the reloc root lockdep key.
+However since it is a snapshot, any blocks that are currently in cache
+that originally belonged to the fs tree will have the normal tree
+lockdep key set.  This creates the lock dependency of
+
+  reloc tree -> normal tree
+
+for the extent buffer locking during the first phase of the relocation
+as we walk down the reloc root to relocate blocks.
+
+However this is problematic because the final phase of the relocation is
+merging the reloc root into the original fs root.  This involves
+searching down to any keys that exist in the original fs root and then
+swapping the relocated block and the original fs root block.  We have to
+search down to the fs root first, and then go search the reloc root for
+the block we need to replace.  This creates the dependency of
+
+  normal tree -> reloc tree
+
+which is why lockdep complains.
+
+Additionally even if we were to fix this particular mismatch with a
+different nesting for the merge case, we're still slotting in a block
+that has a owner of the reloc root objectid into a normal tree, so that
+block will have its lockdep key set to the tree reloc root, and create a
+lockdep splat later on when we wander into that block from the fs root.
+
+Unfortunately the only solution here is to make sure we do not set the
+lockdep key to the reloc tree lockdep key normally, and then reset any
+blocks we wander into from the reloc root when we're doing the merged.
+
+This solves the problem of having mixed tree reloc keys intermixed with
+normal tree keys, and then allows us to make sure in the merge case we
+maintain the lock order of
+
+  normal tree -> reloc tree
+
+We handle this by setting a bit on the reloc root when we do the search
+for the block we want to relocate, and any block we search into or COW
+at that point gets set to the reloc tree key.  This works correctly
+because we only ever COW down to the parent node, so we aren't resetting
+the key for the block we're linking into the fs root.
+
+With this patch we no longer have the lockdep splat in btrfs/187.
+
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c | 82 ----------------------------------------------
- fs/btrfs/disk-io.h | 10 ------
- fs/btrfs/locking.c | 80 ++++++++++++++++++++++++++++++++++++++++++++
- fs/btrfs/locking.h |  9 +++++
- 4 files changed, 89 insertions(+), 92 deletions(-)
+ fs/btrfs/ctree.c       |  3 +++
+ fs/btrfs/ctree.h       |  2 ++
+ fs/btrfs/extent-tree.c | 18 +++++++++++++++++-
+ fs/btrfs/extent_io.c   | 11 ++++++++++-
+ fs/btrfs/locking.c     | 11 +++++++++++
+ fs/btrfs/locking.h     |  5 +++++
+ fs/btrfs/relocation.c  |  2 ++
+ 7 files changed, 50 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index e65c3039caf1..c9edc668b3d9 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -121,88 +121,6 @@ struct async_submit_bio {
- 	blk_status_t status;
+diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
+index 341ce90d24b1..fb7e331b6975 100644
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -1938,6 +1938,9 @@ int btrfs_search_slot(struct btrfs_trans_handle *trans, struct btrfs_root *root,
+ 
+ 		if (!p->skip_locking) {
+ 			level = btrfs_header_level(b);
++
++			btrfs_maybe_reset_lockdep_class(root, b);
++
+ 			if (level <= write_lock_level) {
+ 				btrfs_tree_lock(b);
+ 				p->locks[level] = BTRFS_WRITE_LOCK;
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index d1838de0b39c..ba402f60c87f 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -1105,6 +1105,8 @@ enum {
+ 	BTRFS_ROOT_QGROUP_FLUSHING,
+ 	/* This root has a drop operation that was started previously. */
+ 	BTRFS_ROOT_UNFINISHED_DROP,
++	/* This reloc root needs to have its buffers lockdep class reset. */
++	BTRFS_ROOT_RESET_LOCKDEP_CLASS,
  };
  
--/*
-- * Lockdep class keys for extent_buffer->lock's in this root.  For a given
-- * eb, the lockdep key is determined by the btrfs_root it belongs to and
-- * the level the eb occupies in the tree.
-- *
-- * Different roots are used for different purposes and may nest inside each
-- * other and they require separate keysets.  As lockdep keys should be
-- * static, assign keysets according to the purpose of the root as indicated
-- * by btrfs_root->root_key.objectid.  This ensures that all special purpose
-- * roots have separate keysets.
-- *
-- * Lock-nesting across peer nodes is always done with the immediate parent
-- * node locked thus preventing deadlock.  As lockdep doesn't know this, use
-- * subclass to avoid triggering lockdep warning in such cases.
-- *
-- * The key is set by the readpage_end_io_hook after the buffer has passed
-- * csum validation but before the pages are unlocked.  It is also set by
-- * btrfs_init_new_buffer on freshly allocated blocks.
-- *
-- * We also add a check to make sure the highest level of the tree is the
-- * same as our lockdep setup here.  If BTRFS_MAX_LEVEL changes, this code
-- * needs update as well.
-- */
--#ifdef CONFIG_DEBUG_LOCK_ALLOC
--# if BTRFS_MAX_LEVEL != 8
--#  error
--# endif
--
--#define DEFINE_LEVEL(stem, level)					\
--	.names[level] = "btrfs-" stem "-0" #level,
--
--#define DEFINE_NAME(stem)						\
--	DEFINE_LEVEL(stem, 0)						\
--	DEFINE_LEVEL(stem, 1)						\
--	DEFINE_LEVEL(stem, 2)						\
--	DEFINE_LEVEL(stem, 3)						\
--	DEFINE_LEVEL(stem, 4)						\
--	DEFINE_LEVEL(stem, 5)						\
--	DEFINE_LEVEL(stem, 6)						\
--	DEFINE_LEVEL(stem, 7)
--
--static struct btrfs_lockdep_keyset {
--	u64			id;		/* root objectid */
--	/* Longest entry: btrfs-free-space-00 */
--	char			names[BTRFS_MAX_LEVEL][20];
--	struct lock_class_key	keys[BTRFS_MAX_LEVEL];
--} btrfs_lockdep_keysets[] = {
--	{ .id = BTRFS_ROOT_TREE_OBJECTID,	DEFINE_NAME("root")	},
--	{ .id = BTRFS_EXTENT_TREE_OBJECTID,	DEFINE_NAME("extent")	},
--	{ .id = BTRFS_CHUNK_TREE_OBJECTID,	DEFINE_NAME("chunk")	},
--	{ .id = BTRFS_DEV_TREE_OBJECTID,	DEFINE_NAME("dev")	},
--	{ .id = BTRFS_CSUM_TREE_OBJECTID,	DEFINE_NAME("csum")	},
--	{ .id = BTRFS_QUOTA_TREE_OBJECTID,	DEFINE_NAME("quota")	},
--	{ .id = BTRFS_TREE_LOG_OBJECTID,	DEFINE_NAME("log")	},
--	{ .id = BTRFS_TREE_RELOC_OBJECTID,	DEFINE_NAME("treloc")	},
--	{ .id = BTRFS_DATA_RELOC_TREE_OBJECTID,	DEFINE_NAME("dreloc")	},
--	{ .id = BTRFS_UUID_TREE_OBJECTID,	DEFINE_NAME("uuid")	},
--	{ .id = BTRFS_FREE_SPACE_TREE_OBJECTID,	DEFINE_NAME("free-space") },
--	{ .id = 0,				DEFINE_NAME("tree")	},
--};
--
--#undef DEFINE_LEVEL
--#undef DEFINE_NAME
--
--void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb,
--				    int level)
--{
--	struct btrfs_lockdep_keyset *ks;
--
--	BUG_ON(level >= ARRAY_SIZE(ks->keys));
--
--	/* find the matching keyset, id 0 is the default entry */
--	for (ks = btrfs_lockdep_keysets; ks->id; ks++)
--		if (ks->id == objectid)
--			break;
--
--	lockdep_set_class_and_name(&eb->lock,
--				   &ks->keys[level], ks->names[level]);
--}
--
--#endif
--
- /*
-  * Compute the csum of a btree block and store the result to provided buffer.
-  */
-diff --git a/fs/btrfs/disk-io.h b/fs/btrfs/disk-io.h
-index 0e7e9526b6a8..1b8fd3deafc9 100644
---- a/fs/btrfs/disk-io.h
-+++ b/fs/btrfs/disk-io.h
-@@ -140,14 +140,4 @@ int btrfs_init_root_free_objectid(struct btrfs_root *root);
- int __init btrfs_end_io_wq_init(void);
- void __cold btrfs_end_io_wq_exit(void);
+ static inline void btrfs_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 248ea15c9734..c71f6480d4d4 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -4781,6 +4781,7 @@ btrfs_init_new_buffer(struct btrfs_trans_handle *trans, struct btrfs_root *root,
+ {
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	struct extent_buffer *buf;
++	u64 lockdep_owner = owner;
  
--#ifdef CONFIG_DEBUG_LOCK_ALLOC
--void btrfs_set_buffer_lockdep_class(u64 objectid,
--			            struct extent_buffer *eb, int level);
--#else
--static inline void btrfs_set_buffer_lockdep_class(u64 objectid,
--					struct extent_buffer *eb, int level)
--{
--}
--#endif
--
- #endif
+ 	buf = btrfs_find_create_tree_block(fs_info, bytenr, owner, level);
+ 	if (IS_ERR(buf))
+@@ -4799,12 +4800,27 @@ btrfs_init_new_buffer(struct btrfs_trans_handle *trans, struct btrfs_root *root,
+ 		return ERR_PTR(-EUCLEAN);
+ 	}
+ 
++	/*
++	 * The reloc trees are just snapshots, so we need them to appear to be
++	 * just like any other fs tree WRT lockdep.
++	 *
++	 * The exception however is in replace_path() in relocation, where we
++	 * hold the lock on the original fs root and then search for the reloc
++	 * root.  At that point we need to make sure any reloc root buffers are
++	 * set to the BTRFS_TREE_RELOC_OBJECTID lockdep class in order to make
++	 * lockdep happy.
++	 */
++	if (lockdep_owner == BTRFS_TREE_RELOC_OBJECTID &&
++	    !test_bit(BTRFS_ROOT_RESET_LOCKDEP_CLASS, &root->state))
++		lockdep_owner = BTRFS_FS_TREE_OBJECTID;
++
+ 	/*
+ 	 * This needs to stay, because we could allocate a freed block from an
+ 	 * old tree into a new tree, so we need to make sure this new block is
+ 	 * set to the appropriate level and owner.
+ 	 */
+-	btrfs_set_buffer_lockdep_class(owner, buf, level);
++	btrfs_set_buffer_lockdep_class(lockdep_owner, buf, level);
++
+ 	__btrfs_tree_lock(buf, nest);
+ 	btrfs_clean_tree_block(buf);
+ 	clear_bit(EXTENT_BUFFER_STALE, &buf->bflags);
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index a90546b3107c..0346a0d95729 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -6107,6 +6107,7 @@ struct extent_buffer *alloc_extent_buffer(struct btrfs_fs_info *fs_info,
+ 	struct extent_buffer *exists = NULL;
+ 	struct page *p;
+ 	struct address_space *mapping = fs_info->btree_inode->i_mapping;
++	u64 lockdep_owner = owner_root;
+ 	int uptodate = 1;
+ 	int ret;
+ 
+@@ -6141,7 +6142,15 @@ struct extent_buffer *alloc_extent_buffer(struct btrfs_fs_info *fs_info,
+ 	eb = __alloc_extent_buffer(fs_info, start, len);
+ 	if (!eb)
+ 		return ERR_PTR(-ENOMEM);
+-	btrfs_set_buffer_lockdep_class(owner_root, eb, level);
++
++	/*
++	 * The reloc trees are just snapshots, so we need them to appear to be
++	 * just like any other fs tree WRT lockdep.
++	 */
++	if (lockdep_owner == BTRFS_TREE_RELOC_OBJECTID)
++		lockdep_owner = BTRFS_FS_TREE_OBJECTID;
++
++	btrfs_set_buffer_lockdep_class(lockdep_owner, eb, level);
+ 
+ 	num_pages = num_extent_pages(eb);
+ 	for (i = 0; i < num_pages; i++, index++) {
 diff --git a/fs/btrfs/locking.c b/fs/btrfs/locking.c
-index 33461b4f9c8b..5747c63929df 100644
+index 5747c63929df..9063072b399b 100644
 --- a/fs/btrfs/locking.c
 +++ b/fs/btrfs/locking.c
-@@ -13,6 +13,86 @@
- #include "extent_io.h"
- #include "locking.h"
+@@ -91,6 +91,13 @@ void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb, int
+ 	lockdep_set_class_and_name(&eb->lock, &ks->keys[level], ks->names[level]);
+ }
  
-+/*
-+ * Lockdep class keys for extent_buffer->lock's in this root.  For a given
-+ * eb, the lockdep key is determined by the btrfs_root it belongs to and
-+ * the level the eb occupies in the tree.
-+ *
-+ * Different roots are used for different purposes and may nest inside each
-+ * other and they require separate keysets.  As lockdep keys should be
-+ * static, assign keysets according to the purpose of the root as indicated
-+ * by btrfs_root->root_key.objectid.  This ensures that all special purpose
-+ * roots have separate keysets.
-+ *
-+ * Lock-nesting across peer nodes is always done with the immediate parent
-+ * node locked thus preventing deadlock.  As lockdep doesn't know this, use
-+ * subclass to avoid triggering lockdep warning in such cases.
-+ *
-+ * The key is set by the readpage_end_io_hook after the buffer has passed
-+ * csum validation but before the pages are unlocked.  It is also set by
-+ * btrfs_init_new_buffer on freshly allocated blocks.
-+ *
-+ * We also add a check to make sure the highest level of the tree is the
-+ * same as our lockdep setup here.  If BTRFS_MAX_LEVEL changes, this code
-+ * needs update as well.
-+ */
-+#ifdef CONFIG_DEBUG_LOCK_ALLOC
-+#if BTRFS_MAX_LEVEL != 8
-+#error
-+#endif
-+
-+#define DEFINE_LEVEL(stem, level)					\
-+	.names[level] = "btrfs-" stem "-0" #level,
-+
-+#define DEFINE_NAME(stem)						\
-+	DEFINE_LEVEL(stem, 0)						\
-+	DEFINE_LEVEL(stem, 1)						\
-+	DEFINE_LEVEL(stem, 2)						\
-+	DEFINE_LEVEL(stem, 3)						\
-+	DEFINE_LEVEL(stem, 4)						\
-+	DEFINE_LEVEL(stem, 5)						\
-+	DEFINE_LEVEL(stem, 6)						\
-+	DEFINE_LEVEL(stem, 7)
-+
-+static struct btrfs_lockdep_keyset {
-+	u64			id;		/* root objectid */
-+	/* Longest entry: btrfs-free-space-00 */
-+	char			names[BTRFS_MAX_LEVEL][20];
-+	struct lock_class_key	keys[BTRFS_MAX_LEVEL];
-+} btrfs_lockdep_keysets[] = {
-+	{ .id = BTRFS_ROOT_TREE_OBJECTID,	DEFINE_NAME("root")	},
-+	{ .id = BTRFS_EXTENT_TREE_OBJECTID,	DEFINE_NAME("extent")	},
-+	{ .id = BTRFS_CHUNK_TREE_OBJECTID,	DEFINE_NAME("chunk")	},
-+	{ .id = BTRFS_DEV_TREE_OBJECTID,	DEFINE_NAME("dev")	},
-+	{ .id = BTRFS_CSUM_TREE_OBJECTID,	DEFINE_NAME("csum")	},
-+	{ .id = BTRFS_QUOTA_TREE_OBJECTID,	DEFINE_NAME("quota")	},
-+	{ .id = BTRFS_TREE_LOG_OBJECTID,	DEFINE_NAME("log")	},
-+	{ .id = BTRFS_TREE_RELOC_OBJECTID,	DEFINE_NAME("treloc")	},
-+	{ .id = BTRFS_DATA_RELOC_TREE_OBJECTID,	DEFINE_NAME("dreloc")	},
-+	{ .id = BTRFS_UUID_TREE_OBJECTID,	DEFINE_NAME("uuid")	},
-+	{ .id = BTRFS_FREE_SPACE_TREE_OBJECTID,	DEFINE_NAME("free-space") },
-+	{ .id = 0,				DEFINE_NAME("tree")	},
-+};
-+
-+#undef DEFINE_LEVEL
-+#undef DEFINE_NAME
-+
-+void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb, int level)
++void btrfs_maybe_reset_lockdep_class(struct btrfs_root *root, struct extent_buffer *eb)
 +{
-+	struct btrfs_lockdep_keyset *ks;
-+
-+	BUG_ON(level >= ARRAY_SIZE(ks->keys));
-+
-+	/* Find the matching keyset, id 0 is the default entry */
-+	for (ks = btrfs_lockdep_keysets; ks->id; ks++)
-+		if (ks->id == objectid)
-+			break;
-+
-+	lockdep_set_class_and_name(&eb->lock, &ks->keys[level], ks->names[level]);
++	if (test_bit(BTRFS_ROOT_RESET_LOCKDEP_CLASS, &root->state))
++		btrfs_set_buffer_lockdep_class(root->root_key.objectid,
++					       eb, btrfs_header_level(eb));
 +}
-+
-+#endif
-+
- /*
-  * Extent buffer locking
-  * =====================
-diff --git a/fs/btrfs/locking.h b/fs/btrfs/locking.h
-index a2e1f1f5c6e3..97370ec0cd29 100644
---- a/fs/btrfs/locking.h
-+++ b/fs/btrfs/locking.h
-@@ -130,4 +130,13 @@ void btrfs_drew_write_unlock(struct btrfs_drew_lock *lock);
- void btrfs_drew_read_lock(struct btrfs_drew_lock *lock);
- void btrfs_drew_read_unlock(struct btrfs_drew_lock *lock);
- 
-+#ifdef CONFIG_DEBUG_LOCK_ALLOC
-+void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb, int level);
-+#else
-+static inline void btrfs_set_buffer_lockdep_class(u64 objectid,
-+					struct extent_buffer *eb, int level)
-+{
-+}
-+#endif
 +
  #endif
+ 
+ /*
+@@ -244,6 +251,8 @@ struct extent_buffer *btrfs_lock_root_node(struct btrfs_root *root)
+ 
+ 	while (1) {
+ 		eb = btrfs_root_node(root);
++
++		btrfs_maybe_reset_lockdep_class(root, eb);
+ 		btrfs_tree_lock(eb);
+ 		if (eb == root->node)
+ 			break;
+@@ -265,6 +274,8 @@ struct extent_buffer *btrfs_read_lock_root_node(struct btrfs_root *root)
+ 
+ 	while (1) {
+ 		eb = btrfs_root_node(root);
++
++		btrfs_maybe_reset_lockdep_class(root, eb);
+ 		btrfs_tree_read_lock(eb);
+ 		if (eb == root->node)
+ 			break;
+diff --git a/fs/btrfs/locking.h b/fs/btrfs/locking.h
+index 97370ec0cd29..26a2f962c268 100644
+--- a/fs/btrfs/locking.h
++++ b/fs/btrfs/locking.h
+@@ -132,11 +132,16 @@ void btrfs_drew_read_unlock(struct btrfs_drew_lock *lock);
+ 
+ #ifdef CONFIG_DEBUG_LOCK_ALLOC
+ void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb, int level);
++void btrfs_maybe_reset_lockdep_class(struct btrfs_root *root, struct extent_buffer *eb);
+ #else
+ static inline void btrfs_set_buffer_lockdep_class(u64 objectid,
+ 					struct extent_buffer *eb, int level)
+ {
+ }
++static inline void btrfs_maybe_reset_lockdep_class(struct btrfs_root *root,
++						   struct extent_buffer *eb)
++{
++}
+ #endif
+ 
+ #endif
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index 429a198f8937..689176c5f748 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1326,7 +1326,9 @@ int replace_path(struct btrfs_trans_handle *trans, struct reloc_control *rc,
+ 		btrfs_release_path(path);
+ 
+ 		path->lowest_level = level;
++		set_bit(BTRFS_ROOT_RESET_LOCKDEP_CLASS, &src->state);
+ 		ret = btrfs_search_slot(trans, src, &key, path, 0, 1);
++		clear_bit(BTRFS_ROOT_RESET_LOCKDEP_CLASS, &src->state);
+ 		path->lowest_level = 0;
+ 		if (ret) {
+ 			if (ret > 0)
 -- 
 2.35.1
 
