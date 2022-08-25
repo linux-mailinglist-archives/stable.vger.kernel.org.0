@@ -2,53 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA44B5A0658
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:41:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16A425A0615
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231313AbiHYBky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:40:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54268 "EHLO
+        id S232549AbiHYBim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:38:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233811AbiHYBkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:40:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77B09D129;
-        Wed, 24 Aug 2022 18:38:10 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7DC161A28;
-        Thu, 25 Aug 2022 01:37:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C990C433D6;
-        Thu, 25 Aug 2022 01:37:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391432;
-        bh=bKh5KR2W0oz7ntxU1iHFuyHloCmf+nfwwAF8F2agcNs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSvnDY/gB7om1myFfBeFmaMGBcCGjUFL1rRld9h/jctKqJfkaT5GAMPMXwgjEP8zA
-         f+iN/45PHjC5cVuN/L39/XDFbvyVS5zp0/8LjW/QiznK8cHIF/Wr+zeVfQwTpGQSkj
-         gYBTz9yg3q1NTo+nNSuy0fjTgO3JRf0qH+5LBiTybNPq4KJxVwOCaiFwPZLCiujHgk
-         YKa6VUGmtDLkA0Fd0cUdIo2WevM2Lysgqv3eNbZig2VFIk1YjvD1xbsNIit+eOBMEC
-         HxQ6/zF8/9C8ctvAtKqaE9V5afA1dI1qD65UeeGFrf3zRquACZI1SeHBXIiJyRMkY4
-         DR4yvG5IawA/w==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Jihong <yangjihong1@huawei.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
-Subject: [PATCH AUTOSEL 5.19 38/38] ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
-Date:   Wed, 24 Aug 2022 21:34:01 -0400
-Message-Id: <20220825013401.22096-38-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220825013401.22096-1-sashal@kernel.org>
-References: <20220825013401.22096-1-sashal@kernel.org>
+        with ESMTP id S232935AbiHYBiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:38:18 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845D29C517;
+        Wed, 24 Aug 2022 18:37:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1661391430; x=1692927430;
+  h=from:to:cc:subject:references:date:in-reply-to:
+   message-id:mime-version;
+  bh=FTVuUuJ4Lc3bgKKtX+XXFr3/nIW0Mm2/GA4OVkkE7hw=;
+  b=cklqAYI5cKYZS/yq77KLD+6zAEYAeicBz7BOBoCK/tBONEQFjbxs+Iyf
+   L9Z2JQO41ybeDbh8/zv1mUyDBa7/OBZhEg5pELVw9WiMSPd2/u7ZAJMc+
+   F15K3+45VKNpOZy65unpiCzSZb/undfsJLMOMBVXYSZZP6qz/0dOJ2rdK
+   CSBFUU76QK3Iz1FhW6CYFk/m+Jk1P0qh+Aaf5FloST8qRqLbih7fIzKll
+   btEvAYsbWC4kjlUV4em/+NXIeWENuGNOFlL5JJLSsCq/jKEQoF91zn8q1
+   g8ncxrat4hu9FWVGDTH69yeFmwCLxpXhZnQBxYGa3LOi+/sbKbkL182/q
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10449"; a="294119178"
+X-IronPort-AV: E=Sophos;i="5.93,262,1654585200"; 
+   d="scan'208";a="294119178"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2022 18:36:55 -0700
+X-IronPort-AV: E=Sophos;i="5.93,262,1654585200"; 
+   d="scan'208";a="586663677"
+Received: from yhuang6-desk2.sh.intel.com (HELO yhuang6-desk2.ccr.corp.intel.com) ([10.238.208.55])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2022 18:36:50 -0700
+From:   "Huang, Ying" <ying.huang@intel.com>
+To:     Alistair Popple <apopple@nvidia.com>
+Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
+        Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        huang ying <huang.ying.caritas@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Sierra Guiza, Alejandro (Alex)" <alex.sierra@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Logan Gunthorpe <logang@deltatee.com>, paulus@ozlabs.org,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+Subject: Re: [PATCH v3 1/3] mm/migrate_device.c: Flush TLB while holding PTL
+References: <3b01af093515ce2960ac39bb16ff77473150d179.1661309831.git-series.apopple@nvidia.com>
+Date:   Thu, 25 Aug 2022 09:36:39 +0800
+In-Reply-To: <3b01af093515ce2960ac39bb16ff77473150d179.1661309831.git-series.apopple@nvidia.com>
+        (Alistair Popple's message of "Wed, 24 Aug 2022 13:03:37 +1000")
+Message-ID: <87sfll2jfc.fsf@yhuang6-desk2.ccr.corp.intel.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ascii
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,96 +73,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+Alistair Popple <apopple@nvidia.com> writes:
 
-[ Upstream commit c3b0f72e805f0801f05fa2aa52011c4bfc694c44 ]
+> When clearing a PTE the TLB should be flushed whilst still holding the
+> PTL to avoid a potential race with madvise/munmap/etc. For example
+> consider the following sequence:
+>
+>   CPU0                          CPU1
+>   ----                          ----
+>
+>   migrate_vma_collect_pmd()
+>   pte_unmap_unlock()
+>                                 madvise(MADV_DONTNEED)
+>                                 -> zap_pte_range()
+>                                 pte_offset_map_lock()
+>                                 [ PTE not present, TLB not flushed ]
+>                                 pte_unmap_unlock()
+>                                 [ page is still accessible via stale TLB ]
+>   flush_tlb_range()
+>
+> In this case the page may still be accessed via the stale TLB entry
+> after madvise returns. Fix this by flushing the TLB while holding the
+> PTL.
+>
+> Signed-off-by: Alistair Popple <apopple@nvidia.com>
+> Reported-by: Nadav Amit <nadav.amit@gmail.com>
+> Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
+> Cc: stable@vger.kernel.org
+>
+> ---
+>
+> Changes for v3:
+>
+>  - New for v3
+> ---
+>  mm/migrate_device.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/mm/migrate_device.c b/mm/migrate_device.c
+> index 27fb37d..6a5ef9f 100644
+> --- a/mm/migrate_device.c
+> +++ b/mm/migrate_device.c
+> @@ -254,13 +254,14 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
+>  		migrate->dst[migrate->npages] = 0;
+>  		migrate->src[migrate->npages++] = mpfn;
+>  	}
+> -	arch_leave_lazy_mmu_mode();
+> -	pte_unmap_unlock(ptep - 1, ptl);
+>  
+>  	/* Only flush the TLB if we actually modified any entries */
+>  	if (unmapped)
+>  		flush_tlb_range(walk->vma, start, end);
 
-ftrace_startup does not remove ops from ftrace_ops_list when
-ftrace_startup_enable fails:
+It appears that we can increase "unmapped" only if ptep_get_and_clear()
+is used?
 
-register_ftrace_function
-  ftrace_startup
-    __register_ftrace_function
-      ...
-      add_ftrace_ops(&ftrace_ops_list, ops)
-      ...
-    ...
-    ftrace_startup_enable // if ftrace failed to modify, ftrace_disabled is set to 1
-    ...
-  return 0 // ops is in the ftrace_ops_list.
+Best Regards,
+Huang, Ying
 
-When ftrace_disabled = 1, unregister_ftrace_function simply returns without doing anything:
-unregister_ftrace_function
-  ftrace_shutdown
-    if (unlikely(ftrace_disabled))
-            return -ENODEV;  // return here, __unregister_ftrace_function is not executed,
-                             // as a result, ops is still in the ftrace_ops_list
-    __unregister_ftrace_function
-    ...
-
-If ops is dynamically allocated, it will be free later, in this case,
-is_ftrace_trampoline accesses NULL pointer:
-
-is_ftrace_trampoline
-  ftrace_ops_trampoline
-    do_for_each_ftrace_op(op, ftrace_ops_list) // OOPS! op may be NULL!
-
-Syzkaller reports as follows:
-[ 1203.506103] BUG: kernel NULL pointer dereference, address: 000000000000010b
-[ 1203.508039] #PF: supervisor read access in kernel mode
-[ 1203.508798] #PF: error_code(0x0000) - not-present page
-[ 1203.509558] PGD 800000011660b067 P4D 800000011660b067 PUD 130fb8067 PMD 0
-[ 1203.510560] Oops: 0000 [#1] SMP KASAN PTI
-[ 1203.511189] CPU: 6 PID: 29532 Comm: syz-executor.2 Tainted: G    B   W         5.10.0 #8
-[ 1203.512324] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[ 1203.513895] RIP: 0010:is_ftrace_trampoline+0x26/0xb0
-[ 1203.514644] Code: ff eb d3 90 41 55 41 54 49 89 fc 55 53 e8 f2 00 fd ff 48 8b 1d 3b 35 5d 03 e8 e6 00 fd ff 48 8d bb 90 00 00 00 e8 2a 81 26 00 <48> 8b ab 90 00 00 00 48 85 ed 74 1d e8 c9 00 fd ff 48 8d bb 98 00
-[ 1203.518838] RSP: 0018:ffffc900012cf960 EFLAGS: 00010246
-[ 1203.520092] RAX: 0000000000000000 RBX: 000000000000007b RCX: ffffffff8a331866
-[ 1203.521469] RDX: 0000000000000000 RSI: 0000000000000008 RDI: 000000000000010b
-[ 1203.522583] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffff8df18b07
-[ 1203.523550] R10: fffffbfff1be3160 R11: 0000000000000001 R12: 0000000000478399
-[ 1203.524596] R13: 0000000000000000 R14: ffff888145088000 R15: 0000000000000008
-[ 1203.525634] FS:  00007f429f5f4700(0000) GS:ffff8881daf00000(0000) knlGS:0000000000000000
-[ 1203.526801] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1203.527626] CR2: 000000000000010b CR3: 0000000170e1e001 CR4: 00000000003706e0
-[ 1203.528611] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 1203.529605] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-Therefore, when ftrace_startup_enable fails, we need to rollback registration
-process and remove ops from ftrace_ops_list.
-
-Link: https://lkml.kernel.org/r/20220818032659.56209-1-yangjihong1@huawei.com
-
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- kernel/trace/ftrace.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 601ccf1b2f09..4baa99363b16 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -2937,6 +2937,16 @@ int ftrace_startup(struct ftrace_ops *ops, int command)
- 
- 	ftrace_startup_enable(command);
- 
-+	/*
-+	 * If ftrace is in an undefined state, we just remove ops from list
-+	 * to prevent the NULL pointer, instead of totally rolling it back and
-+	 * free trampoline, because those actions could cause further damage.
-+	 */
-+	if (unlikely(ftrace_disabled)) {
-+		__unregister_ftrace_function(ops);
-+		return -ENODEV;
-+	}
-+
- 	ops->flags &= ~FTRACE_OPS_FL_ADDING;
- 
- 	return 0;
--- 
-2.35.1
-
+> +	arch_leave_lazy_mmu_mode();
+> +	pte_unmap_unlock(ptep - 1, ptl);
+> +
+>  	return 0;
+>  }
+>  
+>
+> base-commit: ffcf9c5700e49c0aee42dcba9a12ba21338e8136
