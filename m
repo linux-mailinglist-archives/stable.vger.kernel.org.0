@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B28175A0677
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5480E5A0693
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234885AbiHYBlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38728 "EHLO
+        id S233785AbiHYBmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:42:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235006AbiHYBkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:40:45 -0400
+        with ESMTP id S234248AbiHYBla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:41:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF729AFC1;
-        Wed, 24 Aug 2022 18:38:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 978019D8EF;
+        Wed, 24 Aug 2022 18:38:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0D3C61AC0;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E73E61AF3;
+        Thu, 25 Aug 2022 01:38:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED376C4347C;
         Thu, 25 Aug 2022 01:38:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 420C0C433C1;
-        Thu, 25 Aug 2022 01:38:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391502;
-        bh=1OtqaYVasTiwWw9mOq4oZfsGyEleDKXh8pU2AKtIetw=;
+        s=k20201202; t=1661391504;
+        bh=8N+mzoNMN7tQAB6gKqF+atcRFl7OB0EncNmJEg7+B8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrQvbUhxQ9FuU+DqetwKeDtdZCaR+X3ktvkmEr8DvIaGmVu5vTMY92eQslKhrFSdi
-         xWkgTGCVBM484FQ3XUGHhpoep8eWhgR1NfoWZJTrlbrX+H2afv5jqJKo/MEqX8oi4Z
-         4t9YDOiWuD0xOh3h+/Op2n2mQzziZYFI16/ev7VChR74yy5m0r9ayxiB8/pZhxgxe3
-         7YlTbMWTbB+aYTDnf6t8Sd+Yy9ePDPrZQuL9IFC505ahjQ9wgrJ819sbgo8vnDXhSz
-         x8SRejNREIiCEtVCqcc9iaBbEHp5I+7r1ZBIoCvy7LptzXnT+eVNWJVbwTTQTBZ5g0
-         dJkVeZjHyIhMA==
+        b=HvGbfRhKFhHMQ/QYljq6ycIj0VsFAF0jQYWXVUEZn+am+8oVTaq49LlFppA+BomTn
+         7pEarfRBVapDOWGG74Qeejkj+/90SPOEc0zp/JSwzbwkDWWd0MeFfSs27Dm/eW6g1Y
+         NLeqHJciwJfq7O84Ok0cmUoRqdAVhsEnzE8/mfJ6H1N4aCIK8gG9+T4XgHGB5PSsYv
+         g9gnYDpR+2F9aKGPn3hZehWAVTGtknTCz3Sy1Ji0YePz3KypLz/ebzbqK7YOwhsDUS
+         8s6h/yyfsvCuk9JKx7B/xUmPpdBQ1ok039PFEH9SjCo1N7MgAurjyWzIoPqPcFFSZe
+         miEo0lYOUHKzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>, Sasha Levin <sashal@kernel.org>,
-        shuah@kernel.org, pablo@netfilter.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 16/20] testing: selftests: nft_flowtable.sh: use random netns names
-Date:   Wed, 24 Aug 2022 21:37:08 -0400
-Message-Id: <20220825013713.22656-16-sashal@kernel.org>
+Cc:     Josef Bacik <josef@toxicpanda.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 17/20] btrfs: move lockdep class helpers to locking.c
+Date:   Wed, 24 Aug 2022 21:37:09 -0400
+Message-Id: <20220825013713.22656-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013713.22656-1-sashal@kernel.org>
 References: <20220825013713.22656-1-sashal@kernel.org>
@@ -56,427 +58,246 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit b71b7bfeac38c7a21c423ddafb29aa6258949df8 ]
+[ Upstream commit 0a27a0474d146eb79e09ec88bf0d4229f4cfc1b8 ]
 
-"ns1" is a too generic name, use a random suffix to avoid
-errors when such a netns exists.  Also allows to run multiple
-instances of the script in parallel.
+These definitions exist in disk-io.c, which is not related to the
+locking.  Move this over to locking.h/c where it makes more sense.
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/netfilter/nft_flowtable.sh      | 246 +++++++++---------
- 1 file changed, 128 insertions(+), 118 deletions(-)
+ fs/btrfs/disk-io.c | 82 ----------------------------------------------
+ fs/btrfs/disk-io.h | 10 ------
+ fs/btrfs/locking.c | 80 ++++++++++++++++++++++++++++++++++++++++++++
+ fs/btrfs/locking.h |  9 +++++
+ 4 files changed, 89 insertions(+), 92 deletions(-)
 
-diff --git a/tools/testing/selftests/netfilter/nft_flowtable.sh b/tools/testing/selftests/netfilter/nft_flowtable.sh
-index d4ffebb989f8..c336e6c148d1 100755
---- a/tools/testing/selftests/netfilter/nft_flowtable.sh
-+++ b/tools/testing/selftests/netfilter/nft_flowtable.sh
-@@ -14,6 +14,11 @@
- # nft_flowtable.sh -o8000 -l1500 -r2000
- #
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index e65c3039caf1..c9edc668b3d9 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -121,88 +121,6 @@ struct async_submit_bio {
+ 	blk_status_t status;
+ };
  
-+sfx=$(mktemp -u "XXXXXXXX")
-+ns1="ns1-$sfx"
-+ns2="ns2-$sfx"
-+nsr1="nsr1-$sfx"
-+nsr2="nsr2-$sfx"
- 
- # Kselftest framework requirement - SKIP code is 4.
- ksft_skip=4
-@@ -36,18 +41,17 @@ checktool (){
- checktool "nft --version" "run test without nft tool"
- checktool "ip -Version" "run test without ip tool"
- checktool "which nc" "run test without nc (netcat)"
--checktool "ip netns add nsr1" "create net namespace"
-+checktool "ip netns add $nsr1" "create net namespace $nsr1"
- 
--ip netns add ns1
--ip netns add ns2
+-/*
+- * Lockdep class keys for extent_buffer->lock's in this root.  For a given
+- * eb, the lockdep key is determined by the btrfs_root it belongs to and
+- * the level the eb occupies in the tree.
+- *
+- * Different roots are used for different purposes and may nest inside each
+- * other and they require separate keysets.  As lockdep keys should be
+- * static, assign keysets according to the purpose of the root as indicated
+- * by btrfs_root->root_key.objectid.  This ensures that all special purpose
+- * roots have separate keysets.
+- *
+- * Lock-nesting across peer nodes is always done with the immediate parent
+- * node locked thus preventing deadlock.  As lockdep doesn't know this, use
+- * subclass to avoid triggering lockdep warning in such cases.
+- *
+- * The key is set by the readpage_end_io_hook after the buffer has passed
+- * csum validation but before the pages are unlocked.  It is also set by
+- * btrfs_init_new_buffer on freshly allocated blocks.
+- *
+- * We also add a check to make sure the highest level of the tree is the
+- * same as our lockdep setup here.  If BTRFS_MAX_LEVEL changes, this code
+- * needs update as well.
+- */
+-#ifdef CONFIG_DEBUG_LOCK_ALLOC
+-# if BTRFS_MAX_LEVEL != 8
+-#  error
+-# endif
 -
--ip netns add nsr2
-+ip netns add $ns1
-+ip netns add $ns2
-+ip netns add $nsr2
- 
- cleanup() {
--	for i in 1 2; do
--		ip netns del ns$i
--		ip netns del nsr$i
--	done
-+	ip netns del $ns1
-+	ip netns del $ns2
-+	ip netns del $nsr1
-+	ip netns del $nsr2
- 
- 	rm -f "$ns1in" "$ns1out"
- 	rm -f "$ns2in" "$ns2out"
-@@ -59,22 +63,21 @@ trap cleanup EXIT
- 
- sysctl -q net.netfilter.nf_log_all_netns=1
- 
--ip link add veth0 netns nsr1 type veth peer name eth0 netns ns1
--ip link add veth1 netns nsr1 type veth peer name veth0 netns nsr2
-+ip link add veth0 netns $nsr1 type veth peer name eth0 netns $ns1
-+ip link add veth1 netns $nsr1 type veth peer name veth0 netns $nsr2
- 
--ip link add veth1 netns nsr2 type veth peer name eth0 netns ns2
-+ip link add veth1 netns $nsr2 type veth peer name eth0 netns $ns2
- 
- for dev in lo veth0 veth1; do
--  for i in 1 2; do
--    ip -net nsr$i link set $dev up
--  done
-+    ip -net $nsr1 link set $dev up
-+    ip -net $nsr2 link set $dev up
- done
- 
--ip -net nsr1 addr add 10.0.1.1/24 dev veth0
--ip -net nsr1 addr add dead:1::1/64 dev veth0
-+ip -net $nsr1 addr add 10.0.1.1/24 dev veth0
-+ip -net $nsr1 addr add dead:1::1/64 dev veth0
- 
--ip -net nsr2 addr add 10.0.2.1/24 dev veth1
--ip -net nsr2 addr add dead:2::1/64 dev veth1
-+ip -net $nsr2 addr add 10.0.2.1/24 dev veth1
-+ip -net $nsr2 addr add dead:2::1/64 dev veth1
- 
- # set different MTUs so we need to push packets coming from ns1 (large MTU)
- # to ns2 (smaller MTU) to stack either to perform fragmentation (ip_no_pmtu_disc=1),
-@@ -106,49 +109,56 @@ do
- 	esac
- done
- 
--if ! ip -net nsr1 link set veth0 mtu $omtu; then
-+if ! ip -net $nsr1 link set veth0 mtu $omtu; then
- 	exit 1
- fi
- 
--ip -net ns1 link set eth0 mtu $omtu
-+ip -net $ns1 link set eth0 mtu $omtu
- 
--if ! ip -net nsr2 link set veth1 mtu $rmtu; then
-+if ! ip -net $nsr2 link set veth1 mtu $rmtu; then
- 	exit 1
- fi
- 
--ip -net ns2 link set eth0 mtu $rmtu
-+ip -net $ns2 link set eth0 mtu $rmtu
- 
- # transfer-net between nsr1 and nsr2.
- # these addresses are not used for connections.
--ip -net nsr1 addr add 192.168.10.1/24 dev veth1
--ip -net nsr1 addr add fee1:2::1/64 dev veth1
+-#define DEFINE_LEVEL(stem, level)					\
+-	.names[level] = "btrfs-" stem "-0" #level,
 -
--ip -net nsr2 addr add 192.168.10.2/24 dev veth0
--ip -net nsr2 addr add fee1:2::2/64 dev veth0
+-#define DEFINE_NAME(stem)						\
+-	DEFINE_LEVEL(stem, 0)						\
+-	DEFINE_LEVEL(stem, 1)						\
+-	DEFINE_LEVEL(stem, 2)						\
+-	DEFINE_LEVEL(stem, 3)						\
+-	DEFINE_LEVEL(stem, 4)						\
+-	DEFINE_LEVEL(stem, 5)						\
+-	DEFINE_LEVEL(stem, 6)						\
+-	DEFINE_LEVEL(stem, 7)
 -
--for i in 1 2; do
--  ip netns exec nsr$i sysctl net.ipv4.conf.veth0.forwarding=1 > /dev/null
--  ip netns exec nsr$i sysctl net.ipv4.conf.veth1.forwarding=1 > /dev/null
+-static struct btrfs_lockdep_keyset {
+-	u64			id;		/* root objectid */
+-	/* Longest entry: btrfs-free-space-00 */
+-	char			names[BTRFS_MAX_LEVEL][20];
+-	struct lock_class_key	keys[BTRFS_MAX_LEVEL];
+-} btrfs_lockdep_keysets[] = {
+-	{ .id = BTRFS_ROOT_TREE_OBJECTID,	DEFINE_NAME("root")	},
+-	{ .id = BTRFS_EXTENT_TREE_OBJECTID,	DEFINE_NAME("extent")	},
+-	{ .id = BTRFS_CHUNK_TREE_OBJECTID,	DEFINE_NAME("chunk")	},
+-	{ .id = BTRFS_DEV_TREE_OBJECTID,	DEFINE_NAME("dev")	},
+-	{ .id = BTRFS_CSUM_TREE_OBJECTID,	DEFINE_NAME("csum")	},
+-	{ .id = BTRFS_QUOTA_TREE_OBJECTID,	DEFINE_NAME("quota")	},
+-	{ .id = BTRFS_TREE_LOG_OBJECTID,	DEFINE_NAME("log")	},
+-	{ .id = BTRFS_TREE_RELOC_OBJECTID,	DEFINE_NAME("treloc")	},
+-	{ .id = BTRFS_DATA_RELOC_TREE_OBJECTID,	DEFINE_NAME("dreloc")	},
+-	{ .id = BTRFS_UUID_TREE_OBJECTID,	DEFINE_NAME("uuid")	},
+-	{ .id = BTRFS_FREE_SPACE_TREE_OBJECTID,	DEFINE_NAME("free-space") },
+-	{ .id = 0,				DEFINE_NAME("tree")	},
+-};
 -
--  ip -net ns$i link set lo up
--  ip -net ns$i link set eth0 up
--  ip -net ns$i addr add 10.0.$i.99/24 dev eth0
--  ip -net ns$i route add default via 10.0.$i.1
--  ip -net ns$i addr add dead:$i::99/64 dev eth0
--  ip -net ns$i route add default via dead:$i::1
--  if ! ip netns exec ns$i sysctl net.ipv4.tcp_no_metrics_save=1 > /dev/null; then
-+ip -net $nsr1 addr add 192.168.10.1/24 dev veth1
-+ip -net $nsr1 addr add fee1:2::1/64 dev veth1
-+
-+ip -net $nsr2 addr add 192.168.10.2/24 dev veth0
-+ip -net $nsr2 addr add fee1:2::2/64 dev veth0
-+
-+for i in 0 1; do
-+  ip netns exec $nsr1 sysctl net.ipv4.conf.veth$i.forwarding=1 > /dev/null
-+  ip netns exec $nsr2 sysctl net.ipv4.conf.veth$i.forwarding=1 > /dev/null
-+done
-+
-+for ns in $ns1 $ns2;do
-+  ip -net $ns link set lo up
-+  ip -net $ns link set eth0 up
-+
-+  if ! ip netns exec $ns sysctl net.ipv4.tcp_no_metrics_save=1 > /dev/null; then
- 	echo "ERROR: Check Originator/Responder values (problem during address addition)"
- 	exit 1
-   fi
+-#undef DEFINE_LEVEL
+-#undef DEFINE_NAME
 -
-   # don't set ip DF bit for first two tests
--  ip netns exec ns$i sysctl net.ipv4.ip_no_pmtu_disc=1 > /dev/null
-+  ip netns exec $ns sysctl net.ipv4.ip_no_pmtu_disc=1 > /dev/null
- done
- 
--ip -net nsr1 route add default via 192.168.10.2
--ip -net nsr2 route add default via 192.168.10.1
-+ip -net $ns1 addr add 10.0.1.99/24 dev eth0
-+ip -net $ns2 addr add 10.0.2.99/24 dev eth0
-+ip -net $ns1 route add default via 10.0.1.1
-+ip -net $ns2 route add default via 10.0.2.1
-+ip -net $ns1 addr add dead:1::99/64 dev eth0
-+ip -net $ns2 addr add dead:2::99/64 dev eth0
-+ip -net $ns1 route add default via dead:1::1
-+ip -net $ns2 route add default via dead:2::1
-+
-+ip -net $nsr1 route add default via 192.168.10.2
-+ip -net $nsr2 route add default via 192.168.10.1
- 
--ip netns exec nsr1 nft -f - <<EOF
-+ip netns exec $nsr1 nft -f - <<EOF
- table inet filter {
-   flowtable f1 {
-      hook ingress priority 0
-@@ -197,18 +207,18 @@ if [ $? -ne 0 ]; then
- fi
- 
- # test basic connectivity
--if ! ip netns exec ns1 ping -c 1 -q 10.0.2.99 > /dev/null; then
--  echo "ERROR: ns1 cannot reach ns2" 1>&2
-+if ! ip netns exec $ns1 ping -c 1 -q 10.0.2.99 > /dev/null; then
-+  echo "ERROR: $ns1 cannot reach ns2" 1>&2
-   exit 1
- fi
- 
--if ! ip netns exec ns2 ping -c 1 -q 10.0.1.99 > /dev/null; then
--  echo "ERROR: ns2 cannot reach ns1" 1>&2
-+if ! ip netns exec $ns2 ping -c 1 -q 10.0.1.99 > /dev/null; then
-+  echo "ERROR: $ns2 cannot reach $ns1" 1>&2
-   exit 1
- fi
- 
- if [ $ret -eq 0 ];then
--	echo "PASS: netns routing/connectivity: ns1 can reach ns2"
-+	echo "PASS: netns routing/connectivity: $ns1 can reach $ns2"
- fi
- 
- ns1in=$(mktemp)
-@@ -312,24 +322,24 @@ make_file "$ns2in"
- 
- # First test:
- # No PMTU discovery, nsr1 is expected to fragment packets from ns1 to ns2 as needed.
--if test_tcp_forwarding ns1 ns2; then
-+if test_tcp_forwarding $ns1 $ns2; then
- 	echo "PASS: flow offloaded for ns1/ns2"
- else
- 	echo "FAIL: flow offload for ns1/ns2:" 1>&2
--	ip netns exec nsr1 nft list ruleset
-+	ip netns exec $nsr1 nft list ruleset
- 	ret=1
- fi
- 
- # delete default route, i.e. ns2 won't be able to reach ns1 and
- # will depend on ns1 being masqueraded in nsr1.
- # expect ns1 has nsr1 address.
--ip -net ns2 route del default via 10.0.2.1
--ip -net ns2 route del default via dead:2::1
--ip -net ns2 route add 192.168.10.1 via 10.0.2.1
-+ip -net $ns2 route del default via 10.0.2.1
-+ip -net $ns2 route del default via dead:2::1
-+ip -net $ns2 route add 192.168.10.1 via 10.0.2.1
- 
- # Second test:
- # Same, but with NAT enabled.
--ip netns exec nsr1 nft -f - <<EOF
-+ip netns exec $nsr1 nft -f - <<EOF
- table ip nat {
-    chain prerouting {
-       type nat hook prerouting priority 0; policy accept;
-@@ -343,47 +353,47 @@ table ip nat {
- }
- EOF
- 
--if test_tcp_forwarding_nat ns1 ns2; then
-+if test_tcp_forwarding_nat $ns1 $ns2; then
- 	echo "PASS: flow offloaded for ns1/ns2 with NAT"
- else
- 	echo "FAIL: flow offload for ns1/ns2 with NAT" 1>&2
--	ip netns exec nsr1 nft list ruleset
-+	ip netns exec $nsr1 nft list ruleset
- 	ret=1
- fi
- 
- # Third test:
- # Same as second test, but with PMTU discovery enabled.
--handle=$(ip netns exec nsr1 nft -a list table inet filter | grep something-to-grep-for | cut -d \# -f 2)
-+handle=$(ip netns exec $nsr1 nft -a list table inet filter | grep something-to-grep-for | cut -d \# -f 2)
- 
--if ! ip netns exec nsr1 nft delete rule inet filter forward $handle; then
-+if ! ip netns exec $nsr1 nft delete rule inet filter forward $handle; then
- 	echo "FAIL: Could not delete large-packet accept rule"
- 	exit 1
- fi
- 
--ip netns exec ns1 sysctl net.ipv4.ip_no_pmtu_disc=0 > /dev/null
--ip netns exec ns2 sysctl net.ipv4.ip_no_pmtu_disc=0 > /dev/null
-+ip netns exec $ns1 sysctl net.ipv4.ip_no_pmtu_disc=0 > /dev/null
-+ip netns exec $ns2 sysctl net.ipv4.ip_no_pmtu_disc=0 > /dev/null
- 
--if test_tcp_forwarding_nat ns1 ns2; then
-+if test_tcp_forwarding_nat $ns1 $ns2; then
- 	echo "PASS: flow offloaded for ns1/ns2 with NAT and pmtu discovery"
- else
- 	echo "FAIL: flow offload for ns1/ns2 with NAT and pmtu discovery" 1>&2
--	ip netns exec nsr1 nft list ruleset
-+	ip netns exec $nsr1 nft list ruleset
- fi
- 
- # Another test:
- # Add bridge interface br0 to Router1, with NAT enabled.
--ip -net nsr1 link add name br0 type bridge
--ip -net nsr1 addr flush dev veth0
--ip -net nsr1 link set up dev veth0
--ip -net nsr1 link set veth0 master br0
--ip -net nsr1 addr add 10.0.1.1/24 dev br0
--ip -net nsr1 addr add dead:1::1/64 dev br0
--ip -net nsr1 link set up dev br0
-+ip -net $nsr1 link add name br0 type bridge
-+ip -net $nsr1 addr flush dev veth0
-+ip -net $nsr1 link set up dev veth0
-+ip -net $nsr1 link set veth0 master br0
-+ip -net $nsr1 addr add 10.0.1.1/24 dev br0
-+ip -net $nsr1 addr add dead:1::1/64 dev br0
-+ip -net $nsr1 link set up dev br0
- 
--ip netns exec nsr1 sysctl net.ipv4.conf.br0.forwarding=1 > /dev/null
-+ip netns exec $nsr1 sysctl net.ipv4.conf.br0.forwarding=1 > /dev/null
- 
- # br0 with NAT enabled.
--ip netns exec nsr1 nft -f - <<EOF
-+ip netns exec $nsr1 nft -f - <<EOF
- flush table ip nat
- table ip nat {
-    chain prerouting {
-@@ -398,59 +408,59 @@ table ip nat {
- }
- EOF
- 
--if test_tcp_forwarding_nat ns1 ns2; then
-+if test_tcp_forwarding_nat $ns1 $ns2; then
- 	echo "PASS: flow offloaded for ns1/ns2 with bridge NAT"
- else
- 	echo "FAIL: flow offload for ns1/ns2 with bridge NAT" 1>&2
--	ip netns exec nsr1 nft list ruleset
-+	ip netns exec $nsr1 nft list ruleset
- 	ret=1
- fi
- 
- # Another test:
- # Add bridge interface br0 to Router1, with NAT and VLAN.
--ip -net nsr1 link set veth0 nomaster
--ip -net nsr1 link set down dev veth0
--ip -net nsr1 link add link veth0 name veth0.10 type vlan id 10
--ip -net nsr1 link set up dev veth0
--ip -net nsr1 link set up dev veth0.10
--ip -net nsr1 link set veth0.10 master br0
+-void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb,
+-				    int level)
+-{
+-	struct btrfs_lockdep_keyset *ks;
 -
--ip -net ns1 addr flush dev eth0
--ip -net ns1 link add link eth0 name eth0.10 type vlan id 10
--ip -net ns1 link set eth0 up
--ip -net ns1 link set eth0.10 up
--ip -net ns1 addr add 10.0.1.99/24 dev eth0.10
--ip -net ns1 route add default via 10.0.1.1
--ip -net ns1 addr add dead:1::99/64 dev eth0.10
+-	BUG_ON(level >= ARRAY_SIZE(ks->keys));
 -
--if test_tcp_forwarding_nat ns1 ns2; then
-+ip -net $nsr1 link set veth0 nomaster
-+ip -net $nsr1 link set down dev veth0
-+ip -net $nsr1 link add link veth0 name veth0.10 type vlan id 10
-+ip -net $nsr1 link set up dev veth0
-+ip -net $nsr1 link set up dev veth0.10
-+ip -net $nsr1 link set veth0.10 master br0
+-	/* find the matching keyset, id 0 is the default entry */
+-	for (ks = btrfs_lockdep_keysets; ks->id; ks++)
+-		if (ks->id == objectid)
+-			break;
+-
+-	lockdep_set_class_and_name(&eb->lock,
+-				   &ks->keys[level], ks->names[level]);
+-}
+-
+-#endif
+-
+ /*
+  * Compute the csum of a btree block and store the result to provided buffer.
+  */
+diff --git a/fs/btrfs/disk-io.h b/fs/btrfs/disk-io.h
+index 0e7e9526b6a8..1b8fd3deafc9 100644
+--- a/fs/btrfs/disk-io.h
++++ b/fs/btrfs/disk-io.h
+@@ -140,14 +140,4 @@ int btrfs_init_root_free_objectid(struct btrfs_root *root);
+ int __init btrfs_end_io_wq_init(void);
+ void __cold btrfs_end_io_wq_exit(void);
+ 
+-#ifdef CONFIG_DEBUG_LOCK_ALLOC
+-void btrfs_set_buffer_lockdep_class(u64 objectid,
+-			            struct extent_buffer *eb, int level);
+-#else
+-static inline void btrfs_set_buffer_lockdep_class(u64 objectid,
+-					struct extent_buffer *eb, int level)
+-{
+-}
+-#endif
+-
+ #endif
+diff --git a/fs/btrfs/locking.c b/fs/btrfs/locking.c
+index 33461b4f9c8b..5747c63929df 100644
+--- a/fs/btrfs/locking.c
++++ b/fs/btrfs/locking.c
+@@ -13,6 +13,86 @@
+ #include "extent_io.h"
+ #include "locking.h"
+ 
++/*
++ * Lockdep class keys for extent_buffer->lock's in this root.  For a given
++ * eb, the lockdep key is determined by the btrfs_root it belongs to and
++ * the level the eb occupies in the tree.
++ *
++ * Different roots are used for different purposes and may nest inside each
++ * other and they require separate keysets.  As lockdep keys should be
++ * static, assign keysets according to the purpose of the root as indicated
++ * by btrfs_root->root_key.objectid.  This ensures that all special purpose
++ * roots have separate keysets.
++ *
++ * Lock-nesting across peer nodes is always done with the immediate parent
++ * node locked thus preventing deadlock.  As lockdep doesn't know this, use
++ * subclass to avoid triggering lockdep warning in such cases.
++ *
++ * The key is set by the readpage_end_io_hook after the buffer has passed
++ * csum validation but before the pages are unlocked.  It is also set by
++ * btrfs_init_new_buffer on freshly allocated blocks.
++ *
++ * We also add a check to make sure the highest level of the tree is the
++ * same as our lockdep setup here.  If BTRFS_MAX_LEVEL changes, this code
++ * needs update as well.
++ */
++#ifdef CONFIG_DEBUG_LOCK_ALLOC
++#if BTRFS_MAX_LEVEL != 8
++#error
++#endif
 +
-+ip -net $ns1 addr flush dev eth0
-+ip -net $ns1 link add link eth0 name eth0.10 type vlan id 10
-+ip -net $ns1 link set eth0 up
-+ip -net $ns1 link set eth0.10 up
-+ip -net $ns1 addr add 10.0.1.99/24 dev eth0.10
-+ip -net $ns1 route add default via 10.0.1.1
-+ip -net $ns1 addr add dead:1::99/64 dev eth0.10
++#define DEFINE_LEVEL(stem, level)					\
++	.names[level] = "btrfs-" stem "-0" #level,
 +
-+if test_tcp_forwarding_nat $ns1 $ns2; then
- 	echo "PASS: flow offloaded for ns1/ns2 with bridge NAT and VLAN"
- else
- 	echo "FAIL: flow offload for ns1/ns2 with bridge NAT and VLAN" 1>&2
--	ip netns exec nsr1 nft list ruleset
-+	ip netns exec $nsr1 nft list ruleset
- 	ret=1
- fi
++#define DEFINE_NAME(stem)						\
++	DEFINE_LEVEL(stem, 0)						\
++	DEFINE_LEVEL(stem, 1)						\
++	DEFINE_LEVEL(stem, 2)						\
++	DEFINE_LEVEL(stem, 3)						\
++	DEFINE_LEVEL(stem, 4)						\
++	DEFINE_LEVEL(stem, 5)						\
++	DEFINE_LEVEL(stem, 6)						\
++	DEFINE_LEVEL(stem, 7)
++
++static struct btrfs_lockdep_keyset {
++	u64			id;		/* root objectid */
++	/* Longest entry: btrfs-free-space-00 */
++	char			names[BTRFS_MAX_LEVEL][20];
++	struct lock_class_key	keys[BTRFS_MAX_LEVEL];
++} btrfs_lockdep_keysets[] = {
++	{ .id = BTRFS_ROOT_TREE_OBJECTID,	DEFINE_NAME("root")	},
++	{ .id = BTRFS_EXTENT_TREE_OBJECTID,	DEFINE_NAME("extent")	},
++	{ .id = BTRFS_CHUNK_TREE_OBJECTID,	DEFINE_NAME("chunk")	},
++	{ .id = BTRFS_DEV_TREE_OBJECTID,	DEFINE_NAME("dev")	},
++	{ .id = BTRFS_CSUM_TREE_OBJECTID,	DEFINE_NAME("csum")	},
++	{ .id = BTRFS_QUOTA_TREE_OBJECTID,	DEFINE_NAME("quota")	},
++	{ .id = BTRFS_TREE_LOG_OBJECTID,	DEFINE_NAME("log")	},
++	{ .id = BTRFS_TREE_RELOC_OBJECTID,	DEFINE_NAME("treloc")	},
++	{ .id = BTRFS_DATA_RELOC_TREE_OBJECTID,	DEFINE_NAME("dreloc")	},
++	{ .id = BTRFS_UUID_TREE_OBJECTID,	DEFINE_NAME("uuid")	},
++	{ .id = BTRFS_FREE_SPACE_TREE_OBJECTID,	DEFINE_NAME("free-space") },
++	{ .id = 0,				DEFINE_NAME("tree")	},
++};
++
++#undef DEFINE_LEVEL
++#undef DEFINE_NAME
++
++void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb, int level)
++{
++	struct btrfs_lockdep_keyset *ks;
++
++	BUG_ON(level >= ARRAY_SIZE(ks->keys));
++
++	/* Find the matching keyset, id 0 is the default entry */
++	for (ks = btrfs_lockdep_keysets; ks->id; ks++)
++		if (ks->id == objectid)
++			break;
++
++	lockdep_set_class_and_name(&eb->lock, &ks->keys[level], ks->names[level]);
++}
++
++#endif
++
+ /*
+  * Extent buffer locking
+  * =====================
+diff --git a/fs/btrfs/locking.h b/fs/btrfs/locking.h
+index a2e1f1f5c6e3..97370ec0cd29 100644
+--- a/fs/btrfs/locking.h
++++ b/fs/btrfs/locking.h
+@@ -130,4 +130,13 @@ void btrfs_drew_write_unlock(struct btrfs_drew_lock *lock);
+ void btrfs_drew_read_lock(struct btrfs_drew_lock *lock);
+ void btrfs_drew_read_unlock(struct btrfs_drew_lock *lock);
  
- # restore test topology (remove bridge and VLAN)
--ip -net nsr1 link set veth0 nomaster
--ip -net nsr1 link set veth0 down
--ip -net nsr1 link set veth0.10 down
--ip -net nsr1 link delete veth0.10 type vlan
--ip -net nsr1 link delete br0 type bridge
--ip -net ns1 addr flush dev eth0.10
--ip -net ns1 link set eth0.10 down
--ip -net ns1 link set eth0 down
--ip -net ns1 link delete eth0.10 type vlan
-+ip -net $nsr1 link set veth0 nomaster
-+ip -net $nsr1 link set veth0 down
-+ip -net $nsr1 link set veth0.10 down
-+ip -net $nsr1 link delete veth0.10 type vlan
-+ip -net $nsr1 link delete br0 type bridge
-+ip -net $ns1 addr flush dev eth0.10
-+ip -net $ns1 link set eth0.10 down
-+ip -net $ns1 link set eth0 down
-+ip -net $ns1 link delete eth0.10 type vlan
- 
- # restore address in ns1 and nsr1
--ip -net ns1 link set eth0 up
--ip -net ns1 addr add 10.0.1.99/24 dev eth0
--ip -net ns1 route add default via 10.0.1.1
--ip -net ns1 addr add dead:1::99/64 dev eth0
--ip -net ns1 route add default via dead:1::1
--ip -net nsr1 addr add 10.0.1.1/24 dev veth0
--ip -net nsr1 addr add dead:1::1/64 dev veth0
--ip -net nsr1 link set up dev veth0
-+ip -net $ns1 link set eth0 up
-+ip -net $ns1 addr add 10.0.1.99/24 dev eth0
-+ip -net $ns1 route add default via 10.0.1.1
-+ip -net $ns1 addr add dead:1::99/64 dev eth0
-+ip -net $ns1 route add default via dead:1::1
-+ip -net $nsr1 addr add 10.0.1.1/24 dev veth0
-+ip -net $nsr1 addr add dead:1::1/64 dev veth0
-+ip -net $nsr1 link set up dev veth0
- 
- KEY_SHA="0x"$(ps -xaf | sha1sum | cut -d " " -f 1)
- KEY_AES="0x"$(ps -xaf | md5sum | cut -d " " -f 1)
-@@ -480,23 +490,23 @@ do_esp() {
- 
- }
- 
--do_esp nsr1 192.168.10.1 192.168.10.2 10.0.1.0/24 10.0.2.0/24 $SPI1 $SPI2
-+do_esp $nsr1 192.168.10.1 192.168.10.2 10.0.1.0/24 10.0.2.0/24 $SPI1 $SPI2
- 
--do_esp nsr2 192.168.10.2 192.168.10.1 10.0.2.0/24 10.0.1.0/24 $SPI2 $SPI1
-+do_esp $nsr2 192.168.10.2 192.168.10.1 10.0.2.0/24 10.0.1.0/24 $SPI2 $SPI1
- 
--ip netns exec nsr1 nft delete table ip nat
-+ip netns exec $nsr1 nft delete table ip nat
- 
- # restore default routes
--ip -net ns2 route del 192.168.10.1 via 10.0.2.1
--ip -net ns2 route add default via 10.0.2.1
--ip -net ns2 route add default via dead:2::1
-+ip -net $ns2 route del 192.168.10.1 via 10.0.2.1
-+ip -net $ns2 route add default via 10.0.2.1
-+ip -net $ns2 route add default via dead:2::1
- 
--if test_tcp_forwarding ns1 ns2; then
-+if test_tcp_forwarding $ns1 $ns2; then
- 	echo "PASS: ipsec tunnel mode for ns1/ns2"
- else
- 	echo "FAIL: ipsec tunnel mode for ns1/ns2"
--	ip netns exec nsr1 nft list ruleset 1>&2
--	ip netns exec nsr1 cat /proc/net/xfrm_stat 1>&2
-+	ip netns exec $nsr1 nft list ruleset 1>&2
-+	ip netns exec $nsr1 cat /proc/net/xfrm_stat 1>&2
- fi
- 
- exit $ret
++#ifdef CONFIG_DEBUG_LOCK_ALLOC
++void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb, int level);
++#else
++static inline void btrfs_set_buffer_lockdep_class(u64 objectid,
++					struct extent_buffer *eb, int level)
++{
++}
++#endif
++
+ #endif
 -- 
 2.35.1
 
