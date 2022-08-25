@@ -2,43 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C74FB5A0653
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 918EE5A0657
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229577AbiHYBkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:40:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53934 "EHLO
+        id S233220AbiHYBjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:39:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229763AbiHYBjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:39:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C599AF8E;
-        Wed, 24 Aug 2022 18:38:01 -0700 (PDT)
+        with ESMTP id S233241AbiHYBjL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:39:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0E59A9D3;
+        Wed, 24 Aug 2022 18:37:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D697ACE18FC;
-        Thu, 25 Aug 2022 01:37:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3C51C433C1;
-        Thu, 25 Aug 2022 01:37:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DED93B824CF;
+        Thu, 25 Aug 2022 01:37:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 332B7C433D7;
+        Thu, 25 Aug 2022 01:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391435;
-        bh=gryOjwWDAu/usCl18nIUd96bjcCBzxoffoZ+xdmDChE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hDL0MaqOa1k0otmAPraW0W77RrgQkhvLJcuC6+obGhT/d58JLRZsv94gv0Du3Zz12
-         cG3dacHQXniAll/1n1WDbKbNodZmI8CRPgHPE3NOYQa/tIiqjwPMK4ePh2e9T/ZVRK
-         9ZBft8FvZrjxk2KkNydA/11OMWqfy1HT2/VSfq9elEGOzXIt6EOZYX2USj4+YCyYyO
-         OideMnQ+uVCou5hJZGaA/2pCfNytldEO7rEoIxlw+Cxubi58af3Pa+z+qN+S3De97R
-         u/BpfSrQVJHf4M62DlNJ78+FpailqmSJQoiTCqNoTL+EMGoeObfDdBZHs9NJSLHLHv
-         lIuxCJqeHehMw==
+        s=k20201202; t=1661391438;
+        bh=t5O6RUjBZhbn9aIEIA2AHCOFz0aMjGqBBg0mfLE94gA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=c8K8+wJFdFISPqD29vb15d3pNQujAA+EjFuzqj5SaKsMdPO2O8p47VKzejn5pB/jq
+         olIhdpLCw7uoxcgK+c586RMlyrMLtCPK70yma25IPn7koWx0zAOZLnUsI9HCgYoB1Q
+         YZVwwSnL4VjvyK9mRSqL5Md4+xtMHxBgF5FMc8wO4V3wBaQG1kY0J1x48oMq5owmUo
+         O8l511GPuk935AMpP2ny1PXz2SeA1GHwh6BiE6Dvmhby5tS6drpeUfo2NjeLfxKdBD
+         rMpGHClX+C797NknGKzSIEoEMNawnNC0ToBnDLnhqsPM06dzWYBWqOx4bFPPf8uKtW
+         UB6hHNEmtFPAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 01/20] fs/ntfs3: Fix work with fragmented xattr
-Date:   Wed, 24 Aug 2022 21:36:53 -0400
-Message-Id: <20220825013713.22656-1-sashal@kernel.org>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Pavel Machek <pavel@denx.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, p.zabel@pengutronix.de,
+        prabhakar.mahadev-lad.rj@bp.renesas.com,
+        ckeepax@opensource.cirrus.com, geert+renesas@glider.be,
+        hkallweit1@gmail.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 02/20] ASoC: sh: rz-ssi: Improve error handling in rz_ssi_probe() error path
+Date:   Wed, 24 Aug 2022 21:36:54 -0400
+Message-Id: <20220825013713.22656-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220825013713.22656-1-sashal@kernel.org>
+References: <20220825013713.22656-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -53,44 +60,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 42f86b1226a42bfc79a7125af435432ad4680a32 ]
+[ Upstream commit c75ed9f54ce8d349fee557f2b471a4d637ed2a6b ]
 
-In some cases xattr is too fragmented,
-so we need to load it before writing.
+We usually do cleanup in reverse order of init. Currently in case of
+error rz_ssi_release_dma_channels() done in the reverse order. This
+patch improves error handling in rz_ssi_probe() error path.
 
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+While at it, use "goto cleanup" style to reduce code duplication.
+
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20220728092612.38858-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/xattr.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ sound/soc/sh/rz-ssi.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/fs/ntfs3/xattr.c b/fs/ntfs3/xattr.c
-index 0968565ff2ca..fa9f42e50503 100644
---- a/fs/ntfs3/xattr.c
-+++ b/fs/ntfs3/xattr.c
-@@ -118,7 +118,7 @@ static int ntfs_read_ea(struct ntfs_inode *ni, struct EA_FULL **ea,
+diff --git a/sound/soc/sh/rz-ssi.c b/sound/soc/sh/rz-ssi.c
+index 6d794eaaf4c3..2e33a1fa0a6f 100644
+--- a/sound/soc/sh/rz-ssi.c
++++ b/sound/soc/sh/rz-ssi.c
+@@ -1022,32 +1022,36 @@ static int rz_ssi_probe(struct platform_device *pdev)
  
- 		run_init(&run);
+ 	ssi->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+ 	if (IS_ERR(ssi->rstc)) {
+-		rz_ssi_release_dma_channels(ssi);
+-		return PTR_ERR(ssi->rstc);
++		ret = PTR_ERR(ssi->rstc);
++		goto err_reset;
+ 	}
  
--		err = attr_load_runs(attr_ea, ni, &run, NULL);
-+		err = attr_load_runs_range(ni, ATTR_EA, NULL, 0, &run, 0, size);
- 		if (!err)
- 			err = ntfs_read_run_nb(sbi, &run, 0, ea_p, size, NULL);
- 		run_close(&run);
-@@ -443,6 +443,11 @@ static noinline int ntfs_set_ea(struct inode *inode, const char *name,
- 		/* Delete xattr, ATTR_EA */
- 		ni_remove_attr_le(ni, attr, mi, le);
- 	} else if (attr->non_res) {
-+		err = attr_load_runs_range(ni, ATTR_EA, NULL, 0, &ea_run, 0,
-+					   size);
-+		if (err)
-+			goto out;
+ 	reset_control_deassert(ssi->rstc);
+ 	pm_runtime_enable(&pdev->dev);
+ 	ret = pm_runtime_resume_and_get(&pdev->dev);
+ 	if (ret < 0) {
+-		rz_ssi_release_dma_channels(ssi);
+-		pm_runtime_disable(ssi->dev);
+-		reset_control_assert(ssi->rstc);
+-		return dev_err_probe(ssi->dev, ret, "pm_runtime_resume_and_get failed\n");
++		dev_err(&pdev->dev, "pm_runtime_resume_and_get failed\n");
++		goto err_pm;
+ 	}
+ 
+ 	ret = devm_snd_soc_register_component(&pdev->dev, &rz_ssi_soc_component,
+ 					      rz_ssi_soc_dai,
+ 					      ARRAY_SIZE(rz_ssi_soc_dai));
+ 	if (ret < 0) {
+-		rz_ssi_release_dma_channels(ssi);
+-
+-		pm_runtime_put(ssi->dev);
+-		pm_runtime_disable(ssi->dev);
+-		reset_control_assert(ssi->rstc);
+ 		dev_err(&pdev->dev, "failed to register snd component\n");
++		goto err_snd_soc;
+ 	}
+ 
++	return 0;
 +
- 		err = ntfs_sb_write_run(sbi, &ea_run, 0, ea_all, size, 0);
- 		if (err)
- 			goto out;
++err_snd_soc:
++	pm_runtime_put(ssi->dev);
++err_pm:
++	pm_runtime_disable(ssi->dev);
++	reset_control_assert(ssi->rstc);
++err_reset:
++	rz_ssi_release_dma_channels(ssi);
++
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
