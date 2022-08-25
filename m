@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 759325A05D6
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CF175A05DB
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:36:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233067AbiHYBgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:36:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51488 "EHLO
+        id S233297AbiHYBgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233113AbiHYBfc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:35:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB3795ADF;
-        Wed, 24 Aug 2022 18:35:25 -0700 (PDT)
+        with ESMTP id S233201AbiHYBfd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:35:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F1E96FC6;
+        Wed, 24 Aug 2022 18:35:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E76ED61A2D;
-        Thu, 25 Aug 2022 01:35:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85C5C433D6;
-        Thu, 25 Aug 2022 01:35:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F81EB826E2;
+        Thu, 25 Aug 2022 01:35:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E0DC433C1;
+        Thu, 25 Aug 2022 01:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391324;
-        bh=yCoyTheYT8qpcJ15sxdjnDuOVcCdfCqJTt4MqmhGzWo=;
+        s=k20201202; t=1661391327;
+        bh=5h/d4iI4GYTakGSKNwvrLAXYxyw/LIb4048SQXx+FTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S1L/8UzH+I+Wz+Pr6Zcke5Gn/D4qdfENRDkIM8zC1S4DtMEjI2lpsF0o8/CkR8y4A
-         6TZA/fCg/MLq64Ve1hP6TF1cszmaoqG6NzOc2vRvhefqBBHrr08h3MrOzqNNEUrIRT
-         CtCPeE/+spSnGK1tlGeWVEdVbmr70Nx+vISOFi6LFeHYjrptIL2WpAN2NTmnVRhArc
-         bDztCwWSBKGbkiN6Vp0iqCf9cas9R79TFsozinW58E7HbZgHFMZG2+xzN3lVJfBLnp
-         JJUT1KubWZqvHVpiYq+JwRUkz90QQc1yH84JODCYkLVhdINW1B/v6mPOCn9XazDC/A
-         DpG1NcPCCE/HQ==
+        b=T2Ko1tD8WGMk5VNd/C02NvpYZDsBnYYKEJsruzQtiPfQrFmT6Hg4+A/GEhp9WAg85
+         /mTVPKxv9mRXk/fG+cSc5sG0H+bTBqR1e4COdvKkcaABdALUb3+1x4NhDKSWf25Pb9
+         YatlJQ5tYeH0reU75X+qV4kzU1peTd+8J3jl7p0IhMSF+f+V0lU9TNsBSfM9kMJ9XJ
+         S7bcrfW2DnKZ4taNBZ9gkuVcWbBAZhAp6rmZmMMXVq4ewoi7zs64XX30WpzGY9sg+G
+         Xjgo8tXhcqKBQFkCJetoLD7Wuo+quQvmoqyTgFTPXTmDTdhR6O11QHV24B2Snw+8Wm
+         FqRNgclMmmtug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhen Ni <nizhen@uniontech.com>, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        ray.huang@amd.com, tim.huang@amd.com, yifan1.zhang@amd.com,
-        lang.yu@amd.com, Perry.Yuan@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 14/38] drm/amd/pm: Fix a potential gpu_metrics_table memory leak
-Date:   Wed, 24 Aug 2022 21:33:37 -0400
-Message-Id: <20220825013401.22096-14-sashal@kernel.org>
+Cc:     Namjae Jeon <linkinjeon@kernel.org>,
+        Hyunchul Lee <hyc.lee@gmail.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        atteh.mailbox@gmail.com, linux-cifs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 15/38] ksmbd: return STATUS_BAD_NETWORK_NAME error status if share is not configured
+Date:   Wed, 24 Aug 2022 21:33:38 -0400
+Message-Id: <20220825013401.22096-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013401.22096-1-sashal@kernel.org>
 References: <20220825013401.22096-1-sashal@kernel.org>
@@ -60,36 +58,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Ni <nizhen@uniontech.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-[ Upstream commit 5afb76522a0af0513b6dc01f84128a73206b051b ]
+[ Upstream commit fe54833dc8d97ef387e86f7c80537d51c503ca75 ]
 
-Memory is allocated for gpu_metrics_table in
-smu_v13_0_4_init_smc_tables(), but not freed in
-smu_v13_0_4_fini_smc_tables(). This may cause memory leaks, fix it.
+If share is not configured in smb.conf, smb2 tree connect should return
+STATUS_BAD_NETWORK_NAME instead of STATUS_BAD_NETWORK_PATH.
 
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Zhen Ni <nizhen@uniontech.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_4_ppt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ksmbd/mgmt/tree_connect.c | 2 +-
+ fs/ksmbd/smb2pdu.c           | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_4_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_4_ppt.c
-index 5a17b51aa0f9..7df360c25d51 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_4_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_4_ppt.c
-@@ -190,6 +190,9 @@ static int smu_v13_0_4_fini_smc_tables(struct smu_context *smu)
- 	kfree(smu_table->watermarks_table);
- 	smu_table->watermarks_table = NULL;
- 
-+	kfree(smu_table->gpu_metrics_table);
-+	smu_table->gpu_metrics_table = NULL;
-+
- 	return 0;
- }
- 
+diff --git a/fs/ksmbd/mgmt/tree_connect.c b/fs/ksmbd/mgmt/tree_connect.c
+index 0d28e723a28c..940385c6a913 100644
+--- a/fs/ksmbd/mgmt/tree_connect.c
++++ b/fs/ksmbd/mgmt/tree_connect.c
+@@ -18,7 +18,7 @@
+ struct ksmbd_tree_conn_status
+ ksmbd_tree_conn_connect(struct ksmbd_session *sess, char *share_name)
+ {
+-	struct ksmbd_tree_conn_status status = {-EINVAL, NULL};
++	struct ksmbd_tree_conn_status status = {-ENOENT, NULL};
+ 	struct ksmbd_tree_connect_response *resp = NULL;
+ 	struct ksmbd_share_config *sc;
+ 	struct ksmbd_tree_connect *tree_conn = NULL;
+diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+index a9c33d15ca1f..bbb3958b6469 100644
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -1930,8 +1930,9 @@ int smb2_tree_connect(struct ksmbd_work *work)
+ 		rsp->hdr.Status = STATUS_SUCCESS;
+ 		rc = 0;
+ 		break;
++	case -ENOENT:
+ 	case KSMBD_TREE_CONN_STATUS_NO_SHARE:
+-		rsp->hdr.Status = STATUS_BAD_NETWORK_PATH;
++		rsp->hdr.Status = STATUS_BAD_NETWORK_NAME;
+ 		break;
+ 	case -ENOMEM:
+ 	case KSMBD_TREE_CONN_STATUS_NOMEM:
 -- 
 2.35.1
 
