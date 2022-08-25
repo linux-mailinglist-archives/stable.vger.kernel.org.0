@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B38F5A0692
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B63865A069E
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229573AbiHYBmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39318 "EHLO
+        id S234957AbiHYBnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:43:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229606AbiHYBmI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:42:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0F799C526;
-        Wed, 24 Aug 2022 18:38:47 -0700 (PDT)
+        with ESMTP id S234980AbiHYBmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:42:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D279DB71;
+        Wed, 24 Aug 2022 18:38:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CF1461A28;
-        Thu, 25 Aug 2022 01:38:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4639C433D7;
-        Thu, 25 Aug 2022 01:38:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F4F8B826DA;
+        Thu, 25 Aug 2022 01:38:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29ACAC433D7;
+        Thu, 25 Aug 2022 01:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391525;
-        bh=GAU6auQnSBbeCmtNXr4ktFzRC9D15yCJgrdq7WfNEMI=;
+        s=k20201202; t=1661391530;
+        bh=HwLh1b9ngThAZW8y0Od1yxXyL/4+OzGVdxcZXcN8Tck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzC+HhYbjhoNjLNDTGcln0to5Uqo7rskAdCUtVTDocc4f9NQjE5d+h6fTZJlAmp/h
-         Q7JIcn0Bj0jDgI8FTeV+nyg9yhJ7xuuL8vF3hyRvSCfDkOHFzX3ceGvNq9XwGoJSz6
-         RyfiwLNC8NW2YC+01lQIJxi0YkyBt+RxWoHVcU7k8IxsUi8IYHvzGMOPPIFhkZ/PNG
-         a8Mf56UlPYhSTPabTaqllQVsrxqPtTlFX4pH4aUVQxq3DbxBSsQNVyEwYmjPHY9cDK
-         7eGPTu/pzMtVvoL2HAYBsYFBu0Y9LpyjfmC+bhwYVnC44TnYe7Pi6M6QLPbJF2WGHr
-         iVGwahM3lsjug==
+        b=fsOoTQOOwDAUPSN3vnZ7BQuJGII0Az1ACGihmX2eG6uvUowofnvwZ/P6Fffmh5Rwb
+         sjn5nPBkinm1FJcizliMPm4xgR4X0ZxF8hkLBs1Hgpx929xpzHnN8eGR+dOV4+bYTV
+         fIojCmj54xpOJEyawoBNjxffN3dOAoMP4I7epX6laRYgo6QdFeY02RKWc4yOQdt4Z4
+         tejmfpKcOtmEEGql7eypnPkihkb6kMOJFrNWcrZpFv2psbx8PQv5zXA6etNBWr24uL
+         CYtYsANBuMq2S39RBAXvFgIdWiOj20NVeO/dBRjz3Uxqra6/fjtlbib0OmFesDieuY
+         BYDz7oSrtH3WA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alvin Lee <alvin.lee2@amd.com>,
-        Martin Leung <Martin.Leung@amd.com>,
+Cc:     Fudong Wang <Fudong.Wang@amd.com>, Alvin Lee <alvin.lee2@amd.com>,
         Tom Chung <chiahsuan.chung@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
         sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, Aric.Cyr@amd.com, bas@basnieuwenhuizen.nl,
-        joshua@froggi.es, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 02/11] drm/amd/display: For stereo keep "FLIP_ANY_FRAME"
-Date:   Wed, 24 Aug 2022 21:38:23 -0400
-Message-Id: <20220825013836.23205-2-sashal@kernel.org>
+        daniel@ffwll.ch, Charlene.Liu@amd.com, isabbasso@riseup.net,
+        Anson.Jacob@amd.com, oliver.logush@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 03/11] drm/amd/display: clear optc underflow before turn off odm clock
+Date:   Wed, 24 Aug 2022 21:38:24 -0400
+Message-Id: <20220825013836.23205-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013836.23205-1-sashal@kernel.org>
 References: <20220825013836.23205-1-sashal@kernel.org>
@@ -64,38 +63,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Lee <alvin.lee2@amd.com>
+From: Fudong Wang <Fudong.Wang@amd.com>
 
-[ Upstream commit 84ef99c728079dfd21d6bc70b4c3e4af20602b3c ]
+[ Upstream commit b2a93490201300a749ad261b5c5d05cb50179c44 ]
 
-[Description]
-Observed in stereomode that programming FLIP_LEFT_EYE
-can cause hangs. Keep FLIP_ANY_FRAME in stereo mode so
-the surface flip can take place before left or right eye
+[Why]
+After ODM clock off, optc underflow bit will be kept there always and clear not work.
+We need to clear that before clock off.
 
-Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+[How]
+Clear that if have when clock off.
+
+Reviewed-by: Alvin Lee <alvin.lee2@amd.com>
 Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Alvin Lee <alvin.lee2@amd.com>
+Signed-off-by: Fudong Wang <Fudong.Wang@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c
-index af462fe4260d..b0fd8859bd2f 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c
-@@ -86,7 +86,7 @@ bool hubp3_program_surface_flip_and_addr(
- 			VMID, address->vmid);
- 
- 	if (address->type == PLN_ADDR_TYPE_GRPH_STEREO) {
--		REG_UPDATE(DCSURF_FLIP_CONTROL, SURFACE_FLIP_MODE_FOR_STEREOSYNC, 0x1);
-+		REG_UPDATE(DCSURF_FLIP_CONTROL, SURFACE_FLIP_MODE_FOR_STEREOSYNC, 0);
- 		REG_UPDATE(DCSURF_FLIP_CONTROL, SURFACE_FLIP_IN_STEREOSYNC, 0x1);
- 
- 	} else {
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+index 800be2693fac..963d72f96dca 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+@@ -464,6 +464,11 @@ void optc1_enable_optc_clock(struct timing_generator *optc, bool enable)
+ 				OTG_CLOCK_ON, 1,
+ 				1, 1000);
+ 	} else  {
++
++		//last chance to clear underflow, otherwise, it will always there due to clock is off.
++		if (optc->funcs->is_optc_underflow_occurred(optc) == true)
++			optc->funcs->clear_optc_underflow(optc);
++
+ 		REG_UPDATE_2(OTG_CLOCK_CONTROL,
+ 				OTG_CLOCK_GATE_DIS, 0,
+ 				OTG_CLOCK_EN, 0);
 -- 
 2.35.1
 
