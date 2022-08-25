@@ -2,59 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 021D35A0B6E
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 10:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D64AE5A0C83
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 11:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238975AbiHYI0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 04:26:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50504 "EHLO
+        id S235108AbiHYJ0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 05:26:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239795AbiHYI0G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 04:26:06 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 622132CE23;
-        Thu, 25 Aug 2022 01:25:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1661415948; x=1692951948;
-  h=from:to:cc:subject:date:message-id;
-  bh=Eja8cuJ2l8fSG1VgeeQkVCOALrFwx8H66sQ/4ba8AZY=;
-  b=aeUZbd1o6I/3/SkwechHMMhoo16uyhvXm4MGCc6sW2l8vnAr5L69VQOA
-   tE9NwqWCEXjShKv2p+WujxvRG1/WMVV2oY1PeEQgMgeRyqwwwLrgVOH6T
-   Xzthp0S32Utun+NOrNS/6XdhgmgNJf7YzQ8lJ33VOh1k69l6MdL2HyvGu
-   QJDGEMypVgSBZTn7IzyofSqkg569vTOJo4a5+eCvxBMK+e78liHEQaybX
-   5I9ZjfqygO4dw/NxCdVby4V3Imynk888K16vbRUU8dgwmsFQIrzyD8xqs
-   DvXwwvYxmAT2sNOFXJuoU/8RctjtnannumZTXVNI+B1CBGYHswIqAosrB
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10449"; a="320257168"
-X-IronPort-AV: E=Sophos;i="5.93,262,1654585200"; 
-   d="scan'208";a="320257168"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Aug 2022 01:25:48 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,262,1654585200"; 
-   d="scan'208";a="752399532"
-Received: from aminuddin-ilbpg12.png.intel.com ([10.88.229.89])
-  by fmsmga001.fm.intel.com with ESMTP; 25 Aug 2022 01:25:45 -0700
-From:   Aminuddin Jamaluddin <aminuddin.jamaluddin@intel.com>
-To:     Andrew Lunn <andrew@lunn.ch>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, tee.min.tan@intel.com,
-        muhammad.husaini.zulkifli@intel.com, aminuddin.jamaluddin@intel.com
-Subject: [PATCH net 1/1] net: phy: marvell: add link status check before enabling phy loopback
-Date:   Thu, 25 Aug 2022 16:22:37 +0800
-Message-Id: <20220825082238.11056-1-aminuddin.jamaluddin@intel.com>
-X-Mailer: git-send-email 2.17.1
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        with ESMTP id S235388AbiHYJ0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 05:26:06 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8960961730;
+        Thu, 25 Aug 2022 02:26:04 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 4081E5BCEF;
+        Thu, 25 Aug 2022 09:26:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1661419563; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=BYfTZFURvyLCFYVU3ltFgIRHLc50Lkg36j+xzInhtWI=;
+        b=qrtmchGnpdx4Li2CexVjMJHXy+6yN4kZSUZagt6K/wEDzX6fbtPxLO/TYsa0ADZmPk6Dkt
+        K0+ZYizhPYlyPeCuLO6HdEAkq3cpYHG7QUUP+BVo8f0nR91Gcn3E9LNVZPgqPttUFJTOUk
+        uepJ+vC6hOLcHab0OG+L32V3qNARRgs=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 059DC13517;
+        Thu, 25 Aug 2022 09:26:02 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id luA+OypAB2M1RgAAMHmgww
+        (envelope-from <jgross@suse.com>); Thu, 25 Aug 2022 09:26:02 +0000
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        stable@vger.kernel.org,
+        Rustam Subkhankulov <subkhankulov@ispras.ru>
+Subject: [PATCH v2] xen/privcmd: fix error exit of privcmd_ioctl_dm_op()
+Date:   Thu, 25 Aug 2022 11:26:00 +0200
+Message-Id: <20220825092600.7188-1-jgross@suse.com>
+X-Mailer: git-send-email 2.35.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -63,76 +60,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add link status checking in m88e1510_loopback() for 1Gbps link speed
-and delay for 100ms after phy loopback bit is set before send packet.
-This is needed to ensure the stability and consistency when running
-the phy loopback test.
+The error exit of privcmd_ioctl_dm_op() is calling unlock_pages()
+potentially with pages being NULL, leading to a NULL dereference.
 
-Fixes: 020a45aff119 ("net: phy: marvell: add Marvell specific PHY loopback")
-Cc: <stable@vger.kernel.org> # 5.15.x
-Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Signed-off-by: Aminuddin Jamaluddin <aminuddin.jamaluddin@intel.com>
+Additionally lock_pages() doesn't check for pin_user_pages_fast()
+having been completely successful, resulting in potentially not
+locking all pages into memory. This could result in sporadic failures
+when using the related memory in user mode.
+
+Fix all of that by calling unlock_pages() always with the real number
+of pinned pages, which will be zero in case pages being NULL, and by
+checking the number of patches pinned by pin_user_pages_fast()
+matching the expected number of pages.
+
+Cc: <stable@vger.kernel.org>
+Fixes: ab520be8cd5d ("xen/privcmd: Add IOCTL_PRIVCMD_DM_OP")
+Reported-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- drivers/net/phy/marvell.c | 22 ++++++++++++++++------
- include/linux/phy.h       |  3 +++
- 2 files changed, 19 insertions(+), 6 deletions(-)
+V2:
+- use "pinned" as parameter for unlock_pages() (Jan Beulich)
+- drop label "unlock" again (Jan Beulich)
+- add check for complete success of pin_user_pages_fast()
+---
+ drivers/xen/privcmd.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
-index a714150f5e8c..17403acf780d 100644
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -1992,6 +1992,7 @@ static int m88e1510_loopback(struct phy_device *phydev, bool enable)
- 
- 	if (enable) {
- 		u16 bmcr_ctl, mscr2_ctl = 0;
-+		int val = 0;
- 
- 		bmcr_ctl = mii_bmcr_encode_fixed(phydev->speed, phydev->duplex);
- 
-@@ -2015,14 +2016,23 @@ static int m88e1510_loopback(struct phy_device *phydev, bool enable)
- 		if (err < 0)
- 			return err;
- 
--		/* FIXME: Based on trial and error test, it seem 1G need to have
--		 * delay between soft reset and loopback enablement.
--		 */
--		if (phydev->speed == SPEED_1000)
--			msleep(1000);
-+		if (phydev->speed == SPEED_1000) {
-+			err = phy_read_poll_timeout(phydev, MII_BMSR, val, val & BMSR_LSTATUS,
-+						    PHY_LOOP_BACK_SLEEP,
-+						    PHY_LOOP_BACK_TIMEOUT, true);
-+			if (err)
-+				return err;
-+		}
- 
--		return phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK,
-+		err =  phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK,
- 				  BMCR_LOOPBACK);
-+		if (!err) {
-+			/* It takes some time for PHY device to switch
-+			 * into/out-of loopback mode.
-+			 */
-+			msleep(100);
-+		}
-+		return err;
- 	} else {
- 		err = phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK, 0);
- 		if (err < 0)
-diff --git a/include/linux/phy.h b/include/linux/phy.h
-index 87638c55d844..b4da968da8e6 100644
---- a/include/linux/phy.h
-+++ b/include/linux/phy.h
-@@ -276,6 +276,9 @@ static inline const char *phy_modes(phy_interface_t interface)
- #define PHY_INIT_TIMEOUT	100000
- #define PHY_FORCE_TIMEOUT	10
- 
-+#define PHY_LOOP_BACK_SLEEP	1000000
-+#define PHY_LOOP_BACK_TIMEOUT	8000000
+diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
+index 3369734108af..7dc62510635e 100644
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -602,6 +602,10 @@ static int lock_pages(
+ 		*pinned += page_count;
+ 		nr_pages -= page_count;
+ 		pages += page_count;
 +
- #define PHY_MAX_ADDR	32
++		/* Exact reason isn't known, EFAULT is one possibility. */
++		if (page_count < requested)
++			return -EFAULT;
+ 	}
  
- /* Used when trying to connect to a specific phy (mii bus id:phy device id) */
+ 	return 0;
+@@ -677,10 +681,8 @@ static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
+ 	}
+ 
+ 	rc = lock_pages(kbufs, kdata.num, pages, nr_pages, &pinned);
+-	if (rc < 0) {
+-		nr_pages = pinned;
++	if (rc < 0)
+ 		goto out;
+-	}
+ 
+ 	for (i = 0; i < kdata.num; i++) {
+ 		set_xen_guest_handle(xbufs[i].h, kbufs[i].uptr);
+@@ -692,7 +694,7 @@ static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
+ 	xen_preemptible_hcall_end();
+ 
+ out:
+-	unlock_pages(pages, nr_pages);
++	unlock_pages(pages, pinned);
+ 	kfree(xbufs);
+ 	kfree(pages);
+ 	kfree(kbufs);
 -- 
-2.17.1
+2.35.3
 
