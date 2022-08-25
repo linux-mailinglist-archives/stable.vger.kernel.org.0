@@ -2,154 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9090E5A0F6C
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 13:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B969A5A0FAC
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 13:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237593AbiHYLkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 07:40:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33684 "EHLO
+        id S240595AbiHYL5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 07:57:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236917AbiHYLkI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 07:40:08 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A322A25EB3;
-        Thu, 25 Aug 2022 04:40:07 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S236914AbiHYL5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 07:57:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB31A50EF
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 04:57:08 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 2240D33FAB;
-        Thu, 25 Aug 2022 11:40:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1661427606; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=dwYP6pNMJ0bm8xlxtVpMlGoTLHlcq559EPLF7XX0wWg=;
-        b=C+MPh8mLFnN9CLM7FjKQOWdgVZYRDFXFB5CoDv9yeClqcY0jYdkWN9NppQSYqOGtsFRPo9
-        llIVVfYKHqCMkvMFoXXzJLHOUxQsCIuE1TSrgfoXYc80a6jPEMgghctgM2MdCM7R3fZLqu
-        fsBv5JQ9zYRfGwnkpB3TE73sX55oOoM=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D754213517;
-        Thu, 25 Aug 2022 11:40:05 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id wBBAM5VfB2OhfwAAMHmgww
-        (envelope-from <jgross@suse.com>); Thu, 25 Aug 2022 11:40:05 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        stable@vger.kernel.org,
-        Rustam Subkhankulov <subkhankulov@ispras.ru>
-Subject: [PATCH v3] xen/privcmd: fix error exit of privcmd_ioctl_dm_op()
-Date:   Thu, 25 Aug 2022 13:40:04 +0200
-Message-Id: <20220825114004.24843-1-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBD76B82738
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 11:57:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C12C433D6;
+        Thu, 25 Aug 2022 11:57:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661428625;
+        bh=36ofyImJH4P6Zn0b+tKV/OH5hk1VWXPWFjYwwMHYljU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tJf2x2gldYPzy9dhhh0PJhZhUc4OW/FgqrlIresl912l4k/vYW6afb3Qx35nQ6gYX
+         ZwEKR8p2QD8ZBFWA/DOpLltYb4oTsLQ9q1vQ7g87PYXu2dSgCwnwCwP9mVYEZUrmTK
+         OzhZiO9F3lp28GDQOBCIYLmpgvoLZJ5Dvj+rrdUw=
+Date:   Thu, 25 Aug 2022 13:57:02 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pawel Laszczak <pawell@cadence.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Peter Chen <peter.chen@kernel.org>
+Subject: Re: [PATCH] usb: cdns3: Fix issue for clear halt endpoint
+Message-ID: <Ywdjjh8n7Hp2fFQP@kroah.com>
+References: <20220825111235.29250-1-pawell@cadence.com>
+ <BYAPR07MB5381C9E9D86FB39C28456D24DD729@BYAPR07MB5381.namprd07.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BYAPR07MB5381C9E9D86FB39C28456D24DD729@BYAPR07MB5381.namprd07.prod.outlook.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The error exit of privcmd_ioctl_dm_op() is calling unlock_pages()
-potentially with pages being NULL, leading to a NULL dereference.
+On Thu, Aug 25, 2022 at 11:19:32AM +0000, Pawel Laszczak wrote:
+> 
+> Hi Greg,
+>  
+> It is backport to 5.4 stable version.
+> Please apply this patch.
 
-Additionally lock_pages() doesn't check for pin_user_pages_fast()
-having been completely successful, resulting in potentially not
-locking all pages into memory. This could result in sporadic failures
-when using the related memory in user mode.
+Now queued up, thanks.
 
-Fix all of that by calling unlock_pages() always with the real number
-of pinned pages, which will be zero in case pages being NULL, and by
-checking the number of pages pinned by pin_user_pages_fast() matching
-the expected number of pages.
-
-Cc: <stable@vger.kernel.org>
-Fixes: ab520be8cd5d ("xen/privcmd: Add IOCTL_PRIVCMD_DM_OP")
-Reported-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V2:
-- use "pinned" as parameter for unlock_pages() (Jan Beulich)
-- drop label "unlock" again (Jan Beulich)
-- add check for complete success of pin_user_pages_fast()
-V3:
-- continue after partial success of pin_user_pages_fast() (Jan Beulich)
----
- drivers/xen/privcmd.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
-index 3369734108af..1ca7e3ea6fd4 100644
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -581,7 +581,7 @@ static int lock_pages(
- 	struct privcmd_dm_op_buf kbufs[], unsigned int num,
- 	struct page *pages[], unsigned int nr_pages, unsigned int *pinned)
- {
--	unsigned int i;
-+	unsigned int i, off = 0;
- 
- 	for (i = 0; i < num; i++) {
- 		unsigned int requested;
-@@ -589,19 +589,23 @@ static int lock_pages(
- 
- 		requested = DIV_ROUND_UP(
- 			offset_in_page(kbufs[i].uptr) + kbufs[i].size,
--			PAGE_SIZE);
-+			PAGE_SIZE) - off;
- 		if (requested > nr_pages)
- 			return -ENOSPC;
- 
- 		page_count = pin_user_pages_fast(
--			(unsigned long) kbufs[i].uptr,
-+			(unsigned long)kbufs[i].uptr + off * PAGE_SIZE,
- 			requested, FOLL_WRITE, pages);
--		if (page_count < 0)
--			return page_count;
-+		if (page_count <= 0)
-+			return page_count ? : -EFAULT;
- 
- 		*pinned += page_count;
- 		nr_pages -= page_count;
- 		pages += page_count;
-+
-+		off = requested - page_count;
-+		if (off)
-+			i--;
- 	}
- 
- 	return 0;
-@@ -677,10 +681,8 @@ static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
- 	}
- 
- 	rc = lock_pages(kbufs, kdata.num, pages, nr_pages, &pinned);
--	if (rc < 0) {
--		nr_pages = pinned;
-+	if (rc < 0)
- 		goto out;
--	}
- 
- 	for (i = 0; i < kdata.num; i++) {
- 		set_xen_guest_handle(xbufs[i].h, kbufs[i].uptr);
-@@ -692,7 +694,7 @@ static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
- 	xen_preemptible_hcall_end();
- 
- out:
--	unlock_pages(pages, nr_pages);
-+	unlock_pages(pages, pinned);
- 	kfree(xbufs);
- 	kfree(pages);
- 	kfree(kbufs);
--- 
-2.35.3
-
+greg k-h
