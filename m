@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA2655A0E46
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E13A5A0E47
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241395AbiHYKqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 06:46:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36808 "EHLO
+        id S241339AbiHYKqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 06:46:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241409AbiHYKqX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:46:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F839C1D4
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:46:05 -0700 (PDT)
+        with ESMTP id S241318AbiHYKq1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:46:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25DE4AA3E4
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:46:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D8AA6193C
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:45:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 157DBC433D6;
-        Thu, 25 Aug 2022 10:45:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCE85618CB
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:46:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D81CAC433C1;
+        Thu, 25 Aug 2022 10:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661424357;
-        bh=B4RWSf7YU6tiJKQrimKf/Zu57aA1TItt9t8YRqX3ICU=;
+        s=korg; t=1661424366;
+        bh=03rfIWpLz79eSGjQZn3oTtx3sG2EuB7EiR0rqBcSTsQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=pMwPAIlofVrK2aYTekFU65cSVnUt3azoBvdqkkmdmGz7zUVurpzHOeBR9Tmj5dApz
-         w9eDUGfB0ALfyXEQkWJAqFsubPBFzAofT3ynWhF0vZkIcSeBa+zWmXiai2A6xycK78
-         zvxoeyiLGINYp81SjkvQJ9LN1N2OxA1hJvM4WGgU=
-Subject: FAILED: patch "[PATCH] NFS: Fix another fsync() issue after a server reboot" failed to apply to 5.15-stable tree
+        b=zpQJ57QXaL+QLgISFgDDS3+V3LsP4QQXzE0ua/W52aQ6+YRbUwaFwdRx+WI7iMLyd
+         y7EW5tqWRYM6AYrcq3aaA2vYE20AcMnbHzmQ7FXdLwS32pVBuigv5Y7XKSTPU2S+Ja
+         byVlx7/RrG8BDEZk1txVW3DoZLmGak5kiUvIVyeU=
+Subject: FAILED: patch "[PATCH] NFS: Fix another fsync() issue after a server reboot" failed to apply to 5.10-stable tree
 To:     trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Aug 2022 12:45:54 +0200
-Message-ID: <1661424354236133@kroah.com>
+Date:   Thu, 25 Aug 2022 12:45:55 +0200
+Message-ID: <1661424355112221@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
