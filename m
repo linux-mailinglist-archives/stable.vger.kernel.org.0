@@ -2,47 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A51A5A05B8
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6EC25A05BD
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232051AbiHYBeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:34:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
+        id S232355AbiHYBev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:34:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232272AbiHYBei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:34:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A05896764;
-        Wed, 24 Aug 2022 18:34:38 -0700 (PDT)
+        with ESMTP id S232266AbiHYBer (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:34:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39991B76;
+        Wed, 24 Aug 2022 18:34:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9BB561A28;
-        Thu, 25 Aug 2022 01:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDF0BC433D7;
-        Thu, 25 Aug 2022 01:34:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE958B826C6;
+        Thu, 25 Aug 2022 01:34:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC9FFC433D6;
+        Thu, 25 Aug 2022 01:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391277;
-        bh=vHQgJ625Aopds3oZUxvzwvo6i5AMT1ganc+thx9nkzo=;
+        s=k20201202; t=1661391282;
+        bh=yNrF37xl4SIiS1ML8HYlB+YP3QAwylGrbARyAhcG6B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDVfrTMdmBwy3BTtOLNkH9VnLDKcEc5wUDzcOuK72yqPPKtOyxd8VCh0ODbprW5/X
-         +jUaC4KmPp5fhF11mm5mP1rQ7L4Xi8bUfNrK9NcH6HdyzsuThRYuPo9BbHksmXD+mF
-         uVvp4tD5Vf1HOUDY1YTkMGWbiaS3peKFo4CZNCqjXqvDwWzU5qloofuTf4FkWEXUWu
-         PLP0+MYJmf3joxa0zgdauuY/w1og8zFmMqTMMkPEozEqMmMVM5xmK4VKo1hEwmAyDC
-         W+g+MfapWdFvasaKMH3Io/7MU6J5+pK4cwGGuhWSdmxDT1/+sPmv9Zx1WcGDbVLvQ7
-         zzJOnQpaSbDUQ==
+        b=IFIz2Mjmak3wR4GUl3laq84TYni0/wiiZXWRmK8jCWyENoNcaHcbS6f+UjK7/8qjG
+         V5rnJ+LrHa1vwRBn084srLIyLEU1ZQ+t+blRKeo0WXlRohKzn7T8WsgSbk40mmsBD1
+         RUCsha18smFyfNZWlWEj+CRdj+0kV94naLcZ/hiP6JLoPFToEgyMFrYhmaSFsgi+HD
+         1oEDLRSYxfCXTUfzgZzQwIAodUlrwSicA+JQyedwnHJrQEnAyS/577rXeVSiA3h3Ng
+         +Irke+w9fX5Xho+UBil2LYOWXcK1IIG/ZSe/4Qp3OjFEV82mG0bnmIr5VUPExA+Ui6
+         CLymlTcM+qL/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aurabindo Pillai <aurabindo.pillai@amd.com>,
+Cc:     Chiawen Huang <chiawen.huang@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
         sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, Jerry.Zuo@amd.com, Nicholas.Kazlauskas@amd.com,
+        daniel@ffwll.ch, alex.hung@amd.com, Yi-Ling.Chen2@amd.com,
+        Roman.Li@amd.com, mwen@igalia.com, hanghong.ma@amd.com,
+        dingchen.zhang@amd.com, Jerry.Zuo@amd.com,
+        agustin.gutierrez@amd.com, duncan.ma@amd.com, dale.zhao@amd.com,
+        isabbasso@riseup.net, Sungjoon.Kim@amd.com,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 05/38] drm/amd/display: Add a missing register field for HPO DP stream encoder
-Date:   Wed, 24 Aug 2022 21:33:28 -0400
-Message-Id: <20220825013401.22096-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 06/38] drm/amd/display: Device flash garbage before get in OS
+Date:   Wed, 24 Aug 2022 21:33:29 -0400
+Message-Id: <20220825013401.22096-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013401.22096-1-sashal@kernel.org>
 References: <20220825013401.22096-1-sashal@kernel.org>
@@ -60,36 +67,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurabindo Pillai <aurabindo.pillai@amd.com>
+From: Chiawen Huang <chiawen.huang@amd.com>
 
-[ Upstream commit 37bc31f0e7da4fbad4664e64d906ae7b9009e550 ]
+[ Upstream commit 9c580e8f6cd6524d4e2c3490c440110526f7ddd6 ]
 
-[Why&How]
-Add the missing definition to set the register field
-HBLANK_MINIMUM_SYMBOL_WIDTH
+[Why]
+Enabling stream with tg lock makes config settings
+pending causing the garbage until tg unlock.
 
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+[How]
+Keep the original lock mechanism
+The driver doesn't lock tg if plane_state is null.
+
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: Chiawen Huang <chiawen.huang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h
-index 7c77c71591a0..82c3b3ac1f0d 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h
-@@ -162,7 +162,8 @@
- 	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_SDP_AUDIO_CONTROL0, AIP_ENABLE, mask_sh),\
- 	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_SDP_AUDIO_CONTROL0, ACM_ENABLE, mask_sh),\
- 	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_VID_CRC_CONTROL, CRC_ENABLE, mask_sh),\
--	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_VID_CRC_CONTROL, CRC_CONT_MODE_ENABLE, mask_sh)
-+	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_VID_CRC_CONTROL, CRC_CONT_MODE_ENABLE, mask_sh),\
-+	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_HBLANK_CONTROL, HBLANK_MINIMUM_SYMBOL_WIDTH, mask_sh)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index e3a62873c0e7..d9ab27991535 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -108,6 +108,7 @@ void dcn10_lock_all_pipes(struct dc *dc,
+ 		 */
+ 		if (pipe_ctx->top_pipe ||
+ 		    !pipe_ctx->stream ||
++		    !pipe_ctx->plane_state ||
+ 		    !tg->funcs->is_tg_enabled(tg))
+ 			continue;
  
- 
- #define DCN3_1_HPO_DP_STREAM_ENC_REG_FIELD_LIST(type) \
 -- 
 2.35.1
 
