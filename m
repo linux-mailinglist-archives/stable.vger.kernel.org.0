@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01A695A0E58
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:48:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D26995A0E5E
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 12:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241212AbiHYKsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 06:48:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43972 "EHLO
+        id S241251AbiHYKtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 06:49:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241261AbiHYKsb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:48:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B39772ED6
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:48:30 -0700 (PDT)
+        with ESMTP id S237099AbiHYKtL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 06:49:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79409F8E1
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 03:49:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94C76B827B0
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF1AFC433C1;
-        Thu, 25 Aug 2022 10:48:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76F466190D
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 10:49:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85BD5C433D6;
+        Thu, 25 Aug 2022 10:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661424507;
-        bh=NiGhr3vOzkQPP/7QJG1epqSQTKSfyLqgFmFR3h7qLiA=;
+        s=korg; t=1661424548;
+        bh=cdx8ANmc8mJB2faz1Gb7rz4IUtTGqTE4N1mxI8DQGwA=;
         h=Subject:To:Cc:From:Date:From;
-        b=lBcOjoOayp5CEwUeDF7IfsT6ghu+8vJea0sN0/iy5/8++DDgWEoI0XS9/wdKcb6HY
-         1ko+Iq9oa+eiOQGgXg1+pg5JVAf7ALPIooowmdUgWu41OIAGfJor3dyd6o8ZZxufUI
-         bMr/QK65cjZEwPMztRQBa/lnUZ1xl06CtijxT+xg=
-Subject: FAILED: patch "[PATCH] kprobes: don't call disarm_kprobe() for disabled kprobes" failed to apply to 4.9-stable tree
-To:     kuniyu@amazon.com, akpm@linux-foundation.org,
-        anil.s.keshavamurthy@intel.com, ayudutta@amazon.com,
-        davem@davemloft.net, kuni1840@gmail.com, mhiramat@kernel.org,
-        naveen.n.rao@linux.ibm.com, stable@vger.kernel.org,
-        wangnan0@huawei.com
+        b=R3GXQLn4NObEyfYrlwFt3Dt7uAGRS8xaKRsp2Ips4XudCusObY4bmKPVYQIoboHtO
+         jsU2Yve6SZhpSNc7iiRgtfpMeVvQRQKYqnBWMWXHiNLmBwgYABdkxjZWQTAwor3Hk8
+         QaXGNRXrxNSXxu9SkKJrOFW/sWewo+J52KKuYY/o=
+Subject: FAILED: patch "[PATCH] mm/hugetlb: fix hugetlb not supporting softdirty tracking" failed to apply to 5.19-stable tree
+To:     david@redhat.com, akpm@linux-foundation.org, bhelgaas@google.com,
+        gorcunov@openvz.org, hughd@google.com, jamieliu@google.com,
+        kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
+        n-horiguchi@ah.jp.nec.com, peterx@redhat.com, pfeiner@google.com,
+        songmuchun@bytedance.com, stable@vger.kernel.org,
+        xemul@parallels.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 25 Aug 2022 12:48:21 +0200
-Message-ID: <1661424501105181@kroah.com>
+Date:   Thu, 25 Aug 2022 12:49:06 +0200
+Message-ID: <1661424546448@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,7 +53,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,148 +64,159 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9c80e79906b4ca440d09e7f116609262bb747909 Mon Sep 17 00:00:00 2001
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-Date: Fri, 12 Aug 2022 19:05:09 -0700
-Subject: [PATCH] kprobes: don't call disarm_kprobe() for disabled kprobes
+From f96f7a40874d7c746680c0b9f57cef2262ae551f Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Thu, 11 Aug 2022 12:34:34 +0200
+Subject: [PATCH] mm/hugetlb: fix hugetlb not supporting softdirty tracking
 
-The assumption in __disable_kprobe() is wrong, and it could try to disarm
-an already disarmed kprobe and fire the WARN_ONCE() below. [0]  We can
-easily reproduce this issue.
+Patch series "mm/hugetlb: fix write-fault handling for shared mappings", v2.
 
-1. Write 0 to /sys/kernel/debug/kprobes/enabled.
+I observed that hugetlb does not support/expect write-faults in shared
+mappings that would have to map the R/O-mapped page writable -- and I
+found two case where we could currently get such faults and would
+erroneously map an anon page into a shared mapping.
 
-  # echo 0 > /sys/kernel/debug/kprobes/enabled
+Reproducers part of the patches.
 
-2. Run execsnoop.  At this time, one kprobe is disabled.
+I propose to backport both fixes to stable trees.  The first fix needs a
+small adjustment.
 
-  # /usr/share/bcc/tools/execsnoop &
-  [1] 2460
-  PCOMM            PID    PPID   RET ARGS
 
-  # cat /sys/kernel/debug/kprobes/list
-  ffffffff91345650  r  __x64_sys_execve+0x0    [FTRACE]
-  ffffffff91345650  k  __x64_sys_execve+0x0    [DISABLED][FTRACE]
+This patch (of 2):
 
-3. Write 1 to /sys/kernel/debug/kprobes/enabled, which changes
-   kprobes_all_disarmed to false but does not arm the disabled kprobe.
+Staring at hugetlb_wp(), one might wonder where all the logic for shared
+mappings is when stumbling over a write-protected page in a shared
+mapping.  In fact, there is none, and so far we thought we could get away
+with that because e.g., mprotect() should always do the right thing and
+map all pages directly writable.
 
-  # echo 1 > /sys/kernel/debug/kprobes/enabled
+Looks like we were wrong:
 
-  # cat /sys/kernel/debug/kprobes/list
-  ffffffff91345650  r  __x64_sys_execve+0x0    [FTRACE]
-  ffffffff91345650  k  __x64_sys_execve+0x0    [DISABLED][FTRACE]
+--------------------------------------------------------------------------
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <errno.h>
+ #include <sys/mman.h>
 
-4. Kill execsnoop, when __disable_kprobe() calls disarm_kprobe() for the
-   disabled kprobe and hits the WARN_ONCE() in __disarm_kprobe_ftrace().
+ #define HUGETLB_SIZE (2 * 1024 * 1024u)
 
-  # fg
-  /usr/share/bcc/tools/execsnoop
-  ^C
+ static void clear_softdirty(void)
+ {
+         int fd = open("/proc/self/clear_refs", O_WRONLY);
+         const char *ctrl = "4";
+         int ret;
 
-Actually, WARN_ONCE() is fired twice, and __unregister_kprobe_top() misses
-some cleanups and leaves the aggregated kprobe in the hash table.  Then,
-__unregister_trace_kprobe() initialises tk->rp.kp.list and creates an
-infinite loop like this.
+         if (fd < 0) {
+                 fprintf(stderr, "open(clear_refs) failed\n");
+                 exit(1);
+         }
+         ret = write(fd, ctrl, strlen(ctrl));
+         if (ret != strlen(ctrl)) {
+                 fprintf(stderr, "write(clear_refs) failed\n");
+                 exit(1);
+         }
+         close(fd);
+ }
 
-  aggregated kprobe.list -> kprobe.list -.
-                                     ^    |
-                                     '.__.'
+ int main(int argc, char **argv)
+ {
+         char *map;
+         int fd;
 
-In this situation, these commands fall into the infinite loop and result
-in RCU stall or soft lockup.
+         fd = open("/dev/hugepages/tmp", O_RDWR | O_CREAT);
+         if (!fd) {
+                 fprintf(stderr, "open() failed\n");
+                 return -errno;
+         }
+         if (ftruncate(fd, HUGETLB_SIZE)) {
+                 fprintf(stderr, "ftruncate() failed\n");
+                 return -errno;
+         }
 
-  cat /sys/kernel/debug/kprobes/list : show_kprobe_addr() enters into the
-                                       infinite loop with RCU.
+         map = mmap(NULL, HUGETLB_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+         if (map == MAP_FAILED) {
+                 fprintf(stderr, "mmap() failed\n");
+                 return -errno;
+         }
 
-  /usr/share/bcc/tools/execsnoop : warn_kprobe_rereg() holds kprobe_mutex,
-                                   and __get_valid_kprobe() is stuck in
-				   the loop.
+         *map = 0;
 
-To avoid the issue, make sure we don't call disarm_kprobe() for disabled
-kprobes.
+         if (mprotect(map, HUGETLB_SIZE, PROT_READ)) {
+                 fprintf(stderr, "mmprotect() failed\n");
+                 return -errno;
+         }
 
-[0]
-Failed to disarm kprobe-ftrace at __x64_sys_execve+0x0/0x40 (error -2)
-WARNING: CPU: 6 PID: 2460 at kernel/kprobes.c:1130 __disarm_kprobe_ftrace.isra.19 (kernel/kprobes.c:1129)
-Modules linked in: ena
-CPU: 6 PID: 2460 Comm: execsnoop Not tainted 5.19.0+ #28
-Hardware name: Amazon EC2 c5.2xlarge/, BIOS 1.0 10/16/2017
-RIP: 0010:__disarm_kprobe_ftrace.isra.19 (kernel/kprobes.c:1129)
-Code: 24 8b 02 eb c1 80 3d c4 83 f2 01 00 75 d4 48 8b 75 00 89 c2 48 c7 c7 90 fa 0f 92 89 04 24 c6 05 ab 83 01 e8 e4 94 f0 ff <0f> 0b 8b 04 24 eb b1 89 c6 48 c7 c7 60 fa 0f 92 89 04 24 e8 cc 94
-RSP: 0018:ffff9e6ec154bd98 EFLAGS: 00010282
-RAX: 0000000000000000 RBX: ffffffff930f7b00 RCX: 0000000000000001
-RDX: 0000000080000001 RSI: ffffffff921461c5 RDI: 00000000ffffffff
-RBP: ffff89c504286da8 R08: 0000000000000000 R09: c0000000fffeffff
-R10: 0000000000000000 R11: ffff9e6ec154bc28 R12: ffff89c502394e40
-R13: ffff89c502394c00 R14: ffff9e6ec154bc00 R15: 0000000000000000
-FS:  00007fe800398740(0000) GS:ffff89c812d80000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000c00057f010 CR3: 0000000103b54006 CR4: 00000000007706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
-<TASK>
- __disable_kprobe (kernel/kprobes.c:1716)
- disable_kprobe (kernel/kprobes.c:2392)
- __disable_trace_kprobe (kernel/trace/trace_kprobe.c:340)
- disable_trace_kprobe (kernel/trace/trace_kprobe.c:429)
- perf_trace_event_unreg.isra.2 (./include/linux/tracepoint.h:93 kernel/trace/trace_event_perf.c:168)
- perf_kprobe_destroy (kernel/trace/trace_event_perf.c:295)
- _free_event (kernel/events/core.c:4971)
- perf_event_release_kernel (kernel/events/core.c:5176)
- perf_release (kernel/events/core.c:5186)
- __fput (fs/file_table.c:321)
- task_work_run (./include/linux/sched.h:2056 (discriminator 1) kernel/task_work.c:179 (discriminator 1))
- exit_to_user_mode_prepare (./include/linux/resume_user_mode.h:49 kernel/entry/common.c:169 kernel/entry/common.c:201)
- syscall_exit_to_user_mode (./arch/x86/include/asm/jump_label.h:55 ./arch/x86/include/asm/nospec-branch.h:384 ./arch/x86/include/asm/entry-common.h:94 kernel/entry/common.c:133 kernel/entry/common.c:296)
- do_syscall_64 (arch/x86/entry/common.c:87)
- entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-RIP: 0033:0x7fe7ff210654
-Code: 15 79 89 20 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb be 0f 1f 00 8b 05 9a cd 20 00 48 63 ff 85 c0 75 11 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 3a f3 c3 48 83 ec 18 48 89 7c 24 08 e8 34 fc
-RSP: 002b:00007ffdbd1d3538 EFLAGS: 00000246 ORIG_RAX: 0000000000000003
-RAX: 0000000000000000 RBX: 0000000000000008 RCX: 00007fe7ff210654
-RDX: 0000000000000000 RSI: 0000000000002401 RDI: 0000000000000008
-RBP: 0000000000000000 R08: 94ae31d6fda838a4 R0900007fe8001c9d30
-R10: 00007ffdbd1d34b0 R11: 0000000000000246 R12: 00007ffdbd1d3600
-R13: 0000000000000000 R14: fffffffffffffffc R15: 00007ffdbd1d3560
-</TASK>
+         clear_softdirty();
 
-Link: https://lkml.kernel.org/r/20220813020509.90805-1-kuniyu@amazon.com
-Fixes: 69d54b916d83 ("kprobes: makes kprobes/enabled works correctly for optimized kprobes.")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reported-by: Ayushman Dutta <ayudutta@amazon.com>
-Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Wang Nan <wangnan0@huawei.com>
-Cc: Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc: Kuniyuki Iwashima <kuni1840@gmail.com>
-Cc: Ayushman Dutta <ayudutta@amazon.com>
-Cc: <stable@vger.kernel.org>
+         if (mprotect(map, HUGETLB_SIZE, PROT_READ|PROT_WRITE)) {
+                 fprintf(stderr, "mmprotect() failed\n");
+                 return -errno;
+         }
+
+         *map = 0;
+
+         return 0;
+ }
+--------------------------------------------------------------------------
+
+Above test fails with SIGBUS when there is only a single free hugetlb page.
+ # echo 1 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+ # ./test
+ Bus error (core dumped)
+
+And worse, with sufficient free hugetlb pages it will map an anonymous page
+into a shared mapping, for example, messing up accounting during unmap
+and breaking MAP_SHARED semantics:
+ # echo 2 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+ # ./test
+ # cat /proc/meminfo | grep HugePages_
+ HugePages_Total:       2
+ HugePages_Free:        1
+ HugePages_Rsvd:    18446744073709551615
+ HugePages_Surp:        0
+
+Reason in this particular case is that vma_wants_writenotify() will
+return "true", removing VM_SHARED in vma_set_page_prot() to map pages
+write-protected. Let's teach vma_wants_writenotify() that hugetlb does not
+support softdirty tracking.
+
+Link: https://lkml.kernel.org/r/20220811103435.188481-1-david@redhat.com
+Link: https://lkml.kernel.org/r/20220811103435.188481-2-david@redhat.com
+Fixes: 64e455079e1b ("mm: softdirty: enable write notifications on VMAs after VM_SOFTDIRTY cleared")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Feiner <pfeiner@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Cyrill Gorcunov <gorcunov@openvz.org>
+Cc: Pavel Emelyanov <xemul@parallels.com>
+Cc: Jamie Liu <jamieliu@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>	[3.18+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 80697e5e03e4..08350e35aba2 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1707,11 +1707,12 @@ static struct kprobe *__disable_kprobe(struct kprobe *p)
- 		/* Try to disarm and disable this/parent probe */
- 		if (p == orig_p || aggr_kprobe_disabled(orig_p)) {
- 			/*
--			 * If 'kprobes_all_disarmed' is set, 'orig_p'
--			 * should have already been disarmed, so
--			 * skip unneed disarming process.
-+			 * Don't be lazy here.  Even if 'kprobes_all_disarmed'
-+			 * is false, 'orig_p' might not have been armed yet.
-+			 * Note arm_all_kprobes() __tries__ to arm all kprobes
-+			 * on the best effort basis.
- 			 */
--			if (!kprobes_all_disarmed) {
-+			if (!kprobes_all_disarmed && !kprobe_disabled(orig_p)) {
- 				ret = disarm_kprobe(orig_p, true);
- 				if (ret) {
- 					p->flags &= ~KPROBE_FLAG_DISABLED;
+diff --git a/mm/mmap.c b/mm/mmap.c
+index c035020d0c89..9d780f415be3 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1646,8 +1646,11 @@ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot)
+ 	    pgprot_val(vm_pgprot_modify(vm_page_prot, vm_flags)))
+ 		return 0;
+ 
+-	/* Do we need to track softdirty? */
+-	if (vma_soft_dirty_enabled(vma))
++	/*
++	 * Do we need to track softdirty? hugetlb does not support softdirty
++	 * tracking yet.
++	 */
++	if (vma_soft_dirty_enabled(vma) && !is_vm_hugetlb_page(vma))
+ 		return 1;
+ 
+ 	/* Specialty mapping? */
 
