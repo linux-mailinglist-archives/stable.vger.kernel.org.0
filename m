@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A76535A1AC6
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 23:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4E75A1ACB
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 23:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240249AbiHYVCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 17:02:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41064 "EHLO
+        id S233066AbiHYVE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 17:04:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243575AbiHYVCk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 17:02:40 -0400
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEAECB14F1;
-        Thu, 25 Aug 2022 14:02:39 -0700 (PDT)
-Received: by mail-wm1-x335.google.com with SMTP id h204-20020a1c21d5000000b003a5b467c3abso3356025wmh.5;
-        Thu, 25 Aug 2022 14:02:39 -0700 (PDT)
+        with ESMTP id S232136AbiHYVEz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 17:04:55 -0400
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AC5BB1DA;
+        Thu, 25 Aug 2022 14:04:53 -0700 (PDT)
+Received: by mail-wm1-x333.google.com with SMTP id z14-20020a7bc7ce000000b003a5db0388a8so3338525wmk.1;
+        Thu, 25 Aug 2022 14:04:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=oLKhkirV3w4L2ZpLtqGDyVCrVsxu0uPLz0/+c0FrP44=;
-        b=cvHGeIXHYzFMNUpkQTBDkSniG2v59mghDuSFV0tkUtvEoW+OcczMmvv9OQ5xC4rS56
-         fr2ynukpR+2LGPbaDEjzEZi1uCf2uyrHgIHbfOYpNuZ7oiHMCIRUNzgucdgHA6fHxZ75
-         OvITw0Knx5/j+DXdZtiM+w9cHWUZmGCZpf7Lw3pkX7ATiUElQsCDQnhIGsmbZqIadcT5
-         tsLiGmdYSrgbcJVNXPDbFTdmF/dqFqQMjKpug6IPbzHNnoohsn0YNGM3Nfo9huB1ECeS
-         DmYZ5NBmjiEO12CdKSnS+AjHjxSojhdbWVQbCelhDnlNafwUSVCCIRSsvkDkmq2m3b3W
-         Ndjw==
+        bh=DXT4YXU5YfePq29aQAo5O8wvrpSNVuJynC49Ki0/9po=;
+        b=dnkzm9sreAWheeae/qavwTiTCcN31riVCLaNVZYSSD1GGVEZnwz1BhpuBtRgKU54Zn
+         0+YPXV17eAtXDi2KkDDv5Lpeu/woF/E2S4Qpe8ABN4hVfKg1CDipFSqB931vxnt0kvlW
+         Gh9vFaT7+ifcNaltOzHZN8pAxzpVmxErxUp5lDw+axFvYo6l6KkUNYnXJfIdjsvybvZ7
+         Lg35te6K++gUfFuGwGKZmlda99s6Cisu4Mw3BCNIHrPMhxie6ghNMNRASr3EHhaAPa8F
+         BGz4hbsyj3EkWNuLUL6MIrfLl7kWFfXzSDHUjjyrCwthX97uLLutzQyPjnSaT9g51JBb
+         zJww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=oLKhkirV3w4L2ZpLtqGDyVCrVsxu0uPLz0/+c0FrP44=;
-        b=KaVRAAO2QJ0tpe00u1tr6eV4S5rvsc2EPkcr5MD+WpJLNJEC1jCgBxjwh33R98X2OW
-         w6gc7Zy1drmgaEMI0UUL13u1o65YiRMZEufTiMsrsQ9aBB16qyKl5uF8IPA4oraNfT9U
-         CL0mr2YjguO7rogfxHrZximx+T07ArclEa4C9j9F0i1lm+H3Q7AD+KH4YKEUIeQIUm83
-         dNqgkYCz493Km6gA6HP6RtBfqUG2FSsEnln4/XLyeMmY5vFDjQ2NsBffcJqV6fw3+Si/
-         dJrWa/K48ULrTYtrIGHf9dtNiyOzPhv9pV5F+tJ+1ZqXtEuWQJfyej1U/rNLrZUxyHXl
-         yxGA==
-X-Gm-Message-State: ACgBeo3cBwqtIqUVLBlkD8buXef2MhM3e+79Ay8vK4tnd0mVujd4uYeB
-        m8kRi2j3PrjhyR0veXAmlcvNgykUErkH/A==
-X-Google-Smtp-Source: AA6agR613VB97nXMu5ne+PQ1UsaX69bwQs2+kN0UuMNISDwePR0opBgEMh3oUBCIfifoMUUEFOAF2Q==
-X-Received: by 2002:a05:600c:a09:b0:3a6:8900:c651 with SMTP id z9-20020a05600c0a0900b003a68900c651mr3343962wmp.145.1661461358339;
-        Thu, 25 Aug 2022 14:02:38 -0700 (PDT)
+        bh=DXT4YXU5YfePq29aQAo5O8wvrpSNVuJynC49Ki0/9po=;
+        b=26hJL2GjK8Zjnkl6f/YKPdHuNPl/Tu3vqayB6gOEKZ/M9oUIMYbS+K2jBrRgfEnmV3
+         LlPkDZ8wSIdxQ+cI3S4kgh1IkiFqSfcukcbVmFrnOAlugOEFaU9jRg5mamN5Svgn1C+2
+         ZS87NENjNUR/cWJQC1a8laqAtNqahguC9YPWnV2xNW7yWcYcCtL5QGBE/IMt6bi2q0kx
+         45AvdNvzWlpfmGzZrtCKWULomnaCGUK5iNE3kYd4g/X2D7eScphRr+jQRjK+w2vEHoDg
+         NnnGHRGo1I+AZmPhiTnogRTUJwATzh9DmMAtSKP3isHd/agVXLUqepmOe/SCM0AEKuSZ
+         Vnaw==
+X-Gm-Message-State: ACgBeo1yjD4vty2G19EsgBeoszfmehbJ/Fx/lyTiveBo1TEc13enQoY+
+        z/4IDdvK6dPEJFqqvoGYvHmr5XjyR19Xbg==
+X-Google-Smtp-Source: AA6agR658ImtefvvuTP/XJnEPoCYnK8MprT9hIM2YBI4TLajSd2guvSYFKVYG1p+cLPRyDFtXSvgUQ==
+X-Received: by 2002:a05:600c:2e47:b0:3a6:75fe:82a9 with SMTP id q7-20020a05600c2e4700b003a675fe82a9mr3412937wmf.189.1661461492119;
+        Thu, 25 Aug 2022 14:04:52 -0700 (PDT)
 Received: from kista.localnet (82-149-1-172.dynamic.telemach.net. [82.149.1.172])
-        by smtp.gmail.com with ESMTPSA id ib6-20020a05600ca14600b003a62400724bsm534290wmb.0.2022.08.25.14.02.37
+        by smtp.gmail.com with ESMTPSA id i14-20020a05600c354e00b003a4f08495b7sm6953492wmq.34.2022.08.25.14.04.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Aug 2022 14:02:37 -0700 (PDT)
+        Thu, 25 Aug 2022 14:04:51 -0700 (PDT)
 From:   Jernej =?utf-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>
 To:     linux-media@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
         Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
@@ -54,19 +54,17 @@ To:     linux-media@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Chen-Yu Tsai <wens@csie.org>,
         Samuel Holland <samuel@sholland.org>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Cc:     kernel@collabora.com,
         Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        stable@vger.kernel.org, linux-staging@lists.linux.dev,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc:     kernel@collabora.com, stable@vger.kernel.org,
+        linux-staging@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 1/3] media: cedrus: Fix watchdog race condition
-Date:   Thu, 25 Aug 2022 23:02:36 +0200
-Message-ID: <7418676.EvYhyI6sBW@kista>
-In-Reply-To: <20220818203308.439043-2-nicolas.dufresne@collabora.com>
-References: <20220818203308.439043-1-nicolas.dufresne@collabora.com> <20220818203308.439043-2-nicolas.dufresne@collabora.com>
+Subject: Re: Re: [PATCH v1 2/3] media: cedrus: Set the platform driver data earlier
+Date:   Thu, 25 Aug 2022 23:04:50 +0200
+Message-ID: <3448453.iIbC2pHGDl@kista>
+In-Reply-To: <6a8f2555-1bd4-ac81-390e-b597e3c886f6@collabora.com>
+References: <20220818203308.439043-1-nicolas.dufresne@collabora.com> <4733096.GXAFRqVoOG@jernej-laptop> <6a8f2555-1bd4-ac81-390e-b597e3c886f6@collabora.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset="UTF-8"
@@ -80,53 +78,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dne =C4=8Detrtek, 18. avgust 2022 ob 22:33:06 CEST je Nicolas Dufresne napi=
-sal(a):
-> The watchdog needs to be schedule before we trigger the decode
-> operation, otherwise there is a risk that the decoder IRQ will be
-> called before we have schedule the watchdog. As a side effect, the
-> watchdog would never be cancelled and its function would be called
-> at an inappropriate time.
+Dne nedelja, 21. avgust 2022 ob 22:40:21 CEST je Dmitry Osipenko napisal(a):
+> On 8/20/22 11:25, Jernej =C5=A0krabec wrote:
+> > Dne petek, 19. avgust 2022 ob 17:37:20 CEST je Nicolas Dufresne=20
+napisal(a):
+> >> Le vendredi 19 ao=C3=BBt 2022 =C3=A0 06:17 +0200, Jernej =C5=A0krabec =
+a =C3=A9crit :
+> >>> Dne =C4=8Detrtek, 18. avgust 2022 ob 22:33:07 CEST je Nicolas Dufresne
+> >=20
+> > napisal(a):
+> >>>> From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> >>>>=20
+> >>>> The cedrus_hw_resume() crashes with NULL deference on driver probe if
+> >>>> runtime PM is disabled because it uses platform data that hasn't been
+> >>>> set up yet. Fix this by setting the platform data earlier during pro=
+be.
+> >>>=20
+> >>> Does it even work without PM? Maybe it would be better if Cedrus would
+> >>> select PM in Kconfig.
+> >>=20
+> >> I cannot comment myself on this, but it does not seem to invalidate th=
+is
+> >> Dmitry's fix.
+> >=20
+> > If NULL pointer dereference happens only when PM is disabled, then it
+> > does. I have PM always enabled and I never experienced above issue.
 >=20
-> This was observed while running Fluster with GStreamer as a backend.
-> Some programming error would cause the decoder IRQ to be call very
-> quickly after the trigger. Later calls into the driver would deadlock
-> due to the unbalanced state.
->=20
-> Cc: stable@vger.kernel.org
-> Fixes: 7c38a551bda1 ("media: cedrus: Add watchdog for job completion")
-> Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+> Originally this fix was needed when I changed cedrus_hw_probe() to do
+> the rpm-resume while was debugging the hang issue and then also noticed
+> that the !PM should be broken. It's a good common practice for all
+> drivers to have the drv data set early to avoid such problems, hence it
+> won't hurt to make this change anyways.
 
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Ok, as others pointed out, this is still a good thing, so:
+
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+
+
+>=20
+> In practice nobody disables PM other than for debugging purposes and !PM
+> handling is often broken in drivers. I assume that it might be even
+> better to enable PM for all Allwiner SoCs and remove !PM handling from
+> all the affected drivers, like it was done for Tegra some time ago.
+>=20
+
+Maybe in the future :)
 
 Best regards,
 Jernej
 
-> ---
->  drivers/staging/media/sunxi/cedrus/cedrus_dec.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
-> b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c index
-> 3b6aa78a2985f..e7f7602a5ab40 100644
-> --- a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
-> +++ b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
-> @@ -106,11 +106,11 @@ void cedrus_device_run(void *priv)
->=20
->  	/* Trigger decoding if setup went well, bail out otherwise. */
->  	if (!error) {
-> -		dev->dec_ops[ctx->current_codec]->trigger(ctx);
-> -
->  		/* Start the watchdog timer. */
->  		schedule_delayed_work(&dev->watchdog_work,
->  				      msecs_to_jiffies(2000));
-> +
-> +		dev->dec_ops[ctx->current_codec]->trigger(ctx);
->  	} else {
->  		v4l2_m2m_buf_done_and_job_finish(ctx->dev->m2m_dev,
->  						 ctx-
->fh.m2m_ctx,
 > --
-> 2.37.2
+> Best regards,
+> Dmitry
+
 
 
