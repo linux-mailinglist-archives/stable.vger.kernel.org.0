@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6F905A05F9
+	by mail.lfdr.de (Postfix) with ESMTP id 5ED4E5A05F8
 	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:37:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233105AbiHYBg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:36:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53930 "EHLO
+        id S232224AbiHYBg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:36:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233004AbiHYBgB (ORCPT
+        with ESMTP id S233057AbiHYBgB (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:36:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC89097EDB;
-        Wed, 24 Aug 2022 18:35:52 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E85C2985B3;
+        Wed, 24 Aug 2022 18:35:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F30261AD5;
-        Thu, 25 Aug 2022 01:35:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0B3DC433D7;
-        Thu, 25 Aug 2022 01:35:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6BA861ACE;
+        Thu, 25 Aug 2022 01:35:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF774C433D7;
+        Thu, 25 Aug 2022 01:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391351;
-        bh=XC0NY0L9hKEaSRA9m9ucx64KeCvrmjDC6f1GpPfHChc=;
+        s=k20201202; t=1661391355;
+        bh=Q763I411572C7yyusiXT5Xz7LrphT8z1l7MebH1zNpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CXPkDdX/kTa0qh1kKaRAB6Vp0JYjp9b2RRJ6Ej+7DTnWHB+J5++mOmk0ykHtyOskk
-         uxvsyLgpDBfCFa0dltheri1qW+gIrpaBjDI9px1yPF7ICNzea11keusvQ/X7MtGxwr
-         MECfZeVdDPINVCZSzqdhRbwpuopPwBn6pFx4MCDpZ2r88cqBghDzbpL/jjOKMVd3Yj
-         8fTZqZ3eFX67pJ4R5maowOhH3+og0pt8XisgG4pYlc+v/Y8BVYeN8ZseVEg2EbAn3m
-         ntpqxleuCOqrnbfsY4slmsX+lwIlNXBMkRMgUiYcOLwUXQaDXrJa4mEqjhL1xPPYIB
-         gUKTZNucFpH7A==
+        b=sVDeNG+bs90i1Ilc15uwWKGH3ct9AHW6Bbzk2No3ka1w7gHkQM8WS0NS1xZ1mUqc9
+         P1erZw739iUSRr46DALXxwS1zQl0j88nbENBH8zQKI6GBeCMfl6wj4XTvN3l9Wpnc4
+         lKRoBfXQInWm63juKqLYdukFn8XpL24UHpoGCRdKylzVm5+l71uahU2r1CwCMUI8kA
+         fcQP20xBt+SyHkL1T/z8TNMfBeftFP3ftjLo/clK4F7+9G8fHGezG+TFqwWO5HIsDv
+         6QcMNe9LT9NhvlowVScz5jLhr7sqx7jn04bwJujNB22Q0uPfSdFS24EaZ6LwwHVTBz
+         6CBT8xQcarx5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Evan Quan <evan.quan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
         Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        Hawking.Zhang@amd.com, James.Zhu@amd.com, sonny.jiang@amd.com,
-        tim.huang@amd.com, Likun.Gao@amd.com, kenneth.feng@amd.com,
-        Stanley.Yang@amd.com, leo.liu@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 21/38] drm/amdgpu: disable 3DCGCG/CGLS temporarily due to stability issue
-Date:   Wed, 24 Aug 2022 21:33:44 -0400
-Message-Id: <20220825013401.22096-21-sashal@kernel.org>
+        lijo.lazar@amd.com, guchun.chen@amd.com, luben.tuikov@amd.com,
+        sathishkumar.sundararaju@amd.com, danijel.slivka@amd.com,
+        Mohammadzafar.ziya@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 22/38] drm/amd/pm: add missing ->fini_microcode interface for Sienna Cichlid
+Date:   Wed, 24 Aug 2022 21:33:45 -0400
+Message-Id: <20220825013401.22096-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013401.22096-1-sashal@kernel.org>
 References: <20220825013401.22096-1-sashal@kernel.org>
@@ -63,33 +63,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 1b586595df6d04c27088ef348b8202204ce26d45 ]
+[ Upstream commit 0a2d922a5618377cdf8fa476351362733ef55342 ]
 
-Some stability issues were reported with these features.
+To avoid any potential memory leak.
 
 Signed-off-by: Evan Quan <evan.quan@amd.com>
 Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc21.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc21.c b/drivers/gpu/drm/amd/amdgpu/soc21.c
-index 9e18a2b22607..8d5c452a9100 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc21.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc21.c
-@@ -530,8 +530,10 @@ static int soc21_common_early_init(void *handle)
- 	case IP_VERSION(11, 0, 0):
- 		adev->cg_flags = AMD_CG_SUPPORT_GFX_CGCG |
- 			AMD_CG_SUPPORT_GFX_CGLS |
-+#if 0
- 			AMD_CG_SUPPORT_GFX_3D_CGCG |
- 			AMD_CG_SUPPORT_GFX_3D_CGLS |
-+#endif
- 			AMD_CG_SUPPORT_GFX_MGCG |
- 			AMD_CG_SUPPORT_REPEATER_FGCG |
- 			AMD_CG_SUPPORT_GFX_FGCG |
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+index 78f3d9e722bb..32bb6b1d9526 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+@@ -4281,6 +4281,7 @@ static const struct pptable_funcs sienna_cichlid_ppt_funcs = {
+ 	.dump_pptable = sienna_cichlid_dump_pptable,
+ 	.init_microcode = smu_v11_0_init_microcode,
+ 	.load_microcode = smu_v11_0_load_microcode,
++	.fini_microcode = smu_v11_0_fini_microcode,
+ 	.init_smc_tables = sienna_cichlid_init_smc_tables,
+ 	.fini_smc_tables = smu_v11_0_fini_smc_tables,
+ 	.init_power = smu_v11_0_init_power,
 -- 
 2.35.1
 
