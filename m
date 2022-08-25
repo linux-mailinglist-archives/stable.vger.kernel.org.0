@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F5455A0686
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 870A35A0662
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:41:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231382AbiHYBlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:41:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54438 "EHLO
+        id S232750AbiHYBjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:39:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234241AbiHYBkZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:40:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6829D645;
-        Wed, 24 Aug 2022 18:38:11 -0700 (PDT)
+        with ESMTP id S232647AbiHYBjI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:39:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6944F9A948;
+        Wed, 24 Aug 2022 18:37:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11D7461B0B;
-        Thu, 25 Aug 2022 01:37:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35473C433C1;
-        Thu, 25 Aug 2022 01:37:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9517B826E1;
+        Thu, 25 Aug 2022 01:37:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3413C433C1;
+        Thu, 25 Aug 2022 01:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391450;
-        bh=XFGhVs/LHdWs58uDFg8hQoy3JeWZ3/j6TuTHMImljLk=;
+        s=k20201202; t=1661391454;
+        bh=JDAFhXSkDBBGX52pifLUdEO2PYCrCaPG4d6XhRYnTMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b68hAwoO0vGAS2DAHyvQdcqNDzXxydrNNS+nl2X7hMZfCmPzPbItUZh8zjt6UM861
-         ePMREHICyunnULwuQWLq8lgAPKCkr/LqboYA9AqvPOF+LZbJ0A+s0FDpxncTT/SUcJ
-         1pJVk1qfb90MLcHl8Kjni4SXL+cp8fBs6qB0vBhJAaQUNtkdt8AFSVGIX+wB6fH3m+
-         hXgFmrw0yUBuwPhUB+opLgkxdIoi84+o7liq2TR7fhZWc3u/+nPUWedxckQrNM37iR
-         7xssobIkB90SXRZLgMr08Z8lJD60i1NmjvGOHI7vMlCIzu8NadbyjULJ5yjf1TxihY
-         BolBN9p2K0BWQ==
+        b=bXHbdXSuUHtFyY5FtUNjKPdRwDcYv+Z4oTF4bu43e1oTGPKPOSybkyjBN2AOb0koB
+         m0adZzm2Z8HD+da3adXc02f7D+Jg/YxrSxfehaux1syUJt2Qf35t9J9rmeR3Bgd5VQ
+         uMLkkh9zPMaA2kQTxuKVjRIwto0YSuSrW3ya/HA60Stzfr4n6SP5R7BOuayZaRueTL
+         JYmVMRYnTQVq6fxYqd4Tht5VDTofyBglUS2edNTGR5eDEvO+ZoKCGnZP9jFjSJLJtb
+         DeyvMUyXrx6THbyEdbDLTvdER9UwWIXgQJMQzL/KpqNqEpTqMAZFkeXZE5fB4Apbgj
+         jZDAeqMUnNxhg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Ma <hanghong.ma@amd.com>, Anthony Koo <Anthony.Koo@amd.com>,
+Cc:     Alvin Lee <alvin.lee2@amd.com>,
+        Martin Leung <Martin.Leung@amd.com>,
         Tom Chung <chiahsuan.chung@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
         sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, HaoPing.Liu@amd.com, Aric.Cyr@amd.com,
-        Angus.Wang@amd.com, harry.vanzylldejong@amd.com,
-        felipe.clark@amd.com, lv.ruyi@zte.com.cn, Bing.Guo@amd.com,
+        daniel@ffwll.ch, Pavle.Kotarac@amd.com, joshua@froggi.es,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 04/20] drm/amd/display: Fix HDMI VSIF V3 incorrect issue
-Date:   Wed, 24 Aug 2022 21:36:56 -0400
-Message-Id: <20220825013713.22656-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 05/20] drm/amd/display: For stereo keep "FLIP_ANY_FRAME"
+Date:   Wed, 24 Aug 2022 21:36:57 -0400
+Message-Id: <20220825013713.22656-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013713.22656-1-sashal@kernel.org>
 References: <20220825013713.22656-1-sashal@kernel.org>
@@ -64,75 +63,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Ma <hanghong.ma@amd.com>
+From: Alvin Lee <alvin.lee2@amd.com>
 
-[ Upstream commit 0591183699fceeafb4c4141072d47775de83ecfb ]
+[ Upstream commit 84ef99c728079dfd21d6bc70b4c3e4af20602b3c ]
 
-[Why]
-Reported from customer the checksum in AMD VSIF V3 is incorrect and
-causing blank screen issue.
+[Description]
+Observed in stereomode that programming FLIP_LEFT_EYE
+can cause hangs. Keep FLIP_ANY_FRAME in stereo mode so
+the surface flip can take place before left or right eye
 
-[How]
-Fix the packet length issue on AMD HDMI VSIF V3.
-
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
 Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Leo Ma <hanghong.ma@amd.com>
+Signed-off-by: Alvin Lee <alvin.lee2@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/modules/freesync/freesync.c   | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
-index b99aa232bd8b..4bee6d018bfa 100644
---- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
-+++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
-@@ -567,10 +567,6 @@ static void build_vrr_infopacket_data_v1(const struct mod_vrr_params *vrr,
- 	 * Note: We should never go above the field rate of the mode timing set.
- 	 */
- 	infopacket->sb[8] = (unsigned char)((vrr->max_refresh_in_uhz + 500000) / 1000000);
--
--	/* FreeSync HDR */
--	infopacket->sb[9] = 0;
--	infopacket->sb[10] = 0;
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c
+index f24612523248..33c2337c4edf 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c
+@@ -86,7 +86,7 @@ bool hubp3_program_surface_flip_and_addr(
+ 			VMID, address->vmid);
  
- static void build_vrr_infopacket_data_v3(const struct mod_vrr_params *vrr,
-@@ -638,10 +634,6 @@ static void build_vrr_infopacket_data_v3(const struct mod_vrr_params *vrr,
+ 	if (address->type == PLN_ADDR_TYPE_GRPH_STEREO) {
+-		REG_UPDATE(DCSURF_FLIP_CONTROL, SURFACE_FLIP_MODE_FOR_STEREOSYNC, 0x1);
++		REG_UPDATE(DCSURF_FLIP_CONTROL, SURFACE_FLIP_MODE_FOR_STEREOSYNC, 0);
+ 		REG_UPDATE(DCSURF_FLIP_CONTROL, SURFACE_FLIP_IN_STEREOSYNC, 0x1);
  
- 	/* PB16 : Reserved bits 7:1, FixedRate bit 0 */
- 	infopacket->sb[16] = (vrr->state == VRR_STATE_ACTIVE_FIXED) ? 1 : 0;
--
--	//FreeSync HDR
--	infopacket->sb[9] = 0;
--	infopacket->sb[10] = 0;
- }
- 
- static void build_vrr_infopacket_fs2_data(enum color_transfer_func app_tf,
-@@ -726,8 +718,7 @@ static void build_vrr_infopacket_header_v2(enum signal_type signal,
- 		/* HB2  = [Bits 7:5 = 0] [Bits 4:0 = Length = 0x09] */
- 		infopacket->hb2 = 0x09;
- 
--		*payload_size = 0x0A;
--
-+		*payload_size = 0x09;
- 	} else if (dc_is_dp_signal(signal)) {
- 
- 		/* HEADER */
-@@ -776,9 +767,9 @@ static void build_vrr_infopacket_header_v3(enum signal_type signal,
- 		infopacket->hb1 = version;
- 
- 		/* HB2  = [Bits 7:5 = 0] [Bits 4:0 = Length] */
--		*payload_size = 0x10;
--		infopacket->hb2 = *payload_size - 1; //-1 for checksum
-+		infopacket->hb2 = 0x10;
- 
-+		*payload_size = 0x10;
- 	} else if (dc_is_dp_signal(signal)) {
- 
- 		/* HEADER */
+ 	} else {
 -- 
 2.35.1
 
