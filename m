@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECE8F5A06CA
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E0B5A06D3
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236745AbiHYBrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:47:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54182 "EHLO
+        id S233598AbiHYBqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:46:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234758AbiHYBqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:46:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0E169F197;
-        Wed, 24 Aug 2022 18:41:23 -0700 (PDT)
+        with ESMTP id S236320AbiHYBpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:45:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5AA49926A;
+        Wed, 24 Aug 2022 18:40:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE8AEB826E5;
-        Thu, 25 Aug 2022 01:40:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED52C433D7;
-        Thu, 25 Aug 2022 01:40:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 186AE61B0B;
+        Thu, 25 Aug 2022 01:40:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02A9BC43144;
+        Thu, 25 Aug 2022 01:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391614;
-        bh=eP52GxL+WuF5FHMWo6Bp7xF1FPH0GmrMSCQ79HaGcpc=;
+        s=k20201202; t=1661391616;
+        bh=Cq2yZuYDa6ap8K06RCcjboWiugL8Z5wJsyGICmyPpvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFKOM2fN1bZNL5rcfBvmFXg8m43ruI5NvvS9rQypOsQTB7sfk0qSmf/UmmacNo+/R
-         J8oATf1N5Swp89HIqUC1a55E5s1rbdUreO6dGTyc3ZmCtWgeJjKm67wmF4Mlsw9azG
-         yRvZ5MSn6GWb9tnjURjjplLEM+BQwtm8rWI7kHtT5+9us2TIgpzzspiFKmuKdOJFgx
-         R78kFUuvrFygdipwfbqoxsS/R3iQg2bP3wYZ4W26T86PpU2necUi2rTEGaHchgMFnA
-         3LW/0xUA4Mee60A9Ypb6tIvgqoDERreM5wRyJqQ6TkZI0MKz6PB4EvXIiJIIfYaDKn
-         gl040PmVMHXPA==
+        b=TTZ8CaDUs5Q6pHbj3s8oN8uhTrXD0wmQn5f0vYWvEggEMOMCjyvGmP2UiE/m9ky1v
+         xG++dzl3SfSYD+3XcFtRei78dpIpBDEGY2BGtWePTvWxSf6wEBjmR/nDda8e9jDzdw
+         o3AaP+93JSOjfCF9UgXTlowc17MGp9RSNp4Qn/vhnoKf325ypb7ncQmi7cHfRVSLYN
+         rsQpP3NhiRqL/O9ibaj/1I1aCrAXzU5BuJNlV2z2nCZw0TvIwhnee6amJo/kMUqag7
+         l+EvCJt8uciBD1fbWHWCa3LU/Pg/Qpq5kT9slN1Xi/fVyXg588zrUEN3qg4Bj7A8t6
+         hqMi3M45KrFcg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 3/5] s390/hypfs: avoid error message under KVM
-Date:   Wed, 24 Aug 2022 21:39:57 -0400
-Message-Id: <20220825014001.24008-3-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>, pablo@netfilter.org,
+        kadlec@netfilter.org, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 4/5] netfilter: conntrack: NF_CONNTRACK_PROCFS should no longer default to y
+Date:   Wed, 24 Aug 2022 21:39:58 -0400
+Message-Id: <20220825014001.24008-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825014001.24008-1-sashal@kernel.org>
 References: <20220825014001.24008-1-sashal@kernel.org>
@@ -59,58 +60,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 7b6670b03641ac308aaa6fa2e6f964ac993b5ea3 ]
+[ Upstream commit aa5762c34213aba7a72dc58e70601370805fa794 ]
 
-When booting under KVM the following error messages are issued:
+NF_CONNTRACK_PROCFS was marked obsolete in commit 54b07dca68557b09
+("netfilter: provide config option to disable ancient procfs parts") in
+v3.3.
 
-hypfs.7f5705: The hardware system does not support hypfs
-hypfs.7a79f0: Initialization of hypfs failed with rc=-61
-
-Demote the severity of first message from "error" to "info" and issue
-the second message only in other error cases.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220620094534.18967-1-jgross@suse.com
-[arch/s390/hypfs/hypfs_diag.c changed description]
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/hypfs/hypfs_diag.c | 2 +-
- arch/s390/hypfs/inode.c      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
-index 3452e18bb1ca..38105ba35c81 100644
---- a/arch/s390/hypfs/hypfs_diag.c
-+++ b/arch/s390/hypfs/hypfs_diag.c
-@@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
- 	int rc;
+diff --git a/net/netfilter/Kconfig b/net/netfilter/Kconfig
+index 56cddadb65d0..92e0514f624f 100644
+--- a/net/netfilter/Kconfig
++++ b/net/netfilter/Kconfig
+@@ -117,7 +117,6 @@ config NF_CONNTRACK_ZONES
  
- 	if (diag204_probe()) {
--		pr_err("The hardware system does not support hypfs\n");
-+		pr_info("The hardware system does not support hypfs\n");
- 		return -ENODATA;
- 	}
- 	if (diag204_info_type == DIAG204_INFO_EXT) {
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index e4d17d9ea93d..4af5c0dd9fbe 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -494,9 +494,9 @@ static int __init hypfs_init(void)
- 	hypfs_vm_exit();
- fail_hypfs_diag_exit:
- 	hypfs_diag_exit();
-+	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
- fail_dbfs_exit:
- 	hypfs_dbfs_exit();
--	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
- 	return rc;
- }
- device_initcall(hypfs_init)
+ config NF_CONNTRACK_PROCFS
+ 	bool "Supply CT list in procfs (OBSOLETE)"
+-	default y
+ 	depends on PROC_FS
+ 	---help---
+ 	This option enables for the list of known conntrack entries
 -- 
 2.35.1
 
