@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D18B5A05B7
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:34:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A51A5A05B8
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232213AbiHYBel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:34:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
+        id S232051AbiHYBeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:34:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232307AbiHYBec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:34:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842D795AE5;
-        Wed, 24 Aug 2022 18:34:30 -0700 (PDT)
+        with ESMTP id S232272AbiHYBei (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:34:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A05896764;
+        Wed, 24 Aug 2022 18:34:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C279B825ED;
-        Thu, 25 Aug 2022 01:34:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1524C433D6;
-        Thu, 25 Aug 2022 01:34:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9BB561A28;
+        Thu, 25 Aug 2022 01:34:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDF0BC433D7;
+        Thu, 25 Aug 2022 01:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391267;
-        bh=TMF/aZzeYH4JHSWvoK8cWsldDd55md+i9K/71fl4VLk=;
+        s=k20201202; t=1661391277;
+        bh=vHQgJ625Aopds3oZUxvzwvo6i5AMT1ganc+thx9nkzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcZedJnvb40o8nHkgmlMphkPDIRoRZ3h/0IJ/9U9eZ1y6jGo3zJKH9QKa6yMiyWUY
-         NM7JvlBGgXH7g208PUZcmFrmh8JA+uOrGCErMR+eUlh4u+CNYEBbQnGiGopuf3Rgj8
-         3T+16MZOysVzUD8vwQre8T9xlcxfXMrUtmifzzITYNpRQ0CU3+QXlf/mn9JdWRITWH
-         LFjvGUHexBVq7SLcgxthGVlT3IvD+RRoXLCUpYcENEc978hbPGn5ZGFmKHcdCL4HrU
-         YBEkOelEz/iisOJb1pQFMND9xeguYs0g5BGeZsEHmoLkJyilSGoATDhfi7zdD7SNIu
-         LnGiqx/iYBNuw==
+        b=CDVfrTMdmBwy3BTtOLNkH9VnLDKcEc5wUDzcOuK72yqPPKtOyxd8VCh0ODbprW5/X
+         +jUaC4KmPp5fhF11mm5mP1rQ7L4Xi8bUfNrK9NcH6HdyzsuThRYuPo9BbHksmXD+mF
+         uVvp4tD5Vf1HOUDY1YTkMGWbiaS3peKFo4CZNCqjXqvDwWzU5qloofuTf4FkWEXUWu
+         PLP0+MYJmf3joxa0zgdauuY/w1og8zFmMqTMMkPEozEqMmMVM5xmK4VKo1hEwmAyDC
+         W+g+MfapWdFvasaKMH3Io/7MU6J5+pK4cwGGuhWSdmxDT1/+sPmv9Zx1WcGDbVLvQ7
+         zzJOnQpaSbDUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandre Vicenzi <alexandre.vicenzi@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, bristot@kernel.org,
-        corbet@lwn.net, wanjiabing@vivo.com,
-        linux-trace-devel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 04/38] rtla: Fix tracer name
-Date:   Wed, 24 Aug 2022 21:33:27 -0400
-Message-Id: <20220825013401.22096-4-sashal@kernel.org>
+Cc:     Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, Jerry.Zuo@amd.com, Nicholas.Kazlauskas@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 05/38] drm/amd/display: Add a missing register field for HPO DP stream encoder
+Date:   Wed, 24 Aug 2022 21:33:28 -0400
+Message-Id: <20220825013401.22096-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013401.22096-1-sashal@kernel.org>
 References: <20220825013401.22096-1-sashal@kernel.org>
@@ -58,62 +60,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Vicenzi <alexandre.vicenzi@suse.com>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit f1432cd24c240cedf78c0d026631e3b10052c8e1 ]
+[ Upstream commit 37bc31f0e7da4fbad4664e64d906ae7b9009e550 ]
 
-The correct tracer name is timerlat and not timelat.
+[Why&How]
+Add the missing definition to set the register field
+HBLANK_MINIMUM_SYMBOL_WIDTH
 
-Link: https://lore.kernel.org/linux-trace-devel/20220808180343.22262-1-alexandre.vicenzi@suse.com
-
-Signed-off-by: Alexandre Vicenzi <alexandre.vicenzi@suse.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/tools/rtla/rtla-timerlat-hist.rst | 2 +-
- tools/tracing/rtla/src/timerlat_hist.c          | 2 +-
- tools/tracing/rtla/src/timerlat_top.c           | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ .../gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/tools/rtla/rtla-timerlat-hist.rst b/Documentation/tools/rtla/rtla-timerlat-hist.rst
-index e12eae1f3301..6bf7f0ca4556 100644
---- a/Documentation/tools/rtla/rtla-timerlat-hist.rst
-+++ b/Documentation/tools/rtla/rtla-timerlat-hist.rst
-@@ -33,7 +33,7 @@ EXAMPLE
- =======
- In the example below, **rtla timerlat hist** is set to run for *10* minutes,
- in the cpus *0-4*, *skipping zero* only lines. Moreover, **rtla timerlat
--hist** will change the priority of the *timelat* threads to run under
-+hist** will change the priority of the *timerlat* threads to run under
- *SCHED_DEADLINE* priority, with a *10us* runtime every *1ms* period. The
- *1ms* period is also passed to the *timerlat* tracer::
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h
+index 7c77c71591a0..82c3b3ac1f0d 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h
+@@ -162,7 +162,8 @@
+ 	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_SDP_AUDIO_CONTROL0, AIP_ENABLE, mask_sh),\
+ 	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_SDP_AUDIO_CONTROL0, ACM_ENABLE, mask_sh),\
+ 	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_VID_CRC_CONTROL, CRC_ENABLE, mask_sh),\
+-	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_VID_CRC_CONTROL, CRC_CONT_MODE_ENABLE, mask_sh)
++	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_VID_CRC_CONTROL, CRC_CONT_MODE_ENABLE, mask_sh),\
++	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_HBLANK_CONTROL, HBLANK_MINIMUM_SYMBOL_WIDTH, mask_sh)
  
-diff --git a/tools/tracing/rtla/src/timerlat_hist.c b/tools/tracing/rtla/src/timerlat_hist.c
-index f3ec628f5e51..4b48af8a8309 100644
---- a/tools/tracing/rtla/src/timerlat_hist.c
-+++ b/tools/tracing/rtla/src/timerlat_hist.c
-@@ -892,7 +892,7 @@ int timerlat_hist_main(int argc, char *argv[])
- 	return_value = 0;
  
- 	if (trace_is_off(&tool->trace, &record->trace)) {
--		printf("rtla timelat hit stop tracing\n");
-+		printf("rtla timerlat hit stop tracing\n");
- 		if (params->trace_output) {
- 			printf("  Saving trace to %s\n", params->trace_output);
- 			save_trace_to_file(record->trace.inst, params->trace_output);
-diff --git a/tools/tracing/rtla/src/timerlat_top.c b/tools/tracing/rtla/src/timerlat_top.c
-index 35452a1d45e9..334271935222 100644
---- a/tools/tracing/rtla/src/timerlat_top.c
-+++ b/tools/tracing/rtla/src/timerlat_top.c
-@@ -687,7 +687,7 @@ int timerlat_top_main(int argc, char *argv[])
- 	return_value = 0;
- 
- 	if (trace_is_off(&top->trace, &record->trace)) {
--		printf("rtla timelat hit stop tracing\n");
-+		printf("rtla timerlat hit stop tracing\n");
- 		if (params->trace_output) {
- 			printf("  Saving trace to %s\n", params->trace_output);
- 			save_trace_to_file(record->trace.inst, params->trace_output);
+ #define DCN3_1_HPO_DP_STREAM_ENC_REG_FIELD_LIST(type) \
 -- 
 2.35.1
 
