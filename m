@@ -2,52 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4645A06EB
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:48:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE195A06BF
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 03:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232071AbiHYBqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Aug 2022 21:46:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
+        id S235874AbiHYBpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Aug 2022 21:45:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234992AbiHYBov (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:44:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 279A79DFBB;
-        Wed, 24 Aug 2022 18:40:05 -0700 (PDT)
+        with ESMTP id S235887AbiHYBob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Aug 2022 21:44:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42706785BB;
+        Wed, 24 Aug 2022 18:40:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8BA0B826EB;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE28361AEC;
+        Thu, 25 Aug 2022 01:39:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B8EAC433D7;
         Thu, 25 Aug 2022 01:39:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D44C433B5;
-        Thu, 25 Aug 2022 01:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391594;
-        bh=cWtP4DjNF9uuGOFmJLowltSk4Vz/PPcG3NBhgTmkfsA=;
+        s=k20201202; t=1661391596;
+        bh=Ja+i+cz8JCH1+ybHncJSU3HmbS+d/Qpu7DPSViK6TBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/ITFKDPW0oawaZBKDQH5OEzzSBCh00ksyb10VmBC++jKVReKJ/mlYRxzhFqcFNkL
-         6cgnYglsh9tCZ6x/Wj8GawGjKlc3x20BVlPDrFfGEgH2w8zgCZZ8MWQIBiJzlEs/yc
-         WEbgI5ZTAnfgFgYvjzTmDPVyf9JRIot0HO40F4h7C/wY4oqqtvZHu0pCpNutGU47rD
-         tl6DnaqfYPFEJa4q0DFOtpfvMzN21ol8W53Fr0cJDxpPXtedshAwQqhNUfe/bfyjB9
-         qulXAokFKZgVuXKapAUbfxplLDd2KtnBL2zfeMmFyky7HTSRzoDo+gyKo+wTzFURMF
-         io1l/+m7NrpdQ==
+        b=eyOUcv4I5RXKr39WAeN44Vu22iu08ehH1q7+cci2PXfKeQAAWPueeX4S2foCR5BBi
+         jrVwtP1NAY6RTwLcvubYKeBFTr9hJWEgo6ORPvQYvRe1Y1RmnEEeBKyMPzNxvqMjNS
+         KjlbLxO2Mo0Sjka1cG7Nz118+MGYM8WnY6slhNr7rUBe7FuO3c+gzQeLP7j+gAKL5U
+         Jez46XTAe9vRKn5C6c5qRjbUs/KUKA1Y1ss1wXo6bMHWmpFuxv6a00m3E3408KIgSn
+         M/+CJU/NPJ9XrkCOMPmuOhJGA7jLc6SI6EnkI9gCXfluXhafKZYCNBaiVIQZ7RMsQ3
+         aa7FbRTEZNXuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilya Bakoulin <Ilya.Bakoulin@amd.com>, Aric Cyr <Aric.Cyr@amd.com>,
-        Brian Chang <Brian.Chang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, HaoPing.Liu@amd.com, alex.hung@amd.com,
-        Hansen.Dsouza@amd.com, dillon.varone@amd.com, baihaowen@meizu.com,
-        michael.strauss@amd.com, Charlene.Liu@amd.com,
-        David.Galiffi@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 5/8] drm/amd/display: Fix pixel clock programming
-Date:   Wed, 24 Aug 2022 21:39:24 -0400
-Message-Id: <20220825013932.23467-5-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>, pablo@netfilter.org,
+        kadlec@netfilter.org, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 6/8] netfilter: conntrack: NF_CONNTRACK_PROCFS should no longer default to y
+Date:   Wed, 24 Aug 2022 21:39:25 -0400
+Message-Id: <20220825013932.23467-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220825013932.23467-1-sashal@kernel.org>
 References: <20220825013932.23467-1-sashal@kernel.org>
@@ -65,48 +60,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 04fb918bf421b299feaee1006e82921d7d381f18 ]
+[ Upstream commit aa5762c34213aba7a72dc58e70601370805fa794 ]
 
-[Why]
-Some pixel clock values could cause HDMI TMDS SSCPs to be misaligned
-between different HDMI lanes when using YCbCr420 10-bit pixel format.
+NF_CONNTRACK_PROCFS was marked obsolete in commit 54b07dca68557b09
+("netfilter: provide config option to disable ancient procfs parts") in
+v3.3.
 
-BIOS functions for transmitter/encoder control take pixel clock in kHz
-increments, whereas the function for setting the pixel clock is in 100Hz
-increments. Setting pixel clock to a value that is not on a kHz boundary
-will cause the issue.
-
-[How]
-Round pixel clock down to nearest kHz in 10/12-bpc cases.
-
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Brian Chang <Brian.Chang@amd.com>
-Signed-off-by: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/netfilter/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
-index eca67d5d5b10..721be82ccebe 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
-@@ -546,9 +546,11 @@ static void dce112_get_pix_clk_dividers_helper (
- 		switch (pix_clk_params->color_depth) {
- 		case COLOR_DEPTH_101010:
- 			actual_pixel_clock_100hz = (actual_pixel_clock_100hz * 5) >> 2;
-+			actual_pixel_clock_100hz -= actual_pixel_clock_100hz % 10;
- 			break;
- 		case COLOR_DEPTH_121212:
- 			actual_pixel_clock_100hz = (actual_pixel_clock_100hz * 6) >> 2;
-+			actual_pixel_clock_100hz -= actual_pixel_clock_100hz % 10;
- 			break;
- 		case COLOR_DEPTH_161616:
- 			actual_pixel_clock_100hz = actual_pixel_clock_100hz * 2;
+diff --git a/net/netfilter/Kconfig b/net/netfilter/Kconfig
+index ef72819d9d31..d569915da003 100644
+--- a/net/netfilter/Kconfig
++++ b/net/netfilter/Kconfig
+@@ -118,7 +118,6 @@ config NF_CONNTRACK_ZONES
+ 
+ config NF_CONNTRACK_PROCFS
+ 	bool "Supply CT list in procfs (OBSOLETE)"
+-	default y
+ 	depends on PROC_FS
+ 	---help---
+ 	This option enables for the list of known conntrack entries
 -- 
 2.35.1
 
