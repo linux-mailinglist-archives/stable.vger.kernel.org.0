@@ -2,156 +2,230 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A4CB5A1354
-	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 16:20:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D845A13AB
+	for <lists+stable@lfdr.de>; Thu, 25 Aug 2022 16:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240647AbiHYOUK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Aug 2022 10:20:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60604 "EHLO
+        id S241555AbiHYOdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Aug 2022 10:33:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237432AbiHYOTX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 10:19:23 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B3A1AA4EF;
-        Thu, 25 Aug 2022 07:19:22 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S233743AbiHYOdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Aug 2022 10:33:19 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4621915EA
+        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 07:33:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1661437997;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HAu4rC9CyeyNudYPR+y9tR4vVDLBYqDeDne8QlTGLbM=;
+        b=eX6J7vGC97jvonQRvB7DQVVbDYyZ3ipVlvUW74CtHdyMCSjI32aETRvkRDBGET8Pa5cg8r
+        sGp3oWdIaWELcVCLu9zAdLHzFdSaKQk02gDmVHcdVA0JtzQVpieDMkoZ2LVU84NRF3m+6O
+        S+TZ6lLA5YehNg4HYqxVHxCNjUpHQQE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-170-ryT9HQ2ANxCKwMP8lBcWpw-1; Thu, 25 Aug 2022 10:33:15 -0400
+X-MC-Unique: ryT9HQ2ANxCKwMP8lBcWpw-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id C8D465BE56;
-        Thu, 25 Aug 2022 14:19:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1661437160; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=sNKQlGDAZqQferZnNmp0WSqatXflduAzkdFeb31EiP0=;
-        b=sZhw/MifAZ9FmVNdpEIeJr63FRoVAiv5dCw037wAAehLMI2JBd1YOH7DY7jAQvDEFppZS5
-        Zutm6Gs1TXuG7MekvCt8ADUq28/EbOU5OjEgnfDVPV583ehUMykLGYu14gmz/0EDjqm8kR
-        R7km1sxINwFnA7KxTi+0X0MlcG9X2l8=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 8E14413517;
-        Thu, 25 Aug 2022 14:19:20 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id XCoxIeiEB2M8SAAAMHmgww
-        (envelope-from <jgross@suse.com>); Thu, 25 Aug 2022 14:19:20 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        stable@vger.kernel.org,
-        Rustam Subkhankulov <subkhankulov@ispras.ru>
-Subject: [PATCH v4] xen/privcmd: fix error exit of privcmd_ioctl_dm_op()
-Date:   Thu, 25 Aug 2022 16:19:18 +0200
-Message-Id: <20220825141918.3581-1-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 45CA218A01D5;
+        Thu, 25 Aug 2022 14:33:03 +0000 (UTC)
+Received: from t480s.fritz.box (unknown [10.39.192.29])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7CC50492CA5;
+        Thu, 25 Aug 2022 14:32:59 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, gregkh@linuxfoundation.org,
+        David Hildenbrand <david@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Feiner <pfeiner@google.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Cyrill Gorcunov <gorcunov@openvz.org>,
+        Pavel Emelyanov <xemul@parallels.com>,
+        Jamie Liu <jamieliu@google.com>,
+        Hugh Dickins <hughd@google.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Peter Xu <peterx@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH 4.9-stable -- 5.19-stable] mm/hugetlb: fix hugetlb not supporting softdirty tracking
+Date:   Thu, 25 Aug 2022 16:32:58 +0200
+Message-Id: <20220825143258.36151-1-david@redhat.com>
+In-Reply-To: <1661424546448@kroah.com>
+References: <1661424546448@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The error exit of privcmd_ioctl_dm_op() is calling unlock_pages()
-potentially with pages being NULL, leading to a NULL dereference.
+commit f96f7a40874d7c746680c0b9f57cef2262ae551f upstream.
 
-Additionally lock_pages() doesn't check for pin_user_pages_fast()
-having been completely successful, resulting in potentially not
-locking all pages into memory. This could result in sporadic failures
-when using the related memory in user mode.
+Patch series "mm/hugetlb: fix write-fault handling for shared mappings", v2.
 
-Fix all of that by calling unlock_pages() always with the real number
-of pinned pages, which will be zero in case pages being NULL, and by
-checking the number of pages pinned by pin_user_pages_fast() matching
-the expected number of pages.
+I observed that hugetlb does not support/expect write-faults in shared
+mappings that would have to map the R/O-mapped page writable -- and I
+found two case where we could currently get such faults and would
+erroneously map an anon page into a shared mapping.
 
-Cc: <stable@vger.kernel.org>
-Fixes: ab520be8cd5d ("xen/privcmd: Add IOCTL_PRIVCMD_DM_OP")
-Reported-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V2:
-- use "pinned" as parameter for unlock_pages() (Jan Beulich)
-- drop label "unlock" again (Jan Beulich)
-- add check for complete success of pin_user_pages_fast()
-V3:
-- continue after partial success of pin_user_pages_fast() (Jan Beulich)
-V4:
-- fix case of multiple partial successes for one buffer (Jan Beulich)
----
- drivers/xen/privcmd.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+Reproducers part of the patches.
 
-diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
-index 3369734108af..e88e8f6f0a33 100644
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -581,27 +581,30 @@ static int lock_pages(
- 	struct privcmd_dm_op_buf kbufs[], unsigned int num,
- 	struct page *pages[], unsigned int nr_pages, unsigned int *pinned)
+I propose to backport both fixes to stable trees.  The first fix needs a
+small adjustment.
+
+This patch (of 2):
+
+Staring at hugetlb_wp(), one might wonder where all the logic for shared
+mappings is when stumbling over a write-protected page in a shared
+mapping.  In fact, there is none, and so far we thought we could get away
+with that because e.g., mprotect() should always do the right thing and
+map all pages directly writable.
+
+Looks like we were wrong:
+
+--------------------------------------------------------------------------
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <errno.h>
+ #include <sys/mman.h>
+
+ #define HUGETLB_SIZE (2 * 1024 * 1024u)
+
+ static void clear_softdirty(void)
  {
--	unsigned int i;
-+	unsigned int i, off = 0;
+         int fd = open("/proc/self/clear_refs", O_WRONLY);
+         const char *ctrl = "4";
+         int ret;
+
+         if (fd < 0) {
+                 fprintf(stderr, "open(clear_refs) failed\n");
+                 exit(1);
+         }
+         ret = write(fd, ctrl, strlen(ctrl));
+         if (ret != strlen(ctrl)) {
+                 fprintf(stderr, "write(clear_refs) failed\n");
+                 exit(1);
+         }
+         close(fd);
+ }
+
+ int main(int argc, char **argv)
+ {
+         char *map;
+         int fd;
+
+         fd = open("/dev/hugepages/tmp", O_RDWR | O_CREAT);
+         if (!fd) {
+                 fprintf(stderr, "open() failed\n");
+                 return -errno;
+         }
+         if (ftruncate(fd, HUGETLB_SIZE)) {
+                 fprintf(stderr, "ftruncate() failed\n");
+                 return -errno;
+         }
+
+         map = mmap(NULL, HUGETLB_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+         if (map == MAP_FAILED) {
+                 fprintf(stderr, "mmap() failed\n");
+                 return -errno;
+         }
+
+         *map = 0;
+
+         if (mprotect(map, HUGETLB_SIZE, PROT_READ)) {
+                 fprintf(stderr, "mmprotect() failed\n");
+                 return -errno;
+         }
+
+         clear_softdirty();
+
+         if (mprotect(map, HUGETLB_SIZE, PROT_READ|PROT_WRITE)) {
+                 fprintf(stderr, "mmprotect() failed\n");
+                 return -errno;
+         }
+
+         *map = 0;
+
+         return 0;
+ }
+--------------------------------------------------------------------------
+
+Above test fails with SIGBUS when there is only a single free hugetlb page.
+ # echo 1 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+ # ./test
+ Bus error (core dumped)
+
+And worse, with sufficient free hugetlb pages it will map an anonymous page
+into a shared mapping, for example, messing up accounting during unmap
+and breaking MAP_SHARED semantics:
+ # echo 2 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+ # ./test
+ # cat /proc/meminfo | grep HugePages_
+ HugePages_Total:       2
+ HugePages_Free:        1
+ HugePages_Rsvd:    18446744073709551615
+ HugePages_Surp:        0
+
+Reason in this particular case is that vma_wants_writenotify() will
+return "true", removing VM_SHARED in vma_set_page_prot() to map pages
+write-protected. Let's teach vma_wants_writenotify() that hugetlb does not
+support softdirty tracking.
+
+Link: https://lkml.kernel.org/r/20220811103435.188481-1-david@redhat.com
+Link: https://lkml.kernel.org/r/20220811103435.188481-2-david@redhat.com
+Fixes: 64e455079e1b ("mm: softdirty: enable write notifications on VMAs after VM_SOFTDIRTY cleared")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Feiner <pfeiner@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Cyrill Gorcunov <gorcunov@openvz.org>
+Cc: Pavel Emelyanov <xemul@parallels.com>
+Cc: Jamie Liu <jamieliu@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>	[3.18+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ mm/mmap.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 7c59ec73acc3..3b284b091bb7 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1693,8 +1693,12 @@ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot)
+ 	    pgprot_val(vm_pgprot_modify(vm_page_prot, vm_flags)))
+ 		return 0;
  
--	for (i = 0; i < num; i++) {
-+	for (i = 0; i < num; ) {
- 		unsigned int requested;
- 		int page_count;
+-	/* Do we need to track softdirty? */
+-	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) && !(vm_flags & VM_SOFTDIRTY))
++	/*
++	 * Do we need to track softdirty? hugetlb does not support softdirty
++	 * tracking yet.
++	 */
++	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) && !(vm_flags & VM_SOFTDIRTY) &&
++	    !is_vm_hugetlb_page(vma))
+ 		return 1;
  
- 		requested = DIV_ROUND_UP(
- 			offset_in_page(kbufs[i].uptr) + kbufs[i].size,
--			PAGE_SIZE);
-+			PAGE_SIZE) - off;
- 		if (requested > nr_pages)
- 			return -ENOSPC;
- 
- 		page_count = pin_user_pages_fast(
--			(unsigned long) kbufs[i].uptr,
-+			(unsigned long)kbufs[i].uptr + off * PAGE_SIZE,
- 			requested, FOLL_WRITE, pages);
--		if (page_count < 0)
--			return page_count;
-+		if (page_count <= 0)
-+			return page_count ? : -EFAULT;
- 
- 		*pinned += page_count;
- 		nr_pages -= page_count;
- 		pages += page_count;
-+
-+		off = (requested == page_count) ? 0 : off + page_count;
-+		i += !off;
- 	}
- 
- 	return 0;
-@@ -677,10 +680,8 @@ static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
- 	}
- 
- 	rc = lock_pages(kbufs, kdata.num, pages, nr_pages, &pinned);
--	if (rc < 0) {
--		nr_pages = pinned;
-+	if (rc < 0)
- 		goto out;
--	}
- 
- 	for (i = 0; i < kdata.num; i++) {
- 		set_xen_guest_handle(xbufs[i].h, kbufs[i].uptr);
-@@ -692,7 +693,7 @@ static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
- 	xen_preemptible_hcall_end();
- 
- out:
--	unlock_pages(pages, nr_pages);
-+	unlock_pages(pages, pinned);
- 	kfree(xbufs);
- 	kfree(pages);
- 	kfree(kbufs);
+ 	/* Specialty mapping? */
 -- 
-2.35.3
+2.37.1
 
