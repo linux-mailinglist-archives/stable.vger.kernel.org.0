@@ -2,194 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8DBA5A261B
-	for <lists+stable@lfdr.de>; Fri, 26 Aug 2022 12:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B615A267A
+	for <lists+stable@lfdr.de>; Fri, 26 Aug 2022 13:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343925AbiHZKuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Aug 2022 06:50:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47434 "EHLO
+        id S1344103AbiHZLEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Aug 2022 07:04:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343936AbiHZKuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Aug 2022 06:50:00 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB15EBE2C
-        for <stable@vger.kernel.org>; Fri, 26 Aug 2022 03:49:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661510997;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Eg7Ryqgl4/7psa0mDnwJcUX72EbQV3JdNEdy3KuxwWs=;
-        b=Tg7cTrcx4OR3NkH4PAjrUaDN6+zTsUCYhNIsJzFQPwnG1uvUALAFi6bMqOPZv+4MTLvwZA
-        v/ZFxgZlMJuIS6t2rNFxhrs3fjdStiftlkAkJfeAEJjsVMgxGMHceUet8St1et14HrTD4s
-        3YNCgvbHeiI+Tz8EovyRWY+ikKsRuR0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-38-lf8Rt6HJP06l-VxmloQ6cQ-1; Fri, 26 Aug 2022 06:49:56 -0400
-X-MC-Unique: lf8Rt6HJP06l-VxmloQ6cQ-1
-Received: by mail-wm1-f72.google.com with SMTP id h133-20020a1c218b000000b003a5fa79008bso3885775wmh.5
-        for <stable@vger.kernel.org>; Fri, 26 Aug 2022 03:49:55 -0700 (PDT)
+        with ESMTP id S230040AbiHZLE0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Aug 2022 07:04:26 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB3272AE3
+        for <stable@vger.kernel.org>; Fri, 26 Aug 2022 04:04:03 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id cu2so2539029ejb.0
+        for <stable@vger.kernel.org>; Fri, 26 Aug 2022 04:04:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=Mo0Po55MrltQlOf9otDY45W2NU30AebQjce6V8ULWN4=;
+        b=VvOz75vXDfguNnZLVcPMsvzH/GHMCE8wmoT/mbk8ZGRbOe7B99+18xa7t8lM5d30d3
+         7h+wfgHgVwqGkJplsz5JNw2MV2NBqOwRKE4uw8G4LnZ3M5vt2WsJEE2Ve//6z+R/57cw
+         WMUlM77P4f59X8OeGXH24poHiT8Iwg95ImrmaEbxKhU7RfFDvpMEhnTdcvG3v5VZqb80
+         knw5EhcVyM0meowHk2wm1N3salnvqRAgVHL7AsYt4N8sAQ5YM8GdoQoYXINVuLHvNKOc
+         +aZB0gwOBXTcOcV0GtOyTUvfJckgTQFNfuFVNFnEJog+ydX36ho0kxzqIzhdaG09fHGM
+         eurQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:organization:from
-         :references:cc:to:content-language:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc;
-        bh=Eg7Ryqgl4/7psa0mDnwJcUX72EbQV3JdNEdy3KuxwWs=;
-        b=zdJn85ZQvbcqnOJfR/9AAlRx4Zl9ZzmPEAOQDmlYr2lr0cKL9WVSpB7sw5bn0zxHCP
-         9kdmmFUcQAETbIPg/ECjuOFV61hZF3V9sBK46m2Pe1DRte0nurkRhNFgp5uTZAZcXvTO
-         37llAeytBcL6aiuoNn9TybaC0edVX337IpgMZGr38bc8UeTu8muPBAG9xWDWuQ+du0c1
-         WrnLpNQzEU89GtIMjj4ZFkiBLtXXTN1MtRg73xCnlmDjT9APlyzwR051n7Gptm0C9i5Z
-         iBNGr1ypI0Wcvv4OcTSKSBkOpL8FE90tazxY9SMjSsaZ0FigsMeUPvMR7gy0cS6GNYzg
-         Nz4w==
-X-Gm-Message-State: ACgBeo3dXNVWukmJyKXV2Dy2Zin5ZeaAL9dW4VPKqYJc+0NO62v+1FGd
-        QVq54BskaqzVIpHRivYmhQLNqM8wUBKJUTCXiE4KEkvDWoTO33niQ5cMn0XIZPkZo6ilq02IAGa
-        kZRt5vBNntiHTENKB
-X-Received: by 2002:a05:600c:3492:b0:3a5:e1a0:24c9 with SMTP id a18-20020a05600c349200b003a5e1a024c9mr4710880wmq.177.1661510979327;
-        Fri, 26 Aug 2022 03:49:39 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7lKeYZ6xCyn0mLHd08b2PAlifcC4FnKecOkajxaZG8pB6eqy4kUx6srY7bQC3bHFZieMGQdg==
-X-Received: by 2002:a05:600c:3492:b0:3a5:e1a0:24c9 with SMTP id a18-20020a05600c349200b003a5e1a024c9mr4710865wmq.177.1661510979077;
-        Fri, 26 Aug 2022 03:49:39 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c708:f600:abad:360:c840:33fa? (p200300cbc708f600abad0360c84033fa.dip0.t-ipconnect.de. [2003:cb:c708:f600:abad:360:c840:33fa])
-        by smtp.gmail.com with ESMTPSA id h9-20020a05600c28c900b003a5dfd7e9eesm2106499wmd.44.2022.08.26.03.49.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 26 Aug 2022 03:49:38 -0700 (PDT)
-Message-ID: <411d7b8c-f914-875e-b397-856e6a894366@redhat.com>
-Date:   Fri, 26 Aug 2022 12:49:37 +0200
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=Mo0Po55MrltQlOf9otDY45W2NU30AebQjce6V8ULWN4=;
+        b=xiyOFDv2jl9DytbKJvVNS/ONMB08bi3Z7tdhixuZZ7qOOtw5xAdfrwYVWKVSZeLFnU
+         iJdmTJDWH3AjrDOsYEBQnIsN0PnN/bTEJP2Cram4lna+FiiKYbEGon3IeKuyVGtGGaFk
+         ja+c1RXplgsgFOLxJ+1rwaLql47uu88PRCgwImkzbeYKVKhjs+g4zz7um+CeQjWzF4ym
+         Ph6xVemqaXagJ5OeVwYcV9PiXQehpZQmjpPxBJxJbDndhR79+Kwl6OisIFqVdiMSFLqK
+         CYABKhgDYOmWvNoSat6DhBagwK3/oSO+B2oQJ0FSos1ki14TxWgcbfTEYyzMOWCRWbTi
+         zI6A==
+X-Gm-Message-State: ACgBeo2F6C0yHw67zMQzjLH2vP/dSE6OT/1Eyqg6q3hzdRZWjt1f5Sja
+        HfvhKSBf5opP4aQFl8sLlT03Sj0hxc8+ThbLqSI4aw==
+X-Google-Smtp-Source: AA6agR7QvLAqRTdbq4TYx8odE7Pqo40mqPQ7sAdhFJHTRKx9db4amFYUeVLwc3JxKBRaLd1/RwuUkCD9eIGDI9WitBI=
+X-Received: by 2002:a17:907:72cf:b0:73d:d007:e249 with SMTP id
+ du15-20020a17090772cf00b0073dd007e249mr4908899ejc.500.1661511842254; Fri, 26
+ Aug 2022 04:04:02 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Content-Language: en-US
-To:     Peter Xu <peterx@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Huang Ying <ying.huang@intel.com>, stable@vger.kernel.org,
-        Yu Zhao <yuzhao@google.com>
-References: <20220823221138.45602-1-peterx@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH] mm/mprotect: Only reference swap pfn page if type match
-In-Reply-To: <20220823221138.45602-1-peterx@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+References: <20220824071253.1261096-1-piyush.mehta@amd.com>
+In-Reply-To: <20220824071253.1261096-1-piyush.mehta@amd.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Fri, 26 Aug 2022 13:03:51 +0200
+Message-ID: <CACRpkdae4fijFrFs-1u-AUNExvbda=6yeAyQJRQeVVQmdQOQZQ@mail.gmail.com>
+Subject: Re: [PATCH V2] usb: gadget: udc-xilinx: replace memcpy with memcpy_toio
+To:     Piyush Mehta <piyush.mehta@amd.com>
+Cc:     balbi@kernel.org, gregkh@linuxfoundation.org,
+        michal.simek@xilinx.com, michal.simek@amd.com,
+        shubhrajyoti.datta@xilinx.com, lee.jones@linaro.org,
+        christophe.jaillet@wanadoo.fr, szymon.heidrich@gmail.com,
+        jakobkoschel@gmail.com, linux-usb@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        git@amd.com, siva.durga.prasad.paladugu@amd.com,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 24.08.22 00:11, Peter Xu wrote:
-> Yu Zhao reported a bug after the commit "mm/swap: Add swp_offset_pfn() to
-> fetch PFN from swap entry" added a check in swp_offset_pfn() for swap type [1]:
-> 
->   kernel BUG at include/linux/swapops.h:117!
->   CPU: 46 PID: 5245 Comm: EventManager_De Tainted: G S         O L 6.0.0-dbg-DEV #2
->   RIP: 0010:pfn_swap_entry_to_page+0x72/0xf0
->   Code: c6 48 8b 36 48 83 fe ff 74 53 48 01 d1 48 83 c1 08 48 8b 09 f6
->   c1 01 75 7b 66 90 48 89 c1 48 8b 09 f6 c1 01 74 74 5d c3 eb 9e <0f> 0b
->   48 ba ff ff ff ff 03 00 00 00 eb ae a9 ff 0f 00 00 75 13 48
->   RSP: 0018:ffffa59e73fabb80 EFLAGS: 00010282
->   RAX: 00000000ffffffe8 RBX: 0c00000000000000 RCX: ffffcd5440000000
->   RDX: 1ffffffffff7a80a RSI: 0000000000000000 RDI: 0c0000000000042b
->   RBP: ffffa59e73fabb80 R08: ffff9965ca6e8bb8 R09: 0000000000000000
->   R10: ffffffffa5a2f62d R11: 0000030b372e9fff R12: ffff997b79db5738
->   R13: 000000000000042b R14: 0c0000000000042b R15: 1ffffffffff7a80a
->   FS:  00007f549d1bb700(0000) GS:ffff99d3cf680000(0000) knlGS:0000000000000000
->   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->   CR2: 0000440d035b3180 CR3: 0000002243176004 CR4: 00000000003706e0
->   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->   Call Trace:
->    <TASK>
->    change_pte_range+0x36e/0x880
->    change_p4d_range+0x2e8/0x670
->    change_protection_range+0x14e/0x2c0
->    mprotect_fixup+0x1ee/0x330
->    do_mprotect_pkey+0x34c/0x440
->    __x64_sys_mprotect+0x1d/0x30
-> 
-> It triggers because pfn_swap_entry_to_page() could be called upon e.g. a
-> genuine swap entry.
-> 
-> Fix it by only calling it when it's a write migration entry where the page*
-> is used.
-> 
-> [1] https://lore.kernel.org/lkml/CAOUHufaVC2Za-p8m0aiHw6YkheDcrO-C3wRGixwDS32VTS+k1w@mail.gmail.com/
-> 
-> Fixes: 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: <stable@vger.kernel.org>
-> Reported-by: Yu Zhao <yuzhao@google.com>
-> Signed-off-by: Peter Xu <peterx@redhat.com>
+On Wed, Aug 24, 2022 at 9:14 AM Piyush Mehta <piyush.mehta@amd.com> wrote:
+
+> For ARM processor, unaligned access to device memory is not allowed.
+> Method memcpy does not take care of alignment.
+>
+> USB detection failure with the unaligned address of memory access, with
+> below kernel crash. To fix the unaligned address the kernel panic issue,
+> replace memcpy with memcpy_toio method.
+>
+> Kernel crash:
+> Unable to handle kernel paging request at virtual address ffff80000c05008a
+> Mem abort info:
+>   ESR = 0x96000061
+>   EC = 0x25: DABT (current EL), IL = 32 bits
+>   SET = 0, FnV = 0
+>   EA = 0, S1PTW = 0
+>   FSC = 0x21: alignment fault
+> Data abort info:
+>   ISV = 0, ISS = 0x00000061
+>   CM = 0, WnR = 1
+> swapper pgtable: 4k pages, 48-bit VAs, pgdp=000000000143b000
+> [ffff80000c05008a] pgd=100000087ffff003, p4d=100000087ffff003,
+> pud=100000087fffe003, pmd=1000000800bcc003, pte=00680000a0010713
+> Internal error: Oops: 96000061 [#1] SMP
+> Modules linked in:
+> CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.15.19-xilinx-v2022.1 #1
+> Hardware name: ZynqMP ZCU102 Rev1.0 (DT)
+> pstate: 200000c5 (nzCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+> pc : __memcpy+0x30/0x260
+> lr : __xudc_ep0_queue+0xf0/0x110
+> sp : ffff800008003d00
+> x29: ffff800008003d00 x28: ffff800009474e80 x27: 00000000000000a0
+> x26: 0000000000000100 x25: 0000000000000012 x24: ffff000800bc8080
+> x23: 0000000000000001 x22: 0000000000000012 x21: ffff000800bc8080
+> x20: 0000000000000012 x19: ffff000800bc8080 x18: 0000000000000000
+> x17: ffff800876482000 x16: ffff800008004000 x15: 0000000000004000
+> x14: 00001f09785d0400 x13: 0103020101005567 x12: 0781400000000200
+> x11: 00000000c5672a10 x10: 00000000000008d0 x9 : ffff800009463cf0
+> x8 : ffff8000094757b0 x7 : 0201010055670781 x6 : 4000000002000112
+> x5 : ffff80000c05009a x4 : ffff000800a15012 x3 : ffff00080362ad80
+> x2 : 0000000000000012 x1 : ffff000800a15000 x0 : ffff80000c050088
+> Call trace:
+>  __memcpy+0x30/0x260
+>  xudc_ep0_queue+0x3c/0x60
+>  usb_ep_queue+0x38/0x44
+>  composite_ep0_queue.constprop.0+0x2c/0xc0
+>  composite_setup+0x8d0/0x185c
+>  configfs_composite_setup+0x74/0xb0
+>  xudc_irq+0x570/0xa40
+>  __handle_irq_event_percpu+0x58/0x170
+>  handle_irq_event+0x60/0x120
+>  handle_fasteoi_irq+0xc0/0x220
+>  handle_domain_irq+0x60/0x90
+>  gic_handle_irq+0x74/0xa0
+>  call_on_irq_stack+0x2c/0x60
+>  do_interrupt_handler+0x54/0x60
+>  el1_interrupt+0x30/0x50
+>  el1h_64_irq_handler+0x18/0x24
+>  el1h_64_irq+0x78/0x7c
+>  arch_cpu_idle+0x18/0x2c
+>  do_idle+0xdc/0x15c
+>  cpu_startup_entry+0x28/0x60
+>  rest_init+0xc8/0xe0
+>  arch_call_rest_init+0x10/0x1c
+>  start_kernel+0x694/0x6d4
+>  __primary_switched+0xa4/0xac
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 1f7c51660034 ("usb: gadget: Add xilinx usb2 device support")
+> Signed-off-by: Piyush Mehta <piyush.mehta@amd.com>
 > ---
->  mm/mprotect.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/mm/mprotect.c b/mm/mprotect.c
-> index f2b9b1da9083..4549f5945ebe 100644
-> --- a/mm/mprotect.c
-> +++ b/mm/mprotect.c
-> @@ -203,10 +203,11 @@ static unsigned long change_pte_range(struct mmu_gather *tlb,
->  			pages++;
->  		} else if (is_swap_pte(oldpte)) {
->  			swp_entry_t entry = pte_to_swp_entry(oldpte);
-> -			struct page *page = pfn_swap_entry_to_page(entry);
->  			pte_t newpte;
->  
->  			if (is_writable_migration_entry(entry)) {
-> +				struct page *page = pfn_swap_entry_to_page(entry);
-> +
->  				/*
->  				 * A protection check is difficult so
->  				 * just be safe and disable write
+> Changes in V2:
+> - Address Greg KH review comments:
+>  - Added information in the form of a Fixes: commit Id (commit message).
+>  - Cc stable kernel.
+>
+> Link:https://lore.kernel.org/all/YwW8zE8ieLCsSxPN@kroah.com/
 
+That link should be up under the commit message, but it's not very important.
 
-Stumbling over the THP code, I was wondering if we also want to adjust change_huge_pmd()
-and hugetlb_change_protection. There are no actual swap entries, so I assume we're fine.
+The solution looks reasonable.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 482c1826e723..466364e7fc5f 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1798,10 +1798,10 @@ int change_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
- #ifdef CONFIG_ARCH_ENABLE_THP_MIGRATION
-        if (is_swap_pmd(*pmd)) {
-                swp_entry_t entry = pmd_to_swp_entry(*pmd);
--               struct page *page = pfn_swap_entry_to_page(entry);
- 
-                VM_BUG_ON(!is_pmd_migration_entry(*pmd));
-                if (is_writable_migration_entry(entry)) {
-+                       struct page *page = pfn_swap_entry_to_page(entry);
-                        pmd_t newpmd;
-                        /*
-                         * A protection check is difficult so
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 2480ba627aa5..559465fae5cd 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -6370,9 +6370,9 @@ unsigned long hugetlb_change_protection(struct vm_area_struct *vma,
-                }
-                if (unlikely(is_hugetlb_entry_migration(pte))) {
-                        swp_entry_t entry = pte_to_swp_entry(pte);
--                       struct page *page = pfn_swap_entry_to_page(entry);
- 
-                        if (!is_readable_migration_entry(entry)) {
-+                               struct page *page = pfn_swap_entry_to_page(entry);
-                                pte_t newpte;
- 
-                                if (PageAnon(page))
-
-
-@Peter, what's your thought?
-
--- 
-Thanks,
-
-David / dhildenb
-
+Yours,
+Linus Walleij
