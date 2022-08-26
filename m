@@ -2,193 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FE6C5A30EA
-	for <lists+stable@lfdr.de>; Fri, 26 Aug 2022 23:20:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B835D5A3107
+	for <lists+stable@lfdr.de>; Fri, 26 Aug 2022 23:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344338AbiHZVUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Aug 2022 17:20:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39684 "EHLO
+        id S239208AbiHZVfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Aug 2022 17:35:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239997AbiHZVUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Aug 2022 17:20:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED3ED17E02;
-        Fri, 26 Aug 2022 14:20:43 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3CF160B7C;
-        Fri, 26 Aug 2022 21:20:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82C48C433D6;
-        Fri, 26 Aug 2022 21:20:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661548842;
-        bh=zDVwVvEz5cYYLi/EBJNO2sYvyri0aAIP70HkgcMjqnk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WKT07LmZtYErAiiJ9Tm1cdjtABt72S8nnGKXhNRa5LxwOZy+aHV19commDHWAW6al
-         d5Z7d+6BuIMa2/RSstIZVnjA158bVCu6DFKFgaKosx7xfDaJV0ozsr/l3RePhXEgEv
-         eh/d8Q/jlFn7ucMsKc0t8GABxxo+Nrrr0yJT+uQzJfW3ZT8BnYTQGrvIxzujuVA1Pc
-         zpXKRpjFD2Y3kRNzcny480fCNxTxyfDaP7G/9YJAUovY3Bmn63dzmyBT9xZP37SaE/
-         hrD5w82TRDxe4MDafSHR1JCxrDS4msMBeJeyG7REFcLnJosijRfob2++xLzCEY4ln2
-         AFeflr6GG6L4w==
-From:   SeongJae Park <sj@kernel.org>
-To:     Maximilian Heyne <mheyne@amazon.de>
-Cc:     SeongJae Park <sj@kernel.org>, jgross@suse.com,
-        roger.pau@citrix.com, marmarek@invisiblethingslab.com,
-        xen-devel@lists.xenproject.org, axboe@kernel.dk,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] xen-blkfront: Advertise feature-persistent as user requested
-Date:   Fri, 26 Aug 2022 21:20:39 +0000
-Message-Id: <20220826212039.50736-1-sj@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220826142658.GA77627@dev-dsk-mheyne-1b-c1362c4d.eu-west-1.amazon.com>
-References: 
+        with ESMTP id S229704AbiHZVfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Aug 2022 17:35:09 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58AB6220CF
+        for <stable@vger.kernel.org>; Fri, 26 Aug 2022 14:35:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1661549708; x=1693085708;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Zeah7v6GaWnNvFKIevAHE4ahpJl4lFSOFUV+cp0a/cM=;
+  b=V+vzUGEHdujtfeQdGFrjTuVz7xgdq3Nvc/aRGeQl80V+3QeG/ckory2p
+   3F136gVzdC6jaAa4L6FZ4tSb9HYu0AAKauTaT/DSg6YTTuCmKv2osji7z
+   yp1eyL4P3iPL6WhThrZujTX2LfxwAqVSI4c+YFU/10OmNfct/fOSYbz09
+   SuCcNxOvriYapFO9LfQ62jrpchKYN7dOFWwdSMU/1pjpR5KR3bc7N5L+z
+   mY+jan4Slq06wapz8aqfUdt4M1m7v7xAuZF70yJ4gUffhirEIeEogjuJT
+   30tU1Q/VWt6hmNt3Me69Ep2L+Xeg5LiAlWoNB0LOtpGctFuD/TfKuc1PV
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10451"; a="274350250"
+X-IronPort-AV: E=Sophos;i="5.93,266,1654585200"; 
+   d="scan'208";a="274350250"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2022 14:35:07 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,266,1654585200"; 
+   d="scan'208";a="613657785"
+Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.191])
+  by fmsmga007.fm.intel.com with SMTP; 26 Aug 2022 14:35:05 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Sat, 27 Aug 2022 00:35:04 +0300
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     dri-devel@lists.freedesktop.org
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 01/11] drm/edid: Handle EDID 1.4 range descriptor h/vfreq offsets
+Date:   Sat, 27 Aug 2022 00:34:51 +0300
+Message-Id: <20220826213501.31490-2-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220826213501.31490-1-ville.syrjala@linux.intel.com>
+References: <20220826213501.31490-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Max,
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-On Fri, 26 Aug 2022 14:26:58 +0000 Maximilian Heyne <mheyne@amazon.de> wrote:
+EDID 1.4 introduced some extra flags in the range
+descriptor to support min/max h/vfreq >= 255. Consult them
+to correctly parse the vfreq limits.
 
-> On Thu, Aug 25, 2022 at 04:15:11PM +0000, SeongJae Park wrote:
-> > 
-> > Commit e94c6101e151 ("xen-blkback: Apply 'feature_persistent' parameter
-> > when connect") made blkback to advertise its support of the persistent
-> > grants feature only if the user sets the 'feature_persistent' parameter
-> > of the driver and the frontend advertised its support of the feature.
-> > However, following commit 402c43ea6b34 ("xen-blkfront: Apply
-> > 'feature_persistent' parameter when connect") made the blkfront to work
-> > in the same way.  That is, blkfront also advertises its support of the
-> > persistent grants feature only if the user sets the 'feature_persistent'
-> > parameter of the driver and the backend advertised its support of the
-> > feature.
-> > 
-> > Hence blkback and blkfront will never advertise their support of the
-> > feature but wait until the other advertises the support, even though
-> > users set the 'feature_persistent' parameters of the drivers.  As a
-> > result, the persistent grants feature is disabled always regardless of
-> > the 'feature_persistent' values[1].
-> > 
-> > The problem comes from the misuse of the semantic of the advertisement
-> > of the feature.  The advertisement of the feature should means only
-> > availability of the feature not the decision for using the feature.
-> > However, current behavior is working in the wrong way.
-> > 
-> > This commit fixes the issue by making the blkfront advertises its
-> > support of the feature as user requested via 'feature_persistent'
-> > parameter regardless of the otherend's support of the feature.
-> > 
-> > [1] https://lore.kernel.org/xen-devel/bd818aba-4857-bc07-dc8a-e9b2f8c5f7cd@suse.com/
-> > 
-> > Fixes: 402c43ea6b34 ("xen-blkfront: Apply 'feature_persistent' parameter when connect")
-> > Cc: <stable@vger.kernel.org> # 5.10.x
-> > Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-> > Suggested-by: Juergen Gross <jgross@suse.com>
-> > Signed-off-by: SeongJae Park <sj@kernel.org>
-> > ---
-> >  drivers/block/xen-blkfront.c | 8 ++++++--
-> >  1 file changed, 6 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
-> > index 8e56e69fb4c4..dfae08115450 100644
-> > --- a/drivers/block/xen-blkfront.c
-> > +++ b/drivers/block/xen-blkfront.c
-> > @@ -213,6 +213,9 @@ struct blkfront_info
-> >         unsigned int feature_fua:1;
-> >         unsigned int feature_discard:1;
-> >         unsigned int feature_secdiscard:1;
-> > +       /* Connect-time cached feature_persistent parameter */
-> > +       unsigned int feature_persistent_parm:1;
-> > +       /* Persistent grants feature negotiation result */
-> >         unsigned int feature_persistent:1;
-> >         unsigned int bounce:1;
-> >         unsigned int discard_granularity;
-> > @@ -1848,7 +1851,7 @@ static int talk_to_blkback(struct xenbus_device *dev,
-> >                 goto abort_transaction;
-> >         }
-> >         err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
-> > -                       info->feature_persistent);
-> > +                       info->feature_persistent_parm);
-> >         if (err)
-> >                 dev_warn(&dev->dev,
-> >                          "writing persistent grants feature to xenbus");
-> > @@ -2281,7 +2284,8 @@ static void blkfront_gather_backend_features(struct blkfront_info *info)
-> >         if (xenbus_read_unsigned(info->xbdev->otherend, "feature-discard", 0))
-> >                 blkfront_setup_discard(info);
-> > 
-> > -       if (feature_persistent)
-> > +       info->feature_persistent_parm = feature_persistent;
-> 
-> I think setting this here is too late because "feature-persistent" was already
-> written to xenstore via talk_to_blkback but with default 0. So during the
-> connect blkback will not see that the guest supports the feature and falls back
-> to no persistent grants.
-> 
-> Tested only this patch with some hacky dom0 kernel that doesn't have the patch
-> from your series yet. Will do more testing next week.
+Note that some combinations of the flags are documented
+as "reserved" (as are some other values in the descriptor)
+but explicitly checking for those doesn't seem particularly
+worthwile since we end up with bogus results whether we
+decode them or not.
 
-Appreciate for your test!  And you're right, this patch is not fixing the issue
-completely.  That is, commit 402c43ea6b34 ("xen-blkfront: Apply
-'feature_persistent' parameter when connect") introduced two bugs.  One is the
-misuse of the semantic of the advertisement.  It's fixed by this patch.  The
-second bug, which you found here, is caching the parameter in a wrong place.
+v2: Increase the storage to u16 to make it work (Jani)
+    Note the "reserved" values situation (Jani)
+v3: Document the EDID version number in the defines
+    Drop some bogus (u8) casts
 
-In detail, blkfront does the advertisement before connect (for init and resume)
-and then negotiation after connected.  And the blkback does the negotiation
-first, and then the advertisement during the establishing the connection.
-Hence, blkback should cache the parameter just before the negotiation logic
-while blkfront should do that just before the advertisement logic.
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6519
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+---
+ drivers/gpu/drm/drm_debugfs.c |  4 ++--
+ drivers/gpu/drm/drm_edid.c    | 24 ++++++++++++++++++------
+ include/drm/drm_connector.h   |  4 ++--
+ include/drm/drm_edid.h        |  5 +++++
+ 4 files changed, 27 insertions(+), 10 deletions(-)
 
-The blkback behavior change commit (e94c6101e151) did the work in the right
-place, but the blkfront behavior change commit didn't.
+diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
+index 493922069c90..01ee3febb813 100644
+--- a/drivers/gpu/drm/drm_debugfs.c
++++ b/drivers/gpu/drm/drm_debugfs.c
+@@ -377,8 +377,8 @@ static int vrr_range_show(struct seq_file *m, void *data)
+ 	if (connector->status != connector_status_connected)
+ 		return -ENODEV;
+ 
+-	seq_printf(m, "Min: %u\n", (u8)connector->display_info.monitor_range.min_vfreq);
+-	seq_printf(m, "Max: %u\n", (u8)connector->display_info.monitor_range.max_vfreq);
++	seq_printf(m, "Min: %u\n", connector->display_info.monitor_range.min_vfreq);
++	seq_printf(m, "Max: %u\n", connector->display_info.monitor_range.max_vfreq);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index 90a5e26eafa8..4005dab6147d 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -6020,12 +6020,14 @@ static void drm_parse_cea_ext(struct drm_connector *connector,
+ }
+ 
+ static
+-void get_monitor_range(const struct detailed_timing *timing,
+-		       void *info_monitor_range)
++void get_monitor_range(const struct detailed_timing *timing, void *c)
+ {
+-	struct drm_monitor_range_info *monitor_range = info_monitor_range;
++	struct detailed_mode_closure *closure = c;
++	struct drm_display_info *info = &closure->connector->display_info;
++	struct drm_monitor_range_info *monitor_range = &info->monitor_range;
+ 	const struct detailed_non_pixel *data = &timing->data.other_data;
+ 	const struct detailed_data_monitor_range *range = &data->data.range;
++	const struct edid *edid = closure->drm_edid->edid;
+ 
+ 	if (!is_display_descriptor(timing, EDID_DETAIL_MONITOR_RANGE))
+ 		return;
+@@ -6041,18 +6043,28 @@ void get_monitor_range(const struct detailed_timing *timing,
+ 
+ 	monitor_range->min_vfreq = range->min_vfreq;
+ 	monitor_range->max_vfreq = range->max_vfreq;
++
++	if (edid->revision >= 4) {
++		if (data->pad2 & DRM_EDID_RANGE_OFFSET_MIN_VFREQ)
++			monitor_range->min_vfreq += 255;
++		if (data->pad2 & DRM_EDID_RANGE_OFFSET_MAX_VFREQ)
++			monitor_range->max_vfreq += 255;
++	}
+ }
+ 
+ static void drm_get_monitor_range(struct drm_connector *connector,
+ 				  const struct drm_edid *drm_edid)
+ {
+-	struct drm_display_info *info = &connector->display_info;
++	const struct drm_display_info *info = &connector->display_info;
++	struct detailed_mode_closure closure = {
++		.connector = connector,
++		.drm_edid = drm_edid,
++	};
+ 
+ 	if (!version_greater(drm_edid, 1, 1))
+ 		return;
+ 
+-	drm_for_each_detailed_block(drm_edid, get_monitor_range,
+-				    &info->monitor_range);
++	drm_for_each_detailed_block(drm_edid, get_monitor_range, &closure);
+ 
+ 	DRM_DEBUG_KMS("Supported Monitor Refresh rate range is %d Hz - %d Hz\n",
+ 		      info->monitor_range.min_vfreq,
+diff --git a/include/drm/drm_connector.h b/include/drm/drm_connector.h
+index 248206bbd975..56aee949c6fa 100644
+--- a/include/drm/drm_connector.h
++++ b/include/drm/drm_connector.h
+@@ -319,8 +319,8 @@ enum drm_panel_orientation {
+  *             EDID's detailed monitor range
+  */
+ struct drm_monitor_range_info {
+-	u8 min_vfreq;
+-	u8 max_vfreq;
++	u16 min_vfreq;
++	u16 max_vfreq;
+ };
+ 
+ /**
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index 2181977ae683..1ed61e2b30a4 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -92,6 +92,11 @@ struct detailed_data_string {
+ 	u8 str[13];
+ } __attribute__((packed));
+ 
++#define DRM_EDID_RANGE_OFFSET_MIN_VFREQ (1 << 0) /* 1.4 */
++#define DRM_EDID_RANGE_OFFSET_MAX_VFREQ (1 << 1) /* 1.4 */
++#define DRM_EDID_RANGE_OFFSET_MIN_HFREQ (1 << 2) /* 1.4 */
++#define DRM_EDID_RANGE_OFFSET_MAX_HFREQ (1 << 3) /* 1.4 */
++
+ #define DRM_EDID_DEFAULT_GTF_SUPPORT_FLAG   0x00
+ #define DRM_EDID_RANGE_LIMITS_ONLY_FLAG     0x01
+ #define DRM_EDID_SECONDARY_GTF_SUPPORT_FLAG 0x02
+-- 
+2.35.1
 
-So, I guess below change would fix the issue entirely when applied together
-with this patch.  Any opinion, please?
-
-
-diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
-index dfae08115450..7d3bde271e69 100644
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -1850,6 +1850,7 @@ static int talk_to_blkback(struct xenbus_device *dev,
-                message = "writing protocol";
-                goto abort_transaction;
-        }
-+       info->feature_persistent_parm = feature_persistent;
-        err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
-                        info->feature_persistent_parm);
-        if (err)
-@@ -2284,7 +2285,6 @@ static void blkfront_gather_backend_features(struct blkfront_info *info)
-        if (xenbus_read_unsigned(info->xbdev->otherend, "feature-discard", 0))
-                blkfront_setup_discard(info);
-
--       info->feature_persistent_parm = feature_persistent;
-        if (info->feature_persistent_parm)
-                info->feature_persistent =
-                        !!xenbus_read_unsigned(info->xbdev->otherend,
-
-
-Thanks,
-SJ
-
-
-> 
-> > +       if (info->feature_persistent_parm)
-> >                 info->feature_persistent =
-> >                         !!xenbus_read_unsigned(info->xbdev->otherend,
-> >                                                "feature-persistent", 0);
-> > --
-> > 2.25.1
-> > 
-> 
