@@ -2,50 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4033C5A27C1
-	for <lists+stable@lfdr.de>; Fri, 26 Aug 2022 14:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9FA5A284B
+	for <lists+stable@lfdr.de>; Fri, 26 Aug 2022 15:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242864AbiHZMYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Aug 2022 08:24:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
+        id S232858AbiHZNOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Aug 2022 09:14:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230132AbiHZMYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Aug 2022 08:24:30 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 563E0E9D;
-        Fri, 26 Aug 2022 05:24:29 -0700 (PDT)
-Received: from localhost.localdomain (unknown [IPv6:2405:201:10:389d:42df:ae4c:c047:294c])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: shreeya)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 829BD6601EC8;
-        Fri, 26 Aug 2022 13:24:25 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1661516667;
-        bh=x89a8TvfcoIEzBD2+gLPAUruz1s8rtys3PetrUIb6xc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=dbdEzMnnKG3ER31kdXrzaxxao0JBbpW386BCpHg+L5YtlTFwd+bnow3gPket6+Vsb
-         B169O8KzxPR3Zv14CRcbtQb5hJGa6zqDkY5HR2B8rzSxnmqWrQOnOyS3gbHhr9SEXb
-         g9hjgeqCob+dq0t/nhrYOKtU/0MO/61ycylKOJVoMqrnumjBq+QFuO24uzsoMSTSNC
-         dDqBPpszKDUCdVIvakDRVFwOnoUSXzI9+mYSz9gF7rxV6TWNbDCdDAPvzkhaVM8lpk
-         sh+v7To32hot+P0tKDC5mhD9cNHONafNpigivEyABYUUVKn74TjbfyWe+HsYQFz3YM
-         hLUwB7RaHYGLw==
-From:   Shreeya Patel <shreeya.patel@collabora.com>
-To:     jic23@kernel.org, lars@metafoo.de
-Cc:     krisman@collabora.com, dmitry.osipenko@collabora.com,
-        kernel@collabora.com, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Shreeya Patel <shreeya.patel@collabora.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] iio: light: tsl2583: Fix module unloading
-Date:   Fri, 26 Aug 2022 17:53:52 +0530
-Message-Id: <20220826122352.288438-1-shreeya.patel@collabora.com>
-X-Mailer: git-send-email 2.30.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        with ESMTP id S229991AbiHZNOi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Aug 2022 09:14:38 -0400
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E49231DC9
+        for <stable@vger.kernel.org>; Fri, 26 Aug 2022 06:14:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1661519678; x=1693055678;
+  h=date:message-id:from:to:cc:subject:in-reply-to:
+   references:mime-version;
+  bh=y5MbVMVGGNcJ4tgj7K4fNlFHpoFOtN+GdCOCtbWQiyw=;
+  b=gwvDGOKXIW6MRF569Os/hRWzdn93vNGQddxOafD+ffEvBVly2okiW4YH
+   7kRyuNIcFWOpzdh/P2hIBCQWl30NaVBYMUfVPBKBwpYEV0uZL5bEQd7Jq
+   3hOoT8klbCArkfJ/DToPO8ojycJNI+5LlUtRLLN3Yo2/uC5tc9bwi9Ckl
+   cPXFs5FjZsPGzyC1YvoM2ZMz+pakXgC7xzFtkwMWyYCh8/Br8ZcVz342f
+   kbekrsKFz1aVd8WOyXtZ4QTy9la6FizmL7J8a+1PJO82sFNIoAUjJHuDk
+   z1vK9t/mzvZG4ctgWXRrZnzwtuwwghGwcEH75EuZP0LoVgxPIHo46IZOY
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10450"; a="320597837"
+X-IronPort-AV: E=Sophos;i="5.93,265,1654585200"; 
+   d="scan'208";a="320597837"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2022 06:14:22 -0700
+X-IronPort-AV: E=Sophos;i="5.93,265,1654585200"; 
+   d="scan'208";a="938749253"
+Received: from nmacaddi-mobl.amr.corp.intel.com (HELO adixit-arch.intel.com) ([10.255.229.56])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2022 06:14:22 -0700
+Date:   Fri, 26 Aug 2022 06:13:44 -0700
+Message-ID: <87h71zjgfr.wl-ashutosh.dixit@intel.com>
+From:   "Dixit, Ashutosh" <ashutosh.dixit@intel.com>
+To:     Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc:     <intel-gfx@lists.freedesktop.org>, <stable@vger.kernel.org>,
+        Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>
+Subject: Re: [PATCH] drm/i915/slpc: Fix PCODE IA Freq requests when using SLPC
+In-Reply-To: <20220826101318.78486-1-rodrigo.vivi@intel.com>
+References: <87o7w7kh7w.wl-ashutosh.dixit@intel.com>    <20220826101318.78486-1-rodrigo.vivi@intel.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?ISO-8859-4?Q?Goj=F2?=) APEL-LB/10.8 EasyPG/1.0.0
+ Emacs/28.1 (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,36 +60,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-tsl2583 uses devm_iio_device_register() function and
-calling iio_device_unregister() in remove breaks the
-module unloading.
-Fix this by using iio_device_register() instead of
-devm_iio_device_register() function in probe.
+On Fri, 26 Aug 2022 03:13:18 -0700, Rodrigo Vivi wrote:
+>
+> We need to inform PCODE of a desired ring frequencies so PCODE update
+> the memory frequencies to us. rps->min_freq and rps->max_freq are the
+> frequencies used in that request. However they were unset when SLPC was
+> enabled and PCODE never updated the memory freq.
+>
+> v2 (as Suggested by Ashutosh): if SLPC is in use, let's pick the right
+>    frequencies from the get_ia_constants instead of the fake init of
+>    rps' min and max.
 
-Cc: stable@vger.kernel.org
-Fixes: 371894f5d1a0 ("iio: tsl2583: add runtime power management support")
-Signed-off-by: Shreeya Patel <shreeya.patel@collabora.com>
----
-Changes in v2
-  - Use iio_device_register() instead of devm_iio_device_register()
-  - Add fixes and stable tags
+Reviewed-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
 
- drivers/iio/light/tsl2583.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/iio/light/tsl2583.c b/drivers/iio/light/tsl2583.c
-index 82662dab87c0..94d75ec687c3 100644
---- a/drivers/iio/light/tsl2583.c
-+++ b/drivers/iio/light/tsl2583.c
-@@ -858,7 +858,7 @@ static int tsl2583_probe(struct i2c_client *clientp,
- 					 TSL2583_POWER_OFF_DELAY_MS);
- 	pm_runtime_use_autosuspend(&clientp->dev);
- 
--	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
-+	ret = iio_device_register(indio_dev);
- 	if (ret) {
- 		dev_err(&clientp->dev, "%s: iio registration failed\n",
- 			__func__);
--- 
-2.30.2
-
+>
+> Fixes: 7ba79a671568 ("drm/i915/guc/slpc: Gate Host RPS when SLPC is enabled")
+> Cc: <stable@vger.kernel.org> # v5.15+
+> Cc: Ashutosh Dixit <ashutosh.dixit@intel.com>
+> Tested-by: Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>
+> Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> ---
+>  drivers/gpu/drm/i915/gt/intel_llc.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/gt/intel_llc.c b/drivers/gpu/drm/i915/gt/intel_llc.c
+> index 14fe65812e42..766f9526da99 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_llc.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_llc.c
+> @@ -49,6 +49,7 @@ static unsigned int cpu_max_MHz(void)
+>  static bool get_ia_constants(struct intel_llc *llc,
+>			     struct ia_constants *consts)
+>  {
+> +	struct intel_guc_slpc *slpc = &llc_to_gt(llc)->uc.guc.slpc;
+>	struct drm_i915_private *i915 = llc_to_gt(llc)->i915;
+>	struct intel_rps *rps = &llc_to_gt(llc)->rps;
+>
+> @@ -65,8 +66,13 @@ static bool get_ia_constants(struct intel_llc *llc,
+>	/* convert DDR frequency from units of 266.6MHz to bandwidth */
+>	consts->min_ring_freq = mult_frac(consts->min_ring_freq, 8, 3);
+>
+> -	consts->min_gpu_freq = rps->min_freq;
+> -	consts->max_gpu_freq = rps->max_freq;
+> +	if (intel_uc_uses_guc_slpc(&llc_to_gt(llc)->uc)) {
+> +		consts->min_gpu_freq = slpc->min_freq;
+> +		consts->max_gpu_freq = slpc->rp0_freq;
+> +	} else {
+> +		consts->min_gpu_freq = rps->min_freq;
+> +		consts->max_gpu_freq = rps->max_freq;
+> +	}
+>	if (GRAPHICS_VER(i915) >= 9) {
+>		/* Convert GT frequency to 50 HZ units */
+>		consts->min_gpu_freq /= GEN9_FREQ_SCALER;
+> --
+> 2.37.1
+>
