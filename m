@@ -2,72 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 421325A2003
-	for <lists+stable@lfdr.de>; Fri, 26 Aug 2022 06:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7EAB5A2019
+	for <lists+stable@lfdr.de>; Fri, 26 Aug 2022 07:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244748AbiHZEsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Aug 2022 00:48:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57806 "EHLO
+        id S232163AbiHZFFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Aug 2022 01:05:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229631AbiHZEsC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Aug 2022 00:48:02 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E4CBCE320
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 21:48:01 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-3378303138bso8710777b3.9
-        for <stable@vger.kernel.org>; Thu, 25 Aug 2022 21:48:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kylehuey.com; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=baSv0Pn8NKV4CT1RoqMfXK68o2fQcY24x27HhvXMUKI=;
-        b=b8WDemlJLBj3xJVS55uRQRlMy8umsRJbhI12sqSfOUsT5xTdCa1HUm4mqB0iqbIr0E
-         zv/DDPBDFLkikkKkFsmxRWayUv0WIvQLVCd/yFWkHr01Sg9cnnspTdtZFbGN5fl4QAw3
-         wqOtb+LMi6DoOCmdVAB0ZQv4QMZMuimTMJDgdRi8r4d56suCWXh/Pc0c3d3Jnyg5fqGF
-         3XBfP608utZYOXm5DYkTwVqfL30d0HxuPjvxynt/WqjWbLXImnAIDS8klUgQGRAXe5Ci
-         /kyFUvjCA03Snep08L14NN4YkqpeoVCxlqyGm226cbAb8vn6LifW5PdEXlTjlMIuiQ5j
-         7H3A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=baSv0Pn8NKV4CT1RoqMfXK68o2fQcY24x27HhvXMUKI=;
-        b=VpDTTs4y2CpQ4Gkttwtirmy0PLFzKdNBu+HSLpkGa4lc+N256g/4W2g/vP0kM6MaHp
-         lX9/Tr/5Bn/crYd1A9nhW739mjrFF5un8GAz+BGkvAdRxv/xiUxO4O+w7ZeT+0CBPjUD
-         qpTeHCDd8fX4tQJ149/1cLVVXLF1Gn8aWCha5CHX3SmVPDO6hUs2IZE2ebdDpCm8ANMg
-         m4/PqqDtC2P1pm8Y5dGRxRSKe7UvmqquR2b2WbkzmMnFIqaUZTvdkY6V5kNdE6r4O9kk
-         DydBNPWCYKDz+vGLPy8OONnktX89N3enD4TmFDZdwq1AktbsRWxKN9GHWcti+bm660wA
-         sU5A==
-X-Gm-Message-State: ACgBeo0TxPzsxJz+0AY7p8jbO5O6vKaD8BtPHMwCyS76eSa0FYK4IQ1T
-        C8JK465saLvsFfQrTpBsRt8zu9Zx7tXotp9oxlrsFg==
-X-Google-Smtp-Source: AA6agR4McKR6po1Apga0nlBk1nr9dK1oPOWcrPMDqNvo03xzIJbG6rtBn+uTwlQxr2Ttr8yi9z0nmrOHrVlnhcLXWZc=
-X-Received: by 2002:a0d:d0c1:0:b0:33d:77db:eadf with SMTP id
- s184-20020a0dd0c1000000b0033d77dbeadfmr6920136ywd.26.1661489280272; Thu, 25
- Aug 2022 21:48:00 -0700 (PDT)
+        with ESMTP id S229662AbiHZFFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Aug 2022 01:05:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 131921CFE3;
+        Thu, 25 Aug 2022 22:05:09 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C155CB82F77;
+        Fri, 26 Aug 2022 05:05:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 306AAC433C1;
+        Fri, 26 Aug 2022 05:05:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1661490306;
+        bh=8yQmsLqSZ3CuFmHZG83IrH41ZXlR5zI210dsVdUm9/0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=o5pUNKFLdz2De65FImK8eRL+RZP1ZMKFXAfOUUrzWZMOQ0pJtVW1w8gNYusDmQua7
+         Y0yORGvnxuYDMV12ID6LA6ZDmAoP6NoZgLfEVtNNzKaOojdGhe1h3ry4VF7lGQLzwl
+         hMspS6OlRLUQKx4kg+nNjqzL9635eVR6VNbightJtPuwzHzOL/ZvPpMXun8dyFojTe
+         GGUxXT8EJc0ZKATV8dg1z7eNhgjjvgtt0dI8OhHUQReDXBAuYfmtEJdZZtlgmi2ykX
+         c3g0Kdz7nF5e7CgiVyWM0YhBv4x0MjZZRiGZCiPfwSj2QkYViPixQUsQ9K1G8ck5rh
+         JjSaJvx8+Nruw==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-crypto@vger.kernel.org
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "Jason A . Donenfeld " <Jason@zx2c4.com>,
+        "Justin M . Forbes" <jforbes@fedoraproject.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] crypto: lib - remove unneeded selection of XOR_BLOCKS
+Date:   Thu, 25 Aug 2022 22:04:56 -0700
+Message-Id: <20220826050456.101321-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-References: <20220808141538.102394-1-khuey@kylehuey.com> <87ilmpzunz.ffs@tglx>
- <CAP045Ao7hb4kXajkWnMxqawBzFGUZJtSuRRn1kbmjOF=mcTcoA@mail.gmail.com> <Yv6szXuKGv75wWmm@google.com>
-In-Reply-To: <Yv6szXuKGv75wWmm@google.com>
-From:   Kyle Huey <me@kylehuey.com>
-Date:   Thu, 25 Aug 2022 21:47:49 -0700
-Message-ID: <CAP045Aqspm6rRnM9ks_w6SS5CZ6R5TPqLras8aNjfG_2TUmWgg@mail.gmail.com>
-Subject: Re: [PATCH v5 1/2] x86/fpu: Allow PKRU to be (once again) written by ptrace.
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@redhat.com>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        "Robert O'Callahan" <robert@ocallahan.org>,
-        David Manouchehri <david.manouchehri@riseup.net>,
-        Borislav Petkov <bp@suse.de>, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -76,69 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 18, 2022 at 2:19 PM Sean Christopherson <seanjc@google.com> wrote:
->
-> On Thu, Aug 18, 2022, Kyle Huey wrote:
-> > On Thu, Aug 18, 2022 at 3:57 AM Thomas Gleixner <tglx@linutronix.de> wrote:
-> > > On Mon, Aug 08 2022 at 07:15, Kyle Huey wrote:
-> > > > When management of the PKRU register was moved away from XSTATE, emulation
-> > > > of PKRU's existence in XSTATE was added for APIs that read XSTATE, but not
-> > > > for APIs that write XSTATE. This can be seen by running gdb and executing
-> > > > `p $pkru`, `set $pkru = 42`, and `p $pkru`. On affected kernels (5.14+) the
-> > > > write to the PKRU register (which gdb performs through ptrace) is ignored.
-> > > >
-> > > > There are three relevant APIs: PTRACE_SETREGSET with NT_X86_XSTATE,
-> > > > sigreturn, and KVM_SET_XSAVE. KVM_SET_XSAVE has its own special handling to
-> > > > make PKRU writes take effect (in fpu_copy_uabi_to_guest_fpstate). Push that
-> > > > down into copy_uabi_to_xstate and have PTRACE_SETREGSET with NT_X86_XSTATE
-> > > > and sigreturn pass in pointers to the appropriate PKRU value.
-> > > >
-> > > > This also adds code to initialize the PKRU value to the hardware init value
-> > > > (namely 0) if the PKRU bit is not set in the XSTATE header to match XRSTOR.
-> > > > This is a change to the current KVM_SET_XSAVE behavior.
-> > >
-> > > You are stating a fact here, but provide 0 justification why this is
-> > > correct.
-> >
-> > Well, the justification is that this *is* the behavior we want for
-> > ptrace/sigreturn, and it's very likely the existing KVM_SET_XSAVE
-> > behavior in this edge case is an oversight rather than intentional,
-> > and in the absence of confirmation that KVM wants the existing
-> > behavior (the KVM mailing list and maintainer are CCd) one correct
-> > code path is better than one correct code path and one buggy code
-> > path.
->
-> Sorry, I missed the KVM-relevant flags.
->
-> Hrm, the current behavior has been KVM ABI for a very long time.
->
-> It's definitely odd because all other components will be initialized due to their
-> bits being cleared in the header during kvm_load_guest_fpu(), and it probably
-> wouldn't cause problems in practice as most VMMs likely do "all or nothing" loads.
-> But, in theory, userspace could save/restore a subset of guest XSTATE and rely on
-> the kernel not overwriting guest PKRU when its bit is cleared in the header.
+From: Eric Biggers <ebiggers@google.com>
 
-This seems extremely conservative, but ok. As you note, PKRU is the
-only XSTATE component you could theoretically do this subset
-save/restore with in the KVM ABI since all the others really do have
-their hardware behavior.
+CRYPTO_LIB_CHACHA_GENERIC doesn't need to select XOR_BLOCKS.  It perhaps
+was thought that it's needed for __crypto_xor, but that's not the case.
 
-> All that said, I don't see any reason to force KVM to change at this time, it's
-> trivial enough to handle KVM's oddities while providing sane behavior for others.
-> Nullify the pointer in the guest path and then update copy_uabi_to_xstate() to
-> play nice with a NULL pointer, e.g.
->
->         /*
->          * Nullify @vpkru to preserve its current value if PKRU's bit isn't set
->          * in the header.  KVM's odd ABI is to leave PKRU untouched in this
->          * case (all other components are eventually re-initialized).
->          */
->         if (!(kstate->regs.xsave.header.xfeatures & XFEATURE_MASK_PKRU))
->                 vpkru = NULL;
+Enabling XOR_BLOCKS is problematic because the XOR_BLOCKS code runs a
+benchmark when it is initialized.  That causes a boot time regression on
+systems that didn't have it enabled before.
 
-You meant ustate->... here (since this is before the copy now), but
-yes, ok, I will do that.
+Therefore, remove this unnecessary and problematic selection.
 
->         return copy_uabi_from_kernel_to_xstate(kstate, ustate, vpkru);
+Fixes: e56e18985596 ("lib/crypto: add prompts back to crypto libraries")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
 
-- Kyle
+I've separated this fix out from the larger patch
+https://lore.kernel.org/r/20220725183636.97326-3-ebiggers@kernel.org
+that is currently queued in cryptodev.
+
+ lib/crypto/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
+index 9ff549f63540fa..47816af9a9d7e1 100644
+--- a/lib/crypto/Kconfig
++++ b/lib/crypto/Kconfig
+@@ -33,7 +33,6 @@ config CRYPTO_ARCH_HAVE_LIB_CHACHA
+ 
+ config CRYPTO_LIB_CHACHA_GENERIC
+ 	tristate
+-	select XOR_BLOCKS
+ 	help
+ 	  This symbol can be depended upon by arch implementations of the
+ 	  ChaCha library interface that require the generic code as a
+
+base-commit: 4c612826bec1441214816827979b62f84a097e91
+-- 
+2.37.2
+
