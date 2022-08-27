@@ -2,113 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A7415A35B3
-	for <lists+stable@lfdr.de>; Sat, 27 Aug 2022 09:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC895A35DD
+	for <lists+stable@lfdr.de>; Sat, 27 Aug 2022 10:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231222AbiH0HvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Aug 2022 03:51:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60846 "EHLO
+        id S233836AbiH0Ie0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Aug 2022 04:34:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230063AbiH0HvO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Aug 2022 03:51:14 -0400
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A39D425C40;
-        Sat, 27 Aug 2022 00:51:12 -0700 (PDT)
-Received: by mail-ed1-f44.google.com with SMTP id b44so4515099edf.9;
-        Sat, 27 Aug 2022 00:51:12 -0700 (PDT)
+        with ESMTP id S231624AbiH0IeZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Aug 2022 04:34:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E195A98DE
+        for <stable@vger.kernel.org>; Sat, 27 Aug 2022 01:34:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1661589262;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ozalmLP8Qt6JuDN0i4ihGC0n6gvbuXFOtNSS5/n1O8A=;
+        b=Y7H5LusGhvIp7ey7UXy93oU1SdreZ/XkSuhI/K2NBUmCQKbpFa/C0d+vsqlikKIlUsMFKP
+        aY7Q5dfWSKC+nDa0T4pl39gjUQX1DdXsoMw5Wz4Py96Ttz6KRQFQZmLMc6mkjg7CblQlkT
+        Q2mvEG0W7eVHXW7XCGll5gCXNIfKZyc=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-608-AnBzGVjFMeyJmH8sbsr-Kw-1; Sat, 27 Aug 2022 04:34:20 -0400
+X-MC-Unique: AnBzGVjFMeyJmH8sbsr-Kw-1
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-340c6cfc388so9895567b3.20
+        for <stable@vger.kernel.org>; Sat, 27 Aug 2022 01:34:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=9aJASg3DbmlcvW4GqcDsy2Ha1OLvo6SjlyAb3ozLG2I=;
-        b=SbvmZXc38Uck8opcapveH9Z0A7q2Y0XlhfUVPCOc7rTvCVDD9jIK/12mbjL2kknzQ/
-         zePMZ1XhOzKzQD5nbcwQJo+Bhhh4eCeongFizUvzXbEahkXMEq+ClqeqFu1EyCnI/gxC
-         KoWNBFKi9S4McxFSpBeGzVbS7r8C04foUz8gj5qPyqXwh/ungGyL+taRuIDgXLsrkHBZ
-         FoQNCN4RhXI50zx4sXzcwFDLEiZYzw//vydpxTGW83cxk05HwzTj2fZmtQc6QRUGc0o0
-         qTK5NZCmeJMI1LaIA59g4K5nyVh8gUwPoU66FdohVrU0lcM6FpzGA1m7JK4Atxgq3eZ4
-         yeMg==
-X-Gm-Message-State: ACgBeo1Xj2HEsO7YfNdnp0LpbXUcD18kJGSb61UyPKQLiDv5vvH9Djke
-        ePTN+8jHj1v2tVdsBzn/DGXMeEPFfEs=
-X-Google-Smtp-Source: AA6agR47VKAWPvE5G/lnfjA1jqUxY7uPHYKkjKqYUsGzraZ5F2Rark6IIDKsFOShSY8nS9YwNx7r7A==
-X-Received: by 2002:aa7:ca46:0:b0:447:af0a:be68 with SMTP id j6-20020aa7ca46000000b00447af0abe68mr8898417edt.327.1661586671021;
-        Sat, 27 Aug 2022 00:51:11 -0700 (PDT)
-Received: from ?IPV6:2a0b:e7c0:0:107::49? ([2a0b:e7c0:0:107::49])
-        by smtp.gmail.com with ESMTPSA id a8-20020aa7cf08000000b0044604ad8b41sm2380616edy.23.2022.08.27.00.51.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 27 Aug 2022 00:51:10 -0700 (PDT)
-Message-ID: <9996285f-5a50-e56a-eb1c-645598381a20@kernel.org>
-Date:   Sat, 27 Aug 2022 09:51:09 +0200
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=ozalmLP8Qt6JuDN0i4ihGC0n6gvbuXFOtNSS5/n1O8A=;
+        b=F5wTj4jLTLP54nshUXTy4Z9upx9gF1enEQ3SQw6YHlS2VCbiqdE4CUO/el++tv0TzZ
+         WCmRsUwX7q5cjj35hprEXkCiwHblt9vuMteMpbW8HTNs/Q1DPWxzL5EXFG223ryoQ+sP
+         brLrLHCVUBwT3pr83drPpcdUSCMgA8URV2eMQzCo+Mw+msZY0xOtuM3lARxmWACYOZ/a
+         wA8gRKvvlCO0IHJE5EQdFFs2vIcZKs6biY/Jf7rLQNHcChp1zWdofH7UwTd3pM4MhEti
+         l3XGBnp+BFceQZxcCf8BMVctX3/spxMTtna8AT9vwf6078t3Ueawqjd2lBOMhL7jkIzK
+         VjLg==
+X-Gm-Message-State: ACgBeo2sHWx9y4XtEsWtZWka5cWwsLs0FeDpONE4CbWDProoriVVh42T
+        T0S+gsF3UoilHe2VR2iXpLpm70NPBtGE3qA9YTBQ/SpolckIOQAhBUj9UmAd8BkQex8Ybz5Do2M
+        tzDmp6vFVsSwNfoA/aRBhSZRj7kwnUtpn
+X-Received: by 2002:a81:c30a:0:b0:328:4a6c:bc89 with SMTP id r10-20020a81c30a000000b003284a6cbc89mr3108129ywk.29.1661589260043;
+        Sat, 27 Aug 2022 01:34:20 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7BNxe3K/RBPxZunkJwttk33VQrVobmVJz0rNUmmvezNO079TRhdQMRWqXbsJ0MbZjbZAk36PfWigNu0kNQiRg=
+X-Received: by 2002:a81:c30a:0:b0:328:4a6c:bc89 with SMTP id
+ r10-20020a81c30a000000b003284a6cbc89mr3108121ywk.29.1661589259859; Sat, 27
+ Aug 2022 01:34:19 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.1.2
+References: <20220823080118.128342613@linuxfoundation.org> <20220823080124.294570326@linuxfoundation.org>
+ <9996285f-5a50-e56a-eb1c-645598381a20@kernel.org>
+In-Reply-To: <9996285f-5a50-e56a-eb1c-645598381a20@kernel.org>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Sat, 27 Aug 2022 10:34:07 +0200
+Message-ID: <CAFqZXNv2OvNu7BctW=csNLevgGWyoT1R81ypH8pGoAeo3vd4=w@mail.gmail.com>
 Subject: Re: [PATCH 5.19 145/365] kbuild: dummy-tools: avoid tmpdir leak in
  dummy gcc
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Linux Stable maillist <stable@vger.kernel.org>,
         Masahiro Yamada <masahiroy@kernel.org>
-References: <20220823080118.128342613@linuxfoundation.org>
- <20220823080124.294570326@linuxfoundation.org>
-Content-Language: en-US
-From:   Jiri Slaby <jirislaby@kernel.org>
-In-Reply-To: <20220823080124.294570326@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 23. 08. 22, 10:00, Greg Kroah-Hartman wrote:
-> From: Ondrej Mosnacek <omosnace@redhat.com>
-> 
-> commit aac289653fa5adf9e9985e4912c1d24a3e8cbab2 upstream.
-> 
-> When passed -print-file-name=plugin, the dummy gcc script creates a
-> temporary directory that is never cleaned up. To avoid cluttering
-> $TMPDIR, instead use a static directory included in the source tree.
+On Sat, Aug 27, 2022 at 9:51 AM Jiri Slaby <jirislaby@kernel.org> wrote:
+> On 23. 08. 22, 10:00, Greg Kroah-Hartman wrote:
+> > From: Ondrej Mosnacek <omosnace@redhat.com>
+> >
+> > commit aac289653fa5adf9e9985e4912c1d24a3e8cbab2 upstream.
+> >
+> > When passed -print-file-name=plugin, the dummy gcc script creates a
+> > temporary directory that is never cleaned up. To avoid cluttering
+> > $TMPDIR, instead use a static directory included in the source tree.
+>
+> This breaks our (SUSE) use of dummy tools (GCC_PLUGINS became =n). I
+> will investigate whether this is stable-only and the root cause later.
 
-This breaks our (SUSE) use of dummy tools (GCC_PLUGINS became =n). I 
-will investigate whether this is stable-only and the root cause later.
+It looks like both the Greg's generated patch and the final stable
+commit (d7e676b7dc6a) are missing the addition of the empty
+plugin-version.h file. It appears in the patch's diffstat, but not in
+the actual diff. The mainline commit does include the empty file
+correctly, so it's likely a bug in the stable cherry pick automation.
 
-> Fixes: 76426e238834 ("kbuild: add dummy toolchains to enable all cc-option etc. in Kconfig")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->   .../dummy-tools/dummy-plugin-dir/include/plugin-version.h | 0
->   scripts/dummy-tools/gcc |    8 ++------
->   1 file changed, 2 insertions(+), 6 deletions(-)
->   create mode 100644 scripts/dummy-tools/dummy-plugin-dir/include/plugin-version.h
-> 
-> --- a/scripts/dummy-tools/gcc
-> +++ b/scripts/dummy-tools/gcc
-> @@ -96,12 +96,8 @@ fi
->   
->   # To set GCC_PLUGINS
->   if arg_contain -print-file-name=plugin "$@"; then
-> -	plugin_dir=$(mktemp -d)
-> -
-> -	mkdir -p $plugin_dir/include
-> -	touch $plugin_dir/include/plugin-version.h
-> -
-> -	echo $plugin_dir
-> +	# Use $0 to find the in-tree dummy directory
-> +	echo "$(dirname "$(readlink -f "$0")")/dummy-plugin-dir"
->   	exit 0
->   fi
->   
-> 
-> 
+> > Fixes: 76426e238834 ("kbuild: add dummy toolchains to enable all cc-option etc. in Kconfig")
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > ---
+> >   .../dummy-tools/dummy-plugin-dir/include/plugin-version.h | 0
+> >   scripts/dummy-tools/gcc |    8 ++------
+> >   1 file changed, 2 insertions(+), 6 deletions(-)
+> >   create mode 100644 scripts/dummy-tools/dummy-plugin-dir/include/plugin-version.h
+> >
+> > --- a/scripts/dummy-tools/gcc
+> > +++ b/scripts/dummy-tools/gcc
+> > @@ -96,12 +96,8 @@ fi
+> >
+> >   # To set GCC_PLUGINS
+> >   if arg_contain -print-file-name=plugin "$@"; then
+> > -     plugin_dir=$(mktemp -d)
+> > -
+> > -     mkdir -p $plugin_dir/include
+> > -     touch $plugin_dir/include/plugin-version.h
+> > -
+> > -     echo $plugin_dir
+> > +     # Use $0 to find the in-tree dummy directory
+> > +     echo "$(dirname "$(readlink -f "$0")")/dummy-plugin-dir"
+> >       exit 0
+> >   fi
+> >
+> >
+> >
+>
+> --
+> js
+> suse labs
+>
 
 -- 
-js
-suse labs
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
