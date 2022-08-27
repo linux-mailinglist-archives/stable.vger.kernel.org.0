@@ -2,120 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E0B25A341D
-	for <lists+stable@lfdr.de>; Sat, 27 Aug 2022 05:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A7415A35B3
+	for <lists+stable@lfdr.de>; Sat, 27 Aug 2022 09:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233391AbiH0DPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Aug 2022 23:15:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34030 "EHLO
+        id S231222AbiH0HvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Aug 2022 03:51:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232507AbiH0DPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Aug 2022 23:15:47 -0400
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D972026547;
-        Fri, 26 Aug 2022 20:15:41 -0700 (PDT)
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27R31i2F003736;
-        Sat, 27 Aug 2022 03:15:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type; s=qcppdkim1;
- bh=DkYKDBl6yZONQWm6+yJ7qa93tm2iuOH4EPhdHyuyziQ=;
- b=oz9zRB0gzsbjru2k5R35iSm3JnE3TDX+W9/xOEcIWl06wH40kkv2CmgK7dQX8rGHCOu1
- UKSDZTTAGoFD/ptQI6sNyTrLbsoPGrQRY4fECLH9Az15tf+F//KCr6NVA5EVD1yOYkde
- x9zFEgfinKyaCiKEtag0Ih/AY6XQIiMrPna1YnKmsNg10FIN7F+WR64S6n/PxTA3n1Da
- HPjFdLJCcMqTUtCN72V5xsJztJPb6PNOyMOC3SlLg3uK0qU02hf37QodIPyto9Li2MlP
- Njyat6iiWWsUlZejB2ZlyeiHsCv6Fv2R4ELz87iO2GLC4rNDbW/F9GWTi7Yoh68hgTrG 5w== 
-Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3j78murkhw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 27 Aug 2022 03:15:28 +0000
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-        by NALASPPMTA05.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 27R3FQVE027633
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 27 Aug 2022 03:15:26 GMT
-Received: from hu-kriskura-hyd.qualcomm.com (10.80.80.8) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.29; Fri, 26 Aug 2022 20:15:23 -0700
-From:   Krishna Kurapati <quic_kriskura@quicinc.com>
-To:     Alan Stern <stern@rowland.harvard.edu>,
-        Maxim Devaev <mdevaev@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Felipe Balbi <balbi@kernel.org>
-CC:     <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <quic_jackp@quicinc.com>,
-        Krishna Kurapati <quic_kriskura@quicinc.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] usb: gadget: mass_storage: Fix cdrom data transfers on MAC-OS
-Date:   Sat, 27 Aug 2022 08:45:10 +0530
-Message-ID: <1661570110-19127-1-git-send-email-quic_kriskura@quicinc.com>
-X-Mailer: git-send-email 2.7.4
+        with ESMTP id S230063AbiH0HvO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Aug 2022 03:51:14 -0400
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A39D425C40;
+        Sat, 27 Aug 2022 00:51:12 -0700 (PDT)
+Received: by mail-ed1-f44.google.com with SMTP id b44so4515099edf.9;
+        Sat, 27 Aug 2022 00:51:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc;
+        bh=9aJASg3DbmlcvW4GqcDsy2Ha1OLvo6SjlyAb3ozLG2I=;
+        b=SbvmZXc38Uck8opcapveH9Z0A7q2Y0XlhfUVPCOc7rTvCVDD9jIK/12mbjL2kknzQ/
+         zePMZ1XhOzKzQD5nbcwQJo+Bhhh4eCeongFizUvzXbEahkXMEq+ClqeqFu1EyCnI/gxC
+         KoWNBFKi9S4McxFSpBeGzVbS7r8C04foUz8gj5qPyqXwh/ungGyL+taRuIDgXLsrkHBZ
+         FoQNCN4RhXI50zx4sXzcwFDLEiZYzw//vydpxTGW83cxk05HwzTj2fZmtQc6QRUGc0o0
+         qTK5NZCmeJMI1LaIA59g4K5nyVh8gUwPoU66FdohVrU0lcM6FpzGA1m7JK4Atxgq3eZ4
+         yeMg==
+X-Gm-Message-State: ACgBeo1Xj2HEsO7YfNdnp0LpbXUcD18kJGSb61UyPKQLiDv5vvH9Djke
+        ePTN+8jHj1v2tVdsBzn/DGXMeEPFfEs=
+X-Google-Smtp-Source: AA6agR47VKAWPvE5G/lnfjA1jqUxY7uPHYKkjKqYUsGzraZ5F2Rark6IIDKsFOShSY8nS9YwNx7r7A==
+X-Received: by 2002:aa7:ca46:0:b0:447:af0a:be68 with SMTP id j6-20020aa7ca46000000b00447af0abe68mr8898417edt.327.1661586671021;
+        Sat, 27 Aug 2022 00:51:11 -0700 (PDT)
+Received: from ?IPV6:2a0b:e7c0:0:107::49? ([2a0b:e7c0:0:107::49])
+        by smtp.gmail.com with ESMTPSA id a8-20020aa7cf08000000b0044604ad8b41sm2380616edy.23.2022.08.27.00.51.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 27 Aug 2022 00:51:10 -0700 (PDT)
+Message-ID: <9996285f-5a50-e56a-eb1c-645598381a20@kernel.org>
+Date:   Sat, 27 Aug 2022 09:51:09 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: NEoMPlLzwx-h7FH-L-N8pIUAsxiX6RLc
-X-Proofpoint-ORIG-GUID: NEoMPlLzwx-h7FH-L-N8pIUAsxiX6RLc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-26_14,2022-08-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
- lowpriorityscore=0 mlxscore=0 suspectscore=0 priorityscore=1501
- mlxlogscore=320 phishscore=0 spamscore=0 adultscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208270012
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.1.2
+Subject: Re: [PATCH 5.19 145/365] kbuild: dummy-tools: avoid tmpdir leak in
+ dummy gcc
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Masahiro Yamada <masahiroy@kernel.org>
+References: <20220823080118.128342613@linuxfoundation.org>
+ <20220823080124.294570326@linuxfoundation.org>
+Content-Language: en-US
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <20220823080124.294570326@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-During cdrom emulation, the response to read_toc command must contain
-the cdrom address as the number of sectors (2048 byte sized blocks)
-represented either as an absolute value (when MSF bit is '0') or in
-terms of PMin/PSec/PFrame (when MSF bit is set to '1'). Incase of
-cdrom, the fsg_lun_open call sets the sector size to 2048 bytes.
+On 23. 08. 22, 10:00, Greg Kroah-Hartman wrote:
+> From: Ondrej Mosnacek <omosnace@redhat.com>
+> 
+> commit aac289653fa5adf9e9985e4912c1d24a3e8cbab2 upstream.
+> 
+> When passed -print-file-name=plugin, the dummy gcc script creates a
+> temporary directory that is never cleaned up. To avoid cluttering
+> $TMPDIR, instead use a static directory included in the source tree.
 
-When MAC OS sends a read_toc request with MSF set to '1', the
-store_cdrom_address assumes that the address being provided is the
-LUN size represented in 512 byte sized blocks instead of 2048. It
-tries to modify the address further to convert it to 2048 byte sized
-blocks and store it in MSF format. This results in data transfer
-failures as the cdrom address being provided in the read_toc response
-is incorrect.
+This breaks our (SUSE) use of dummy tools (GCC_PLUGINS became =n). I 
+will investigate whether this is stable-only and the root cause later.
 
-Fixes: 3f565a363cee ("usb: gadget: storage: adapt logic block size to bound block devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Krishna Kurapati <quic_kriskura@quicinc.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
----
- drivers/usb/gadget/function/storage_common.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+> Fixes: 76426e238834 ("kbuild: add dummy toolchains to enable all cc-option etc. in Kconfig")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>   .../dummy-tools/dummy-plugin-dir/include/plugin-version.h | 0
+>   scripts/dummy-tools/gcc |    8 ++------
+>   1 file changed, 2 insertions(+), 6 deletions(-)
+>   create mode 100644 scripts/dummy-tools/dummy-plugin-dir/include/plugin-version.h
+> 
+> --- a/scripts/dummy-tools/gcc
+> +++ b/scripts/dummy-tools/gcc
+> @@ -96,12 +96,8 @@ fi
+>   
+>   # To set GCC_PLUGINS
+>   if arg_contain -print-file-name=plugin "$@"; then
+> -	plugin_dir=$(mktemp -d)
+> -
+> -	mkdir -p $plugin_dir/include
+> -	touch $plugin_dir/include/plugin-version.h
+> -
+> -	echo $plugin_dir
+> +	# Use $0 to find the in-tree dummy directory
+> +	echo "$(dirname "$(readlink -f "$0")")/dummy-plugin-dir"
+>   	exit 0
+>   fi
+>   
+> 
+> 
 
-diff --git a/drivers/usb/gadget/function/storage_common.c b/drivers/usb/gadget/function/storage_common.c
-index 03035db..208c6a9 100644
---- a/drivers/usb/gadget/function/storage_common.c
-+++ b/drivers/usb/gadget/function/storage_common.c
-@@ -294,8 +294,10 @@ EXPORT_SYMBOL_GPL(fsg_lun_fsync_sub);
- void store_cdrom_address(u8 *dest, int msf, u32 addr)
- {
- 	if (msf) {
--		/* Convert to Minutes-Seconds-Frames */
--		addr >>= 2;		/* Convert to 2048-byte frames */
-+		/*
-+		 * Convert to Minutes-Seconds-Frames.
-+		 * Sector size is already set to 2048 bytes.
-+		 */
- 		addr += 2*75;		/* Lead-in occupies 2 seconds */
- 		dest[3] = addr % 75;	/* Frames */
- 		addr /= 75;
 -- 
-2.7.4
+js
+suse labs
 
