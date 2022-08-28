@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F69B5A3FC5
-	for <lists+stable@lfdr.de>; Sun, 28 Aug 2022 23:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C697B5A3FC8
+	for <lists+stable@lfdr.de>; Sun, 28 Aug 2022 23:03:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229445AbiH1VDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Aug 2022 17:03:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59384 "EHLO
+        id S229747AbiH1VDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Aug 2022 17:03:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229543AbiH1VDY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Aug 2022 17:03:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 728CA31205;
-        Sun, 28 Aug 2022 14:03:23 -0700 (PDT)
+        with ESMTP id S229901AbiH1VDh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Aug 2022 17:03:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F22A931239;
+        Sun, 28 Aug 2022 14:03:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E08C60E17;
-        Sun, 28 Aug 2022 21:03:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 679D2C433C1;
-        Sun, 28 Aug 2022 21:03:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C8A1B80BA0;
+        Sun, 28 Aug 2022 21:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 154EEC433B5;
+        Sun, 28 Aug 2022 21:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1661720602;
-        bh=t1WRI//yrxMCROl5Pe5PNg8pUCopGOxmSbn1CWcUk2w=;
+        s=korg; t=1661720610;
+        bh=T39xIhfHyNG5cIqo0MXPecY9QIWHNzWf7zBXm7y0I3Q=;
         h=Date:To:From:Subject:From;
-        b=oW9Yw8Szd+0LrNoYm0910L44G6xX+3AQpBQKTbBby7O0lY4Pljw6RQIxy8gZxKi5x
-         C58+0T/NrgttIp/cGiQJ3zib+Mocm2i26DLt7GBeMKHW70u1iG1s/6x+O081wv4Qs6
-         NonaQDse0DQE52RqX2JW3oIRnO2IvnA6poNK9zlM=
-Date:   Sun, 28 Aug 2022 14:03:21 -0700
-To:     mm-commits@vger.kernel.org, viro@zeniv.linux.org.uk,
-        stapelberg+linux@google.com, stable@vger.kernel.org,
-        khazhy@google.com, jack@suse.cz, fengguang.wu@intel.com,
-        khazhy@chromium.org, akpm@linux-foundation.org
+        b=EnVzk3vUXmLuP+xk2exhcuJ7nBlEcHo5ztHqVwuk6iQGK+Tnv/Lr5pq9NG0HRuNNG
+         /f9j8ywIzbO/CnPYZA89uCDvPRc/qIQUHw6QheyQQTx4ybBtbpVi+a/EVrbTWyVIGo
+         D5TgzTN26Scrb9AGT3kSgQhcHMbqCLX7gs7lhsiM=
+Date:   Sun, 28 Aug 2022 14:03:29 -0700
+To:     mm-commits@vger.kernel.org, yosryahmed@google.com,
+        stable@vger.kernel.org, songmuchun@bytedance.com,
+        roman.gushchin@linux.dev, mkoutny@suse.com, mhocko@kernel.org,
+        hannes@cmpxchg.org, gthelen@google.com, david@redhat.com,
+        shakeelb@google.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-stable] writeback-avoid-use-after-free-after-removing-device.patch removed from -mm tree
-Message-Id: <20220828210322.679D2C433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Subject: [merged mm-stable] revert-memcg-cleanup-racy-sum-avoidance-code.patch removed from -mm tree
+Message-Id: <20220828210330.154EEC433B5@smtp.kernel.org>
+X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,150 +49,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: writeback: avoid use-after-free after removing device
+     Subject: Revert "memcg: cleanup racy sum avoidance code"
 has been removed from the -mm tree.  Its filename was
-     writeback-avoid-use-after-free-after-removing-device.patch
+     revert-memcg-cleanup-racy-sum-avoidance-code.patch
 
 This patch was dropped because it was merged into the mm-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Khazhismel Kumykov <khazhy@chromium.org>
-Subject: writeback: avoid use-after-free after removing device
-Date: Mon, 1 Aug 2022 08:50:34 -0700
+From: Shakeel Butt <shakeelb@google.com>
+Subject: Revert "memcg: cleanup racy sum avoidance code"
+Date: Wed, 17 Aug 2022 17:21:39 +0000
 
-When a disk is removed, bdi_unregister gets called to stop further
-writeback and wait for associated delayed work to complete.  However,
-wb_inode_writeback_end() may schedule bandwidth estimation dwork after
-this has completed, which can result in the timer attempting to access the
-just freed bdi_writeback.
+This reverts commit 96e51ccf1af33e82f429a0d6baebba29c6448d0f.
 
-Fix this by checking if the bdi_writeback is alive, similar to when
-scheduling writeback work.
+Recently we started running the kernel with rstat infrastructure on
+production traffic and begin to see negative memcg stats values. 
+Particularly the 'sock' stat is the one which we observed having negative
+value.
 
-Since this requires wb->work_lock, and wb_inode_writeback_end() may get
-called from interrupt, switch wb->work_lock to an irqsafe lock.
+$ grep "sock " /mnt/memory/job/memory.stat
+sock 253952
+total_sock 18446744073708724224
 
-Link: https://lkml.kernel.org/r/20220801155034.3772543-1-khazhy@google.com
-Fixes: 45a2966fd641 ("writeback: fix bandwidth estimate for spiky workload")
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: Michael Stapelberg <stapelberg+linux@google.com>
-Cc: Wu Fengguang <fengguang.wu@intel.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
+Re-run after couple of seconds
+
+$ grep "sock " /mnt/memory/job/memory.stat
+sock 253952
+total_sock 53248
+
+For now we are only seeing this issue on large machines (256 CPUs) and
+only with 'sock' stat.  I think the networking stack increase the stat on
+one cpu and decrease it on another cpu much more often.  So, this negative
+sock is due to rstat flusher flushing the stats on the CPU that has seen
+the decrement of sock but missed the CPU that has increments.  A typical
+race condition.
+
+For easy stable backport, revert is the most simple solution.  For long
+term solution, I am thinking of two directions.  First is just reduce the
+race window by optimizing the rstat flusher.  Second is if the reader sees
+a negative stat value, force flush and restart the stat collection. 
+Basically retry but limited.
+
+Link: https://lkml.kernel.org/r/20220817172139.3141101-1-shakeelb@google.com
+Fixes: 96e51ccf1af33e8 ("memcg: cleanup racy sum avoidance code")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Cc: "Michal Koutný" <mkoutny@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Yosry Ahmed <yosryahmed@google.com>
+Cc: Greg Thelen <gthelen@google.com>
+Cc: <stable@vger.kernel.org>	[5.15]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/fs-writeback.c   |   12 ++++++------
- mm/backing-dev.c    |   10 +++++-----
- mm/page-writeback.c |    6 +++++-
- 3 files changed, 16 insertions(+), 12 deletions(-)
+ include/linux/memcontrol.h |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/fs/fs-writeback.c~writeback-avoid-use-after-free-after-removing-device
-+++ a/fs/fs-writeback.c
-@@ -134,10 +134,10 @@ static bool inode_io_list_move_locked(st
+--- a/include/linux/memcontrol.h~revert-memcg-cleanup-racy-sum-avoidance-code
++++ a/include/linux/memcontrol.h
+@@ -987,19 +987,30 @@ static inline void mod_memcg_page_state(
  
- static void wb_wakeup(struct bdi_writeback *wb)
+ static inline unsigned long memcg_page_state(struct mem_cgroup *memcg, int idx)
  {
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 	if (test_bit(WB_registered, &wb->state))
- 		mod_delayed_work(bdi_wq, &wb->dwork, 0);
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
+-	return READ_ONCE(memcg->vmstats.state[idx]);
++	long x = READ_ONCE(memcg->vmstats.state[idx]);
++#ifdef CONFIG_SMP
++	if (x < 0)
++		x = 0;
++#endif
++	return x;
  }
  
- static void finish_writeback_work(struct bdi_writeback *wb,
-@@ -164,7 +164,7 @@ static void wb_queue_work(struct bdi_wri
- 	if (work->done)
- 		atomic_inc(&work->done->cnt);
- 
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 
- 	if (test_bit(WB_registered, &wb->state)) {
- 		list_add_tail(&work->list, &wb->work_list);
-@@ -172,7 +172,7 @@ static void wb_queue_work(struct bdi_wri
- 	} else
- 		finish_writeback_work(wb, work);
- 
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
- }
- 
- /**
-@@ -2082,13 +2082,13 @@ static struct wb_writeback_work *get_nex
+ static inline unsigned long lruvec_page_state(struct lruvec *lruvec,
+ 					      enum node_stat_item idx)
  {
- 	struct wb_writeback_work *work = NULL;
+ 	struct mem_cgroup_per_node *pn;
++	long x;
  
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 	if (!list_empty(&wb->work_list)) {
- 		work = list_entry(wb->work_list.next,
- 				  struct wb_writeback_work, list);
- 		list_del_init(&work->list);
- 	}
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
- 	return work;
+ 	if (mem_cgroup_disabled())
+ 		return node_page_state(lruvec_pgdat(lruvec), idx);
+ 
+ 	pn = container_of(lruvec, struct mem_cgroup_per_node, lruvec);
+-	return READ_ONCE(pn->lruvec_stats.state[idx]);
++	x = READ_ONCE(pn->lruvec_stats.state[idx]);
++#ifdef CONFIG_SMP
++	if (x < 0)
++		x = 0;
++#endif
++	return x;
  }
  
---- a/mm/backing-dev.c~writeback-avoid-use-after-free-after-removing-device
-+++ a/mm/backing-dev.c
-@@ -260,10 +260,10 @@ void wb_wakeup_delayed(struct bdi_writeb
- 	unsigned long timeout;
- 
- 	timeout = msecs_to_jiffies(dirty_writeback_interval * 10);
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 	if (test_bit(WB_registered, &wb->state))
- 		queue_delayed_work(bdi_wq, &wb->dwork, timeout);
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
- }
- 
- static void wb_update_bandwidth_workfn(struct work_struct *work)
-@@ -334,12 +334,12 @@ static void cgwb_remove_from_bdi_list(st
- static void wb_shutdown(struct bdi_writeback *wb)
- {
- 	/* Make sure nobody queues further work */
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 	if (!test_and_clear_bit(WB_registered, &wb->state)) {
--		spin_unlock_bh(&wb->work_lock);
-+		spin_unlock_irq(&wb->work_lock);
- 		return;
- 	}
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
- 
- 	cgwb_remove_from_bdi_list(wb);
- 	/*
---- a/mm/page-writeback.c~writeback-avoid-use-after-free-after-removing-device
-+++ a/mm/page-writeback.c
-@@ -2892,6 +2892,7 @@ static void wb_inode_writeback_start(str
- 
- static void wb_inode_writeback_end(struct bdi_writeback *wb)
- {
-+	unsigned long flags;
- 	atomic_dec(&wb->writeback_inodes);
- 	/*
- 	 * Make sure estimate of writeback throughput gets updated after
-@@ -2900,7 +2901,10 @@ static void wb_inode_writeback_end(struc
- 	 * that if multiple inodes end writeback at a similar time, they get
- 	 * batched into one bandwidth update.
- 	 */
--	queue_delayed_work(bdi_wq, &wb->bw_dwork, BANDWIDTH_INTERVAL);
-+	spin_lock_irqsave(&wb->work_lock, flags);
-+	if (test_bit(WB_registered, &wb->state))
-+		queue_delayed_work(bdi_wq, &wb->bw_dwork, BANDWIDTH_INTERVAL);
-+	spin_unlock_irqrestore(&wb->work_lock, flags);
- }
- 
- bool __folio_end_writeback(struct folio *folio)
+ static inline unsigned long lruvec_page_state_local(struct lruvec *lruvec,
 _
 
-Patches currently in -mm which might be from khazhy@chromium.org are
+Patches currently in -mm which might be from shakeelb@google.com are
 
+mm-page_counter-remove-unneeded-atomic-ops-for-low-min.patch
+mm-page_counter-rearrange-struct-page_counter-fields.patch
+memcg-increase-memcg_charge_batch-to-64.patch
+mm-deduplicate-cacheline-padding-code.patch
 
