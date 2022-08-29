@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B64915A489B
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 753CA5A4853
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230074AbiH2LM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:12:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40484 "EHLO
+        id S229766AbiH2LJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:09:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231249AbiH2LMa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:12:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2D06527D;
-        Mon, 29 Aug 2022 04:08:49 -0700 (PDT)
+        with ESMTP id S230078AbiH2LHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:07:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FCB665810;
+        Mon, 29 Aug 2022 04:05:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F8C1611F8;
-        Mon, 29 Aug 2022 11:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29EE5C433C1;
-        Mon, 29 Aug 2022 11:08:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C1F7B80EB8;
+        Mon, 29 Aug 2022 11:05:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED5C1C433C1;
+        Mon, 29 Aug 2022 11:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771326;
-        bh=xxGal8kxyFaU7CxMVOW1CsvMWc0gKMHoAm0Felxim4A=;
+        s=korg; t=1661771136;
+        bh=Sz3Q4UxT7dqoQblVzdJOQZ/hjUT/fosBNY6GHX19QdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZ6klp+WwZ68Gkq7tpA+/pEEFRvzevizjsyHRdqGpILIwigoucR8da+89D808o8EP
-         EF6TuNDVd1S0eCAvja4yBh1wo0ZQJ2nnJyPrv6ECvO9mvPzBxkGJQqM7lYwkMP8tlI
-         VlFbTtPuahlTMTZRPts8S1ADZHK9s+/FuWkI4vGg=
+        b=eijtqKUqxZkDqYA1TCGnDKIj9aE+SOTNi3rUzTIj1fpRiV/p7qVXRIXvSlmyF26sb
+         ooyZHuV5kDqqNFia9w3Zt1ee8wAgLVyWPFMxDTHL3sg0eeSDTX6ag8cCbohbVloVFq
+         qMiiYQxS3+E8THlGNuLZRck4Yi6G0bZOZZhjFNIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
+        Sainath Grandhi <sainath.grandhi@intel.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 068/136] netfilter: flowtable: add function to invoke garbage collection immediately
+Subject: [PATCH 5.10 29/86] net: ipvtap - add __init/__exit annotations to module init/exit funcs
 Date:   Mon, 29 Aug 2022 12:58:55 +0200
-Message-Id: <20220829105807.426680734@linuxfoundation.org>
+Message-Id: <20220829105757.739163259@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Maciej Żenczykowski <maze@google.com>
 
-[ Upstream commit 759eebbcfafcefa23b59e912396306543764bd3c ]
+[ Upstream commit 4b2e3a17e9f279325712b79fb01d1493f9e3e005 ]
 
-Expose nf_flow_table_gc_run() to force a garbage collector run from the
-offload infrastructure.
+Looks to have been left out in an oversight.
 
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Mahesh Bandewar <maheshb@google.com>
+Cc: Sainath Grandhi <sainath.grandhi@intel.com>
+Fixes: 235a9d89da97 ('ipvtap: IP-VLAN based tap driver')
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Link: https://lore.kernel.org/r/20220821130808.12143-1-zenczykowski@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_flow_table.h |  1 +
- net/netfilter/nf_flow_table_core.c    | 12 +++++++++---
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/ipvlan/ipvtap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/netfilter/nf_flow_table.h b/include/net/netfilter/nf_flow_table.h
-index 9f927c44087de..f337041dcc352 100644
---- a/include/net/netfilter/nf_flow_table.h
-+++ b/include/net/netfilter/nf_flow_table.h
-@@ -266,6 +266,7 @@ void flow_offload_refresh(struct nf_flowtable *flow_table,
+diff --git a/drivers/net/ipvlan/ipvtap.c b/drivers/net/ipvlan/ipvtap.c
+index 1cedb634f4f7b..f01078b2581ce 100644
+--- a/drivers/net/ipvlan/ipvtap.c
++++ b/drivers/net/ipvlan/ipvtap.c
+@@ -194,7 +194,7 @@ static struct notifier_block ipvtap_notifier_block __read_mostly = {
+ 	.notifier_call	= ipvtap_device_event,
+ };
  
- struct flow_offload_tuple_rhash *flow_offload_lookup(struct nf_flowtable *flow_table,
- 						     struct flow_offload_tuple *tuple);
-+void nf_flow_table_gc_run(struct nf_flowtable *flow_table);
- void nf_flow_table_gc_cleanup(struct nf_flowtable *flowtable,
- 			      struct net_device *dev);
- void nf_flow_table_cleanup(struct net_device *dev);
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 9fb407084c506..95ff1284d3d89 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -436,12 +436,17 @@ static void nf_flow_offload_gc_step(struct nf_flowtable *flow_table,
- 	}
- }
- 
-+void nf_flow_table_gc_run(struct nf_flowtable *flow_table)
-+{
-+	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
-+}
-+
- static void nf_flow_offload_work_gc(struct work_struct *work)
+-static int ipvtap_init(void)
++static int __init ipvtap_init(void)
  {
- 	struct nf_flowtable *flow_table;
+ 	int err;
  
- 	flow_table = container_of(work, struct nf_flowtable, gc_work.work);
--	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
-+	nf_flow_table_gc_run(flow_table);
- 	queue_delayed_work(system_power_efficient_wq, &flow_table->gc_work, HZ);
+@@ -228,7 +228,7 @@ static int ipvtap_init(void)
  }
+ module_init(ipvtap_init);
  
-@@ -600,10 +605,11 @@ void nf_flow_table_free(struct nf_flowtable *flow_table)
- 
- 	cancel_delayed_work_sync(&flow_table->gc_work);
- 	nf_flow_table_iterate(flow_table, nf_flow_table_do_cleanup, NULL);
--	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
-+	nf_flow_table_gc_run(flow_table);
- 	nf_flow_table_offload_flush(flow_table);
- 	if (nf_flowtable_hw_offload(flow_table))
--		nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
-+		nf_flow_table_gc_run(flow_table);
-+
- 	rhashtable_destroy(&flow_table->rhashtable);
- }
- EXPORT_SYMBOL_GPL(nf_flow_table_free);
+-static void ipvtap_exit(void)
++static void __exit ipvtap_exit(void)
+ {
+ 	rtnl_link_unregister(&ipvtap_link_ops);
+ 	unregister_netdevice_notifier(&ipvtap_notifier_block);
 -- 
 2.35.1
 
