@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0D395A48B6
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CBBD5A49E0
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230157AbiH2LO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:14:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41672 "EHLO
+        id S232378AbiH2Laa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:30:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231387AbiH2LNk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B056FA31;
-        Mon, 29 Aug 2022 04:09:34 -0700 (PDT)
+        with ESMTP id S232706AbiH2L3o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5933B7B2A4;
+        Mon, 29 Aug 2022 04:18:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59F90B80F4B;
-        Mon, 29 Aug 2022 11:09:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7ABFC433C1;
-        Mon, 29 Aug 2022 11:09:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BF5A6123C;
+        Mon, 29 Aug 2022 11:17:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BD80C433C1;
+        Mon, 29 Aug 2022 11:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771356;
-        bh=+p0Snfphy0GGK9I2VZywekC1v65rjRfTzJwBIllpX+o=;
+        s=korg; t=1661771857;
+        bh=wXfyJTGJz1kFaW782luXV+llYXqb8J+0yexGuRWhibc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yrih4rm7wb29zuGccftOP4QD2Jeaa7YXaLUmqaCEMpo/5V2hXmCcNlE0uOVtyJaqW
-         3C2pW2+vKdCC5iImqnTE1VQYeFHYgsOr1DB1HYb0Rz0PvievSO711fRZJbebUTpfJ+
-         7rLCxheG37nDRuUvx+4OtAcEXcm0BBnskVf7Rzq0=
+        b=SFuEnhKYMtHw8EoTBqj/fsUh/x8QsoacJ9+Wdtm9hsRtCuOt3Rea+CuZAJYRqTsly
+         U6DtWcnQiGU7sUvsHKzGHCWE/7kOCV15oIHTFAipnA2Q9vPsL5UgBTr/unH1XiJw0k
+         ColwEpRotWL5xuVwLmrPEzNzFvCWBYu3/66R4r/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        syzbot+7f0483225d0c94cb3441@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        Hawkins Jiawei <yin31149@gmail.com>,
+        Khalid Masum <khalid.masum.92@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        linux-afs@lists.infradead.org, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 069/136] netfilter: flowtable: fix stuck flows on cleanup due to pending work
+Subject: [PATCH 5.19 086/158] rxrpc: Fix locking in rxrpcs sendmsg
 Date:   Mon, 29 Aug 2022 12:58:56 +0200
-Message-Id: <20220829105807.463390071@linuxfoundation.org>
+Message-Id: <20220829105812.668821198@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,132 +60,285 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 9afb4b27349a499483ae0134282cefd0c90f480f ]
+[ Upstream commit b0f571ecd7943423c25947439045f0d352ca3dbf ]
 
-To clear the flow table on flow table free, the following sequence
-normally happens in order:
+Fix three bugs in the rxrpc's sendmsg implementation:
 
-  1) gc_step work is stopped to disable any further stats/del requests.
-  2) All flow table entries are set to teardown state.
-  3) Run gc_step which will queue HW del work for each flow table entry.
-  4) Waiting for the above del work to finish (flush).
-  5) Run gc_step again, deleting all entries from the flow table.
-  6) Flow table is freed.
+ (1) rxrpc_new_client_call() should release the socket lock when returning
+     an error from rxrpc_get_call_slot().
 
-But if a flow table entry already has pending HW stats or HW add work
-step 3 will not queue HW del work (it will be skipped), step 4 will wait
-for the pending add/stats to finish, and step 5 will queue HW del work
-which might execute after freeing of the flow table.
+ (2) rxrpc_wait_for_tx_window_intr() will return without the call mutex
+     held in the event that we're interrupted by a signal whilst waiting
+     for tx space on the socket or relocking the call mutex afterwards.
 
-To fix the above, this patch flushes the pending work, then it sets the
-teardown flag to all flows in the flowtable and it forces a garbage
-collector run to queue work to remove the flows from hardware, then it
-flushes this new pending work and (finally) it forces another garbage
-collector run to remove the entry from the software flowtable.
+     Fix this by: (a) moving the unlock/lock of the call mutex up to
+     rxrpc_send_data() such that the lock is not held around all of
+     rxrpc_wait_for_tx_window*() and (b) indicating to higher callers
+     whether we're return with the lock dropped.  Note that this means
+     recvmsg() will not block on this call whilst we're waiting.
 
-Stack trace:
-[47773.882335] BUG: KASAN: use-after-free in down_read+0x99/0x460
-[47773.883634] Write of size 8 at addr ffff888103b45aa8 by task kworker/u20:6/543704
-[47773.885634] CPU: 3 PID: 543704 Comm: kworker/u20:6 Not tainted 5.12.0-rc7+ #2
-[47773.886745] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009)
-[47773.888438] Workqueue: nf_ft_offload_del flow_offload_work_handler [nf_flow_table]
-[47773.889727] Call Trace:
-[47773.890214]  dump_stack+0xbb/0x107
-[47773.890818]  print_address_description.constprop.0+0x18/0x140
-[47773.892990]  kasan_report.cold+0x7c/0xd8
-[47773.894459]  kasan_check_range+0x145/0x1a0
-[47773.895174]  down_read+0x99/0x460
-[47773.899706]  nf_flow_offload_tuple+0x24f/0x3c0 [nf_flow_table]
-[47773.907137]  flow_offload_work_handler+0x72d/0xbe0 [nf_flow_table]
-[47773.913372]  process_one_work+0x8ac/0x14e0
-[47773.921325]
-[47773.921325] Allocated by task 592159:
-[47773.922031]  kasan_save_stack+0x1b/0x40
-[47773.922730]  __kasan_kmalloc+0x7a/0x90
-[47773.923411]  tcf_ct_flow_table_get+0x3cb/0x1230 [act_ct]
-[47773.924363]  tcf_ct_init+0x71c/0x1156 [act_ct]
-[47773.925207]  tcf_action_init_1+0x45b/0x700
-[47773.925987]  tcf_action_init+0x453/0x6b0
-[47773.926692]  tcf_exts_validate+0x3d0/0x600
-[47773.927419]  fl_change+0x757/0x4a51 [cls_flower]
-[47773.928227]  tc_new_tfilter+0x89a/0x2070
-[47773.936652]
-[47773.936652] Freed by task 543704:
-[47773.937303]  kasan_save_stack+0x1b/0x40
-[47773.938039]  kasan_set_track+0x1c/0x30
-[47773.938731]  kasan_set_free_info+0x20/0x30
-[47773.939467]  __kasan_slab_free+0xe7/0x120
-[47773.940194]  slab_free_freelist_hook+0x86/0x190
-[47773.941038]  kfree+0xce/0x3a0
-[47773.941644]  tcf_ct_flow_table_cleanup_work
+ (3) After dropping and regaining the call mutex, rxrpc_send_data() needs
+     to go and recheck the state of the tx_pending buffer and the
+     tx_total_len check in case we raced with another sendmsg() on the same
+     call.
 
-Original patch description and stack trace by Paul Blakey.
+Thinking on this some more, it might make sense to have different locks for
+sendmsg() and recvmsg().  There's probably no need to make recvmsg() wait
+for sendmsg().  It does mean that recvmsg() can return MSG_EOR indicating
+that a call is dead before a sendmsg() to that call returns - but that can
+currently happen anyway.
 
-Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
-Reported-by: Paul Blakey <paulb@nvidia.com>
-Tested-by: Paul Blakey <paulb@nvidia.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Without fix (2), something like the following can be induced:
+
+	WARNING: bad unlock balance detected!
+	5.16.0-rc6-syzkaller #0 Not tainted
+	-------------------------------------
+	syz-executor011/3597 is trying to release lock (&call->user_mutex) at:
+	[<ffffffff885163a3>] rxrpc_do_sendmsg+0xc13/0x1350 net/rxrpc/sendmsg.c:748
+	but there are no more locks to release!
+
+	other info that might help us debug this:
+	no locks held by syz-executor011/3597.
+	...
+	Call Trace:
+	 <TASK>
+	 __dump_stack lib/dump_stack.c:88 [inline]
+	 dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+	 print_unlock_imbalance_bug include/trace/events/lock.h:58 [inline]
+	 __lock_release kernel/locking/lockdep.c:5306 [inline]
+	 lock_release.cold+0x49/0x4e kernel/locking/lockdep.c:5657
+	 __mutex_unlock_slowpath+0x99/0x5e0 kernel/locking/mutex.c:900
+	 rxrpc_do_sendmsg+0xc13/0x1350 net/rxrpc/sendmsg.c:748
+	 rxrpc_sendmsg+0x420/0x630 net/rxrpc/af_rxrpc.c:561
+	 sock_sendmsg_nosec net/socket.c:704 [inline]
+	 sock_sendmsg+0xcf/0x120 net/socket.c:724
+	 ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
+	 ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
+	 __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
+	 do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+	 do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+	 entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+[Thanks to Hawkins Jiawei and Khalid Masum for their attempts to fix this]
+
+Fixes: bc5e3a546d55 ("rxrpc: Use MSG_WAITALL to tell sendmsg() to temporarily ignore signals")
+Reported-by: syzbot+7f0483225d0c94cb3441@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: syzbot+7f0483225d0c94cb3441@syzkaller.appspotmail.com
+cc: Hawkins Jiawei <yin31149@gmail.com>
+cc: Khalid Masum <khalid.masum.92@gmail.com>
+cc: Dan Carpenter <dan.carpenter@oracle.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/166135894583.600315.7170979436768124075.stgit@warthog.procyon.org.uk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_flow_table.h | 2 ++
- net/netfilter/nf_flow_table_core.c    | 7 +++----
- net/netfilter/nf_flow_table_offload.c | 8 ++++++++
- 3 files changed, 13 insertions(+), 4 deletions(-)
+ net/rxrpc/call_object.c |  4 +-
+ net/rxrpc/sendmsg.c     | 92 ++++++++++++++++++++++++-----------------
+ 2 files changed, 57 insertions(+), 39 deletions(-)
 
-diff --git a/include/net/netfilter/nf_flow_table.h b/include/net/netfilter/nf_flow_table.h
-index f337041dcc352..aaa518e777e9e 100644
---- a/include/net/netfilter/nf_flow_table.h
-+++ b/include/net/netfilter/nf_flow_table.h
-@@ -303,6 +303,8 @@ void nf_flow_offload_stats(struct nf_flowtable *flowtable,
- 			   struct flow_offload *flow);
+diff --git a/net/rxrpc/call_object.c b/net/rxrpc/call_object.c
+index 84d0a41096450..6401cdf7a6246 100644
+--- a/net/rxrpc/call_object.c
++++ b/net/rxrpc/call_object.c
+@@ -285,8 +285,10 @@ struct rxrpc_call *rxrpc_new_client_call(struct rxrpc_sock *rx,
+ 	_enter("%p,%lx", rx, p->user_call_ID);
  
- void nf_flow_table_offload_flush(struct nf_flowtable *flowtable);
-+void nf_flow_table_offload_flush_cleanup(struct nf_flowtable *flowtable);
-+
- int nf_flow_table_offload_setup(struct nf_flowtable *flowtable,
- 				struct net_device *dev,
- 				enum flow_block_command cmd);
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 95ff1284d3d89..4f61eb1282834 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -604,12 +604,11 @@ void nf_flow_table_free(struct nf_flowtable *flow_table)
- 	mutex_unlock(&flowtable_lock);
- 
- 	cancel_delayed_work_sync(&flow_table->gc_work);
-+	nf_flow_table_offload_flush(flow_table);
-+	/* ... no more pending work after this stage ... */
- 	nf_flow_table_iterate(flow_table, nf_flow_table_do_cleanup, NULL);
- 	nf_flow_table_gc_run(flow_table);
--	nf_flow_table_offload_flush(flow_table);
--	if (nf_flowtable_hw_offload(flow_table))
--		nf_flow_table_gc_run(flow_table);
--
-+	nf_flow_table_offload_flush_cleanup(flow_table);
- 	rhashtable_destroy(&flow_table->rhashtable);
- }
- EXPORT_SYMBOL_GPL(nf_flow_table_free);
-diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
-index b561e0a44a45f..c4559fae8acd5 100644
---- a/net/netfilter/nf_flow_table_offload.c
-+++ b/net/netfilter/nf_flow_table_offload.c
-@@ -1050,6 +1050,14 @@ void nf_flow_offload_stats(struct nf_flowtable *flowtable,
- 	flow_offload_queue_work(offload);
- }
- 
-+void nf_flow_table_offload_flush_cleanup(struct nf_flowtable *flowtable)
-+{
-+	if (nf_flowtable_hw_offload(flowtable)) {
-+		flush_workqueue(nf_flow_offload_del_wq);
-+		nf_flow_table_gc_run(flowtable);
+ 	limiter = rxrpc_get_call_slot(p, gfp);
+-	if (!limiter)
++	if (!limiter) {
++		release_sock(&rx->sk);
+ 		return ERR_PTR(-ERESTARTSYS);
 +	}
-+}
-+
- void nf_flow_table_offload_flush(struct nf_flowtable *flowtable)
+ 
+ 	call = rxrpc_alloc_client_call(rx, srx, gfp, debug_id);
+ 	if (IS_ERR(call)) {
+diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
+index 1d38e279e2efa..3c3a626459deb 100644
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -51,10 +51,7 @@ static int rxrpc_wait_for_tx_window_intr(struct rxrpc_sock *rx,
+ 			return sock_intr_errno(*timeo);
+ 
+ 		trace_rxrpc_transmit(call, rxrpc_transmit_wait);
+-		mutex_unlock(&call->user_mutex);
+ 		*timeo = schedule_timeout(*timeo);
+-		if (mutex_lock_interruptible(&call->user_mutex) < 0)
+-			return sock_intr_errno(*timeo);
+ 	}
+ }
+ 
+@@ -290,37 +287,48 @@ static int rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
+ static int rxrpc_send_data(struct rxrpc_sock *rx,
+ 			   struct rxrpc_call *call,
+ 			   struct msghdr *msg, size_t len,
+-			   rxrpc_notify_end_tx_t notify_end_tx)
++			   rxrpc_notify_end_tx_t notify_end_tx,
++			   bool *_dropped_lock)
  {
- 	if (nf_flowtable_hw_offload(flowtable)) {
+ 	struct rxrpc_skb_priv *sp;
+ 	struct sk_buff *skb;
+ 	struct sock *sk = &rx->sk;
++	enum rxrpc_call_state state;
+ 	long timeo;
+-	bool more;
+-	int ret, copied;
++	bool more = msg->msg_flags & MSG_MORE;
++	int ret, copied = 0;
+ 
+ 	timeo = sock_sndtimeo(sk, msg->msg_flags & MSG_DONTWAIT);
+ 
+ 	/* this should be in poll */
+ 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
+ 
++reload:
++	ret = -EPIPE;
+ 	if (sk->sk_shutdown & SEND_SHUTDOWN)
+-		return -EPIPE;
+-
+-	more = msg->msg_flags & MSG_MORE;
+-
++		goto maybe_error;
++	state = READ_ONCE(call->state);
++	ret = -ESHUTDOWN;
++	if (state >= RXRPC_CALL_COMPLETE)
++		goto maybe_error;
++	ret = -EPROTO;
++	if (state != RXRPC_CALL_CLIENT_SEND_REQUEST &&
++	    state != RXRPC_CALL_SERVER_ACK_REQUEST &&
++	    state != RXRPC_CALL_SERVER_SEND_REPLY)
++		goto maybe_error;
++
++	ret = -EMSGSIZE;
+ 	if (call->tx_total_len != -1) {
+-		if (len > call->tx_total_len)
+-			return -EMSGSIZE;
+-		if (!more && len != call->tx_total_len)
+-			return -EMSGSIZE;
++		if (len - copied > call->tx_total_len)
++			goto maybe_error;
++		if (!more && len - copied != call->tx_total_len)
++			goto maybe_error;
+ 	}
+ 
+ 	skb = call->tx_pending;
+ 	call->tx_pending = NULL;
+ 	rxrpc_see_skb(skb, rxrpc_skb_seen);
+ 
+-	copied = 0;
+ 	do {
+ 		/* Check to see if there's a ping ACK to reply to. */
+ 		if (call->ackr_reason == RXRPC_ACK_PING_RESPONSE)
+@@ -331,16 +339,8 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
+ 
+ 			_debug("alloc");
+ 
+-			if (!rxrpc_check_tx_space(call, NULL)) {
+-				ret = -EAGAIN;
+-				if (msg->msg_flags & MSG_DONTWAIT)
+-					goto maybe_error;
+-				ret = rxrpc_wait_for_tx_window(rx, call,
+-							       &timeo,
+-							       msg->msg_flags & MSG_WAITALL);
+-				if (ret < 0)
+-					goto maybe_error;
+-			}
++			if (!rxrpc_check_tx_space(call, NULL))
++				goto wait_for_space;
+ 
+ 			/* Work out the maximum size of a packet.  Assume that
+ 			 * the security header is going to be in the padded
+@@ -468,6 +468,27 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
+ efault:
+ 	ret = -EFAULT;
+ 	goto out;
++
++wait_for_space:
++	ret = -EAGAIN;
++	if (msg->msg_flags & MSG_DONTWAIT)
++		goto maybe_error;
++	mutex_unlock(&call->user_mutex);
++	*_dropped_lock = true;
++	ret = rxrpc_wait_for_tx_window(rx, call, &timeo,
++				       msg->msg_flags & MSG_WAITALL);
++	if (ret < 0)
++		goto maybe_error;
++	if (call->interruptibility == RXRPC_INTERRUPTIBLE) {
++		if (mutex_lock_interruptible(&call->user_mutex) < 0) {
++			ret = sock_intr_errno(timeo);
++			goto maybe_error;
++		}
++	} else {
++		mutex_lock(&call->user_mutex);
++	}
++	*_dropped_lock = false;
++	goto reload;
+ }
+ 
+ /*
+@@ -629,6 +650,7 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
+ 	enum rxrpc_call_state state;
+ 	struct rxrpc_call *call;
+ 	unsigned long now, j;
++	bool dropped_lock = false;
+ 	int ret;
+ 
+ 	struct rxrpc_send_params p = {
+@@ -737,21 +759,13 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
+ 			ret = rxrpc_send_abort_packet(call);
+ 	} else if (p.command != RXRPC_CMD_SEND_DATA) {
+ 		ret = -EINVAL;
+-	} else if (rxrpc_is_client_call(call) &&
+-		   state != RXRPC_CALL_CLIENT_SEND_REQUEST) {
+-		/* request phase complete for this client call */
+-		ret = -EPROTO;
+-	} else if (rxrpc_is_service_call(call) &&
+-		   state != RXRPC_CALL_SERVER_ACK_REQUEST &&
+-		   state != RXRPC_CALL_SERVER_SEND_REPLY) {
+-		/* Reply phase not begun or not complete for service call. */
+-		ret = -EPROTO;
+ 	} else {
+-		ret = rxrpc_send_data(rx, call, msg, len, NULL);
++		ret = rxrpc_send_data(rx, call, msg, len, NULL, &dropped_lock);
+ 	}
+ 
+ out_put_unlock:
+-	mutex_unlock(&call->user_mutex);
++	if (!dropped_lock)
++		mutex_unlock(&call->user_mutex);
+ error_put:
+ 	rxrpc_put_call(call, rxrpc_call_put);
+ 	_leave(" = %d", ret);
+@@ -779,6 +793,7 @@ int rxrpc_kernel_send_data(struct socket *sock, struct rxrpc_call *call,
+ 			   struct msghdr *msg, size_t len,
+ 			   rxrpc_notify_end_tx_t notify_end_tx)
+ {
++	bool dropped_lock = false;
+ 	int ret;
+ 
+ 	_enter("{%d,%s},", call->debug_id, rxrpc_call_states[call->state]);
+@@ -796,7 +811,7 @@ int rxrpc_kernel_send_data(struct socket *sock, struct rxrpc_call *call,
+ 	case RXRPC_CALL_SERVER_ACK_REQUEST:
+ 	case RXRPC_CALL_SERVER_SEND_REPLY:
+ 		ret = rxrpc_send_data(rxrpc_sk(sock->sk), call, msg, len,
+-				      notify_end_tx);
++				      notify_end_tx, &dropped_lock);
+ 		break;
+ 	case RXRPC_CALL_COMPLETE:
+ 		read_lock_bh(&call->state_lock);
+@@ -810,7 +825,8 @@ int rxrpc_kernel_send_data(struct socket *sock, struct rxrpc_call *call,
+ 		break;
+ 	}
+ 
+-	mutex_unlock(&call->user_mutex);
++	if (!dropped_lock)
++		mutex_unlock(&call->user_mutex);
+ 	_leave(" = %d", ret);
+ 	return ret;
+ }
 -- 
 2.35.1
 
