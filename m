@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8D045A4994
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:26:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A5A5A47F8
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:04:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231998AbiH2L00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:26:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
+        id S230007AbiH2LDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:03:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231996AbiH2LZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:25:23 -0400
+        with ESMTP id S230118AbiH2LCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:02:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94CA776960;
-        Mon, 29 Aug 2022 04:15:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC8961B3C;
+        Mon, 29 Aug 2022 04:02:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 044F1B80F92;
-        Mon, 29 Aug 2022 11:15:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F29C433D6;
-        Mon, 29 Aug 2022 11:15:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB943B80EF3;
+        Mon, 29 Aug 2022 11:02:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48246C433C1;
+        Mon, 29 Aug 2022 11:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771740;
-        bh=MSbtcP4DVTBwTKfXt/XLBcPj7KhlA006+k6U4WaCZTc=;
+        s=korg; t=1661770943;
+        bh=Rp7QpdueZpDpZnv9m/OxS019aR4m46mPh0xqO8Kmksk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAk2zwprJyvy/KgIc8UR4eBgpmF8RDZaS/LgnzQuQOxE9ThXVl4dE0JdNAiD41d2l
-         qu8WGm4GtENRew9LhsGH9j7kdzLbED2JaOxy1BLwWxmQlSnQqpTRJQidrxATNqU6FD
-         Vk5XVLpfBg+ocH1lxEuwnTq8IHk8+ZGHOVyDxJfs=
+        b=1K5sj4Gq9Mm8Ofv7h7oqPLc9rQmXknanJB/tpEuXyrVpIBW29UDVpnPSBJ6muChff
+         YyUMuyuIhqFRDxYyZz+FsakSoCEBRrVTy6pjr76W9ycTYTQUurjRXfhSvj28MC/AuH
+         73D9Uw4wkhnXXaS6ICS2SUgpZwexmtIsm/7eW/ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Toppins <jtoppins@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 047/158] bonding: 802.3ad: fix no transmission of LACPDUs
+Subject: [PATCH 5.15 030/136] fs: require CAP_SYS_ADMIN in target namespace for idmapped mounts
 Date:   Mon, 29 Aug 2022 12:58:17 +0200
-Message-Id: <20220829105810.727094410@linuxfoundation.org>
+Message-Id: <20220829105805.818327418@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,135 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Toppins <jtoppins@redhat.com>
+From: Seth Forshee <sforshee@digitalocean.com>
 
-[ Upstream commit d745b5062ad2b5da90a5e728d7ca884fc07315fd ]
+[ Upstream commit bf1ac16edf6770a92bc75cf2373f1f9feea398a4 ]
 
-This is caused by the global variable ad_ticks_per_sec being zero as
-demonstrated by the reproducer script discussed below. This causes
-all timer values in __ad_timer_to_ticks to be zero, resulting
-in the periodic timer to never fire.
+Idmapped mounts should not allow a user to map file ownsership into a
+range of ids which is not under the control of that user. However, we
+currently don't check whether the mounter is privileged wrt to the
+target user namespace.
 
-To reproduce:
-Run the script in
-`tools/testing/selftests/drivers/net/bonding/bond-break-lacpdu-tx.sh` which
-puts bonding into a state where it never transmits LACPDUs.
+Currently no FS_USERNS_MOUNT filesystems support idmapped mounts, thus
+this is not a problem as only CAP_SYS_ADMIN in init_user_ns is allowed
+to set up idmapped mounts. But this could change in the future, so add a
+check to refuse to create idmapped mounts when the mounter does not have
+CAP_SYS_ADMIN in the target user namespace.
 
-line 44: ip link add fbond type bond mode 4 miimon 200 \
-            xmit_hash_policy 1 ad_actor_sys_prio 65535 lacp_rate fast
-setting bond param: ad_actor_sys_prio
-given:
-    params.ad_actor_system = 0
-call stack:
-    bond_option_ad_actor_sys_prio()
-    -> bond_3ad_update_ad_actor_settings()
-       -> set ad.system.sys_priority = bond->params.ad_actor_sys_prio
-       -> ad.system.sys_mac_addr = bond->dev->dev_addr; because
-            params.ad_actor_system == 0
-results:
-     ad.system.sys_mac_addr = bond->dev->dev_addr
-
-line 48: ip link set fbond address 52:54:00:3B:7C:A6
-setting bond MAC addr
-call stack:
-    bond->dev->dev_addr = new_mac
-
-line 52: ip link set fbond type bond ad_actor_sys_prio 65535
-setting bond param: ad_actor_sys_prio
-given:
-    params.ad_actor_system = 0
-call stack:
-    bond_option_ad_actor_sys_prio()
-    -> bond_3ad_update_ad_actor_settings()
-       -> set ad.system.sys_priority = bond->params.ad_actor_sys_prio
-       -> ad.system.sys_mac_addr = bond->dev->dev_addr; because
-            params.ad_actor_system == 0
-results:
-     ad.system.sys_mac_addr = bond->dev->dev_addr
-
-line 60: ip link set veth1-bond down master fbond
-given:
-    params.ad_actor_system = 0
-    params.mode = BOND_MODE_8023AD
-    ad.system.sys_mac_addr == bond->dev->dev_addr
-call stack:
-    bond_enslave
-    -> bond_3ad_initialize(); because first slave
-       -> if ad.system.sys_mac_addr != bond->dev->dev_addr
-          return
-results:
-     Nothing is run in bond_3ad_initialize() because dev_addr equals
-     sys_mac_addr leaving the global ad_ticks_per_sec zero as it is
-     never initialized anywhere else.
-
-The if check around the contents of bond_3ad_initialize() is no longer
-needed due to commit 5ee14e6d336f ("bonding: 3ad: apply ad_actor settings
-changes immediately") which sets ad.system.sys_mac_addr if any one of
-the bonding parameters whos set function calls
-bond_3ad_update_ad_actor_settings(). This is because if
-ad.system.sys_mac_addr is zero it will be set to the current bond mac
-address, this causes the if check to never be true.
-
-Fixes: 5ee14e6d336f ("bonding: 3ad: apply ad_actor settings changes immediately")
-Signed-off-by: Jonathan Toppins <jtoppins@redhat.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: bd303368b776 ("fs: support mapped mounts of mapped filesystems")
+Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Link: https://lore.kernel.org/r/20220816164752.2595240-1-sforshee@digitalocean.com
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_3ad.c | 38 ++++++++++++++--------------------
- 1 file changed, 16 insertions(+), 22 deletions(-)
+ fs/namespace.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
-index d7fb33c078e81..1f0120cbe9e80 100644
---- a/drivers/net/bonding/bond_3ad.c
-+++ b/drivers/net/bonding/bond_3ad.c
-@@ -2007,30 +2007,24 @@ void bond_3ad_initiate_agg_selection(struct bonding *bond, int timeout)
-  */
- void bond_3ad_initialize(struct bonding *bond, u16 tick_resolution)
- {
--	/* check that the bond is not initialized yet */
--	if (!MAC_ADDRESS_EQUAL(&(BOND_AD_INFO(bond).system.sys_mac_addr),
--				bond->dev->dev_addr)) {
--
--		BOND_AD_INFO(bond).aggregator_identifier = 0;
--
--		BOND_AD_INFO(bond).system.sys_priority =
--			bond->params.ad_actor_sys_prio;
--		if (is_zero_ether_addr(bond->params.ad_actor_system))
--			BOND_AD_INFO(bond).system.sys_mac_addr =
--			    *((struct mac_addr *)bond->dev->dev_addr);
--		else
--			BOND_AD_INFO(bond).system.sys_mac_addr =
--			    *((struct mac_addr *)bond->params.ad_actor_system);
-+	BOND_AD_INFO(bond).aggregator_identifier = 0;
-+	BOND_AD_INFO(bond).system.sys_priority =
-+		bond->params.ad_actor_sys_prio;
-+	if (is_zero_ether_addr(bond->params.ad_actor_system))
-+		BOND_AD_INFO(bond).system.sys_mac_addr =
-+		    *((struct mac_addr *)bond->dev->dev_addr);
-+	else
-+		BOND_AD_INFO(bond).system.sys_mac_addr =
-+		    *((struct mac_addr *)bond->params.ad_actor_system);
+diff --git a/fs/namespace.c b/fs/namespace.c
+index dc31ad6b370f3..d946298691ed4 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -4168,6 +4168,13 @@ static int build_mount_idmapped(const struct mount_attr *attr, size_t usize,
+ 		err = -EPERM;
+ 		goto out_fput;
+ 	}
++
++	/* We're not controlling the target namespace. */
++	if (!ns_capable(mnt_userns, CAP_SYS_ADMIN)) {
++		err = -EPERM;
++		goto out_fput;
++	}
++
+ 	kattr->mnt_userns = get_user_ns(mnt_userns);
  
--		/* initialize how many times this module is called in one
--		 * second (should be about every 100ms)
--		 */
--		ad_ticks_per_sec = tick_resolution;
-+	/* initialize how many times this module is called in one
-+	 * second (should be about every 100ms)
-+	 */
-+	ad_ticks_per_sec = tick_resolution;
- 
--		bond_3ad_initiate_agg_selection(bond,
--						AD_AGGREGATOR_SELECTION_TIMER *
--						ad_ticks_per_sec);
--	}
-+	bond_3ad_initiate_agg_selection(bond,
-+					AD_AGGREGATOR_SELECTION_TIMER *
-+					ad_ticks_per_sec);
- }
- 
- /**
+ out_fput:
 -- 
 2.35.1
 
