@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 614535A48AB
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 531AF5A4A8A
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:42:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229826AbiH2LOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:14:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42858 "EHLO
+        id S232785AbiH2Ll4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:41:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229975AbiH2LNI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:08 -0400
+        with ESMTP id S232743AbiH2Ll1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:41:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E0FF65250;
-        Mon, 29 Aug 2022 04:09:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542326FA30;
+        Mon, 29 Aug 2022 04:25:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61CA7B80F93;
-        Mon, 29 Aug 2022 11:08:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7032C433C1;
-        Mon, 29 Aug 2022 11:08:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BFE5B80F00;
+        Mon, 29 Aug 2022 11:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75306C433D7;
+        Mon, 29 Aug 2022 11:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771285;
-        bh=HibPfC1V04312A6CBMI6vt7gcr1ozunCxcdjSr9zyz8=;
+        s=korg; t=1661771804;
+        bh=kCJJ0zEhqeKzejMCjY23kNjAuEHLY49pqrGAAhrL7AQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDPOIlt7kczWoKjxjW0DiVUzPaur8e1xOP5m2tzAiUfyZilTD+4xynmkucd4GhdkL
-         Nx7jex/cyepF/TWa8yax+LgeoKWC2860xbdhj+5W+fSvPValRgFp73npCPhbytyqD3
-         2W+Fj5aHdOrtsB/rYgVVFV6vTjg8yz+VdCRuj6Wk=
+        b=nnFD8i+NN4HszMpToMICFTbbtsG3g8NazuP/1iB/qwOt8UzYHS1JK1U5O8vmKVQfx
+         ZgJ3TtdCElh8xQAkJqv9WOwWdZ64ncBKgvAtW6rLUgOGNJDfosDDcQGdIbTx8EuSJf
+         mAxB+rLdqbVxsF6yCAtvI3anoldEpjQpztvkVB/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 47/86] net: Fix data-races around weight_p and dev_weight_[rt]x_bias.
+        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.19 103/158] perf/x86/lbr: Enable the branch type for the Arch LBR by default
 Date:   Mon, 29 Aug 2022 12:59:13 +0200
-Message-Id: <20220829105758.455593849@linuxfoundation.org>
+Message-Id: <20220829105813.414117464@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit bf955b5ab8f6f7b0632cdef8e36b14e4f6e77829 ]
+commit 32ba156df1b1c8804a4e5be5339616945eafea22 upstream.
 
-While reading weight_p, it can be changed concurrently.  Thus, we need
-to add READ_ONCE() to its reader.
+On the platform with Arch LBR, the HW raw branch type encoding may leak
+to the perf tool when the SAVE_TYPE option is not set.
 
-Also, dev_[rt]x_weight can be read/written at the same time.  So, we
-need to use READ_ONCE() and WRITE_ONCE() for its access.  Moreover, to
-use the same weight_p while changing dev_[rt]x_weight, we add a mutex
-in proc_do_dev_weight().
+In the intel_pmu_store_lbr(), the HW raw branch type is stored in
+lbr_entries[].type. If the SAVE_TYPE option is set, the
+lbr_entries[].type will be converted into the generic PERF_BR_* type
+in the intel_pmu_lbr_filter() and exposed to the user tools.
+But if the SAVE_TYPE option is NOT set by the user, the current perf
+kernel doesn't clear the field. The HW raw branch type leaks.
 
-Fixes: 3d48b53fb2ae ("net: dev_weight: TX/RX orthogonality")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+There are two solutions to fix the issue for the Arch LBR.
+One is to clear the field if the SAVE_TYPE option is NOT set.
+The other solution is to unconditionally convert the branch type and
+expose the generic type to the user tools.
+
+The latter is implemented here, because
+- The branch type is valuable information. I don't see a case where
+  you would not benefit from the branch type. (Stephane Eranian)
+- Not having the branch type DOES NOT save any space in the
+  branch record (Stephane Eranian)
+- The Arch LBR HW can retrieve the common branch types from the
+  LBR_INFO. It doesn't require the high overhead SW disassemble.
+
+Fixes: 47125db27e47 ("perf/x86/intel/lbr: Support Architectural LBR")
+Reported-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20220816125612.2042397-1-kan.liang@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c             |  2 +-
- net/core/sysctl_net_core.c | 15 +++++++++------
- net/sched/sch_generic.c    |  2 +-
- 3 files changed, 11 insertions(+), 8 deletions(-)
+ arch/x86/events/intel/lbr.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 637bc576fbd26..701a1afc91ff1 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6371,7 +6371,7 @@ static int process_backlog(struct napi_struct *napi, int quota)
- 		net_rps_action_and_irq_enable(sd);
+--- a/arch/x86/events/intel/lbr.c
++++ b/arch/x86/events/intel/lbr.c
+@@ -1097,6 +1097,14 @@ static int intel_pmu_setup_hw_lbr_filter
+ 
+ 	if (static_cpu_has(X86_FEATURE_ARCH_LBR)) {
+ 		reg->config = mask;
++
++		/*
++		 * The Arch LBR HW can retrieve the common branch types
++		 * from the LBR_INFO. It doesn't require the high overhead
++		 * SW disassemble.
++		 * Enable the branch type by default for the Arch LBR.
++		 */
++		reg->reg |= X86_BR_TYPE_SAVE;
+ 		return 0;
  	}
  
--	napi->weight = dev_rx_weight;
-+	napi->weight = READ_ONCE(dev_rx_weight);
- 	while (again) {
- 		struct sk_buff *skb;
- 
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index 2e0a4378e778a..0dfe9f255ab3a 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -235,14 +235,17 @@ static int set_default_qdisc(struct ctl_table *table, int write,
- static int proc_do_dev_weight(struct ctl_table *table, int write,
- 			   void *buffer, size_t *lenp, loff_t *ppos)
- {
--	int ret;
-+	static DEFINE_MUTEX(dev_weight_mutex);
-+	int ret, weight;
- 
-+	mutex_lock(&dev_weight_mutex);
- 	ret = proc_dointvec(table, write, buffer, lenp, ppos);
--	if (ret != 0)
--		return ret;
--
--	dev_rx_weight = weight_p * dev_weight_rx_bias;
--	dev_tx_weight = weight_p * dev_weight_tx_bias;
-+	if (!ret && write) {
-+		weight = READ_ONCE(weight_p);
-+		WRITE_ONCE(dev_rx_weight, weight * dev_weight_rx_bias);
-+		WRITE_ONCE(dev_tx_weight, weight * dev_weight_tx_bias);
-+	}
-+	mutex_unlock(&dev_weight_mutex);
- 
- 	return ret;
- }
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 5d5391adb667c..68f1e89430b3b 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -403,7 +403,7 @@ static inline bool qdisc_restart(struct Qdisc *q, int *packets)
- 
- void __qdisc_run(struct Qdisc *q)
- {
--	int quota = dev_tx_weight;
-+	int quota = READ_ONCE(dev_tx_weight);
- 	int packets;
- 
- 	while (qdisc_restart(q, &packets)) {
--- 
-2.35.1
-
 
 
