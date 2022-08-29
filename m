@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E74555A49CE
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF3F5A4858
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232236AbiH2L36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55114 "EHLO
+        id S230421AbiH2LJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:09:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232487AbiH2L3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9BD78BD2;
-        Mon, 29 Aug 2022 04:17:39 -0700 (PDT)
+        with ESMTP id S231189AbiH2LIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:08:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C956867447;
+        Mon, 29 Aug 2022 04:06:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1444A61128;
-        Mon, 29 Aug 2022 11:05:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFD5C433D6;
-        Mon, 29 Aug 2022 11:05:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30482B80EF6;
+        Mon, 29 Aug 2022 11:06:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74932C433D7;
+        Mon, 29 Aug 2022 11:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771150;
-        bh=eTejDpS13D/jixJdgnj9+fUID/w5E/ssspcErqeGyTE=;
+        s=korg; t=1661771158;
+        bh=44DCdyDNg95hzS1cCLGqf95ZmDYKPi0bt9FW6VXMyWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ck4ZbxrkW9wDjSCgcmvc+/5P8STVcaQgxrkCyBlgbQ6BM63GrI12OI3VBt5e45Ppf
-         j/Pf7xDqK+s95e2jTF1nmnWlkEPFfpGA+a3COcsBrPFE2YLaRtg9UB7SYGZZqN4CSv
-         0yTu9dZbQWw3n6eg0uBDQpIxpqRYqG3LQQklExK4=
+        b=ncZGh/XbVe4QFle/D7FC4G5NWfXkmnsr2ifsNBde59MkzWK/eFzFVvkBj8EU4p9tP
+         AvMVkIJapZnN2U+mPYiLYtwZ7HNcqWthXNFs0nqAI0eJJiNqWQ+pMq64d8uAvKbh6s
+         PImkg1g6CrlRnTBM18ARxCAAR1JEKK6D44MlUtps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 072/136] net: Fix data-races around netdev_max_backlog.
+Subject: [PATCH 5.10 33/86] netfilter: nft_payload: do not truncate csum_offset and csum_type
 Date:   Mon, 29 Aug 2022 12:58:59 +0200
-Message-Id: <20220829105807.589560174@linuxfoundation.org>
+Message-Id: <20220829105757.916432111@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,101 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 5dcd08cd19912892586c6082d56718333e2d19db ]
+[ Upstream commit 7044ab281febae9e2fa9b0b247693d6026166293 ]
 
-While reading netdev_max_backlog, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+Instead report ERANGE if csum_offset is too long, and EOPNOTSUPP if type
+is not support.
 
-While at it, we remove the unnecessary spaces in the doc.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7ec3f7b47b8d ("netfilter: nft_payload: add packet mangling support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/sysctl/net.rst | 2 +-
- net/core/dev.c                           | 4 ++--
- net/core/gro_cells.c                     | 2 +-
- net/xfrm/espintcp.c                      | 2 +-
- net/xfrm/xfrm_input.c                    | 2 +-
- 5 files changed, 6 insertions(+), 6 deletions(-)
+ net/netfilter/nft_payload.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-index 4150f74c521a8..5310f398794c1 100644
---- a/Documentation/admin-guide/sysctl/net.rst
-+++ b/Documentation/admin-guide/sysctl/net.rst
-@@ -271,7 +271,7 @@ poll cycle or the number of packets processed reaches netdev_budget.
- netdev_max_backlog
- ------------------
- 
--Maximum number  of  packets,  queued  on  the  INPUT  side, when the interface
-+Maximum number of packets, queued on the INPUT side, when the interface
- receives packets faster than kernel can process them.
- 
- netdev_rss_key
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 1a0de071fcf45..87cf2e0d8f6f1 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4589,7 +4589,7 @@ static bool skb_flow_limit(struct sk_buff *skb, unsigned int qlen)
- 	struct softnet_data *sd;
- 	unsigned int old_flow, new_flow;
- 
--	if (qlen < (netdev_max_backlog >> 1))
-+	if (qlen < (READ_ONCE(netdev_max_backlog) >> 1))
- 		return false;
- 
- 	sd = this_cpu_ptr(&softnet_data);
-@@ -4637,7 +4637,7 @@ static int enqueue_to_backlog(struct sk_buff *skb, int cpu,
- 	if (!netif_running(skb->dev))
- 		goto drop;
- 	qlen = skb_queue_len(&sd->input_pkt_queue);
--	if (qlen <= netdev_max_backlog && !skb_flow_limit(skb, qlen)) {
-+	if (qlen <= READ_ONCE(netdev_max_backlog) && !skb_flow_limit(skb, qlen)) {
- 		if (qlen) {
- enqueue:
- 			__skb_queue_tail(&sd->input_pkt_queue, skb);
-diff --git a/net/core/gro_cells.c b/net/core/gro_cells.c
-index 6eb2e5ec2c506..2f66f3f295630 100644
---- a/net/core/gro_cells.c
-+++ b/net/core/gro_cells.c
-@@ -26,7 +26,7 @@ int gro_cells_receive(struct gro_cells *gcells, struct sk_buff *skb)
- 
- 	cell = this_cpu_ptr(gcells->cells);
- 
--	if (skb_queue_len(&cell->napi_skbs) > netdev_max_backlog) {
-+	if (skb_queue_len(&cell->napi_skbs) > READ_ONCE(netdev_max_backlog)) {
- drop:
- 		atomic_long_inc(&dev->rx_dropped);
- 		kfree_skb(skb);
-diff --git a/net/xfrm/espintcp.c b/net/xfrm/espintcp.c
-index 1f08ebf7d80c5..24ca49ecebea3 100644
---- a/net/xfrm/espintcp.c
-+++ b/net/xfrm/espintcp.c
-@@ -170,7 +170,7 @@ int espintcp_queue_out(struct sock *sk, struct sk_buff *skb)
+diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
+index bdb07362c0ef0..551e0d6cf63d4 100644
+--- a/net/netfilter/nft_payload.c
++++ b/net/netfilter/nft_payload.c
+@@ -660,17 +660,23 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
+ 				const struct nlattr * const tb[])
  {
- 	struct espintcp_ctx *ctx = espintcp_getctx(sk);
+ 	struct nft_payload_set *priv = nft_expr_priv(expr);
++	u32 csum_offset, csum_type = NFT_PAYLOAD_CSUM_NONE;
++	int err;
  
--	if (skb_queue_len(&ctx->out_queue) >= netdev_max_backlog)
-+	if (skb_queue_len(&ctx->out_queue) >= READ_ONCE(netdev_max_backlog))
- 		return -ENOBUFS;
+ 	priv->base        = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_BASE]));
+ 	priv->offset      = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
+ 	priv->len         = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_LEN]));
  
- 	__skb_queue_tail(&ctx->out_queue, skb);
-diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
-index 3df0861d4390f..5f34bc378fdcf 100644
---- a/net/xfrm/xfrm_input.c
-+++ b/net/xfrm/xfrm_input.c
-@@ -782,7 +782,7 @@ int xfrm_trans_queue_net(struct net *net, struct sk_buff *skb,
+ 	if (tb[NFTA_PAYLOAD_CSUM_TYPE])
+-		priv->csum_type =
+-			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
+-	if (tb[NFTA_PAYLOAD_CSUM_OFFSET])
+-		priv->csum_offset =
+-			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_OFFSET]));
++		csum_type = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
++	if (tb[NFTA_PAYLOAD_CSUM_OFFSET]) {
++		err = nft_parse_u32_check(tb[NFTA_PAYLOAD_CSUM_OFFSET], U8_MAX,
++					  &csum_offset);
++		if (err < 0)
++			return err;
++
++		priv->csum_offset = csum_offset;
++	}
+ 	if (tb[NFTA_PAYLOAD_CSUM_FLAGS]) {
+ 		u32 flags;
  
- 	trans = this_cpu_ptr(&xfrm_trans_tasklet);
+@@ -681,7 +687,7 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
+ 		priv->csum_flags = flags;
+ 	}
  
--	if (skb_queue_len(&trans->queue) >= netdev_max_backlog)
-+	if (skb_queue_len(&trans->queue) >= READ_ONCE(netdev_max_backlog))
- 		return -ENOBUFS;
+-	switch (priv->csum_type) {
++	switch (csum_type) {
+ 	case NFT_PAYLOAD_CSUM_NONE:
+ 	case NFT_PAYLOAD_CSUM_INET:
+ 		break;
+@@ -695,6 +701,7 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
++	priv->csum_type = csum_type;
  
- 	BUILD_BUG_ON(sizeof(struct xfrm_trans_cb) > sizeof(skb->cb));
+ 	return nft_parse_register_load(tb[NFTA_PAYLOAD_SREG], &priv->sreg,
+ 				       priv->len);
 -- 
 2.35.1
 
