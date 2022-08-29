@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D725A4802
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:04:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 794705A4A7E
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229567AbiH2LEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:04:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44574 "EHLO
+        id S232955AbiH2LkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:40:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229632AbiH2LDv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:03:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BB9642F8;
-        Mon, 29 Aug 2022 04:02:39 -0700 (PDT)
+        with ESMTP id S233390AbiH2Ljh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:39:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C1175FC0;
+        Mon, 29 Aug 2022 04:23:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BB63B80EF1;
-        Mon, 29 Aug 2022 11:02:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC19FC433D7;
-        Mon, 29 Aug 2022 11:02:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70D3B61208;
+        Mon, 29 Aug 2022 11:09:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77209C433D6;
+        Mon, 29 Aug 2022 11:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770955;
-        bh=uro6sn39/nlGYKDCpLWgCRVO+1kpnI9YO9HvkKBO8QU=;
+        s=korg; t=1661771382;
+        bh=j3Po5+OEIMkh2Was4XBOQ7SRWX2NMA+dtrHbpJOl88M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pka4C2nF9KMcXn5ZtUocx5316dsUzEXPhG2MTH/UsENoZ7hb8B7iYwQVp9BPNRS3I
-         yyN3Tai3IupPHADyX6nRXTFKMUKjfd8+obxArjJQeOCu7FrkbdW2vZZNIxqZBRB4T5
-         nR2ovZ03Eai5DQwREq/V0OzIRb8UTeCB1hGmCA+s=
+        b=p1qyVPpel9w56Zi77xnk1ZGbQDpDEsVLxVXKpyP1WatXG7QIRTNv70e/cBwTs/8yS
+         Mo9J6FxLPRnXoKNum5RxsUFzEfk0R7knqZPBVejtNLyQNM0p2QOH4WAwq39URM1no+
+         q5SQTdmELKAtvYUaujIBD4sRVKxdicMoSztJLMmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Lai Jiangshan <jiangshan.ljs@antgroup.com>,
-        Borislav Petkov <bp@suse.de>, Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.15 008/136] x86/entry: Move CLD to the start of the idtentry macro
+        stable@vger.kernel.org,
+        Mark Blakeney <mark.blakeney@bullet-systems.net>,
+        Hayes Wang <hayeswang@realtek.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 025/158] r8152: fix the RX FIFO settings when suspending
 Date:   Mon, 29 Aug 2022 12:57:55 +0200
-Message-Id: <20220829105804.988641394@linuxfoundation.org>
+Message-Id: <20220829105809.837683218@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai Jiangshan <jiangshan.ljs@antgroup.com>
+From: Hayes Wang <hayeswang@realtek.com>
 
-commit c64cc2802a784ecfd25d39945e57e7a147854a5b upstream.
+[ Upstream commit b75d612014447e04abdf0e37ffb8f2fd8b0b49d6 ]
 
-Move it after CLAC.
+The RX FIFO would be changed when suspending, so the related settings
+have to be modified, too. Otherwise, the flow control would work
+abnormally.
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Lai Jiangshan <jiangshan.ljs@antgroup.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220503032107.680190-5-jiangshanlai@gmail.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216333
+Reported-by: Mark Blakeney <mark.blakeney@bullet-systems.net>
+Fixes: cdf0b86b250f ("r8152: fix a WOL issue")
+Signed-off-by: Hayes Wang <hayeswang@realtek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/entry_64.S |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/usb/r8152.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -373,6 +373,7 @@ SYM_CODE_END(xen_error_entry)
- SYM_CODE_START(\asmsym)
- 	UNWIND_HINT_IRET_REGS offset=\has_error_code*8
- 	ASM_CLAC
-+	cld
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 46c7954d27629..d142ac8fcf6e2 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -5906,6 +5906,11 @@ static void r8153_enter_oob(struct r8152 *tp)
+ 	ocp_data &= ~NOW_IS_OOB;
+ 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL, ocp_data);
  
- 	.if \has_error_code == 0
- 		pushq	$-1			/* ORIG_RAX: no syscall to restart */
-@@ -440,6 +441,7 @@ SYM_CODE_END(\asmsym)
- SYM_CODE_START(\asmsym)
- 	UNWIND_HINT_IRET_REGS
- 	ASM_CLAC
-+	cld
++	/* RX FIFO settings for OOB */
++	ocp_write_dword(tp, MCU_TYPE_PLA, PLA_RXFIFO_CTRL0, RXFIFO_THR1_OOB);
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RXFIFO_CTRL1, RXFIFO_THR2_OOB);
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RXFIFO_CTRL2, RXFIFO_THR3_OOB);
++
+ 	rtl_disable(tp);
+ 	rtl_reset_bmu(tp);
  
- 	pushq	$-1			/* ORIG_RAX: no syscall to restart */
+@@ -6544,6 +6549,11 @@ static void rtl8156_down(struct r8152 *tp)
+ 	ocp_data &= ~NOW_IS_OOB;
+ 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL, ocp_data);
  
-@@ -495,6 +497,7 @@ SYM_CODE_END(\asmsym)
- SYM_CODE_START(\asmsym)
- 	UNWIND_HINT_IRET_REGS
- 	ASM_CLAC
-+	cld
++	/* RX FIFO settings for OOB */
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RXFIFO_FULL, 64 / 16);
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_FULL, 1024 / 16);
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_EMPTY, 4096 / 16);
++
+ 	rtl_disable(tp);
+ 	rtl_reset_bmu(tp);
  
- 	/*
- 	 * If the entry is from userspace, switch stacks and treat it as
-@@ -557,6 +560,7 @@ SYM_CODE_END(\asmsym)
- SYM_CODE_START(\asmsym)
- 	UNWIND_HINT_IRET_REGS offset=8
- 	ASM_CLAC
-+	cld
- 
- 	/* paranoid_entry returns GS information for paranoid_exit in EBX. */
- 	call	paranoid_entry
-@@ -876,7 +880,6 @@ SYM_CODE_END(xen_failsafe_callback)
-  */
- SYM_CODE_START_LOCAL(paranoid_entry)
- 	UNWIND_HINT_FUNC
--	cld
- 	PUSH_AND_CLEAR_REGS save_ret=1
- 	ENCODE_FRAME_POINTER 8
- 
-@@ -1012,7 +1015,6 @@ SYM_CODE_END(paranoid_exit)
-  */
- SYM_CODE_START_LOCAL(error_entry)
- 	UNWIND_HINT_FUNC
--	cld
- 
- 	PUSH_AND_CLEAR_REGS save_ret=1
- 	ENCODE_FRAME_POINTER 8
-@@ -1155,6 +1157,7 @@ SYM_CODE_START(asm_exc_nmi)
- 	 */
- 
- 	ASM_CLAC
-+	cld
- 
- 	/* Use %rdx as our temp variable throughout */
- 	pushq	%rdx
-@@ -1174,7 +1177,6 @@ SYM_CODE_START(asm_exc_nmi)
- 	 */
- 
- 	swapgs
--	cld
- 	FENCE_SWAPGS_USER_ENTRY
- 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rdx
- 	movq	%rsp, %rdx
+-- 
+2.35.1
+
 
 
