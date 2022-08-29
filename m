@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 110E95A4B6D
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:19:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C01255A4B40
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230298AbiH2MTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 08:19:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43978 "EHLO
+        id S229646AbiH2MNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 08:13:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229726AbiH2MSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:18:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D308FA2630;
-        Mon, 29 Aug 2022 05:01:36 -0700 (PDT)
+        with ESMTP id S230165AbiH2MM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:12:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C0514030;
+        Mon, 29 Aug 2022 04:57:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93E93611D4;
-        Mon, 29 Aug 2022 11:09:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A01E3C433C1;
-        Mon, 29 Aug 2022 11:09:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 632B7B80F10;
+        Mon, 29 Aug 2022 11:19:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BC4BC433D7;
+        Mon, 29 Aug 2022 11:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771398;
-        bh=CcvhuDNw5qbcHmwy2zshWRqK1xATh0A24rhR35OQhk4=;
+        s=korg; t=1661771952;
+        bh=mTyPZ20fSjaSYpQ61j5NTmfzTrJ+8OrucPF3r/b1kUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KH5AvRmm/iUSOvg8F+o0BWhcqUhNpP98VhvX2yPQgP/L5bnK4naXoeTC3Oe15VIww
-         8cK2kYAr3vv0BEQ5RN/+qPgCkRUDVCGPtZe3q/WrLJjkg5XZbBhMiyl8KxjLn+9ff2
-         vxcX9G1C6SUP81KqUhRdFBO6W31IOsZj7QCfR0Lw=
+        b=1oWefVvhh9p6aY9HZiOqT5HGHYD0TJtxHIq381vQ+n51HrBMKkMNLiYDfS0iyMdXE
+         +RyeDU/uFnxxdtKU/aoCSEGfVrnAfZ2OfjbCPdL46gTbe7+Ia8I+z7zKFD2VrUjfsP
+         YpGoHdXWkhZVySPVkZvReA4bV8uxnvJdFrK87Lck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Boris Burkov <boris@bur.io>, Zixuan Fu <r33s3n6@gmail.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 099/136] btrfs: fix possible memory leak in btrfs_get_dev_args_from_path()
-Date:   Mon, 29 Aug 2022 12:59:26 +0200
-Message-Id: <20220829105808.735329576@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
+        Yu Zhao <yuzhao@google.com>,
+        David Hildenbrand <david@redhat.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 118/158] mm/mprotect: only reference swap pfn page if type match
+Date:   Mon, 29 Aug 2022 12:59:28 +0200
+Message-Id: <20220829105814.053798920@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zixuan Fu <r33s3n6@gmail.com>
+From: Peter Xu <peterx@redhat.com>
 
-commit 9ea0106a7a3d8116860712e3f17cd52ce99f6707 upstream.
+commit 3d2f78f08cd8388035ac375e731ec1ac1b79b09d upstream.
 
-In btrfs_get_dev_args_from_path(), btrfs_get_bdev_and_sb() can fail if
-the path is invalid. In this case, btrfs_get_dev_args_from_path()
-returns directly without freeing args->uuid and args->fsid allocated
-before, which causes memory leak.
+Yu Zhao reported a bug after the commit "mm/swap: Add swp_offset_pfn() to
+fetch PFN from swap entry" added a check in swp_offset_pfn() for swap type [1]:
 
-To fix these possible leaks, when btrfs_get_bdev_and_sb() fails,
-btrfs_put_dev_args_from_path() is called to clean up the memory.
+  kernel BUG at include/linux/swapops.h:117!
+  CPU: 46 PID: 5245 Comm: EventManager_De Tainted: G S         O L 6.0.0-dbg-DEV #2
+  RIP: 0010:pfn_swap_entry_to_page+0x72/0xf0
+  Code: c6 48 8b 36 48 83 fe ff 74 53 48 01 d1 48 83 c1 08 48 8b 09 f6
+  c1 01 75 7b 66 90 48 89 c1 48 8b 09 f6 c1 01 74 74 5d c3 eb 9e <0f> 0b
+  48 ba ff ff ff ff 03 00 00 00 eb ae a9 ff 0f 00 00 75 13 48
+  RSP: 0018:ffffa59e73fabb80 EFLAGS: 00010282
+  RAX: 00000000ffffffe8 RBX: 0c00000000000000 RCX: ffffcd5440000000
+  RDX: 1ffffffffff7a80a RSI: 0000000000000000 RDI: 0c0000000000042b
+  RBP: ffffa59e73fabb80 R08: ffff9965ca6e8bb8 R09: 0000000000000000
+  R10: ffffffffa5a2f62d R11: 0000030b372e9fff R12: ffff997b79db5738
+  R13: 000000000000042b R14: 0c0000000000042b R15: 1ffffffffff7a80a
+  FS:  00007f549d1bb700(0000) GS:ffff99d3cf680000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000440d035b3180 CR3: 0000002243176004 CR4: 00000000003706e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   <TASK>
+   change_pte_range+0x36e/0x880
+   change_p4d_range+0x2e8/0x670
+   change_protection_range+0x14e/0x2c0
+   mprotect_fixup+0x1ee/0x330
+   do_mprotect_pkey+0x34c/0x440
+   __x64_sys_mprotect+0x1d/0x30
 
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Fixes: faa775c41d655 ("btrfs: add a btrfs_get_dev_args_from_path helper")
-CC: stable@vger.kernel.org # 5.16
-Reviewed-by: Boris Burkov <boris@bur.io>
-Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+It triggers because pfn_swap_entry_to_page() could be called upon e.g. a
+genuine swap entry.
+
+Fix it by only calling it when it's a write migration entry where the page*
+is used.
+
+[1] https://lore.kernel.org/lkml/CAOUHufaVC2Za-p8m0aiHw6YkheDcrO-C3wRGixwDS32VTS+k1w@mail.gmail.com/
+
+Link: https://lkml.kernel.org/r/20220823221138.45602-1-peterx@redhat.com
+Fixes: 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reported-by: Yu Zhao <yuzhao@google.com>
+Tested-by: Yu Zhao <yuzhao@google.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: "Huang, Ying" <ying.huang@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ mm/mprotect.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -2392,8 +2392,11 @@ int btrfs_get_dev_args_from_path(struct
+--- a/mm/mprotect.c
++++ b/mm/mprotect.c
+@@ -158,10 +158,11 @@ static unsigned long change_pte_range(st
+ 			pages++;
+ 		} else if (is_swap_pte(oldpte)) {
+ 			swp_entry_t entry = pte_to_swp_entry(oldpte);
+-			struct page *page = pfn_swap_entry_to_page(entry);
+ 			pte_t newpte;
  
- 	ret = btrfs_get_bdev_and_sb(path, FMODE_READ, fs_info->bdev_holder, 0,
- 				    &bdev, &disk_super);
--	if (ret)
-+	if (ret) {
-+		btrfs_put_dev_args_from_path(args);
- 		return ret;
-+	}
+ 			if (is_writable_migration_entry(entry)) {
++				struct page *page = pfn_swap_entry_to_page(entry);
 +
- 	args->devid = btrfs_stack_device_id(&disk_super->dev_item);
- 	memcpy(args->uuid, disk_super->dev_item.uuid, BTRFS_UUID_SIZE);
- 	if (btrfs_fs_incompat(fs_info, METADATA_UUID))
+ 				/*
+ 				 * A protection check is difficult so
+ 				 * just be safe and disable write
 
 
