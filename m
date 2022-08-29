@@ -2,268 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F9715A5017
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 17:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92AF45A5032
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 17:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229863AbiH2PVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 11:21:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46490 "EHLO
+        id S229588AbiH2P2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 11:28:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230073AbiH2PVB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 11:21:01 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E84D67179
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 08:21:00 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id y127so8510722pfy.5
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 08:21:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc;
-        bh=2lYh9ohrz4iNb2tfUDceMZpG/++G9RNwmEE0kUOt6sw=;
-        b=szXEW+Rx2c/F0wNjNslTQXtT0u/KbWsyf6afOPLalLP2iQVUXQ1r2fhxo+1IgKGu28
-         q3RDL1BukWLaEiM3XpqAordY1pWgRfssDNZymo/SjDcegxQ4YPsu2D7iBuawQfCCDkMj
-         ZuTNgn5xbgtEoBln+tq1UQhoGhXX3gBNMqDXdKgA8Xz4BSMOZyoU4voGVMOedrMp+HmX
-         b8ayrxSl/aMXBz36zaBZrOley4VLGEf9/X90qGfk0vT+U8WgC5X3+CUv9QV1FZpGgmvy
-         8J3/LIiP1e6Ibnrk41rng0YrZ+TdBPPU1cFUId1SSE6Z8Rs0G4YGfHBGzJkyJipvQR6I
-         x0aw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc;
-        bh=2lYh9ohrz4iNb2tfUDceMZpG/++G9RNwmEE0kUOt6sw=;
-        b=DjKX6r3LZW4GsIpu5SbY0LM6UvAezst1LpISyvbnEA5oSQHJg+PymmfrQRihbULjX7
-         MOYFplmT+mB5alveMtWZFdA8d0GrQ9KIdHuD4L/4fq3ptnUg/0Ocla9StWIw6fqlT1XP
-         X2cQYh4cZ3+5URSj33H70B/3rlo3382BApFobdz3IID3zAVGW8PeUfo3XVM6NmVyHCTI
-         tLeLOGHXckXNdw0bjsg2PRJKY50h4gU7Y4dLrJ2zgWU2zw1KH2zPnkGmSg0KdbTnMc7c
-         jrnMQz/tQj10VYF0fCp+6lSkXby/7ulROU+VVcJrLPzuNiDTyh6BM0zKQN43oOrq9ZO7
-         iaoA==
-X-Gm-Message-State: ACgBeo2Z3w9N+AiT02oS1CcErbjkF4xxsu9ZI4FIw4B6E8nVILCYUOZ+
-        OjcsJDAp1UP6XD3SieDGuSskM844XcHmEIbh3yA=
-X-Google-Smtp-Source: AA6agR52EAScK2pzHkylO+Y5oOXiCgoPd+hFkUO640CNg8q5ueKAQWuJuq7h7qXWsDYYf/Uymf3eyg==
-X-Received: by 2002:a63:b648:0:b0:42a:ad58:74ce with SMTP id v8-20020a63b648000000b0042aad5874cemr13987838pgt.489.1661786459623;
-        Mon, 29 Aug 2022 08:20:59 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h6-20020aa79f46000000b0052e6c058bccsm7378485pfr.61.2022.08.29.08.20.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Aug 2022 08:20:59 -0700 (PDT)
-Message-ID: <630cd95b.a70a0220.4a177.c7e8@mx.google.com>
-Date:   Mon, 29 Aug 2022 08:20:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229475AbiH2P2v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 11:28:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596FA75FF7;
+        Mon, 29 Aug 2022 08:28:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A741B810E0;
+        Mon, 29 Aug 2022 15:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35C09C433D7;
+        Mon, 29 Aug 2022 15:28:43 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="oreJzKCu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1661786920;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zQQ7cZZmkdOA/uWvh8eRLzaQG6VPnlmV+s7f7evd1lo=;
+        b=oreJzKCuKjdiJjkXgTObWVZXWpPpOe7ZUkZkVxM+8Zx/VbMsaBLv4+TMG7JsQOtKVgAcH3
+        pwmYazuKBxJ+Md4M5/77Wqf27jJeYtJSPl3tUanHriZ3u9xGNnmKEt+M9YRjuL2Z9nE/vC
+        llFduOWgpYhJFy+b9vAjC3M2yMhxCIg=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 9c40696a (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Mon, 29 Aug 2022 15:28:40 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     ACPI Devel Maling List <linux-acpi@vger.kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
+        "Rafael J . Wysocki" <rafael@kernel.org>
+Subject: [PATCH] power: supply: avoid nullptr deref in __power_supply_is_system_supplied
+Date:   Mon, 29 Aug 2022 11:28:27 -0400
+Message-Id: <20220829152827.2726-1-Jason@zx2c4.com>
+In-Reply-To: <CAHmME9pQ5v5afkcCXtCYc1PLKKbnQJp=mc9gtdF+DBvFbKDPYw@mail.gmail.com>
+References: <CAHmME9pQ5v5afkcCXtCYc1PLKKbnQJp=mc9gtdF+DBvFbKDPYw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.139
-Subject: stable/linux-5.10.y baseline: 109 runs, 5 regressions (v5.10.139)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 109 runs, 5 regressions (v5.10.139)
+Fix the following OOPS:
 
-Regressions Summary
--------------------
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+PGD 0 P4D 0
+Oops: 0010 [#1] PREEMPT SMP
+CPU: 14 PID: 1156 Comm: upowerd Tainted: G S   U             6.0.0-rc1+ #366
+Hardware name: LENOVO 20Y5CTO1WW/20Y5CTO1WW, BIOS N40ET36W (1.18 ) 07/19/2022
+RIP: 0010:0x0
+Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+RSP: 0018:ffff88815350bd08 EFLAGS: 00010212
+RAX: ffff88810207d620 RBX: ffff88815350bd7c RCX: 000000000000394e
+RDX: ffff88815350bd10 RSI: 0000000000000004 RDI: ffff888111722c00
+RBP: ffff88815350bd68 R08: ffff8881187a8af8 R09: ffff8881187a8af8
+R10: 0000000000000000 R11: 000000000000005f R12: ffffffff8162d0b0
+R13: ffff88810159a038 R14: ffffffff823b3768 R15: ffff88810159a000
+FS:  00007fd1f0958140(0000) GS:ffff88901f780000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 0000000152c7a004 CR4: 0000000000770ee0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ __power_supply_is_system_supplied+0x26/0x40
+ class_for_each_device+0xa5/0xd0
+ ? acpi_battery_get_state+0x4e/0x1f0
+ power_supply_is_system_supplied+0x26/0x40
+ acpi_battery_get_property+0x301/0x310
+ power_supply_show_property+0xa5/0x1d0
+ dev_attr_show+0x10/0x30
+ sysfs_kf_seq_show+0x78/0xc0
+ seq_read_iter+0xfd/0x3e0
+ vfs_read+0x1cb/0x290
+ ksys_read+0x4e/0xc0
+ do_syscall_64+0x2b/0x50
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7fd1f0bed70c
+Code: ec 28 48 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 39 a4 f8 ff 41 89 c0 48 8b 54 24 18 48 8b 74 24 10 8b 7c 24 08 31 c0 0f 05 <48> 3d 00 f0 ff ff 77 34 44 89 c7 48 89 44 24 08 e8 8f a4 f8 ff 48
+RSP: 002b:00007ffc8d3f27e0 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fd1f0bed70c
+RDX: 0000000000001000 RSI: 000055957d534850 RDI: 000000000000000c
+RBP: 000055957d50b1d0 R08: 0000000000000000 R09: 0000000000001000
+R10: 000000000000006f R11: 0000000000000246 R12: 00007ffc8d3f2910
+R13: 0000000000000000 R14: 0000000000000000 R15: 000000000000000c
+ </TASK>
 
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+CR2: 0000000000000000
+---[ end trace 0000000000000000 ]---
+RIP: 0010:0x0
+Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+RSP: 0018:ffff88815350bd08 EFLAGS: 00010212
+RAX: ffff88810207d620 RBX: ffff88815350bd7c RCX: 000000000000394e
+RDX: ffff88815350bd10 RSI: 0000000000000004 RDI: ffff888111722c00
+RBP: ffff88815350bd68 R08: ffff8881187a8af8 R09: ffff8881187a8af8
+R10: 0000000000000000 R11: 000000000000005f R12: ffffffff8162d0b0
+R13: ffff88810159a038 R14: ffffffff823b3768 R15: ffff88810159a000
+FS:  00007fd1f0958140(0000) GS:ffff88901f780000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 0000000152c7a004 CR4: 0000000000770ee0
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+The disassembly of the top function in the stack trace is:
 
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+.text:0000000000000000 __power_supply_is_system_supplied proc near
+.text:0000000000000000                                         ; DATA XREF: power_supply_is_system_supplied+12↓o
+.text:0000000000000000
+.text:0000000000000000 var_8           = qword ptr -8
+.text:0000000000000000
+.text:0000000000000000                 sub     rsp, 8
+.text:0000000000000004                 mov     rdi, [rdi+78h]
+.text:0000000000000008                 inc     dword ptr [rsi]
+.text:000000000000000A                 mov     [rsp+8+var_8], 0
+.text:0000000000000012                 mov     rax, [rdi]
+.text:0000000000000015                 cmp     dword ptr [rax+8], 1
+.text:0000000000000019                 jz      short loc_2A
+.text:000000000000001B                 mov     rdx, rsp
+.text:000000000000001E                 mov     esi, 4
+.text:0000000000000023                 call    qword ptr [rax+30h]
+.text:0000000000000026                 test    eax, eax
+.text:0000000000000028                 jz      short loc_31
+.text:000000000000002A
+.text:000000000000002A loc_2A:                                 ; CODE XREF: __power_supply_is_system_supplied+19↑j
+.text:000000000000002A                 xor     eax, eax
+.text:000000000000002C                 add     rsp, 8
+.text:0000000000000030                 retn
+.text:0000000000000031 ; ---------------------------------------------------------------------------
+.text:0000000000000031
+.text:0000000000000031 loc_31:                                 ; CODE XREF: __power_supply_is_system_supplied+28↑j
+.text:0000000000000031                 mov     eax, dword ptr [rsp+8+var_8]
+.text:0000000000000034                 add     rsp, 8
+.text:0000000000000038                 retn
+.text:0000000000000038 __power_supply_is_system_supplied endp
 
-qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
+So presumably `call    qword ptr [rax+30h]` is jumping to NULL.
 
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+Cc: stable@vger.kernel.org
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ drivers/power/supply/power_supply_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/power/supply/power_supply_core.c b/drivers/power/supply/power_supply_core.c
+index 4b5fb172fa99..aa4c97f11588 100644
+--- a/drivers/power/supply/power_supply_core.c
++++ b/drivers/power/supply/power_supply_core.c
+@@ -349,7 +349,7 @@ static int __power_supply_is_system_supplied(struct device *dev, void *data)
+ 	unsigned int *count = data;
+ 
+ 	(*count)++;
+-	if (psy->desc->type != POWER_SUPPLY_TYPE_BATTERY)
++	if (psy->desc->type != POWER_SUPPLY_TYPE_BATTERY && psy->desc->get_property)
+ 		if (!psy->desc->get_property(psy, POWER_SUPPLY_PROP_ONLINE,
+ 					&ret))
+ 			return ret.intval;
+-- 
+2.37.2
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.139/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.139
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      665ee746071bf02ce8b7b9d729c8beab704393c2 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/630ca8df060c4fa6c6355642
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/630ca8df060c4fa6c6355=
-643
-        failing since 111 days (last pass: v5.10.112, first fail: v5.10.114=
-) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/630ca9947a4c9efa53355660
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/630ca9947a4c9efa53355=
-661
-        failing since 111 days (last pass: v5.10.112, first fail: v5.10.114=
-) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/630ca97f7a4c9efa53355642
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/630ca97f7a4c9efa53355=
-643
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/630ca8d6a88fcdd60a355666
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/630ca8d6a88fcdd60a355=
-667
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/630ca9937a4c9efa5335565a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.139/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/630ca9937a4c9efa53355=
-65b
-        failing since 111 days (last pass: v5.10.112, first fail: v5.10.114=
-) =
-
- =20
