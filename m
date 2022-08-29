@@ -2,88 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 489525A53CD
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 20:12:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E6C95A540B
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 20:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229649AbiH2SMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 14:12:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56158 "EHLO
+        id S229608AbiH2Sla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 14:41:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229530AbiH2SMX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 14:12:23 -0400
-Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BF418C02E
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 11:12:21 -0700 (PDT)
-Received: by mail-oi1-x231.google.com with SMTP id t140so11302479oie.8
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 11:12:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:from:to:cc;
-        bh=TrYLNmHMfL2YwnKDzOCdO7Jrlbbexw6rsutI3mWrjc8=;
-        b=C4e2LfHHhD3VI9AYcAd79zU/xDY05gHHfjG5as6HSheMRmJOOly6Y3xMtynCDJMtbr
-         bSmDy5sJCrggphzwB6ZpWWZiLxOLrFHBBBr5tL3RYH+s/aj+hkRKiMMHTA9mLLghb2IC
-         mxf+lrsR9qyJNSzJSBlGabtI5kXr81MiI4Bl2bTd9Li1QFMsghkejev/KDQaGEzhJQ4b
-         rJlTxH3Ad4HyEccHJ04Wd6tySipxIH40sI+zPj6zT6AmeAq0hb4YUXdhbUDC+CjzoVbf
-         OZAyI1tZg+33DfHS/x1p1CmYlPhfyL+/Nay4J0EzP0G9OP7W4IdIlaVJDT6vNzOMz141
-         oUtQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=TrYLNmHMfL2YwnKDzOCdO7Jrlbbexw6rsutI3mWrjc8=;
-        b=PDkUvBjRYbTLr68uwMRXkjx/LBwpFPV5fmm/wPesi/dZipC9MJMPVjrPDPcVUY521Y
-         Jwcdn9G4ASQxmDM+dJh0HWdfLh3nhO10Wcs6qCs3iHiGPKOO35mRPW/zKlx6+fjE9ceC
-         9gJv9OSpjkHhmCRE4NKf5MrMOI08AiJyINHv9mAvBoK0YRmvtHcN32703zvN1JXhKNd/
-         i7dPcsfTDPSinmnr069/ScLcXtZQSYvq7Q+k07tclOWf8NgzVZ2BXdVsBqjCmxeRoEAO
-         iX8en265G9H2q9OXMHjIkD8GMEiv4Sgv69JQv+Br2iw5C4s5w4kwwOs+p9oeXtsts+Ji
-         dagQ==
-X-Gm-Message-State: ACgBeo2p++OKw0UL7KsGwYb5vc63x7aGGMp3ntvHwRm8YcGb26Nljziy
-        tcryxNwH0ogKfj58vrphd/J0GoxLZJQkJTKWF5A=
-X-Google-Smtp-Source: AA6agR42CyXCsxl0rEVjo6rW8BIakUHbLBBwLSGlDDYD6SZQFTi6lFohd+sg22/9wEGDPx/VuAKgjc7a0ZgmlLuZVdc=
-X-Received: by 2002:a54:4116:0:b0:343:bcd:88d4 with SMTP id
- l22-20020a544116000000b003430bcd88d4mr7839132oic.47.1661796741180; Mon, 29
- Aug 2022 11:12:21 -0700 (PDT)
+        with ESMTP id S229543AbiH2Sl3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 14:41:29 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E6C80522;
+        Mon, 29 Aug 2022 11:41:27 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 02C861C0001; Mon, 29 Aug 2022 20:41:25 +0200 (CEST)
+Date:   Mon, 29 Aug 2022 20:41:23 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.10 00/86] 5.10.140-rc1 review
+Message-ID: <20220829184123.GA26356@duo.ucw.cz>
+References: <20220829105756.500128871@linuxfoundation.org>
 MIME-Version: 1.0
-Received: by 2002:a9d:128f:0:0:0:0:0 with HTTP; Mon, 29 Aug 2022 11:12:20
- -0700 (PDT)
-Reply-To: georgebrown0004@gmail.com
-From:   george brown <georgemike70300@gmail.com>
-Date:   Mon, 29 Aug 2022 20:12:20 +0200
-Message-ID: <CAFx-DcEVJ+hXEtsoGydag5G+Kk=PzGk9YV2goqV3AfEEvPTGgQ@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_40,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
+Content-Disposition: inline
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ahoj
 
-Jmenuji se George Brown, povol=C3=A1n=C3=ADm jsem pr=C3=A1vn=C3=ADk. Chci v=
-=C3=A1m nab=C3=ADdnout
-nejbli=C5=BE=C5=A1=C3=AD p=C5=99=C3=ADbuzn=C3=BD m=C3=A9ho klienta. Zd=C4=
-=9Bd=C3=ADte =C4=8D=C3=A1stku (8,5 milionu $)
-dolar=C5=AF, kter=C3=A9 m=C5=AFj klient nechal v bance p=C5=99ed svou smrt=
-=C3=AD.
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-M=C5=AFj klient je ob=C4=8Dan va=C5=A1=C3=AD zem=C4=9B, kter=C3=BD zem=C5=
-=99el p=C5=99i autonehod=C4=9B se svou =C5=BEenou
-a jedin=C3=BD syn. Budu m=C3=ADt n=C3=A1rok na 50 % z celkov=C3=A9ho fondu,=
- zat=C3=ADmco 50 % ano
-b=C3=BDt pro tebe.
-Pro v=C3=ADce informac=C3=AD pros=C3=ADm kontaktujte m=C5=AFj soukrom=C3=BD=
- e-mail zde:
-georgebrown0004@gmail.com
+Hi!
 
-P=C5=99edem d=C4=9Bkuji,
-pane George Browne,
+> This is the start of the stable review cycle for the 5.10.140 release.
+> There are 86 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+
+CIP testing did not find any problems here:
+
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+5.10.y
+
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--5vNYLRcllDrimb99
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYw0IUwAKCRAw5/Bqldv6
+8m87AJ4hsnjDUcuTUQcuRdmLnstfLZPicwCgnQZuoxcWPplofy2/n6xL09lB/lA=
+=SysB
+-----END PGP SIGNATURE-----
+
+--5vNYLRcllDrimb99--
