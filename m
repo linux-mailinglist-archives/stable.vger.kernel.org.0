@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 336AB5A4B23
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:11:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6AC5A4B2C
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:11:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230081AbiH2MLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 08:11:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45058 "EHLO
+        id S231825AbiH2MLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 08:11:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229807AbiH2MKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:10:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 970D212AC3;
-        Mon, 29 Aug 2022 04:56:00 -0700 (PDT)
+        with ESMTP id S230025AbiH2MLF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:11:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10FC73C8C4;
+        Mon, 29 Aug 2022 04:56:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9248AB80FC0;
-        Mon, 29 Aug 2022 11:19:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB70BC433D6;
-        Mon, 29 Aug 2022 11:19:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40076B80FC9;
+        Mon, 29 Aug 2022 11:19:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 930A6C4347C;
+        Mon, 29 Aug 2022 11:19:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771998;
-        bh=aDwsei9jj1VM0sDi6weamcc36m6qy+WE/5lzoysGsuE=;
+        s=korg; t=1661771989;
+        bh=kpJKTLGLS6xwjykrV2lzZsKYJBC6S+RI4goYTasTOE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=za5gNvZ2gI2SMARlLorRbs+qfMNXeFg1cXsWfgHIpnXmqXo+EUTlNpQ83dTeRea7R
-         xDnmaY1ERfstQaGcKjlB1OfoDpyUWsKL44e58/oJU05fuxOy9Vr46/0fM0lxFy4j9y
-         pBiKhObj3bdYt0PhFmtr95xVViLzB+86hG6jvBXk=
+        b=puNqiy6thjykf9+KSnNq2yZE+Il66UO8FsW/yWP921H32mzUxDU4q7RgEmSxWXdMG
+         OjUWp6KCmlQYDbGJTF3mrNekvitO8BzhgaAoNjV7TWR9gMZTuug4sU8ZVagcO/ma0V
+         1bzoUuouAl6WmVoiqpTCQ5o7c3hLMP7pLS7Q61TY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.19 150/158] arm64/sme: Dont flush SVE register state when handling SME traps
-Date:   Mon, 29 Aug 2022 13:00:00 +0200
-Message-Id: <20220829105815.393027245@linuxfoundation.org>
+        stable@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH 5.19 156/158] riscv: dts: microchip: mpfs: remove bogus card-detect-delay
+Date:   Mon, 29 Aug 2022 13:00:06 +0200
+Message-Id: <20220829105815.675496328@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -54,47 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-commit 714f3cbd70a4db9f9b7fe5b8a032896ed33fb824 upstream.
+commit 2b55915d27dcaa35f54bad7925af0a76001079bc upstream.
 
-Currently as part of handling a SME access trap we flush the SVE register
-state. This is not needed and would corrupt register state if the task has
-access to the SVE registers already. For non-streaming mode accesses the
-required flushing will be done in the SVE access trap. For streaming
-mode SVE register accesses the architecture guarantees that the register
-state will be flushed when streaming mode is entered or exited so there is
-no need for us to do so. Simply remove the register initialisation.
+Recent versions of dt-schema warn about a previously undetected
+undocumented property:
+arch/riscv/boot/dts/microchip/mpfs-icicle-kit.dtb: mmc@20008000: Unevaluated properties are not allowed ('card-detect-delay' was unexpected)
+        From schema: Documentation/devicetree/bindings/mmc/cdns,sdhci.yaml
 
-Fixes: 8bd7f91c03d8 ("arm64/sme: Implement traps and syscall handling for SME")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20220817182324.638214-5-broonie@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+There are no GPIOs connected to MSSIO6B4 pin K3 so adding the common
+cd-debounce-delay-ms property makes no sense. The Cadence IP has a
+register that sets the card detect delay as "DP * tclk". On MPFS, this
+clock frequency is not configurable (it must be 200 MHz) & the FPGA
+comes out of reset with this register already set.
+
+Fixes: bc47b2217f24 ("riscv: dts: microchip: add the sundance polarberry")
+Fixes: 0fa6107eca41 ("RISC-V: Initial DTS for Microchip ICICLE board")
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/fpsimd.c |   11 -----------
- 1 file changed, 11 deletions(-)
+ arch/riscv/boot/dts/microchip/mpfs-icicle-kit.dts | 1 -
+ arch/riscv/boot/dts/microchip/mpfs-polarberry.dts | 1 -
+ 2 files changed, 2 deletions(-)
 
---- a/arch/arm64/kernel/fpsimd.c
-+++ b/arch/arm64/kernel/fpsimd.c
-@@ -1463,17 +1463,6 @@ void do_sme_acc(unsigned long esr, struc
- 		fpsimd_bind_task_to_cpu();
- 	}
- 
--	/*
--	 * If SVE was not already active initialise the SVE registers,
--	 * any non-shared state between the streaming and regular SVE
--	 * registers is architecturally guaranteed to be zeroed when
--	 * we enter streaming mode.  We do not need to initialize ZA
--	 * since ZA must be disabled at this point and enabling ZA is
--	 * architecturally defined to zero ZA.
--	 */
--	if (system_supports_sve() && !test_thread_flag(TIF_SVE))
--		sve_init_regs();
--
- 	put_cpu_fpsimd_context();
- }
- 
+diff --git a/arch/riscv/boot/dts/microchip/mpfs-icicle-kit.dts b/arch/riscv/boot/dts/microchip/mpfs-icicle-kit.dts
+index ee548ab61a2a..f3f87ed2007f 100644
+--- a/arch/riscv/boot/dts/microchip/mpfs-icicle-kit.dts
++++ b/arch/riscv/boot/dts/microchip/mpfs-icicle-kit.dts
+@@ -100,7 +100,6 @@ &mmc {
+ 	disable-wp;
+ 	cap-sd-highspeed;
+ 	cap-mmc-highspeed;
+-	card-detect-delay = <200>;
+ 	mmc-ddr-1_8v;
+ 	mmc-hs200-1_8v;
+ 	sd-uhs-sdr12;
+diff --git a/arch/riscv/boot/dts/microchip/mpfs-polarberry.dts b/arch/riscv/boot/dts/microchip/mpfs-polarberry.dts
+index dc11bb8fc833..c87cc2d8fe29 100644
+--- a/arch/riscv/boot/dts/microchip/mpfs-polarberry.dts
++++ b/arch/riscv/boot/dts/microchip/mpfs-polarberry.dts
+@@ -70,7 +70,6 @@ &mmc {
+ 	disable-wp;
+ 	cap-sd-highspeed;
+ 	cap-mmc-highspeed;
+-	card-detect-delay = <200>;
+ 	mmc-ddr-1_8v;
+ 	mmc-hs200-1_8v;
+ 	sd-uhs-sdr12;
+-- 
+2.37.2
+
 
 
