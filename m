@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 812B05A4886
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:12:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F45C5A4965
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231203AbiH2LMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:12:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58480 "EHLO
+        id S231820AbiH2LYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:24:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiH2LLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:11:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6527D6DAD1;
-        Mon, 29 Aug 2022 04:08:13 -0700 (PDT)
+        with ESMTP id S231925AbiH2LXm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:23:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2B1BAA;
+        Mon, 29 Aug 2022 04:15:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B01C0611D9;
-        Mon, 29 Aug 2022 11:05:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBC8CC433D6;
-        Mon, 29 Aug 2022 11:05:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59664B80EF9;
+        Mon, 29 Aug 2022 11:06:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0342C433D7;
+        Mon, 29 Aug 2022 11:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771156;
-        bh=spsPPpX2HBUsUnlueS3BUehK5SGzWe+chz8JxgDmEko=;
+        s=korg; t=1661771168;
+        bh=jnbTVIEeMlwsEC0HOnDrK7gg//cPVaL3m7qOy+obV44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZdmd2aBemzf8M0UUBXVbo2umvXnalNrxeMVD+fOorxz6rsnV3QhaeaSr6mwI8NS+
-         JxD2tdxdroQpwV1hNTmWhOzXD6b9mf7mQXsFR+Aeb7XbKgwzfp246+SZVMt03MzGMH
-         KW4+YdgGe8AUQoD0OScOE9t1o8QoQeeg9iFhEnGg=
+        b=job3WE6JFthsmNnPe8MeBC2awttisd/RFmqOXhw3ikeJ6lOQWXmsb9clkYWOiBGpo
+         bWLWPvZJ7tJC55bpu4tRB8PzY+MvV10b6BO8scWuEZ11ICzFewh724g3xqwcXuRFgV
+         lx6N5hAtFfHvV3QWaCXibNhf3dt494sQeQinykts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/136] net: Fix data-races around netdev_tstamp_prequeue.
+Subject: [PATCH 5.10 34/86] netfilter: nf_tables: do not leave chain stats enabled on error
 Date:   Mon, 29 Aug 2022 12:59:00 +0200
-Message-Id: <20220829105807.639482348@linuxfoundation.org>
+Message-Id: <20220829105757.952910160@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 61adf447e38664447526698872e21c04623afb8e ]
+[ Upstream commit 43eb8949cfdffa764b92bc6c54b87cbe5b0003fe ]
 
-While reading netdev_tstamp_prequeue, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+Error might occur later in the nf_tables_addchain() codepath, enable
+static key only after transaction has been created.
 
-Fixes: 3b098e2d7c69 ("net: Consistent skb timestamping")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9f08ea848117 ("netfilter: nf_tables: keep chain counters away from hot path")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/netfilter/nf_tables_api.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 87cf2e0d8f6f1..28f623628876c 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4893,7 +4893,7 @@ static int netif_rx_internal(struct sk_buff *skb)
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 30bd4b867912c..456988b5c076e 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -1999,9 +1999,9 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 			      u8 policy, u32 flags)
  {
- 	int ret;
+ 	const struct nlattr * const *nla = ctx->nla;
++	struct nft_stats __percpu *stats = NULL;
+ 	struct nft_table *table = ctx->table;
+ 	struct nft_base_chain *basechain;
+-	struct nft_stats __percpu *stats;
+ 	struct net *net = ctx->net;
+ 	char name[NFT_NAME_MAXLEN];
+ 	struct nft_trans *trans;
+@@ -2037,7 +2037,6 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 				return PTR_ERR(stats);
+ 			}
+ 			rcu_assign_pointer(basechain->stats, stats);
+-			static_branch_inc(&nft_counters_enabled);
+ 		}
  
--	net_timestamp_check(netdev_tstamp_prequeue, skb);
-+	net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
+ 		err = nft_basechain_init(basechain, family, &hook, flags);
+@@ -2120,6 +2119,9 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
+ 		goto err_unregister_hook;
+ 	}
  
- 	trace_netif_rx(skb);
++	if (stats)
++		static_branch_inc(&nft_counters_enabled);
++
+ 	table->use++;
  
-@@ -5253,7 +5253,7 @@ static int __netif_receive_skb_core(struct sk_buff **pskb, bool pfmemalloc,
- 	int ret = NET_RX_DROP;
- 	__be16 type;
- 
--	net_timestamp_check(!netdev_tstamp_prequeue, skb);
-+	net_timestamp_check(!READ_ONCE(netdev_tstamp_prequeue), skb);
- 
- 	trace_netif_receive_skb(skb);
- 
-@@ -5634,7 +5634,7 @@ static int netif_receive_skb_internal(struct sk_buff *skb)
- {
- 	int ret;
- 
--	net_timestamp_check(netdev_tstamp_prequeue, skb);
-+	net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
- 
- 	if (skb_defer_rx_timestamp(skb))
- 		return NET_RX_SUCCESS;
-@@ -5664,7 +5664,7 @@ static void netif_receive_skb_list_internal(struct list_head *head)
- 
- 	INIT_LIST_HEAD(&sublist);
- 	list_for_each_entry_safe(skb, next, head, list) {
--		net_timestamp_check(netdev_tstamp_prequeue, skb);
-+		net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
- 		skb_list_del_init(skb);
- 		if (!skb_defer_rx_timestamp(skb))
- 			list_add_tail(&skb->list, &sublist);
+ 	return 0;
 -- 
 2.35.1
 
