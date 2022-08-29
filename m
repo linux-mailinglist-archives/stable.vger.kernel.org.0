@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A08315A4B32
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:12:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0473A5A4BEA
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231322AbiH2MME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 08:12:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56084 "EHLO
+        id S229950AbiH2Mbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 08:31:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229922AbiH2MLd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:11:33 -0400
+        with ESMTP id S230001AbiH2Mba (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:31:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10EF522527;
-        Mon, 29 Aug 2022 04:56:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065A2844FA;
+        Mon, 29 Aug 2022 05:15:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FB0AB80FAE;
-        Mon, 29 Aug 2022 11:14:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECD8EC433C1;
-        Mon, 29 Aug 2022 11:14:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62C26B80F96;
+        Mon, 29 Aug 2022 11:14:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8964C433D6;
+        Mon, 29 Aug 2022 11:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771665;
-        bh=uMQJvyfzpyrFxCJ+wIpRifUys8/OmF5TnZH79b4QBCs=;
+        s=korg; t=1661771677;
+        bh=VaHDkz+mEMtnoNiMQi0bFo7NhEGDBbcyFRo6oNeVm3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iIvfEMz7yaPNNKg+TUCIiSKW+9ZlJ2NggJdKhWK8HywPrMHBbgPIs9FyKI/JMdwLW
-         BC/yN/QlCE2hbOO47HRxRdIQ5uUv+n7OT4e8zqNKI+MDQ7L6ak1p9BSPgWmasX6ZN7
-         UTwKnrbruIyHA2apg8ZZC2/2imU3+mtwwqVN3B78=
+        b=pmtCWVOvwqXzoUbixsHDrmXdOkuwvj0yjUp+yezWEEuyTKTCYZdnVxhV2MwJvzaVd
+         RSzqFemK2Bx0R2ngcG3luKo2BNP++nZ34BMLgrIivNbfnbbFdy1T8HeSeOKzYHZVPi
+         wsff8KAu9MEAw80vWmQ9xDI61KfxWZ+xN/d0oDOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 058/158] netfilter: nft_payload: do not truncate csum_offset and csum_type
-Date:   Mon, 29 Aug 2022 12:58:28 +0200
-Message-Id: <20220829105811.147620883@linuxfoundation.org>
+Subject: [PATCH 5.19 060/158] netfilter: nft_osf: restrict osf to ipv4, ipv6 and inet families
+Date:   Mon, 29 Aug 2022 12:58:30 +0200
+Message-Id: <20220829105811.228713661@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -55,68 +55,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 7044ab281febae9e2fa9b0b247693d6026166293 ]
+[ Upstream commit 5f3b7aae14a706d0d7da9f9e39def52ff5fc3d39 ]
 
-Instead report ERANGE if csum_offset is too long, and EOPNOTSUPP if type
-is not support.
+As it was originally intended, restrict extension to supported families.
 
-Fixes: 7ec3f7b47b8d ("netfilter: nft_payload: add packet mangling support")
+Fixes: b96af92d6eaf ("netfilter: nf_tables: implement Passive OS fingerprint module in nft_osf")
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_payload.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ net/netfilter/nft_osf.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
-index 4fee67abfe2c5..eb0e40c297121 100644
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -740,17 +740,23 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
- 				const struct nlattr * const tb[])
+diff --git a/net/netfilter/nft_osf.c b/net/netfilter/nft_osf.c
+index 5eed18f90b020..175d666c8d87e 100644
+--- a/net/netfilter/nft_osf.c
++++ b/net/netfilter/nft_osf.c
+@@ -115,9 +115,21 @@ static int nft_osf_validate(const struct nft_ctx *ctx,
+ 			    const struct nft_expr *expr,
+ 			    const struct nft_data **data)
  {
- 	struct nft_payload_set *priv = nft_expr_priv(expr);
-+	u32 csum_offset, csum_type = NFT_PAYLOAD_CSUM_NONE;
-+	int err;
- 
- 	priv->base        = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_BASE]));
- 	priv->offset      = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
- 	priv->len         = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_LEN]));
- 
- 	if (tb[NFTA_PAYLOAD_CSUM_TYPE])
--		priv->csum_type =
--			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
--	if (tb[NFTA_PAYLOAD_CSUM_OFFSET])
--		priv->csum_offset =
--			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_OFFSET]));
-+		csum_type = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
-+	if (tb[NFTA_PAYLOAD_CSUM_OFFSET]) {
-+		err = nft_parse_u32_check(tb[NFTA_PAYLOAD_CSUM_OFFSET], U8_MAX,
-+					  &csum_offset);
-+		if (err < 0)
-+			return err;
+-	return nft_chain_validate_hooks(ctx->chain, (1 << NF_INET_LOCAL_IN) |
+-						    (1 << NF_INET_PRE_ROUTING) |
+-						    (1 << NF_INET_FORWARD));
++	unsigned int hooks;
 +
-+		priv->csum_offset = csum_offset;
++	switch (ctx->family) {
++	case NFPROTO_IPV4:
++	case NFPROTO_IPV6:
++	case NFPROTO_INET:
++		hooks = (1 << NF_INET_LOCAL_IN) |
++			(1 << NF_INET_PRE_ROUTING) |
++			(1 << NF_INET_FORWARD);
++		break;
++	default:
++		return -EOPNOTSUPP;
 +	}
- 	if (tb[NFTA_PAYLOAD_CSUM_FLAGS]) {
- 		u32 flags;
++
++	return nft_chain_validate_hooks(ctx->chain, hooks);
+ }
  
-@@ -761,7 +767,7 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
- 		priv->csum_flags = flags;
- 	}
- 
--	switch (priv->csum_type) {
-+	switch (csum_type) {
- 	case NFT_PAYLOAD_CSUM_NONE:
- 	case NFT_PAYLOAD_CSUM_INET:
- 		break;
-@@ -775,6 +781,7 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-+	priv->csum_type = csum_type;
- 
- 	return nft_parse_register_load(tb[NFTA_PAYLOAD_SREG], &priv->sreg,
- 				       priv->len);
+ static bool nft_osf_reduce(struct nft_regs_track *track,
 -- 
 2.35.1
 
