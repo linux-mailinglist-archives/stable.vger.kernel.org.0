@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77EB05A4B7C
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:21:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38AB65A4C18
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbiH2MVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 08:21:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58408 "EHLO
+        id S229558AbiH2Mlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 08:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230451AbiH2MVd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:21:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F35CF58517;
-        Mon, 29 Aug 2022 05:05:36 -0700 (PDT)
+        with ESMTP id S230316AbiH2Mkv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:40:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9835D13F14;
+        Mon, 29 Aug 2022 05:24:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF4FEB80F9A;
-        Mon, 29 Aug 2022 11:16:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55675C433D6;
-        Mon, 29 Aug 2022 11:16:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5F15B80FA1;
+        Mon, 29 Aug 2022 11:08:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E407C433D6;
+        Mon, 29 Aug 2022 11:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771807;
-        bh=CAB0dM4DuuIsf2a3QiclMqfYJ2KO8N7/9vCXIMquUdg=;
+        s=korg; t=1661771314;
+        bh=FufMUVUaQh+PDh29tlw9bNgetLwgT2UPVsGlg+Vo9Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1SWhOM+Z6QPM49+4o5BEUdcZ6EyRXjCozIuRAWy7XjaesWMfOwYcC9gLJ/BQ2oGuE
-         0ptSDpXjMtIPaazVAjmwl0VrUkIO/5Pp4aEu56NXE6XddneJ8Z8IP5HsDwqQFSGH4O
-         5HyPLcT0mKHAiTAvah6rFC+TI3x7MP0Po5wVahe4=
+        b=WxdszoDuVSmsgqCDUm6KB7181rwnZSXtc7mkK80iJwv+yBCI6A9n8iTR/3sl6ZdCt
+         YeLvkyh6Etg9mYnIb+cbqmfQmneZOtC1L2WNaz8GufXfl4GkwD6v3Vf6ql+R4ZLFEq
+         xivP6eaZzheiVA14PXlgG1jnnmPdx3g4IdTaMzPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Borislav Petkov <bp@suse.de>, Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.19 104/158] x86/entry: Fix entry_INT80_compat for Xen PV guests
-Date:   Mon, 29 Aug 2022 12:59:14 +0200
-Message-Id: <20220829105813.460494448@linuxfoundation.org>
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 50/86] ratelimit: Fix data-races in ___ratelimit().
+Date:   Mon, 29 Aug 2022 12:59:16 +0200
+Message-Id: <20220829105758.570721185@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 5b9f0c4df1c1152403c738373fb063e9ffdac0a1 upstream.
+[ Upstream commit 6bae8ceb90ba76cdba39496db936164fa672b9be ]
 
-Commit
+While reading rs->interval and rs->burst, they can be changed
+concurrently via sysctl (e.g. net_ratelimit_state).  Thus, we
+need to add READ_ONCE() to their readers.
 
-  c89191ce67ef ("x86/entry: Convert SWAPGS to swapgs and remove the definition of SWAPGS")
-
-missed one use case of SWAPGS in entry_INT80_compat(). Removing of
-the SWAPGS macro led to asm just using "swapgs", as it is accepting
-instructions in capital letters, too.
-
-This in turn leads to splats in Xen PV guests like:
-
-  [   36.145223] general protection fault, maybe for address 0x2d: 0000 [#1] PREEMPT SMP NOPTI
-  [   36.145794] CPU: 2 PID: 1847 Comm: ld-linux.so.2 Not tainted 5.19.1-1-default #1 \
-	  openSUSE Tumbleweed f3b44bfb672cdb9f235aff53b57724eba8b9411b
-  [   36.146608] Hardware name: HP ProLiant ML350p Gen8, BIOS P72 11/14/2013
-  [   36.148126] RIP: e030:entry_INT80_compat+0x3/0xa3
-
-Fix that by open coding this single instance of the SWAPGS macro.
-
-Fixes: c89191ce67ef ("x86/entry: Convert SWAPGS to swapgs and remove the definition of SWAPGS")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Cc: <stable@vger.kernel.org> # 5.19
-Link: https://lore.kernel.org/r/20220816071137.4893-1-jgross@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/entry_64_compat.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/ratelimit.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/arch/x86/entry/entry_64_compat.S
-+++ b/arch/x86/entry/entry_64_compat.S
-@@ -311,7 +311,7 @@ SYM_CODE_START(entry_INT80_compat)
- 	 * Interrupts are off on entry.
- 	 */
- 	ASM_CLAC			/* Do this early to minimize exposure */
--	SWAPGS
-+	ALTERNATIVE "swapgs", "", X86_FEATURE_XENPV
+diff --git a/lib/ratelimit.c b/lib/ratelimit.c
+index e01a93f46f833..ce945c17980b9 100644
+--- a/lib/ratelimit.c
++++ b/lib/ratelimit.c
+@@ -26,10 +26,16 @@
+  */
+ int ___ratelimit(struct ratelimit_state *rs, const char *func)
+ {
++	/* Paired with WRITE_ONCE() in .proc_handler().
++	 * Changing two values seperately could be inconsistent
++	 * and some message could be lost.  (See: net_ratelimit_state).
++	 */
++	int interval = READ_ONCE(rs->interval);
++	int burst = READ_ONCE(rs->burst);
+ 	unsigned long flags;
+ 	int ret;
+ 
+-	if (!rs->interval)
++	if (!interval)
+ 		return 1;
  
  	/*
- 	 * User tracing code (ptrace or signal handlers) might assume that
+@@ -44,7 +50,7 @@ int ___ratelimit(struct ratelimit_state *rs, const char *func)
+ 	if (!rs->begin)
+ 		rs->begin = jiffies;
+ 
+-	if (time_is_before_jiffies(rs->begin + rs->interval)) {
++	if (time_is_before_jiffies(rs->begin + interval)) {
+ 		if (rs->missed) {
+ 			if (!(rs->flags & RATELIMIT_MSG_ON_RELEASE)) {
+ 				printk_deferred(KERN_WARNING
+@@ -56,7 +62,7 @@ int ___ratelimit(struct ratelimit_state *rs, const char *func)
+ 		rs->begin   = jiffies;
+ 		rs->printed = 0;
+ 	}
+-	if (rs->burst && rs->burst > rs->printed) {
++	if (burst && burst > rs->printed) {
+ 		rs->printed++;
+ 		ret = 1;
+ 	} else {
+-- 
+2.35.1
+
 
 
