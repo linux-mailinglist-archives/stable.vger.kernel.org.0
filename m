@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 336FB5A4AB6
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:49:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78A815A4AB2
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233095AbiH2LtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:49:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46754 "EHLO
+        id S232995AbiH2LtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:49:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233190AbiH2Lsx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:48:53 -0400
+        with ESMTP id S233145AbiH2Lsp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:48:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D7B08A1E9;
-        Mon, 29 Aug 2022 04:32:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F5D7B7B4;
+        Mon, 29 Aug 2022 04:32:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DDBCB80F79;
-        Mon, 29 Aug 2022 11:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D84C433D6;
-        Mon, 29 Aug 2022 11:16:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E68EB80F9E;
+        Mon, 29 Aug 2022 11:16:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A004BC433D6;
+        Mon, 29 Aug 2022 11:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771796;
-        bh=MW7k14D6wvJJxHEMsB9O+rplv0E+qjehGPwxE/Qy2Tc=;
+        s=korg; t=1661771799;
+        bh=1nf+LBF2sKGwkTpTN8P40gOXyki1/W9fa4kqIVgEXNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZbUe2w9A/JsLYft2fOO+BlWNAtidSb1TxbFsdyRUZJrBB5vTQwE9KvSsZOYFWW+9
-         m61kmfi5b8sEeOKZseXoSx3YHrIHIV6xoT362vBqIY+gSiz19tuBI/S/Jn0P7xOMB0
-         X7mMxUHVykp75Cjh3pbRDWwZwIIBvhShOcMfNImM=
+        b=Duvo/fRt7/5+4bXaF+mtIyfjhq6maTISK9WiK6wfGnNUyBj87OngR3N60yi9DyXvG
+         BVJc45lvVeOI7PBsxYZ5lACxKUYkuQ8B192+C+kguFC5EJlQf/R/puZ4ZWLnySWWwW
+         ipiKNPzipSAG1pEea/6rZr5FYQm+HrtI8lNyUMqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.19 100/158] btrfs: update generation of hole file extent item when merging holes
-Date:   Mon, 29 Aug 2022 12:59:10 +0200
-Message-Id: <20220829105813.285939666@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
+        watnuss@gmx.de, Michael Roth <michael.roth@amd.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.19 101/158] x86/boot: Dont propagate uninitialized boot_params->cc_blob_address
+Date:   Mon, 29 Aug 2022 12:59:11 +0200
+Message-Id: <20220829105813.324012491@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -54,92 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Michael Roth <michael.roth@amd.com>
 
-commit e6e3dec6c3c288d556b991a85d5d8e3ee71e9046 upstream.
+commit 4b1c742407571eff58b6de9881889f7ca7c4b4dc upstream.
 
-When punching a hole into a file range that is adjacent with a hole and we
-are not using the no-holes feature, we expand the range of the adjacent
-file extent item that represents a hole, to save metadata space.
+In some cases, bootloaders will leave boot_params->cc_blob_address
+uninitialized rather than zeroing it out. This field is only meant to be
+set by the boot/compressed kernel in order to pass information to the
+uncompressed kernel when SEV-SNP support is enabled.
 
-However we don't update the generation of hole file extent item, which
-means a full fsync will not log that file extent item if the fsync happens
-in a later transaction (since commit 7f30c07288bb9e ("btrfs: stop copying
-old file extents when doing a full fsync")).
+Therefore, there are no cases where the bootloader-provided values
+should be treated as anything other than garbage. Otherwise, the
+uncompressed kernel may attempt to access this bogus address, leading to
+a crash during early boot.
 
-For example, if we do this:
+Normally, sanitize_boot_params() would be used to clear out such fields
+but that happens too late: sev_enable() may have already initialized
+it to a valid value that should not be zeroed out. Instead, have
+sev_enable() zero it out unconditionally beforehand.
 
-    $ mkfs.btrfs -f -O ^no-holes /dev/sdb
-    $ mount /dev/sdb /mnt
-    $ xfs_io -f -c "pwrite -S 0xab 2M 2M" /mnt/foobar
-    $ sync
+Also ensure this happens for !CONFIG_AMD_MEM_ENCRYPT as well by also
+including this handling in the sev_enable() stub function.
 
-We end up with 2 file extent items in our file:
+  [ bp: Massage commit message and comments. ]
 
-1) One that represents the hole for the file range [0, 2M), with a
-   generation of 7;
-
-2) Another one that represents an extent covering the range [2M, 4M).
-
-After that if we do the following:
-
-    $ xfs_io -c "fpunch 2M 2M" /mnt/foobar
-
-We end up with a single file extent item in the file, which represents a
-hole for the range [0, 4M) and with a generation of 7 - because we end
-dropping the data extent for range [2M, 4M) and then update the file
-extent item that represented the hole at [0, 2M), by increasing
-length from 2M to 4M.
-
-Then doing a full fsync and power failing:
-
-    $ xfs_io -c "fsync" /mnt/foobar
-    <power failure>
-
-will result in the full fsync not logging the file extent item that
-represents the hole for the range [0, 4M), because its generation is 7,
-which is lower than the generation of the current transaction (8).
-As a consequence, after mounting again the filesystem (after log replay),
-the region [2M, 4M) does not have a hole, it still points to the
-previous data extent.
-
-So fix this by always updating the generation of existing file extent
-items representing holes when we merge/expand them. This solves the
-problem and it's the same approach as when we merge prealloc extents that
-got written (at btrfs_mark_extent_written()). Setting the generation to
-the current transaction's generation is also what we do when merging
-the new hole extent map with the previous one or the next one.
-
-A test case for fstests, covering both cases of hole file extent item
-merging (to the left and to the right), will be sent soon.
-
-Fixes: 7f30c07288bb9e ("btrfs: stop copying old file extents when doing a full fsync")
-CC: stable@vger.kernel.org # 5.18+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: b190a043c49a ("x86/sev: Add SEV-SNP feature detection/setup")
+Reported-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+Reported-by: watnuss@gmx.de
+Signed-off-by: Michael Roth <michael.roth@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216387
+Link: https://lore.kernel.org/r/20220823160734.89036-1-michael.roth@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/boot/compressed/misc.h | 12 +++++++++++-
+ arch/x86/boot/compressed/sev.c  |  8 ++++++++
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2483,6 +2483,7 @@ static int fill_holes(struct btrfs_trans
- 		btrfs_set_file_extent_num_bytes(leaf, fi, num_bytes);
- 		btrfs_set_file_extent_ram_bytes(leaf, fi, num_bytes);
- 		btrfs_set_file_extent_offset(leaf, fi, 0);
-+		btrfs_set_file_extent_generation(leaf, fi, trans->transid);
- 		btrfs_mark_buffer_dirty(leaf);
- 		goto out;
- 	}
-@@ -2499,6 +2500,7 @@ static int fill_holes(struct btrfs_trans
- 		btrfs_set_file_extent_num_bytes(leaf, fi, num_bytes);
- 		btrfs_set_file_extent_ram_bytes(leaf, fi, num_bytes);
- 		btrfs_set_file_extent_offset(leaf, fi, 0);
-+		btrfs_set_file_extent_generation(leaf, fi, trans->transid);
- 		btrfs_mark_buffer_dirty(leaf);
- 		goto out;
- 	}
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 4910bf230d7b..62208ec04ca4 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -132,7 +132,17 @@ void snp_set_page_private(unsigned long paddr);
+ void snp_set_page_shared(unsigned long paddr);
+ void sev_prep_identity_maps(unsigned long top_level_pgt);
+ #else
+-static inline void sev_enable(struct boot_params *bp) { }
++static inline void sev_enable(struct boot_params *bp)
++{
++	/*
++	 * bp->cc_blob_address should only be set by boot/compressed kernel.
++	 * Initialize it to 0 unconditionally (thus here in this stub too) to
++	 * ensure that uninitialized values from buggy bootloaders aren't
++	 * propagated.
++	 */
++	if (bp)
++		bp->cc_blob_address = 0;
++}
+ static inline void sev_es_shutdown_ghcb(void) { }
+ static inline bool sev_es_check_ghcb_fault(unsigned long address)
+ {
+diff --git a/arch/x86/boot/compressed/sev.c b/arch/x86/boot/compressed/sev.c
+index 52f989f6acc2..c93930d5ccbd 100644
+--- a/arch/x86/boot/compressed/sev.c
++++ b/arch/x86/boot/compressed/sev.c
+@@ -276,6 +276,14 @@ void sev_enable(struct boot_params *bp)
+ 	struct msr m;
+ 	bool snp;
+ 
++	/*
++	 * bp->cc_blob_address should only be set by boot/compressed kernel.
++	 * Initialize it to 0 to ensure that uninitialized values from
++	 * buggy bootloaders aren't propagated.
++	 */
++	if (bp)
++		bp->cc_blob_address = 0;
++
+ 	/*
+ 	 * Setup/preliminary detection of SNP. This will be sanity-checked
+ 	 * against CPUID/MSR values later.
+-- 
+2.37.2
+
 
 
