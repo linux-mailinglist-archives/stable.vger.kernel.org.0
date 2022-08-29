@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0D7D5A4A66
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A4575A48EB
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232922AbiH2Lhz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:37:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41612 "EHLO
+        id S230013AbiH2LRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:17:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232868AbiH2LhD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:37:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD36461B3C;
-        Mon, 29 Aug 2022 04:21:31 -0700 (PDT)
+        with ESMTP id S229684AbiH2LRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:17:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 142F872FC0;
+        Mon, 29 Aug 2022 04:11:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F0E561185;
-        Mon, 29 Aug 2022 11:19:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 771CAC433C1;
-        Mon, 29 Aug 2022 11:19:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1040CB80F4B;
+        Mon, 29 Aug 2022 11:10:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 628AAC433D7;
+        Mon, 29 Aug 2022 11:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771966;
-        bh=9TpFLjXDWWPGSkUHylnED8xi99Am0soBk1z8T1wdQ/I=;
+        s=korg; t=1661771438;
+        bh=XD1fo/BaIu09cYinPxJdWvEdjdojNbeH68SN/JnxNZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y21Qnk3E//3apmt8RiGP/5U+uWMfhdeGIQJJbzpKU1ZCNgo50Lk1faCmvr6/44Gkr
-         GhtHIf7W9/+AkQo5clbL/2MXCVRKMAeKIpJkzHiptRzPc+VB9IvjELKui1+2jmBojl
-         VbUxq1wgoNrM//Y1PyCLNHpziuh8H/CYsiaQOX2I=
+        b=SXHRx5ARd6ts7cmaRMeixCYdTkJZY0xcmeH/c7x/uwHHc5Xl0Qfw8861gl7XR2Oha
+         tJbfOV3A1A54mIIhSotypTEfuVuGF/7e/lUusstWbRy25iGGP0TvDSikByLTmYjTD9
+         Z/U8PWNXnxlZ9lZ3qOVABSLQiy9cN88DJaeWbSMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        William Kucharski <william.kucharski@oracle.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 123/158] shmem: update folio if shmem_replace_page() updates the page
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 67/86] btrfs: check if root is readonly while setting security xattr
 Date:   Mon, 29 Aug 2022 12:59:33 +0200
-Message-Id: <20220829105814.269068045@linuxfoundation.org>
+Message-Id: <20220829105759.290617647@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Goldwyn Rodrigues <rgoldwyn@suse.de>
 
-commit 9dfb3b8d655022760ca68af11821f1c63aa547c3 upstream.
+commit b51111271b0352aa596c5ae8faf06939e91b3b68 upstream.
 
-If we allocate a new page, we need to make sure that our folio matches
-that new page.
+For a filesystem which has btrfs read-only property set to true, all
+write operations including xattr should be denied. However, security
+xattr can still be changed even if btrfs ro property is true.
 
-If we do end up in this code path, we store the wrong page in the shmem
-inode's page cache, and I would rather imagine that data corruption
-ensues.
+This happens because xattr_permission() does not have any restrictions
+on security.*, system.*  and in some cases trusted.* from VFS and
+the decision is left to the underlying filesystem. See comments in
+xattr_permission() for more details.
 
-This will be solved by changing shmem_replace_page() to
-shmem_replace_folio(), but this is the minimal fix.
+This patch checks if the root is read-only before performing the set
+xattr operation.
 
-Link: https://lkml.kernel.org/r/20220730042518.1264767-1-willy@infradead.org
-Fixes: da08e9b79323 ("mm/shmem: convert shmem_swapin_page() to shmem_swapin_folio()")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: William Kucharski <william.kucharski@oracle.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Testcase:
+
+  DEV=/dev/vdb
+  MNT=/mnt
+
+  mkfs.btrfs -f $DEV
+  mount $DEV $MNT
+  echo "file one" > $MNT/f1
+
+  setfattr -n "security.one" -v 2 $MNT/f1
+  btrfs property set /mnt ro true
+
+  setfattr -n "security.one" -v 1 $MNT/f1
+
+  umount $MNT
+
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/shmem.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/xattr.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -1771,6 +1771,7 @@ static int shmem_swapin_folio(struct ino
- 
- 	if (shmem_should_replace_folio(folio, gfp)) {
- 		error = shmem_replace_page(&page, gfp, info, index);
-+		folio = page_folio(page);
- 		if (error)
- 			goto failed;
- 	}
+--- a/fs/btrfs/xattr.c
++++ b/fs/btrfs/xattr.c
+@@ -389,6 +389,9 @@ static int btrfs_xattr_handler_set(const
+ 				   const char *name, const void *buffer,
+ 				   size_t size, int flags)
+ {
++	if (btrfs_root_readonly(BTRFS_I(inode)->root))
++		return -EROFS;
++
+ 	name = xattr_full_name(handler, name);
+ 	return btrfs_setxattr_trans(inode, name, buffer, size, flags);
+ }
 
 
