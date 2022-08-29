@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB57F5A48DF
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:17:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 122B25A48AD
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230518AbiH2LQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:16:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41586 "EHLO
+        id S230073AbiH2LOw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:14:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbiH2LOx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:14:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5EA72FC7;
-        Mon, 29 Aug 2022 04:11:02 -0700 (PDT)
+        with ESMTP id S231152AbiH2LNP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B04642FD;
+        Mon, 29 Aug 2022 04:09:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B722B80F99;
-        Mon, 29 Aug 2022 11:08:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85B34C433D7;
-        Mon, 29 Aug 2022 11:08:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA0D2B80F9F;
+        Mon, 29 Aug 2022 11:08:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A2EC433C1;
+        Mon, 29 Aug 2022 11:08:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771290;
-        bh=8nk42C66zJ09r2OajHB3KcnLL4FbGaZtuI3kGRJR5XE=;
+        s=korg; t=1661771305;
+        bh=EhO4c/+cMB6uroShY7lZIz85XgH8vYWIQucjfkDypgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XyXTWsQPs3Vvnt2xxF6yRaUB1UdxnlhTs3J8nPFydbPmESJP05jHUlSAzzoCf/hI3
-         owNoVdMXK8MqMHnFk7oBLVwlx6F+r8yav77cGJlDDvp+CxCj2FvNZ5F6zaOIL8R7Ys
-         Jn/8mrHmzZAd7bLczSKOW6bqYd+t2vQSJVw1NNs0=
+        b=xBFq0JX+Y+7yC1sxBz+BiJ/5E9jtbj35m1Om6jJsQo9wK+N4EZOdtVlK8qZAfmX1L
+         1F8g3lBWBE/CyEq41TJSE+PDHF7vCNUhiE1bC2wWqt/oSLheryARCAarAr5sz8qGaU
+         XELLyh25R5Xiql2n3FV1YDnINljzfTKC3hQ6akBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 088/136] i40e: Fix incorrect address type for IPv6 flow rules
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 49/86] net: Fix data-races around netdev_tstamp_prequeue.
 Date:   Mon, 29 Aug 2022 12:59:15 +0200
-Message-Id: <20220829105808.269741560@linuxfoundation.org>
+Message-Id: <20220829105758.530485638@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit bcf3a156429306070afbfda5544f2b492d25e75b ]
+[ Upstream commit 61adf447e38664447526698872e21c04623afb8e ]
 
-It was not possible to create 1-tuple flow director
-rule for IPv6 flow type. It was caused by incorrectly
-checking for source IP address when validating user provided
-destination IP address.
+While reading netdev_tstamp_prequeue, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Fix this by changing ip6src to correct ip6dst address
-in destination IP address validation for IPv6 flow type.
-
-Fixes: efca91e89b67 ("i40e: Add flow director support for IPv6")
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 3b098e2d7c69 ("net: Consistent skb timestamping")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/dev.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 0e13ce9b4d009..669ae53f4c728 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -4385,7 +4385,7 @@ static int i40e_check_fdir_input_set(struct i40e_vsi *vsi,
- 				    (struct in6_addr *)&ipv6_full_mask))
- 			new_mask |= I40E_L3_V6_DST_MASK;
- 		else if (ipv6_addr_any((struct in6_addr *)
--				       &usr_ip6_spec->ip6src))
-+				       &usr_ip6_spec->ip6dst))
- 			new_mask &= ~I40E_L3_V6_DST_MASK;
- 		else
- 			return -EOPNOTSUPP;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 215c43aecc67e..1ea75768c5b23 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4795,7 +4795,7 @@ static int netif_rx_internal(struct sk_buff *skb)
+ {
+ 	int ret;
+ 
+-	net_timestamp_check(netdev_tstamp_prequeue, skb);
++	net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
+ 
+ 	trace_netif_rx(skb);
+ 
+@@ -5156,7 +5156,7 @@ static int __netif_receive_skb_core(struct sk_buff **pskb, bool pfmemalloc,
+ 	int ret = NET_RX_DROP;
+ 	__be16 type;
+ 
+-	net_timestamp_check(!netdev_tstamp_prequeue, skb);
++	net_timestamp_check(!READ_ONCE(netdev_tstamp_prequeue), skb);
+ 
+ 	trace_netif_receive_skb(skb);
+ 
+@@ -5558,7 +5558,7 @@ static int netif_receive_skb_internal(struct sk_buff *skb)
+ {
+ 	int ret;
+ 
+-	net_timestamp_check(netdev_tstamp_prequeue, skb);
++	net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
+ 
+ 	if (skb_defer_rx_timestamp(skb))
+ 		return NET_RX_SUCCESS;
+@@ -5588,7 +5588,7 @@ static void netif_receive_skb_list_internal(struct list_head *head)
+ 
+ 	INIT_LIST_HEAD(&sublist);
+ 	list_for_each_entry_safe(skb, next, head, list) {
+-		net_timestamp_check(netdev_tstamp_prequeue, skb);
++		net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
+ 		skb_list_del_init(skb);
+ 		if (!skb_defer_rx_timestamp(skb))
+ 			list_add_tail(&skb->list, &sublist);
 -- 
 2.35.1
 
