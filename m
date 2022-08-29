@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C825A49B3
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:28:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0E1C5A4822
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:06:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232155AbiH2L2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:28:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40842 "EHLO
+        id S230346AbiH2LGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232038AbiH2L0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:26:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6DA78591;
-        Mon, 29 Aug 2022 04:16:33 -0700 (PDT)
+        with ESMTP id S230255AbiH2LFs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:05:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78FAD61D57;
+        Mon, 29 Aug 2022 04:04:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8F04611D7;
-        Mon, 29 Aug 2022 11:15:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB11BC433C1;
-        Mon, 29 Aug 2022 11:15:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAFD9B80EF3;
+        Mon, 29 Aug 2022 11:04:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A534C433C1;
+        Mon, 29 Aug 2022 11:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771704;
-        bh=Rtv0W/RxDptni++jUiUdRolbugDTJsRA+DiimTN3q/w=;
+        s=korg; t=1661771043;
+        bh=Hg0iic/LV1UHfhKvfDy001aBE/HyLI2pbHSboJUYZH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0+4tscDltwC33hEtLsg29hj2SRkSGZf9GWgJg3JcQrWo7WFqryjiLqVEsU3HysA9
-         uW4KVRLPDoqvQJRhVALzQxXweoKbqOl+hqFcqxUOnNXCjFBAxYNbQ0I4mobpTEXqfY
-         2PQ8bxPDGQOD9virhF1dSqxTwY1RoBIpLemyZIq4=
+        b=GL0liS7EzVDUOmdEVm6Rg4cTdhJQDjnaTRbJPfJq4duLeWnceAgz7zruiNelTFo20
+         iwGu6EmwowB0PMH8MZRezg78Ob9Ngg4mU2oThHDjLMMsPb+gi8fqYEhMJPs6hD0iZa
+         p/xk/lwMpH5+tUCKm32FsDfpb7pBm5e5FRmlJY6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 068/158] net: Fix data-races around netdev_tstamp_prequeue.
+Subject: [PATCH 5.10 12/86] xfrm: fix refcount leak in __xfrm_policy_check()
 Date:   Mon, 29 Aug 2022 12:58:38 +0200
-Message-Id: <20220829105811.838301381@linuxfoundation.org>
+Message-Id: <20220829105757.031310925@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit 61adf447e38664447526698872e21c04623afb8e ]
+[ Upstream commit 9c9cb23e00ddf45679b21b4dacc11d1ae7961ebe ]
 
-While reading netdev_tstamp_prequeue, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+The issue happens on an error path in __xfrm_policy_check(). When the
+fetching process of the object `pols[1]` fails, the function simply
+returns 0, forgetting to decrement the reference count of `pols[0]`,
+which is incremented earlier by either xfrm_sk_policy_lookup() or
+xfrm_policy_lookup(). This may result in memory leaks.
 
-Fixes: 3b098e2d7c69 ("net: Consistent skb timestamping")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix it by decreasing the reference count of `pols[0]` in that path.
+
+Fixes: 134b0fc544ba ("IPsec: propagate security module errors up from flow_cache_lookup")
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/xfrm/xfrm_policy.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index e1496e626a532..34282b93c3f60 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4927,7 +4927,7 @@ static int netif_rx_internal(struct sk_buff *skb)
- {
- 	int ret;
- 
--	net_timestamp_check(netdev_tstamp_prequeue, skb);
-+	net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
- 
- 	trace_netif_rx(skb);
- 
-@@ -5280,7 +5280,7 @@ static int __netif_receive_skb_core(struct sk_buff **pskb, bool pfmemalloc,
- 	int ret = NET_RX_DROP;
- 	__be16 type;
- 
--	net_timestamp_check(!netdev_tstamp_prequeue, skb);
-+	net_timestamp_check(!READ_ONCE(netdev_tstamp_prequeue), skb);
- 
- 	trace_netif_receive_skb(skb);
- 
-@@ -5663,7 +5663,7 @@ static int netif_receive_skb_internal(struct sk_buff *skb)
- {
- 	int ret;
- 
--	net_timestamp_check(netdev_tstamp_prequeue, skb);
-+	net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
- 
- 	if (skb_defer_rx_timestamp(skb))
- 		return NET_RX_SUCCESS;
-@@ -5693,7 +5693,7 @@ void netif_receive_skb_list_internal(struct list_head *head)
- 
- 	INIT_LIST_HEAD(&sublist);
- 	list_for_each_entry_safe(skb, next, head, list) {
--		net_timestamp_check(netdev_tstamp_prequeue, skb);
-+		net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
- 		skb_list_del_init(skb);
- 		if (!skb_defer_rx_timestamp(skb))
- 			list_add_tail(&skb->list, &sublist);
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 603b05ed7eb4c..2cd66f3e52386 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -3641,6 +3641,7 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
+ 		if (pols[1]) {
+ 			if (IS_ERR(pols[1])) {
+ 				XFRM_INC_STATS(net, LINUX_MIB_XFRMINPOLERROR);
++				xfrm_pol_put(pols[0]);
+ 				return 0;
+ 			}
+ 			pols[1]->curlft.use_time = ktime_get_real_seconds();
 -- 
 2.35.1
 
