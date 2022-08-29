@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E6F5A483D
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE9C5A4854
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230392AbiH2LHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:07:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44726 "EHLO
+        id S229556AbiH2LJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:09:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230020AbiH2LHC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:07:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 279F813CFC;
-        Mon, 29 Aug 2022 04:05:03 -0700 (PDT)
+        with ESMTP id S231182AbiH2LIr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:08:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFDD82CC8B;
+        Mon, 29 Aug 2022 04:05:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84709B80EF9;
-        Mon, 29 Aug 2022 11:03:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D00A7C433D6;
-        Mon, 29 Aug 2022 11:03:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F11DCB80EF8;
+        Mon, 29 Aug 2022 11:04:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57B55C433D6;
+        Mon, 29 Aug 2022 11:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771035;
-        bh=PnvFFVqJdEGEJU/TTxfEwS6N1Nj0Pz8GMnRy0JYkjWI=;
+        s=korg; t=1661771066;
+        bh=nBzjdW6fb64fB9AGAlHPIidKuMsr/NFHuwJh6wcAEk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lSug8SLShNaRKIK2qR7JK55/gpyUf+xIsqId1cOzuuam1S0Rz8Sm+RryV4i1wHwaC
-         SXqykL07UL+ttTjbRqYXoO9mg2hs5GeufxAXjHDsvkrTwgciN/wmH50ScFprxzTHgp
-         3oOdURXC3MYB8uVZMraTa08wHz9eS3RD3OPaLDZ8=
+        b=KRDNLL8kOhHV2Hhz5Ep69CIWFlc6pPbMXikBr7Uz0vJmVcSKUDnGudRjKQg6aAdM1
+         /HcWWiQyW3MrT0o5Q6y4mEZPLiD9+GwxennBtIDBIVHy5HZzurZy8ce9Q1zMW/1H9/
+         QmxTzkcd3l8l2LKF+NyJ5SnIsBCbZ2FmUkQM9Kj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Olga Kornievskaia <kolga@netapp.com>,
+        stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 034/136] NFSv4.2 fix problems with __nfs42_ssc_open
-Date:   Mon, 29 Aug 2022 12:58:21 +0200
-Message-Id: <20220829105805.992182113@linuxfoundation.org>
+Subject: [PATCH 5.15 035/136] SUNRPC: RPC level errors should set task->tk_rpc_status
+Date:   Mon, 29 Aug 2022 12:58:22 +0200
+Message-Id: <20220829105806.039829876@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
 References: <20220829105804.609007228@linuxfoundation.org>
@@ -55,49 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit fcfc8be1e9cf2f12b50dce8b579b3ae54443a014 ]
+[ Upstream commit ed06fce0b034b2e25bd93430f5c4cbb28036cc1a ]
 
-A destination server while doing a COPY shouldn't accept using the
-passed in filehandle if its not a regular filehandle.
+Fix up a case in call_encode() where we're failing to set
+task->tk_rpc_status when an RPC level error occurred.
 
-If alloc_file_pseudo() has failed, we need to decrement a reference
-on the newly created inode, otherwise it leaks.
-
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Fixes: ec4b092508982 ("NFS: inter ssc open")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Fixes: 9c5948c24869 ("SUNRPC: task should be exit if encode return EKEYEXPIRED more times")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4file.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/sunrpc/clnt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index 61ee03c8bcd2d..14f2efdecc2f8 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -339,6 +339,11 @@ static struct file *__nfs42_ssc_open(struct vfsmount *ss_mnt,
- 		goto out;
- 	}
- 
-+	if (!S_ISREG(fattr->mode)) {
-+		res = ERR_PTR(-EBADF);
-+		goto out;
-+	}
-+
- 	res = ERR_PTR(-ENOMEM);
- 	len = strlen(SSC_READ_NAME_BODY) + 16;
- 	read_name = kzalloc(len, GFP_NOFS);
-@@ -357,6 +362,7 @@ static struct file *__nfs42_ssc_open(struct vfsmount *ss_mnt,
- 				     r_ino->i_fop);
- 	if (IS_ERR(filep)) {
- 		res = ERR_CAST(filep);
-+		iput(r_ino);
- 		goto out_free_name;
- 	}
- 	filep->f_mode |= FMODE_READ;
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index 6a035e9339d20..ca2a494d727b2 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -1881,7 +1881,7 @@ call_encode(struct rpc_task *task)
+ 			break;
+ 		case -EKEYEXPIRED:
+ 			if (!task->tk_cred_retry) {
+-				rpc_exit(task, task->tk_status);
++				rpc_call_rpcerror(task, task->tk_status);
+ 			} else {
+ 				task->tk_action = call_refresh;
+ 				task->tk_cred_retry--;
 -- 
 2.35.1
 
