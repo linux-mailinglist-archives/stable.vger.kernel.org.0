@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B91285A494E
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628325A4856
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:09:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231665AbiH2LXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:23:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58352 "EHLO
+        id S230306AbiH2LJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:09:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231806AbiH2LWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:22:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5FA10CC;
-        Mon, 29 Aug 2022 04:14:16 -0700 (PDT)
+        with ESMTP id S230426AbiH2LHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:07:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5302520B7;
+        Mon, 29 Aug 2022 04:05:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4DD4BB80EB8;
-        Mon, 29 Aug 2022 11:14:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98329C433C1;
-        Mon, 29 Aug 2022 11:13:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EED0B80EC5;
+        Mon, 29 Aug 2022 11:05:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9310EC433C1;
+        Mon, 29 Aug 2022 11:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771640;
-        bh=tsEm34MD0Tn8vSDRsytIQ74EGAeQxHopaubzDZhDV+k=;
+        s=korg; t=1661771119;
+        bh=Qe9CtB/eJop4L+BZbhVntplBrPozxKEmknaFXBM9F0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RU/7g5kZwIadwRx2wD9TA99laJzAv7oZ/YOMw/d7gPS22DDt/IPJwm+kE+A52NNCN
-         5qr8LSzSuFazasA1TZpyAWlpvRyLT5qgJ+A3udt9cvxMdbFWucrjrP5fu0xjhimk92
-         VfUYMktiQxmogfnzOo7QsW1xLp/5+nduzzOhEf48=
+        b=aa69G8DHkj6WtLy7IjQpkOQsHQ5FRwEl1UxsEGg2/VAotUKGKw57evy9NxOgqzh2s
+         azetdA3JhhTYPRWMyrPotpDUqIKzcriGul39k9OgKkpxNgdUcoC4w+/Q/w/46VycNB
+         qBvCxm39xhhWOvRFoFoAxUl5FRxkJzFv4ZzZAVFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vikas Gupta <vikas.gupta@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        ntfs3@lists.linux.dev,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 054/158] bnxt_en: fix LRO/GRO_HW features in ndo_fix_features callback
+Subject: [PATCH 5.15 037/136] ntfs: fix acl handling
 Date:   Mon, 29 Aug 2022 12:58:24 +0200
-Message-Id: <20220829105810.994163211@linuxfoundation.org>
+Message-Id: <20220829105806.116680390@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +56,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vikas Gupta <vikas.gupta@broadcom.com>
+From: Christian Brauner <brauner@kernel.org>
 
-[ Upstream commit 366c304741729e64d778c80555d9eb422cf5cc89 ]
+[ Upstream commit 0c3bc7899e6dfb52df1c46118a5a670ae619645f ]
 
-LRO/GRO_HW should be disabled if there is an attached XDP program.
-BNXT_FLAG_TPA is the current setting of the LRO/GRO_HW.  Using
-BNXT_FLAG_TPA to disable LRO/GRO_HW will cause these features to be
-permanently disabled once they are disabled.
+While looking at our current POSIX ACL handling in the context of some
+overlayfs work I went through a range of other filesystems checking how they
+handle them currently and encountered ntfs3.
 
-Fixes: 1dc4c557bfed ("bnxt: adding bnxt_xdp_build_skb to build skb from multibuffer xdp_buff")
-Signed-off-by: Vikas Gupta <vikas.gupta@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The posic_acl_{from,to}_xattr() helpers always need to operate on the
+filesystem idmapping. Since ntfs3 can only be mounted in the initial user
+namespace the relevant idmapping is init_user_ns.
+
+The posix_acl_{from,to}_xattr() helpers are concerned with translating between
+the kernel internal struct posix_acl{_entry} and the uapi struct
+posix_acl_xattr_{header,entry} and the kernel internal data structure is cached
+filesystem wide.
+
+Additional idmappings such as the caller's idmapping or the mount's idmapping
+are handled higher up in the VFS. Individual filesystems usually do not need to
+concern themselves with these.
+
+The posix_acl_valid() helper is concerned with checking whether the values in
+the kernel internal struct posix_acl can be represented in the filesystem's
+idmapping. IOW, if they can be written to disk. So this helper too needs to
+take the filesystem's idmapping.
+
+Fixes: be71b5cba2e6 ("fs/ntfs3: Add attrib operations")
+Cc: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Cc: ntfs3@lists.linux.dev
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ fs/ntfs3/xattr.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index cf9b00576ed36..964354536f9ce 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -11183,10 +11183,7 @@ static netdev_features_t bnxt_fix_features(struct net_device *dev,
- 	if ((features & NETIF_F_NTUPLE) && !bnxt_rfs_capable(bp))
- 		features &= ~NETIF_F_NTUPLE;
+diff --git a/fs/ntfs3/xattr.c b/fs/ntfs3/xattr.c
+index 872eb56bb1706..e8bfa709270d1 100644
+--- a/fs/ntfs3/xattr.c
++++ b/fs/ntfs3/xattr.c
+@@ -476,8 +476,7 @@ static noinline int ntfs_set_ea(struct inode *inode, const char *name,
+ }
  
--	if (bp->flags & BNXT_FLAG_NO_AGG_RINGS)
--		features &= ~(NETIF_F_LRO | NETIF_F_GRO_HW);
--
--	if (!(bp->flags & BNXT_FLAG_TPA))
-+	if ((bp->flags & BNXT_FLAG_NO_AGG_RINGS) || bp->xdp_prog)
- 		features &= ~(NETIF_F_LRO | NETIF_F_GRO_HW);
+ #ifdef CONFIG_NTFS3_FS_POSIX_ACL
+-static struct posix_acl *ntfs_get_acl_ex(struct user_namespace *mnt_userns,
+-					 struct inode *inode, int type,
++static struct posix_acl *ntfs_get_acl_ex(struct inode *inode, int type,
+ 					 int locked)
+ {
+ 	struct ntfs_inode *ni = ntfs_i(inode);
+@@ -512,7 +511,7 @@ static struct posix_acl *ntfs_get_acl_ex(struct user_namespace *mnt_userns,
  
- 	if (!(features & NETIF_F_GRO))
+ 	/* Translate extended attribute to acl. */
+ 	if (err >= 0) {
+-		acl = posix_acl_from_xattr(mnt_userns, buf, err);
++		acl = posix_acl_from_xattr(&init_user_ns, buf, err);
+ 	} else if (err == -ENODATA) {
+ 		acl = NULL;
+ 	} else {
+@@ -535,8 +534,7 @@ struct posix_acl *ntfs_get_acl(struct inode *inode, int type, bool rcu)
+ 	if (rcu)
+ 		return ERR_PTR(-ECHILD);
+ 
+-	/* TODO: init_user_ns? */
+-	return ntfs_get_acl_ex(&init_user_ns, inode, type, 0);
++	return ntfs_get_acl_ex(inode, type, 0);
+ }
+ 
+ static noinline int ntfs_set_acl_ex(struct user_namespace *mnt_userns,
+@@ -588,7 +586,7 @@ static noinline int ntfs_set_acl_ex(struct user_namespace *mnt_userns,
+ 		value = kmalloc(size, GFP_NOFS);
+ 		if (!value)
+ 			return -ENOMEM;
+-		err = posix_acl_to_xattr(mnt_userns, acl, value, size);
++		err = posix_acl_to_xattr(&init_user_ns, acl, value, size);
+ 		if (err < 0)
+ 			goto out;
+ 		flags = 0;
+@@ -639,7 +637,7 @@ static int ntfs_xattr_get_acl(struct user_namespace *mnt_userns,
+ 	if (!acl)
+ 		return -ENODATA;
+ 
+-	err = posix_acl_to_xattr(mnt_userns, acl, buffer, size);
++	err = posix_acl_to_xattr(&init_user_ns, acl, buffer, size);
+ 	posix_acl_release(acl);
+ 
+ 	return err;
+@@ -663,12 +661,12 @@ static int ntfs_xattr_set_acl(struct user_namespace *mnt_userns,
+ 	if (!value) {
+ 		acl = NULL;
+ 	} else {
+-		acl = posix_acl_from_xattr(mnt_userns, value, size);
++		acl = posix_acl_from_xattr(&init_user_ns, value, size);
+ 		if (IS_ERR(acl))
+ 			return PTR_ERR(acl);
+ 
+ 		if (acl) {
+-			err = posix_acl_valid(mnt_userns, acl);
++			err = posix_acl_valid(&init_user_ns, acl);
+ 			if (err)
+ 				goto release_and_out;
+ 		}
 -- 
 2.35.1
 
