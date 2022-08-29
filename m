@@ -2,79 +2,319 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC7185A4F20
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 16:26:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6189D5A4F6A
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 16:38:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229459AbiH2O0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 10:26:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51664 "EHLO
+        id S229646AbiH2Oh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 10:37:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229776AbiH2O0L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 10:26:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8403C7EFCB;
-        Mon, 29 Aug 2022 07:26:05 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4F5AB810A1;
-        Mon, 29 Aug 2022 14:26:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61C11C433D6;
-        Mon, 29 Aug 2022 14:26:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661783162;
-        bh=9eUkVvrgSAAseCe5J1s4E5xEhEYSsVSGWWJ+TQD8XI0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=fnbghB92BQX5Z6taA4jfSnowberbx9YEDGfWynLF2rlwKdzG02MJ7UVVH0y8Qy2Et
-         G+As1QyMIDpxhPHoN9Fk4c9CdcX4U4ULcTBUH4BqAOMwsNm6ecmZsBppojc59ATuBl
-         6QQ5pWBULvEHuspMe4AXD6bwlbQUX7eSoCJgtQR8l/GI6ZLjpjOZeGhemGpADOun9z
-         Bj5Cp/WJJEtci+a7jRWXzDgucHkD3SWIxDf0RaTZz/SvTDF1UFtk94v1gJciaT1QnB
-         H3FrqB6AXIVOuQNhZ0izi6dSff0rkeSlrp1bGaPNfz0pl5iDpQnpns04r5ZOV8bhqM
-         pdKsUMn8+HnNg==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1oSfiM-00079t-LG; Mon, 29 Aug 2022 16:26:10 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Radisson97@web.de, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] USB: serial: cp210x: add Decagon UCA device id
-Date:   Mon, 29 Aug 2022 16:25:50 +0200
-Message-Id: <20220829142550.27505-1-johan@kernel.org>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S230105AbiH2Oh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 10:37:58 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 173F495E43
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:37:58 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id d12so8184863plr.6
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:37:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc;
+        bh=swD5rSHk62yX5koZlrAZSldKbP6q25o+PUgCx2UMXtE=;
+        b=rGcT/9jnfGzB17mKfob94izmTMDsnhf42YSSciXA3q9DAIbNgyagjWn5Qj5Nk0Y0Nk
+         o7qIe42Wh9J3VAoXFsFJFy192MlDrHs1fQwajc1G7EnoWserIa/wwKgY+tCfOBmEPftm
+         QHZiR1vR1+EROe4tjdjMW5vldprQcWDaaTH0nDP4WKGLdTI3PV8S/nZKcLvFWTykp3xh
+         oUMcAdty5U/8pj6APLeghpp36hiLnNbqVuBfDSiEBHxMoodJ663HakVkBJDrxntgYk3n
+         3ihu+HK8yqckB4BWMwnELtCkQ5n7lZpqFxRdBnLAZVfzHWlGMagN6gLC5p1yrFe1Eka4
+         a61Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc;
+        bh=swD5rSHk62yX5koZlrAZSldKbP6q25o+PUgCx2UMXtE=;
+        b=OJzvLhYE2Q/HSQJn0az8ZeuFBIdHLPdZ1V+fa+5kWDaX+914teiu3ouDNz5DjSR5S3
+         S+ExZ/d9q4KkkYWlAStG+7OG+6McVhhfrO2tYA08U7SyXHMlHUpiSSk24xFW2C/x2x14
+         da5ED2mQcTgp6smqP0WRB46TR66PDjKNypqHX8HBsTmksepLcCkWHYvvADI2NlWrsnfs
+         xHEtn3nurmfWCwqwg3t9ytY4CSDYdC1pfagZ4MA38tnfKe7qR63NN5bvtkPk584WPLIw
+         xj/DQn0DFxie9/HGzuFVv9zMteLDlylW7BH+HK/YFMaekgglt3s+E9PORCgeBR3CKgRp
+         oTow==
+X-Gm-Message-State: ACgBeo0f6y8b+0KzEngfQoMUcjrG/Nl+CQD/VT1kDu9vjg2P6xo3+n5N
+        4O3xxGFI9MdNIFw4hNGnYXvgKiod20nwsoT1f2Q=
+X-Google-Smtp-Source: AA6agR7Ht8ozzCzga109hpU0zFrIvl6M44ysaRlCnrKGdLEf26bd+rdPra60q2/NROBsMa2pF4JaRQ==
+X-Received: by 2002:a17:902:d50d:b0:173:16a0:c226 with SMTP id b13-20020a170902d50d00b0017316a0c226mr16777298plg.160.1661783877390;
+        Mon, 29 Aug 2022 07:37:57 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mh3-20020a17090b4ac300b001fdb6ef8e2esm2960158pjb.10.2022.08.29.07.37.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Aug 2022 07:37:57 -0700 (PDT)
+Message-ID: <630ccf45.170a0220.70d3e.48a1@mx.google.com>
+Date:   Mon, 29 Aug 2022 07:37:57 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.291-25-g9dfa78af82fa
+Subject: stable-rc/queue/4.14 baseline: 110 runs,
+ 6 regressions (v4.14.291-25-g9dfa78af82fa)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add the device id for Decagon Devices USB Cable Adapter.
+stable-rc/queue/4.14 baseline: 110 runs, 6 regressions (v4.14.291-25-g9dfa7=
+8af82fa)
 
-Link: https://lore.kernel.org/r/trinity-819f9db2-d3e1-40e9-a669-9c245817c046-1661523546680@msvc-mesg-web108
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/cp210x.c | 1 +
- 1 file changed, 1 insertion(+)
+Regressions Summary
+-------------------
 
-diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index c374620a486f..a34957c4b64c 100644
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -130,6 +130,7 @@ static const struct usb_device_id id_table[] = {
- 	{ USB_DEVICE(0x10C4, 0x83AA) }, /* Mark-10 Digital Force Gauge */
- 	{ USB_DEVICE(0x10C4, 0x83D8) }, /* DekTec DTA Plus VHF/UHF Booster/Attenuator */
- 	{ USB_DEVICE(0x10C4, 0x8411) }, /* Kyocera GPS Module */
-+	{ USB_DEVICE(0x10C4, 0x8414) }, /* Decagon USB Cable Adapter */
- 	{ USB_DEVICE(0x10C4, 0x8418) }, /* IRZ Automation Teleport SG-10 GSM/GPRS Modem */
- 	{ USB_DEVICE(0x10C4, 0x846E) }, /* BEI USB Sensor Interface (VCP) */
- 	{ USB_DEVICE(0x10C4, 0x8470) }, /* Juniper Networks BX Series System Console */
--- 
-2.35.1
+platform                   | arch  | lab           | compiler | defconfig |=
+ regressions
+---------------------------+-------+---------------+----------+-----------+=
+------------
+meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre  | gcc-10   | defconfig |=
+ 1          =
 
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
+ 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
+ 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
+ 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig |=
+ 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.291-25-g9dfa78af82fa/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.291-25-g9dfa78af82fa
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9dfa78af82fa2982c2bd72d8282f5645fc32015b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig |=
+ regressions
+---------------------------+-------+---------------+----------+-----------+=
+------------
+meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre  | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/630c9e825be4fa376335564e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s9=
+05x-khadas-vim.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s9=
+05x-khadas-vim.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/630c9e825be4fa3763355=
+64f
+        failing since 55 days (last pass: v4.14.285-35-g61a723f50c9f, first=
+ fail: v4.14.285-46-ga87318551bac) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig |=
+ regressions
+---------------------------+-------+---------------+----------+-----------+=
+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/630c9fba7753e2dbe9355643
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/630c9fba7753e2dbe9355=
+644
+        failing since 111 days (last pass: v4.14.277-54-gfa6de16ffc4e, firs=
+t fail: v4.14.277-75-g7a298ff98d4a) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig |=
+ regressions
+---------------------------+-------+---------------+----------+-----------+=
+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/630c9f5551e3bc468f355651
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/630c9f5551e3bc468f355=
+652
+        failing since 34 days (last pass: v4.14.267-41-g23609abc0d54, first=
+ fail: v4.14.289-19-g8ed326806c84) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig |=
+ regressions
+---------------------------+-------+---------------+----------+-----------+=
+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/630c9e849d87fff821355653
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-=
+virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-=
+virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/630c9e849d87fff821355=
+654
+        failing since 34 days (last pass: v4.14.267-41-g23609abc0d54, first=
+ fail: v4.14.289-19-g8ed326806c84) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig |=
+ regressions
+---------------------------+-------+---------------+----------+-----------+=
+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/630c9f916a7b20927a35567b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/630c9f916a7b20927a355=
+67c
+        failing since 111 days (last pass: v4.14.277-54-gfa6de16ffc4e, firs=
+t fail: v4.14.277-75-g7a298ff98d4a) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig |=
+ regressions
+---------------------------+-------+---------------+----------+-----------+=
+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/630c9fe17e3330705135566c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.291=
+-25-g9dfa78af82fa/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/630c9fe17e33307051355=
+66d
+        failing since 111 days (last pass: v4.14.277-54-gfa6de16ffc4e, firs=
+t fail: v4.14.277-75-g7a298ff98d4a) =
+
+ =20
