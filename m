@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6365A4898
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:12:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 424B95A4904
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbiH2LMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:12:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41532 "EHLO
+        id S231438AbiH2LTk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229683AbiH2LMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:12:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FF9C5E335;
-        Mon, 29 Aug 2022 04:08:56 -0700 (PDT)
+        with ESMTP id S231758AbiH2LTM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E582753A7;
+        Mon, 29 Aug 2022 04:13:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09FB0B80EF5;
-        Mon, 29 Aug 2022 11:05:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DBD3C433D6;
-        Mon, 29 Aug 2022 11:05:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E73E4611D7;
+        Mon, 29 Aug 2022 11:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDE78C433C1;
+        Mon, 29 Aug 2022 11:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771144;
-        bh=pOZExQVSyn7QCvb7/wjxQji+l6d/83WgeVnjV1UlHz8=;
+        s=korg; t=1661771153;
+        bh=qQRB+uJ/BFvcwnf2Xmkqk11LcMxxR69ZBCfWEdf6GEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NzIAfc1lWyaufa685TbsO2Tl/qraD4Y9aU7NchqlD10K8SFpnmktxTi5JF7biZ280
-         /Bu/+k74MwQLBRbSJ+Adc1AthLQavE8mGscpyfFXvqadW7wF9P7AkxbqNupcf0blQH
-         MOP9U80a5SjKKVmUjvMTljw8CQG6UtUbkYxrQdNs=
+        b=GQUUBLsfMxLvMErLzkd5DFfe3n09SZcdJraz9GCpYT/29Qg2PPB6Ug0ykpnyGoqJt
+         UdXe6kyUm+7G1KLmGa/E8wUJJHkEaJVFKfxBRjPxgOKvOnee7YbVfex9v8+k1lkpCk
+         HT7OGfb/YCZAdgqeE8NxMzAZuJ0Uap0k8lCJBd9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 071/136] net: Fix data-races around weight_p and dev_weight_[rt]x_bias.
+Subject: [PATCH 5.10 32/86] netfilter: nft_payload: report ERANGE for too long offset and length
 Date:   Mon, 29 Aug 2022 12:58:58 +0200
-Message-Id: <20220829105807.557952194@linuxfoundation.org>
+Message-Id: <20220829105757.868827229@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit bf955b5ab8f6f7b0632cdef8e36b14e4f6e77829 ]
+[ Upstream commit 94254f990c07e9ddf1634e0b727fab821c3b5bf9 ]
 
-While reading weight_p, it can be changed concurrently.  Thus, we need
-to add READ_ONCE() to its reader.
+Instead of offset and length are truncation to u8, report ERANGE.
 
-Also, dev_[rt]x_weight can be read/written at the same time.  So, we
-need to use READ_ONCE() and WRITE_ONCE() for its access.  Moreover, to
-use the same weight_p while changing dev_[rt]x_weight, we add a mutex
-in proc_do_dev_weight().
-
-Fixes: 3d48b53fb2ae ("net: dev_weight: TX/RX orthogonality")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c             |  2 +-
- net/core/sysctl_net_core.c | 15 +++++++++------
- net/sched/sch_generic.c    |  2 +-
- 3 files changed, 11 insertions(+), 8 deletions(-)
+ net/netfilter/nft_payload.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 12b1811cb488b..1a0de071fcf45 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6437,7 +6437,7 @@ static int process_backlog(struct napi_struct *napi, int quota)
- 		net_rps_action_and_irq_enable(sd);
- 	}
- 
--	napi->weight = dev_rx_weight;
-+	napi->weight = READ_ONCE(dev_rx_weight);
- 	while (again) {
- 		struct sk_buff *skb;
- 
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index 5f88526ad61cc..ed20cbdd19315 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -236,14 +236,17 @@ static int set_default_qdisc(struct ctl_table *table, int write,
- static int proc_do_dev_weight(struct ctl_table *table, int write,
- 			   void *buffer, size_t *lenp, loff_t *ppos)
+diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
+index 01878c16418c2..bdb07362c0ef0 100644
+--- a/net/netfilter/nft_payload.c
++++ b/net/netfilter/nft_payload.c
+@@ -733,6 +733,7 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
  {
--	int ret;
-+	static DEFINE_MUTEX(dev_weight_mutex);
-+	int ret, weight;
+ 	enum nft_payload_bases base;
+ 	unsigned int offset, len;
++	int err;
  
-+	mutex_lock(&dev_weight_mutex);
- 	ret = proc_dointvec(table, write, buffer, lenp, ppos);
--	if (ret != 0)
--		return ret;
--
--	dev_rx_weight = weight_p * dev_weight_rx_bias;
--	dev_tx_weight = weight_p * dev_weight_tx_bias;
-+	if (!ret && write) {
-+		weight = READ_ONCE(weight_p);
-+		WRITE_ONCE(dev_rx_weight, weight * dev_weight_rx_bias);
-+		WRITE_ONCE(dev_tx_weight, weight * dev_weight_tx_bias);
-+	}
-+	mutex_unlock(&dev_weight_mutex);
+ 	if (tb[NFTA_PAYLOAD_BASE] == NULL ||
+ 	    tb[NFTA_PAYLOAD_OFFSET] == NULL ||
+@@ -758,8 +759,13 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
+ 	if (tb[NFTA_PAYLOAD_DREG] == NULL)
+ 		return ERR_PTR(-EINVAL);
  
- 	return ret;
- }
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 30c29a9a2efd2..250d87d993cb7 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -409,7 +409,7 @@ static inline bool qdisc_restart(struct Qdisc *q, int *packets)
+-	offset = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
+-	len    = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_LEN]));
++	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_OFFSET], U8_MAX, &offset);
++	if (err < 0)
++		return ERR_PTR(err);
++
++	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_LEN], U8_MAX, &len);
++	if (err < 0)
++		return ERR_PTR(err);
  
- void __qdisc_run(struct Qdisc *q)
- {
--	int quota = dev_tx_weight;
-+	int quota = READ_ONCE(dev_tx_weight);
- 	int packets;
- 
- 	while (qdisc_restart(q, &packets)) {
+ 	if (len <= 4 && is_power_of_2(len) && IS_ALIGNED(offset, len) &&
+ 	    base != NFT_PAYLOAD_LL_HEADER)
 -- 
 2.35.1
 
