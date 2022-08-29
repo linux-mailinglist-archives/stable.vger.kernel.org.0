@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D52885A4A8F
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:43:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4225A495C
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232851AbiH2LnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:43:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36332 "EHLO
+        id S231896AbiH2LXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:23:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232881AbiH2Lmk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:42:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE30783F13;
-        Mon, 29 Aug 2022 04:26:19 -0700 (PDT)
+        with ESMTP id S231627AbiH2LWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:22:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2435E6E8B7;
+        Mon, 29 Aug 2022 04:14:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B64E61239;
-        Mon, 29 Aug 2022 11:19:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01B57C433C1;
-        Mon, 29 Aug 2022 11:19:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADE8461211;
+        Mon, 29 Aug 2022 11:14:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7482C433C1;
+        Mon, 29 Aug 2022 11:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771976;
-        bh=igaDsgfaPIIrkWz0bd7Wrd2v/jVr1iT8zorHbcK2NPI=;
+        s=korg; t=1661771668;
+        bh=rK/vo63zVSb2SAWkr37ODOaLG2Zf364H/XTk3h+ZdrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8X0S3jg8OvJ+X1hR5TpftWVAhj2wh1NXT+lpqIrNLA0QSZ1crfjumhct+ibFyY1Z
-         V/be3HPQ4myPdj3+M6mgK5khQpoatI7eg+32qKVywv/Ezwqv2Z4/qpUnGf0BwTDBG3
-         53tLgBC4vh2Zv8P5a447l8xg8TaI2ymrQu999Weg=
+        b=tu/oxNtaJzPulAoco+j3pgI69Zwr5FuPYPVlUP9hZYZ7PiXASqtHQEJkN6mV8+Och
+         VdPu6XsvZGsoFWrzb/JvTX05SIV4FVTZHFjt184BtfybZ2Bj85w6n99ixfrYI7TcNu
+         VwowY7v0CAbxRv8rSr7U2BjfnmnoNmFvwaZid4Jk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
         Saurabh Sengar <ssengar@linux.microsoft.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.19 152/158] scsi: storvsc: Remove WQ_MEM_RECLAIM from storvsc_error_wq
+Subject: [PATCH 5.15 135/136] scsi: storvsc: Remove WQ_MEM_RECLAIM from storvsc_error_wq
 Date:   Mon, 29 Aug 2022 13:00:02 +0200
-Message-Id: <20220829105815.486637627@linuxfoundation.org>
+Message-Id: <20220829105810.211811066@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -107,7 +107,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/scsi/storvsc_drv.c
 +++ b/drivers/scsi/storvsc_drv.c
-@@ -2012,7 +2012,7 @@ static int storvsc_probe(struct hv_devic
+@@ -2093,7 +2093,7 @@ static int storvsc_probe(struct hv_devic
  	 */
  	host_dev->handle_error_wq =
  			alloc_ordered_workqueue("storvsc_error_wq_%d",
