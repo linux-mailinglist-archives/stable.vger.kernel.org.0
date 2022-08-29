@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6FB65A48D5
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6C3F5A47CA
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbiH2LQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:16:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43070 "EHLO
+        id S229985AbiH2LCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:02:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229594AbiH2LOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:14:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F0F7268C;
-        Mon, 29 Aug 2022 04:10:41 -0700 (PDT)
+        with ESMTP id S229834AbiH2LBu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:01:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E5D58DC4;
+        Mon, 29 Aug 2022 04:01:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A16B761219;
-        Mon, 29 Aug 2022 11:10:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF553C433C1;
-        Mon, 29 Aug 2022 11:10:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0664861199;
+        Mon, 29 Aug 2022 11:01:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1006EC433C1;
+        Mon, 29 Aug 2022 11:01:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771433;
-        bh=tbTXONZcIDODaTeJjGsqkCOrLmAzAOl33LNzXwtVO4k=;
+        s=korg; t=1661770889;
+        bh=cL4Wc+6kXlzIzjMf09qJ0ef9JQK1M4yFLgZAFS4Y1Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJkQAZpWe6Dc8+sF9839iAT1UYB8XC3TbJXChkbiPRMAo6K6wvZoRvntOAzIL0sfy
-         4tNzojD+oIJ+Tl2HmztPVLbF23s4MdeWIJAATfesSg8CAnaSdnjObVb9dG91UrDYMb
-         Uc2x4rjDoEu1EAwaAr6VnJ0R5MtVHVUd1w6VZo8w=
+        b=u3qCeBrWR9i2bw8Jcyd2gVqkPR7Q/LCUPdJsFQ8hT8LtWHJWu0B1Ai1u0vqsaUmUL
+         lAkJOpoJk3wk8o3YLMz/c1tIeeN4d3pMYsInqlCjE0YmONV+/1RggPI8uwHPsfcrdo
+         5zKrZCrTgbJSTXIRsX7CHOzSrEujV+yEv9aqZpkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 030/158] net/mlx5: LAG, fix logic over MLX5_LAG_FLAG_NDEVS_READY
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 013/136] btrfs: convert count_max_extents() to use fs_info->max_extent_size
 Date:   Mon, 29 Aug 2022 12:58:00 +0200
-Message-Id: <20220829105810.050918798@linuxfoundation.org>
+Message-Id: <20220829105805.182997964@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,80 +53,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit a6e675a66175869b7d87c0e1dd0ddf93e04f8098 ]
+commit 7d7672bc5d1038c745716c397d892d21e29de71c upstream
 
-Only set MLX5_LAG_FLAG_NDEVS_READY if both netdevices are registered.
-Doing so guarantees that both ldev->pf[MLX5_LAG_P0].dev and
-ldev->pf[MLX5_LAG_P1].dev have valid pointers when
-MLX5_LAG_FLAG_NDEVS_READY is set.
+If count_max_extents() uses BTRFS_MAX_EXTENT_SIZE to calculate the number
+of extents needed, btrfs release the metadata reservation too much on its
+way to write out the data.
 
-The core issue is asymmetry in setting MLX5_LAG_FLAG_NDEVS_READY and
-clearing it. Setting it is done wrongly when both
-ldev->pf[MLX5_LAG_P0].dev and ldev->pf[MLX5_LAG_P1].dev are set;
-clearing it is done right when either of ldev->pf[i].netdev is cleared.
+Now that BTRFS_MAX_EXTENT_SIZE is replaced with fs_info->max_extent_size,
+convert count_max_extents() to use it instead, and fix the calculation of
+the metadata reservation.
 
-Consider the following scenario:
-1. PF0 loads and sets ldev->pf[MLX5_LAG_P0].dev to a valid pointer
-2. PF1 loads and sets both ldev->pf[MLX5_LAG_P1].dev and
-   ldev->pf[MLX5_LAG_P1].netdev with valid pointers. This results in
-   MLX5_LAG_FLAG_NDEVS_READY is set.
-3. PF0 is unloaded before setting dev->pf[MLX5_LAG_P0].netdev.
-   MLX5_LAG_FLAG_NDEVS_READY remains set.
-
-Further execution of mlx5_do_bond() will result in null pointer
-dereference when calling mlx5_lag_is_multipath()
-
-This patch fixes the following call trace actually encountered:
-
-[ 1293.475195] BUG: kernel NULL pointer dereference, address: 00000000000009a8
-[ 1293.478756] #PF: supervisor read access in kernel mode
-[ 1293.481320] #PF: error_code(0x0000) - not-present page
-[ 1293.483686] PGD 0 P4D 0
-[ 1293.484434] Oops: 0000 [#1] SMP PTI
-[ 1293.485377] CPU: 1 PID: 23690 Comm: kworker/u16:2 Not tainted 5.18.0-rc5_for_upstream_min_debug_2022_05_05_10_13 #1
-[ 1293.488039] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-[ 1293.490836] Workqueue: mlx5_lag mlx5_do_bond_work [mlx5_core]
-[ 1293.492448] RIP: 0010:mlx5_lag_is_multipath+0x5/0x50 [mlx5_core]
-[ 1293.494044] Code: e8 70 40 ff e0 48 8b 14 24 48 83 05 5c 1a 1b 00 01 e9 19 ff ff ff 48 83 05 47 1a 1b 00 01 eb d7 0f 1f 44 00 00 0f 1f 44 00 00 <48> 8b 87 a8 09 00 00 48 85 c0 74 26 48 83 05 a7 1b 1b 00 01 41 b8
-[ 1293.498673] RSP: 0018:ffff88811b2fbe40 EFLAGS: 00010202
-[ 1293.500152] RAX: ffff88818a94e1c0 RBX: ffff888165eca6c0 RCX: 0000000000000000
-[ 1293.501841] RDX: 0000000000000001 RSI: ffff88818a94e1c0 RDI: 0000000000000000
-[ 1293.503585] RBP: 0000000000000000 R08: ffff888119886740 R09: ffff888165eca73c
-[ 1293.505286] R10: 0000000000000018 R11: 0000000000000018 R12: ffff88818a94e1c0
-[ 1293.506979] R13: ffff888112729800 R14: 0000000000000000 R15: ffff888112729858
-[ 1293.508753] FS:  0000000000000000(0000) GS:ffff88852cc40000(0000) knlGS:0000000000000000
-[ 1293.510782] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1293.512265] CR2: 00000000000009a8 CR3: 00000001032d4002 CR4: 0000000000370ea0
-[ 1293.514001] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 1293.515806] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-Fixes: 8a66e4585979 ("net/mlx5: Change ownership model for lag")
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 5.12+
+Fixes: d8e3fb106f39 ("btrfs: zoned: use ZONE_APPEND write for zoned mode")
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/ctree.h          |   21 +++++++++++++--------
+ fs/btrfs/delalloc-space.c |    6 +++---
+ fs/btrfs/inode.c          |   16 ++++++++--------
+ 3 files changed, 24 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-index 5d41e19378e09..c520edb942ca5 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-@@ -1234,7 +1234,7 @@ void mlx5_lag_add_netdev(struct mlx5_core_dev *dev,
- 	mlx5_ldev_add_netdev(ldev, dev, netdev);
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -105,14 +105,6 @@ struct btrfs_ref;
+ #define BTRFS_STAT_CURR		0
+ #define BTRFS_STAT_PREV		1
  
- 	for (i = 0; i < ldev->ports; i++)
--		if (!ldev->pf[i].dev)
-+		if (!ldev->pf[i].netdev)
- 			break;
+-/*
+- * Count how many BTRFS_MAX_EXTENT_SIZE cover the @size
+- */
+-static inline u32 count_max_extents(u64 size)
+-{
+-	return div_u64(size + BTRFS_MAX_EXTENT_SIZE - 1, BTRFS_MAX_EXTENT_SIZE);
+-}
+-
+ static inline unsigned long btrfs_chunk_item_size(int num_stripes)
+ {
+ 	BUG_ON(num_stripes == 0);
+@@ -3878,6 +3870,19 @@ static inline bool btrfs_is_zoned(const
+ 	return fs_info->zoned != 0;
+ }
  
- 	if (i >= ldev->ports)
--- 
-2.35.1
-
++/*
++ * Count how many fs_info->max_extent_size cover the @size
++ */
++static inline u32 count_max_extents(struct btrfs_fs_info *fs_info, u64 size)
++{
++#ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
++	if (!fs_info)
++		return div_u64(size + BTRFS_MAX_EXTENT_SIZE - 1, BTRFS_MAX_EXTENT_SIZE);
++#endif
++
++	return div_u64(size + fs_info->max_extent_size - 1, fs_info->max_extent_size);
++}
++
+ static inline bool btrfs_is_data_reloc_root(const struct btrfs_root *root)
+ {
+ 	return root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID;
+--- a/fs/btrfs/delalloc-space.c
++++ b/fs/btrfs/delalloc-space.c
+@@ -273,7 +273,7 @@ static void calc_inode_reservations(stru
+ 				    u64 num_bytes, u64 *meta_reserve,
+ 				    u64 *qgroup_reserve)
+ {
+-	u64 nr_extents = count_max_extents(num_bytes);
++	u64 nr_extents = count_max_extents(fs_info, num_bytes);
+ 	u64 csum_leaves = btrfs_csum_bytes_to_leaves(fs_info, num_bytes);
+ 	u64 inode_update = btrfs_calc_metadata_size(fs_info, 1);
+ 
+@@ -347,7 +347,7 @@ int btrfs_delalloc_reserve_metadata(stru
+ 	 * needs to free the reservation we just made.
+ 	 */
+ 	spin_lock(&inode->lock);
+-	nr_extents = count_max_extents(num_bytes);
++	nr_extents = count_max_extents(fs_info, num_bytes);
+ 	btrfs_mod_outstanding_extents(inode, nr_extents);
+ 	inode->csum_bytes += num_bytes;
+ 	btrfs_calculate_inode_block_rsv_size(fs_info, inode);
+@@ -410,7 +410,7 @@ void btrfs_delalloc_release_extents(stru
+ 	unsigned num_extents;
+ 
+ 	spin_lock(&inode->lock);
+-	num_extents = count_max_extents(num_bytes);
++	num_extents = count_max_extents(fs_info, num_bytes);
+ 	btrfs_mod_outstanding_extents(inode, -num_extents);
+ 	btrfs_calculate_inode_block_rsv_size(fs_info, inode);
+ 	spin_unlock(&inode->lock);
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -2049,10 +2049,10 @@ void btrfs_split_delalloc_extent(struct
+ 		 * applies here, just in reverse.
+ 		 */
+ 		new_size = orig->end - split + 1;
+-		num_extents = count_max_extents(new_size);
++		num_extents = count_max_extents(fs_info, new_size);
+ 		new_size = split - orig->start;
+-		num_extents += count_max_extents(new_size);
+-		if (count_max_extents(size) >= num_extents)
++		num_extents += count_max_extents(fs_info, new_size);
++		if (count_max_extents(fs_info, size) >= num_extents)
+ 			return;
+ 	}
+ 
+@@ -2109,10 +2109,10 @@ void btrfs_merge_delalloc_extent(struct
+ 	 * this case.
+ 	 */
+ 	old_size = other->end - other->start + 1;
+-	num_extents = count_max_extents(old_size);
++	num_extents = count_max_extents(fs_info, old_size);
+ 	old_size = new->end - new->start + 1;
+-	num_extents += count_max_extents(old_size);
+-	if (count_max_extents(new_size) >= num_extents)
++	num_extents += count_max_extents(fs_info, old_size);
++	if (count_max_extents(fs_info, new_size) >= num_extents)
+ 		return;
+ 
+ 	spin_lock(&BTRFS_I(inode)->lock);
+@@ -2191,7 +2191,7 @@ void btrfs_set_delalloc_extent(struct in
+ 	if (!(state->state & EXTENT_DELALLOC) && (*bits & EXTENT_DELALLOC)) {
+ 		struct btrfs_root *root = BTRFS_I(inode)->root;
+ 		u64 len = state->end + 1 - state->start;
+-		u32 num_extents = count_max_extents(len);
++		u32 num_extents = count_max_extents(fs_info, len);
+ 		bool do_list = !btrfs_is_free_space_inode(BTRFS_I(inode));
+ 
+ 		spin_lock(&BTRFS_I(inode)->lock);
+@@ -2233,7 +2233,7 @@ void btrfs_clear_delalloc_extent(struct
+ 	struct btrfs_inode *inode = BTRFS_I(vfs_inode);
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(vfs_inode->i_sb);
+ 	u64 len = state->end + 1 - state->start;
+-	u32 num_extents = count_max_extents(len);
++	u32 num_extents = count_max_extents(fs_info, len);
+ 
+ 	if ((state->state & EXTENT_DEFRAG) && (*bits & EXTENT_DEFRAG)) {
+ 		spin_lock(&inode->lock);
 
 
