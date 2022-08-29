@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5510B5A48B0
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 196BD5A4A93
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231196AbiH2LOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:14:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44654 "EHLO
+        id S233002AbiH2LnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231146AbiH2LN2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469FC6744A;
-        Mon, 29 Aug 2022 04:09:36 -0700 (PDT)
+        with ESMTP id S231438AbiH2Lmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:42:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7386A857CB;
+        Mon, 29 Aug 2022 04:26:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E3F9B80F93;
-        Mon, 29 Aug 2022 11:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AE6BC433D6;
-        Mon, 29 Aug 2022 11:09:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18F4761128;
+        Mon, 29 Aug 2022 11:18:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2031BC433D6;
+        Mon, 29 Aug 2022 11:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771371;
-        bh=3TMLBjX1pTq8JtFOlU5X42wHv7nZUO2ENTwMKcFrJKg=;
+        s=korg; t=1661771930;
+        bh=kqkVxhuCaRG2+GSbJDbaLUZwPMnCwLQMfdS0t1ErPWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxujgEaUJ9q8QWsS/7hr4tGBdAn4b7uXOhccds7kYmQ7LbJTta6ULrZ+RdkmGrySd
-         A+ulZNMNlwFc06HGeqzE6yHb6V4/zTofPzZB+vpntUC6Osc5ezk73AbzVk8hg9vzRG
-         4pMR8aEL/6NewHDPBBy9lcxwRpthKtR2byMDWdW8=
+        b=DKQyOA3v/warpGV3X7Y4d/ht/r/3QA/9r+s8JOpo67s28lX1lNKCCVSHUievqg5P4
+         QM68ZtGzZMdkA42NGVhfMqNhmdM02g7MYzxGahBIilQ47xcq2LAjjloayLH+o4T7n4
+         QluEFZw4oon+wFHYzPrql6A0HCPwWky27xYbjBvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 60/86] net: Fix a data-race around sysctl_somaxconn.
-Date:   Mon, 29 Aug 2022 12:59:26 +0200
-Message-Id: <20220829105759.018736842@linuxfoundation.org>
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 117/158] mm/hugetlb: avoid corrupting page->mapping in hugetlb_mcopy_atomic_pte
+Date:   Mon, 29 Aug 2022 12:59:27 +0200
+Message-Id: <20220829105814.014988421@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 3c9ba81d72047f2e81bb535d42856517b613aba7 ]
+commit ab74ef708dc51df7cf2b8a890b9c6990fac5c0c6 upstream.
 
-While reading sysctl_somaxconn, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+In MCOPY_ATOMIC_CONTINUE case with a non-shared VMA, pages in the page
+cache are installed in the ptes.  But hugepage_add_new_anon_rmap is called
+for them mistakenly because they're not vm_shared.  This will corrupt the
+page->mapping used by page cache code.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220712130542.18836-1-linmiaohe@huawei.com
+Fixes: f619147104c8 ("userfaultfd: add UFFDIO_CONTINUE ioctl")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/socket.c | 2 +-
+ mm/hugetlb.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/socket.c b/net/socket.c
-index d52c265ad449b..bcf68b150fe29 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -1670,7 +1670,7 @@ int __sys_listen(int fd, int backlog)
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -6026,7 +6026,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
+ 	if (!huge_pte_none_mostly(huge_ptep_get(dst_pte)))
+ 		goto out_release_unlock;
  
- 	sock = sockfd_lookup_light(fd, &err, &fput_needed);
- 	if (sock) {
--		somaxconn = sock_net(sock->sk)->core.sysctl_somaxconn;
-+		somaxconn = READ_ONCE(sock_net(sock->sk)->core.sysctl_somaxconn);
- 		if ((unsigned int)backlog > somaxconn)
- 			backlog = somaxconn;
- 
--- 
-2.35.1
-
+-	if (vm_shared) {
++	if (page_in_pagecache) {
+ 		page_dup_file_rmap(page, true);
+ 	} else {
+ 		ClearHPageRestoreReserve(page);
 
 
