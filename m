@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84EFD5A4907
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02F9C5A4A24
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231191AbiH2LTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:19:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54654 "EHLO
+        id S231312AbiH2Le2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:34:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231730AbiH2LTH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:07 -0400
+        with ESMTP id S232823AbiH2LeB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:34:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97456E2CC;
-        Mon, 29 Aug 2022 04:12:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 790EC7CA8C;
+        Mon, 29 Aug 2022 04:19:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 312CBB80F01;
-        Mon, 29 Aug 2022 11:10:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95FD2C433D6;
-        Mon, 29 Aug 2022 11:10:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E613B80E4C;
+        Mon, 29 Aug 2022 11:19:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC2CC433D6;
+        Mon, 29 Aug 2022 11:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771436;
-        bh=TBH4bae03KLFeJfWladI1VYZD+elE5fWvRvkd4Rg3/8=;
+        s=korg; t=1661771961;
+        bh=QXzMtzimhRYt8XWF/LVdnFlStaAGw59NdLQPfaF4lB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTdR7CV5MDZTnTME4BuF540IZDw40E889UReJyMFg8+y6PoAIBETgQzyai71iqKIo
-         apdOyHUw9Md+IYbiPMgkQMTWBGO9GWo3baGvEiEya2AgRRi+V5pRyjRIITF0tBLsqr
-         dHbl57jRW1c0OixIHjIw/bm/uy66CA+Bx2rju4AE=
+        b=A/F2z5j910CaZcxMB/L4oqmp0jnVl8N9JeAAAKCmxNplm5RZhD2Fn1tqM+lae8I3A
+         5MXDVqRjC8Q/jXMwq8mVIlQV4+SZjum1Lx7hqliDX39G5V368tm7hmXZ2j1239wqzB
+         JQusUXakfnebjOrY0RFQ5Mg+GcfWLF14rC2kTb74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.15 103/136] x86/nospec: Unwreck the RSB stuffing
-Date:   Mon, 29 Aug 2022 12:59:30 +0200
-Message-Id: <20220829105808.939286345@linuxfoundation.org>
+        syzbot+a168dbeaaa7778273c1b@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.19 121/158] fbdev: fbcon: Properly revert changes when vc_resize() failed
+Date:   Mon, 29 Aug 2022 12:59:31 +0200
+Message-Id: <20220829105814.184053079@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,128 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-commit 4e3aa9238277597c6c7624f302d81a7b568b6f2d upstream.
+commit a5a923038d70d2d4a86cb4e3f32625a5ee6e7e24 upstream.
 
-Commit 2b1299322016 ("x86/speculation: Add RSB VM Exit protections")
-made a right mess of the RSB stuffing, rewrite the whole thing to not
-suck.
+fbcon_do_set_font() calls vc_resize() when font size is changed.
+However, if if vc_resize() failed, current implementation doesn't
+revert changes for font size, and this causes inconsistent state.
 
-Thanks to Andrew for the enlightening comment about Post-Barrier RSB
-things so we can make this code less magical.
+syzbot reported unable to handle page fault due to this issue [1].
+syzbot's repro uses fault injection which cause failure for memory
+allocation, so vc_resize() failed.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net
+This patch fixes this issue by properly revert changes for font
+related date when vc_resize() failed.
+
+Link: https://syzkaller.appspot.com/bug?id=3443d3a1fa6d964dd7310a0cb1696d165a3e07c4 [1]
+Reported-by: syzbot+a168dbeaaa7778273c1b@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+CC: stable@vger.kernel.org # 5.15+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/nospec-branch.h |   80 +++++++++++++++++------------------
- 1 file changed, 39 insertions(+), 41 deletions(-)
+ drivers/video/fbdev/core/fbcon.c |   27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -35,33 +35,44 @@
- #define RSB_CLEAR_LOOPS		32	/* To forcibly overwrite all entries */
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2402,15 +2402,21 @@ static int fbcon_do_set_font(struct vc_d
+ 	struct fb_info *info = fbcon_info_from_console(vc->vc_num);
+ 	struct fbcon_ops *ops = info->fbcon_par;
+ 	struct fbcon_display *p = &fb_display[vc->vc_num];
+-	int resize;
++	int resize, ret, old_userfont, old_width, old_height, old_charcount;
+ 	char *old_data = NULL;
+ 
+ 	resize = (w != vc->vc_font.width) || (h != vc->vc_font.height);
+ 	if (p->userfont)
+ 		old_data = vc->vc_font.data;
+ 	vc->vc_font.data = (void *)(p->fontdata = data);
++	old_userfont = p->userfont;
+ 	if ((p->userfont = userfont))
+ 		REFCOUNT(data)++;
++
++	old_width = vc->vc_font.width;
++	old_height = vc->vc_font.height;
++	old_charcount = vc->vc_font.charcount;
++
+ 	vc->vc_font.width = w;
+ 	vc->vc_font.height = h;
+ 	vc->vc_font.charcount = charcount;
+@@ -2426,7 +2432,9 @@ static int fbcon_do_set_font(struct vc_d
+ 		rows = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
+ 		cols /= w;
+ 		rows /= h;
+-		vc_resize(vc, cols, rows);
++		ret = vc_resize(vc, cols, rows);
++		if (ret)
++			goto err_out;
+ 	} else if (con_is_visible(vc)
+ 		   && vc->vc_mode == KD_TEXT) {
+ 		fbcon_clear_margins(vc, 0);
+@@ -2436,6 +2444,21 @@ static int fbcon_do_set_font(struct vc_d
+ 	if (old_data && (--REFCOUNT(old_data) == 0))
+ 		kfree(old_data - FONT_EXTRA_WORDS * sizeof(int));
+ 	return 0;
++
++err_out:
++	p->fontdata = old_data;
++	vc->vc_font.data = (void *)old_data;
++
++	if (userfont) {
++		p->userfont = old_userfont;
++		REFCOUNT(data)--;
++	}
++
++	vc->vc_font.width = old_width;
++	vc->vc_font.height = old_height;
++	vc->vc_font.charcount = old_charcount;
++
++	return ret;
+ }
  
  /*
-+ * Common helper for __FILL_RETURN_BUFFER and __FILL_ONE_RETURN.
-+ */
-+#define __FILL_RETURN_SLOT			\
-+	ANNOTATE_INTRA_FUNCTION_CALL;		\
-+	call	772f;				\
-+	int3;					\
-+772:
-+
-+/*
-+ * Stuff the entire RSB.
-+ *
-  * Google experimented with loop-unrolling and this turned out to be
-  * the optimal version - two calls, each with their own speculation
-  * trap should their return address end up getting used, in a loop.
-  */
--#define __FILL_RETURN_BUFFER(reg, nr, sp)	\
--	mov	$(nr/2), reg;			\
--771:						\
--	ANNOTATE_INTRA_FUNCTION_CALL;		\
--	call	772f;				\
--773:	/* speculation trap */			\
--	UNWIND_HINT_EMPTY;			\
--	pause;					\
--	lfence;					\
--	jmp	773b;				\
--772:						\
--	ANNOTATE_INTRA_FUNCTION_CALL;		\
--	call	774f;				\
--775:	/* speculation trap */			\
--	UNWIND_HINT_EMPTY;			\
--	pause;					\
--	lfence;					\
--	jmp	775b;				\
--774:						\
--	add	$(BITS_PER_LONG/8) * 2, sp;	\
--	dec	reg;				\
--	jnz	771b;				\
--	/* barrier for jnz misprediction */	\
-+#define __FILL_RETURN_BUFFER(reg, nr)			\
-+	mov	$(nr/2), reg;				\
-+771:							\
-+	__FILL_RETURN_SLOT				\
-+	__FILL_RETURN_SLOT				\
-+	add	$(BITS_PER_LONG/8) * 2, %_ASM_SP;	\
-+	dec	reg;					\
-+	jnz	771b;					\
-+	/* barrier for jnz misprediction */		\
-+	lfence;
-+
-+/*
-+ * Stuff a single RSB slot.
-+ *
-+ * To mitigate Post-Barrier RSB speculation, one CALL instruction must be
-+ * forced to retire before letting a RET instruction execute.
-+ *
-+ * On PBRSB-vulnerable CPUs, it is not safe for a RET to be executed
-+ * before this point.
-+ */
-+#define __FILL_ONE_RETURN				\
-+	__FILL_RETURN_SLOT				\
-+	add	$(BITS_PER_LONG/8), %_ASM_SP;		\
- 	lfence;
- 
- #ifdef __ASSEMBLY__
-@@ -120,28 +131,15 @@
- #endif
- .endm
- 
--.macro ISSUE_UNBALANCED_RET_GUARD
--	ANNOTATE_INTRA_FUNCTION_CALL
--	call .Lunbalanced_ret_guard_\@
--	int3
--.Lunbalanced_ret_guard_\@:
--	add $(BITS_PER_LONG/8), %_ASM_SP
--	lfence
--.endm
--
-  /*
-   * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
-   * monstrosity above, manually.
-   */
--.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
--.ifb \ftr2
--	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
--.else
--	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
--.endif
--	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
--.Lunbalanced_\@:
--	ISSUE_UNBALANCED_RET_GUARD
-+.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2=ALT_NOT(X86_FEATURE_ALWAYS)
-+	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", \
-+		__stringify(__FILL_RETURN_BUFFER(\reg,\nr)), \ftr, \
-+		__stringify(__FILL_ONE_RETURN), \ftr2
-+
- .Lskip_rsb_\@:
- .endm
- 
 
 
