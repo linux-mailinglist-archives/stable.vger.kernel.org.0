@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 253725A4570
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 10:49:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 176CF5A4571
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 10:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229488AbiH2It4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 04:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33794 "EHLO
+        id S229596AbiH2IuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 04:50:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229725AbiH2Ity (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 04:49:54 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB46F15
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 01:49:51 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id f12so7149781plb.11
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 01:49:51 -0700 (PDT)
+        with ESMTP id S229559AbiH2IuU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 04:50:20 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE070A457
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 01:50:17 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id f24so4569969plr.1
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 01:50:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc;
-        bh=guTbtI22P/4clj4wU/is8uQzFcQasJ62dj0OspcFJcA=;
-        b=E3CxZokEMtcC3fqVKZz7seakCsl9W4iPbQfw6mA86liKvTj3Orc36MWCDe+GJ1kfRj
-         HA5dVilWOPycaA8pKBAURPf+JTIW29NcZlJg3qqw8zM72c3toUWOP8eymdhL8tD1Ryyy
-         Xc8bSgBSAtxMPFXPyIvHZ+DH7p2KmCLe7ss8cFU1F220V75lGT2vd/wYWY9eFwNRlZW7
-         rl/iFzrrAOlGmUUSRNzBv9JGTDSanQDK2SXSNoW94yim4oa+Rc3PCW3+fQ3C9azRkDIF
-         cweBsNonCPph8u4jsD4dUVa42thaIYPig+IL7nfq/h3OkzBi2ms/GKx8+se+VyaV2/6K
-         7llA==
+        bh=CERb1rD0Hf47rnxzRtUS4gS2i0OVZKDNpxZfpPCnPXs=;
+        b=VxF4a7T07ot4KcWomINQXx5aY7DGJrgVgXbDVtBz1werJbNPoiIacJM5rZdp1uT2Fw
+         VTUYSy/lClmOhlK2yVQtyyWB4nx4NBnUFdxIRsmnsSiS67QzXJYxww83g3myzu/dKTTL
+         7oOAgAF+bXAUzjvJEptPohiESulYiR68qW2ky9SUFvR8eGNCac1yMEg02GMHslFZy/43
+         QZfwAohbQeia5Ad7GQHRVDYvTJJVfgieouJxjLvp/jVL5LqSiudhqvx6uPOH6vUexFXo
+         6ValA7vjkxWZZfRbDrq9oz1rTORhHBi8OWwoG1h8qFSR/5aCGSKKvMo4chDbvK/XIVBq
+         G1Hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc;
-        bh=guTbtI22P/4clj4wU/is8uQzFcQasJ62dj0OspcFJcA=;
-        b=raD9Rvmw4EYvco/bduHkHoiZmuypgTIFqJnmdW9QDBl73jhaJ4BY6alT1Rn0oJKlbS
-         13Dz3f6jbs/mJY2e+LGEiQHcDMMJDF4u0hlfESso1PHMDlfZF0caK07EXWpRFgxUmveH
-         G33yuqsqXoklFcrKSTM84xDMz1GKYoBMetJgUFmDp80dBjMohJ43ZDLtW0ui3JMnU6wi
-         ROMzlbRl0aHO4U/fg+xFo/Aub8Mjf3DaClFAVluuCjx6Nqs4KF0VKj1OcQbvFYEDR+aw
-         NIBCA82NyXnzchSbQGjOQaCine5mWT8rEaPlgdIXwO94EIkQuILQj37hvtunMHfl91rq
-         //oA==
-X-Gm-Message-State: ACgBeo34O4qP53mHALOE/NyV3hZa9/Dxj+MqxYzLmEbB1/hRiQqH+e6x
-        W7mLw92Cef8jEBSfDqjoAKQFQdryHe23kcEMP5k=
-X-Google-Smtp-Source: AA6agR4Sy1MJoBE/pduPxOC8G9VlwUiO6JMKHy5btK6ZNzoL8RDPmeWmQgaiTYELz6KQAdQYwK2xGA==
-X-Received: by 2002:a17:902:ea85:b0:174:3c3a:8ff3 with SMTP id x5-20020a170902ea8500b001743c3a8ff3mr14080974plb.152.1661762989793;
-        Mon, 29 Aug 2022 01:49:49 -0700 (PDT)
+        bh=CERb1rD0Hf47rnxzRtUS4gS2i0OVZKDNpxZfpPCnPXs=;
+        b=WUJP+aLoyulQixTLkZccPz6dOlIsC/GhJ8gZ8xWGDMuXlO0xEVwGOn3YCHbPPT0i1N
+         AOrn0yGwHi0GWSjv8I4OZe9YKyVjCQlPWUlYqEdv/+EI+GvvX54ffq6pDQymramo814z
+         eBGlnaXBvwpX3abo9AQ4Bx3xhFs3AIbMrkIXPSyx423iqOYRaQ/TiFxNpKOOF51bZSym
+         XqpVAQU2z2KT5cYL0xdKV6DtEioxbCxoHRp0P8uOYmv7c8yzulPRBj6CGQv+CYT9OYjR
+         xgBQr3xL5CmNHQeAtBPf3hpaw3eNUnE9pCGAVXnMZuGcHYH58es/e7ub10xMGDJRvcCJ
+         ACGg==
+X-Gm-Message-State: ACgBeo3KFM84e3htAjbw2K0boEmV3ZW2rLMIEpi7YCU2PHA6xIOn0Iok
+        TAq2kl00YcT9DvpqeUDqPCgfvDzElaCDNgdteyk=
+X-Google-Smtp-Source: AA6agR5p1AuzjZP7IaXlEtplGLJbQdLdLM1PnH5b0Wj0f5RkMOZJtCP3Mei3DTHDQycwI2yI6XvCqw==
+X-Received: by 2002:a17:902:e5c6:b0:16e:f3b6:ddb5 with SMTP id u6-20020a170902e5c600b0016ef3b6ddb5mr15525259plf.122.1661763016189;
+        Mon, 29 Aug 2022 01:50:16 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w1-20020a170902ca0100b00174be817124sm2068702pld.221.2022.08.29.01.49.49
+        by smtp.gmail.com with ESMTPSA id p66-20020a625b45000000b0052e5bb18a41sm6620099pfb.58.2022.08.29.01.50.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Aug 2022 01:49:49 -0700 (PDT)
-Message-ID: <630c7dad.170a0220.66d71.342b@mx.google.com>
-Date:   Mon, 29 Aug 2022 01:49:49 -0700 (PDT)
+        Mon, 29 Aug 2022 01:50:15 -0700 (PDT)
+Message-ID: <630c7dc7.620a0220.bdb76.b219@mx.google.com>
+Date:   Mon, 29 Aug 2022 01:50:15 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Branch: queue/4.9
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.9.325-102-g310ef13ccc72
-Subject: stable-rc/linux-4.9.y build: 189 builds: 52 failed, 137 passed,
- 64 errors, 31 warnings (v4.9.325-102-g310ef13ccc72)
+X-Kernelci-Kernel: v4.9.325-101-ga4be09eac526
+Subject: stable-rc/queue/4.9 build: 189 builds: 52 failed, 137 passed,
+ 64 errors, 34 warnings (v4.9.325-101-ga4be09eac526)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y build: 189 builds: 52 failed, 137 passed, 64 errors, =
-31 warnings (v4.9.325-102-g310ef13ccc72)
+stable-rc/queue/4.9 build: 189 builds: 52 failed, 137 passed, 64 errors, 34=
+ warnings (v4.9.325-101-ga4be09eac526)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.325-102-g310ef13ccc72/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
+/kernel/v4.9.325-101-ga4be09eac526/
 
 Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.325-102-g310ef13ccc72
-Git Commit: 310ef13ccc72259d4df1c9fabbd5b5f8b7bf5563
+Branch: queue/4.9
+Git Describe: v4.9.325-101-ga4be09eac526
+Git Commit: a4be09eac526ffefd25999a12d82c15a21bc9736
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -207,6 +207,7 @@ i386:
     tinyconfig (gcc-10): 3 warnings
 
 mips:
+    mtx1_defconfig (gcc-10): 3 warnings
 
 x86_64:
     allnoconfig (gcc-10): 5 warnings
@@ -216,7 +217,7 @@ x86_64:
 
 Errors summary:
 
-    15   arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
+    14   arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
 smsc/built-in.o has EABI version 5, but target drivers/net/ethernet/built-i=
 n.o has EABI version 0
     14   arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built=
@@ -234,6 +235,8 @@ m/built-in.o has EABI version 5, but target drivers/media/built-in.o has EA=
 BI version 0
     2    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/stmicro/built-=
 in.o uses VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+    1    error: source object drivers/net/ethernet/smsc/built-in.o has EABI=
+ version 5, but target drivers/net/ethernet/built-in.o has EABI version 0
     1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
 via/built-in.o has EABI version 5, but target drivers/net/ethernet/built-in=
 .o has EABI version 0
@@ -293,8 +296,12 @@ uffix given and no register operands; using default for `sysret'
 d-only section `.head.text'
     3    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
 ffix given and no register operands; using default for `btr'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
     2    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c2=
 4xx_uart_dt_match=E2=80=99 assumed to have one element
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
     1    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpi=
 o_match=E2=80=99 assumed to have one element
 
@@ -325,23 +332,6 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
-mismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
@@ -360,6 +350,23 @@ given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -970,6 +977,19 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+
+---------------------------------------------------------------------------=
+-----
 multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
@@ -1174,9 +1194,8 @@ pxa168_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
 on mismatches
 
 Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
+    error: source object drivers/net/ethernet/smsc/built-in.o has EABI vers=
+ion 5, but target drivers/net/ethernet/built-in.o has EABI version 0
 
 ---------------------------------------------------------------------------=
 -----
@@ -1424,6 +1443,18 @@ ersion 0
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
  mismatches
 
@@ -1433,18 +1464,6 @@ Warnings:
     arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
 given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
 
