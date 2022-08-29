@@ -2,91 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3976A5A535A
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 19:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 507225A5362
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 19:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229551AbiH2RkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 13:40:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42652 "EHLO
+        id S229510AbiH2Rmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 13:42:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbiH2RkS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 13:40:18 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04CB854C9F
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 10:40:17 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id w19so17170183ejc.7
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 10:40:16 -0700 (PDT)
+        with ESMTP id S229453AbiH2Rmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 13:42:54 -0400
+Received: from mail-qv1-xf29.google.com (mail-qv1-xf29.google.com [IPv6:2607:f8b0:4864:20::f29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F0A8E4E1;
+        Mon, 29 Aug 2022 10:42:54 -0700 (PDT)
+Received: by mail-qv1-xf29.google.com with SMTP id j1so6848639qvv.8;
+        Mon, 29 Aug 2022 10:42:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=KaIHRTFY2vCpVkISre+6CBQyJaDOCLw6Ra14gn35vYw=;
-        b=Ab9aBweE06CoNh3KqziwdVWSPGJ3xzZxwa3U7XMBIKu4zMBlAvR+7VCoLNoVY1lA0+
-         4y890N0nRobL2bz6Nt+Ho3HU+XSWliIVELM85ZzQmAhrH/Vt+cJvY74ccaIho58BE06d
-         aF4Phq5I/oUI75NrRpNHEyhWXtMD3lxR774nc=
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc;
+        bh=D7YBfDn19jiC0xJnDvQOZqSFAOKPjZ21gRIrdm5PTvg=;
+        b=Pje61Hblc4A0ZAkCSfhrDXhI3Qz5pEEgVbCDZKmSRVOXhd5BTwIdZ+5GA1SqxJ5o3u
+         DyFaaoDwr325cQ8zK04QD+hnZcP8bTZ7M+Li66s7rfvwN3d5aM3Xs97/ivFLbtGL1RYN
+         T7nGgD1eFqFG0NrEhPt4f2n2WxV3Bx5KVKqWGevgNCLgz9LW08VVvHnNuyY2CdIG/Vla
+         H7bEX8Q3OqczZyU18h4V8kG/oSmlaLlZQ38bydISjbpoNra3zpbWcdGzCidCX7A1wlIZ
+         ZQ/V7h1+NMg/qbQQra5LngN006X2HMilErfML7teuEePEVwKEg4TmCZdR9rI/pzbMc1l
+         RUFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=KaIHRTFY2vCpVkISre+6CBQyJaDOCLw6Ra14gn35vYw=;
-        b=vh5NDJ2kHwhgQzf5H9W1G+DC6Co7CUdSErJyVHLWLY9PEsiwPypifYCNHKZXhKkxHB
-         iRZe2LHKr3IQ+Y5dq/gy5X08Srrb01YRemT+s7xMNchdog1rvfPRusrGO3n5l3C6zwDd
-         rf3wrgr7pVnOQ0Jjy4+wqhviesxe2OTqr8/HPKX6R3RdML1nMwAx0U6tfdAluH8yFM/D
-         T7oyfZ/4CPZEBuJEyiLro4PX4eBKEus4guwOGSWpEciNe/0cSFQCGZbUsXh15y/Ch/z0
-         DF0R/lgG2qstrNdqNyVTfB49mbvQQ8Trsi/pW8tKEtWol5AW4UYWF+fXX1nPQR53V1Ee
-         dssw==
-X-Gm-Message-State: ACgBeo1kHRP3nZkFVsu+jj+TL3aa7PE2lu8hjNKS7nipNyhs8t3idxMF
-        yk91RAUCCUVnPW0UT8ql8XljSw3L9a6x8d8L
-X-Google-Smtp-Source: AA6agR5B6oW2A8vBpm/eyJ+kDuEwTLiYH4UVgO0urGlbOMA0Sf1qnsK4UU6/ZGjE7T5Wpoi7ytQwdQ==
-X-Received: by 2002:a17:907:9620:b0:730:d5f4:d448 with SMTP id gb32-20020a170907962000b00730d5f4d448mr14280629ejc.45.1661794815268;
-        Mon, 29 Aug 2022 10:40:15 -0700 (PDT)
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com. [209.85.221.51])
-        by smtp.gmail.com with ESMTPSA id 21-20020a170906319500b007402796f065sm4506226ejy.132.2022.08.29.10.40.14
-        for <stable@vger.kernel.org>
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc;
+        bh=D7YBfDn19jiC0xJnDvQOZqSFAOKPjZ21gRIrdm5PTvg=;
+        b=WFLijen9QKaa09uXqDGhesdVnDdzFNZOFc1Bcc2F1TWF+nQxlHA4xZCKN2woQnTduO
+         LttR7Rz1N5hxDQfDYfMPN7Hxj9aEbA1u1ihPyY1tHi8at/pULUlEpEgx1F73ILIhSzy0
+         cNVcya3memT4Jvo7r2be5GBI2Sgcob+YXaFKPQ8wrW00qjpIEM5buXqw3CqS/BoXMCcH
+         VZ0h9FUjQUBiCTGhpUVPcxvaMxEAFIX2C1Ew/TuDY/v+/0iuuTxzhnvlNtvgAFLP33jM
+         6OWEysTSvjJiE8UoVXDOIh1TehaW3cjc3e+o9u/Y5sEMFQwdmKgYK2aOyvPCOQdLPuWY
+         GJXQ==
+X-Gm-Message-State: ACgBeo0E8y6+XPGwESHraH9DL1PsS7BFXyZHTaZN80rKKD7890rBHt2h
+        kdvzGZwBqH9y+nr71bY1fdaHGKO+aCk=
+X-Google-Smtp-Source: AA6agR66XAl8gXHXe1QnFuUirNoRYtwq0QlnLnttiDHMJqWyc9uWjVuIqtKCCmTpQDr+wDQ0fGGIPw==
+X-Received: by 2002:a05:6214:d04:b0:498:f0ed:fa0c with SMTP id 4-20020a0562140d0400b00498f0edfa0cmr11400930qvh.104.1661794973141;
+        Mon, 29 Aug 2022 10:42:53 -0700 (PDT)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id h1-20020a05620a400100b006bbe7ded98csm6605707qko.112.2022.08.29.10.42.51
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Aug 2022 10:40:14 -0700 (PDT)
-Received: by mail-wr1-f51.google.com with SMTP id b5so11113369wrr.5
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 10:40:14 -0700 (PDT)
-X-Received: by 2002:a05:6000:1888:b0:222:ca41:dc26 with SMTP id
- a8-20020a056000188800b00222ca41dc26mr6584905wri.442.1661794814268; Mon, 29
- Aug 2022 10:40:14 -0700 (PDT)
+        Mon, 29 Aug 2022 10:42:52 -0700 (PDT)
+Message-ID: <d8b9d8e4-6b46-9c63-2663-f548d10a0701@gmail.com>
+Date:   Mon, 29 Aug 2022 10:42:49 -0700
 MIME-Version: 1.0
-References: <CAG48ez3SEqOPcPCYGHVZv4iqEApujD5VtM3Re-tCKLDEFdEdbg@mail.gmail.com>
- <CAHk-=wgrZB20D1mz55ohTWpv9zbik4TLJi+N_UMK_N+y3ofYWQ@mail.gmail.com>
-In-Reply-To: <CAHk-=wgrZB20D1mz55ohTWpv9zbik4TLJi+N_UMK_N+y3ofYWQ@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linuxfoundation.org>
-Date:   Mon, 29 Aug 2022 10:39:58 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wir0U3wydevpHUsHQyF_erDRY9t5Rtvh-mfikqG15XH+w@mail.gmail.com>
-Message-ID: <CAHk-=wir0U3wydevpHUsHQyF_erDRY9t5Rtvh-mfikqG15XH+w@mail.gmail.com>
-Subject: Re: stable-backporting the VM_PFNMAP TLB flushing fix (b67fbebd4cf9)
-To:     Jann Horn <jannh@google.com>
-Cc:     stable <stable@vger.kernel.org>,
-        Security Officers <security@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
+Subject: Re: [PATCH 5.15 000/136] 5.15.64-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220829105804.609007228@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 29, 2022 at 10:38 AM Linus Torvalds
-<torvalds@linuxfoundation.org> wrote:
->
-> On Mon, Aug 29, 2022 at 10:36 AM Jann Horn <jannh@google.com> wrote:
-> >
-> > A minimal but also completely different fix would be:
->
-> Looks sane to me.
 
-Just to clarify: we've fixed things in stable backports differently
-from the development kernel before - just make sure that the commit
-message mentions what the devel fix was and why the stable fix is
-different, and it's all good.
 
-                 Linus
+On 8/29/2022 3:57 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.64 release.
+> There are 136 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 31 Aug 2022 10:57:37 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.64-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels and build tested on 
+BMIPS_GENERIC:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
