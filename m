@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A52A15A43FC
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EEB65A43FD
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbiH2HmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:42:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33908 "EHLO
+        id S229463AbiH2HmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:42:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbiH2Hl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:41:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E23D4E864
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:41:57 -0700 (PDT)
+        with ESMTP id S229573AbiH2HmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:42:04 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 441E84C60A
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:42:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 861A061140
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:41:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 616CCC433D7;
-        Mon, 29 Aug 2022 07:41:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AEF28CE0DF9
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:42:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A58FBC433C1;
+        Mon, 29 Aug 2022 07:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661758916;
-        bh=brCtZY4uZS3bytL0l48ymqa5/ljV8WuMuPd3c/JhPbE=;
+        s=korg; t=1661758919;
+        bh=4yo851ikm6wCCy6k/vX60YZQHfOnk7hWQiBu5Yywc6w=;
         h=Subject:To:Cc:From:Date:From;
-        b=V6eolJFAtSWLwlYctQxoTUbV5+63flWBONhuOm0laBDXknKMim8JyhkKveKK2+4iF
-         nWZ64RPBs6t8ka+viC0pMnBMkuMI2EzPY7OebEGHpu1dOgQ7RY6YYKnQrOv9EM0rLA
-         ie3vLtnXK7mm59fcxYpAMI6GOos63sv4S+fY26s4=
-Subject: FAILED: patch "[PATCH] smb3: missing inode locks in zero range" failed to apply to 4.14-stable tree
+        b=derjq5Wu5+3oqfxmBuvf+9bDYdgtBFhCcN5vQRcNIda9Xzsq9G559ZjngQigcW1Dk
+         +yWN9IqCOLHSGBJRA61Dkv0097Y7+O8vpW+Oz+YZdUEbRN/8KAslAo7N1x5LnGoVpl
+         0xQ1G/usXb5ueYfHxdRoIJUG9U9YTN1oZlfHmyTw=
+Subject: FAILED: patch "[PATCH] smb3: missing inode locks in zero range" failed to apply to 4.9-stable tree
 To:     dhowells@redhat.com, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 29 Aug 2022 09:41:33 +0200
-Message-ID: <1661758893123179@kroah.com>
+Message-ID: <1661758893255208@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
