@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C14935A43E5
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DE815A43E7
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:40:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229532AbiH2HkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:40:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58608 "EHLO
+        id S229683AbiH2HkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:40:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229687AbiH2HkQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:40:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB8FBE28
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:40:12 -0700 (PDT)
+        with ESMTP id S229704AbiH2HkT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:40:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D04FFE00A
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:40:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1EFEB80A4A
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:40:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33497C433C1;
-        Mon, 29 Aug 2022 07:40:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29A66B80D14
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:40:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E464C433D6;
+        Mon, 29 Aug 2022 07:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661758809;
-        bh=/ZZVQWX3VYWuYJNrhxA7v/sV/MyK18uG0m1AnHnpSm8=;
+        s=korg; t=1661758812;
+        bh=0l6Tsp7tN05ea2F4c37du8/X3gjkuoX3/UXdUqECkMg=;
         h=Subject:To:Cc:From:Date:From;
-        b=qxN2v96e2PC3gg5u6Qo2hCI3kg/N2t1dgSKbcGn9XIuH+9TuM55D6ekN9X+NNA0Mc
-         oOPfYSI3IHQSFdS/F2+UR3jKUfKQ8zC4t1CdRH4/8m9oK7sP7dlz2Sce31dMDu+b55
-         q2xDC7fTLKPUJDBfUmbG/S02gLphS6FDqmvkjjFY=
-Subject: FAILED: patch "[PATCH] wait_on_bit: add an acquire memory barrier" failed to apply to 4.14-stable tree
+        b=odK/eKZ0SGajo5AjcGsxATd7oB1tM+UcjFma2BPH4DRBx+f61f0IkoAEToRRYFKcu
+         Q2n+jMjiI4D7mWJclhB6woHZkic65Az7yte70poKJawaAPJBiREk5MxU/KJrbOMrLZ
+         XFAvHpJCoD4uBIhsVjuxZYFXSuI2Amu2cUn53hGY=
+Subject: FAILED: patch "[PATCH] wait_on_bit: add an acquire memory barrier" failed to apply to 4.19-stable tree
 To:     mpatocka@redhat.com, torvalds@linux-foundation.org, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 29 Aug 2022 09:39:56 +0200
-Message-ID: <1661758796109235@kroah.com>
+Message-ID: <1661758796166162@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
