@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94CDB5A4400
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:42:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF89C5A43FF
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:42:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229526AbiH2HmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:42:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34438 "EHLO
+        id S229480AbiH2HmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:42:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229553AbiH2HmN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:42:13 -0400
+        with ESMTP id S229573AbiH2HmM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:42:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23294F1B4
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:42:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D786F4F19A
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:42:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29DEAB80D14
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:42:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 904E6C433C1;
-        Mon, 29 Aug 2022 07:42:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36F71B80D13
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:42:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95F40C433D6;
+        Mon, 29 Aug 2022 07:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661758929;
-        bh=p8VeWSc/Hb7tTwoL2re+Mp4YRmKISk2NVMy89BgGmiM=;
+        s=korg; t=1661758926;
+        bh=stKyrxBFvIKF5/0uvaksPfZn/QEpd085r3TMBQqT4pY=;
         h=Subject:To:Cc:From:Date:From;
-        b=EMpanxCbaRaI+aAoBc2Xb75Xn0aYLLznpGsrlWIEmydF7wvO+mTbVxkZ0Q2zBhG28
-         nw23bAAGkh0va6GAoquLOX8LZdNzTdbOMSb/Qih6QnjLVO01dHbRCVfozjF0reG4+M
-         5h0G6Fitf+Fy2p8q2Sd6gh3BOtYqXV9wnyyo2oJk=
-Subject: FAILED: patch "[PATCH] provide arch_test_bit_acquire for architectures that define" failed to apply to 5.19-stable tree
+        b=WXRrXRnJH98WI35FNBXkDqG6KViSWFXBY+dlsEHp1dfqnqvndonXSw4YH5Ysk1xHl
+         bi5WLXFnwipXfP0nhiD+8nm4brjsLvga2QJQnqoSCP3A7BS9jEkbMJoRL5ka05Hm+X
+         uVrVCfr6123vbP3hci61hTkYU9UrfdodNCVbH/ag=
+Subject: FAILED: patch "[PATCH] provide arch_test_bit_acquire for architectures that define" failed to apply to 5.15-stable tree
 To:     mpatocka@redhat.com, torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 29 Aug 2022 09:42:02 +0200
-Message-ID: <166175892269213@kroah.com>
+Message-ID: <166175892218205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
