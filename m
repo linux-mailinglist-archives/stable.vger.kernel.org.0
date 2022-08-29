@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9F385A49DF
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A53695A4A5E
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232384AbiH2Lac (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:30:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47960 "EHLO
+        id S232831AbiH2LhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:37:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232711AbiH2L3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 179AC785B8;
-        Mon, 29 Aug 2022 04:18:14 -0700 (PDT)
+        with ESMTP id S232635AbiH2Lgc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:36:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A003B7F087;
+        Mon, 29 Aug 2022 04:21:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 343FE611EC;
-        Mon, 29 Aug 2022 11:18:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F265C433C1;
-        Mon, 29 Aug 2022 11:18:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04235B80F99;
+        Mon, 29 Aug 2022 11:12:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E352C433B5;
+        Mon, 29 Aug 2022 11:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771884;
-        bh=YJt4NxBD+NcoXprsbu4ayUDQDeGzuAoSY2VYAF4I89c=;
+        s=korg; t=1661771530;
+        bh=8gS1D1sm5MLGfssJAMwd/Imob+GXdcS16tTjs3MJGdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/e6J7wH02DoWPylSrWqpOd9wavDcBmZx+knXw82ae/eLBjhocjDJ0uJogPeQAMYT
-         PBgAixO2uf47aws75K2BL+ZsXnrVQjuUm6beSNLY9fjGBYAG1KSGAqOChngAngYRpq
-         JJdI32JCXgB8ZepViMN1BLF2cOWHazRyxZaz01Mo=
+        b=eGAiwM5OyFYM8+gmoNhQP71Xj4ZX8RAWAdkdmLXzS6YTp8ILFc7jXbrXwiMOGx271
+         DhneTynYcqgqJIfuGbhn7pUSWk+G82PvJdxdZwuQQ6OFgUqZNt39vDCJqkB5pr3SP2
+         O1YDATLsSRYfG5HJjVawjT/YtPlcR2Z0cpIzJcTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.19 130/158] riscv: traps: add missing prototype
+        stable@vger.kernel.org, Jeremy Linton <Jeremy.Linton@arm.com>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Riwen Lu <luriwen@kylinos.cn>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.15 113/136] ACPI: processor: Remove freq Qos request for all CPUs
 Date:   Mon, 29 Aug 2022 12:59:40 +0200
-Message-Id: <20220829105814.545548868@linuxfoundation.org>
+Message-Id: <20220829105809.338750765@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,51 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Riwen Lu <luriwen@kylinos.cn>
 
-commit d951b20b9def73dcc39a5379831525d0d2a537e9 upstream.
+commit 36527b9d882362567ceb4eea8666813280f30e6f upstream.
 
-Sparse complains:
-arch/riscv/kernel/traps.c:213:6: warning: symbol 'shadow_stack' was not declared. Should it be static?
+The freq Qos request would be removed repeatedly if the cpufreq policy
+relates to more than one CPU. Then, it would cause the "called for unknown
+object" warning.
 
-The variable is used in entry.S, so declare shadow_stack there
-alongside SHADOW_OVERFLOW_STACK_SIZE.
+Remove the freq Qos request for each CPU relates to the cpufreq policy,
+instead of removing repeatedly for the last CPU of it.
 
-Fixes: 31da94c25aea ("riscv: add VMAP_STACK overflow detection")
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220814141237.493457-5-mail@conchuod.ie
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: a1bb46c36ce3 ("ACPI: processor: Add QoS requests for all CPUs")
+Reported-by: Jeremy Linton <Jeremy.Linton@arm.com>
+Tested-by: Jeremy Linton <jeremy.linton@arm.com>
+Signed-off-by: Riwen Lu <luriwen@kylinos.cn>
+Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/thread_info.h |    2 ++
- arch/riscv/kernel/traps.c            |    3 ++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/acpi/processor_thermal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/include/asm/thread_info.h
-+++ b/arch/riscv/include/asm/thread_info.h
-@@ -42,6 +42,8 @@
+--- a/drivers/acpi/processor_thermal.c
++++ b/drivers/acpi/processor_thermal.c
+@@ -144,7 +144,7 @@ void acpi_thermal_cpufreq_exit(struct cp
+ 	unsigned int cpu;
  
- #ifndef __ASSEMBLY__
+ 	for_each_cpu(cpu, policy->related_cpus) {
+-		struct acpi_processor *pr = per_cpu(processors, policy->cpu);
++		struct acpi_processor *pr = per_cpu(processors, cpu);
  
-+extern long shadow_stack[SHADOW_OVERFLOW_STACK_SIZE / sizeof(long)];
-+
- #include <asm/processor.h>
- #include <asm/csr.h>
- 
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -20,9 +20,10 @@
- 
- #include <asm/asm-prototypes.h>
- #include <asm/bug.h>
-+#include <asm/csr.h>
- #include <asm/processor.h>
- #include <asm/ptrace.h>
--#include <asm/csr.h>
-+#include <asm/thread_info.h>
- 
- int show_unhandled_signals = 1;
- 
+ 		if (pr)
+ 			freq_qos_remove_request(&pr->thermal_req);
 
 
