@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB195A4818
+	by mail.lfdr.de (Postfix) with ESMTP id CAC7D5A4819
 	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230226AbiH2LFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230312AbiH2LFw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Aug 2022 07:05:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43352 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230266AbiH2LFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:05:08 -0400
+        with ESMTP id S230268AbiH2LFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:05:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69BC258B6F;
-        Mon, 29 Aug 2022 04:03:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA59165648;
+        Mon, 29 Aug 2022 04:03:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C0C4B80EF2;
-        Mon, 29 Aug 2022 11:02:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04276C433D6;
-        Mon, 29 Aug 2022 11:02:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D5E0B80EF9;
+        Mon, 29 Aug 2022 11:03:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3957C433D6;
+        Mon, 29 Aug 2022 11:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770973;
-        bh=7BeU2rylXDRPJpSm+V25tjT3MsumeGzAtWSDr6FjKpA=;
+        s=korg; t=1661770979;
+        bh=NajXgsYiuauLyQeZ+zf17PKBvQW9QaVX+z7efwu5PKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KV8KcNuoiuPiQT8/778OQHKFDtUnYZYKb7vAVi5KKmhktmnWmmpHTyVnrRdau58dS
-         Ia0f6FMiQB5xVsJzTCygB3d35VVxGjoI0nEzQ+P6BpGr1BVC2yVorF6lkbgL/jVIH3
-         6ZbitptxofxzLcgELjruVLiMXv3sDwCqtQa5NrIk=
+        b=cHzB5evg0v/xfAbuSyt6z7oEDMOsXmawzho/TV1D0/MZqISuW8mv5gAhDDxyp4w2I
+         QQg2WNkPyIf2bvQoJ7acr7qOGzszqO2ekMCwZPqwNgxgNSTzNwRQS9xOYA5MYOWP9R
+         MX2HQG/EVcgjj8h9MHOEJisIAicM1lynQOczqSec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 041/136] nfc: pn533: Fix use-after-free bugs caused by pn532_cmd_timeout
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 02/86] parisc: Fix exception handler for fldw and fstw instructions
 Date:   Mon, 29 Aug 2022 12:58:28 +0200
-Message-Id: <20220829105806.289956441@linuxfoundation.org>
+Message-Id: <20220829105756.617974362@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit f1e941dbf80a9b8bab0bffbc4cbe41cc7f4c6fb6 ]
+commit 7ae1f5508d9a33fd58ed3059bd2d569961e3b8bd upstream.
 
-When the pn532 uart device is detaching, the pn532_uart_remove()
-is called. But there are no functions in pn532_uart_remove() that
-could delete the cmd_timeout timer, which will cause use-after-free
-bugs. The process is shown below:
+The exception handler is broken for unaligned memory acceses with fldw
+and fstw instructions, because it trashes or uses randomly some other
+floating point register than the one specified in the instruction word
+on loads and stores.
 
-    (thread 1)                  |        (thread 2)
-                                |  pn532_uart_send_frame
-pn532_uart_remove               |    mod_timer(&pn532->cmd_timeout,...)
-  ...                           |    (wait a time)
-  kfree(pn532) //FREE           |    pn532_cmd_timeout
-                                |      pn532_uart_send_frame
-                                |        pn532->... //USE
+The instruction "fldw 0(addr),%fr22L" (and the other fldw/fstw
+instructions) encode the target register (%fr22) in the rightmost 5 bits
+of the instruction word. The 7th rightmost bit of the instruction word
+defines if the left or right half of %fr22 should be used.
 
-This patch adds del_timer_sync() in pn532_uart_remove() in order to
-prevent the use-after-free bugs. What's more, the pn53x_unregister_nfc()
-is well synchronized, it sets nfc_dev->shutting_down to true and there
-are no syscalls could restart the cmd_timeout timer.
+While processing unaligned address accesses, the FR3() define is used to
+extract the offset into the local floating-point register set.  But the
+calculation in FR3() was buggy, so that for example instead of %fr22,
+register %fr12 [((22 * 2) & 0x1f) = 12] was used.
 
-Fixes: c656aa4c27b1 ("nfc: pn533: add UART phy driver")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This bug has been since forever in the parisc kernel and I wonder why it
+wasn't detected earlier. Interestingly I noticed this bug just because
+the libime debian package failed to build on *native* hardware, while it
+successfully built in qemu.
+
+This patch corrects the bitshift and masking calculation in FR3().
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/pn533/uart.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/kernel/unaligned.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/pn533/uart.c b/drivers/nfc/pn533/uart.c
-index 7bdaf82630706..7ad98973648cc 100644
---- a/drivers/nfc/pn533/uart.c
-+++ b/drivers/nfc/pn533/uart.c
-@@ -310,6 +310,7 @@ static void pn532_uart_remove(struct serdev_device *serdev)
- 	pn53x_unregister_nfc(pn532->priv);
- 	serdev_device_close(serdev);
- 	pn53x_common_clean(pn532->priv);
-+	del_timer_sync(&pn532->cmd_timeout);
- 	kfree_skb(pn532->recv_skb);
- 	kfree(pn532);
- }
--- 
-2.35.1
-
+--- a/arch/parisc/kernel/unaligned.c
++++ b/arch/parisc/kernel/unaligned.c
+@@ -107,7 +107,7 @@
+ #define R1(i) (((i)>>21)&0x1f)
+ #define R2(i) (((i)>>16)&0x1f)
+ #define R3(i) ((i)&0x1f)
+-#define FR3(i) ((((i)<<1)&0x1f)|(((i)>>6)&1))
++#define FR3(i) ((((i)&0x1f)<<1)|(((i)>>6)&1))
+ #define IM(i,n) (((i)>>1&((1<<(n-1))-1))|((i)&1?((0-1L)<<(n-1)):0))
+ #define IM5_2(i) IM((i)>>16,5)
+ #define IM5_3(i) IM((i),5)
 
 
