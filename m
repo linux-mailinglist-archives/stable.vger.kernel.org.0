@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47A795A496B
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:25:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E047F5A49BD
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:29:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231908AbiH2LY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:24:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40872 "EHLO
+        id S231806AbiH2L3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:29:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232042AbiH2LX6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:23:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68FF015812;
-        Mon, 29 Aug 2022 04:15:21 -0700 (PDT)
+        with ESMTP id S232341AbiH2L2r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:28:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72E0A79A6A;
+        Mon, 29 Aug 2022 04:17:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E909B80EFD;
-        Mon, 29 Aug 2022 11:06:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D217C433C1;
-        Mon, 29 Aug 2022 11:06:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B3E6611D6;
+        Mon, 29 Aug 2022 11:06:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73782C433C1;
+        Mon, 29 Aug 2022 11:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771161;
-        bh=FufMUVUaQh+PDh29tlw9bNgetLwgT2UPVsGlg+Vo9Jk=;
+        s=korg; t=1661771173;
+        bh=gwq1OqMwhb/YuVfl7qY3edF58qVgD9W2LIDU7en9DcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=euCo5N619qFIPdtmcdx5/Zdfo6JpXK5IAPEIXTQ95j2pru5Tx9ybA/jxTmm4FD2Sd
-         q0tBH6P2FugQPIzkYGAbVUSgmObg/h4YJe/Di5imCnQfTECCzviKZI8mL0louGMdtL
-         s3mFEQ+U+H2dhpl+j3urQF+qE6+qrVKI1DDNH6pE=
+        b=r+duUxt//B01OZ3hoFecCGj42YmU+uRwRlRiUNzxS2CofxLkVl/PHMfrwii770on9
+         mxQmhz+4e5vXDptI+kpH6Crz2Kyyy5RItB8XDxf8kLsEUGviPPfgPW+gDK6PaMzV1n
+         OtPDF24DcdrX2qhO+ST50+5w8hlSbKL+g08oH8xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 074/136] ratelimit: Fix data-races in ___ratelimit().
+Subject: [PATCH 5.10 35/86] netfilter: nft_osf: restrict osf to ipv4, ipv6 and inet families
 Date:   Mon, 29 Aug 2022 12:59:01 +0200
-Message-Id: <20220829105807.679447987@linuxfoundation.org>
+Message-Id: <20220829105757.991970415@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 6bae8ceb90ba76cdba39496db936164fa672b9be ]
+[ Upstream commit 5f3b7aae14a706d0d7da9f9e39def52ff5fc3d39 ]
 
-While reading rs->interval and rs->burst, they can be changed
-concurrently via sysctl (e.g. net_ratelimit_state).  Thus, we
-need to add READ_ONCE() to their readers.
+As it was originally intended, restrict extension to supported families.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b96af92d6eaf ("netfilter: nf_tables: implement Passive OS fingerprint module in nft_osf")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/ratelimit.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ net/netfilter/nft_osf.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/lib/ratelimit.c b/lib/ratelimit.c
-index e01a93f46f833..ce945c17980b9 100644
---- a/lib/ratelimit.c
-+++ b/lib/ratelimit.c
-@@ -26,10 +26,16 @@
-  */
- int ___ratelimit(struct ratelimit_state *rs, const char *func)
+diff --git a/net/netfilter/nft_osf.c b/net/netfilter/nft_osf.c
+index d82677e83400b..720dc9fba6d4f 100644
+--- a/net/netfilter/nft_osf.c
++++ b/net/netfilter/nft_osf.c
+@@ -115,9 +115,21 @@ static int nft_osf_validate(const struct nft_ctx *ctx,
+ 			    const struct nft_expr *expr,
+ 			    const struct nft_data **data)
  {
-+	/* Paired with WRITE_ONCE() in .proc_handler().
-+	 * Changing two values seperately could be inconsistent
-+	 * and some message could be lost.  (See: net_ratelimit_state).
-+	 */
-+	int interval = READ_ONCE(rs->interval);
-+	int burst = READ_ONCE(rs->burst);
- 	unsigned long flags;
- 	int ret;
+-	return nft_chain_validate_hooks(ctx->chain, (1 << NF_INET_LOCAL_IN) |
+-						    (1 << NF_INET_PRE_ROUTING) |
+-						    (1 << NF_INET_FORWARD));
++	unsigned int hooks;
++
++	switch (ctx->family) {
++	case NFPROTO_IPV4:
++	case NFPROTO_IPV6:
++	case NFPROTO_INET:
++		hooks = (1 << NF_INET_LOCAL_IN) |
++			(1 << NF_INET_PRE_ROUTING) |
++			(1 << NF_INET_FORWARD);
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	return nft_chain_validate_hooks(ctx->chain, hooks);
+ }
  
--	if (!rs->interval)
-+	if (!interval)
- 		return 1;
- 
- 	/*
-@@ -44,7 +50,7 @@ int ___ratelimit(struct ratelimit_state *rs, const char *func)
- 	if (!rs->begin)
- 		rs->begin = jiffies;
- 
--	if (time_is_before_jiffies(rs->begin + rs->interval)) {
-+	if (time_is_before_jiffies(rs->begin + interval)) {
- 		if (rs->missed) {
- 			if (!(rs->flags & RATELIMIT_MSG_ON_RELEASE)) {
- 				printk_deferred(KERN_WARNING
-@@ -56,7 +62,7 @@ int ___ratelimit(struct ratelimit_state *rs, const char *func)
- 		rs->begin   = jiffies;
- 		rs->printed = 0;
- 	}
--	if (rs->burst && rs->burst > rs->printed) {
-+	if (burst && burst > rs->printed) {
- 		rs->printed++;
- 		ret = 1;
- 	} else {
+ static struct nft_expr_type nft_osf_type;
 -- 
 2.35.1
 
