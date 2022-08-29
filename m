@@ -2,54 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 864935A4960
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9698C5A499E
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:27:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231523AbiH2LYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:24:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34068 "EHLO
+        id S231960AbiH2L1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:27:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231867AbiH2LXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:23:10 -0400
+        with ESMTP id S231627AbiH2LZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:25:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FC345C95D;
-        Mon, 29 Aug 2022 04:14:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3841177E8F;
+        Mon, 29 Aug 2022 04:16:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7808B80FA7;
-        Mon, 29 Aug 2022 11:14:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC98C433D6;
-        Mon, 29 Aug 2022 11:14:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C11DB80F79;
+        Mon, 29 Aug 2022 11:13:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00494C433D6;
+        Mon, 29 Aug 2022 11:13:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771659;
-        bh=MaFDrlC2VtmaCzh6Vod92cDJBAkryZgJvboxsy9HS+M=;
+        s=korg; t=1661771628;
+        bh=YN/Yc5vBxwdnysywUhNDn9acqzeEVELKrTo2kUZ9MVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQyv+w7YriT67OC2jOjs1uJJX6K9z/hvwsvdTDbur4t5SxPP/9ES66+tAqHLbB2UF
-         bniKC1U0ueoukWJ1W2ZxlaPpeHOkrLTRlaqIxzDDkxfEW8aC9vwCS9SPXa76IrH1WH
-         tYTAXtOkmokB1jRqzPaOR3P9DBl4bqMskUL6d1jc=
+        b=Xf5dNjOKnYrz5DLBfYVfcamtwOKa1JhVdXDRcpZT9v5I5BzipKZhMZM3xDQAKYXCL
+         LRkc+lUyJGKBH/5Qs5B2tt5PFxnN4i2248dYsMupTo0kaeP+4FPnJqfvHoFu48uYdc
+         KmF0/zcDHi7kEzhdhycBEVss2BTR6kQ4rjAGJs68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Feiner <pfeiner@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Cyrill Gorcunov <gorcunov@openvz.org>,
-        Pavel Emelyanov <xemul@parallels.com>,
-        Jamie Liu <jamieliu@google.com>,
-        Hugh Dickins <hughd@google.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 121/136] mm/hugetlb: fix hugetlb not supporting softdirty tracking
-Date:   Mon, 29 Aug 2022 12:59:48 +0200
-Message-Id: <20220829105809.643780113@linuxfoundation.org>
+        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>
+Subject: [PATCH 5.10 83/86] perf/x86/intel/uncore: Fix broken read_counter() for SNB IMC PMU
+Date:   Mon, 29 Aug 2022 12:59:49 +0200
+Message-Id: <20220829105759.919082263@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,163 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Stephane Eranian <eranian@google.com>
 
-commit f96f7a40874d7c746680c0b9f57cef2262ae551f upstream.
+commit 11745ecfe8fea4b4a4c322967a7605d2ecbd5080 upstream.
 
-Patch series "mm/hugetlb: fix write-fault handling for shared mappings", v2.
+Existing code was generating bogus counts for the SNB IMC bandwidth counters:
 
-I observed that hugetlb does not support/expect write-faults in shared
-mappings that would have to map the R/O-mapped page writable -- and I
-found two case where we could currently get such faults and would
-erroneously map an anon page into a shared mapping.
+$ perf stat -a -I 1000 -e uncore_imc/data_reads/,uncore_imc/data_writes/
+     1.000327813           1,024.03 MiB  uncore_imc/data_reads/
+     1.000327813              20.73 MiB  uncore_imc/data_writes/
+     2.000580153         261,120.00 MiB  uncore_imc/data_reads/
+     2.000580153              23.28 MiB  uncore_imc/data_writes/
 
-Reproducers part of the patches.
+The problem was introduced by commit:
+  07ce734dd8ad ("perf/x86/intel/uncore: Clean up client IMC")
 
-I propose to backport both fixes to stable trees.  The first fix needs a
-small adjustment.
+Where the read_counter callback was replace to point to the generic
+uncore_mmio_read_counter() function.
 
+The SNB IMC counters are freerunnig 32-bit counters laid out contiguously in
+MMIO. But uncore_mmio_read_counter() is using a readq() call to read from
+MMIO therefore reading 64-bit from MMIO. Although this is okay for the
+uncore_perf_event_update() function because it is shifting the value based
+on the actual counter width to compute a delta, it is not okay for the
+uncore_pmu_event_start() which is simply reading the counter  and therefore
+priming the event->prev_count with a bogus value which is responsible for
+causing bogus deltas in the perf stat command above.
 
-This patch (of 2):
+The fix is to reintroduce the custom callback for read_counter for the SNB
+IMC PMU and use readl() instead of readq(). With the change the output of
+perf stat is back to normal:
+$ perf stat -a -I 1000 -e uncore_imc/data_reads/,uncore_imc/data_writes/
+     1.000120987             296.94 MiB  uncore_imc/data_reads/
+     1.000120987             138.42 MiB  uncore_imc/data_writes/
+     2.000403144             175.91 MiB  uncore_imc/data_reads/
+     2.000403144              68.50 MiB  uncore_imc/data_writes/
 
-Staring at hugetlb_wp(), one might wonder where all the logic for shared
-mappings is when stumbling over a write-protected page in a shared
-mapping.  In fact, there is none, and so far we thought we could get away
-with that because e.g., mprotect() should always do the right thing and
-map all pages directly writable.
-
-Looks like we were wrong:
-
---------------------------------------------------------------------------
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
- #include <fcntl.h>
- #include <unistd.h>
- #include <errno.h>
- #include <sys/mman.h>
-
- #define HUGETLB_SIZE (2 * 1024 * 1024u)
-
- static void clear_softdirty(void)
- {
-         int fd = open("/proc/self/clear_refs", O_WRONLY);
-         const char *ctrl = "4";
-         int ret;
-
-         if (fd < 0) {
-                 fprintf(stderr, "open(clear_refs) failed\n");
-                 exit(1);
-         }
-         ret = write(fd, ctrl, strlen(ctrl));
-         if (ret != strlen(ctrl)) {
-                 fprintf(stderr, "write(clear_refs) failed\n");
-                 exit(1);
-         }
-         close(fd);
- }
-
- int main(int argc, char **argv)
- {
-         char *map;
-         int fd;
-
-         fd = open("/dev/hugepages/tmp", O_RDWR | O_CREAT);
-         if (!fd) {
-                 fprintf(stderr, "open() failed\n");
-                 return -errno;
-         }
-         if (ftruncate(fd, HUGETLB_SIZE)) {
-                 fprintf(stderr, "ftruncate() failed\n");
-                 return -errno;
-         }
-
-         map = mmap(NULL, HUGETLB_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-         if (map == MAP_FAILED) {
-                 fprintf(stderr, "mmap() failed\n");
-                 return -errno;
-         }
-
-         *map = 0;
-
-         if (mprotect(map, HUGETLB_SIZE, PROT_READ)) {
-                 fprintf(stderr, "mmprotect() failed\n");
-                 return -errno;
-         }
-
-         clear_softdirty();
-
-         if (mprotect(map, HUGETLB_SIZE, PROT_READ|PROT_WRITE)) {
-                 fprintf(stderr, "mmprotect() failed\n");
-                 return -errno;
-         }
-
-         *map = 0;
-
-         return 0;
- }
---------------------------------------------------------------------------
-
-Above test fails with SIGBUS when there is only a single free hugetlb page.
- # echo 1 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
- # ./test
- Bus error (core dumped)
-
-And worse, with sufficient free hugetlb pages it will map an anonymous page
-into a shared mapping, for example, messing up accounting during unmap
-and breaking MAP_SHARED semantics:
- # echo 2 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
- # ./test
- # cat /proc/meminfo | grep HugePages_
- HugePages_Total:       2
- HugePages_Free:        1
- HugePages_Rsvd:    18446744073709551615
- HugePages_Surp:        0
-
-Reason in this particular case is that vma_wants_writenotify() will
-return "true", removing VM_SHARED in vma_set_page_prot() to map pages
-write-protected. Let's teach vma_wants_writenotify() that hugetlb does not
-support softdirty tracking.
-
-Link: https://lkml.kernel.org/r/20220811103435.188481-1-david@redhat.com
-Link: https://lkml.kernel.org/r/20220811103435.188481-2-david@redhat.com
-Fixes: 64e455079e1b ("mm: softdirty: enable write notifications on VMAs after VM_SOFTDIRTY cleared")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Feiner <pfeiner@google.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Cyrill Gorcunov <gorcunov@openvz.org>
-Cc: Pavel Emelyanov <xemul@parallels.com>
-Cc: Jamie Liu <jamieliu@google.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>	[3.18+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Fixes: 07ce734dd8ad ("perf/x86/intel/uncore: Clean up client IMC")
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Link: https://lore.kernel.org/r/20220803160031.1379788-1-eranian@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mmap.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/uncore_snb.c |   18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1684,8 +1684,12 @@ int vma_wants_writenotify(struct vm_area
- 	    pgprot_val(vm_pgprot_modify(vm_page_prot, vm_flags)))
- 		return 0;
+--- a/arch/x86/events/intel/uncore_snb.c
++++ b/arch/x86/events/intel/uncore_snb.c
+@@ -657,6 +657,22 @@ int snb_pci2phy_map_init(int devid)
+ 	return 0;
+ }
  
--	/* Do we need to track softdirty? */
--	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) && !(vm_flags & VM_SOFTDIRTY))
++static u64 snb_uncore_imc_read_counter(struct intel_uncore_box *box, struct perf_event *event)
++{
++	struct hw_perf_event *hwc = &event->hw;
++
 +	/*
-+	 * Do we need to track softdirty? hugetlb does not support softdirty
-+	 * tracking yet.
++	 * SNB IMC counters are 32-bit and are laid out back to back
++	 * in MMIO space. Therefore we must use a 32-bit accessor function
++	 * using readq() from uncore_mmio_read_counter() causes problems
++	 * because it is reading 64-bit at a time. This is okay for the
++	 * uncore_perf_event_update() function because it drops the upper
++	 * 32-bits but not okay for plain uncore_read_counter() as invoked
++	 * in uncore_pmu_event_start().
 +	 */
-+	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) && !(vm_flags & VM_SOFTDIRTY) &&
-+	    !is_vm_hugetlb_page(vma))
- 		return 1;
++	return (u64)readl(box->io_addr + hwc->event_base);
++}
++
+ static struct pmu snb_uncore_imc_pmu = {
+ 	.task_ctx_nr	= perf_invalid_context,
+ 	.event_init	= snb_uncore_imc_event_init,
+@@ -676,7 +692,7 @@ static struct intel_uncore_ops snb_uncor
+ 	.disable_event	= snb_uncore_imc_disable_event,
+ 	.enable_event	= snb_uncore_imc_enable_event,
+ 	.hw_config	= snb_uncore_imc_hw_config,
+-	.read_counter	= uncore_mmio_read_counter,
++	.read_counter	= snb_uncore_imc_read_counter,
+ };
  
- 	/* Specialty mapping? */
+ static struct intel_uncore_type snb_uncore_imc = {
 
 
