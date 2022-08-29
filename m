@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2DF45A49DC
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A55A5A48A6
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:13:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232333AbiH2LaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:30:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
+        id S231337AbiH2LN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:13:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232657AbiH2L3d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:33 -0400
+        with ESMTP id S230039AbiH2LMm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:12:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F35D6BCE9;
-        Mon, 29 Aug 2022 04:17:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 904D26D54D;
+        Mon, 29 Aug 2022 04:08:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D8326124B;
-        Mon, 29 Aug 2022 11:17:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50852C433C1;
-        Mon, 29 Aug 2022 11:17:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF6FD6119A;
+        Mon, 29 Aug 2022 11:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF039C433D6;
+        Mon, 29 Aug 2022 11:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771823;
-        bh=TBH4bae03KLFeJfWladI1VYZD+elE5fWvRvkd4Rg3/8=;
+        s=korg; t=1661771335;
+        bh=FBjnolGWm8I+ACwCNQKR8MFQwuJvon39dOzEFnY0FHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WpYkIAc27VrkjuTzCTXtlEuvpFpJFJlntjRAXW2D4xbi7KGIcpB1EmpHYvK5VtI1D
-         QGYI+1ufJsdW2FxfgC/1oRUjQXurcMDb1KIs85BJOaRFSxcKK0fJVyAuuBQDEix9yD
-         Cu/qyjdNL+G15rtOFNb8aUGRq+aRFEFCIZWpF8fI=
+        b=ARvdstuRp+zB2P5nQCIoMBlkn2qXn6nIrhKsG1peQxeJ62msYG7HZW+jJCehE74g4
+         vzBmjpdWQueMsBcAbXA3Tvkd4I6i2HLayrHGKheAsLguR/glzktyOeMNqLEFZLp2yq
+         955cqUQWLJChi9NpUWM+Q7u7nJoHg2+FuTz/8JMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.19 108/158] x86/nospec: Unwreck the RSB stuffing
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 52/86] net: Fix data-races around sysctl_optmem_max.
 Date:   Mon, 29 Aug 2022 12:59:18 +0200
-Message-Id: <20220829105813.642399057@linuxfoundation.org>
+Message-Id: <20220829105758.668117902@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,128 +54,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 4e3aa9238277597c6c7624f302d81a7b568b6f2d upstream.
+[ Upstream commit 7de6d09f51917c829af2b835aba8bb5040f8e86a ]
 
-Commit 2b1299322016 ("x86/speculation: Add RSB VM Exit protections")
-made a right mess of the RSB stuffing, rewrite the whole thing to not
-suck.
+While reading sysctl_optmem_max, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Thanks to Andrew for the enlightening comment about Post-Barrier RSB
-things so we can make this code less magical.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/nospec-branch.h |   80 +++++++++++++++++------------------
- 1 file changed, 39 insertions(+), 41 deletions(-)
+ net/core/bpf_sk_storage.c | 5 +++--
+ net/core/filter.c         | 9 +++++----
+ net/core/sock.c           | 8 +++++---
+ net/ipv4/ip_sockglue.c    | 6 +++---
+ net/ipv6/ipv6_sockglue.c  | 4 ++--
+ 5 files changed, 18 insertions(+), 14 deletions(-)
 
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -35,33 +35,44 @@
- #define RSB_CLEAR_LOOPS		32	/* To forcibly overwrite all entries */
+diff --git a/net/core/bpf_sk_storage.c b/net/core/bpf_sk_storage.c
+index 39c5a059d1c2b..d67d06d6b817c 100644
+--- a/net/core/bpf_sk_storage.c
++++ b/net/core/bpf_sk_storage.c
+@@ -304,11 +304,12 @@ BPF_CALL_2(bpf_sk_storage_delete, struct bpf_map *, map, struct sock *, sk)
+ static int sk_storage_charge(struct bpf_local_storage_map *smap,
+ 			     void *owner, u32 size)
+ {
++	int optmem_max = READ_ONCE(sysctl_optmem_max);
+ 	struct sock *sk = (struct sock *)owner;
  
- /*
-+ * Common helper for __FILL_RETURN_BUFFER and __FILL_ONE_RETURN.
-+ */
-+#define __FILL_RETURN_SLOT			\
-+	ANNOTATE_INTRA_FUNCTION_CALL;		\
-+	call	772f;				\
-+	int3;					\
-+772:
-+
-+/*
-+ * Stuff the entire RSB.
-+ *
-  * Google experimented with loop-unrolling and this turned out to be
-  * the optimal version - two calls, each with their own speculation
-  * trap should their return address end up getting used, in a loop.
+ 	/* same check as in sock_kmalloc() */
+-	if (size <= sysctl_optmem_max &&
+-	    atomic_read(&sk->sk_omem_alloc) + size < sysctl_optmem_max) {
++	if (size <= optmem_max &&
++	    atomic_read(&sk->sk_omem_alloc) + size < optmem_max) {
+ 		atomic_add(size, &sk->sk_omem_alloc);
+ 		return 0;
+ 	}
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 6a90c1eb6f67e..4c22e6d1da746 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -1212,10 +1212,11 @@ void sk_filter_uncharge(struct sock *sk, struct sk_filter *fp)
+ static bool __sk_filter_charge(struct sock *sk, struct sk_filter *fp)
+ {
+ 	u32 filter_size = bpf_prog_size(fp->prog->len);
++	int optmem_max = READ_ONCE(sysctl_optmem_max);
+ 
+ 	/* same check as in sock_kmalloc() */
+-	if (filter_size <= sysctl_optmem_max &&
+-	    atomic_read(&sk->sk_omem_alloc) + filter_size < sysctl_optmem_max) {
++	if (filter_size <= optmem_max &&
++	    atomic_read(&sk->sk_omem_alloc) + filter_size < optmem_max) {
+ 		atomic_add(filter_size, &sk->sk_omem_alloc);
+ 		return true;
+ 	}
+@@ -1547,7 +1548,7 @@ int sk_reuseport_attach_filter(struct sock_fprog *fprog, struct sock *sk)
+ 	if (IS_ERR(prog))
+ 		return PTR_ERR(prog);
+ 
+-	if (bpf_prog_size(prog->len) > sysctl_optmem_max)
++	if (bpf_prog_size(prog->len) > READ_ONCE(sysctl_optmem_max))
+ 		err = -ENOMEM;
+ 	else
+ 		err = reuseport_attach_prog(sk, prog);
+@@ -1614,7 +1615,7 @@ int sk_reuseport_attach_bpf(u32 ufd, struct sock *sk)
+ 		}
+ 	} else {
+ 		/* BPF_PROG_TYPE_SOCKET_FILTER */
+-		if (bpf_prog_size(prog->len) > sysctl_optmem_max) {
++		if (bpf_prog_size(prog->len) > READ_ONCE(sysctl_optmem_max)) {
+ 			err = -ENOMEM;
+ 			goto err_prog_put;
+ 		}
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 25d25dcd0c3db..f01e71c98d5be 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2219,7 +2219,7 @@ struct sk_buff *sock_omalloc(struct sock *sk, unsigned long size,
+ 
+ 	/* small safe race: SKB_TRUESIZE may differ from final skb->truesize */
+ 	if (atomic_read(&sk->sk_omem_alloc) + SKB_TRUESIZE(size) >
+-	    sysctl_optmem_max)
++	    READ_ONCE(sysctl_optmem_max))
+ 		return NULL;
+ 
+ 	skb = alloc_skb(size, priority);
+@@ -2237,8 +2237,10 @@ struct sk_buff *sock_omalloc(struct sock *sk, unsigned long size,
   */
--#define __FILL_RETURN_BUFFER(reg, nr, sp)	\
--	mov	$(nr/2), reg;			\
--771:						\
--	ANNOTATE_INTRA_FUNCTION_CALL;		\
--	call	772f;				\
--773:	/* speculation trap */			\
--	UNWIND_HINT_EMPTY;			\
--	pause;					\
--	lfence;					\
--	jmp	773b;				\
--772:						\
--	ANNOTATE_INTRA_FUNCTION_CALL;		\
--	call	774f;				\
--775:	/* speculation trap */			\
--	UNWIND_HINT_EMPTY;			\
--	pause;					\
--	lfence;					\
--	jmp	775b;				\
--774:						\
--	add	$(BITS_PER_LONG/8) * 2, sp;	\
--	dec	reg;				\
--	jnz	771b;				\
--	/* barrier for jnz misprediction */	\
-+#define __FILL_RETURN_BUFFER(reg, nr)			\
-+	mov	$(nr/2), reg;				\
-+771:							\
-+	__FILL_RETURN_SLOT				\
-+	__FILL_RETURN_SLOT				\
-+	add	$(BITS_PER_LONG/8) * 2, %_ASM_SP;	\
-+	dec	reg;					\
-+	jnz	771b;					\
-+	/* barrier for jnz misprediction */		\
-+	lfence;
+ void *sock_kmalloc(struct sock *sk, int size, gfp_t priority)
+ {
+-	if ((unsigned int)size <= sysctl_optmem_max &&
+-	    atomic_read(&sk->sk_omem_alloc) + size < sysctl_optmem_max) {
++	int optmem_max = READ_ONCE(sysctl_optmem_max);
 +
-+/*
-+ * Stuff a single RSB slot.
-+ *
-+ * To mitigate Post-Barrier RSB speculation, one CALL instruction must be
-+ * forced to retire before letting a RET instruction execute.
-+ *
-+ * On PBRSB-vulnerable CPUs, it is not safe for a RET to be executed
-+ * before this point.
-+ */
-+#define __FILL_ONE_RETURN				\
-+	__FILL_RETURN_SLOT				\
-+	add	$(BITS_PER_LONG/8), %_ASM_SP;		\
- 	lfence;
++	if ((unsigned int)size <= optmem_max &&
++	    atomic_read(&sk->sk_omem_alloc) + size < optmem_max) {
+ 		void *mem;
+ 		/* First do the add, to avoid the race if kmalloc
+ 		 * might sleep.
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index 22507a6a3f71c..4cc39c62af55d 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -773,7 +773,7 @@ static int ip_set_mcast_msfilter(struct sock *sk, sockptr_t optval, int optlen)
  
- #ifdef __ASSEMBLY__
-@@ -120,28 +131,15 @@
- #endif
- .endm
+ 	if (optlen < GROUP_FILTER_SIZE(0))
+ 		return -EINVAL;
+-	if (optlen > sysctl_optmem_max)
++	if (optlen > READ_ONCE(sysctl_optmem_max))
+ 		return -ENOBUFS;
  
--.macro ISSUE_UNBALANCED_RET_GUARD
--	ANNOTATE_INTRA_FUNCTION_CALL
--	call .Lunbalanced_ret_guard_\@
--	int3
--.Lunbalanced_ret_guard_\@:
--	add $(BITS_PER_LONG/8), %_ASM_SP
--	lfence
--.endm
--
-  /*
-   * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
-   * monstrosity above, manually.
-   */
--.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
--.ifb \ftr2
--	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
--.else
--	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
--.endif
--	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
--.Lunbalanced_\@:
--	ISSUE_UNBALANCED_RET_GUARD
-+.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2=ALT_NOT(X86_FEATURE_ALWAYS)
-+	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", \
-+		__stringify(__FILL_RETURN_BUFFER(\reg,\nr)), \ftr, \
-+		__stringify(__FILL_ONE_RETURN), \ftr2
-+
- .Lskip_rsb_\@:
- .endm
+ 	gsf = memdup_sockptr(optval, optlen);
+@@ -808,7 +808,7 @@ static int compat_ip_set_mcast_msfilter(struct sock *sk, sockptr_t optval,
  
+ 	if (optlen < size0)
+ 		return -EINVAL;
+-	if (optlen > sysctl_optmem_max - 4)
++	if (optlen > READ_ONCE(sysctl_optmem_max) - 4)
+ 		return -ENOBUFS;
+ 
+ 	p = kmalloc(optlen + 4, GFP_KERNEL);
+@@ -1231,7 +1231,7 @@ static int do_ip_setsockopt(struct sock *sk, int level, int optname,
+ 
+ 		if (optlen < IP_MSFILTER_SIZE(0))
+ 			goto e_inval;
+-		if (optlen > sysctl_optmem_max) {
++		if (optlen > READ_ONCE(sysctl_optmem_max)) {
+ 			err = -ENOBUFS;
+ 			break;
+ 		}
+diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
+index 43a894bf9a1be..6fa118bf40cdd 100644
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -208,7 +208,7 @@ static int ipv6_set_mcast_msfilter(struct sock *sk, sockptr_t optval,
+ 
+ 	if (optlen < GROUP_FILTER_SIZE(0))
+ 		return -EINVAL;
+-	if (optlen > sysctl_optmem_max)
++	if (optlen > READ_ONCE(sysctl_optmem_max))
+ 		return -ENOBUFS;
+ 
+ 	gsf = memdup_sockptr(optval, optlen);
+@@ -242,7 +242,7 @@ static int compat_ipv6_set_mcast_msfilter(struct sock *sk, sockptr_t optval,
+ 
+ 	if (optlen < size0)
+ 		return -EINVAL;
+-	if (optlen > sysctl_optmem_max - 4)
++	if (optlen > READ_ONCE(sysctl_optmem_max) - 4)
+ 		return -ENOBUFS;
+ 
+ 	p = kmalloc(optlen + 4, GFP_KERNEL);
+-- 
+2.35.1
+
 
 
