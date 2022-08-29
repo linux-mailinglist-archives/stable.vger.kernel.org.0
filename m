@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E0E5A49CC
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE7A5A49BF
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232035AbiH2L3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:29:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54534 "EHLO
+        id S231849AbiH2L3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:29:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232448AbiH2L3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3FC26BCE6;
-        Mon, 29 Aug 2022 04:17:23 -0700 (PDT)
+        with ESMTP id S232389AbiH2L2w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:28:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D03557A514;
+        Mon, 29 Aug 2022 04:17:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A975161214;
-        Mon, 29 Aug 2022 11:15:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B47D2C433C1;
-        Mon, 29 Aug 2022 11:15:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5782AB80EFA;
+        Mon, 29 Aug 2022 11:04:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8B3C433C1;
+        Mon, 29 Aug 2022 11:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771713;
-        bh=3atjrCF4bTBJ7Czyu6rwJ5nPUCtBgLWsV7O/DA09F+0=;
+        s=korg; t=1661771052;
+        bh=3NhdeY8HFeNZCiXqEDGDabYJL1Sk+THfGbYM30UYW0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/2El6v4IjyfhnkTtEoi+44JQoORLQ6TmTqwTVRsRmm8gwHxlaZ3lqkC0/F5bNXQH
-         xv/3dj/Hp6y5onnbQxSsIYdgfoskhCHV9uiADgwWnXWTcYmQ1RCcdkCrjedMRVhy6v
-         3L9sPKcKzKFFuCBYWH6d+XI5u1hEvLLgcB5Dklmg=
+        b=AphdjpFGfw9cwRX6lPPc+VbMKr66aR9cuHDmEHSfRO0wmonM7GyxTm1wSCtBrGgfS
+         v7Utsw1M8ORk629vPL1YE3tdyGPCPaNnOMTmqo6hqE6tOdgiVhKjROOWnaqePmRQEj
+         FPkqlh7UfxgQVtDS7q0f8iYWFa/SpNoYJbf9dQK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vikas Gupta <vikas.gupta@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 071/158] net: Fix a data-race around sysctl_tstamp_allow_data.
+Subject: [PATCH 5.15 054/136] bnxt_en: fix NQ resource accounting during vf creation on 57500 chips
 Date:   Mon, 29 Aug 2022 12:58:41 +0200
-Message-Id: <20220829105811.988472460@linuxfoundation.org>
+Message-Id: <20220829105806.849052586@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Vikas Gupta <vikas.gupta@broadcom.com>
 
-[ Upstream commit d2154b0afa73c0159b2856f875c6b4fe7cf6a95e ]
+[ Upstream commit 09a89cc59ad67794a11e1d3dd13c5b3172adcc51 ]
 
-While reading sysctl_tstamp_allow_data, it can be changed
-concurrently.  Thus, we need to add READ_ONCE() to its reader.
+There are 2 issues:
 
-Fixes: b245be1f4db1 ("net-timestamp: no-payload only sysctl")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+1. We should decrement hw_resc->max_nqs instead of hw_resc->max_irqs
+   with the number of NQs assigned to the VFs.  The IRQs are fixed
+   on each function and cannot be re-assigned.  Only the NQs are being
+   assigned to the VFs.
+
+2. vf_msix is the total number of NQs to be assigned to the VFs.  So
+   we should decrement vf_msix from hw_resc->max_nqs.
+
+Fixes: b16b68918674 ("bnxt_en: Add SR-IOV support for 57500 chips.")
+Signed-off-by: Vikas Gupta <vikas.gupta@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 5b3559cb1d827..bebf58464d667 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -4772,7 +4772,7 @@ static bool skb_may_tx_timestamp(struct sock *sk, bool tsonly)
- {
- 	bool ret;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+index 70d8ca3039dcb..78763f5027d10 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+@@ -623,7 +623,7 @@ static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs, bool reset)
+ 		hw_resc->max_stat_ctxs -= le16_to_cpu(req->min_stat_ctx) * n;
+ 		hw_resc->max_vnics -= le16_to_cpu(req->min_vnics) * n;
+ 		if (bp->flags & BNXT_FLAG_CHIP_P5)
+-			hw_resc->max_irqs -= vf_msix * n;
++			hw_resc->max_nqs -= vf_msix;
  
--	if (likely(sysctl_tstamp_allow_data || tsonly))
-+	if (likely(READ_ONCE(sysctl_tstamp_allow_data) || tsonly))
- 		return true;
- 
- 	read_lock_bh(&sk->sk_callback_lock);
+ 		rc = pf->active_vfs;
+ 	}
 -- 
 2.35.1
 
