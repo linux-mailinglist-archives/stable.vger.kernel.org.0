@@ -2,115 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB5415A5770
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 01:12:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BB225A583E
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 01:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbiH2XMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 19:12:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54744 "EHLO
+        id S229538AbiH2X5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 19:57:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiH2XMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 19:12:14 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B8B8883C6;
-        Mon, 29 Aug 2022 16:12:12 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id x23so9412903pll.7;
-        Mon, 29 Aug 2022 16:12:12 -0700 (PDT)
+        with ESMTP id S229450AbiH2X5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 19:57:45 -0400
+Received: from mail-oa1-x41.google.com (mail-oa1-x41.google.com [IPv6:2001:4860:4864:20::41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8464459AC
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 16:57:44 -0700 (PDT)
+Received: by mail-oa1-x41.google.com with SMTP id 586e51a60fabf-11f34610d4aso2279233fac.9
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 16:57:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=ZwVsWXOwwYEEpUv6m5fgKYoyOmt1BwQtfeczkdkZpCs=;
-        b=qPywl4xMHWPOr0zGTtcrtrf0YGQV8q/uYLtaLlLPjeSloIE6OvrOqTPtQrg0CnEkEm
-         8kPKpxQhckd1d/lEn18xkVMCYJgING7XN33bxA5TcWRgIVGvbxnALKvseNGAU4/jxRzJ
-         u/6KpAwLz8pBK/rf0hnAGsvJdi3tOnHzi0U0KqxQyoFPNmkQXXHzO/5M2FsThyWq1Vjy
-         3j+hgZNaH+cfzh36t3Emu15X4dR8TbG7/TS1J7Mtmc2liqLyRtEvnMgtEIF0l8UL9Nxw
-         zSFrLIFDWQLgRag/CI4at0AAqrelEnNzTTFQ73nS3Rwp/Sxoa2I6UU42j0OX7IsxAlhg
-         0Feg==
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc;
+        bh=iu9zOIfcAiwsap/E8pMtyBJaF8QmCNfsoafx3EaWXyY=;
+        b=iqlN5pT+fjRT+OWbDaBPIqZIBS4iI1PJBALgAXndugRk9s9mRpe0evpGRPmCDojOo5
+         /gPTFJ1Q7IXo/y9+xg1ap1wJzadCkJjJh3dis2CaNHNVufem+r8zGhUJggRbXXSgBwNs
+         mWDbfShS7VHd8eO96eWITNZfTv6ibChrCTV1tXLogIbUB90oebDMvzYWJTG9t0nUD1HS
+         O+wCaXKqzRoYV84ksfEiL+RFAxi77TH7Hay75/9sGY9gK4edTHT5294jUgyo6x0eyQxk
+         RoVs2Cov0zTdU0XZKVEiXPt7NERcLo+q/imQ0WdgXJskdnWsCxNX4EdoqOGvkwJR/7Pq
+         AZYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=ZwVsWXOwwYEEpUv6m5fgKYoyOmt1BwQtfeczkdkZpCs=;
-        b=D/aBYsVRwDL/3lypPLN8by7OVhHtFESrYQPilPZxsKZioi654DKnwhaOeFLK//4dSA
-         egISZWBR5+yPhVCH9qp3fORuxWEcvRd9F/gC7Xf9WmDc4VThc3qr1pWOJ4qR2bGUeosJ
-         T0j5czLUWBVrAPsnIPWrO5yjCijowg/FwgUCzZzReJOql8J7vEufT1HB5fw/63irff2d
-         /hqc6YbxrxoF3xZiAU20PapU0C67/Yw9xVlX5Jfhzl8Oh5RggwQNQ2C4hd/bKvo89t96
-         3IzEORr+S7NxDxcfphpCU3XW+UWvkgW/lAhP89A14swhPY4AjTSZ/f7yNmaxhSsVA7ZN
-         lo6w==
-X-Gm-Message-State: ACgBeo1E1jCLvaCHzQL/a79iSWsi3b7xKT5IGiL+8t9J7Pp8lGrHS1jX
-        78NIgUfu9+KVrQiRcyX0TuPEi3fGXciRch+r7Vk=
-X-Google-Smtp-Source: AA6agR52uIldYwkYoblfXhVNue3TjQChj+8KZq5WatZsLri72LTejhFGT8zRaQgf+fLNCDlHUDG843C5do3MComXL98=
-X-Received: by 2002:a17:90b:1a88:b0:1fd:6a42:3eb9 with SMTP id
- ng8-20020a17090b1a8800b001fd6a423eb9mr18827337pjb.154.1661814731700; Mon, 29
- Aug 2022 16:12:11 -0700 (PDT)
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc;
+        bh=iu9zOIfcAiwsap/E8pMtyBJaF8QmCNfsoafx3EaWXyY=;
+        b=d5M0xsmAR9eKxdpSDyzCGbBzfOj995WY+f7m3h9iQkXeT9P/mU+EL2cgy7kgb4IG4n
+         6U9zM2dG12hDj+RMH4ZHREz02G2ZF7aDbEZNlbXGnDzznucS+XE9r5pGeYAlhkq1P345
+         r9rbmnuQc1IRHXax7opjt0Y1zrIQXWY/PKgDag99U5lGMI1rRwlNRjeBxQU9hIccDN0p
+         uhQ6F6SkcnFk2A7jm4pL3T7aJLEu4hAp4EipdmrMv3iL6XLgiBphp5uh5s130PDpu9tB
+         NsRf5879WQ14pdSZH4phLaleHwrWLbc5wPsF7wy/gwFxfbvY1jM9/j2tHbLQJuyd6/VO
+         5SFQ==
+X-Gm-Message-State: ACgBeo2Allc+qzOMKjtoyWkMgOL6ME8g4DVYFp2cXzz73Fss/NcFLRWF
+        cfYTeZXKVb7t+77tvY8PxG0ar8Yk9UlwQoCMd9Q=
+X-Google-Smtp-Source: AA6agR4GGx28gpCDpJTQavuy+5Bx0tn8/K9UrrEBW0UCGaA63A16NwbecEeHE6ZxdmPdrtqY5K6wbb2nOMzqzYXnks0=
+X-Received: by 2002:a05:6808:1444:b0:344:f010:27d8 with SMTP id
+ x4-20020a056808144400b00344f01027d8mr8210247oiv.33.1661817463896; Mon, 29 Aug
+ 2022 16:57:43 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220829105808.828227973@linuxfoundation.org>
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-From:   Zan Aziz <zanaziz313@gmail.com>
-Date:   Mon, 29 Aug 2022 17:12:00 -0600
-Message-ID: <CAFU3qoYxktno-uxeLzKDwQEpMVG_T+u6M+6wWcLGnjFRTixJVw@mail.gmail.com>
-Subject: Re: [PATCH 5.19 000/158] 5.19.6-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
+Received: by 2002:a8a:acd:0:0:0:0:0 with HTTP; Mon, 29 Aug 2022 16:57:43 -0700 (PDT)
+Reply-To: fileconlot@gmail.com
+From:   Gilbert <filelotcon@gmail.com>
+Date:   Tue, 30 Aug 2022 00:57:43 +0100
+Message-ID: <CAM-eAn=u5OLAKyosRkFKo3AxaikOKqMFy96VcjUcTtztX=jfWw@mail.gmail.com>
+Subject: Letter of intent! and Please Read!
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: Yes, score=6.8 required=5.0 tests=BAYES_50,DEAR_SOMETHING,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2001:4860:4864:20:0:0:0:41 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5105]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [filelotcon[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  2.0 DEAR_SOMETHING BODY: Contains 'Dear (something)'
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  3.2 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 29, 2022 at 1:03 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.19.6 release.
-> There are 158 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 31 Aug 2022 10:57:37 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.6-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Dear Sir/Ma,
 
-Hi Greg,
+Are you in need of a business or personal loan? Or is your business
+struggling due to covid 19 pandemic, we are offering easy loans to
+meet your needs, our funding and loans have repayment plans of 10 to
+25 years' time for new and existing businesses, housing projects, and
+individual financing.
 
-Compiled and booted on my test system Lenovo P50s: Intel Core i7
-No emergency and critical messages in the dmesg
+We are willing to finance your request no matter where you are
+stationed or located, our financing is global once you're willing to
+meet the process and conditions. Your request will be processed and
+sent to your account within 24 hours after the process is completed.
 
-./perf bench sched all
-# Running sched/messaging benchmark...
-# 20 sender and receiver processes per group
-# 10 groups == 400 processes run
+Kindly contact us in order for us to direct you to our procurement
+officer, If you are interested.
 
-     Total time: 0.692 [sec]
+Thank you in advance as we hope to meet your demand irrespective of
+the volume in need.
 
-# Running sched/pipe benchmark...
-# Executed 1000000 pipe operations between two processes
 
-     Total time: 8.521 [sec]
-
-       8.521891 usecs/op
-         117344 ops/sec
-
-Tested-by: Zan Aziz <zanaziz313@gmail.com>
-
-Thanks
--Zan
+Thanks & Regards
+Mr. Gilbert.
