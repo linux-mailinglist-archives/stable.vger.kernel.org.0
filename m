@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A53695A4A5E
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B55D45A4958
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:23:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232831AbiH2LhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:37:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41744 "EHLO
+        id S231589AbiH2LX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:23:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232635AbiH2Lgc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:36:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A003B7F087;
-        Mon, 29 Aug 2022 04:21:11 -0700 (PDT)
+        with ESMTP id S231715AbiH2LWk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:22:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5257760F2;
+        Mon, 29 Aug 2022 04:14:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04235B80F99;
-        Mon, 29 Aug 2022 11:12:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E352C433B5;
-        Mon, 29 Aug 2022 11:12:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8561611DA;
+        Mon, 29 Aug 2022 11:11:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7AD6C433D6;
+        Mon, 29 Aug 2022 11:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771530;
-        bh=8gS1D1sm5MLGfssJAMwd/Imob+GXdcS16tTjs3MJGdQ=;
+        s=korg; t=1661771505;
+        bh=4V9Ya8StPCisj3e5YG0S3LF8fSowUKxzSMCoiLeOgx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGAiwM5OyFYM8+gmoNhQP71Xj4ZX8RAWAdkdmLXzS6YTp8ILFc7jXbrXwiMOGx271
-         DhneTynYcqgqJIfuGbhn7pUSWk+G82PvJdxdZwuQQ6OFgUqZNt39vDCJqkB5pr3SP2
-         O1YDATLsSRYfG5HJjVawjT/YtPlcR2Z0cpIzJcTU=
+        b=F+DlT4OPbhOyzk/39W8dCz6ZpqUZixdRxo3mwzFImeRLg4gGDADGbad4hAmVfoWq4
+         1fw075kgXEmIEGqTOM4xWz1zCrUkmvW5cS4zEfZGgKa1gTPKyrGAYj8oaUeUBuoJ2Z
+         msRhBt8yzFluo5adgxEbcQOHDEVvzSwT+coLZt4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jeremy Linton <jeremy.linton@arm.com>,
         Riwen Lu <luriwen@kylinos.cn>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.15 113/136] ACPI: processor: Remove freq Qos request for all CPUs
+Subject: [PATCH 5.10 74/86] ACPI: processor: Remove freq Qos request for all CPUs
 Date:   Mon, 29 Aug 2022 12:59:40 +0200
-Message-Id: <20220829105809.338750765@linuxfoundation.org>
+Message-Id: <20220829105759.544146749@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/acpi/processor_thermal.c
 +++ b/drivers/acpi/processor_thermal.c
-@@ -144,7 +144,7 @@ void acpi_thermal_cpufreq_exit(struct cp
+@@ -148,7 +148,7 @@ void acpi_thermal_cpufreq_exit(struct cp
  	unsigned int cpu;
  
  	for_each_cpu(cpu, policy->related_cpus) {
