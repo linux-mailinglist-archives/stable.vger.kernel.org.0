@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE9F85A4890
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:12:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D97245A48DB
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:16:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231251AbiH2LMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:12:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58430 "EHLO
+        id S231461AbiH2LQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:16:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230516AbiH2LME (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:12:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4630510FE3;
-        Mon, 29 Aug 2022 04:08:37 -0700 (PDT)
+        with ESMTP id S229926AbiH2LOu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:14:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF6472B75;
+        Mon, 29 Aug 2022 04:10:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4536F611F6;
-        Mon, 29 Aug 2022 11:08:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C612C433D6;
-        Mon, 29 Aug 2022 11:08:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1BF86119C;
+        Mon, 29 Aug 2022 11:08:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5167C433C1;
+        Mon, 29 Aug 2022 11:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771311;
-        bh=aLdWFR5wEm6zyaeL8KqBO/XNyw1A9J06VUNrOdhPi8c=;
+        s=korg; t=1661771323;
+        bh=VA5pbYSxgeywqyxib2YTEtxEPOdpdXM6dct4Diz46Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eekw0xVWw8E8vB5fyIUuufyJJ6CNlxPBmZZ2gqtZ74Y9VqDWv7YKmwFuhbHvL9HkP
-         YhLuTuouvZpb7uXPCMrIW5byG9IyHoz4M/u0WUeEsjTAltEE58uh6Zy/aXgM2HKjnX
-         lEJ9EAblErtEh79A9ce6sX8VvnVuVdxBcChdVA/g=
+        b=GKggqe1SNZrAwiY0KQD5QGt3qJRh/begl8qdfnblbFF4YAwVXFWLNx90bZ9taRbjf
+         36pR/c1vQLUsBT7af+558ww6qkdh5NfuyBhuFTrALBjRljUyeyh3Z8Y+TyjggJFpnU
+         06UutScM6NiXFEe+J/xX4j4gUkis2pYlcbleCNaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 090/136] ionic: widen queue_lock use around lif init and deinit
+        stable@vger.kernel.org, Martin KaFai Lau <kafai@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        KP Singh <kpsingh@google.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 51/86] bpf: Folding omem_charge() into sk_storage_charge()
 Date:   Mon, 29 Aug 2022 12:59:17 +0200
-Message-Id: <20220829105808.351834789@linuxfoundation.org>
+Message-Id: <20220829105758.618733724@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Martin KaFai Lau <kafai@fb.com>
 
-[ Upstream commit 2624d95972dbebe5f226361bfc51a83bdb68c93b ]
+[ Upstream commit 9e838b02b0bb795793f12049307a354e28b5749c ]
 
-Widen the coverage of the queue_lock to be sure the lif init
-and lif deinit actions are protected.  This addresses a hang
-seen when a Tx Timeout action was attempted at the same time
-as a FW Reset was started.
+sk_storage_charge() is the only user of omem_charge().
+This patch simplifies it by folding omem_charge() into
+sk_storage_charge().
 
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: KP Singh <kpsingh@google.com>
+Link: https://lore.kernel.org/bpf/20201112211301.2586255-1-kafai@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_lif.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ net/core/bpf_sk_storage.c | 23 ++++++++++-------------
+ 1 file changed, 10 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-index 781313dbd04f2..abfb5efc52b86 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -2974,11 +2974,10 @@ static void ionic_lif_handle_fw_down(struct ionic_lif *lif)
+diff --git a/net/core/bpf_sk_storage.c b/net/core/bpf_sk_storage.c
+index 5f773624948ff..39c5a059d1c2b 100644
+--- a/net/core/bpf_sk_storage.c
++++ b/net/core/bpf_sk_storage.c
+@@ -15,18 +15,6 @@
  
- 	netif_device_detach(lif->netdev);
+ DEFINE_BPF_STORAGE_CACHE(sk_cache);
  
-+	mutex_lock(&lif->queue_lock);
- 	if (test_bit(IONIC_LIF_F_UP, lif->state)) {
- 		dev_info(ionic->dev, "Surprise FW stop, stopping queues\n");
--		mutex_lock(&lif->queue_lock);
- 		ionic_stop_queues(lif);
--		mutex_unlock(&lif->queue_lock);
- 	}
- 
- 	if (netif_running(lif->netdev)) {
-@@ -2989,6 +2988,8 @@ static void ionic_lif_handle_fw_down(struct ionic_lif *lif)
- 	ionic_reset(ionic);
- 	ionic_qcqs_free(lif);
- 
-+	mutex_unlock(&lif->queue_lock);
+-static int omem_charge(struct sock *sk, unsigned int size)
+-{
+-	/* same check as in sock_kmalloc() */
+-	if (size <= sysctl_optmem_max &&
+-	    atomic_read(&sk->sk_omem_alloc) + size < sysctl_optmem_max) {
+-		atomic_add(size, &sk->sk_omem_alloc);
+-		return 0;
+-	}
+-
+-	return -ENOMEM;
+-}
+-
+ static struct bpf_local_storage_data *
+ sk_storage_lookup(struct sock *sk, struct bpf_map *map, bool cacheit_lockit)
+ {
+@@ -316,7 +304,16 @@ BPF_CALL_2(bpf_sk_storage_delete, struct bpf_map *, map, struct sock *, sk)
+ static int sk_storage_charge(struct bpf_local_storage_map *smap,
+ 			     void *owner, u32 size)
+ {
+-	return omem_charge(owner, size);
++	struct sock *sk = (struct sock *)owner;
 +
- 	dev_info(ionic->dev, "FW Down: LIFs stopped\n");
++	/* same check as in sock_kmalloc() */
++	if (size <= sysctl_optmem_max &&
++	    atomic_read(&sk->sk_omem_alloc) + size < sysctl_optmem_max) {
++		atomic_add(size, &sk->sk_omem_alloc);
++		return 0;
++	}
++
++	return -ENOMEM;
  }
  
-@@ -3012,9 +3013,12 @@ static void ionic_lif_handle_fw_up(struct ionic_lif *lif)
- 	err = ionic_port_init(ionic);
- 	if (err)
- 		goto err_out;
-+
-+	mutex_lock(&lif->queue_lock);
-+
- 	err = ionic_qcqs_alloc(lif);
- 	if (err)
--		goto err_out;
-+		goto err_unlock;
- 
- 	err = ionic_lif_init(lif);
- 	if (err)
-@@ -3035,6 +3039,8 @@ static void ionic_lif_handle_fw_up(struct ionic_lif *lif)
- 			goto err_txrx_free;
- 	}
- 
-+	mutex_unlock(&lif->queue_lock);
-+
- 	clear_bit(IONIC_LIF_F_FW_RESET, lif->state);
- 	ionic_link_status_check_request(lif, CAN_SLEEP);
- 	netif_device_attach(lif->netdev);
-@@ -3051,6 +3057,8 @@ static void ionic_lif_handle_fw_up(struct ionic_lif *lif)
- 	ionic_lif_deinit(lif);
- err_qcqs_free:
- 	ionic_qcqs_free(lif);
-+err_unlock:
-+	mutex_unlock(&lif->queue_lock);
- err_out:
- 	dev_err(ionic->dev, "FW Up: LIFs restart failed - err %d\n", err);
- }
+ static void sk_storage_uncharge(struct bpf_local_storage_map *smap,
 -- 
 2.35.1
 
