@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 522615A4A52
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE9F85A4890
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232558AbiH2LhD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:37:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49928 "EHLO
+        id S231251AbiH2LMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:12:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231239AbiH2LgO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:36:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B637E80E;
-        Mon, 29 Aug 2022 04:20:55 -0700 (PDT)
+        with ESMTP id S230516AbiH2LME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:12:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4630510FE3;
+        Mon, 29 Aug 2022 04:08:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E667BB80F9B;
-        Mon, 29 Aug 2022 11:08:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260D7C433D6;
-        Mon, 29 Aug 2022 11:08:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4536F611F6;
+        Mon, 29 Aug 2022 11:08:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C612C433D6;
+        Mon, 29 Aug 2022 11:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771302;
-        bh=s6bdEBD/fwMlnvkpIu3IjK3AXSMcYRP3npUNbsZ+oq8=;
+        s=korg; t=1661771311;
+        bh=aLdWFR5wEm6zyaeL8KqBO/XNyw1A9J06VUNrOdhPi8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/T+qyt5kE39lPZu8Dq9lT4WEtAoN6k/+FHTpBxiz4EPM2Jjyn1g6e+y2P8urebQH
-         VGI199M3thu4ZnkMNx3ebBMy1FSzL2IdUlfi6BrY+8ax5qavrSyn4iAAWtFYOQ1woC
-         VRTn13Gtly2pmQEZCZCDTECONiHnLZyuIc3W0rH8=
+        b=Eekw0xVWw8E8vB5fyIUuufyJJ6CNlxPBmZZ2gqtZ74Y9VqDWv7YKmwFuhbHvL9HkP
+         YhLuTuouvZpb7uXPCMrIW5byG9IyHoz4M/u0WUeEsjTAltEE58uh6Zy/aXgM2HKjnX
+         lEJ9EAblErtEh79A9ce6sX8VvnVuVdxBcChdVA/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7f0483225d0c94cb3441@syzkaller.appspotmail.com,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        linux-afs@lists.infradead.org, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 089/136] rxrpc: Fix locking in rxrpcs sendmsg
-Date:   Mon, 29 Aug 2022 12:59:16 +0200
-Message-Id: <20220829105808.312117218@linuxfoundation.org>
+Subject: [PATCH 5.15 090/136] ionic: widen queue_lock use around lif init and deinit
+Date:   Mon, 29 Aug 2022 12:59:17 +0200
+Message-Id: <20220829105808.351834789@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
 References: <20220829105804.609007228@linuxfoundation.org>
@@ -60,284 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit b0f571ecd7943423c25947439045f0d352ca3dbf ]
+[ Upstream commit 2624d95972dbebe5f226361bfc51a83bdb68c93b ]
 
-Fix three bugs in the rxrpc's sendmsg implementation:
+Widen the coverage of the queue_lock to be sure the lif init
+and lif deinit actions are protected.  This addresses a hang
+seen when a Tx Timeout action was attempted at the same time
+as a FW Reset was started.
 
- (1) rxrpc_new_client_call() should release the socket lock when returning
-     an error from rxrpc_get_call_slot().
-
- (2) rxrpc_wait_for_tx_window_intr() will return without the call mutex
-     held in the event that we're interrupted by a signal whilst waiting
-     for tx space on the socket or relocking the call mutex afterwards.
-
-     Fix this by: (a) moving the unlock/lock of the call mutex up to
-     rxrpc_send_data() such that the lock is not held around all of
-     rxrpc_wait_for_tx_window*() and (b) indicating to higher callers
-     whether we're return with the lock dropped.  Note that this means
-     recvmsg() will not block on this call whilst we're waiting.
-
- (3) After dropping and regaining the call mutex, rxrpc_send_data() needs
-     to go and recheck the state of the tx_pending buffer and the
-     tx_total_len check in case we raced with another sendmsg() on the same
-     call.
-
-Thinking on this some more, it might make sense to have different locks for
-sendmsg() and recvmsg().  There's probably no need to make recvmsg() wait
-for sendmsg().  It does mean that recvmsg() can return MSG_EOR indicating
-that a call is dead before a sendmsg() to that call returns - but that can
-currently happen anyway.
-
-Without fix (2), something like the following can be induced:
-
-	WARNING: bad unlock balance detected!
-	5.16.0-rc6-syzkaller #0 Not tainted
-	-------------------------------------
-	syz-executor011/3597 is trying to release lock (&call->user_mutex) at:
-	[<ffffffff885163a3>] rxrpc_do_sendmsg+0xc13/0x1350 net/rxrpc/sendmsg.c:748
-	but there are no more locks to release!
-
-	other info that might help us debug this:
-	no locks held by syz-executor011/3597.
-	...
-	Call Trace:
-	 <TASK>
-	 __dump_stack lib/dump_stack.c:88 [inline]
-	 dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
-	 print_unlock_imbalance_bug include/trace/events/lock.h:58 [inline]
-	 __lock_release kernel/locking/lockdep.c:5306 [inline]
-	 lock_release.cold+0x49/0x4e kernel/locking/lockdep.c:5657
-	 __mutex_unlock_slowpath+0x99/0x5e0 kernel/locking/mutex.c:900
-	 rxrpc_do_sendmsg+0xc13/0x1350 net/rxrpc/sendmsg.c:748
-	 rxrpc_sendmsg+0x420/0x630 net/rxrpc/af_rxrpc.c:561
-	 sock_sendmsg_nosec net/socket.c:704 [inline]
-	 sock_sendmsg+0xcf/0x120 net/socket.c:724
-	 ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
-	 ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
-	 __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
-	 do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-	 do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-	 entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-[Thanks to Hawkins Jiawei and Khalid Masum for their attempts to fix this]
-
-Fixes: bc5e3a546d55 ("rxrpc: Use MSG_WAITALL to tell sendmsg() to temporarily ignore signals")
-Reported-by: syzbot+7f0483225d0c94cb3441@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: syzbot+7f0483225d0c94cb3441@syzkaller.appspotmail.com
-cc: Hawkins Jiawei <yin31149@gmail.com>
-cc: Khalid Masum <khalid.masum.92@gmail.com>
-cc: Dan Carpenter <dan.carpenter@oracle.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/166135894583.600315.7170979436768124075.stgit@warthog.procyon.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/call_object.c |  4 +-
- net/rxrpc/sendmsg.c     | 92 ++++++++++++++++++++++++-----------------
- 2 files changed, 57 insertions(+), 39 deletions(-)
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/net/rxrpc/call_object.c b/net/rxrpc/call_object.c
-index 25c9a2cbf048c..d674d90e70313 100644
---- a/net/rxrpc/call_object.c
-+++ b/net/rxrpc/call_object.c
-@@ -285,8 +285,10 @@ struct rxrpc_call *rxrpc_new_client_call(struct rxrpc_sock *rx,
- 	_enter("%p,%lx", rx, p->user_call_ID);
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+index 781313dbd04f2..abfb5efc52b86 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -2974,11 +2974,10 @@ static void ionic_lif_handle_fw_down(struct ionic_lif *lif)
  
- 	limiter = rxrpc_get_call_slot(p, gfp);
--	if (!limiter)
-+	if (!limiter) {
-+		release_sock(&rx->sk);
- 		return ERR_PTR(-ERESTARTSYS);
-+	}
+ 	netif_device_detach(lif->netdev);
  
- 	call = rxrpc_alloc_client_call(rx, srx, gfp, debug_id);
- 	if (IS_ERR(call)) {
-diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
-index 1d38e279e2efa..3c3a626459deb 100644
---- a/net/rxrpc/sendmsg.c
-+++ b/net/rxrpc/sendmsg.c
-@@ -51,10 +51,7 @@ static int rxrpc_wait_for_tx_window_intr(struct rxrpc_sock *rx,
- 			return sock_intr_errno(*timeo);
- 
- 		trace_rxrpc_transmit(call, rxrpc_transmit_wait);
--		mutex_unlock(&call->user_mutex);
- 		*timeo = schedule_timeout(*timeo);
--		if (mutex_lock_interruptible(&call->user_mutex) < 0)
--			return sock_intr_errno(*timeo);
++	mutex_lock(&lif->queue_lock);
+ 	if (test_bit(IONIC_LIF_F_UP, lif->state)) {
+ 		dev_info(ionic->dev, "Surprise FW stop, stopping queues\n");
+-		mutex_lock(&lif->queue_lock);
+ 		ionic_stop_queues(lif);
+-		mutex_unlock(&lif->queue_lock);
  	}
+ 
+ 	if (netif_running(lif->netdev)) {
+@@ -2989,6 +2988,8 @@ static void ionic_lif_handle_fw_down(struct ionic_lif *lif)
+ 	ionic_reset(ionic);
+ 	ionic_qcqs_free(lif);
+ 
++	mutex_unlock(&lif->queue_lock);
++
+ 	dev_info(ionic->dev, "FW Down: LIFs stopped\n");
  }
  
-@@ -290,37 +287,48 @@ static int rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
- static int rxrpc_send_data(struct rxrpc_sock *rx,
- 			   struct rxrpc_call *call,
- 			   struct msghdr *msg, size_t len,
--			   rxrpc_notify_end_tx_t notify_end_tx)
-+			   rxrpc_notify_end_tx_t notify_end_tx,
-+			   bool *_dropped_lock)
- {
- 	struct rxrpc_skb_priv *sp;
- 	struct sk_buff *skb;
- 	struct sock *sk = &rx->sk;
-+	enum rxrpc_call_state state;
- 	long timeo;
--	bool more;
--	int ret, copied;
-+	bool more = msg->msg_flags & MSG_MORE;
-+	int ret, copied = 0;
- 
- 	timeo = sock_sndtimeo(sk, msg->msg_flags & MSG_DONTWAIT);
- 
- 	/* this should be in poll */
- 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
- 
-+reload:
-+	ret = -EPIPE;
- 	if (sk->sk_shutdown & SEND_SHUTDOWN)
--		return -EPIPE;
--
--	more = msg->msg_flags & MSG_MORE;
--
-+		goto maybe_error;
-+	state = READ_ONCE(call->state);
-+	ret = -ESHUTDOWN;
-+	if (state >= RXRPC_CALL_COMPLETE)
-+		goto maybe_error;
-+	ret = -EPROTO;
-+	if (state != RXRPC_CALL_CLIENT_SEND_REQUEST &&
-+	    state != RXRPC_CALL_SERVER_ACK_REQUEST &&
-+	    state != RXRPC_CALL_SERVER_SEND_REPLY)
-+		goto maybe_error;
+@@ -3012,9 +3013,12 @@ static void ionic_lif_handle_fw_up(struct ionic_lif *lif)
+ 	err = ionic_port_init(ionic);
+ 	if (err)
+ 		goto err_out;
 +
-+	ret = -EMSGSIZE;
- 	if (call->tx_total_len != -1) {
--		if (len > call->tx_total_len)
--			return -EMSGSIZE;
--		if (!more && len != call->tx_total_len)
--			return -EMSGSIZE;
-+		if (len - copied > call->tx_total_len)
-+			goto maybe_error;
-+		if (!more && len - copied != call->tx_total_len)
-+			goto maybe_error;
- 	}
- 
- 	skb = call->tx_pending;
- 	call->tx_pending = NULL;
- 	rxrpc_see_skb(skb, rxrpc_skb_seen);
- 
--	copied = 0;
- 	do {
- 		/* Check to see if there's a ping ACK to reply to. */
- 		if (call->ackr_reason == RXRPC_ACK_PING_RESPONSE)
-@@ -331,16 +339,8 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
- 
- 			_debug("alloc");
- 
--			if (!rxrpc_check_tx_space(call, NULL)) {
--				ret = -EAGAIN;
--				if (msg->msg_flags & MSG_DONTWAIT)
--					goto maybe_error;
--				ret = rxrpc_wait_for_tx_window(rx, call,
--							       &timeo,
--							       msg->msg_flags & MSG_WAITALL);
--				if (ret < 0)
--					goto maybe_error;
--			}
-+			if (!rxrpc_check_tx_space(call, NULL))
-+				goto wait_for_space;
- 
- 			/* Work out the maximum size of a packet.  Assume that
- 			 * the security header is going to be in the padded
-@@ -468,6 +468,27 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
- efault:
- 	ret = -EFAULT;
- 	goto out;
++	mutex_lock(&lif->queue_lock);
 +
-+wait_for_space:
-+	ret = -EAGAIN;
-+	if (msg->msg_flags & MSG_DONTWAIT)
-+		goto maybe_error;
-+	mutex_unlock(&call->user_mutex);
-+	*_dropped_lock = true;
-+	ret = rxrpc_wait_for_tx_window(rx, call, &timeo,
-+				       msg->msg_flags & MSG_WAITALL);
-+	if (ret < 0)
-+		goto maybe_error;
-+	if (call->interruptibility == RXRPC_INTERRUPTIBLE) {
-+		if (mutex_lock_interruptible(&call->user_mutex) < 0) {
-+			ret = sock_intr_errno(timeo);
-+			goto maybe_error;
-+		}
-+	} else {
-+		mutex_lock(&call->user_mutex);
-+	}
-+	*_dropped_lock = false;
-+	goto reload;
- }
+ 	err = ionic_qcqs_alloc(lif);
+ 	if (err)
+-		goto err_out;
++		goto err_unlock;
  
- /*
-@@ -629,6 +650,7 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
- 	enum rxrpc_call_state state;
- 	struct rxrpc_call *call;
- 	unsigned long now, j;
-+	bool dropped_lock = false;
- 	int ret;
- 
- 	struct rxrpc_send_params p = {
-@@ -737,21 +759,13 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
- 			ret = rxrpc_send_abort_packet(call);
- 	} else if (p.command != RXRPC_CMD_SEND_DATA) {
- 		ret = -EINVAL;
--	} else if (rxrpc_is_client_call(call) &&
--		   state != RXRPC_CALL_CLIENT_SEND_REQUEST) {
--		/* request phase complete for this client call */
--		ret = -EPROTO;
--	} else if (rxrpc_is_service_call(call) &&
--		   state != RXRPC_CALL_SERVER_ACK_REQUEST &&
--		   state != RXRPC_CALL_SERVER_SEND_REPLY) {
--		/* Reply phase not begun or not complete for service call. */
--		ret = -EPROTO;
- 	} else {
--		ret = rxrpc_send_data(rx, call, msg, len, NULL);
-+		ret = rxrpc_send_data(rx, call, msg, len, NULL, &dropped_lock);
+ 	err = ionic_lif_init(lif);
+ 	if (err)
+@@ -3035,6 +3039,8 @@ static void ionic_lif_handle_fw_up(struct ionic_lif *lif)
+ 			goto err_txrx_free;
  	}
  
- out_put_unlock:
--	mutex_unlock(&call->user_mutex);
-+	if (!dropped_lock)
-+		mutex_unlock(&call->user_mutex);
- error_put:
- 	rxrpc_put_call(call, rxrpc_call_put);
- 	_leave(" = %d", ret);
-@@ -779,6 +793,7 @@ int rxrpc_kernel_send_data(struct socket *sock, struct rxrpc_call *call,
- 			   struct msghdr *msg, size_t len,
- 			   rxrpc_notify_end_tx_t notify_end_tx)
- {
-+	bool dropped_lock = false;
- 	int ret;
- 
- 	_enter("{%d,%s},", call->debug_id, rxrpc_call_states[call->state]);
-@@ -796,7 +811,7 @@ int rxrpc_kernel_send_data(struct socket *sock, struct rxrpc_call *call,
- 	case RXRPC_CALL_SERVER_ACK_REQUEST:
- 	case RXRPC_CALL_SERVER_SEND_REPLY:
- 		ret = rxrpc_send_data(rxrpc_sk(sock->sk), call, msg, len,
--				      notify_end_tx);
-+				      notify_end_tx, &dropped_lock);
- 		break;
- 	case RXRPC_CALL_COMPLETE:
- 		read_lock_bh(&call->state_lock);
-@@ -810,7 +825,8 @@ int rxrpc_kernel_send_data(struct socket *sock, struct rxrpc_call *call,
- 		break;
- 	}
- 
--	mutex_unlock(&call->user_mutex);
-+	if (!dropped_lock)
-+		mutex_unlock(&call->user_mutex);
- 	_leave(" = %d", ret);
- 	return ret;
++	mutex_unlock(&lif->queue_lock);
++
+ 	clear_bit(IONIC_LIF_F_FW_RESET, lif->state);
+ 	ionic_link_status_check_request(lif, CAN_SLEEP);
+ 	netif_device_attach(lif->netdev);
+@@ -3051,6 +3057,8 @@ static void ionic_lif_handle_fw_up(struct ionic_lif *lif)
+ 	ionic_lif_deinit(lif);
+ err_qcqs_free:
+ 	ionic_qcqs_free(lif);
++err_unlock:
++	mutex_unlock(&lif->queue_lock);
+ err_out:
+ 	dev_err(ionic->dev, "FW Up: LIFs restart failed - err %d\n", err);
  }
 -- 
 2.35.1
