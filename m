@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 102565A495D
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:24:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 045AE5A481C
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230179AbiH2LYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:24:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40844 "EHLO
+        id S230187AbiH2LGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:06:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231824AbiH2LWo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:22:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E850659CE;
-        Mon, 29 Aug 2022 04:14:35 -0700 (PDT)
+        with ESMTP id S230183AbiH2LFW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:05:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B2A248DE;
+        Mon, 29 Aug 2022 04:03:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FAAFB80DB5;
-        Mon, 29 Aug 2022 11:14:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2EEDC433C1;
-        Mon, 29 Aug 2022 11:14:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C84DB80EF3;
+        Mon, 29 Aug 2022 11:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70150C433C1;
+        Mon, 29 Aug 2022 11:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771671;
-        bh=2Qd5Ik5nIknKsHU9CHRPsD8hGOXLnY9fX2gc9fd5pVQ=;
+        s=korg; t=1661770984;
+        bh=90j0F/FrWOEKi/n+s4lG8xuIPvMDJtcHV/oVOc7vAuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXzSWpfwPGlBw2dAzo031R8srYyVazltNbs9YMX0lg4+NltphLaxwa8UlfSUh0m3M
-         GZVddatEkjz3Yvdc2/1KnNh0bA1Vg/v+NfUc5S0Y4ay80HW12HHhByeKwzskoBUvQ9
-         PyAKFZb9A32QiplLrBTYtIXIMCqggSn+Ti5Cv8yg=
+        b=MhBLHA19pbKXyOg/sdOT+KzFkbSqds7nvxoXzT6j+pM08gTFT35H1FtZyJMN2cDKK
+         SRIvj7ymM9lEh90wbZ78M2c77YvaNcIZLm+vj9Ff9d/PwBgApyRx/0MqfO5AURXHad
+         QwoUBPPMJa21G1iqZQJgyRIZ4l5/gtVfouLFNmbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 059/158] netfilter: nf_tables: do not leave chain stats enabled on error
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 03/86] kernel/sys_ni: add compat entry for fadvise64_64
 Date:   Mon, 29 Aug 2022 12:58:29 +0200
-Message-Id: <20220829105811.188507964@linuxfoundation.org>
+Message-Id: <20220829105756.667121601@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 43eb8949cfdffa764b92bc6c54b87cbe5b0003fe ]
+commit a8faed3a02eeb75857a3b5d660fa80fe79db77a3 upstream.
 
-Error might occur later in the nf_tables_addchain() codepath, enable
-static key only after transaction has been created.
+When CONFIG_ADVISE_SYSCALLS is not set/enabled and CONFIG_COMPAT is
+set/enabled, the riscv compat_syscall_table references
+'compat_sys_fadvise64_64', which is not defined:
 
-Fixes: 9f08ea848117 ("netfilter: nf_tables: keep chain counters away from hot path")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+riscv64-linux-ld: arch/riscv/kernel/compat_syscall_table.o:(.rodata+0x6f8):
+undefined reference to `compat_sys_fadvise64_64'
+
+Add 'fadvise64_64' to kernel/sys_ni.c as a conditional COMPAT function so
+that when CONFIG_ADVISE_SYSCALLS is not set, there is a fallback function
+available.
+
+Link: https://lkml.kernel.org/r/20220807220934.5689-1-rdunlap@infradead.org
+Fixes: d3ac21cacc24 ("mm: Support compiling out madvise and fadvise")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/sys_ni.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index e171257739c2f..b2c89e8c2a655 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2195,9 +2195,9 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
- 			      struct netlink_ext_ack *extack)
- {
- 	const struct nlattr * const *nla = ctx->nla;
-+	struct nft_stats __percpu *stats = NULL;
- 	struct nft_table *table = ctx->table;
- 	struct nft_base_chain *basechain;
--	struct nft_stats __percpu *stats;
- 	struct net *net = ctx->net;
- 	char name[NFT_NAME_MAXLEN];
- 	struct nft_rule_blob *blob;
-@@ -2235,7 +2235,6 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
- 				return PTR_ERR(stats);
- 			}
- 			rcu_assign_pointer(basechain->stats, stats);
--			static_branch_inc(&nft_counters_enabled);
- 		}
+--- a/kernel/sys_ni.c
++++ b/kernel/sys_ni.c
+@@ -268,6 +268,7 @@ COND_SYSCALL_COMPAT(keyctl);
  
- 		err = nft_basechain_init(basechain, family, &hook, flags);
-@@ -2318,6 +2317,9 @@ static int nf_tables_addchain(struct nft_ctx *ctx, u8 family, u8 genmask,
- 		goto err_unregister_hook;
- 	}
+ /* mm/fadvise.c */
+ COND_SYSCALL(fadvise64_64);
++COND_SYSCALL_COMPAT(fadvise64_64);
  
-+	if (stats)
-+		static_branch_inc(&nft_counters_enabled);
-+
- 	table->use++;
- 
- 	return 0;
--- 
-2.35.1
-
+ /* mm/, CONFIG_MMU only */
+ COND_SYSCALL(swapon);
 
 
