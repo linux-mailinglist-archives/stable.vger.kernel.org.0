@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C8C95A48B3
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7255A4847
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:08:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231163AbiH2LOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:14:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42960 "EHLO
+        id S230461AbiH2LID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:08:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231192AbiH2LNQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:16 -0400
+        with ESMTP id S229843AbiH2LHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:07:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 661F86F243;
-        Mon, 29 Aug 2022 04:09:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190EE2AE1E;
+        Mon, 29 Aug 2022 04:05:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90FF1611F4;
-        Mon, 29 Aug 2022 11:09:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C858C433C1;
-        Mon, 29 Aug 2022 11:09:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0C546119A;
+        Mon, 29 Aug 2022 11:05:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEA1BC433C1;
+        Mon, 29 Aug 2022 11:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771359;
-        bh=7P2foW//QNA8St8AIdk4jMc6oIwkRSrDqoPNbrrxInA=;
+        s=korg; t=1661771110;
+        bh=MKAOp5BunxQydCXDXBUZgLp0fCjA0BY5+9AvL/fr8XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ph0Thp3myS2iDzXx0dut2p7pdeeSO++uoxj4Kl7dt9AXVrRpQnXrBhtVt7MI6BHST
-         gR360HBflM8TLRHCHFApl+HTN90tSl8SwZwpYd7D8WyYFC3iChov583iuQ7+LSMdzX
-         hmGFpBsHPFJhDsC+8NpJXH3mAIPqx2qy7khihgOQ=
+        b=J7n69Y7IKeNqzZdio/NIft2JqljmvGePAeL3nwgM4+K/QVBvn7TYc6mHcuTJmA2dO
+         FlNIbnreLz81ygK4dnJtw400muD5/PeXJz1JkDvGwOsqBJ4ZfhCJbTf361a+AidzZ2
+         ndTHQiuvyJF0fCcyLnlqqB+AE7t7dXF/DnALw29g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        George Kuruvinakunnel <george.kuruvinakunnel@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 24/86] ice: xsk: prohibit usage of non-balanced queue id
+Subject: [PATCH 5.15 063/136] netfilter: nft_cmp: optimize comparison for 16-bytes
 Date:   Mon, 29 Aug 2022 12:58:50 +0200
-Message-Id: <20220829105757.521676150@linuxfoundation.org>
+Message-Id: <20220829105807.220101479@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,113 +53,211 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 5a42f112d367bb4700a8a41f5c12724fde6bfbb9 ]
+[ Upstream commit 23f68d462984bfda47c7bf663dca347e8e3df549 ]
 
-Fix the following scenario:
-1. ethtool -L $IFACE rx 8 tx 96
-2. xdpsock -q 10 -t -z
+Allow up to 16-byte comparisons with a new cmp fast version. Use two
+64-bit words and calculate the mask representing the bits to be
+compared. Make sure the comparison is 64-bit aligned and avoid
+out-of-bound memory access on registers.
 
-Above refers to a case where user would like to attach XSK socket in
-txonly mode at a queue id that does not have a corresponding Rx queue.
-At this moment ice's XSK logic is tightly bound to act on a "queue pair",
-e.g. both Tx and Rx queues at a given queue id are disabled/enabled and
-both of them will get XSK pool assigned, which is broken for the presented
-queue configuration. This results in the splat included at the bottom,
-which is basically an OOB access to Rx ring array.
-
-To fix this, allow using the ids only in scope of "combined" queues
-reported by ethtool. However, logic should be rewritten to allow such
-configurations later on, which would end up as a complete rewrite of the
-control path, so let us go with this temporary fix.
-
-[420160.558008] BUG: kernel NULL pointer dereference, address: 0000000000000082
-[420160.566359] #PF: supervisor read access in kernel mode
-[420160.572657] #PF: error_code(0x0000) - not-present page
-[420160.579002] PGD 0 P4D 0
-[420160.582756] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[420160.588396] CPU: 10 PID: 21232 Comm: xdpsock Tainted: G           OE     5.19.0-rc7+ #10
-[420160.597893] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0008.031920191559 03/19/2019
-[420160.609894] RIP: 0010:ice_xsk_pool_setup+0x44/0x7d0 [ice]
-[420160.616968] Code: f3 48 83 ec 40 48 8b 4f 20 48 8b 3f 65 48 8b 04 25 28 00 00 00 48 89 44 24 38 31 c0 48 8d 04 ed 00 00 00 00 48 01 c1 48 8b 11 <0f> b7 92 82 00 00 00 48 85 d2 0f 84 2d 75 00 00 48 8d 72 ff 48 85
-[420160.639421] RSP: 0018:ffffc9002d2afd48 EFLAGS: 00010282
-[420160.646650] RAX: 0000000000000050 RBX: ffff88811d8bdd00 RCX: ffff888112c14ff8
-[420160.655893] RDX: 0000000000000000 RSI: ffff88811d8bdd00 RDI: ffff888109861000
-[420160.665166] RBP: 000000000000000a R08: 000000000000000a R09: 0000000000000000
-[420160.674493] R10: 000000000000889f R11: 0000000000000000 R12: 000000000000000a
-[420160.683833] R13: 000000000000000a R14: 0000000000000000 R15: ffff888117611828
-[420160.693211] FS:  00007fa869fc1f80(0000) GS:ffff8897e0880000(0000) knlGS:0000000000000000
-[420160.703645] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[420160.711783] CR2: 0000000000000082 CR3: 00000001d076c001 CR4: 00000000007706e0
-[420160.721399] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[420160.731045] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[420160.740707] PKRU: 55555554
-[420160.745960] Call Trace:
-[420160.750962]  <TASK>
-[420160.755597]  ? kmalloc_large_node+0x79/0x90
-[420160.762703]  ? __kmalloc_node+0x3f5/0x4b0
-[420160.769341]  xp_assign_dev+0xfd/0x210
-[420160.775661]  ? shmem_file_read_iter+0x29a/0x420
-[420160.782896]  xsk_bind+0x152/0x490
-[420160.788943]  __sys_bind+0xd0/0x100
-[420160.795097]  ? exit_to_user_mode_prepare+0x20/0x120
-[420160.802801]  __x64_sys_bind+0x16/0x20
-[420160.809298]  do_syscall_64+0x38/0x90
-[420160.815741]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[420160.823731] RIP: 0033:0x7fa86a0dd2fb
-[420160.830264] Code: c3 66 0f 1f 44 00 00 48 8b 15 69 8b 0c 00 f7 d8 64 89 02 b8 ff ff ff ff eb bc 0f 1f 44 00 00 f3 0f 1e fa b8 31 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 3d 8b 0c 00 f7 d8 64 89 01 48
-[420160.855410] RSP: 002b:00007ffc1146f618 EFLAGS: 00000246 ORIG_RAX: 0000000000000031
-[420160.866366] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fa86a0dd2fb
-[420160.876957] RDX: 0000000000000010 RSI: 00007ffc1146f680 RDI: 0000000000000003
-[420160.887604] RBP: 000055d7113a0520 R08: 00007fa868fb8000 R09: 0000000080000000
-[420160.898293] R10: 0000000000008001 R11: 0000000000000246 R12: 000055d7113a04e0
-[420160.909038] R13: 000055d7113a0320 R14: 000000000000000a R15: 0000000000000000
-[420160.919817]  </TASK>
-[420160.925659] Modules linked in: ice(OE) af_packet binfmt_misc nls_iso8859_1 ipmi_ssif intel_rapl_msr intel_rapl_common x86_pkg_temp_thermal intel_powerclamp mei_me coretemp ioatdma mei ipmi_si wmi ipmi_msghandler acpi_pad acpi_power_meter ip_tables x_tables autofs4 ixgbe i40e crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel crypto_simd cryptd ahci mdio dca libahci lpc_ich [last unloaded: ice]
-[420160.977576] CR2: 0000000000000082
-[420160.985037] ---[ end trace 0000000000000000 ]---
-[420161.097724] RIP: 0010:ice_xsk_pool_setup+0x44/0x7d0 [ice]
-[420161.107341] Code: f3 48 83 ec 40 48 8b 4f 20 48 8b 3f 65 48 8b 04 25 28 00 00 00 48 89 44 24 38 31 c0 48 8d 04 ed 00 00 00 00 48 01 c1 48 8b 11 <0f> b7 92 82 00 00 00 48 85 d2 0f 84 2d 75 00 00 48 8d 72 ff 48 85
-[420161.134741] RSP: 0018:ffffc9002d2afd48 EFLAGS: 00010282
-[420161.144274] RAX: 0000000000000050 RBX: ffff88811d8bdd00 RCX: ffff888112c14ff8
-[420161.155690] RDX: 0000000000000000 RSI: ffff88811d8bdd00 RDI: ffff888109861000
-[420161.168088] RBP: 000000000000000a R08: 000000000000000a R09: 0000000000000000
-[420161.179295] R10: 000000000000889f R11: 0000000000000000 R12: 000000000000000a
-[420161.190420] R13: 000000000000000a R14: 0000000000000000 R15: ffff888117611828
-[420161.201505] FS:  00007fa869fc1f80(0000) GS:ffff8897e0880000(0000) knlGS:0000000000000000
-[420161.213628] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[420161.223413] CR2: 0000000000000082 CR3: 00000001d076c001 CR4: 00000000007706e0
-[420161.234653] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[420161.245893] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[420161.257052] PKRU: 55555554
-
-Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: George Kuruvinakunnel <george.kuruvinakunnel@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_xsk.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/net/netfilter/nf_tables_core.h |   9 +++
+ net/netfilter/nf_tables_core.c         |  16 ++++
+ net/netfilter/nft_cmp.c                | 102 ++++++++++++++++++++++++-
+ 3 files changed, 125 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index 4bb62950d92de..59963b901be0f 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -371,6 +371,12 @@ int ice_xsk_pool_setup(struct ice_vsi *vsi, struct xsk_buff_pool *pool, u16 qid)
- 	bool if_running, pool_present = !!pool;
- 	int ret = 0, pool_failure = 0;
+diff --git a/include/net/netfilter/nf_tables_core.h b/include/net/netfilter/nf_tables_core.h
+index 0fa5a6d98a00b..9dfa11d4224d2 100644
+--- a/include/net/netfilter/nf_tables_core.h
++++ b/include/net/netfilter/nf_tables_core.h
+@@ -40,6 +40,14 @@ struct nft_cmp_fast_expr {
+ 	bool			inv;
+ };
  
-+	if (qid >= vsi->num_rxq || qid >= vsi->num_txq) {
-+		netdev_err(vsi->netdev, "Please use queue id in scope of combined queues count\n");
-+		pool_failure = -EINVAL;
-+		goto failure;
++struct nft_cmp16_fast_expr {
++	struct nft_data		data;
++	struct nft_data		mask;
++	u8			sreg;
++	u8			len;
++	bool			inv;
++};
++
+ struct nft_immediate_expr {
+ 	struct nft_data		data;
+ 	u8			dreg;
+@@ -57,6 +65,7 @@ static inline u32 nft_cmp_fast_mask(unsigned int len)
+ }
+ 
+ extern const struct nft_expr_ops nft_cmp_fast_ops;
++extern const struct nft_expr_ops nft_cmp16_fast_ops;
+ 
+ struct nft_payload {
+ 	enum nft_payload_bases	base:8;
+diff --git a/net/netfilter/nf_tables_core.c b/net/netfilter/nf_tables_core.c
+index 7defe5a92e47f..2ab4216d2a903 100644
+--- a/net/netfilter/nf_tables_core.c
++++ b/net/netfilter/nf_tables_core.c
+@@ -67,6 +67,20 @@ static void nft_cmp_fast_eval(const struct nft_expr *expr,
+ 	regs->verdict.code = NFT_BREAK;
+ }
+ 
++static void nft_cmp16_fast_eval(const struct nft_expr *expr,
++				struct nft_regs *regs)
++{
++	const struct nft_cmp16_fast_expr *priv = nft_expr_priv(expr);
++	const u64 *reg_data = (const u64 *)&regs->data[priv->sreg];
++	const u64 *mask = (const u64 *)&priv->mask;
++	const u64 *data = (const u64 *)&priv->data;
++
++	if (((reg_data[0] & mask[0]) == data[0] &&
++	    ((reg_data[1] & mask[1]) == data[1])) ^ priv->inv)
++		return;
++	regs->verdict.code = NFT_BREAK;
++}
++
+ static noinline void __nft_trace_verdict(struct nft_traceinfo *info,
+ 					 const struct nft_chain *chain,
+ 					 const struct nft_regs *regs)
+@@ -215,6 +229,8 @@ nft_do_chain(struct nft_pktinfo *pkt, void *priv)
+ 		nft_rule_for_each_expr(expr, last, rule) {
+ 			if (expr->ops == &nft_cmp_fast_ops)
+ 				nft_cmp_fast_eval(expr, &regs);
++			else if (expr->ops == &nft_cmp16_fast_ops)
++				nft_cmp16_fast_eval(expr, &regs);
+ 			else if (expr->ops == &nft_bitwise_fast_ops)
+ 				nft_bitwise_fast_eval(expr, &regs);
+ 			else if (expr->ops != &nft_payload_fast_ops ||
+diff --git a/net/netfilter/nft_cmp.c b/net/netfilter/nft_cmp.c
+index 47b6d05f1ae69..917072af09df9 100644
+--- a/net/netfilter/nft_cmp.c
++++ b/net/netfilter/nft_cmp.c
+@@ -272,12 +272,103 @@ const struct nft_expr_ops nft_cmp_fast_ops = {
+ 	.offload	= nft_cmp_fast_offload,
+ };
+ 
++static u32 nft_cmp_mask(u32 bitlen)
++{
++	return (__force u32)cpu_to_le32(~0U >> (sizeof(u32) * BITS_PER_BYTE - bitlen));
++}
++
++static void nft_cmp16_fast_mask(struct nft_data *data, unsigned int bitlen)
++{
++	int len = bitlen / BITS_PER_BYTE;
++	int i, words = len / sizeof(u32);
++
++	for (i = 0; i < words; i++) {
++		data->data[i] = 0xffffffff;
++		bitlen -= sizeof(u32) * BITS_PER_BYTE;
 +	}
 +
- 	if (!is_power_of_2(vsi->rx_rings[qid]->count) ||
- 	    !is_power_of_2(vsi->tx_rings[qid]->count)) {
- 		netdev_err(vsi->netdev, "Please align ring sizes to power of 2\n");
++	if (len % sizeof(u32))
++		data->data[i++] = nft_cmp_mask(bitlen);
++
++	for (; i < 4; i++)
++		data->data[i] = 0;
++}
++
++static int nft_cmp16_fast_init(const struct nft_ctx *ctx,
++			       const struct nft_expr *expr,
++			       const struct nlattr * const tb[])
++{
++	struct nft_cmp16_fast_expr *priv = nft_expr_priv(expr);
++	struct nft_data_desc desc;
++	int err;
++
++	err = nft_data_init(NULL, &priv->data, sizeof(priv->data), &desc,
++			    tb[NFTA_CMP_DATA]);
++	if (err < 0)
++		return err;
++
++	err = nft_parse_register_load(tb[NFTA_CMP_SREG], &priv->sreg, desc.len);
++	if (err < 0)
++		return err;
++
++	nft_cmp16_fast_mask(&priv->mask, desc.len * BITS_PER_BYTE);
++	priv->inv = ntohl(nla_get_be32(tb[NFTA_CMP_OP])) != NFT_CMP_EQ;
++	priv->len = desc.len;
++
++	return 0;
++}
++
++static int nft_cmp16_fast_offload(struct nft_offload_ctx *ctx,
++				  struct nft_flow_rule *flow,
++				  const struct nft_expr *expr)
++{
++	const struct nft_cmp16_fast_expr *priv = nft_expr_priv(expr);
++	struct nft_cmp_expr cmp = {
++		.data	= priv->data,
++		.sreg	= priv->sreg,
++		.len	= priv->len,
++		.op	= priv->inv ? NFT_CMP_NEQ : NFT_CMP_EQ,
++	};
++
++	return __nft_cmp_offload(ctx, flow, &cmp);
++}
++
++static int nft_cmp16_fast_dump(struct sk_buff *skb, const struct nft_expr *expr)
++{
++	const struct nft_cmp16_fast_expr *priv = nft_expr_priv(expr);
++	enum nft_cmp_ops op = priv->inv ? NFT_CMP_NEQ : NFT_CMP_EQ;
++
++	if (nft_dump_register(skb, NFTA_CMP_SREG, priv->sreg))
++		goto nla_put_failure;
++	if (nla_put_be32(skb, NFTA_CMP_OP, htonl(op)))
++		goto nla_put_failure;
++
++	if (nft_data_dump(skb, NFTA_CMP_DATA, &priv->data,
++			  NFT_DATA_VALUE, priv->len) < 0)
++		goto nla_put_failure;
++	return 0;
++
++nla_put_failure:
++	return -1;
++}
++
++
++const struct nft_expr_ops nft_cmp16_fast_ops = {
++	.type		= &nft_cmp_type,
++	.size		= NFT_EXPR_SIZE(sizeof(struct nft_cmp16_fast_expr)),
++	.eval		= NULL,	/* inlined */
++	.init		= nft_cmp16_fast_init,
++	.dump		= nft_cmp16_fast_dump,
++	.offload	= nft_cmp16_fast_offload,
++};
++
+ static const struct nft_expr_ops *
+ nft_cmp_select_ops(const struct nft_ctx *ctx, const struct nlattr * const tb[])
+ {
+ 	struct nft_data_desc desc;
+ 	struct nft_data data;
+ 	enum nft_cmp_ops op;
++	u8 sreg;
+ 	int err;
+ 
+ 	if (tb[NFTA_CMP_SREG] == NULL ||
+@@ -306,9 +397,16 @@ nft_cmp_select_ops(const struct nft_ctx *ctx, const struct nlattr * const tb[])
+ 	if (desc.type != NFT_DATA_VALUE)
+ 		goto err1;
+ 
+-	if (desc.len <= sizeof(u32) && (op == NFT_CMP_EQ || op == NFT_CMP_NEQ))
+-		return &nft_cmp_fast_ops;
++	sreg = ntohl(nla_get_be32(tb[NFTA_CMP_SREG]));
+ 
++	if (op == NFT_CMP_EQ || op == NFT_CMP_NEQ) {
++		if (desc.len <= sizeof(u32))
++			return &nft_cmp_fast_ops;
++		else if (desc.len <= sizeof(data) &&
++			 ((sreg >= NFT_REG_1 && sreg <= NFT_REG_4) ||
++			  (sreg >= NFT_REG32_00 && sreg <= NFT_REG32_12 && sreg % 2 == 0)))
++			return &nft_cmp16_fast_ops;
++	}
+ 	return &nft_cmp_ops;
+ err1:
+ 	nft_data_release(&data, desc.type);
 -- 
 2.35.1
 
