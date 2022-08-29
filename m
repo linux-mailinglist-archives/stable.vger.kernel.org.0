@@ -2,53 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F2B95A4692
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 11:57:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAA2C5A470E
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 12:23:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229773AbiH2J51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 05:57:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44120 "EHLO
+        id S229530AbiH2KXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 06:23:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229598AbiH2J50 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 05:57:26 -0400
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B2A55EDD5
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 02:57:25 -0700 (PDT)
-Received: by mail-il1-f200.google.com with SMTP id h8-20020a92c268000000b002e95299cff0so5637435ild.23
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 02:57:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc;
-        bh=sVvRetvU66viZg03zt42J481swUWQOVgkFgrLPfYY/8=;
-        b=dEE5+4wQvQxHD1mQRkdtgUZgbp04K8eeXsProkV9T4BBnEGj/ycTP1leoDQzkKvcbV
-         BOfIelH+dLvZl+pPLKhFF+Zs6+2i2E76VXane5QhC2lpapjfIoMgy9D4czwJHUeQ7m6W
-         kVPdDPPdGr/Ol4Waa6dP9oMkqaOfEIhlPhQHhvjEpTqg8LYlquknLcidRtIN+v3/9TuN
-         C7v1mwu5NyHjfcYbNDc0q8kEh0nTr1V3JkKCif+8ig0edw/9X9nXNqisG4sWNVnXk3AU
-         EQhI8bXX/asyHIZ6WjJdsA2ZgNk2ojCbQWtRpN+Cp2ThP8pPF9kto1WnMHzIL4Fq0Mn3
-         d3Tw==
-X-Gm-Message-State: ACgBeo3hVJdS8WG1JCZdfmApdZsm9LOp5VCK5z40wiIMZ7wkoMh+PjBl
-        PQdNy6SOGa3WXZ9NPtt9Vd9gPzGg73qntFfzPtaZolPXJtPf
-X-Google-Smtp-Source: AA6agR4047SUJ1BLtOuBVO5UEYKaNvW+AYfU2ca+vudLKRQqkT0iYQAwoPhxw+l2bKYQdrlt0TJE9b8wp2UaQpbPo9e6zD+ZnsF5
+        with ESMTP id S229504AbiH2KXZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 06:23:25 -0400
+X-Greylist: delayed 598 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 29 Aug 2022 03:23:23 PDT
+Received: from smtpservice.6wind.com (unknown [185.13.181.2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9A036564EF;
+        Mon, 29 Aug 2022 03:23:23 -0700 (PDT)
+Received: from bretzel (bretzel.dev.6wind.com [10.17.1.57])
+        by smtpservice.6wind.com (Postfix) with ESMTPS id 8DFD5600C2;
+        Mon, 29 Aug 2022 12:03:27 +0200 (CEST)
+Received: from dichtel by bretzel with local (Exim 4.92)
+        (envelope-from <dichtel@6wind.com>)
+        id 1oSbc7-00013K-Fq; Mon, 29 Aug 2022 12:03:27 +0200
+From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
+To:     "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>
+Cc:     netdev@vger.kernel.org, Heng Qi <hengqi@linux.alibaba.com>,
+        Edwin Brossette <edwin.brossette@6wind.com>,
+        kernel test robot <lkp@intel.com>, lkp@lists.01.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>
+Subject: [PATCH net] ip: fix triggering of 'icmp redirect'
+Date:   Mon, 29 Aug 2022 12:01:21 +0200
+Message-Id: <20220829100121.3821-1-nicolas.dichtel@6wind.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-X-Received: by 2002:a05:6638:dc4:b0:349:f86d:d29a with SMTP id
- m4-20020a0566380dc400b00349f86dd29amr10201198jaj.256.1661767044603; Mon, 29
- Aug 2022 02:57:24 -0700 (PDT)
-Date:   Mon, 29 Aug 2022 02:57:24 -0700
-In-Reply-To: <000000000000b960c00594598949@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000064a39405e75e4aca@google.com>
-Subject: Re: KASAN: use-after-free Read in tc_chain_fill_node
-From:   syzbot <syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com>
-To:     davem@davemloft.net, gregkh@linuxfoundation.org, jiri@mellanox.com,
-        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
-        stable-commits@vger.kernel.org, stable@vger.kernel.org,
-        syzkaller-lts-bugs@googlegroups.com, vladbu@mellanox.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,RDNS_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,14 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This bug is marked as fixed by commit:
-net: core: netlink: add helper refcount dec and lock function
-net: sched: add helper function to take reference to Qdisc
-net: sched: extend Qdisc with rcu
-net: sched: rename qdisc_destroy() to qdisc_put()
-net: sched: use Qdisc rcu API instead of relying on rtnl lock
-But I can't find it in any tested tree for more than 90 days.
-Is it a correct commit? Please update it by replying:
-#syz fix: exact-commit-title
-Until then the bug is still considered open and
-new crashes with the same signature are ignored.
+__mkroute_input() uses fib_validate_source() to trigger an icmp redirect.
+My understanding is that fib_validate_source() is used to know if the src
+address and the gateway address are on the same link. For that,
+fib_validate_source() returns 1 (same link) or 0 (not the same network).
+__mkroute_input() is the only user of these positive values, all other
+callers only look if the returned value is negative.
+
+Since the below patch, fib_validate_source() didn't return anymore 1 when
+both addresses are on the same network, because the route lookup returns
+RT_SCOPE_LINK instead of RT_SCOPE_HOST. But this is, in fact, right.
+Let's adapat the test to return 1 again when both addresses are on the same
+link.
+
+CC: stable@vger.kernel.org
+Fixes: 747c14307214 ("ip: fix dflt addr selection for connected nexthop")
+Reported-by: kernel test robot <yujie.liu@intel.com>
+Reported-by: Heng Qi <hengqi@linux.alibaba.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+---
+
+This code exists since more than two decades:
+https://git.kernel.org/pub/scm/linux/kernel/git/davem/netdev-vger-cvs.git/commit/?id=0c2c94df8133f
+
+Please, feel free to comment if my analysis seems wrong.
+
+Regards,
+Nicolas
+
+ net/ipv4/fib_frontend.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
+index f361d3d56be2..943edf4ad4db 100644
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -389,7 +389,7 @@ static int __fib_validate_source(struct sk_buff *skb, __be32 src, __be32 dst,
+ 	dev_match = dev_match || (res.type == RTN_LOCAL &&
+ 				  dev == net->loopback_dev);
+ 	if (dev_match) {
+-		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
++		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
+ 		return ret;
+ 	}
+ 	if (no_addr)
+@@ -401,7 +401,7 @@ static int __fib_validate_source(struct sk_buff *skb, __be32 src, __be32 dst,
+ 	ret = 0;
+ 	if (fib_lookup(net, &fl4, &res, FIB_LOOKUP_IGNORE_LINKSTATE) == 0) {
+ 		if (res.type == RTN_UNICAST)
+-			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
++			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
+ 	}
+ 	return ret;
+ 
+-- 
+2.33.0
+
