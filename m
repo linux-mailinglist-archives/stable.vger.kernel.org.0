@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D53C45A48EA
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:17:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6232B5A4A9E
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231508AbiH2LRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:17:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42912 "EHLO
+        id S229909AbiH2Log (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:44:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231397AbiH2LRT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:17:19 -0400
+        with ESMTP id S233136AbiH2Ln4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:43:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ABA867168;
-        Mon, 29 Aug 2022 04:11:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8338D7823F;
+        Mon, 29 Aug 2022 04:28:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5F1BB80F62;
-        Mon, 29 Aug 2022 11:10:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20FBAC433C1;
-        Mon, 29 Aug 2022 11:10:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1742B80EFE;
+        Mon, 29 Aug 2022 11:10:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B4DDC433D6;
+        Mon, 29 Aug 2022 11:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771444;
-        bh=h5TLHF29h7qwZZobTV8lrfHE4KQIdZAJqgktJaofui4=;
+        s=korg; t=1661771418;
+        bh=q/shjSGFz7yyHESNs3WnEG3/8Lkyqt5tkFOSehy3gDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JCcqixJrEzGyApUOlPsU80xljNAT/YZ5xvincLEw2ARhevmuvpJiFlk9oPDWz0PWx
-         2Oo6EzpUe89F+4Y4jVtWQki+TjsMbiCuWT5Rqznmeaz3GZP6q2sf4RDuWqnfeV1bbu
-         wS8IW0siaArdjEYP9cBUM8yH1Sezd5YIUGlTHEkY=
+        b=IPVOfwIS3BNj0c1Vwy56bypjqVItOaYJ6MO/HRZLwm+tuYvCBOQI0mBX9Adv9anZ1
+         Vtm/GFf/0mUvSkJCqTzUsMouSnBCrdViYl20P7FPA+ULDpBij2qiMk5J3aGPWxevib
+         EEmaJnXIOLfGatCnNlVxJ5moJOiAJcvQ/YFk9LOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Siddh Raman Pant <code@siddh.me>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
-Subject: [PATCH 5.15 104/136] loop: Check for overflow while configuring loop
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 65/86] btrfs: replace: drop assert for suspended replace
 Date:   Mon, 29 Aug 2022 12:59:31 +0200
-Message-Id: <20220829105808.974066718@linuxfoundation.org>
+Message-Id: <20220829105759.209953827@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddh Raman Pant <code@siddh.me>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit c490a0b5a4f36da3918181a8acdc6991d967c5f3 upstream.
+commit 59a3991984dbc1fc47e5651a265c5200bd85464e upstream.
 
-The userspace can configure a loop using an ioctl call, wherein
-a configuration of type loop_config is passed (see lo_ioctl()'s
-case on line 1550 of drivers/block/loop.c). This proceeds to call
-loop_configure() which in turn calls loop_set_status_from_info()
-(see line 1050 of loop.c), passing &config->info which is of type
-loop_info64*. This function then sets the appropriate values, like
-the offset.
+If the filesystem mounts with the replace-operation in a suspended state
+and try to cancel the suspended replace-operation, we hit the assert. The
+assert came from the commit fe97e2e173af ("btrfs: dev-replace: replace's
+scrub must not be running in suspended state") that was actually not
+required. So just remove it.
 
-loop_device has lo_offset of type loff_t (see line 52 of loop.c),
-which is typdef-chained to long long, whereas loop_info64 has
-lo_offset of type __u64 (see line 56 of include/uapi/linux/loop.h).
+ $ mount /dev/sda5 /btrfs
 
-The function directly copies offset from info to the device as
-follows (See line 980 of loop.c):
-	lo->lo_offset = info->lo_offset;
+    BTRFS info (device sda5): cannot continue dev_replace, tgtdev is missing
+    BTRFS info (device sda5): you may cancel the operation after 'mount -o degraded'
 
-This results in an overflow, which triggers a warning in iomap_iter()
-due to a call to iomap_iter_done() which has:
-	WARN_ON_ONCE(iter->iomap.offset > iter->pos);
+ $ mount -o degraded /dev/sda5 /btrfs <-- success.
 
-Thus, check for negative value during loop_set_status_from_info().
+ $ btrfs replace cancel /btrfs
 
-Bug report: https://syzkaller.appspot.com/bug?id=c620fe14aac810396d3c3edc9ad73848bf69a29e
+    kernel: assertion failed: ret != -ENOTCONN, in fs/btrfs/dev-replace.c:1131
+    kernel: ------------[ cut here ]------------
+    kernel: kernel BUG at fs/btrfs/ctree.h:3750!
 
-Reported-and-tested-by: syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220823160810.181275-1-code@siddh.me
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+After the patch:
+
+ $ btrfs replace cancel /btrfs
+
+    BTRFS info (device sda5): suspended dev_replace from /dev/sda5 (devid 1) to <missing disk> canceled
+
+Fixes: fe97e2e173af ("btrfs: dev-replace: replace's scrub must not be running in suspended state")
+CC: stable@vger.kernel.org # 5.0+
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/loop.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/btrfs/dev-replace.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1154,6 +1154,11 @@ loop_set_status_from_info(struct loop_de
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -954,8 +954,7 @@ int btrfs_dev_replace_cancel(struct btrf
+ 		up_write(&dev_replace->rwsem);
  
- 	lo->lo_offset = info->lo_offset;
- 	lo->lo_sizelimit = info->lo_sizelimit;
-+
-+	/* loff_t vars have been assigned __u64 */
-+	if (lo->lo_offset < 0 || lo->lo_sizelimit < 0)
-+		return -EOVERFLOW;
-+
- 	memcpy(lo->lo_file_name, info->lo_file_name, LO_NAME_SIZE);
- 	memcpy(lo->lo_crypt_name, info->lo_crypt_name, LO_NAME_SIZE);
- 	lo->lo_file_name[LO_NAME_SIZE-1] = 0;
+ 		/* Scrub for replace must not be running in suspended state */
+-		ret = btrfs_scrub_cancel(fs_info);
+-		ASSERT(ret != -ENOTCONN);
++		btrfs_scrub_cancel(fs_info);
+ 
+ 		trans = btrfs_start_transaction(root, 0);
+ 		if (IS_ERR(trans)) {
 
 
