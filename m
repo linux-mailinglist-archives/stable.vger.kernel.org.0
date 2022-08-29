@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 951025A48BD
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D725A4802
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231278AbiH2LPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:15:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43012 "EHLO
+        id S229567AbiH2LEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:04:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231450AbiH2LNu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09535659D1;
-        Mon, 29 Aug 2022 04:09:43 -0700 (PDT)
+        with ESMTP id S229632AbiH2LDv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:03:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BB9642F8;
+        Mon, 29 Aug 2022 04:02:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AB05B80F96;
-        Mon, 29 Aug 2022 11:09:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C047BC433C1;
-        Mon, 29 Aug 2022 11:09:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BB63B80EF1;
+        Mon, 29 Aug 2022 11:02:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC19FC433D7;
+        Mon, 29 Aug 2022 11:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771374;
-        bh=t4Ral+eNtw1TmAL9Zj3bBoJmT5H+4wQP/GGzP5O2aOg=;
+        s=korg; t=1661770955;
+        bh=uro6sn39/nlGYKDCpLWgCRVO+1kpnI9YO9HvkKBO8QU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWkYV8j82XefMjlyyiyiUdw0LNjelcEmMqvIG3fFmyRRYGiqzntQ6m7TP2y1NIquO
-         ntUxxEmDEa/gRELFB1vQuZE9gyYa6TysmVluBPF1mdqRlq9ZJpi/mo0jDKzdMclKnP
-         Y6JMsyKNYtcsh5cDjWUpsAK56X32FIm43h5BQjOM=
+        b=Pka4C2nF9KMcXn5ZtUocx5316dsUzEXPhG2MTH/UsENoZ7hb8B7iYwQVp9BPNRS3I
+         yyN3Tai3IupPHADyX6nRXTFKMUKjfd8+obxArjJQeOCu7FrkbdW2vZZNIxqZBRB4T5
+         nR2ovZ03Eai5DQwREq/V0OzIRb8UTeCB1hGmCA+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hayes Wang <hayeswang@realtek.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 024/158] r8152: fix the units of some registers for RTL8156A
-Date:   Mon, 29 Aug 2022 12:57:54 +0200
-Message-Id: <20220829105809.807331767@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Lai Jiangshan <jiangshan.ljs@antgroup.com>,
+        Borislav Petkov <bp@suse.de>, Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.15 008/136] x86/entry: Move CLD to the start of the idtentry macro
+Date:   Mon, 29 Aug 2022 12:57:55 +0200
+Message-Id: <20220829105804.988641394@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Lai Jiangshan <jiangshan.ljs@antgroup.com>
 
-[ Upstream commit 6dc4df12d741c0fe8f885778a43039e0619b9cd9 ]
+commit c64cc2802a784ecfd25d39945e57e7a147854a5b upstream.
 
-The units of PLA_RX_FIFO_FULL and PLA_RX_FIFO_EMPTY are 16 bytes.
+Move it after CLAC.
 
-Fixes: 195aae321c82 ("r8152: support new chips")
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Lai Jiangshan <jiangshan.ljs@antgroup.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220503032107.680190-5-jiangshanlai@gmail.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/r8152.c | 17 ++---------------
- 1 file changed, 2 insertions(+), 15 deletions(-)
+ arch/x86/entry/entry_64.S |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 0f6efaabaa32b..46c7954d27629 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -6431,21 +6431,8 @@ static void r8156_fc_parameter(struct r8152 *tp)
- 	u32 pause_on = tp->fc_pause_on ? tp->fc_pause_on : fc_pause_on_auto(tp);
- 	u32 pause_off = tp->fc_pause_off ? tp->fc_pause_off : fc_pause_off_auto(tp);
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -373,6 +373,7 @@ SYM_CODE_END(xen_error_entry)
+ SYM_CODE_START(\asmsym)
+ 	UNWIND_HINT_IRET_REGS offset=\has_error_code*8
+ 	ASM_CLAC
++	cld
  
--	switch (tp->version) {
--	case RTL_VER_10:
--	case RTL_VER_11:
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_FULL, pause_on / 8);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_EMPTY, pause_off / 8);
--		break;
--	case RTL_VER_12:
--	case RTL_VER_13:
--	case RTL_VER_15:
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_FULL, pause_on / 16);
--		ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_EMPTY, pause_off / 16);
--		break;
--	default:
--		break;
--	}
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_FULL, pause_on / 16);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_EMPTY, pause_off / 16);
- }
+ 	.if \has_error_code == 0
+ 		pushq	$-1			/* ORIG_RAX: no syscall to restart */
+@@ -440,6 +441,7 @@ SYM_CODE_END(\asmsym)
+ SYM_CODE_START(\asmsym)
+ 	UNWIND_HINT_IRET_REGS
+ 	ASM_CLAC
++	cld
  
- static void rtl8156_change_mtu(struct r8152 *tp)
--- 
-2.35.1
-
+ 	pushq	$-1			/* ORIG_RAX: no syscall to restart */
+ 
+@@ -495,6 +497,7 @@ SYM_CODE_END(\asmsym)
+ SYM_CODE_START(\asmsym)
+ 	UNWIND_HINT_IRET_REGS
+ 	ASM_CLAC
++	cld
+ 
+ 	/*
+ 	 * If the entry is from userspace, switch stacks and treat it as
+@@ -557,6 +560,7 @@ SYM_CODE_END(\asmsym)
+ SYM_CODE_START(\asmsym)
+ 	UNWIND_HINT_IRET_REGS offset=8
+ 	ASM_CLAC
++	cld
+ 
+ 	/* paranoid_entry returns GS information for paranoid_exit in EBX. */
+ 	call	paranoid_entry
+@@ -876,7 +880,6 @@ SYM_CODE_END(xen_failsafe_callback)
+  */
+ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	UNWIND_HINT_FUNC
+-	cld
+ 	PUSH_AND_CLEAR_REGS save_ret=1
+ 	ENCODE_FRAME_POINTER 8
+ 
+@@ -1012,7 +1015,6 @@ SYM_CODE_END(paranoid_exit)
+  */
+ SYM_CODE_START_LOCAL(error_entry)
+ 	UNWIND_HINT_FUNC
+-	cld
+ 
+ 	PUSH_AND_CLEAR_REGS save_ret=1
+ 	ENCODE_FRAME_POINTER 8
+@@ -1155,6 +1157,7 @@ SYM_CODE_START(asm_exc_nmi)
+ 	 */
+ 
+ 	ASM_CLAC
++	cld
+ 
+ 	/* Use %rdx as our temp variable throughout */
+ 	pushq	%rdx
+@@ -1174,7 +1177,6 @@ SYM_CODE_START(asm_exc_nmi)
+ 	 */
+ 
+ 	swapgs
+-	cld
+ 	FENCE_SWAPGS_USER_ENTRY
+ 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rdx
+ 	movq	%rsp, %rdx
 
 
