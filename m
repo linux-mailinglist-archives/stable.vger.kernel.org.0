@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BA4E5A486E
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:10:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EFFE5A4875
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:10:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231168AbiH2LK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:10:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58420 "EHLO
+        id S229717AbiH2LKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:10:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231173AbiH2LJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:09:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659E26B8E7;
+        with ESMTP id S230218AbiH2LJr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:09:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7ABFF38;
         Mon, 29 Aug 2022 04:07:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D42F611E7;
-        Mon, 29 Aug 2022 11:06:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28891C433C1;
-        Mon, 29 Aug 2022 11:06:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 349D3611B8;
+        Mon, 29 Aug 2022 11:06:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 437F5C433C1;
+        Mon, 29 Aug 2022 11:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771202;
-        bh=c3mgWRxCA72LwoTlctjyeQI1EGN5ZfAcpD7L1ju73eM=;
+        s=korg; t=1661771211;
+        bh=NYCwG859uJIhAtdvy/+qVTFDXKYZDN79rU5MqeTeFxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zAlNC2BKIvbtvwgM/tsFPa/hiLjqnd4CsIsMVqu1pHAInlA7DmUx9UfRXadHZE2dJ
-         EaWk15LRjnQA9+k7iT9R5Ff5dDqXD1FoTWIIwj25ZOPgW9tXiXhdo9i3BHcscAC/gp
-         BQ7FA0sekWRO26LHD3/LXsXhlUgz/a3oVfYjPsNU=
+        b=gLKZVxQQXLf1SSDYBnDpD2gX4Bbj6e75gFi5GvJQ5TaeyzwRsnhLRON3d1MVpuc/O
+         a2k1gBHGPaHTJWbqBNVP0px00cBTKmBYhHSEY5ydRKtJfNmSmGmEzT779k8cA14e/8
+         s5Y6FR1vEBazZpoGe+FJA6w3SzXhvd34sf8hC3nM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing-Ting Wu <jing-ting.wu@mediatek.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Mukesh Ojha <quic_mojha@quicinc.com>, Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.19 004/158] cgroup: Fix race condition at rebind_subsystems()
-Date:   Mon, 29 Aug 2022 12:57:34 +0200
-Message-Id: <20220829105809.018206751@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Helge Deller <deller@gmx.de>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 5.19 005/158] parisc: Make CONFIG_64BIT available for ARCH=parisc64 only
+Date:   Mon, 29 Aug 2022 12:57:35 +0200
+Message-Id: <20220829105809.054969488@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -54,41 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing-Ting Wu <Jing-Ting.Wu@mediatek.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 763f4fb76e24959c370cdaa889b2492ba6175580 upstream.
+commit 3dcfb729b5f4a0c9b50742865cd5e6c4dbcc80dc upstream.
 
-Root cause:
-The rebind_subsystems() is no lock held when move css object from A
-list to B list,then let B's head be treated as css node at
-list_for_each_entry_rcu().
+With this patch the ARCH= parameter decides if the
+CONFIG_64BIT option will be set or not. This means, the
+ARCH= parameter will give:
 
-Solution:
-Add grace period before invalidating the removed rstat_css_node.
+	ARCH=parisc	-> 32-bit kernel
+	ARCH=parisc64	-> 64-bit kernel
 
-Reported-by: Jing-Ting Wu <jing-ting.wu@mediatek.com>
-Suggested-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Jing-Ting Wu <jing-ting.wu@mediatek.com>
-Tested-by: Jing-Ting Wu <jing-ting.wu@mediatek.com>
-Link: https://lore.kernel.org/linux-arm-kernel/d8f0bc5e2fb6ed259f9334c83279b4c011283c41.camel@mediatek.com/T/
-Acked-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Fixes: a7df69b81aac ("cgroup: rstat: support cgroup1")
-Cc: stable@vger.kernel.org # v5.13+
-Signed-off-by: Tejun Heo <tj@kernel.org>
+This simplifies the usage of the other config options like
+randconfig, allmodconfig and allyesconfig a lot and produces
+the output which is expected for parisc64 (64-bit) vs. parisc (32-bit).
+
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: <stable@vger.kernel.org> # 5.15+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/Kconfig |   21 ++++++---------------
+ 1 file changed, 6 insertions(+), 15 deletions(-)
 
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -1811,6 +1811,7 @@ int rebind_subsystems(struct cgroup_root
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -147,10 +147,10 @@ menu "Processor type and features"
  
- 		if (ss->css_rstat_flush) {
- 			list_del_rcu(&css->rstat_css_node);
-+			synchronize_rcu();
- 			list_add_rcu(&css->rstat_css_node,
- 				     &dcgrp->rstat_css_list);
- 		}
+ choice
+ 	prompt "Processor type"
+-	default PA7000
++	default PA7000 if "$(ARCH)" = "parisc"
+ 
+ config PA7000
+-	bool "PA7000/PA7100"
++	bool "PA7000/PA7100" if "$(ARCH)" = "parisc"
+ 	help
+ 	  This is the processor type of your CPU.  This information is
+ 	  used for optimizing purposes.  In order to compile a kernel
+@@ -161,21 +161,21 @@ config PA7000
+ 	  which is required on some machines.
+ 
+ config PA7100LC
+-	bool "PA7100LC"
++	bool "PA7100LC" if "$(ARCH)" = "parisc"
+ 	help
+ 	  Select this option for the PCX-L processor, as used in the
+ 	  712, 715/64, 715/80, 715/100, 715/100XC, 725/100, 743, 748,
+ 	  D200, D210, D300, D310 and E-class
+ 
+ config PA7200
+-	bool "PA7200"
++	bool "PA7200" if "$(ARCH)" = "parisc"
+ 	help
+ 	  Select this option for the PCX-T' processor, as used in the
+ 	  C100, C110, J100, J110, J210XC, D250, D260, D350, D360,
+ 	  K100, K200, K210, K220, K400, K410 and K420
+ 
+ config PA7300LC
+-	bool "PA7300LC"
++	bool "PA7300LC" if "$(ARCH)" = "parisc"
+ 	help
+ 	  Select this option for the PCX-L2 processor, as used in the
+ 	  744, A180, B132L, B160L, B180L, C132L, C160L, C180L,
+@@ -225,17 +225,8 @@ config MLONGCALLS
+ 	  Enabling this option will probably slow down your kernel.
+ 
+ config 64BIT
+-	bool "64-bit kernel"
++	def_bool "$(ARCH)" = "parisc64"
+ 	depends on PA8X00
+-	help
+-	  Enable this if you want to support 64bit kernel on PA-RISC platform.
+-
+-	  At the moment, only people willing to use more than 2GB of RAM,
+-	  or having a 64bit-only capable PA-RISC machine should say Y here.
+-
+-	  Since there is no 64bit userland on PA-RISC, there is no point to
+-	  enable this option otherwise. The 64bit kernel is significantly bigger
+-	  and slower than the 32bit one.
+ 
+ choice
+ 	prompt "Kernel page size"
 
 
