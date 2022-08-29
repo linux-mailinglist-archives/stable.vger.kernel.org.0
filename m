@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E553E5A4903
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B931B5A4905
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231423AbiH2LTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55818 "EHLO
+        id S231393AbiH2LTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231728AbiH2LTH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD68274E15;
-        Mon, 29 Aug 2022 04:12:53 -0700 (PDT)
+        with ESMTP id S231642AbiH2LSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:18:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A276BCE5;
+        Mon, 29 Aug 2022 04:12:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EF49611F8;
-        Mon, 29 Aug 2022 11:11:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F42BC433D6;
-        Mon, 29 Aug 2022 11:11:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E723161212;
+        Mon, 29 Aug 2022 11:11:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 054B3C433C1;
+        Mon, 29 Aug 2022 11:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771467;
-        bh=iWrTExGP0AMWOGEgyqCzCDpnfY6fPahRzrPaMRQ+M1w=;
+        s=korg; t=1661771502;
+        bh=qkwOKJi5gsnAyH0eidBUxLUMppPsZof6v77fr4sDNdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrQe58RLETf+odKX7ydzIbhatCN238zrGpRIE1chn6h4nFEWIcSV8O6kJSnKTjT12
-         TJuL53Q7neS2dWpFGS1fvLRG3jqaPpHhbKtjzbE+B/O85Q4Wr7ojQtNd163V14teGB
-         HGJZMvFtlcuinekPBkX9j24P+lZtij3r69+vE8CI=
+        b=zTSK11GvJ9WSU48V6M9Mj5dhb6bgIWNbw1ncT7fWMg7fs6F91VBxeA6nM8ywdd2NJ
+         nmb4ofOnZSkYtCia6UHoQDHN3LAYUvbLrMFRsi0yEGoaY2LNq3ZBRZJFm58bblkfB4
+         4cWYEYBhhWgHv4nahXzftN1hx4gRdl9tHa4r5JtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 70/86] x86/bugs: Add "unknown" reporting for MMIO Stale Data
-Date:   Mon, 29 Aug 2022 12:59:36 +0200
-Message-Id: <20220829105759.420648966@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.15 110/136] s390: fix double free of GS and RI CBs on fork() failure
+Date:   Mon, 29 Aug 2022 12:59:37 +0200
+Message-Id: <20220829105809.224470741@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,209 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Brian Foster <bfoster@redhat.com>
 
-commit 7df548840c496b0141fb2404b889c346380c2b22 upstream.
+commit 13cccafe0edcd03bf1c841de8ab8a1c8e34f77d9 upstream.
 
-Older Intel CPUs that are not in the affected processor list for MMIO
-Stale Data vulnerabilities currently report "Not affected" in sysfs,
-which may not be correct. Vulnerability status for these older CPUs is
-unknown.
+The pointers for guarded storage and runtime instrumentation control
+blocks are stored in the thread_struct of the associated task. These
+pointers are initially copied on fork() via arch_dup_task_struct()
+and then cleared via copy_thread() before fork() returns. If fork()
+happens to fail after the initial task dup and before copy_thread(),
+the newly allocated task and associated thread_struct memory are
+freed via free_task() -> arch_release_task_struct(). This results in
+a double free of the guarded storage and runtime info structs
+because the fields in the failed task still refer to memory
+associated with the source task.
 
-Add known-not-affected CPUs to the whitelist. Report "unknown"
-mitigation status for CPUs that are not in blacklist, whitelist and also
-don't enumerate MSR ARCH_CAPABILITIES bits that reflect hardware
-immunity to MMIO Stale Data vulnerabilities.
+This problem can manifest as a BUG_ON() in set_freepointer() (with
+CONFIG_SLAB_FREELIST_HARDENED enabled) or KASAN splat (if enabled)
+when running trinity syscall fuzz tests on s390x. To avoid this
+problem, clear the associated pointer fields in
+arch_dup_task_struct() immediately after the new task is copied.
+Note that the RI flag is still cleared in copy_thread() because it
+resides in thread stack memory and that is where stack info is
+copied.
 
-Mitigation is not deployed when the status is unknown.
-
-  [ bp: Massage, fixup. ]
-
-Fixes: 8d50cdf8b834 ("x86/speculation/mmio: Add sysfs reporting for Processor MMIO Stale Data")
-Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Suggested-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/a932c154772f2121794a5f2eded1a11013114711.1657846269.git.pawan.kumar.gupta@linux.intel.com
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Fixes: 8d9047f8b967c ("s390/runtime instrumentation: simplify task exit handling")
+Fixes: 7b83c6297d2fc ("s390/guarded storage: simplify task exit handling")
+Cc: <stable@vger.kernel.org> # 4.15
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220816155407.537372-1-bfoster@redhat.com
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst |   14 +++
- arch/x86/include/asm/cpufeatures.h                              |    5 -
- arch/x86/kernel/cpu/bugs.c                                      |   14 ++-
- arch/x86/kernel/cpu/common.c                                    |   42 ++++++----
- 4 files changed, 56 insertions(+), 19 deletions(-)
+ arch/s390/kernel/process.c |   22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
---- a/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
-+++ b/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
-@@ -230,6 +230,20 @@ The possible values in this file are:
-      * - 'Mitigation: Clear CPU buffers'
-        - The processor is vulnerable and the CPU buffer clearing mitigation is
-          enabled.
-+     * - 'Unknown: No mitigations'
-+       - The processor vulnerability status is unknown because it is
-+	 out of Servicing period. Mitigation is not attempted.
-+
-+Definitions:
-+------------
-+
-+Servicing period: The process of providing functional and security updates to
-+Intel processors or platforms, utilizing the Intel Platform Update (IPU)
-+process or other similar mechanisms.
-+
-+End of Servicing Updates (ESU): ESU is the date at which Intel will no
-+longer provide Servicing, such as through IPU or other similar update
-+processes. ESU dates will typically be aligned to end of quarter.
+--- a/arch/s390/kernel/process.c
++++ b/arch/s390/kernel/process.c
+@@ -91,6 +91,18 @@ int arch_dup_task_struct(struct task_str
  
- If the processor is vulnerable then the following information is appended to
- the above information:
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -429,7 +429,8 @@
- #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
- #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
- #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
--#define X86_BUG_RETBLEED		X86_BUG(26) /* CPU is affected by RETBleed */
--#define X86_BUG_EIBRS_PBRSB		X86_BUG(27) /* EIBRS is vulnerable to Post Barrier RSB Predictions */
-+#define X86_BUG_MMIO_UNKNOWN		X86_BUG(26) /* CPU is too old and its MMIO Stale Data status is unknown */
-+#define X86_BUG_RETBLEED		X86_BUG(27) /* CPU is affected by RETBleed */
-+#define X86_BUG_EIBRS_PBRSB		X86_BUG(28) /* EIBRS is vulnerable to Post Barrier RSB Predictions */
- 
- #endif /* _ASM_X86_CPUFEATURES_H */
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -424,7 +424,8 @@ static void __init mmio_select_mitigatio
- 	u64 ia32_cap;
- 
- 	if (!boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA) ||
--	    cpu_mitigations_off()) {
-+	     boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN) ||
-+	     cpu_mitigations_off()) {
- 		mmio_mitigation = MMIO_MITIGATION_OFF;
- 		return;
- 	}
-@@ -529,6 +530,8 @@ out:
- 		pr_info("TAA: %s\n", taa_strings[taa_mitigation]);
- 	if (boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
- 		pr_info("MMIO Stale Data: %s\n", mmio_strings[mmio_mitigation]);
-+	else if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		pr_info("MMIO Stale Data: Unknown: No mitigations\n");
+ 	memcpy(dst, src, arch_task_struct_size);
+ 	dst->thread.fpu.regs = dst->thread.fpu.fprs;
++
++	/*
++	 * Don't transfer over the runtime instrumentation or the guarded
++	 * storage control block pointers. These fields are cleared here instead
++	 * of in copy_thread() to avoid premature freeing of associated memory
++	 * on fork() failure. Wait to clear the RI flag because ->stack still
++	 * refers to the source thread.
++	 */
++	dst->thread.ri_cb = NULL;
++	dst->thread.gs_cb = NULL;
++	dst->thread.gs_bc_cb = NULL;
++
+ 	return 0;
  }
  
- static void __init md_clear_select_mitigation(void)
-@@ -2198,6 +2201,9 @@ static ssize_t tsx_async_abort_show_stat
+@@ -149,13 +161,11 @@ int copy_thread(unsigned long clone_flag
+ 	frame->childregs.flags = 0;
+ 	if (new_stackp)
+ 		frame->childregs.gprs[15] = new_stackp;
+-
+-	/* Don't copy runtime instrumentation info */
+-	p->thread.ri_cb = NULL;
++	/*
++	 * Clear the runtime instrumentation flag after the above childregs
++	 * copy. The CB pointer was already cleared in arch_dup_task_struct().
++	 */
+ 	frame->childregs.psw.mask &= ~PSW_MASK_RI;
+-	/* Don't copy guarded storage control block */
+-	p->thread.gs_cb = NULL;
+-	p->thread.gs_bc_cb = NULL;
  
- static ssize_t mmio_stale_data_show_state(char *buf)
- {
-+	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		return sysfs_emit(buf, "Unknown: No mitigations\n");
-+
- 	if (mmio_mitigation == MMIO_MITIGATION_OFF)
- 		return sysfs_emit(buf, "%s\n", mmio_strings[mmio_mitigation]);
- 
-@@ -2344,6 +2350,7 @@ static ssize_t cpu_show_common(struct de
- 		return srbds_show_state(buf);
- 
- 	case X86_BUG_MMIO_STALE_DATA:
-+	case X86_BUG_MMIO_UNKNOWN:
- 		return mmio_stale_data_show_state(buf);
- 
- 	case X86_BUG_RETBLEED:
-@@ -2403,7 +2410,10 @@ ssize_t cpu_show_srbds(struct device *de
- 
- ssize_t cpu_show_mmio_stale_data(struct device *dev, struct device_attribute *attr, char *buf)
- {
--	return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
-+	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_UNKNOWN);
-+	else
-+		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
- }
- 
- ssize_t cpu_show_retbleed(struct device *dev, struct device_attribute *attr, char *buf)
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1024,7 +1024,8 @@ static void identify_cpu_without_cpuid(s
- #define NO_SWAPGS		BIT(6)
- #define NO_ITLB_MULTIHIT	BIT(7)
- #define NO_SPECTRE_V2		BIT(8)
--#define NO_EIBRS_PBRSB		BIT(9)
-+#define NO_MMIO			BIT(9)
-+#define NO_EIBRS_PBRSB		BIT(10)
- 
- #define VULNWL(vendor, family, model, whitelist)	\
- 	X86_MATCH_VENDOR_FAM_MODEL(vendor, family, model, whitelist)
-@@ -1045,6 +1046,11 @@ static const __initconst struct x86_cpu_
- 	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
- 
- 	/* Intel Family 6 */
-+	VULNWL_INTEL(TIGERLAKE,			NO_MMIO),
-+	VULNWL_INTEL(TIGERLAKE_L,		NO_MMIO),
-+	VULNWL_INTEL(ALDERLAKE,			NO_MMIO),
-+	VULNWL_INTEL(ALDERLAKE_L,		NO_MMIO),
-+
- 	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION | NO_ITLB_MULTIHIT),
-@@ -1063,9 +1069,9 @@ static const __initconst struct x86_cpu_
- 	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_AIRMONT_NP,		NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
- 
--	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_INTEL(ATOM_GOLDMONT_D,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_EIBRS_PBRSB),
-+	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_INTEL(ATOM_GOLDMONT_D,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO | NO_EIBRS_PBRSB),
- 
- 	/*
- 	 * Technically, swapgs isn't serializing on AMD (despite it previously
-@@ -1080,18 +1086,18 @@ static const __initconst struct x86_cpu_
- 	VULNWL_INTEL(ATOM_TREMONT_D,		NO_ITLB_MULTIHIT | NO_EIBRS_PBRSB),
- 
- 	/* AMD Family 0xf - 0x12 */
--	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 
- 	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
--	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_HYGON(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_HYGON(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 
- 	/* Zhaoxin Family 7 */
--	VULNWL(CENTAUR,	7, X86_MODEL_ANY,	NO_SPECTRE_V2 | NO_SWAPGS),
--	VULNWL(ZHAOXIN,	7, X86_MODEL_ANY,	NO_SPECTRE_V2 | NO_SWAPGS),
-+	VULNWL(CENTAUR,	7, X86_MODEL_ANY,	NO_SPECTRE_V2 | NO_SWAPGS | NO_MMIO),
-+	VULNWL(ZHAOXIN,	7, X86_MODEL_ANY,	NO_SPECTRE_V2 | NO_SWAPGS | NO_MMIO),
- 	{}
- };
- 
-@@ -1245,10 +1251,16 @@ static void __init cpu_set_bug_bits(stru
- 	 * Affected CPU list is generally enough to enumerate the vulnerability,
- 	 * but for virtualization case check for ARCH_CAP MSR bits also, VMM may
- 	 * not want the guest to enumerate the bug.
-+	 *
-+	 * Set X86_BUG_MMIO_UNKNOWN for CPUs that are neither in the blacklist,
-+	 * nor in the whitelist and also don't enumerate MSR ARCH_CAP MMIO bits.
- 	 */
--	if (cpu_matches(cpu_vuln_blacklist, MMIO) &&
--	    !arch_cap_mmio_immune(ia32_cap))
--		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
-+	if (!arch_cap_mmio_immune(ia32_cap)) {
-+		if (cpu_matches(cpu_vuln_blacklist, MMIO))
-+			setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
-+		else if (!cpu_matches(cpu_vuln_whitelist, NO_MMIO))
-+			setup_force_cpu_bug(X86_BUG_MMIO_UNKNOWN);
-+	}
- 
- 	if (!cpu_has(c, X86_FEATURE_BTC_NO)) {
- 		if (cpu_matches(cpu_vuln_blacklist, RETBLEED) || (ia32_cap & ARCH_CAP_RSBA))
+ 	/* Set a new TLS ?  */
+ 	if (clone_flags & CLONE_SETTLS) {
 
 
