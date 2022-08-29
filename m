@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5623B5A4BCA
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:28:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEABA5A4B8D
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231374AbiH2M2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 08:28:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44514 "EHLO
+        id S232159AbiH2MXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 08:23:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229871AbiH2M1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:27:52 -0400
+        with ESMTP id S230136AbiH2MW4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:22:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83C02AE205;
-        Mon, 29 Aug 2022 05:11:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82EB9C8D7;
+        Mon, 29 Aug 2022 05:06:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2F8A6123D;
-        Mon, 29 Aug 2022 11:17:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2E6FC433D7;
-        Mon, 29 Aug 2022 11:17:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D3EAC611ED;
+        Mon, 29 Aug 2022 11:09:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C75CCC433D7;
+        Mon, 29 Aug 2022 11:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771827;
-        bh=gcZSMS/DK5coU0N9vP5BKXdPmMcCP9sZHKX5Iz1YpP4=;
+        s=korg; t=1661771341;
+        bh=IGnlxDUDKMqRhl/JRvtiJCglMh05mzZby+XGhIRY5+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ujXWigU00y44mI2pEXTx2I0J+gH1regmgD+lP/imqFtAWjnCQER7n3n/uUUsj4zF0
-         9XymOfqBCL3DZyNmiBa2szuUXpWjr42vHqkdof2R8kqh8lA3CBS8je5FEYVAYJ6lO2
-         HKSDCKNnpfgd/XvzANJIvcav+oDkkGhscVXyGlwE=
+        b=0RB/art4ok9xIjDApjiBqvWtvqd+IRPMQNPvUtaX7wUTN1aYjuUUumTOTdz+4gi+Q
+         eBCt1YFwdRFIHXVEAtfwo5etytHYJLlOkhoPKGO9qj5LrJhXM7ijvJkGvFUu2x1bC0
+         DvSJAz7eRt8GCUFFAZ2acAkxSxckxpcAoIKgI7vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>
-Subject: [PATCH 5.19 109/158] x86/PAT: Have pat_enabled() properly reflect state when running on Xen
-Date:   Mon, 29 Aug 2022 12:59:19 +0200
-Message-Id: <20220829105813.685677959@linuxfoundation.org>
+        stable@vger.kernel.org, R Mohamed Shah <mohamed@pensando.io>,
+        Shannon Nelson <snelson@pensando.io>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 093/136] ionic: VF initial random MAC address if no assigned mac
+Date:   Mon, 29 Aug 2022 12:59:20 +0200
+Message-Id: <20220829105808.485419919@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +55,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: R Mohamed Shah <mohamed@pensando.io>
 
-commit 72cbc8f04fe2fa93443c0fcccb7ad91dfea3d9ce upstream.
+[ Upstream commit 19058be7c48ceb3e60fa3948e24da1059bd68ee4 ]
 
-After commit ID in the Fixes: tag, pat_enabled() returns false (because
-of PAT initialization being suppressed in the absence of MTRRs being
-announced to be available).
+Assign a random mac address to the VF interface station
+address if it boots with a zero mac address in order to match
+similar behavior seen in other VF drivers.  Handle the errors
+where the older firmware does not allow the VF to set its own
+station address.
 
-This has become a problem: the i915 driver now fails to initialize when
-running PV on Xen (i915_gem_object_pin_map() is where I located the
-induced failure), and its error handling is flaky enough to (at least
-sometimes) result in a hung system.
+Newer firmware will allow the VF to set the station mac address
+if it hasn't already been set administratively through the PF.
+Setting it will also be allowed if the VF has trust.
 
-Yet even beyond that problem the keying of the use of WC mappings to
-pat_enabled() (see arch_can_pci_mmap_wc()) means that in particular
-graphics frame buffer accesses would have been quite a bit less optimal
-than possible.
-
-Arrange for the function to return true in such environments, without
-undermining the rest of PAT MSR management logic considering PAT to be
-disabled: specifically, no writes to the PAT MSR should occur.
-
-For the new boolean to live in .init.data, init_cache_modes() also needs
-moving to .init.text (where it could/should have lived already before).
-
-  [ bp: This is the "small fix" variant for stable. It'll get replaced
-    with a proper PAT and MTRR detection split upstream but that is too
-    involved for a stable backport.
-    - additional touchups to commit msg. Use cpu_feature_enabled(). ]
-
-Fixes: bdd8b6c98239 ("drm/i915: replace X86_FEATURE_PAT with pat_enabled()")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Ingo Molnar <mingo@kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Link: https://lore.kernel.org/r/9385fa60-fa5d-f559-a137-6608408f88b0@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fbb39807e9ae ("ionic: support sr-iov operations")
+Signed-off-by: R Mohamed Shah <mohamed@pensando.io>
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/pat/memtype.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ .../net/ethernet/pensando/ionic/ionic_lif.c   | 92 ++++++++++++++++++-
+ 1 file changed, 87 insertions(+), 5 deletions(-)
 
---- a/arch/x86/mm/pat/memtype.c
-+++ b/arch/x86/mm/pat/memtype.c
-@@ -62,6 +62,7 @@
- 
- static bool __read_mostly pat_bp_initialized;
- static bool __read_mostly pat_disabled = !IS_ENABLED(CONFIG_X86_PAT);
-+static bool __initdata pat_force_disabled = !IS_ENABLED(CONFIG_X86_PAT);
- static bool __read_mostly pat_bp_enabled;
- static bool __read_mostly pat_cm_initialized;
- 
-@@ -86,6 +87,7 @@ void pat_disable(const char *msg_reason)
- static int __init nopat(char *str)
- {
- 	pat_disable("PAT support disabled via boot option.");
-+	pat_force_disabled = true;
- 	return 0;
- }
- early_param("nopat", nopat);
-@@ -272,7 +274,7 @@ static void pat_ap_init(u64 pat)
- 	wrmsrl(MSR_IA32_CR_PAT, pat);
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+index 226867e65625e..c713a3ee6571b 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -1692,8 +1692,67 @@ static int ionic_set_features(struct net_device *netdev,
+ 	return err;
  }
  
--void init_cache_modes(void)
-+void __init init_cache_modes(void)
++static int ionic_set_attr_mac(struct ionic_lif *lif, u8 *mac)
++{
++	struct ionic_admin_ctx ctx = {
++		.work = COMPLETION_INITIALIZER_ONSTACK(ctx.work),
++		.cmd.lif_setattr = {
++			.opcode = IONIC_CMD_LIF_SETATTR,
++			.index = cpu_to_le16(lif->index),
++			.attr = IONIC_LIF_ATTR_MAC,
++		},
++	};
++
++	ether_addr_copy(ctx.cmd.lif_setattr.mac, mac);
++	return ionic_adminq_post_wait(lif, &ctx);
++}
++
++static int ionic_get_attr_mac(struct ionic_lif *lif, u8 *mac_addr)
++{
++	struct ionic_admin_ctx ctx = {
++		.work = COMPLETION_INITIALIZER_ONSTACK(ctx.work),
++		.cmd.lif_getattr = {
++			.opcode = IONIC_CMD_LIF_GETATTR,
++			.index = cpu_to_le16(lif->index),
++			.attr = IONIC_LIF_ATTR_MAC,
++		},
++	};
++	int err;
++
++	err = ionic_adminq_post_wait(lif, &ctx);
++	if (err)
++		return err;
++
++	ether_addr_copy(mac_addr, ctx.comp.lif_getattr.mac);
++	return 0;
++}
++
++static int ionic_program_mac(struct ionic_lif *lif, u8 *mac)
++{
++	u8  get_mac[ETH_ALEN];
++	int err;
++
++	err = ionic_set_attr_mac(lif, mac);
++	if (err)
++		return err;
++
++	err = ionic_get_attr_mac(lif, get_mac);
++	if (err)
++		return err;
++
++	/* To deal with older firmware that silently ignores the set attr mac:
++	 * doesn't actually change the mac and doesn't return an error, so we
++	 * do the get attr to verify whether or not the set actually happened
++	 */
++	if (!ether_addr_equal(get_mac, mac))
++		return 1;
++
++	return 0;
++}
++
+ static int ionic_set_mac_address(struct net_device *netdev, void *sa)
  {
- 	u64 pat = 0;
++	struct ionic_lif *lif = netdev_priv(netdev);
+ 	struct sockaddr *addr = sa;
+ 	u8 *mac;
+ 	int err;
+@@ -1702,6 +1761,14 @@ static int ionic_set_mac_address(struct net_device *netdev, void *sa)
+ 	if (ether_addr_equal(netdev->dev_addr, mac))
+ 		return 0;
  
-@@ -313,6 +315,12 @@ void init_cache_modes(void)
++	err = ionic_program_mac(lif, mac);
++	if (err < 0)
++		return err;
++
++	if (err > 0)
++		netdev_dbg(netdev, "%s: SET and GET ATTR Mac are not equal-due to old FW running\n",
++			   __func__);
++
+ 	err = eth_prepare_mac_addr_change(netdev, addr);
+ 	if (err)
+ 		return err;
+@@ -3226,6 +3293,7 @@ static int ionic_station_set(struct ionic_lif *lif)
+ 			.attr = IONIC_LIF_ATTR_MAC,
+ 		},
+ 	};
++	u8 mac_address[ETH_ALEN];
+ 	struct sockaddr addr;
+ 	int err;
+ 
+@@ -3234,8 +3302,23 @@ static int ionic_station_set(struct ionic_lif *lif)
+ 		return err;
+ 	netdev_dbg(lif->netdev, "found initial MAC addr %pM\n",
+ 		   ctx.comp.lif_getattr.mac);
+-	if (is_zero_ether_addr(ctx.comp.lif_getattr.mac))
+-		return 0;
++	ether_addr_copy(mac_address, ctx.comp.lif_getattr.mac);
++
++	if (is_zero_ether_addr(mac_address)) {
++		eth_hw_addr_random(netdev);
++		netdev_dbg(netdev, "Random Mac generated: %pM\n", netdev->dev_addr);
++		ether_addr_copy(mac_address, netdev->dev_addr);
++
++		err = ionic_program_mac(lif, mac_address);
++		if (err < 0)
++			return err;
++
++		if (err > 0) {
++			netdev_dbg(netdev, "%s:SET/GET ATTR Mac are not same-due to old FW running\n",
++				   __func__);
++			return 0;
++		}
++	}
+ 
+ 	if (!is_zero_ether_addr(netdev->dev_addr)) {
+ 		/* If the netdev mac is non-zero and doesn't match the default
+@@ -3243,12 +3326,11 @@ static int ionic_station_set(struct ionic_lif *lif)
+ 		 * likely here again after a fw-upgrade reset.  We need to be
+ 		 * sure the netdev mac is in our filter list.
  		 */
- 		pat = PAT(0, WB) | PAT(1, WT) | PAT(2, UC_MINUS) | PAT(3, UC) |
- 		      PAT(4, WB) | PAT(5, WT) | PAT(6, UC_MINUS) | PAT(7, UC);
-+	} else if (!pat_force_disabled && cpu_feature_enabled(X86_FEATURE_HYPERVISOR)) {
-+		/*
-+		 * Clearly PAT is enabled underneath. Allow pat_enabled() to
-+		 * reflect this.
-+		 */
-+		pat_bp_enabled = true;
- 	}
- 
- 	__init_cache_modes(pat);
+-		if (!ether_addr_equal(ctx.comp.lif_getattr.mac,
+-				      netdev->dev_addr))
++		if (!ether_addr_equal(mac_address, netdev->dev_addr))
+ 			ionic_lif_addr_add(lif, netdev->dev_addr);
+ 	} else {
+ 		/* Update the netdev mac with the device's mac */
+-		memcpy(addr.sa_data, ctx.comp.lif_getattr.mac, netdev->addr_len);
++		ether_addr_copy(addr.sa_data, mac_address);
+ 		addr.sa_family = AF_INET;
+ 		err = eth_prepare_mac_addr_change(netdev, &addr);
+ 		if (err) {
+-- 
+2.35.1
+
 
 
