@@ -2,138 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7302C5A5686
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 23:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92DBD5A56D9
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 00:13:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbiH2VwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 17:52:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47522 "EHLO
+        id S229449AbiH2WNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 18:13:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229884AbiH2VwN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 17:52:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BADAAA061C;
-        Mon, 29 Aug 2022 14:52:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63E35B8121B;
-        Mon, 29 Aug 2022 21:52:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 031F3C433D7;
-        Mon, 29 Aug 2022 21:52:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661809929;
-        bh=7Jc9lfPSa/RKCHMNGaoGKZTxV4IfoIxki5b/Q03tyDQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=SBNcYUJCWANaShZsh03IOumNVt1m4+Oo46saZ+khMm3JsraoWL8gGyWo5X8JzfRDB
-         d8zeBvX4xqy65EX/AkiqwhQNjaC7E6i2aki4h51ll8ahHjzsaJ0JsQ5SF9CFm6Tb1K
-         OFS+E+bQlebrJ72yPfWdBlR5l0hoKbPaIle8GrvQT96lcYWkfrp9strViU+yWHb8MX
-         D1rTO5n25wRZr4mqabXFyYdc9iC1TdjKNVdBfHaBTl6T1UBxpFfLx4B/rp7oCj13bK
-         DPXO5AV8VXi6OTuSOBJ41rzZQYftVdpyzNSgEXT3PlQlPE8ixfoiqF/NWjOMxuxzlY
-         FQDlek4I0o54A==
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org,
-        syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
-Subject: [PATCH] f2fs: fix missing mapping caused by the mount/umount race
-Date:   Mon, 29 Aug 2022 14:52:06 -0700
-Message-Id: <20220829215206.3082124-1-jaegeuk@kernel.org>
-X-Mailer: git-send-email 2.37.2.672.g94769d06f0-goog
+        with ESMTP id S229630AbiH2WNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 18:13:44 -0400
+Received: from mail-il1-x133.google.com (mail-il1-x133.google.com [IPv6:2607:f8b0:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96F4A7D78F
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 15:13:42 -0700 (PDT)
+Received: by mail-il1-x133.google.com with SMTP id v15so2259588iln.6
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 15:13:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc;
+        bh=kDv1Wdc30xWBR5Q0HuYAotIhWz3t+ru73XnAdWghxwI=;
+        b=Gq4sUZurjYGuE+u5O3j2RPt3kH6sF9BEFst5+Qd9srQfDIQgEvvWP9MdWR0k1+2/fj
+         OJdW/koxBPgaPsvyuXDEy2ur/Z6xGvlGjaG1lYjtyk9ndTDNZrVjPLrd8/ASoneSfmsk
+         zlHfh0jGvDHVFmNSzEM+0xCDN7pWnAmvm5E00=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc;
+        bh=kDv1Wdc30xWBR5Q0HuYAotIhWz3t+ru73XnAdWghxwI=;
+        b=K88O89FU4vEYwRcW/oGjE8wybGJqC5FqqPTN2kwGOXT3IYYA84GTra4ewDXfjLAg2t
+         EQleXnZLnuaZ1iJjNqBd+biqvvX5vZHd8nUiQ5UhFZaLgQ99gVqBFo8j1tDJPZ88VUf9
+         9xu8eEOZqX8uUYsjz/o28Xd8thOCfgPUxSrXferkQcFW8K8OybBTH4bi/68CRhESwieC
+         eWQFDWI3phoXTv6dMKpaU9d5wFMYsrHVxygkMj8vuZ/nHVjRzYp1yj0fDHP/M/2us6Y0
+         ozEGdr+j7+JLl8K0KMomZ+IUx/oUgpOVvdYkMvFIvWUF0rDToYbkXCTaLyDQQbPkubUR
+         BCdA==
+X-Gm-Message-State: ACgBeo3msjm7f3uW4wInkTCDkfH1iqCCSVLzmUCkNm6rjd8zyutGyJJJ
+        LDJIhxX07mwfmf6ZcV/vsqju3g==
+X-Google-Smtp-Source: AA6agR6OiMbT9QS5vUvJpCSlESqGYBg7bCf4i7bAop9yLFf0rMnFMiz16VoN5lw2AS5k+N1aDyQQrg==
+X-Received: by 2002:a05:6e02:1347:b0:2ea:e939:fef1 with SMTP id k7-20020a056e02134700b002eae939fef1mr5127804ilr.114.1661811221915;
+        Mon, 29 Aug 2022 15:13:41 -0700 (PDT)
+Received: from [192.168.1.128] ([38.15.45.1])
+        by smtp.gmail.com with ESMTPSA id q5-20020a027b05000000b0034a58cd5718sm379644jac.175.2022.08.29.15.13.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 29 Aug 2022 15:13:41 -0700 (PDT)
+Message-ID: <c06c35e2-f811-088e-2a93-45b2cae45f5f@linuxfoundation.org>
+Date:   Mon, 29 Aug 2022 16:13:40 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 5.19 000/158] 5.19.6-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sometimes we can get a cached meta_inode which has no aops yet. Let's set it
-all the time to fix the below panic.
+On 8/29/22 04:57, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.6 release.
+> There are 158 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 31 Aug 2022 10:57:37 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-Mem abort info:
-  ESR = 0x0000000086000004
-  EC = 0x21: IABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-  FSC = 0x04: level 0 translation fault
-user pgtable: 4k pages, 48-bit VAs, pgdp=0000000109ee4000
-[0000000000000000] pgd=0000000000000000, p4d=0000000000000000
-Internal error: Oops: 86000004 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 1 PID: 3045 Comm: syz-executor330 Not tainted 6.0.0-rc2-syzkaller-16455-ga41a877bc12d #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
-pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : 0x0
-lr : folio_mark_dirty+0xbc/0x208 mm/page-writeback.c:2748
-sp : ffff800012783970
-x29: ffff800012783970 x28: 0000000000000000 x27: ffff800012783b08
-x26: 0000000000000001 x25: 0000000000000400 x24: 0000000000000001
-x23: ffff0000c736e000 x22: 0000000000000045 x21: 05ffc00000000015
-x20: ffff0000ca7403b8 x19: fffffc00032ec600 x18: 0000000000000181
-x17: ffff80000c04d6bc x16: ffff80000dbb8658 x15: 0000000000000000
-x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-x11: ff808000083e9814 x10: 0000000000000000 x9 : ffff8000083e9814
-x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0000000000000000
-x5 : ffff0000cbb19000 x4 : ffff0000cb3d2000 x3 : ffff0000cbb18f80
-x2 : fffffffffffffff0 x1 : fffffc00032ec600 x0 : ffff0000ca7403b8
-Call trace:
- 0x0
- set_page_dirty+0x38/0xbc mm/folio-compat.c:62
- f2fs_update_meta_page+0x80/0xa8 fs/f2fs/segment.c:2369
- do_checkpoint+0x794/0xea8 fs/f2fs/checkpoint.c:1522
- f2fs_write_checkpoint+0x3b8/0x568 fs/f2fs/checkpoint.c:1679
+Compiled and booted on my test system. No dmesg regressions.
 
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
----
- fs/f2fs/inode.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index 6d11c365d7b4..1feb0a8a699e 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -490,10 +490,7 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
- 	if (!inode)
- 		return ERR_PTR(-ENOMEM);
- 
--	if (!(inode->i_state & I_NEW)) {
--		trace_f2fs_iget(inode);
--		return inode;
--	}
-+	/* We can see an old cached inode. Let's set the aops all the time. */
- 	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi))
- 		goto make_now;
- 
-@@ -502,6 +499,11 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
- 		goto make_now;
- #endif
- 
-+	if (!(inode->i_state & I_NEW)) {
-+		trace_f2fs_iget(inode);
-+		return inode;
-+	}
-+
- 	ret = do_read_inode(inode);
- 	if (ret)
- 		goto bad_inode;
-@@ -557,7 +559,8 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
- 		file_dont_truncate(inode);
- 	}
- 
--	unlock_new_inode(inode);
-+	if (inode->i_state & I_NEW)
-+		unlock_new_inode(inode);
- 	trace_f2fs_iget(inode);
- 	return inode;
- 
--- 
-2.37.2.672.g94769d06f0-goog
-
+thanks,
+-- Shuah
