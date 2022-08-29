@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E76E5A4906
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F6B5A490B
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231262AbiH2LTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:19:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55074 "EHLO
+        id S231131AbiH2LTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231621AbiH2LSw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:18:52 -0400
+        with ESMTP id S231637AbiH2LSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:18:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3542E10FE3;
-        Mon, 29 Aug 2022 04:12:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CEB51C114;
+        Mon, 29 Aug 2022 04:12:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22A1D6122D;
-        Mon, 29 Aug 2022 11:12:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31CAFC433C1;
-        Mon, 29 Aug 2022 11:12:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF70161218;
+        Mon, 29 Aug 2022 11:12:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06CBFC433C1;
+        Mon, 29 Aug 2022 11:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771533;
-        bh=Gzqy99RAUTU08sK5XGOmICQ9ne5up2T8DJBSaBHVxPc=;
+        s=korg; t=1661771560;
+        bh=sqwZwaMa4ltO+ZnF2OW0LOrSQsC+7lCx8oJFCuGBDEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQ1yTuHJdzAj/tGDyJPTNwjjintTJmIkZMgjjPNYj8zK4lMj5BEIVHtBqAHFu770B
-         0pFaPhrB1Jnbd1iUjRAfggjjXPHlNQFfTvDlVJatDbbzFcdbiXGY84INd4JSw4f80q
-         Q8L5ybL2jkc14WzDLwG+oZiq7I8TnTkFB9c/Gdys=
+        b=LHwy3soV2P3ENyRE0fHFujPQ49DdwL2AM2i5GEuWJ8dBoFuUDSde3JMhRx/TCYqot
+         CbF7TIIi9z0X+UM59chcjTvVzchJc7ODQ+q5GezNTNAhFzMiqd+ocTB6RqlEmC86tM
+         oTZ9UoF8oDZdlbSmtpij8J5sAsrXYDnF1FMAtAGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 5.10 77/86] Revert "md-raid: destroy the bitmap after destroying the thread"
+        stable@vger.kernel.org,
+        Rustam Subkhankulov <subkhankulov@ispras.ru>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Subject: [PATCH 5.15 116/136] xen/privcmd: fix error exit of privcmd_ioctl_dm_op()
 Date:   Mon, 29 Aug 2022 12:59:43 +0200
-Message-Id: <20220829105759.666602652@linuxfoundation.org>
+Message-Id: <20220829105809.451088886@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +56,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@linux.dev>
+From: Juergen Gross <jgross@suse.com>
 
-commit 1d258758cf06a0734482989911d184dd5837ed4e upstream.
+commit c5deb27895e017a0267de0a20d140ad5fcc55a54 upstream.
 
-This reverts commit e151db8ecfb019b7da31d076130a794574c89f6f. Because it
-obviously breaks clustered raid as noticed by Neil though it fixed KASAN
-issue for dm-raid, let's revert it and fix KASAN issue in next commit.
+The error exit of privcmd_ioctl_dm_op() is calling unlock_pages()
+potentially with pages being NULL, leading to a NULL dereference.
 
-[1]. https://lore.kernel.org/linux-raid/a6657e08-b6a7-358b-2d2a-0ac37d49d23a@linux.dev/T/#m95ac225cab7409f66c295772483d091084a6d470
+Additionally lock_pages() doesn't check for pin_user_pages_fast()
+having been completely successful, resulting in potentially not
+locking all pages into memory. This could result in sporadic failures
+when using the related memory in user mode.
 
-Fixes: e151db8ecfb0 ("md-raid: destroy the bitmap after destroying the thread")
-Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Song Liu <song@kernel.org>
+Fix all of that by calling unlock_pages() always with the real number
+of pinned pages, which will be zero in case pages being NULL, and by
+checking the number of pages pinned by pin_user_pages_fast() matching
+the expected number of pages.
+
+Cc: <stable@vger.kernel.org>
+Fixes: ab520be8cd5d ("xen/privcmd: Add IOCTL_PRIVCMD_DM_OP")
+Reported-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Link: https://lore.kernel.org/r/20220825141918.3581-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/privcmd.c |   21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -6278,11 +6278,11 @@ static void mddev_detach(struct mddev *m
- static void __md_stop(struct mddev *mddev)
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -581,27 +581,30 @@ static int lock_pages(
+ 	struct privcmd_dm_op_buf kbufs[], unsigned int num,
+ 	struct page *pages[], unsigned int nr_pages, unsigned int *pinned)
  {
- 	struct md_personality *pers = mddev->pers;
-+	md_bitmap_destroy(mddev);
- 	mddev_detach(mddev);
- 	/* Ensure ->event_work is done */
- 	if (mddev->event_work.func)
- 		flush_workqueue(md_misc_wq);
--	md_bitmap_destroy(mddev);
- 	spin_lock(&mddev->lock);
- 	mddev->pers = NULL;
- 	spin_unlock(&mddev->lock);
+-	unsigned int i;
++	unsigned int i, off = 0;
+ 
+-	for (i = 0; i < num; i++) {
++	for (i = 0; i < num; ) {
+ 		unsigned int requested;
+ 		int page_count;
+ 
+ 		requested = DIV_ROUND_UP(
+ 			offset_in_page(kbufs[i].uptr) + kbufs[i].size,
+-			PAGE_SIZE);
++			PAGE_SIZE) - off;
+ 		if (requested > nr_pages)
+ 			return -ENOSPC;
+ 
+ 		page_count = pin_user_pages_fast(
+-			(unsigned long) kbufs[i].uptr,
++			(unsigned long)kbufs[i].uptr + off * PAGE_SIZE,
+ 			requested, FOLL_WRITE, pages);
+-		if (page_count < 0)
+-			return page_count;
++		if (page_count <= 0)
++			return page_count ? : -EFAULT;
+ 
+ 		*pinned += page_count;
+ 		nr_pages -= page_count;
+ 		pages += page_count;
++
++		off = (requested == page_count) ? 0 : off + page_count;
++		i += !off;
+ 	}
+ 
+ 	return 0;
+@@ -677,10 +680,8 @@ static long privcmd_ioctl_dm_op(struct f
+ 	}
+ 
+ 	rc = lock_pages(kbufs, kdata.num, pages, nr_pages, &pinned);
+-	if (rc < 0) {
+-		nr_pages = pinned;
++	if (rc < 0)
+ 		goto out;
+-	}
+ 
+ 	for (i = 0; i < kdata.num; i++) {
+ 		set_xen_guest_handle(xbufs[i].h, kbufs[i].uptr);
+@@ -692,7 +693,7 @@ static long privcmd_ioctl_dm_op(struct f
+ 	xen_preemptible_hcall_end();
+ 
+ out:
+-	unlock_pages(pages, nr_pages);
++	unlock_pages(pages, pinned);
+ 	kfree(xbufs);
+ 	kfree(pages);
+ 	kfree(kbufs);
 
 
