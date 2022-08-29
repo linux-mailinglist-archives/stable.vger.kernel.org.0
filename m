@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F5775A440E
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CFD85A440F
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:43:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229617AbiH2HnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:43:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
+        id S229662AbiH2HnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:43:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbiH2HnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:43:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD084DB7F
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:43:20 -0700 (PDT)
+        with ESMTP id S229456AbiH2HnW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:43:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E30BD4DB7F
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:43:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17771B80D13
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:43:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E41CC433C1;
-        Mon, 29 Aug 2022 07:43:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FA426113D
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:43:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78C25C433D6;
+        Mon, 29 Aug 2022 07:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661758997;
-        bh=SRQzGW+IknihkeNvqB6BKbjPWcq0aqNPOID4z9rGfks=;
+        s=korg; t=1661759000;
+        bh=UjkZii2TbEk+HEbEVBz5prhXk+sE/rkQ1quFfFx3L30=;
         h=Subject:To:Cc:From:Date:From;
-        b=Mw9qcTOPvmOJ5F2OhTihOthNgQIWRY+DLppJoZZrKlKrnfmnxUR7vP3JSWWMPc+77
-         d0PFAPkGjUbtcZYCMV7kXOZZ0wiHNhedmTlaybkIx1BhcF9krhpAUu/JMwHSAW/9HQ
-         e497jZF8tzodpMlFrrMMyoo78tkEST+6lwG9qtPg=
-Subject: FAILED: patch "[PATCH] riscv: signal: fix missing prototype warning" failed to apply to 4.19-stable tree
+        b=naGWVKMK0dJYzPpl8wnLFNiu/YPgY5bwUQ5uVIyAk/iLkjYQTG1PuxrGmoE6FUnx+
+         ciA8pJV3aLQKwZrANTggSkoDlliBwfjf1ZY36pXBCppNZbrYsCXqYHMSjAnzW8DIQu
+         HyAzigvuhGPAYWge5kZnt+bIps+lTnK196qSoDic=
+Subject: FAILED: patch "[PATCH] riscv: signal: fix missing prototype warning" failed to apply to 5.4-stable tree
 To:     conor.dooley@microchip.com, palmer@rivosinc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 29 Aug 2022 09:43:04 +0200
-Message-ID: <166175898470206@kroah.com>
+Message-ID: <1661758984246197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
