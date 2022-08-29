@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C659C5A4891
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF0F65A488B
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:12:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231136AbiH2LMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:12:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58480 "EHLO
+        id S231231AbiH2LMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:12:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231126AbiH2LMG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:12:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF1C6D9EB;
-        Mon, 29 Aug 2022 04:08:26 -0700 (PDT)
+        with ESMTP id S230252AbiH2LLz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:11:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD526CF66;
+        Mon, 29 Aug 2022 04:08:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E299611EC;
-        Mon, 29 Aug 2022 11:08:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B05A3C433C1;
-        Mon, 29 Aug 2022 11:08:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A40361203;
+        Mon, 29 Aug 2022 11:08:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2C0C433C1;
+        Mon, 29 Aug 2022 11:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771288;
-        bh=TBjtV9FpKqMGGDrQSU+Sz62KcXiZgemeCZ7STnM27b4=;
+        s=korg; t=1661771308;
+        bh=P3SlovIRutuA6JKfB9XCrc+B1Jw0/rqIXjtWcP45Iko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgIo2evLCzLirhCJbm2utz8e8sK1ehtweW3hEQpwWDyxGaOHRC0hEhxO0bm7KZ4Pj
-         Ip3LLJOGOaJFeOPB3+JTnpOukHmUNA4mHroyTa0QkjBQXCkci6Q38ZXFHfOqWArR7i
-         UNuaA1G8BgQiqa698muArUn8PHr54+MZIXqPhx+s=
+        b=1nQyGmDvlkraOiWBm7dE5lkCILoL6992hcxvJqvRrceJa15JKqPocxWLg+Dz4KSbK
+         C8GmgLy+oz5lHwehcVj2dV6jKYNSZ2MQs7uo65oaVzUVQ9fr4fVelKUUlBuKBkbBNS
+         NBY4T44V1AiuibRh+PRfY4LI3qzQjjg1c+t4eC0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 013/158] Revert "xfrm: update SA curlft.use_time"
-Date:   Mon, 29 Aug 2022 12:57:43 +0200
-Message-Id: <20220829105809.378522886@linuxfoundation.org>
+Subject: [PATCH 5.19 015/158] af_key: Do not call xfrm_probe_algs in parallel
+Date:   Mon, 29 Aug 2022 12:57:45 +0200
+Message-Id: <20220829105809.458966859@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -54,56 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antony Antony <antony.antony@secunet.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 717ada9f10f2de8c4f4d72ad045f3b67a7ced715 ]
+[ Upstream commit ba953a9d89a00c078b85f4b190bc1dde66fe16b5 ]
 
-This reverts commit af734a26a1a95a9fda51f2abb0c22a7efcafd5ca.
+When namespace support was added to xfrm/afkey, it caused the
+previously single-threaded call to xfrm_probe_algs to become
+multi-threaded.  This is buggy and needs to be fixed with a mutex.
 
-The abvoce commit is a regression according RFC 2367. A better fix would be
-use x->lastused. Which will be propsed later.
-
-according to RFC 2367 use_time == sadb_lifetime_usetime.
-
-"sadb_lifetime_usetime
-                   For CURRENT, the time, in seconds, when association
-                   was first used. For HARD and SOFT, the number of
-                   seconds after the first use of the association until
-                   it expires."
-
-Fixes: af734a26a1a9 ("xfrm: update SA curlft.use_time")
-Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Fixes: 283bc9f35bbb ("xfrm: Namespacify xfrm state/policy locks")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_input.c  | 1 -
- net/xfrm/xfrm_output.c | 1 -
- 2 files changed, 2 deletions(-)
+ net/key/af_key.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
-index 144238a50f3d4..70a8c36f0ba6e 100644
---- a/net/xfrm/xfrm_input.c
-+++ b/net/xfrm/xfrm_input.c
-@@ -669,7 +669,6 @@ int xfrm_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index fb16d7c4e1b8d..20e73643b9c89 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -1697,9 +1697,12 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
+ 		pfk->registered |= (1<<hdr->sadb_msg_satype);
+ 	}
  
- 		x->curlft.bytes += skb->len;
- 		x->curlft.packets++;
--		x->curlft.use_time = ktime_get_real_seconds();
++	mutex_lock(&pfkey_mutex);
+ 	xfrm_probe_algs();
  
- 		spin_unlock(&x->lock);
- 
-diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
-index 555ab35cd119a..9a5e79a38c679 100644
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -534,7 +534,6 @@ static int xfrm_output_one(struct sk_buff *skb, int err)
- 
- 		x->curlft.bytes += skb->len;
- 		x->curlft.packets++;
--		x->curlft.use_time = ktime_get_real_seconds();
- 
- 		spin_unlock_bh(&x->lock);
- 
+ 	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
++	mutex_unlock(&pfkey_mutex);
++
+ 	if (!supp_skb) {
+ 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
+ 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
 -- 
 2.35.1
 
