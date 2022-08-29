@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 036605A4841
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67D125A483F
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230263AbiH2LHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:07:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54466 "EHLO
+        id S230441AbiH2LHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:07:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229646AbiH2LHQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:07:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA40711C22;
-        Mon, 29 Aug 2022 04:05:05 -0700 (PDT)
+        with ESMTP id S230059AbiH2LHR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:07:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DFA93B95A;
+        Mon, 29 Aug 2022 04:05:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D41FB80EFC;
-        Mon, 29 Aug 2022 11:03:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE416C433D7;
-        Mon, 29 Aug 2022 11:03:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28378611B2;
+        Mon, 29 Aug 2022 11:03:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BFA2C433C1;
+        Mon, 29 Aug 2022 11:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771017;
-        bh=1DXxsGH8T/db2sgGF+1eQuMxjREEw9B8J1bXMaBHUEU=;
+        s=korg; t=1661771008;
+        bh=SYgJSW96kZotwCCYKH6JZ1z3AKWck1OSNhjo4yZ/WZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XfNtV9fATiH5u8rlECAKk8zYe9b7D3T4fjJ8QihWs5EmbJJoM48DPvaudU2cyUGlt
-         OzcEj/vKveIqB7Cy3kBpZSlG9O6fDzGddIdGbWAbA+JGedw/mP+UfAfXVPmXaQ65ei
-         E+3O6UjSXd9+Tzdm1RCWUL/VLP/haPi/yUU2/naY=
+        b=2v8KCbLmAAi96T6OSMDtt1kevXbvalVfcCjTdt9b64jahvl4KFrg1248Gku5k4hzr
+         v5NdQv9Ve5bu0IN5KgqH7xvOUUFwtl1klAVMTufgSoUxlnsS3DUy9R0TcbMi7kUhSW
+         Q0+y2uarJocFsIsCu5uxlzI1+KE+7dWaLvDLiPJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 08/86] vfs: make sync_filesystem return errors from ->sync_fs
+        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 047/136] net/mlx5e: Fix wrong tc flag used when set hw-tc-offload off
 Date:   Mon, 29 Aug 2022 12:58:34 +0200
-Message-Id: <20220829105756.882417989@linuxfoundation.org>
+Message-Id: <20220829105806.547269593@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Maor Dickman <maord@nvidia.com>
 
-commit 5679897eb104cec9e99609c3f045a0c20603da4c upstream.
+[ Upstream commit 550f96432e6f6770efdaee0e65239d61431062a1 ]
 
-[backport to 5.10 only differs in __sync_blockdev helper]
+The cited commit reintroduced the ability to set hw-tc-offload
+in switchdev mode by reusing NIC mode calls without modifying it
+to support both modes, this can cause an illegal memory access
+when trying to turn hw-tc-offload off.
 
-Strangely, sync_filesystem ignores the return code from the ->sync_fs
-call, which means that syscalls like syncfs(2) never see the error.
-This doesn't seem right, so fix that.
+Fix this by using the right TC_FLAG when checking if tc rules
+are installed while disabling hw-tc-offload.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d3cbd4254df8 ("net/mlx5e: Add ndo_set_feature for uplink representor")
+Signed-off-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/sync.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/sync.c
-+++ b/fs/sync.c
-@@ -28,7 +28,7 @@
-  */
- int sync_filesystem(struct super_block *sb)
- {
--	int ret;
-+	int ret = 0;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index fdf8d9866042c..c1c4f380803a1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -3325,7 +3325,9 @@ static int set_feature_hw_tc(struct net_device *netdev, bool enable)
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
  
- 	/*
- 	 * We need to be protected against the filesystem going from
-@@ -51,15 +51,21 @@ int sync_filesystem(struct super_block *
- 	 * at a time.
- 	 */
- 	writeback_inodes_sb(sb, WB_REASON_SYNC);
--	if (sb->s_op->sync_fs)
--		sb->s_op->sync_fs(sb, 0);
-+	if (sb->s_op->sync_fs) {
-+		ret = sb->s_op->sync_fs(sb, 0);
-+		if (ret)
-+			return ret;
-+	}
- 	ret = __sync_blockdev(sb->s_bdev, 0);
--	if (ret < 0)
-+	if (ret)
- 		return ret;
- 
- 	sync_inodes_sb(sb);
--	if (sb->s_op->sync_fs)
--		sb->s_op->sync_fs(sb, 1);
-+	if (sb->s_op->sync_fs) {
-+		ret = sb->s_op->sync_fs(sb, 1);
-+		if (ret)
-+			return ret;
-+	}
- 	return __sync_blockdev(sb->s_bdev, 1);
- }
- EXPORT_SYMBOL(sync_filesystem);
+ #if IS_ENABLED(CONFIG_MLX5_CLS_ACT)
+-	if (!enable && mlx5e_tc_num_filters(priv, MLX5_TC_FLAG(NIC_OFFLOAD))) {
++	int tc_flag = mlx5e_is_uplink_rep(priv) ? MLX5_TC_FLAG(ESW_OFFLOAD) :
++						  MLX5_TC_FLAG(NIC_OFFLOAD);
++	if (!enable && mlx5e_tc_num_filters(priv, tc_flag)) {
+ 		netdev_err(netdev,
+ 			   "Active offloaded tc filters, can't turn hw_tc_offload off\n");
+ 		return -EINVAL;
+-- 
+2.35.1
+
 
 
