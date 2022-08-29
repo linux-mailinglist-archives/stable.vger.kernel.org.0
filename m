@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D16685A47C5
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C17F45A48C1
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229689AbiH2LCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:02:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43642 "EHLO
+        id S231303AbiH2LPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:15:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229906AbiH2LBp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:01:45 -0400
+        with ESMTP id S231737AbiH2LOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:14:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE9E663F1E;
-        Mon, 29 Aug 2022 04:01:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 200A071BCB;
+        Mon, 29 Aug 2022 04:10:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55A7C6119A;
-        Mon, 29 Aug 2022 11:01:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ED60C433C1;
-        Mon, 29 Aug 2022 11:01:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D301E611F8;
+        Mon, 29 Aug 2022 11:10:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5E8CC433D6;
+        Mon, 29 Aug 2022 11:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770883;
-        bh=CJRQTFu+wUrdMa03M09XgGm0xY+TyLR5hIcc/xMR2wQ=;
+        s=korg; t=1661771427;
+        bh=w7yZ9TALBK8/li3U2l9zjEx9kdTG3BBKn5dq1MRRWwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKnd0bIi7ugSGbsfjM7pvZ7q0rFCMgQOi2zH2nNMx8vpkw/Fkq/S9w21txF2EHogp
-         Vo5EhHP7TjKgRG2LiD8vqBgFYkV6EMjOlIIE/aiC4xoH18cVLmnV5QTteO0Jcnlxlu
-         ceSyo9PRtesGTUUjeABQ51VqierrcNxz/fM7S6c4=
+        b=xCYv6zolbzGwh4Svd1gAf2yO1Gy7dtPuKf7YJGJS+64blCJFxDVWpPkB59Zx/whvJ
+         0Z6oWqm7XPjK8feOVrtv4QF/XbcthyuLzBP34eLi/k3xxEpt3RTHeLUpg2vizsWxGb
+         HgJqbJKQFLwxxU3b1Kki49l+u2s/wEaMMpXuNouA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Jan Kara <jack@suse.cz>, Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.15 003/136] audit: fix potential double free on error path from fsnotify_add_inode_mark
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 020/158] SUNRPC: RPC level errors should set task->tk_rpc_status
 Date:   Mon, 29 Aug 2022 12:57:50 +0200
-Message-Id: <20220829105804.767752511@linuxfoundation.org>
+Message-Id: <20220829105809.669024448@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit ad982c3be4e60c7d39c03f782733503cbd88fd2a upstream.
+[ Upstream commit ed06fce0b034b2e25bd93430f5c4cbb28036cc1a ]
 
-Audit_alloc_mark() assign pathname to audit_mark->path, on error path
-from fsnotify_add_inode_mark(), fsnotify_put_mark will free memory
-of audit_mark->path, but the caller of audit_alloc_mark will free
-the pathname again, so there will be double free problem.
+Fix up a case in call_encode() where we're failing to set
+task->tk_rpc_status when an RPC level error occurred.
 
-Fix this by resetting audit_mark->path to NULL pointer on error path
-from fsnotify_add_inode_mark().
-
-Cc: stable@vger.kernel.org
-Fixes: 7b1293234084d ("fsnotify: Add group pointer in fsnotify_init_mark()")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9c5948c24869 ("SUNRPC: task should be exit if encode return EKEYEXPIRED more times")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit_fsnotify.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/clnt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/audit_fsnotify.c
-+++ b/kernel/audit_fsnotify.c
-@@ -102,6 +102,7 @@ struct audit_fsnotify_mark *audit_alloc_
- 
- 	ret = fsnotify_add_inode_mark(&audit_mark->mark, inode, true);
- 	if (ret < 0) {
-+		audit_mark->path = NULL;
- 		fsnotify_put_mark(&audit_mark->mark);
- 		audit_mark = ERR_PTR(ret);
- 	}
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index 733f9f2260926..c1a01947530f0 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -1888,7 +1888,7 @@ call_encode(struct rpc_task *task)
+ 			break;
+ 		case -EKEYEXPIRED:
+ 			if (!task->tk_cred_retry) {
+-				rpc_exit(task, task->tk_status);
++				rpc_call_rpcerror(task, task->tk_status);
+ 			} else {
+ 				task->tk_action = call_refresh;
+ 				task->tk_cred_retry--;
+-- 
+2.35.1
+
 
 
