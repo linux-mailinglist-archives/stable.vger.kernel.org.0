@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D34845A47D3
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:02:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3163B5A493F
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:22:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229749AbiH2LCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:02:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42498 "EHLO
+        id S231775AbiH2LV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230046AbiH2LBz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:01:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCE51186E2;
-        Mon, 29 Aug 2022 04:01:40 -0700 (PDT)
+        with ESMTP id S231659AbiH2LUt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:20:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248D16F278;
+        Mon, 29 Aug 2022 04:13:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88F57B80EF4;
-        Mon, 29 Aug 2022 11:01:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9238C433D7;
-        Mon, 29 Aug 2022 11:01:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90ADD6119C;
+        Mon, 29 Aug 2022 11:11:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B484C433D6;
+        Mon, 29 Aug 2022 11:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770898;
-        bh=fWLA8YMVmKVFQZk39Au9thWHiBe8JUthVw/PKtnuayE=;
+        s=korg; t=1661771462;
+        bh=ZOpVESsKOlG8SKi0il5X7/jNZnN0hmU1v9JGkKYh1XY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ps4rGuw8K/Tvp5ht3+0IDwrjAQQlmwGFZhWRgipGS7/Gh3hBlszQP3nwdOXwtkEGH
-         5ew09gCeqRwbpdbuxuKw756iWCpuqq/ny4+oEiS3fkjMdNArGRMe6hi2PnpMZL+ewa
-         g+ytZEX1qsT6im6y9umoyTJg/jP6UuVQhhdjIaYc=
+        b=NYyDV6FZBT9Npph5ZYl1joduzhSZneOYEnwa7O7eyvoXu05j7lW7vyNH4UhaRV3b8
+         J0Mfv7pPQq78EimlxttPHk4sX1KNZ+LSLIsu9aQJAgs0R5/flb/Sz+j7ZHUebaREAp
+         GpTPg5Eg6eCqkcZ0nq8qIGIwz/2oX7CYEAj9lBJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Roy Novich <royno@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 016/136] Input: i8042 - add TUXEDO devices to i8042 quirk tables
+Subject: [PATCH 5.19 033/158] net/mlx5: Fix cmd error logging for manage pages cmd
 Date:   Mon, 29 Aug 2022 12:58:03 +0200
-Message-Id: <20220829105805.298642427@linuxfoundation.org>
+Message-Id: <20220829105810.176576667@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,184 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Roy Novich <royno@nvidia.com>
 
-[ Upstream commit a6a87c36165e6791eeaed88025cde270536c3198 ]
+[ Upstream commit 090f3e4f4089ab8041ed7d632c7851c2a42fcc10 ]
 
-A lot of modern Clevo barebones have touchpad and/or keyboard issues after
-suspend fixable with nomux + reset + noloop + nopnp. Luckily, none of them
-have an external PS/2 port so this can safely be set for all of them.
+When the driver unloads, give/reclaim_pages may fail as PF driver in
+teardown flow, current code will lead to the following kernel log print
+'failed reclaiming pages: err 0'.
 
-I'm not entirely sure if every device listed really needs all four quirks,
-but after testing and production use. No negative effects could be
-observed when setting all four.
+Fix it to get same behavior as before the cited commits,
+by calling mlx5_cmd_check before handling error state.
+mlx5_cmd_check will verify if the returned error is an actual error
+needed to be handled by the driver or not and will return an
+appropriate value.
 
-The list is quite massive as neither the TUXEDO nor the Clevo dmi strings
-have been very consistent historically. I tried to keep the list as short
-as possible without risking on missing an affected device.
-
-This is revision 3. The Clevo N150CU barebone is still removed as it might
-have problems with the fix and needs further investigations. The
-SchenkerTechnologiesGmbH System-/Board-Vendor string variations are
-added. This is now based in the quirk table refactor. This now also
-includes the additional noaux flag for the NS7xMU.
-
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220629112725.12922-5-wse@tuxedocomputers.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 8d564292a166 ("net/mlx5: Remove redundant error on reclaim pages")
+Fixes: 4dac2f10ada0 ("net/mlx5: Remove redundant notify fail on give pages")
+Signed-off-by: Roy Novich <royno@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 129 ++++++++++++++++++++++++++
- 1 file changed, 129 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 1d2b34aac0c7f..184d7c30f732f 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -1025,6 +1025,29 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
- 	},
-+	/*
-+	 * A lot of modern Clevo barebones have touchpad and/or keyboard issues
-+	 * after suspend fixable with nomux + reset + noloop + nopnp. Luckily,
-+	 * none of them have an external PS/2 port so this can safely be set for
-+	 * all of them. These two are based on a Clevo design, but have the
-+	 * board_name changed.
-+	 */
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "TUXEDO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "TUXEDO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
- 	{
- 		/* Mivvy M310 */
- 		.matches = {
-@@ -1054,6 +1077,112 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_NOLOOP)
- 	},
-+	/*
-+	 * A lot of modern Clevo barebones have touchpad and/or keyboard issues
-+	 * after suspend fixable with nomux + reset + noloop + nopnp. Luckily,
-+	 * none of them have an external PS/2 port so this can safely be set for
-+	 * all of them.
-+	 * Clevo barebones come with board_vendor and/or system_vendor set to
-+	 * either the very generic string "Notebook" and/or a different value
-+	 * for each individual reseller. The only somewhat universal way to
-+	 * identify them is by board_name.
-+	 */
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "LAPQC71A"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "LAPQC71B"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "N140CU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "N141CU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NH5xAx"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	/*
-+	 * At least one modern Clevo barebone has the touchpad connected both
-+	 * via PS/2 and i2c interface. This causes a race condition between the
-+	 * psmouse and i2c-hid driver. Since the full capability of the touchpad
-+	 * is available via the i2c interface and the device has no external
-+	 * PS/2 port, it is safe to just ignore all ps2 mouses here to avoid
-+	 * this issue. The known affected device is the
-+	 * TUXEDO InfinityBook S17 Gen6 / Clevo NS70MU which comes with one of
-+	 * the two different dmi strings below. NS50MU is not a typo!
-+	 */
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NS50MU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOAUX | SERIO_QUIRK_NOMUX |
-+					SERIO_QUIRK_RESET_ALWAYS | SERIO_QUIRK_NOLOOP |
-+					SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NS50_70MU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOAUX | SERIO_QUIRK_NOMUX |
-+					SERIO_QUIRK_RESET_ALWAYS | SERIO_QUIRK_NOLOOP |
-+					SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NJ50_70CU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "PB50_70DFx,DDx"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "X170SM"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "X170KM-G"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
- 	{ }
- };
- 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
+index ec76a8b1acc1c..60596357bfc7a 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
+@@ -376,8 +376,8 @@ static int give_pages(struct mlx5_core_dev *dev, u16 func_id, int npages,
+ 			goto out_dropped;
+ 		}
+ 	}
++	err = mlx5_cmd_check(dev, err, in, out);
+ 	if (err) {
+-		err = mlx5_cmd_check(dev, err, in, out);
+ 		mlx5_core_warn(dev, "func_id 0x%x, npages %d, err %d\n",
+ 			       func_id, npages, err);
+ 		goto out_dropped;
+@@ -524,10 +524,13 @@ static int reclaim_pages(struct mlx5_core_dev *dev, u16 func_id, int npages,
+ 		dev->priv.reclaim_pages_discard += npages;
+ 	}
+ 	/* if triggered by FW event and failed by FW then ignore */
+-	if (event && err == -EREMOTEIO)
++	if (event && err == -EREMOTEIO) {
+ 		err = 0;
++		goto out_free;
++	}
++
++	err = mlx5_cmd_check(dev, err, in, out);
+ 	if (err) {
+-		err = mlx5_cmd_check(dev, err, in, out);
+ 		mlx5_core_err(dev, "failed reclaiming pages: err %d\n", err);
+ 		goto out_free;
+ 	}
 -- 
 2.35.1
 
