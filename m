@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F11425A4976
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2556B5A47B5
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231956AbiH2LZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:25:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40926 "EHLO
+        id S229649AbiH2LAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232195AbiH2LYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:24:30 -0400
+        with ESMTP id S229537AbiH2LAV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:00:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D4F6527A;
-        Mon, 29 Aug 2022 04:15:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27518186E2;
+        Mon, 29 Aug 2022 04:00:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AD566122B;
-        Mon, 29 Aug 2022 11:14:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F8AC433C1;
-        Mon, 29 Aug 2022 11:14:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B053C61199;
+        Mon, 29 Aug 2022 11:00:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4D00C433D6;
+        Mon, 29 Aug 2022 11:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771656;
-        bh=weqIPM4w2R7i+ut6+CsVGklhQR7rTe/r0eAyyVTjtBA=;
+        s=korg; t=1661770819;
+        bh=CJRQTFu+wUrdMa03M09XgGm0xY+TyLR5hIcc/xMR2wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yOi/wrqc81C0RQS/KxngIU4eamgSgaDAmaqLdLMReTM8BVV+60ZCUWmP1MOcgZVpo
-         XILiCXMfVbjQ2kyo4lww6oN6UaCoCRgV7RRL9gGGX+T747zm26rFFwCh2JhjDHQxVi
-         OM0tSBRnZsZ3migoFVyIeFbUdZVOa1TudLc1RmgY=
+        b=jYA8rIPxxysZBwVxGDtPEIJvVqCVJfnAm1zNYt/wuOvM/1GPkVEP8zS6HJQB2w5fQ
+         27JwQqi+UDJkoNC4DR2KhLJe6x0xwebsO3lm2WRfOXT8DhJlc58BhuzjsbvTSHVXYJ
+         lPnpqj9AKkA8WnE4WaFABcxneBfFct0U7MwQFEec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 057/158] netfilter: nft_payload: report ERANGE for too long offset and length
+        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Jan Kara <jack@suse.cz>, Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.10 01/86] audit: fix potential double free on error path from fsnotify_add_inode_mark
 Date:   Mon, 29 Aug 2022 12:58:27 +0200
-Message-Id: <20220829105811.118155593@linuxfoundation.org>
+Message-Id: <20220829105756.569539357@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,49 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 94254f990c07e9ddf1634e0b727fab821c3b5bf9 ]
+commit ad982c3be4e60c7d39c03f782733503cbd88fd2a upstream.
 
-Instead of offset and length are truncation to u8, report ERANGE.
+Audit_alloc_mark() assign pathname to audit_mark->path, on error path
+from fsnotify_add_inode_mark(), fsnotify_put_mark will free memory
+of audit_mark->path, but the caller of audit_alloc_mark will free
+the pathname again, so there will be double free problem.
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by resetting audit_mark->path to NULL pointer on error path
+from fsnotify_add_inode_mark().
+
+Cc: stable@vger.kernel.org
+Fixes: 7b1293234084d ("fsnotify: Add group pointer in fsnotify_init_mark()")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_payload.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/audit_fsnotify.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
-index 2e7ac007cb30f..4fee67abfe2c5 100644
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -833,6 +833,7 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
- {
- 	enum nft_payload_bases base;
- 	unsigned int offset, len;
-+	int err;
+--- a/kernel/audit_fsnotify.c
++++ b/kernel/audit_fsnotify.c
+@@ -102,6 +102,7 @@ struct audit_fsnotify_mark *audit_alloc_
  
- 	if (tb[NFTA_PAYLOAD_BASE] == NULL ||
- 	    tb[NFTA_PAYLOAD_OFFSET] == NULL ||
-@@ -859,8 +860,13 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
- 	if (tb[NFTA_PAYLOAD_DREG] == NULL)
- 		return ERR_PTR(-EINVAL);
- 
--	offset = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
--	len    = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_LEN]));
-+	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_OFFSET], U8_MAX, &offset);
-+	if (err < 0)
-+		return ERR_PTR(err);
-+
-+	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_LEN], U8_MAX, &len);
-+	if (err < 0)
-+		return ERR_PTR(err);
- 
- 	if (len <= 4 && is_power_of_2(len) && IS_ALIGNED(offset, len) &&
- 	    base != NFT_PAYLOAD_LL_HEADER && base != NFT_PAYLOAD_INNER_HEADER)
--- 
-2.35.1
-
+ 	ret = fsnotify_add_inode_mark(&audit_mark->mark, inode, true);
+ 	if (ret < 0) {
++		audit_mark->path = NULL;
+ 		fsnotify_put_mark(&audit_mark->mark);
+ 		audit_mark = ERR_PTR(ret);
+ 	}
 
 
