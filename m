@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2CD5A4963
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:24:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 036605A4841
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:07:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231231AbiH2LYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:24:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40790 "EHLO
+        id S230263AbiH2LHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:07:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231899AbiH2LXj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:23:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2051D21B0;
-        Mon, 29 Aug 2022 04:14:50 -0700 (PDT)
+        with ESMTP id S229646AbiH2LHQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:07:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA40711C22;
+        Mon, 29 Aug 2022 04:05:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C66BB80FAF;
-        Mon, 29 Aug 2022 11:14:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71E3EC433D6;
-        Mon, 29 Aug 2022 11:14:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D41FB80EFC;
+        Mon, 29 Aug 2022 11:03:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE416C433D7;
+        Mon, 29 Aug 2022 11:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771685;
-        bh=DB3AT2IlIwSAIYhJM/lAlW92OBQo093rsc1IbSXg7mY=;
+        s=korg; t=1661771017;
+        bh=1DXxsGH8T/db2sgGF+1eQuMxjREEw9B8J1bXMaBHUEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D4zo4AzbNvO0XdmzT/M9rsMYoWs7Nu9iPb5iKzlSsd88lazycSH/gNeVNbtYNtN03
-         3kI6tp6hkbZhIiukkabZkNvmKhm5BLervgek2h1J5n+ejeaScbHeKenEhr8KKtti3A
-         FmQGDrPoLhxu0zwkJRzQkWO7CO0wTbPXv6pNB5lU=
+        b=XfNtV9fATiH5u8rlECAKk8zYe9b7D3T4fjJ8QihWs5EmbJJoM48DPvaudU2cyUGlt
+         OzcEj/vKveIqB7Cy3kBpZSlG9O6fDzGddIdGbWAbA+JGedw/mP+UfAfXVPmXaQ65ei
+         E+3O6UjSXd9+Tzdm1RCWUL/VLP/haPi/yUU2/naY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 063/158] netfilter: flowtable: add function to invoke garbage collection immediately
-Date:   Mon, 29 Aug 2022 12:58:33 +0200
-Message-Id: <20220829105811.360293628@linuxfoundation.org>
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <brauner@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 08/86] vfs: make sync_filesystem return errors from ->sync_fs
+Date:   Mon, 29 Aug 2022 12:58:34 +0200
+Message-Id: <20220829105756.882417989@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-[ Upstream commit 759eebbcfafcefa23b59e912396306543764bd3c ]
+commit 5679897eb104cec9e99609c3f045a0c20603da4c upstream.
 
-Expose nf_flow_table_gc_run() to force a garbage collector run from the
-offload infrastructure.
+[backport to 5.10 only differs in __sync_blockdev helper]
 
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Strangely, sync_filesystem ignores the return code from the ->sync_fs
+call, which means that syscalls like syncfs(2) never see the error.
+This doesn't seem right, so fix that.
+
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_flow_table.h |  1 +
- net/netfilter/nf_flow_table_core.c    | 12 +++++++++---
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ fs/sync.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/include/net/netfilter/nf_flow_table.h b/include/net/netfilter/nf_flow_table.h
-index 64daafd1fc41c..32c25122ab184 100644
---- a/include/net/netfilter/nf_flow_table.h
-+++ b/include/net/netfilter/nf_flow_table.h
-@@ -270,6 +270,7 @@ void flow_offload_refresh(struct nf_flowtable *flow_table,
- 
- struct flow_offload_tuple_rhash *flow_offload_lookup(struct nf_flowtable *flow_table,
- 						     struct flow_offload_tuple *tuple);
-+void nf_flow_table_gc_run(struct nf_flowtable *flow_table);
- void nf_flow_table_gc_cleanup(struct nf_flowtable *flowtable,
- 			      struct net_device *dev);
- void nf_flow_table_cleanup(struct net_device *dev);
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index f2def06d10709..18453fa25199c 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -442,12 +442,17 @@ static void nf_flow_offload_gc_step(struct nf_flowtable *flow_table,
- 	}
- }
- 
-+void nf_flow_table_gc_run(struct nf_flowtable *flow_table)
-+{
-+	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
-+}
-+
- static void nf_flow_offload_work_gc(struct work_struct *work)
+--- a/fs/sync.c
++++ b/fs/sync.c
+@@ -28,7 +28,7 @@
+  */
+ int sync_filesystem(struct super_block *sb)
  {
- 	struct nf_flowtable *flow_table;
+-	int ret;
++	int ret = 0;
  
- 	flow_table = container_of(work, struct nf_flowtable, gc_work.work);
--	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
-+	nf_flow_table_gc_run(flow_table);
- 	queue_delayed_work(system_power_efficient_wq, &flow_table->gc_work, HZ);
+ 	/*
+ 	 * We need to be protected against the filesystem going from
+@@ -51,15 +51,21 @@ int sync_filesystem(struct super_block *
+ 	 * at a time.
+ 	 */
+ 	writeback_inodes_sb(sb, WB_REASON_SYNC);
+-	if (sb->s_op->sync_fs)
+-		sb->s_op->sync_fs(sb, 0);
++	if (sb->s_op->sync_fs) {
++		ret = sb->s_op->sync_fs(sb, 0);
++		if (ret)
++			return ret;
++	}
+ 	ret = __sync_blockdev(sb->s_bdev, 0);
+-	if (ret < 0)
++	if (ret)
+ 		return ret;
+ 
+ 	sync_inodes_sb(sb);
+-	if (sb->s_op->sync_fs)
+-		sb->s_op->sync_fs(sb, 1);
++	if (sb->s_op->sync_fs) {
++		ret = sb->s_op->sync_fs(sb, 1);
++		if (ret)
++			return ret;
++	}
+ 	return __sync_blockdev(sb->s_bdev, 1);
  }
- 
-@@ -606,10 +611,11 @@ void nf_flow_table_free(struct nf_flowtable *flow_table)
- 
- 	cancel_delayed_work_sync(&flow_table->gc_work);
- 	nf_flow_table_iterate(flow_table, nf_flow_table_do_cleanup, NULL);
--	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
-+	nf_flow_table_gc_run(flow_table);
- 	nf_flow_table_offload_flush(flow_table);
- 	if (nf_flowtable_hw_offload(flow_table))
--		nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
-+		nf_flow_table_gc_run(flow_table);
-+
- 	rhashtable_destroy(&flow_table->rhashtable);
- }
- EXPORT_SYMBOL_GPL(nf_flow_table_free);
--- 
-2.35.1
-
+ EXPORT_SYMBOL(sync_filesystem);
 
 
