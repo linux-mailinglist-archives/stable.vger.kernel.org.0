@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BADF35A485C
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 111CC5A496D
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230055AbiH2LJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:09:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58432 "EHLO
+        id S231838AbiH2LYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:24:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230430AbiH2LHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:07:34 -0400
+        with ESMTP id S231940AbiH2LXo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:23:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E3C848EAC;
-        Mon, 29 Aug 2022 04:05:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E42021208E;
+        Mon, 29 Aug 2022 04:15:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4F2BB80EF5;
-        Mon, 29 Aug 2022 11:04:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E794C433C1;
-        Mon, 29 Aug 2022 11:04:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 595AAB80F00;
+        Mon, 29 Aug 2022 11:04:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B598C433D6;
+        Mon, 29 Aug 2022 11:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771046;
-        bh=KL20WVIWi1PJCJaEc2TafejaDSA5XEZq6uU3sKE3Q20=;
+        s=korg; t=1661771055;
+        bh=IOjqcHeflpnbKlkEEE7LINxAisCrYJnMtE2cW17fZvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbmzRTVC1Qh2uEzdtXu8H2nJj5MgnYoIVbG5KgHKemrS1lywuvqsIyv/mbOBVIpro
-         lX7Eo22iTXpv1dA0kLgf6flfd/6MV2hR8GSsBDHmVPENIkmAYe0yoYm+33/3RxehRa
-         qopdxXLmLURoahHNSNlAHUayiH14CCaztHkmapeg=
+        b=WGarHegpd+CVjLpeR4ZzAqksgXXMWXwTqlNbdPiFXNoSADxy7tv37WuHUcGCLB6zi
+         ZiWgk1UB0VTcEPByKeXd9tVjN3p8mR6J3jelgFbc+ZjQzJ0OwNnsWH4tHqZaz8Kf7h
+         C1n+IwTh6fq/3EVc3hllOv8cVkV72edBnf+PcmIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        syzkaller <syzkaller@googlegroups.com>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 053/136] netfilter: ebtables: reject blobs that dont provide all entry points
+Subject: [PATCH 5.10 14/86] af_key: Do not call xfrm_probe_algs in parallel
 Date:   Mon, 29 Aug 2022 12:58:40 +0200
-Message-Id: <20220829105806.810560455@linuxfoundation.org>
+Message-Id: <20220829105757.105259253@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,163 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 7997eff82828304b780dc0a39707e1946d6f1ebf ]
+[ Upstream commit ba953a9d89a00c078b85f4b190bc1dde66fe16b5 ]
 
-Harshit Mogalapalli says:
- In ebt_do_table() function dereferencing 'private->hook_entry[hook]'
- can lead to NULL pointer dereference. [..] Kernel panic:
+When namespace support was added to xfrm/afkey, it caused the
+previously single-threaded call to xfrm_probe_algs to become
+multi-threaded.  This is buggy and needs to be fixed with a mutex.
 
-general protection fault, probably for non-canonical address 0xdffffc0000000005: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000028-0x000000000000002f]
-[..]
-RIP: 0010:ebt_do_table+0x1dc/0x1ce0
-Code: 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 5c 16 00 00 48 b8 00 00 00 00 00 fc ff df 49 8b 6c df 08 48 8d 7d 2c 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 88
-[..]
-Call Trace:
- nf_hook_slow+0xb1/0x170
- __br_forward+0x289/0x730
- maybe_deliver+0x24b/0x380
- br_flood+0xc6/0x390
- br_dev_xmit+0xa2e/0x12c0
-
-For some reason ebtables rejects blobs that provide entry points that are
-not supported by the table, but what it should instead reject is the
-opposite: blobs that DO NOT provide an entry point supported by the table.
-
-t->valid_hooks is the bitmask of hooks (input, forward ...) that will see
-packets.  Providing an entry point that is not support is harmless
-(never called/used), but the inverse isn't: it results in a crash
-because the ebtables traverser doesn't expect a NULL blob for a location
-its receiving packets for.
-
-Instead of fixing all the individual checks, do what iptables is doing and
-reject all blobs that differ from the expected hooks.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Fixes: 283bc9f35bbb ("xfrm: Namespacify xfrm state/policy locks")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter_bridge/ebtables.h | 4 ----
- net/bridge/netfilter/ebtable_broute.c     | 8 --------
- net/bridge/netfilter/ebtable_filter.c     | 8 --------
- net/bridge/netfilter/ebtable_nat.c        | 8 --------
- net/bridge/netfilter/ebtables.c           | 8 +-------
- 5 files changed, 1 insertion(+), 35 deletions(-)
+ net/key/af_key.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/netfilter_bridge/ebtables.h b/include/linux/netfilter_bridge/ebtables.h
-index 10a01978bc0d3..bde9db771ae41 100644
---- a/include/linux/netfilter_bridge/ebtables.h
-+++ b/include/linux/netfilter_bridge/ebtables.h
-@@ -94,10 +94,6 @@ struct ebt_table {
- 	struct ebt_replace_kernel *table;
- 	unsigned int valid_hooks;
- 	rwlock_t lock;
--	/* e.g. could be the table explicitly only allows certain
--	 * matches, targets, ... 0 == let it in */
--	int (*check)(const struct ebt_table_info *info,
--	   unsigned int valid_hooks);
- 	/* the data used by the kernel */
- 	struct ebt_table_info *private;
- 	struct nf_hook_ops *ops;
-diff --git a/net/bridge/netfilter/ebtable_broute.c b/net/bridge/netfilter/ebtable_broute.c
-index a7af4eaff17d3..3d4ea774d7e8f 100644
---- a/net/bridge/netfilter/ebtable_broute.c
-+++ b/net/bridge/netfilter/ebtable_broute.c
-@@ -36,18 +36,10 @@ static struct ebt_replace_kernel initial_table = {
- 	.entries	= (char *)&initial_chain,
- };
- 
--static int check(const struct ebt_table_info *info, unsigned int valid_hooks)
--{
--	if (valid_hooks & ~(1 << NF_BR_BROUTING))
--		return -EINVAL;
--	return 0;
--}
--
- static const struct ebt_table broute_table = {
- 	.name		= "broute",
- 	.table		= &initial_table,
- 	.valid_hooks	= 1 << NF_BR_BROUTING,
--	.check		= check,
- 	.me		= THIS_MODULE,
- };
- 
-diff --git a/net/bridge/netfilter/ebtable_filter.c b/net/bridge/netfilter/ebtable_filter.c
-index c0b121df4a9af..257d63b5dec16 100644
---- a/net/bridge/netfilter/ebtable_filter.c
-+++ b/net/bridge/netfilter/ebtable_filter.c
-@@ -43,18 +43,10 @@ static struct ebt_replace_kernel initial_table = {
- 	.entries	= (char *)initial_chains,
- };
- 
--static int check(const struct ebt_table_info *info, unsigned int valid_hooks)
--{
--	if (valid_hooks & ~FILTER_VALID_HOOKS)
--		return -EINVAL;
--	return 0;
--}
--
- static const struct ebt_table frame_filter = {
- 	.name		= "filter",
- 	.table		= &initial_table,
- 	.valid_hooks	= FILTER_VALID_HOOKS,
--	.check		= check,
- 	.me		= THIS_MODULE,
- };
- 
-diff --git a/net/bridge/netfilter/ebtable_nat.c b/net/bridge/netfilter/ebtable_nat.c
-index 4078151c224fb..39179c2cf87d2 100644
---- a/net/bridge/netfilter/ebtable_nat.c
-+++ b/net/bridge/netfilter/ebtable_nat.c
-@@ -43,18 +43,10 @@ static struct ebt_replace_kernel initial_table = {
- 	.entries	= (char *)initial_chains,
- };
- 
--static int check(const struct ebt_table_info *info, unsigned int valid_hooks)
--{
--	if (valid_hooks & ~NAT_VALID_HOOKS)
--		return -EINVAL;
--	return 0;
--}
--
- static const struct ebt_table frame_nat = {
- 	.name		= "nat",
- 	.table		= &initial_table,
- 	.valid_hooks	= NAT_VALID_HOOKS,
--	.check		= check,
- 	.me		= THIS_MODULE,
- };
- 
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index ba045f35114dd..8905fe2fe023d 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1040,8 +1040,7 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
- 		goto free_iterate;
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 2aa16a171285b..05e2710988883 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -1701,9 +1701,12 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
+ 		pfk->registered |= (1<<hdr->sadb_msg_satype);
  	}
  
--	/* the table doesn't like it */
--	if (t->check && (ret = t->check(newinfo, repl->valid_hooks)))
-+	if (repl->valid_hooks != t->valid_hooks)
- 		goto free_unlock;
++	mutex_lock(&pfkey_mutex);
+ 	xfrm_probe_algs();
  
- 	if (repl->num_counters && repl->num_counters != t->private->nentries) {
-@@ -1231,11 +1230,6 @@ int ebt_register_table(struct net *net, const struct ebt_table *input_table,
- 	if (ret != 0)
- 		goto free_chainstack;
- 
--	if (table->check && table->check(newinfo, table->valid_hooks)) {
--		ret = -EINVAL;
--		goto free_chainstack;
--	}
--
- 	table->private = newinfo;
- 	rwlock_init(&table->lock);
- 	mutex_lock(&ebt_mutex);
+ 	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
++	mutex_unlock(&pfkey_mutex);
++
+ 	if (!supp_skb) {
+ 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
+ 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
 -- 
 2.35.1
 
