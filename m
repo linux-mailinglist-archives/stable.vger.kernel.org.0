@@ -2,80 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5BC05A404C
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 02:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4647C5A40D4
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 03:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbiH2AQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Aug 2022 20:16:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38284 "EHLO
+        id S229457AbiH2B5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Aug 2022 21:57:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbiH2AQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Aug 2022 20:16:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2B7E2A973
-        for <stable@vger.kernel.org>; Sun, 28 Aug 2022 17:16:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661732193;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=SzkAkorlo+AmttOHZ6iqjGEde1HkM0doNAcGjEIWZ4o=;
-        b=UgpOLiMhLm2QiGP+kik5FokYWZQ1uJ1WpQDfo48pGtywOBFSlIoE9dSHfe5MF7kkMQBTHX
-        mD8j5H9RhR3KCERfymdZbohYQHYfd8MsmnsTQVkKzepZL71wJM4zEVLwtiGWSHDf7lt+7L
-        2ADqL+jG9ZdD+Oa/6IcqDLgNdfo5xJY=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-634-vqW6ZV5ZMLqg0NS-K6KiKQ-1; Sun, 28 Aug 2022 20:16:31 -0400
-X-MC-Unique: vqW6ZV5ZMLqg0NS-K6KiKQ-1
-Received: by mail-qv1-f70.google.com with SMTP id d10-20020a0cf6ca000000b00496744bc8e6so4131802qvo.2
-        for <stable@vger.kernel.org>; Sun, 28 Aug 2022 17:16:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=SzkAkorlo+AmttOHZ6iqjGEde1HkM0doNAcGjEIWZ4o=;
-        b=hpAUAbvGsH1oZuUsiOi0KB7ntNP4HxNRWhy+/3IVJaApAUl5JTQ1x8HLbso7yIeLEx
-         /8FW7eGdiQGVAqoWQ7U6SYrQmlmh03E3ZMV4BEa1nslwFQGzxCb9rGAzmBFQN13YvAYo
-         NG81mx/7mGCpTwag+lJ7xVFOhJoIrPznoEoQFMdX6X3Ma7KNS/F2+8YhN9LoS5QJnfFu
-         R7Yz5hAKlk43X+E0PRN8tOFn1XHC/roQLLyXsRobuiRZCZb27TH/vXHQxfU5NE/g0+kQ
-         BS1FMagob4SJP8M4fyd6uhuJOMHRWMJUpSliBOQQcAVWZ9EXuwY/QfackRFyirRwV2Kv
-         Tb7A==
-X-Gm-Message-State: ACgBeo0DAEgtWcfNpYQzDEnmig1v8/318RH5lf6aGsFs7gEWDS5lNkqY
-        HV05qYqnA4u8BLjhTI8pMcruEPlLLH5I04LTQN9zeowjpHRD3tz1k18ZGNgTc1OoFo2q2s6owhH
-        qPqbdAlTe+p9MA/wdOT8u8yVkcz1/RZUP
-X-Received: by 2002:a05:622a:1302:b0:344:8a9d:817d with SMTP id v2-20020a05622a130200b003448a9d817dmr8364106qtk.339.1661732191495;
-        Sun, 28 Aug 2022 17:16:31 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR6YH2nJIo0b6SviiSUMGBKXXeJaHL95jdsa0u6iUg5nlt6EWo3hqWiTPzDu5EZVS+GBLuTCvNVZOaiGzM0z1Ys=
-X-Received: by 2002:a05:622a:1302:b0:344:8a9d:817d with SMTP id
- v2-20020a05622a130200b003448a9d817dmr8364092qtk.339.1661732191317; Sun, 28
- Aug 2022 17:16:31 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220826142954.254853-1-miquel.raynal@bootlin.com>
-In-Reply-To: <20220826142954.254853-1-miquel.raynal@bootlin.com>
-From:   Alexander Aring <aahringo@redhat.com>
-Date:   Sun, 28 Aug 2022 20:16:20 -0400
-Message-ID: <CAK-6q+imPjpBxSZG7e5nxYYgtkrM5pfncxza9=vA+sq+eFQsUw@mail.gmail.com>
-Subject: Re: [PATCH] net: mac802154: Fix a condition in the receive path
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     Alexander Aring <alex.aring@gmail.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        linux-wpan - ML <linux-wpan@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Network Development <netdev@vger.kernel.org>,
-        David Girault <david.girault@qorvo.com>,
-        Romuald Despres <romuald.despres@qorvo.com>,
-        Frederic Blain <frederic.blain@qorvo.com>,
-        Nicolas Schodet <nico@ni.fr.eu.org>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        with ESMTP id S229447AbiH2B5s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Aug 2022 21:57:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0179313DEA;
+        Sun, 28 Aug 2022 18:57:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E71360F3C;
+        Mon, 29 Aug 2022 01:57:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53884C433D6;
+        Mon, 29 Aug 2022 01:57:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1661738267;
+        bh=z4Bsz7dg3CXBuuS7BKupLqvnSwB7N9ZMKDxr/arv4F4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=giTuMv1usF4fqZ0UCoaw/l+51imegL7fu0L+qgl0Uw9nVgv31FhzET0MTmonXUN/L
+         4sbqIzOv4S5rnPbJY4dZpV3EpmUJ9RdrwlSChpreOuc3TQeVFTiUYeb2mxsJE8IkXx
+         wB3AGXTP3Jte0ORqL9Lt6JSA/BBmQfYQUyd4yVyuvf9zFFKsbXR+l4XE/jQxEM4yNc
+         jp4h4+pwETT2QzUs5DU/FoNxxnWe9kzH/xgjphwN6Oxjq2zd01ba4x89lNXvdnlQ17
+         i53DQaJUrEvFuKSWB/WxKa2eD+hfT6b71PaC8yXU7yDRh4ACpW4POsqjLsQhfadNia
+         UrWVIZZXTOKQw==
+Date:   Mon, 29 Aug 2022 09:57:41 +0800
+From:   Peter Chen <peter.chen@kernel.org>
+To:     Pawel Laszczak <pawell@cadence.com>
+Cc:     linux-usb@vger.kernel.org, gregkh@linuxfoundation.org,
+        felipe.balbi@linux.intel.com, rogerq@kernel.org,
+        a-govindraju@ti.com, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+Subject: Re: [PATCH] usb: cdns3: fix incorrect handling TRB_SMM flag for ISOC
+ transfer
+Message-ID: <20220829015741.GA32096@nchen-desktop>
+References: <20220825062207.5824-1-pawell@cadence.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220825062207.5824-1-pawell@cadence.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -83,55 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On 22-08-25 08:22:07, Pawel Laszczak wrote:
+> The TRB_SMM flag indicates that DMA has completed the TD service with
+> this TRB. Usually it’s a last TRB in TD. In case of ISOC transfer for
+> bInterval > 1 each ISOC transfer contains more than one TD associated
+> with usb request (one TD per ITP). In such case the TRB_SMM flag will
+> be set in every TD and driver will recognize the end of transfer after
+> processing the first TD with TRB_SMM. In result driver stops updating
+> request->actual and returns incorrect actual length.
+> To fix this issue driver additionally must check TRB_CHAIN which is not
+> used for isochronous transfers.
+> 
+> Fixes: 249f0a25e8be ("usb: cdns3: gadget: handle sg list use case at completion correctly")
+> cc: <stable@vger.kernel.org>
+> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
 
-On Fri, Aug 26, 2022 at 10:31 AM Miquel Raynal
-<miquel.raynal@bootlin.com> wrote:
->
-> Upon reception, a packet must be categorized, either it's destination is
-> the host, or it is another host. A packet with no destination addressing
-> fields may be valid in two situations:
-> - the packet has no source field: only ACKs are built like that, we
->   consider the host as the destination.
-> - the packet has a valid source field: it is directed to the PAN
->   coordinator, as for know we don't have this information we consider we
->   are not the PAN coordinator.
->
-> There was likely a copy/paste error made during a previous cleanup
-> because the if clause is now containing exactly the same condition as in
-> the switch case, which can never be true. In the past the destination
-> address was used in the switch and the source address was used in the
-> if, which matches what the spec says.
->
-> Cc: stable@vger.kernel.org
-> Fixes: ae531b9475f6 ("ieee802154: use ieee802154_addr instead of *_sa variants")
-> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+
 > ---
->  net/mac802154/rx.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/net/mac802154/rx.c b/net/mac802154/rx.c
-> index b8ce84618a55..c439125ef2b9 100644
-> --- a/net/mac802154/rx.c
-> +++ b/net/mac802154/rx.c
-> @@ -44,7 +44,7 @@ ieee802154_subif_frame(struct ieee802154_sub_if_data *sdata,
->
->         switch (mac_cb(skb)->dest.mode) {
->         case IEEE802154_ADDR_NONE:
-> -               if (mac_cb(skb)->dest.mode != IEEE802154_ADDR_NONE)
-> +               if (hdr->source.mode != IEEE802154_ADDR_NONE)
->                         /* FIXME: check if we are PAN coordinator */
->                         skb->pkt_type = PACKET_OTHERHOST;
->                 else
+>  drivers/usb/cdns3/cdns3-gadget.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
+> index fa8263951e63..a6618a922c61 100644
+> --- a/drivers/usb/cdns3/cdns3-gadget.c
+> +++ b/drivers/usb/cdns3/cdns3-gadget.c
+> @@ -1529,7 +1529,8 @@ static void cdns3_transfer_completed(struct cdns3_device *priv_dev,
+>  						TRB_LEN(le32_to_cpu(trb->length));
+>  
+>  				if (priv_req->num_of_trb > 1 &&
+> -					le32_to_cpu(trb->control) & TRB_SMM)
+> +					le32_to_cpu(trb->control) & TRB_SMM &&
+> +					le32_to_cpu(trb->control) & TRB_CHAIN)
+>  					transfer_end = true;
+>  
+>  				cdns3_ep_inc_deq(priv_ep);
+> -- 
+> 2.25.1
+> 
 
+-- 
 
-This patch looks okay but it should not be addressed to stable. Leave
-of course the fixes tag.
-
-Wpan sends pull requests to net and they have their own way to get
-into the stable tree when they are in net.
-
-Thanks.
-
-- Alex
-
+Thanks,
+Peter Chen
