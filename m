@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CFD85A440F
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BD625A4410
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbiH2HnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:43:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35424 "EHLO
+        id S229456AbiH2Hne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:43:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbiH2HnW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:43:22 -0400
+        with ESMTP id S229678AbiH2Hnd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:43:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E30BD4DB7F
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:43:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C797F4F190
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:43:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FA426113D
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:43:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78C25C433D6;
-        Mon, 29 Aug 2022 07:43:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 660AE61135
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:43:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5515FC433D6;
+        Mon, 29 Aug 2022 07:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661759000;
-        bh=UjkZii2TbEk+HEbEVBz5prhXk+sE/rkQ1quFfFx3L30=;
+        s=korg; t=1661759011;
+        bh=r2lnOa5CFOlLcexq1454XzLoSOkCDZ4SPoJZ6Ccf/Aw=;
         h=Subject:To:Cc:From:Date:From;
-        b=naGWVKMK0dJYzPpl8wnLFNiu/YPgY5bwUQ5uVIyAk/iLkjYQTG1PuxrGmoE6FUnx+
-         ciA8pJV3aLQKwZrANTggSkoDlliBwfjf1ZY36pXBCppNZbrYsCXqYHMSjAnzW8DIQu
-         HyAzigvuhGPAYWge5kZnt+bIps+lTnK196qSoDic=
-Subject: FAILED: patch "[PATCH] riscv: signal: fix missing prototype warning" failed to apply to 5.4-stable tree
-To:     conor.dooley@microchip.com, palmer@rivosinc.com
+        b=cXadYag8Kujs3NjdDnnxmIcdsj+4Gb4w3x1b0oUZjP/by7I2Sz9MNohgbCltAAB0h
+         3RfgCK0/b4TMCZbdWx+/OiepYYwa+0mlLcGO2va5Da5i2310yAuhiyHhMnfj9iPNWc
+         lz956GS5uy0a9E/B5KbKKZ20ofpDAkTbdyf9S1j0=
+Subject: FAILED: patch "[PATCH] riscv: dts: microchip: correct L2 cache interrupts" failed to apply to 5.15-stable tree
+To:     heinrich.schuchardt@canonical.com, conor.dooley@microchip.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Aug 2022 09:43:04 +0200
-Message-ID: <1661758984246197@kroah.com>
+Date:   Mon, 29 Aug 2022 09:43:28 +0200
+Message-ID: <1661759008195128@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,53 +59,59 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b5c3aca86d2698c4850b6ee8b341938025d2780c Mon Sep 17 00:00:00 2001
-From: Conor Dooley <conor.dooley@microchip.com>
-Date: Sun, 14 Aug 2022 15:12:37 +0100
-Subject: [PATCH] riscv: signal: fix missing prototype warning
+From 34fc9cc3aebe8b9e27d3bc821543dd482dc686ca Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+Date: Wed, 17 Aug 2022 15:25:21 +0200
+Subject: [PATCH] riscv: dts: microchip: correct L2 cache interrupts
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Fix the warning:
-arch/riscv/kernel/signal.c:316:27: warning: no previous prototype for function 'do_notify_resume' [-Wmissing-prototypes]
-asmlinkage __visible void do_notify_resume(struct pt_regs *regs,
+The "PolarFire SoC MSS Technical Reference Manual" documents the
+following PLIC interrupts:
 
-All other functions in the file are static & none of the existing
-headers stood out as an obvious location. Create signal.h to hold the
-declaration.
+1 - L2 Cache Controller Signals when a metadata correction event occurs
+2 - L2 Cache Controller Signals when an uncorrectable metadata event occurs
+3 - L2 Cache Controller Signals when a data correction event occurs
+4 - L2 Cache Controller Signals when an uncorrectable data event occurs
 
-Fixes: e2c0cdfba7f6 ("RISC-V: User-facing API")
+This differs from the SiFive FU540 which only has three L2 cache related
+interrupts.
+
+The sequence in the device tree is defined by an enum:
+
+    enum {
+            DIR_CORR = 0,
+            DATA_CORR,
+            DATA_UNCORR,
+            DIR_UNCORR,
+    };
+
+So the correct sequence of the L2 cache interrupts is
+
+    interrupts = <1>, <3>, <4>, <2>;
+
+[Conor]
+This manifests as an unusable system if the l2-cache driver is enabled,
+as the wrong interrupt gets cleared & the handler prints errors to the
+console ad infinitum.
+
+Fixes: 0fa6107eca41 ("RISC-V: Initial DTS for Microchip ICICLE board")
+CC: stable@vger.kernel.org # 5.15: e35b07a7df9b: riscv: dts: microchip: mpfs: Group tuples in interrupt properties
+Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220814141237.493457-4-mail@conchuod.ie
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 
-diff --git a/arch/riscv/include/asm/signal.h b/arch/riscv/include/asm/signal.h
-new file mode 100644
-index 000000000000..532c29ef0376
---- /dev/null
-+++ b/arch/riscv/include/asm/signal.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifndef __ASM_SIGNAL_H
-+#define __ASM_SIGNAL_H
-+
-+#include <uapi/asm/signal.h>
-+#include <uapi/asm/ptrace.h>
-+
-+asmlinkage __visible
-+void do_notify_resume(struct pt_regs *regs, unsigned long thread_info_flags);
-+
-+#endif
-diff --git a/arch/riscv/kernel/signal.c b/arch/riscv/kernel/signal.c
-index 38b05ca6fe66..5a2de6b6f882 100644
---- a/arch/riscv/kernel/signal.c
-+++ b/arch/riscv/kernel/signal.c
-@@ -15,6 +15,7 @@
+diff --git a/arch/riscv/boot/dts/microchip/mpfs.dtsi b/arch/riscv/boot/dts/microchip/mpfs.dtsi
+index 499c2e63ad35..0a6ad5b9ff8d 100644
+--- a/arch/riscv/boot/dts/microchip/mpfs.dtsi
++++ b/arch/riscv/boot/dts/microchip/mpfs.dtsi
+@@ -193,7 +193,7 @@
+ 			cache-size = <2097152>;
+ 			cache-unified;
+ 			interrupt-parent = <&plic>;
+-			interrupts = <1>, <2>, <3>;
++			interrupts = <1>, <3>, <4>, <2>;
+ 		};
  
- #include <asm/ucontext.h>
- #include <asm/vdso.h>
-+#include <asm/signal.h>
- #include <asm/signal32.h>
- #include <asm/switch_to.h>
- #include <asm/csr.h>
+ 		clint: clint@2000000 {
 
