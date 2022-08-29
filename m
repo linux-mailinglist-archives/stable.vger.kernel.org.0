@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E831C5A48E7
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:17:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 787B55A49DB
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231324AbiH2LRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:17:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55344 "EHLO
+        id S232340AbiH2LaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:30:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231162AbiH2LRQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:17:16 -0400
+        with ESMTP id S232680AbiH2L3g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACD7673927;
-        Mon, 29 Aug 2022 04:11:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9BDA7B1FE;
+        Mon, 29 Aug 2022 04:17:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8BBD611F1;
-        Mon, 29 Aug 2022 11:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E91C433C1;
-        Mon, 29 Aug 2022 11:09:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC14361265;
+        Mon, 29 Aug 2022 11:17:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4C08C433D6;
+        Mon, 29 Aug 2022 11:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771350;
-        bh=V9jVGqk7lz1UgihqpJfWjn5UtbbfwutqK2q9IUj0wAk=;
+        s=korg; t=1661771833;
+        bh=4vyBfHJMqDH0kiRRLnL90LgZzWk1Zt/AhZzOVdGozek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9GSHAhTGytasI5CrrHQsyQrE41tZaiWx0dvXudvDZU6m8fo40HYTrP4lE2XGydpV
-         mH3LYKt7pZAMyjdP68111yLHBLbGmnf0qRpjM0M5rKQS5IHaJ7kNq7XFRwMTtbPbuS
-         h5XKZ4h7JOJIc1dnacGzfz4zx7ML6Rc7IrLTB+No=
+        b=0dkmZ5tOno9PlQspIXEFT8byOP2Ty5pZX0t7NhQX0MjMgS977GQgPJaFWXK+nZZJH
+         cM/csUcsfVmbvmINulRHS5UIHoMOQ6tL6UCLKyMYDbnF64CP7+fedli5UWnhIMjFg9
+         laoIWaCoVdnHYFiB3iR8DINc7d90P42j+BSZ2sYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qi Duan <qi.duan@amlogic.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 094/136] net: stmmac: work around sporadic tx issue on link-up
+        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
+        Jan Kara <jack@suse.cz>,
+        Michael Stapelberg <stapelberg+linux@google.com>,
+        Wu Fengguang <fengguang.wu@intel.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 111/158] writeback: avoid use-after-free after removing device
 Date:   Mon, 29 Aug 2022 12:59:21 +0200
-Message-Id: <20220829105808.525512557@linuxfoundation.org>
+Message-Id: <20220829105813.761083165@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +57,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Khazhismel Kumykov <khazhy@chromium.org>
 
-[ Upstream commit a3a57bf07de23fe1ff779e0fdf710aa581c3ff73 ]
+commit f87904c075515f3e1d8f4a7115869d3b914674fd upstream.
 
-This is a follow-up to the discussion in [0]. It seems to me that
-at least the IP version used on Amlogic SoC's sometimes has a problem
-if register MAC_CTRL_REG is written whilst the chip is still processing
-a previous write. But that's just a guess.
-Adding a delay between two writes to this register helps, but we can
-also simply omit the offending second write. This patch uses the second
-approach and is based on a suggestion from Qi Duan.
-Benefit of this approach is that we can save few register writes, also
-on not affected chip versions.
+When a disk is removed, bdi_unregister gets called to stop further
+writeback and wait for associated delayed work to complete.  However,
+wb_inode_writeback_end() may schedule bandwidth estimation dwork after
+this has completed, which can result in the timer attempting to access the
+just freed bdi_writeback.
 
-[0] https://www.spinics.net/lists/netdev/msg831526.html
+Fix this by checking if the bdi_writeback is alive, similar to when
+scheduling writeback work.
 
-Fixes: bfab27a146ed ("stmmac: add the experimental PCI support")
-Suggested-by: Qi Duan <qi.duan@amlogic.com>
-Suggested-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/e99857ce-bd90-5093-ca8c-8cd480b5a0a2@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since this requires wb->work_lock, and wb_inode_writeback_end() may get
+called from interrupt, switch wb->work_lock to an irqsafe lock.
+
+Link: https://lkml.kernel.org/r/20220801155034.3772543-1-khazhy@google.com
+Fixes: 45a2966fd641 ("writeback: fix bandwidth estimate for spiky workload")
+Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: Michael Stapelberg <stapelberg+linux@google.com>
+Cc: Wu Fengguang <fengguang.wu@intel.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c   | 8 ++++++--
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 9 +++++----
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ fs/fs-writeback.c   |   12 ++++++------
+ mm/backing-dev.c    |   10 +++++-----
+ mm/page-writeback.c |    6 +++++-
+ 3 files changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c b/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c
-index d1c31200bb911..01d0a14f67520 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c
-@@ -258,14 +258,18 @@ EXPORT_SYMBOL_GPL(stmmac_set_mac_addr);
- /* Enable disable MAC RX/TX */
- void stmmac_set_mac(void __iomem *ioaddr, bool enable)
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -134,10 +134,10 @@ static bool inode_io_list_move_locked(st
+ 
+ static void wb_wakeup(struct bdi_writeback *wb)
  {
--	u32 value = readl(ioaddr + MAC_CTRL_REG);
-+	u32 old_val, value;
-+
-+	old_val = readl(ioaddr + MAC_CTRL_REG);
-+	value = old_val;
- 
- 	if (enable)
- 		value |= MAC_ENABLE_RX | MAC_ENABLE_TX;
- 	else
- 		value &= ~(MAC_ENABLE_TX | MAC_ENABLE_RX);
- 
--	writel(value, ioaddr + MAC_CTRL_REG);
-+	if (value != old_val)
-+		writel(value, ioaddr + MAC_CTRL_REG);
+-	spin_lock_bh(&wb->work_lock);
++	spin_lock_irq(&wb->work_lock);
+ 	if (test_bit(WB_registered, &wb->state))
+ 		mod_delayed_work(bdi_wq, &wb->dwork, 0);
+-	spin_unlock_bh(&wb->work_lock);
++	spin_unlock_irq(&wb->work_lock);
  }
  
- void stmmac_get_mac_addr(void __iomem *ioaddr, unsigned char *addr,
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index b4f83c8655684..2569673559df3 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1083,10 +1083,10 @@ static void stmmac_mac_link_up(struct phylink_config *config,
- 			       bool tx_pause, bool rx_pause)
+ static void finish_writeback_work(struct bdi_writeback *wb,
+@@ -164,7 +164,7 @@ static void wb_queue_work(struct bdi_wri
+ 	if (work->done)
+ 		atomic_inc(&work->done->cnt);
+ 
+-	spin_lock_bh(&wb->work_lock);
++	spin_lock_irq(&wb->work_lock);
+ 
+ 	if (test_bit(WB_registered, &wb->state)) {
+ 		list_add_tail(&work->list, &wb->work_list);
+@@ -172,7 +172,7 @@ static void wb_queue_work(struct bdi_wri
+ 	} else
+ 		finish_writeback_work(wb, work);
+ 
+-	spin_unlock_bh(&wb->work_lock);
++	spin_unlock_irq(&wb->work_lock);
+ }
+ 
+ /**
+@@ -2082,13 +2082,13 @@ static struct wb_writeback_work *get_nex
  {
- 	struct stmmac_priv *priv = netdev_priv(to_net_dev(config->dev));
--	u32 ctrl;
-+	u32 old_ctrl, ctrl;
+ 	struct wb_writeback_work *work = NULL;
  
--	ctrl = readl(priv->ioaddr + MAC_CTRL_REG);
--	ctrl &= ~priv->hw->link.speed_mask;
-+	old_ctrl = readl(priv->ioaddr + MAC_CTRL_REG);
-+	ctrl = old_ctrl & ~priv->hw->link.speed_mask;
+-	spin_lock_bh(&wb->work_lock);
++	spin_lock_irq(&wb->work_lock);
+ 	if (!list_empty(&wb->work_list)) {
+ 		work = list_entry(wb->work_list.next,
+ 				  struct wb_writeback_work, list);
+ 		list_del_init(&work->list);
+ 	}
+-	spin_unlock_bh(&wb->work_lock);
++	spin_unlock_irq(&wb->work_lock);
+ 	return work;
+ }
  
- 	if (interface == PHY_INTERFACE_MODE_USXGMII) {
- 		switch (speed) {
-@@ -1161,7 +1161,8 @@ static void stmmac_mac_link_up(struct phylink_config *config,
- 	if (tx_pause && rx_pause)
- 		stmmac_mac_flow_ctrl(priv, duplex);
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -260,10 +260,10 @@ void wb_wakeup_delayed(struct bdi_writeb
+ 	unsigned long timeout;
  
--	writel(ctrl, priv->ioaddr + MAC_CTRL_REG);
-+	if (ctrl != old_ctrl)
-+		writel(ctrl, priv->ioaddr + MAC_CTRL_REG);
+ 	timeout = msecs_to_jiffies(dirty_writeback_interval * 10);
+-	spin_lock_bh(&wb->work_lock);
++	spin_lock_irq(&wb->work_lock);
+ 	if (test_bit(WB_registered, &wb->state))
+ 		queue_delayed_work(bdi_wq, &wb->dwork, timeout);
+-	spin_unlock_bh(&wb->work_lock);
++	spin_unlock_irq(&wb->work_lock);
+ }
  
- 	stmmac_mac_set(priv, priv->ioaddr, true);
- 	if (phy && priv->dma_cap.eee) {
--- 
-2.35.1
-
+ static void wb_update_bandwidth_workfn(struct work_struct *work)
+@@ -334,12 +334,12 @@ static void cgwb_remove_from_bdi_list(st
+ static void wb_shutdown(struct bdi_writeback *wb)
+ {
+ 	/* Make sure nobody queues further work */
+-	spin_lock_bh(&wb->work_lock);
++	spin_lock_irq(&wb->work_lock);
+ 	if (!test_and_clear_bit(WB_registered, &wb->state)) {
+-		spin_unlock_bh(&wb->work_lock);
++		spin_unlock_irq(&wb->work_lock);
+ 		return;
+ 	}
+-	spin_unlock_bh(&wb->work_lock);
++	spin_unlock_irq(&wb->work_lock);
+ 
+ 	cgwb_remove_from_bdi_list(wb);
+ 	/*
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -2867,6 +2867,7 @@ static void wb_inode_writeback_start(str
+ 
+ static void wb_inode_writeback_end(struct bdi_writeback *wb)
+ {
++	unsigned long flags;
+ 	atomic_dec(&wb->writeback_inodes);
+ 	/*
+ 	 * Make sure estimate of writeback throughput gets updated after
+@@ -2875,7 +2876,10 @@ static void wb_inode_writeback_end(struc
+ 	 * that if multiple inodes end writeback at a similar time, they get
+ 	 * batched into one bandwidth update.
+ 	 */
+-	queue_delayed_work(bdi_wq, &wb->bw_dwork, BANDWIDTH_INTERVAL);
++	spin_lock_irqsave(&wb->work_lock, flags);
++	if (test_bit(WB_registered, &wb->state))
++		queue_delayed_work(bdi_wq, &wb->bw_dwork, BANDWIDTH_INTERVAL);
++	spin_unlock_irqrestore(&wb->work_lock, flags);
+ }
+ 
+ bool __folio_end_writeback(struct folio *folio)
 
 
