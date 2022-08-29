@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C695A4B8F
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77EB05A4B7C
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:21:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232065AbiH2MXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 08:23:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49830 "EHLO
+        id S230087AbiH2MVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 08:21:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232070AbiH2MXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:23:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9780B2182A;
-        Mon, 29 Aug 2022 05:07:00 -0700 (PDT)
+        with ESMTP id S230451AbiH2MVd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:21:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F35CF58517;
+        Mon, 29 Aug 2022 05:05:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45604611E3;
-        Mon, 29 Aug 2022 11:07:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50F21C433C1;
-        Mon, 29 Aug 2022 11:07:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF4FEB80F9A;
+        Mon, 29 Aug 2022 11:16:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55675C433D6;
+        Mon, 29 Aug 2022 11:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771273;
-        bh=J53EIN/0Zj6j2Iln4Cm7nd/nabx5cBI06UmD41Sku/k=;
+        s=korg; t=1661771807;
+        bh=CAB0dM4DuuIsf2a3QiclMqfYJ2KO8N7/9vCXIMquUdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jO3lpaUzEzdPhGD8BIS5rLsh28oSGe49z1R0QJrh3WuET4VBtcEH3FwCN26OS3tTY
-         EC+Y8pBFhxLve+cv0aDtRCYjKJE/B0ZGUjvNC6mB/ulWoLJoAvbdkZ4NKY+9Bw6iIN
-         ZsdKiw9bZO1rB2T2Coc+2iBpy5e2EBJZhxati54s=
+        b=1SWhOM+Z6QPM49+4o5BEUdcZ6EyRXjCozIuRAWy7XjaesWMfOwYcC9gLJ/BQ2oGuE
+         0ptSDpXjMtIPaazVAjmwl0VrUkIO/5Pp4aEu56NXE6XddneJ8Z8IP5HsDwqQFSGH4O
+         5HyPLcT0mKHAiTAvah6rFC+TI3x7MP0Po5wVahe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 086/136] net: Fix a data-race around sysctl_somaxconn.
-Date:   Mon, 29 Aug 2022 12:59:13 +0200
-Message-Id: <20220829105808.176232948@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Borislav Petkov <bp@suse.de>, Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 5.19 104/158] x86/entry: Fix entry_INT80_compat for Xen PV guests
+Date:   Mon, 29 Aug 2022 12:59:14 +0200
+Message-Id: <20220829105813.460494448@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 3c9ba81d72047f2e81bb535d42856517b613aba7 ]
+commit 5b9f0c4df1c1152403c738373fb063e9ffdac0a1 upstream.
 
-While reading sysctl_somaxconn, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+Commit
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  c89191ce67ef ("x86/entry: Convert SWAPGS to swapgs and remove the definition of SWAPGS")
+
+missed one use case of SWAPGS in entry_INT80_compat(). Removing of
+the SWAPGS macro led to asm just using "swapgs", as it is accepting
+instructions in capital letters, too.
+
+This in turn leads to splats in Xen PV guests like:
+
+  [   36.145223] general protection fault, maybe for address 0x2d: 0000 [#1] PREEMPT SMP NOPTI
+  [   36.145794] CPU: 2 PID: 1847 Comm: ld-linux.so.2 Not tainted 5.19.1-1-default #1 \
+	  openSUSE Tumbleweed f3b44bfb672cdb9f235aff53b57724eba8b9411b
+  [   36.146608] Hardware name: HP ProLiant ML350p Gen8, BIOS P72 11/14/2013
+  [   36.148126] RIP: e030:entry_INT80_compat+0x3/0xa3
+
+Fix that by open coding this single instance of the SWAPGS macro.
+
+Fixes: c89191ce67ef ("x86/entry: Convert SWAPGS to swapgs and remove the definition of SWAPGS")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Cc: <stable@vger.kernel.org> # 5.19
+Link: https://lore.kernel.org/r/20220816071137.4893-1-jgross@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/socket.c | 2 +-
+ arch/x86/entry/entry_64_compat.S |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/socket.c b/net/socket.c
-index 5053eb0100e48..73666b878f2ce 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -1721,7 +1721,7 @@ int __sys_listen(int fd, int backlog)
+--- a/arch/x86/entry/entry_64_compat.S
++++ b/arch/x86/entry/entry_64_compat.S
+@@ -311,7 +311,7 @@ SYM_CODE_START(entry_INT80_compat)
+ 	 * Interrupts are off on entry.
+ 	 */
+ 	ASM_CLAC			/* Do this early to minimize exposure */
+-	SWAPGS
++	ALTERNATIVE "swapgs", "", X86_FEATURE_XENPV
  
- 	sock = sockfd_lookup_light(fd, &err, &fput_needed);
- 	if (sock) {
--		somaxconn = sock_net(sock->sk)->core.sysctl_somaxconn;
-+		somaxconn = READ_ONCE(sock_net(sock->sk)->core.sysctl_somaxconn);
- 		if ((unsigned int)backlog > somaxconn)
- 			backlog = somaxconn;
- 
--- 
-2.35.1
-
+ 	/*
+ 	 * User tracing code (ptrace or signal handlers) might assume that
 
 
