@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B3E45A48FA
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84EFD5A4907
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229907AbiH2LTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:19:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47422 "EHLO
+        id S231191AbiH2LTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231526AbiH2LRu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:17:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1F26CD07;
-        Mon, 29 Aug 2022 04:11:58 -0700 (PDT)
+        with ESMTP id S231730AbiH2LTH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97456E2CC;
+        Mon, 29 Aug 2022 04:12:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B41D611F6;
-        Mon, 29 Aug 2022 11:10:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85F0CC433B5;
-        Mon, 29 Aug 2022 11:10:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 312CBB80F01;
+        Mon, 29 Aug 2022 11:10:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95FD2C433D6;
+        Mon, 29 Aug 2022 11:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771410;
-        bh=7UuEqefdwYEn11rNs3iQTPMDUVdZcXGP+H423jBrBT4=;
+        s=korg; t=1661771436;
+        bh=TBH4bae03KLFeJfWladI1VYZD+elE5fWvRvkd4Rg3/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xt1a9xSrRTaCMAMMsg2/KyTWWP59nFhbsD1HiFhIQClrcn5vUbO/Fm+0oNV18IBVy
-         4N0ui6ntMN5Sk1RiNUfhXR0msrRPXtPN52ztUfxq+5nCRmlAeJjYQ6d4QI8B0+w7eg
-         Hf6imUoiQHJ2CXyd504hFogOvtGwZOp+TGMJAVHY=
+        b=XTdR7CV5MDZTnTME4BuF540IZDw40E889UReJyMFg8+y6PoAIBETgQzyai71iqKIo
+         apdOyHUw9Md+IYbiPMgkQMTWBGO9GWo3baGvEiEya2AgRRi+V5pRyjRIITF0tBLsqr
+         dHbl57jRW1c0OixIHjIw/bm/uy66CA+Bx2rju4AE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 64/86] btrfs: fix silent failure when deleting root reference
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.15 103/136] x86/nospec: Unwreck the RSB stuffing
 Date:   Mon, 29 Aug 2022 12:59:30 +0200
-Message-Id: <20220829105759.164105549@linuxfoundation.org>
+Message-Id: <20220829105808.939286345@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 47bf225a8d2cccb15f7e8d4a1ed9b757dd86afd7 upstream.
+commit 4e3aa9238277597c6c7624f302d81a7b568b6f2d upstream.
 
-At btrfs_del_root_ref(), if btrfs_search_slot() returns an error, we end
-up returning from the function with a value of 0 (success). This happens
-because the function returns the value stored in the variable 'err',
-which is 0, while the error value we got from btrfs_search_slot() is
-stored in the 'ret' variable.
+Commit 2b1299322016 ("x86/speculation: Add RSB VM Exit protections")
+made a right mess of the RSB stuffing, rewrite the whole thing to not
+suck.
 
-So fix it by setting 'err' with the error value.
+Thanks to Andrew for the enlightening comment about Post-Barrier RSB
+things so we can make this code less magical.
 
-Fixes: 8289ed9f93bef2 ("btrfs: replace the BUG_ON in btrfs_del_root_ref with proper error handling")
-CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/root-tree.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |   80 +++++++++++++++++------------------
+ 1 file changed, 39 insertions(+), 41 deletions(-)
 
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -336,9 +336,10 @@ int btrfs_del_root_ref(struct btrfs_tran
- 	key.offset = ref_id;
- again:
- 	ret = btrfs_search_slot(trans, tree_root, &key, path, -1, 1);
--	if (ret < 0)
-+	if (ret < 0) {
-+		err = ret;
- 		goto out;
--	if (ret == 0) {
-+	} else if (ret == 0) {
- 		leaf = path->nodes[0];
- 		ref = btrfs_item_ptr(leaf, path->slots[0],
- 				     struct btrfs_root_ref);
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -35,33 +35,44 @@
+ #define RSB_CLEAR_LOOPS		32	/* To forcibly overwrite all entries */
+ 
+ /*
++ * Common helper for __FILL_RETURN_BUFFER and __FILL_ONE_RETURN.
++ */
++#define __FILL_RETURN_SLOT			\
++	ANNOTATE_INTRA_FUNCTION_CALL;		\
++	call	772f;				\
++	int3;					\
++772:
++
++/*
++ * Stuff the entire RSB.
++ *
+  * Google experimented with loop-unrolling and this turned out to be
+  * the optimal version - two calls, each with their own speculation
+  * trap should their return address end up getting used, in a loop.
+  */
+-#define __FILL_RETURN_BUFFER(reg, nr, sp)	\
+-	mov	$(nr/2), reg;			\
+-771:						\
+-	ANNOTATE_INTRA_FUNCTION_CALL;		\
+-	call	772f;				\
+-773:	/* speculation trap */			\
+-	UNWIND_HINT_EMPTY;			\
+-	pause;					\
+-	lfence;					\
+-	jmp	773b;				\
+-772:						\
+-	ANNOTATE_INTRA_FUNCTION_CALL;		\
+-	call	774f;				\
+-775:	/* speculation trap */			\
+-	UNWIND_HINT_EMPTY;			\
+-	pause;					\
+-	lfence;					\
+-	jmp	775b;				\
+-774:						\
+-	add	$(BITS_PER_LONG/8) * 2, sp;	\
+-	dec	reg;				\
+-	jnz	771b;				\
+-	/* barrier for jnz misprediction */	\
++#define __FILL_RETURN_BUFFER(reg, nr)			\
++	mov	$(nr/2), reg;				\
++771:							\
++	__FILL_RETURN_SLOT				\
++	__FILL_RETURN_SLOT				\
++	add	$(BITS_PER_LONG/8) * 2, %_ASM_SP;	\
++	dec	reg;					\
++	jnz	771b;					\
++	/* barrier for jnz misprediction */		\
++	lfence;
++
++/*
++ * Stuff a single RSB slot.
++ *
++ * To mitigate Post-Barrier RSB speculation, one CALL instruction must be
++ * forced to retire before letting a RET instruction execute.
++ *
++ * On PBRSB-vulnerable CPUs, it is not safe for a RET to be executed
++ * before this point.
++ */
++#define __FILL_ONE_RETURN				\
++	__FILL_RETURN_SLOT				\
++	add	$(BITS_PER_LONG/8), %_ASM_SP;		\
+ 	lfence;
+ 
+ #ifdef __ASSEMBLY__
+@@ -120,28 +131,15 @@
+ #endif
+ .endm
+ 
+-.macro ISSUE_UNBALANCED_RET_GUARD
+-	ANNOTATE_INTRA_FUNCTION_CALL
+-	call .Lunbalanced_ret_guard_\@
+-	int3
+-.Lunbalanced_ret_guard_\@:
+-	add $(BITS_PER_LONG/8), %_ASM_SP
+-	lfence
+-.endm
+-
+  /*
+   * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
+   * monstrosity above, manually.
+   */
+-.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
+-.ifb \ftr2
+-	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
+-.else
+-	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
+-.endif
+-	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
+-.Lunbalanced_\@:
+-	ISSUE_UNBALANCED_RET_GUARD
++.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2=ALT_NOT(X86_FEATURE_ALWAYS)
++	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", \
++		__stringify(__FILL_RETURN_BUFFER(\reg,\nr)), \ftr, \
++		__stringify(__FILL_ONE_RETURN), \ftr2
++
+ .Lskip_rsb_\@:
+ .endm
+ 
 
 
