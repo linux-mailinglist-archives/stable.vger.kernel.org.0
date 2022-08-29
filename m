@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E2A5A4973
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:25:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D395A48B6
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231927AbiH2LZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:25:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40678 "EHLO
+        id S230157AbiH2LO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:14:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232148AbiH2LYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:24:25 -0400
+        with ESMTP id S231387AbiH2LNk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B7C326E6;
-        Mon, 29 Aug 2022 04:15:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B056FA31;
+        Mon, 29 Aug 2022 04:09:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2EC37B80EF3;
-        Mon, 29 Aug 2022 11:05:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99696C433C1;
-        Mon, 29 Aug 2022 11:05:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59F90B80F4B;
+        Mon, 29 Aug 2022 11:09:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7ABFC433C1;
+        Mon, 29 Aug 2022 11:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771142;
-        bh=qbshFygz1OTxTwAuZ3hXovueGrj+5WeQXtGonnyAtrM=;
+        s=korg; t=1661771356;
+        bh=+p0Snfphy0GGK9I2VZywekC1v65rjRfTzJwBIllpX+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hHF+HxWfeHil9fX9j/I2YJkTMHaFmv9h7yxncGR/I6dg9aqtXnJYEYWiPnhZAaZZ0
-         nOlazcfM8uP+pb/5tI+6vMhpDwx7OeaO3+9KVP656nKubV8dgdZo/AX36gTn5NqVXO
-         sHGvzrNaEwzeeGgljZlGy9jqUeepJYRWmtsYOnV0=
+        b=Yrih4rm7wb29zuGccftOP4QD2Jeaa7YXaLUmqaCEMpo/5V2hXmCcNlE0uOVtyJaqW
+         3C2pW2+vKdCC5iImqnTE1VQYeFHYgsOr1DB1HYb0Rz0PvievSO711fRZJbebUTpfJ+
+         7rLCxheG37nDRuUvx+4OtAcEXcm0BBnskVf7Rzq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        syzkaller <syzkaller@googlegroups.com>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 30/86] netfilter: ebtables: reject blobs that dont provide all entry points
+Subject: [PATCH 5.15 069/136] netfilter: flowtable: fix stuck flows on cleanup due to pending work
 Date:   Mon, 29 Aug 2022 12:58:56 +0200
-Message-Id: <20220829105757.788568486@linuxfoundation.org>
+Message-Id: <20220829105807.463390071@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,163 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 7997eff82828304b780dc0a39707e1946d6f1ebf ]
+[ Upstream commit 9afb4b27349a499483ae0134282cefd0c90f480f ]
 
-Harshit Mogalapalli says:
- In ebt_do_table() function dereferencing 'private->hook_entry[hook]'
- can lead to NULL pointer dereference. [..] Kernel panic:
+To clear the flow table on flow table free, the following sequence
+normally happens in order:
 
-general protection fault, probably for non-canonical address 0xdffffc0000000005: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000028-0x000000000000002f]
-[..]
-RIP: 0010:ebt_do_table+0x1dc/0x1ce0
-Code: 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 5c 16 00 00 48 b8 00 00 00 00 00 fc ff df 49 8b 6c df 08 48 8d 7d 2c 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 88
-[..]
-Call Trace:
- nf_hook_slow+0xb1/0x170
- __br_forward+0x289/0x730
- maybe_deliver+0x24b/0x380
- br_flood+0xc6/0x390
- br_dev_xmit+0xa2e/0x12c0
+  1) gc_step work is stopped to disable any further stats/del requests.
+  2) All flow table entries are set to teardown state.
+  3) Run gc_step which will queue HW del work for each flow table entry.
+  4) Waiting for the above del work to finish (flush).
+  5) Run gc_step again, deleting all entries from the flow table.
+  6) Flow table is freed.
 
-For some reason ebtables rejects blobs that provide entry points that are
-not supported by the table, but what it should instead reject is the
-opposite: blobs that DO NOT provide an entry point supported by the table.
+But if a flow table entry already has pending HW stats or HW add work
+step 3 will not queue HW del work (it will be skipped), step 4 will wait
+for the pending add/stats to finish, and step 5 will queue HW del work
+which might execute after freeing of the flow table.
 
-t->valid_hooks is the bitmask of hooks (input, forward ...) that will see
-packets.  Providing an entry point that is not support is harmless
-(never called/used), but the inverse isn't: it results in a crash
-because the ebtables traverser doesn't expect a NULL blob for a location
-its receiving packets for.
+To fix the above, this patch flushes the pending work, then it sets the
+teardown flag to all flows in the flowtable and it forces a garbage
+collector run to queue work to remove the flows from hardware, then it
+flushes this new pending work and (finally) it forces another garbage
+collector run to remove the entry from the software flowtable.
 
-Instead of fixing all the individual checks, do what iptables is doing and
-reject all blobs that differ from the expected hooks.
+Stack trace:
+[47773.882335] BUG: KASAN: use-after-free in down_read+0x99/0x460
+[47773.883634] Write of size 8 at addr ffff888103b45aa8 by task kworker/u20:6/543704
+[47773.885634] CPU: 3 PID: 543704 Comm: kworker/u20:6 Not tainted 5.12.0-rc7+ #2
+[47773.886745] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009)
+[47773.888438] Workqueue: nf_ft_offload_del flow_offload_work_handler [nf_flow_table]
+[47773.889727] Call Trace:
+[47773.890214]  dump_stack+0xbb/0x107
+[47773.890818]  print_address_description.constprop.0+0x18/0x140
+[47773.892990]  kasan_report.cold+0x7c/0xd8
+[47773.894459]  kasan_check_range+0x145/0x1a0
+[47773.895174]  down_read+0x99/0x460
+[47773.899706]  nf_flow_offload_tuple+0x24f/0x3c0 [nf_flow_table]
+[47773.907137]  flow_offload_work_handler+0x72d/0xbe0 [nf_flow_table]
+[47773.913372]  process_one_work+0x8ac/0x14e0
+[47773.921325]
+[47773.921325] Allocated by task 592159:
+[47773.922031]  kasan_save_stack+0x1b/0x40
+[47773.922730]  __kasan_kmalloc+0x7a/0x90
+[47773.923411]  tcf_ct_flow_table_get+0x3cb/0x1230 [act_ct]
+[47773.924363]  tcf_ct_init+0x71c/0x1156 [act_ct]
+[47773.925207]  tcf_action_init_1+0x45b/0x700
+[47773.925987]  tcf_action_init+0x453/0x6b0
+[47773.926692]  tcf_exts_validate+0x3d0/0x600
+[47773.927419]  fl_change+0x757/0x4a51 [cls_flower]
+[47773.928227]  tc_new_tfilter+0x89a/0x2070
+[47773.936652]
+[47773.936652] Freed by task 543704:
+[47773.937303]  kasan_save_stack+0x1b/0x40
+[47773.938039]  kasan_set_track+0x1c/0x30
+[47773.938731]  kasan_set_free_info+0x20/0x30
+[47773.939467]  __kasan_slab_free+0xe7/0x120
+[47773.940194]  slab_free_freelist_hook+0x86/0x190
+[47773.941038]  kfree+0xce/0x3a0
+[47773.941644]  tcf_ct_flow_table_cleanup_work
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Original patch description and stack trace by Paul Blakey.
+
+Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
+Reported-by: Paul Blakey <paulb@nvidia.com>
+Tested-by: Paul Blakey <paulb@nvidia.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter_bridge/ebtables.h | 4 ----
- net/bridge/netfilter/ebtable_broute.c     | 8 --------
- net/bridge/netfilter/ebtable_filter.c     | 8 --------
- net/bridge/netfilter/ebtable_nat.c        | 8 --------
- net/bridge/netfilter/ebtables.c           | 8 +-------
- 5 files changed, 1 insertion(+), 35 deletions(-)
+ include/net/netfilter/nf_flow_table.h | 2 ++
+ net/netfilter/nf_flow_table_core.c    | 7 +++----
+ net/netfilter/nf_flow_table_offload.c | 8 ++++++++
+ 3 files changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/netfilter_bridge/ebtables.h b/include/linux/netfilter_bridge/ebtables.h
-index 3a956145a25cb..a18fb73a2b772 100644
---- a/include/linux/netfilter_bridge/ebtables.h
-+++ b/include/linux/netfilter_bridge/ebtables.h
-@@ -94,10 +94,6 @@ struct ebt_table {
- 	struct ebt_replace_kernel *table;
- 	unsigned int valid_hooks;
- 	rwlock_t lock;
--	/* e.g. could be the table explicitly only allows certain
--	 * matches, targets, ... 0 == let it in */
--	int (*check)(const struct ebt_table_info *info,
--	   unsigned int valid_hooks);
- 	/* the data used by the kernel */
- 	struct ebt_table_info *private;
- 	struct module *me;
-diff --git a/net/bridge/netfilter/ebtable_broute.c b/net/bridge/netfilter/ebtable_broute.c
-index 32bc2821027f3..57f91efce0f73 100644
---- a/net/bridge/netfilter/ebtable_broute.c
-+++ b/net/bridge/netfilter/ebtable_broute.c
-@@ -36,18 +36,10 @@ static struct ebt_replace_kernel initial_table = {
- 	.entries	= (char *)&initial_chain,
- };
+diff --git a/include/net/netfilter/nf_flow_table.h b/include/net/netfilter/nf_flow_table.h
+index f337041dcc352..aaa518e777e9e 100644
+--- a/include/net/netfilter/nf_flow_table.h
++++ b/include/net/netfilter/nf_flow_table.h
+@@ -303,6 +303,8 @@ void nf_flow_offload_stats(struct nf_flowtable *flowtable,
+ 			   struct flow_offload *flow);
  
--static int check(const struct ebt_table_info *info, unsigned int valid_hooks)
--{
--	if (valid_hooks & ~(1 << NF_BR_BROUTING))
--		return -EINVAL;
--	return 0;
--}
+ void nf_flow_table_offload_flush(struct nf_flowtable *flowtable);
++void nf_flow_table_offload_flush_cleanup(struct nf_flowtable *flowtable);
++
+ int nf_flow_table_offload_setup(struct nf_flowtable *flowtable,
+ 				struct net_device *dev,
+ 				enum flow_block_command cmd);
+diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
+index 95ff1284d3d89..4f61eb1282834 100644
+--- a/net/netfilter/nf_flow_table_core.c
++++ b/net/netfilter/nf_flow_table_core.c
+@@ -604,12 +604,11 @@ void nf_flow_table_free(struct nf_flowtable *flow_table)
+ 	mutex_unlock(&flowtable_lock);
+ 
+ 	cancel_delayed_work_sync(&flow_table->gc_work);
++	nf_flow_table_offload_flush(flow_table);
++	/* ... no more pending work after this stage ... */
+ 	nf_flow_table_iterate(flow_table, nf_flow_table_do_cleanup, NULL);
+ 	nf_flow_table_gc_run(flow_table);
+-	nf_flow_table_offload_flush(flow_table);
+-	if (nf_flowtable_hw_offload(flow_table))
+-		nf_flow_table_gc_run(flow_table);
 -
- static const struct ebt_table broute_table = {
- 	.name		= "broute",
- 	.table		= &initial_table,
- 	.valid_hooks	= 1 << NF_BR_BROUTING,
--	.check		= check,
- 	.me		= THIS_MODULE,
- };
++	nf_flow_table_offload_flush_cleanup(flow_table);
+ 	rhashtable_destroy(&flow_table->rhashtable);
+ }
+ EXPORT_SYMBOL_GPL(nf_flow_table_free);
+diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
+index b561e0a44a45f..c4559fae8acd5 100644
+--- a/net/netfilter/nf_flow_table_offload.c
++++ b/net/netfilter/nf_flow_table_offload.c
+@@ -1050,6 +1050,14 @@ void nf_flow_offload_stats(struct nf_flowtable *flowtable,
+ 	flow_offload_queue_work(offload);
+ }
  
-diff --git a/net/bridge/netfilter/ebtable_filter.c b/net/bridge/netfilter/ebtable_filter.c
-index bcf982e12f16b..7f2e620f4978f 100644
---- a/net/bridge/netfilter/ebtable_filter.c
-+++ b/net/bridge/netfilter/ebtable_filter.c
-@@ -43,18 +43,10 @@ static struct ebt_replace_kernel initial_table = {
- 	.entries	= (char *)initial_chains,
- };
- 
--static int check(const struct ebt_table_info *info, unsigned int valid_hooks)
--{
--	if (valid_hooks & ~FILTER_VALID_HOOKS)
--		return -EINVAL;
--	return 0;
--}
--
- static const struct ebt_table frame_filter = {
- 	.name		= "filter",
- 	.table		= &initial_table,
- 	.valid_hooks	= FILTER_VALID_HOOKS,
--	.check		= check,
- 	.me		= THIS_MODULE,
- };
- 
-diff --git a/net/bridge/netfilter/ebtable_nat.c b/net/bridge/netfilter/ebtable_nat.c
-index 0d092773f8161..1743a105485c4 100644
---- a/net/bridge/netfilter/ebtable_nat.c
-+++ b/net/bridge/netfilter/ebtable_nat.c
-@@ -43,18 +43,10 @@ static struct ebt_replace_kernel initial_table = {
- 	.entries	= (char *)initial_chains,
- };
- 
--static int check(const struct ebt_table_info *info, unsigned int valid_hooks)
--{
--	if (valid_hooks & ~NAT_VALID_HOOKS)
--		return -EINVAL;
--	return 0;
--}
--
- static const struct ebt_table frame_nat = {
- 	.name		= "nat",
- 	.table		= &initial_table,
- 	.valid_hooks	= NAT_VALID_HOOKS,
--	.check		= check,
- 	.me		= THIS_MODULE,
- };
- 
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index d481ff24a1501..310740cc684ad 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -999,8 +999,7 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
- 		goto free_iterate;
- 	}
- 
--	/* the table doesn't like it */
--	if (t->check && (ret = t->check(newinfo, repl->valid_hooks)))
-+	if (repl->valid_hooks != t->valid_hooks)
- 		goto free_unlock;
- 
- 	if (repl->num_counters && repl->num_counters != t->private->nentries) {
-@@ -1186,11 +1185,6 @@ int ebt_register_table(struct net *net, const struct ebt_table *input_table,
- 	if (ret != 0)
- 		goto free_chainstack;
- 
--	if (table->check && table->check(newinfo, table->valid_hooks)) {
--		ret = -EINVAL;
--		goto free_chainstack;
--	}
--
- 	table->private = newinfo;
- 	rwlock_init(&table->lock);
- 	mutex_lock(&ebt_mutex);
++void nf_flow_table_offload_flush_cleanup(struct nf_flowtable *flowtable)
++{
++	if (nf_flowtable_hw_offload(flowtable)) {
++		flush_workqueue(nf_flow_offload_del_wq);
++		nf_flow_table_gc_run(flowtable);
++	}
++}
++
+ void nf_flow_table_offload_flush(struct nf_flowtable *flowtable)
+ {
+ 	if (nf_flowtable_hw_offload(flowtable)) {
 -- 
 2.35.1
 
