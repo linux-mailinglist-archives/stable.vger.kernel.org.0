@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7715A47DD
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:02:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 902275A47E6
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230116AbiH2LCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:02:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42902 "EHLO
+        id S229786AbiH2LCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:02:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229991AbiH2LB5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:01:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4176F1C915;
-        Mon, 29 Aug 2022 04:01:56 -0700 (PDT)
+        with ESMTP id S229535AbiH2LCB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:02:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB4BF3AB38;
+        Mon, 29 Aug 2022 04:02:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F34AAB80EC8;
-        Mon, 29 Aug 2022 11:01:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 044E3C433B5;
-        Mon, 29 Aug 2022 11:01:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6995C61132;
+        Mon, 29 Aug 2022 11:02:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37E0FC433C1;
+        Mon, 29 Aug 2022 11:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770913;
-        bh=zsP5m/HM7B3yPTjrS0qFApOqZLNggpW8XOAOb0CmZP8=;
+        s=korg; t=1661770919;
+        bh=JFszvvfNIEW/xserBuvtdDUlhOD02mgyujNkLisWBDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXZbAoe7g7GTPT+2qSKGTODGB+wTjnS6OpdIqAhPtLZHJ7yBKdmnEdbABWIlXBZ6d
-         imdjRdCpLnXZI5sS0ibcrsGOD1BN6eywj4+BhV2nKTkBqGY6AbylTpNPUaEOLpiPNM
-         SeJZZyuyOCloHDujzzPk5j7SUfX1I+z9MbVnS0oc=
+        b=RsNj85ylZOjGnwfPnJ8yDFwKdu5qoLcqImVJkuvPSwfRXc3hAfqF79e0CxyDfFBwX
+         L81XQAtL/SvOXH9Vte6jiMSbNogUSxzSo1+eO1j8oVb3FXlrpr4k28R6qxt9BqCYBr
+         8Gp5VJzVy7OnMFYd6UhPlAeNeJLO1MVGNj+Yqm7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/136] btrfs: put initial index value of a directory in a constant
-Date:   Mon, 29 Aug 2022 12:58:08 +0200
-Message-Id: <20220829105805.464243592@linuxfoundation.org>
+Subject: [PATCH 5.15 022/136] btrfs: pass the dentry to btrfs_log_new_name() instead of the inode
+Date:   Mon, 29 Aug 2022 12:58:09 +0200
+Message-Id: <20220829105805.495470085@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
 References: <20220829105804.609007228@linuxfoundation.org>
@@ -56,82 +56,112 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 528ee697126fddaff448897c2d649bd756153c79 ]
+[ Upstream commit d5f5bd546552a94eefd68c42f40f778c40a89d2c ]
 
-At btrfs_set_inode_index_count() we refer twice to the number 2 as the
-initial index value for a directory (when it's empty), with a proper
-comment explaining the reason for that value. In the next patch I'll
-have to use that magic value in the directory logging code, so put
-the value in a #define at btrfs_inode.h, to avoid hardcoding the
-magic value again at tree-log.c.
+In the next patch in the series, there will be the need to access the old
+name, and its length, of an inode when logging the inode during a rename.
+So instead of passing the inode to btrfs_log_new_name() pass the dentry,
+because from the dentry we can get the inode, the name and its length.
+
+This will avoid passing 3 new parameters to btrfs_log_new_name() in the
+next patch - the name, its length and an index number. This way we end
+up passing only 1 new parameter, the index number.
 
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/btrfs_inode.h | 12 ++++++++++--
- fs/btrfs/inode.c       | 10 ++--------
- 2 files changed, 12 insertions(+), 10 deletions(-)
+ fs/btrfs/inode.c    |  8 ++++----
+ fs/btrfs/tree-log.c | 19 +++++++++++++++----
+ fs/btrfs/tree-log.h |  2 +-
+ 3 files changed, 20 insertions(+), 9 deletions(-)
 
-diff --git a/fs/btrfs/btrfs_inode.h b/fs/btrfs/btrfs_inode.h
-index 76ee1452c57ba..37ceea85b871c 100644
---- a/fs/btrfs/btrfs_inode.h
-+++ b/fs/btrfs/btrfs_inode.h
-@@ -13,6 +13,13 @@
- #include "ordered-data.h"
- #include "delayed-inode.h"
- 
-+/*
-+ * Since we search a directory based on f_pos (struct dir_context::pos) we have
-+ * to start at 2 since '.' and '..' have f_pos of 0 and 1 respectively, so
-+ * everybody else has to start at 2 (see btrfs_real_readdir() and dir_emit_dots()).
-+ */
-+#define BTRFS_DIR_START_INDEX 2
-+
- /*
-  * ordered_data_close is set by truncate when a file that used
-  * to have good data has been truncated to zero.  When it is set
-@@ -164,8 +171,9 @@ struct btrfs_inode {
- 	u64 disk_i_size;
- 
- 	/*
--	 * if this is a directory then index_cnt is the counter for the index
--	 * number for new files that are created
-+	 * If this is a directory then index_cnt is the counter for the index
-+	 * number for new files that are created. For an empty directory, this
-+	 * must be initialized to BTRFS_DIR_START_INDEX.
- 	 */
- 	u64 index_cnt;
- 
 diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index ac6ba984973c0..26a4acb856a38 100644
+index 26a4acb856a38..428a56f248bba 100644
 --- a/fs/btrfs/inode.c
 +++ b/fs/btrfs/inode.c
-@@ -6396,14 +6396,8 @@ static int btrfs_set_inode_index_count(struct btrfs_inode *inode)
- 		goto out;
- 	ret = 0;
- 
--	/*
--	 * MAGIC NUMBER EXPLANATION:
--	 * since we search a directory based on f_pos we have to start at 2
--	 * since '.' and '..' have f_pos of 0 and 1 respectively, so everybody
--	 * else has to start at 2
--	 */
- 	if (path->slots[0] == 0) {
--		inode->index_cnt = 2;
-+		inode->index_cnt = BTRFS_DIR_START_INDEX;
- 		goto out;
+@@ -6952,7 +6952,7 @@ static int btrfs_link(struct dentry *old_dentry, struct inode *dir,
+ 				goto fail;
+ 		}
+ 		d_instantiate(dentry, inode);
+-		btrfs_log_new_name(trans, BTRFS_I(inode), NULL, parent);
++		btrfs_log_new_name(trans, old_dentry, NULL, parent);
  	}
  
-@@ -6414,7 +6408,7 @@ static int btrfs_set_inode_index_count(struct btrfs_inode *inode)
+ fail:
+@@ -9621,13 +9621,13 @@ static int btrfs_rename_exchange(struct inode *old_dir,
+ 		BTRFS_I(new_inode)->dir_index = new_idx;
  
- 	if (found_key.objectid != btrfs_ino(inode) ||
- 	    found_key.type != BTRFS_DIR_INDEX_KEY) {
--		inode->index_cnt = 2;
-+		inode->index_cnt = BTRFS_DIR_START_INDEX;
- 		goto out;
+ 	if (root_log_pinned) {
+-		btrfs_log_new_name(trans, BTRFS_I(old_inode), BTRFS_I(old_dir),
++		btrfs_log_new_name(trans, old_dentry, BTRFS_I(old_dir),
+ 				   new_dentry->d_parent);
+ 		btrfs_end_log_trans(root);
+ 		root_log_pinned = false;
  	}
+ 	if (dest_log_pinned) {
+-		btrfs_log_new_name(trans, BTRFS_I(new_inode), BTRFS_I(new_dir),
++		btrfs_log_new_name(trans, new_dentry, BTRFS_I(new_dir),
+ 				   old_dentry->d_parent);
+ 		btrfs_end_log_trans(dest);
+ 		dest_log_pinned = false;
+@@ -9908,7 +9908,7 @@ static int btrfs_rename(struct user_namespace *mnt_userns,
+ 		BTRFS_I(old_inode)->dir_index = index;
  
+ 	if (log_pinned) {
+-		btrfs_log_new_name(trans, BTRFS_I(old_inode), BTRFS_I(old_dir),
++		btrfs_log_new_name(trans, old_dentry, BTRFS_I(old_dir),
+ 				   new_dentry->d_parent);
+ 		btrfs_end_log_trans(root);
+ 		log_pinned = false;
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index e9e1aae89030a..1d7e9812f55e1 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -6628,14 +6628,25 @@ void btrfs_record_snapshot_destroy(struct btrfs_trans_handle *trans,
+ 	mutex_unlock(&dir->log_mutex);
+ }
+ 
+-/*
+- * Call this after adding a new name for a file and it will properly
+- * update the log to reflect the new name.
++/**
++ * Update the log after adding a new name for an inode.
++ *
++ * @trans:              Transaction handle.
++ * @old_dentry:         The dentry associated with the old name and the old
++ *                      parent directory.
++ * @old_dir:            The inode of the previous parent directory for the case
++ *                      of a rename. For a link operation, it must be NULL.
++ * @parent:             The dentry associated with the directory under which the
++ *                      new name is located.
++ *
++ * Call this after adding a new name for an inode, as a result of a link or
++ * rename operation, and it will properly update the log to reflect the new name.
+  */
+ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
+-			struct btrfs_inode *inode, struct btrfs_inode *old_dir,
++			struct dentry *old_dentry, struct btrfs_inode *old_dir,
+ 			struct dentry *parent)
+ {
++	struct btrfs_inode *inode = BTRFS_I(d_inode(old_dentry));
+ 	struct btrfs_log_ctx ctx;
+ 
+ 	/*
+diff --git a/fs/btrfs/tree-log.h b/fs/btrfs/tree-log.h
+index 731bd9c029f55..7ffcac8a89905 100644
+--- a/fs/btrfs/tree-log.h
++++ b/fs/btrfs/tree-log.h
+@@ -84,7 +84,7 @@ void btrfs_record_unlink_dir(struct btrfs_trans_handle *trans,
+ void btrfs_record_snapshot_destroy(struct btrfs_trans_handle *trans,
+ 				   struct btrfs_inode *dir);
+ void btrfs_log_new_name(struct btrfs_trans_handle *trans,
+-			struct btrfs_inode *inode, struct btrfs_inode *old_dir,
++			struct dentry *old_dentry, struct btrfs_inode *old_dir,
+ 			struct dentry *parent);
+ 
+ #endif
 -- 
 2.35.1
 
