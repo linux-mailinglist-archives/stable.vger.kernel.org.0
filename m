@@ -2,49 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2FA5A4A0D
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C5B75A491C
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232603AbiH2Lcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:32:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54854 "EHLO
+        id S231635AbiH2LUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:20:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232403AbiH2Lbx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:31:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632FA10DC;
-        Mon, 29 Aug 2022 04:18:49 -0700 (PDT)
+        with ESMTP id S230132AbiH2LTc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B1275CC9;
+        Mon, 29 Aug 2022 04:13:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBBF6B80F10;
-        Mon, 29 Aug 2022 11:18:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E4FC433C1;
-        Mon, 29 Aug 2022 11:18:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA6CD61242;
+        Mon, 29 Aug 2022 11:13:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84A57C433D6;
+        Mon, 29 Aug 2022 11:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771927;
-        bh=FP+VqXlPhre/IasIJXUAABMMLoWJkKxEbU1x5fRZocU=;
+        s=korg; t=1661771611;
+        bh=lbbo5zIz7LBHyIKQSGFYcidE8T1e9xUIFuGqFczWtjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkuNdpY/72Uut6qFWcYRem0PmbpL7qP0bboWVrisv6WTNvXaeyPgQk5puA4vtEGTi
-         3GH5ZRfJujUDM2cCKw+hHOOdFYsF96Z/O46Sq4IPA65CNUcm4ujy4MVZZv9dh/zCi6
-         uh1mC3Hfm4ynrPbtmbop//31u58OaZG4CuW/iRz0=
+        b=kcO+/oBeAG4cL3PJdGf1mxz/gfYZ88oHIIMLBBmdAmQ4NpA0j/7gv8aVNDwQSTYZM
+         QiekmG9ohj/3YEnYdqE73BLcTT2hGqx1siG8hfi8+0oJwdRdSKYMl9MzG3pntmj7XW
+         Xqw1jBQcSOeCBI3Y6bFuhPRw8I4EYwTXxgICSMTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.19 143/158] perf python: Fix build when PYTHON_CONFIG is user supplied
+        stable@vger.kernel.org,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        syzbot+a7b60a176ec13cafb793@syzkaller.appspotmail.com,
+        Carlos Llamas <cmllamas@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Hridya Valsaraju <hridya@google.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Martijn Coenen <maco@android.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Todd Kjos <tkjos@android.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        =?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?= <arve@android.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 126/136] binder_alloc: add missing mmap_lock calls when using the VMA
 Date:   Mon, 29 Aug 2022 12:59:53 +0200
-Message-Id: <20220829105815.089677800@linuxfoundation.org>
+Message-Id: <20220829105809.855177179@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,53 +66,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Clark <james.clark@arm.com>
+From: Liam Howlett <liam.howlett@oracle.com>
 
-commit bc9e7fe313d5e56d4d5f34bcc04d1165f94f86fb upstream.
+commit 44e602b4e52f70f04620bbbf4fe46ecb40170bde upstream.
 
-The previous change to Python autodetection had a small mistake where
-the auto value was used to determine the Python binary, rather than the
-user supplied value. The Python binary is only used for one part of the
-build process, rather than the final linking, so it was producing
-correct builds in most scenarios, especially when the auto detected
-value matched what the user wanted, or the system only had a valid set
-of Pythons.
+Take the mmap_read_lock() when using the VMA in binder_alloc_print_pages()
+and when checking for a VMA in binder_alloc_new_buf_locked().
 
-Change it so that the Python binary path is derived from either the
-PYTHON_CONFIG value or PYTHON value, depending on what is specified by
-the user. This was the original intention.
+It is worth noting binder_alloc_new_buf_locked() drops the VMA read lock
+after it verifies a VMA exists, but may be taken again deeper in the call
+stack, if necessary.
 
-This error was spotted in a build failure an odd cross compilation
-environment after commit 4c41cb46a732fe82 ("perf python: Prefer
-python3") was merged.
-
-Fixes: 630af16eee495f58 ("perf tools: Use Python devtools for version autodetection rather than runtime")
-Signed-off-by: James Clark <james.clark@arm.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: James Clark <james.clark@arm.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220728093946.1337642-1-james.clark@arm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lkml.kernel.org/r/20220810160209.1630707-1-Liam.Howlett@oracle.com
+Fixes: a43cfc87caaf (android: binder: stop saving a pointer to the VMA)
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Reported-by: Ondrej Mosnacek <omosnace@redhat.com>
+Reported-by: <syzbot+a7b60a176ec13cafb793@syzkaller.appspotmail.com>
+Acked-by: Carlos Llamas <cmllamas@google.com>
+Tested-by: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Christian Brauner (Microsoft) <brauner@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Hridya Valsaraju <hridya@google.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Martijn Coenen <maco@android.com>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: Todd Kjos <tkjos@android.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: "Arve Hjønnevåg" <arve@android.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/Makefile.config |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/android/binder_alloc.c |   31 +++++++++++++++++++++----------
+ 1 file changed, 21 insertions(+), 10 deletions(-)
 
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -265,7 +265,7 @@ endif
- # defined. get-executable-or-default fails with an error if the first argument is supplied but
- # doesn't exist.
- override PYTHON_CONFIG := $(call get-executable-or-default,PYTHON_CONFIG,$(PYTHON_AUTO))
--override PYTHON := $(call get-executable-or-default,PYTHON,$(subst -config,,$(PYTHON_AUTO)))
-+override PYTHON := $(call get-executable-or-default,PYTHON,$(subst -config,,$(PYTHON_CONFIG)))
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -395,12 +395,15 @@ static struct binder_buffer *binder_allo
+ 	size_t size, data_offsets_size;
+ 	int ret;
  
- grep-libs  = $(filter -l%,$(1))
- strip-libs  = $(filter-out -l%,$(1))
++	mmap_read_lock(alloc->vma_vm_mm);
+ 	if (!binder_alloc_get_vma(alloc)) {
++		mmap_read_unlock(alloc->vma_vm_mm);
+ 		binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
+ 				   "%d: binder_alloc_buf, no vma\n",
+ 				   alloc->pid);
+ 		return ERR_PTR(-ESRCH);
+ 	}
++	mmap_read_unlock(alloc->vma_vm_mm);
+ 
+ 	data_offsets_size = ALIGN(data_size, sizeof(void *)) +
+ 		ALIGN(offsets_size, sizeof(void *));
+@@ -922,17 +925,25 @@ void binder_alloc_print_pages(struct seq
+ 	 * Make sure the binder_alloc is fully initialized, otherwise we might
+ 	 * read inconsistent state.
+ 	 */
+-	if (binder_alloc_get_vma(alloc) != NULL) {
+-		for (i = 0; i < alloc->buffer_size / PAGE_SIZE; i++) {
+-			page = &alloc->pages[i];
+-			if (!page->page_ptr)
+-				free++;
+-			else if (list_empty(&page->lru))
+-				active++;
+-			else
+-				lru++;
+-		}
++
++	mmap_read_lock(alloc->vma_vm_mm);
++	if (binder_alloc_get_vma(alloc) == NULL) {
++		mmap_read_unlock(alloc->vma_vm_mm);
++		goto uninitialized;
++	}
++
++	mmap_read_unlock(alloc->vma_vm_mm);
++	for (i = 0; i < alloc->buffer_size / PAGE_SIZE; i++) {
++		page = &alloc->pages[i];
++		if (!page->page_ptr)
++			free++;
++		else if (list_empty(&page->lru))
++			active++;
++		else
++			lru++;
+ 	}
++
++uninitialized:
+ 	mutex_unlock(&alloc->mutex);
+ 	seq_printf(m, "  pages: %d:%d:%d\n", active, lru, free);
+ 	seq_printf(m, "  pages high watermark: %zu\n", alloc->pages_high);
 
 
