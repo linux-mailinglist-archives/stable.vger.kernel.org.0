@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B55D45A4958
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D67E95A4912
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:20:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231589AbiH2LX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:23:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40672 "EHLO
+        id S231566AbiH2LUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231715AbiH2LWk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:22:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5257760F2;
-        Mon, 29 Aug 2022 04:14:27 -0700 (PDT)
+        with ESMTP id S231823AbiH2LTZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1F26DF86;
+        Mon, 29 Aug 2022 04:13:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8561611DA;
-        Mon, 29 Aug 2022 11:11:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7AD6C433D6;
-        Mon, 29 Aug 2022 11:11:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4C9AB80FA3;
+        Mon, 29 Aug 2022 11:12:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E998C433D6;
+        Mon, 29 Aug 2022 11:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771505;
-        bh=4V9Ya8StPCisj3e5YG0S3LF8fSowUKxzSMCoiLeOgx0=;
+        s=korg; t=1661771539;
+        bh=zvQ2yyzXmUiskuCkUP4unrwYo2Z75bDECc3GxabstgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+DlT4OPbhOyzk/39W8dCz6ZpqUZixdRxo3mwzFImeRLg4gGDADGbad4hAmVfoWq4
-         1fw075kgXEmIEGqTOM4xWz1zCrUkmvW5cS4zEfZGgKa1gTPKyrGAYj8oaUeUBuoJ2Z
-         msRhBt8yzFluo5adgxEbcQOHDEVvzSwT+coLZt4M=
+        b=ige7kBvjawdXIdIrnQsSDzKFANOrusypW26g2ce3w1foVznqroqU5KDAQWfxzEB/k
+         twDctxW6AjgixSz7FA7AFCAjj54wfw1dXThL35SNx6O5ro/zSUqweef6u6dibOlZFv
+         Bzd+qkSYIa5tGC52mDg7koKeUQlkUziYAz/g1tPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <Jeremy.Linton@arm.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Riwen Lu <luriwen@kylinos.cn>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 74/86] ACPI: processor: Remove freq Qos request for all CPUs
-Date:   Mon, 29 Aug 2022 12:59:40 +0200
-Message-Id: <20220829105759.544146749@linuxfoundation.org>
+        stable@vger.kernel.org, Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.15 114/136] nouveau: explicitly wait on the fence in nouveau_bo_move_m2mf
+Date:   Mon, 29 Aug 2022 12:59:41 +0200
+Message-Id: <20220829105809.384152318@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riwen Lu <luriwen@kylinos.cn>
+From: Karol Herbst <kherbst@redhat.com>
 
-commit 36527b9d882362567ceb4eea8666813280f30e6f upstream.
+commit 6b04ce966a738ecdd9294c9593e48513c0dc90aa upstream.
 
-The freq Qos request would be removed repeatedly if the cpufreq policy
-relates to more than one CPU. Then, it would cause the "called for unknown
-object" warning.
+It is a bit unlcear to us why that's helping, but it does and unbreaks
+suspend/resume on a lot of GPUs without any known drawbacks.
 
-Remove the freq Qos request for each CPU relates to the cpufreq policy,
-instead of removing repeatedly for the last CPU of it.
-
-Fixes: a1bb46c36ce3 ("ACPI: processor: Add QoS requests for all CPUs")
-Reported-by: Jeremy Linton <Jeremy.Linton@arm.com>
-Tested-by: Jeremy Linton <jeremy.linton@arm.com>
-Signed-off-by: Riwen Lu <luriwen@kylinos.cn>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable@vger.kernel.org # v5.15+
+Closes: https://gitlab.freedesktop.org/drm/nouveau/-/issues/156
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220819200928.401416-1-kherbst@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/processor_thermal.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_bo.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/acpi/processor_thermal.c
-+++ b/drivers/acpi/processor_thermal.c
-@@ -148,7 +148,7 @@ void acpi_thermal_cpufreq_exit(struct cp
- 	unsigned int cpu;
- 
- 	for_each_cpu(cpu, policy->related_cpus) {
--		struct acpi_processor *pr = per_cpu(processors, policy->cpu);
-+		struct acpi_processor *pr = per_cpu(processors, cpu);
- 
- 		if (pr)
- 			freq_qos_remove_request(&pr->thermal_req);
+diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
+index 05076e530e7d..e29175e4b44c 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_bo.c
++++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
+@@ -820,6 +820,15 @@ nouveau_bo_move_m2mf(struct ttm_buffer_object *bo, int evict,
+ 		if (ret == 0) {
+ 			ret = nouveau_fence_new(chan, false, &fence);
+ 			if (ret == 0) {
++				/* TODO: figure out a better solution here
++				 *
++				 * wait on the fence here explicitly as going through
++				 * ttm_bo_move_accel_cleanup somehow doesn't seem to do it.
++				 *
++				 * Without this the operation can timeout and we'll fallback to a
++				 * software copy, which might take several minutes to finish.
++				 */
++				nouveau_fence_wait(fence, false, false);
+ 				ret = ttm_bo_move_accel_cleanup(bo,
+ 								&fence->base,
+ 								evict, false,
+-- 
+2.37.2
+
 
 
