@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF3D15A4897
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:12:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 614535A48AB
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231225AbiH2LMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40438 "EHLO
+        id S229826AbiH2LOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:14:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231226AbiH2LMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:12:14 -0400
+        with ESMTP id S229975AbiH2LNI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF6F61D84;
-        Mon, 29 Aug 2022 04:08:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E0FF65250;
+        Mon, 29 Aug 2022 04:09:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70B2CB80F98;
-        Mon, 29 Aug 2022 11:07:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC2ADC433C1;
-        Mon, 29 Aug 2022 11:07:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61CA7B80F93;
+        Mon, 29 Aug 2022 11:08:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7032C433C1;
+        Mon, 29 Aug 2022 11:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771264;
-        bh=uMRB23unHmTqcawSbCqlYIwEgqixTCYXTgtjzWJQvl4=;
+        s=korg; t=1661771285;
+        bh=HibPfC1V04312A6CBMI6vt7gcr1ozunCxcdjSr9zyz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MCScNTAgtv09GjiaJAi67LvAtQJUpv5wTh2w6T4OMCD42vdYXUu2Y57aGsI/WpB7G
-         jRNnsajHoksVkUpKyrfLGYeSp0zcnuu2z7knPPq6qeptqfBvXrHbP6hniJ5FQGynbj
-         f+sCbnSW7dxHVClyllUJIwswIdLsl2gXL7RZEyQM=
+        b=JDPOIlt7kczWoKjxjW0DiVUzPaur8e1xOP5m2tzAiUfyZilTD+4xynmkucd4GhdkL
+         Nx7jex/cyepF/TWa8yax+LgeoKWC2860xbdhj+5W+fSvPValRgFp73npCPhbytyqD3
+         2W+Fj5aHdOrtsB/rYgVVFV6vTjg8yz+VdCRuj6Wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 085/136] net: Fix data-races around sysctl_devconf_inherit_init_net.
-Date:   Mon, 29 Aug 2022 12:59:12 +0200
-Message-Id: <20220829105808.143229770@linuxfoundation.org>
+Subject: [PATCH 5.10 47/86] net: Fix data-races around weight_p and dev_weight_[rt]x_bias.
+Date:   Mon, 29 Aug 2022 12:59:13 +0200
+Message-Id: <20220829105758.455593849@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,95 +56,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit a5612ca10d1aa05624ebe72633e0c8c792970833 ]
+[ Upstream commit bf955b5ab8f6f7b0632cdef8e36b14e4f6e77829 ]
 
-While reading sysctl_devconf_inherit_init_net, it can be changed
-concurrently.  Thus, we need to add READ_ONCE() to its readers.
+While reading weight_p, it can be changed concurrently.  Thus, we need
+to add READ_ONCE() to its reader.
 
-Fixes: 856c395cfa63 ("net: introduce a knob to control whether to inherit devconf config")
+Also, dev_[rt]x_weight can be read/written at the same time.  So, we
+need to use READ_ONCE() and WRITE_ONCE() for its access.  Moreover, to
+use the same weight_p while changing dev_[rt]x_weight, we add a mutex
+in proc_do_dev_weight().
+
+Fixes: 3d48b53fb2ae ("net: dev_weight: TX/RX orthogonality")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h |  9 +++++++++
- net/ipv4/devinet.c        | 16 ++++++++++------
- net/ipv6/addrconf.c       |  5 ++---
- 3 files changed, 21 insertions(+), 9 deletions(-)
+ net/core/dev.c             |  2 +-
+ net/core/sysctl_net_core.c | 15 +++++++++------
+ net/sched/sch_generic.c    |  2 +-
+ 3 files changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index f9ed41ca7ac6d..3b97438afe3e2 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -636,6 +636,15 @@ static inline bool net_has_fallback_tunnels(const struct net *net)
- #endif
- }
- 
-+static inline int net_inherit_devconf(void)
-+{
-+#if IS_ENABLED(CONFIG_SYSCTL)
-+	return READ_ONCE(sysctl_devconf_inherit_init_net);
-+#else
-+	return 0;
-+#endif
-+}
-+
- static inline int netdev_queue_numa_node_read(const struct netdev_queue *q)
- {
- #if defined(CONFIG_XPS) && defined(CONFIG_NUMA)
-diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
-index 4744c7839de53..9ac41ffdc6344 100644
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -2673,23 +2673,27 @@ static __net_init int devinet_init_net(struct net *net)
- #endif
- 
- 	if (!net_eq(net, &init_net)) {
--		if (IS_ENABLED(CONFIG_SYSCTL) &&
--		    sysctl_devconf_inherit_init_net == 3) {
-+		switch (net_inherit_devconf()) {
-+		case 3:
- 			/* copy from the current netns */
- 			memcpy(all, current->nsproxy->net_ns->ipv4.devconf_all,
- 			       sizeof(ipv4_devconf));
- 			memcpy(dflt,
- 			       current->nsproxy->net_ns->ipv4.devconf_dflt,
- 			       sizeof(ipv4_devconf_dflt));
--		} else if (!IS_ENABLED(CONFIG_SYSCTL) ||
--			   sysctl_devconf_inherit_init_net != 2) {
--			/* inherit == 0 or 1: copy from init_net */
-+			break;
-+		case 0:
-+		case 1:
-+			/* copy from init_net */
- 			memcpy(all, init_net.ipv4.devconf_all,
- 			       sizeof(ipv4_devconf));
- 			memcpy(dflt, init_net.ipv4.devconf_dflt,
- 			       sizeof(ipv4_devconf_dflt));
-+			break;
-+		case 2:
-+			/* use compiled values */
-+			break;
- 		}
--		/* else inherit == 2: use compiled values */
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 637bc576fbd26..701a1afc91ff1 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6371,7 +6371,7 @@ static int process_backlog(struct napi_struct *napi, int quota)
+ 		net_rps_action_and_irq_enable(sd);
  	}
  
- #ifdef CONFIG_SYSCTL
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 6dcf034835ecd..8800987fdb402 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -7128,9 +7128,8 @@ static int __net_init addrconf_init_net(struct net *net)
- 	if (!dflt)
- 		goto err_alloc_dflt;
+-	napi->weight = dev_rx_weight;
++	napi->weight = READ_ONCE(dev_rx_weight);
+ 	while (again) {
+ 		struct sk_buff *skb;
  
--	if (IS_ENABLED(CONFIG_SYSCTL) &&
--	    !net_eq(net, &init_net)) {
--		switch (sysctl_devconf_inherit_init_net) {
-+	if (!net_eq(net, &init_net)) {
-+		switch (net_inherit_devconf()) {
- 		case 1:  /* copy from init_net */
- 			memcpy(all, init_net.ipv6.devconf_all,
- 			       sizeof(ipv6_devconf));
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index 2e0a4378e778a..0dfe9f255ab3a 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -235,14 +235,17 @@ static int set_default_qdisc(struct ctl_table *table, int write,
+ static int proc_do_dev_weight(struct ctl_table *table, int write,
+ 			   void *buffer, size_t *lenp, loff_t *ppos)
+ {
+-	int ret;
++	static DEFINE_MUTEX(dev_weight_mutex);
++	int ret, weight;
+ 
++	mutex_lock(&dev_weight_mutex);
+ 	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+-	if (ret != 0)
+-		return ret;
+-
+-	dev_rx_weight = weight_p * dev_weight_rx_bias;
+-	dev_tx_weight = weight_p * dev_weight_tx_bias;
++	if (!ret && write) {
++		weight = READ_ONCE(weight_p);
++		WRITE_ONCE(dev_rx_weight, weight * dev_weight_rx_bias);
++		WRITE_ONCE(dev_tx_weight, weight * dev_weight_tx_bias);
++	}
++	mutex_unlock(&dev_weight_mutex);
+ 
+ 	return ret;
+ }
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index 5d5391adb667c..68f1e89430b3b 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -403,7 +403,7 @@ static inline bool qdisc_restart(struct Qdisc *q, int *packets)
+ 
+ void __qdisc_run(struct Qdisc *q)
+ {
+-	int quota = dev_tx_weight;
++	int quota = READ_ONCE(dev_tx_weight);
+ 	int packets;
+ 
+ 	while (qdisc_restart(q, &packets)) {
 -- 
 2.35.1
 
