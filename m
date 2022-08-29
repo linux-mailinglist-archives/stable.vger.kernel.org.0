@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A3025A43D7
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3973A5A43D8
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:38:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229556AbiH2HiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:38:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56288 "EHLO
+        id S229543AbiH2HiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:38:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbiH2HiF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:38:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 747A14E850
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:38:04 -0700 (PDT)
+        with ESMTP id S229449AbiH2HiN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:38:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1894A4E639
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:38:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CEA0B80C75
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:38:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D1F2C433C1;
-        Mon, 29 Aug 2022 07:38:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A90816112E
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:38:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8524C433C1;
+        Mon, 29 Aug 2022 07:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661758682;
-        bh=5qD55bxJh92zcBZG537U6eK5G55oADxgW6+Khz/p4XE=;
+        s=korg; t=1661758692;
+        bh=lDxf3ofkbN63R3jFC6iwDii2DotY2XqdYPt3P8wJ/og=;
         h=Subject:To:Cc:From:Date:From;
-        b=oceKdLBVlIxeFwcPMygsxxRSTShVsqj2dbZDPKQvfN03PSvj39z7xwR7DZKc3RL1N
-         SF6Q3LcDRl+3ccw5aR2gb+5glYb0zffN5Q5tqtJZxbUqgqZk/IcYnoP0mKiE3a///Q
-         Dc9hXsbfXwyViD0gATe4TGKLlodurQe5uxn3ys/I=
-Subject: FAILED: patch "[PATCH] s390/mm: do not trigger write fault when vma does not allow" failed to apply to 4.9-stable tree
-To:     gerald.schaefer@linux.ibm.com, david@redhat.com, gor@linux.ibm.com,
-        hca@linux.ibm.com, stable@vger.kernel.org
+        b=0L1J1WU8NafGnVidj8IFaeHgKUa06eOisbN5QPC95sNkvjK0nvuZUL5SZntJ+c1rc
+         h4cPaAzp8LRC4WwOcK3gRuaupdr6eeheYg46K9V5YxejVI3mqn2K59CEwHzF1gkSLd
+         eSrpWIrlnwvqv7C+fr1LUlJRYGPs7BKWbxFCOArw=
+Subject: FAILED: patch "[PATCH] mm/hugetlb: avoid corrupting page->mapping in" failed to apply to 5.15-stable tree
+To:     linmiaohe@huawei.com, akpm@linux-foundation.org,
+        axelrasmussen@google.com, mike.kravetz@oracle.com,
+        peterx@redhat.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Aug 2022 09:37:44 +0200
-Message-ID: <16617586646999@kroah.com>
+Date:   Mon, 29 Aug 2022 09:38:09 +0200
+Message-ID: <166175868922875@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,48 +61,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 41ac42f137080bc230b5882e3c88c392ab7f2d32 Mon Sep 17 00:00:00 2001
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Date: Wed, 17 Aug 2022 15:26:03 +0200
-Subject: [PATCH] s390/mm: do not trigger write fault when vma does not allow
- VM_WRITE
+From ab74ef708dc51df7cf2b8a890b9c6990fac5c0c6 Mon Sep 17 00:00:00 2001
+From: Miaohe Lin <linmiaohe@huawei.com>
+Date: Tue, 12 Jul 2022 21:05:42 +0800
+Subject: [PATCH] mm/hugetlb: avoid corrupting page->mapping in
+ hugetlb_mcopy_atomic_pte
 
-For non-protection pXd_none() page faults in do_dat_exception(), we
-call do_exception() with access == (VM_READ | VM_WRITE | VM_EXEC).
-In do_exception(), vma->vm_flags is checked against that before
-calling handle_mm_fault().
+In MCOPY_ATOMIC_CONTINUE case with a non-shared VMA, pages in the page
+cache are installed in the ptes.  But hugepage_add_new_anon_rmap is called
+for them mistakenly because they're not vm_shared.  This will corrupt the
+page->mapping used by page cache code.
 
-Since commit 92f842eac7ee3 ("[S390] store indication fault optimization"),
-we call handle_mm_fault() with FAULT_FLAG_WRITE, when recognizing that
-it was a write access. However, the vma flags check is still only
-checking against (VM_READ | VM_WRITE | VM_EXEC), and therefore also
-calling handle_mm_fault() with FAULT_FLAG_WRITE in cases where the vma
-does not allow VM_WRITE.
-
-Fix this by changing access check in do_exception() to VM_WRITE only,
-when recognizing write access.
-
-Link: https://lkml.kernel.org/r/20220811103435.188481-3-david@redhat.com
-Fixes: 92f842eac7ee3 ("[S390] store indication fault optimization")
+Link: https://lkml.kernel.org/r/20220712130542.18836-1-linmiaohe@huawei.com
+Fixes: f619147104c8 ("userfaultfd: add UFFDIO_CONTINUE ioctl")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Peter Xu <peterx@redhat.com>
 Cc: <stable@vger.kernel.org>
-Reported-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 13449941516c..09b6e756d521 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -379,7 +379,9 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	flags = FAULT_FLAG_DEFAULT;
- 	if (user_mode(regs))
- 		flags |= FAULT_FLAG_USER;
--	if (access == VM_WRITE || is_write)
-+	if (is_write)
-+		access = VM_WRITE;
-+	if (access == VM_WRITE)
- 		flags |= FAULT_FLAG_WRITE;
- 	mmap_read_lock(mm);
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 2480ba627aa5..e070b8593b37 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -6041,7 +6041,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 	if (!huge_pte_none_mostly(huge_ptep_get(dst_pte)))
+ 		goto out_release_unlock;
  
+-	if (vm_shared) {
++	if (page_in_pagecache) {
+ 		page_dup_file_rmap(page, true);
+ 	} else {
+ 		ClearHPageRestoreReserve(page);
 
