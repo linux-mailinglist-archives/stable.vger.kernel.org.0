@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BAC35A49A1
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:27:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD6365A4898
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:12:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232196AbiH2L1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:27:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40868 "EHLO
+        id S229560AbiH2LMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:12:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232058AbiH2L0A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:26:00 -0400
+        with ESMTP id S229683AbiH2LMO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:12:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DC797757F;
-        Mon, 29 Aug 2022 04:16:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FF9C5E335;
+        Mon, 29 Aug 2022 04:08:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 330CBB80FB3;
-        Mon, 29 Aug 2022 11:15:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ACB6C433C1;
-        Mon, 29 Aug 2022 11:15:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09FB0B80EF5;
+        Mon, 29 Aug 2022 11:05:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DBD3C433D6;
+        Mon, 29 Aug 2022 11:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771756;
-        bh=vvNOSQZPTkACqzlLeZw7NqwxdNK0Y6n57u+/GJac9Ww=;
+        s=korg; t=1661771144;
+        bh=pOZExQVSyn7QCvb7/wjxQji+l6d/83WgeVnjV1UlHz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qGLvaOTKdOd7E459LS0+51l1WJOEmxzDx9J5W81D+LwnGk16hd/iXrRtFPmVE6mLM
-         u2S6HnxuUwAT1yaGsFpjNLA+u69PTZXnKSPklvDQSiqXYVujkk1/oUY/VM7wNqe4/c
-         U+4UYdmrx8QVgHANfmdaAYM8pD87CWY0AXRpfpXs=
+        b=NzIAfc1lWyaufa685TbsO2Tl/qraD4Y9aU7NchqlD10K8SFpnmktxTi5JF7biZ280
+         /Bu/+k74MwQLBRbSJ+Adc1AthLQavE8mGscpyfFXvqadW7wF9P7AkxbqNupcf0blQH
+         MOP9U80a5SjKKVmUjvMTljw8CQG6UtUbkYxrQdNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 088/158] ionic: fix up issues with handling EAGAIN on FW cmds
+Subject: [PATCH 5.15 071/136] net: Fix data-races around weight_p and dev_weight_[rt]x_bias.
 Date:   Mon, 29 Aug 2022 12:58:58 +0200
-Message-Id: <20220829105812.745016939@linuxfoundation.org>
+Message-Id: <20220829105807.557952194@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 0fc4dd452d6c14828eed6369155c75c0ac15bab3 ]
+[ Upstream commit bf955b5ab8f6f7b0632cdef8e36b14e4f6e77829 ]
 
-In looping on FW update tests we occasionally see the
-FW_ACTIVATE_STATUS command fail while it is in its EAGAIN loop
-waiting for the FW activate step to finsh inside the FW.  The
-firmware is complaining that the done bit is set when a new
-dev_cmd is going to be processed.
+While reading weight_p, it can be changed concurrently.  Thus, we need
+to add READ_ONCE() to its reader.
 
-Doing a clean on the cmd registers and doorbell before exiting
-the wait-for-done and cleaning the done bit before the sleep
-prevents this from occurring.
+Also, dev_[rt]x_weight can be read/written at the same time.  So, we
+need to use READ_ONCE() and WRITE_ONCE() for its access.  Moreover, to
+use the same weight_p while changing dev_[rt]x_weight, we add a mutex
+in proc_do_dev_weight().
 
-Fixes: fbfb8031533c ("ionic: Add hardware init and device commands")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 3d48b53fb2ae ("net: dev_weight: TX/RX orthogonality")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/dev.c             |  2 +-
+ net/core/sysctl_net_core.c | 15 +++++++++------
+ net/sched/sch_generic.c    |  2 +-
+ 3 files changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_main.c b/drivers/net/ethernet/pensando/ionic/ionic_main.c
-index 4029b4e021f86..56f93b0305519 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_main.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_main.c
-@@ -474,8 +474,8 @@ static int __ionic_dev_cmd_wait(struct ionic *ionic, unsigned long max_seconds,
- 				ionic_opcode_to_str(opcode), opcode,
- 				ionic_error_to_str(err), err);
- 
--			msleep(1000);
- 			iowrite32(0, &idev->dev_cmd_regs->done);
-+			msleep(1000);
- 			iowrite32(1, &idev->dev_cmd_regs->doorbell);
- 			goto try_again;
- 		}
-@@ -488,6 +488,8 @@ static int __ionic_dev_cmd_wait(struct ionic *ionic, unsigned long max_seconds,
- 		return ionic_error_to_errno(err);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 12b1811cb488b..1a0de071fcf45 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6437,7 +6437,7 @@ static int process_backlog(struct napi_struct *napi, int quota)
+ 		net_rps_action_and_irq_enable(sd);
  	}
  
-+	ionic_dev_cmd_clean(ionic);
-+
- 	return 0;
- }
+-	napi->weight = dev_rx_weight;
++	napi->weight = READ_ONCE(dev_rx_weight);
+ 	while (again) {
+ 		struct sk_buff *skb;
  
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index 5f88526ad61cc..ed20cbdd19315 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -236,14 +236,17 @@ static int set_default_qdisc(struct ctl_table *table, int write,
+ static int proc_do_dev_weight(struct ctl_table *table, int write,
+ 			   void *buffer, size_t *lenp, loff_t *ppos)
+ {
+-	int ret;
++	static DEFINE_MUTEX(dev_weight_mutex);
++	int ret, weight;
+ 
++	mutex_lock(&dev_weight_mutex);
+ 	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+-	if (ret != 0)
+-		return ret;
+-
+-	dev_rx_weight = weight_p * dev_weight_rx_bias;
+-	dev_tx_weight = weight_p * dev_weight_tx_bias;
++	if (!ret && write) {
++		weight = READ_ONCE(weight_p);
++		WRITE_ONCE(dev_rx_weight, weight * dev_weight_rx_bias);
++		WRITE_ONCE(dev_tx_weight, weight * dev_weight_tx_bias);
++	}
++	mutex_unlock(&dev_weight_mutex);
+ 
+ 	return ret;
+ }
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index 30c29a9a2efd2..250d87d993cb7 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -409,7 +409,7 @@ static inline bool qdisc_restart(struct Qdisc *q, int *packets)
+ 
+ void __qdisc_run(struct Qdisc *q)
+ {
+-	int quota = dev_tx_weight;
++	int quota = READ_ONCE(dev_tx_weight);
+ 	int packets;
+ 
+ 	while (qdisc_restart(q, &packets)) {
 -- 
 2.35.1
 
