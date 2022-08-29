@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C1A25A4B5B
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 267DF5A4B68
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:18:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229880AbiH2MQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 08:16:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37904 "EHLO
+        id S229691AbiH2MSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 08:18:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbiH2MQX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:16:23 -0400
+        with ESMTP id S230488AbiH2MRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:17:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AE3DEAE;
-        Mon, 29 Aug 2022 04:59:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3206AA2232;
+        Mon, 29 Aug 2022 05:01:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54533B80EF3;
-        Mon, 29 Aug 2022 11:15:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A38B3C433D7;
-        Mon, 29 Aug 2022 11:15:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FC73B80F93;
+        Mon, 29 Aug 2022 11:16:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40A7BC433D7;
+        Mon, 29 Aug 2022 11:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771753;
-        bh=BILumsM7qmpk/hwvCIZjFEGcHsYLV3LR5ngpNbL/JVs=;
+        s=korg; t=1661771765;
+        bh=AlpP6Cppu3aOPE3+U7DODj6l+USJkVNajExw8Z7AmVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Owzfv/5Owvu8QWMUem69ijFbnmDnitN6Ttm+1I0IbfrNkJm34Ro/6hWpAivFVt6vU
-         OAM8kMlPfMGyQZ0/BK7XkqKOrUaFI50A53Cv1zukhcekrRniYBys22casky3ppkcvu
-         N4/m/X4UcqRT0KRxQ4cRVk6Vd2sR/WfWpXK19fSA=
+        b=n5TKkEZuqA+Ts0WPN0fsAH2r3fvjAzrM3/o3rD/DZSWyCkqKp6Ef84VjZNbghXTmD
+         8UpJxV/aqLez1DLFVLBLEvwienr3xvwhkeu/CNmjxSH9Z7qgkqeKYtTwNb+D7lKYV7
+         6a0lLb9+qW5TgT71/UrE+gNH4VTDQZ/kKLr0JM18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Aleksander Jan Bajkowski <olek2@wp.pl>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 087/158] ionic: clear broken state on generation change
-Date:   Mon, 29 Aug 2022 12:58:57 +0200
-Message-Id: <20220829105812.704403576@linuxfoundation.org>
+Subject: [PATCH 5.19 091/158] net: lantiq_xrx200: confirm skb is allocated before using
+Date:   Mon, 29 Aug 2022 12:59:01 +0200
+Message-Id: <20220829105812.881721584@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -54,41 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit 9cb9dadb8f45c67e4310e002c2f221b70312b293 ]
+[ Upstream commit c8b043702dc0894c07721c5b019096cebc8c798f ]
 
-There is a case found in heavy testing where a link flap happens just
-before a firmware Recovery event and the driver gets stuck in the
-BROKEN state.  This comes from the driver getting interrupted by a FW
-generation change when coming back up from the link flap, and the call
-to ionic_start_queues() in ionic_link_status_check() fails.  This can be
-addressed by having the fw_up code clear the BROKEN bit if seen, rather
-than waiting for a user to manually force the interface down and then
-back up.
+xrx200_hw_receive() assumes build_skb() always works and goes straight
+to skb_reserve(). However, build_skb() can fail under memory pressure.
 
-Fixes: 9e8eaf8427b6 ("ionic: stop watchdog when in broken state")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Add a check in case build_skb() failed to allocate and return NULL.
+
+Fixes: e015593573b3 ("net: lantiq_xrx200: convert to build_skb")
+Reported-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_lif.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/lantiq_xrx200.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-index 1443f788ee37c..d4226999547e8 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -2963,6 +2963,9 @@ static void ionic_lif_handle_fw_up(struct ionic_lif *lif)
+diff --git a/drivers/net/ethernet/lantiq_xrx200.c b/drivers/net/ethernet/lantiq_xrx200.c
+index 5edb68a8aab1e..89314b645c822 100644
+--- a/drivers/net/ethernet/lantiq_xrx200.c
++++ b/drivers/net/ethernet/lantiq_xrx200.c
+@@ -239,6 +239,12 @@ static int xrx200_hw_receive(struct xrx200_chan *ch)
+ 	}
  
- 	mutex_lock(&lif->queue_lock);
- 
-+	if (test_and_clear_bit(IONIC_LIF_F_BROKEN, lif->state))
-+		dev_info(ionic->dev, "FW Up: clearing broken state\n");
+ 	skb = build_skb(buf, priv->rx_skb_size);
++	if (!skb) {
++		skb_free_frag(buf);
++		net_dev->stats.rx_dropped++;
++		return -ENOMEM;
++	}
 +
- 	err = ionic_qcqs_alloc(lif);
- 	if (err)
- 		goto err_unlock;
+ 	skb_reserve(skb, NET_SKB_PAD);
+ 	skb_put(skb, len);
+ 
 -- 
 2.35.1
 
