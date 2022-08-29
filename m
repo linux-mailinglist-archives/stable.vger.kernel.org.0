@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF00F5A43FB
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86BEC5A43FE
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229644AbiH2HmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:42:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33916 "EHLO
+        id S229582AbiH2HmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:42:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229720AbiH2Hl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:41:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82AF04BD24
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:41:55 -0700 (PDT)
+        with ESMTP id S229553AbiH2HmG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:42:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A754BD30
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:42:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D720B80D17
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:41:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68236C433D7;
-        Mon, 29 Aug 2022 07:41:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB91D61140
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:42:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D224FC433D6;
+        Mon, 29 Aug 2022 07:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661758912;
-        bh=8Rtxu4vI4BjFMUc95z/dK8dWbUI34hyUMryaAKcSK4c=;
+        s=korg; t=1661758922;
+        bh=iCc1OE47jSx5XPdmqDEeO6+Auv75lmK+MxrgCFMozco=;
         h=Subject:To:Cc:From:Date:From;
-        b=PstCt4qQ10lK75lbI4a1KHJIlq7NWO0MaB//A6fdTdKego9M4ll2UZxDgWh2Mf4/k
-         mqD0iDhV+Xo3iwjEDmusE+s8ZSdpmWmcMYZlW4D/4LYrW/LJIJkcLXOODM5UEbXmHy
-         vCXf6gkfF+2d7A6dc4ewyeMaYW1VkO2JrDi80tl8=
-Subject: FAILED: patch "[PATCH] smb3: missing inode locks in zero range" failed to apply to 5.10-stable tree
+        b=dHuukkOvmzzBcjBH/gpZrX0pXY2X6fCk7fm6onFiwG/B4HAGDVzz5f4D/yRiqxZDC
+         LaH6YrA+XxlyOi6tWLl1TbS7sNStSjfyayHMmZgHkunPcFRp+fHmnDvnG47lBiHS7F
+         XmLMtCJPkNo1M5mPGf2vYxzj7cCze3LXwCIKCEqA=
+Subject: FAILED: patch "[PATCH] smb3: missing inode locks in zero range" failed to apply to 4.19-stable tree
 To:     dhowells@redhat.com, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Aug 2022 09:41:32 +0200
-Message-ID: <166175889214957@kroah.com>
+Date:   Mon, 29 Aug 2022 09:41:33 +0200
+Message-ID: <16617588934732@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
