@@ -2,138 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2ACC5A3FD3
-	for <lists+stable@lfdr.de>; Sun, 28 Aug 2022 23:05:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5BC05A404C
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 02:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229568AbiH1VFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Aug 2022 17:05:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59596 "EHLO
+        id S229449AbiH2AQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Aug 2022 20:16:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbiH1VDk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Aug 2022 17:03:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1FCF31222;
-        Sun, 28 Aug 2022 14:03:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 440E560E9A;
-        Sun, 28 Aug 2022 21:03:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0608BC433D6;
-        Sun, 28 Aug 2022 21:03:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1661720619;
-        bh=kHBHNP9Iy4mxWdLk3NLLjaxLzTuvJQxjN9k+MdZjhCQ=;
-        h=Date:To:From:Subject:From;
-        b=JzEf/y7dOUQcxw+ULzwB+dSBEBv5kD/CfomHUSQgVOu7QZhSHdmiOCufREgDBr499
-         mDbVXayCrhzQyLH69UHhI2Fo4Im/lrRjkjGBni1AA9yPX3I/YVuFI/8xoybMh4XxbG
-         w6tuufwlQSSxnPLNmE1gZPLNl1POKFnyyIX2+dB8=
-Date:   Sun, 28 Aug 2022 14:03:38 -0700
-To:     mm-commits@vger.kernel.org, yuzhao@google.com,
-        ying.huang@intel.com, stable@vger.kernel.org, david@redhat.com,
-        peterx@redhat.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-stable] mm-mprotect-only-reference-swap-pfn-page-if-type-match.patch removed from -mm tree
-Message-Id: <20220828210339.0608BC433D6@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229446AbiH2AQg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Aug 2022 20:16:36 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2B7E2A973
+        for <stable@vger.kernel.org>; Sun, 28 Aug 2022 17:16:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1661732193;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SzkAkorlo+AmttOHZ6iqjGEde1HkM0doNAcGjEIWZ4o=;
+        b=UgpOLiMhLm2QiGP+kik5FokYWZQ1uJ1WpQDfo48pGtywOBFSlIoE9dSHfe5MF7kkMQBTHX
+        mD8j5H9RhR3KCERfymdZbohYQHYfd8MsmnsTQVkKzepZL71wJM4zEVLwtiGWSHDf7lt+7L
+        2ADqL+jG9ZdD+Oa/6IcqDLgNdfo5xJY=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-634-vqW6ZV5ZMLqg0NS-K6KiKQ-1; Sun, 28 Aug 2022 20:16:31 -0400
+X-MC-Unique: vqW6ZV5ZMLqg0NS-K6KiKQ-1
+Received: by mail-qv1-f70.google.com with SMTP id d10-20020a0cf6ca000000b00496744bc8e6so4131802qvo.2
+        for <stable@vger.kernel.org>; Sun, 28 Aug 2022 17:16:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=SzkAkorlo+AmttOHZ6iqjGEde1HkM0doNAcGjEIWZ4o=;
+        b=hpAUAbvGsH1oZuUsiOi0KB7ntNP4HxNRWhy+/3IVJaApAUl5JTQ1x8HLbso7yIeLEx
+         /8FW7eGdiQGVAqoWQ7U6SYrQmlmh03E3ZMV4BEa1nslwFQGzxCb9rGAzmBFQN13YvAYo
+         NG81mx/7mGCpTwag+lJ7xVFOhJoIrPznoEoQFMdX6X3Ma7KNS/F2+8YhN9LoS5QJnfFu
+         R7Yz5hAKlk43X+E0PRN8tOFn1XHC/roQLLyXsRobuiRZCZb27TH/vXHQxfU5NE/g0+kQ
+         BS1FMagob4SJP8M4fyd6uhuJOMHRWMJUpSliBOQQcAVWZ9EXuwY/QfackRFyirRwV2Kv
+         Tb7A==
+X-Gm-Message-State: ACgBeo0DAEgtWcfNpYQzDEnmig1v8/318RH5lf6aGsFs7gEWDS5lNkqY
+        HV05qYqnA4u8BLjhTI8pMcruEPlLLH5I04LTQN9zeowjpHRD3tz1k18ZGNgTc1OoFo2q2s6owhH
+        qPqbdAlTe+p9MA/wdOT8u8yVkcz1/RZUP
+X-Received: by 2002:a05:622a:1302:b0:344:8a9d:817d with SMTP id v2-20020a05622a130200b003448a9d817dmr8364106qtk.339.1661732191495;
+        Sun, 28 Aug 2022 17:16:31 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6YH2nJIo0b6SviiSUMGBKXXeJaHL95jdsa0u6iUg5nlt6EWo3hqWiTPzDu5EZVS+GBLuTCvNVZOaiGzM0z1Ys=
+X-Received: by 2002:a05:622a:1302:b0:344:8a9d:817d with SMTP id
+ v2-20020a05622a130200b003448a9d817dmr8364092qtk.339.1661732191317; Sun, 28
+ Aug 2022 17:16:31 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220826142954.254853-1-miquel.raynal@bootlin.com>
+In-Reply-To: <20220826142954.254853-1-miquel.raynal@bootlin.com>
+From:   Alexander Aring <aahringo@redhat.com>
+Date:   Sun, 28 Aug 2022 20:16:20 -0400
+Message-ID: <CAK-6q+imPjpBxSZG7e5nxYYgtkrM5pfncxza9=vA+sq+eFQsUw@mail.gmail.com>
+Subject: Re: [PATCH] net: mac802154: Fix a condition in the receive path
+To:     Miquel Raynal <miquel.raynal@bootlin.com>
+Cc:     Alexander Aring <alex.aring@gmail.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        linux-wpan - ML <linux-wpan@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Network Development <netdev@vger.kernel.org>,
+        David Girault <david.girault@qorvo.com>,
+        Romuald Despres <romuald.despres@qorvo.com>,
+        Frederic Blain <frederic.blain@qorvo.com>,
+        Nicolas Schodet <nico@ni.fr.eu.org>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The quilt patch titled
-     Subject: mm/mprotect: only reference swap pfn page if type match
-has been removed from the -mm tree.  Its filename was
-     mm-mprotect-only-reference-swap-pfn-page-if-type-match.patch
+On Fri, Aug 26, 2022 at 10:31 AM Miquel Raynal
+<miquel.raynal@bootlin.com> wrote:
+>
+> Upon reception, a packet must be categorized, either it's destination is
+> the host, or it is another host. A packet with no destination addressing
+> fields may be valid in two situations:
+> - the packet has no source field: only ACKs are built like that, we
+>   consider the host as the destination.
+> - the packet has a valid source field: it is directed to the PAN
+>   coordinator, as for know we don't have this information we consider we
+>   are not the PAN coordinator.
+>
+> There was likely a copy/paste error made during a previous cleanup
+> because the if clause is now containing exactly the same condition as in
+> the switch case, which can never be true. In the past the destination
+> address was used in the switch and the source address was used in the
+> if, which matches what the spec says.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: ae531b9475f6 ("ieee802154: use ieee802154_addr instead of *_sa variants")
+> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+> ---
+>  net/mac802154/rx.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/net/mac802154/rx.c b/net/mac802154/rx.c
+> index b8ce84618a55..c439125ef2b9 100644
+> --- a/net/mac802154/rx.c
+> +++ b/net/mac802154/rx.c
+> @@ -44,7 +44,7 @@ ieee802154_subif_frame(struct ieee802154_sub_if_data *sdata,
+>
+>         switch (mac_cb(skb)->dest.mode) {
+>         case IEEE802154_ADDR_NONE:
+> -               if (mac_cb(skb)->dest.mode != IEEE802154_ADDR_NONE)
+> +               if (hdr->source.mode != IEEE802154_ADDR_NONE)
+>                         /* FIXME: check if we are PAN coordinator */
+>                         skb->pkt_type = PACKET_OTHERHOST;
+>                 else
 
-This patch was dropped because it was merged into the mm-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/mprotect: only reference swap pfn page if type match
-Date: Tue, 23 Aug 2022 18:11:38 -0400
+This patch looks okay but it should not be addressed to stable. Leave
+of course the fixes tag.
 
-Yu Zhao reported a bug after the commit "mm/swap: Add swp_offset_pfn() to
-fetch PFN from swap entry" added a check in swp_offset_pfn() for swap type [1]:
+Wpan sends pull requests to net and they have their own way to get
+into the stable tree when they are in net.
 
-  kernel BUG at include/linux/swapops.h:117!
-  CPU: 46 PID: 5245 Comm: EventManager_De Tainted: G S         O L 6.0.0-dbg-DEV #2
-  RIP: 0010:pfn_swap_entry_to_page+0x72/0xf0
-  Code: c6 48 8b 36 48 83 fe ff 74 53 48 01 d1 48 83 c1 08 48 8b 09 f6
-  c1 01 75 7b 66 90 48 89 c1 48 8b 09 f6 c1 01 74 74 5d c3 eb 9e <0f> 0b
-  48 ba ff ff ff ff 03 00 00 00 eb ae a9 ff 0f 00 00 75 13 48
-  RSP: 0018:ffffa59e73fabb80 EFLAGS: 00010282
-  RAX: 00000000ffffffe8 RBX: 0c00000000000000 RCX: ffffcd5440000000
-  RDX: 1ffffffffff7a80a RSI: 0000000000000000 RDI: 0c0000000000042b
-  RBP: ffffa59e73fabb80 R08: ffff9965ca6e8bb8 R09: 0000000000000000
-  R10: ffffffffa5a2f62d R11: 0000030b372e9fff R12: ffff997b79db5738
-  R13: 000000000000042b R14: 0c0000000000042b R15: 1ffffffffff7a80a
-  FS:  00007f549d1bb700(0000) GS:ffff99d3cf680000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000440d035b3180 CR3: 0000002243176004 CR4: 00000000003706e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   <TASK>
-   change_pte_range+0x36e/0x880
-   change_p4d_range+0x2e8/0x670
-   change_protection_range+0x14e/0x2c0
-   mprotect_fixup+0x1ee/0x330
-   do_mprotect_pkey+0x34c/0x440
-   __x64_sys_mprotect+0x1d/0x30
+Thanks.
 
-It triggers because pfn_swap_entry_to_page() could be called upon e.g. a
-genuine swap entry.
-
-Fix it by only calling it when it's a write migration entry where the page*
-is used.
-
-[1] https://lore.kernel.org/lkml/CAOUHufaVC2Za-p8m0aiHw6YkheDcrO-C3wRGixwDS32VTS+k1w@mail.gmail.com/
-
-Link: https://lkml.kernel.org/r/20220823221138.45602-1-peterx@redhat.com
-Fixes: 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Yu Zhao <yuzhao@google.com>
-Tested-by: Yu Zhao <yuzhao@google.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: "Huang, Ying" <ying.huang@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/mprotect.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- a/mm/mprotect.c~mm-mprotect-only-reference-swap-pfn-page-if-type-match
-+++ a/mm/mprotect.c
-@@ -196,10 +196,11 @@ static unsigned long change_pte_range(st
- 			pages++;
- 		} else if (is_swap_pte(oldpte)) {
- 			swp_entry_t entry = pte_to_swp_entry(oldpte);
--			struct page *page = pfn_swap_entry_to_page(entry);
- 			pte_t newpte;
- 
- 			if (is_writable_migration_entry(entry)) {
-+				struct page *page = pfn_swap_entry_to_page(entry);
-+
- 				/*
- 				 * A protection check is difficult so
- 				 * just be safe and disable write
-_
-
-Patches currently in -mm which might be from peterx@redhat.com are
-
-mm-x86-use-swp_type_bits-in-3-level-swap-macros.patch
-mm-swap-comment-all-the-ifdef-in-swapopsh.patch
-mm-swap-add-swp_offset_pfn-to-fetch-pfn-from-swap-entry.patch
-mm-thp-carry-over-dirty-bit-when-thp-splits-on-pmd.patch
-mm-remember-young-dirty-bit-for-page-migrations.patch
-mm-swap-cache-maximum-swapfile-size-when-init-swap.patch
-mm-swap-cache-swap-migration-a-d-bits-support.patch
+- Alex
 
