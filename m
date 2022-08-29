@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7905A49D2
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D7D5A4A66
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232306AbiH2LaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:30:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55110 "EHLO
+        id S232922AbiH2Lhz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:37:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232601AbiH2L3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:23 -0400
+        with ESMTP id S232868AbiH2LhD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:37:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3D8A6BCFF;
-        Mon, 29 Aug 2022 04:17:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD36461B3C;
+        Mon, 29 Aug 2022 04:21:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1C5E61216;
-        Mon, 29 Aug 2022 11:10:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2DC7C433B5;
-        Mon, 29 Aug 2022 11:10:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F0E561185;
+        Mon, 29 Aug 2022 11:19:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 771CAC433C1;
+        Mon, 29 Aug 2022 11:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771453;
-        bh=gOyiS2kyGxvi8FAixdQXIrEn2pTE5ybOPXL0Jlo3kcs=;
+        s=korg; t=1661771966;
+        bh=9TpFLjXDWWPGSkUHylnED8xi99Am0soBk1z8T1wdQ/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HuvDJIOD5FmDsp2igxmXIgqw8ZOJNpoQVIgiQ/gZjrtVpHr29wrpR9Qg36OdcyLz8
-         RgiBTcbxenkMDNtrUs5+JJdsIFtixqZwk87Xbcnyz2mT6jXAQjauoyf6gGT5wAsXa9
-         E+jbQbXhN8sC0U8YmBkZpjBmA0GR4nmx+MQRoSIU=
+        b=Y21Qnk3E//3apmt8RiGP/5U+uWMfhdeGIQJJbzpKU1ZCNgo50Lk1faCmvr6/44Gkr
+         GhtHIf7W9/+AkQo5clbL/2MXCVRKMAeKIpJkzHiptRzPc+VB9IvjELKui1+2jmBojl
+         VbUxq1wgoNrM//Y1PyCLNHpziuh8H/CYsiaQOX2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
-        Jan Kara <jack@suse.cz>,
-        Michael Stapelberg <stapelberg+linux@google.com>,
-        Wu Fengguang <fengguang.wu@intel.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        William Kucharski <william.kucharski@oracle.com>,
+        Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 105/136] writeback: avoid use-after-free after removing device
-Date:   Mon, 29 Aug 2022 12:59:32 +0200
-Message-Id: <20220829105809.020795379@linuxfoundation.org>
+Subject: [PATCH 5.19 123/158] shmem: update folio if shmem_replace_page() updates the page
+Date:   Mon, 29 Aug 2022 12:59:33 +0200
+Message-Id: <20220829105814.269068045@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,139 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khazhismel Kumykov <khazhy@chromium.org>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit f87904c075515f3e1d8f4a7115869d3b914674fd upstream.
+commit 9dfb3b8d655022760ca68af11821f1c63aa547c3 upstream.
 
-When a disk is removed, bdi_unregister gets called to stop further
-writeback and wait for associated delayed work to complete.  However,
-wb_inode_writeback_end() may schedule bandwidth estimation dwork after
-this has completed, which can result in the timer attempting to access the
-just freed bdi_writeback.
+If we allocate a new page, we need to make sure that our folio matches
+that new page.
 
-Fix this by checking if the bdi_writeback is alive, similar to when
-scheduling writeback work.
+If we do end up in this code path, we store the wrong page in the shmem
+inode's page cache, and I would rather imagine that data corruption
+ensues.
 
-Since this requires wb->work_lock, and wb_inode_writeback_end() may get
-called from interrupt, switch wb->work_lock to an irqsafe lock.
+This will be solved by changing shmem_replace_page() to
+shmem_replace_folio(), but this is the minimal fix.
 
-Link: https://lkml.kernel.org/r/20220801155034.3772543-1-khazhy@google.com
-Fixes: 45a2966fd641 ("writeback: fix bandwidth estimate for spiky workload")
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: Michael Stapelberg <stapelberg+linux@google.com>
-Cc: Wu Fengguang <fengguang.wu@intel.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Link: https://lkml.kernel.org/r/20220730042518.1264767-1-willy@infradead.org
+Fixes: da08e9b79323 ("mm/shmem: convert shmem_swapin_page() to shmem_swapin_folio()")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: William Kucharski <william.kucharski@oracle.com>
+Cc: Hugh Dickins <hughd@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fs-writeback.c   |   12 ++++++------
- mm/backing-dev.c    |   10 +++++-----
- mm/page-writeback.c |    6 +++++-
- 3 files changed, 16 insertions(+), 12 deletions(-)
+ mm/shmem.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -134,10 +134,10 @@ static bool inode_io_list_move_locked(st
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -1771,6 +1771,7 @@ static int shmem_swapin_folio(struct ino
  
- static void wb_wakeup(struct bdi_writeback *wb)
- {
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 	if (test_bit(WB_registered, &wb->state))
- 		mod_delayed_work(bdi_wq, &wb->dwork, 0);
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
- }
- 
- static void finish_writeback_work(struct bdi_writeback *wb,
-@@ -164,7 +164,7 @@ static void wb_queue_work(struct bdi_wri
- 	if (work->done)
- 		atomic_inc(&work->done->cnt);
- 
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 
- 	if (test_bit(WB_registered, &wb->state)) {
- 		list_add_tail(&work->list, &wb->work_list);
-@@ -172,7 +172,7 @@ static void wb_queue_work(struct bdi_wri
- 	} else
- 		finish_writeback_work(wb, work);
- 
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
- }
- 
- /**
-@@ -2109,13 +2109,13 @@ static struct wb_writeback_work *get_nex
- {
- 	struct wb_writeback_work *work = NULL;
- 
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 	if (!list_empty(&wb->work_list)) {
- 		work = list_entry(wb->work_list.next,
- 				  struct wb_writeback_work, list);
- 		list_del_init(&work->list);
+ 	if (shmem_should_replace_folio(folio, gfp)) {
+ 		error = shmem_replace_page(&page, gfp, info, index);
++		folio = page_folio(page);
+ 		if (error)
+ 			goto failed;
  	}
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
- 	return work;
- }
- 
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -258,10 +258,10 @@ void wb_wakeup_delayed(struct bdi_writeb
- 	unsigned long timeout;
- 
- 	timeout = msecs_to_jiffies(dirty_writeback_interval * 10);
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 	if (test_bit(WB_registered, &wb->state))
- 		queue_delayed_work(bdi_wq, &wb->dwork, timeout);
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
- }
- 
- static void wb_update_bandwidth_workfn(struct work_struct *work)
-@@ -337,12 +337,12 @@ static void cgwb_remove_from_bdi_list(st
- static void wb_shutdown(struct bdi_writeback *wb)
- {
- 	/* Make sure nobody queues further work */
--	spin_lock_bh(&wb->work_lock);
-+	spin_lock_irq(&wb->work_lock);
- 	if (!test_and_clear_bit(WB_registered, &wb->state)) {
--		spin_unlock_bh(&wb->work_lock);
-+		spin_unlock_irq(&wb->work_lock);
- 		return;
- 	}
--	spin_unlock_bh(&wb->work_lock);
-+	spin_unlock_irq(&wb->work_lock);
- 
- 	cgwb_remove_from_bdi_list(wb);
- 	/*
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -2755,6 +2755,7 @@ static void wb_inode_writeback_start(str
- 
- static void wb_inode_writeback_end(struct bdi_writeback *wb)
- {
-+	unsigned long flags;
- 	atomic_dec(&wb->writeback_inodes);
- 	/*
- 	 * Make sure estimate of writeback throughput gets updated after
-@@ -2763,7 +2764,10 @@ static void wb_inode_writeback_end(struc
- 	 * that if multiple inodes end writeback at a similar time, they get
- 	 * batched into one bandwidth update.
- 	 */
--	queue_delayed_work(bdi_wq, &wb->bw_dwork, BANDWIDTH_INTERVAL);
-+	spin_lock_irqsave(&wb->work_lock, flags);
-+	if (test_bit(WB_registered, &wb->state))
-+		queue_delayed_work(bdi_wq, &wb->bw_dwork, BANDWIDTH_INTERVAL);
-+	spin_unlock_irqrestore(&wb->work_lock, flags);
- }
- 
- int test_clear_page_writeback(struct page *page)
 
 
