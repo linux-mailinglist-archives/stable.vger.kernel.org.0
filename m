@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9025A4A91
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:43:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB57F5A48DF
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232973AbiH2LnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:43:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36496 "EHLO
+        id S230518AbiH2LQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:16:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232981AbiH2Lmq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:42:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82369857E7;
-        Mon, 29 Aug 2022 04:26:57 -0700 (PDT)
+        with ESMTP id S229893AbiH2LOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:14:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5EA72FC7;
+        Mon, 29 Aug 2022 04:11:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 918ACB80F91;
-        Mon, 29 Aug 2022 11:16:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3CE6C433D7;
-        Mon, 29 Aug 2022 11:16:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B722B80F99;
+        Mon, 29 Aug 2022 11:08:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85B34C433D7;
+        Mon, 29 Aug 2022 11:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771811;
-        bh=/YP6VvDcJ9DScd+mjxxX5q2txVxjWzz7n9jvS0JRzxc=;
+        s=korg; t=1661771290;
+        bh=8nk42C66zJ09r2OajHB3KcnLL4FbGaZtuI3kGRJR5XE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pUp+HUrh71p2WPM9A41uIAJvCvl1epVsj4JCGTOyqbD6/cbPGZX6ZBIH4txk/PokX
-         HMNw+kWNlhVJz44vj3KE/znr0f9xHv2MPAQuniKtqODBlkfMa8sIEjaFnYuhRHcTqD
-         w7vlQBYQ1dMZkHHkXsJ85x98FsKHOyEpLx52YB8E=
+        b=XyXTWsQPs3Vvnt2xxF6yRaUB1UdxnlhTs3J8nPFydbPmESJP05jHUlSAzzoCf/hI3
+         owNoVdMXK8MqMHnFk7oBLVwlx6F+r8yav77cGJlDDvp+CxCj2FvNZ5F6zaOIL8R7Ys
+         Jn/8mrHmzZAd7bLczSKOW6bqYd+t2vQSJVw1NNs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.19 105/158] x86/unwind/orc: Unwind ftrace trampolines with correct ORC entry
+        stable@vger.kernel.org,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 088/136] i40e: Fix incorrect address type for IPv6 flow rules
 Date:   Mon, 29 Aug 2022 12:59:15 +0200
-Message-Id: <20220829105813.509251432@linuxfoundation.org>
+Message-Id: <20220829105808.269741560@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
 
-commit fc2e426b1161761561624ebd43ce8c8d2fa058da upstream.
+[ Upstream commit bcf3a156429306070afbfda5544f2b492d25e75b ]
 
-When meeting ftrace trampolines in ORC unwinding, unwinder uses address
-of ftrace_{regs_}call address to find the ORC entry, which gets next frame at
-sp+176.
+It was not possible to create 1-tuple flow director
+rule for IPv6 flow type. It was caused by incorrectly
+checking for source IP address when validating user provided
+destination IP address.
 
-If there is an IRQ hitting at sub $0xa8,%rsp, the next frame should be
-sp+8 instead of 176. It makes unwinder skip correct frame and throw
-warnings such as "wrong direction" or "can't access registers", etc,
-depending on the content of the incorrect frame address.
+Fix this by changing ip6src to correct ip6dst address
+in destination IP address validation for IPv6 flow type.
 
-By adding the base address ftrace_{regs_}caller with the offset
-*ip - ops->trampoline*, we can get the correct address to find the ORC entry.
-
-Also change "caller" to "tramp_addr" to make variable name conform to
-its content.
-
-[ mingo: Clarified the changelog a bit. ]
-
-Fixes: 6be7fa3c74d1 ("ftrace, orc, x86: Handle ftrace dynamically allocated trampolines")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220819084334.244016-1-chenzhongjin@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: efca91e89b67 ("i40e: Add flow director support for IPv6")
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/unwind_orc.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -93,22 +93,27 @@ static struct orc_entry *orc_find(unsign
- static struct orc_entry *orc_ftrace_find(unsigned long ip)
- {
- 	struct ftrace_ops *ops;
--	unsigned long caller;
-+	unsigned long tramp_addr, offset;
- 
- 	ops = ftrace_ops_trampoline(ip);
- 	if (!ops)
- 		return NULL;
- 
-+	/* Set tramp_addr to the start of the code copied by the trampoline */
- 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
--		caller = (unsigned long)ftrace_regs_call;
-+		tramp_addr = (unsigned long)ftrace_regs_caller;
- 	else
--		caller = (unsigned long)ftrace_call;
-+		tramp_addr = (unsigned long)ftrace_caller;
-+
-+	/* Now place tramp_addr to the location within the trampoline ip is at */
-+	offset = ip - ops->trampoline;
-+	tramp_addr += offset;
- 
- 	/* Prevent unlikely recursion */
--	if (ip == caller)
-+	if (ip == tramp_addr)
- 		return NULL;
- 
--	return orc_find(caller);
-+	return orc_find(tramp_addr);
- }
- #else
- static struct orc_entry *orc_ftrace_find(unsigned long ip)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index 0e13ce9b4d009..669ae53f4c728 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -4385,7 +4385,7 @@ static int i40e_check_fdir_input_set(struct i40e_vsi *vsi,
+ 				    (struct in6_addr *)&ipv6_full_mask))
+ 			new_mask |= I40E_L3_V6_DST_MASK;
+ 		else if (ipv6_addr_any((struct in6_addr *)
+-				       &usr_ip6_spec->ip6src))
++				       &usr_ip6_spec->ip6dst))
+ 			new_mask &= ~I40E_L3_V6_DST_MASK;
+ 		else
+ 			return -EOPNOTSUPP;
+-- 
+2.35.1
+
 
 
