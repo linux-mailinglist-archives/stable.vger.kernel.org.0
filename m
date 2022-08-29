@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C27A45A4AB0
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:48:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DAD5A4A60
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230157AbiH2Lsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:48:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40770 "EHLO
+        id S231245AbiH2LhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:37:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230470AbiH2Lse (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:48:34 -0400
+        with ESMTP id S232764AbiH2Lgh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:36:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B49889917;
-        Mon, 29 Aug 2022 04:32:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34655754BC;
+        Mon, 29 Aug 2022 04:21:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB09FB80FAF;
-        Mon, 29 Aug 2022 11:17:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 037ABC433D6;
-        Mon, 29 Aug 2022 11:17:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 272FFB80F62;
+        Mon, 29 Aug 2022 11:11:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72D0EC433D6;
+        Mon, 29 Aug 2022 11:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771878;
-        bh=sqwZwaMa4ltO+ZnF2OW0LOrSQsC+7lCx8oJFCuGBDEU=;
+        s=korg; t=1661771510;
+        bh=j0O6seP0hDl2M/tiFwyK3s5JdTNEVqLVc61BtKI2w4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ap5TsoJVg8esKzgaj8QhfERta/RmrVncpaM/J5g9OQr1bQ0BWr6J2P0SPthP++BfY
-         11rZSmxNsZYp4IZcI/NxsdIH9f02/pDv6DjDjz2vTrXUaaIWWnbQMQH8J+0dUHBrjY
-         FLYHgy74qgqPnhWX4FcI12Wg7ZhE7Fu9fODWjmoY=
+        b=gI8TUuW2M64dSMkGQ+5vKiW7AI0j+zMtq1PDg7XZw3TEgdyFNbzu/EL/0F/sgiJS9
+         OisIgRQhTU3hYHD/bRRyZDfDDVW9cudnu6z3qEOKgPnI/7s1LQCmXdByvCTYU36OFY
+         BM2Z8GfYdZ4w17ii2RQJJaKNyzt16aLSnz/5ElUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rustam Subkhankulov <subkhankulov@ispras.ru>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Subject: [PATCH 5.19 128/158] xen/privcmd: fix error exit of privcmd_ioctl_dm_op()
+        syzbot+a168dbeaaa7778273c1b@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.15 111/136] fbdev: fbcon: Properly revert changes when vc_resize() failed
 Date:   Mon, 29 Aug 2022 12:59:38 +0200
-Message-Id: <20220829105814.449509146@linuxfoundation.org>
+Message-Id: <20220829105809.264085223@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,95 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-commit c5deb27895e017a0267de0a20d140ad5fcc55a54 upstream.
+commit a5a923038d70d2d4a86cb4e3f32625a5ee6e7e24 upstream.
 
-The error exit of privcmd_ioctl_dm_op() is calling unlock_pages()
-potentially with pages being NULL, leading to a NULL dereference.
+fbcon_do_set_font() calls vc_resize() when font size is changed.
+However, if if vc_resize() failed, current implementation doesn't
+revert changes for font size, and this causes inconsistent state.
 
-Additionally lock_pages() doesn't check for pin_user_pages_fast()
-having been completely successful, resulting in potentially not
-locking all pages into memory. This could result in sporadic failures
-when using the related memory in user mode.
+syzbot reported unable to handle page fault due to this issue [1].
+syzbot's repro uses fault injection which cause failure for memory
+allocation, so vc_resize() failed.
 
-Fix all of that by calling unlock_pages() always with the real number
-of pinned pages, which will be zero in case pages being NULL, and by
-checking the number of pages pinned by pin_user_pages_fast() matching
-the expected number of pages.
+This patch fixes this issue by properly revert changes for font
+related date when vc_resize() failed.
 
-Cc: <stable@vger.kernel.org>
-Fixes: ab520be8cd5d ("xen/privcmd: Add IOCTL_PRIVCMD_DM_OP")
-Reported-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Link: https://lore.kernel.org/r/20220825141918.3581-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://syzkaller.appspot.com/bug?id=3443d3a1fa6d964dd7310a0cb1696d165a3e07c4 [1]
+Reported-by: syzbot+a168dbeaaa7778273c1b@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+CC: stable@vger.kernel.org # 5.15+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/privcmd.c |   21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/video/fbdev/core/fbcon.c |   27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -581,27 +581,30 @@ static int lock_pages(
- 	struct privcmd_dm_op_buf kbufs[], unsigned int num,
- 	struct page *pages[], unsigned int nr_pages, unsigned int *pinned)
- {
--	unsigned int i;
-+	unsigned int i, off = 0;
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2413,15 +2413,21 @@ static int fbcon_do_set_font(struct vc_d
+ 	struct fb_info *info = registered_fb[con2fb_map[vc->vc_num]];
+ 	struct fbcon_ops *ops = info->fbcon_par;
+ 	struct fbcon_display *p = &fb_display[vc->vc_num];
+-	int resize;
++	int resize, ret, old_userfont, old_width, old_height, old_charcount;
+ 	char *old_data = NULL;
  
--	for (i = 0; i < num; i++) {
-+	for (i = 0; i < num; ) {
- 		unsigned int requested;
- 		int page_count;
- 
- 		requested = DIV_ROUND_UP(
- 			offset_in_page(kbufs[i].uptr) + kbufs[i].size,
--			PAGE_SIZE);
-+			PAGE_SIZE) - off;
- 		if (requested > nr_pages)
- 			return -ENOSPC;
- 
- 		page_count = pin_user_pages_fast(
--			(unsigned long) kbufs[i].uptr,
-+			(unsigned long)kbufs[i].uptr + off * PAGE_SIZE,
- 			requested, FOLL_WRITE, pages);
--		if (page_count < 0)
--			return page_count;
-+		if (page_count <= 0)
-+			return page_count ? : -EFAULT;
- 
- 		*pinned += page_count;
- 		nr_pages -= page_count;
- 		pages += page_count;
+ 	resize = (w != vc->vc_font.width) || (h != vc->vc_font.height);
+ 	if (p->userfont)
+ 		old_data = vc->vc_font.data;
+ 	vc->vc_font.data = (void *)(p->fontdata = data);
++	old_userfont = p->userfont;
+ 	if ((p->userfont = userfont))
+ 		REFCOUNT(data)++;
 +
-+		off = (requested == page_count) ? 0 : off + page_count;
-+		i += !off;
- 	}
- 
++	old_width = vc->vc_font.width;
++	old_height = vc->vc_font.height;
++	old_charcount = vc->vc_font.charcount;
++
+ 	vc->vc_font.width = w;
+ 	vc->vc_font.height = h;
+ 	vc->vc_font.charcount = charcount;
+@@ -2437,7 +2443,9 @@ static int fbcon_do_set_font(struct vc_d
+ 		rows = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
+ 		cols /= w;
+ 		rows /= h;
+-		vc_resize(vc, cols, rows);
++		ret = vc_resize(vc, cols, rows);
++		if (ret)
++			goto err_out;
+ 	} else if (con_is_visible(vc)
+ 		   && vc->vc_mode == KD_TEXT) {
+ 		fbcon_clear_margins(vc, 0);
+@@ -2447,6 +2455,21 @@ static int fbcon_do_set_font(struct vc_d
+ 	if (old_data && (--REFCOUNT(old_data) == 0))
+ 		kfree(old_data - FONT_EXTRA_WORDS * sizeof(int));
  	return 0;
-@@ -677,10 +680,8 @@ static long privcmd_ioctl_dm_op(struct f
- 	}
++
++err_out:
++	p->fontdata = old_data;
++	vc->vc_font.data = (void *)old_data;
++
++	if (userfont) {
++		p->userfont = old_userfont;
++		REFCOUNT(data)--;
++	}
++
++	vc->vc_font.width = old_width;
++	vc->vc_font.height = old_height;
++	vc->vc_font.charcount = old_charcount;
++
++	return ret;
+ }
  
- 	rc = lock_pages(kbufs, kdata.num, pages, nr_pages, &pinned);
--	if (rc < 0) {
--		nr_pages = pinned;
-+	if (rc < 0)
- 		goto out;
--	}
- 
- 	for (i = 0; i < kdata.num; i++) {
- 		set_xen_guest_handle(xbufs[i].h, kbufs[i].uptr);
-@@ -692,7 +693,7 @@ static long privcmd_ioctl_dm_op(struct f
- 	xen_preemptible_hcall_end();
- 
- out:
--	unlock_pages(pages, nr_pages);
-+	unlock_pages(pages, pinned);
- 	kfree(xbufs);
- 	kfree(pages);
- 	kfree(kbufs);
+ /*
 
 
