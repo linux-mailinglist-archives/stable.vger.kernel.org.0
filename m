@@ -2,66 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F555A4391
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:12:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 702E05A43A8
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbiH2HMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:12:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58052 "EHLO
+        id S229507AbiH2HVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:21:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbiH2HMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:12:43 -0400
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187B04D804;
-        Mon, 29 Aug 2022 00:12:42 -0700 (PDT)
-Received: by mail-ej1-f48.google.com with SMTP id y3so13894044ejc.1;
-        Mon, 29 Aug 2022 00:12:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=MSqMM4aEnjO/gK78QtEwWeffAOcbFLWjzfFBsK77XPc=;
-        b=fSEA3+BluCBkEjbtx62cdgcmujmAs6z97n0YKM/CMUdaXaOPRMVDOe+lr+1AOkY8lE
-         bIN7YoJ8RxEunJRQQmMzHD36W3sdzXomJf3P0X6oXM+tUO2wOgL4o77X1agsqbJInU2d
-         V8DPDVJWsCxW9qr+LT7IzbPkbcKtb00k46eeavztxW15QS2UElfvCpHapKH60PikMj86
-         gJtL+l0Z8W5BYPonUCJqIE+QVSuJVG651sERNvB3IkLT67YsqCj/82qJcMzra+HT2hvl
-         8RBbdq9uVMST1/xvvVWI49SW5hV03tf6fpzbgJBI5WnSCxkpPClB1+HtPFeCh57oNAQA
-         BXQA==
-X-Gm-Message-State: ACgBeo1i9eKTkMYlxAPAgVvGTnGEErUei28SqS5xArvm/J4nMv4E5lej
-        e+sp+UXYaiqo2SzNY7zFiQ4=
-X-Google-Smtp-Source: AA6agR4ol21KX2mKJiXGb6L9rLzNUeTO+E03VzEAMfYBHtubtcipcN9LN7sMgqVAWuiQLVj4cJrEew==
-X-Received: by 2002:a17:907:75c6:b0:741:75a0:b82b with SMTP id jl6-20020a17090775c600b0074175a0b82bmr3780766ejc.465.1661757160605;
-        Mon, 29 Aug 2022 00:12:40 -0700 (PDT)
-Received: from ?IPV6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
-        by smtp.gmail.com with ESMTPSA id q12-20020a17090676cc00b007413dde3151sm3304316ejn.130.2022.08.29.00.12.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Aug 2022 00:12:40 -0700 (PDT)
-Message-ID: <71dbe196-a3d4-41f4-a00c-24f8b0222288@kernel.org>
-Date:   Mon, 29 Aug 2022 09:12:39 +0200
+        with ESMTP id S229544AbiH2HVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:21:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF6D2AE3B
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:21:03 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 081DDB80C75
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:21:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42A84C433C1;
+        Mon, 29 Aug 2022 07:21:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661757660;
+        bh=LZ0ARBSkMtwoFXvrpKofzEk7Uj5VZcleAAymIFdDkkM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Jhkacg9GPrdzUxZT2TaNj1KftVYKh1B8oBb6FXYB+5+4H6qLHjtSjxnYYLNCRMN3c
+         vBz4NZ0yNTH/u7IhqmkYbsTUP/azpXv0nbG0RMf/kOQzpzo7I7hFn3eBb7AT4RKI4s
+         mSSy7mtRnok8+NXpKQIOZ3i2Vb0/FQbS4/9HRwsk=
+Subject: FAILED: patch "[PATCH] btrfs: fix space cache corruption and potential double" failed to apply to 5.15-stable tree
+To:     osandov@fb.com, dsterba@suse.com, fdmanana@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 29 Aug 2022 09:20:57 +0200
+Message-ID: <166175765717187@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Subject: Re: [PATCH 5.19 145/365] kbuild: dummy-tools: avoid tmpdir leak in
- dummy gcc
-Content-Language: en-US
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>
-References: <20220823080118.128342613@linuxfoundation.org>
- <20220823080124.294570326@linuxfoundation.org>
- <9996285f-5a50-e56a-eb1c-645598381a20@kernel.org>
- <CAFqZXNv2OvNu7BctW=csNLevgGWyoT1R81ypH8pGoAeo3vd4=w@mail.gmail.com>
-From:   Jiri Slaby <jirislaby@kernel.org>
-In-Reply-To: <CAFqZXNv2OvNu7BctW=csNLevgGWyoT1R81ypH8pGoAeo3vd4=w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,72 +47,318 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 27. 08. 22, 10:34, Ondrej Mosnacek wrote:
-> On Sat, Aug 27, 2022 at 9:51 AM Jiri Slaby <jirislaby@kernel.org> wrote:
->> On 23. 08. 22, 10:00, Greg Kroah-Hartman wrote:
->>> From: Ondrej Mosnacek <omosnace@redhat.com>
->>>
->>> commit aac289653fa5adf9e9985e4912c1d24a3e8cbab2 upstream.
->>>
->>> When passed -print-file-name=plugin, the dummy gcc script creates a
->>> temporary directory that is never cleaned up. To avoid cluttering
->>> $TMPDIR, instead use a static directory included in the source tree.
->>
->> This breaks our (SUSE) use of dummy tools (GCC_PLUGINS became =n). I
->> will investigate whether this is stable-only and the root cause later.
-> 
-> It looks like both the Greg's generated patch and the final stable
-> commit (d7e676b7dc6a) are missing the addition of the empty
-> plugin-version.h file. It appears in the patch's diffstat, but not in
-> the actual diff. The mainline commit does include the empty file
-> correctly, so it's likely a bug in the stable cherry pick automation.
 
-Right, this fixed the issue for me:
---- 
-a/patches.kernel.org/5.19.4-144-kbuild-dummy-tools-avoid-tmpdir-leak-in-dummy-.patch
-+++ 
-b/patches.kernel.org/5.19.4-144-kbuild-dummy-tools-avoid-tmpdir-leak-in-dummy-.patch
-@@ -20,6 +20,8 @@ Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-   scripts/dummy-tools/gcc | 8 ++------
-   1 file changed, 2 insertions(+), 6 deletions(-)
-
-+diff --git 
-a/scripts/dummy-tools/dummy-plugin-dir/include/plugin-version.h 
-b/scripts/dummy-tools/dummy-plugin-dir/include/plugin-version.h
-+new file mode 100644
-  diff --git a/scripts/dummy-tools/gcc b/scripts/dummy-tools/gcc
-  index b2483149bbe5..7db825843435 100755
-  --- a/scripts/dummy-tools/gcc
-
->>> Fixes: 76426e238834 ("kbuild: add dummy toolchains to enable all cc-option etc. in Kconfig")
->>> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->>> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
->>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>> ---
->>>    .../dummy-tools/dummy-plugin-dir/include/plugin-version.h | 0
->>>    scripts/dummy-tools/gcc |    8 ++------
->>>    1 file changed, 2 insertions(+), 6 deletions(-)
->>>    create mode 100644 scripts/dummy-tools/dummy-plugin-dir/include/plugin-version.h
->>>
->>> --- a/scripts/dummy-tools/gcc
->>> +++ b/scripts/dummy-tools/gcc
->>> @@ -96,12 +96,8 @@ fi
->>>
->>>    # To set GCC_PLUGINS
->>>    if arg_contain -print-file-name=plugin "$@"; then
->>> -     plugin_dir=$(mktemp -d)
->>> -
->>> -     mkdir -p $plugin_dir/include
->>> -     touch $plugin_dir/include/plugin-version.h
->>> -
->>> -     echo $plugin_dir
->>> +     # Use $0 to find the in-tree dummy directory
->>> +     echo "$(dirname "$(readlink -f "$0")")/dummy-plugin-dir"
->>>        exit 0
->>>    fi
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
--- 
-js
-suse labs
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ced8ecf026fd8084cf175530ff85c76d6085d715 Mon Sep 17 00:00:00 2001
+From: Omar Sandoval <osandov@fb.com>
+Date: Tue, 23 Aug 2022 11:28:13 -0700
+Subject: [PATCH] btrfs: fix space cache corruption and potential double
+ allocations
+
+When testing space_cache v2 on a large set of machines, we encountered a
+few symptoms:
+
+1. "unable to add free space :-17" (EEXIST) errors.
+2. Missing free space info items, sometimes caught with a "missing free
+   space info for X" error.
+3. Double-accounted space: ranges that were allocated in the extent tree
+   and also marked as free in the free space tree, ranges that were
+   marked as allocated twice in the extent tree, or ranges that were
+   marked as free twice in the free space tree. If the latter made it
+   onto disk, the next reboot would hit the BUG_ON() in
+   add_new_free_space().
+4. On some hosts with no on-disk corruption or error messages, the
+   in-memory space cache (dumped with drgn) disagreed with the free
+   space tree.
+
+All of these symptoms have the same underlying cause: a race between
+caching the free space for a block group and returning free space to the
+in-memory space cache for pinned extents causes us to double-add a free
+range to the space cache. This race exists when free space is cached
+from the free space tree (space_cache=v2) or the extent tree
+(nospace_cache, or space_cache=v1 if the cache needs to be regenerated).
+struct btrfs_block_group::last_byte_to_unpin and struct
+btrfs_block_group::progress are supposed to protect against this race,
+but commit d0c2f4fa555e ("btrfs: make concurrent fsyncs wait less when
+waiting for a transaction commit") subtly broke this by allowing
+multiple transactions to be unpinning extents at the same time.
+
+Specifically, the race is as follows:
+
+1. An extent is deleted from an uncached block group in transaction A.
+2. btrfs_commit_transaction() is called for transaction A.
+3. btrfs_run_delayed_refs() -> __btrfs_free_extent() runs the delayed
+   ref for the deleted extent.
+4. __btrfs_free_extent() -> do_free_extent_accounting() ->
+   add_to_free_space_tree() adds the deleted extent back to the free
+   space tree.
+5. do_free_extent_accounting() -> btrfs_update_block_group() ->
+   btrfs_cache_block_group() queues up the block group to get cached.
+   block_group->progress is set to block_group->start.
+6. btrfs_commit_transaction() for transaction A calls
+   switch_commit_roots(). It sets block_group->last_byte_to_unpin to
+   block_group->progress, which is block_group->start because the block
+   group hasn't been cached yet.
+7. The caching thread gets to our block group. Since the commit roots
+   were already switched, load_free_space_tree() sees the deleted extent
+   as free and adds it to the space cache. It finishes caching and sets
+   block_group->progress to U64_MAX.
+8. btrfs_commit_transaction() advances transaction A to
+   TRANS_STATE_SUPER_COMMITTED.
+9. fsync calls btrfs_commit_transaction() for transaction B. Since
+   transaction A is already in TRANS_STATE_SUPER_COMMITTED and the
+   commit is for fsync, it advances.
+10. btrfs_commit_transaction() for transaction B calls
+    switch_commit_roots(). This time, the block group has already been
+    cached, so it sets block_group->last_byte_to_unpin to U64_MAX.
+11. btrfs_commit_transaction() for transaction A calls
+    btrfs_finish_extent_commit(), which calls unpin_extent_range() for
+    the deleted extent. It sees last_byte_to_unpin set to U64_MAX (by
+    transaction B!), so it adds the deleted extent to the space cache
+    again!
+
+This explains all of our symptoms above:
+
+* If the sequence of events is exactly as described above, when the free
+  space is re-added in step 11, it will fail with EEXIST.
+* If another thread reallocates the deleted extent in between steps 7
+  and 11, then step 11 will silently re-add that space to the space
+  cache as free even though it is actually allocated. Then, if that
+  space is allocated *again*, the free space tree will be corrupted
+  (namely, the wrong item will be deleted).
+* If we don't catch this free space tree corruption, it will continue
+  to get worse as extents are deleted and reallocated.
+
+The v1 space_cache is synchronously loaded when an extent is deleted
+(btrfs_update_block_group() with alloc=0 calls btrfs_cache_block_group()
+with load_cache_only=1), so it is not normally affected by this bug.
+However, as noted above, if we fail to load the space cache, we will
+fall back to caching from the extent tree and may hit this bug.
+
+The easiest fix for this race is to also make caching from the free
+space tree or extent tree synchronous. Josef tested this and found no
+performance regressions.
+
+A few extra changes fall out of this change. Namely, this fix does the
+following, with step 2 being the crucial fix:
+
+1. Factor btrfs_caching_ctl_wait_done() out of
+   btrfs_wait_block_group_cache_done() to allow waiting on a caching_ctl
+   that we already hold a reference to.
+2. Change the call in btrfs_cache_block_group() of
+   btrfs_wait_space_cache_v1_finished() to
+   btrfs_caching_ctl_wait_done(), which makes us wait regardless of the
+   space_cache option.
+3. Delete the now unused btrfs_wait_space_cache_v1_finished() and
+   space_cache_v1_done().
+4. Change btrfs_cache_block_group()'s `int load_cache_only` parameter to
+   `bool wait` to more accurately describe its new meaning.
+5. Change a few callers which had a separate call to
+   btrfs_wait_block_group_cache_done() to use wait = true instead.
+6. Make btrfs_wait_block_group_cache_done() static now that it's not
+   used outside of block-group.c anymore.
+
+Fixes: d0c2f4fa555e ("btrfs: make concurrent fsyncs wait less when waiting for a transaction commit")
+CC: stable@vger.kernel.org # 5.12+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 993aca2f1e18..e0375ba9d0fe 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -440,39 +440,26 @@ void btrfs_wait_block_group_cache_progress(struct btrfs_block_group *cache,
+ 	btrfs_put_caching_control(caching_ctl);
+ }
+ 
+-int btrfs_wait_block_group_cache_done(struct btrfs_block_group *cache)
++static int btrfs_caching_ctl_wait_done(struct btrfs_block_group *cache,
++				       struct btrfs_caching_control *caching_ctl)
++{
++	wait_event(caching_ctl->wait, btrfs_block_group_done(cache));
++	return cache->cached == BTRFS_CACHE_ERROR ? -EIO : 0;
++}
++
++static int btrfs_wait_block_group_cache_done(struct btrfs_block_group *cache)
+ {
+ 	struct btrfs_caching_control *caching_ctl;
+-	int ret = 0;
++	int ret;
+ 
+ 	caching_ctl = btrfs_get_caching_control(cache);
+ 	if (!caching_ctl)
+ 		return (cache->cached == BTRFS_CACHE_ERROR) ? -EIO : 0;
+-
+-	wait_event(caching_ctl->wait, btrfs_block_group_done(cache));
+-	if (cache->cached == BTRFS_CACHE_ERROR)
+-		ret = -EIO;
++	ret = btrfs_caching_ctl_wait_done(cache, caching_ctl);
+ 	btrfs_put_caching_control(caching_ctl);
+ 	return ret;
+ }
+ 
+-static bool space_cache_v1_done(struct btrfs_block_group *cache)
+-{
+-	bool ret;
+-
+-	spin_lock(&cache->lock);
+-	ret = cache->cached != BTRFS_CACHE_FAST;
+-	spin_unlock(&cache->lock);
+-
+-	return ret;
+-}
+-
+-void btrfs_wait_space_cache_v1_finished(struct btrfs_block_group *cache,
+-				struct btrfs_caching_control *caching_ctl)
+-{
+-	wait_event(caching_ctl->wait, space_cache_v1_done(cache));
+-}
+-
+ #ifdef CONFIG_BTRFS_DEBUG
+ static void fragment_free_space(struct btrfs_block_group *block_group)
+ {
+@@ -750,9 +737,8 @@ done:
+ 	btrfs_put_block_group(block_group);
+ }
+ 
+-int btrfs_cache_block_group(struct btrfs_block_group *cache, int load_cache_only)
++int btrfs_cache_block_group(struct btrfs_block_group *cache, bool wait)
+ {
+-	DEFINE_WAIT(wait);
+ 	struct btrfs_fs_info *fs_info = cache->fs_info;
+ 	struct btrfs_caching_control *caching_ctl = NULL;
+ 	int ret = 0;
+@@ -785,10 +771,7 @@ int btrfs_cache_block_group(struct btrfs_block_group *cache, int load_cache_only
+ 	}
+ 	WARN_ON(cache->caching_ctl);
+ 	cache->caching_ctl = caching_ctl;
+-	if (btrfs_test_opt(fs_info, SPACE_CACHE))
+-		cache->cached = BTRFS_CACHE_FAST;
+-	else
+-		cache->cached = BTRFS_CACHE_STARTED;
++	cache->cached = BTRFS_CACHE_STARTED;
+ 	cache->has_caching_ctl = 1;
+ 	spin_unlock(&cache->lock);
+ 
+@@ -801,8 +784,8 @@ int btrfs_cache_block_group(struct btrfs_block_group *cache, int load_cache_only
+ 
+ 	btrfs_queue_work(fs_info->caching_workers, &caching_ctl->work);
+ out:
+-	if (load_cache_only && caching_ctl)
+-		btrfs_wait_space_cache_v1_finished(cache, caching_ctl);
++	if (wait && caching_ctl)
++		ret = btrfs_caching_ctl_wait_done(cache, caching_ctl);
+ 	if (caching_ctl)
+ 		btrfs_put_caching_control(caching_ctl);
+ 
+@@ -3312,7 +3295,7 @@ int btrfs_update_block_group(struct btrfs_trans_handle *trans,
+ 		 * space back to the block group, otherwise we will leak space.
+ 		 */
+ 		if (!alloc && !btrfs_block_group_done(cache))
+-			btrfs_cache_block_group(cache, 1);
++			btrfs_cache_block_group(cache, true);
+ 
+ 		byte_in_group = bytenr - cache->start;
+ 		WARN_ON(byte_in_group > cache->length);
+diff --git a/fs/btrfs/block-group.h b/fs/btrfs/block-group.h
+index 35e0e860cc0b..6b3cdc4cbc41 100644
+--- a/fs/btrfs/block-group.h
++++ b/fs/btrfs/block-group.h
+@@ -263,9 +263,7 @@ void btrfs_dec_nocow_writers(struct btrfs_block_group *bg);
+ void btrfs_wait_nocow_writers(struct btrfs_block_group *bg);
+ void btrfs_wait_block_group_cache_progress(struct btrfs_block_group *cache,
+ 				           u64 num_bytes);
+-int btrfs_wait_block_group_cache_done(struct btrfs_block_group *cache);
+-int btrfs_cache_block_group(struct btrfs_block_group *cache,
+-			    int load_cache_only);
++int btrfs_cache_block_group(struct btrfs_block_group *cache, bool wait);
+ void btrfs_put_caching_control(struct btrfs_caching_control *ctl);
+ struct btrfs_caching_control *btrfs_get_caching_control(
+ 		struct btrfs_block_group *cache);
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index 4edb4bfb2166..9ef162dbd4bc 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -505,7 +505,6 @@ struct btrfs_free_cluster {
+ enum btrfs_caching_type {
+ 	BTRFS_CACHE_NO,
+ 	BTRFS_CACHE_STARTED,
+-	BTRFS_CACHE_FAST,
+ 	BTRFS_CACHE_FINISHED,
+ 	BTRFS_CACHE_ERROR,
+ };
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index ab944d1f94ef..6914cd8024ba 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -2551,17 +2551,10 @@ int btrfs_pin_extent_for_log_replay(struct btrfs_trans_handle *trans,
+ 		return -EINVAL;
+ 
+ 	/*
+-	 * pull in the free space cache (if any) so that our pin
+-	 * removes the free space from the cache.  We have load_only set
+-	 * to one because the slow code to read in the free extents does check
+-	 * the pinned extents.
++	 * Fully cache the free space first so that our pin removes the free space
++	 * from the cache.
+ 	 */
+-	btrfs_cache_block_group(cache, 1);
+-	/*
+-	 * Make sure we wait until the cache is completely built in case it is
+-	 * missing or is invalid and therefore needs to be rebuilt.
+-	 */
+-	ret = btrfs_wait_block_group_cache_done(cache);
++	ret = btrfs_cache_block_group(cache, true);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -2584,12 +2577,7 @@ static int __exclude_logged_extent(struct btrfs_fs_info *fs_info,
+ 	if (!block_group)
+ 		return -EINVAL;
+ 
+-	btrfs_cache_block_group(block_group, 1);
+-	/*
+-	 * Make sure we wait until the cache is completely built in case it is
+-	 * missing or is invalid and therefore needs to be rebuilt.
+-	 */
+-	ret = btrfs_wait_block_group_cache_done(block_group);
++	ret = btrfs_cache_block_group(block_group, true);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -4399,7 +4387,7 @@ have_block_group:
+ 		ffe_ctl->cached = btrfs_block_group_done(block_group);
+ 		if (unlikely(!ffe_ctl->cached)) {
+ 			ffe_ctl->have_caching_bg = true;
+-			ret = btrfs_cache_block_group(block_group, 0);
++			ret = btrfs_cache_block_group(block_group, false);
+ 
+ 			/*
+ 			 * If we get ENOMEM here or something else we want to
+@@ -6169,13 +6157,7 @@ int btrfs_trim_fs(struct btrfs_fs_info *fs_info, struct fstrim_range *range)
+ 
+ 		if (end - start >= range->minlen) {
+ 			if (!btrfs_block_group_done(cache)) {
+-				ret = btrfs_cache_block_group(cache, 0);
+-				if (ret) {
+-					bg_failed++;
+-					bg_ret = ret;
+-					continue;
+-				}
+-				ret = btrfs_wait_block_group_cache_done(cache);
++				ret = btrfs_cache_block_group(cache, true);
+ 				if (ret) {
+ 					bg_failed++;
+ 					bg_ret = ret;
 
