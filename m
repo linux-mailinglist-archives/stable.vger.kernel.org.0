@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B1475A4900
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A7715A47DD
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230389AbiH2LTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:19:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47462 "EHLO
+        id S230116AbiH2LCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231586AbiH2LSt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:18:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BF006DADD;
-        Mon, 29 Aug 2022 04:12:22 -0700 (PDT)
+        with ESMTP id S229991AbiH2LB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:01:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4176F1C915;
+        Mon, 29 Aug 2022 04:01:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F7B861211;
-        Mon, 29 Aug 2022 11:11:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37949C433C1;
-        Mon, 29 Aug 2022 11:11:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F34AAB80EC8;
+        Mon, 29 Aug 2022 11:01:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 044E3C433B5;
+        Mon, 29 Aug 2022 11:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771499;
-        bh=iwHUMGGtsoO99D6GssvpBUu3+2Wsmb3tknYbGIplBbs=;
+        s=korg; t=1661770913;
+        bh=zsP5m/HM7B3yPTjrS0qFApOqZLNggpW8XOAOb0CmZP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJyu5nukL5dLnoDzVnxOtbwQIO32YTRov8zbWA5h/yTiQOEbGZ4Gq0D80EMyYR5RR
-         r9j3NyBuAtnfbqBduEK3WCcLZdI8kQgyOCvzef4psthXwrfNHnCGBhcyevyIuT0r6u
-         jI8B9EPu/0uVZYtExrrIHBeiI9l9r8uh0CuoxXR4=
+        b=OXZbAoe7g7GTPT+2qSKGTODGB+wTjnS6OpdIqAhPtLZHJ7yBKdmnEdbABWIlXBZ6d
+         imdjRdCpLnXZI5sS0ibcrsGOD1BN6eywj4+BhV2nKTkBqGY6AbylTpNPUaEOLpiPNM
+         SeJZZyuyOCloHDujzzPk5j7SUfX1I+z9MbVnS0oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arun Ramadoss <arun.ramadoss@microchip.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 037/158] net: dsa: microchip: ksz9477: cleanup the ksz9477_switch_detect
-Date:   Mon, 29 Aug 2022 12:58:07 +0200
-Message-Id: <20220829105810.347355399@linuxfoundation.org>
+Subject: [PATCH 5.15 021/136] btrfs: put initial index value of a directory in a constant
+Date:   Mon, 29 Aug 2022 12:58:08 +0200
+Message-Id: <20220829105805.464243592@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,106 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Ramadoss <arun.ramadoss@microchip.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 27faa0aa85f6696d411bbbebaed9f0f723c2a175 ]
+[ Upstream commit 528ee697126fddaff448897c2d649bd756153c79 ]
 
-The ksz9477_switch_detect performs the detecting the chip id from the
-location 0x00 and also check gigabit compatibility check & number of
-ports based on the register global_options0. To prepare the common ksz
-switch detect function, routine other than chip id read is moved to
-ksz9477_switch_init.
+At btrfs_set_inode_index_count() we refer twice to the number 2 as the
+initial index value for a directory (when it's empty), with a proper
+comment explaining the reason for that value. In the next patch I'll
+have to use that magic value in the directory logging code, so put
+the value in a #define at btrfs_inode.h, to avoid hardcoding the
+magic value again at tree-log.c.
 
-Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/microchip/ksz9477.c | 48 +++++++++++++----------------
- 1 file changed, 22 insertions(+), 26 deletions(-)
+ fs/btrfs/btrfs_inode.h | 12 ++++++++++--
+ fs/btrfs/inode.c       | 10 ++--------
+ 2 files changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
-index ebad795e4e95f..876a801ac23a4 100644
---- a/drivers/net/dsa/microchip/ksz9477.c
-+++ b/drivers/net/dsa/microchip/ksz9477.c
-@@ -1365,12 +1365,30 @@ static u32 ksz9477_get_port_addr(int port, int offset)
+diff --git a/fs/btrfs/btrfs_inode.h b/fs/btrfs/btrfs_inode.h
+index 76ee1452c57ba..37ceea85b871c 100644
+--- a/fs/btrfs/btrfs_inode.h
++++ b/fs/btrfs/btrfs_inode.h
+@@ -13,6 +13,13 @@
+ #include "ordered-data.h"
+ #include "delayed-inode.h"
  
- static int ksz9477_switch_detect(struct ksz_device *dev)
- {
--	u8 data8;
--	u8 id_hi;
--	u8 id_lo;
- 	u32 id32;
- 	int ret;
++/*
++ * Since we search a directory based on f_pos (struct dir_context::pos) we have
++ * to start at 2 since '.' and '..' have f_pos of 0 and 1 respectively, so
++ * everybody else has to start at 2 (see btrfs_real_readdir() and dir_emit_dots()).
++ */
++#define BTRFS_DIR_START_INDEX 2
++
+ /*
+  * ordered_data_close is set by truncate when a file that used
+  * to have good data has been truncated to zero.  When it is set
+@@ -164,8 +171,9 @@ struct btrfs_inode {
+ 	u64 disk_i_size;
  
-+	/* read chip id */
-+	ret = ksz_read32(dev, REG_CHIP_ID0__1, &id32);
-+	if (ret)
-+		return ret;
-+
-+	dev_dbg(dev->dev, "Switch detect: ID=%08x\n", id32);
-+
-+	dev->chip_id = id32 & 0x00FFFF00;
-+
-+	return 0;
-+}
-+
-+static int ksz9477_switch_init(struct ksz_device *dev)
-+{
-+	u8 data8;
-+	int ret;
-+
-+	dev->ds->ops = &ksz9477_switch_ops;
-+
-+	dev->port_mask = (1 << dev->info->port_cnt) - 1;
-+
- 	/* turn off SPI DO Edge select */
- 	ret = ksz_read8(dev, REG_SW_GLOBAL_SERIAL_CTRL_0, &data8);
- 	if (ret)
-@@ -1381,10 +1399,6 @@ static int ksz9477_switch_detect(struct ksz_device *dev)
- 	if (ret)
- 		return ret;
+ 	/*
+-	 * if this is a directory then index_cnt is the counter for the index
+-	 * number for new files that are created
++	 * If this is a directory then index_cnt is the counter for the index
++	 * number for new files that are created. For an empty directory, this
++	 * must be initialized to BTRFS_DIR_START_INDEX.
+ 	 */
+ 	u64 index_cnt;
  
--	/* read chip id */
--	ret = ksz_read32(dev, REG_CHIP_ID0__1, &id32);
--	if (ret)
--		return ret;
- 	ret = ksz_read8(dev, REG_GLOBAL_OPTIONS, &data8);
- 	if (ret)
- 		return ret;
-@@ -1395,10 +1409,7 @@ static int ksz9477_switch_detect(struct ksz_device *dev)
- 	/* Default capability is gigabit capable. */
- 	dev->features = GBIT_SUPPORT;
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index ac6ba984973c0..26a4acb856a38 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -6396,14 +6396,8 @@ static int btrfs_set_inode_index_count(struct btrfs_inode *inode)
+ 		goto out;
+ 	ret = 0;
  
--	dev_dbg(dev->dev, "Switch detect: ID=%08x%02x\n", id32, data8);
--	id_hi = (u8)(id32 >> 16);
--	id_lo = (u8)(id32 >> 8);
--	if ((id_lo & 0xf) == 3) {
-+	if (dev->chip_id == KSZ9893_CHIP_ID) {
- 		/* Chip is from KSZ9893 design. */
- 		dev_info(dev->dev, "Found KSZ9893\n");
- 		dev->features |= IS_9893;
-@@ -1416,21 +1427,6 @@ static int ksz9477_switch_detect(struct ksz_device *dev)
- 		if (!(data8 & SW_GIGABIT_ABLE))
- 			dev->features &= ~GBIT_SUPPORT;
+-	/*
+-	 * MAGIC NUMBER EXPLANATION:
+-	 * since we search a directory based on f_pos we have to start at 2
+-	 * since '.' and '..' have f_pos of 0 and 1 respectively, so everybody
+-	 * else has to start at 2
+-	 */
+ 	if (path->slots[0] == 0) {
+-		inode->index_cnt = 2;
++		inode->index_cnt = BTRFS_DIR_START_INDEX;
+ 		goto out;
  	}
--
--	/* Change chip id to known ones so it can be matched against them. */
--	id32 = (id_hi << 16) | (id_lo << 8);
--
--	dev->chip_id = id32;
--
--	return 0;
--}
--
--static int ksz9477_switch_init(struct ksz_device *dev)
--{
--	dev->ds->ops = &ksz9477_switch_ops;
--
--	dev->port_mask = (1 << dev->info->port_cnt) - 1;
--
- 	return 0;
- }
+ 
+@@ -6414,7 +6408,7 @@ static int btrfs_set_inode_index_count(struct btrfs_inode *inode)
+ 
+ 	if (found_key.objectid != btrfs_ino(inode) ||
+ 	    found_key.type != BTRFS_DIR_INDEX_KEY) {
+-		inode->index_cnt = 2;
++		inode->index_cnt = BTRFS_DIR_START_INDEX;
+ 		goto out;
+ 	}
  
 -- 
 2.35.1
