@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D505A4967
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A2555A4A97
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231913AbiH2LZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:25:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33056 "EHLO
+        id S232950AbiH2Lnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:43:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232101AbiH2LYT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:24:19 -0400
+        with ESMTP id S232969AbiH2LnG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:43:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 550242B25C;
-        Mon, 29 Aug 2022 04:15:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC67585AB2;
+        Mon, 29 Aug 2022 04:27:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D4D7611C2;
-        Mon, 29 Aug 2022 11:13:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23AE7C433D6;
-        Mon, 29 Aug 2022 11:13:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BF6E61231;
+        Mon, 29 Aug 2022 11:13:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97FEEC433D6;
+        Mon, 29 Aug 2022 11:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771625;
-        bh=VZJbGl/oofRE60OZLfEQPBKV6V2CdAgz9NQcnpJuoWM=;
+        s=korg; t=1661771634;
+        bh=fd2B/jkW98W9XGlcOE2Qih4zdW0I/EfQnMIYTXhDY5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WfPmoILodAP6nlOHG53GUkpwQDtrI0opypiLIS/bSY0/FhUVamE4f3b5HVFGW53k3
-         WWAOeZCybseMUOCdavIJy0S9G60cZ0gHiZaJoOj6Eyg6qPp18k0maP/36CbR0Uk+bw
-         cJttbUaK2MJBodp/o9IdyzH/+wUgkHwjTwcJTH04=
+        b=vwDlQMIQPKj3M9RizvAb2r3mcBbykrZLLYAJjF3N9aCqvKfTNIW6d3W2svmX6J4mo
+         fFsidxAYAuG0WLn20ViseEbH1x7yRlqoJy0NxdgHZg+Xbl/wIF1Mh3dDTEE3tDkMTw
+         /BGIeB2xIOq2WRvOZhwaRzTKVdwuVGHU5IPraUXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Vikas Gupta <vikas.gupta@broadcom.com>,
+        stable@vger.kernel.org, Vikas Gupta <vikas.gupta@broadcom.com>,
         Michael Chan <michael.chan@broadcom.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 052/158] bnxt_en: set missing reload flag in devlink features
-Date:   Mon, 29 Aug 2022 12:58:22 +0200
-Message-Id: <20220829105810.925924784@linuxfoundation.org>
+Subject: [PATCH 5.19 053/158] bnxt_en: fix NQ resource accounting during vf creation on 57500 chips
+Date:   Mon, 29 Aug 2022 12:58:23 +0200
+Message-Id: <20220829105810.954627849@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -58,33 +57,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vikas Gupta <vikas.gupta@broadcom.com>
 
-[ Upstream commit 574b2bb9692fd3d45ed631ac447176d4679f3010 ]
+[ Upstream commit 09a89cc59ad67794a11e1d3dd13c5b3172adcc51 ]
 
-Add missing devlink_set_features() API for callbacks reload_down
-and reload_up to function.
+There are 2 issues:
 
-Fixes: 228ea8c187d8 ("bnxt_en: implement devlink dev reload driver_reinit")
-Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+1. We should decrement hw_resc->max_nqs instead of hw_resc->max_irqs
+   with the number of NQs assigned to the VFs.  The IRQs are fixed
+   on each function and cannot be re-assigned.  Only the NQs are being
+   assigned to the VFs.
+
+2. vf_msix is the total number of NQs to be assigned to the VFs.  So
+   we should decrement vf_msix from hw_resc->max_nqs.
+
+Fixes: b16b68918674 ("bnxt_en: Add SR-IOV support for 57500 chips.")
 Signed-off-by: Vikas Gupta <vikas.gupta@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-index 6b3d4f4c2a75f..d83be40785b89 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-@@ -1246,6 +1246,7 @@ int bnxt_dl_register(struct bnxt *bp)
- 	if (rc)
- 		goto err_dl_port_unreg;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+index a1a2c7a64fd58..c9cf0569451a2 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+@@ -623,7 +623,7 @@ static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs, bool reset)
+ 		hw_resc->max_stat_ctxs -= le16_to_cpu(req->min_stat_ctx) * n;
+ 		hw_resc->max_vnics -= le16_to_cpu(req->min_vnics) * n;
+ 		if (bp->flags & BNXT_FLAG_CHIP_P5)
+-			hw_resc->max_irqs -= vf_msix * n;
++			hw_resc->max_nqs -= vf_msix;
  
-+	devlink_set_features(dl, DEVLINK_F_RELOAD);
- out:
- 	devlink_register(dl);
- 	return 0;
+ 		rc = pf->active_vfs;
+ 	}
 -- 
 2.35.1
 
