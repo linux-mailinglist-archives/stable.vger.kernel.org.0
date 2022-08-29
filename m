@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 768115A49D6
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DCBD5A4A5B
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232323AbiH2LaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:30:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55346 "EHLO
+        id S232904AbiH2Lhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:37:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232620AbiH2L3Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:25 -0400
+        with ESMTP id S232786AbiH2Lg4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:36:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D86173923;
-        Mon, 29 Aug 2022 04:17:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A307E808;
+        Mon, 29 Aug 2022 04:20:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66493B80F98;
-        Mon, 29 Aug 2022 11:17:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE5CC433D6;
-        Mon, 29 Aug 2022 11:17:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBC33B80EFC;
+        Mon, 29 Aug 2022 11:06:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B5AC433D6;
+        Mon, 29 Aug 2022 11:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771848;
-        bh=9k3Ex5qoa8TFnbbDZOJm1dqnsTP5F6Ia2Cp29JH5/mw=;
+        s=korg; t=1661771196;
+        bh=9lKmQ4xpbaH/kiIBphliHlC8DuK9HVV8jG2rFnCjuO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8oLrNoJsKVv31BmPlDqqcBTLvOVZY6jK69PQyTbFc+Jv3czY7iHxWNpDS8uSjIWL
-         ctWMqdVNdTqHEfntzd2CmvycIj5jgGEP+drO6c4gMs9ms0XeS1NRhcVrX6F4M8HvWQ
-         G0HPyGzHMGvmOWZ6bf6AvZ6R+ONHTeUcknaC+vJs=
+        b=U5YhCXufmx05uWNV9FEC6U7RRAseJ8N6e8ZdRpyDDkafoeGrZwhv12Q9S51MI1EOV
+         5nQV030jaYfNijrB15u2Ue2l7jAzQqvzC3Mf9WWQPXUduQmzDz3Dib+JMiZI3rhYqJ
+         mUyH5wv0nsx25HoXqm2xKTDtpiNkDLWQm5lUizPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.19 083/158] i40e: Fix incorrect address type for IPv6 flow rules
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 066/136] netfilter: nf_tables: disallow jump to implicit chain from set element
 Date:   Mon, 29 Aug 2022 12:58:53 +0200
-Message-Id: <20220829105812.527847841@linuxfoundation.org>
+Message-Id: <20220829105807.331264599@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit bcf3a156429306070afbfda5544f2b492d25e75b ]
+[ Upstream commit f323ef3a0d49e147365284bc1f02212e617b7f09 ]
 
-It was not possible to create 1-tuple flow director
-rule for IPv6 flow type. It was caused by incorrectly
-checking for source IP address when validating user provided
-destination IP address.
+Extend struct nft_data_desc to add a flag field that specifies
+nft_data_init() is being called for set element data.
 
-Fix this by changing ip6src to correct ip6dst address
-in destination IP address validation for IPv6 flow type.
+Use it to disallow jump to implicit chain from set element, only jump
+to chain via immediate expression is allowed.
 
-Fixes: efca91e89b67 ("i40e: Add flow director support for IPv6")
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: d0e2c7de92c7 ("netfilter: nf_tables: add NFT_CHAIN_BINDING")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/netfilter/nf_tables.h | 5 +++++
+ net/netfilter/nf_tables_api.c     | 4 ++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 19704f5c8291c..22a61802a4027 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -4395,7 +4395,7 @@ static int i40e_check_fdir_input_set(struct i40e_vsi *vsi,
- 				    (struct in6_addr *)&ipv6_full_mask))
- 			new_mask |= I40E_L3_V6_DST_MASK;
- 		else if (ipv6_addr_any((struct in6_addr *)
--				       &usr_ip6_spec->ip6src))
-+				       &usr_ip6_spec->ip6dst))
- 			new_mask &= ~I40E_L3_V6_DST_MASK;
- 		else
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index 6a38bf8538f1e..53746494eb846 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -193,10 +193,15 @@ struct nft_ctx {
+ 	bool				report;
+ };
+ 
++enum nft_data_desc_flags {
++	NFT_DATA_DESC_SETELEM	= (1 << 0),
++};
++
+ struct nft_data_desc {
+ 	enum nft_data_types		type;
+ 	unsigned int			size;
+ 	unsigned int			len;
++	unsigned int			flags;
+ };
+ 
+ int nft_data_init(const struct nft_ctx *ctx, struct nft_data *data,
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index b19f4255b9018..8bc4460b627ae 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -5144,6 +5144,7 @@ static int nft_setelem_parse_data(struct nft_ctx *ctx, struct nft_set *set,
+ 	desc->type = dtype;
+ 	desc->size = NFT_DATA_VALUE_MAXLEN;
+ 	desc->len = set->dlen;
++	desc->flags = NFT_DATA_DESC_SETELEM;
+ 
+ 	return nft_data_init(ctx, data, desc, attr);
+ }
+@@ -9504,6 +9505,9 @@ static int nft_verdict_init(const struct nft_ctx *ctx, struct nft_data *data,
+ 			return PTR_ERR(chain);
+ 		if (nft_is_base_chain(chain))
  			return -EOPNOTSUPP;
++		if (desc->flags & NFT_DATA_DESC_SETELEM &&
++		    chain->flags & NFT_CHAIN_BINDING)
++			return -EINVAL;
+ 
+ 		chain->use++;
+ 		data->verdict.chain = chain;
 -- 
 2.35.1
 
