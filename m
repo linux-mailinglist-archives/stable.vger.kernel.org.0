@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F1B5A47DF
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6925A4910
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbiH2LCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:02:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44156 "EHLO
+        id S231526AbiH2LTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229841AbiH2LCG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:02:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C26D94332F;
-        Mon, 29 Aug 2022 04:02:05 -0700 (PDT)
+        with ESMTP id S231800AbiH2LTW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2163C74CDD;
+        Mon, 29 Aug 2022 04:13:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E33EB80EF3;
-        Mon, 29 Aug 2022 11:02:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 574A9C433C1;
-        Mon, 29 Aug 2022 11:02:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3C28B80F96;
+        Mon, 29 Aug 2022 11:12:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BFCEC433D7;
+        Mon, 29 Aug 2022 11:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770922;
-        bh=/iy+f312kTj5A6TMMgKiWZt1SOjvo8oZVyIccP7xceY=;
+        s=korg; t=1661771536;
+        bh=eJX9FKnILFDrlwXT+vuAPtTESD8DHPjjPUBG0DnkAxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vrqobNOlSPILhgqmK08LKC4zZhw6StAr1vEbUGc6mknvosL/YB+s1ILOHBtb96zv1
-         aeys4zBHw196j31LZceNInlbPpvIiwc4ku+q/Uh4/OhYKlg+bbwN4piziRsv6Fg13C
-         P8fR4ufATKAnCqqxxT9Qcs7Q6I6yovoAzfbKeapc=
+        b=JrwpJz9I2htj31Wv8vGaR8g+gMxacb+7Gy9Z7r71x3ElW1xYeYAt+4v755PN04B5X
+         AfJwm+yqZspiHx1GSFkUqCwQ5TE1wKi18HPFN4G40V11BJzpKKCRdkn9PL6kjaXH37
+         PRTrMNA6iMEZr9hOyJoIQacXjXl1fA9z8V5LgyXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Arun Ramadoss <arun.ramadoss@microchip.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/136] btrfs: remove unnecessary parameter delalloc_start for writepage_delalloc()
-Date:   Mon, 29 Aug 2022 12:58:10 +0200
-Message-Id: <20220829105805.536233187@linuxfoundation.org>
+Subject: [PATCH 5.19 041/158] net: dsa: microchip: move the port mirror to ksz_common
+Date:   Mon, 29 Aug 2022 12:58:11 +0200
+Message-Id: <20220829105810.503081452@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +57,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Arun Ramadoss <arun.ramadoss@microchip.com>
 
-[ Upstream commit cf3075fb36c6a98ea890f4a50b4419ff2fff9a2f ]
+[ Upstream commit 00a298bbc23876288b1cd04c38752d8e7ed53ae2 ]
 
-In function __extent_writepage() we always pass page start to
-@delalloc_start for writepage_delalloc().
+This patch updates the common port mirror add/del dsa_switch_ops in
+ksz_common.c. The individual switches implementation is executed based
+on the ksz_dev_ops function pointers.
 
-Thus we don't really need @delalloc_start parameter as we can extract it
-from @page.
-
-Remove @delalloc_start parameter and make __extent_writepage() to
-declare @page_start and @page_end as const.
-
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/dsa/microchip/ksz8795.c    | 13 ++++++-------
+ drivers/net/dsa/microchip/ksz9477.c    | 12 ++++++------
+ drivers/net/dsa/microchip/ksz_common.c | 23 +++++++++++++++++++++++
+ drivers/net/dsa/microchip/ksz_common.h | 10 ++++++++++
+ 4 files changed, 45 insertions(+), 13 deletions(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 41862045b3de3..a72a8d4d4a72e 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -3780,10 +3780,11 @@ static void update_nr_written(struct writeback_control *wbc,
-  */
- static noinline_for_stack int writepage_delalloc(struct btrfs_inode *inode,
- 		struct page *page, struct writeback_control *wbc,
--		u64 delalloc_start, unsigned long *nr_written)
-+		unsigned long *nr_written)
- {
--	u64 page_end = delalloc_start + PAGE_SIZE - 1;
-+	u64 page_end = page_offset(page) + PAGE_SIZE - 1;
- 	bool found;
-+	u64 delalloc_start = page_offset(page);
- 	u64 delalloc_to_write = 0;
- 	u64 delalloc_end = 0;
- 	int ret;
-@@ -4068,8 +4069,8 @@ static int __extent_writepage(struct page *page, struct writeback_control *wbc,
- 			      struct extent_page_data *epd)
- {
- 	struct inode *inode = page->mapping->host;
--	u64 start = page_offset(page);
--	u64 page_end = start + PAGE_SIZE - 1;
-+	const u64 page_start = page_offset(page);
-+	const u64 page_end = page_start + PAGE_SIZE - 1;
- 	int ret;
- 	int nr = 0;
- 	size_t pg_offset;
-@@ -4104,8 +4105,7 @@ static int __extent_writepage(struct page *page, struct writeback_control *wbc,
- 	}
+diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
+index 16e946dbd9d42..2e3d24a3260e1 100644
+--- a/drivers/net/dsa/microchip/ksz8795.c
++++ b/drivers/net/dsa/microchip/ksz8795.c
+@@ -1089,12 +1089,10 @@ static int ksz8_port_vlan_del(struct ksz_device *dev, int port,
+ 	return 0;
+ }
  
- 	if (!epd->extent_locked) {
--		ret = writepage_delalloc(BTRFS_I(inode), page, wbc, start,
--					 &nr_written);
-+		ret = writepage_delalloc(BTRFS_I(inode), page, wbc, &nr_written);
- 		if (ret == 1)
- 			return 0;
- 		if (ret)
-@@ -4155,7 +4155,7 @@ static int __extent_writepage(struct page *page, struct writeback_control *wbc,
- 	 * capable of that.
- 	 */
- 	if (PageError(page))
--		end_extent_writepage(page, ret, start, page_end);
-+		end_extent_writepage(page, ret, page_start, page_end);
- 	unlock_page(page);
- 	ASSERT(ret <= 0);
+-static int ksz8_port_mirror_add(struct dsa_switch *ds, int port,
++static int ksz8_port_mirror_add(struct ksz_device *dev, int port,
+ 				struct dsa_mall_mirror_tc_entry *mirror,
+ 				bool ingress, struct netlink_ext_ack *extack)
+ {
+-	struct ksz_device *dev = ds->priv;
+-
+ 	if (ingress) {
+ 		ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_RX, true);
+ 		dev->mirror_rx |= BIT(port);
+@@ -1113,10 +1111,9 @@ static int ksz8_port_mirror_add(struct dsa_switch *ds, int port,
+ 	return 0;
+ }
+ 
+-static void ksz8_port_mirror_del(struct dsa_switch *ds, int port,
++static void ksz8_port_mirror_del(struct ksz_device *dev, int port,
+ 				 struct dsa_mall_mirror_tc_entry *mirror)
+ {
+-	struct ksz_device *dev = ds->priv;
+ 	u8 data;
+ 
+ 	if (mirror->ingress) {
+@@ -1400,8 +1397,8 @@ static const struct dsa_switch_ops ksz8_switch_ops = {
+ 	.port_fdb_dump		= ksz_port_fdb_dump,
+ 	.port_mdb_add           = ksz_port_mdb_add,
+ 	.port_mdb_del           = ksz_port_mdb_del,
+-	.port_mirror_add	= ksz8_port_mirror_add,
+-	.port_mirror_del	= ksz8_port_mirror_del,
++	.port_mirror_add	= ksz_port_mirror_add,
++	.port_mirror_del	= ksz_port_mirror_del,
+ };
+ 
+ static u32 ksz8_get_port_addr(int port, int offset)
+@@ -1464,6 +1461,8 @@ static const struct ksz_dev_ops ksz8_dev_ops = {
+ 	.vlan_filtering = ksz8_port_vlan_filtering,
+ 	.vlan_add = ksz8_port_vlan_add,
+ 	.vlan_del = ksz8_port_vlan_del,
++	.mirror_add = ksz8_port_mirror_add,
++	.mirror_del = ksz8_port_mirror_del,
+ 	.shutdown = ksz8_reset_switch,
+ 	.init = ksz8_switch_init,
+ 	.exit = ksz8_switch_exit,
+diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
+index 1bb994a9109cd..cd4a3088e9473 100644
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -819,11 +819,10 @@ static int ksz9477_port_mdb_del(struct dsa_switch *ds, int port,
  	return ret;
+ }
+ 
+-static int ksz9477_port_mirror_add(struct dsa_switch *ds, int port,
++static int ksz9477_port_mirror_add(struct ksz_device *dev, int port,
+ 				   struct dsa_mall_mirror_tc_entry *mirror,
+ 				   bool ingress, struct netlink_ext_ack *extack)
+ {
+-	struct ksz_device *dev = ds->priv;
+ 	u8 data;
+ 	int p;
+ 
+@@ -859,10 +858,9 @@ static int ksz9477_port_mirror_add(struct dsa_switch *ds, int port,
+ 	return 0;
+ }
+ 
+-static void ksz9477_port_mirror_del(struct dsa_switch *ds, int port,
++static void ksz9477_port_mirror_del(struct ksz_device *dev, int port,
+ 				    struct dsa_mall_mirror_tc_entry *mirror)
+ {
+-	struct ksz_device *dev = ds->priv;
+ 	bool in_use = false;
+ 	u8 data;
+ 	int p;
+@@ -1335,8 +1333,8 @@ static const struct dsa_switch_ops ksz9477_switch_ops = {
+ 	.port_fdb_del		= ksz9477_port_fdb_del,
+ 	.port_mdb_add           = ksz9477_port_mdb_add,
+ 	.port_mdb_del           = ksz9477_port_mdb_del,
+-	.port_mirror_add	= ksz9477_port_mirror_add,
+-	.port_mirror_del	= ksz9477_port_mirror_del,
++	.port_mirror_add	= ksz_port_mirror_add,
++	.port_mirror_del	= ksz_port_mirror_del,
+ 	.get_stats64		= ksz_get_stats64,
+ 	.port_change_mtu	= ksz9477_change_mtu,
+ 	.port_max_mtu		= ksz9477_max_mtu,
+@@ -1412,6 +1410,8 @@ static const struct ksz_dev_ops ksz9477_dev_ops = {
+ 	.vlan_filtering = ksz9477_port_vlan_filtering,
+ 	.vlan_add = ksz9477_port_vlan_add,
+ 	.vlan_del = ksz9477_port_vlan_del,
++	.mirror_add = ksz9477_port_mirror_add,
++	.mirror_del = ksz9477_port_mirror_del,
+ 	.shutdown = ksz9477_reset_switch,
+ 	.init = ksz9477_switch_init,
+ 	.exit = ksz9477_switch_exit,
+diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
+index 5db2b55152885..676669d353ea6 100644
+--- a/drivers/net/dsa/microchip/ksz_common.c
++++ b/drivers/net/dsa/microchip/ksz_common.c
+@@ -991,6 +991,29 @@ int ksz_port_vlan_del(struct dsa_switch *ds, int port,
+ }
+ EXPORT_SYMBOL_GPL(ksz_port_vlan_del);
+ 
++int ksz_port_mirror_add(struct dsa_switch *ds, int port,
++			struct dsa_mall_mirror_tc_entry *mirror,
++			bool ingress, struct netlink_ext_ack *extack)
++{
++	struct ksz_device *dev = ds->priv;
++
++	if (!dev->dev_ops->mirror_add)
++		return -EOPNOTSUPP;
++
++	return dev->dev_ops->mirror_add(dev, port, mirror, ingress, extack);
++}
++EXPORT_SYMBOL_GPL(ksz_port_mirror_add);
++
++void ksz_port_mirror_del(struct dsa_switch *ds, int port,
++			 struct dsa_mall_mirror_tc_entry *mirror)
++{
++	struct ksz_device *dev = ds->priv;
++
++	if (dev->dev_ops->mirror_del)
++		dev->dev_ops->mirror_del(dev, port, mirror);
++}
++EXPORT_SYMBOL_GPL(ksz_port_mirror_del);
++
+ static int ksz_switch_detect(struct ksz_device *dev)
+ {
+ 	u8 id1, id2;
+diff --git a/drivers/net/dsa/microchip/ksz_common.h b/drivers/net/dsa/microchip/ksz_common.h
+index 1baa270859aa2..c724cbb437e29 100644
+--- a/drivers/net/dsa/microchip/ksz_common.h
++++ b/drivers/net/dsa/microchip/ksz_common.h
+@@ -187,6 +187,11 @@ struct ksz_dev_ops {
+ 			 struct netlink_ext_ack *extack);
+ 	int  (*vlan_del)(struct ksz_device *dev, int port,
+ 			 const struct switchdev_obj_port_vlan *vlan);
++	int (*mirror_add)(struct ksz_device *dev, int port,
++			  struct dsa_mall_mirror_tc_entry *mirror,
++			  bool ingress, struct netlink_ext_ack *extack);
++	void (*mirror_del)(struct ksz_device *dev, int port,
++			   struct dsa_mall_mirror_tc_entry *mirror);
+ 	void (*freeze_mib)(struct ksz_device *dev, int port, bool freeze);
+ 	void (*port_init_cnt)(struct ksz_device *dev, int port);
+ 	int (*shutdown)(struct ksz_device *dev);
+@@ -247,6 +252,11 @@ int ksz_port_vlan_add(struct dsa_switch *ds, int port,
+ 		      struct netlink_ext_ack *extack);
+ int ksz_port_vlan_del(struct dsa_switch *ds, int port,
+ 		      const struct switchdev_obj_port_vlan *vlan);
++int ksz_port_mirror_add(struct dsa_switch *ds, int port,
++			struct dsa_mall_mirror_tc_entry *mirror,
++			bool ingress, struct netlink_ext_ack *extack);
++void ksz_port_mirror_del(struct dsa_switch *ds, int port,
++			 struct dsa_mall_mirror_tc_entry *mirror);
+ 
+ /* Common register access functions */
+ 
 -- 
 2.35.1
 
