@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0483B5A4872
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:10:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66B6C5A49B5
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231205AbiH2LKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:10:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54466 "EHLO
+        id S232071AbiH2L2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:28:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229617AbiH2LJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:09:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DCA96555;
-        Mon, 29 Aug 2022 04:07:01 -0700 (PDT)
+        with ESMTP id S232210AbiH2L1X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:27:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC2C2792D0;
+        Mon, 29 Aug 2022 04:16:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20511611EF;
-        Mon, 29 Aug 2022 11:06:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25415C433C1;
-        Mon, 29 Aug 2022 11:06:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A604B80F1A;
+        Mon, 29 Aug 2022 11:16:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E5D6C433D7;
+        Mon, 29 Aug 2022 11:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771214;
-        bh=W0WKaihdrChHJR53YjvyX0zHr0mSLFAyR2lY2p2rf28=;
+        s=korg; t=1661771789;
+        bh=rFVOy60Ssxsd9xCHOb/9NOIGTIKPDZteDKKp7l8ln3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sO1btMlBwDY4M/W1JnmXF9Rj4QN8bHIzQNBjpWQNRHX/ByOmQd4FjAKDeptA4Z7+h
-         jeg0eB0/AstL8t6q15wr53jcTlH/EeS5MSTVycTUKG408otq13TRCduilpwO1LAHP/
-         TwOAZaaUxukWuWuO0opvS76h4T9jGyCGTpPEibB4=
+        b=aMjlZlVGbgfPGmTSDdMfZOhDb/mvYN3kQdAdw4wxjANni64FeNfSn3z6Uzri4OAH8
+         oi02MDLQk8EiGROBMdLkZcOV9haKZt0pUSh1VXByzQT1hrnM6VMpjCWljJ4z6O7tHy
+         6EfYZqxwm0uMmmow2A62wcfFLwmPkkxeXgI/Rl2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 080/136] tcp: expose the tcp_mark_push() and tcp_skb_entail() helpers
-Date:   Mon, 29 Aug 2022 12:59:07 +0200
-Message-Id: <20220829105807.931727133@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.19 098/158] btrfs: check if root is readonly while setting security xattr
+Date:   Mon, 29 Aug 2022 12:59:08 +0200
+Message-Id: <20220829105813.198259823@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,83 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Goldwyn Rodrigues <rgoldwyn@suse.de>
 
-[ Upstream commit 04d8825c30b718781197c8f07b1915a11bfb8685 ]
+commit b51111271b0352aa596c5ae8faf06939e91b3b68 upstream.
 
-the tcp_skb_entail() helper is actually skb_entail(), renamed
-to provide proper scope.
+For a filesystem which has btrfs read-only property set to true, all
+write operations including xattr should be denied. However, security
+xattr can still be changed even if btrfs ro property is true.
 
-    The two helper will be used by the next patch.
+This happens because xattr_permission() does not have any restrictions
+on security.*, system.*  and in some cases trusted.* from VFS and
+the decision is left to the underlying filesystem. See comments in
+xattr_permission() for more details.
 
-RFC -> v1:
- - rename skb_entail to tcp_skb_entail (Eric)
+This patch checks if the root is read-only before performing the set
+xattr operation.
 
-Acked-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Testcase:
+
+  DEV=/dev/vdb
+  MNT=/mnt
+
+  mkfs.btrfs -f $DEV
+  mount $DEV $MNT
+  echo "file one" > $MNT/f1
+
+  setfattr -n "security.one" -v 2 $MNT/f1
+  btrfs property set /mnt ro true
+
+  setfattr -n "security.one" -v 1 $MNT/f1
+
+  umount $MNT
+
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tcp.h | 2 ++
- net/ipv4/tcp.c    | 8 ++++----
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ fs/btrfs/xattr.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 76b0d7f2b967f..d3646645cb9ec 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -571,6 +571,8 @@ __u32 cookie_v6_init_sequence(const struct sk_buff *skb, __u16 *mss);
- #endif
- /* tcp_output.c */
- 
-+void tcp_skb_entail(struct sock *sk, struct sk_buff *skb);
-+void tcp_mark_push(struct tcp_sock *tp, struct sk_buff *skb);
- void __tcp_push_pending_frames(struct sock *sk, unsigned int cur_mss,
- 			       int nonagle);
- int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs);
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 2097eeaf30a67..52f51717f02f3 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -644,7 +644,7 @@ int tcp_ioctl(struct sock *sk, int cmd, unsigned long arg)
- }
- EXPORT_SYMBOL(tcp_ioctl);
- 
--static inline void tcp_mark_push(struct tcp_sock *tp, struct sk_buff *skb)
-+void tcp_mark_push(struct tcp_sock *tp, struct sk_buff *skb)
+--- a/fs/btrfs/xattr.c
++++ b/fs/btrfs/xattr.c
+@@ -371,6 +371,9 @@ static int btrfs_xattr_handler_set(const
+ 				   const char *name, const void *buffer,
+ 				   size_t size, int flags)
  {
- 	TCP_SKB_CB(skb)->tcp_flags |= TCPHDR_PSH;
- 	tp->pushed_seq = tp->write_seq;
-@@ -655,7 +655,7 @@ static inline bool forced_push(const struct tcp_sock *tp)
- 	return after(tp->write_seq, tp->pushed_seq + (tp->max_window >> 1));
++	if (btrfs_root_readonly(BTRFS_I(inode)->root))
++		return -EROFS;
++
+ 	name = xattr_full_name(handler, name);
+ 	return btrfs_setxattr_trans(inode, name, buffer, size, flags);
  }
- 
--static void skb_entail(struct sock *sk, struct sk_buff *skb)
-+void tcp_skb_entail(struct sock *sk, struct sk_buff *skb)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct tcp_skb_cb *tcb = TCP_SKB_CB(skb);
-@@ -982,7 +982,7 @@ struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
- #ifdef CONFIG_TLS_DEVICE
- 		skb->decrypted = !!(flags & MSG_SENDPAGE_DECRYPTED);
- #endif
--		skb_entail(sk, skb);
-+		tcp_skb_entail(sk, skb);
- 		copy = size_goal;
- 	}
- 
-@@ -1312,7 +1312,7 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
- 			process_backlog++;
- 			skb->ip_summed = CHECKSUM_PARTIAL;
- 
--			skb_entail(sk, skb);
-+			tcp_skb_entail(sk, skb);
- 			copy = size_goal;
- 
- 			/* All packets are restored as if they have
--- 
-2.35.1
-
 
 
