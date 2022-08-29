@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9596E5A48B4
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E831C5A48E7
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:17:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231259AbiH2LO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:14:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40468 "EHLO
+        id S231324AbiH2LRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:17:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231365AbiH2LNe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:34 -0400
+        with ESMTP id S231162AbiH2LRQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:17:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C72E46EF11;
-        Mon, 29 Aug 2022 04:09:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACD7673927;
+        Mon, 29 Aug 2022 04:11:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68F836119A;
-        Mon, 29 Aug 2022 11:09:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C724C433D7;
-        Mon, 29 Aug 2022 11:09:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8BBD611F1;
+        Mon, 29 Aug 2022 11:09:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E91C433C1;
+        Mon, 29 Aug 2022 11:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771361;
-        bh=d0jzzWeYwW6y3dWo8vEIEcbUQKTc2Bx34MAZ6E9eQhM=;
+        s=korg; t=1661771350;
+        bh=V9jVGqk7lz1UgihqpJfWjn5UtbbfwutqK2q9IUj0wAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pl6it1ZKIBA8Yaa/rifKi4YbM9E0Ppr01LtAsRI08FclA1HC4slb7diQ6fGa2W0XW
-         eIywYmu/hIQOEm90Mtp7f5pmzXp+bT4BllDPqQrJMwZPcrK/JnzMdCfaAhY+v/dzha
-         Q3vlvfWGrR1nZJ/1wfiMO0K5x2GbkdvSDhlT1QYk=
+        b=q9GSHAhTGytasI5CrrHQsyQrE41tZaiWx0dvXudvDZU6m8fo40HYTrP4lE2XGydpV
+         mH3LYKt7pZAMyjdP68111yLHBLbGmnf0qRpjM0M5rKQS5IHaJ7kNq7XFRwMTtbPbuS
+         h5XKZ4h7JOJIc1dnacGzfz4zx7ML6Rc7IrLTB+No=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Qi Duan <qi.duan@amlogic.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 55/86] net: Fix a data-race around sysctl_net_busy_read.
+Subject: [PATCH 5.15 094/136] net: stmmac: work around sporadic tx issue on link-up
 Date:   Mon, 29 Aug 2022 12:59:21 +0200
-Message-Id: <20220829105758.787792768@linuxfoundation.org>
+Message-Id: <20220829105808.525512557@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit e59ef36f0795696ab229569c153936bfd068d21c ]
+[ Upstream commit a3a57bf07de23fe1ff779e0fdf710aa581c3ff73 ]
 
-While reading sysctl_net_busy_read, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+This is a follow-up to the discussion in [0]. It seems to me that
+at least the IP version used on Amlogic SoC's sometimes has a problem
+if register MAC_CTRL_REG is written whilst the chip is still processing
+a previous write. But that's just a guess.
+Adding a delay between two writes to this register helps, but we can
+also simply omit the offending second write. This patch uses the second
+approach and is based on a suggestion from Qi Duan.
+Benefit of this approach is that we can save few register writes, also
+on not affected chip versions.
 
-Fixes: 2d48d67fa8cd ("net: poll/select low latency socket support")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[0] https://www.spinics.net/lists/netdev/msg831526.html
+
+Fixes: bfab27a146ed ("stmmac: add the experimental PCI support")
+Suggested-by: Qi Duan <qi.duan@amlogic.com>
+Suggested-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/e99857ce-bd90-5093-ca8c-8cd480b5a0a2@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c   | 8 ++++++--
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 9 +++++----
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index f01e71c98d5be..1bb6a003323b3 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -3032,7 +3032,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c b/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c
+index d1c31200bb911..01d0a14f67520 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c
+@@ -258,14 +258,18 @@ EXPORT_SYMBOL_GPL(stmmac_set_mac_addr);
+ /* Enable disable MAC RX/TX */
+ void stmmac_set_mac(void __iomem *ioaddr, bool enable)
+ {
+-	u32 value = readl(ioaddr + MAC_CTRL_REG);
++	u32 old_val, value;
++
++	old_val = readl(ioaddr + MAC_CTRL_REG);
++	value = old_val;
  
- #ifdef CONFIG_NET_RX_BUSY_POLL
- 	sk->sk_napi_id		=	0;
--	sk->sk_ll_usec		=	sysctl_net_busy_read;
-+	sk->sk_ll_usec		=	READ_ONCE(sysctl_net_busy_read);
- #endif
+ 	if (enable)
+ 		value |= MAC_ENABLE_RX | MAC_ENABLE_TX;
+ 	else
+ 		value &= ~(MAC_ENABLE_TX | MAC_ENABLE_RX);
  
- 	sk->sk_max_pacing_rate = ~0UL;
+-	writel(value, ioaddr + MAC_CTRL_REG);
++	if (value != old_val)
++		writel(value, ioaddr + MAC_CTRL_REG);
+ }
+ 
+ void stmmac_get_mac_addr(void __iomem *ioaddr, unsigned char *addr,
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index b4f83c8655684..2569673559df3 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1083,10 +1083,10 @@ static void stmmac_mac_link_up(struct phylink_config *config,
+ 			       bool tx_pause, bool rx_pause)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(to_net_dev(config->dev));
+-	u32 ctrl;
++	u32 old_ctrl, ctrl;
+ 
+-	ctrl = readl(priv->ioaddr + MAC_CTRL_REG);
+-	ctrl &= ~priv->hw->link.speed_mask;
++	old_ctrl = readl(priv->ioaddr + MAC_CTRL_REG);
++	ctrl = old_ctrl & ~priv->hw->link.speed_mask;
+ 
+ 	if (interface == PHY_INTERFACE_MODE_USXGMII) {
+ 		switch (speed) {
+@@ -1161,7 +1161,8 @@ static void stmmac_mac_link_up(struct phylink_config *config,
+ 	if (tx_pause && rx_pause)
+ 		stmmac_mac_flow_ctrl(priv, duplex);
+ 
+-	writel(ctrl, priv->ioaddr + MAC_CTRL_REG);
++	if (ctrl != old_ctrl)
++		writel(ctrl, priv->ioaddr + MAC_CTRL_REG);
+ 
+ 	stmmac_mac_set(priv, priv->ioaddr, true);
+ 	if (phy && priv->dma_cap.eee) {
 -- 
 2.35.1
 
