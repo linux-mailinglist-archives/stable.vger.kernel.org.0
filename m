@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B81D5A4916
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:20:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E76E5A4906
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231593AbiH2LUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:20:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
+        id S231262AbiH2LTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231839AbiH2LT0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 937BC6DAE4;
-        Mon, 29 Aug 2022 04:13:26 -0700 (PDT)
+        with ESMTP id S231621AbiH2LSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:18:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3542E10FE3;
+        Mon, 29 Aug 2022 04:12:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E8ABB80F79;
-        Mon, 29 Aug 2022 11:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D12BEC433C1;
-        Mon, 29 Aug 2022 11:12:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22A1D6122D;
+        Mon, 29 Aug 2022 11:12:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31CAFC433C1;
+        Mon, 29 Aug 2022 11:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771548;
-        bh=SvzpnSA7V08mLhJ4Mh17TtCBf+nZSutJ+9NaMn4hbe4=;
+        s=korg; t=1661771533;
+        bh=Gzqy99RAUTU08sK5XGOmICQ9ne5up2T8DJBSaBHVxPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ViQkvQJCgMmzVkeCiXIi6N3y1kYmzezvFzHhXrRqauWm8MnorfUhdgpTiUupbfeSd
-         LqduQnL69SuAr1fFnhsKcZYc/UqkAQHvRVNvBgvD+8bZhJlbSWwmKEg7LMeK8VQll5
-         0b8WridKUJN9djzR81BX3aK+PPoxJ2NgO4J/Z5wQ=
+        b=kQ1yTuHJdzAj/tGDyJPTNwjjintTJmIkZMgjjPNYj8zK4lMj5BEIVHtBqAHFu770B
+         0pFaPhrB1Jnbd1iUjRAfggjjXPHlNQFfTvDlVJatDbbzFcdbiXGY84INd4JSw4f80q
+         Q8L5ybL2jkc14WzDLwG+oZiq7I8TnTkFB9c/Gdys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 115/136] smb3: missing inode locks in punch hole
-Date:   Mon, 29 Aug 2022 12:59:42 +0200
-Message-Id: <20220829105809.420859934@linuxfoundation.org>
+        stable@vger.kernel.org, Guoqing Jiang <guoqing.jiang@linux.dev>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 5.10 77/86] Revert "md-raid: destroy the bitmap after destroying the thread"
+Date:   Mon, 29 Aug 2022 12:59:43 +0200
+Message-Id: <20220829105759.666602652@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Guoqing Jiang <guoqing.jiang@linux.dev>
 
-commit ba0803050d610d5072666be727bca5e03e55b242 upstream.
+commit 1d258758cf06a0734482989911d184dd5837ed4e upstream.
 
-smb3 fallocate punch hole was not grabbing the inode or filemap_invalidate
-locks so could have race with pagemap reinstantiating the page.
+This reverts commit e151db8ecfb019b7da31d076130a794574c89f6f. Because it
+obviously breaks clustered raid as noticed by Neil though it fixed KASAN
+issue for dm-raid, let's revert it and fix KASAN issue in next commit.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+[1]. https://lore.kernel.org/linux-raid/a6657e08-b6a7-358b-2d2a-0ac37d49d23a@linux.dev/T/#m95ac225cab7409f66c295772483d091084a6d470
+
+Fixes: e151db8ecfb0 ("md-raid: destroy the bitmap after destroying the thread")
+Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/md/md.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3599,7 +3599,7 @@ static long smb3_zero_range(struct file
- static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
- 			    loff_t offset, loff_t len)
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6278,11 +6278,11 @@ static void mddev_detach(struct mddev *m
+ static void __md_stop(struct mddev *mddev)
  {
--	struct inode *inode;
-+	struct inode *inode = file_inode(file);
- 	struct cifsFileInfo *cfile = file->private_data;
- 	struct file_zero_data_information fsctl_buf;
- 	long rc;
-@@ -3608,14 +3608,12 @@ static long smb3_punch_hole(struct file
- 
- 	xid = get_xid();
- 
--	inode = d_inode(cfile->dentry);
--
-+	inode_lock(inode);
- 	/* Need to make file sparse, if not already, before freeing range. */
- 	/* Consider adding equivalent for compressed since it could also work */
- 	if (!smb2_set_sparse(xid, tcon, cfile, inode, set_sparse)) {
- 		rc = -EOPNOTSUPP;
--		free_xid(xid);
--		return rc;
-+		goto out;
- 	}
- 
- 	filemap_invalidate_lock(inode->i_mapping);
-@@ -3635,8 +3633,10 @@ static long smb3_punch_hole(struct file
- 			true /* is_fctl */, (char *)&fsctl_buf,
- 			sizeof(struct file_zero_data_information),
- 			CIFSMaxBufSize, NULL, NULL);
--	free_xid(xid);
- 	filemap_invalidate_unlock(inode->i_mapping);
-+out:
-+	inode_unlock(inode);
-+	free_xid(xid);
- 	return rc;
- }
- 
+ 	struct md_personality *pers = mddev->pers;
++	md_bitmap_destroy(mddev);
+ 	mddev_detach(mddev);
+ 	/* Ensure ->event_work is done */
+ 	if (mddev->event_work.func)
+ 		flush_workqueue(md_misc_wq);
+-	md_bitmap_destroy(mddev);
+ 	spin_lock(&mddev->lock);
+ 	mddev->pers = NULL;
+ 	spin_unlock(&mddev->lock);
 
 
