@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB8035A48AC
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D9025A4A91
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230423AbiH2LOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:14:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43002 "EHLO
+        id S232973AbiH2LnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:43:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229849AbiH2LNW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:22 -0400
+        with ESMTP id S232981AbiH2Lmq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:42:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FF56A487;
-        Mon, 29 Aug 2022 04:09:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82369857E7;
+        Mon, 29 Aug 2022 04:26:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31326B80F9A;
-        Mon, 29 Aug 2022 11:08:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B79CC433D6;
-        Mon, 29 Aug 2022 11:08:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 918ACB80F91;
+        Mon, 29 Aug 2022 11:16:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3CE6C433D7;
+        Mon, 29 Aug 2022 11:16:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771296;
-        bh=AhGtrVBP7bDxvnER6WTSl2DiSMmDV+/B2DOAWezXJQc=;
+        s=korg; t=1661771811;
+        bh=/YP6VvDcJ9DScd+mjxxX5q2txVxjWzz7n9jvS0JRzxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tytShonrGEv/w78+lLrtgpxvF/GM7Gb2kZdzAGe3U1F1P0uL6eLUoQ+7J1nI5Ycdw
-         4caGbvws91EyD8Jh0OzdKBhSbyhmEDm9VGMfMYnmw2Nr2P7wk13YkhGJl3ofTQ6w35
-         /WEjp6wDJkNHdO1BCJeJZLvj0SB6s5CoNf5u/rB0=
+        b=pUp+HUrh71p2WPM9A41uIAJvCvl1epVsj4JCGTOyqbD6/cbPGZX6ZBIH4txk/PokX
+         HMNw+kWNlhVJz44vj3KE/znr0f9xHv2MPAQuniKtqODBlkfMa8sIEjaFnYuhRHcTqD
+         w7vlQBYQ1dMZkHHkXsJ85x98FsKHOyEpLx52YB8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 48/86] net: Fix data-races around netdev_max_backlog.
-Date:   Mon, 29 Aug 2022 12:59:14 +0200
-Message-Id: <20220829105758.493453346@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.19 105/158] x86/unwind/orc: Unwind ftrace trampolines with correct ORC entry
+Date:   Mon, 29 Aug 2022 12:59:15 +0200
+Message-Id: <20220829105813.509251432@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 5dcd08cd19912892586c6082d56718333e2d19db ]
+commit fc2e426b1161761561624ebd43ce8c8d2fa058da upstream.
 
-While reading netdev_max_backlog, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+When meeting ftrace trampolines in ORC unwinding, unwinder uses address
+of ftrace_{regs_}call address to find the ORC entry, which gets next frame at
+sp+176.
 
-While at it, we remove the unnecessary spaces in the doc.
+If there is an IRQ hitting at sub $0xa8,%rsp, the next frame should be
+sp+8 instead of 176. It makes unwinder skip correct frame and throw
+warnings such as "wrong direction" or "can't access registers", etc,
+depending on the content of the incorrect frame address.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+By adding the base address ftrace_{regs_}caller with the offset
+*ip - ops->trampoline*, we can get the correct address to find the ORC entry.
+
+Also change "caller" to "tramp_addr" to make variable name conform to
+its content.
+
+[ mingo: Clarified the changelog a bit. ]
+
+Fixes: 6be7fa3c74d1 ("ftrace, orc, x86: Handle ftrace dynamically allocated trampolines")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220819084334.244016-1-chenzhongjin@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/sysctl/net.rst | 2 +-
- net/core/dev.c                           | 4 ++--
- net/core/gro_cells.c                     | 2 +-
- net/xfrm/espintcp.c                      | 2 +-
- net/xfrm/xfrm_input.c                    | 2 +-
- 5 files changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/kernel/unwind_orc.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-index f2ab8a5b6a4b8..7f553859dba82 100644
---- a/Documentation/admin-guide/sysctl/net.rst
-+++ b/Documentation/admin-guide/sysctl/net.rst
-@@ -271,7 +271,7 @@ poll cycle or the number of packets processed reaches netdev_budget.
- netdev_max_backlog
- ------------------
- 
--Maximum number  of  packets,  queued  on  the  INPUT  side, when the interface
-+Maximum number of packets, queued on the INPUT side, when the interface
- receives packets faster than kernel can process them.
- 
- netdev_rss_key
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 701a1afc91ff1..215c43aecc67e 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4516,7 +4516,7 @@ static bool skb_flow_limit(struct sk_buff *skb, unsigned int qlen)
- 	struct softnet_data *sd;
- 	unsigned int old_flow, new_flow;
- 
--	if (qlen < (netdev_max_backlog >> 1))
-+	if (qlen < (READ_ONCE(netdev_max_backlog) >> 1))
- 		return false;
- 
- 	sd = this_cpu_ptr(&softnet_data);
-@@ -4564,7 +4564,7 @@ static int enqueue_to_backlog(struct sk_buff *skb, int cpu,
- 	if (!netif_running(skb->dev))
- 		goto drop;
- 	qlen = skb_queue_len(&sd->input_pkt_queue);
--	if (qlen <= netdev_max_backlog && !skb_flow_limit(skb, qlen)) {
-+	if (qlen <= READ_ONCE(netdev_max_backlog) && !skb_flow_limit(skb, qlen)) {
- 		if (qlen) {
- enqueue:
- 			__skb_queue_tail(&sd->input_pkt_queue, skb);
-diff --git a/net/core/gro_cells.c b/net/core/gro_cells.c
-index 6eb2e5ec2c506..2f66f3f295630 100644
---- a/net/core/gro_cells.c
-+++ b/net/core/gro_cells.c
-@@ -26,7 +26,7 @@ int gro_cells_receive(struct gro_cells *gcells, struct sk_buff *skb)
- 
- 	cell = this_cpu_ptr(gcells->cells);
- 
--	if (skb_queue_len(&cell->napi_skbs) > netdev_max_backlog) {
-+	if (skb_queue_len(&cell->napi_skbs) > READ_ONCE(netdev_max_backlog)) {
- drop:
- 		atomic_long_inc(&dev->rx_dropped);
- 		kfree_skb(skb);
-diff --git a/net/xfrm/espintcp.c b/net/xfrm/espintcp.c
-index 1f08ebf7d80c5..24ca49ecebea3 100644
---- a/net/xfrm/espintcp.c
-+++ b/net/xfrm/espintcp.c
-@@ -170,7 +170,7 @@ int espintcp_queue_out(struct sock *sk, struct sk_buff *skb)
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -93,22 +93,27 @@ static struct orc_entry *orc_find(unsign
+ static struct orc_entry *orc_ftrace_find(unsigned long ip)
  {
- 	struct espintcp_ctx *ctx = espintcp_getctx(sk);
+ 	struct ftrace_ops *ops;
+-	unsigned long caller;
++	unsigned long tramp_addr, offset;
  
--	if (skb_queue_len(&ctx->out_queue) >= netdev_max_backlog)
-+	if (skb_queue_len(&ctx->out_queue) >= READ_ONCE(netdev_max_backlog))
- 		return -ENOBUFS;
+ 	ops = ftrace_ops_trampoline(ip);
+ 	if (!ops)
+ 		return NULL;
  
- 	__skb_queue_tail(&ctx->out_queue, skb);
-diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
-index 61e6220ddd5ae..77e82033ad700 100644
---- a/net/xfrm/xfrm_input.c
-+++ b/net/xfrm/xfrm_input.c
-@@ -782,7 +782,7 @@ int xfrm_trans_queue_net(struct net *net, struct sk_buff *skb,
++	/* Set tramp_addr to the start of the code copied by the trampoline */
+ 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
+-		caller = (unsigned long)ftrace_regs_call;
++		tramp_addr = (unsigned long)ftrace_regs_caller;
+ 	else
+-		caller = (unsigned long)ftrace_call;
++		tramp_addr = (unsigned long)ftrace_caller;
++
++	/* Now place tramp_addr to the location within the trampoline ip is at */
++	offset = ip - ops->trampoline;
++	tramp_addr += offset;
  
- 	trans = this_cpu_ptr(&xfrm_trans_tasklet);
+ 	/* Prevent unlikely recursion */
+-	if (ip == caller)
++	if (ip == tramp_addr)
+ 		return NULL;
  
--	if (skb_queue_len(&trans->queue) >= netdev_max_backlog)
-+	if (skb_queue_len(&trans->queue) >= READ_ONCE(netdev_max_backlog))
- 		return -ENOBUFS;
- 
- 	BUILD_BUG_ON(sizeof(struct xfrm_trans_cb) > sizeof(skb->cb));
--- 
-2.35.1
-
+-	return orc_find(caller);
++	return orc_find(tramp_addr);
+ }
+ #else
+ static struct orc_entry *orc_ftrace_find(unsigned long ip)
 
 
