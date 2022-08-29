@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C9075A4470
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 10:02:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F9415A447C
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 10:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229774AbiH2ICZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 04:02:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40324 "EHLO
+        id S229834AbiH2IFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 04:05:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbiH2ICB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 04:02:01 -0400
+        with ESMTP id S229820AbiH2IFW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 04:05:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60D0250708
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 01:02:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8721175BA;
+        Mon, 29 Aug 2022 01:05:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1BE960909
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 08:01:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D281CC433C1;
-        Mon, 29 Aug 2022 08:01:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C83F60BA7;
+        Mon, 29 Aug 2022 08:05:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2587AC433D7;
+        Mon, 29 Aug 2022 08:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661760119;
-        bh=wXyxJeUstHLkbiUNgs0A1uVGaDUbOaYwj7LtnkDwQmE=;
+        s=korg; t=1661760316;
+        bh=UWECdm7rp3R9ItSrxJKp63Jk1SyourJhkXCk/PaOj50=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Jd3Vx8AXZZsNrNltWW4NatDQGwZD+Nm+o3aegAc91T1PWZ1SpNCZhqnZtm0ta7gCy
-         L8tt3JY2pvGn2/+gWGhNv9YWRCpuoK4mLy+mDjuvDD1mNKOxeDs02CZ3G7hMCHBgyq
-         o8Ki38ZcPEExhOpckroqSsx7wafEIQMlfHxozF8k=
-Date:   Mon, 29 Aug 2022 10:01:56 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     stable <stable@vger.kernel.org>,
-        "song@kernel.org" <song@kernel.org>
-Subject: Re: 5.19 and 5.15 stable patches
-Message-ID: <YwxydO2CuQOuUp/m@kroah.com>
-References: <a603cfc5-9ba5-20c3-3fec-2c4eec4350f7@kernel.dk>
+        b=OTdSqzydVJwO1IbImYWQtj+c9w8qheBL0PoRsMmsrIk1qgov9rjRLUVDFuPABiw2S
+         zy2BwmWxAYCTj+YNX3E58t2nfL1psp5g2ft/7nuqmF2KyHv+6shcK3PU3nuWJ1xTEi
+         bB8PYAoj6FYmdu01r4NeRa03PohnUQl2RBqJNAzc=
+Date:   Mon, 29 Aug 2022 10:05:13 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: Re: [PATCH 5.19 145/365] kbuild: dummy-tools: avoid tmpdir leak in
+ dummy gcc
+Message-ID: <YwxzOTljOcasjqfg@kroah.com>
+References: <20220823080118.128342613@linuxfoundation.org>
+ <20220823080124.294570326@linuxfoundation.org>
+ <9996285f-5a50-e56a-eb1c-645598381a20@kernel.org>
+ <CAFqZXNv2OvNu7BctW=csNLevgGWyoT1R81ypH8pGoAeo3vd4=w@mail.gmail.com>
+ <71dbe196-a3d4-41f4-a00c-24f8b0222288@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a603cfc5-9ba5-20c3-3fec-2c4eec4350f7@kernel.dk>
+In-Reply-To: <71dbe196-a3d4-41f4-a00c-24f8b0222288@kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -50,12 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 25, 2022 at 10:21:38AM -0600, Jens Axboe wrote:
-> Hi,
+On Mon, Aug 29, 2022 at 09:12:39AM +0200, Jiri Slaby wrote:
+> On 27. 08. 22, 10:34, Ondrej Mosnacek wrote:
+> > On Sat, Aug 27, 2022 at 9:51 AM Jiri Slaby <jirislaby@kernel.org> wrote:
+> > > On 23. 08. 22, 10:00, Greg Kroah-Hartman wrote:
+> > > > From: Ondrej Mosnacek <omosnace@redhat.com>
+> > > > 
+> > > > commit aac289653fa5adf9e9985e4912c1d24a3e8cbab2 upstream.
+> > > > 
+> > > > When passed -print-file-name=plugin, the dummy gcc script creates a
+> > > > temporary directory that is never cleaned up. To avoid cluttering
+> > > > $TMPDIR, instead use a static directory included in the source tree.
+> > > 
+> > > This breaks our (SUSE) use of dummy tools (GCC_PLUGINS became =n). I
+> > > will investigate whether this is stable-only and the root cause later.
+> > 
+> > It looks like both the Greg's generated patch and the final stable
+> > commit (d7e676b7dc6a) are missing the addition of the empty
+> > plugin-version.h file. It appears in the patch's diffstat, but not in
+> > the actual diff. The mainline commit does include the empty file
+> > correctly, so it's likely a bug in the stable cherry pick automation.
 > 
-> Backport of fix that went into 6.0-rc1 for 5.19-stable and
-> 5.15-stable. Please apply, thanks!
+> Right, this fixed the issue for me:
+> --- a/patches.kernel.org/5.19.4-144-kbuild-dummy-tools-avoid-tmpdir-leak-in-dummy-.patch
+> +++ b/patches.kernel.org/5.19.4-144-kbuild-dummy-tools-avoid-tmpdir-leak-in-dummy-.patch
+> @@ -20,6 +20,8 @@ Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+>   scripts/dummy-tools/gcc | 8 ++------
+>   1 file changed, 2 insertions(+), 6 deletions(-)
+> 
+> +diff --git a/scripts/dummy-tools/dummy-plugin-dir/include/plugin-version.h
+> b/scripts/dummy-tools/dummy-plugin-dir/include/plugin-version.h
+> +new file mode 100644
+>  diff --git a/scripts/dummy-tools/gcc b/scripts/dummy-tools/gcc
+>  index b2483149bbe5..7db825843435 100755
+>  --- a/scripts/dummy-tools/gcc
 
-Now queued up, thanks.
+Ick, looks like a bad interaction between git and quilt, and then back
+to git.  I'll manually fix this up and push out a new stable release
+with it.
+
+thanks for reporting this!
 
 greg k-h
