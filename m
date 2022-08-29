@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9575A4BC8
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C9DF5A4B3C
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:13:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231185AbiH2M2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 08:28:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43490 "EHLO
+        id S229997AbiH2MNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 08:13:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229785AbiH2M1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:27:52 -0400
+        with ESMTP id S230059AbiH2MMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:12:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83DCEAE207;
-        Mon, 29 Aug 2022 05:11:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE119E884;
+        Mon, 29 Aug 2022 04:57:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D81761245;
-        Mon, 29 Aug 2022 11:16:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66BFCC433D6;
-        Mon, 29 Aug 2022 11:16:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8891961228;
+        Mon, 29 Aug 2022 11:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8274FC433C1;
+        Mon, 29 Aug 2022 11:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771768;
-        bh=JHEcHOHuYKv5fpWgw5Eb1DRF51P3IYRI0HKX1wpe9Js=;
+        s=korg; t=1661771774;
+        bh=R4T94vtZ3ZRvYbtdw32BSmh5FI54ZGJj12qgQnW53Xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLFPljBTBqyLDkb0uC8Uk8Q84pS9q8+nAQsxR3eJXAWktuygKYMmIAdPJ3Zvw2EcT
-         0w1K3QNSEMtqO7l93912NvVCYKTcartL8DykjbeQMPCPeZEz1utF5KRQ1UsHHZxqa/
-         ZkRFbCqD4+BmiD3biyEECoUaq7v4Ydhc5UBXtNTM=
+        b=XYRBgnPw8NHC4+qn6A6RGO81KzkGGUd0YVpi1oNueziN4AFkpk9e7ezsTOjx+wvdP
+         KbTIg/KWNXdgkIwRAy5ktniW0N5/OxXoNwS8GcKgQvZVqoajvTon17hVi6nTY2UnUr
+         YLNMv9xH14++OXnJUuXF5o5vNubxVa8h5DUquO50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 092/158] net: lantiq_xrx200: fix lock under memory pressure
-Date:   Mon, 29 Aug 2022 12:59:02 +0200
-Message-Id: <20220829105812.921874621@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.19 094/158] btrfs: fix silent failure when deleting root reference
+Date:   Mon, 29 Aug 2022 12:59:04 +0200
+Message-Id: <20220829105813.001422562@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -54,43 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Jan Bajkowski <olek2@wp.pl>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit c4b6e9341f930e4dd089231c0414758f5f1f9dbd ]
+commit 47bf225a8d2cccb15f7e8d4a1ed9b757dd86afd7 upstream.
 
-When the xrx200_hw_receive() function returns -ENOMEM, the NAPI poll
-function immediately returns an error.
-This is incorrect for two reasons:
-* the function terminates without enabling interrupts or scheduling NAPI,
-* the error code (-ENOMEM) is returned instead of the number of received
-packets.
+At btrfs_del_root_ref(), if btrfs_search_slot() returns an error, we end
+up returning from the function with a value of 0 (success). This happens
+because the function returns the value stored in the variable 'err',
+which is 0, while the error value we got from btrfs_search_slot() is
+stored in the 'ret' variable.
 
-After the first memory allocation failure occurs, packet reception is
-locked due to disabled interrupts from DMA..
+So fix it by setting 'err' with the error value.
 
-Fixes: fe1a56420cf2 ("net: lantiq: Add Lantiq / Intel VRX200 Ethernet driver")
-Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8289ed9f93bef2 ("btrfs: replace the BUG_ON in btrfs_del_root_ref with proper error handling")
+CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/lantiq_xrx200.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/root-tree.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/lantiq_xrx200.c b/drivers/net/ethernet/lantiq_xrx200.c
-index 89314b645c822..25adce7f0c7c0 100644
---- a/drivers/net/ethernet/lantiq_xrx200.c
-+++ b/drivers/net/ethernet/lantiq_xrx200.c
-@@ -294,7 +294,7 @@ static int xrx200_poll_rx(struct napi_struct *napi, int budget)
- 			if (ret == XRX200_DMA_PACKET_IN_PROGRESS)
- 				continue;
- 			if (ret != XRX200_DMA_PACKET_COMPLETE)
--				return ret;
-+				break;
- 			rx++;
- 		} else {
- 			break;
--- 
-2.35.1
-
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -349,9 +349,10 @@ int btrfs_del_root_ref(struct btrfs_tran
+ 	key.offset = ref_id;
+ again:
+ 	ret = btrfs_search_slot(trans, tree_root, &key, path, -1, 1);
+-	if (ret < 0)
++	if (ret < 0) {
++		err = ret;
+ 		goto out;
+-	if (ret == 0) {
++	} else if (ret == 0) {
+ 		leaf = path->nodes[0];
+ 		ref = btrfs_item_ptr(leaf, path->slots[0],
+ 				     struct btrfs_root_ref);
 
 
