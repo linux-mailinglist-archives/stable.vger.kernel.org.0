@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2055A48B1
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C876A5A4876
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:10:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229509AbiH2LOs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:14:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40436 "EHLO
+        id S231154AbiH2LKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:10:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231286AbiH2LMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:12:51 -0400
+        with ESMTP id S231157AbiH2LJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:09:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A719D6F252;
-        Mon, 29 Aug 2022 04:09:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97BA46B8D0;
+        Mon, 29 Aug 2022 04:06:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F0AB611E9;
-        Mon, 29 Aug 2022 11:06:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19872C433D6;
-        Mon, 29 Aug 2022 11:06:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 613646119C;
+        Mon, 29 Aug 2022 11:06:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FD97C433D6;
+        Mon, 29 Aug 2022 11:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771199;
-        bh=4zRt2mmXK7bqaw+EBMj1hNrUL/9q8bursdtt3AUzJSs=;
+        s=korg; t=1661771193;
+        bh=YvQTDZ2LaFckt1CYRqE5G5/auWDjJFOYRMGfOcY4TCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V34saVS0+IJBCwrVG2Mo7E3tL08atSE9rpYabHiKo21z1sdc+v8FGLZKK9o9G2oQA
-         cW2nusNH/yhuiuMA1lcPWu512E6wqJEuoYj03kgrGupU2qQR31hVzyPPX8ZRS/3AgJ
-         btF1ac17grpYC1CiVu1jjUAl3uYtqvOcLUKW3j5c=
+        b=ZZ1475ycfQ7LaaOHdqGi3BPK1QdLxpzT50tkasHaqiXPfPSKcrxO/Klk3xDoip3Hl
+         lpOUTnn6JQ9XuyW2DcPb7TcY0hdCPOu+4CjoqRUeOtJYTiUgiDR3To5bKIaluQRo9D
+         i2MxHaN24fjSjk6OSWYB/NzyJdUK471Pi6jXfLtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/86] netfilter: nf_tables: consolidate rule verdict trace call
-Date:   Mon, 29 Aug 2022 12:59:04 +0200
-Message-Id: <20220829105758.124884369@linuxfoundation.org>
+Subject: [PATCH 5.15 078/136] net: Fix a data-race around sysctl_net_busy_read.
+Date:   Mon, 29 Aug 2022 12:59:05 +0200
+Message-Id: <20220829105807.831443739@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 4765473fefd4403b5eeca371637065b561522c50 ]
+[ Upstream commit e59ef36f0795696ab229569c153936bfd068d21c ]
 
-Add function to consolidate verdict tracing.
+While reading sysctl_net_busy_read, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 2d48d67fa8cd ("net: poll/select low latency socket support")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_core.c | 39 ++++++++++++++++++++++++++++------
- 1 file changed, 32 insertions(+), 7 deletions(-)
+ net/core/sock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_tables_core.c b/net/netfilter/nf_tables_core.c
-index a61b5bf5aa0fb..6dd27c8cd4253 100644
---- a/net/netfilter/nf_tables_core.c
-+++ b/net/netfilter/nf_tables_core.c
-@@ -67,6 +67,36 @@ static void nft_cmp_fast_eval(const struct nft_expr *expr,
- 	regs->verdict.code = NFT_BREAK;
- }
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 5ab7b59cdab83..9bcffe1d5332a 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -3182,7 +3182,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
  
-+static noinline void __nft_trace_verdict(struct nft_traceinfo *info,
-+					 const struct nft_chain *chain,
-+					 const struct nft_regs *regs)
-+{
-+	enum nft_trace_types type;
-+
-+	switch (regs->verdict.code) {
-+	case NFT_CONTINUE:
-+	case NFT_RETURN:
-+		type = NFT_TRACETYPE_RETURN;
-+		break;
-+	default:
-+		type = NFT_TRACETYPE_RULE;
-+		break;
-+	}
-+
-+	__nft_trace_packet(info, chain, type);
-+}
-+
-+static inline void nft_trace_verdict(struct nft_traceinfo *info,
-+				     const struct nft_chain *chain,
-+				     const struct nft_rule *rule,
-+				     const struct nft_regs *regs)
-+{
-+	if (static_branch_unlikely(&nft_trace_enabled)) {
-+		info->rule = rule;
-+		__nft_trace_verdict(info, chain, regs);
-+	}
-+}
-+
- static bool nft_payload_fast_eval(const struct nft_expr *expr,
- 				  struct nft_regs *regs,
- 				  const struct nft_pktinfo *pkt)
-@@ -207,13 +237,13 @@ nft_do_chain(struct nft_pktinfo *pkt, void *priv)
- 		break;
- 	}
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+ 	sk->sk_napi_id		=	0;
+-	sk->sk_ll_usec		=	sysctl_net_busy_read;
++	sk->sk_ll_usec		=	READ_ONCE(sysctl_net_busy_read);
+ #endif
  
-+	nft_trace_verdict(&info, chain, rule, &regs);
-+
- 	switch (regs.verdict.code & NF_VERDICT_MASK) {
- 	case NF_ACCEPT:
- 	case NF_DROP:
- 	case NF_QUEUE:
- 	case NF_STOLEN:
--		nft_trace_packet(&info, chain, rule,
--				 NFT_TRACETYPE_RULE);
- 		return regs.verdict.code;
- 	}
- 
-@@ -226,15 +256,10 @@ nft_do_chain(struct nft_pktinfo *pkt, void *priv)
- 		stackptr++;
- 		fallthrough;
- 	case NFT_GOTO:
--		nft_trace_packet(&info, chain, rule,
--				 NFT_TRACETYPE_RULE);
--
- 		chain = regs.verdict.chain;
- 		goto do_chain;
- 	case NFT_CONTINUE:
- 	case NFT_RETURN:
--		nft_trace_packet(&info, chain, rule,
--				 NFT_TRACETYPE_RETURN);
- 		break;
- 	default:
- 		WARN_ON(1);
+ 	sk->sk_max_pacing_rate = ~0UL;
 -- 
 2.35.1
 
