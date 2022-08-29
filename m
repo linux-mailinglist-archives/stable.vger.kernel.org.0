@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A29565A4A13
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BB655A49CB
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232528AbiH2Lc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:32:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55432 "EHLO
+        id S232273AbiH2L37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232526AbiH2Lb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:31:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69AAC6D9FA;
-        Mon, 29 Aug 2022 04:18:53 -0700 (PDT)
+        with ESMTP id S232492AbiH2L3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDC8379EE5;
+        Mon, 29 Aug 2022 04:17:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48597B80EFD;
-        Mon, 29 Aug 2022 11:16:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C3A1C433C1;
-        Mon, 29 Aug 2022 11:16:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DE72611F3;
+        Mon, 29 Aug 2022 11:07:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60EA2C433C1;
+        Mon, 29 Aug 2022 11:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771792;
-        bh=aZhd3YmQLna6BBuKxhJ9tgx7jmB9mjF0yLmDcIg1nOU=;
+        s=korg; t=1661771246;
+        bh=nBwKVtuE3HX+ZqecDlfmmiUBj5o2lt46TJHtL3RZv7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMQ6ehiPLhwWTwAZ3pkRjOLp4NkyGnpw+otcLastxWwZxU6ZqpOQhuIZpHFxlqfFa
-         oJci/LxaamI5oQQvE5lp3XNO6fKpuHrqvZSQj+hNV3BEKXlWkuC2qLcGjwNUnVRgk4
-         MWSh2u2qbBlrbg5nqWt70liRPW25exM0rtmvA5B0=
+        b=ClkpduBsz32ynnRsIn/V03xoTWKCCGbVS4JiiZvJIBmy91pqEH8SZF9PmihfkS3ve
+         pg5nacr1IUsKeg+jotnCBp0B0cubZ7uHC0pMfcI9+HQkRVKlPZh61ekjT5w8PrcwgL
+         9kYSd8n7gnDzJecJz7Nf/iF+9Ft+EViaKeFmBBxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Boris Burkov <boris@bur.io>, Zixuan Fu <r33s3n6@gmail.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.19 099/158] btrfs: fix possible memory leak in btrfs_get_dev_args_from_path()
+        stable@vger.kernel.org, Gwangun Jung <exsociety@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 43/86] netfilter: nf_tables: disallow binding to already bound chain
 Date:   Mon, 29 Aug 2022 12:59:09 +0200
-Message-Id: <20220829105813.238164604@linuxfoundation.org>
+Message-Id: <20220829105758.306654273@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zixuan Fu <r33s3n6@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 9ea0106a7a3d8116860712e3f17cd52ce99f6707 upstream.
+[ Upstream commit e02f0d3970404bfea385b6edb86f2d936db0ea2b ]
 
-In btrfs_get_dev_args_from_path(), btrfs_get_bdev_and_sb() can fail if
-the path is invalid. In this case, btrfs_get_dev_args_from_path()
-returns directly without freeing args->uuid and args->fsid allocated
-before, which causes memory leak.
+Update nft_data_init() to report EINVAL if chain is already bound.
 
-To fix these possible leaks, when btrfs_get_bdev_and_sb() fails,
-btrfs_put_dev_args_from_path() is called to clean up the memory.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Fixes: faa775c41d655 ("btrfs: add a btrfs_get_dev_args_from_path helper")
-CC: stable@vger.kernel.org # 5.16
-Reviewed-by: Boris Burkov <boris@bur.io>
-Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d0e2c7de92c7 ("netfilter: nf_tables: add NFT_CHAIN_BINDING")
+Reported-by: Gwangun Jung <exsociety@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -2344,8 +2344,11 @@ int btrfs_get_dev_args_from_path(struct
- 
- 	ret = btrfs_get_bdev_and_sb(path, FMODE_READ, fs_info->bdev_holder, 0,
- 				    &bdev, &disk_super);
--	if (ret)
-+	if (ret) {
-+		btrfs_put_dev_args_from_path(args);
- 		return ret;
-+	}
-+
- 	args->devid = btrfs_stack_device_id(&disk_super->dev_item);
- 	memcpy(args->uuid, disk_super->dev_item.uuid, BTRFS_UUID_SIZE);
- 	if (btrfs_fs_incompat(fs_info, METADATA_UUID))
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index b36728cfc5d81..1b039476e4d6a 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -8678,6 +8678,8 @@ static int nft_verdict_init(const struct nft_ctx *ctx, struct nft_data *data,
+ 			return PTR_ERR(chain);
+ 		if (nft_is_base_chain(chain))
+ 			return -EOPNOTSUPP;
++		if (nft_chain_is_bound(chain))
++			return -EINVAL;
+ 		if (desc->flags & NFT_DATA_DESC_SETELEM &&
+ 		    chain->flags & NFT_CHAIN_BINDING)
+ 			return -EINVAL;
+-- 
+2.35.1
+
 
 
