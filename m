@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F8F5A47ED
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E40575A4964
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:24:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229597AbiH2LDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:03:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44858 "EHLO
+        id S231782AbiH2LYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:24:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229766AbiH2LCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:02:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69AB261D43;
-        Mon, 29 Aug 2022 04:02:19 -0700 (PDT)
+        with ESMTP id S231933AbiH2LXm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:23:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A403B7ED;
+        Mon, 29 Aug 2022 04:14:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 693FD611B2;
-        Mon, 29 Aug 2022 11:02:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56837C4314C;
-        Mon, 29 Aug 2022 11:02:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D322F611B5;
+        Mon, 29 Aug 2022 11:12:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D05FEC433C1;
+        Mon, 29 Aug 2022 11:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770937;
-        bh=WrknHvA3UpXdAA8IE6nQyxLt3Ua8yzFvCXv7bbkmV2s=;
+        s=korg; t=1661771576;
+        bh=nt+DbUpqklbw1Xto9ufSTnWDjmG3ka9/cgJeFua0RZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jdMudII6XEVt9Orp4Ko9fELh7gxA+CFxbxcWKuuzoP3BNWiqoU5EVy7d11cMSpjAG
-         kVSwaWZ1VZmkx6UAa3W5fqDkRbqvu7bZkbzYaazRSifqpfq7WkaumLjAejI+2XV9Np
-         AnUu/ubSH7AxMYXlRabZP09flPca88VkS5MU73sg=
+        b=S+9akYbDILkhxku6bn9ce33WUzrsER2jXgfaLI8Po7GQUSDi4HthXjib/5+Lg3u14
+         ErfJo9pJ3o7Ea4KqGdzDHw+DkyClIZQu2AppOpRzySHUUUb5cNdffpZ21Qikx5FSMX
+         5Nn/4TjORdbIX03ZIOL2rkR/F/j7rrzKlG9qO16M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Xiaolei Wang <xiaolei.wang@windriver.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 028/136] af_key: Do not call xfrm_probe_algs in parallel
+Subject: [PATCH 5.19 045/158] net: phy: Dont WARN for PHY_READY state in mdio_bus_phy_resume()
 Date:   Mon, 29 Aug 2022 12:58:15 +0200
-Message-Id: <20220829105805.724156302@linuxfoundation.org>
+Message-Id: <20220829105810.658040829@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Xiaolei Wang <xiaolei.wang@windriver.com>
 
-[ Upstream commit ba953a9d89a00c078b85f4b190bc1dde66fe16b5 ]
+[ Upstream commit 6dbe852c379ff032a70a6b13a91914918c82cb07 ]
 
-When namespace support was added to xfrm/afkey, it caused the
-previously single-threaded call to xfrm_probe_algs to become
-multi-threaded.  This is buggy and needs to be fixed with a mutex.
+For some MAC drivers, they set the mac_managed_pm to true in its
+->ndo_open() callback. So before the mac_managed_pm is set to true,
+we still want to leverage the mdio_bus_phy_suspend()/resume() for
+the phy device suspend and resume. In this case, the phy device is
+in PHY_READY, and we shouldn't warn about this. It also seems that
+the check of mac_managed_pm in WARN_ON is redundant since we already
+check this in the entry of mdio_bus_phy_resume(), so drop it.
 
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Fixes: 283bc9f35bbb ("xfrm: Namespacify xfrm state/policy locks")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 744d23c71af3 ("net: phy: Warn about incorrect mdio_bus_phy_resume() state")
+Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220819082451.1992102-1-xiaolei.wang@windriver.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/key/af_key.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/phy/phy_device.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index d93bde6573593..53cca90191586 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -1697,9 +1697,12 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
- 		pfk->registered |= (1<<hdr->sadb_msg_satype);
- 	}
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 608de5a94165f..f90a21781d8d6 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -316,11 +316,11 @@ static __maybe_unused int mdio_bus_phy_resume(struct device *dev)
  
-+	mutex_lock(&pfkey_mutex);
- 	xfrm_probe_algs();
+ 	phydev->suspended_by_mdio_bus = 0;
  
- 	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
-+	mutex_unlock(&pfkey_mutex);
-+
- 	if (!supp_skb) {
- 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
- 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
+-	/* If we managed to get here with the PHY state machine in a state other
+-	 * than PHY_HALTED this is an indication that something went wrong and
+-	 * we should most likely be using MAC managed PM and we are not.
++	/* If we manged to get here with the PHY state machine in a state neither
++	 * PHY_HALTED nor PHY_READY this is an indication that something went wrong
++	 * and we should most likely be using MAC managed PM and we are not.
+ 	 */
+-	WARN_ON(phydev->state != PHY_HALTED && !phydev->mac_managed_pm);
++	WARN_ON(phydev->state != PHY_HALTED && phydev->state != PHY_READY);
+ 
+ 	ret = phy_init_hw(phydev);
+ 	if (ret < 0)
 -- 
 2.35.1
 
