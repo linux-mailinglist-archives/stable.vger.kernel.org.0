@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B235A49C0
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:29:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 823655A49D0
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232108AbiH2L3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:29:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53240 "EHLO
+        id S232295AbiH2LaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:30:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232409AbiH2L2y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:28:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4706A2719;
-        Mon, 29 Aug 2022 04:17:17 -0700 (PDT)
+        with ESMTP id S232590AbiH2L3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E847A51D;
+        Mon, 29 Aug 2022 04:17:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03E7D611B3;
-        Mon, 29 Aug 2022 11:14:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BEC5C433C1;
-        Mon, 29 Aug 2022 11:14:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 560326123F;
+        Mon, 29 Aug 2022 11:15:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F9DDC433D6;
+        Mon, 29 Aug 2022 11:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771692;
-        bh=8wcWicOBd5LoPg57jDudrOyj8i8B9hcXWR7IZJ9W3BQ=;
+        s=korg; t=1661771737;
+        bh=iiYN7jTbVnfZ1a9WEQqnOjECpLWYni+txOyNliRC4l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sv0V9cLBHJTJBfvVHOZK9QN39JZpBcPjCQdotA5gMan1hO+FLTZdonL675xgefiCp
-         mctkt1DfjCxjlHGUzUVeFhtVoOzhpXX02dCUtnrLm/zo7QyMTS+bdsS4hBGAQDVMmR
-         4XHI8izKdQz1332dLInAkSRHHBlNvQHEntrt/Y7A=
+        b=ia81612R4GpOYTkQcF2xilu8jyMc90ZsWK7oAo1b1JJ2y94AquYfzLLHYuvKInynm
+         ZjVeDiw5KWiJnAc411fUILR8lgS5O2r49m/ClRP+cNvXMFasY1kq4GMokuPEhTaJH7
+         jcnatBfvoKUNHCgFt1H0km4Z8EHjny8EhZZz2lYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Kiwoong Kim <kwmad.kim@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 84/86] scsi: ufs: core: Enable link lost interrupt
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Guoqing Jiang <guoqing.jiang@linux.dev>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 5.15 123/136] md: call __md_stop_writes in md_stop
 Date:   Mon, 29 Aug 2022 12:59:50 +0200
-Message-Id: <20220829105759.963958548@linuxfoundation.org>
+Message-Id: <20220829105809.718583595@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiwoong Kim <kwmad.kim@samsung.com>
+From: Guoqing Jiang <guoqing.jiang@linux.dev>
 
-commit 6d17a112e9a63ff6a5edffd1676b99e0ffbcd269 upstream.
+commit 0dd84b319352bb8ba64752d4e45396d8b13e6018 upstream.
 
-Link lost is treated as fatal error with commit c99b9b230149 ("scsi: ufs:
-Treat link loss as fatal error"), but the event isn't registered as
-interrupt source. Enable it.
+>From the link [1], we can see raid1d was running even after the path
+raid_dtr -> md_stop -> __md_stop.
 
-Link: https://lore.kernel.org/r/1659404551-160958-1-git-send-email-kwmad.kim@samsung.com
-Fixes: c99b9b230149 ("scsi: ufs: Treat link loss as fatal error")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Let's stop write first in destructor to align with normal md-raid to
+fix the KASAN issue.
+
+[1]. https://lore.kernel.org/linux-raid/CAPhsuW5gc4AakdGNdF8ubpezAuDLFOYUO_sfMZcec6hQFm8nhg@mail.gmail.com/T/#m7f12bf90481c02c6d2da68c64aeed4779b7df74a
+
+Fixes: 48df498daf62 ("md: move bitmap_destroy to the beginning of __md_stop")
+Reported-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshci.h |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/md/md.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/ufs/ufshci.h
-+++ b/drivers/scsi/ufs/ufshci.h
-@@ -129,11 +129,7 @@ enum {
- 
- #define UFSHCD_UIC_MASK		(UIC_COMMAND_COMPL | UFSHCD_UIC_PWR_MASK)
- 
--#define UFSHCD_ERROR_MASK	(UIC_ERROR |\
--				DEVICE_FATAL_ERROR |\
--				CONTROLLER_FATAL_ERROR |\
--				SYSTEM_BUS_FATAL_ERROR |\
--				CRYPTO_ENGINE_FATAL_ERROR)
-+#define UFSHCD_ERROR_MASK	(UIC_ERROR | INT_FATAL_ERRORS)
- 
- #define INT_FATAL_ERRORS	(DEVICE_FATAL_ERROR |\
- 				CONTROLLER_FATAL_ERROR |\
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6272,6 +6272,7 @@ void md_stop(struct mddev *mddev)
+ 	/* stop the array and free an attached data structures.
+ 	 * This is called from dm-raid
+ 	 */
++	__md_stop_writes(mddev);
+ 	__md_stop(mddev);
+ 	bioset_exit(&mddev->bio_set);
+ 	bioset_exit(&mddev->sync_set);
 
 
