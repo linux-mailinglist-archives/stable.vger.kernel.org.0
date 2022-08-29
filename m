@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 902275A47E6
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E91F75A4952
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:23:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229786AbiH2LCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:02:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43490 "EHLO
+        id S231815AbiH2LXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:23:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229535AbiH2LCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:02:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB4BF3AB38;
-        Mon, 29 Aug 2022 04:02:00 -0700 (PDT)
+        with ESMTP id S231814AbiH2LWg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:22:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E34175FD1;
+        Mon, 29 Aug 2022 04:14:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6995C61132;
-        Mon, 29 Aug 2022 11:02:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37E0FC433C1;
-        Mon, 29 Aug 2022 11:01:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBA69B80F93;
+        Mon, 29 Aug 2022 11:11:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23DB7C433D7;
+        Mon, 29 Aug 2022 11:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770919;
-        bh=JFszvvfNIEW/xserBuvtdDUlhOD02mgyujNkLisWBDw=;
+        s=korg; t=1661771516;
+        bh=d3JNQipKIVdMRMQCi6Ms0j33x+78SPG5tZ2w5RRVZ9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RsNj85ylZOjGnwfPnJ8yDFwKdu5qoLcqImVJkuvPSwfRXc3hAfqF79e0CxyDfFBwX
-         L81XQAtL/SvOXH9Vte6jiMSbNogUSxzSo1+eO1j8oVb3FXlrpr4k28R6qxt9BqCYBr
-         8Gp5VJzVy7OnMFYd6UhPlAeNeJLO1MVGNj+Yqm7A=
+        b=kkv2o+zVfDa0InnPmXaGAOFZ7HDe3UZsDW399I4TE4jkKj1UuBLqxFOy9zYSiP6gU
+         fQ9JobOUf2La4sptybEA53/AftrHRjyls4DcNbhzApMbbe6A3fep/wU5UPQmQ56Jnm
+         B4mBGGviXP6nWRGPaiYZfrax0jzUVTg9v193RtSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Arun Ramadoss <arun.ramadoss@microchip.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 022/136] btrfs: pass the dentry to btrfs_log_new_name() instead of the inode
+Subject: [PATCH 5.19 039/158] net: dsa: microchip: move tag_protocol to ksz_common
 Date:   Mon, 29 Aug 2022 12:58:09 +0200
-Message-Id: <20220829105805.495470085@linuxfoundation.org>
+Message-Id: <20220829105810.422227660@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,114 +55,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Arun Ramadoss <arun.ramadoss@microchip.com>
 
-[ Upstream commit d5f5bd546552a94eefd68c42f40f778c40a89d2c ]
+[ Upstream commit 534a0431e9e68959e2c0d71c141d5b911d66ad7c ]
 
-In the next patch in the series, there will be the need to access the old
-name, and its length, of an inode when logging the inode during a rename.
-So instead of passing the inode to btrfs_log_new_name() pass the dentry,
-because from the dentry we can get the inode, the name and its length.
+This patch move the dsa hook get_tag_protocol to ksz_common file. And
+the tag_protocol is returned based on the dev->chip_id.
 
-This will avoid passing 3 new parameters to btrfs_log_new_name() in the
-next patch - the name, its length and an index number. This way we end
-up passing only 1 new parameter, the index number.
-
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c    |  8 ++++----
- fs/btrfs/tree-log.c | 19 +++++++++++++++----
- fs/btrfs/tree-log.h |  2 +-
- 3 files changed, 20 insertions(+), 9 deletions(-)
+ drivers/net/dsa/microchip/ksz8795.c    | 13 +------------
+ drivers/net/dsa/microchip/ksz9477.c    | 14 +-------------
+ drivers/net/dsa/microchip/ksz_common.c | 24 ++++++++++++++++++++++++
+ drivers/net/dsa/microchip/ksz_common.h |  2 ++
+ 4 files changed, 28 insertions(+), 25 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 26a4acb856a38..428a56f248bba 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -6952,7 +6952,7 @@ static int btrfs_link(struct dentry *old_dentry, struct inode *dir,
- 				goto fail;
- 		}
- 		d_instantiate(dentry, inode);
--		btrfs_log_new_name(trans, BTRFS_I(inode), NULL, parent);
-+		btrfs_log_new_name(trans, old_dentry, NULL, parent);
+diff --git a/drivers/net/dsa/microchip/ksz8795.c b/drivers/net/dsa/microchip/ksz8795.c
+index 3cc51ee5fb6cc..041956e3c7b1a 100644
+--- a/drivers/net/dsa/microchip/ksz8795.c
++++ b/drivers/net/dsa/microchip/ksz8795.c
+@@ -898,17 +898,6 @@ static void ksz8_w_phy(struct ksz_device *dev, u16 phy, u16 reg, u16 val)
  	}
- 
- fail:
-@@ -9621,13 +9621,13 @@ static int btrfs_rename_exchange(struct inode *old_dir,
- 		BTRFS_I(new_inode)->dir_index = new_idx;
- 
- 	if (root_log_pinned) {
--		btrfs_log_new_name(trans, BTRFS_I(old_inode), BTRFS_I(old_dir),
-+		btrfs_log_new_name(trans, old_dentry, BTRFS_I(old_dir),
- 				   new_dentry->d_parent);
- 		btrfs_end_log_trans(root);
- 		root_log_pinned = false;
- 	}
- 	if (dest_log_pinned) {
--		btrfs_log_new_name(trans, BTRFS_I(new_inode), BTRFS_I(new_dir),
-+		btrfs_log_new_name(trans, new_dentry, BTRFS_I(new_dir),
- 				   old_dentry->d_parent);
- 		btrfs_end_log_trans(dest);
- 		dest_log_pinned = false;
-@@ -9908,7 +9908,7 @@ static int btrfs_rename(struct user_namespace *mnt_userns,
- 		BTRFS_I(old_inode)->dir_index = index;
- 
- 	if (log_pinned) {
--		btrfs_log_new_name(trans, BTRFS_I(old_inode), BTRFS_I(old_dir),
-+		btrfs_log_new_name(trans, old_dentry, BTRFS_I(old_dir),
- 				   new_dentry->d_parent);
- 		btrfs_end_log_trans(root);
- 		log_pinned = false;
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index e9e1aae89030a..1d7e9812f55e1 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -6628,14 +6628,25 @@ void btrfs_record_snapshot_destroy(struct btrfs_trans_handle *trans,
- 	mutex_unlock(&dir->log_mutex);
  }
  
--/*
-- * Call this after adding a new name for a file and it will properly
-- * update the log to reflect the new name.
-+/**
-+ * Update the log after adding a new name for an inode.
-+ *
-+ * @trans:              Transaction handle.
-+ * @old_dentry:         The dentry associated with the old name and the old
-+ *                      parent directory.
-+ * @old_dir:            The inode of the previous parent directory for the case
-+ *                      of a rename. For a link operation, it must be NULL.
-+ * @parent:             The dentry associated with the directory under which the
-+ *                      new name is located.
-+ *
-+ * Call this after adding a new name for an inode, as a result of a link or
-+ * rename operation, and it will properly update the log to reflect the new name.
-  */
- void btrfs_log_new_name(struct btrfs_trans_handle *trans,
--			struct btrfs_inode *inode, struct btrfs_inode *old_dir,
-+			struct dentry *old_dentry, struct btrfs_inode *old_dir,
- 			struct dentry *parent)
+-static enum dsa_tag_protocol ksz8_get_tag_protocol(struct dsa_switch *ds,
+-						   int port,
+-						   enum dsa_tag_protocol mp)
+-{
+-	struct ksz_device *dev = ds->priv;
+-
+-	/* ksz88x3 uses the same tag schema as KSZ9893 */
+-	return ksz_is_ksz88x3(dev) ?
+-		DSA_TAG_PROTO_KSZ9893 : DSA_TAG_PROTO_KSZ8795;
+-}
+-
+ static u32 ksz8_sw_get_phy_flags(struct dsa_switch *ds, int port)
  {
-+	struct btrfs_inode *inode = BTRFS_I(d_inode(old_dentry));
- 	struct btrfs_log_ctx ctx;
+ 	/* Silicon Errata Sheet (DS80000830A):
+@@ -1394,7 +1383,7 @@ static void ksz8_get_caps(struct dsa_switch *ds, int port,
+ }
  
- 	/*
-diff --git a/fs/btrfs/tree-log.h b/fs/btrfs/tree-log.h
-index 731bd9c029f55..7ffcac8a89905 100644
---- a/fs/btrfs/tree-log.h
-+++ b/fs/btrfs/tree-log.h
-@@ -84,7 +84,7 @@ void btrfs_record_unlink_dir(struct btrfs_trans_handle *trans,
- void btrfs_record_snapshot_destroy(struct btrfs_trans_handle *trans,
- 				   struct btrfs_inode *dir);
- void btrfs_log_new_name(struct btrfs_trans_handle *trans,
--			struct btrfs_inode *inode, struct btrfs_inode *old_dir,
-+			struct dentry *old_dentry, struct btrfs_inode *old_dir,
- 			struct dentry *parent);
+ static const struct dsa_switch_ops ksz8_switch_ops = {
+-	.get_tag_protocol	= ksz8_get_tag_protocol,
++	.get_tag_protocol	= ksz_get_tag_protocol,
+ 	.get_phy_flags		= ksz8_sw_get_phy_flags,
+ 	.setup			= ksz8_setup,
+ 	.phy_read		= ksz_phy_read16,
+diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
+index bcfdd505ca79a..31be767027feb 100644
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -276,18 +276,6 @@ static void ksz9477_port_init_cnt(struct ksz_device *dev, int port)
+ 	mutex_unlock(&mib->cnt_mutex);
+ }
  
- #endif
+-static enum dsa_tag_protocol ksz9477_get_tag_protocol(struct dsa_switch *ds,
+-						      int port,
+-						      enum dsa_tag_protocol mp)
+-{
+-	enum dsa_tag_protocol proto = DSA_TAG_PROTO_KSZ9477;
+-	struct ksz_device *dev = ds->priv;
+-
+-	if (dev->features & IS_9893)
+-		proto = DSA_TAG_PROTO_KSZ9893;
+-	return proto;
+-}
+-
+ static int ksz9477_phy_read16(struct dsa_switch *ds, int addr, int reg)
+ {
+ 	struct ksz_device *dev = ds->priv;
+@@ -1329,7 +1317,7 @@ static int ksz9477_setup(struct dsa_switch *ds)
+ }
+ 
+ static const struct dsa_switch_ops ksz9477_switch_ops = {
+-	.get_tag_protocol	= ksz9477_get_tag_protocol,
++	.get_tag_protocol	= ksz_get_tag_protocol,
+ 	.setup			= ksz9477_setup,
+ 	.phy_read		= ksz9477_phy_read16,
+ 	.phy_write		= ksz9477_phy_write16,
+diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
+index 4511e99823f57..0713a40685fa9 100644
+--- a/drivers/net/dsa/microchip/ksz_common.c
++++ b/drivers/net/dsa/microchip/ksz_common.c
+@@ -930,6 +930,30 @@ void ksz_port_stp_state_set(struct dsa_switch *ds, int port,
+ }
+ EXPORT_SYMBOL_GPL(ksz_port_stp_state_set);
+ 
++enum dsa_tag_protocol ksz_get_tag_protocol(struct dsa_switch *ds,
++					   int port, enum dsa_tag_protocol mp)
++{
++	struct ksz_device *dev = ds->priv;
++	enum dsa_tag_protocol proto = DSA_TAG_PROTO_NONE;
++
++	if (dev->chip_id == KSZ8795_CHIP_ID ||
++	    dev->chip_id == KSZ8794_CHIP_ID ||
++	    dev->chip_id == KSZ8765_CHIP_ID)
++		proto = DSA_TAG_PROTO_KSZ8795;
++
++	if (dev->chip_id == KSZ8830_CHIP_ID ||
++	    dev->chip_id == KSZ9893_CHIP_ID)
++		proto = DSA_TAG_PROTO_KSZ9893;
++
++	if (dev->chip_id == KSZ9477_CHIP_ID ||
++	    dev->chip_id == KSZ9897_CHIP_ID ||
++	    dev->chip_id == KSZ9567_CHIP_ID)
++		proto = DSA_TAG_PROTO_KSZ9477;
++
++	return proto;
++}
++EXPORT_SYMBOL_GPL(ksz_get_tag_protocol);
++
+ static int ksz_switch_detect(struct ksz_device *dev)
+ {
+ 	u8 id1, id2;
+diff --git a/drivers/net/dsa/microchip/ksz_common.h b/drivers/net/dsa/microchip/ksz_common.h
+index e6bc5fb2b1303..21db6f79035fa 100644
+--- a/drivers/net/dsa/microchip/ksz_common.h
++++ b/drivers/net/dsa/microchip/ksz_common.h
+@@ -231,6 +231,8 @@ int ksz_port_mdb_del(struct dsa_switch *ds, int port,
+ int ksz_enable_port(struct dsa_switch *ds, int port, struct phy_device *phy);
+ void ksz_get_strings(struct dsa_switch *ds, int port,
+ 		     u32 stringset, uint8_t *buf);
++enum dsa_tag_protocol ksz_get_tag_protocol(struct dsa_switch *ds,
++					   int port, enum dsa_tag_protocol mp);
+ 
+ /* Common register access functions */
+ 
 -- 
 2.35.1
 
