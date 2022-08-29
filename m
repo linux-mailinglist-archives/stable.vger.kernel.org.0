@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DCC95A43BD
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA4B5A43BC
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbiH2HZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:25:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44978 "EHLO
+        id S229522AbiH2HZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:25:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbiH2HZg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:25:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B01E2DAA9
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:25:35 -0700 (PDT)
+        with ESMTP id S229484AbiH2HZb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:25:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A662DAA9
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:25:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F154BB80D11
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:25:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F437C433D7;
-        Mon, 29 Aug 2022 07:25:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35E6A6112F
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:25:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B142C433D6;
+        Mon, 29 Aug 2022 07:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661757932;
-        bh=IoW8IEIART/jwcb4hQfx4tHzUzNl0gbOEBMsxgoC5g0=;
+        s=korg; t=1661757929;
+        bh=ZMqnidWMzi86fP7LpwiHX5hEVgGTXc5vJIFfxcP5tLg=;
         h=Subject:To:Cc:From:Date:From;
-        b=V48yOAo+246NhxlP7jrOwTigWjeOZ0Czs0WGqrvwYWVW1ea1/XjxWxgCvXJHK+AvZ
-         u2gFlTvgD1kTJKGBPGnw1IJRc6RTtHSFhVib5SxdhcFiS4oKCpBJTbNVSB48kOmUPL
-         wrcuo2p4Iv7mjiZ1TG+/BGQtn78MLAwMOPeeBK8E=
-Subject: FAILED: patch "[PATCH] x86/nospec: Unwreck the RSB stuffing" failed to apply to 5.4-stable tree
+        b=AZw+kWLRnC3f8KehaVB5r+idtndV6LNcwsFntHeVkBdR+5xtWYZVqL3VxeS9oZ1nK
+         yvSxIa1HJasH/qKvHhHTjuWDbD38MUZhjdV6vW8a+XGMpRhewcwAlPgEQv2Hsr7fsB
+         I/3HZHII+4sgFIPavLz7Jd1Pcrspax1z4FiJzmtE=
+Subject: FAILED: patch "[PATCH] x86/nospec: Unwreck the RSB stuffing" failed to apply to 4.19-stable tree
 To:     peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 29 Aug 2022 09:25:23 +0200
-Message-ID: <1661757923147163@kroah.com>
+Message-ID: <1661757923112153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
