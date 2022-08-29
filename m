@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF5F85A4839
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA1E5A481D
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230423AbiH2LHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54098 "EHLO
+        id S230325AbiH2LGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230384AbiH2LGx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:06:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750D011177;
-        Mon, 29 Aug 2022 04:04:58 -0700 (PDT)
+        with ESMTP id S230011AbiH2LF1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:05:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D205659D9;
+        Mon, 29 Aug 2022 04:04:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C349611BD;
-        Mon, 29 Aug 2022 11:03:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BB4FC433C1;
-        Mon, 29 Aug 2022 11:03:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2646FB80EF5;
+        Mon, 29 Aug 2022 11:03:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 705BFC433C1;
+        Mon, 29 Aug 2022 11:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770997;
-        bh=mJwK8c6C68zneecaNx23HbUHfdyLR1wIDgrBIkJKT3E=;
+        s=korg; t=1661770987;
+        bh=JA+Ax4iE7NHMuD+uWSGTnW4YkWjMeLjcQjis3Tv/84I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2sJF/PwmQV9Gr6ooXOEGNgxpFtQ2HzYZuAtvxYuaWg08T5FWFJ1Qvw+4SeBRx5EY
-         JTpICqDbWUtoM1lGCv7Pm3pS3SXY5DRXzwA9/KMCoyQtsbBJVlvaariQP66EDDCL5z
-         lrw72fGkh/6xeOEenTOlSuWoIRFtd5H2gaUeo3Yk=
+        b=0TelaZzt8dSalESMgB36jON6qlZj9zmbLltfzhMaPAQ4lGDOWztd9jlHk1d7d5vD4
+         DZ0lByjThPbB8cdkAWlGx4IiwCD625yVfg8BVK2Rmzd1AstjJKxExvFXhjTPolTIvW
+         H2e+BbJ8c/MUnqeempISxIf4IGYzfCk8xjfL48t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 05/86] xfs: prevent a WARN_ONCE() in xfs_ioc_attr_list()
+        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 044/136] net/mlx5e: Properly disable vlan strip on non-UL reps
 Date:   Mon, 29 Aug 2022 12:58:31 +0200
-Message-Id: <20220829105756.743714196@linuxfoundation.org>
+Message-Id: <20220829105806.418526712@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-commit 6ed6356b07714e0198be3bc3ecccc8b40a212de4 upstream.
+[ Upstream commit f37044fd759b6bc40b6398a978e0b1acdf717372 ]
 
-The "bufsize" comes from the root user.  If "bufsize" is negative then,
-because of type promotion, neither of the validation checks at the start
-of the function are able to catch it:
+When querying mlx5 non-uplink representors capabilities with ethtool
+rx-vlan-offload is marked as "off [fixed]". However, it is actually always
+enabled because mlx5e_params->vlan_strip_disable is 0 by default when
+initializing struct mlx5e_params instance. Fix the issue by explicitly
+setting the vlan_strip_disable to 'true' for non-uplink representors.
 
-	if (bufsize < sizeof(struct xfs_attrlist) ||
-	    bufsize > XFS_XATTR_LIST_MAX)
-		return -EINVAL;
-
-This means "bufsize" will trigger (WARN_ON_ONCE(size > INT_MAX)) in
-kvmalloc_node().  Fix this by changing the type from int to size_t.
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cb67b832921c ("net/mlx5e: Introduce SRIOV VF representors")
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_ioctl.c |    2 +-
- fs/xfs/xfs_ioctl.h |    5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -371,7 +371,7 @@ int
- xfs_ioc_attr_list(
- 	struct xfs_inode		*dp,
- 	void __user			*ubuf,
--	int				bufsize,
-+	size_t				bufsize,
- 	int				flags,
- 	struct xfs_attrlist_cursor __user *ucursor)
- {
---- a/fs/xfs/xfs_ioctl.h
-+++ b/fs/xfs/xfs_ioctl.h
-@@ -38,8 +38,9 @@ xfs_readlink_by_handle(
- int xfs_ioc_attrmulti_one(struct file *parfilp, struct inode *inode,
- 		uint32_t opcode, void __user *uname, void __user *value,
- 		uint32_t *len, uint32_t flags);
--int xfs_ioc_attr_list(struct xfs_inode *dp, void __user *ubuf, int bufsize,
--	int flags, struct xfs_attrlist_cursor __user *ucursor);
-+int xfs_ioc_attr_list(struct xfs_inode *dp, void __user *ubuf,
-+		      size_t bufsize, int flags,
-+		      struct xfs_attrlist_cursor __user *ucursor);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+index 161b60e1139b3..3d614bf5cff9e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+@@ -618,6 +618,8 @@ static void mlx5e_build_rep_params(struct net_device *netdev)
  
- extern struct dentry *
- xfs_handle_to_dentry(
+ 	params->mqprio.num_tc       = 1;
+ 	params->tunneled_offload_en = false;
++	if (rep->vport != MLX5_VPORT_UPLINK)
++		params->vlan_strip_disable = true;
+ 
+ 	/* Set an initial non-zero value, so that mlx5e_select_queue won't
+ 	 * divide by zero if called before first activating channels.
+-- 
+2.35.1
+
 
 
