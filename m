@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B931B5A4905
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98FC95A49FE
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbiH2LTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:19:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56150 "EHLO
+        id S232305AbiH2Lbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:31:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231642AbiH2LSy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:18:54 -0400
+        with ESMTP id S232371AbiH2La3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:30:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A276BCE5;
-        Mon, 29 Aug 2022 04:12:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A99C77B1C4;
+        Mon, 29 Aug 2022 04:18:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E723161212;
-        Mon, 29 Aug 2022 11:11:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 054B3C433C1;
-        Mon, 29 Aug 2022 11:11:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F164E6125C;
+        Mon, 29 Aug 2022 11:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2E0EC433D6;
+        Mon, 29 Aug 2022 11:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771502;
-        bh=qkwOKJi5gsnAyH0eidBUxLUMppPsZof6v77fr4sDNdg=;
+        s=korg; t=1661771875;
+        bh=2wXPY9Vp+sFiohSlj8lahdsF/s7CwW0NniH6x4fkHI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zTSK11GvJ9WSU48V6M9Mj5dhb6bgIWNbw1ncT7fWMg7fs6F91VBxeA6nM8ywdd2NJ
-         nmb4ofOnZSkYtCia6UHoQDHN3LAYUvbLrMFRsi0yEGoaY2LNq3ZBRZJFm58bblkfB4
-         4cWYEYBhhWgHv4nahXzftN1hx4gRdl9tHa4r5JtY=
+        b=CpMfQy3YG/82/htlzppEoBGSa+Jw8z5LZsuMiEfc8q59Oz0nJUW8CVyai0OQJ0luH
+         flVd5sblvz4s/eZvvi9GJBOvu8G0+vsjmZDxgPrBAd+TurKFgqE08IQqTJPPqefLYZ
+         7mF3rQMOlpCPV5MuEmSvabUpKfM8zYsk45gfNvnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.15 110/136] s390: fix double free of GS and RI CBs on fork() failure
+        stable@vger.kernel.org, Heming Zhao <heming.zhao@suse.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 127/158] ocfs2: fix freeing uninitialized resource on ocfs2_dlm_shutdown
 Date:   Mon, 29 Aug 2022 12:59:37 +0200
-Message-Id: <20220829105809.224470741@linuxfoundation.org>
+Message-Id: <20220829105814.414055139@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +59,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Heming Zhao <ocfs2-devel@oss.oracle.com>
 
-commit 13cccafe0edcd03bf1c841de8ab8a1c8e34f77d9 upstream.
+commit 550842cc60987b269e31b222283ade3e1b6c7fc8 upstream.
 
-The pointers for guarded storage and runtime instrumentation control
-blocks are stored in the thread_struct of the associated task. These
-pointers are initially copied on fork() via arch_dup_task_struct()
-and then cleared via copy_thread() before fork() returns. If fork()
-happens to fail after the initial task dup and before copy_thread(),
-the newly allocated task and associated thread_struct memory are
-freed via free_task() -> arch_release_task_struct(). This results in
-a double free of the guarded storage and runtime info structs
-because the fields in the failed task still refer to memory
-associated with the source task.
+After commit 0737e01de9c4 ("ocfs2: ocfs2_mount_volume does cleanup job
+before return error"), any procedure after ocfs2_dlm_init() fails will
+trigger crash when calling ocfs2_dlm_shutdown().
 
-This problem can manifest as a BUG_ON() in set_freepointer() (with
-CONFIG_SLAB_FREELIST_HARDENED enabled) or KASAN splat (if enabled)
-when running trinity syscall fuzz tests on s390x. To avoid this
-problem, clear the associated pointer fields in
-arch_dup_task_struct() immediately after the new task is copied.
-Note that the RI flag is still cleared in copy_thread() because it
-resides in thread stack memory and that is where stack info is
-copied.
+ie: On local mount mode, no dlm resource is initialized.  If
+ocfs2_mount_volume() fails in ocfs2_find_slot(), error handling will call
+ocfs2_dlm_shutdown(), then does dlm resource cleanup job, which will
+trigger kernel crash.
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Fixes: 8d9047f8b967c ("s390/runtime instrumentation: simplify task exit handling")
-Fixes: 7b83c6297d2fc ("s390/guarded storage: simplify task exit handling")
-Cc: <stable@vger.kernel.org> # 4.15
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220816155407.537372-1-bfoster@redhat.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+This solution should bypass uninitialized resources in
+ocfs2_dlm_shutdown().
+
+Link: https://lkml.kernel.org/r/20220815085754.20417-1-heming.zhao@suse.com
+Fixes: 0737e01de9c4 ("ocfs2: ocfs2_mount_volume does cleanup job before return error")
+Signed-off-by: Heming Zhao <heming.zhao@suse.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/process.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ fs/ocfs2/dlmglue.c |    8 +++++---
+ fs/ocfs2/super.c   |    3 +--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -91,6 +91,18 @@ int arch_dup_task_struct(struct task_str
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -3403,10 +3403,12 @@ void ocfs2_dlm_shutdown(struct ocfs2_sup
+ 	ocfs2_lock_res_free(&osb->osb_nfs_sync_lockres);
+ 	ocfs2_lock_res_free(&osb->osb_orphan_scan.os_lockres);
  
- 	memcpy(dst, src, arch_task_struct_size);
- 	dst->thread.fpu.regs = dst->thread.fpu.fprs;
-+
-+	/*
-+	 * Don't transfer over the runtime instrumentation or the guarded
-+	 * storage control block pointers. These fields are cleared here instead
-+	 * of in copy_thread() to avoid premature freeing of associated memory
-+	 * on fork() failure. Wait to clear the RI flag because ->stack still
-+	 * refers to the source thread.
-+	 */
-+	dst->thread.ri_cb = NULL;
-+	dst->thread.gs_cb = NULL;
-+	dst->thread.gs_bc_cb = NULL;
-+
- 	return 0;
+-	ocfs2_cluster_disconnect(osb->cconn, hangup_pending);
+-	osb->cconn = NULL;
++	if (osb->cconn) {
++		ocfs2_cluster_disconnect(osb->cconn, hangup_pending);
++		osb->cconn = NULL;
+ 
+-	ocfs2_dlm_shutdown_debug(osb);
++		ocfs2_dlm_shutdown_debug(osb);
++	}
  }
  
-@@ -149,13 +161,11 @@ int copy_thread(unsigned long clone_flag
- 	frame->childregs.flags = 0;
- 	if (new_stackp)
- 		frame->childregs.gprs[15] = new_stackp;
--
--	/* Don't copy runtime instrumentation info */
--	p->thread.ri_cb = NULL;
-+	/*
-+	 * Clear the runtime instrumentation flag after the above childregs
-+	 * copy. The CB pointer was already cleared in arch_dup_task_struct().
-+	 */
- 	frame->childregs.psw.mask &= ~PSW_MASK_RI;
--	/* Don't copy guarded storage control block */
--	p->thread.gs_cb = NULL;
--	p->thread.gs_bc_cb = NULL;
+ static int ocfs2_drop_lock(struct ocfs2_super *osb,
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -1914,8 +1914,7 @@ static void ocfs2_dismount_volume(struct
+ 	    !ocfs2_is_hard_readonly(osb))
+ 		hangup_needed = 1;
  
- 	/* Set a new TLS ?  */
- 	if (clone_flags & CLONE_SETTLS) {
+-	if (osb->cconn)
+-		ocfs2_dlm_shutdown(osb, hangup_needed);
++	ocfs2_dlm_shutdown(osb, hangup_needed);
+ 
+ 	ocfs2_blockcheck_stats_debugfs_remove(&osb->osb_ecc_stats);
+ 	debugfs_remove_recursive(osb->osb_debug_root);
 
 
