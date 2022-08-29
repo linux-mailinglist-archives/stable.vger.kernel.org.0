@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2555A4A97
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:43:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5255A486C
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:10:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232950AbiH2Lnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:43:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55796 "EHLO
+        id S231148AbiH2LKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:10:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232969AbiH2LnG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:43:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC67585AB2;
-        Mon, 29 Aug 2022 04:27:09 -0700 (PDT)
+        with ESMTP id S230521AbiH2LJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:09:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91C9C6AA2E;
+        Mon, 29 Aug 2022 04:06:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BF6E61231;
-        Mon, 29 Aug 2022 11:13:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97FEEC433D6;
-        Mon, 29 Aug 2022 11:13:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB93FB80F1A;
+        Mon, 29 Aug 2022 11:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37E25C433C1;
+        Mon, 29 Aug 2022 11:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771634;
-        bh=fd2B/jkW98W9XGlcOE2Qih4zdW0I/EfQnMIYTXhDY5c=;
+        s=korg; t=1661771098;
+        bh=4nTNHl5S3HL6mEb67F8Y4yfxVRIqeK9Bw4AkzmLu8OU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vwDlQMIQPKj3M9RizvAb2r3mcBbykrZLLYAJjF3N9aCqvKfTNIW6d3W2svmX6J4mo
-         fFsidxAYAuG0WLn20ViseEbH1x7yRlqoJy0NxdgHZg+Xbl/wIF1Mh3dDTEE3tDkMTw
-         /BGIeB2xIOq2WRvOZhwaRzTKVdwuVGHU5IPraUXo=
+        b=HjxYE71mC9yhTfgYMZP56TLhe5nwhy79Qt3hnbNIklnEkg0FrsNxu1P1JQZUfbKGh
+         cPhiVIi6Gro8ZFKVCQvJrT/4foow/ucPvXNrWS6KURI+GCja2VsKbS/ZCVvLX0fuhi
+         GMy0D5MTeJg+sHmJzh6Cc/JUUAWM7yW71UCd2jok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vikas Gupta <vikas.gupta@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Konstantin Khlebnikov <khlebnikov@openvz.org>,
+        Huang Ying <ying.huang@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 053/158] bnxt_en: fix NQ resource accounting during vf creation on 57500 chips
+Subject: [PATCH 5.15 036/136] mm/smaps: dont access young/dirty bit if pte unpresent
 Date:   Mon, 29 Aug 2022 12:58:23 +0200
-Message-Id: <20220829105810.954627849@linuxfoundation.org>
+Message-Id: <20220829105806.078883223@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +59,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vikas Gupta <vikas.gupta@broadcom.com>
+From: Peter Xu <peterx@redhat.com>
 
-[ Upstream commit 09a89cc59ad67794a11e1d3dd13c5b3172adcc51 ]
+[ Upstream commit efd4149342db2df41b1bbe68972ead853b30e444 ]
 
-There are 2 issues:
+These bits should only be valid when the ptes are present.  Introducing
+two booleans for it and set it to false when !pte_present() for both pte
+and pmd accountings.
 
-1. We should decrement hw_resc->max_nqs instead of hw_resc->max_irqs
-   with the number of NQs assigned to the VFs.  The IRQs are fixed
-   on each function and cannot be re-assigned.  Only the NQs are being
-   assigned to the VFs.
+The bug is found during code reading and no real world issue reported, but
+logically such an error can cause incorrect readings for either smaps or
+smaps_rollup output on quite a few fields.
 
-2. vf_msix is the total number of NQs to be assigned to the VFs.  So
-   we should decrement vf_msix from hw_resc->max_nqs.
+For example, it could cause over-estimate on values like Shared_Dirty,
+Private_Dirty, Referenced.  Or it could also cause under-estimate on
+values like LazyFree, Shared_Clean, Private_Clean.
 
-Fixes: b16b68918674 ("bnxt_en: Add SR-IOV support for 57500 chips.")
-Signed-off-by: Vikas Gupta <vikas.gupta@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lkml.kernel.org/r/20220805160003.58929-1-peterx@redhat.com
+Fixes: b1d4d9e0cbd0 ("proc/smaps: carefully handle migration entries")
+Fixes: c94b6923fa0a ("/proc/PID/smaps: Add PMD migration entry parsing")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: Konstantin Khlebnikov <khlebnikov@openvz.org>
+Cc: Huang Ying <ying.huang@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/proc/task_mmu.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-index a1a2c7a64fd58..c9cf0569451a2 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-@@ -623,7 +623,7 @@ static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs, bool reset)
- 		hw_resc->max_stat_ctxs -= le16_to_cpu(req->min_stat_ctx) * n;
- 		hw_resc->max_vnics -= le16_to_cpu(req->min_vnics) * n;
- 		if (bp->flags & BNXT_FLAG_CHIP_P5)
--			hw_resc->max_irqs -= vf_msix * n;
-+			hw_resc->max_nqs -= vf_msix;
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index 79ca4d69dfd6b..d9c07eecd7872 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -503,10 +503,12 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+ 	struct vm_area_struct *vma = walk->vma;
+ 	bool locked = !!(vma->vm_flags & VM_LOCKED);
+ 	struct page *page = NULL;
+-	bool migration = false;
++	bool migration = false, young = false, dirty = false;
  
- 		rc = pf->active_vfs;
- 	}
+ 	if (pte_present(*pte)) {
+ 		page = vm_normal_page(vma, addr, *pte);
++		young = pte_young(*pte);
++		dirty = pte_dirty(*pte);
+ 	} else if (is_swap_pte(*pte)) {
+ 		swp_entry_t swpent = pte_to_swp_entry(*pte);
+ 
+@@ -540,8 +542,7 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+ 	if (!page)
+ 		return;
+ 
+-	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte),
+-		      locked, migration);
++	smaps_account(mss, page, false, young, dirty, locked, migration);
+ }
+ 
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 -- 
 2.35.1
 
