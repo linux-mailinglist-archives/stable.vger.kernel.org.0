@@ -2,75 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED22B5A52FC
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 19:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72E7E5A5349
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 19:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229950AbiH2RUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 13:20:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39484 "EHLO
+        id S230258AbiH2Rgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 13:36:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231281AbiH2RT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 13:19:59 -0400
-Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246BADF51;
-        Mon, 29 Aug 2022 10:19:56 -0700 (PDT)
-Received: by mail-qt1-x836.google.com with SMTP id h21so6665858qta.3;
-        Mon, 29 Aug 2022 10:19:56 -0700 (PDT)
+        with ESMTP id S231461AbiH2Rg1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 13:36:27 -0400
+Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A05877C33E
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 10:36:24 -0700 (PDT)
+Received: by mail-il1-x12a.google.com with SMTP id t11so1735622ilf.3
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 10:36:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc;
-        bh=WVwojOfpbU3ZWFPUDfRDkq9+aL+8zLwFug1ZZrW5dX0=;
-        b=T8xFkLIDCeUPGDB+9bZRM3uJWq5YWPDImyfUhgmiUdsFSRtIIi/jz4INGslHyr2SHZ
-         T+/7NVW1FjnheAa/o+zYBnaIeAZgZJy2QxvNDNnb+dmncTcr87F8MF3mlIqd4rP3PGP8
-         J9LdQMNcPW+TasKZdGUA95cUP0Q+fqzjaf2sZw9Bz7RbI5X4stasGwBoqsZSfSZEZNHv
-         JP56OFXg1X/wUtASYSgtF8bk8xSc6fT8oPW3uV+4sNbjg63lrU1ZQe0/Ed8MKM6jPMBT
-         ZXw+ZWIxCs2FpaDBXzzg7B3SZIjqHXXm970eyXNYBFXlRedkceue3dqunzuxFMJqHeA5
-         yFlA==
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc;
+        bh=50PU5mc4GkjavRICrwmQCjjpwLHlE79osy79+PIByJk=;
+        b=lPhbUW85OJKObE3ak5Wg/b4ZGlxFO9b4dV70N+M7vrx9BvjbxQlk76yyBCJLtgz5gi
+         UW2nf/H8vJr6FTjOqcY89y3YXnSE5F0zI2OH7R2Oj+Zm2yH+i0Azs3Z9ENbys2carTXY
+         IziYwgtf4pBq5JAR1m8wadPFbWkHk99c2Xb4WRQ5hdVWwaT9y3kQc3BJgBaAA14GuAyE
+         cbnAgoKHZBSVzu9E1YusNWF+7c6c9J6+VJxRrrS8n1emVq+/T+6/Jv1QjvCHVkSAO+rg
+         AVKqKCmdHtuE/S6APSvxXPCQbzz88StUgT25HiiIQ2E/gubqywjfN/yWOM3QWKWwNVJE
+         8qCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=WVwojOfpbU3ZWFPUDfRDkq9+aL+8zLwFug1ZZrW5dX0=;
-        b=SDAlNx7ZJE1sUsqYS2p2zPSrmZ3I2d2NiXTPOwoEIP5P2Pg97NyvvQf2ydP0JSofGo
-         O8AwtYv2cGqop6iEn0+xJS3Hva17HGIEgV2QtVMAfdtMfbhICv82+hP9ey/pCj7wyflQ
-         rtYm6F6JYfYrAtvJ0PWFHI9T4Vv27fLcil7eqx5ZG6R4eoJn3Z6joj4+a6zWaAAzgUMy
-         oPKJ1i7aQ/1KJZSo8A4+wsnjLZnDgfOWBh4k40owllEZl6BEO5ieGrFDXohmUhSxDC4p
-         8dVBNYwYRJefulkzV/EFxQP+naqbJf0jkXMOP5rrMwTxWqG3FmOXnnWLQk5XD4w8N1tH
-         jTPQ==
-X-Gm-Message-State: ACgBeo2hMUvPxaTUwT5p/aa2uHEjKwhCM/0aj+i+2S5qZcmceLy/TcUj
-        AF5aOqtBSrS3gpamgp0csJg=
-X-Google-Smtp-Source: AA6agR5DA85StQSxQRPWxX6B6a/OS9cpLxiZxUArgaPS5Qk97tH+FkkUKSN+RB9nMiZGKW0aIAjdXQ==
-X-Received: by 2002:ac8:5f10:0:b0:343:7a81:e89b with SMTP id x16-20020ac85f10000000b003437a81e89bmr10978565qta.527.1661793595210;
-        Mon, 29 Aug 2022 10:19:55 -0700 (PDT)
-Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id bm2-20020a05620a198200b006b5f06186aesm6348724qkb.65.2022.08.29.10.19.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Aug 2022 10:19:54 -0700 (PDT)
-Message-ID: <6f6eea4e-67c0-7410-4705-3fbe9c72ba9d@gmail.com>
-Date:   Mon, 29 Aug 2022 10:19:51 -0700
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc;
+        bh=50PU5mc4GkjavRICrwmQCjjpwLHlE79osy79+PIByJk=;
+        b=Ll5vZC2uKfxLPaQgMpUZxKe4Mj9FornZ8paWKg5j2ClWoPFJrIEvCfwsjV3LR0LNgJ
+         O7eJGjcNAynOGkfyuhVGp5Wf7sY8xw8mLqTQf3bMT2OvOsA2+nlG8n3UvypKjnnZI1mh
+         u02/5Nn76RCzyQFKNkUq4k+aOdjF76TYRcM5pHjL8ciRPJ7efoxoLQs4LQHErK3Qvt+K
+         j93aYGEB76YuswFcGiMZRrMYWWJn3HZUi3bdQGWXrY9Ba6m+FY3OBId7USvDSXEv9H1H
+         05/ZlFsQ6v1ZVWrQSUwNtWz5ejumJUG/fWekuQLgO7YTFMta9Jme0oklh8fv8AssFw9h
+         hObA==
+X-Gm-Message-State: ACgBeo17VKvwO0QKhPHs/th8Ygc7v6hgeR7LbeCZmrLqMhaOsc9emvW/
+        xynv1WTAo4qPZIX8ElSBKiLYrbDvMQIZNR1baPv2jPjoDqP6SvIa
+X-Google-Smtp-Source: AA6agR7aFXlN2/amqShfTc1i22qFeP/MfLVJm3apPIH0T1sxqSPBQdUO5gDedn7PHbJCotKm4TvGaiKYSJ2dtqKuFGU=
+X-Received: by 2002:a05:6e02:1a63:b0:2e9:ec03:9618 with SMTP id
+ w3-20020a056e021a6300b002e9ec039618mr10826989ilv.187.1661794583808; Mon, 29
+ Aug 2022 10:36:23 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Subject: Re: [PATCH 5.10 00/86] 5.10.140-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220829105756.500128871@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+From:   Jann Horn <jannh@google.com>
+Date:   Mon, 29 Aug 2022 19:35:47 +0200
+Message-ID: <CAG48ez3SEqOPcPCYGHVZv4iqEApujD5VtM3Re-tCKLDEFdEdbg@mail.gmail.com>
+Subject: stable-backporting the VM_PFNMAP TLB flushing fix (b67fbebd4cf9)
+To:     stable <stable@vger.kernel.org>,
+        Security Officers <security@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,30 +64,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit b67fbebd4cf9 ("mmu_gather: Force tlb-flush VM_PFNMAP vmas")
+fixes a TLB flushing bug that probably affects some x86 graphics
+drivers, although hitting the bug might be fairly gnarly. Still, it'd
+probably be a bad idea to leave it unfixed in the stable kernels that
+things like Debian stable rely on.
+
+Unfortunately the way the fix is written, it relies on refactoring
+prep work in the three preceding commits, and trying to apply those to
+older kernels will result in a bunch of merge conflicts.
+
+Would it be acceptable here to fix the issue in a completely different
+way in stable to minimize merge conflicts? Or should the refactoring
+prep work and the fix commit all be backported?
+
+A minimal but also completely different fix would be:
 
 
-On 8/29/2022 3:58 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.140 release.
-> There are 86 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 31 Aug 2022 10:57:37 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.140-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels and build tested on 
-BMIPS_GENERIC:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+diff --git a/mm/mmap.c b/mm/mmap.c
+index a50042918cc7..c453a1274305 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2665,6 +2665,18 @@ static void unmap_region(struct mm_struct *mm,
+        tlb_gather_mmu(&tlb, mm, start, end);
+        update_hiwater_rss(mm);
+        unmap_vmas(&tlb, vma, start, end);
++
++       /*
++        * Ensure we have no stale TLB entries by the time this mapping is
++        * removed from the rmap.
++        * Note that we don't have to worry about nested flushes here because
++        * we're holding the mm semaphore for removing the mapping - so any
++        * concurrent flush in this region has to be coming through the rmap,
++        * and we synchronize against that using the rmap lock.
++        */
++       if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
++               tlb_flush_mmu(&tlb);
++
+        free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
+                                 next ? next->vm_start : USER_PGTABLES_CEILING);
+        tlb_finish_mmu(&tlb, start, end);
