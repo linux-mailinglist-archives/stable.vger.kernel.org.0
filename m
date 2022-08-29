@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 029ED5A487E
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:11:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4145A49C7
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230438AbiH2LLD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:11:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55116 "EHLO
+        id S232194AbiH2L3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:29:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230439AbiH2LKR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:10:17 -0400
+        with ESMTP id S232440AbiH2L3A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632845F93;
-        Mon, 29 Aug 2022 04:07:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 066C97A745;
+        Mon, 29 Aug 2022 04:17:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9975BB80F2B;
-        Mon, 29 Aug 2022 11:07:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8B7DC433C1;
-        Mon, 29 Aug 2022 11:07:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7F58B80F10;
+        Mon, 29 Aug 2022 11:07:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC1DFC433C1;
+        Mon, 29 Aug 2022 11:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771238;
-        bh=M+k41fySf9W9qlUWewRVNfAONOL7YWGUa52LoTBbASs=;
+        s=korg; t=1661771235;
+        bh=yjoZOiEcvdnTyVB/vFAkaEAvDwwad/7SbJUYxTfTwBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TptvsbQ0xjcBJmvQDlyzpnrgN77+HW1QCM3Ydx/5VplKQ2kYtd+qrUshE9ALnM65C
-         PSfJ9t6gN4JnJGkZ08X1XES14TH1/XLq6y2O9dQGkDtbJ+mbbEZoYFnRgB4+/o6yCS
-         gOlyUyjM0wI9cQaAJuUDf4s1TmtbqgngTHI/vZ4E=
+        b=coHuRp3gXTLNNKa/hLQLyUuHvXBEF5rcxbjPRiuQGiXxZYtYmureWJGiOA59oo/F4
+         ZnhK4CdJK3XlkRXNl/H4J+jXtH9/7mfpdLkR6sjidbMxyywppaOQlMPkuJJN3ZpxOb
+         4+XXoRXw4+F4M6B909wesUyNbXPbaZjK1ZSC+lv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 42/86] netfilter: nf_tables: disallow jump to implicit chain from set element
-Date:   Mon, 29 Aug 2022 12:59:08 +0200
-Message-Id: <20220829105758.265637135@linuxfoundation.org>
+Subject: [PATCH 5.15 082/136] net: Fix data-races around sysctl_max_skb_frags.
+Date:   Mon, 29 Aug 2022 12:59:09 +0200
+Message-Id: <20220829105808.008903886@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit f323ef3a0d49e147365284bc1f02212e617b7f09 ]
+[ Upstream commit 657b991afb89d25fe6c4783b1b75a8ad4563670d ]
 
-Extend struct nft_data_desc to add a flag field that specifies
-nft_data_init() is being called for set element data.
+While reading sysctl_max_skb_frags, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Use it to disallow jump to implicit chain from set element, only jump
-to chain via immediate expression is allowed.
-
-Fixes: d0e2c7de92c7 ("netfilter: nf_tables: add NFT_CHAIN_BINDING")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 5f74f82ea34c ("net:Add sysctl_max_skb_frags")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_tables.h | 5 +++++
- net/netfilter/nf_tables_api.c     | 4 ++++
- 2 files changed, 9 insertions(+)
+ net/ipv4/tcp.c       | 4 ++--
+ net/mptcp/protocol.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index 6c062b2509b9b..e66fee99ed3ea 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -176,10 +176,15 @@ struct nft_ctx {
- 	bool				report;
- };
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 52f51717f02f3..0ebef2a5950cd 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -991,7 +991,7 @@ struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
  
-+enum nft_data_desc_flags {
-+	NFT_DATA_DESC_SETELEM	= (1 << 0),
-+};
-+
- struct nft_data_desc {
- 	enum nft_data_types		type;
- 	unsigned int			size;
- 	unsigned int			len;
-+	unsigned int			flags;
- };
+ 	i = skb_shinfo(skb)->nr_frags;
+ 	can_coalesce = skb_can_coalesce(skb, i, page, offset);
+-	if (!can_coalesce && i >= sysctl_max_skb_frags) {
++	if (!can_coalesce && i >= READ_ONCE(sysctl_max_skb_frags)) {
+ 		tcp_mark_push(tp, skb);
+ 		goto new_segment;
+ 	}
+@@ -1344,7 +1344,7 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
  
- int nft_data_init(const struct nft_ctx *ctx, struct nft_data *data,
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index df79ea6004a59..b36728cfc5d81 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -4865,6 +4865,7 @@ static int nft_setelem_parse_data(struct nft_ctx *ctx, struct nft_set *set,
- 	desc->type = dtype;
- 	desc->size = NFT_DATA_VALUE_MAXLEN;
- 	desc->len = set->dlen;
-+	desc->flags = NFT_DATA_DESC_SETELEM;
+ 			if (!skb_can_coalesce(skb, i, pfrag->page,
+ 					      pfrag->offset)) {
+-				if (i >= sysctl_max_skb_frags) {
++				if (i >= READ_ONCE(sysctl_max_skb_frags)) {
+ 					tcp_mark_push(tp, skb);
+ 					goto new_segment;
+ 				}
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index a089791414bfb..5df60a4b09304 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -1317,7 +1317,7 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
  
- 	return nft_data_init(ctx, data, desc, attr);
- }
-@@ -8677,6 +8678,9 @@ static int nft_verdict_init(const struct nft_ctx *ctx, struct nft_data *data,
- 			return PTR_ERR(chain);
- 		if (nft_is_base_chain(chain))
- 			return -EOPNOTSUPP;
-+		if (desc->flags & NFT_DATA_DESC_SETELEM &&
-+		    chain->flags & NFT_CHAIN_BINDING)
-+			return -EINVAL;
- 
- 		chain->use++;
- 		data->verdict.chain = chain;
+ 		i = skb_shinfo(skb)->nr_frags;
+ 		can_coalesce = skb_can_coalesce(skb, i, dfrag->page, offset);
+-		if (!can_coalesce && i >= sysctl_max_skb_frags) {
++		if (!can_coalesce && i >= READ_ONCE(sysctl_max_skb_frags)) {
+ 			tcp_mark_push(tcp_sk(ssk), skb);
+ 			goto alloc_skb;
+ 		}
 -- 
 2.35.1
 
