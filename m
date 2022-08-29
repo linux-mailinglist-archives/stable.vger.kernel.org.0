@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C639F5A496A
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:25:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB7F25A498D
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:26:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231888AbiH2LYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40562 "EHLO
+        id S232084AbiH2L0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:26:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231989AbiH2LXu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:23:50 -0400
+        with ESMTP id S231853AbiH2LYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:24:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE811260D;
-        Mon, 29 Aug 2022 04:15:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FC1F71BEE;
+        Mon, 29 Aug 2022 04:15:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5642B80F03;
-        Mon, 29 Aug 2022 11:04:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE4AAC433C1;
-        Mon, 29 Aug 2022 11:04:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DE70B80F03;
+        Mon, 29 Aug 2022 11:15:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E46C433D6;
+        Mon, 29 Aug 2022 11:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771081;
-        bh=/2TgZp9/QnELkEnYvXdcofmDRuWGi0Sg490D9xcwBWI=;
+        s=korg; t=1661771721;
+        bh=KzwSRv61OBn3Nvt6TNRlZDd87GViEX11UlK3d83CzG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AdYMmUww0Kg/LyiS6AslzoMbp2EpywNReTzrZyK3qPcQKGkpBrY/rVSfszJKjlMjI
-         5wAcLsFGzUjrcNgOtrnh3u6BkcHf7lLIbIV9fAqkFEJ2/YDRRoui2+pSx0lbPDov4S
-         SQaWKt2oa0ZyQ8T8+w+jz0tn8gB9Tmc19M1BZtu8=
+        b=dTLt13AWZHt80c79AUhoAgjy2Hd1i2jn4PiDhRk3SPnhxzdTWui2oP2sUDV40QfkO
+         OElnctQkiWxFslEJ/RLySJxwdCxUGfGdwmrkkn2K9WaC8eAypy6XdNhf+Ck4BtaMD6
+         1QzcWQRljedK9H5H/PTMbiO8RbM0yj7jNILVZUbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 18/86] SUNRPC: RPC level errors should set task->tk_rpc_status
+Subject: [PATCH 5.19 074/158] net: Fix a data-race around netdev_budget.
 Date:   Mon, 29 Aug 2022 12:58:44 +0200
-Message-Id: <20220829105757.266541903@linuxfoundation.org>
+Message-Id: <20220829105812.127136518@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit ed06fce0b034b2e25bd93430f5c4cbb28036cc1a ]
+[ Upstream commit 2e0c42374ee32e72948559d2ae2f7ba3dc6b977c ]
 
-Fix up a case in call_encode() where we're failing to set
-task->tk_rpc_status when an RPC level error occurred.
+While reading netdev_budget, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: 9c5948c24869 ("SUNRPC: task should be exit if encode return EKEYEXPIRED more times")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 51b0bdedb8e7 ("[NET]: Separate two usages of netdev_max_backlog.")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c | 2 +-
+ net/core/dev.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index c5af31312e0cf..78c6648af7827 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1867,7 +1867,7 @@ call_encode(struct rpc_task *task)
- 			break;
- 		case -EKEYEXPIRED:
- 			if (!task->tk_cred_retry) {
--				rpc_exit(task, task->tk_status);
-+				rpc_call_rpcerror(task, task->tk_status);
- 			} else {
- 				task->tk_action = call_refresh;
- 				task->tk_cred_retry--;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 34282b93c3f60..a330f93629314 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6647,7 +6647,7 @@ static __latent_entropy void net_rx_action(struct softirq_action *h)
+ 	struct softnet_data *sd = this_cpu_ptr(&softnet_data);
+ 	unsigned long time_limit = jiffies +
+ 		usecs_to_jiffies(netdev_budget_usecs);
+-	int budget = netdev_budget;
++	int budget = READ_ONCE(netdev_budget);
+ 	LIST_HEAD(list);
+ 	LIST_HEAD(repoll);
+ 
 -- 
 2.35.1
 
