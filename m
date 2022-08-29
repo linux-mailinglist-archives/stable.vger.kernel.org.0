@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F775A47D7
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:02:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B21BF5A48FB
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229843AbiH2LCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:02:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43390 "EHLO
+        id S229766AbiH2LTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230050AbiH2LBz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:01:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7E73DF1D;
-        Mon, 29 Aug 2022 04:01:43 -0700 (PDT)
+        with ESMTP id S231430AbiH2LSM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:18:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F0A71737;
+        Mon, 29 Aug 2022 04:11:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70484B80EF1;
-        Mon, 29 Aug 2022 11:01:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB23BC433D6;
-        Mon, 29 Aug 2022 11:01:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72DBA6120B;
+        Mon, 29 Aug 2022 11:11:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8030AC433D6;
+        Mon, 29 Aug 2022 11:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770901;
-        bh=7foF926lnwBI6NihxGIkytHW0nt49QkNV+JJmQKSCuo=;
+        s=korg; t=1661771479;
+        bh=1a3nIOVY8zJS/Dvwl230croADpNtrzVnGD4Z+FJSfws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/39oh0L5CuId8L3Z8OO81qC8NT4ZUJe3DuAZ/NiismfWpsGRI5zobOVodou4lFMc
-         gMJOQucuqAm1UTq2tCk8ukCzGbgRvC+9n53Vy4PxLSA98hBLGB9l+miRIg0iNtZVBk
-         Yud3E4WiPokF+ckiRVmYCc8M9j2QLNVNdvDxWDQg=
+        b=C2v1sq/2XUMEVBsM0cUV+61RjjKPyNbu54WUJSLtp4h6MzRLeBeETkdB1aBpwY2Kk
+         /F6iH9ROdtpaOnN+I1DpBTfFLJbNtjX/15gBOHuj4bHxJtBa0sPrlvPaNramNVka1K
+         81QkD/FeoOOmoypSiHVZUFi9OriyAnXvhGGb94B8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 017/136] Input: i8042 - add additional TUXEDO devices to i8042 quirk tables
-Date:   Mon, 29 Aug 2022 12:58:04 +0200
-Message-Id: <20220829105805.328579631@linuxfoundation.org>
+Subject: [PATCH 5.19 035/158] net/mlx5e: Fix wrong application of the LRO state
+Date:   Mon, 29 Aug 2022 12:58:05 +0200
+Message-Id: <20220829105810.263164318@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,122 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit 436d219069628f0f0ed27f606224d4ee02a0ca17 ]
+[ Upstream commit 7b3707fc79044871ab8f3d5fa5e9603155bb5577 ]
 
-A lot of modern Clevo barebones have touchpad and/or keyboard issues after
-suspend fixable with nomux + reset + noloop + nopnp. Luckily, none of them
-have an external PS/2 port so this can safely be set for all of them.
+Driver caches packet merge type in mlx5e_params instance which must be
+in perfect sync with the netdev_feature's bit.
+Prior to this patch, in certain conditions (*) LRO state was set in
+mlx5e_params, while netdev_feature's bit was off. Causing the LRO to
+be applied on the RQs (HW level).
 
-I'm not entirely sure if every device listed really needs all four quirks,
-but after testing and production use. No negative effects could be
-observed when setting all four.
+(*) This can happen only on profile init (mlx5e_build_nic_params()),
+when RQ expect non-linear SKB and PCI is fast enough in comparison to
+link width.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220708161005.1251929-2-wse@tuxedocomputers.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Solution: remove setting of packet merge type from
+mlx5e_build_nic_params() as netdev features are not updated.
+
+Fixes: 619a8f2a42f1 ("net/mlx5e: Use linear SKB in Striding RQ")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 76 ++++++++++++++++++++++++---
- 1 file changed, 68 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 184d7c30f732f..4b0201cf71f5e 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -900,14 +900,6 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
- 	},
--	{
--		/* Clevo P650RS, 650RP6, Sager NP8152-S, and others */
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
--		},
--		.driver_data = (void *)(SERIO_QUIRK_RESET_ALWAYS)
--	},
- 	{
- 		/* OQO Model 01 */
- 		.matches = {
-@@ -1162,6 +1154,74 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
- 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
- 	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65xH"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/* Clevo P650RS, 650RP6, Sager NP8152-S, and others */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65_P67H"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65_67RP"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65_67RS"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P67xRP"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_NAME, "PB50_70DFx,DDx"),
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 087952b84ccb0..62aab20025345 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4733,14 +4733,6 @@ void mlx5e_build_nic_params(struct mlx5e_priv *priv, struct mlx5e_xsk *xsk, u16
+ 	/* RQ */
+ 	mlx5e_build_rq_params(mdev, params);
+ 
+-	/* HW LRO */
+-	if (MLX5_CAP_ETH(mdev, lro_cap) &&
+-	    params->rq_wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ) {
+-		/* No XSK params: checking the availability of striding RQ in general. */
+-		if (!mlx5e_rx_mpwqe_is_linear_skb(mdev, params, NULL))
+-			params->packet_merge.type = slow_pci_heuristic(mdev) ?
+-				MLX5E_PACKET_MERGE_NONE : MLX5E_PACKET_MERGE_LRO;
+-	}
+ 	params->packet_merge.timeout = mlx5e_choose_lro_timeout(mdev, MLX5E_DEFAULT_LRO_TIMEOUT);
+ 
+ 	/* CQ moderation params */
 -- 
 2.35.1
 
