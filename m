@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFDF45A4A6C
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:39:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1EBB5A4953
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:23:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230334AbiH2Lh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:37:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41598 "EHLO
+        id S231816AbiH2LXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:23:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232869AbiH2LhD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:37:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3CF975CE5;
-        Mon, 29 Aug 2022 04:21:32 -0700 (PDT)
+        with ESMTP id S231817AbiH2LWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:22:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9892675;
+        Mon, 29 Aug 2022 04:14:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEFFE611EC;
-        Mon, 29 Aug 2022 11:19:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E42ACC433C1;
-        Mon, 29 Aug 2022 11:19:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E70806119C;
+        Mon, 29 Aug 2022 11:14:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01AB0C433C1;
+        Mon, 29 Aug 2022 11:14:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771973;
-        bh=YtkX/3PjReAp3XkWC6HaDINJSMRfudU+k7O974n++vM=;
+        s=korg; t=1661771662;
+        bh=FOptRiXQdzM1zXDzZPRq7CACFeGGFFSwyIQIjjxXEHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNlweIYoCrD+Il1qvBlX38umCI9nVkqd+eFy+nQ2u8EjAmKnNeiJ2pbfcHC+WGHNQ
-         Dwhk+9cYzOutffhQUOVCt4sPudeSQe0U04f1MsHAETnSpgYDsQ8pjBucH0BKPTuqvn
-         KAEGivxVKII7y4dU7izeSh3hF2NEDxSstcr20Nkw=
+        b=d2W8s2jVxqFyxJZfPzRPbu6bCFqHeNrXLMTbD+ZKQ2g40lC+9v9iTy/3PVBiC3fTB
+         575532tPD1yNOZZrznPGVTGY8UfXdrQ+hfk4vhFdM4DT48IR7x51xn3aq7EUmuewQQ
+         idpAno1BeCxvY4FKFq7oGZnerWgCUKajFJro4gZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
         Kiwoong Kim <kwmad.kim@samsung.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.19 151/158] scsi: ufs: core: Enable link lost interrupt
+Subject: [PATCH 5.15 134/136] scsi: ufs: core: Enable link lost interrupt
 Date:   Mon, 29 Aug 2022 13:00:01 +0200
-Message-Id: <20220829105815.440946536@linuxfoundation.org>
+Message-Id: <20220829105810.182175679@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,12 +69,12 @@ Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/ufs/ufshci.h |    6 +-----
+ drivers/scsi/ufs/ufshci.h |    6 +-----
  1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/include/ufs/ufshci.h
-+++ b/include/ufs/ufshci.h
-@@ -135,11 +135,7 @@ static inline u32 ufshci_version(u32 maj
+--- a/drivers/scsi/ufs/ufshci.h
++++ b/drivers/scsi/ufs/ufshci.h
+@@ -133,11 +133,7 @@ static inline u32 ufshci_version(u32 maj
  
  #define UFSHCD_UIC_MASK		(UIC_COMMAND_COMPL | UFSHCD_UIC_PWR_MASK)
  
