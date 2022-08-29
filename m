@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB655A49CB
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40CB55A49C5
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232273AbiH2L37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:29:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55172 "EHLO
+        id S232217AbiH2L34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:29:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232492AbiH2L3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:09 -0400
+        with ESMTP id S232459AbiH2L3C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDC8379EE5;
-        Mon, 29 Aug 2022 04:17:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B24272854;
+        Mon, 29 Aug 2022 04:17:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DE72611F3;
-        Mon, 29 Aug 2022 11:07:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60EA2C433C1;
-        Mon, 29 Aug 2022 11:07:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93B0B6118C;
+        Mon, 29 Aug 2022 11:07:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 912DEC433C1;
+        Mon, 29 Aug 2022 11:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771246;
-        bh=nBwKVtuE3HX+ZqecDlfmmiUBj5o2lt46TJHtL3RZv7o=;
+        s=korg; t=1661771244;
+        bh=MPqYKtaN3m8iUW50zVcvP16RP0F0zXsjL+Z0G2USGs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClkpduBsz32ynnRsIn/V03xoTWKCCGbVS4JiiZvJIBmy91pqEH8SZF9PmihfkS3ve
-         pg5nacr1IUsKeg+jotnCBp0B0cubZ7uHC0pMfcI9+HQkRVKlPZh61ekjT5w8PrcwgL
-         9kYSd8n7gnDzJecJz7Nf/iF+9Ft+EViaKeFmBBxo=
+        b=DxLbwy/FkMuA7lvry8dFqF2Jlc5L4SR3CmyR8l3+d56emjqJBJp8OF9D5jPyBmulo
+         4XzVYPwgBqRbyAB8Eor59LqOU2nvuDdlL16if+Jl33qbHUmqKlSwDWYKOifSkPCnG+
+         vpOsiF+oImhW31vZAJMACVehekw01GiCrse8UvMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gwangun Jung <exsociety@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 43/86] netfilter: nf_tables: disallow binding to already bound chain
-Date:   Mon, 29 Aug 2022 12:59:09 +0200
-Message-Id: <20220829105758.306654273@linuxfoundation.org>
+Subject: [PATCH 5.15 083/136] net: Fix a data-race around netdev_budget_usecs.
+Date:   Mon, 29 Aug 2022 12:59:10 +0200
+Message-Id: <20220829105808.051402613@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit e02f0d3970404bfea385b6edb86f2d936db0ea2b ]
+[ Upstream commit fa45d484c52c73f79db2c23b0cdfc6c6455093ad ]
 
-Update nft_data_init() to report EINVAL if chain is already bound.
+While reading netdev_budget_usecs, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: d0e2c7de92c7 ("netfilter: nf_tables: add NFT_CHAIN_BINDING")
-Reported-by: Gwangun Jung <exsociety@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 7acf8a1e8a28 ("Replace 2 jiffies with sysctl netdev_budget_usecs to enable softirq tuning")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/core/dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index b36728cfc5d81..1b039476e4d6a 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -8678,6 +8678,8 @@ static int nft_verdict_init(const struct nft_ctx *ctx, struct nft_data *data,
- 			return PTR_ERR(chain);
- 		if (nft_is_base_chain(chain))
- 			return -EOPNOTSUPP;
-+		if (nft_chain_is_bound(chain))
-+			return -EINVAL;
- 		if (desc->flags & NFT_DATA_DESC_SETELEM &&
- 		    chain->flags & NFT_CHAIN_BINDING)
- 			return -EINVAL;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index fefe8ddd282fd..276cca563325e 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -7137,7 +7137,7 @@ static __latent_entropy void net_rx_action(struct softirq_action *h)
+ {
+ 	struct softnet_data *sd = this_cpu_ptr(&softnet_data);
+ 	unsigned long time_limit = jiffies +
+-		usecs_to_jiffies(netdev_budget_usecs);
++		usecs_to_jiffies(READ_ONCE(netdev_budget_usecs));
+ 	int budget = READ_ONCE(netdev_budget);
+ 	LIST_HEAD(list);
+ 	LIST_HEAD(repoll);
 -- 
 2.35.1
 
