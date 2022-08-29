@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E12455A4A61
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B2CE5A47FD
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:04:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232808AbiH2Lht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:37:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51726 "EHLO
+        id S229487AbiH2LET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:04:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230334AbiH2LhA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:37:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57EF630F5B;
-        Mon, 29 Aug 2022 04:21:12 -0700 (PDT)
+        with ESMTP id S229766AbiH2LDo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:03:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 130E3642CA;
+        Mon, 29 Aug 2022 04:02:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E45BB80F6F;
-        Mon, 29 Aug 2022 11:09:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A5CC433C1;
-        Mon, 29 Aug 2022 11:09:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0F80B80EF9;
+        Mon, 29 Aug 2022 11:02:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F6C3C433D7;
+        Mon, 29 Aug 2022 11:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771364;
-        bh=IKqqejYC51+KE+xS6pnujKBsGdECRe7c/5XlbeSemxM=;
+        s=korg; t=1661770949;
+        bh=NajXgsYiuauLyQeZ+zf17PKBvQW9QaVX+z7efwu5PKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwN8KiReUSqHIP0lkSupltSS6gBUOD0p48UCZ1WdY2RMMzSN+GLI3MNflPpv71xIE
-         TFG6Z4zSl5ENcCwDOsCRBds4yOQDeOJsU2ySsu0fRNZip/NzuCBJkB1b5iRkWy3DdS
-         htbyJBSMf1quouXvXeqhnjK6JNzonf4Ux3uS4jx0=
+        b=sS1UfMCDrp6I9L5RvZwcinFxghQvCvIWDlJQQN37CVToOrgz7m19EXZ00VL7ITCkC
+         GGTxxZF4QRbg0ch3aThOsATI4DXEk/yDEaNcd4IXF4nsmrKf5ke+G1R+OZKc/4qHG2
+         MT6JyolaYTPgFQC7KySsdQRjlPzIbuj1ovnhpFPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bernard Pidoux <f6bvp@free.fr>,
-        Francois Romieu <romieu@fr.zoreil.com>,
-        Thomas DL9SAU Osterried <thomas@osterried.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 023/158] rose: check NULL rose_loopback_neigh->loopback
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.15 006/136] parisc: Fix exception handler for fldw and fstw instructions
 Date:   Mon, 29 Aug 2022 12:57:53 +0200
-Message-Id: <20220829105809.777675280@linuxfoundation.org>
+Message-Id: <20220829105804.898621363@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Pidoux <f6bvp@free.fr>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 3c53cd65dece47dd1f9d3a809f32e59d1d87b2b8 ]
+commit 7ae1f5508d9a33fd58ed3059bd2d569961e3b8bd upstream.
 
-Commit 3b3fd068c56e3fbea30090859216a368398e39bf added NULL check for
-`rose_loopback_neigh->dev` in rose_loopback_timer() but omitted to
-check rose_loopback_neigh->loopback.
+The exception handler is broken for unaligned memory acceses with fldw
+and fstw instructions, because it trashes or uses randomly some other
+floating point register than the one specified in the instruction word
+on loads and stores.
 
-It thus prevents *all* rose connect.
+The instruction "fldw 0(addr),%fr22L" (and the other fldw/fstw
+instructions) encode the target register (%fr22) in the rightmost 5 bits
+of the instruction word. The 7th rightmost bit of the instruction word
+defines if the left or right half of %fr22 should be used.
 
-The reason is that a special rose_neigh loopback has a NULL device.
+While processing unaligned address accesses, the FR3() define is used to
+extract the offset into the local floating-point register set.  But the
+calculation in FR3() was buggy, so that for example instead of %fr22,
+register %fr12 [((22 * 2) & 0x1f) = 12] was used.
 
-/proc/net/rose_neigh illustrates it via rose_neigh_show() function :
-[...]
-seq_printf(seq, "%05d %-9s %-4s   %3d %3d  %3s     %3s %3lu %3lu",
-	   rose_neigh->number,
-	   (rose_neigh->loopback) ? "RSLOOP-0" : ax2asc(buf, &rose_neigh->callsign),
-	   rose_neigh->dev ? rose_neigh->dev->name : "???",
-	   rose_neigh->count,
+This bug has been since forever in the parisc kernel and I wonder why it
+wasn't detected earlier. Interestingly I noticed this bug just because
+the libime debian package failed to build on *native* hardware, while it
+successfully built in qemu.
 
-/proc/net/rose_neigh displays special rose_loopback_neigh->loopback as
-callsign RSLOOP-0:
+This patch corrects the bitshift and masking calculation in FR3().
 
-addr  callsign  dev  count use mode restart  t0  tf digipeaters
-00001 RSLOOP-0  ???      1   2  DCE     yes   0   0
-
-By checking rose_loopback_neigh->loopback, rose_rx_call_request() is called
-even in case rose_loopback_neigh->dev is NULL. This repairs rose connections.
-
-Verification with rose client application FPAC:
-
-FPAC-Node v 4.1.3 (built Aug  5 2022) for LINUX (help = h)
-F6BVP-4 (Commands = ?) : u
-Users - AX.25 Level 2 sessions :
-Port   Callsign     Callsign  AX.25 state  ROSE state  NetRom status
-axudp  F6BVP-5   -> F6BVP-9   Connected    Connected   ---------
-
-Fixes: 3b3fd068c56e ("rose: Fix Null pointer dereference in rose_send_frame()")
-Signed-off-by: Bernard Pidoux <f6bvp@free.fr>
-Suggested-by: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Thomas DL9SAU Osterried <thomas@osterried.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rose/rose_loopback.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/parisc/kernel/unaligned.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/rose/rose_loopback.c b/net/rose/rose_loopback.c
-index 11c45c8c6c164..036d92c0ad794 100644
---- a/net/rose/rose_loopback.c
-+++ b/net/rose/rose_loopback.c
-@@ -96,7 +96,8 @@ static void rose_loopback_timer(struct timer_list *unused)
- 		}
- 
- 		if (frametype == ROSE_CALL_REQUEST) {
--			if (!rose_loopback_neigh->dev) {
-+			if (!rose_loopback_neigh->dev &&
-+			    !rose_loopback_neigh->loopback) {
- 				kfree_skb(skb);
- 				continue;
- 			}
--- 
-2.35.1
-
+--- a/arch/parisc/kernel/unaligned.c
++++ b/arch/parisc/kernel/unaligned.c
+@@ -107,7 +107,7 @@
+ #define R1(i) (((i)>>21)&0x1f)
+ #define R2(i) (((i)>>16)&0x1f)
+ #define R3(i) ((i)&0x1f)
+-#define FR3(i) ((((i)<<1)&0x1f)|(((i)>>6)&1))
++#define FR3(i) ((((i)&0x1f)<<1)|(((i)>>6)&1))
+ #define IM(i,n) (((i)>>1&((1<<(n-1))-1))|((i)&1?((0-1L)<<(n-1)):0))
+ #define IM5_2(i) IM((i)>>16,5)
+ #define IM5_3(i) IM((i),5)
 
 
