@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 906A35A452D
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 10:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 158705A4532
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 10:35:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230027AbiH2Idi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 04:33:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36100 "EHLO
+        id S229794AbiH2IfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 04:35:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230026AbiH2IdR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 04:33:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13322578A8
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 01:33:05 -0700 (PDT)
+        with ESMTP id S230029AbiH2IfF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 04:35:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A836111C34
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 01:35:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEF18B80D28
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 08:33:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3215C433D6;
-        Mon, 29 Aug 2022 08:33:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8983D60EFE
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 08:34:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53FCFC433D6;
+        Mon, 29 Aug 2022 08:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661761982;
-        bh=k+bFwLsJ2m9Lp8/N55aN7V4S9Uk1WbhVaVcHYVXUy6s=;
+        s=korg; t=1661762099;
+        bh=IcqxJv8vCMvq/ORh4rMt8DMlsTlIyBdyI6T9zh6b6Dk=;
         h=Subject:To:Cc:From:Date:From;
-        b=S1gUPD11B3mTpNpgSXarMBPgzwQs+2G1NpR5XTnTvhnsrezKWs9ka3HK3q8MJbmYL
-         fJ0uDiTV5j/YZGUJN1o+4D3B0Gr/6l6eMRHrkmFGsvwXhO4epT0Gkzs547a17MK0tt
-         QFnUe+OcPd2kfZFGyfBQYGAqJaeT3rQXiQ3BF+mE=
-Subject: FAILED: patch "[PATCH] perf stat: Clear evsel->reset_group for each stat run" failed to apply to 5.10-stable tree
-To:     irogers@google.com, acme@redhat.com, ak@linux.intel.com,
-        alexander.shishkin@linux.intel.com, eranian@google.com,
-        jolsa@kernel.org, kan.liang@linux.intel.com, mark.rutland@arm.com,
-        mingo@redhat.com, namhyung@kernel.org, peterz@infradead.org,
-        zhengjun.xing@linux.intel.com
+        b=fDI0eZC+UMqNo/iefRD1tNOJt2/MfLow29FeTs2axWlm6anxpeMzKkizvdXpATKpG
+         2ivDP0HTPW8vrxDVM2vhzuQbbYSxhDv7DoiE8h4QbQoY2e2bYD31Bj1dpOmbsCM8eM
+         7VAJR+TKJGTTZ0sXOZz2Cs2+5aCk3RvPYM7rslLQ=
+Subject: FAILED: patch "[PATCH] net: dsa: microchip: make learning configurable and keep it" failed to apply to 5.19-stable tree
+To:     vladimir.oltean@nxp.com, b.hutchman@gmail.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Aug 2022 10:32:59 +0200
-Message-ID: <1661761979188199@kroah.com>
+Date:   Mon, 29 Aug 2022 10:34:55 +0200
+Message-ID: <166176209580221@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,48 +59,143 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From bf515f024e4c0ca46a1b08c4f31860c01781d8a5 Mon Sep 17 00:00:00 2001
-From: Ian Rogers <irogers@google.com>
-Date: Mon, 22 Aug 2022 14:33:51 -0700
-Subject: [PATCH] perf stat: Clear evsel->reset_group for each stat run
+From 15f7cfae912ea1739c8844b7edf3621ba981a37a Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Thu, 18 Aug 2022 19:48:09 +0300
+Subject: [PATCH] net: dsa: microchip: make learning configurable and keep it
+ off while standalone
 
-If a weak group is broken then the reset_group flag remains set for
-the next run. Having reset_group set means the counter isn't created
-and ultimately a segfault.
+Address learning should initially be turned off by the driver for port
+operation in standalone mode, then the DSA core handles changes to it
+via ds->ops->port_bridge_flags().
 
-A simple reproduction of this is:
+Leaving address learning enabled while ports are standalone breaks any
+kind of communication which involves port B receiving what port A has
+sent. Notably it breaks the ksz9477 driver used with a (non offloaded,
+ports act as if standalone) bonding interface in active-backup mode,
+when the ports are connected together through external switches, for
+redundancy purposes.
 
-  # perf stat -r2 -e '{cycles,cycles,cycles,cycles,cycles,cycles,cycles,cycles,cycles,cycles}:W
+This fixes a major design flaw in the ksz9477 and ksz8795 drivers, which
+unconditionally leave address learning enabled even while ports operate
+as standalone.
 
-which will be added as a test in the next patch.
+Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
+Link: https://lore.kernel.org/netdev/CAFZh4h-JVWt80CrQWkFji7tZJahMfOToUJQgKS5s0_=9zzpvYQ@mail.gmail.com/
+Reported-by: Brian Hutchinson <b.hutchman@gmail.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20220818164809.3198039-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-Fixes: 4804e0111662d7d8 ("perf stat: Use affinity for opening events")
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Ian Rogers <irogers@google.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Tested-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: https://lore.kernel.org/r/20220822213352.75721-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index 7fb81a44672d..54cd29d07ca8 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -826,6 +826,7 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
+diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
+index 7461272a6d41..6bd69a7e6809 100644
+--- a/drivers/net/dsa/microchip/ksz_common.c
++++ b/drivers/net/dsa/microchip/ksz_common.c
+@@ -968,6 +968,7 @@ static void ksz_update_port_member(struct ksz_device *dev, int port)
+ static int ksz_setup(struct dsa_switch *ds)
+ {
+ 	struct ksz_device *dev = ds->priv;
++	struct ksz_port *p;
+ 	const u16 *regs;
+ 	int ret;
+ 
+@@ -1007,6 +1008,14 @@ static int ksz_setup(struct dsa_switch *ds)
+ 			return ret;
  	}
  
- 	evlist__for_each_entry(evsel_list, counter) {
-+		counter->reset_group = false;
- 		if (bpf_counter__load(counter, &target))
- 			return -1;
- 		if (!evsel__is_bpf(counter))
++	/* Start with learning disabled on standalone user ports, and enabled
++	 * on the CPU port. In lack of other finer mechanisms, learning on the
++	 * CPU port will avoid flooding bridge local addresses on the network
++	 * in some cases.
++	 */
++	p = &dev->ports[dev->cpu_port];
++	p->learning = true;
++
+ 	/* start switch */
+ 	regmap_update_bits(dev->regmap[0], regs[S_START_CTRL],
+ 			   SW_START, SW_START);
+@@ -1283,6 +1292,8 @@ void ksz_port_stp_state_set(struct dsa_switch *ds, int port, u8 state)
+ 	ksz_pread8(dev, port, regs[P_STP_CTRL], &data);
+ 	data &= ~(PORT_TX_ENABLE | PORT_RX_ENABLE | PORT_LEARN_DISABLE);
+ 
++	p = &dev->ports[port];
++
+ 	switch (state) {
+ 	case BR_STATE_DISABLED:
+ 		data |= PORT_LEARN_DISABLE;
+@@ -1292,9 +1303,13 @@ void ksz_port_stp_state_set(struct dsa_switch *ds, int port, u8 state)
+ 		break;
+ 	case BR_STATE_LEARNING:
+ 		data |= PORT_RX_ENABLE;
++		if (!p->learning)
++			data |= PORT_LEARN_DISABLE;
+ 		break;
+ 	case BR_STATE_FORWARDING:
+ 		data |= (PORT_TX_ENABLE | PORT_RX_ENABLE);
++		if (!p->learning)
++			data |= PORT_LEARN_DISABLE;
+ 		break;
+ 	case BR_STATE_BLOCKING:
+ 		data |= PORT_LEARN_DISABLE;
+@@ -1306,12 +1321,38 @@ void ksz_port_stp_state_set(struct dsa_switch *ds, int port, u8 state)
+ 
+ 	ksz_pwrite8(dev, port, regs[P_STP_CTRL], data);
+ 
+-	p = &dev->ports[port];
+ 	p->stp_state = state;
+ 
+ 	ksz_update_port_member(dev, port);
+ }
+ 
++static int ksz_port_pre_bridge_flags(struct dsa_switch *ds, int port,
++				     struct switchdev_brport_flags flags,
++				     struct netlink_ext_ack *extack)
++{
++	if (flags.mask & ~BR_LEARNING)
++		return -EINVAL;
++
++	return 0;
++}
++
++static int ksz_port_bridge_flags(struct dsa_switch *ds, int port,
++				 struct switchdev_brport_flags flags,
++				 struct netlink_ext_ack *extack)
++{
++	struct ksz_device *dev = ds->priv;
++	struct ksz_port *p = &dev->ports[port];
++
++	if (flags.mask & BR_LEARNING) {
++		p->learning = !!(flags.val & BR_LEARNING);
++
++		/* Make the change take effect immediately */
++		ksz_port_stp_state_set(ds, port, p->stp_state);
++	}
++
++	return 0;
++}
++
+ static enum dsa_tag_protocol ksz_get_tag_protocol(struct dsa_switch *ds,
+ 						  int port,
+ 						  enum dsa_tag_protocol mp)
+@@ -1725,6 +1766,8 @@ static const struct dsa_switch_ops ksz_switch_ops = {
+ 	.port_bridge_join	= ksz_port_bridge_join,
+ 	.port_bridge_leave	= ksz_port_bridge_leave,
+ 	.port_stp_state_set	= ksz_port_stp_state_set,
++	.port_pre_bridge_flags	= ksz_port_pre_bridge_flags,
++	.port_bridge_flags	= ksz_port_bridge_flags,
+ 	.port_fast_age		= ksz_port_fast_age,
+ 	.port_vlan_filtering	= ksz_port_vlan_filtering,
+ 	.port_vlan_add		= ksz_port_vlan_add,
+diff --git a/drivers/net/dsa/microchip/ksz_common.h b/drivers/net/dsa/microchip/ksz_common.h
+index 764ada3a0f42..0d9520dc6d2d 100644
+--- a/drivers/net/dsa/microchip/ksz_common.h
++++ b/drivers/net/dsa/microchip/ksz_common.h
+@@ -65,6 +65,7 @@ struct ksz_chip_data {
+ 
+ struct ksz_port {
+ 	bool remove_tag;		/* Remove Tag flag set, for ksz8795 only */
++	bool learning;
+ 	int stp_state;
+ 	struct phy_device phydev;
+ 
 
