@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84F105A4A63
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ACBB5A4A53
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232920AbiH2Lhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:37:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50150 "EHLO
+        id S232871AbiH2LhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:37:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232861AbiH2LhC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:37:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 073D27F0AF;
-        Mon, 29 Aug 2022 04:21:16 -0700 (PDT)
+        with ESMTP id S229605AbiH2LgU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:36:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E18CC7E81D;
+        Mon, 29 Aug 2022 04:20:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03BD5B80F9C;
-        Mon, 29 Aug 2022 11:14:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 557AAC433D6;
-        Mon, 29 Aug 2022 11:14:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9C4D611DA;
+        Mon, 29 Aug 2022 11:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AADA3C433C1;
+        Mon, 29 Aug 2022 11:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771642;
-        bh=WsrrEYl6BCNkHwhC3FbLb44ylZ8NV6zRuGxlu10Lnx4=;
+        s=korg; t=1661771946;
+        bh=GNnnKDLaV1EeyAGca63gKpCDTI3RHXneSwbgyR9HMPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JtDLc+75F4c+IluIZSxw7hBs6kH2T8lwS7hI49/9tRB1UujVGzJ63qCp12UKd3TQY
-         6ofe8qnBOmRBBxVMyw26KDwxCEnLLb2bbALLYFmUcHczmBOEN4r/bBybCrsDCeqtaz
-         Hlz5qLQR7NMqE3D5jW8BIWI9EZHlZ3TJwjFh6vHw=
+        b=HiiVbT6ksRnZ7yam+HqiXM0mzY34w7ykbldSOTdm09AJgetVMKPOfTMq3nLXkXqNg
+         joCHPRkC82JycyFC9KA5jSYu4QaPIOoi2nLDBS99NygRO+69HSd3w3hvzZKXNcdN4k
+         dE8D8vXCwjzKGg8Z/a56jK55K0XGDOu4MQ7IQvJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>
-Subject: [PATCH 5.15 131/136] perf/x86/intel/uncore: Fix broken read_counter() for SNB IMC PMU
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.19 148/158] arm64/signal: Flush FPSIMD register state when disabling streaming mode
 Date:   Mon, 29 Aug 2022 12:59:58 +0200
-Message-Id: <20220829105810.074888714@linuxfoundation.org>
+Message-Id: <20220829105815.304300751@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Eranian <eranian@google.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 11745ecfe8fea4b4a4c322967a7605d2ecbd5080 upstream.
+commit ea64baacbc36a0d552aec0d87107182f40211131 upstream.
 
-Existing code was generating bogus counts for the SNB IMC bandwidth counters:
+When handling a signal delivered to a context with streaming mode enabled
+we will disable streaming mode for the signal handler, when doing so we
+should also flush the saved FPSIMD register state like exiting streaming
+mode in the hardware would do so that if that state is reloaded we get the
+same behaviour. Without this we will reload whatever the last FPSIMD state
+that was saved for the task was.
 
-$ perf stat -a -I 1000 -e uncore_imc/data_reads/,uncore_imc/data_writes/
-     1.000327813           1,024.03 MiB  uncore_imc/data_reads/
-     1.000327813              20.73 MiB  uncore_imc/data_writes/
-     2.000580153         261,120.00 MiB  uncore_imc/data_reads/
-     2.000580153              23.28 MiB  uncore_imc/data_writes/
-
-The problem was introduced by commit:
-  07ce734dd8ad ("perf/x86/intel/uncore: Clean up client IMC")
-
-Where the read_counter callback was replace to point to the generic
-uncore_mmio_read_counter() function.
-
-The SNB IMC counters are freerunnig 32-bit counters laid out contiguously in
-MMIO. But uncore_mmio_read_counter() is using a readq() call to read from
-MMIO therefore reading 64-bit from MMIO. Although this is okay for the
-uncore_perf_event_update() function because it is shifting the value based
-on the actual counter width to compute a delta, it is not okay for the
-uncore_pmu_event_start() which is simply reading the counter  and therefore
-priming the event->prev_count with a bogus value which is responsible for
-causing bogus deltas in the perf stat command above.
-
-The fix is to reintroduce the custom callback for read_counter for the SNB
-IMC PMU and use readl() instead of readq(). With the change the output of
-perf stat is back to normal:
-$ perf stat -a -I 1000 -e uncore_imc/data_reads/,uncore_imc/data_writes/
-     1.000120987             296.94 MiB  uncore_imc/data_reads/
-     1.000120987             138.42 MiB  uncore_imc/data_writes/
-     2.000403144             175.91 MiB  uncore_imc/data_reads/
-     2.000403144              68.50 MiB  uncore_imc/data_writes/
-
-Fixes: 07ce734dd8ad ("perf/x86/intel/uncore: Clean up client IMC")
-Signed-off-by: Stephane Eranian <eranian@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20220803160031.1379788-1-eranian@google.com
+Fixes: 40a8e87bb328 ("arm64/sme: Disable ZA and streaming mode when handling signals")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20220817182324.638214-3-broonie@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore_snb.c |   18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/signal.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/x86/events/intel/uncore_snb.c
-+++ b/arch/x86/events/intel/uncore_snb.c
-@@ -788,6 +788,22 @@ int snb_pci2phy_map_init(int devid)
- 	return 0;
- }
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -922,6 +922,16 @@ static void setup_return(struct pt_regs
  
-+static u64 snb_uncore_imc_read_counter(struct intel_uncore_box *box, struct perf_event *event)
-+{
-+	struct hw_perf_event *hwc = &event->hw;
+ 	/* Signal handlers are invoked with ZA and streaming mode disabled */
+ 	if (system_supports_sme()) {
++		/*
++		 * If we were in streaming mode the saved register
++		 * state was SVE but we will exit SM and use the
++		 * FPSIMD register state - flush the saved FPSIMD
++		 * register state in case it gets loaded.
++		 */
++		if (current->thread.svcr & SVCR_SM_MASK)
++			memset(&current->thread.uw.fpsimd_state, 0,
++			       sizeof(current->thread.uw.fpsimd_state));
 +
-+	/*
-+	 * SNB IMC counters are 32-bit and are laid out back to back
-+	 * in MMIO space. Therefore we must use a 32-bit accessor function
-+	 * using readq() from uncore_mmio_read_counter() causes problems
-+	 * because it is reading 64-bit at a time. This is okay for the
-+	 * uncore_perf_event_update() function because it drops the upper
-+	 * 32-bits but not okay for plain uncore_read_counter() as invoked
-+	 * in uncore_pmu_event_start().
-+	 */
-+	return (u64)readl(box->io_addr + hwc->event_base);
-+}
-+
- static struct pmu snb_uncore_imc_pmu = {
- 	.task_ctx_nr	= perf_invalid_context,
- 	.event_init	= snb_uncore_imc_event_init,
-@@ -807,7 +823,7 @@ static struct intel_uncore_ops snb_uncor
- 	.disable_event	= snb_uncore_imc_disable_event,
- 	.enable_event	= snb_uncore_imc_enable_event,
- 	.hw_config	= snb_uncore_imc_hw_config,
--	.read_counter	= uncore_mmio_read_counter,
-+	.read_counter	= snb_uncore_imc_read_counter,
- };
- 
- static struct intel_uncore_type snb_uncore_imc = {
+ 		current->thread.svcr &= ~(SVCR_ZA_MASK |
+ 					  SVCR_SM_MASK);
+ 		sme_smstop();
 
 
