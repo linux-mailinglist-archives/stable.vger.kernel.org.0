@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 991B75A48E8
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:17:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB8035A48AC
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231361AbiH2LRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:17:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55364 "EHLO
+        id S230423AbiH2LOw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:14:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231341AbiH2LRQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:17:16 -0400
+        with ESMTP id S229849AbiH2LNW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F7C72FE4;
-        Mon, 29 Aug 2022 04:11:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FF56A487;
+        Mon, 29 Aug 2022 04:09:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 629F5B80F88;
-        Mon, 29 Aug 2022 11:08:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB57DC433D6;
-        Mon, 29 Aug 2022 11:08:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31326B80F9A;
+        Mon, 29 Aug 2022 11:08:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B79CC433D6;
+        Mon, 29 Aug 2022 11:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771282;
-        bh=OHYA85URht/qFHqxPLlYtHkN5nXS5dCClUmonlWO9hg=;
+        s=korg; t=1661771296;
+        bh=AhGtrVBP7bDxvnER6WTSl2DiSMmDV+/B2DOAWezXJQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awTy3dJ5PDBfeY/d47EdzYZwSqxzbAOhyNYOUOpz6f6Wxqy2/h+PE3gAv4Z0Wa8A4
-         kmK0IOVghMwLFAh8FWOaMvYvGbOz4o9Nr7Bm/sbVBZiTwplGKukGcGxykYL4gczPNR
-         M8bibSp433OovW3gjOwem360/Bm1PbRlM8ajKgoI=
+        b=tytShonrGEv/w78+lLrtgpxvF/GM7Gb2kZdzAGe3U1F1P0uL6eLUoQ+7J1nI5Ycdw
+         4caGbvws91EyD8Jh0OzdKBhSbyhmEDm9VGMfMYnmw2Nr2P7wk13YkhGJl3ofTQ6w35
+         /WEjp6wDJkNHdO1BCJeJZLvj0SB6s5CoNf5u/rB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Payne <spayne@aurora.tech>,
-        Ilya Evenbach <ievenbach@aurora.tech>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 087/136] ixgbe: stop resetting SYSTIME in ixgbe_ptp_start_cyclecounter
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 48/86] net: Fix data-races around netdev_max_backlog.
 Date:   Mon, 29 Aug 2022 12:59:14 +0200
-Message-Id: <20220829105808.225048661@linuxfoundation.org>
+Message-Id: <20220829105758.493453346@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,135 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 25d7a5f5a6bb15a2dae0a3f39ea5dda215024726 ]
+[ Upstream commit 5dcd08cd19912892586c6082d56718333e2d19db ]
 
-The ixgbe_ptp_start_cyclecounter is intended to be called whenever the
-cyclecounter parameters need to be changed.
+While reading netdev_max_backlog, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Since commit a9763f3cb54c ("ixgbe: Update PTP to support X550EM_x
-devices"), this function has cleared the SYSTIME registers and reset the
-TSAUXC DISABLE_SYSTIME bit.
+While at it, we remove the unnecessary spaces in the doc.
 
-While these need to be cleared during ixgbe_ptp_reset, it is wrong to clear
-them during ixgbe_ptp_start_cyclecounter. This function may be called
-during both reset and link status change. When link changes, the SYSTIME
-counter is still operating normally, but the cyclecounter should be updated
-to account for the possibly changed parameters.
-
-Clearing SYSTIME when link changes causes the timecounter to jump because
-the cycle counter now reads zero.
-
-Extract the SYSTIME initialization out to a new function and call this
-during ixgbe_ptp_reset. This prevents the timecounter adjustment and avoids
-an unnecessary reset of the current time.
-
-This also restores the original SYSTIME clearing that occurred during
-ixgbe_ptp_reset before the commit above.
-
-Reported-by: Steve Payne <spayne@aurora.tech>
-Reported-by: Ilya Evenbach <ievenbach@aurora.tech>
-Fixes: a9763f3cb54c ("ixgbe: Update PTP to support X550EM_x devices")
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c | 59 +++++++++++++++-----
- 1 file changed, 46 insertions(+), 13 deletions(-)
+ Documentation/admin-guide/sysctl/net.rst | 2 +-
+ net/core/dev.c                           | 4 ++--
+ net/core/gro_cells.c                     | 2 +-
+ net/xfrm/espintcp.c                      | 2 +-
+ net/xfrm/xfrm_input.c                    | 2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
-index 23ddfd79fc8b6..29be1d6eca436 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
-@@ -1212,7 +1212,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
- 	struct cyclecounter cc;
- 	unsigned long flags;
- 	u32 incval = 0;
--	u32 tsauxc = 0;
- 	u32 fuse0 = 0;
+diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
+index f2ab8a5b6a4b8..7f553859dba82 100644
+--- a/Documentation/admin-guide/sysctl/net.rst
++++ b/Documentation/admin-guide/sysctl/net.rst
+@@ -271,7 +271,7 @@ poll cycle or the number of packets processed reaches netdev_budget.
+ netdev_max_backlog
+ ------------------
  
- 	/* For some of the boards below this mask is technically incorrect.
-@@ -1247,18 +1246,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
- 	case ixgbe_mac_x550em_a:
- 	case ixgbe_mac_X550:
- 		cc.read = ixgbe_ptp_read_X550;
--
--		/* enable SYSTIME counter */
--		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMR, 0);
--		IXGBE_WRITE_REG(hw, IXGBE_SYSTIML, 0);
--		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMH, 0);
--		tsauxc = IXGBE_READ_REG(hw, IXGBE_TSAUXC);
--		IXGBE_WRITE_REG(hw, IXGBE_TSAUXC,
--				tsauxc & ~IXGBE_TSAUXC_DISABLE_SYSTIME);
--		IXGBE_WRITE_REG(hw, IXGBE_TSIM, IXGBE_TSIM_TXTS);
--		IXGBE_WRITE_REG(hw, IXGBE_EIMS, IXGBE_EIMS_TIMESYNC);
--
--		IXGBE_WRITE_FLUSH(hw);
- 		break;
- 	case ixgbe_mac_X540:
- 		cc.read = ixgbe_ptp_read_82599;
-@@ -1290,6 +1277,50 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
- 	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
- }
+-Maximum number  of  packets,  queued  on  the  INPUT  side, when the interface
++Maximum number of packets, queued on the INPUT side, when the interface
+ receives packets faster than kernel can process them.
  
-+/**
-+ * ixgbe_ptp_init_systime - Initialize SYSTIME registers
-+ * @adapter: the ixgbe private board structure
-+ *
-+ * Initialize and start the SYSTIME registers.
-+ */
-+static void ixgbe_ptp_init_systime(struct ixgbe_adapter *adapter)
-+{
-+	struct ixgbe_hw *hw = &adapter->hw;
-+	u32 tsauxc;
-+
-+	switch (hw->mac.type) {
-+	case ixgbe_mac_X550EM_x:
-+	case ixgbe_mac_x550em_a:
-+	case ixgbe_mac_X550:
-+		tsauxc = IXGBE_READ_REG(hw, IXGBE_TSAUXC);
-+
-+		/* Reset SYSTIME registers to 0 */
-+		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMR, 0);
-+		IXGBE_WRITE_REG(hw, IXGBE_SYSTIML, 0);
-+		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMH, 0);
-+
-+		/* Reset interrupt settings */
-+		IXGBE_WRITE_REG(hw, IXGBE_TSIM, IXGBE_TSIM_TXTS);
-+		IXGBE_WRITE_REG(hw, IXGBE_EIMS, IXGBE_EIMS_TIMESYNC);
-+
-+		/* Activate the SYSTIME counter */
-+		IXGBE_WRITE_REG(hw, IXGBE_TSAUXC,
-+				tsauxc & ~IXGBE_TSAUXC_DISABLE_SYSTIME);
-+		break;
-+	case ixgbe_mac_X540:
-+	case ixgbe_mac_82599EB:
-+		/* Reset SYSTIME registers to 0 */
-+		IXGBE_WRITE_REG(hw, IXGBE_SYSTIML, 0);
-+		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMH, 0);
-+		break;
-+	default:
-+		/* Other devices aren't supported */
-+		return;
-+	};
-+
-+	IXGBE_WRITE_FLUSH(hw);
-+}
-+
- /**
-  * ixgbe_ptp_reset
-  * @adapter: the ixgbe private board structure
-@@ -1316,6 +1347,8 @@ void ixgbe_ptp_reset(struct ixgbe_adapter *adapter)
+ netdev_rss_key
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 701a1afc91ff1..215c43aecc67e 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4516,7 +4516,7 @@ static bool skb_flow_limit(struct sk_buff *skb, unsigned int qlen)
+ 	struct softnet_data *sd;
+ 	unsigned int old_flow, new_flow;
  
- 	ixgbe_ptp_start_cyclecounter(adapter);
+-	if (qlen < (netdev_max_backlog >> 1))
++	if (qlen < (READ_ONCE(netdev_max_backlog) >> 1))
+ 		return false;
  
-+	ixgbe_ptp_init_systime(adapter);
-+
- 	spin_lock_irqsave(&adapter->tmreg_lock, flags);
- 	timecounter_init(&adapter->hw_tc, &adapter->hw_cc,
- 			 ktime_to_ns(ktime_get_real()));
+ 	sd = this_cpu_ptr(&softnet_data);
+@@ -4564,7 +4564,7 @@ static int enqueue_to_backlog(struct sk_buff *skb, int cpu,
+ 	if (!netif_running(skb->dev))
+ 		goto drop;
+ 	qlen = skb_queue_len(&sd->input_pkt_queue);
+-	if (qlen <= netdev_max_backlog && !skb_flow_limit(skb, qlen)) {
++	if (qlen <= READ_ONCE(netdev_max_backlog) && !skb_flow_limit(skb, qlen)) {
+ 		if (qlen) {
+ enqueue:
+ 			__skb_queue_tail(&sd->input_pkt_queue, skb);
+diff --git a/net/core/gro_cells.c b/net/core/gro_cells.c
+index 6eb2e5ec2c506..2f66f3f295630 100644
+--- a/net/core/gro_cells.c
++++ b/net/core/gro_cells.c
+@@ -26,7 +26,7 @@ int gro_cells_receive(struct gro_cells *gcells, struct sk_buff *skb)
+ 
+ 	cell = this_cpu_ptr(gcells->cells);
+ 
+-	if (skb_queue_len(&cell->napi_skbs) > netdev_max_backlog) {
++	if (skb_queue_len(&cell->napi_skbs) > READ_ONCE(netdev_max_backlog)) {
+ drop:
+ 		atomic_long_inc(&dev->rx_dropped);
+ 		kfree_skb(skb);
+diff --git a/net/xfrm/espintcp.c b/net/xfrm/espintcp.c
+index 1f08ebf7d80c5..24ca49ecebea3 100644
+--- a/net/xfrm/espintcp.c
++++ b/net/xfrm/espintcp.c
+@@ -170,7 +170,7 @@ int espintcp_queue_out(struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct espintcp_ctx *ctx = espintcp_getctx(sk);
+ 
+-	if (skb_queue_len(&ctx->out_queue) >= netdev_max_backlog)
++	if (skb_queue_len(&ctx->out_queue) >= READ_ONCE(netdev_max_backlog))
+ 		return -ENOBUFS;
+ 
+ 	__skb_queue_tail(&ctx->out_queue, skb);
+diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
+index 61e6220ddd5ae..77e82033ad700 100644
+--- a/net/xfrm/xfrm_input.c
++++ b/net/xfrm/xfrm_input.c
+@@ -782,7 +782,7 @@ int xfrm_trans_queue_net(struct net *net, struct sk_buff *skb,
+ 
+ 	trans = this_cpu_ptr(&xfrm_trans_tasklet);
+ 
+-	if (skb_queue_len(&trans->queue) >= netdev_max_backlog)
++	if (skb_queue_len(&trans->queue) >= READ_ONCE(netdev_max_backlog))
+ 		return -ENOBUFS;
+ 
+ 	BUILD_BUG_ON(sizeof(struct xfrm_trans_cb) > sizeof(skb->cb));
 -- 
 2.35.1
 
