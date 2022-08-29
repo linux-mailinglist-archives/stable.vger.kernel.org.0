@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAA7D5A4A43
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:36:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35EF65A4968
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232745AbiH2Lg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:36:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41724 "EHLO
+        id S231904AbiH2LY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:24:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232719AbiH2LfG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:35:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 988CD4F64F;
-        Mon, 29 Aug 2022 04:20:19 -0700 (PDT)
+        with ESMTP id S232046AbiH2LX6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:23:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E14710AA;
+        Mon, 29 Aug 2022 04:15:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C7C761240;
-        Mon, 29 Aug 2022 11:16:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89BDDC433D6;
-        Mon, 29 Aug 2022 11:16:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE76AB80EF1;
+        Mon, 29 Aug 2022 11:07:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB2B4C433C1;
+        Mon, 29 Aug 2022 11:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771786;
-        bh=t1hJTFIGXq5oy40KwvL/I6TUZO6fKzYkPpyC0wiwcTE=;
+        s=korg; t=1661771226;
+        bh=dGZmIiq399Rfsd2BIKSohfX9fDlqyAX5KvMjEs3K31g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SMfbROBEY4HI+A2n5Nc44c7035QQJsVQtBXmk6ZliMFIW+B4MiMCgfD9Vt16ZM3EW
-         cWCH+/YvzQYf7UX4txwwBXxyDUdkKq6oZl5VCbcWJV5veRJ4PDwzxlDqnHEEHP6EAM
-         iJkjknp4FSbHkWxvb9tVbN3Aj89CMPLWLmyGjRVY=
+        b=kVGElVasTWLb84D79Hxhr9xkvZ7joanHLBLWlPp5eeyWwD7TMLYPkAYjR2wf4nHvQ
+         Jhgd9DFyiQweV/wTY8uz9G5cVwoYQ7WSwxSWqjSAXBdncpu7lc1SJ0ghme9SwC9W+C
+         wUHe1qMmtYdG1vKWKJXR6fFo4p0zg4ZRCwdPi1uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Omar Sandoval <osandov@fb.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.19 097/158] btrfs: fix space cache corruption and potential double allocations
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 41/86] netfilter: nf_tables: upfront validation of data via nft_data_init()
 Date:   Mon, 29 Aug 2022 12:59:07 +0200
-Message-Id: <20220829105813.149517679@linuxfoundation.org>
+Message-Id: <20220829105758.225169760@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,304 +53,528 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit ced8ecf026fd8084cf175530ff85c76d6085d715 upstream.
+[ Upstream commit 341b6941608762d8235f3fd1e45e4d7114ed8c2c ]
 
-When testing space_cache v2 on a large set of machines, we encountered a
-few symptoms:
+Instead of parsing the data and then validate that type and length are
+correct, pass a description of the expected data so it can be validated
+upfront before parsing it to bail out earlier.
 
-1. "unable to add free space :-17" (EEXIST) errors.
-2. Missing free space info items, sometimes caught with a "missing free
-   space info for X" error.
-3. Double-accounted space: ranges that were allocated in the extent tree
-   and also marked as free in the free space tree, ranges that were
-   marked as allocated twice in the extent tree, or ranges that were
-   marked as free twice in the free space tree. If the latter made it
-   onto disk, the next reboot would hit the BUG_ON() in
-   add_new_free_space().
-4. On some hosts with no on-disk corruption or error messages, the
-   in-memory space cache (dumped with drgn) disagreed with the free
-   space tree.
+This patch adds a new .size field to specify the maximum size of the
+data area. The .len field is optional and it is used as an input/output
+field, it provides the specific length of the expected data in the input
+path. If then .len field is not specified, then obtained length from the
+netlink attribute is stored. This is required by cmp, bitwise, range and
+immediate, which provide no netlink attribute that describes the data
+length. The immediate expression uses the destination register type to
+infer the expected data type.
 
-All of these symptoms have the same underlying cause: a race between
-caching the free space for a block group and returning free space to the
-in-memory space cache for pinned extents causes us to double-add a free
-range to the space cache. This race exists when free space is cached
-from the free space tree (space_cache=v2) or the extent tree
-(nospace_cache, or space_cache=v1 if the cache needs to be regenerated).
-struct btrfs_block_group::last_byte_to_unpin and struct
-btrfs_block_group::progress are supposed to protect against this race,
-but commit d0c2f4fa555e ("btrfs: make concurrent fsyncs wait less when
-waiting for a transaction commit") subtly broke this by allowing
-multiple transactions to be unpinning extents at the same time.
+Relying on opencoded validation of the expected data might lead to
+subtle bugs as described in 7e6bc1f6cabc ("netfilter: nf_tables:
+stricter validation of element data").
 
-Specifically, the race is as follows:
-
-1. An extent is deleted from an uncached block group in transaction A.
-2. btrfs_commit_transaction() is called for transaction A.
-3. btrfs_run_delayed_refs() -> __btrfs_free_extent() runs the delayed
-   ref for the deleted extent.
-4. __btrfs_free_extent() -> do_free_extent_accounting() ->
-   add_to_free_space_tree() adds the deleted extent back to the free
-   space tree.
-5. do_free_extent_accounting() -> btrfs_update_block_group() ->
-   btrfs_cache_block_group() queues up the block group to get cached.
-   block_group->progress is set to block_group->start.
-6. btrfs_commit_transaction() for transaction A calls
-   switch_commit_roots(). It sets block_group->last_byte_to_unpin to
-   block_group->progress, which is block_group->start because the block
-   group hasn't been cached yet.
-7. The caching thread gets to our block group. Since the commit roots
-   were already switched, load_free_space_tree() sees the deleted extent
-   as free and adds it to the space cache. It finishes caching and sets
-   block_group->progress to U64_MAX.
-8. btrfs_commit_transaction() advances transaction A to
-   TRANS_STATE_SUPER_COMMITTED.
-9. fsync calls btrfs_commit_transaction() for transaction B. Since
-   transaction A is already in TRANS_STATE_SUPER_COMMITTED and the
-   commit is for fsync, it advances.
-10. btrfs_commit_transaction() for transaction B calls
-    switch_commit_roots(). This time, the block group has already been
-    cached, so it sets block_group->last_byte_to_unpin to U64_MAX.
-11. btrfs_commit_transaction() for transaction A calls
-    btrfs_finish_extent_commit(), which calls unpin_extent_range() for
-    the deleted extent. It sees last_byte_to_unpin set to U64_MAX (by
-    transaction B!), so it adds the deleted extent to the space cache
-    again!
-
-This explains all of our symptoms above:
-
-* If the sequence of events is exactly as described above, when the free
-  space is re-added in step 11, it will fail with EEXIST.
-* If another thread reallocates the deleted extent in between steps 7
-  and 11, then step 11 will silently re-add that space to the space
-  cache as free even though it is actually allocated. Then, if that
-  space is allocated *again*, the free space tree will be corrupted
-  (namely, the wrong item will be deleted).
-* If we don't catch this free space tree corruption, it will continue
-  to get worse as extents are deleted and reallocated.
-
-The v1 space_cache is synchronously loaded when an extent is deleted
-(btrfs_update_block_group() with alloc=0 calls btrfs_cache_block_group()
-with load_cache_only=1), so it is not normally affected by this bug.
-However, as noted above, if we fail to load the space cache, we will
-fall back to caching from the extent tree and may hit this bug.
-
-The easiest fix for this race is to also make caching from the free
-space tree or extent tree synchronous. Josef tested this and found no
-performance regressions.
-
-A few extra changes fall out of this change. Namely, this fix does the
-following, with step 2 being the crucial fix:
-
-1. Factor btrfs_caching_ctl_wait_done() out of
-   btrfs_wait_block_group_cache_done() to allow waiting on a caching_ctl
-   that we already hold a reference to.
-2. Change the call in btrfs_cache_block_group() of
-   btrfs_wait_space_cache_v1_finished() to
-   btrfs_caching_ctl_wait_done(), which makes us wait regardless of the
-   space_cache option.
-3. Delete the now unused btrfs_wait_space_cache_v1_finished() and
-   space_cache_v1_done().
-4. Change btrfs_cache_block_group()'s `int load_cache_only` parameter to
-   `bool wait` to more accurately describe its new meaning.
-5. Change a few callers which had a separate call to
-   btrfs_wait_block_group_cache_done() to use wait = true instead.
-6. Make btrfs_wait_block_group_cache_done() static now that it's not
-   used outside of block-group.c anymore.
-
-Fixes: d0c2f4fa555e ("btrfs: make concurrent fsyncs wait less when waiting for a transaction commit")
-CC: stable@vger.kernel.org # 5.12+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/block-group.c |   47 +++++++++++++++--------------------------------
- fs/btrfs/block-group.h |    4 +---
- fs/btrfs/ctree.h       |    1 -
- fs/btrfs/extent-tree.c |   30 ++++++------------------------
- 4 files changed, 22 insertions(+), 60 deletions(-)
+ include/net/netfilter/nf_tables.h |  4 +-
+ net/netfilter/nf_tables_api.c     | 78 ++++++++++++++++---------------
+ net/netfilter/nft_bitwise.c       | 66 +++++++++++++-------------
+ net/netfilter/nft_cmp.c           | 44 ++++++++---------
+ net/netfilter/nft_immediate.c     | 22 +++++++--
+ net/netfilter/nft_range.c         | 27 +++++------
+ 6 files changed, 126 insertions(+), 115 deletions(-)
 
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -440,39 +440,26 @@ void btrfs_wait_block_group_cache_progre
- 	btrfs_put_caching_control(caching_ctl);
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index b9948e7861f22..6c062b2509b9b 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -178,11 +178,11 @@ struct nft_ctx {
+ 
+ struct nft_data_desc {
+ 	enum nft_data_types		type;
++	unsigned int			size;
+ 	unsigned int			len;
+ };
+ 
+-int nft_data_init(const struct nft_ctx *ctx,
+-		  struct nft_data *data, unsigned int size,
++int nft_data_init(const struct nft_ctx *ctx, struct nft_data *data,
+ 		  struct nft_data_desc *desc, const struct nlattr *nla);
+ void nft_data_hold(const struct nft_data *data, enum nft_data_types type);
+ void nft_data_release(const struct nft_data *data, enum nft_data_types type);
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 456988b5c076e..df79ea6004a59 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -4841,19 +4841,13 @@ static int nft_setelem_parse_flags(const struct nft_set *set,
+ static int nft_setelem_parse_key(struct nft_ctx *ctx, struct nft_set *set,
+ 				 struct nft_data *key, struct nlattr *attr)
+ {
+-	struct nft_data_desc desc;
+-	int err;
+-
+-	err = nft_data_init(ctx, key, NFT_DATA_VALUE_MAXLEN, &desc, attr);
+-	if (err < 0)
+-		return err;
+-
+-	if (desc.type != NFT_DATA_VALUE || desc.len != set->klen) {
+-		nft_data_release(key, desc.type);
+-		return -EINVAL;
+-	}
++	struct nft_data_desc desc = {
++		.type	= NFT_DATA_VALUE,
++		.size	= NFT_DATA_VALUE_MAXLEN,
++		.len	= set->klen,
++	};
+ 
+-	return 0;
++	return nft_data_init(ctx, key, &desc, attr);
  }
  
--int btrfs_wait_block_group_cache_done(struct btrfs_block_group *cache)
-+static int btrfs_caching_ctl_wait_done(struct btrfs_block_group *cache,
-+				       struct btrfs_caching_control *caching_ctl)
+ static int nft_setelem_parse_data(struct nft_ctx *ctx, struct nft_set *set,
+@@ -4862,24 +4856,17 @@ static int nft_setelem_parse_data(struct nft_ctx *ctx, struct nft_set *set,
+ 				  struct nlattr *attr)
+ {
+ 	u32 dtype;
+-	int err;
+-
+-	err = nft_data_init(ctx, data, NFT_DATA_VALUE_MAXLEN, desc, attr);
+-	if (err < 0)
+-		return err;
+ 
+ 	if (set->dtype == NFT_DATA_VERDICT)
+ 		dtype = NFT_DATA_VERDICT;
+ 	else
+ 		dtype = NFT_DATA_VALUE;
+ 
+-	if (dtype != desc->type ||
+-	    set->dlen != desc->len) {
+-		nft_data_release(data, desc->type);
+-		return -EINVAL;
+-	}
++	desc->type = dtype;
++	desc->size = NFT_DATA_VALUE_MAXLEN;
++	desc->len = set->dlen;
+ 
+-	return 0;
++	return nft_data_init(ctx, data, desc, attr);
+ }
+ 
+ static int nft_get_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+@@ -8697,7 +8684,7 @@ static int nft_verdict_init(const struct nft_ctx *ctx, struct nft_data *data,
+ 	}
+ 
+ 	desc->len = sizeof(data->verdict);
+-	desc->type = NFT_DATA_VERDICT;
++
+ 	return 0;
+ }
+ 
+@@ -8750,20 +8737,25 @@ int nft_verdict_dump(struct sk_buff *skb, int type, const struct nft_verdict *v)
+ }
+ 
+ static int nft_value_init(const struct nft_ctx *ctx,
+-			  struct nft_data *data, unsigned int size,
+-			  struct nft_data_desc *desc, const struct nlattr *nla)
++			  struct nft_data *data, struct nft_data_desc *desc,
++			  const struct nlattr *nla)
+ {
+ 	unsigned int len;
+ 
+ 	len = nla_len(nla);
+ 	if (len == 0)
+ 		return -EINVAL;
+-	if (len > size)
++	if (len > desc->size)
+ 		return -EOVERFLOW;
++	if (desc->len) {
++		if (len != desc->len)
++			return -EINVAL;
++	} else {
++		desc->len = len;
++	}
+ 
+ 	nla_memcpy(data->data, nla, len);
+-	desc->type = NFT_DATA_VALUE;
+-	desc->len  = len;
++
+ 	return 0;
+ }
+ 
+@@ -8783,7 +8775,6 @@ static const struct nla_policy nft_data_policy[NFTA_DATA_MAX + 1] = {
+  *
+  *	@ctx: context of the expression using the data
+  *	@data: destination struct nft_data
+- *	@size: maximum data length
+  *	@desc: data description
+  *	@nla: netlink attribute containing data
+  *
+@@ -8793,24 +8784,35 @@ static const struct nla_policy nft_data_policy[NFTA_DATA_MAX + 1] = {
+  *	The caller can indicate that it only wants to accept data of type
+  *	NFT_DATA_VALUE by passing NULL for the ctx argument.
+  */
+-int nft_data_init(const struct nft_ctx *ctx,
+-		  struct nft_data *data, unsigned int size,
++int nft_data_init(const struct nft_ctx *ctx, struct nft_data *data,
+ 		  struct nft_data_desc *desc, const struct nlattr *nla)
+ {
+ 	struct nlattr *tb[NFTA_DATA_MAX + 1];
+ 	int err;
+ 
++	if (WARN_ON_ONCE(!desc->size))
++		return -EINVAL;
++
+ 	err = nla_parse_nested_deprecated(tb, NFTA_DATA_MAX, nla,
+ 					  nft_data_policy, NULL);
+ 	if (err < 0)
+ 		return err;
+ 
+-	if (tb[NFTA_DATA_VALUE])
+-		return nft_value_init(ctx, data, size, desc,
+-				      tb[NFTA_DATA_VALUE]);
+-	if (tb[NFTA_DATA_VERDICT] && ctx != NULL)
+-		return nft_verdict_init(ctx, data, desc, tb[NFTA_DATA_VERDICT]);
+-	return -EINVAL;
++	if (tb[NFTA_DATA_VALUE]) {
++		if (desc->type != NFT_DATA_VALUE)
++			return -EINVAL;
++
++		err = nft_value_init(ctx, data, desc, tb[NFTA_DATA_VALUE]);
++	} else if (tb[NFTA_DATA_VERDICT] && ctx != NULL) {
++		if (desc->type != NFT_DATA_VERDICT)
++			return -EINVAL;
++
++		err = nft_verdict_init(ctx, data, desc, tb[NFTA_DATA_VERDICT]);
++	} else {
++		err = -EINVAL;
++	}
++
++	return err;
+ }
+ EXPORT_SYMBOL_GPL(nft_data_init);
+ 
+diff --git a/net/netfilter/nft_bitwise.c b/net/netfilter/nft_bitwise.c
+index d0c648b64cd40..d6ab7aa14adc2 100644
+--- a/net/netfilter/nft_bitwise.c
++++ b/net/netfilter/nft_bitwise.c
+@@ -93,7 +93,16 @@ static const struct nla_policy nft_bitwise_policy[NFTA_BITWISE_MAX + 1] = {
+ static int nft_bitwise_init_bool(struct nft_bitwise *priv,
+ 				 const struct nlattr *const tb[])
+ {
+-	struct nft_data_desc mask, xor;
++	struct nft_data_desc mask = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(priv->mask),
++		.len	= priv->len,
++	};
++	struct nft_data_desc xor = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(priv->xor),
++		.len	= priv->len,
++	};
+ 	int err;
+ 
+ 	if (tb[NFTA_BITWISE_DATA])
+@@ -103,37 +112,30 @@ static int nft_bitwise_init_bool(struct nft_bitwise *priv,
+ 	    !tb[NFTA_BITWISE_XOR])
+ 		return -EINVAL;
+ 
+-	err = nft_data_init(NULL, &priv->mask, sizeof(priv->mask), &mask,
+-			    tb[NFTA_BITWISE_MASK]);
++	err = nft_data_init(NULL, &priv->mask, &mask, tb[NFTA_BITWISE_MASK]);
+ 	if (err < 0)
+ 		return err;
+-	if (mask.type != NFT_DATA_VALUE || mask.len != priv->len) {
+-		err = -EINVAL;
+-		goto err_mask_release;
+-	}
+ 
+-	err = nft_data_init(NULL, &priv->xor, sizeof(priv->xor), &xor,
+-			    tb[NFTA_BITWISE_XOR]);
++	err = nft_data_init(NULL, &priv->xor, &xor, tb[NFTA_BITWISE_XOR]);
+ 	if (err < 0)
+-		goto err_mask_release;
+-	if (xor.type != NFT_DATA_VALUE || xor.len != priv->len) {
+-		err = -EINVAL;
+-		goto err_xor_release;
+-	}
++		goto err_xor_err;
+ 
+ 	return 0;
+ 
+-err_xor_release:
+-	nft_data_release(&priv->xor, xor.type);
+-err_mask_release:
++err_xor_err:
+ 	nft_data_release(&priv->mask, mask.type);
++
+ 	return err;
+ }
+ 
+ static int nft_bitwise_init_shift(struct nft_bitwise *priv,
+ 				  const struct nlattr *const tb[])
+ {
+-	struct nft_data_desc d;
++	struct nft_data_desc desc = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(priv->data),
++		.len	= sizeof(u32),
++	};
+ 	int err;
+ 
+ 	if (tb[NFTA_BITWISE_MASK] ||
+@@ -143,13 +145,12 @@ static int nft_bitwise_init_shift(struct nft_bitwise *priv,
+ 	if (!tb[NFTA_BITWISE_DATA])
+ 		return -EINVAL;
+ 
+-	err = nft_data_init(NULL, &priv->data, sizeof(priv->data), &d,
+-			    tb[NFTA_BITWISE_DATA]);
++	err = nft_data_init(NULL, &priv->data, &desc, tb[NFTA_BITWISE_DATA]);
+ 	if (err < 0)
+ 		return err;
+-	if (d.type != NFT_DATA_VALUE || d.len != sizeof(u32) ||
+-	    priv->data.data[0] >= BITS_PER_TYPE(u32)) {
+-		nft_data_release(&priv->data, d.type);
++
++	if (priv->data.data[0] >= BITS_PER_TYPE(u32)) {
++		nft_data_release(&priv->data, desc.type);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -291,22 +292,21 @@ static const struct nft_expr_ops nft_bitwise_ops = {
+ static int
+ nft_bitwise_extract_u32_data(const struct nlattr * const tb, u32 *out)
+ {
+-	struct nft_data_desc desc;
+ 	struct nft_data data;
+-	int err = 0;
++	struct nft_data_desc desc = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(data),
++		.len	= sizeof(u32),
++	};
++	int err;
+ 
+-	err = nft_data_init(NULL, &data, sizeof(data), &desc, tb);
++	err = nft_data_init(NULL, &data, &desc, tb);
+ 	if (err < 0)
+ 		return err;
+ 
+-	if (desc.type != NFT_DATA_VALUE || desc.len != sizeof(u32)) {
+-		err = -EINVAL;
+-		goto err;
+-	}
+ 	*out = data.data[0];
+-err:
+-	nft_data_release(&data, desc.type);
+-	return err;
++
++	return 0;
+ }
+ 
+ static int nft_bitwise_fast_init(const struct nft_ctx *ctx,
+diff --git a/net/netfilter/nft_cmp.c b/net/netfilter/nft_cmp.c
+index 917072af09df9..461763a571f20 100644
+--- a/net/netfilter/nft_cmp.c
++++ b/net/netfilter/nft_cmp.c
+@@ -73,20 +73,16 @@ static int nft_cmp_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 			const struct nlattr * const tb[])
+ {
+ 	struct nft_cmp_expr *priv = nft_expr_priv(expr);
+-	struct nft_data_desc desc;
++	struct nft_data_desc desc = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(priv->data),
++	};
+ 	int err;
+ 
+-	err = nft_data_init(NULL, &priv->data, sizeof(priv->data), &desc,
+-			    tb[NFTA_CMP_DATA]);
++	err = nft_data_init(NULL, &priv->data, &desc, tb[NFTA_CMP_DATA]);
+ 	if (err < 0)
+ 		return err;
+ 
+-	if (desc.type != NFT_DATA_VALUE) {
+-		err = -EINVAL;
+-		nft_data_release(&priv->data, desc.type);
+-		return err;
+-	}
+-
+ 	err = nft_parse_register_load(tb[NFTA_CMP_SREG], &priv->sreg, desc.len);
+ 	if (err < 0)
+ 		return err;
+@@ -201,12 +197,14 @@ static int nft_cmp_fast_init(const struct nft_ctx *ctx,
+ 			     const struct nlattr * const tb[])
+ {
+ 	struct nft_cmp_fast_expr *priv = nft_expr_priv(expr);
+-	struct nft_data_desc desc;
+ 	struct nft_data data;
++	struct nft_data_desc desc = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(data),
++	};
+ 	int err;
+ 
+-	err = nft_data_init(NULL, &data, sizeof(data), &desc,
+-			    tb[NFTA_CMP_DATA]);
++	err = nft_data_init(NULL, &data, &desc, tb[NFTA_CMP_DATA]);
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -299,11 +297,13 @@ static int nft_cmp16_fast_init(const struct nft_ctx *ctx,
+ 			       const struct nlattr * const tb[])
+ {
+ 	struct nft_cmp16_fast_expr *priv = nft_expr_priv(expr);
+-	struct nft_data_desc desc;
++	struct nft_data_desc desc = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(priv->data),
++	};
+ 	int err;
+ 
+-	err = nft_data_init(NULL, &priv->data, sizeof(priv->data), &desc,
+-			    tb[NFTA_CMP_DATA]);
++	err = nft_data_init(NULL, &priv->data, &desc, tb[NFTA_CMP_DATA]);
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -365,8 +365,11 @@ const struct nft_expr_ops nft_cmp16_fast_ops = {
+ static const struct nft_expr_ops *
+ nft_cmp_select_ops(const struct nft_ctx *ctx, const struct nlattr * const tb[])
+ {
+-	struct nft_data_desc desc;
+ 	struct nft_data data;
++	struct nft_data_desc desc = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(data),
++	};
+ 	enum nft_cmp_ops op;
+ 	u8 sreg;
+ 	int err;
+@@ -389,14 +392,10 @@ nft_cmp_select_ops(const struct nft_ctx *ctx, const struct nlattr * const tb[])
+ 		return ERR_PTR(-EINVAL);
+ 	}
+ 
+-	err = nft_data_init(NULL, &data, sizeof(data), &desc,
+-			    tb[NFTA_CMP_DATA]);
++	err = nft_data_init(NULL, &data, &desc, tb[NFTA_CMP_DATA]);
+ 	if (err < 0)
+ 		return ERR_PTR(err);
+ 
+-	if (desc.type != NFT_DATA_VALUE)
+-		goto err1;
+-
+ 	sreg = ntohl(nla_get_be32(tb[NFTA_CMP_SREG]));
+ 
+ 	if (op == NFT_CMP_EQ || op == NFT_CMP_NEQ) {
+@@ -408,9 +407,6 @@ nft_cmp_select_ops(const struct nft_ctx *ctx, const struct nlattr * const tb[])
+ 			return &nft_cmp16_fast_ops;
+ 	}
+ 	return &nft_cmp_ops;
+-err1:
+-	nft_data_release(&data, desc.type);
+-	return ERR_PTR(-EINVAL);
+ }
+ 
+ struct nft_expr_type nft_cmp_type __read_mostly = {
+diff --git a/net/netfilter/nft_immediate.c b/net/netfilter/nft_immediate.c
+index d0f67d325bdfd..fcdbc5ed3f367 100644
+--- a/net/netfilter/nft_immediate.c
++++ b/net/netfilter/nft_immediate.c
+@@ -29,20 +29,36 @@ static const struct nla_policy nft_immediate_policy[NFTA_IMMEDIATE_MAX + 1] = {
+ 	[NFTA_IMMEDIATE_DATA]	= { .type = NLA_NESTED },
+ };
+ 
++static enum nft_data_types nft_reg_to_type(const struct nlattr *nla)
 +{
-+	wait_event(caching_ctl->wait, btrfs_block_group_done(cache));
-+	return cache->cached == BTRFS_CACHE_ERROR ? -EIO : 0;
++	enum nft_data_types type;
++	u8 reg;
++
++	reg = ntohl(nla_get_be32(nla));
++	if (reg == NFT_REG_VERDICT)
++		type = NFT_DATA_VERDICT;
++	else
++		type = NFT_DATA_VALUE;
++
++	return type;
 +}
 +
-+static int btrfs_wait_block_group_cache_done(struct btrfs_block_group *cache)
+ static int nft_immediate_init(const struct nft_ctx *ctx,
+ 			      const struct nft_expr *expr,
+ 			      const struct nlattr * const tb[])
  {
- 	struct btrfs_caching_control *caching_ctl;
--	int ret = 0;
-+	int ret;
+ 	struct nft_immediate_expr *priv = nft_expr_priv(expr);
+-	struct nft_data_desc desc;
++	struct nft_data_desc desc = {
++		.size	= sizeof(priv->data),
++	};
+ 	int err;
  
- 	caching_ctl = btrfs_get_caching_control(cache);
- 	if (!caching_ctl)
- 		return (cache->cached == BTRFS_CACHE_ERROR) ? -EIO : 0;
--
--	wait_event(caching_ctl->wait, btrfs_block_group_done(cache));
--	if (cache->cached == BTRFS_CACHE_ERROR)
--		ret = -EIO;
-+	ret = btrfs_caching_ctl_wait_done(cache, caching_ctl);
- 	btrfs_put_caching_control(caching_ctl);
- 	return ret;
- }
- 
--static bool space_cache_v1_done(struct btrfs_block_group *cache)
--{
--	bool ret;
--
--	spin_lock(&cache->lock);
--	ret = cache->cached != BTRFS_CACHE_FAST;
--	spin_unlock(&cache->lock);
--
--	return ret;
--}
--
--void btrfs_wait_space_cache_v1_finished(struct btrfs_block_group *cache,
--				struct btrfs_caching_control *caching_ctl)
--{
--	wait_event(caching_ctl->wait, space_cache_v1_done(cache));
--}
--
- #ifdef CONFIG_BTRFS_DEBUG
- static void fragment_free_space(struct btrfs_block_group *block_group)
- {
-@@ -750,9 +737,8 @@ done:
- 	btrfs_put_block_group(block_group);
- }
- 
--int btrfs_cache_block_group(struct btrfs_block_group *cache, int load_cache_only)
-+int btrfs_cache_block_group(struct btrfs_block_group *cache, bool wait)
- {
--	DEFINE_WAIT(wait);
- 	struct btrfs_fs_info *fs_info = cache->fs_info;
- 	struct btrfs_caching_control *caching_ctl = NULL;
- 	int ret = 0;
-@@ -785,10 +771,7 @@ int btrfs_cache_block_group(struct btrfs
- 	}
- 	WARN_ON(cache->caching_ctl);
- 	cache->caching_ctl = caching_ctl;
--	if (btrfs_test_opt(fs_info, SPACE_CACHE))
--		cache->cached = BTRFS_CACHE_FAST;
--	else
--		cache->cached = BTRFS_CACHE_STARTED;
-+	cache->cached = BTRFS_CACHE_STARTED;
- 	cache->has_caching_ctl = 1;
- 	spin_unlock(&cache->lock);
- 
-@@ -801,8 +784,8 @@ int btrfs_cache_block_group(struct btrfs
- 
- 	btrfs_queue_work(fs_info->caching_workers, &caching_ctl->work);
- out:
--	if (load_cache_only && caching_ctl)
--		btrfs_wait_space_cache_v1_finished(cache, caching_ctl);
-+	if (wait && caching_ctl)
-+		ret = btrfs_caching_ctl_wait_done(cache, caching_ctl);
- 	if (caching_ctl)
- 		btrfs_put_caching_control(caching_ctl);
- 
-@@ -3313,7 +3296,7 @@ int btrfs_update_block_group(struct btrf
- 		 * space back to the block group, otherwise we will leak space.
- 		 */
- 		if (!alloc && !btrfs_block_group_done(cache))
--			btrfs_cache_block_group(cache, 1);
-+			btrfs_cache_block_group(cache, true);
- 
- 		byte_in_group = bytenr - cache->start;
- 		WARN_ON(byte_in_group > cache->length);
---- a/fs/btrfs/block-group.h
-+++ b/fs/btrfs/block-group.h
-@@ -263,9 +263,7 @@ void btrfs_dec_nocow_writers(struct btrf
- void btrfs_wait_nocow_writers(struct btrfs_block_group *bg);
- void btrfs_wait_block_group_cache_progress(struct btrfs_block_group *cache,
- 				           u64 num_bytes);
--int btrfs_wait_block_group_cache_done(struct btrfs_block_group *cache);
--int btrfs_cache_block_group(struct btrfs_block_group *cache,
--			    int load_cache_only);
-+int btrfs_cache_block_group(struct btrfs_block_group *cache, bool wait);
- void btrfs_put_caching_control(struct btrfs_caching_control *ctl);
- struct btrfs_caching_control *btrfs_get_caching_control(
- 		struct btrfs_block_group *cache);
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -494,7 +494,6 @@ struct btrfs_free_cluster {
- enum btrfs_caching_type {
- 	BTRFS_CACHE_NO,
- 	BTRFS_CACHE_STARTED,
--	BTRFS_CACHE_FAST,
- 	BTRFS_CACHE_FINISHED,
- 	BTRFS_CACHE_ERROR,
- };
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -2567,17 +2567,10 @@ int btrfs_pin_extent_for_log_replay(stru
+ 	if (tb[NFTA_IMMEDIATE_DREG] == NULL ||
+ 	    tb[NFTA_IMMEDIATE_DATA] == NULL)
  		return -EINVAL;
  
- 	/*
--	 * pull in the free space cache (if any) so that our pin
--	 * removes the free space from the cache.  We have load_only set
--	 * to one because the slow code to read in the free extents does check
--	 * the pinned extents.
-+	 * Fully cache the free space first so that our pin removes the free space
-+	 * from the cache.
- 	 */
--	btrfs_cache_block_group(cache, 1);
--	/*
--	 * Make sure we wait until the cache is completely built in case it is
--	 * missing or is invalid and therefore needs to be rebuilt.
--	 */
--	ret = btrfs_wait_block_group_cache_done(cache);
-+	ret = btrfs_cache_block_group(cache, true);
- 	if (ret)
- 		goto out;
+-	err = nft_data_init(ctx, &priv->data, sizeof(priv->data), &desc,
+-			    tb[NFTA_IMMEDIATE_DATA]);
++	desc.type = nft_reg_to_type(tb[NFTA_IMMEDIATE_DREG]);
++	err = nft_data_init(ctx, &priv->data, &desc, tb[NFTA_IMMEDIATE_DATA]);
+ 	if (err < 0)
+ 		return err;
  
-@@ -2600,12 +2593,7 @@ static int __exclude_logged_extent(struc
- 	if (!block_group)
+diff --git a/net/netfilter/nft_range.c b/net/netfilter/nft_range.c
+index e4a1c44d7f513..e6bbe32c323df 100644
+--- a/net/netfilter/nft_range.c
++++ b/net/netfilter/nft_range.c
+@@ -51,7 +51,14 @@ static int nft_range_init(const struct nft_ctx *ctx, const struct nft_expr *expr
+ 			const struct nlattr * const tb[])
+ {
+ 	struct nft_range_expr *priv = nft_expr_priv(expr);
+-	struct nft_data_desc desc_from, desc_to;
++	struct nft_data_desc desc_from = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(priv->data_from),
++	};
++	struct nft_data_desc desc_to = {
++		.type	= NFT_DATA_VALUE,
++		.size	= sizeof(priv->data_to),
++	};
+ 	int err;
+ 	u32 op;
+ 
+@@ -61,26 +68,16 @@ static int nft_range_init(const struct nft_ctx *ctx, const struct nft_expr *expr
+ 	    !tb[NFTA_RANGE_TO_DATA])
  		return -EINVAL;
  
--	btrfs_cache_block_group(block_group, 1);
--	/*
--	 * Make sure we wait until the cache is completely built in case it is
--	 * missing or is invalid and therefore needs to be rebuilt.
--	 */
--	ret = btrfs_wait_block_group_cache_done(block_group);
-+	ret = btrfs_cache_block_group(block_group, true);
- 	if (ret)
- 		goto out;
+-	err = nft_data_init(NULL, &priv->data_from, sizeof(priv->data_from),
+-			    &desc_from, tb[NFTA_RANGE_FROM_DATA]);
++	err = nft_data_init(NULL, &priv->data_from, &desc_from,
++			    tb[NFTA_RANGE_FROM_DATA]);
+ 	if (err < 0)
+ 		return err;
  
-@@ -4415,7 +4403,7 @@ have_block_group:
- 		ffe_ctl->cached = btrfs_block_group_done(block_group);
- 		if (unlikely(!ffe_ctl->cached)) {
- 			ffe_ctl->have_caching_bg = true;
--			ret = btrfs_cache_block_group(block_group, 0);
-+			ret = btrfs_cache_block_group(block_group, false);
+-	if (desc_from.type != NFT_DATA_VALUE) {
+-		err = -EINVAL;
+-		goto err1;
+-	}
+-
+-	err = nft_data_init(NULL, &priv->data_to, sizeof(priv->data_to),
+-			    &desc_to, tb[NFTA_RANGE_TO_DATA]);
++	err = nft_data_init(NULL, &priv->data_to, &desc_to,
++			    tb[NFTA_RANGE_TO_DATA]);
+ 	if (err < 0)
+ 		goto err1;
  
- 			/*
- 			 * If we get ENOMEM here or something else we want to
-@@ -6169,13 +6157,7 @@ int btrfs_trim_fs(struct btrfs_fs_info *
- 
- 		if (end - start >= range->minlen) {
- 			if (!btrfs_block_group_done(cache)) {
--				ret = btrfs_cache_block_group(cache, 0);
--				if (ret) {
--					bg_failed++;
--					bg_ret = ret;
--					continue;
--				}
--				ret = btrfs_wait_block_group_cache_done(cache);
-+				ret = btrfs_cache_block_group(cache, true);
- 				if (ret) {
- 					bg_failed++;
- 					bg_ret = ret;
+-	if (desc_to.type != NFT_DATA_VALUE) {
+-		err = -EINVAL;
+-		goto err2;
+-	}
+-
+ 	if (desc_from.len != desc_to.len) {
+ 		err = -EINVAL;
+ 		goto err2;
+-- 
+2.35.1
+
 
 
