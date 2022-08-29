@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 888815A490D
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CFD85A4A49
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231500AbiH2LTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:19:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55572 "EHLO
+        id S232830AbiH2Lgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:36:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231797AbiH2LTT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E77D6E2D7;
-        Mon, 29 Aug 2022 04:13:08 -0700 (PDT)
+        with ESMTP id S232154AbiH2Lf4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:35:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF2697E320;
+        Mon, 29 Aug 2022 04:20:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7AE661218;
-        Mon, 29 Aug 2022 11:12:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEE80C433C1;
-        Mon, 29 Aug 2022 11:12:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9768BB80EFA;
+        Mon, 29 Aug 2022 11:18:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA9B8C433D6;
+        Mon, 29 Aug 2022 11:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771579;
-        bh=TMBHeboNLghMKzgaVvpn1uXQcBQMa8rbthZ+e+ZXWwE=;
+        s=korg; t=1661771906;
+        bh=pp1K60d+bAPmwzR6F+LVuC53PVa7MXLH3HOEvGhGyNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdyENni/YVu3wYKJV0qO5Ici0WPwilyPWRx+/7fvBhxQDnBOKyMXYXFsE+GZBe5RS
-         r5aPHsSHtE9HIeX58HQNm8eQpP6dO2djnbEacUURVQVwbzLkQSv5UsyuJY+sGCj5ZJ
-         yB0sxCaBTnLqYgt82/RiXrKjqfLVbEr9JackhqOQ=
+        b=ujtZEH6GQbAsq2xk0AopW2CihNgDQh6OwP4ug5vPG/VwMiVuEg01MgJAMetgsuW4U
+         7fFkuAAHg6Oh8hZKK44I4v2gX9bkjWumjcGspDSqGxvo2IQODsxJ2t4y3wrU9SeWI7
+         57ieDg0dspG2Y/V507wuLhN2bys277uZK5WYAcYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 118/136] io_uring: fix issue with io_write() not always undoing sb_start_write()
-Date:   Mon, 29 Aug 2022 12:59:45 +0200
-Message-Id: <20220829105809.534834253@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Guoqing Jiang <guoqing.jiang@linux.dev>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 5.19 136/158] md: call __md_stop_writes in md_stop
+Date:   Mon, 29 Aug 2022 12:59:46 +0200
+Message-Id: <20220829105814.778624942@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Guoqing Jiang <guoqing.jiang@linux.dev>
 
-commit e053aaf4da56cbf0afb33a0fda4a62188e2c0637 upstream.
+commit 0dd84b319352bb8ba64752d4e45396d8b13e6018 upstream.
 
-This is actually an older issue, but we never used to hit the -EAGAIN
-path before having done sb_start_write(). Make sure that we always call
-kiocb_end_write() if we need to retry the write, so that we keep the
-calls to sb_start_write() etc balanced.
+>From the link [1], we can see raid1d was running even after the path
+raid_dtr -> md_stop -> __md_stop.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Let's stop write first in destructor to align with normal md-raid to
+fix the KASAN issue.
+
+[1]. https://lore.kernel.org/linux-raid/CAPhsuW5gc4AakdGNdF8ubpezAuDLFOYUO_sfMZcec6hQFm8nhg@mail.gmail.com/T/#m7f12bf90481c02c6d2da68c64aeed4779b7df74a
+
+Fixes: 48df498daf62 ("md: move bitmap_destroy to the beginning of __md_stop")
+Reported-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/md/md.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3720,7 +3720,12 @@ done:
- copy_iov:
- 		iov_iter_restore(iter, state);
- 		ret = io_setup_async_rw(req, iovec, inline_vecs, iter, false);
--		return ret ?: -EAGAIN;
-+		if (!ret) {
-+			if (kiocb->ki_flags & IOCB_WRITE)
-+				kiocb_end_write(req);
-+			return -EAGAIN;
-+		}
-+		return ret;
- 	}
- out_free:
- 	/* it's reportedly faster than delegating the null check to kfree() */
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6266,6 +6266,7 @@ void md_stop(struct mddev *mddev)
+ 	/* stop the array and free an attached data structures.
+ 	 * This is called from dm-raid
+ 	 */
++	__md_stop_writes(mddev);
+ 	__md_stop(mddev);
+ 	bioset_exit(&mddev->bio_set);
+ 	bioset_exit(&mddev->sync_set);
 
 
