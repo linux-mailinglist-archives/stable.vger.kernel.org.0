@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9AE5A4511
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 10:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 906A35A452D
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 10:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229447AbiH2IbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 04:31:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34804 "EHLO
+        id S230027AbiH2Idi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 04:33:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229609AbiH2IbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 04:31:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B76A4BD28
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 01:31:23 -0700 (PDT)
+        with ESMTP id S230026AbiH2IdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 04:33:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13322578A8
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 01:33:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD4A760E2C
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 08:31:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 540C3C433D6;
-        Mon, 29 Aug 2022 08:31:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEF18B80D28
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 08:33:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3215C433D6;
+        Mon, 29 Aug 2022 08:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661761882;
-        bh=Pwyb66/tvLbidGT13RxtsgANB8sw2YnQg3861qP3xeA=;
+        s=korg; t=1661761982;
+        bh=k+bFwLsJ2m9Lp8/N55aN7V4S9Uk1WbhVaVcHYVXUy6s=;
         h=Subject:To:Cc:From:Date:From;
-        b=KFhBvaBsC9UZiMsTowo+JZvwrNqlic4IvxeH+zERjDx/yuFLzzpQCSE2bioT6mSZl
-         DN0Qgm0dNekMoOzuNoooWLrvnvHsebq2ID7N16bEHCZx6zoha9csXpyFUU3gZSPBQ/
-         6TI59AJBSgbYXfQev8JtCW+t/GigVhCMpDE4L1Co=
-Subject: FAILED: patch "[PATCH] blk-mq: fix io hung due to missing commit_rqs" failed to apply to 5.4-stable tree
-To:     yukuai3@huawei.com, axboe@kernel.dk, ming.lei@redhat.com
+        b=S1gUPD11B3mTpNpgSXarMBPgzwQs+2G1NpR5XTnTvhnsrezKWs9ka3HK3q8MJbmYL
+         fJ0uDiTV5j/YZGUJN1o+4D3B0Gr/6l6eMRHrkmFGsvwXhO4epT0Gkzs547a17MK0tt
+         QFnUe+OcPd2kfZFGyfBQYGAqJaeT3rQXiQ3BF+mE=
+Subject: FAILED: patch "[PATCH] perf stat: Clear evsel->reset_group for each stat run" failed to apply to 5.10-stable tree
+To:     irogers@google.com, acme@redhat.com, ak@linux.intel.com,
+        alexander.shishkin@linux.intel.com, eranian@google.com,
+        jolsa@kernel.org, kan.liang@linux.intel.com, mark.rutland@arm.com,
+        mingo@redhat.com, namhyung@kernel.org, peterz@infradead.org,
+        zhengjun.xing@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Aug 2022 10:31:18 +0200
-Message-ID: <1661761878106216@kroah.com>
+Date:   Mon, 29 Aug 2022 10:32:59 +0200
+Message-ID: <1661761979188199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +52,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,92 +63,48 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 65fac0d54f374625b43a9d6ad1f2c212bd41f518 Mon Sep 17 00:00:00 2001
-From: Yu Kuai <yukuai3@huawei.com>
-Date: Tue, 26 Jul 2022 20:22:24 +0800
-Subject: [PATCH] blk-mq: fix io hung due to missing commit_rqs
+From bf515f024e4c0ca46a1b08c4f31860c01781d8a5 Mon Sep 17 00:00:00 2001
+From: Ian Rogers <irogers@google.com>
+Date: Mon, 22 Aug 2022 14:33:51 -0700
+Subject: [PATCH] perf stat: Clear evsel->reset_group for each stat run
 
-Currently, in virtio_scsi, if 'bd->last' is not set to true while
-dispatching request, such io will stay in driver's queue, and driver
-will wait for block layer to dispatch more rqs. However, if block
-layer failed to dispatch more rq, it should trigger commit_rqs to
-inform driver.
+If a weak group is broken then the reset_group flag remains set for
+the next run. Having reset_group set means the counter isn't created
+and ultimately a segfault.
 
-There is a problem in blk_mq_try_issue_list_directly() that commit_rqs
-won't be called:
+A simple reproduction of this is:
 
-// assume that queue_depth is set to 1, list contains two rq
-blk_mq_try_issue_list_directly
- blk_mq_request_issue_directly
- // dispatch first rq
- // last is false
-  __blk_mq_try_issue_directly
-   blk_mq_get_dispatch_budget
-   // succeed to get first budget
-   __blk_mq_issue_directly
-    scsi_queue_rq
-     cmd->flags |= SCMD_LAST
-      virtscsi_queuecommand
-       kick = (sc->flags & SCMD_LAST) != 0
-       // kick is false, first rq won't issue to disk
- queued++
+  # perf stat -r2 -e '{cycles,cycles,cycles,cycles,cycles,cycles,cycles,cycles,cycles,cycles}:W
 
- blk_mq_request_issue_directly
- // dispatch second rq
-  __blk_mq_try_issue_directly
-   blk_mq_get_dispatch_budget
-   // failed to get second budget
- ret == BLK_STS_RESOURCE
-  blk_mq_request_bypass_insert
- // errors is still 0
+which will be added as a test in the next patch.
 
- if (!list_empty(list) || errors && ...)
-  // won't pass, commit_rqs won't be called
+Fixes: 4804e0111662d7d8 ("perf stat: Use affinity for opening events")
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Tested-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: https://lore.kernel.org/r/20220822213352.75721-1-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-In this situation, first rq relied on second rq to dispatch, while
-second rq relied on first rq to complete, thus they will both hung.
-
-Fix the problem by also treat 'BLK_STS_*RESOURCE' as 'errors' since
-it means that request is not queued successfully.
-
-Same problem exists in blk_mq_dispatch_rq_list(), 'BLK_STS_*RESOURCE'
-can't be treated as 'errors' here, fix the problem by calling
-commit_rqs if queue_rq return 'BLK_STS_*RESOURCE'.
-
-Fixes: d666ba98f849 ("blk-mq: add mq_ops->commit_rqs()")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20220726122224.1790882-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 3c1e6b6d991d..c96c8c4f751b 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1931,7 +1931,8 @@ bool blk_mq_dispatch_rq_list(struct blk_mq_hw_ctx *hctx, struct list_head *list,
- 	/* If we didn't flush the entire list, we could have told the driver
- 	 * there was more coming, but that turned out to be a lie.
- 	 */
--	if ((!list_empty(list) || errors) && q->mq_ops->commit_rqs && queued)
-+	if ((!list_empty(list) || errors || needs_resource ||
-+	     ret == BLK_STS_DEV_RESOURCE) && q->mq_ops->commit_rqs && queued)
- 		q->mq_ops->commit_rqs(hctx);
- 	/*
- 	 * Any items that need requeuing? Stuff them into hctx->dispatch,
-@@ -2660,6 +2661,7 @@ void blk_mq_try_issue_list_directly(struct blk_mq_hw_ctx *hctx,
- 		list_del_init(&rq->queuelist);
- 		ret = blk_mq_request_issue_directly(rq, list_empty(list));
- 		if (ret != BLK_STS_OK) {
-+			errors++;
- 			if (ret == BLK_STS_RESOURCE ||
- 					ret == BLK_STS_DEV_RESOURCE) {
- 				blk_mq_request_bypass_insert(rq, false,
-@@ -2667,7 +2669,6 @@ void blk_mq_try_issue_list_directly(struct blk_mq_hw_ctx *hctx,
- 				break;
- 			}
- 			blk_mq_end_request(rq, ret);
--			errors++;
- 		} else
- 			queued++;
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index 7fb81a44672d..54cd29d07ca8 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -826,6 +826,7 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
  	}
+ 
+ 	evlist__for_each_entry(evsel_list, counter) {
++		counter->reset_group = false;
+ 		if (bpf_counter__load(counter, &target))
+ 			return -1;
+ 		if (!evsel__is_bpf(counter))
 
