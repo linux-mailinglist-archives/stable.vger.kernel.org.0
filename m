@@ -1,56 +1,45 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B86A5A47BF
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:01:04 +0200 (CEST)
+Received: from out1.vger.email (unknown [IPv6:2620:137:e000::1:20])
+	by mail.lfdr.de (Postfix) with ESMTP id B5EFF5A486A
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230055AbiH2LBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:01:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42270 "EHLO
+        id S231262AbiH2LKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:10:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229985AbiH2LAk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:00:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365913AE52;
-        Mon, 29 Aug 2022 04:00:34 -0700 (PDT)
+        with ESMTP id S230383AbiH2LJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:09:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2960A6B15C;
+        Mon, 29 Aug 2022 04:06:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9952EB80EF1;
-        Mon, 29 Aug 2022 11:00:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7848C433D6;
-        Mon, 29 Aug 2022 11:00:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3F07611B8;
+        Mon, 29 Aug 2022 11:06:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A1FC433C1;
+        Mon, 29 Aug 2022 11:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770831;
-        bh=MBx6hOF5luNYQBEjJGxQ2UwBra89IjVOck0JztOT5lU=;
+        s=korg; t=1661771182;
+        bh=YlnfQbV4ZasJ5+pYHMjHHupkiCta5PQLbbUdF/59zA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yE2vNdfDrhq9FSMDmJ2KHwoAMCLtMutfT2SRiYUFOpzEk42jVeluDpwLK7wKYhhrR
-         JFYeMv+W/XtWWsGgW1c5KzUI3YK3zuYo0rTWmb8oopDlobgFv7dMuZ6kiHn/MfWzv+
-         +s/9L20ZJytxi91DlnC2PL6Gu3Ah17UwiKlTkei8=
+        b=xXtPM+FyEq1wd+nd9vOQ/DIx4ZFMuHpEJgJYfhsNGprOy1cvHrcaeouOL6z4Uri9i
+         Vo3WkCK0vjIrdZlBx0IOxmRiIcyqRSzNQ2rRRaZtTEofwUSVQkGz9911vmEamWRfML
+         hKsVLzEK6qC3VjVOLVQbUlk2DLd7lMbEmzYzBG/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Peter Xu <peterx@redhat.com>, Hugh Dickins <hughd@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 001/158] mm/gup: fix FOLL_FORCE COW security issue and remove FOLL_COW
-Date:   Mon, 29 Aug 2022 12:57:31 +0200
-Message-Id: <20220829105808.886464906@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.19 002/158] NFS: Fix another fsync() issue after a server reboot
+Date:   Mon, 29 Aug 2022 12:57:32 +0200
+Message-Id: <20220829105808.934230208@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -64,307 +53,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 5535be3099717646781ce1540cf725965d680e7b upstream.
+commit 67f4b5dc49913abcdb5cc736e73674e2f352f81d upstream.
 
-Ever since the Dirty COW (CVE-2016-5195) security issue happened, we know
-that FOLL_FORCE can be possibly dangerous, especially if there are races
-that can be exploited by user space.
+Currently, when the writeback code detects a server reboot, it redirties
+any pages that were not committed to disk, and it sets the flag
+NFS_CONTEXT_RESEND_WRITES in the nfs_open_context of the file descriptor
+that dirtied the file. While this allows the file descriptor in question
+to redrive its own writes, it violates the fsync() requirement that we
+should be synchronising all writes to disk.
+While the problem is infrequent, we do see corner cases where an
+untimely server reboot causes the fsync() call to abandon its attempt to
+sync data to disk and causing data corruption issues due to missed error
+conditions or similar.
 
-Right now, it would be sufficient to have some code that sets a PTE of a
-R/O-mapped shared page dirty, in order for it to erroneously become
-writable by FOLL_FORCE.  The implications of setting a write-protected PTE
-dirty might not be immediately obvious to everyone.
+In order to tighted up the client's ability to deal with this situation
+without introducing livelocks, add a counter that records the number of
+times pages are redirtied due to a server reboot-like condition, and use
+that in fsync() to redrive the sync to disk.
 
-And in fact ever since commit 9ae0f87d009c ("mm/shmem: unconditionally set
-pte dirty in mfill_atomic_install_pte"), we can use UFFDIO_CONTINUE to map
-a shmem page R/O while marking the pte dirty.  This can be used by
-unprivileged user space to modify tmpfs/shmem file content even if the
-user does not have write permissions to the file, and to bypass memfd
-write sealing -- Dirty COW restricted to tmpfs/shmem (CVE-2022-2590).
-
-To fix such security issues for good, the insight is that we really only
-need that fancy retry logic (FOLL_COW) for COW mappings that are not
-writable (!VM_WRITE).  And in a COW mapping, we really only broke COW if
-we have an exclusive anonymous page mapped.  If we have something else
-mapped, or the mapped anonymous page might be shared (!PageAnonExclusive),
-we have to trigger a write fault to break COW.  If we don't find an
-exclusive anonymous page when we retry, we have to trigger COW breaking
-once again because something intervened.
-
-Let's move away from this mandatory-retry + dirty handling and rely on our
-PageAnonExclusive() flag for making a similar decision, to use the same
-COW logic as in other kernel parts here as well.  In case we stumble over
-a PTE in a COW mapping that does not map an exclusive anonymous page, COW
-was not properly broken and we have to trigger a fake write-fault to break
-COW.
-
-Just like we do in can_change_pte_writable() added via commit 64fe24a3e05e
-("mm/mprotect: try avoiding write faults for exclusive anonymous pages
-when changing protection") and commit 76aefad628aa ("mm/mprotect: fix
-soft-dirty check in can_change_pte_writable()"), take care of softdirty
-and uffd-wp manually.
-
-For example, a write() via /proc/self/mem to a uffd-wp-protected range has
-to fail instead of silently granting write access and bypassing the
-userspace fault handler.  Note that FOLL_FORCE is not only used for debug
-access, but also triggered by applications without debug intentions, for
-example, when pinning pages via RDMA.
-
-This fixes CVE-2022-2590. Note that only x86_64 and aarch64 are
-affected, because only those support CONFIG_HAVE_ARCH_USERFAULTFD_MINOR.
-
-Fortunately, FOLL_COW is no longer required to handle FOLL_FORCE. So
-let's just get rid of it.
-
-Thanks to Nadav Amit for pointing out that the pte_dirty() check in
-FOLL_FORCE code is problematic and might be exploitable.
-
-Note 1: We don't check for the PTE being dirty because it doesn't matter
-	for making a "was COWed" decision anymore, and whoever modifies the
-	page has to set the page dirty either way.
-
-Note 2: Kernels before extended uffd-wp support and before
-	PageAnonExclusive (< 5.19) can simply revert the problematic
-	commit instead and be safe regarding UFFDIO_CONTINUE. A backport to
-	v5.19 requires minor adjustments due to lack of
-	vma_soft_dirty_enabled().
-
-Link: https://lkml.kernel.org/r/20220809205640.70916-1-david@redhat.com
-Fixes: 9ae0f87d009c ("mm/shmem: unconditionally set pte dirty in mfill_atomic_install_pte")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Cc: <stable@vger.kernel.org>	[5.16]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Fixes: 2197e9b06c22 ("NFS: Fix up fsync() when the server rebooted")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mm.h |    1 
- mm/gup.c           |   69 ++++++++++++++++++++++++++++++++++++-----------------
- mm/huge_memory.c   |   65 +++++++++++++++++++++++++++++++++----------------
- 3 files changed, 91 insertions(+), 44 deletions(-)
+ fs/nfs/file.c          |   15 ++++++---------
+ fs/nfs/inode.c         |    1 +
+ fs/nfs/write.c         |    6 ++++--
+ include/linux/nfs_fs.h |    1 +
+ 4 files changed, 12 insertions(+), 11 deletions(-)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2939,7 +2939,6 @@ struct page *follow_page(struct vm_area_
- #define FOLL_MIGRATION	0x400	/* wait for page to replace migration entry */
- #define FOLL_TRIED	0x800	/* a retry, previous pass started an IO */
- #define FOLL_REMOTE	0x2000	/* we are working on non-current tsk/mm */
--#define FOLL_COW	0x4000	/* internal GUP flag */
- #define FOLL_ANON	0x8000	/* don't do file mappings */
- #define FOLL_LONGTERM	0x10000	/* mapping lifetime is indefinite: see below */
- #define FOLL_SPLIT_PMD	0x20000	/* split huge pmd before returning */
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -478,14 +478,43 @@ static int follow_pfn_pte(struct vm_area
- 	return -EEXIST;
- }
- 
--/*
-- * FOLL_FORCE can write to even unwritable pte's, but only
-- * after we've gone through a COW cycle and they are dirty.
-- */
--static inline bool can_follow_write_pte(pte_t pte, unsigned int flags)
-+/* FOLL_FORCE can write to even unwritable PTEs in COW mappings. */
-+static inline bool can_follow_write_pte(pte_t pte, struct page *page,
-+					struct vm_area_struct *vma,
-+					unsigned int flags)
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -221,8 +221,10 @@ nfs_file_fsync_commit(struct file *file,
+ int
+ nfs_file_fsync(struct file *file, loff_t start, loff_t end, int datasync)
  {
--	return pte_write(pte) ||
--		((flags & FOLL_FORCE) && (flags & FOLL_COW) && pte_dirty(pte));
-+	/* If the pte is writable, we can write to the page. */
-+	if (pte_write(pte))
-+		return true;
-+
-+	/* Maybe FOLL_FORCE is set to override it? */
-+	if (!(flags & FOLL_FORCE))
-+		return false;
-+
-+	/* But FOLL_FORCE has no effect on shared mappings */
-+	if (vma->vm_flags & (VM_MAYSHARE | VM_SHARED))
-+		return false;
-+
-+	/* ... or read-only private ones */
-+	if (!(vma->vm_flags & VM_MAYWRITE))
-+		return false;
-+
-+	/* ... or already writable ones that just need to take a write fault */
-+	if (vma->vm_flags & VM_WRITE)
-+		return false;
-+
-+	/*
-+	 * See can_change_pte_writable(): we broke COW and could map the page
-+	 * writable if we have an exclusive anonymous page ...
-+	 */
-+	if (!page || !PageAnon(page) || !PageAnonExclusive(page))
-+		return false;
-+
-+	/* ... and a write-fault isn't required for other reasons. */
-+	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) &&
-+	    !(vma->vm_flags & VM_SOFTDIRTY) && !pte_soft_dirty(pte))
-+		return false;
-+	return !userfaultfd_pte_wp(vma, pte);
- }
+-	struct nfs_open_context *ctx = nfs_file_open_context(file);
+ 	struct inode *inode = file_inode(file);
++	struct nfs_inode *nfsi = NFS_I(inode);
++	long save_nredirtied = atomic_long_read(&nfsi->redirtied_pages);
++	long nredirtied;
+ 	int ret;
  
- static struct page *follow_page_pte(struct vm_area_struct *vma,
-@@ -528,12 +557,19 @@ retry:
- 	}
- 	if ((flags & FOLL_NUMA) && pte_protnone(pte))
- 		goto no_page;
--	if ((flags & FOLL_WRITE) && !can_follow_write_pte(pte, flags)) {
--		pte_unmap_unlock(ptep, ptl);
--		return NULL;
--	}
- 
- 	page = vm_normal_page(vma, address, pte);
-+
-+	/*
-+	 * We only care about anon pages in can_follow_write_pte() and don't
-+	 * have to worry about pte_devmap() because they are never anon.
-+	 */
-+	if ((flags & FOLL_WRITE) &&
-+	    !can_follow_write_pte(pte, page, vma, flags)) {
-+		page = NULL;
-+		goto out;
-+	}
-+
- 	if (!page && pte_devmap(pte) && (flags & (FOLL_GET | FOLL_PIN))) {
- 		/*
- 		 * Only return device mapping pages in the FOLL_GET or FOLL_PIN
-@@ -967,17 +1003,6 @@ static int faultin_page(struct vm_area_s
- 		return -EBUSY;
+ 	trace_nfs_fsync_enter(inode);
+@@ -237,15 +239,10 @@ nfs_file_fsync(struct file *file, loff_t
+ 		ret = pnfs_sync_inode(inode, !!datasync);
+ 		if (ret != 0)
+ 			break;
+-		if (!test_and_clear_bit(NFS_CONTEXT_RESEND_WRITES, &ctx->flags))
++		nredirtied = atomic_long_read(&nfsi->redirtied_pages);
++		if (nredirtied == save_nredirtied)
+ 			break;
+-		/*
+-		 * If nfs_file_fsync_commit detected a server reboot, then
+-		 * resend all dirty pages that might have been covered by
+-		 * the NFS_CONTEXT_RESEND_WRITES flag
+-		 */
+-		start = 0;
+-		end = LLONG_MAX;
++		save_nredirtied = nredirtied;
  	}
  
--	/*
--	 * The VM_FAULT_WRITE bit tells us that do_wp_page has broken COW when
--	 * necessary, even if maybe_mkwrite decided not to set pte_write. We
--	 * can thus safely do subsequent page lookups as if they were reads.
--	 * But only do so when looping for pte_write is futile: in some cases
--	 * userspace may also be wanting to write to the gotten user page,
--	 * which a read fault here might prevent (a readonly page might get
--	 * reCOWed by userspace write).
--	 */
--	if ((ret & VM_FAULT_WRITE) && !(vma->vm_flags & VM_WRITE))
--		*flags |= FOLL_COW;
- 	return 0;
- }
- 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -978,12 +978,6 @@ struct page *follow_devmap_pmd(struct vm
- 
- 	assert_spin_locked(pmd_lockptr(mm, pmd));
- 
--	/*
--	 * When we COW a devmap PMD entry, we split it into PTEs, so we should
--	 * not be in this function with `flags & FOLL_COW` set.
--	 */
--	WARN_ONCE(flags & FOLL_COW, "mm: In follow_devmap_pmd with FOLL_COW set");
--
- 	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
- 			 (FOLL_PIN | FOLL_GET)))
-@@ -1349,14 +1343,43 @@ fallback:
- 	return VM_FAULT_FALLBACK;
- }
- 
--/*
-- * FOLL_FORCE can write to even unwritable pmd's, but only
-- * after we've gone through a COW cycle and they are dirty.
-- */
--static inline bool can_follow_write_pmd(pmd_t pmd, unsigned int flags)
-+/* FOLL_FORCE can write to even unwritable PMDs in COW mappings. */
-+static inline bool can_follow_write_pmd(pmd_t pmd, struct page *page,
-+					struct vm_area_struct *vma,
-+					unsigned int flags)
+ 	trace_nfs_fsync_exit(inode, ret);
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -426,6 +426,7 @@ nfs_ilookup(struct super_block *sb, stru
+ static void nfs_inode_init_regular(struct nfs_inode *nfsi)
  {
--	return pmd_write(pmd) ||
--	       ((flags & FOLL_FORCE) && (flags & FOLL_COW) && pmd_dirty(pmd));
-+	/* If the pmd is writable, we can write to the page. */
-+	if (pmd_write(pmd))
-+		return true;
-+
-+	/* Maybe FOLL_FORCE is set to override it? */
-+	if (!(flags & FOLL_FORCE))
-+		return false;
-+
-+	/* But FOLL_FORCE has no effect on shared mappings */
-+	if (vma->vm_flags & (VM_MAYSHARE | VM_SHARED))
-+		return false;
-+
-+	/* ... or read-only private ones */
-+	if (!(vma->vm_flags & VM_MAYWRITE))
-+		return false;
-+
-+	/* ... or already writable ones that just need to take a write fault */
-+	if (vma->vm_flags & VM_WRITE)
-+		return false;
-+
-+	/*
-+	 * See can_change_pte_writable(): we broke COW and could map the page
-+	 * writable if we have an exclusive anonymous page ...
-+	 */
-+	if (!page || !PageAnon(page) || !PageAnonExclusive(page))
-+		return false;
-+
-+	/* ... and a write-fault isn't required for other reasons. */
-+	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) &&
-+	    !(vma->vm_flags & VM_SOFTDIRTY) && !pmd_soft_dirty(pmd))
-+		return false;
-+	return !userfaultfd_huge_pmd_wp(vma, pmd);
- }
- 
- struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
-@@ -1365,12 +1388,16 @@ struct page *follow_trans_huge_pmd(struc
- 				   unsigned int flags)
+ 	atomic_long_set(&nfsi->nrequests, 0);
++	atomic_long_set(&nfsi->redirtied_pages, 0);
+ 	INIT_LIST_HEAD(&nfsi->commit_info.list);
+ 	atomic_long_set(&nfsi->commit_info.ncommit, 0);
+ 	atomic_set(&nfsi->commit_info.rpcs_out, 0);
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -1419,10 +1419,12 @@ static void nfs_initiate_write(struct nf
+  */
+ static void nfs_redirty_request(struct nfs_page *req)
  {
- 	struct mm_struct *mm = vma->vm_mm;
--	struct page *page = NULL;
-+	struct page *page;
- 
- 	assert_spin_locked(pmd_lockptr(mm, pmd));
- 
--	if (flags & FOLL_WRITE && !can_follow_write_pmd(*pmd, flags))
--		goto out;
-+	page = pmd_page(*pmd);
-+	VM_BUG_ON_PAGE(!PageHead(page) && !is_zone_device_page(page), page);
++	struct nfs_inode *nfsi = NFS_I(page_file_mapping(req->wb_page)->host);
 +
-+	if ((flags & FOLL_WRITE) &&
-+	    !can_follow_write_pmd(*pmd, page, vma, flags))
-+		return NULL;
- 
- 	/* Avoid dumping huge zero page */
- 	if ((flags & FOLL_DUMP) && is_huge_zero_pmd(*pmd))
-@@ -1378,10 +1405,7 @@ struct page *follow_trans_huge_pmd(struc
- 
- 	/* Full NUMA hinting faults to serialise migration in fault paths */
- 	if ((flags & FOLL_NUMA) && pmd_protnone(*pmd))
--		goto out;
--
--	page = pmd_page(*pmd);
--	VM_BUG_ON_PAGE(!PageHead(page) && !is_zone_device_page(page), page);
-+		return NULL;
- 
- 	if (!pmd_write(*pmd) && gup_must_unshare(flags, page))
- 		return ERR_PTR(-EMLINK);
-@@ -1398,7 +1422,6 @@ struct page *follow_trans_huge_pmd(struc
- 	page += (addr & ~HPAGE_PMD_MASK) >> PAGE_SHIFT;
- 	VM_BUG_ON_PAGE(!PageCompound(page) && !is_zone_device_page(page), page);
- 
--out:
- 	return page;
+ 	/* Bump the transmission count */
+ 	req->wb_nio++;
+ 	nfs_mark_request_dirty(req);
+-	set_bit(NFS_CONTEXT_RESEND_WRITES, &nfs_req_openctx(req)->flags);
++	atomic_long_inc(&nfsi->redirtied_pages);
+ 	nfs_end_page_writeback(req);
+ 	nfs_release_request(req);
  }
- 
+@@ -1892,7 +1894,7 @@ static void nfs_commit_release_pages(str
+ 		/* We have a mismatch. Write the page again */
+ 		dprintk_cont(" mismatch\n");
+ 		nfs_mark_request_dirty(req);
+-		set_bit(NFS_CONTEXT_RESEND_WRITES, &nfs_req_openctx(req)->flags);
++		atomic_long_inc(&NFS_I(data->inode)->redirtied_pages);
+ 	next:
+ 		nfs_unlock_and_release_request(req);
+ 		/* Latency breaker */
+--- a/include/linux/nfs_fs.h
++++ b/include/linux/nfs_fs.h
+@@ -182,6 +182,7 @@ struct nfs_inode {
+ 		/* Regular file */
+ 		struct {
+ 			atomic_long_t	nrequests;
++			atomic_long_t	redirtied_pages;
+ 			struct nfs_mds_commit_info commit_info;
+ 			struct mutex	commit_mutex;
+ 		};
 
 
