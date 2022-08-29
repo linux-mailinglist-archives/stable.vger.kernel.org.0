@@ -2,57 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB045A43CB
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D319F5A43D3
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbiH2Hev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:34:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52050 "EHLO
+        id S229453AbiH2Hht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:37:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229535AbiH2Heu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:34:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 736BC2725
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:34:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661758488;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=ivp8SkSbzWYeukb9RmMR/+ypBwoHgCA1ggb1pX9wCGY=;
-        b=Gk5lcrC+7jmygkyFrwqu1L23/5QSIyOiphSuh3ybUl58iX0PT7pqwVgIjHzL3WS5jLKord
-        GpXJIf3m1Jk8KK+nckeWG3viBoY1t9pMiNZjKpHcIxGQjuzqCcJutKAGyZCy+Ql/HoA/D7
-        GC786MKzkf/gC3z6n9fh6LQY4AERubs=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-433-XdSkkRb2Pn6saeyjF857mA-1; Mon, 29 Aug 2022 03:34:43 -0400
-X-MC-Unique: XdSkkRb2Pn6saeyjF857mA-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S229449AbiH2Hhs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:37:48 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FF984E639
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:37:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1E77B185A7B2;
-        Mon, 29 Aug 2022 07:34:43 +0000 (UTC)
-Received: from max-t490s.redhat.com (unknown [10.39.208.19])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BAA65492C3B;
-        Mon, 29 Aug 2022 07:34:40 +0000 (UTC)
-From:   Maxime Coquelin <maxime.coquelin@redhat.com>
-To:     linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, elic@nvidia.com,
-        guanjun@linux.alibaba.com, parav@nvidia.com,
-        gautam.dawar@xilinx.com, dan.carpenter@oracle.com,
-        xieyongji@bytedance.com, jasowang@redhat.com, mst@redhat.com
-Cc:     Maxime Coquelin <maxime.coquelin@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] vduse: prevent uninitialized memory accesses
-Date:   Mon, 29 Aug 2022 09:34:24 +0200
-Message-Id: <20220829073424.5677-1-maxime.coquelin@redhat.com>
+        by sin.source.kernel.org (Postfix) with ESMTPS id 96E34CE0E70
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:37:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46928C433D6;
+        Mon, 29 Aug 2022 07:37:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661758663;
+        bh=vgp+x2Br528jPBBQKLPNMrsGL694BS/YJM10BA8u/2A=;
+        h=Subject:To:Cc:From:Date:From;
+        b=tYK+kb/2Hv9Zc8PcDWa7Y4xdWYR2H7W8dDiQ46nOtYBH/pgOGi3axHngYVVv01XDE
+         aVSjblJn4Q7Kmwd3/K3duxOITjUwbC8kS3YisfpuAovUp2vrcCr24RdVEyD8FQVwpK
+         CWqKXh0xwa+D76ACprpvv5Q6YPDMzfek051Mzj7w=
+Subject: FAILED: patch "[PATCH] s390/mm: do not trigger write fault when vma does not allow" failed to apply to 5.10-stable tree
+To:     gerald.schaefer@linux.ibm.com, david@redhat.com, gor@linux.ibm.com,
+        hca@linux.ibm.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 29 Aug 2022 09:37:40 +0200
+Message-ID: <166175866018865@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,47 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the VDUSE application provides a smaller config space
-than the driver expects, the driver may use uninitialized
-memory from the stack.
 
-This patch prevents it by initializing the buffer passed by
-the driver to store the config value.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This fix addresses CVE-2022-2308.
+thanks,
 
-Cc: xieyongji@bytedance.com
-Cc: stable@vger.kernel.org # v5.15+
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+greg k-h
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
----
- drivers/vdpa/vdpa_user/vduse_dev.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+------------------ original commit in Linus's tree ------------------
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 41c0b29739f1..35dceee3ed56 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -673,10 +673,15 @@ static void vduse_vdpa_get_config(struct vdpa_device *vdpa, unsigned int offset,
- {
- 	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
+From 41ac42f137080bc230b5882e3c88c392ab7f2d32 Mon Sep 17 00:00:00 2001
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Date: Wed, 17 Aug 2022 15:26:03 +0200
+Subject: [PATCH] s390/mm: do not trigger write fault when vma does not allow
+ VM_WRITE
+
+For non-protection pXd_none() page faults in do_dat_exception(), we
+call do_exception() with access == (VM_READ | VM_WRITE | VM_EXEC).
+In do_exception(), vma->vm_flags is checked against that before
+calling handle_mm_fault().
+
+Since commit 92f842eac7ee3 ("[S390] store indication fault optimization"),
+we call handle_mm_fault() with FAULT_FLAG_WRITE, when recognizing that
+it was a write access. However, the vma flags check is still only
+checking against (VM_READ | VM_WRITE | VM_EXEC), and therefore also
+calling handle_mm_fault() with FAULT_FLAG_WRITE in cases where the vma
+does not allow VM_WRITE.
+
+Fix this by changing access check in do_exception() to VM_WRITE only,
+when recognizing write access.
+
+Link: https://lkml.kernel.org/r/20220811103435.188481-3-david@redhat.com
+Fixes: 92f842eac7ee3 ("[S390] store indication fault optimization")
+Cc: <stable@vger.kernel.org>
+Reported-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 13449941516c..09b6e756d521 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -379,7 +379,9 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+ 	flags = FAULT_FLAG_DEFAULT;
+ 	if (user_mode(regs))
+ 		flags |= FAULT_FLAG_USER;
+-	if (access == VM_WRITE || is_write)
++	if (is_write)
++		access = VM_WRITE;
++	if (access == VM_WRITE)
+ 		flags |= FAULT_FLAG_WRITE;
+ 	mmap_read_lock(mm);
  
--	if (offset > dev->config_size ||
--	    len > dev->config_size - offset)
-+	/* Initialize the buffer in case of partial copy. */
-+	memset(buf, 0, len);
-+
-+	if (offset > dev->config_size)
- 		return;
- 
-+	if (len > dev->config_size - offset)
-+		len = dev->config_size - offset;
-+
- 	memcpy(buf, dev->config + offset, len);
- }
- 
--- 
-2.37.2
 
