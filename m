@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 794705A4A7E
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2EAF5A480B
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232955AbiH2LkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54534 "EHLO
+        id S229659AbiH2LFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:05:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233390AbiH2Ljh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:39:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C1175FC0;
-        Mon, 29 Aug 2022 04:23:48 -0700 (PDT)
+        with ESMTP id S230041AbiH2LEX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:04:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8094465251;
+        Mon, 29 Aug 2022 04:03:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70D3B61208;
-        Mon, 29 Aug 2022 11:09:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77209C433D6;
-        Mon, 29 Aug 2022 11:09:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B185BB80EF8;
+        Mon, 29 Aug 2022 11:02:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09C94C433C1;
+        Mon, 29 Aug 2022 11:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771382;
-        bh=j3Po5+OEIMkh2Was4XBOQ7SRWX2NMA+dtrHbpJOl88M=;
+        s=korg; t=1661770958;
+        bh=28x3woo13umwyLuzQLNEA2dtCdwQEvFo1OPFOhOYCGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1qyVPpel9w56Zi77xnk1ZGbQDpDEsVLxVXKpyP1WatXG7QIRTNv70e/cBwTs/8yS
-         Mo9J6FxLPRnXoKNum5RxsUFzEfk0R7knqZPBVejtNLyQNM0p2QOH4WAwq39URM1no+
-         q5SQTdmELKAtvYUaujIBD4sRVKxdicMoSztJLMmU=
+        b=APOmv7czYS2vc9fNcKeVBxE0+ke0NmYl8k6OyvBrDoDdZE27ZD/9Basr4jxQLzt9N
+         OpnwhWXNYiMUjX9O6J/MWw19Bk9v/IqMvlQBEw95mhk5L5Pp+U8g+ABLFjm8UvShNI
+         4WSlSB8bwDCudH5lVsjBwOXhn8MeijcKsb0s3Iqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Blakeney <mark.blakeney@bullet-systems.net>,
-        Hayes Wang <hayeswang@realtek.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 025/158] r8152: fix the RX FIFO settings when suspending
-Date:   Mon, 29 Aug 2022 12:57:55 +0200
-Message-Id: <20220829105809.837683218@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 009/136] block: add a bdev_max_zone_append_sectors helper
+Date:   Mon, 29 Aug 2022 12:57:56 +0200
+Message-Id: <20220829105805.020380443@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +57,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit b75d612014447e04abdf0e37ffb8f2fd8b0b49d6 ]
+commit 2aba0d19f4d8c8929b4b3b94a9cfde2aa20e6ee2 upstream
 
-The RX FIFO would be changed when suspending, so the related settings
-have to be modified, too. Otherwise, the flow control would work
-abnormally.
+Add a helper to check the max supported sectors for zone append based on
+the block_device instead of having to poke into the block layer internal
+request_queue.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216333
-Reported-by: Mark Blakeney <mark.blakeney@bullet-systems.net>
-Fixes: cdf0b86b250f ("r8152: fix a WOL issue")
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20220415045258.199825-16-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/r8152.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/nvme/target/zns.c |    3 +--
+ fs/zonefs/super.c         |    3 +--
+ include/linux/blkdev.h    |    6 ++++++
+ 3 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 46c7954d27629..d142ac8fcf6e2 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -5906,6 +5906,11 @@ static void r8153_enter_oob(struct r8152 *tp)
- 	ocp_data &= ~NOW_IS_OOB;
- 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL, ocp_data);
+--- a/drivers/nvme/target/zns.c
++++ b/drivers/nvme/target/zns.c
+@@ -34,8 +34,7 @@ static int validate_conv_zones_cb(struct
  
-+	/* RX FIFO settings for OOB */
-+	ocp_write_dword(tp, MCU_TYPE_PLA, PLA_RXFIFO_CTRL0, RXFIFO_THR1_OOB);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RXFIFO_CTRL1, RXFIFO_THR2_OOB);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RXFIFO_CTRL2, RXFIFO_THR3_OOB);
+ bool nvmet_bdev_zns_enable(struct nvmet_ns *ns)
+ {
+-	struct request_queue *q = ns->bdev->bd_disk->queue;
+-	u8 zasl = nvmet_zasl(queue_max_zone_append_sectors(q));
++	u8 zasl = nvmet_zasl(bdev_max_zone_append_sectors(ns->bdev));
+ 	struct gendisk *bd_disk = ns->bdev->bd_disk;
+ 	int ret;
+ 
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -723,13 +723,12 @@ static ssize_t zonefs_file_dio_append(st
+ 	struct inode *inode = file_inode(iocb->ki_filp);
+ 	struct zonefs_inode_info *zi = ZONEFS_I(inode);
+ 	struct block_device *bdev = inode->i_sb->s_bdev;
+-	unsigned int max;
++	unsigned int max = bdev_max_zone_append_sectors(bdev);
+ 	struct bio *bio;
+ 	ssize_t size;
+ 	int nr_pages;
+ 	ssize_t ret;
+ 
+-	max = queue_max_zone_append_sectors(bdev_get_queue(bdev));
+ 	max = ALIGN_DOWN(max << SECTOR_SHIFT, inode->i_sb->s_blocksize);
+ 	iov_iter_truncate(from, max);
+ 
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1387,6 +1387,12 @@ static inline unsigned int queue_max_zon
+ 	return min(l->max_zone_append_sectors, l->max_sectors);
+ }
+ 
++static inline unsigned int
++bdev_max_zone_append_sectors(struct block_device *bdev)
++{
++	return queue_max_zone_append_sectors(bdev_get_queue(bdev));
++}
 +
- 	rtl_disable(tp);
- 	rtl_reset_bmu(tp);
- 
-@@ -6544,6 +6549,11 @@ static void rtl8156_down(struct r8152 *tp)
- 	ocp_data &= ~NOW_IS_OOB;
- 	ocp_write_byte(tp, MCU_TYPE_PLA, PLA_OOB_CTRL, ocp_data);
- 
-+	/* RX FIFO settings for OOB */
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RXFIFO_FULL, 64 / 16);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_FULL, 1024 / 16);
-+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_EMPTY, 4096 / 16);
-+
- 	rtl_disable(tp);
- 	rtl_reset_bmu(tp);
- 
--- 
-2.35.1
-
+ static inline unsigned queue_logical_block_size(const struct request_queue *q)
+ {
+ 	int retval = 512;
 
 
