@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AA405A4990
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2FA5A4A0D
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232097AbiH2L0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:26:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46500 "EHLO
+        id S232603AbiH2Lcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:32:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231944AbiH2LZG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:25:06 -0400
+        with ESMTP id S232403AbiH2Lbx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:31:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C33DC76970;
-        Mon, 29 Aug 2022 04:16:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632FA10DC;
+        Mon, 29 Aug 2022 04:18:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25323B80FA7;
-        Mon, 29 Aug 2022 11:15:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 632B5C433C1;
-        Mon, 29 Aug 2022 11:15:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBBF6B80F10;
+        Mon, 29 Aug 2022 11:18:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E4FC433C1;
+        Mon, 29 Aug 2022 11:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771743;
-        bh=HfDtiuA9iBa7GfZo9hpjRgzirIQnn3ZJhYVhiJK9XF0=;
+        s=korg; t=1661771927;
+        bh=FP+VqXlPhre/IasIJXUAABMMLoWJkKxEbU1x5fRZocU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aR0/3iGOOd3Nq0yENP83sbx965kULxUswyXLbscQnvKmX9SRcFAFaxKfrF8jKWEK+
-         kSirEuyRmou4xujZWdfgEWky66GHuWbOiYzf7wH044F0PRXWsx4T9cC595Q10CI/ue
-         mJTyx+gtInoUKrGTLccwbm2UiqD7+RZy5ttpxjTM=
+        b=SkuNdpY/72Uut6qFWcYRem0PmbpL7qP0bboWVrisv6WTNvXaeyPgQk5puA4vtEGTi
+         3GH5ZRfJujUDM2cCKw+hHOOdFYsF96Z/O46Sq4IPA65CNUcm4ujy4MVZZv9dh/zCi6
+         uh1mC3Hfm4ynrPbtmbop//31u58OaZG4CuW/iRz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Wei Hung <hsinweih@uci.edu>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Shung-Hsi Yu <shung-hsi.yu@suse.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 86/86] bpf: Dont use tnum_range on array range checking for poke descriptors
-Date:   Mon, 29 Aug 2022 12:59:52 +0200
-Message-Id: <20220829105800.058074303@linuxfoundation.org>
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.19 143/158] perf python: Fix build when PYTHON_CONFIG is user supplied
+Date:   Mon, 29 Aug 2022 12:59:53 +0200
+Message-Id: <20220829105815.089677800@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,107 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: James Clark <james.clark@arm.com>
 
-commit a657182a5c5150cdfacb6640aad1d2712571a409 upstream.
+commit bc9e7fe313d5e56d4d5f34bcc04d1165f94f86fb upstream.
 
-Hsin-Wei reported a KASAN splat triggered by their BPF runtime fuzzer which
-is based on a customized syzkaller:
+The previous change to Python autodetection had a small mistake where
+the auto value was used to determine the Python binary, rather than the
+user supplied value. The Python binary is only used for one part of the
+build process, rather than the final linking, so it was producing
+correct builds in most scenarios, especially when the auto detected
+value matched what the user wanted, or the system only had a valid set
+of Pythons.
 
-  BUG: KASAN: slab-out-of-bounds in bpf_int_jit_compile+0x1257/0x13f0
-  Read of size 8 at addr ffff888004e90b58 by task syz-executor.0/1489
-  CPU: 1 PID: 1489 Comm: syz-executor.0 Not tainted 5.19.0 #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  1.13.0-1ubuntu1.1 04/01/2014
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x9c/0xc9
-   print_address_description.constprop.0+0x1f/0x1f0
-   ? bpf_int_jit_compile+0x1257/0x13f0
-   kasan_report.cold+0xeb/0x197
-   ? kvmalloc_node+0x170/0x200
-   ? bpf_int_jit_compile+0x1257/0x13f0
-   bpf_int_jit_compile+0x1257/0x13f0
-   ? arch_prepare_bpf_dispatcher+0xd0/0xd0
-   ? rcu_read_lock_sched_held+0x43/0x70
-   bpf_prog_select_runtime+0x3e8/0x640
-   ? bpf_obj_name_cpy+0x149/0x1b0
-   bpf_prog_load+0x102f/0x2220
-   ? __bpf_prog_put.constprop.0+0x220/0x220
-   ? find_held_lock+0x2c/0x110
-   ? __might_fault+0xd6/0x180
-   ? lock_downgrade+0x6e0/0x6e0
-   ? lock_is_held_type+0xa6/0x120
-   ? __might_fault+0x147/0x180
-   __sys_bpf+0x137b/0x6070
-   ? bpf_perf_link_attach+0x530/0x530
-   ? new_sync_read+0x600/0x600
-   ? __fget_files+0x255/0x450
-   ? lock_downgrade+0x6e0/0x6e0
-   ? fput+0x30/0x1a0
-   ? ksys_write+0x1a8/0x260
-   __x64_sys_bpf+0x7a/0xc0
-   ? syscall_enter_from_user_mode+0x21/0x70
-   do_syscall_64+0x3b/0x90
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-  RIP: 0033:0x7f917c4e2c2d
+Change it so that the Python binary path is derived from either the
+PYTHON_CONFIG value or PYTHON value, depending on what is specified by
+the user. This was the original intention.
 
-The problem here is that a range of tnum_range(0, map->max_entries - 1) has
-limited ability to represent the concrete tight range with the tnum as the
-set of resulting states from value + mask can result in a superset of the
-actual intended range, and as such a tnum_in(range, reg->var_off) check may
-yield true when it shouldn't, for example tnum_range(0, 2) would result in
-00XX -> v = 0000, m = 0011 such that the intended set of {0, 1, 2} is here
-represented by a less precise superset of {0, 1, 2, 3}. As the register is
-known const scalar, really just use the concrete reg->var_off.value for the
-upper index check.
+This error was spotted in a build failure an odd cross compilation
+environment after commit 4c41cb46a732fe82 ("perf python: Prefer
+python3") was merged.
 
-Fixes: d2e4c1e6c294 ("bpf: Constant map key tracking for prog array pokes")
-Reported-by: Hsin-Wei Hung <hsinweih@uci.edu>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Shung-Hsi Yu <shung-hsi.yu@suse.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/984b37f9fdf7ac36831d2137415a4a915744c1b6.1661462653.git.daniel@iogearbox.net
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 630af16eee495f58 ("perf tools: Use Python devtools for version autodetection rather than runtime")
+Signed-off-by: James Clark <james.clark@arm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220728093946.1337642-1-james.clark@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ tools/perf/Makefile.config |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5282,8 +5282,7 @@ record_func_key(struct bpf_verifier_env
- 	struct bpf_insn_aux_data *aux = &env->insn_aux_data[insn_idx];
- 	struct bpf_reg_state *regs = cur_regs(env), *reg;
- 	struct bpf_map *map = meta->map_ptr;
--	struct tnum range;
--	u64 val;
-+	u64 val, max;
- 	int err;
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -265,7 +265,7 @@ endif
+ # defined. get-executable-or-default fails with an error if the first argument is supplied but
+ # doesn't exist.
+ override PYTHON_CONFIG := $(call get-executable-or-default,PYTHON_CONFIG,$(PYTHON_AUTO))
+-override PYTHON := $(call get-executable-or-default,PYTHON,$(subst -config,,$(PYTHON_AUTO)))
++override PYTHON := $(call get-executable-or-default,PYTHON,$(subst -config,,$(PYTHON_CONFIG)))
  
- 	if (func_id != BPF_FUNC_tail_call)
-@@ -5293,10 +5292,11 @@ record_func_key(struct bpf_verifier_env
- 		return -EINVAL;
- 	}
- 
--	range = tnum_range(0, map->max_entries - 1);
- 	reg = &regs[BPF_REG_3];
-+	val = reg->var_off.value;
-+	max = map->max_entries;
- 
--	if (!register_is_const(reg) || !tnum_in(range, reg->var_off)) {
-+	if (!(register_is_const(reg) && val < max)) {
- 		bpf_map_key_store(aux, BPF_MAP_KEY_POISON);
- 		return 0;
- 	}
-@@ -5304,8 +5304,6 @@ record_func_key(struct bpf_verifier_env
- 	err = mark_chain_precision(env, BPF_REG_3);
- 	if (err)
- 		return err;
--
--	val = reg->var_off.value;
- 	if (bpf_map_key_unseen(aux))
- 		bpf_map_key_store(aux, val);
- 	else if (!bpf_map_key_poisoned(aux) &&
+ grep-libs  = $(filter -l%,$(1))
+ strip-libs  = $(filter-out -l%,$(1))
 
 
