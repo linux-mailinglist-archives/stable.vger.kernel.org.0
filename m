@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 846D95A4871
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:10:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D21CE5A48AF
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231207AbiH2LK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:10:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58594 "EHLO
+        id S231219AbiH2LOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:14:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231238AbiH2LJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:09:45 -0400
+        with ESMTP id S231282AbiH2LN3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 350F2647CB;
-        Mon, 29 Aug 2022 04:06:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B14B6F55D;
+        Mon, 29 Aug 2022 04:09:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F273B80F10;
-        Mon, 29 Aug 2022 11:06:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02EECC433C1;
-        Mon, 29 Aug 2022 11:06:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7356B80F52;
+        Mon, 29 Aug 2022 11:06:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FF95C433D6;
+        Mon, 29 Aug 2022 11:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771217;
-        bh=CUlCn9VQFgTQ/9wOrPWdNUeDKrblzrGrdFxsFdpSrlk=;
+        s=korg; t=1661771205;
+        bh=Nb6+AMYQpGhnwYwdkReyMSW/tBCfGShXBCn1+KPqVqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfY8xkbQDqiqwwgSlSLJruL12ke9RRJrKxem8dcqhTXGWdCD+2XH0Je3WVcoD+qUS
-         Mr77rQmWwFQ7JSpyZoGzIoA/qZZwNPu3iDT/Z1OCtf1nXXDTs04t2iTNvwdx0CuliA
-         bQbYKKbIaBnsxPl97n8Flbhgtd3l9HtpXP1BdZLI=
+        b=CovXXTqvJDLj0crHfdN2u0QATIVIoM/bGfnZ00hA6BRLVwbc5OwbOUz4/pWe7zQv4
+         knfcjqnyFWzds0duN/VZtzdAsKsP+4U4prXNTbkpyxWqOxI0XhIS/PWdLbOmBTu6EV
+         QsHR8Lb0usefCMkJ3UQnQlDuG5kIJo6q/R7unWJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 40/86] netfilter: bitwise: improve error goto labels
+Subject: [PATCH 5.15 079/136] net: Fix a data-race around netdev_budget.
 Date:   Mon, 29 Aug 2022 12:59:06 +0200
-Message-Id: <20220829105758.194750451@linuxfoundation.org>
+Message-Id: <20220829105807.882879650@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Sowden <jeremy@azazel.net>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 00bd435208e5201eb935d273052930bd3b272b6f ]
+[ Upstream commit 2e0c42374ee32e72948559d2ae2f7ba3dc6b977c ]
 
-Replace two labels (`err1` and `err2`) with more informative ones.
+While reading netdev_budget, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fixes: 51b0bdedb8e7 ("[NET]: Separate two usages of netdev_max_backlog.")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_bitwise.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/core/dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_bitwise.c b/net/netfilter/nft_bitwise.c
-index 47b0dba95054f..d0c648b64cd40 100644
---- a/net/netfilter/nft_bitwise.c
-+++ b/net/netfilter/nft_bitwise.c
-@@ -109,22 +109,23 @@ static int nft_bitwise_init_bool(struct nft_bitwise *priv,
- 		return err;
- 	if (mask.type != NFT_DATA_VALUE || mask.len != priv->len) {
- 		err = -EINVAL;
--		goto err1;
-+		goto err_mask_release;
- 	}
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 28f623628876c..fefe8ddd282fd 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -7138,7 +7138,7 @@ static __latent_entropy void net_rx_action(struct softirq_action *h)
+ 	struct softnet_data *sd = this_cpu_ptr(&softnet_data);
+ 	unsigned long time_limit = jiffies +
+ 		usecs_to_jiffies(netdev_budget_usecs);
+-	int budget = netdev_budget;
++	int budget = READ_ONCE(netdev_budget);
+ 	LIST_HEAD(list);
+ 	LIST_HEAD(repoll);
  
- 	err = nft_data_init(NULL, &priv->xor, sizeof(priv->xor), &xor,
- 			    tb[NFTA_BITWISE_XOR]);
- 	if (err < 0)
--		goto err1;
-+		goto err_mask_release;
- 	if (xor.type != NFT_DATA_VALUE || xor.len != priv->len) {
- 		err = -EINVAL;
--		goto err2;
-+		goto err_xor_release;
- 	}
- 
- 	return 0;
--err2:
-+
-+err_xor_release:
- 	nft_data_release(&priv->xor, xor.type);
--err1:
-+err_mask_release:
- 	nft_data_release(&priv->mask, mask.type);
- 	return err;
- }
 -- 
 2.35.1
 
