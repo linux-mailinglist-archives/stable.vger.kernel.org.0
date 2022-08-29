@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA8E5A43F5
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:41:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0AB05A43F7
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229706AbiH2Hlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 03:41:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33724 "EHLO
+        id S229650AbiH2Hly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 03:41:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229702AbiH2Hll (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:41:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C75E64F19A
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:41:37 -0700 (PDT)
+        with ESMTP id S229707AbiH2Hlt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:41:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7188A4F1AC
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:41:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05BB661142
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:41:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E63C1C433D6;
-        Mon, 29 Aug 2022 07:41:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 873A3B80D18
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:41:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B55C433D6;
+        Mon, 29 Aug 2022 07:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661758896;
-        bh=+9h856nXe+I+up2SeHECB5JAmXpvyYxSBMRPTlHQTng=;
+        s=korg; t=1661758903;
+        bh=u2rMmD56TZMp4ZEUyOnoXf3l4tjIouy06SESBSK8eDE=;
         h=Subject:To:Cc:From:Date:From;
-        b=ixQHabxqh/m9kA0091TJ7/+M0xbOeZ4ubAhebH9Cg9m97T8ic1UcY81VfVwOx99w5
-         h2Y2r0PlPF4eckhRGj4UBl/VvzujUuI5RIz9pO7KHjXB/N4jioWpmWPg0mNLsrC+yD
-         9Pk5sespHQxTYmPgWcEqQYJJmC8w8Gc28YnjFKPs=
-Subject: FAILED: patch "[PATCH] smb3: missing inode locks in punch hole" failed to apply to 4.9-stable tree
+        b=NUYYfSdDff+xidrgxCK2saQwMMvkFb6zIqywsoi2fqUBhj4livrk0Ob1aAZqc0VtW
+         CzlVi3EWIAOIKimRzgodNgyMxi94CYIsaCSWaMGSfMq6k1Fas/MJBbPRKlpL5CGRYb
+         YctmuhmdeidvhJswO8PR43wJfIZ47hriTiPdilzw=
+Subject: FAILED: patch "[PATCH] smb3: missing inode locks in zero range" failed to apply to 5.15-stable tree
 To:     dhowells@redhat.com, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Aug 2022 09:41:20 +0200
-Message-ID: <1661758880182137@kroah.com>
+Date:   Mon, 29 Aug 2022 09:41:31 +0200
+Message-ID: <1661758891187103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,12 +59,12 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ba0803050d610d5072666be727bca5e03e55b242 Mon Sep 17 00:00:00 2001
+From c919c164fc87bcca8e80b3b9224492fa5b6455ba Mon Sep 17 00:00:00 2001
 From: David Howells <dhowells@redhat.com>
-Date: Tue, 23 Aug 2022 02:10:56 -0500
-Subject: [PATCH] smb3: missing inode locks in punch hole
+Date: Tue, 23 Aug 2022 01:01:36 -0500
+Subject: [PATCH] smb3: missing inode locks in zero range
 
-smb3 fallocate punch hole was not grabbing the inode or filemap_invalidate
+smb3 fallocate zero range was not grabbing the inode or filemap_invalidate
 locks so could have race with pagemap reinstantiating the page.
 
 Cc: stable@vger.kernel.org
@@ -72,45 +72,98 @@ Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 
 diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index a6fe54281fd3..4810bd62266a 100644
+index 96f3b0573606..a6fe54281fd3 100644
 --- a/fs/cifs/smb2ops.c
 +++ b/fs/cifs/smb2ops.c
-@@ -3384,7 +3384,7 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
- static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
- 			    loff_t offset, loff_t len)
+@@ -3307,26 +3307,43 @@ get_smb2_acl(struct cifs_sb_info *cifs_sb,
+ 	return pntsd;
+ }
+ 
++static long smb3_zero_data(struct file *file, struct cifs_tcon *tcon,
++			     loff_t offset, loff_t len, unsigned int xid)
++{
++	struct cifsFileInfo *cfile = file->private_data;
++	struct file_zero_data_information fsctl_buf;
++
++	cifs_dbg(FYI, "Offset %lld len %lld\n", offset, len);
++
++	fsctl_buf.FileOffset = cpu_to_le64(offset);
++	fsctl_buf.BeyondFinalZero = cpu_to_le64(offset + len);
++
++	return SMB2_ioctl(xid, tcon, cfile->fid.persistent_fid,
++			  cfile->fid.volatile_fid, FSCTL_SET_ZERO_DATA,
++			  (char *)&fsctl_buf,
++			  sizeof(struct file_zero_data_information),
++			  0, NULL, NULL);
++}
++
+ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
+ 			    loff_t offset, loff_t len, bool keep_size)
  {
+ 	struct cifs_ses *ses = tcon->ses;
 -	struct inode *inode;
+-	struct cifsInodeInfo *cifsi;
 +	struct inode *inode = file_inode(file);
++	struct cifsInodeInfo *cifsi = CIFS_I(inode);
  	struct cifsFileInfo *cfile = file->private_data;
- 	struct file_zero_data_information fsctl_buf;
+-	struct file_zero_data_information fsctl_buf;
  	long rc;
-@@ -3393,14 +3393,12 @@ static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
+ 	unsigned int xid;
+ 	__le64 eof;
  
  	xid = get_xid();
  
 -	inode = d_inode(cfile->dentry);
+-	cifsi = CIFS_I(inode);
 -
+ 	trace_smb3_zero_enter(xid, cfile->fid.persistent_fid, tcon->tid,
+ 			      ses->Suid, offset, len);
+ 
 +	inode_lock(inode);
- 	/* Need to make file sparse, if not already, before freeing range. */
- 	/* Consider adding equivalent for compressed since it could also work */
- 	if (!smb2_set_sparse(xid, tcon, cfile, inode, set_sparse)) {
- 		rc = -EOPNOTSUPP;
--		free_xid(xid);
--		return rc;
-+		goto out;
++	filemap_invalidate_lock(inode->i_mapping);
++
+ 	/*
+ 	 * We zero the range through ioctl, so we need remove the page caches
+ 	 * first, otherwise the data may be inconsistent with the server.
+@@ -3334,26 +3351,12 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
+ 	truncate_pagecache_range(inode, offset, offset + len - 1);
+ 
+ 	/* if file not oplocked can't be sure whether asking to extend size */
+-	if (!CIFS_CACHE_READ(cifsi))
+-		if (keep_size == false) {
+-			rc = -EOPNOTSUPP;
+-			trace_smb3_zero_err(xid, cfile->fid.persistent_fid,
+-				tcon->tid, ses->Suid, offset, len, rc);
+-			free_xid(xid);
+-			return rc;
+-		}
+-
+-	cifs_dbg(FYI, "Offset %lld len %lld\n", offset, len);
+-
+-	fsctl_buf.FileOffset = cpu_to_le64(offset);
+-	fsctl_buf.BeyondFinalZero = cpu_to_le64(offset + len);
++	rc = -EOPNOTSUPP;
++	if (keep_size == false && !CIFS_CACHE_READ(cifsi))
++		goto zero_range_exit;
+ 
+-	rc = SMB2_ioctl(xid, tcon, cfile->fid.persistent_fid,
+-			cfile->fid.volatile_fid, FSCTL_SET_ZERO_DATA,
+-			(char *)&fsctl_buf,
+-			sizeof(struct file_zero_data_information),
+-			0, NULL, NULL);
+-	if (rc)
++	rc = smb3_zero_data(file, tcon, offset, len, xid);
++	if (rc < 0)
+ 		goto zero_range_exit;
+ 
+ 	/*
+@@ -3366,6 +3369,8 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
  	}
  
- 	filemap_invalidate_lock(inode->i_mapping);
-@@ -3420,8 +3418,10 @@ static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
- 			(char *)&fsctl_buf,
- 			sizeof(struct file_zero_data_information),
- 			CIFSMaxBufSize, NULL, NULL);
--	free_xid(xid);
- 	filemap_invalidate_unlock(inode->i_mapping);
-+out:
+  zero_range_exit:
++	filemap_invalidate_unlock(inode->i_mapping);
 +	inode_unlock(inode);
-+	free_xid(xid);
- 	return rc;
- }
- 
+ 	free_xid(xid);
+ 	if (rc)
+ 		trace_smb3_zero_err(xid, cfile->fid.persistent_fid, tcon->tid,
 
