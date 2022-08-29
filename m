@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCCD65A4A2C
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCDCD5A4902
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232602AbiH2Leh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:34:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41780 "EHLO
+        id S230512AbiH2LTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232754AbiH2Ldw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:33:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E796DF8F;
-        Mon, 29 Aug 2022 04:19:35 -0700 (PDT)
+        with ESMTP id S231610AbiH2LSv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:18:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C2DA74DDF;
+        Mon, 29 Aug 2022 04:12:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75566B80FAB;
-        Mon, 29 Aug 2022 11:19:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B104C433D6;
-        Mon, 29 Aug 2022 11:19:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFB5B6122A;
+        Mon, 29 Aug 2022 11:12:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D048DC433D6;
+        Mon, 29 Aug 2022 11:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771970;
-        bh=evU2Kna9ifw/gXx4du2NmnnysFwzHAvOA6q/RwqBm5c=;
+        s=korg; t=1661771522;
+        bh=5R7n5eJOo3hqC+1Bq2Dda1+Gp6SZlShOP59hNraakAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Mwfbu2u3b+zcM/NjWhRCYcDCRtmvl2YqPVHpdZAZXYLEETRDXRMVTwSzyD0tHdJ6
-         taJA98b5LyvujMPBWPSmZcoOoxLVmFD+VHq3lAFxG8Em/tSHkqHQUZmWex9D71+XXY
-         8MiWoCUnST7D9EJVpOAHnV1PkU2dYQ+kscpfjAbE=
+        b=kLpJVgUJZEkZGeIEFy75JzkkhDjqSF86MbocIBDAUcnLZUwPc+EMSS5UxVA5fpOQ3
+         Dd8K0PlUyWbUGIjKYqLaeniwim1nKlCkj3udq+fz06CQmnWKG9EbKJcHUIurFNSs7X
+         /Fp371z6m72ErjpVFTvZIVt3WuZV0Ga9okpjYFQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Badari Pulavarty <badari.pulavarty@intel.com>,
-        SeongJae Park <sj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 114/158] mm/damon/dbgfs: avoid duplicate context directory creation
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 58/86] net: Fix data-races around sysctl_fb_tunnels_only_for_init_net.
 Date:   Mon, 29 Aug 2022 12:59:24 +0200
-Message-Id: <20220829105813.885649323@linuxfoundation.org>
+Message-Id: <20220829105758.931939865@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Badari Pulavarty <badari.pulavarty@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit d26f60703606ab425eee9882b32a1781a8bed74d upstream.
+[ Upstream commit af67508ea6cbf0e4ea27f8120056fa2efce127dd ]
 
-When user tries to create a DAMON context via the DAMON debugfs interface
-with a name of an already existing context, the context directory creation
-fails but a new context is created and added in the internal data
-structure, due to absence of the directory creation success check.  As a
-result, memory could leak and DAMON cannot be turned on.  An example test
-case is as below:
+While reading sysctl_fb_tunnels_only_for_init_net, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its readers.
 
-    # cd /sys/kernel/debug/damon/
-    # echo "off" >  monitor_on
-    # echo paddr > target_ids
-    # echo "abc" > mk_context
-    # echo "abc" > mk_context
-    # echo $$ > abc/target_ids
-    # echo "on" > monitor_on  <<< fails
-
-Return value of 'debugfs_create_dir()' is expected to be ignored in
-general, but this is an exceptional case as DAMON feature is depending
-on the debugfs functionality and it has the potential duplicate name
-issue.  This commit therefore fixes the issue by checking the directory
-creation failure and immediately return the error in the case.
-
-Link: https://lkml.kernel.org/r/20220821180853.2400-1-sj@kernel.org
-Fixes: 75c1c2b53c78 ("mm/damon/dbgfs: support multiple contexts")
-Signed-off-by: Badari Pulavarty <badari.pulavarty@intel.com>
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Cc: <stable@vger.kernel.org>	[ 5.15.x]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 79134e6ce2c9 ("net: do not create fallback tunnels for non-default namespaces")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/damon/dbgfs.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/netdevice.h | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/mm/damon/dbgfs.c
-+++ b/mm/damon/dbgfs.c
-@@ -787,6 +787,9 @@ static int dbgfs_mk_context(char *name)
- 		return -ENOENT;
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index ed2d531400051..c05701f89d6dd 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -633,9 +633,14 @@ extern int sysctl_devconf_inherit_init_net;
+  */
+ static inline bool net_has_fallback_tunnels(const struct net *net)
+ {
+-	return !IS_ENABLED(CONFIG_SYSCTL) ||
+-	       !sysctl_fb_tunnels_only_for_init_net ||
+-	       (net == &init_net && sysctl_fb_tunnels_only_for_init_net == 1);
++#if IS_ENABLED(CONFIG_SYSCTL)
++	int fb_tunnels_only_for_init_net = READ_ONCE(sysctl_fb_tunnels_only_for_init_net);
++
++	return !fb_tunnels_only_for_init_net ||
++		(net_eq(net, &init_net) && fb_tunnels_only_for_init_net == 1);
++#else
++	return true;
++#endif
+ }
  
- 	new_dir = debugfs_create_dir(name, root);
-+	/* Below check is required for a potential duplicated name case */
-+	if (IS_ERR(new_dir))
-+		return PTR_ERR(new_dir);
- 	dbgfs_dirs[dbgfs_nr_ctxs] = new_dir;
- 
- 	new_ctx = dbgfs_new_ctx();
+ static inline int netdev_queue_numa_node_read(const struct netdev_queue *q)
+-- 
+2.35.1
+
 
 
