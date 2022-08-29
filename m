@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EFFE5A4875
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:10:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DE65A496E
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229717AbiH2LKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:10:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58948 "EHLO
+        id S231865AbiH2LYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:24:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230218AbiH2LJr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:09:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7ABFF38;
-        Mon, 29 Aug 2022 04:07:00 -0700 (PDT)
+        with ESMTP id S231960AbiH2LXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:23:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DEF21260A;
+        Mon, 29 Aug 2022 04:14:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 349D3611B8;
-        Mon, 29 Aug 2022 11:06:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 437F5C433C1;
-        Mon, 29 Aug 2022 11:06:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89770B80EF8;
+        Mon, 29 Aug 2022 11:07:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7A17C433C1;
+        Mon, 29 Aug 2022 11:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771211;
-        bh=NYCwG859uJIhAtdvy/+qVTFDXKYZDN79rU5MqeTeFxs=;
+        s=korg; t=1661771220;
+        bh=ovzaeclTwx3JGQ15R2yV043ygdNtkNJfgphs9BmP63I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gLKZVxQQXLf1SSDYBnDpD2gX4Bbj6e75gFi5GvJQ5TaeyzwRsnhLRON3d1MVpuc/O
-         a2k1gBHGPaHTJWbqBNVP0px00cBTKmBYhHSEY5ydRKtJfNmSmGmEzT779k8cA14e/8
-         s5Y6FR1vEBazZpoGe+FJA6w3SzXhvd34sf8hC3nM=
+        b=EL9Xm222Ck8hOwlYs/T59xKFs573DkLD8tm/E5OzRp5/wj8r43+AQ6xgUaSE6G8ne
+         TdUrJJocpZ7N4uE4CGAVFqdjy8kQkyeI1X6vzEPDovEXsizDF6GoNVn7nnsvQNUwcT
+         97Z1Tu6ii7LcW8pHuf+r0B0mSb/qELJboRHfSHFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Helge Deller <deller@gmx.de>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 5.19 005/158] parisc: Make CONFIG_64BIT available for ARCH=parisc64 only
-Date:   Mon, 29 Aug 2022 12:57:35 +0200
-Message-Id: <20220829105809.054969488@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.19 006/158] parisc: Fix exception handler for fldw and fstw instructions
+Date:   Mon, 29 Aug 2022 12:57:36 +0200
+Message-Id: <20220829105809.105780974@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -56,87 +54,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Helge Deller <deller@gmx.de>
 
-commit 3dcfb729b5f4a0c9b50742865cd5e6c4dbcc80dc upstream.
+commit 7ae1f5508d9a33fd58ed3059bd2d569961e3b8bd upstream.
 
-With this patch the ARCH= parameter decides if the
-CONFIG_64BIT option will be set or not. This means, the
-ARCH= parameter will give:
+The exception handler is broken for unaligned memory acceses with fldw
+and fstw instructions, because it trashes or uses randomly some other
+floating point register than the one specified in the instruction word
+on loads and stores.
 
-	ARCH=parisc	-> 32-bit kernel
-	ARCH=parisc64	-> 64-bit kernel
+The instruction "fldw 0(addr),%fr22L" (and the other fldw/fstw
+instructions) encode the target register (%fr22) in the rightmost 5 bits
+of the instruction word. The 7th rightmost bit of the instruction word
+defines if the left or right half of %fr22 should be used.
 
-This simplifies the usage of the other config options like
-randconfig, allmodconfig and allyesconfig a lot and produces
-the output which is expected for parisc64 (64-bit) vs. parisc (32-bit).
+While processing unaligned address accesses, the FR3() define is used to
+extract the offset into the local floating-point register set.  But the
+calculation in FR3() was buggy, so that for example instead of %fr22,
+register %fr12 [((22 * 2) & 0x1f) = 12] was used.
 
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+This bug has been since forever in the parisc kernel and I wonder why it
+wasn't detected earlier. Interestingly I noticed this bug just because
+the libime debian package failed to build on *native* hardware, while it
+successfully built in qemu.
+
+This patch corrects the bitshift and masking calculation in FR3().
+
 Signed-off-by: Helge Deller <deller@gmx.de>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: <stable@vger.kernel.org> # 5.15+
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/Kconfig |   21 ++++++---------------
- 1 file changed, 6 insertions(+), 15 deletions(-)
+ arch/parisc/kernel/unaligned.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/Kconfig
-+++ b/arch/parisc/Kconfig
-@@ -147,10 +147,10 @@ menu "Processor type and features"
- 
- choice
- 	prompt "Processor type"
--	default PA7000
-+	default PA7000 if "$(ARCH)" = "parisc"
- 
- config PA7000
--	bool "PA7000/PA7100"
-+	bool "PA7000/PA7100" if "$(ARCH)" = "parisc"
- 	help
- 	  This is the processor type of your CPU.  This information is
- 	  used for optimizing purposes.  In order to compile a kernel
-@@ -161,21 +161,21 @@ config PA7000
- 	  which is required on some machines.
- 
- config PA7100LC
--	bool "PA7100LC"
-+	bool "PA7100LC" if "$(ARCH)" = "parisc"
- 	help
- 	  Select this option for the PCX-L processor, as used in the
- 	  712, 715/64, 715/80, 715/100, 715/100XC, 725/100, 743, 748,
- 	  D200, D210, D300, D310 and E-class
- 
- config PA7200
--	bool "PA7200"
-+	bool "PA7200" if "$(ARCH)" = "parisc"
- 	help
- 	  Select this option for the PCX-T' processor, as used in the
- 	  C100, C110, J100, J110, J210XC, D250, D260, D350, D360,
- 	  K100, K200, K210, K220, K400, K410 and K420
- 
- config PA7300LC
--	bool "PA7300LC"
-+	bool "PA7300LC" if "$(ARCH)" = "parisc"
- 	help
- 	  Select this option for the PCX-L2 processor, as used in the
- 	  744, A180, B132L, B160L, B180L, C132L, C160L, C180L,
-@@ -225,17 +225,8 @@ config MLONGCALLS
- 	  Enabling this option will probably slow down your kernel.
- 
- config 64BIT
--	bool "64-bit kernel"
-+	def_bool "$(ARCH)" = "parisc64"
- 	depends on PA8X00
--	help
--	  Enable this if you want to support 64bit kernel on PA-RISC platform.
--
--	  At the moment, only people willing to use more than 2GB of RAM,
--	  or having a 64bit-only capable PA-RISC machine should say Y here.
--
--	  Since there is no 64bit userland on PA-RISC, there is no point to
--	  enable this option otherwise. The 64bit kernel is significantly bigger
--	  and slower than the 32bit one.
- 
- choice
- 	prompt "Kernel page size"
+--- a/arch/parisc/kernel/unaligned.c
++++ b/arch/parisc/kernel/unaligned.c
+@@ -93,7 +93,7 @@
+ #define R1(i) (((i)>>21)&0x1f)
+ #define R2(i) (((i)>>16)&0x1f)
+ #define R3(i) ((i)&0x1f)
+-#define FR3(i) ((((i)<<1)&0x1f)|(((i)>>6)&1))
++#define FR3(i) ((((i)&0x1f)<<1)|(((i)>>6)&1))
+ #define IM(i,n) (((i)>>1&((1<<(n-1))-1))|((i)&1?((0-1L)<<(n-1)):0))
+ #define IM5_2(i) IM((i)>>16,5)
+ #define IM5_3(i) IM((i),5)
 
 
