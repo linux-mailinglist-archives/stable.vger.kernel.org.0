@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 149425A4A74
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:39:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B3E45A48FA
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232824AbiH2LiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:38:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41764 "EHLO
+        id S229907AbiH2LTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232743AbiH2LhR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:37:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B20F97F24F;
-        Mon, 29 Aug 2022 04:21:38 -0700 (PDT)
+        with ESMTP id S231526AbiH2LRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:17:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1F26CD07;
+        Mon, 29 Aug 2022 04:11:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D290B80F1A;
-        Mon, 29 Aug 2022 11:19:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D5D8C433C1;
-        Mon, 29 Aug 2022 11:19:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B41D611F6;
+        Mon, 29 Aug 2022 11:10:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85F0CC433B5;
+        Mon, 29 Aug 2022 11:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771958;
-        bh=wwLdWrksQLW5dniCLV2oT7GECpfGk/Axa4/6mAegmok=;
+        s=korg; t=1661771410;
+        bh=7UuEqefdwYEn11rNs3iQTPMDUVdZcXGP+H423jBrBT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PKIGE/3FLLosENx6bTIQHTxxW755fa38FM4bYOAhTjeVmZlOZUk3B34tBw0OMXO3I
-         OK/Vqtt7ii2FnXnGPUA6P+tau5CQSbdQ0zALk0ygCIH1kQ5xJa7nB9ooeCTDuSzIMu
-         ZRHq5SC367vkADi/g/CqPJ/Ejrp0jKQ7hVr1Q9Fc=
+        b=xt1a9xSrRTaCMAMMsg2/KyTWWP59nFhbsD1HiFhIQClrcn5vUbO/Fm+0oNV18IBVy
+         4N0ui6ntMN5Sk1RiNUfhXR0msrRPXtPN52ztUfxq+5nCRmlAeJjYQ6d4QI8B0+w7eg
+         Hf6imUoiQHJ2CXyd504hFogOvtGwZOp+TGMJAVHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.19 120/158] s390: fix double free of GS and RI CBs on fork() failure
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 64/86] btrfs: fix silent failure when deleting root reference
 Date:   Mon, 29 Aug 2022 12:59:30 +0200
-Message-Id: <20220829105814.140338292@linuxfoundation.org>
+Message-Id: <20220829105759.164105549@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 13cccafe0edcd03bf1c841de8ab8a1c8e34f77d9 upstream.
+commit 47bf225a8d2cccb15f7e8d4a1ed9b757dd86afd7 upstream.
 
-The pointers for guarded storage and runtime instrumentation control
-blocks are stored in the thread_struct of the associated task. These
-pointers are initially copied on fork() via arch_dup_task_struct()
-and then cleared via copy_thread() before fork() returns. If fork()
-happens to fail after the initial task dup and before copy_thread(),
-the newly allocated task and associated thread_struct memory are
-freed via free_task() -> arch_release_task_struct(). This results in
-a double free of the guarded storage and runtime info structs
-because the fields in the failed task still refer to memory
-associated with the source task.
+At btrfs_del_root_ref(), if btrfs_search_slot() returns an error, we end
+up returning from the function with a value of 0 (success). This happens
+because the function returns the value stored in the variable 'err',
+which is 0, while the error value we got from btrfs_search_slot() is
+stored in the 'ret' variable.
 
-This problem can manifest as a BUG_ON() in set_freepointer() (with
-CONFIG_SLAB_FREELIST_HARDENED enabled) or KASAN splat (if enabled)
-when running trinity syscall fuzz tests on s390x. To avoid this
-problem, clear the associated pointer fields in
-arch_dup_task_struct() immediately after the new task is copied.
-Note that the RI flag is still cleared in copy_thread() because it
-resides in thread stack memory and that is where stack info is
-copied.
+So fix it by setting 'err' with the error value.
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Fixes: 8d9047f8b967c ("s390/runtime instrumentation: simplify task exit handling")
-Fixes: 7b83c6297d2fc ("s390/guarded storage: simplify task exit handling")
-Cc: <stable@vger.kernel.org> # 4.15
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220816155407.537372-1-bfoster@redhat.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 8289ed9f93bef2 ("btrfs: replace the BUG_ON in btrfs_del_root_ref with proper error handling")
+CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/process.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ fs/btrfs/root-tree.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -91,6 +91,18 @@ int arch_dup_task_struct(struct task_str
- 
- 	memcpy(dst, src, arch_task_struct_size);
- 	dst->thread.fpu.regs = dst->thread.fpu.fprs;
-+
-+	/*
-+	 * Don't transfer over the runtime instrumentation or the guarded
-+	 * storage control block pointers. These fields are cleared here instead
-+	 * of in copy_thread() to avoid premature freeing of associated memory
-+	 * on fork() failure. Wait to clear the RI flag because ->stack still
-+	 * refers to the source thread.
-+	 */
-+	dst->thread.ri_cb = NULL;
-+	dst->thread.gs_cb = NULL;
-+	dst->thread.gs_bc_cb = NULL;
-+
- 	return 0;
- }
- 
-@@ -150,13 +162,11 @@ int copy_thread(struct task_struct *p, c
- 	frame->childregs.flags = 0;
- 	if (new_stackp)
- 		frame->childregs.gprs[15] = new_stackp;
--
--	/* Don't copy runtime instrumentation info */
--	p->thread.ri_cb = NULL;
-+	/*
-+	 * Clear the runtime instrumentation flag after the above childregs
-+	 * copy. The CB pointer was already cleared in arch_dup_task_struct().
-+	 */
- 	frame->childregs.psw.mask &= ~PSW_MASK_RI;
--	/* Don't copy guarded storage control block */
--	p->thread.gs_cb = NULL;
--	p->thread.gs_bc_cb = NULL;
- 
- 	/* Set a new TLS ?  */
- 	if (clone_flags & CLONE_SETTLS) {
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -336,9 +336,10 @@ int btrfs_del_root_ref(struct btrfs_tran
+ 	key.offset = ref_id;
+ again:
+ 	ret = btrfs_search_slot(trans, tree_root, &key, path, -1, 1);
+-	if (ret < 0)
++	if (ret < 0) {
++		err = ret;
+ 		goto out;
+-	if (ret == 0) {
++	} else if (ret == 0) {
+ 		leaf = path->nodes[0];
+ 		ref = btrfs_item_ptr(leaf, path->slots[0],
+ 				     struct btrfs_root_ref);
 
 
