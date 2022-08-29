@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A19095A4AB8
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:49:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 846D95A4871
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231387AbiH2Ltn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:49:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48842 "EHLO
+        id S231207AbiH2LK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:10:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232573AbiH2LtH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:49:07 -0400
+        with ESMTP id S231238AbiH2LJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:09:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521978A1EA;
-        Mon, 29 Aug 2022 04:32:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 350F2647CB;
+        Mon, 29 Aug 2022 04:06:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 246B7B80EF1;
-        Mon, 29 Aug 2022 11:16:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CA95C433D7;
-        Mon, 29 Aug 2022 11:16:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F273B80F10;
+        Mon, 29 Aug 2022 11:06:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02EECC433C1;
+        Mon, 29 Aug 2022 11:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771777;
-        bh=Hm7ck0pyFkIzWB8bOJExwUSf4WH/YCxW04iZeChVs9k=;
+        s=korg; t=1661771217;
+        bh=CUlCn9VQFgTQ/9wOrPWdNUeDKrblzrGrdFxsFdpSrlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvz8Ir8BhHIUrfAcwYqMqZjfe2fNxFVeSaO1k1aAp5lk5o3Chc+C3DlCgiMz0VIOu
-         7rVmL66btoeBaX4ENkfXp0ef1awamWzyCnE+b66P9wu2Spkmj3yD6oQCS5qDfPc6ua
-         1IV75AJK80XuEQHFm3B4sk81s8dZt9lTJpNXmJ3c=
+        b=rfY8xkbQDqiqwwgSlSLJruL12ke9RRJrKxem8dcqhTXGWdCD+2XH0Je3WVcoD+qUS
+         Mr77rQmWwFQ7JSpyZoGzIoA/qZZwNPu3iDT/Z1OCtf1nXXDTs04t2iTNvwdx0CuliA
+         bQbYKKbIaBnsxPl97n8Flbhgtd3l9HtpXP1BdZLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.19 095/158] btrfs: replace: drop assert for suspended replace
-Date:   Mon, 29 Aug 2022 12:59:05 +0200
-Message-Id: <20220829105813.046797635@linuxfoundation.org>
+        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
+        Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 40/86] netfilter: bitwise: improve error goto labels
+Date:   Mon, 29 Aug 2022 12:59:06 +0200
+Message-Id: <20220829105758.194750451@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-commit 59a3991984dbc1fc47e5651a265c5200bd85464e upstream.
+[ Upstream commit 00bd435208e5201eb935d273052930bd3b272b6f ]
 
-If the filesystem mounts with the replace-operation in a suspended state
-and try to cancel the suspended replace-operation, we hit the assert. The
-assert came from the commit fe97e2e173af ("btrfs: dev-replace: replace's
-scrub must not be running in suspended state") that was actually not
-required. So just remove it.
+Replace two labels (`err1` and `err2`) with more informative ones.
 
- $ mount /dev/sda5 /btrfs
-
-    BTRFS info (device sda5): cannot continue dev_replace, tgtdev is missing
-    BTRFS info (device sda5): you may cancel the operation after 'mount -o degraded'
-
- $ mount -o degraded /dev/sda5 /btrfs <-- success.
-
- $ btrfs replace cancel /btrfs
-
-    kernel: assertion failed: ret != -ENOTCONN, in fs/btrfs/dev-replace.c:1131
-    kernel: ------------[ cut here ]------------
-    kernel: kernel BUG at fs/btrfs/ctree.h:3750!
-
-After the patch:
-
- $ btrfs replace cancel /btrfs
-
-    BTRFS info (device sda5): suspended dev_replace from /dev/sda5 (devid 1) to <missing disk> canceled
-
-Fixes: fe97e2e173af ("btrfs: dev-replace: replace's scrub must not be running in suspended state")
-CC: stable@vger.kernel.org # 5.0+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/dev-replace.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/netfilter/nft_bitwise.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -1128,8 +1128,7 @@ int btrfs_dev_replace_cancel(struct btrf
- 		up_write(&dev_replace->rwsem);
+diff --git a/net/netfilter/nft_bitwise.c b/net/netfilter/nft_bitwise.c
+index 47b0dba95054f..d0c648b64cd40 100644
+--- a/net/netfilter/nft_bitwise.c
++++ b/net/netfilter/nft_bitwise.c
+@@ -109,22 +109,23 @@ static int nft_bitwise_init_bool(struct nft_bitwise *priv,
+ 		return err;
+ 	if (mask.type != NFT_DATA_VALUE || mask.len != priv->len) {
+ 		err = -EINVAL;
+-		goto err1;
++		goto err_mask_release;
+ 	}
  
- 		/* Scrub for replace must not be running in suspended state */
--		ret = btrfs_scrub_cancel(fs_info);
--		ASSERT(ret != -ENOTCONN);
-+		btrfs_scrub_cancel(fs_info);
+ 	err = nft_data_init(NULL, &priv->xor, sizeof(priv->xor), &xor,
+ 			    tb[NFTA_BITWISE_XOR]);
+ 	if (err < 0)
+-		goto err1;
++		goto err_mask_release;
+ 	if (xor.type != NFT_DATA_VALUE || xor.len != priv->len) {
+ 		err = -EINVAL;
+-		goto err2;
++		goto err_xor_release;
+ 	}
  
- 		trans = btrfs_start_transaction(root, 0);
- 		if (IS_ERR(trans)) {
+ 	return 0;
+-err2:
++
++err_xor_release:
+ 	nft_data_release(&priv->xor, xor.type);
+-err1:
++err_mask_release:
+ 	nft_data_release(&priv->mask, mask.type);
+ 	return err;
+ }
+-- 
+2.35.1
+
 
 
