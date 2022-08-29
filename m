@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21FC15A47FE
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:04:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 951025A48BD
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230004AbiH2LEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:04:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43544 "EHLO
+        id S231278AbiH2LPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:15:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230001AbiH2LDr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:03:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C192642EB;
-        Mon, 29 Aug 2022 04:02:36 -0700 (PDT)
+        with ESMTP id S231450AbiH2LNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:13:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09535659D1;
+        Mon, 29 Aug 2022 04:09:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9631AB80EF3;
-        Mon, 29 Aug 2022 11:02:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08F94C433D7;
-        Mon, 29 Aug 2022 11:02:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AB05B80F96;
+        Mon, 29 Aug 2022 11:09:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C047BC433C1;
+        Mon, 29 Aug 2022 11:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770952;
-        bh=xkBoml5wevDP/+1Gh38kJrPV/e4pmvUEnsUjs9ih1x4=;
+        s=korg; t=1661771374;
+        bh=t4Ral+eNtw1TmAL9Zj3bBoJmT5H+4wQP/GGzP5O2aOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+FGzNZ3dGuLDFpqg+qYxhHbUTtOlel6eUlj+EeHJrrHunuZ+cZPZIOFba9gHmIBH
-         oK+4f8UGYsqh3Y2nhap90f8OSd4p/xRTfuyCextfZ67kyWreutaW7WzeUXiNIjhyas
-         nAn9BOfn+03dfTvEkSiiY1CRJ+BzsOEbVHebxQp8=
+        b=KWkYV8j82XefMjlyyiyiUdw0LNjelcEmMqvIG3fFmyRRYGiqzntQ6m7TP2y1NIquO
+         ntUxxEmDEa/gRELFB1vQuZE9gyYa6TysmVluBPF1mdqRlq9ZJpi/mo0jDKzdMclKnP
+         Y6JMsyKNYtcsh5cDjWUpsAK56X32FIm43h5BQjOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 007/136] kernel/sys_ni: add compat entry for fadvise64_64
+        stable@vger.kernel.org, Hayes Wang <hayeswang@realtek.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 024/158] r8152: fix the units of some registers for RTL8156A
 Date:   Mon, 29 Aug 2022 12:57:54 +0200
-Message-Id: <20220829105804.938833379@linuxfoundation.org>
+Message-Id: <20220829105809.807331767@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,46 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Hayes Wang <hayeswang@realtek.com>
 
-commit a8faed3a02eeb75857a3b5d660fa80fe79db77a3 upstream.
+[ Upstream commit 6dc4df12d741c0fe8f885778a43039e0619b9cd9 ]
 
-When CONFIG_ADVISE_SYSCALLS is not set/enabled and CONFIG_COMPAT is
-set/enabled, the riscv compat_syscall_table references
-'compat_sys_fadvise64_64', which is not defined:
+The units of PLA_RX_FIFO_FULL and PLA_RX_FIFO_EMPTY are 16 bytes.
 
-riscv64-linux-ld: arch/riscv/kernel/compat_syscall_table.o:(.rodata+0x6f8):
-undefined reference to `compat_sys_fadvise64_64'
-
-Add 'fadvise64_64' to kernel/sys_ni.c as a conditional COMPAT function so
-that when CONFIG_ADVISE_SYSCALLS is not set, there is a fallback function
-available.
-
-Link: https://lkml.kernel.org/r/20220807220934.5689-1-rdunlap@infradead.org
-Fixes: d3ac21cacc24 ("mm: Support compiling out madvise and fadvise")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 195aae321c82 ("r8152: support new chips")
+Signed-off-by: Hayes Wang <hayeswang@realtek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sys_ni.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/usb/r8152.c | 17 ++---------------
+ 1 file changed, 2 insertions(+), 15 deletions(-)
 
---- a/kernel/sys_ni.c
-+++ b/kernel/sys_ni.c
-@@ -276,6 +276,7 @@ COND_SYSCALL(landlock_restrict_self);
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 0f6efaabaa32b..46c7954d27629 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -6431,21 +6431,8 @@ static void r8156_fc_parameter(struct r8152 *tp)
+ 	u32 pause_on = tp->fc_pause_on ? tp->fc_pause_on : fc_pause_on_auto(tp);
+ 	u32 pause_off = tp->fc_pause_off ? tp->fc_pause_off : fc_pause_off_auto(tp);
  
- /* mm/fadvise.c */
- COND_SYSCALL(fadvise64_64);
-+COND_SYSCALL_COMPAT(fadvise64_64);
+-	switch (tp->version) {
+-	case RTL_VER_10:
+-	case RTL_VER_11:
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_FULL, pause_on / 8);
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_EMPTY, pause_off / 8);
+-		break;
+-	case RTL_VER_12:
+-	case RTL_VER_13:
+-	case RTL_VER_15:
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_FULL, pause_on / 16);
+-		ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_EMPTY, pause_off / 16);
+-		break;
+-	default:
+-		break;
+-	}
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_FULL, pause_on / 16);
++	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RX_FIFO_EMPTY, pause_off / 16);
+ }
  
- /* mm/, CONFIG_MMU only */
- COND_SYSCALL(swapon);
+ static void rtl8156_change_mtu(struct r8152 *tp)
+-- 
+2.35.1
+
 
 
