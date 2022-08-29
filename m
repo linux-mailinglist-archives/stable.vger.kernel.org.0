@@ -2,123 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80A675A53CC
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 20:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 489525A53CD
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 20:12:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230034AbiH2SLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 14:11:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55594 "EHLO
+        id S229649AbiH2SMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 14:12:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229906AbiH2SLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 14:11:21 -0400
-Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C602480369
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 11:11:19 -0700 (PDT)
-Received: by mail-io1-xd2c.google.com with SMTP id y187so7271867iof.0
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 11:11:19 -0700 (PDT)
+        with ESMTP id S229530AbiH2SMX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 14:12:23 -0400
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BF418C02E
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 11:12:21 -0700 (PDT)
+Received: by mail-oi1-x231.google.com with SMTP id t140so11302479oie.8
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 11:12:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=TbTCRboI273K6vdzVywMVDCK/xRKQxvsYXw9Bwpwxu0=;
-        b=sDn1no/Jytsy85F8OBmJuZ/2eL28NhOQf8Kv9iYUzEenPSKOdrxF4ohRM0RoeOqGVB
-         qvbOgFBLJmbcfoDFKzIpp6TTRxTbizUKpoa7whlcmCqPXPRTyNAManXC9tYspq/7VU++
-         /49e+hLPBlfVjyqJpIdJe39W3jRnhfYcPWYhpl9JgV7HEqhhXvZQpHT6ZP8VEU6R7WZL
-         Id3xezV4LEb0+gEg1dQJJS6VGUPRXwDu7/DYMAW5cOCVvYcGb7+oB7TqHtfS5iI/DfuG
-         ztArPMZPHTxxNngD7Sc3EKjLqv4uvt4TKlosfq0/61LdXoQLDv+GOSJ9SxyXRqmaq83c
-         k0PQ==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc;
+        bh=TrYLNmHMfL2YwnKDzOCdO7Jrlbbexw6rsutI3mWrjc8=;
+        b=C4e2LfHHhD3VI9AYcAd79zU/xDY05gHHfjG5as6HSheMRmJOOly6Y3xMtynCDJMtbr
+         bSmDy5sJCrggphzwB6ZpWWZiLxOLrFHBBBr5tL3RYH+s/aj+hkRKiMMHTA9mLLghb2IC
+         mxf+lrsR9qyJNSzJSBlGabtI5kXr81MiI4Bl2bTd9Li1QFMsghkejev/KDQaGEzhJQ4b
+         rJlTxH3Ad4HyEccHJ04Wd6tySipxIH40sI+zPj6zT6AmeAq0hb4YUXdhbUDC+CjzoVbf
+         OZAyI1tZg+33DfHS/x1p1CmYlPhfyL+/Nay4J0EzP0G9OP7W4IdIlaVJDT6vNzOMz141
+         oUtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=TbTCRboI273K6vdzVywMVDCK/xRKQxvsYXw9Bwpwxu0=;
-        b=IWFbCGkTTJHegcl1rk98p8V6o3Y7NtigNpEAZvm++Bn8wjU0n7DQ8XQjk0YBQNxXz9
-         nZELwz3iW4cMlyhaegqPXxZ+hQkE5LCdwqgPXh3n/hZTLoe7ntYzBIgkFXZ+F07bM0i9
-         5E2iF81xWWfCBqDY0AsME5yvhKc+iScvTMoc8JbTUJ9SPHA+IxjXH6svpRCIVz4DYh5v
-         aN/oY/CC+1p6m/aSf3mxh3Cf26nKCmnXeYKpgiO900l9T4RiMrB7l78h/LfspwHlWJJ6
-         D07SPaqWusbFspZWcVrs682880CRaNV8FymK9prCW9m9sgbOqlpJsuSZPSbvOVQBgxur
-         2PDQ==
-X-Gm-Message-State: ACgBeo1YWhhoBVOG6hMUnxdHSD5nJM8Gt/ZL/o5Z/WZwkfCsvhKU8mb3
-        IreKQ/l0NE1jyGAUboza6184iZVZE2it8gyrtcPzmuYhFAE=
-X-Google-Smtp-Source: AA6agR5Hd3wDX3BIVEK62pbu5FKsXrTQgXEBt/8g9UfMd91TkEqH1qSiuoxfJmel2DduPY7m3UvFBDFLvzDgOnx7blY=
-X-Received: by 2002:a5d:8b47:0:b0:689:a436:81d2 with SMTP id
- c7-20020a5d8b47000000b00689a43681d2mr9168228iot.138.1661796679055; Mon, 29
- Aug 2022 11:11:19 -0700 (PDT)
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=TrYLNmHMfL2YwnKDzOCdO7Jrlbbexw6rsutI3mWrjc8=;
+        b=PDkUvBjRYbTLr68uwMRXkjx/LBwpFPV5fmm/wPesi/dZipC9MJMPVjrPDPcVUY521Y
+         Jwcdn9G4ASQxmDM+dJh0HWdfLh3nhO10Wcs6qCs3iHiGPKOO35mRPW/zKlx6+fjE9ceC
+         9gJv9OSpjkHhmCRE4NKf5MrMOI08AiJyINHv9mAvBoK0YRmvtHcN32703zvN1JXhKNd/
+         i7dPcsfTDPSinmnr069/ScLcXtZQSYvq7Q+k07tclOWf8NgzVZ2BXdVsBqjCmxeRoEAO
+         iX8en265G9H2q9OXMHjIkD8GMEiv4Sgv69JQv+Br2iw5C4s5w4kwwOs+p9oeXtsts+Ji
+         dagQ==
+X-Gm-Message-State: ACgBeo2p++OKw0UL7KsGwYb5vc63x7aGGMp3ntvHwRm8YcGb26Nljziy
+        tcryxNwH0ogKfj58vrphd/J0GoxLZJQkJTKWF5A=
+X-Google-Smtp-Source: AA6agR42CyXCsxl0rEVjo6rW8BIakUHbLBBwLSGlDDYD6SZQFTi6lFohd+sg22/9wEGDPx/VuAKgjc7a0ZgmlLuZVdc=
+X-Received: by 2002:a54:4116:0:b0:343:bcd:88d4 with SMTP id
+ l22-20020a544116000000b003430bcd88d4mr7839132oic.47.1661796741180; Mon, 29
+ Aug 2022 11:12:21 -0700 (PDT)
 MIME-Version: 1.0
-References: <166175868922875@kroah.com>
-In-Reply-To: <166175868922875@kroah.com>
-From:   Axel Rasmussen <axelrasmussen@google.com>
-Date:   Mon, 29 Aug 2022 11:10:43 -0700
-Message-ID: <CAJHvVcjuncHE_eG5aqxJTmtSeB0_z8DKssb34JzoSAgid0j2Fw@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] mm/hugetlb: avoid corrupting page->mapping
- in" failed to apply to 5.15-stable tree
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Miaohe Lin <linmiaohe@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>, stable@vger.kernel.org
+Received: by 2002:a9d:128f:0:0:0:0:0 with HTTP; Mon, 29 Aug 2022 11:12:20
+ -0700 (PDT)
+Reply-To: georgebrown0004@gmail.com
+From:   george brown <georgemike70300@gmail.com>
+Date:   Mon, 29 Aug 2022 20:12:20 +0200
+Message-ID: <CAFx-DcEVJ+hXEtsoGydag5G+Kk=PzGk9YV2goqV3AfEEvPTGgQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_40,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 29, 2022 at 12:38 AM <gregkh@linuxfoundation.org> wrote:
->
->
-> The patch below does not apply to the 5.15-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+Ahoj
 
-I'm in favor of applying this to 5.15. I can send a backport, unless
-someone else was already planning to do it (don't want to duplicate
-effort)?
+Jmenuji se George Brown, povol=C3=A1n=C3=ADm jsem pr=C3=A1vn=C3=ADk. Chci v=
+=C3=A1m nab=C3=ADdnout
+nejbli=C5=BE=C5=A1=C3=AD p=C5=99=C3=ADbuzn=C3=BD m=C3=A9ho klienta. Zd=C4=
+=9Bd=C3=ADte =C4=8D=C3=A1stku (8,5 milionu $)
+dolar=C5=AF, kter=C3=A9 m=C5=AFj klient nechal v bance p=C5=99ed svou smrt=
+=C3=AD.
 
->
-> thanks,
->
-> greg k-h
->
-> ------------------ original commit in Linus's tree ------------------
->
-> From ab74ef708dc51df7cf2b8a890b9c6990fac5c0c6 Mon Sep 17 00:00:00 2001
-> From: Miaohe Lin <linmiaohe@huawei.com>
-> Date: Tue, 12 Jul 2022 21:05:42 +0800
-> Subject: [PATCH] mm/hugetlb: avoid corrupting page->mapping in
->  hugetlb_mcopy_atomic_pte
->
-> In MCOPY_ATOMIC_CONTINUE case with a non-shared VMA, pages in the page
-> cache are installed in the ptes.  But hugepage_add_new_anon_rmap is called
-> for them mistakenly because they're not vm_shared.  This will corrupt the
-> page->mapping used by page cache code.
->
-> Link: https://lkml.kernel.org/r/20220712130542.18836-1-linmiaohe@huawei.com
-> Fixes: f619147104c8 ("userfaultfd: add UFFDIO_CONTINUE ioctl")
-> Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-> Cc: Axel Rasmussen <axelrasmussen@google.com>
-> Cc: Peter Xu <peterx@redhat.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
->
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index 2480ba627aa5..e070b8593b37 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -6041,7 +6041,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
->         if (!huge_pte_none_mostly(huge_ptep_get(dst_pte)))
->                 goto out_release_unlock;
->
-> -       if (vm_shared) {
-> +       if (page_in_pagecache) {
->                 page_dup_file_rmap(page, true);
->         } else {
->                 ClearHPageRestoreReserve(page);
->
+M=C5=AFj klient je ob=C4=8Dan va=C5=A1=C3=AD zem=C4=9B, kter=C3=BD zem=C5=
+=99el p=C5=99i autonehod=C4=9B se svou =C5=BEenou
+a jedin=C3=BD syn. Budu m=C3=ADt n=C3=A1rok na 50 % z celkov=C3=A9ho fondu,=
+ zat=C3=ADmco 50 % ano
+b=C3=BDt pro tebe.
+Pro v=C3=ADce informac=C3=AD pros=C3=ADm kontaktujte m=C5=AFj soukrom=C3=BD=
+ e-mail zde:
+georgebrown0004@gmail.com
+
+P=C5=99edem d=C4=9Bkuji,
+pane George Browne,
