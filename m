@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94DC45A48ED
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8887B5A47FB
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231516AbiH2LRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:17:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43076 "EHLO
+        id S230170AbiH2LEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:04:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230075AbiH2LRV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:17:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE2F96CD0C;
-        Mon, 29 Aug 2022 04:11:36 -0700 (PDT)
+        with ESMTP id S230177AbiH2LDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:03:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED5863F2F;
+        Mon, 29 Aug 2022 04:02:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B32FB80F98;
-        Mon, 29 Aug 2022 11:11:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C793BC433C1;
-        Mon, 29 Aug 2022 11:11:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4E06B80EF8;
+        Mon, 29 Aug 2022 11:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28615C433C1;
+        Mon, 29 Aug 2022 11:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771491;
-        bh=5fD5YTwbU+0/XNyGqfiaf0hqk11P2yRg5wws2o/JuTk=;
+        s=korg; t=1661770946;
+        bh=gDY/CAO2xu2cbXqwu7gHI+PkB7bikrLaRQziHHf6HB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nr5a2VlriWiMhLcR0lwz5uGpKQB3f3hV+0KOddTqoCoCUBQOhuscNjYGo4UtWuV3y
-         KGbCRvpbJajBmwdpXwlKMmcAmzyVHvUlKZK5Chh4QZXHpdGqyOXCGXa93W5IIc7bOW
-         HnpGefKHJ0XZrMNlsCLtZ7vQy7qos4g4XGT9bhdw=
+        b=Mjjxdch+cMqOORd4FLqiLAhT6J9nq2n7IR85QqIpOiEI5XysWdBVfTUy6nVodY0JT
+         BfHlYJ4z5hlY19etV/daGdE2GGJfn8kP7TmH2LVnud7mml70K6fRmnTJQGQdyySt4y
+         MVG4DYpl4deCnxGKSPWUVzX65T/jfOXLfZD1ca50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Konstantin Khlebnikov <khlebnikov@openvz.org>,
-        Huang Ying <ying.huang@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 021/158] mm/smaps: dont access young/dirty bit if pte unpresent
-Date:   Mon, 29 Aug 2022 12:57:51 +0200
-Message-Id: <20220829105809.698936822@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Helge Deller <deller@gmx.de>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 5.15 005/136] parisc: Make CONFIG_64BIT available for ARCH=parisc64 only
+Date:   Mon, 29 Aug 2022 12:57:52 +0200
+Message-Id: <20220829105804.848825639@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,67 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit efd4149342db2df41b1bbe68972ead853b30e444 ]
+commit 3dcfb729b5f4a0c9b50742865cd5e6c4dbcc80dc upstream.
 
-These bits should only be valid when the ptes are present.  Introducing
-two booleans for it and set it to false when !pte_present() for both pte
-and pmd accountings.
+With this patch the ARCH= parameter decides if the
+CONFIG_64BIT option will be set or not. This means, the
+ARCH= parameter will give:
 
-The bug is found during code reading and no real world issue reported, but
-logically such an error can cause incorrect readings for either smaps or
-smaps_rollup output on quite a few fields.
+	ARCH=parisc	-> 32-bit kernel
+	ARCH=parisc64	-> 64-bit kernel
 
-For example, it could cause over-estimate on values like Shared_Dirty,
-Private_Dirty, Referenced.  Or it could also cause under-estimate on
-values like LazyFree, Shared_Clean, Private_Clean.
+This simplifies the usage of the other config options like
+randconfig, allmodconfig and allyesconfig a lot and produces
+the output which is expected for parisc64 (64-bit) vs. parisc (32-bit).
 
-Link: https://lkml.kernel.org/r/20220805160003.58929-1-peterx@redhat.com
-Fixes: b1d4d9e0cbd0 ("proc/smaps: carefully handle migration entries")
-Fixes: c94b6923fa0a ("/proc/PID/smaps: Add PMD migration entry parsing")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Cc: Konstantin Khlebnikov <khlebnikov@openvz.org>
-Cc: Huang Ying <ying.huang@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: <stable@vger.kernel.org> # 5.15+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc/task_mmu.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/parisc/Kconfig |   21 ++++++---------------
+ 1 file changed, 6 insertions(+), 15 deletions(-)
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 2d04e3470d4cd..313788bc0c307 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -525,10 +525,12 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
- 	struct vm_area_struct *vma = walk->vma;
- 	bool locked = !!(vma->vm_flags & VM_LOCKED);
- 	struct page *page = NULL;
--	bool migration = false;
-+	bool migration = false, young = false, dirty = false;
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -142,10 +142,10 @@ menu "Processor type and features"
  
- 	if (pte_present(*pte)) {
- 		page = vm_normal_page(vma, addr, *pte);
-+		young = pte_young(*pte);
-+		dirty = pte_dirty(*pte);
- 	} else if (is_swap_pte(*pte)) {
- 		swp_entry_t swpent = pte_to_swp_entry(*pte);
+ choice
+ 	prompt "Processor type"
+-	default PA7000
++	default PA7000 if "$(ARCH)" = "parisc"
  
-@@ -558,8 +560,7 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
- 	if (!page)
- 		return;
+ config PA7000
+-	bool "PA7000/PA7100"
++	bool "PA7000/PA7100" if "$(ARCH)" = "parisc"
+ 	help
+ 	  This is the processor type of your CPU.  This information is
+ 	  used for optimizing purposes.  In order to compile a kernel
+@@ -156,21 +156,21 @@ config PA7000
+ 	  which is required on some machines.
  
--	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte),
--		      locked, migration);
-+	smaps_account(mss, page, false, young, dirty, locked, migration);
- }
+ config PA7100LC
+-	bool "PA7100LC"
++	bool "PA7100LC" if "$(ARCH)" = "parisc"
+ 	help
+ 	  Select this option for the PCX-L processor, as used in the
+ 	  712, 715/64, 715/80, 715/100, 715/100XC, 725/100, 743, 748,
+ 	  D200, D210, D300, D310 and E-class
  
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
--- 
-2.35.1
-
+ config PA7200
+-	bool "PA7200"
++	bool "PA7200" if "$(ARCH)" = "parisc"
+ 	help
+ 	  Select this option for the PCX-T' processor, as used in the
+ 	  C100, C110, J100, J110, J210XC, D250, D260, D350, D360,
+ 	  K100, K200, K210, K220, K400, K410 and K420
+ 
+ config PA7300LC
+-	bool "PA7300LC"
++	bool "PA7300LC" if "$(ARCH)" = "parisc"
+ 	help
+ 	  Select this option for the PCX-L2 processor, as used in the
+ 	  744, A180, B132L, B160L, B180L, C132L, C160L, C180L,
+@@ -220,17 +220,8 @@ config MLONGCALLS
+ 	  Enabling this option will probably slow down your kernel.
+ 
+ config 64BIT
+-	bool "64-bit kernel"
++	def_bool "$(ARCH)" = "parisc64"
+ 	depends on PA8X00
+-	help
+-	  Enable this if you want to support 64bit kernel on PA-RISC platform.
+-
+-	  At the moment, only people willing to use more than 2GB of RAM,
+-	  or having a 64bit-only capable PA-RISC machine should say Y here.
+-
+-	  Since there is no 64bit userland on PA-RISC, there is no point to
+-	  enable this option otherwise. The 64bit kernel is significantly bigger
+-	  and slower than the 32bit one.
+ 
+ choice
+ 	prompt "Kernel page size"
 
 
