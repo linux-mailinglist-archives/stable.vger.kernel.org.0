@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38AB65A4C18
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5623B5A4BCA
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 14:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229558AbiH2Mlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 08:41:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46552 "EHLO
+        id S231374AbiH2M2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 08:28:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230316AbiH2Mkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:40:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9835D13F14;
-        Mon, 29 Aug 2022 05:24:58 -0700 (PDT)
+        with ESMTP id S229871AbiH2M1w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 08:27:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83C02AE205;
+        Mon, 29 Aug 2022 05:11:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5F15B80FA1;
-        Mon, 29 Aug 2022 11:08:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E407C433D6;
-        Mon, 29 Aug 2022 11:08:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2F8A6123D;
+        Mon, 29 Aug 2022 11:17:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2E6FC433D7;
+        Mon, 29 Aug 2022 11:17:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771314;
-        bh=FufMUVUaQh+PDh29tlw9bNgetLwgT2UPVsGlg+Vo9Jk=;
+        s=korg; t=1661771827;
+        bh=gcZSMS/DK5coU0N9vP5BKXdPmMcCP9sZHKX5Iz1YpP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WxdszoDuVSmsgqCDUm6KB7181rwnZSXtc7mkK80iJwv+yBCI6A9n8iTR/3sl6ZdCt
-         YeLvkyh6Etg9mYnIb+cbqmfQmneZOtC1L2WNaz8GufXfl4GkwD6v3Vf6ql+R4ZLFEq
-         xivP6eaZzheiVA14PXlgG1jnnmPdx3g4IdTaMzPI=
+        b=ujXWigU00y44mI2pEXTx2I0J+gH1regmgD+lP/imqFtAWjnCQER7n3n/uUUsj4zF0
+         9XymOfqBCL3DZyNmiBa2szuUXpWjr42vHqkdof2R8kqh8lA3CBS8je5FEYVAYJ6lO2
+         HKSDCKNnpfgd/XvzANJIvcav+oDkkGhscVXyGlwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 50/86] ratelimit: Fix data-races in ___ratelimit().
-Date:   Mon, 29 Aug 2022 12:59:16 +0200
-Message-Id: <20220829105758.570721185@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@kernel.org>,
+        Juergen Gross <jgross@suse.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>
+Subject: [PATCH 5.19 109/158] x86/PAT: Have pat_enabled() properly reflect state when running on Xen
+Date:   Mon, 29 Aug 2022 12:59:19 +0200
+Message-Id: <20220829105813.685677959@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 6bae8ceb90ba76cdba39496db936164fa672b9be ]
+commit 72cbc8f04fe2fa93443c0fcccb7ad91dfea3d9ce upstream.
 
-While reading rs->interval and rs->burst, they can be changed
-concurrently via sysctl (e.g. net_ratelimit_state).  Thus, we
-need to add READ_ONCE() to their readers.
+After commit ID in the Fixes: tag, pat_enabled() returns false (because
+of PAT initialization being suppressed in the absence of MTRRs being
+announced to be available).
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This has become a problem: the i915 driver now fails to initialize when
+running PV on Xen (i915_gem_object_pin_map() is where I located the
+induced failure), and its error handling is flaky enough to (at least
+sometimes) result in a hung system.
+
+Yet even beyond that problem the keying of the use of WC mappings to
+pat_enabled() (see arch_can_pci_mmap_wc()) means that in particular
+graphics frame buffer accesses would have been quite a bit less optimal
+than possible.
+
+Arrange for the function to return true in such environments, without
+undermining the rest of PAT MSR management logic considering PAT to be
+disabled: specifically, no writes to the PAT MSR should occur.
+
+For the new boolean to live in .init.data, init_cache_modes() also needs
+moving to .init.text (where it could/should have lived already before).
+
+  [ bp: This is the "small fix" variant for stable. It'll get replaced
+    with a proper PAT and MTRR detection split upstream but that is too
+    involved for a stable backport.
+    - additional touchups to commit msg. Use cpu_feature_enabled(). ]
+
+Fixes: bdd8b6c98239 ("drm/i915: replace X86_FEATURE_PAT with pat_enabled()")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Ingo Molnar <mingo@kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Link: https://lore.kernel.org/r/9385fa60-fa5d-f559-a137-6608408f88b0@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/ratelimit.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/x86/mm/pat/memtype.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/lib/ratelimit.c b/lib/ratelimit.c
-index e01a93f46f833..ce945c17980b9 100644
---- a/lib/ratelimit.c
-+++ b/lib/ratelimit.c
-@@ -26,10 +26,16 @@
-  */
- int ___ratelimit(struct ratelimit_state *rs, const char *func)
+--- a/arch/x86/mm/pat/memtype.c
++++ b/arch/x86/mm/pat/memtype.c
+@@ -62,6 +62,7 @@
+ 
+ static bool __read_mostly pat_bp_initialized;
+ static bool __read_mostly pat_disabled = !IS_ENABLED(CONFIG_X86_PAT);
++static bool __initdata pat_force_disabled = !IS_ENABLED(CONFIG_X86_PAT);
+ static bool __read_mostly pat_bp_enabled;
+ static bool __read_mostly pat_cm_initialized;
+ 
+@@ -86,6 +87,7 @@ void pat_disable(const char *msg_reason)
+ static int __init nopat(char *str)
  {
-+	/* Paired with WRITE_ONCE() in .proc_handler().
-+	 * Changing two values seperately could be inconsistent
-+	 * and some message could be lost.  (See: net_ratelimit_state).
-+	 */
-+	int interval = READ_ONCE(rs->interval);
-+	int burst = READ_ONCE(rs->burst);
- 	unsigned long flags;
- 	int ret;
+ 	pat_disable("PAT support disabled via boot option.");
++	pat_force_disabled = true;
+ 	return 0;
+ }
+ early_param("nopat", nopat);
+@@ -272,7 +274,7 @@ static void pat_ap_init(u64 pat)
+ 	wrmsrl(MSR_IA32_CR_PAT, pat);
+ }
  
--	if (!rs->interval)
-+	if (!interval)
- 		return 1;
+-void init_cache_modes(void)
++void __init init_cache_modes(void)
+ {
+ 	u64 pat = 0;
  
- 	/*
-@@ -44,7 +50,7 @@ int ___ratelimit(struct ratelimit_state *rs, const char *func)
- 	if (!rs->begin)
- 		rs->begin = jiffies;
- 
--	if (time_is_before_jiffies(rs->begin + rs->interval)) {
-+	if (time_is_before_jiffies(rs->begin + interval)) {
- 		if (rs->missed) {
- 			if (!(rs->flags & RATELIMIT_MSG_ON_RELEASE)) {
- 				printk_deferred(KERN_WARNING
-@@ -56,7 +62,7 @@ int ___ratelimit(struct ratelimit_state *rs, const char *func)
- 		rs->begin   = jiffies;
- 		rs->printed = 0;
+@@ -313,6 +315,12 @@ void init_cache_modes(void)
+ 		 */
+ 		pat = PAT(0, WB) | PAT(1, WT) | PAT(2, UC_MINUS) | PAT(3, UC) |
+ 		      PAT(4, WB) | PAT(5, WT) | PAT(6, UC_MINUS) | PAT(7, UC);
++	} else if (!pat_force_disabled && cpu_feature_enabled(X86_FEATURE_HYPERVISOR)) {
++		/*
++		 * Clearly PAT is enabled underneath. Allow pat_enabled() to
++		 * reflect this.
++		 */
++		pat_bp_enabled = true;
  	}
--	if (rs->burst && rs->burst > rs->printed) {
-+	if (burst && burst > rs->printed) {
- 		rs->printed++;
- 		ret = 1;
- 	} else {
--- 
-2.35.1
-
+ 
+ 	__init_cache_modes(pat);
 
 
