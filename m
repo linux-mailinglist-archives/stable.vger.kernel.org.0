@@ -2,88 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CDFC5A5599
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 22:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BB8C5A55E6
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 23:05:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbiH2Ue6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 16:34:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53952 "EHLO
+        id S229560AbiH2VFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 17:05:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiH2Ue5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 16:34:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 235591CB34;
-        Mon, 29 Aug 2022 13:34:56 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6561B81211;
-        Mon, 29 Aug 2022 20:34:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09EEAC433D6;
-        Mon, 29 Aug 2022 20:34:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1661805293;
-        bh=JdpTsh0vpLzXYFuVgPaN22fxCzf3es58W6ZxtaLnGJo=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=W98aFR9L/yVMMf3iotWWAjyF8BnjSlCM3x5mH4GwSvEWlNp4ZivZ3+WKFui043hcI
-         f65XvSDXEL/OrQMwaFn6CnHqm4sw3BebP9jZfsM1NjloVIo666eZW3wkBIoKcHK2WG
-         qi0DsjDdyPw2OBNGUMxX3ddTC8XRZ8qJqx2S7Ax8=
-Date:   Mon, 29 Aug 2022 13:34:52 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Carlos Llamas <cmllamas@google.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?ISO-8859-1?Q? "Arve_?= =?ISO-8859-1?Q?Hj=F8nnev=E5g" ?= 
-        <arve@android.com>, Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Liam Howlett <liam.howlett@oracle.com>,
-        kernel-team@android.com,
-        syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com,
-        syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com,
-        stable@vger.kernel.org,
-        "Liam R . Howlett" <Liam.Howlett@oracle.com>,
+        with ESMTP id S229521AbiH2VFt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 17:05:49 -0400
+Received: from gproxy1-pub.mail.unifiedlayer.com (gproxy1-pub.mail.unifiedlayer.com [69.89.25.95])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA69E6FA01
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 14:05:47 -0700 (PDT)
+Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
+        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id DCD5810047D8F
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 21:05:35 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id SlwtoFZw1oTaxSlwtoEE58; Mon, 29 Aug 2022 21:05:35 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=PNrKRdmC c=1 sm=1 tr=0 ts=630d2a1f
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=biHskzXt2R4A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=AwhZYKMM9PDB3AGZ2Atk1ZFYQoSJEIqXoFaMPFpenPA=; b=w8bwyYzCYtMmemZ5JOdqw7vkKX
+        PsmbX0tb27Ad+TdxYo02ojfkBIRJZkchCLSSPoRnHOwoHg9OLFMaL/4pPIFnAXvfKo1SoaJgnK2zf
+        nWY8uUGWMsG5b/6uOURDaq/nwfhT44fD1qXUjWY0+BCi6gCGyyoEBNWrDIVXoiRPkU68A16oJSyOl
+        CkLiiVXQq/JRqwGKvE1T5TBVnqChy8TSu5xBE+HCSbrsoCxgxQAfc1LvTqaZIgVkkudLuRMHXZhGE
+        wscDK6Gn1SjRRx70zMfktTXtx4uCjc3XUoz6+FHvdS5ks+x+JN4CwhTqO7czaAInLPqS7xD1JJI42
+        q3s61rTQ==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:42358 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1oSlwr-001hX6-Vs;
+        Mon, 29 Aug 2022 15:05:34 -0600
+Subject: Re: [PATCH 5.19 000/158] 5.19.6-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7] binder: fix alloc->vma_vm_mm null-ptr dereference
-Message-Id: <20220829133452.cd4d9abe858c940126557c41@linux-foundation.org>
-In-Reply-To: <20220829201254.1814484-2-cmllamas@google.com>
-References: <20220829201254.1814484-1-cmllamas@google.com>
-        <20220829201254.1814484-2-cmllamas@google.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <b834aba4-5305-f5af-a27f-f60390cff362@w6rz.net>
+Date:   Mon, 29 Aug 2022 14:05:31 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1oSlwr-001hX6-Vs
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:42358
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 29 Aug 2022 20:12:48 +0000 Carlos Llamas <cmllamas@google.com> wrote:
+On 8/29/22 3:57 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.19.6 release.
+> There are 158 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 31 Aug 2022 10:57:37 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-> Syzbot reported a couple issues introduced by commit 44e602b4e52f
-> ("binder_alloc: add missing mmap_lock calls when using the VMA"), in
-> which we attempt to acquire the mmap_lock when alloc->vma_vm_mm has not
-> been initialized yet.
-> 
-> This can happen if a binder_proc receives a transaction without having
-> previously called mmap() to setup the binder_proc->alloc space in [1].
-> Also, a similar issue occurs via binder_alloc_print_pages() when we try
-> to dump the debugfs binder stats file in [2].
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Thanks.  I assume you'll be merging all these into mainline?
-
-> 
-> Fixes: 44e602b4e52f ("binder_alloc: add missing mmap_lock calls when using the VMA")
-> Reported-by: syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com
-> Reported-by: syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com
-> Cc: <stable@vger.kernel.org> # v5.15+
-
-44e602b4e52f is only present in 6.0-rcX?
-
+Tested-by: Ron Economos <re@w6rz.net>
 
