@@ -2,51 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A3C25A4970
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCF505A48BE
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:15:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231916AbiH2LZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:25:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40126 "EHLO
+        id S230060AbiH2LPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:15:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232108AbiH2LYU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:24:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA04E5F986;
-        Mon, 29 Aug 2022 04:15:17 -0700 (PDT)
+        with ESMTP id S231563AbiH2LOG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:14:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BDAC63F15;
+        Mon, 29 Aug 2022 04:10:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C69A0B80F92;
-        Mon, 29 Aug 2022 11:07:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF1FCC433C1;
-        Mon, 29 Aug 2022 11:07:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E6EC611C2;
+        Mon, 29 Aug 2022 11:07:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9730CC433D6;
+        Mon, 29 Aug 2022 11:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771258;
-        bh=+6fmvp2c8S1VZMDzHF7AuaBHo0zZ6cBpda3+aSMaIfk=;
+        s=korg; t=1661771270;
+        bh=2jqoQJ423K4tztFRdNO+0o7cvRFn3+7ghfhrBOmWg9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldMTFut+R0y7pUj3gHrXs8ssZFHHooCU00NNtY3JHz9LYT+6vTiaus6xd4eU0Lpgk
-         bOur0TBtJEf4SNxoyBRjkvLJRYnS0r/hNa1f6F+gVJptZkGAzmIWKkafflEdSe/MqI
-         bp4CwEW7ghjgl+8z/e5HKulFd8lgkBu4EqWENXcs=
+        b=xqM/g+uRClzJasfOMljJ/2Mw+i7OrU9qHSLaQccXejkmzRcutZZdEi2PO3z2FdWUJ
+         rEfnkvnPFT5ZWVwHwSg2z0A1NYOK+M6EjwCSwlg/B6irjTqPVi/GgK9Eh8feT8FM4r
+         bGmqYmp0JO5h0yUrwPCfiT00xpEe7hjuSxboA+tI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Cyrill Gorcunov <gorcunov@openvz.org>,
-        Hugh Dickins <hughd@google.com>,
-        Jamie Liu <jamieliu@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Pavel Emelyanov <xemul@parallels.com>,
-        Peter Feiner <pfeiner@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 010/158] mm/hugetlb: support write-faults in shared mappings
-Date:   Mon, 29 Aug 2022 12:57:40 +0200
-Message-Id: <20220829105809.263492648@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Deren Wu <deren.wu@mediatek.com>, Felix Fietkau <nbd@nbd.name>
+Subject: [PATCH 5.19 011/158] mt76: mt7921: fix command timeout in AP stop period
+Date:   Mon, 29 Aug 2022 12:57:41 +0200
+Message-Id: <20220829105809.301913190@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
 References: <20220829105808.828227973@linuxfoundation.org>
@@ -64,229 +53,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-commit 1d8d14641fd94a01b20a4abbf2749fd8eddcf57b upstream.
+commit 9d958b60ebc2434f2b7eae83d77849e22d1059eb upstream.
 
-If we ever get a write-fault on a write-protected page in a shared
-mapping, we'd be in trouble (again).  Instead, we can simply map the page
-writable.
+Due to AP stop improperly, mt7921 driver would face random command timeout
+by chip fw problem. Migrate AP start/stop process to .start_ap/.stop_ap and
+congiure BSS network settings in both hooks.
 
-And in fact, there is even a way right now to trigger that code via
-uffd-wp ever since we stared to support it for shmem in 5.19:
+The new flow is shown below.
+* AP start
+    .start_ap()
+      configure BSS network resource
+      set BSS to connected state
+    .bss_info_changed()
+      enable fw beacon offload
 
---------------------------------------------------------------------------
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
- #include <fcntl.h>
- #include <unistd.h>
- #include <errno.h>
- #include <sys/mman.h>
- #include <sys/syscall.h>
- #include <sys/ioctl.h>
- #include <linux/userfaultfd.h>
+* AP stop
+    .bss_info_changed()
+      disable fw beacon offload (skip this command)
+    .stop_ap()
+      set BSS to disconnected state (beacon offload disabled automatically)
+      destroy BSS network resource
 
- #define HUGETLB_SIZE (2 * 1024 * 1024u)
-
- static char *map;
- int uffd;
-
- static int temp_setup_uffd(void)
- {
- 	struct uffdio_api uffdio_api;
- 	struct uffdio_register uffdio_register;
- 	struct uffdio_writeprotect uffd_writeprotect;
- 	struct uffdio_range uffd_range;
-
- 	uffd = syscall(__NR_userfaultfd,
- 		       O_CLOEXEC | O_NONBLOCK | UFFD_USER_MODE_ONLY);
- 	if (uffd < 0) {
- 		fprintf(stderr, "syscall() failed: %d\n", errno);
- 		return -errno;
- 	}
-
- 	uffdio_api.api = UFFD_API;
- 	uffdio_api.features = UFFD_FEATURE_PAGEFAULT_FLAG_WP;
- 	if (ioctl(uffd, UFFDIO_API, &uffdio_api) < 0) {
- 		fprintf(stderr, "UFFDIO_API failed: %d\n", errno);
- 		return -errno;
- 	}
-
- 	if (!(uffdio_api.features & UFFD_FEATURE_PAGEFAULT_FLAG_WP)) {
- 		fprintf(stderr, "UFFD_FEATURE_WRITEPROTECT missing\n");
- 		return -ENOSYS;
- 	}
-
- 	/* Register UFFD-WP */
- 	uffdio_register.range.start = (unsigned long) map;
- 	uffdio_register.range.len = HUGETLB_SIZE;
- 	uffdio_register.mode = UFFDIO_REGISTER_MODE_WP;
- 	if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) < 0) {
- 		fprintf(stderr, "UFFDIO_REGISTER failed: %d\n", errno);
- 		return -errno;
- 	}
-
- 	/* Writeprotect a single page. */
- 	uffd_writeprotect.range.start = (unsigned long) map;
- 	uffd_writeprotect.range.len = HUGETLB_SIZE;
- 	uffd_writeprotect.mode = UFFDIO_WRITEPROTECT_MODE_WP;
- 	if (ioctl(uffd, UFFDIO_WRITEPROTECT, &uffd_writeprotect)) {
- 		fprintf(stderr, "UFFDIO_WRITEPROTECT failed: %d\n", errno);
- 		return -errno;
- 	}
-
- 	/* Unregister UFFD-WP without prior writeunprotection. */
- 	uffd_range.start = (unsigned long) map;
- 	uffd_range.len = HUGETLB_SIZE;
- 	if (ioctl(uffd, UFFDIO_UNREGISTER, &uffd_range)) {
- 		fprintf(stderr, "UFFDIO_UNREGISTER failed: %d\n", errno);
- 		return -errno;
- 	}
-
- 	return 0;
- }
-
- int main(int argc, char **argv)
- {
- 	int fd;
-
- 	fd = open("/dev/hugepages/tmp", O_RDWR | O_CREAT);
- 	if (!fd) {
- 		fprintf(stderr, "open() failed\n");
- 		return -errno;
- 	}
- 	if (ftruncate(fd, HUGETLB_SIZE)) {
- 		fprintf(stderr, "ftruncate() failed\n");
- 		return -errno;
- 	}
-
- 	map = mmap(NULL, HUGETLB_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
- 	if (map == MAP_FAILED) {
- 		fprintf(stderr, "mmap() failed\n");
- 		return -errno;
- 	}
-
- 	*map = 0;
-
- 	if (temp_setup_uffd())
- 		return 1;
-
- 	*map = 0;
-
- 	return 0;
- }
---------------------------------------------------------------------------
-
-Above test fails with SIGBUS when there is only a single free hugetlb page.
- # echo 1 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
- # ./test
- Bus error (core dumped)
-
-And worse, with sufficient free hugetlb pages it will map an anonymous page
-into a shared mapping, for example, messing up accounting during unmap
-and breaking MAP_SHARED semantics:
- # echo 2 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
- # ./test
- # cat /proc/meminfo | grep HugePages_
- HugePages_Total:       2
- HugePages_Free:        1
- HugePages_Rsvd:    18446744073709551615
- HugePages_Surp:        0
-
-Reason is that uffd-wp doesn't clear the uffd-wp PTE bit when
-unregistering and consequently keeps the PTE writeprotected.  Reason for
-this is to avoid the additional overhead when unregistering.  Note that
-this is the case also for !hugetlb and that we will end up with writable
-PTEs that still have the uffd-wp PTE bit set once we return from
-hugetlb_wp().  I'm not touching the uffd-wp PTE bit for now, because it
-seems to be a generic thing -- wp_page_reuse() also doesn't clear it.
-
-VM_MAYSHARE handling in hugetlb_fault() for FAULT_FLAG_WRITE indicates
-that MAP_SHARED handling was at least envisioned, but could never have
-worked as expected.
-
-While at it, make sure that we never end up in hugetlb_wp() on write
-faults without VM_WRITE, because we don't support maybe_mkwrite()
-semantics as commonly used in the !hugetlb case -- for example, in
-wp_page_reuse().
-
-Note that there is no need to do any kind of reservation in
-hugetlb_fault() in this case ...  because we already have a hugetlb page
-mapped R/O that we will simply map writable and we are not dealing with
-COW/unsharing.
-
-Link: https://lkml.kernel.org/r/20220811103435.188481-3-david@redhat.com
-Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Cyrill Gorcunov <gorcunov@openvz.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Jamie Liu <jamieliu@google.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Pavel Emelyanov <xemul@parallels.com>
-Cc: Peter Feiner <pfeiner@google.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>	[5.19]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 116c69603b01 ("mt76: mt7921: Add AP mode support")
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |   26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c |    2 
+ drivers/net/wireless/mediatek/mt76/mt7921/main.c     |   47 +++++++++++++++----
+ drivers/net/wireless/mediatek/mt76/mt7921/mcu.c      |    5 --
+ drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h   |    2 
+ 4 files changed, 43 insertions(+), 13 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5232,6 +5232,21 @@ static vm_fault_t hugetlb_wp(struct mm_s
- 	VM_BUG_ON(unshare && (flags & FOLL_WRITE));
- 	VM_BUG_ON(!unshare && !(flags & FOLL_WRITE));
- 
-+	/*
-+	 * hugetlb does not support FOLL_FORCE-style write faults that keep the
-+	 * PTE mapped R/O such as maybe_mkwrite() would do.
-+	 */
-+	if (WARN_ON_ONCE(!unshare && !(vma->vm_flags & VM_WRITE)))
-+		return VM_FAULT_SIGSEGV;
-+
-+	/* Let's take out MAP_SHARED mappings first. */
-+	if (vma->vm_flags & VM_MAYSHARE) {
-+		if (unlikely(unshare))
-+			return 0;
-+		set_huge_ptep_writable(vma, haddr, ptep);
-+		return 0;
-+	}
-+
- 	pte = huge_ptep_get(ptep);
- 	old_page = pte_page(pte);
- 
-@@ -5766,12 +5781,11 @@ vm_fault_t hugetlb_fault(struct mm_struc
- 	 * If we are going to COW/unshare the mapping later, we examine the
- 	 * pending reservations for this page now. This will ensure that any
- 	 * allocations necessary to record that reservation occur outside the
--	 * spinlock. For private mappings, we also lookup the pagecache
--	 * page now as it is used to determine if a reservation has been
--	 * consumed.
-+	 * spinlock. Also lookup the pagecache page now as it is used to
-+	 * determine if a reservation has been consumed.
- 	 */
- 	if ((flags & (FAULT_FLAG_WRITE|FAULT_FLAG_UNSHARE)) &&
--	    !huge_pte_write(entry)) {
-+	    !(vma->vm_flags & VM_MAYSHARE) && !huge_pte_write(entry)) {
- 		if (vma_needs_reservation(h, vma, haddr) < 0) {
- 			ret = VM_FAULT_OOM;
- 			goto out_mutex;
-@@ -5779,9 +5793,7 @@ vm_fault_t hugetlb_fault(struct mm_struc
- 		/* Just decrements count, does not deallocate */
- 		vma_end_reservation(h, vma, haddr);
- 
--		if (!(vma->vm_flags & VM_MAYSHARE))
--			pagecache_page = hugetlbfs_pagecache_page(h,
--								vma, haddr);
-+		pagecache_page = hugetlbfs_pagecache_page(h, vma, haddr);
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -1403,6 +1403,8 @@ int mt76_connac_mcu_uni_add_bss(struct m
+ 		else
+ 			conn_type = CONNECTION_INFRA_AP;
+ 		basic_req.basic.conn_type = cpu_to_le32(conn_type);
++		/* Fully active/deactivate BSS network in AP mode only */
++		basic_req.basic.active = enable;
+ 		break;
+ 	case NL80211_IFTYPE_STATION:
+ 		if (vif->p2p)
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -653,15 +653,6 @@ static void mt7921_bss_info_changed(stru
+ 		}
  	}
  
- 	ptl = huge_pte_lock(h, mm, ptep);
+-	if (changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
+-		struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
+-
+-		mt76_connac_mcu_uni_add_bss(phy->mt76, vif, &mvif->sta.wcid,
+-					    true);
+-		mt7921_mcu_sta_update(dev, NULL, vif, true,
+-				      MT76_STA_INFO_STATE_NONE);
+-	}
+-
+ 	if (changed & (BSS_CHANGED_BEACON |
+ 		       BSS_CHANGED_BEACON_ENABLED))
+ 		mt7921_mcu_uni_add_beacon_offload(dev, hw, vif,
+@@ -1500,6 +1491,42 @@ mt7921_channel_switch_beacon(struct ieee
+ 	mt7921_mutex_release(dev);
+ }
+ 
++static int
++mt7921_start_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
++{
++	struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
++	struct mt7921_phy *phy = mt7921_hw_phy(hw);
++	struct mt7921_dev *dev = mt7921_hw_dev(hw);
++	int err;
++
++	err = mt76_connac_mcu_uni_add_bss(phy->mt76, vif, &mvif->sta.wcid,
++					  true);
++	if (err)
++		return err;
++
++	err = mt7921_mcu_set_bss_pm(dev, vif, true);
++	if (err)
++		return err;
++
++	return mt7921_mcu_sta_update(dev, NULL, vif, true,
++				     MT76_STA_INFO_STATE_NONE);
++}
++
++static void
++mt7921_stop_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
++{
++	struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
++	struct mt7921_phy *phy = mt7921_hw_phy(hw);
++	struct mt7921_dev *dev = mt7921_hw_dev(hw);
++	int err;
++
++	err = mt7921_mcu_set_bss_pm(dev, vif, false);
++	if (err)
++		return;
++
++	mt76_connac_mcu_uni_add_bss(phy->mt76, vif, &mvif->sta.wcid, false);
++}
++
+ const struct ieee80211_ops mt7921_ops = {
+ 	.tx = mt7921_tx,
+ 	.start = mt7921_start,
+@@ -1510,6 +1537,8 @@ const struct ieee80211_ops mt7921_ops =
+ 	.conf_tx = mt7921_conf_tx,
+ 	.configure_filter = mt7921_configure_filter,
+ 	.bss_info_changed = mt7921_bss_info_changed,
++	.start_ap = mt7921_start_ap,
++	.stop_ap = mt7921_stop_ap,
+ 	.sta_state = mt7921_sta_state,
+ 	.sta_pre_rcu_remove = mt76_sta_pre_rcu_remove,
+ 	.set_key = mt7921_set_key,
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+@@ -1020,7 +1020,7 @@ mt7921_mcu_uni_bss_bcnft(struct mt7921_d
+ 				 &bcnft_req, sizeof(bcnft_req), true);
+ }
+ 
+-static int
++int
+ mt7921_mcu_set_bss_pm(struct mt7921_dev *dev, struct ieee80211_vif *vif,
+ 		      bool enable)
+ {
+@@ -1049,9 +1049,6 @@ mt7921_mcu_set_bss_pm(struct mt7921_dev
+ 	};
+ 	int err;
+ 
+-	if (vif->type != NL80211_IFTYPE_STATION)
+-		return 0;
+-
+ 	err = mt76_mcu_send_msg(&dev->mt76, MCU_CE_CMD(SET_BSS_ABORT),
+ 				&req_hdr, sizeof(req_hdr), false);
+ 	if (err < 0 || !enable)
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
+@@ -280,6 +280,8 @@ int mt7921_wpdma_reset(struct mt7921_dev
+ int mt7921_wpdma_reinit_cond(struct mt7921_dev *dev);
+ void mt7921_dma_cleanup(struct mt7921_dev *dev);
+ int mt7921_run_firmware(struct mt7921_dev *dev);
++int mt7921_mcu_set_bss_pm(struct mt7921_dev *dev, struct ieee80211_vif *vif,
++			  bool enable);
+ int mt7921_mcu_sta_update(struct mt7921_dev *dev, struct ieee80211_sta *sta,
+ 			  struct ieee80211_vif *vif, bool enable,
+ 			  enum mt76_sta_info_state state);
 
 
