@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02F9C5A4A24
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:34:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D53C45A48EA
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:17:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231312AbiH2Le2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:34:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36764 "EHLO
+        id S231508AbiH2LRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:17:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232823AbiH2LeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:34:01 -0400
+        with ESMTP id S231397AbiH2LRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:17:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 790EC7CA8C;
-        Mon, 29 Aug 2022 04:19:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ABA867168;
+        Mon, 29 Aug 2022 04:11:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E613B80E4C;
-        Mon, 29 Aug 2022 11:19:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC2CC433D6;
-        Mon, 29 Aug 2022 11:19:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5F1BB80F62;
+        Mon, 29 Aug 2022 11:10:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20FBAC433C1;
+        Mon, 29 Aug 2022 11:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771961;
-        bh=QXzMtzimhRYt8XWF/LVdnFlStaAGw59NdLQPfaF4lB8=;
+        s=korg; t=1661771444;
+        bh=h5TLHF29h7qwZZobTV8lrfHE4KQIdZAJqgktJaofui4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/F2z5j910CaZcxMB/L4oqmp0jnVl8N9JeAAAKCmxNplm5RZhD2Fn1tqM+lae8I3A
-         5MXDVqRjC8Q/jXMwq8mVIlQV4+SZjum1Lx7hqliDX39G5V368tm7hmXZ2j1239wqzB
-         JQusUXakfnebjOrY0RFQ5Mg+GcfWLF14rC2kTb74=
+        b=JCcqixJrEzGyApUOlPsU80xljNAT/YZ5xvincLEw2ARhevmuvpJiFlk9oPDWz0PWx
+         2Oo6EzpUe89F+4Y4jVtWQki+TjsMbiCuWT5Rqznmeaz3GZP6q2sf4RDuWqnfeV1bbu
+         wS8IW0siaArdjEYP9cBUM8yH1Sezd5YIUGlTHEkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+a168dbeaaa7778273c1b@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.19 121/158] fbdev: fbcon: Properly revert changes when vc_resize() failed
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Siddh Raman Pant <code@siddh.me>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 104/136] loop: Check for overflow while configuring loop
 Date:   Mon, 29 Aug 2022 12:59:31 +0200
-Message-Id: <20220829105814.184053079@linuxfoundation.org>
+Message-Id: <20220829105808.974066718@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Siddh Raman Pant <code@siddh.me>
 
-commit a5a923038d70d2d4a86cb4e3f32625a5ee6e7e24 upstream.
+commit c490a0b5a4f36da3918181a8acdc6991d967c5f3 upstream.
 
-fbcon_do_set_font() calls vc_resize() when font size is changed.
-However, if if vc_resize() failed, current implementation doesn't
-revert changes for font size, and this causes inconsistent state.
+The userspace can configure a loop using an ioctl call, wherein
+a configuration of type loop_config is passed (see lo_ioctl()'s
+case on line 1550 of drivers/block/loop.c). This proceeds to call
+loop_configure() which in turn calls loop_set_status_from_info()
+(see line 1050 of loop.c), passing &config->info which is of type
+loop_info64*. This function then sets the appropriate values, like
+the offset.
 
-syzbot reported unable to handle page fault due to this issue [1].
-syzbot's repro uses fault injection which cause failure for memory
-allocation, so vc_resize() failed.
+loop_device has lo_offset of type loff_t (see line 52 of loop.c),
+which is typdef-chained to long long, whereas loop_info64 has
+lo_offset of type __u64 (see line 56 of include/uapi/linux/loop.h).
 
-This patch fixes this issue by properly revert changes for font
-related date when vc_resize() failed.
+The function directly copies offset from info to the device as
+follows (See line 980 of loop.c):
+	lo->lo_offset = info->lo_offset;
 
-Link: https://syzkaller.appspot.com/bug?id=3443d3a1fa6d964dd7310a0cb1696d165a3e07c4 [1]
-Reported-by: syzbot+a168dbeaaa7778273c1b@syzkaller.appspotmail.com
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-CC: stable@vger.kernel.org # 5.15+
+This results in an overflow, which triggers a warning in iomap_iter()
+due to a call to iomap_iter_done() which has:
+	WARN_ON_ONCE(iter->iomap.offset > iter->pos);
+
+Thus, check for negative value during loop_set_status_from_info().
+
+Bug report: https://syzkaller.appspot.com/bug?id=c620fe14aac810396d3c3edc9ad73848bf69a29e
+
+Reported-and-tested-by: syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220823160810.181275-1-code@siddh.me
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |   27 +++++++++++++++++++++++++--
- 1 file changed, 25 insertions(+), 2 deletions(-)
+ drivers/block/loop.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2402,15 +2402,21 @@ static int fbcon_do_set_font(struct vc_d
- 	struct fb_info *info = fbcon_info_from_console(vc->vc_num);
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fbcon_display *p = &fb_display[vc->vc_num];
--	int resize;
-+	int resize, ret, old_userfont, old_width, old_height, old_charcount;
- 	char *old_data = NULL;
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1154,6 +1154,11 @@ loop_set_status_from_info(struct loop_de
  
- 	resize = (w != vc->vc_font.width) || (h != vc->vc_font.height);
- 	if (p->userfont)
- 		old_data = vc->vc_font.data;
- 	vc->vc_font.data = (void *)(p->fontdata = data);
-+	old_userfont = p->userfont;
- 	if ((p->userfont = userfont))
- 		REFCOUNT(data)++;
+ 	lo->lo_offset = info->lo_offset;
+ 	lo->lo_sizelimit = info->lo_sizelimit;
 +
-+	old_width = vc->vc_font.width;
-+	old_height = vc->vc_font.height;
-+	old_charcount = vc->vc_font.charcount;
++	/* loff_t vars have been assigned __u64 */
++	if (lo->lo_offset < 0 || lo->lo_sizelimit < 0)
++		return -EOVERFLOW;
 +
- 	vc->vc_font.width = w;
- 	vc->vc_font.height = h;
- 	vc->vc_font.charcount = charcount;
-@@ -2426,7 +2432,9 @@ static int fbcon_do_set_font(struct vc_d
- 		rows = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
- 		cols /= w;
- 		rows /= h;
--		vc_resize(vc, cols, rows);
-+		ret = vc_resize(vc, cols, rows);
-+		if (ret)
-+			goto err_out;
- 	} else if (con_is_visible(vc)
- 		   && vc->vc_mode == KD_TEXT) {
- 		fbcon_clear_margins(vc, 0);
-@@ -2436,6 +2444,21 @@ static int fbcon_do_set_font(struct vc_d
- 	if (old_data && (--REFCOUNT(old_data) == 0))
- 		kfree(old_data - FONT_EXTRA_WORDS * sizeof(int));
- 	return 0;
-+
-+err_out:
-+	p->fontdata = old_data;
-+	vc->vc_font.data = (void *)old_data;
-+
-+	if (userfont) {
-+		p->userfont = old_userfont;
-+		REFCOUNT(data)--;
-+	}
-+
-+	vc->vc_font.width = old_width;
-+	vc->vc_font.height = old_height;
-+	vc->vc_font.charcount = old_charcount;
-+
-+	return ret;
- }
- 
- /*
+ 	memcpy(lo->lo_file_name, info->lo_file_name, LO_NAME_SIZE);
+ 	memcpy(lo->lo_crypt_name, info->lo_crypt_name, LO_NAME_SIZE);
+ 	lo->lo_file_name[LO_NAME_SIZE-1] = 0;
 
 
