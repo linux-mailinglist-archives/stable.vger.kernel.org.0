@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01FB35A4A05
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:32:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 888815A490D
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232067AbiH2LcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:32:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58350 "EHLO
+        id S231500AbiH2LTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:19:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232448AbiH2LbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:31:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0562CDECB;
-        Mon, 29 Aug 2022 04:18:24 -0700 (PDT)
+        with ESMTP id S231797AbiH2LTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:19:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E77D6E2D7;
+        Mon, 29 Aug 2022 04:13:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 748A8B80E4C;
-        Mon, 29 Aug 2022 11:18:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E53C433D6;
-        Mon, 29 Aug 2022 11:18:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7AE661218;
+        Mon, 29 Aug 2022 11:12:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEE80C433C1;
+        Mon, 29 Aug 2022 11:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771903;
-        bh=zpdNrj2zHCU5PomsNNUW8dpMs4P00W/7ROzjCZuz0As=;
+        s=korg; t=1661771579;
+        bh=TMBHeboNLghMKzgaVvpn1uXQcBQMa8rbthZ+e+ZXWwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdd3e5uGlGDoQXBnnHWnawnzg64f18RRCKeXZSGFu2PJt5QTVj0xR4bwZE6EqCLd+
-         uxzTH9eSHsIRqNOm6D5lkkVOkTenVn+NfVE7jXLs/dfmxXBqEXYHi91ciuxVu1nAhp
-         P8sQKYJd6FFt8ZYyxlvwQyxvScuLCT0lwhGRdqZM=
+        b=cdyENni/YVu3wYKJV0qO5Ici0WPwilyPWRx+/7fvBhxQDnBOKyMXYXFsE+GZBe5RS
+         r5aPHsSHtE9HIeX58HQNm8eQpP6dO2djnbEacUURVQVwbzLkQSv5UsyuJY+sGCj5ZJ
+         yB0sxCaBTnLqYgt82/RiXrKjqfLVbEr9JackhqOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 5.19 135/158] Revert "md-raid: destroy the bitmap after destroying the thread"
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 118/136] io_uring: fix issue with io_write() not always undoing sb_start_write()
 Date:   Mon, 29 Aug 2022 12:59:45 +0200
-Message-Id: <20220829105814.746029478@linuxfoundation.org>
+Message-Id: <20220829105809.534834253@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@linux.dev>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 1d258758cf06a0734482989911d184dd5837ed4e upstream.
+commit e053aaf4da56cbf0afb33a0fda4a62188e2c0637 upstream.
 
-This reverts commit e151db8ecfb019b7da31d076130a794574c89f6f. Because it
-obviously breaks clustered raid as noticed by Neil though it fixed KASAN
-issue for dm-raid, let's revert it and fix KASAN issue in next commit.
+This is actually an older issue, but we never used to hit the -EAGAIN
+path before having done sb_start_write(). Make sure that we always call
+kiocb_end_write() if we need to retry the write, so that we keep the
+calls to sb_start_write() etc balanced.
 
-[1]. https://lore.kernel.org/linux-raid/a6657e08-b6a7-358b-2d2a-0ac37d49d23a@linux.dev/T/#m95ac225cab7409f66c295772483d091084a6d470
-
-Fixes: e151db8ecfb0 ("md-raid: destroy the bitmap after destroying the thread")
-Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -6244,11 +6244,11 @@ static void mddev_detach(struct mddev *m
- static void __md_stop(struct mddev *mddev)
- {
- 	struct md_personality *pers = mddev->pers;
-+	md_bitmap_destroy(mddev);
- 	mddev_detach(mddev);
- 	/* Ensure ->event_work is done */
- 	if (mddev->event_work.func)
- 		flush_workqueue(md_misc_wq);
--	md_bitmap_destroy(mddev);
- 	spin_lock(&mddev->lock);
- 	mddev->pers = NULL;
- 	spin_unlock(&mddev->lock);
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3720,7 +3720,12 @@ done:
+ copy_iov:
+ 		iov_iter_restore(iter, state);
+ 		ret = io_setup_async_rw(req, iovec, inline_vecs, iter, false);
+-		return ret ?: -EAGAIN;
++		if (!ret) {
++			if (kiocb->ki_flags & IOCB_WRITE)
++				kiocb_end_write(req);
++			return -EAGAIN;
++		}
++		return ret;
+ 	}
+ out_free:
+ 	/* it's reportedly faster than delegating the null check to kfree() */
 
 
