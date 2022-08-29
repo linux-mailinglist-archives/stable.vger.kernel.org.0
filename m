@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AB5D5A4837
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 560C35A49DE
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230297AbiH2LHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:07:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55266 "EHLO
+        id S232391AbiH2Lad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:30:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229557AbiH2LGv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:06:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F218AE75;
-        Mon, 29 Aug 2022 04:04:54 -0700 (PDT)
+        with ESMTP id S232717AbiH2L3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD1E57B2BE;
+        Mon, 29 Aug 2022 04:18:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 883566119E;
-        Mon, 29 Aug 2022 11:04:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 926D8C433D7;
-        Mon, 29 Aug 2022 11:04:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B32F561202;
+        Mon, 29 Aug 2022 11:17:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D19C433D6;
+        Mon, 29 Aug 2022 11:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771090;
-        bh=gwq1OqMwhb/YuVfl7qY3edF58qVgD9W2LIDU7en9DcE=;
+        s=korg; t=1661771860;
+        bh=6EKBDqc52IalgZq0HP2UlKus3oH3wi8p+iN3Nd5JAPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vBNfYcR8PBs3fMOe/BJsNM2FGNLmSG4htLNx0hGZS0502vEAzSw72NJhV5u/9MiSt
-         8xvdwokHm4BZrUwA3JZg0/JVh7i3BDZuUX4cmg8389gka5RQ7WopveyRxQZCoN6m7+
-         GCPdZ6KeMJWJSa4Icg5JYhM0bs+mcqoYliC/+l24=
+        b=jZQPWXiNdNjVx0OLdD+yUMkuRfIngHYt+Wbz8bMIUwgDLNNNHQWbJtUmMLeOPuLcZ
+         UEZ12B3KyXNvk896tIXrTM2q4l03r2nqWmneA2IQxY+s5+3ytwsOWck1jpjS3fQTRz
+         U5XSME9RJebNMckHoIWzwco8AJz6aMffjUgkBrcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/136] netfilter: nft_osf: restrict osf to ipv4, ipv6 and inet families
+Subject: [PATCH 5.19 077/158] net: Fix data-races around sysctl_fb_tunnels_only_for_init_net.
 Date:   Mon, 29 Aug 2022 12:58:47 +0200
-Message-Id: <20220829105807.084811764@linuxfoundation.org>
+Message-Id: <20220829105812.263072308@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
+References: <20220829105808.828227973@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 5f3b7aae14a706d0d7da9f9e39def52ff5fc3d39 ]
+[ Upstream commit af67508ea6cbf0e4ea27f8120056fa2efce127dd ]
 
-As it was originally intended, restrict extension to supported families.
+While reading sysctl_fb_tunnels_only_for_init_net, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its readers.
 
-Fixes: b96af92d6eaf ("netfilter: nf_tables: implement Passive OS fingerprint module in nft_osf")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 79134e6ce2c9 ("net: do not create fallback tunnels for non-default namespaces")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_osf.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ include/linux/netdevice.h | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nft_osf.c b/net/netfilter/nft_osf.c
-index d82677e83400b..720dc9fba6d4f 100644
---- a/net/netfilter/nft_osf.c
-+++ b/net/netfilter/nft_osf.c
-@@ -115,9 +115,21 @@ static int nft_osf_validate(const struct nft_ctx *ctx,
- 			    const struct nft_expr *expr,
- 			    const struct nft_data **data)
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 2563d30736e9a..78dd63a5c7c80 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -640,9 +640,14 @@ extern int sysctl_devconf_inherit_init_net;
+  */
+ static inline bool net_has_fallback_tunnels(const struct net *net)
  {
--	return nft_chain_validate_hooks(ctx->chain, (1 << NF_INET_LOCAL_IN) |
--						    (1 << NF_INET_PRE_ROUTING) |
--						    (1 << NF_INET_FORWARD));
-+	unsigned int hooks;
+-	return !IS_ENABLED(CONFIG_SYSCTL) ||
+-	       !sysctl_fb_tunnels_only_for_init_net ||
+-	       (net == &init_net && sysctl_fb_tunnels_only_for_init_net == 1);
++#if IS_ENABLED(CONFIG_SYSCTL)
++	int fb_tunnels_only_for_init_net = READ_ONCE(sysctl_fb_tunnels_only_for_init_net);
 +
-+	switch (ctx->family) {
-+	case NFPROTO_IPV4:
-+	case NFPROTO_IPV6:
-+	case NFPROTO_INET:
-+		hooks = (1 << NF_INET_LOCAL_IN) |
-+			(1 << NF_INET_PRE_ROUTING) |
-+			(1 << NF_INET_FORWARD);
-+		break;
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+
-+	return nft_chain_validate_hooks(ctx->chain, hooks);
++	return !fb_tunnels_only_for_init_net ||
++		(net_eq(net, &init_net) && fb_tunnels_only_for_init_net == 1);
++#else
++	return true;
++#endif
  }
  
- static struct nft_expr_type nft_osf_type;
+ static inline int netdev_queue_numa_node_read(const struct netdev_queue *q)
 -- 
 2.35.1
 
