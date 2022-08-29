@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B4825A43B9
+	by mail.lfdr.de (Postfix) with ESMTP id ED7605A43BA
 	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 09:25:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229488AbiH2HZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229481AbiH2HZW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Aug 2022 03:25:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44504 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbiH2HZU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:25:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91C1C2CC9B
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:25:18 -0700 (PDT)
+        with ESMTP id S229521AbiH2HZV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 03:25:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 516C02CCB2
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 00:25:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46D0CB80C75
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:25:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B7EC433D6;
-        Mon, 29 Aug 2022 07:25:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4E1761137
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 07:25:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3F4C433D7;
+        Mon, 29 Aug 2022 07:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661757915;
-        bh=CWlkyd9KfZG98ua3kWJZAA43+s2HLoNQ6lHSz8nT2Hw=;
+        s=korg; t=1661757919;
+        bh=ItHrZtMZocKdh/EUoLc0d8ubB0KkEOjk9UrNRTfj5Yg=;
         h=Subject:To:Cc:From:Date:From;
-        b=g2odXrl06RiBCMRZydmKgqGyVmuapLbQcGRNnOh0BwVEtZVxesKmDMHv/4Rq+BhYQ
-         bsHuAwKt8OURwak0hfcgmHBWXMKhiCG9AmBs5XA6jgG7sDWVhd5+CAo6J7Oldh+XMq
-         YZYeQmIjN81rIgGOXpdaGumkdVRZL4O1BtT837VM=
-Subject: FAILED: patch "[PATCH] x86/bugs: Add "unknown" reporting for MMIO Stale Data" failed to apply to 4.14-stable tree
+        b=WForTR1CFoO6uubR9tI30uY9vEvKKwBPCXNnet/8IvbYkCGH68oe6FnwCRQFK9E64
+         Lp1GRYGy8tKrTKPmsqzGWmNUH2roLI5Ri1C7qCPDlBnCmESzsQRP2pS79qBlIoKV/G
+         e5pHZYmfzzlY7LbwgBZNyt9+WHs9t3elwFI4036Y=
+Subject: FAILED: patch "[PATCH] x86/bugs: Add "unknown" reporting for MMIO Stale Data" failed to apply to 4.9-stable tree
 To:     pawan.kumar.gupta@linux.intel.com, andrew.cooper3@citrix.com,
         bp@suse.de, tony.luck@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Aug 2022 09:25:02 +0200
-Message-ID: <1661757902126245@kroah.com>
+Date:   Mon, 29 Aug 2022 09:25:03 +0200
+Message-ID: <16617579031315@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
