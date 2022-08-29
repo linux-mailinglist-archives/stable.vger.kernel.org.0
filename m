@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 019F75A4812
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:05:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81BDC5A4825
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:06:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230189AbiH2LFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:05:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
+        id S230281AbiH2LG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:06:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230247AbiH2LEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:04:54 -0400
+        with ESMTP id S230280AbiH2LFx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:05:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5F816527E;
-        Mon, 29 Aug 2022 04:03:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5843A66A46;
+        Mon, 29 Aug 2022 04:04:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05B3CB80EFA;
-        Mon, 29 Aug 2022 11:03:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E3EFC433C1;
-        Mon, 29 Aug 2022 11:03:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BAF29B80EFB;
+        Mon, 29 Aug 2022 11:03:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 201BEC433C1;
+        Mon, 29 Aug 2022 11:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661770999;
-        bh=jhb7aOIEiskUjh6w4LldF/Qs++mSvVac9e5Tc76y//0=;
+        s=korg; t=1661771011;
+        bh=1X41frZTHQivlLsOnkoqvM+UV/1idMNbJM8zsDD4H5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=No5mKV9vDhz1QVDtUAreChpTXzp9krhOrngYzyZWoq/bZX99th6yU+wSSBZCvrQmq
-         iSrwivaTGBpL+X32ZZHVnUOAZsrSrz17HyiXQvYQWDLRFqU8VU0ZqD4+RiyrwQst2q
-         3fx7yb/n4vb2SNwa2mq6P6LuVgBuU9yph+9C9Ba8=
+        b=mVqUQ8vx1SYoiN++QOynZgVC7MWqqrOLhg/UkJYTFdyq2TTnJeZA5aLv2b8Nie3O7
+         vEw2Q7FuW8JWxL6F7NS5iXgErhYw5dHDaIGAyo4R3wIdvY2ZDzENrY6Q71Eg8FlIAm
+         mbOvSaNnDcukGnmIeQ7/lfmPosyk/6rkP4D6Zukc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 046/136] net/mlx5e: Fix wrong application of the LRO state
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Amir Goldstein <amir73il@gmail.com>,
+        "Darrick J. Wong" <djwong@kernel.org>
+Subject: [PATCH 5.10 07/86] fs: remove __sync_filesystem
 Date:   Mon, 29 Aug 2022 12:58:33 +0200
-Message-Id: <20220829105806.499981507@linuxfoundation.org>
+Message-Id: <20220829105756.833028102@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
-References: <20220829105804.609007228@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 7b3707fc79044871ab8f3d5fa5e9603155bb5577 ]
+commit 9a208ba5c9afa62c7b1e9c6f5e783066e84e2d3c upstream.
 
-Driver caches packet merge type in mlx5e_params instance which must be
-in perfect sync with the netdev_feature's bit.
-Prior to this patch, in certain conditions (*) LRO state was set in
-mlx5e_params, while netdev_feature's bit was off. Causing the LRO to
-be applied on the RQs (HW level).
+[backported for dependency]
 
-(*) This can happen only on profile init (mlx5e_build_nic_params()),
-when RQ expect non-linear SKB and PCI is fast enough in comparison to
-link width.
+There is no clear benefit in having this helper vs just open coding it.
 
-Solution: remove setting of packet merge type from
-mlx5e_build_nic_params() as netdev features are not updated.
-
-Fixes: 619a8f2a42f1 ("net/mlx5e: Use linear SKB in Striding RQ")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20211019062530.2174626-2-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 8 --------
- 1 file changed, 8 deletions(-)
+ fs/sync.c |   38 +++++++++++++++++---------------------
+ 1 file changed, 17 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index e00648094fc2a..fdf8d9866042c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4350,14 +4350,6 @@ void mlx5e_build_nic_params(struct mlx5e_priv *priv, struct mlx5e_xsk *xsk, u16
- 	/* RQ */
- 	mlx5e_build_rq_params(mdev, params);
+--- a/fs/sync.c
++++ b/fs/sync.c
+@@ -22,25 +22,6 @@
+ 			SYNC_FILE_RANGE_WAIT_AFTER)
  
--	/* HW LRO */
--	if (MLX5_CAP_ETH(mdev, lro_cap) &&
--	    params->rq_wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ) {
--		/* No XSK params: checking the availability of striding RQ in general. */
--		if (!mlx5e_rx_mpwqe_is_linear_skb(mdev, params, NULL))
--			params->packet_merge.type = slow_pci_heuristic(mdev) ?
--				MLX5E_PACKET_MERGE_NONE : MLX5E_PACKET_MERGE_LRO;
--	}
- 	params->packet_merge.timeout = mlx5e_choose_lro_timeout(mdev, MLX5E_DEFAULT_LRO_TIMEOUT);
+ /*
+- * Do the filesystem syncing work. For simple filesystems
+- * writeback_inodes_sb(sb) just dirties buffers with inodes so we have to
+- * submit IO for these buffers via __sync_blockdev(). This also speeds up the
+- * wait == 1 case since in that case write_inode() functions do
+- * sync_dirty_buffer() and thus effectively write one block at a time.
+- */
+-static int __sync_filesystem(struct super_block *sb, int wait)
+-{
+-	if (wait)
+-		sync_inodes_sb(sb);
+-	else
+-		writeback_inodes_sb(sb, WB_REASON_SYNC);
+-
+-	if (sb->s_op->sync_fs)
+-		sb->s_op->sync_fs(sb, wait);
+-	return __sync_blockdev(sb->s_bdev, wait);
+-}
+-
+-/*
+  * Write out and wait upon all dirty data associated with this
+  * superblock.  Filesystem data as well as the underlying block
+  * device.  Takes the superblock lock.
+@@ -61,10 +42,25 @@ int sync_filesystem(struct super_block *
+ 	if (sb_rdonly(sb))
+ 		return 0;
  
- 	/* CQ moderation params */
--- 
-2.35.1
-
+-	ret = __sync_filesystem(sb, 0);
++	/*
++	 * Do the filesystem syncing work.  For simple filesystems
++	 * writeback_inodes_sb(sb) just dirties buffers with inodes so we have
++	 * to submit I/O for these buffers via __sync_blockdev().  This also
++	 * speeds up the wait == 1 case since in that case write_inode()
++	 * methods call sync_dirty_buffer() and thus effectively write one block
++	 * at a time.
++	 */
++	writeback_inodes_sb(sb, WB_REASON_SYNC);
++	if (sb->s_op->sync_fs)
++		sb->s_op->sync_fs(sb, 0);
++	ret = __sync_blockdev(sb->s_bdev, 0);
+ 	if (ret < 0)
+ 		return ret;
+-	return __sync_filesystem(sb, 1);
++
++	sync_inodes_sb(sb);
++	if (sb->s_op->sync_fs)
++		sb->s_op->sync_fs(sb, 1);
++	return __sync_blockdev(sb->s_bdev, 1);
+ }
+ EXPORT_SYMBOL(sync_filesystem);
+ 
 
 
