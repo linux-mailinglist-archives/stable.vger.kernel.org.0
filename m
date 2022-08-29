@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2CAB5A49E7
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC1DC5A4938
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232413AbiH2Lan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:30:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55062 "EHLO
+        id S231754AbiH2LVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:21:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232728AbiH2L3q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:46 -0400
+        with ESMTP id S231556AbiH2LUi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:20:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36997393D;
-        Mon, 29 Aug 2022 04:18:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C2E66A4B6;
+        Mon, 29 Aug 2022 04:13:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70981B80EFA;
-        Mon, 29 Aug 2022 11:17:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2950C433D6;
-        Mon, 29 Aug 2022 11:17:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E97AB80F9C;
+        Mon, 29 Aug 2022 11:10:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2606C433D6;
+        Mon, 29 Aug 2022 11:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771869;
-        bh=f+sxPNp24pAkBBPm+zWJ/V2IkOpA4s2q0og+aCyQKIw=;
+        s=korg; t=1661771456;
+        bh=/YP6VvDcJ9DScd+mjxxX5q2txVxjWzz7n9jvS0JRzxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rCQowzh3bYdUgiYF1+ONvwcCwW9vwkbD9IElU9UxIij/f+1uTJ40A9XKqeueiOuLT
-         wFPxoxp8uwLcmZooDrn15fxuByLcfg0mL05ZGp4HWAE+DFPSEjF2kndGq7pVuvsgy7
-         8+c8qNZ1hbWoGZXE7oq5Vb51ksv6hxTMMUXGT3WA=
+        b=v8TvZZnlmYPj7vtUJOcipCIL6knEaFCf29Q+9WWxSegJrQcJzeSiSY6UFlA+7/qfo
+         6w21K+bWoLt02+Jr1n3ZtNW0YSOTxvtATKeZIijNjXqFa4lgyqS5XhnT55SwMKWiU3
+         +yXmbSyOtgtPHkHEuRJ+kmcFAa4DVBy3KOGFrsz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.19 125/158] nouveau: explicitly wait on the fence in nouveau_bo_move_m2mf
+        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 69/86] x86/unwind/orc: Unwind ftrace trampolines with correct ORC entry
 Date:   Mon, 29 Aug 2022 12:59:35 +0200
-Message-Id: <20220829105814.337312403@linuxfoundation.org>
+Message-Id: <20220829105759.370739152@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
+References: <20220829105756.500128871@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karol Herbst <kherbst@redhat.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit 6b04ce966a738ecdd9294c9593e48513c0dc90aa upstream.
+commit fc2e426b1161761561624ebd43ce8c8d2fa058da upstream.
 
-It is a bit unlcear to us why that's helping, but it does and unbreaks
-suspend/resume on a lot of GPUs without any known drawbacks.
+When meeting ftrace trampolines in ORC unwinding, unwinder uses address
+of ftrace_{regs_}call address to find the ORC entry, which gets next frame at
+sp+176.
 
-Cc: stable@vger.kernel.org # v5.15+
-Closes: https://gitlab.freedesktop.org/drm/nouveau/-/issues/156
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220819200928.401416-1-kherbst@redhat.com
+If there is an IRQ hitting at sub $0xa8,%rsp, the next frame should be
+sp+8 instead of 176. It makes unwinder skip correct frame and throw
+warnings such as "wrong direction" or "can't access registers", etc,
+depending on the content of the incorrect frame address.
+
+By adding the base address ftrace_{regs_}caller with the offset
+*ip - ops->trampoline*, we can get the correct address to find the ORC entry.
+
+Also change "caller" to "tramp_addr" to make variable name conform to
+its content.
+
+[ mingo: Clarified the changelog a bit. ]
+
+Fixes: 6be7fa3c74d1 ("ftrace, orc, x86: Handle ftrace dynamically allocated trampolines")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220819084334.244016-1-chenzhongjin@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_bo.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/x86/kernel/unwind_orc.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-@@ -820,6 +820,15 @@ nouveau_bo_move_m2mf(struct ttm_buffer_o
- 		if (ret == 0) {
- 			ret = nouveau_fence_new(chan, false, &fence);
- 			if (ret == 0) {
-+				/* TODO: figure out a better solution here
-+				 *
-+				 * wait on the fence here explicitly as going through
-+				 * ttm_bo_move_accel_cleanup somehow doesn't seem to do it.
-+				 *
-+				 * Without this the operation can timeout and we'll fallback to a
-+				 * software copy, which might take several minutes to finish.
-+				 */
-+				nouveau_fence_wait(fence, false, false);
- 				ret = ttm_bo_move_accel_cleanup(bo,
- 								&fence->base,
- 								evict, false,
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -93,22 +93,27 @@ static struct orc_entry *orc_find(unsign
+ static struct orc_entry *orc_ftrace_find(unsigned long ip)
+ {
+ 	struct ftrace_ops *ops;
+-	unsigned long caller;
++	unsigned long tramp_addr, offset;
+ 
+ 	ops = ftrace_ops_trampoline(ip);
+ 	if (!ops)
+ 		return NULL;
+ 
++	/* Set tramp_addr to the start of the code copied by the trampoline */
+ 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
+-		caller = (unsigned long)ftrace_regs_call;
++		tramp_addr = (unsigned long)ftrace_regs_caller;
+ 	else
+-		caller = (unsigned long)ftrace_call;
++		tramp_addr = (unsigned long)ftrace_caller;
++
++	/* Now place tramp_addr to the location within the trampoline ip is at */
++	offset = ip - ops->trampoline;
++	tramp_addr += offset;
+ 
+ 	/* Prevent unlikely recursion */
+-	if (ip == caller)
++	if (ip == tramp_addr)
+ 		return NULL;
+ 
+-	return orc_find(caller);
++	return orc_find(tramp_addr);
+ }
+ #else
+ static struct orc_entry *orc_ftrace_find(unsigned long ip)
 
 
