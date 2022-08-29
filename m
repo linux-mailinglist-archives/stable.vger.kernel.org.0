@@ -2,83 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 286715A50C6
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 17:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFCC05A50CA
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 17:56:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229762AbiH2Pzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 11:55:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35230 "EHLO
+        id S229713AbiH2P4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 11:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbiH2Pzc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 11:55:32 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E57357C3
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 08:55:31 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27TFiZAO014726;
-        Mon, 29 Aug 2022 15:55:30 GMT
+        with ESMTP id S230211AbiH2P4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 11:56:03 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D9C7895F9
+        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 08:56:02 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27TFkYee020871;
+        Mon, 29 Aug 2022 15:56:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=+rki0Z1zaWZwbFbpC3NpclhGYALyKYmxsbKzPpUxdxg=;
- b=S2DWXFDMJzYuVa6g4ZpvUaUQWfExTq+oD02zp/CC8SL9Ket6VYYmpdomhKhPRd+8zRDm
- k5Fh4pyTGXFqMizeeh23J+6qGrqdxzyYzU4HtXZI3YMgwkAB0ukIaMumrZdck/DUMStx
- JJE34AB3R3fWHXnO73pfPhpLAM11upEHfHwtQr/fubDlA/rz7xAxS0ZXV96z95WTFZcp
- DySKGliLxSTujT26TyxDCuimwq3gFwVgfMofx7qS6qAywzILgFEfI2H1mo+vEQzK//95
- TZujYjy2VGgKdwyyfqLiYHjl5NibvmK6n0T8IB5+4BjZJYe3aGUbMPocTzYepLA5MlKH Wg== 
+ : mime-version; s=pp1; bh=/plhqjySGXXbkXjgfnqGTCEDJfZchIkM3TyKVsEb9Qk=;
+ b=If7Dx8qL/I2AOMqR14Yig1k15okjB7/Bitb9ZKhyGT/N5cCPGZBXSjQbe8Uv3B4VQXil
+ XrfZVDWc+w+ZYulRgg2WV554V0/aTgRMXnZF9w4/T3gyCxdyysPihdD/3pn1WhErAXp3
+ jG1y7+SaRehE5YLlHcOk2sD2YcB7ZvmW0qCiGUkte0DYCv2BG/Vh+amLLLoMTmo2m5aN
+ IGFmEkPqf6ZS6VPDo7BjT6NxDaUjNs/M2/3hg2tjyVJDjO6epS0zVx6N4eSMG709BL78
+ 7q0ai1bJULnEDa8uKMrM9UWDu8LesbDmIqk7rj8HUE/xJVTvD8/z/Wyj9SZQORXzaIJK 8Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j90c3rv30-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j90cu8kmj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Aug 2022 15:55:30 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27TFk2Q7020916;
-        Mon, 29 Aug 2022 15:55:29 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j90c3rv0d-1
+        Mon, 29 Aug 2022 15:56:01 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27TFlOom024070;
+        Mon, 29 Aug 2022 15:56:00 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j90cu8khb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Aug 2022 15:55:29 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27TFpRCS009399;
-        Mon, 29 Aug 2022 15:55:27 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04ams.nl.ibm.com with ESMTP id 3j7aw8tha4-1
+        Mon, 29 Aug 2022 15:56:00 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27TFqBAB005494;
+        Mon, 29 Aug 2022 15:55:56 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3j7ahhsuga-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Aug 2022 15:55:27 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27TFqDFv38011344
+        Mon, 29 Aug 2022 15:55:55 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27TFuEML41615688
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 29 Aug 2022 15:52:13 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 775ADAE045;
-        Mon, 29 Aug 2022 15:55:24 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3B7B3AE04D;
-        Mon, 29 Aug 2022 15:55:24 +0000 (GMT)
+        Mon, 29 Aug 2022 15:56:14 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CBB98A405B;
+        Mon, 29 Aug 2022 15:55:52 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 965D9A4054;
+        Mon, 29 Aug 2022 15:55:52 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 29 Aug 2022 15:55:24 +0000 (GMT)
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 29 Aug 2022 15:55:52 +0000 (GMT)
 From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 To:     gregkh@linuxfoundation.org
 Cc:     david@redhat.com, gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
         hca@linux.ibm.com, stable@vger.kernel.org
-Subject: [PATCH 4.19] s390/mm: do not trigger write fault when vma does not allow VM_WRITE
-Date:   Mon, 29 Aug 2022 17:55:22 +0200
-Message-Id: <20220829155522.3866289-1-gerald.schaefer@linux.ibm.com>
+Subject: [PATCH 5.4] s390/mm: do not trigger write fault when vma does not allow VM_WRITE
+Date:   Mon, 29 Aug 2022 17:55:49 +0200
+Message-Id: <20220829155549.3866458-1-gerald.schaefer@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <1661758662124123@kroah.com>
-References: <1661758662124123@kroah.com>
+In-Reply-To: <16617586615547@kroah.com>
+References: <16617586615547@kroah.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: DujRfmB1qndc7vWA0O63JvwbuKg7lrb9
-X-Proofpoint-GUID: 49lv--HZjCW2qGFYVwTsVPrH74HcKVzu
+X-Proofpoint-GUID: i2flHhBPKdqjyck8UbgdPecIrIecnhgZ
+X-Proofpoint-ORIG-GUID: -ptmU5sga0D0cmsFqwhFDcMxcpdJoLvy
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-08-29_07,2022-08-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=999 suspectscore=0 phishscore=0 clxscore=1015 bulkscore=0
- mlxscore=0 adultscore=0 malwarescore=0 impostorscore=0 spamscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1015
+ lowpriorityscore=0 phishscore=0 suspectscore=0 priorityscore=1501
+ bulkscore=0 mlxscore=0 adultscore=0 impostorscore=0 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2207270000 definitions=main-2208290073
 X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
@@ -117,10 +117,10 @@ Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index a6e3c7022245..d64b180caeda 100644
+index 7b0bb475c166..9770381776a6 100644
 --- a/arch/s390/mm/fault.c
 +++ b/arch/s390/mm/fault.c
-@@ -455,7 +455,9 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+@@ -432,7 +432,9 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
  	flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
  	if (user_mode(regs))
  		flags |= FAULT_FLAG_USER;
