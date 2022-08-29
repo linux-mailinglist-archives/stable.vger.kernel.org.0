@@ -2,112 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DB215A5608
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 23:20:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7302C5A5686
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 23:52:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbiH2VUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 17:20:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56012 "EHLO
+        id S229904AbiH2VwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 17:52:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229722AbiH2VUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 17:20:48 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFC8053D07
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 14:20:47 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id jm11so9177373plb.13
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 14:20:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc;
-        bh=vKVUa93sxM19Uy1dmsGVMayUSmR5dADcgyx6lBR87O4=;
-        b=o0LkaGgz5n3SnWPqJiKQhayAyC2kHhqiXcctuKpfeMBE9PThPrnVXe2lpwAFT8TKyg
-         BzSb9YYI8InyJTmV1CYben0Mwmlj9AcfTK5cUzkmGAoniCmH91JR2rtM72o7MaWGx906
-         xn/NkMKz7eT9KTbLEHiZKfjT8XkTE9GPNVwPDAOH8a0tfbS4mAw4UqQdUjHwaIVV/jK2
-         rjyBY/HSX2TI997mjbQD5IwZbWRcqXmU3auEN+qyI+SDyMrin8OlK8mmMN79krEarJn0
-         n0+YwmrL/Kn6rCPXuG/osXvQ8/zsMUqLM1q1Q/dJ8Uwwvt+m9O/yYeF1Ji2VoXcW0OKS
-         a0WQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=vKVUa93sxM19Uy1dmsGVMayUSmR5dADcgyx6lBR87O4=;
-        b=NbJp9OVdbeXuRyHG0M/d5toUOBcKK3hfFCTqo8aIz1T8Y4wrwKIF1N4VGIFg7HMvvB
-         yXQle4o1rVJ5cVK8UwbnaKcP/292jW97bm4Efct5UChXalHnLqL767+Iyn1Wsqa5S4Yf
-         qWhnEd0bBpHtth/v9LbHq3xfIa9M0hrNwC5yqp4RQGNuBqlWI3y5t0uof8ma5BJ6QHYP
-         HYNYg4ff+p6Ws/SxudvnR79c609Bqe8ba9nPzQjFfnjfVv0/SoPzt2ahgeeMvjrZlr56
-         Dh8bBQCEWJSZwmeHEuw7Qh6S2HiskIyJp58b2Jpm5oWkd4UH6GQs4pT3zT/EfA7AmHYC
-         EyLg==
-X-Gm-Message-State: ACgBeo2+wYR3uJP/MXkuEnXRQDxT6p2t5D3bYejr2+ude3yk449XGuG2
-        WgcVu5HTvZ4yu5eGkzaKvMOVWg==
-X-Google-Smtp-Source: AA6agR4lDhKCnCY7kbEGog1W8meT77I95HpBbeYp1dmJtakPrSgvGnCq/4YUm5o4yKdEV/lI6SSNZA==
-X-Received: by 2002:a17:90b:1d0b:b0:1f5:72f:652c with SMTP id on11-20020a17090b1d0b00b001f5072f652cmr20176010pjb.38.1661808047093;
-        Mon, 29 Aug 2022 14:20:47 -0700 (PDT)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id n4-20020a170903110400b0016d6963cb12sm8044038plh.304.2022.08.29.14.20.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Aug 2022 14:20:45 -0700 (PDT)
-Date:   Mon, 29 Aug 2022 21:20:42 +0000
-From:   Carlos Llamas <cmllamas@google.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>,
-        Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Liam Howlett <liam.howlett@oracle.com>,
-        kernel-team@android.com,
-        syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com,
-        syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7] binder: fix alloc->vma_vm_mm null-ptr dereference
-Message-ID: <Yw0tqreGRPOwyAaX@google.com>
-References: <20220829201254.1814484-1-cmllamas@google.com>
- <20220829201254.1814484-2-cmllamas@google.com>
- <20220829133452.cd4d9abe858c940126557c41@linux-foundation.org>
+        with ESMTP id S229884AbiH2VwN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 17:52:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BADAAA061C;
+        Mon, 29 Aug 2022 14:52:11 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63E35B8121B;
+        Mon, 29 Aug 2022 21:52:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 031F3C433D7;
+        Mon, 29 Aug 2022 21:52:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1661809929;
+        bh=7Jc9lfPSa/RKCHMNGaoGKZTxV4IfoIxki5b/Q03tyDQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=SBNcYUJCWANaShZsh03IOumNVt1m4+Oo46saZ+khMm3JsraoWL8gGyWo5X8JzfRDB
+         d8zeBvX4xqy65EX/AkiqwhQNjaC7E6i2aki4h51ll8ahHjzsaJ0JsQ5SF9CFm6Tb1K
+         OFS+E+bQlebrJ72yPfWdBlR5l0hoKbPaIle8GrvQT96lcYWkfrp9strViU+yWHb8MX
+         D1rTO5n25wRZr4mqabXFyYdc9iC1TdjKNVdBfHaBTl6T1UBxpFfLx4B/rp7oCj13bK
+         DPXO5AV8VXi6OTuSOBJ41rzZQYftVdpyzNSgEXT3PlQlPE8ixfoiqF/NWjOMxuxzlY
+         FQDlek4I0o54A==
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org,
+        syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
+Subject: [PATCH] f2fs: fix missing mapping caused by the mount/umount race
+Date:   Mon, 29 Aug 2022 14:52:06 -0700
+Message-Id: <20220829215206.3082124-1-jaegeuk@kernel.org>
+X-Mailer: git-send-email 2.37.2.672.g94769d06f0-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220829133452.cd4d9abe858c940126557c41@linux-foundation.org>
-X-Spam-Status: No, score=-14.9 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,FSL_HELO_FAKE,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 29, 2022 at 01:34:52PM -0700, Andrew Morton wrote:
-> On Mon, 29 Aug 2022 20:12:48 +0000 Carlos Llamas <cmllamas@google.com> wrote:
-> 
-> > Syzbot reported a couple issues introduced by commit 44e602b4e52f
-> > ("binder_alloc: add missing mmap_lock calls when using the VMA"), in
-> > which we attempt to acquire the mmap_lock when alloc->vma_vm_mm has not
-> > been initialized yet.
-> > 
-> > This can happen if a binder_proc receives a transaction without having
-> > previously called mmap() to setup the binder_proc->alloc space in [1].
-> > Also, a similar issue occurs via binder_alloc_print_pages() when we try
-> > to dump the debugfs binder stats file in [2].
-> 
-> Thanks.  I assume you'll be merging all these into mainline?
+Sometimes we can get a cached meta_inode which has no aops yet. Let's set it
+all the time to fix the below panic.
 
-Yes, I believe Greg will pick up these patches into his char-misc tree.
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+Mem abort info:
+  ESR = 0x0000000086000004
+  EC = 0x21: IABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+  FSC = 0x04: level 0 translation fault
+user pgtable: 4k pages, 48-bit VAs, pgdp=0000000109ee4000
+[0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+Internal error: Oops: 86000004 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 1 PID: 3045 Comm: syz-executor330 Not tainted 6.0.0-rc2-syzkaller-16455-ga41a877bc12d #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
+pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : 0x0
+lr : folio_mark_dirty+0xbc/0x208 mm/page-writeback.c:2748
+sp : ffff800012783970
+x29: ffff800012783970 x28: 0000000000000000 x27: ffff800012783b08
+x26: 0000000000000001 x25: 0000000000000400 x24: 0000000000000001
+x23: ffff0000c736e000 x22: 0000000000000045 x21: 05ffc00000000015
+x20: ffff0000ca7403b8 x19: fffffc00032ec600 x18: 0000000000000181
+x17: ffff80000c04d6bc x16: ffff80000dbb8658 x15: 0000000000000000
+x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+x11: ff808000083e9814 x10: 0000000000000000 x9 : ffff8000083e9814
+x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0000000000000000
+x5 : ffff0000cbb19000 x4 : ffff0000cb3d2000 x3 : ffff0000cbb18f80
+x2 : fffffffffffffff0 x1 : fffffc00032ec600 x0 : ffff0000ca7403b8
+Call trace:
+ 0x0
+ set_page_dirty+0x38/0xbc mm/folio-compat.c:62
+ f2fs_update_meta_page+0x80/0xa8 fs/f2fs/segment.c:2369
+ do_checkpoint+0x794/0xea8 fs/f2fs/checkpoint.c:1522
+ f2fs_write_checkpoint+0x3b8/0x568 fs/f2fs/checkpoint.c:1679
 
-> 
-> > 
-> > Fixes: 44e602b4e52f ("binder_alloc: add missing mmap_lock calls when using the VMA")
-> > Reported-by: syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com
-> > Reported-by: syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com
-> > Cc: <stable@vger.kernel.org> # v5.15+
-> 
-> 44e602b4e52f is only present in 6.0-rcX?
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+---
+ fs/f2fs/inode.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-Right, it was just added to the stable queue earlier today:
-https://lore.kernel.org/all/20220829105814.857786586@linuxfoundation.org/
-https://lore.kernel.org/all/20220829105809.855177179@linuxfoundation.org/
+diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+index 6d11c365d7b4..1feb0a8a699e 100644
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -490,10 +490,7 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+ 	if (!inode)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	if (!(inode->i_state & I_NEW)) {
+-		trace_f2fs_iget(inode);
+-		return inode;
+-	}
++	/* We can see an old cached inode. Let's set the aops all the time. */
+ 	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi))
+ 		goto make_now;
+ 
+@@ -502,6 +499,11 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+ 		goto make_now;
+ #endif
+ 
++	if (!(inode->i_state & I_NEW)) {
++		trace_f2fs_iget(inode);
++		return inode;
++	}
++
+ 	ret = do_read_inode(inode);
+ 	if (ret)
+ 		goto bad_inode;
+@@ -557,7 +559,8 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+ 		file_dont_truncate(inode);
+ 	}
+ 
+-	unlock_new_inode(inode);
++	if (inode->i_state & I_NEW)
++		unlock_new_inode(inode);
+ 	trace_f2fs_iget(inode);
+ 	return inode;
+ 
+-- 
+2.37.2.672.g94769d06f0-goog
+
