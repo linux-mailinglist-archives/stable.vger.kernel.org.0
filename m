@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DEC45A4A3F
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:36:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4525A47DB
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:02:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232686AbiH2Lf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:35:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41764 "EHLO
+        id S230107AbiH2LCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:02:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233027AbiH2LeU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:34:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 647604BD15;
-        Mon, 29 Aug 2022 04:20:18 -0700 (PDT)
+        with ESMTP id S229935AbiH2LB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:01:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EC2A2AC7A;
+        Mon, 29 Aug 2022 04:01:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5EF0B80F52;
-        Mon, 29 Aug 2022 11:11:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0979AC433D6;
-        Mon, 29 Aug 2022 11:11:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F035F611A6;
+        Mon, 29 Aug 2022 11:01:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20E3C433D6;
+        Mon, 29 Aug 2022 11:01:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771488;
-        bh=K4RxJmbMgaFU6tPeX52e9w/cMTCP4240/24suTnHgEY=;
+        s=korg; t=1661770910;
+        bh=X5oYj97w2Zr9o+u8wQ8RFXzUEGRTSZQ+I3WOqowwdAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOf5Rp6HvhwuVNX5q5uz3fsI8FdXF6LpaZfQhCecdh+9fKc1Yyr9t8EiDo42JIaJo
-         aiau0/+Oj8gXwZGjyL2VNfLIkanVDZUX0d4TLw6YYV9VLAR1Rr07e6vt5JYqGldzt3
-         4mhc1QQpessPbK2hmqqPpRwMMx7tUCclc0kIEFa8=
+        b=CkB3xCLF+OcZDwzv1x//CGzsHDGDR4/wBLnT5Qz8uX6uHay6h+anWJnWShEQAZjXh
+         q7CrAqlu5Da0KChhOJVF0kBG5MRs6hexZtAPd697RPe/NNatrk8QfeA+yTVoXM3JA9
+         tPzlrsbZd1+IWCOQwVxvoWsnvjP2rOzswS0eq/x0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 036/158] net/mlx5e: Fix wrong tc flag used when set hw-tc-offload off
-Date:   Mon, 29 Aug 2022 12:58:06 +0200
-Message-Id: <20220829105810.310022748@linuxfoundation.org>
+Subject: [PATCH 5.15 020/136] scsi: qla2xxx: edif: Fix dropped IKE message
+Date:   Mon, 29 Aug 2022 12:58:07 +0200
+Message-Id: <20220829105805.432538063@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +57,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Dickman <maord@nvidia.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 550f96432e6f6770efdaee0e65239d61431062a1 ]
+[ Upstream commit c019cd656e717349ff22d0c41d6fbfc773f48c52 ]
 
-The cited commit reintroduced the ability to set hw-tc-offload
-in switchdev mode by reusing NIC mode calls without modifying it
-to support both modes, this can cause an illegal memory access
-when trying to turn hw-tc-offload off.
+This patch fixes IKE message being dropped due to error in processing Purex
+IOCB and Continuation IOCBs.
 
-Fix this by using the right TC_FLAG when checking if tc rules
-are installed while disabling hw-tc-offload.
-
-Fixes: d3cbd4254df8 ("net/mlx5e: Add ndo_set_feature for uplink representor")
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/20220713052045.10683-6-njavali@marvell.com
+Fixes: fac2807946c1 ("scsi: qla2xxx: edif: Add extraction of auth_els from the wire")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_isr.c | 54 +++++++++++++++-------------------
+ 1 file changed, 24 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 62aab20025345..9e6db779b6efa 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3678,7 +3678,9 @@ static int set_feature_hw_tc(struct net_device *netdev, bool enable)
- 	struct mlx5e_priv *priv = netdev_priv(netdev);
+diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
+index ecbc0a5ffb3f5..59f5918dca95f 100644
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -3707,12 +3707,11 @@ void qla24xx_nvme_ls4_iocb(struct scsi_qla_host *vha,
+  * Return: 0 all iocbs has arrived, xx- all iocbs have not arrived.
+  */
+ static int qla_chk_cont_iocb_avail(struct scsi_qla_host *vha,
+-	struct rsp_que *rsp, response_t *pkt)
++	struct rsp_que *rsp, response_t *pkt, u32 rsp_q_in)
+ {
+-	int start_pkt_ring_index, end_pkt_ring_index, n_ring_index;
+-	response_t *end_pkt;
++	int start_pkt_ring_index;
++	u32 iocb_cnt = 0;
+ 	int rc = 0;
+-	u32 rsp_q_in;
  
- #if IS_ENABLED(CONFIG_MLX5_CLS_ACT)
--	if (!enable && mlx5e_tc_num_filters(priv, MLX5_TC_FLAG(NIC_OFFLOAD))) {
-+	int tc_flag = mlx5e_is_uplink_rep(priv) ? MLX5_TC_FLAG(ESW_OFFLOAD) :
-+						  MLX5_TC_FLAG(NIC_OFFLOAD);
-+	if (!enable && mlx5e_tc_num_filters(priv, tc_flag)) {
- 		netdev_err(netdev,
- 			   "Active offloaded tc filters, can't turn hw_tc_offload off\n");
- 		return -EINVAL;
+ 	if (pkt->entry_count == 1)
+ 		return rc;
+@@ -3723,34 +3722,18 @@ static int qla_chk_cont_iocb_avail(struct scsi_qla_host *vha,
+ 	else
+ 		start_pkt_ring_index = rsp->ring_index - 1;
+ 
+-	if ((start_pkt_ring_index + pkt->entry_count) >= rsp->length)
+-		end_pkt_ring_index = start_pkt_ring_index + pkt->entry_count -
+-			rsp->length - 1;
++	if (rsp_q_in < start_pkt_ring_index)
++		/* q in ptr is wrapped */
++		iocb_cnt = rsp->length - start_pkt_ring_index + rsp_q_in;
+ 	else
+-		end_pkt_ring_index = start_pkt_ring_index + pkt->entry_count - 1;
++		iocb_cnt = rsp_q_in - start_pkt_ring_index;
+ 
+-	end_pkt = rsp->ring + end_pkt_ring_index;
+-
+-	/*  next pkt = end_pkt + 1 */
+-	n_ring_index = end_pkt_ring_index + 1;
+-	if (n_ring_index >= rsp->length)
+-		n_ring_index = 0;
+-
+-	rsp_q_in = rsp->qpair->use_shadow_reg ? *rsp->in_ptr :
+-		rd_reg_dword(rsp->rsp_q_in);
+-
+-	/* rsp_q_in is either wrapped or pointing beyond endpkt */
+-	if ((rsp_q_in < start_pkt_ring_index && rsp_q_in < n_ring_index) ||
+-			rsp_q_in >= n_ring_index)
+-		/* all IOCBs arrived. */
+-		rc = 0;
+-	else
++	if (iocb_cnt < pkt->entry_count)
+ 		rc = -EIO;
+ 
+-	ql_dbg(ql_dbg_init + ql_dbg_verbose, vha, 0x5091,
+-	    "%s - ring %p pkt %p end pkt %p entry count %#x rsp_q_in %d rc %d\n",
+-	    __func__, rsp->ring, pkt, end_pkt, pkt->entry_count,
+-	    rsp_q_in, rc);
++	ql_dbg(ql_dbg_init, vha, 0x5091,
++	       "%s - ring %p pkt %p entry count %d iocb_cnt %d rsp_q_in %d rc %d\n",
++	       __func__, rsp->ring, pkt, pkt->entry_count, iocb_cnt, rsp_q_in, rc);
+ 
+ 	return rc;
+ }
+@@ -3767,7 +3750,7 @@ void qla24xx_process_response_queue(struct scsi_qla_host *vha,
+ 	struct qla_hw_data *ha = vha->hw;
+ 	struct purex_entry_24xx *purex_entry;
+ 	struct purex_item *pure_item;
+-	u16 rsp_in = 0;
++	u16 rsp_in = 0, cur_ring_index;
+ 	int follow_inptr, is_shadow_hba;
+ 
+ 	if (!ha->flags.fw_started)
+@@ -3798,6 +3781,7 @@ void qla24xx_process_response_queue(struct scsi_qla_host *vha,
+ 		       (!follow_inptr &&
+ 			rsp->ring_ptr->signature != RESPONSE_PROCESSED)) {
+ 		pkt = (struct sts_entry_24xx *)rsp->ring_ptr;
++		cur_ring_index = rsp->ring_index;
+ 
+ 		rsp->ring_index++;
+ 		if (rsp->ring_index == rsp->length) {
+@@ -3918,7 +3902,17 @@ void qla24xx_process_response_queue(struct scsi_qla_host *vha,
+ 				break;
+ 
+ 			case ELS_AUTH_ELS:
+-				if (qla_chk_cont_iocb_avail(vha, rsp, (response_t *)pkt)) {
++				if (qla_chk_cont_iocb_avail(vha, rsp, (response_t *)pkt, rsp_in)) {
++					/*
++					 * ring_ptr and ring_index were
++					 * pre-incremented above. Reset them
++					 * back to current. Wait for next
++					 * interrupt with all IOCBs to arrive
++					 * and re-process.
++					 */
++					rsp->ring_ptr = (response_t *)pkt;
++					rsp->ring_index = cur_ring_index;
++
+ 					ql_dbg(ql_dbg_init, vha, 0x5091,
+ 					    "Defer processing ELS opcode %#x...\n",
+ 					    purex_entry->els_frame_payload[3]);
 -- 
 2.35.1
 
