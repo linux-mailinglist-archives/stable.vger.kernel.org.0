@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F1025A4995
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 799E85A4859
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232115AbiH2L02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:26:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40560 "EHLO
+        id S230389AbiH2LJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:09:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231934AbiH2LZZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:25:25 -0400
+        with ESMTP id S230521AbiH2LId (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:08:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B14A7674B;
-        Mon, 29 Aug 2022 04:15:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFCB86527E;
+        Mon, 29 Aug 2022 04:05:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42AABB80EF8;
-        Mon, 29 Aug 2022 11:15:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD2FFC433C1;
-        Mon, 29 Aug 2022 11:15:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17E35B80F10;
+        Mon, 29 Aug 2022 11:04:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75156C433C1;
+        Mon, 29 Aug 2022 11:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771719;
-        bh=zAw9Qz5eVTs6jKYDhTZVLZUcpJ8E6p9Z7KRjpQWeG4U=;
+        s=korg; t=1661771063;
+        bh=g4os0/ez26nrauGumgFQEHoy+Q8e4jwx5m8oNhza+Lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AzuMTO5eBCoc8iXR/Oj7fSrQsutQYUiUeU8RrMJfHmCU5w9aiVwy0i6N04qcGINvk
-         eGsrDsfhdfUPE5xanw2cDGYZuEsj0wlefwd5Q9plOqR/kzMD5XP5CmJitnZgt9ZCsN
-         EcQ5LJoTJWUfNOkhqrTOAriIIJLumP73CnVUa9Sg=
+        b=Y/Bqmj6bhOLYopsz0AbL8bWz5foTlyKB331h8V+QWc+rljkwD9mXocMa2sAgJFFbA
+         dwTgO5g6R5FlxXbSs42RL184zno0JGnk+rgY5bSdtFX/h6/2QFK8ixLuZR9MqkhaxL
+         0G1mh4bten/FqKCzbM30rQNTjNrmY9Ymx4PTHxYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 073/158] net: Fix a data-race around sysctl_net_busy_read.
+Subject: [PATCH 5.15 056/136] netfilter: nf_tables: make table handle allocation per-netns friendly
 Date:   Mon, 29 Aug 2022 12:58:43 +0200
-Message-Id: <20220829105812.078974628@linuxfoundation.org>
+Message-Id: <20220829105806.923199963@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105808.828227973@linuxfoundation.org>
-References: <20220829105808.828227973@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit e59ef36f0795696ab229569c153936bfd068d21c ]
+[ Upstream commit ab482c6b66a4a8c0a8c0b0f577a785cf9ff1c2e2 ]
 
-While reading sysctl_net_busy_read, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+mutex is per-netns, move table_netns to the pernet area.
 
-Fixes: 2d48d67fa8cd ("net: poll/select low latency socket support")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+*read-write* to 0xffffffff883a01e8 of 8 bytes by task 6542 on cpu 0:
+ nf_tables_newtable+0x6dc/0xc00 net/netfilter/nf_tables_api.c:1221
+ nfnetlink_rcv_batch net/netfilter/nfnetlink.c:513 [inline]
+ nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:634 [inline]
+ nfnetlink_rcv+0xa6a/0x13a0 net/netfilter/nfnetlink.c:652
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x652/0x730 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x643/0x740 net/netlink/af_netlink.c:1921
+
+Fixes: f102d66b335a ("netfilter: nf_tables: use dedicated mutex to guard transactions")
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/netfilter/nf_tables.h | 1 +
+ net/netfilter/nf_tables_api.c     | 3 +--
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index d672e63a5c2d4..16ab5ef749c60 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -3365,7 +3365,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index f56a1071c0052..af4d9f1049528 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -1595,6 +1595,7 @@ struct nftables_pernet {
+ 	struct list_head	module_list;
+ 	struct list_head	notify_list;
+ 	struct mutex		commit_mutex;
++	u64			table_handle;
+ 	unsigned int		base_seq;
+ 	u8			validate_state;
+ };
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 58f9513bd1419..96903c72ebb45 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -32,7 +32,6 @@ static LIST_HEAD(nf_tables_objects);
+ static LIST_HEAD(nf_tables_flowtables);
+ static LIST_HEAD(nf_tables_destroy_list);
+ static DEFINE_SPINLOCK(nf_tables_destroy_list_lock);
+-static u64 table_handle;
  
- #ifdef CONFIG_NET_RX_BUSY_POLL
- 	sk->sk_napi_id		=	0;
--	sk->sk_ll_usec		=	sysctl_net_busy_read;
-+	sk->sk_ll_usec		=	READ_ONCE(sysctl_net_busy_read);
- #endif
+ enum {
+ 	NFT_VALIDATE_SKIP	= 0,
+@@ -1156,7 +1155,7 @@ static int nf_tables_newtable(struct sk_buff *skb, const struct nfnl_info *info,
+ 	INIT_LIST_HEAD(&table->flowtables);
+ 	table->family = family;
+ 	table->flags = flags;
+-	table->handle = ++table_handle;
++	table->handle = ++nft_net->table_handle;
+ 	if (table->flags & NFT_TABLE_F_OWNER)
+ 		table->nlpid = NETLINK_CB(skb).portid;
  
- 	sk->sk_max_pacing_rate = ~0UL;
 -- 
 2.35.1
 
