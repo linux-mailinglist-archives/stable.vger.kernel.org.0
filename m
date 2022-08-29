@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0E1C5A4822
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D83C05A4851
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230346AbiH2LGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:06:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44572 "EHLO
+        id S230512AbiH2LI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:08:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230255AbiH2LFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:05:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78FAD61D57;
-        Mon, 29 Aug 2022 04:04:05 -0700 (PDT)
+        with ESMTP id S230381AbiH2LH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:07:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B29712778;
+        Mon, 29 Aug 2022 04:05:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAFD9B80EF3;
-        Mon, 29 Aug 2022 11:04:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A534C433C1;
-        Mon, 29 Aug 2022 11:04:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF92DB80EFD;
+        Mon, 29 Aug 2022 11:03:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 122CCC433D7;
+        Mon, 29 Aug 2022 11:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771043;
-        bh=Hg0iic/LV1UHfhKvfDy001aBE/HyLI2pbHSboJUYZH4=;
+        s=korg; t=1661771032;
+        bh=MSbtcP4DVTBwTKfXt/XLBcPj7KhlA006+k6U4WaCZTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GL0liS7EzVDUOmdEVm6Rg4cTdhJQDjnaTRbJPfJq4duLeWnceAgz7zruiNelTFo20
-         iwGu6EmwowB0PMH8MZRezg78Ob9Ngg4mU2oThHDjLMMsPb+gi8fqYEhMJPs6hD0iZa
-         p/xk/lwMpH5+tUCKm32FsDfpb7pBm5e5FRmlJY6A=
+        b=o304jP49cImH3DpVJSlt9oXP6UuHOPBkmDHIj5eWtIrytieTVO20u2BTxBcW22Zdm
+         gsNb1nvI4zGrWVvv0DOzvFqVk/a2+LAbhvC/Js2/O/PBdYYT8PUwbutJmzdU3fDjOx
+         6E8O/uejVhxVOIjQ+N5P5/31w6BYFMjffHvyJv/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Jonathan Toppins <jtoppins@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 12/86] xfrm: fix refcount leak in __xfrm_policy_check()
+Subject: [PATCH 5.15 051/136] bonding: 802.3ad: fix no transmission of LACPDUs
 Date:   Mon, 29 Aug 2022 12:58:38 +0200
-Message-Id: <20220829105757.031310925@linuxfoundation.org>
+Message-Id: <20220829105806.720926470@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220829105756.500128871@linuxfoundation.org>
-References: <20220829105756.500128871@linuxfoundation.org>
+In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
+References: <20220829105804.609007228@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +55,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Jonathan Toppins <jtoppins@redhat.com>
 
-[ Upstream commit 9c9cb23e00ddf45679b21b4dacc11d1ae7961ebe ]
+[ Upstream commit d745b5062ad2b5da90a5e728d7ca884fc07315fd ]
 
-The issue happens on an error path in __xfrm_policy_check(). When the
-fetching process of the object `pols[1]` fails, the function simply
-returns 0, forgetting to decrement the reference count of `pols[0]`,
-which is incremented earlier by either xfrm_sk_policy_lookup() or
-xfrm_policy_lookup(). This may result in memory leaks.
+This is caused by the global variable ad_ticks_per_sec being zero as
+demonstrated by the reproducer script discussed below. This causes
+all timer values in __ad_timer_to_ticks to be zero, resulting
+in the periodic timer to never fire.
 
-Fix it by decreasing the reference count of `pols[0]` in that path.
+To reproduce:
+Run the script in
+`tools/testing/selftests/drivers/net/bonding/bond-break-lacpdu-tx.sh` which
+puts bonding into a state where it never transmits LACPDUs.
 
-Fixes: 134b0fc544ba ("IPsec: propagate security module errors up from flow_cache_lookup")
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+line 44: ip link add fbond type bond mode 4 miimon 200 \
+            xmit_hash_policy 1 ad_actor_sys_prio 65535 lacp_rate fast
+setting bond param: ad_actor_sys_prio
+given:
+    params.ad_actor_system = 0
+call stack:
+    bond_option_ad_actor_sys_prio()
+    -> bond_3ad_update_ad_actor_settings()
+       -> set ad.system.sys_priority = bond->params.ad_actor_sys_prio
+       -> ad.system.sys_mac_addr = bond->dev->dev_addr; because
+            params.ad_actor_system == 0
+results:
+     ad.system.sys_mac_addr = bond->dev->dev_addr
+
+line 48: ip link set fbond address 52:54:00:3B:7C:A6
+setting bond MAC addr
+call stack:
+    bond->dev->dev_addr = new_mac
+
+line 52: ip link set fbond type bond ad_actor_sys_prio 65535
+setting bond param: ad_actor_sys_prio
+given:
+    params.ad_actor_system = 0
+call stack:
+    bond_option_ad_actor_sys_prio()
+    -> bond_3ad_update_ad_actor_settings()
+       -> set ad.system.sys_priority = bond->params.ad_actor_sys_prio
+       -> ad.system.sys_mac_addr = bond->dev->dev_addr; because
+            params.ad_actor_system == 0
+results:
+     ad.system.sys_mac_addr = bond->dev->dev_addr
+
+line 60: ip link set veth1-bond down master fbond
+given:
+    params.ad_actor_system = 0
+    params.mode = BOND_MODE_8023AD
+    ad.system.sys_mac_addr == bond->dev->dev_addr
+call stack:
+    bond_enslave
+    -> bond_3ad_initialize(); because first slave
+       -> if ad.system.sys_mac_addr != bond->dev->dev_addr
+          return
+results:
+     Nothing is run in bond_3ad_initialize() because dev_addr equals
+     sys_mac_addr leaving the global ad_ticks_per_sec zero as it is
+     never initialized anywhere else.
+
+The if check around the contents of bond_3ad_initialize() is no longer
+needed due to commit 5ee14e6d336f ("bonding: 3ad: apply ad_actor settings
+changes immediately") which sets ad.system.sys_mac_addr if any one of
+the bonding parameters whos set function calls
+bond_3ad_update_ad_actor_settings(). This is because if
+ad.system.sys_mac_addr is zero it will be set to the current bond mac
+address, this causes the if check to never be true.
+
+Fixes: 5ee14e6d336f ("bonding: 3ad: apply ad_actor settings changes immediately")
+Signed-off-by: Jonathan Toppins <jtoppins@redhat.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_policy.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/bonding/bond_3ad.c | 38 ++++++++++++++--------------------
+ 1 file changed, 16 insertions(+), 22 deletions(-)
 
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index 603b05ed7eb4c..2cd66f3e52386 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -3641,6 +3641,7 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
- 		if (pols[1]) {
- 			if (IS_ERR(pols[1])) {
- 				XFRM_INC_STATS(net, LINUX_MIB_XFRMINPOLERROR);
-+				xfrm_pol_put(pols[0]);
- 				return 0;
- 			}
- 			pols[1]->curlft.use_time = ktime_get_real_seconds();
+diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
+index d7fb33c078e81..1f0120cbe9e80 100644
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -2007,30 +2007,24 @@ void bond_3ad_initiate_agg_selection(struct bonding *bond, int timeout)
+  */
+ void bond_3ad_initialize(struct bonding *bond, u16 tick_resolution)
+ {
+-	/* check that the bond is not initialized yet */
+-	if (!MAC_ADDRESS_EQUAL(&(BOND_AD_INFO(bond).system.sys_mac_addr),
+-				bond->dev->dev_addr)) {
+-
+-		BOND_AD_INFO(bond).aggregator_identifier = 0;
+-
+-		BOND_AD_INFO(bond).system.sys_priority =
+-			bond->params.ad_actor_sys_prio;
+-		if (is_zero_ether_addr(bond->params.ad_actor_system))
+-			BOND_AD_INFO(bond).system.sys_mac_addr =
+-			    *((struct mac_addr *)bond->dev->dev_addr);
+-		else
+-			BOND_AD_INFO(bond).system.sys_mac_addr =
+-			    *((struct mac_addr *)bond->params.ad_actor_system);
++	BOND_AD_INFO(bond).aggregator_identifier = 0;
++	BOND_AD_INFO(bond).system.sys_priority =
++		bond->params.ad_actor_sys_prio;
++	if (is_zero_ether_addr(bond->params.ad_actor_system))
++		BOND_AD_INFO(bond).system.sys_mac_addr =
++		    *((struct mac_addr *)bond->dev->dev_addr);
++	else
++		BOND_AD_INFO(bond).system.sys_mac_addr =
++		    *((struct mac_addr *)bond->params.ad_actor_system);
+ 
+-		/* initialize how many times this module is called in one
+-		 * second (should be about every 100ms)
+-		 */
+-		ad_ticks_per_sec = tick_resolution;
++	/* initialize how many times this module is called in one
++	 * second (should be about every 100ms)
++	 */
++	ad_ticks_per_sec = tick_resolution;
+ 
+-		bond_3ad_initiate_agg_selection(bond,
+-						AD_AGGREGATOR_SELECTION_TIMER *
+-						ad_ticks_per_sec);
+-	}
++	bond_3ad_initiate_agg_selection(bond,
++					AD_AGGREGATOR_SELECTION_TIMER *
++					ad_ticks_per_sec);
+ }
+ 
+ /**
 -- 
 2.35.1
 
