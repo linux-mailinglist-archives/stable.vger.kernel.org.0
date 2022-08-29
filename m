@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 027D65A49D1
-	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC51E5A4A64
+	for <lists+stable@lfdr.de>; Mon, 29 Aug 2022 13:37:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbiH2LaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 07:30:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55064 "EHLO
+        id S229950AbiH2Lhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 07:37:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232594AbiH2L3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:29:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C62EA7AC03;
-        Mon, 29 Aug 2022 04:17:36 -0700 (PDT)
+        with ESMTP id S232428AbiH2LhB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 07:37:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F766DF9E;
+        Mon, 29 Aug 2022 04:21:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9957661200;
-        Mon, 29 Aug 2022 11:09:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A66C433C1;
-        Mon, 29 Aug 2022 11:09:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2137DB80EF5;
+        Mon, 29 Aug 2022 11:09:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7267DC433D6;
+        Mon, 29 Aug 2022 11:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661771377;
-        bh=SNbqdDvO4C3RnGT26RP42Bqyg58JufuWY1q4hM5xNks=;
+        s=korg; t=1661771385;
+        bh=aw/3zNij5f5EZVoU20NAljEgXvZHzpu7ZFU2j+Zl8Uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EU35eAUNfbgtlOmT9nyux5fSpe5hvi6XMVeV0hWArXNXqTwxXYduYl7vJgpKu3qOs
-         UPKBmJ7ar+yVxz/iWxsPmOaWfCMnQLZ/Toe2hFcru/w/Nhcb6B7Te8hTWgKUabe0d1
-         t1lgQNmx4nOgB0L6ju9P/+00aLRbVWy+dAWtmw+I=
+        b=P3EHVlYkRWME5GIDBECg3mfTmOZEO6+JCrw0pPzlsSJifvlxdTSri1pkRTkIxHVQR
+         U7dqWHpePdM8DzLoNJ5Z1pPPI66MVNJvmEFF/J7j8ZMYNFUB5MUVUdjYBrF1yIkkDX
+         wLmbis0gGYADSVfdSZ52K9/M1CPpzPNsoIHbpstg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Greiner <samuel@balkonien.org>,
-        Anand Jain <anand.jain@oracle.com>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 097/136] btrfs: add info when mount fails due to stale replace target
-Date:   Mon, 29 Aug 2022 12:59:24 +0200
-Message-Id: <20220829105808.652303504@linuxfoundation.org>
+Subject: [PATCH 5.15 098/136] btrfs: check if root is readonly while setting security xattr
+Date:   Mon, 29 Aug 2022 12:59:25 +0200
+Message-Id: <20220829105808.695855923@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220829105804.609007228@linuxfoundation.org>
 References: <20220829105804.609007228@linuxfoundation.org>
@@ -54,47 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Goldwyn Rodrigues <rgoldwyn@suse.de>
 
-commit f2c3bec215694fb8bc0ef5010f2a758d1906fc2d upstream.
+commit b51111271b0352aa596c5ae8faf06939e91b3b68 upstream.
 
-If the replace target device reappears after the suspended replace is
-cancelled, it blocks the mount operation as it can't find the matching
-replace-item in the metadata. As shown below,
+For a filesystem which has btrfs read-only property set to true, all
+write operations including xattr should be denied. However, security
+xattr can still be changed even if btrfs ro property is true.
 
-   BTRFS error (device sda5): replace devid present without an active replace item
+This happens because xattr_permission() does not have any restrictions
+on security.*, system.*  and in some cases trusted.* from VFS and
+the decision is left to the underlying filesystem. See comments in
+xattr_permission() for more details.
 
-To overcome this situation, the user can run the command
+This patch checks if the root is read-only before performing the set
+xattr operation.
 
-   btrfs device scan --forget <replace target device>
+Testcase:
 
-and try the mount command again. And also, to avoid repeating the issue,
-superblock on the devid=0 must be wiped.
+  DEV=/dev/vdb
+  MNT=/mnt
 
-   wipefs -a device-path-to-devid=0.
+  mkfs.btrfs -f $DEV
+  mount $DEV $MNT
+  echo "file one" > $MNT/f1
 
-This patch adds some info when this situation occurs.
+  setfattr -n "security.one" -v 2 $MNT/f1
+  btrfs property set /mnt ro true
 
-Reported-by: Samuel Greiner <samuel@balkonien.org>
-Link: https://lore.kernel.org/linux-btrfs/b4f62b10-b295-26ea-71f9-9a5c9299d42c@balkonien.org/T/
-CC: stable@vger.kernel.org # 5.0+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
+  setfattr -n "security.one" -v 1 $MNT/f1
+
+  umount $MNT
+
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/dev-replace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/xattr.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -165,7 +165,7 @@ no_valid_dev_replace_entry_found:
- 		 */
- 		if (btrfs_find_device(fs_info->fs_devices, &args)) {
- 			btrfs_err(fs_info,
--			"replace devid present without an active replace item");
-+"replace without active item, run 'device scan --forget' on the target device");
- 			ret = -EUCLEAN;
- 		} else {
- 			dev_replace->srcdev = NULL;
+--- a/fs/btrfs/xattr.c
++++ b/fs/btrfs/xattr.c
+@@ -391,6 +391,9 @@ static int btrfs_xattr_handler_set(const
+ 				   const char *name, const void *buffer,
+ 				   size_t size, int flags)
+ {
++	if (btrfs_root_readonly(BTRFS_I(inode)->root))
++		return -EROFS;
++
+ 	name = xattr_full_name(handler, name);
+ 	return btrfs_setxattr_trans(inode, name, buffer, size, flags);
+ }
 
 
