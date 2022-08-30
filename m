@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 488FB5A6A38
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:27:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E245A6A19
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231263AbiH3R06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:26:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46386 "EHLO
+        id S231449AbiH3R0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:26:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231620AbiH3R03 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:26:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC9E111C14D;
-        Tue, 30 Aug 2022 10:24:26 -0700 (PDT)
+        with ESMTP id S231451AbiH3RZY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:25:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9EF1C1644;
+        Tue, 30 Aug 2022 10:23:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 002DB617A0;
-        Tue, 30 Aug 2022 17:22:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 122A3C43140;
-        Tue, 30 Aug 2022 17:22:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 321ACB81D12;
+        Tue, 30 Aug 2022 17:22:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F64CC433C1;
+        Tue, 30 Aug 2022 17:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880168;
-        bh=NltYM8yBpipvmbgQ7bMkNGD+BO0E+n1bKzDEVzlfdvw=;
+        s=k20201202; t=1661880169;
+        bh=L+kb1PjlO2zZUHIOB4XWHokuhAxTc5I1jpYA5piofE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uI6eZr9pB+Y2UreJ8DpnGGKitMKN0a9DDD4QSDA6TSM2Ph4c26zbuN4bSdIfFig2m
-         WtEwyaoRNDUEj3AFLJqHlbkZz6RHXJKJ19CuwtUNIUXDmsZCIoOkyBUr67qCNKmeOl
-         YpgESmLFFC5DZH7cBDCmDtYwNzjbtR+YMEhgQmbesg/9NiaK9Xyozgv1fJMnCbS4FF
-         KiB/H0+u3F2+ZLKX5BXFEo08grki7SIbMaVaqEFt8arUY2CTd2KmgDFIgmDv44Ey6t
-         IrUSp1fRrgzS/a1nhNQDgVg56cATrGhh4jtlDlKsAD2ZBxPzPIuGoohG2KjDdIjT//
-         tIrwmb06lDDIg==
+        b=IJsFmY1CufURLN/8BSKxeYADOqrOu7iTS+nb5vahZJtnexa8hFfJ7/ga+USEKrLxQ
+         Zi+0E7u8wPP9WJHIzcb6ArWiJvj48Cgli8LDP32SaRAinJAJF6OmZzKCVBPVx/lD/k
+         5RkTpVrlpEEJmlBviO5ZHg+0mzBIZ8TlXfySS2Fo7aHPT53o/KLLJpa0cXcUvF+nGq
+         5e/D5DTERVjzSKKO8zqcrjhJRxOJfLxQq2mR1BAmjlZN3qZzjj047ehjfMifvjXUi5
+         RLG+qKHchAu6GnKJ5KIAT4CBVam/k5ES/wrTLsr66joYajefclirPsj++MpdKt4avc
+         Uiz3PwLrzi0NA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     lily <floridsleeves@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, asml.silence@gmail.com,
-        imagedong@tencent.com, luiz.von.dentz@intel.com,
-        vasily.averin@linux.dev, jk@codeconstruct.com.au,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 18/23] net/core/skbuff: Check the return value of skb_copy_bits()
-Date:   Tue, 30 Aug 2022 13:21:35 -0400
-Message-Id: <20220830172141.581086-18-sashal@kernel.org>
+Cc:     David Sloan <david.sloan@eideticom.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 19/23] md: Flush workqueue md_rdev_misc_wq in md_alloc()
+Date:   Tue, 30 Aug 2022 13:21:36 -0400
+Message-Id: <20220830172141.581086-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172141.581086-1-sashal@kernel.org>
 References: <20220830172141.581086-1-sashal@kernel.org>
@@ -60,36 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lily <floridsleeves@gmail.com>
+From: David Sloan <david.sloan@eideticom.com>
 
-[ Upstream commit c624c58e08b15105662b9ab9be23d14a6b945a49 ]
+[ Upstream commit 5e8daf906f890560df430d30617c692a794acb73 ]
 
-skb_copy_bits() could fail, which requires a check on the return
-value.
+A race condition still exists when removing and re-creating md devices
+in test cases. However, it is only seen on some setups.
 
-Signed-off-by: Li Zhong <floridsleeves@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The race condition was tracked down to a reference still being held
+to the kobject by the rdev in the md_rdev_misc_wq which will be released
+in rdev_delayed_delete().
+
+md_alloc() waits for previous deletions by waiting on the md_misc_wq,
+but the md_rdev_misc_wq may still be holding a reference to a recently
+removed device.
+
+To fix this, also flush the md_rdev_misc_wq in md_alloc().
+
+Signed-off-by: David Sloan <david.sloan@eideticom.com>
+[logang@deltatee.com: rewrote commit message]
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/md/md.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 5ebef94e14dc6..161406cd991ae 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -4188,9 +4188,8 @@ struct sk_buff *skb_segment(struct sk_buff *head_skb,
- 				SKB_GSO_CB(nskb)->csum_start =
- 					skb_headroom(nskb) + doffset;
- 			} else {
--				skb_copy_bits(head_skb, offset,
--					      skb_put(nskb, len),
--					      len);
-+				if (skb_copy_bits(head_skb, offset, skb_put(nskb, len), len))
-+					goto err;
- 			}
- 			continue;
- 		}
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 33946adb0d6f6..17100b39ff14a 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -5651,6 +5651,7 @@ static int md_alloc(dev_t dev, char *name)
+ 	 * removed (mddev_delayed_delete).
+ 	 */
+ 	flush_workqueue(md_misc_wq);
++	flush_workqueue(md_rdev_misc_wq);
+ 
+ 	mutex_lock(&disks_mutex);
+ 	mddev = mddev_alloc(dev);
 -- 
 2.35.1
 
