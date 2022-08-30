@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78C0A5A6975
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:19:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F16285A6986
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229556AbiH3RSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:18:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58880 "EHLO
+        id S230394AbiH3RTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:19:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230321AbiH3RSo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:18:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3CCD6BB7;
-        Tue, 30 Aug 2022 10:18:42 -0700 (PDT)
+        with ESMTP id S230133AbiH3RTc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:19:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1437CDDB7B;
+        Tue, 30 Aug 2022 10:19:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC1556172F;
-        Tue, 30 Aug 2022 17:18:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E28BCC433C1;
-        Tue, 30 Aug 2022 17:18:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC2A1B81D0C;
+        Tue, 30 Aug 2022 17:19:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8761BC433D6;
+        Tue, 30 Aug 2022 17:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661879921;
-        bh=DPpbkP2lFMPQDukymNsUNw6LZGndApTSvx4rsplIZp8=;
+        s=k20201202; t=1661879940;
+        bh=Q+vMHRGkAwSDWOXbaXN+wZkgMIIyt/l7oOCUkocI/mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GAJrHU1NGEdQq284WLXcBAl28m6ykn/Iqd+GGAEwBNBspl/Fz34zctfBoy2gLpd7U
-         dPbc1sI/xKZUVC3ekdhMP8k0OivjhR/Zgb4h+LFoEtgyJ+ue2OE8fjtvtcymAu0XFr
-         P/3MrQuC0RfCnzmJqF38L91tQwR/P7wR+GNAGp4RPqN2qZSL93sGBx6k0gfnwzXdRC
-         ds/xhNCk1Hzncr7QZqnGWq1IDpN1mdAfrYtEnTPK8INZJOBB87x4Z5ns/WN1QB+CLy
-         NUJxd9Vhus2XzK4XNDUZVfJ5drQOIq5szxokGdKnX4htewLBRl3fYZeZJK+M0aZNaO
-         REq16EGlhwF3w==
+        b=toF2nozlKPtOX4wkepgkzH1jQgI0A8paAQvNCiQyvj675XlHQP4sQ5YSgw442b24d
+         Q2FjzwZKbCRHvenNdmg8g5S5FHgtfhye3gVmoNB6GyZLgDDkZXAR0pObcOYvt/ENKg
+         t+/WEHhVIpw/kkOANcXkie/fKLuGZCpMoUE4nO5ZnE72Ve0V7MEVPqBq7ilXNPRw2O
+         cfDuTovdsKyXkcDFVlPlj4K4ryWYM+q1IpX49Ir3sATS8Oc/wL7g5nx9TPP6EMcrbb
+         6whOos2M9ToAT0LycjW5E6RxIUl13KwBsN8nIrZk1VLxmIyFhShpGV8D7iIoJ56Egv
+         uugJpqPJK5eJw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Like Xu <likexu@tencent.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        acme@kernel.org, tglx@linutronix.de, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org,
-        linux-perf-users@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 08/33] perf/x86/core: Set pebs_capable and PMU_FL_PEBS_ALL for the Baseline
-Date:   Tue, 30 Aug 2022 13:17:59 -0400
-Message-Id: <20220830171825.580603-8-sashal@kernel.org>
+Cc:     YiPeng Chai <YiPeng.Chai@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        john.clements@amd.com, Likun.Gao@amd.com, candice.li@amd.com,
+        tao.zhou1@amd.com, guchun.chen@amd.com, Bokun.Zhang@amd.com,
+        andrey.grodzovsky@amd.com, bernard@vivo.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 09/33] drm/amdgpu: Move psp_xgmi_terminate call from amdgpu_xgmi_remove_device to psp_hw_fini
+Date:   Tue, 30 Aug 2022 13:18:00 -0400
+Message-Id: <20220830171825.580603-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830171825.580603-1-sashal@kernel.org>
 References: <20220830171825.580603-1-sashal@kernel.org>
@@ -60,60 +62,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: YiPeng Chai <YiPeng.Chai@amd.com>
 
-[ Upstream commit 7d3598868aaee05eb738d1c3115616b867e7530a ]
+[ Upstream commit 9d705d7741ae70764f3d6d87e67fad3b5c30ffd0 ]
 
-The SDM explicitly states that PEBS Baseline implies Extended PEBS.
-For cpu model forward compatibility (e.g. on ICX, SPR, ADL), it's
-safe to stop doing FMS table thing such as setting pebs_capable and
-PMU_FL_PEBS_ALL since it's already set in the intel_ds_init().
+V1:
+The amdgpu_xgmi_remove_device function will send unload command
+to psp through psp ring to terminate xgmi, but psp ring has been
+destroyed in psp_hw_fini.
 
-The Goldmont Plus is the only platform which supports extended PEBS
-but doesn't have Baseline. Keep the status quo.
+V2:
+1. Change the commit title.
+2. Restore amdgpu_xgmi_remove_device to its original calling location.
+   Move psp_xgmi_terminate call from amdgpu_xgmi_remove_device to
+   psp_hw_fini.
 
-Reported-by: Like Xu <likexu@tencent.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lkml.kernel.org/r/20220816114057.51307-1-likexu@tencent.com
+Signed-off-by: YiPeng Chai <YiPeng.Chai@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/core.c | 2 --
- arch/x86/events/intel/ds.c   | 1 +
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c  | 3 +++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index bd8b988576097..7333f505d790e 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -6192,7 +6192,6 @@ __init int intel_pmu_init(void)
- 		x86_pmu.pebs_block = true;
- 		x86_pmu.flags |= PMU_FL_HAS_RSP_1;
- 		x86_pmu.flags |= PMU_FL_NO_HT_SHARING;
--		x86_pmu.flags |= PMU_FL_PEBS_ALL;
- 		x86_pmu.flags |= PMU_FL_INSTR_LATENCY;
- 		x86_pmu.flags |= PMU_FL_MEM_LOADS_AUX;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index e9411c28d88ba..2b00f8fe15a89 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -2612,6 +2612,9 @@ static int psp_hw_fini(void *handle)
+ 		psp_rap_terminate(psp);
+ 		psp_dtm_terminate(psp);
+ 		psp_hdcp_terminate(psp);
++
++		if (adev->gmc.xgmi.num_physical_nodes > 1)
++			psp_xgmi_terminate(psp);
+ 	}
  
-@@ -6237,7 +6236,6 @@ __init int intel_pmu_init(void)
- 		x86_pmu.pebs_block = true;
- 		x86_pmu.flags |= PMU_FL_HAS_RSP_1;
- 		x86_pmu.flags |= PMU_FL_NO_HT_SHARING;
--		x86_pmu.flags |= PMU_FL_PEBS_ALL;
- 		x86_pmu.flags |= PMU_FL_INSTR_LATENCY;
- 		x86_pmu.flags |= PMU_FL_MEM_LOADS_AUX;
- 		x86_pmu.lbr_pt_coexist = true;
-diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
-index ba60427caa6d3..ac6dd4c96dbc1 100644
---- a/arch/x86/events/intel/ds.c
-+++ b/arch/x86/events/intel/ds.c
-@@ -2262,6 +2262,7 @@ void __init intel_ds_init(void)
- 					PERF_SAMPLE_BRANCH_STACK |
- 					PERF_SAMPLE_TIME;
- 				x86_pmu.flags |= PMU_FL_PEBS_ALL;
-+				x86_pmu.pebs_capable = ~0ULL;
- 				pebs_qual = "-baseline";
- 				x86_get_pmu(smp_processor_id())->capabilities |= PERF_PMU_CAP_EXTENDED_REGS;
- 			} else {
+ 	psp_asd_terminate(psp);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+index 1b108d03e7859..f2aebbf3fbe38 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+@@ -742,7 +742,7 @@ int amdgpu_xgmi_remove_device(struct amdgpu_device *adev)
+ 		amdgpu_put_xgmi_hive(hive);
+ 	}
+ 
+-	return psp_xgmi_terminate(&adev->psp);
++	return 0;
+ }
+ 
+ static int amdgpu_xgmi_ras_late_init(struct amdgpu_device *adev, struct ras_common_if *ras_block)
 -- 
 2.35.1
 
