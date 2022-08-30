@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B725A6A4C
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C60A5A6A8F
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:30:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231607AbiH3R1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:27:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46336 "EHLO
+        id S231626AbiH3Ras (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:30:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231655AbiH3R04 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:26:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3AFF15C7B9;
-        Tue, 30 Aug 2022 10:24:52 -0700 (PDT)
+        with ESMTP id S231639AbiH3RaK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:30:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0507F44;
+        Tue, 30 Aug 2022 10:26:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AA83B81D12;
-        Tue, 30 Aug 2022 17:24:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD356C433D6;
-        Tue, 30 Aug 2022 17:24:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36AEE617AE;
+        Tue, 30 Aug 2022 17:25:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7F60C433D7;
+        Tue, 30 Aug 2022 17:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880291;
-        bh=+B/deXk8yVP4vKZULyveQWzafq6t/dXHKfPkuAy3W3E=;
+        s=k20201202; t=1661880300;
+        bh=J6bY75iJ1h9Z6yJ8vIVGtMGTgX8TS40R6GyThvgxfUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQ9337AFM3XAXBHlWQd3oyAkz0hbg7ct3/YcUNbUV+eRD1Y+a/yHqhlD/59x4cJle
-         Rv8NGLWS1dzx/EFWUpYbWLX3AIF/8GjqZy3f/+Wl72HNCFQZhtchz4w8nlxAbZw9ac
-         e6lVHji6hDoY26Op1Ahchdhfzz/rve87HNc0jVZdHYuPtCOozruQFLng2cxZv/QuK3
-         8aiYGnwanC2/jPU3gV5qOlTeZbkIEkd2JiacsyHWD2shLAdmoLF4woC/V+8sQoAoO5
-         gkHjb2Z0X4mmKkkToUEXHj85eth7kGH01IPmXq5frpCQQwG3KiGXHer1iMfgPmDs89
-         TZO9zeVNv1zzQ==
+        b=KeQXygwVoOcxj6CJAog5pvXYX2H568UcRHied7auerHgxXeaYV7cWk1/+qRBBl9iy
+         FR+hQX7jdUBweknX52Nks3tNu7rFu7EtAiznnUgPRamz3/bMo7UJdGAj5c4DzV8Gop
+         DCdRAclop6c6WW5LNXcA3VgVBVFajvs6LaDLZ0hm4m0sy4bbsYJi8qBiuBt61UVP0h
+         0H6K5FGywApgyqdOqBbfc5M1+CjQGRJb51UACVDDUEW0XYBXysCN4g1PTFrf/A8mob
+         aubjRK3MbkrVqbzDG1ofpKLzmX1Z1NqnMpWb4lZdmanD7vZEOD+0L49JcsQB/3K9gv
+         nfKMBg5rMAKGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeffy Chen <jeffy.chen@rock-chips.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
-        sumit.semwal@linaro.org, dri-devel@lists.freedesktop.org,
-        linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org
-Subject: [PATCH AUTOSEL 5.4 03/12] drm/gem: Fix GEM handle release errors
-Date:   Tue, 30 Aug 2022 13:24:34 -0400
-Message-Id: <20220830172444.581654-3-sashal@kernel.org>
+Cc:     Candice Li <candice.li@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        YiPeng.Chai@amd.com, tao.zhou1@amd.com, evan.quan@amd.com,
+        desowin@gmail.com, victor.skvortsov@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 04/12] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
+Date:   Tue, 30 Aug 2022 13:24:35 -0400
+Message-Id: <20220830172444.581654-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172444.581654-1-sashal@kernel.org>
 References: <20220830172444.581654-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,132 +61,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
+From: Candice Li <candice.li@amd.com>
 
-[ Upstream commit ea2aa97ca37a9044ade001aef71dbc06318e8d44 ]
+[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
 
-Currently we are assuming a one to one mapping between dmabuf and
-GEM handle when releasing GEM handles.
+No need to set up rb when no gfx rings.
 
-But that is not always true, since we would create extra handles for the
-GEM obj in cases like gem_open() and getfb{,2}().
-
-A similar issue was reported at:
-https://lore.kernel.org/all/20211105083308.392156-1-jay.xu@rock-chips.com/
-
-Another problem is that the imported dmabuf might not always have
-gem_obj->dma_buf set, which would cause leaks in
-drm_gem_remove_prime_handles().
-
-Let's fix these for now by using handle to find the exact map to remove.
-
-Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220819072834.17888-1-jeffy.chen@rock-chips.com
+Signed-off-by: Candice Li <candice.li@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_gem.c      | 17 +----------------
- drivers/gpu/drm/drm_internal.h |  4 ++--
- drivers/gpu/drm/drm_prime.c    | 20 ++++++++++++--------
- 3 files changed, 15 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
-index 25a2d80287d67..d6a72f3cb1fbd 100644
---- a/drivers/gpu/drm/drm_gem.c
-+++ b/drivers/gpu/drm/drm_gem.c
-@@ -167,21 +167,6 @@ void drm_gem_private_object_init(struct drm_device *dev,
- }
- EXPORT_SYMBOL(drm_gem_private_object_init);
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 5906a8951a6c6..685a2df01d096 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2472,7 +2472,8 @@ static void gfx_v9_0_constants_init(struct amdgpu_device *adev)
  
--static void
--drm_gem_remove_prime_handles(struct drm_gem_object *obj, struct drm_file *filp)
--{
--	/*
--	 * Note: obj->dma_buf can't disappear as long as we still hold a
--	 * handle reference in obj->handle_count.
--	 */
--	mutex_lock(&filp->prime.lock);
--	if (obj->dma_buf) {
--		drm_prime_remove_buf_handle_locked(&filp->prime,
--						   obj->dma_buf);
--	}
--	mutex_unlock(&filp->prime.lock);
--}
--
- /**
-  * drm_gem_object_handle_free - release resources bound to userspace handles
-  * @obj: GEM object to clean up.
-@@ -255,7 +240,7 @@ drm_gem_object_release_handle(int id, void *ptr, void *data)
- 	else if (dev->driver->gem_close_object)
- 		dev->driver->gem_close_object(obj, file_priv);
+ 	gfx_v9_0_tiling_mode_table_init(adev);
  
--	drm_gem_remove_prime_handles(obj, file_priv);
-+	drm_prime_remove_buf_handle(&file_priv->prime, id);
- 	drm_vma_node_revoke(&obj->vma_node, file_priv);
+-	gfx_v9_0_setup_rb(adev);
++	if (adev->gfx.num_gfx_rings)
++		gfx_v9_0_setup_rb(adev);
+ 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
+ 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
  
- 	drm_gem_object_handle_put_unlocked(obj);
-diff --git a/drivers/gpu/drm/drm_internal.h b/drivers/gpu/drm/drm_internal.h
-index 51a2055c8f18a..41a9a9bae5848 100644
---- a/drivers/gpu/drm/drm_internal.h
-+++ b/drivers/gpu/drm/drm_internal.h
-@@ -59,8 +59,8 @@ int drm_prime_fd_to_handle_ioctl(struct drm_device *dev, void *data,
- 
- void drm_prime_init_file_private(struct drm_prime_file_private *prime_fpriv);
- void drm_prime_destroy_file_private(struct drm_prime_file_private *prime_fpriv);
--void drm_prime_remove_buf_handle_locked(struct drm_prime_file_private *prime_fpriv,
--					struct dma_buf *dma_buf);
-+void drm_prime_remove_buf_handle(struct drm_prime_file_private *prime_fpriv,
-+				 uint32_t handle);
- 
- /* drm_drv.c */
- struct drm_minor *drm_minor_acquire(unsigned int minor_id);
-diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
-index 0a2316e0e8121..6b7cf0170f9d1 100644
---- a/drivers/gpu/drm/drm_prime.c
-+++ b/drivers/gpu/drm/drm_prime.c
-@@ -187,29 +187,33 @@ static int drm_prime_lookup_buf_handle(struct drm_prime_file_private *prime_fpri
- 	return -ENOENT;
- }
- 
--void drm_prime_remove_buf_handle_locked(struct drm_prime_file_private *prime_fpriv,
--					struct dma_buf *dma_buf)
-+void drm_prime_remove_buf_handle(struct drm_prime_file_private *prime_fpriv,
-+				 uint32_t handle)
- {
- 	struct rb_node *rb;
- 
--	rb = prime_fpriv->dmabufs.rb_node;
-+	mutex_lock(&prime_fpriv->lock);
-+
-+	rb = prime_fpriv->handles.rb_node;
- 	while (rb) {
- 		struct drm_prime_member *member;
- 
--		member = rb_entry(rb, struct drm_prime_member, dmabuf_rb);
--		if (member->dma_buf == dma_buf) {
-+		member = rb_entry(rb, struct drm_prime_member, handle_rb);
-+		if (member->handle == handle) {
- 			rb_erase(&member->handle_rb, &prime_fpriv->handles);
- 			rb_erase(&member->dmabuf_rb, &prime_fpriv->dmabufs);
- 
--			dma_buf_put(dma_buf);
-+			dma_buf_put(member->dma_buf);
- 			kfree(member);
--			return;
--		} else if (member->dma_buf < dma_buf) {
-+			break;
-+		} else if (member->handle < handle) {
- 			rb = rb->rb_right;
- 		} else {
- 			rb = rb->rb_left;
- 		}
- 	}
-+
-+	mutex_unlock(&prime_fpriv->lock);
- }
- 
- void drm_prime_init_file_private(struct drm_prime_file_private *prime_fpriv)
 -- 
 2.35.1
 
