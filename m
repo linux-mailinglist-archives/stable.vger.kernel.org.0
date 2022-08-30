@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7B05A698E
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 696085A6991
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:21:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231163AbiH3RU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:20:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60310 "EHLO
+        id S231267AbiH3RU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:20:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230459AbiH3RTs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:19:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA32D87E0;
-        Tue, 30 Aug 2022 10:19:34 -0700 (PDT)
+        with ESMTP id S229476AbiH3RU1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:20:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B021400A;
+        Tue, 30 Aug 2022 10:19:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF6506178A;
-        Tue, 30 Aug 2022 17:19:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEC80C433B5;
-        Tue, 30 Aug 2022 17:19:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60D83B81CD3;
+        Tue, 30 Aug 2022 17:19:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCC57C433D7;
+        Tue, 30 Aug 2022 17:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661879964;
-        bh=c01hz2ITzl4CowH17mqdmL3eM810b0aQMz0uIfdnXrQ=;
+        s=k20201202; t=1661879982;
+        bh=5QvKRRAHDIo7HHKgbgxqt8ycMrr/leXRZbEgZYnHQDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nI8FPGZC40jMVG3FYzty0ILVJWN8HrLpreqKLy5lClaLjrgHnsC6I+zyRSgCBHccF
-         SdRD2hPaIZXNXQipJ5sjzgS1Rtzi1l7/efRJz9bTg34XYSV6eup7sf+/b5lUg8e91j
-         m+5a9Vla2OzowMaltPIaFz3JCs4sViU0qXz5uwgJvBi0TLHyVNX3GcDHjeZMWWGm4l
-         VgM4YPNbF6xSvNEkEJFeTJ53H2xm3NdYxwQhTZepBq4U/r5ifdwt0Lv60JK4O1NIS6
-         Sj4TxbWgTYjK8ng78LLAYDrqkjTZuoTER61cxE8zTD5rjCFSL9NMg+kxei+B9NRtZe
-         u1MVS+QmDNEbA==
+        b=eBCtEKRyajrUYKTPT9hUtsMNgrSjio1kOmLhu98UH/W6hGZ/GKwBBUxvQEHFJEnFo
+         UzPZKMR+gmqgY1aZ7O5YsKC03U4VqfDOcDQrOt1wWnq02CoZeIGHt8/jgiBiFpsl9J
+         72oIT2611LRuRG19P90hwaUVNWFQpQTQx+Fd4W75d5iPRvh84tlR6S9anT/GhoE+Z3
+         Nl+Mzgo5/tFG0pfhfpofb5mdJ9yGpePu0VeNH4pUMQScFU8xxnX74+d5qtvJC9jl/T
+         Ad2ZPsXBBQmUqOaxrDpAb51K81nivPgQlCMw9AqlmN/QZEje4stNpxXusZNpOFHsdB
+         hVboHQHkHOKHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhenneng Li <lizhenneng@kylinos.cn>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
-        airlied@linux.ie, daniel@ffwll.ch, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 13/33] drm/radeon: add a force flush to delay work when radeon
-Date:   Tue, 30 Aug 2022 13:18:04 -0400
-Message-Id: <20220830171825.580603-13-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        matthias.bgg@gmail.com, beanhuo@micron.com, avri.altman@wdc.com,
+        adrian.hunter@intel.com, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 14/33] scsi: ufs: core: Reduce the power mode change timeout
+Date:   Tue, 30 Aug 2022 13:18:05 -0400
+Message-Id: <20220830171825.580603-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830171825.580603-1-sashal@kernel.org>
 References: <20220830171825.580603-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,73 +61,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenneng Li <lizhenneng@kylinos.cn>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit f461950fdc374a3ada5a63c669d997de4600dffe ]
+[ Upstream commit 8f2c96420c6ec3dcb18c8be923e24c6feaa5ccf6 ]
 
-Although radeon card fence and wait for gpu to finish processing current batch rings,
-there is still a corner case that radeon lockup work queue may not be fully flushed,
-and meanwhile the radeon_suspend_kms() function has called pci_set_power_state() to
-put device in D3hot state.
-Per PCI spec rev 4.0 on 5.3.1.4.1 D3hot State.
-> Configuration and Message requests are the only TLPs accepted by a Function in
-> the D3hot state. All other received Requests must be handled as Unsupported Requests,
-> and all received Completions may optionally be handled as Unexpected Completions.
-This issue will happen in following logs:
-Unable to handle kernel paging request at virtual address 00008800e0008010
-CPU 0 kworker/0:3(131): Oops 0
-pc = [<ffffffff811bea5c>]  ra = [<ffffffff81240844>]  ps = 0000 Tainted: G        W
-pc is at si_gpu_check_soft_reset+0x3c/0x240
-ra is at si_dma_is_lockup+0x34/0xd0
-v0 = 0000000000000000  t0 = fff08800e0008010  t1 = 0000000000010000
-t2 = 0000000000008010  t3 = fff00007e3c00000  t4 = fff00007e3c00258
-t5 = 000000000000ffff  t6 = 0000000000000001  t7 = fff00007ef078000
-s0 = fff00007e3c016e8  s1 = fff00007e3c00000  s2 = fff00007e3c00018
-s3 = fff00007e3c00000  s4 = fff00007fff59d80  s5 = 0000000000000000
-s6 = fff00007ef07bd98
-a0 = fff00007e3c00000  a1 = fff00007e3c016e8  a2 = 0000000000000008
-a3 = 0000000000000001  a4 = 8f5c28f5c28f5c29  a5 = ffffffff810f4338
-t8 = 0000000000000275  t9 = ffffffff809b66f8  t10 = ff6769c5d964b800
-t11= 000000000000b886  pv = ffffffff811bea20  at = 0000000000000000
-gp = ffffffff81d89690  sp = 00000000aa814126
-Disabling lock debugging due to kernel taint
-Trace:
-[<ffffffff81240844>] si_dma_is_lockup+0x34/0xd0
-[<ffffffff81119610>] radeon_fence_check_lockup+0xd0/0x290
-[<ffffffff80977010>] process_one_work+0x280/0x550
-[<ffffffff80977350>] worker_thread+0x70/0x7c0
-[<ffffffff80977410>] worker_thread+0x130/0x7c0
-[<ffffffff80982040>] kthread+0x200/0x210
-[<ffffffff809772e0>] worker_thread+0x0/0x7c0
-[<ffffffff80981f8c>] kthread+0x14c/0x210
-[<ffffffff80911658>] ret_from_kernel_thread+0x18/0x20
-[<ffffffff80981e40>] kthread+0x0/0x210
- Code: ad3e0008  43f0074a  ad7e0018  ad9e0020  8c3001e8  40230101
- <88210000> 4821ed21
-So force lockup work queue flush to fix this problem.
+The current power mode change timeout (180 s) is so large that it can cause
+a watchdog timer to fire. Reduce the power mode change timeout to 10
+seconds.
 
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Zhenneng Li <lizhenneng@kylinos.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20220811234401.1957911-1-bvanassche@acm.org
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_device.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/ufs/core/ufshcd.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
-index 429644d5ddc69..9fba16cb3f1e7 100644
---- a/drivers/gpu/drm/radeon/radeon_device.c
-+++ b/drivers/gpu/drm/radeon/radeon_device.c
-@@ -1604,6 +1604,9 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend,
- 		if (r) {
- 			/* delay GPU reset to resume */
- 			radeon_fence_driver_force_completion(rdev, i);
-+		} else {
-+			/* finish executing delayed work */
-+			flush_delayed_work(&rdev->fence_drv[i].lockup_work);
- 		}
- 	}
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index a51ca56a0ebe7..829da9cb14a86 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -8723,6 +8723,8 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 	struct scsi_device *sdp;
+ 	unsigned long flags;
+ 	int ret, retries;
++	unsigned long deadline;
++	int32_t remaining;
  
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
+ 	sdp = hba->ufs_device_wlun;
+@@ -8755,9 +8757,14 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 	 * callbacks hence set the RQF_PM flag so that it doesn't resume the
+ 	 * already suspended childs.
+ 	 */
++	deadline = jiffies + 10 * HZ;
+ 	for (retries = 3; retries > 0; --retries) {
++		ret = -ETIMEDOUT;
++		remaining = deadline - jiffies;
++		if (remaining <= 0)
++			break;
+ 		ret = scsi_execute(sdp, cmd, DMA_NONE, NULL, 0, NULL, &sshdr,
+-				START_STOP_TIMEOUT, 0, 0, RQF_PM, NULL);
++				   remaining / HZ, 0, 0, RQF_PM, NULL);
+ 		if (!scsi_status_is_check_condition(ret) ||
+ 				!scsi_sense_valid(&sshdr) ||
+ 				sshdr.sense_key != UNIT_ATTENTION)
 -- 
 2.35.1
 
