@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA745A69C9
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:23:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 001855A69CD
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:23:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230348AbiH3RXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:23:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60416 "EHLO
+        id S231344AbiH3RXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:23:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231195AbiH3RWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:22:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8CE7E3997;
-        Tue, 30 Aug 2022 10:20:41 -0700 (PDT)
+        with ESMTP id S231346AbiH3RWn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:22:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33ECF2416;
+        Tue, 30 Aug 2022 10:20:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 301A16179B;
-        Tue, 30 Aug 2022 17:20:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFAE5C433B5;
-        Tue, 30 Aug 2022 17:20:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C3E2B81C35;
+        Tue, 30 Aug 2022 17:20:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB21DC433C1;
+        Tue, 30 Aug 2022 17:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880040;
-        bh=3jde7WJZiin2Rjh87cIry/BxsilzrzWH2bb2GcGujIw=;
+        s=k20201202; t=1661880047;
+        bh=150roaC0CNIdd5b+cfmwKH6lTavcFXqnMha7Lc8lO5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G97Oglpq0+KLZldQ4mLMJ9Q5ZFQGZfJEhf6MujXFM29iJGnVxn46DL1Xpdq9juNEZ
-         c2rYRdZWuMEiz4VfIHmDnIc1xvb4ByEijf4vAjzVFS0WJAp/X40DF9AFcMVVwVK8cp
-         rbzTrUzdG1UiTDOhHUhwbmJbr7RrikW7RcbjAoZOu8oLov2CLNDZF8NTbcYR4mXn4A
-         BZvGCKL+6Enmj+KKtUdTq8nFj8LrHXUsOALUxb9C+TFI5IkqoDfNIkqP1dqDg1G6eT
-         eNoYBc5k8w5esFtisgyRH23afcCp86oTFf+k25IIXC0QXCoBaN0BL/TrFY7EF75KO+
-         YMsETOIfkumpg==
+        b=NAna+t3I9XfWr8j0C6GGhKqIUB0y6GhddjSZrgtiqXrFmgBIGT83aJ1YEGsKFu8Rj
+         IImmn77OwftNI1kdOKVN9Qxe1ftJE0wbK+qhhS1gAAFQ1/cPdOQTuubuMO7K2ywWtk
+         9YtuRNuIchzq1IUg9YNouPpqnqlnb7xzMkSn4j5mQpJqZ/9aUBmkX5I01qtd+P6sst
+         RD7Nk/DUhJpNmQ6g0yZ+fedgpEmgplp/ySqgugaQeY5JhYctSOT+9XtnJfD9DJqtGt
+         w3H+IlebBDmrtwAOrTGwy5AlxKna8XbBMVjO3pk2unEPukaNMf1P2Iz9565E44rVcV
+         Smqx48WusyY0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Sloan <david.sloan@eideticom.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 26/33] md: Flush workqueue md_rdev_misc_wq in md_alloc()
-Date:   Tue, 30 Aug 2022 13:18:17 -0400
-Message-Id: <20220830171825.580603-26-sashal@kernel.org>
+Cc:     Yu Zhe <yuzhe@nfschina.com>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>, arnd@arndb.de,
+        tony@atomide.com, b.zolnierkie@samsung.com,
+        jiapeng.chong@linux.alibaba.com, guozhengkui@vivo.com,
+        gustavoars@kernel.org, linux-fbdev@vger.kernel.org,
+        linux-omap@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 27/33] fbdev: omapfb: Fix tests for platform_get_irq() failure
+Date:   Tue, 30 Aug 2022 13:18:18 -0400
+Message-Id: <20220830171825.580603-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830171825.580603-1-sashal@kernel.org>
 References: <20220830171825.580603-1-sashal@kernel.org>
@@ -57,44 +59,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sloan <david.sloan@eideticom.com>
+From: Yu Zhe <yuzhe@nfschina.com>
 
-[ Upstream commit 5e8daf906f890560df430d30617c692a794acb73 ]
+[ Upstream commit acf4c6205e862304681234a6a4375b478af12552 ]
 
-A race condition still exists when removing and re-creating md devices
-in test cases. However, it is only seen on some setups.
+The platform_get_irq() returns negative error codes.  It can't actually
+return zero.
 
-The race condition was tracked down to a reference still being held
-to the kobject by the rdev in the md_rdev_misc_wq which will be released
-in rdev_delayed_delete().
-
-md_alloc() waits for previous deletions by waiting on the md_misc_wq,
-but the md_rdev_misc_wq may still be holding a reference to a recently
-removed device.
-
-To fix this, also flush the md_rdev_misc_wq in md_alloc().
-
-Signed-off-by: David Sloan <david.sloan@eideticom.com>
-[logang@deltatee.com: rewrote commit message]
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Yu Zhe <yuzhe@nfschina.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/omap/omapfb_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 522b3d6b8c46b..3f31db141b2f2 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -5647,6 +5647,7 @@ static int md_alloc(dev_t dev, char *name)
- 	 * removed (mddev_delayed_delete).
- 	 */
- 	flush_workqueue(md_misc_wq);
-+	flush_workqueue(md_rdev_misc_wq);
+diff --git a/drivers/video/fbdev/omap/omapfb_main.c b/drivers/video/fbdev/omap/omapfb_main.c
+index 292fcb0a24fc9..6ff237cee7f87 100644
+--- a/drivers/video/fbdev/omap/omapfb_main.c
++++ b/drivers/video/fbdev/omap/omapfb_main.c
+@@ -1643,14 +1643,14 @@ static int omapfb_do_probe(struct platform_device *pdev,
+ 		goto cleanup;
+ 	}
+ 	fbdev->int_irq = platform_get_irq(pdev, 0);
+-	if (!fbdev->int_irq) {
++	if (fbdev->int_irq < 0) {
+ 		dev_err(&pdev->dev, "unable to get irq\n");
+ 		r = ENXIO;
+ 		goto cleanup;
+ 	}
  
- 	mutex_lock(&disks_mutex);
- 	mddev = mddev_alloc(dev);
+ 	fbdev->ext_irq = platform_get_irq(pdev, 1);
+-	if (!fbdev->ext_irq) {
++	if (fbdev->ext_irq < 0) {
+ 		dev_err(&pdev->dev, "unable to get irq\n");
+ 		r = ENXIO;
+ 		goto cleanup;
 -- 
 2.35.1
 
