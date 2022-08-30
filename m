@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D04E5A69FD
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 115985A6A21
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231477AbiH3RYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:24:52 -0400
+        id S231513AbiH3R0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:26:18 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231478AbiH3RYY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:24:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ED4DE3422;
-        Tue, 30 Aug 2022 10:22:26 -0700 (PDT)
+        with ESMTP id S231495AbiH3RZh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:25:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA12C1659;
+        Tue, 30 Aug 2022 10:23:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03406B81D11;
-        Tue, 30 Aug 2022 17:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF742C433C1;
-        Tue, 30 Aug 2022 17:22:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8116CB81C35;
+        Tue, 30 Aug 2022 17:22:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF56BC433C1;
+        Tue, 30 Aug 2022 17:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880122;
-        bh=eNmdi/BoP7WYZz4B7PTE9g7lLo2eJ9DD+Kgpxwy77wE=;
+        s=k20201202; t=1661880129;
+        bh=EAJCYjhkJNORUUDynnZRYb9oNFCXK83WLB1Yzw2xubg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUlvtRKsFXUF/auB3zeLbs+sb67LC9t42d0/OKwxYomC/6YWv5cfZ0YXHMTW0IW8l
-         ROomTqVdSM76VU6LsjH00Qp0t9DKVOkgad22SsQz3+LH6G5bZvgI4FJXJQd5etmyG6
-         SjLc0+bMjY4TliGNVwE5y47L3fbc2B4DlepQSWCm6+2T/D9RElUpiE6Rw1vcoWaTFW
-         I+nJTSgA3J4XWUMtE5cYrfBdA0tPHMmy2eSYu/yQW/F3IK9pNAtw6c2ydr8DNdkOom
-         3Xz2TJAXiuQqFVhzNfdZmQJax/bcm4dHedSr6kk7WV8ySdq6Zm1b+XwqIuzmxSV0PW
-         h2Avb9y3WkFRg==
+        b=tLKukZ6NWQNpRoDZK82kpAssbUTMdBWHLzUlQdGXsbwGzvgS0Mp0RGrevm1m1D2GQ
+         RdZov6WWVGq5gYoe5HjwiRujjHTdRtSRxRV8lCLDH7uyMxsRHg6Dq01bPoQfWXORqG
+         x+UtDsOsZ4357GawzG9iwA2QlgLthuqi3kCdoX0PskAIqynMmzzIgzkg2+3PAqyoZv
+         WNBtSop54C/QvkJPzJk15b5KbPguC4jz+6oGzYORrdDGYWpEZCe/I65C3lKONdTh/1
+         /c0S8shbj1IUS9wZrxZ0SPhc2wBW3budglvKO5+KPwMuMFNYUut1TGSetz2KLRW5Tx
+         Rq/E3yILoHdQg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YiPeng Chai <YiPeng.Chai@amd.com>,
+Cc:     Candice Li <candice.li@amd.com>,
         Hawking Zhang <Hawking.Zhang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
         Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        john.clements@amd.com, Likun.Gao@amd.com, candice.li@amd.com,
-        tao.zhou1@amd.com, guchun.chen@amd.com, Bokun.Zhang@amd.com,
-        andrey.grodzovsky@amd.com, bernard@vivo.com,
+        tao.zhou1@amd.com, YiPeng.Chai@amd.com, lijo.lazar@amd.com,
+        desowin@gmail.com, victor.skvortsov@amd.com,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 06/23] drm/amdgpu: Move psp_xgmi_terminate call from amdgpu_xgmi_remove_device to psp_hw_fini
-Date:   Tue, 30 Aug 2022 13:21:23 -0400
-Message-Id: <20220830172141.581086-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 07/23] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
+Date:   Tue, 30 Aug 2022 13:21:24 -0400
+Message-Id: <20220830172141.581086-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172141.581086-1-sashal@kernel.org>
 References: <20220830172141.581086-1-sashal@kernel.org>
@@ -62,57 +61,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YiPeng Chai <YiPeng.Chai@amd.com>
+From: Candice Li <candice.li@amd.com>
 
-[ Upstream commit 9d705d7741ae70764f3d6d87e67fad3b5c30ffd0 ]
+[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
 
-V1:
-The amdgpu_xgmi_remove_device function will send unload command
-to psp through psp ring to terminate xgmi, but psp ring has been
-destroyed in psp_hw_fini.
+No need to set up rb when no gfx rings.
 
-V2:
-1. Change the commit title.
-2. Restore amdgpu_xgmi_remove_device to its original calling location.
-   Move psp_xgmi_terminate call from amdgpu_xgmi_remove_device to
-   psp_hw_fini.
-
-Signed-off-by: YiPeng Chai <YiPeng.Chai@amd.com>
+Signed-off-by: Candice Li <candice.li@amd.com>
 Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c  | 3 +++
- drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c | 2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index 57e9932d8a04e..5b41c29f3ed50 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -2729,6 +2729,9 @@ static int psp_hw_fini(void *handle)
- 		psp_rap_terminate(psp);
- 		psp_dtm_terminate(psp);
- 		psp_hdcp_terminate(psp);
-+
-+		if (adev->gmc.xgmi.num_physical_nodes > 1)
-+			psp_xgmi_terminate(psp);
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index db27fcf87cd04..16cbae04078ad 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2624,7 +2624,8 @@ static void gfx_v9_0_constants_init(struct amdgpu_device *adev)
  
- 	psp_asd_unload(psp);
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
-index a799e0b1ff736..ce0b9cb61f582 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
-@@ -723,7 +723,7 @@ int amdgpu_xgmi_remove_device(struct amdgpu_device *adev)
- 		amdgpu_put_xgmi_hive(hive);
- 	}
+ 	gfx_v9_0_tiling_mode_table_init(adev);
  
--	return psp_xgmi_terminate(&adev->psp);
-+	return 0;
- }
+-	gfx_v9_0_setup_rb(adev);
++	if (adev->gfx.num_gfx_rings)
++		gfx_v9_0_setup_rb(adev);
+ 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
+ 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
  
- static int amdgpu_xgmi_ras_late_init(struct amdgpu_device *adev)
 -- 
 2.35.1
 
