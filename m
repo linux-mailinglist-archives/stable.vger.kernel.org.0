@@ -2,66 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2695A5972
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 04:31:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4EF5A5A6A
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 05:46:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229786AbiH3Cbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Aug 2022 22:31:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
+        id S229574AbiH3Dqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Aug 2022 23:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229684AbiH3Cby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 22:31:54 -0400
-Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3365558B4D
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 19:31:52 -0700 (PDT)
-Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-33dce2d4bc8so240887927b3.4
-        for <stable@vger.kernel.org>; Mon, 29 Aug 2022 19:31:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=F1mp1QGvbuAThlfLTm3f9xOw3j/SSOwPUjdtQPwE5sw=;
-        b=BON4JlaguKETjBYu5HmZ2OS351m07RYB56KofrJpHKjmg8+vaeTcsSQZ2jV5S2Oy5J
-         TpCwKDfWrs5iVzsa7KvbsYJuphB7uJ5hZdtoSuiy7EZCCD+TNMEheV55ooSS1vCyAtVr
-         MXBoF2VMUq9g4ylDI1mkG8ysP0Jr0LTequ86lqAtkXsnrk9lrix/QZy1PTR1YPLxMulh
-         naO73iSwOJ921lKvR3CnWf1uUrSJ0Vx+NIGG6YLoCiBBnB0ZcBOxj1JX29mImSIbdyft
-         /9xnoyg8JHwqCVufVlYz9I9AttpWE2sEB1ZOP4Hl7rn8wxI9l92GvzMWcgAfYTXR8dGE
-         9pAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=F1mp1QGvbuAThlfLTm3f9xOw3j/SSOwPUjdtQPwE5sw=;
-        b=q3f16Fal6ZnxpQE7fZygqU18h0Pca20rk2NELBQ9n8vm5MHP93nlOB5GHWuPm67/XO
-         zlUkjmOCeZRN2GFPKu4u+D7yRqTXcftkA9m3/GH0ySABwvR9+T0fCEqP/LZUPBg5nou8
-         E/gJK6iSgYScJ2NJFfPdMyFZfRQa0T3Y/FI1ZdMeTtgiPFWj/MokJcDz0U0fu6th8iNY
-         rDE1aU7BLMS4M12h/beDOFT13Ip8QvodLX51BmhWTiCdVMH4KFHhWz9+scnpOKra9fQh
-         vl4jTWBAkPsVy8LtzoQELW56q7qB62txbmhZF+8SisPJx1SIdGBLa2iW4PfVzqSQtB9K
-         Us4A==
-X-Gm-Message-State: ACgBeo2FcNxcWNFXRVgtNngdGye/ki7llQkwI9MByJjq98/cYD2cZfaT
-        kd24Q8b0L2lh5IVmFNZBtFYFK5B3XwnZwMWFLf//1rKmc4xY9A==
-X-Google-Smtp-Source: AA6agR5aV5b2mTSCjkmDChAg9JU25noBXuw0eB2PdIQOTKhliBaCLXuPt911wnjaFpbpQkIlaLrRmfgJF1svVxnNaN8=
-X-Received: by 2002:a81:b410:0:b0:33d:c31b:c088 with SMTP id
- h16-20020a81b410000000b0033dc31bc088mr12744572ywi.88.1661826711217; Mon, 29
- Aug 2022 19:31:51 -0700 (PDT)
+        with ESMTP id S229449AbiH3Dqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Aug 2022 23:46:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8248C910A5;
+        Mon, 29 Aug 2022 20:46:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C5A1B81629;
+        Tue, 30 Aug 2022 03:46:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4193C433C1;
+        Tue, 30 Aug 2022 03:46:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1661831210;
+        bh=mUnVB81vCce6m7OfZt7TrDrPDZqYmD/JX2n989MKdws=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=ODGV04xUfpKrwFYHazoWe+IjxbqgDMXmiHf4Gq39mVt81mPQypSVnH0I4QBqoWyu4
+         dYvUKBFmaPTkKAg+6ui6+Tu1J0j00+Ls31ZJYnRaBaaZA/Sv2X7e5kb2gbxvMUMDHq
+         AwmlAIAtqqqVospIZCYjvhshBgiH51i0KHaFZmi3vXTaF+gpTb8m12qbjpgezORSh0
+         sx2y1NX1PZbzGEeHKuFko9a9WZApDbzzTupF2Nz43+O1zRlVFOtlceXbpIXv28boTY
+         UT3P1f1hQ75dGShUQ15AXotQv9dsT7YnGRNYDDAwDin0ToC5ilNoUt2MBgGdsuuzk/
+         ErovymCilNn+A==
+Message-ID: <cbc4bfe5-14f9-a4e0-c9c5-6b6b06437d5d@kernel.org>
+Date:   Tue, 30 Aug 2022 11:46:45 +0800
 MIME-Version: 1.0
-References: <CAPTxkvQJHAxYOSmXCro7Cf1uR4y202HTrYLVPCY0JNGc30Y0aA@mail.gmail.com>
-In-Reply-To: <CAPTxkvQJHAxYOSmXCro7Cf1uR4y202HTrYLVPCY0JNGc30Y0aA@mail.gmail.com>
-From:   Lucas Wei <lucaswei@google.com>
-Date:   Tue, 30 Aug 2022 10:31:35 +0800
-Message-ID: <CAPTxkvQXXeawY-LmmfVsM76MCUOQHRRQN=Sim7Fza0s0aAY6Rw@mail.gmail.com>
-Subject: Re: Request to cherry-pick into v5.15: arm64: errata: Add Cortex-A510
- to the repeat tlbi list
-To:     stable@vger.kernel.org
-Cc:     Daniel Mentz <danielmentz@google.com>,
-        Will Deacon <willdeacon@google.com>,
-        Robin Peng <robinpeng@google.com>,
-        Aaron Ding <aaronding@google.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [f2fs-dev] [PATCH] f2fs: fix missing mapping caused by the
+ mount/umount race
+Content-Language: en-US
+To:     Jaegeuk Kim <jaegeuk@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net
+Cc:     syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com,
+        stable@vger.kernel.org
+References: <20220829215206.3082124-1-jaegeuk@kernel.org>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <20220829215206.3082124-1-jaegeuk@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,45 +58,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Linux stable kernel maintainers,
+On 2022/8/30 5:52, Jaegeuk Kim wrote:
+> Sometimes we can get a cached meta_inode which has no aops yet. Let's set it
+> all the time to fix the below panic.
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+> Mem abort info:
+>    ESR = 0x0000000086000004
+>    EC = 0x21: IABT (current EL), IL = 32 bits
+>    SET = 0, FnV = 0
+>    EA = 0, S1PTW = 0
+>    FSC = 0x04: level 0 translation fault
+> user pgtable: 4k pages, 48-bit VAs, pgdp=0000000109ee4000
+> [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+> Internal error: Oops: 86000004 [#1] PREEMPT SMP
+> Modules linked in:
+> CPU: 1 PID: 3045 Comm: syz-executor330 Not tainted 6.0.0-rc2-syzkaller-16455-ga41a877bc12d #0
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
+> pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+> pc : 0x0
+> lr : folio_mark_dirty+0xbc/0x208 mm/page-writeback.c:2748
+> sp : ffff800012783970
+> x29: ffff800012783970 x28: 0000000000000000 x27: ffff800012783b08
+> x26: 0000000000000001 x25: 0000000000000400 x24: 0000000000000001
+> x23: ffff0000c736e000 x22: 0000000000000045 x21: 05ffc00000000015
+> x20: ffff0000ca7403b8 x19: fffffc00032ec600 x18: 0000000000000181
+> x17: ffff80000c04d6bc x16: ffff80000dbb8658 x15: 0000000000000000
+> x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+> x11: ff808000083e9814 x10: 0000000000000000 x9 : ffff8000083e9814
+> x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0000000000000000
+> x5 : ffff0000cbb19000 x4 : ffff0000cb3d2000 x3 : ffff0000cbb18f80
+> x2 : fffffffffffffff0 x1 : fffffc00032ec600 x0 : ffff0000ca7403b8
+> Call trace:
+>   0x0
+>   set_page_dirty+0x38/0xbc mm/folio-compat.c:62
+>   f2fs_update_meta_page+0x80/0xa8 fs/f2fs/segment.c:2369
+>   do_checkpoint+0x794/0xea8 fs/f2fs/checkpoint.c:1522
+>   f2fs_write_checkpoint+0x3b8/0x568 fs/f2fs/checkpoint.c:1679
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
+> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> ---
+>   fs/f2fs/inode.c | 13 ++++++++-----
+>   1 file changed, 8 insertions(+), 5 deletions(-)
+> 
+> diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+> index 6d11c365d7b4..1feb0a8a699e 100644
+> --- a/fs/f2fs/inode.c
+> +++ b/fs/f2fs/inode.c
+> @@ -490,10 +490,7 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+>   	if (!inode)
+>   		return ERR_PTR(-ENOMEM);
+>   
+> -	if (!(inode->i_state & I_NEW)) {
+> -		trace_f2fs_iget(inode);
+> -		return inode;
+> -	}
+> +	/* We can see an old cached inode. Let's set the aops all the time. */
 
-I would like to apply the below patch into kernel v5.15-stable.
- - subject:arm64: errata: Add Cortex-A510 to the repeat tlbi list
- - Upstream Commit ID: 39fdb65f52e9a53d32a6ba719f96669fd300ae78
- - Targeted LTS release: v5.15
+Why an old cached inode (has no I_NEW flag) has NULL a_ops pointer? If it is a bad
+inode, it should be unhashed before unlock_new_inode().
 
-This patch is an errata of #2441009. Since v5.15 is still in its LTS
-lifecycle, I think it fits the rule of "New device IDs and quirks are
-also accepted" and I want to request to apply this patch to kernel
-v5.15.
-Thanks!
+Thanks,
 
-
-On Tue, Aug 30, 2022 at 1:15 AM Lucas Wei <lucaswei@google.com> wrote:
->
-> Dear Linux stable kernel maintainers,
->
-> I would like to apply below patch into kernel v5.15-stable.
->
-> subject:arm64: errata: Add Cortex-A510 to the repeat tlbi list
-> Upstream Commit ID: 39fdb65f52e9a53d32a6ba719f96669fd300ae78
-> Targeted LTS release: v5.15
->
-> This patch is an errata of #2441009. Since v5.15 is still in its LTS lifecycle, I think it fits the rule of "New device IDs and quirks are also accepted" and I want to request to apply this patch to kernel v5.15.
-> Thanks!
->
-> --
->
-> Lucas Wei
-> Embedded Software Engineer
-> lucaswei@google.com
-> 0287260408
->
-
-
--- 
-
-Lucas Wei
-Embedded Software Engineer
-lucaswei@google.com
-0287260408
+>   	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi))
+>   		goto make_now;
+>   
+> @@ -502,6 +499,11 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+>   		goto make_now;
+>   #endif
+>   
+> +	if (!(inode->i_state & I_NEW)) {
+> +		trace_f2fs_iget(inode);
+> +		return inode;
+> +	}
+> +
+>   	ret = do_read_inode(inode);
+>   	if (ret)
+>   		goto bad_inode;
+> @@ -557,7 +559,8 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+>   		file_dont_truncate(inode);
+>   	}
+>   
+> -	unlock_new_inode(inode);
+> +	if (inode->i_state & I_NEW)
+> +		unlock_new_inode(inode);
+>   	trace_f2fs_iget(inode);
+>   	return inode;
+>   
