@@ -2,159 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 156575A7068
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 00:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 688CF5A70D4
+	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 00:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230340AbiH3WME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 18:12:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43306 "EHLO
+        id S232465AbiH3W2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 18:28:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229640AbiH3WMD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 18:12:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA9857E06;
-        Tue, 30 Aug 2022 15:12:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE27A60EDE;
-        Tue, 30 Aug 2022 22:12:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC914C433C1;
-        Tue, 30 Aug 2022 22:12:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661897521;
-        bh=FX0ZKpS8EqEfM31j0VPpDQV8soiepTjJeSGUHubL7AQ=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=uxomOZUu6oC7Jivk+uWWiHdqdkxgK4UVnScMeYGIwMn2cB2WnUGXwgMsgFV30Ar7m
-         QK0FapY4yIBJ7YZTLl/ddBE48vzHWCVB5P8yx3MZqsiwJKuLhm6gNH2kJZcnWQCBc8
-         zo4nH6jLiZofkuz2VhZxTSEbSbrM4i8AOw37BIDcazAD3gfylG04jiimn5eswN0Idw
-         7+PjX3fQPbMK2IUnyU3v6ngVXuuAmYrccwoh6S4RKLpXgsN6BMxfUQf3Uapw1qHvZH
-         rKlFMKhjx8w2FH5+t+CE5+qq1U5og5PfRavXQBYZucliinBJMOogYugI4mKL1YoxzG
-         oXKPjMQnSBRww==
-Date:   Tue, 30 Aug 2022 17:11:59 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Ben Greear <greearb@candelatech.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bjorn@helgaas.com,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Stefan Roese <sr@denx.de>, Bjorn Helgaas <bhelgaas@google.com>,
-        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Yao Hongbo <yaohongbo@linux.alibaba.com>,
-        Naveen Naidu <naveennaidu479@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        linux-wireless@vger.kernel.org
-Subject: Re: [PATCH 5.4 182/389] PCI/portdrv: Dont disable AER reporting in
- get_port_device_capability()
-Message-ID: <20220830221159.GA132418@bhelgaas>
+        with ESMTP id S232473AbiH3W1o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 18:27:44 -0400
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C6B7C53B
+        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 15:26:19 -0700 (PDT)
+Received: by mail-wr1-x433.google.com with SMTP id s7so1098915wro.2
+        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 15:26:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=0f6hB5tHJiFW3ZRd3jKgstsOUHmlR+0wUHSt7U1ITeA=;
+        b=WqP7hThwsG6t8OBPYZGYKqCfv12G8zOluZLWfdkYnxrXA7e0ZRuGhgI4p9RB2QcAfb
+         t0jOGcYJLe7Jh5f43uz7Ev8NUR0zT68L4zKSQgEfb+16BCkv22qYyymTmTIo4EWiyU0F
+         6a1JXzPhkpfQco6u3ZKWPGhUofQcKFi5eTs+J0DjyrMaLgKSSgoz9Q6pzqjbGWZGm2PW
+         Pt5Osgv9coaS0tHFrMpZbKPcuPfNSJVytXCmnNWVO9OasLcmXzRIlsDBT+Og9/R7sWX0
+         3gJwMgDlz5hUfdvJrU2g25K+ygUDV0JF91x3UTueZpImrFU1EEmcs5ZxGe0hQKoZ84aq
+         M1LA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=0f6hB5tHJiFW3ZRd3jKgstsOUHmlR+0wUHSt7U1ITeA=;
+        b=KRc/WM5auWbuG3Gjykorp7aoJYHDY2jjY/V+DnsyZCh1/FuKpHGUL8JWilvSdYvUl8
+         rL9utgMvw5zB2lAPWU0EPQBopnEROtY5feDpHvIeoCl7c0CgjHPpCmXOTC5NDtO1lfix
+         yfE/CLoX+OIojZiQKIOgXV33vDVq6e3PXOre4fXpei0604B8HKo1irJJPvUq+5UnsNqr
+         BtipGZ/On4bTl8cewYJH6JJOdHzeCYuRHvR5rrM68pdPRH2d4dJQ1Wg/YPm8B/2Fcfq9
+         qjofG/Ji+8fk0ugAAuDxFzUSj+VF7I5jn6Fj5UVuR+Gru77GC77HwI3bW++MnCOBpwCt
+         FyLg==
+X-Gm-Message-State: ACgBeo1FHtkY4wsUo4DsgDgg8Up8eop66JAn0aCa+HOmLHap1EKVxsEI
+        M1bzbSmJ4tjCIfLYPn/AxVF6MNfku20vGdZxoKqxxQ==
+X-Google-Smtp-Source: AA6agR55os7W92JL2CziugLDx2F3MJYsfNPMYpZwsOAkoQwPChLr2SIvYzDEQ3XGysjoiy7KUYfWM8KmDKU0IeHEaL4=
+X-Received: by 2002:adf:cf06:0:b0:226:bade:120a with SMTP id
+ o6-20020adfcf06000000b00226bade120amr10551051wrj.297.1661898377939; Tue, 30
+ Aug 2022 15:26:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <47b775c5-57fa-5edf-b59e-8a9041ffbee7@candelatech.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220829201254.1814484-1-cmllamas@google.com> <20220829201254.1814484-2-cmllamas@google.com>
+In-Reply-To: <20220829201254.1814484-2-cmllamas@google.com>
+From:   Todd Kjos <tkjos@google.com>
+Date:   Tue, 30 Aug 2022 15:26:07 -0700
+Message-ID: <CAHRSSEx1D+5OxMHxVGbYJR62Nv+pE48NYAS8LuWzi7Z1jfAdxQ@mail.gmail.com>
+Subject: Re: [PATCH 1/7] binder: fix alloc->vma_vm_mm null-ptr dereference
+To:     Carlos Llamas <cmllamas@google.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Liam Howlett <liam.howlett@oracle.com>,
+        kernel-team@android.com,
+        syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com,
+        syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[+cc Gregory, linux-wireless for iwlwifi issue]
+On Mon, Aug 29, 2022 at 1:13 PM 'Carlos Llamas' via kernel-team
+<kernel-team@android.com> wrote:
+>
+> Syzbot reported a couple issues introduced by commit 44e602b4e52f
+> ("binder_alloc: add missing mmap_lock calls when using the VMA"), in
+> which we attempt to acquire the mmap_lock when alloc->vma_vm_mm has not
+> been initialized yet.
+>
+> This can happen if a binder_proc receives a transaction without having
+> previously called mmap() to setup the binder_proc->alloc space in [1].
+> Also, a similar issue occurs via binder_alloc_print_pages() when we try
+> to dump the debugfs binder stats file in [2].
+>
+> Sample of syzbot's crash report:
+>   ==================================================================
+>   KASAN: null-ptr-deref in range [0x0000000000000128-0x000000000000012f]
+>   CPU: 0 PID: 3755 Comm: syz-executor229 Not tainted 6.0.0-rc1-next-20220819-syzkaller #0
+>   syz-executor229[3755] cmdline: ./syz-executor2294415195
+>   Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
+>   RIP: 0010:__lock_acquire+0xd83/0x56d0 kernel/locking/lockdep.c:4923
+>   [...]
+>   Call Trace:
+>    <TASK>
+>    lock_acquire kernel/locking/lockdep.c:5666 [inline]
+>    lock_acquire+0x1ab/0x570 kernel/locking/lockdep.c:5631
+>    down_read+0x98/0x450 kernel/locking/rwsem.c:1499
+>    mmap_read_lock include/linux/mmap_lock.h:117 [inline]
+>    binder_alloc_new_buf_locked drivers/android/binder_alloc.c:405 [inline]
+>    binder_alloc_new_buf+0xa5/0x19e0 drivers/android/binder_alloc.c:593
+>    binder_transaction+0x242e/0x9a80 drivers/android/binder.c:3199
+>    binder_thread_write+0x664/0x3220 drivers/android/binder.c:3986
+>    binder_ioctl_write_read drivers/android/binder.c:5036 [inline]
+>    binder_ioctl+0x3470/0x6d00 drivers/android/binder.c:5323
+>    vfs_ioctl fs/ioctl.c:51 [inline]
+>    __do_sys_ioctl fs/ioctl.c:870 [inline]
+>    __se_sys_ioctl fs/ioctl.c:856 [inline]
+>    __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:856
+>    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+>    do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+>    entry_SYSCALL_64_after_hwframe+0x63/0xcd
+>    [...]
+>   ==================================================================
+>
+> Fix these issues by setting up alloc->vma_vm_mm pointer during open()
+> and caching directly from current->mm. This guarantees we have a valid
+> reference to take the mmap_lock during scenarios described above.
+>
+> [1] https://syzkaller.appspot.com/bug?extid=f7dc54e5be28950ac459
+> [2] https://syzkaller.appspot.com/bug?extid=a75ebe0452711c9e56d9
+>
+> Fixes: 44e602b4e52f ("binder_alloc: add missing mmap_lock calls when using the VMA")
+> Reported-by: syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com
+> Reported-by: syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com
+> Cc: <stable@vger.kernel.org> # v5.15+
+> Cc: Liam R. Howlett <Liam.Howlett@oracle.com>
+> Signed-off-by: Carlos Llamas <cmllamas@google.com>
 
-On Tue, Aug 30, 2022 at 01:47:48PM -0700, Ben Greear wrote:
-> On 8/23/22 11:41 PM, Greg Kroah-Hartman wrote:
-> > On Tue, Aug 23, 2022 at 07:20:14AM -0500, Bjorn Helgaas wrote:
-> > > On Tue, Aug 23, 2022, 6:35 AM Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > wrote:
-> > > 
-> > > > From: Stefan Roese <sr@denx.de>
-> > > > 
-> > > > [ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
-> > > > 
-> > > 
-> > > There's an open regression related to this commit:
-> > > 
-> > > https://bugzilla.kernel.org/show_bug.cgi?id=216373
-> > 
-> > This is already in the following released stable kernels:
-> > 	5.10.137 5.15.61 5.18.18 5.19.2
-> > 
-> > I'll go drop it from the 4.19 and 5.4 queues, but when this gets
-> > resolved in Linus's tree, make sure there's a cc: stable on the fix so
-> > that we know to backport it to the above branches as well.  Or at the
-> > least, a "Fixes:" tag.
-> 
-> This is still in 5.19.5.  We saw some funny iwlwifi crashes in 5.19.3+
-> that we did not see in 5.19.0+.  I just bisected the scary looking
-> AER errors to this patch, though I do not know for certain if it
-> causes the iwlwifi related crashes yet.
-> 
-> In general, from reading the commit msg, this patch doesn't seem to
-> be a great candidate for stable in general.  Does it fix some
-> important problem?
+Acked-by: Todd Kjos <tkjos@google.com>
 
-I agree, I don't think this is a good candidate for stable.  It has
-already exposed latent amdgpu issues and we'll likely find more.  It's
-good to find and fix these things, but I'd rather do it in -rc than in
-stable kernels.
-
-It would be interesting to know whether similar crashes or AER reports
-occur in v6.0-rc.
-
-> In case it helps, here is example of what I see in dmesg.  The
-> kernel crashes in iwlwifi had to do with rx messages from the
-> firmware, and some warnings lead me to believe that pci messages
-> were slow coming back and/or maybe duplicated.  So maybe this AER
-> patch changes timing or otherwise screws up the PCI adapter boards
-> we use...
-
-It shouldn't.  This looks like a latent issue that happened before but
-was ignored because we didn't have AER enabled at the switch that
-detected the error.
-
-> [   50.905809] iwlwifi 0000:04:00.0: AER: can't recover (no error_detected callback)
-> [   50.905830] pcieport 0000:03:01.0: AER: device recovery failed
-> [   50.905831] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:01.0
-> [   50.905845] pcieport 0000:03:01.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-> [   50.915679] pcieport 0000:03:01.0:   device [10b5:8619] error status/mask=00100000/00000000
-> [   50.922735] pcieport 0000:03:01.0:    [20] UnsupReq               (First)
-> [   50.928230] pcieport 0000:03:01.0: AER:   TLP Header: 34000000 04001f10 00000000 88c888c8
-
-This is an LTR message (Message Code 0x10), Requester ID 04:00.0.  I
-think the iwlwifi device at 04:00.0 sent the LTR message, and 03:01.0
-(probably a Switch Downstream Port leading to bus 04) received it but
-had LTR disabled.  In that case, 03:01.0 would treat the LTR message
-as an Unsupported Request.
-
-The other errors below are the same but from different devices.
-
-Does this happen during or after a suspend/resume?  I assume no
-hotplug involved.  Can you collect the output of "sudo lspci -vv" so
-we can see the LTR config for the entire path?
-
-You can boot with "pci=noaer" to shut up the AER messages (that
-shouldn't affect the parts of lspci output I'm interested in).  Would
-be interesting to know whether "pci=noaer" affects the iwlwifi
-crashes, though.
-
-> [   51.331638] ACPI: \: failed to evaluate _DSM bf0212f2-788f-c64d-a5b3-1f738e285ade (0x1001)
-> [   51.345413] ACPI: \: failed to evaluate _DSM bf0212f2-788f-c64d-a5b3-1f738e285ade (0x1001)
-
-These look like they're from iwlwifi:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/net/wireless/intel/iwlwifi/fw/acpi.c?id=v5.19#n13
-
-No idea what this is about.  Maybe unrelated, but the fact that Google
-can't find anything with that UUID makes me think it might actually be
-related.  The UUID was only added to the message in v5.19-rc1 by
-06eb8dc097b3 ("ACPI: utils: include UUID in _DSM evaluation warning"),
-but that should be enough time to see some for a common device like
-iwlwifi.
-
-Too bad we print the GUID in a different byte order than GUID_INIT
-takes, which makes it hard to search for, even in the Linux source.
-
-Bjorn
+> ---
+>  drivers/android/binder_alloc.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
+> index 51f4e1c5cd01..9b1778c00610 100644
+> --- a/drivers/android/binder_alloc.c
+> +++ b/drivers/android/binder_alloc.c
+> @@ -322,7 +322,6 @@ static inline void binder_alloc_set_vma(struct binder_alloc *alloc,
+>          */
+>         if (vma) {
+>                 vm_start = vma->vm_start;
+> -               alloc->vma_vm_mm = vma->vm_mm;
+>                 mmap_assert_write_locked(alloc->vma_vm_mm);
+>         } else {
+>                 mmap_assert_locked(alloc->vma_vm_mm);
+> @@ -795,7 +794,6 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
+>         binder_insert_free_buffer(alloc, buffer);
+>         alloc->free_async_space = alloc->buffer_size / 2;
+>         binder_alloc_set_vma(alloc, vma);
+> -       mmgrab(alloc->vma_vm_mm);
+>
+>         return 0;
+>
+> @@ -1091,6 +1089,8 @@ static struct shrinker binder_shrinker = {
+>  void binder_alloc_init(struct binder_alloc *alloc)
+>  {
+>         alloc->pid = current->group_leader->pid;
+> +       alloc->vma_vm_mm = current->mm;
+> +       mmgrab(alloc->vma_vm_mm);
+>         mutex_init(&alloc->mutex);
+>         INIT_LIST_HEAD(&alloc->buffers);
+>  }
+> --
+> 2.37.2.672.g94769d06f0-goog
+>
+> --
+> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
+>
