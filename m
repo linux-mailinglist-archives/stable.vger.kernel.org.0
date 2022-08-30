@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C60A5A6A8F
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD3745A6AE7
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231626AbiH3Ras (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:30:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59278 "EHLO
+        id S232135AbiH3Rff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:35:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231639AbiH3RaK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:30:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0507F44;
-        Tue, 30 Aug 2022 10:26:58 -0700 (PDT)
+        with ESMTP id S231960AbiH3RfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:35:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D6C12A5E2;
+        Tue, 30 Aug 2022 10:31:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36AEE617AE;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87018B81D12;
+        Tue, 30 Aug 2022 17:25:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 079DFC433C1;
         Tue, 30 Aug 2022 17:25:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7F60C433D7;
-        Tue, 30 Aug 2022 17:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880300;
-        bh=J6bY75iJ1h9Z6yJ8vIVGtMGTgX8TS40R6GyThvgxfUU=;
+        s=k20201202; t=1661880303;
+        bh=dfDyqLlxuXbKBb/5NhqPmPXHMJv4n+asvD4wRBPWAmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KeQXygwVoOcxj6CJAog5pvXYX2H568UcRHied7auerHgxXeaYV7cWk1/+qRBBl9iy
-         FR+hQX7jdUBweknX52Nks3tNu7rFu7EtAiznnUgPRamz3/bMo7UJdGAj5c4DzV8Gop
-         DCdRAclop6c6WW5LNXcA3VgVBVFajvs6LaDLZ0hm4m0sy4bbsYJi8qBiuBt61UVP0h
-         0H6K5FGywApgyqdOqBbfc5M1+CjQGRJb51UACVDDUEW0XYBXysCN4g1PTFrf/A8mob
-         aubjRK3MbkrVqbzDG1ofpKLzmX1Z1NqnMpWb4lZdmanD7vZEOD+0L49JcsQB/3K9gv
-         nfKMBg5rMAKGg==
+        b=VIN7DIOPMWBqdTwXnSrzYpkhXgIiuc+i/6YXOEInJAoD8Y+ZQH4T/a+4uslMUQuJx
+         LZCXMq2wxbUaVO+lL1U1cRNTu6JbN2pY8DbfJ4g7/EmmNWQaHO0HdfsSXSf9UncOEO
+         A71qTrFdLEGHNY+YQQBKcLVq9sEv9Q/Vi5jcXnHr1BvbsZIZ7WYn/jLtnNtMJf5Ltk
+         ulFSgYfZPp+kSJ927qJ6jMRG/O7EtQgy8PtNHJHuAXQudl5HTZ5x+fisWj55TKNX9E
+         jq7H28GfUMjP0zh0JIo7/tEs0qv4JbZlsEerYGSUlEj7IKPfvgCglPb4JYpWxbyh5g
+         ocI5PHDvG+5IA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Candice Li <candice.li@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
+Cc:     Zhenneng Li <lizhenneng@kylinos.cn>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        YiPeng.Chai@amd.com, tao.zhou1@amd.com, evan.quan@amd.com,
-        desowin@gmail.com, victor.skvortsov@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 04/12] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
-Date:   Tue, 30 Aug 2022 13:24:35 -0400
-Message-Id: <20220830172444.581654-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
+        airlied@linux.ie, daniel@ffwll.ch, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 05/12] drm/radeon: add a force flush to delay work when radeon
+Date:   Tue, 30 Aug 2022 13:24:36 -0400
+Message-Id: <20220830172444.581654-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172444.581654-1-sashal@kernel.org>
 References: <20220830172444.581654-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,33 +60,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Candice Li <candice.li@amd.com>
+From: Zhenneng Li <lizhenneng@kylinos.cn>
 
-[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
+[ Upstream commit f461950fdc374a3ada5a63c669d997de4600dffe ]
 
-No need to set up rb when no gfx rings.
+Although radeon card fence and wait for gpu to finish processing current batch rings,
+there is still a corner case that radeon lockup work queue may not be fully flushed,
+and meanwhile the radeon_suspend_kms() function has called pci_set_power_state() to
+put device in D3hot state.
+Per PCI spec rev 4.0 on 5.3.1.4.1 D3hot State.
+> Configuration and Message requests are the only TLPs accepted by a Function in
+> the D3hot state. All other received Requests must be handled as Unsupported Requests,
+> and all received Completions may optionally be handled as Unexpected Completions.
+This issue will happen in following logs:
+Unable to handle kernel paging request at virtual address 00008800e0008010
+CPU 0 kworker/0:3(131): Oops 0
+pc = [<ffffffff811bea5c>]  ra = [<ffffffff81240844>]  ps = 0000 Tainted: G        W
+pc is at si_gpu_check_soft_reset+0x3c/0x240
+ra is at si_dma_is_lockup+0x34/0xd0
+v0 = 0000000000000000  t0 = fff08800e0008010  t1 = 0000000000010000
+t2 = 0000000000008010  t3 = fff00007e3c00000  t4 = fff00007e3c00258
+t5 = 000000000000ffff  t6 = 0000000000000001  t7 = fff00007ef078000
+s0 = fff00007e3c016e8  s1 = fff00007e3c00000  s2 = fff00007e3c00018
+s3 = fff00007e3c00000  s4 = fff00007fff59d80  s5 = 0000000000000000
+s6 = fff00007ef07bd98
+a0 = fff00007e3c00000  a1 = fff00007e3c016e8  a2 = 0000000000000008
+a3 = 0000000000000001  a4 = 8f5c28f5c28f5c29  a5 = ffffffff810f4338
+t8 = 0000000000000275  t9 = ffffffff809b66f8  t10 = ff6769c5d964b800
+t11= 000000000000b886  pv = ffffffff811bea20  at = 0000000000000000
+gp = ffffffff81d89690  sp = 00000000aa814126
+Disabling lock debugging due to kernel taint
+Trace:
+[<ffffffff81240844>] si_dma_is_lockup+0x34/0xd0
+[<ffffffff81119610>] radeon_fence_check_lockup+0xd0/0x290
+[<ffffffff80977010>] process_one_work+0x280/0x550
+[<ffffffff80977350>] worker_thread+0x70/0x7c0
+[<ffffffff80977410>] worker_thread+0x130/0x7c0
+[<ffffffff80982040>] kthread+0x200/0x210
+[<ffffffff809772e0>] worker_thread+0x0/0x7c0
+[<ffffffff80981f8c>] kthread+0x14c/0x210
+[<ffffffff80911658>] ret_from_kernel_thread+0x18/0x20
+[<ffffffff80981e40>] kthread+0x0/0x210
+ Code: ad3e0008  43f0074a  ad7e0018  ad9e0020  8c3001e8  40230101
+ <88210000> 4821ed21
+So force lockup work queue flush to fix this problem.
 
-Signed-off-by: Candice Li <candice.li@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Zhenneng Li <lizhenneng@kylinos.cn>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_device.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-index 5906a8951a6c6..685a2df01d096 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -2472,7 +2472,8 @@ static void gfx_v9_0_constants_init(struct amdgpu_device *adev)
- 
- 	gfx_v9_0_tiling_mode_table_init(adev);
- 
--	gfx_v9_0_setup_rb(adev);
-+	if (adev->gfx.num_gfx_rings)
-+		gfx_v9_0_setup_rb(adev);
- 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
- 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
+diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
+index 5d017f0aec665..e892582e847b5 100644
+--- a/drivers/gpu/drm/radeon/radeon_device.c
++++ b/drivers/gpu/drm/radeon/radeon_device.c
+@@ -1623,6 +1623,9 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend,
+ 		if (r) {
+ 			/* delay GPU reset to resume */
+ 			radeon_fence_driver_force_completion(rdev, i);
++		} else {
++			/* finish executing delayed work */
++			flush_delayed_work(&rdev->fence_drv[i].lockup_work);
+ 		}
+ 	}
  
 -- 
 2.35.1
