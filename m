@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AD8C5A6AF3
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 178535A6AAE
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232148AbiH3RhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:37:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48124 "EHLO
+        id S231791AbiH3RcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:32:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232155AbiH3Rgx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:36:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D61812EC51;
-        Tue, 30 Aug 2022 10:33:45 -0700 (PDT)
+        with ESMTP id S231787AbiH3Rbk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:31:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16542AC4D;
+        Tue, 30 Aug 2022 10:28:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A3E7B81D24;
-        Tue, 30 Aug 2022 17:26:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9B71C433D6;
-        Tue, 30 Aug 2022 17:26:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79362617C1;
+        Tue, 30 Aug 2022 17:26:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E868DC433C1;
+        Tue, 30 Aug 2022 17:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880412;
-        bh=xdlYmvdwMdSGOG7QzbxeM1ku4krKuvDuV1ZgWmDgk1I=;
+        s=k20201202; t=1661880418;
+        bh=whvkUYJpp+OMkxLwPyh6AxZcY193wuz/Z41ppsLlUro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U4RhTE1F6zPlqKNLei4ISLPDAfIoo6w6RY6X6zlx2993laVYv02DpHSSSxxonJpKK
-         TSMOMM492I++TBWx0a6UXwsdxi5xxiXudhHES+CWWZUGz5zsQuoUBNdrP2ZitfluxO
-         4Xi5+yv0LOAsWwUnWCUezDoPN9eJIutWFd13DlLo4MYN9U1rk1YJ4/92Mn84HrTR27
-         3KHKaVwjtDZFj6s03ZNDZm5norBeKcUawKCCXanj52WBi/r2hIv93Aty0Ik2Gb+0hR
-         8i7EsbkmvXxDUQcNJ8iWY9Y1c4BwQrBOk69iAsdJCCGLK2MEiHrcpJkmZ1EEpYaoAa
-         pf5CQ3s5nLKEg==
+        b=b6nLol4WFFGCCJZfC6MOvBLmuG168aw1V4B5RgoEqvkk9eSgyotEOjHd9xc44UHgD
+         NgvQNxAUv0Dnfh+WCxFLTa1xa23iOz+R3gPN7rhDjlzp+TdAVD+NeIjvFLmhGrKIcp
+         wtwdQBpRcYqXw826VXF+rYmwESpoYtlPlPI7M7oChzxISBM6V8dB1u9l5Byxjuy6+n
+         9dMBq4AjG/OAXr2rsllBYofoNVioBkCM6qBDAMgfkLK03I/rIvY+avQh0DGxeOJEBW
+         Qcusi5bvMvXd42fVdpRaVwtRXk9VqqJs7zGTFmBR30n+5zvRlFTeJJej1NuCkFN6QU
+         wwbK6vTH7qVVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        mark.rutland@arm.com, ebiederm@xmission.com, elver@google.com,
-        seanjc@google.com, david.engraf@sysgo.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 6/8] arm64/signal: Raise limit on stack frames
-Date:   Tue, 30 Aug 2022 13:26:29 -0400
-Message-Id: <20220830172631.581969-6-sashal@kernel.org>
+Cc:     Letu Ren <fantasquex@gmail.com>, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        baihaowen@meizu.com, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 7/8] fbdev: fb_pm2fb: Avoid potential divide by zero error
+Date:   Tue, 30 Aug 2022 13:26:30 -0400
+Message-Id: <20220830172631.581969-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172631.581969-1-sashal@kernel.org>
 References: <20220830172631.581969-1-sashal@kernel.org>
@@ -59,42 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Letu Ren <fantasquex@gmail.com>
 
-[ Upstream commit 7ddcaf78e93c9282b4d92184f511b4d5bee75355 ]
+[ Upstream commit 19f953e7435644b81332dd632ba1b2d80b1e37af ]
 
-The signal code has a limit of 64K on the size of a stack frame that it
-will generate, if this limit is exceeded then a process will be killed if
-it receives a signal. Unfortunately with the advent of SME this limit is
-too small - the maximum possible size of the ZA register alone is 64K. This
-is not an issue for practical systems at present but is easily seen using
-virtual platforms.
+In `do_fb_ioctl()` of fbmem.c, if cmd is FBIOPUT_VSCREENINFO, var will be
+copied from user, then go through `fb_set_var()` and
+`info->fbops->fb_check_var()` which could may be `pm2fb_check_var()`.
+Along the path, `var->pixclock` won't be modified. This function checks
+whether reciprocal of `var->pixclock` is too high. If `var->pixclock` is
+zero, there will be a divide by zero error. So, it is necessary to check
+whether denominator is zero to avoid crash. As this bug is found by
+Syzkaller, logs are listed below.
 
-Raise the limit to 256K, this is substantially more than could be used by
-any current architecture extension.
+divide error in pm2fb_check_var
+Call Trace:
+ <TASK>
+ fb_set_var+0x367/0xeb0 drivers/video/fbdev/core/fbmem.c:1015
+ do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
+ fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20220817182324.638214-2-broonie@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/signal.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/pm2fb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
-index 43442b3a463f5..1b3973de417ec 100644
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -97,7 +97,7 @@ static size_t sigframe_size(struct rt_sigframe_user_layout const *user)
-  * not taken into account.  This limit is not a guarantee and is
-  * NOT ABI.
-  */
--#define SIGFRAME_MAXSZ SZ_64K
-+#define SIGFRAME_MAXSZ SZ_256K
+diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
+index bd6c2f5f6095d..a5375b09415a6 100644
+--- a/drivers/video/fbdev/pm2fb.c
++++ b/drivers/video/fbdev/pm2fb.c
+@@ -614,6 +614,11 @@ static int pm2fb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ 		return -EINVAL;
+ 	}
  
- static int __sigframe_alloc(struct rt_sigframe_user_layout *user,
- 			    unsigned long *offset, size_t size, bool extend)
++	if (!var->pixclock) {
++		DPRINTK("pixclock is zero\n");
++		return -EINVAL;
++	}
++
+ 	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
+ 		DPRINTK("pixclock too high (%ldKHz)\n",
+ 			PICOS2KHZ(var->pixclock));
 -- 
 2.35.1
 
