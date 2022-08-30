@@ -2,194 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89EBC5A6E74
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 22:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2442F5A6F0F
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 23:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231372AbiH3UaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 16:30:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34146 "EHLO
+        id S230245AbiH3VWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 17:22:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229994AbiH3UaW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 16:30:22 -0400
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0374A54C98;
-        Tue, 30 Aug 2022 13:30:19 -0700 (PDT)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27UHtp9d006486;
-        Tue, 30 Aug 2022 20:30:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-id : content-transfer-encoding : mime-version; s=corp-2022-7-12;
- bh=HZQUgSez5PSi0aCRnyfKq+gLvz9ctCAP1VRxsViwuzM=;
- b=gj0HnkyLduj18wbuT8uz/7lkqCwRSgwOmAErKphPe7f6T9lV8W54kFpn6D4tQuxGkgKa
- /d5hf6g4KQcoNCxeunK2gVc1sO+vNlqenZu/UNenUUGAJTbZz30Tlb7tv3xKZfW5WSzC
- Eli4x0N3JDV8RKlUE3bPNd9VyIb9KXuH/aCLIAv6C+/2Ylmtm6pZae6szkarczSM+Pzu
- ATPSVTDSCodjTlW3AqSWmw5/CthHOjYWdgJqHF+2EQeK5HsiefhyHClTZSA0Ux3Y+mLc
- kg9CQiK0P/ZE52R91oOH2izxVlGlZ3XL8fBtRiBlXfr2zS27AEAX0e7MfzWKnVM4rCxy Fw== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3j7avsfgsw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Aug 2022 20:30:10 +0000
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 27UIXVqV013111;
-        Tue, 30 Aug 2022 20:30:10 GMT
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2041.outbound.protection.outlook.com [104.47.66.41])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3j79q4cq81-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Aug 2022 20:30:10 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SX1CCrkimgBn3jJJWYfjreVw8SpVwEZANWh/F02GTJzUG9BvYv8sRbqt/C90WNyXgzcRo2KUYEB1+xbwIMczWWYRwE18nP3KNYeCHJb4GTBo/3tWvcuE4XWsjG5dS/G3dLC1UkZU2Lf/+rJYBbfHvvsW+DKTN3hf6u58UCTUIezp8/w3nwLKADXb2vP0mY1iSA1MikYJ7oPQ23Q7AijZ1nce7z7smbtR0INmRwnRlsIUrmQfaXiZgTk7Gov3fKuV+5cTe8zcxytOZZ6DKFMpOrtELaiwd4s3pdFxqRfpmpsJS/7dFuiOuDtoNickylrWfqOdIFxUc+xabVa7r1QGDQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HZQUgSez5PSi0aCRnyfKq+gLvz9ctCAP1VRxsViwuzM=;
- b=VGLntEbjdBNkKmTKlwvjH//U7geLkKE3UkvoLshwLrQI4mrlUI/gzmmYMra9zyyhY2rOV146PUGiV7Sn+wR34txd0TYNKN/qEC6AElCMoDEOjCwq09fyjsmY/3ek8K6tEPn/vkNCMdeb3TLbK+RYzYx1kCYJRHrQz86tusK1B2zO3YBKtqYMT2YMGyvAY6xrKwUf/bzcWAjc+EBTvqmTqmEWxP/CRMN2IwZbGvdL2iFLC4pjf83ewsTFfXirGpObdLbGaC4n+ZT4nIrrvYzh/eqQKJZBjAgkxBMcr/Ssk5WzIekMWESXdPqNdVmLruC11sgJ4Y7rxIIKNOpuOClz4A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HZQUgSez5PSi0aCRnyfKq+gLvz9ctCAP1VRxsViwuzM=;
- b=zSK1EaTDQzXYGSG4cOxj3k7ToXk61W9jL4u76rFcKSBoH2Jsf0yPGFdq2hS/RoWXI+UhoRve768AM/XIFigwVh509I36F99GwJQuLOgu3b4ouqniFpSeUPV8PkzQAOrEGQrksUU2ybTwTtd8NRBP/nQlkg4bqZaTKjQt2NBaaCM=
-Received: from SN6PR10MB3022.namprd10.prod.outlook.com (2603:10b6:805:d8::25)
- by BLAPR10MB5281.namprd10.prod.outlook.com (2603:10b6:208:30f::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.15; Tue, 30 Aug
- 2022 20:30:07 +0000
-Received: from SN6PR10MB3022.namprd10.prod.outlook.com
- ([fe80::a420:3107:436d:d223]) by SN6PR10MB3022.namprd10.prod.outlook.com
- ([fe80::a420:3107:436d:d223%5]) with mapi id 15.20.5566.021; Tue, 30 Aug 2022
- 20:30:07 +0000
-From:   Liam Howlett <liam.howlett@oracle.com>
-To:     Carlos Llamas <cmllamas@google.com>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?iso-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>,
-        Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "kernel-team@android.com" <kernel-team@android.com>,
-        "syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com" 
-        <syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com>,
-        "syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com" 
-        <syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/7] binder: fix alloc->vma_vm_mm null-ptr dereference
-Thread-Topic: [PATCH 1/7] binder: fix alloc->vma_vm_mm null-ptr dereference
-Thread-Index: AQHYu+O+8j78ewjyGUWdeBrLUwjJOK3Hz2wAgAAJnICAAA2+AA==
-Date:   Tue, 30 Aug 2022 20:30:07 +0000
-Message-ID: <20220830203000.qgv3dkbgep2d6saw@revolver>
-References: <20220829201254.1814484-1-cmllamas@google.com>
- <20220829201254.1814484-2-cmllamas@google.com>
- <20220830190515.dlrp2a3ypfyhzid5@revolver> <Yw5nwaNI5ewExYtC@google.com>
-In-Reply-To: <Yw5nwaNI5ewExYtC@google.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 76c7327a-086c-4dfc-bbe2-08da8ac66da6
-x-ms-traffictypediagnostic: BLAPR10MB5281:EE_
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: EMvdUvEbdctmHSAX9IiZdC1f/Ukhy0cOQHfpA2sbM6A3gkoiIXqMEHt0BO+eiSQNI6tMFIN+u6zRmbsKnbyN9Qh87kk+h5Na/CT9VPsXCXCOqaT/LLtiX0KnKHgcmF/gFnT1DIa/qwMKyd4vePZYF496Z9c7pI3ZnSi+e2wdtIN8JX4leqTCmLcVDc31lP09m+F+J/sxmNJC7Yl7jW5OsvHjsfkyazpQ5zsfcvKQebkD4nRMp83ehfg4Vt56cyDLonnAvmLGxF00w+BHFrVB7FpKzI+OsHyt7ptgk/saErNeHuzcwSM8A9Vv088A5xIDTM9jS8EVvX5rPpjz2zg/vCgg7ZeDnPu7rGfbT3Zn2jSst386plZ+chb6n2s8jeFHZmO9mBxKBlMarJ7k9h+pJXMN2USRH0kbW81JKorizGd49nPxB/aqxYNWNY47E8U0o68ev00U+fp7kgAF8my1ApvOP0n2gLyfa59oPobbB/jMMYVuO4jXuIhfvgH8Gn/bnrrEFgSmt2f4h1z8vK7/ACVZTGvKl2SjW+zoXvAopz8B7z314f+bC1Xa9iMZrituTy9RfgkxLyzSW6HRoNuu7z7re8813is4SNmwitYi+3kV+6ZFXtukKuSjuJPtkre0vC0KfGLdbIf9sfDc77PcFASu1GryRKAqNzhGhF9cG/LPC9Z8ecyKtY3tBdxDBmKbYO10X32hyjHyfLfjbdAQTZn3KOfpdKPIXgYOq4rXN+/eRbVW6aKdYKQx+bQXTagU1eYT+p2m5meYFixGg6ZbRw==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR10MB3022.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(7916004)(396003)(376002)(366004)(136003)(346002)(39860400002)(33716001)(44832011)(38100700002)(6512007)(6506007)(122000001)(9686003)(2906002)(26005)(1076003)(186003)(71200400001)(83380400001)(54906003)(66946007)(66446008)(4326008)(8676002)(66556008)(6916009)(66476007)(64756008)(76116006)(91956017)(6486002)(86362001)(7416002)(38070700005)(5660300002)(316002)(8936002)(41300700001)(478600001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?Pd2hKYx0ppbV7Jyc7U9IWjOVEigD72KlqdPgLvshV1hT7YxQWHmzntk0JM?=
- =?iso-8859-1?Q?IB25sbaAlfi4TKkMa5zgG8vUo8tPysBXyXz2E12bLhDCypzAeguqfvKmL0?=
- =?iso-8859-1?Q?Z9g4fsZyg9TFgvJN8WyZkxW5fSPeSPOy5DHEcFaXUO4sf0Afrp5ndocwo/?=
- =?iso-8859-1?Q?yk99g/DKAmemqTHvWrrIjoSRTm+i53r2lBsBnFbQzaMaaZe7KxiPikPrBs?=
- =?iso-8859-1?Q?kYr9v0jFmMdNu2R3Om9w3RzvJjSwdBMQn8VMNCWlxc+4bBjnxGMfUaWMZn?=
- =?iso-8859-1?Q?gQeThYoF+7Ije0295zsIeNjB7YF5HaFcoXW6o70vR5uwMPaEgRjz6i2vmT?=
- =?iso-8859-1?Q?e0b/ZCw4F9lU3wGkIKX5wB7lSiqxzwsXnG22+sIDti0wbQIUyFMTexzB2O?=
- =?iso-8859-1?Q?ekbyN4meZ2UMQfWpofurGElPh6JU4Ga+Xlj3AP3mTv+pjk9FeNZy5SRyGV?=
- =?iso-8859-1?Q?pD9ExrnfJUBjTfopRF2NaVNzaPsSAz6GjICD1Aa4jt/kpjSKjNpiTpgZNI?=
- =?iso-8859-1?Q?37NbTnSbcdMn1QG27lvMLULQOZfgq2S2zoYujVBSp2iLo0tVGWoLdqQTbM?=
- =?iso-8859-1?Q?QjPQos8b7H16JF7GoL5yAVeFdjf/SfuJBnzgf0PehyMz6IxAUFG7v7INWD?=
- =?iso-8859-1?Q?WxMKTH4fwrq/1f3V5PnJeiD3R8zk4hJpVTbZfVxoMSO+mysJ1P//lbQYo7?=
- =?iso-8859-1?Q?D+KLXT22uTcej+6raRbxmBqbwRaoEU9X/0WEwhbmwcrRMDZAoD3F+RIBa2?=
- =?iso-8859-1?Q?7ohsdVzfv1UUkUwOGiS9peaUag6t88fa+ArZR49Hy0axXK3qPjpYW3BRHE?=
- =?iso-8859-1?Q?/TTr4yrM0c8YyPThecOCTd3xZDyci6SPxZNEZjg/4jpWUhkmDE+ZYs6nZh?=
- =?iso-8859-1?Q?u0QdlYGCf3QrU12m9IHDOmvMW6l8s/E5HXxDMTVzlPBJ/I49z1trl7H0FD?=
- =?iso-8859-1?Q?nYr0BOI5B/j4VKzM8sLPEjgHAfQp1xDVNFfkvRUwDdt9UV/UJZZuX2k4PR?=
- =?iso-8859-1?Q?Y9C4cPC0gnj3DFWlG+eqYs98QwOAilC/0vp1eL9aPii3ANDhmtL6aOYhkO?=
- =?iso-8859-1?Q?sQIjFAaJz99tlbL4ZBeFMLXVmVEphPeKmGlD4uhAh2/Az3TqnolFG7y4Ck?=
- =?iso-8859-1?Q?8OPTQuQ9/jcDF4ZTfyefYzDBqSgz2wYqe3JL8rvhGCg1kRgGr0h5qfCMEH?=
- =?iso-8859-1?Q?vIFEY41TUbMazqCfJHDL3knPuliJWYyzWZptLD2Hnu2Qr3XfCkqiri2714?=
- =?iso-8859-1?Q?RKBJ2srKMrEo4rTx8BqVF2bNRcB5C55E0h25Ne0a1bxf2Ynu94wcbNLNFt?=
- =?iso-8859-1?Q?V62pnJgmzQVuQJs0+ZfPFmh3BwRVs9d6qIL/zG9Ne1ocP/DTl37Kxm6gY1?=
- =?iso-8859-1?Q?a+lM/8JuUxz7SvCvLTV/5isZ67mrUdPKqESmWvrdGZ1eJ4owAB0zRlX4uG?=
- =?iso-8859-1?Q?ocVwYqOgAsqhnmUX2TwD01VXsAVV+kztI9r6DP7Uf2LDXE7c6MtCc4H3pV?=
- =?iso-8859-1?Q?Eap/05sL0h9a2iAdAt6N5MyBSGl9sGWE81+IihQ/AhgFnTa7xWqHJZNPvQ?=
- =?iso-8859-1?Q?ImeL314NZrJwUIEGhWtAbb0L3SYBL7nvseN9fubd6Chpa4IEEB4QOPUsPK?=
- =?iso-8859-1?Q?YrB8rClwcy8AOCB92iUO3qJ4BhmZTX/NqM5jQmAza/a5uPdIbnIWLNFw?=
- =?iso-8859-1?Q?=3D=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-ID: <C16BBB581CA9C64BB400E4E701653FEA@namprd10.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229788AbiH3VWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 17:22:22 -0400
+X-Greylist: delayed 2065 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 30 Aug 2022 14:22:20 PDT
+Received: from dispatch1-us1.ppe-hosted.com (dispatch1-us1.ppe-hosted.com [148.163.129.49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ADD57E81C;
+        Tue, 30 Aug 2022 14:22:20 -0700 (PDT)
+Received: from dispatch1-us1.ppe-hosted.com (localhost.localdomain [127.0.0.1])
+        by dispatch1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 22F472E567;
+        Tue, 30 Aug 2022 20:47:55 +0000 (UTC)
+X-Virus-Scanned: Proofpoint Essentials engine
+Received: from mx1-us1.ppe-hosted.com (unknown [10.7.67.134])
+        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTPS id 4FF4920080;
+        Tue, 30 Aug 2022 20:47:50 +0000 (UTC)
+Received: from mail3.candelatech.com (mail2.candelatech.com [208.74.158.173])
+        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 4F34EBC0079;
+        Tue, 30 Aug 2022 20:47:49 +0000 (UTC)
+Received: from [192.168.100.195] (50-251-239-81-static.hfc.comcastbusiness.net [50.251.239.81])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail3.candelatech.com (Postfix) with ESMTPSA id 7A23413C2B0;
+        Tue, 30 Aug 2022 13:47:48 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail3.candelatech.com 7A23413C2B0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=candelatech.com;
+        s=default; t=1661892468;
+        bh=IWicMtCVoSqbenm0Io1txAB5st81R43ZF1d7pF9EvXI=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=W+SqcU3LQqLEdlEqyqVWKs/FDKKI5Cb0a92lWjyd+dB0d13sCe/xd8nGRt18ZnjpE
+         Qf4mUlTfun1cOFA0K5Ps/9bptWBSK+QlLCN4daW6NoCP99H6nIPmy5+GpCNpZMyWdP
+         1fnWbwWnGU4mhGGMHDChy6Fca1Lru0UnneEIzElE=
+Subject: Re: [PATCH 5.4 182/389] PCI/portdrv: Dont disable AER reporting in
+ get_port_device_capability()
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bjorn@helgaas.com
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Stefan Roese <sr@denx.de>, Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Yao Hongbo <yaohongbo@linux.alibaba.com>,
+        Naveen Naidu <naveennaidu479@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+References: <20220823080115.331990024@linuxfoundation.org>
+ <20220823080123.228828362@linuxfoundation.org>
+ <CABhMZUVycsyy76j2Z=K+C6S1fwtzKE1Lx2povXKfB80o9g0MtQ@mail.gmail.com>
+ <YwXH/l37HaYQD66B@kroah.com>
+From:   Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+Message-ID: <47b775c5-57fa-5edf-b59e-8a9041ffbee7@candelatech.com>
+Date:   Tue, 30 Aug 2022 13:47:48 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR10MB3022.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 76c7327a-086c-4dfc-bbe2-08da8ac66da6
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Aug 2022 20:30:07.3835
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 1CF2am3g/WBat5T3JSHl5IuhbWnyRBJc6WCX611xF7YMRExBeYtxhEreiBk2NhuQKErm4nZMFcRfC+KiU2jgCQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5281
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-30_11,2022-08-30_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 malwarescore=0 mlxscore=0
- spamscore=0 mlxlogscore=999 phishscore=0 suspectscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2208300091
-X-Proofpoint-GUID: 4WQR8FMWj6sgAbvo58Q0T49ibDG7hh73
-X-Proofpoint-ORIG-GUID: 4WQR8FMWj6sgAbvo58Q0T49ibDG7hh73
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <YwXH/l37HaYQD66B@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-MDID: 1661892470-e0BElUr0M9MX
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* Carlos Llamas <cmllamas@google.com> [220830 15:41]:
-> On Tue, Aug 30, 2022 at 07:06:37PM +0000, Liam Howlett wrote:
-> > > diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_=
-alloc.c
-> > > index 51f4e1c5cd01..9b1778c00610 100644
-> > > --- a/drivers/android/binder_alloc.c
-> > > +++ b/drivers/android/binder_alloc.c
-> > > @@ -322,7 +322,6 @@ static inline void binder_alloc_set_vma(struct bi=
-nder_alloc *alloc,
-> > >  	 */
-> > >  	if (vma) {
-> > >  		vm_start =3D vma->vm_start;
-> > > -		alloc->vma_vm_mm =3D vma->vm_mm;
-> >=20
-> > Is this really the null pointer dereference?  We check for vma above..?
-> >=20
->=20
-> Not here. The sequence leading to the null-ptr-deref happens when we try
-> to take alloc->vma_vm_mm->mmap_lock in binder_alloc_new_buf_locked() and
-> in binder_alloc_print_pages() without initializing alloc->vma_vm_mm
-> first (e.g. mmap() was never called). These sequences are described in
-> the commit message but basically they translate to mmap_read_lock(NULL)
-> calls.
+On 8/23/22 11:41 PM, Greg Kroah-Hartman wrote:
+> On Tue, Aug 23, 2022 at 07:20:14AM -0500, Bjorn Helgaas wrote:
+>> On Tue, Aug 23, 2022, 6:35 AM Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> wrote:
+>>
+>>> From: Stefan Roese <sr@denx.de>
+>>>
+>>> [ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
+>>>
+>>
+>> There's an open regression related to this commit:
+>>
+>> https://bugzilla.kernel.org/show_bug.cgi?id=216373
+> 
+> This is already in the following released stable kernels:
+> 	5.10.137 5.15.61 5.18.18 5.19.2
+> 
+> I'll go drop it from the 4.19 and 5.4 queues, but when this gets
+> resolved in Linus's tree, make sure there's a cc: stable on the fix so
+> that we know to backport it to the above branches as well.  Or at the
+> least, a "Fixes:" tag.
 
-Ah, this is unnecessary with the rest of the change.
+This is still in 5.19.5.  We saw some funny iwlwifi crashes in 5.19.3+
+that we did not see in 5.19.0+.  I just bisected the scary looking AER errors to this
+patch, though I do not know for certain if it causes the iwlwifi related crashes yet.
 
-Feel free to add my reviewed-by if you want.
+In general, from reading the commit msg, this patch doesn't seem to be a great candidate
+for stable in general.  Does it fix some important problem?
+
+In case it helps, here is example of what I see in dmesg.  The kernel crashes in iwlwifi
+had to do with rx messages from the firmware, and some warnings lead me to believe that
+pci messages were slow coming back and/or maybe duplicated.  So maybe this AER patch changes
+timing or otherwise screws up the PCI adapter boards we use...
 
 
-Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+[   50.905809] iwlwifi 0000:04:00.0: AER: can't recover (no error_detected callback)
+[   50.905830] pcieport 0000:03:01.0: AER: device recovery failed
+[   50.905831] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:01.0
+[   50.905845] pcieport 0000:03:01.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   50.915679] pcieport 0000:03:01.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   50.922735] pcieport 0000:03:01.0:    [20] UnsupReq               (First)
+[   50.928230] pcieport 0000:03:01.0: AER:   TLP Header: 34000000 04001f10 00000000 88c888c8
+[   50.935126] iwlwifi 0000:04:00.0: AER: can't recover (no error_detected callback)
+[   50.935133] pcieport 0000:03:01.0: AER: device recovery failed
+[   50.935134] pcieport 0000:00:1c.0: AER: Multiple Uncorrected (Non-Fatal) error received: 0000:03:01.0
+[   50.935222] pcieport 0000:03:01.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   50.945059] pcieport 0000:03:01.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   50.952120] pcieport 0000:03:01.0:    [20] UnsupReq               (First)
+[   50.957614] pcieport 0000:03:01.0: AER:   TLP Header: 34000000 04001f10 00000000 88c888c8
+[   50.964492] pcieport 0000:03:01.0: AER:   Error of this Agent is reported first
+[   50.970519] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   50.980344] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   50.987399] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
+[   50.992891] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
+[   50.999785] pcieport 0000:03:03.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   51.009611] pcieport 0000:03:03.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   51.016665] pcieport 0000:03:03.0:    [20] UnsupReq               (First)
+[   51.022161] pcieport 0000:03:03.0: AER:   TLP Header: 34000000 06001f10 00000000 88c888c8
+[   51.029052] pcieport 0000:03:05.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   51.038881] pcieport 0000:03:05.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   51.045931] pcieport 0000:03:05.0:    [20] UnsupReq               (First)
+[   51.051430] pcieport 0000:03:05.0: AER:   TLP Header: 34000000 07001f10 00000000 88c888c8
+[   51.058320] pcieport 0000:03:07.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   51.068147] pcieport 0000:03:07.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   51.075200] pcieport 0000:03:07.0:    [20] UnsupReq               (First)
+[   51.080696] pcieport 0000:03:07.0: AER:   TLP Header: 34000000 08001f10 00000000 88c888c8
+[   51.087589] iwlwifi 0000:04:00.0: AER: can't recover (no error_detected callback)
+[   51.087598] pcieport 0000:03:01.0: AER: device recovery failed
+[   51.087611] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
+[   51.087615] pcieport 0000:03:02.0: AER: device recovery failed
+[   51.087628] iwlwifi 0000:06:00.0: AER: can't recover (no error_detected callback)
+[   51.087631] pcieport 0000:03:03.0: AER: device recovery failed
+[   51.087643] iwlwifi 0000:07:00.0: AER: can't recover (no error_detected callback)
+[   51.087646] pcieport 0000:03:05.0: AER: device recovery failed
+[   51.087659] iwlwifi 0000:08:00.0: AER: can't recover (no error_detected callback)
+[   51.087662] pcieport 0000:03:07.0: AER: device recovery failed
+[   51.103761] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:0f.0
+[   51.103778] pcieport 0000:03:0f.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   51.113608] pcieport 0000:03:0f.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   51.120658] pcieport 0000:03:0f.0:    [20] UnsupReq               (First)
+[   51.126152] pcieport 0000:03:0f.0: AER:   TLP Header: 34000000 0f001f10 00000000 88c888c8
+[   51.133044] iwlwifi 0000:0f:00.0: AER: can't recover (no error_detected callback)
+[   51.133068] pcieport 0000:03:0f.0: AER: device recovery failed
+[   51.168925] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:0f.0
+[   51.168940] pcieport 0000:03:0f.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   51.178773] pcieport 0000:03:0f.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   51.185823] pcieport 0000:03:0f.0:    [20] UnsupReq               (First)
+[   51.191318] pcieport 0000:03:0f.0: AER:   TLP Header: 34000000 0f001f10 00000000 88c888c8
+[   51.198211] iwlwifi 0000:0f:00.0: AER: can't recover (no error_detected callback)
+[   51.198234] pcieport 0000:03:0f.0: AER: device recovery failed
+[   51.260695] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:0f.0
+[   51.260710] pcieport 0000:03:0f.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   51.270548] pcieport 0000:03:0f.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   51.277605] pcieport 0000:03:0f.0:    [20] UnsupReq               (First)
+[   51.283103] pcieport 0000:03:0f.0: AER:   TLP Header: 34000000 0f001f10 00000000 88c888c8
+[   51.290009] iwlwifi 0000:0f:00.0: AER: can't recover (no error_detected callback)
+[   51.290033] pcieport 0000:03:0f.0: AER: device recovery failed
+[   51.328514] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:0f.0
+[   51.328530] pcieport 0000:03:0f.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
+[   51.331638] ACPI: \: failed to evaluate _DSM bf0212f2-788f-c64d-a5b3-1f738e285ade (0x1001)
+[   51.338363] pcieport 0000:03:0f.0:   device [10b5:8619] error status/mask=00100000/00000000
+[   51.338364] pcieport 0000:03:0f.0:    [20] UnsupReq               (First)
+[   51.345413] ACPI: \: failed to evaluate _DSM bf0212f2-788f-c64d-a5b3-1f738e285ade (0x1001)
+[   51.350900] pcieport 0000:03:0f.0: AER:   TLP Header: 34000000 0f001f10 00000000 88c888c8
+[   51.350927] iwlwifi 0000:0f:00.0: AER: can't recover (no error_detected callback)
+
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+
