@@ -2,271 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CB365A6E5B
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 22:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89EBC5A6E74
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 22:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230479AbiH3UUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 16:20:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51046 "EHLO
+        id S231372AbiH3UaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 16:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230335AbiH3UUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 16:20:53 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92FB270E71;
-        Tue, 30 Aug 2022 13:20:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1661890851; x=1693426851;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=XEkVIM1o3cJzP9j3i+ERnRentCzHr7lx3eZ5zg1Khjo=;
-  b=WQ2IcfBBeMq8VNpJU3QZOG1XkGJz6I82eVAkQlEpsXDwaGHNcSju4pbz
-   3RIujwHrfbln6PX9LYLgqPTdk4gfQwFfWsRYQn9/Kw78Ch+WUORG5Ndda
-   597AiLTxuqptcyXpMzGCQvdWy5/sv+8JlXXV9PtRayD503hs6fGwvzGoW
-   OhkBY+V66vQRavVDhOrhz6r9HZXXwEuSkq+cft5jjz3XneRXKC1qPpRib
-   ZsNHJeqRFhBR5ZpBoqwzw1nqu1tl/PEHpDmCGoV/vbDb4VgrGP33liEjv
-   bHCKOCPTHpNZ8vJvtvvVkO+LoU1qbmiAYm/rHhuTsrM7xHqISI83XQphZ
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10455"; a="296571298"
-X-IronPort-AV: E=Sophos;i="5.93,276,1654585200"; 
-   d="scan'208";a="296571298"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Aug 2022 13:20:51 -0700
-X-IronPort-AV: E=Sophos;i="5.93,276,1654585200"; 
-   d="scan'208";a="673036847"
-Received: from skanpuri-mobl1.amr.corp.intel.com (HELO desk) ([10.212.18.137])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Aug 2022 13:20:50 -0700
-Date:   Tue, 30 Aug 2022 13:20:49 -0700
-From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, andrew.cooper3@citrix.com, bp@suse.de,
-        tony.luck@intel.com, antonio.gomez.iglesias@linux.intel.com,
-        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 5.4] x86/bugs: Add "unknown" reporting for MMIO Stale Data
-Message-ID: <34cb2f634020a3425a754f76b092df699e7e34a5.1661890721.git.pawan.kumar.gupta@linux.intel.com>
-References: <166175790177143@kroah.com>
+        with ESMTP id S229994AbiH3UaW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 16:30:22 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0374A54C98;
+        Tue, 30 Aug 2022 13:30:19 -0700 (PDT)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27UHtp9d006486;
+        Tue, 30 Aug 2022 20:30:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-id : content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=HZQUgSez5PSi0aCRnyfKq+gLvz9ctCAP1VRxsViwuzM=;
+ b=gj0HnkyLduj18wbuT8uz/7lkqCwRSgwOmAErKphPe7f6T9lV8W54kFpn6D4tQuxGkgKa
+ /d5hf6g4KQcoNCxeunK2gVc1sO+vNlqenZu/UNenUUGAJTbZz30Tlb7tv3xKZfW5WSzC
+ Eli4x0N3JDV8RKlUE3bPNd9VyIb9KXuH/aCLIAv6C+/2Ylmtm6pZae6szkarczSM+Pzu
+ ATPSVTDSCodjTlW3AqSWmw5/CthHOjYWdgJqHF+2EQeK5HsiefhyHClTZSA0Ux3Y+mLc
+ kg9CQiK0P/ZE52R91oOH2izxVlGlZ3XL8fBtRiBlXfr2zS27AEAX0e7MfzWKnVM4rCxy Fw== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3j7avsfgsw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 30 Aug 2022 20:30:10 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 27UIXVqV013111;
+        Tue, 30 Aug 2022 20:30:10 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2041.outbound.protection.outlook.com [104.47.66.41])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3j79q4cq81-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 30 Aug 2022 20:30:10 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SX1CCrkimgBn3jJJWYfjreVw8SpVwEZANWh/F02GTJzUG9BvYv8sRbqt/C90WNyXgzcRo2KUYEB1+xbwIMczWWYRwE18nP3KNYeCHJb4GTBo/3tWvcuE4XWsjG5dS/G3dLC1UkZU2Lf/+rJYBbfHvvsW+DKTN3hf6u58UCTUIezp8/w3nwLKADXb2vP0mY1iSA1MikYJ7oPQ23Q7AijZ1nce7z7smbtR0INmRwnRlsIUrmQfaXiZgTk7Gov3fKuV+5cTe8zcxytOZZ6DKFMpOrtELaiwd4s3pdFxqRfpmpsJS/7dFuiOuDtoNickylrWfqOdIFxUc+xabVa7r1QGDQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=HZQUgSez5PSi0aCRnyfKq+gLvz9ctCAP1VRxsViwuzM=;
+ b=VGLntEbjdBNkKmTKlwvjH//U7geLkKE3UkvoLshwLrQI4mrlUI/gzmmYMra9zyyhY2rOV146PUGiV7Sn+wR34txd0TYNKN/qEC6AElCMoDEOjCwq09fyjsmY/3ek8K6tEPn/vkNCMdeb3TLbK+RYzYx1kCYJRHrQz86tusK1B2zO3YBKtqYMT2YMGyvAY6xrKwUf/bzcWAjc+EBTvqmTqmEWxP/CRMN2IwZbGvdL2iFLC4pjf83ewsTFfXirGpObdLbGaC4n+ZT4nIrrvYzh/eqQKJZBjAgkxBMcr/Ssk5WzIekMWESXdPqNdVmLruC11sgJ4Y7rxIIKNOpuOClz4A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HZQUgSez5PSi0aCRnyfKq+gLvz9ctCAP1VRxsViwuzM=;
+ b=zSK1EaTDQzXYGSG4cOxj3k7ToXk61W9jL4u76rFcKSBoH2Jsf0yPGFdq2hS/RoWXI+UhoRve768AM/XIFigwVh509I36F99GwJQuLOgu3b4ouqniFpSeUPV8PkzQAOrEGQrksUU2ybTwTtd8NRBP/nQlkg4bqZaTKjQt2NBaaCM=
+Received: from SN6PR10MB3022.namprd10.prod.outlook.com (2603:10b6:805:d8::25)
+ by BLAPR10MB5281.namprd10.prod.outlook.com (2603:10b6:208:30f::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.15; Tue, 30 Aug
+ 2022 20:30:07 +0000
+Received: from SN6PR10MB3022.namprd10.prod.outlook.com
+ ([fe80::a420:3107:436d:d223]) by SN6PR10MB3022.namprd10.prod.outlook.com
+ ([fe80::a420:3107:436d:d223%5]) with mapi id 15.20.5566.021; Tue, 30 Aug 2022
+ 20:30:07 +0000
+From:   Liam Howlett <liam.howlett@oracle.com>
+To:     Carlos Llamas <cmllamas@google.com>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?iso-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "kernel-team@android.com" <kernel-team@android.com>,
+        "syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com" 
+        <syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com>,
+        "syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com" 
+        <syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] binder: fix alloc->vma_vm_mm null-ptr dereference
+Thread-Topic: [PATCH 1/7] binder: fix alloc->vma_vm_mm null-ptr dereference
+Thread-Index: AQHYu+O+8j78ewjyGUWdeBrLUwjJOK3Hz2wAgAAJnICAAA2+AA==
+Date:   Tue, 30 Aug 2022 20:30:07 +0000
+Message-ID: <20220830203000.qgv3dkbgep2d6saw@revolver>
+References: <20220829201254.1814484-1-cmllamas@google.com>
+ <20220829201254.1814484-2-cmllamas@google.com>
+ <20220830190515.dlrp2a3ypfyhzid5@revolver> <Yw5nwaNI5ewExYtC@google.com>
+In-Reply-To: <Yw5nwaNI5ewExYtC@google.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 76c7327a-086c-4dfc-bbe2-08da8ac66da6
+x-ms-traffictypediagnostic: BLAPR10MB5281:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: EMvdUvEbdctmHSAX9IiZdC1f/Ukhy0cOQHfpA2sbM6A3gkoiIXqMEHt0BO+eiSQNI6tMFIN+u6zRmbsKnbyN9Qh87kk+h5Na/CT9VPsXCXCOqaT/LLtiX0KnKHgcmF/gFnT1DIa/qwMKyd4vePZYF496Z9c7pI3ZnSi+e2wdtIN8JX4leqTCmLcVDc31lP09m+F+J/sxmNJC7Yl7jW5OsvHjsfkyazpQ5zsfcvKQebkD4nRMp83ehfg4Vt56cyDLonnAvmLGxF00w+BHFrVB7FpKzI+OsHyt7ptgk/saErNeHuzcwSM8A9Vv088A5xIDTM9jS8EVvX5rPpjz2zg/vCgg7ZeDnPu7rGfbT3Zn2jSst386plZ+chb6n2s8jeFHZmO9mBxKBlMarJ7k9h+pJXMN2USRH0kbW81JKorizGd49nPxB/aqxYNWNY47E8U0o68ev00U+fp7kgAF8my1ApvOP0n2gLyfa59oPobbB/jMMYVuO4jXuIhfvgH8Gn/bnrrEFgSmt2f4h1z8vK7/ACVZTGvKl2SjW+zoXvAopz8B7z314f+bC1Xa9iMZrituTy9RfgkxLyzSW6HRoNuu7z7re8813is4SNmwitYi+3kV+6ZFXtukKuSjuJPtkre0vC0KfGLdbIf9sfDc77PcFASu1GryRKAqNzhGhF9cG/LPC9Z8ecyKtY3tBdxDBmKbYO10X32hyjHyfLfjbdAQTZn3KOfpdKPIXgYOq4rXN+/eRbVW6aKdYKQx+bQXTagU1eYT+p2m5meYFixGg6ZbRw==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR10MB3022.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(7916004)(396003)(376002)(366004)(136003)(346002)(39860400002)(33716001)(44832011)(38100700002)(6512007)(6506007)(122000001)(9686003)(2906002)(26005)(1076003)(186003)(71200400001)(83380400001)(54906003)(66946007)(66446008)(4326008)(8676002)(66556008)(6916009)(66476007)(64756008)(76116006)(91956017)(6486002)(86362001)(7416002)(38070700005)(5660300002)(316002)(8936002)(41300700001)(478600001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?Pd2hKYx0ppbV7Jyc7U9IWjOVEigD72KlqdPgLvshV1hT7YxQWHmzntk0JM?=
+ =?iso-8859-1?Q?IB25sbaAlfi4TKkMa5zgG8vUo8tPysBXyXz2E12bLhDCypzAeguqfvKmL0?=
+ =?iso-8859-1?Q?Z9g4fsZyg9TFgvJN8WyZkxW5fSPeSPOy5DHEcFaXUO4sf0Afrp5ndocwo/?=
+ =?iso-8859-1?Q?yk99g/DKAmemqTHvWrrIjoSRTm+i53r2lBsBnFbQzaMaaZe7KxiPikPrBs?=
+ =?iso-8859-1?Q?kYr9v0jFmMdNu2R3Om9w3RzvJjSwdBMQn8VMNCWlxc+4bBjnxGMfUaWMZn?=
+ =?iso-8859-1?Q?gQeThYoF+7Ije0295zsIeNjB7YF5HaFcoXW6o70vR5uwMPaEgRjz6i2vmT?=
+ =?iso-8859-1?Q?e0b/ZCw4F9lU3wGkIKX5wB7lSiqxzwsXnG22+sIDti0wbQIUyFMTexzB2O?=
+ =?iso-8859-1?Q?ekbyN4meZ2UMQfWpofurGElPh6JU4Ga+Xlj3AP3mTv+pjk9FeNZy5SRyGV?=
+ =?iso-8859-1?Q?pD9ExrnfJUBjTfopRF2NaVNzaPsSAz6GjICD1Aa4jt/kpjSKjNpiTpgZNI?=
+ =?iso-8859-1?Q?37NbTnSbcdMn1QG27lvMLULQOZfgq2S2zoYujVBSp2iLo0tVGWoLdqQTbM?=
+ =?iso-8859-1?Q?QjPQos8b7H16JF7GoL5yAVeFdjf/SfuJBnzgf0PehyMz6IxAUFG7v7INWD?=
+ =?iso-8859-1?Q?WxMKTH4fwrq/1f3V5PnJeiD3R8zk4hJpVTbZfVxoMSO+mysJ1P//lbQYo7?=
+ =?iso-8859-1?Q?D+KLXT22uTcej+6raRbxmBqbwRaoEU9X/0WEwhbmwcrRMDZAoD3F+RIBa2?=
+ =?iso-8859-1?Q?7ohsdVzfv1UUkUwOGiS9peaUag6t88fa+ArZR49Hy0axXK3qPjpYW3BRHE?=
+ =?iso-8859-1?Q?/TTr4yrM0c8YyPThecOCTd3xZDyci6SPxZNEZjg/4jpWUhkmDE+ZYs6nZh?=
+ =?iso-8859-1?Q?u0QdlYGCf3QrU12m9IHDOmvMW6l8s/E5HXxDMTVzlPBJ/I49z1trl7H0FD?=
+ =?iso-8859-1?Q?nYr0BOI5B/j4VKzM8sLPEjgHAfQp1xDVNFfkvRUwDdt9UV/UJZZuX2k4PR?=
+ =?iso-8859-1?Q?Y9C4cPC0gnj3DFWlG+eqYs98QwOAilC/0vp1eL9aPii3ANDhmtL6aOYhkO?=
+ =?iso-8859-1?Q?sQIjFAaJz99tlbL4ZBeFMLXVmVEphPeKmGlD4uhAh2/Az3TqnolFG7y4Ck?=
+ =?iso-8859-1?Q?8OPTQuQ9/jcDF4ZTfyefYzDBqSgz2wYqe3JL8rvhGCg1kRgGr0h5qfCMEH?=
+ =?iso-8859-1?Q?vIFEY41TUbMazqCfJHDL3knPuliJWYyzWZptLD2Hnu2Qr3XfCkqiri2714?=
+ =?iso-8859-1?Q?RKBJ2srKMrEo4rTx8BqVF2bNRcB5C55E0h25Ne0a1bxf2Ynu94wcbNLNFt?=
+ =?iso-8859-1?Q?V62pnJgmzQVuQJs0+ZfPFmh3BwRVs9d6qIL/zG9Ne1ocP/DTl37Kxm6gY1?=
+ =?iso-8859-1?Q?a+lM/8JuUxz7SvCvLTV/5isZ67mrUdPKqESmWvrdGZ1eJ4owAB0zRlX4uG?=
+ =?iso-8859-1?Q?ocVwYqOgAsqhnmUX2TwD01VXsAVV+kztI9r6DP7Uf2LDXE7c6MtCc4H3pV?=
+ =?iso-8859-1?Q?Eap/05sL0h9a2iAdAt6N5MyBSGl9sGWE81+IihQ/AhgFnTa7xWqHJZNPvQ?=
+ =?iso-8859-1?Q?ImeL314NZrJwUIEGhWtAbb0L3SYBL7nvseN9fubd6Chpa4IEEB4QOPUsPK?=
+ =?iso-8859-1?Q?YrB8rClwcy8AOCB92iUO3qJ4BhmZTX/NqM5jQmAza/a5uPdIbnIWLNFw?=
+ =?iso-8859-1?Q?=3D=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-ID: <C16BBB581CA9C64BB400E4E701653FEA@namprd10.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <166175790177143@kroah.com>
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR10MB3022.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 76c7327a-086c-4dfc-bbe2-08da8ac66da6
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Aug 2022 20:30:07.3835
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 1CF2am3g/WBat5T3JSHl5IuhbWnyRBJc6WCX611xF7YMRExBeYtxhEreiBk2NhuQKErm4nZMFcRfC+KiU2jgCQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5281
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-30_11,2022-08-30_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 malwarescore=0 mlxscore=0
+ spamscore=0 mlxlogscore=999 phishscore=0 suspectscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
+ definitions=main-2208300091
+X-Proofpoint-GUID: 4WQR8FMWj6sgAbvo58Q0T49ibDG7hh73
+X-Proofpoint-ORIG-GUID: 4WQR8FMWj6sgAbvo58Q0T49ibDG7hh73
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7df548840c496b0141fb2404b889c346380c2b22 ]
+* Carlos Llamas <cmllamas@google.com> [220830 15:41]:
+> On Tue, Aug 30, 2022 at 07:06:37PM +0000, Liam Howlett wrote:
+> > > diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_=
+alloc.c
+> > > index 51f4e1c5cd01..9b1778c00610 100644
+> > > --- a/drivers/android/binder_alloc.c
+> > > +++ b/drivers/android/binder_alloc.c
+> > > @@ -322,7 +322,6 @@ static inline void binder_alloc_set_vma(struct bi=
+nder_alloc *alloc,
+> > >  	 */
+> > >  	if (vma) {
+> > >  		vm_start =3D vma->vm_start;
+> > > -		alloc->vma_vm_mm =3D vma->vm_mm;
+> >=20
+> > Is this really the null pointer dereference?  We check for vma above..?
+> >=20
+>=20
+> Not here. The sequence leading to the null-ptr-deref happens when we try
+> to take alloc->vma_vm_mm->mmap_lock in binder_alloc_new_buf_locked() and
+> in binder_alloc_print_pages() without initializing alloc->vma_vm_mm
+> first (e.g. mmap() was never called). These sequences are described in
+> the commit message but basically they translate to mmap_read_lock(NULL)
+> calls.
 
-Older Intel CPUs that are not in the affected processor list for MMIO
-Stale Data vulnerabilities currently report "Not affected" in sysfs,
-which may not be correct. Vulnerability status for these older CPUs is
-unknown.
+Ah, this is unnecessary with the rest of the change.
 
-Add known-not-affected CPUs to the whitelist. Report "unknown"
-mitigation status for CPUs that are not in blacklist, whitelist and also
-don't enumerate MSR ARCH_CAPABILITIES bits that reflect hardware
-immunity to MMIO Stale Data vulnerabilities.
-
-Mitigation is not deployed when the status is unknown.
-
-  [ bp: Massage, fixup. ]
-
-Fixes: 8d50cdf8b834 ("x86/speculation/mmio: Add sysfs reporting for Processor MMIO Stale Data")
-Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Suggested-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/a932c154772f2121794a5f2eded1a11013114711.1657846269.git.pawan.kumar.gupta@linux.intel.com
----
- .../hw-vuln/processor_mmio_stale_data.rst     | 14 +++++++
- arch/x86/include/asm/cpufeatures.h            |  3 +-
- arch/x86/kernel/cpu/bugs.c                    | 14 ++++++-
- arch/x86/kernel/cpu/common.c                  | 40 ++++++++++++-------
- 4 files changed, 54 insertions(+), 17 deletions(-)
-
-diff --git a/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst b/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
-index 9393c50b5afc..c98fd11907cc 100644
---- a/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
-+++ b/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
-@@ -230,6 +230,20 @@ The possible values in this file are:
-      * - 'Mitigation: Clear CPU buffers'
-        - The processor is vulnerable and the CPU buffer clearing mitigation is
-          enabled.
-+     * - 'Unknown: No mitigations'
-+       - The processor vulnerability status is unknown because it is
-+	 out of Servicing period. Mitigation is not attempted.
-+
-+Definitions:
-+------------
-+
-+Servicing period: The process of providing functional and security updates to
-+Intel processors or platforms, utilizing the Intel Platform Update (IPU)
-+process or other similar mechanisms.
-+
-+End of Servicing Updates (ESU): ESU is the date at which Intel will no
-+longer provide Servicing, such as through IPU or other similar update
-+processes. ESU dates will typically be aligned to end of quarter.
- 
- If the processor is vulnerable then the following information is appended to
- the above information:
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index a3e32bc93856..736b0e412344 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -407,6 +407,7 @@
- #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
- #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
- #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
--#define X86_BUG_EIBRS_PBRSB		X86_BUG(26) /* EIBRS is vulnerable to Post Barrier RSB Predictions */
-+#define X86_BUG_MMIO_UNKNOWN		X86_BUG(26) /* CPU is too old and its MMIO Stale Data status is unknown */
-+#define X86_BUG_EIBRS_PBRSB		X86_BUG(27) /* EIBRS is vulnerable to Post Barrier RSB Predictions */
- 
- #endif /* _ASM_X86_CPUFEATURES_H */
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 57efa90f3fbd..c90d91cb1434 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -396,7 +396,8 @@ static void __init mmio_select_mitigation(void)
- 	u64 ia32_cap;
- 
- 	if (!boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA) ||
--	    cpu_mitigations_off()) {
-+	     boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN) ||
-+	     cpu_mitigations_off()) {
- 		mmio_mitigation = MMIO_MITIGATION_OFF;
- 		return;
- 	}
-@@ -501,6 +502,8 @@ static void __init md_clear_update_mitigation(void)
- 		pr_info("TAA: %s\n", taa_strings[taa_mitigation]);
- 	if (boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
- 		pr_info("MMIO Stale Data: %s\n", mmio_strings[mmio_mitigation]);
-+	else if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		pr_info("MMIO Stale Data: Unknown: No mitigations\n");
- }
- 
- static void __init md_clear_select_mitigation(void)
-@@ -1880,6 +1883,9 @@ static ssize_t tsx_async_abort_show_state(char *buf)
- 
- static ssize_t mmio_stale_data_show_state(char *buf)
- {
-+	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		return sysfs_emit(buf, "Unknown: No mitigations\n");
-+
- 	if (mmio_mitigation == MMIO_MITIGATION_OFF)
- 		return sysfs_emit(buf, "%s\n", mmio_strings[mmio_mitigation]);
- 
-@@ -2007,6 +2013,7 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
- 		return srbds_show_state(buf);
- 
- 	case X86_BUG_MMIO_STALE_DATA:
-+	case X86_BUG_MMIO_UNKNOWN:
- 		return mmio_stale_data_show_state(buf);
- 
- 	default:
-@@ -2063,6 +2070,9 @@ ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *
- 
- ssize_t cpu_show_mmio_stale_data(struct device *dev, struct device_attribute *attr, char *buf)
- {
--	return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
-+	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_UNKNOWN);
-+	else
-+		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
- }
- #endif
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index b926b7244d42..59413e741ecf 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1026,6 +1026,7 @@ static void identify_cpu_without_cpuid(struct cpuinfo_x86 *c)
- #define NO_ITLB_MULTIHIT	BIT(7)
- #define NO_SPECTRE_V2		BIT(8)
- #define NO_EIBRS_PBRSB		BIT(9)
-+#define NO_MMIO			BIT(10)
- 
- #define VULNWL(_vendor, _family, _model, _whitelist)	\
- 	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
-@@ -1046,6 +1047,11 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
- 	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
- 
- 	/* Intel Family 6 */
-+	VULNWL_INTEL(TIGERLAKE,			NO_MMIO),
-+	VULNWL_INTEL(TIGERLAKE_L,		NO_MMIO),
-+	VULNWL_INTEL(ALDERLAKE,			NO_MMIO),
-+	VULNWL_INTEL(ALDERLAKE_L,		NO_MMIO),
-+
- 	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION | NO_ITLB_MULTIHIT),
-@@ -1064,9 +1070,9 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
- 	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_AIRMONT_NP,		NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
- 
--	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_INTEL(ATOM_GOLDMONT_D,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_EIBRS_PBRSB),
-+	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_INTEL(ATOM_GOLDMONT_D,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO | NO_EIBRS_PBRSB),
- 
- 	/*
- 	 * Technically, swapgs isn't serializing on AMD (despite it previously
-@@ -1081,18 +1087,18 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
- 	VULNWL_INTEL(ATOM_TREMONT_D,		NO_ITLB_MULTIHIT | NO_EIBRS_PBRSB),
- 
- 	/* AMD Family 0xf - 0x12 */
--	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 
- 	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
--	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_HYGON(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_HYGON(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 
- 	/* Zhaoxin Family 7 */
--	VULNWL(CENTAUR,	7, X86_MODEL_ANY,	NO_SPECTRE_V2),
--	VULNWL(ZHAOXIN,	7, X86_MODEL_ANY,	NO_SPECTRE_V2),
-+	VULNWL(CENTAUR,	7, X86_MODEL_ANY,	NO_SPECTRE_V2 | NO_MMIO),
-+	VULNWL(ZHAOXIN,	7, X86_MODEL_ANY,	NO_SPECTRE_V2 | NO_MMIO),
- 	{}
- };
- 
-@@ -1234,10 +1240,16 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
- 	 * Affected CPU list is generally enough to enumerate the vulnerability,
- 	 * but for virtualization case check for ARCH_CAP MSR bits also, VMM may
- 	 * not want the guest to enumerate the bug.
-+	 *
-+	 * Set X86_BUG_MMIO_UNKNOWN for CPUs that are neither in the blacklist,
-+	 * nor in the whitelist and also don't enumerate MSR ARCH_CAP MMIO bits.
- 	 */
--	if (cpu_matches(cpu_vuln_blacklist, MMIO) &&
--	    !arch_cap_mmio_immune(ia32_cap))
--		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
-+	if (!arch_cap_mmio_immune(ia32_cap)) {
-+		if (cpu_matches(cpu_vuln_blacklist, MMIO))
-+			setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
-+		else if (!cpu_matches(cpu_vuln_whitelist, NO_MMIO))
-+			setup_force_cpu_bug(X86_BUG_MMIO_UNKNOWN);
-+	}
- 
- 	if (cpu_has(c, X86_FEATURE_IBRS_ENHANCED) &&
- 	    !cpu_matches(cpu_vuln_whitelist, NO_EIBRS_PBRSB) &&
-
-base-commit: 684cc17be897de3b0fd2e5a021a702f68046d9fe
--- 
-2.37.2
+Feel free to add my reviewed-by if you want.
 
 
+Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
