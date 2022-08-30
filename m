@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 388BB5A6977
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30BD95A6974
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229625AbiH3RSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:18:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58804 "EHLO
+        id S230072AbiH3RSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:18:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230000AbiH3RSh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:18:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FD0DD59B4;
-        Tue, 30 Aug 2022 10:18:36 -0700 (PDT)
+        with ESMTP id S230151AbiH3RSn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:18:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CA2D419D;
+        Tue, 30 Aug 2022 10:18:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFC3961777;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41A10B81D0B;
+        Tue, 30 Aug 2022 17:18:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5EFBC433D6;
         Tue, 30 Aug 2022 17:18:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19438C433B5;
-        Tue, 30 Aug 2022 17:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661879915;
-        bh=rsBZ9omJFlXHM0Xnd/vfXJa6R/hMrsdX9ze4QNMC77g=;
+        s=k20201202; t=1661879917;
+        bh=lPDqattntsJEG0XxXrX717mGqdP6yGADrTYv2gqoSd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzL9Y6BKyT76d1+fdRAWVThk1hNkIpLXZ5nbjrZlRYUhP1hLnRJYtchsjHDrigI5Z
-         pxWtqogInrp2H7Q7Sn9cm7dJNLV3Em+E7JLcQKc5DNKOmTKihKcKkGHlAdyGZO1nHF
-         U61bsQijNvO2yS58zM1gJLnJILDXs5Vk0cGB+SyejCGi3HcvV0fK09AZxqGnmmS79r
-         43XnW1IrJSstb4zK9JKYNCJOvo4YQjOQXBzDOsMezK/Fb8k9tSVezfw7lKXlainYlC
-         KB4Xu0IsGz2HFm2i5g+brWOa3dhSebZkRVSNtFEcSzLCUamRp3agTATRybZxqS+58z
-         0sJh9z/4lZKKA==
+        b=RTLeqDhq1ypKkDalE9A9AeABAdPnkaem42lcIsFuyVpSQc70+pr3IQtHH7DAuuC00
+         7U8UAbdxgIRGzvoF5aXV7hTMu62+pEOMvAnHHXG7DTVUFNNXRDUuWsXV2nFxGNX/Qf
+         fUQxnAX9Del4nKioxbjTZG5lia1nY6ywbuhCYCR0iJVNh4b1jo549TYENolNG9jtE+
+         1Piuq2ayWVS+fuo0wMunA46wdH2FRk/xgw4cwcbFSsP9n2U6Z2RGOfGLoNA6i74qys
+         W53VnbA8V06c1lAxZ/BQW4B3YtUfiZ7UjRLi1Pm6H2O/enbX30MBOFe70IXb3gC1rT
+         CIiKddBoA2NBA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Maxime Ripard <maxime@cerno.tech>,
@@ -39,9 +39,9 @@ Cc:     Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>, emma@anholt.net,
         mripard@kernel.org, airlied@linux.ie, daniel@ffwll.ch,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 05/33] drm/vc4: hdmi: Depends on CONFIG_PM
-Date:   Tue, 30 Aug 2022 13:17:56 -0400
-Message-Id: <20220830171825.580603-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 06/33] drm/vc4: hdmi: Rework power up
+Date:   Tue, 30 Aug 2022 13:17:57 -0400
+Message-Id: <20220830171825.580603-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830171825.580603-1-sashal@kernel.org>
 References: <20220830171825.580603-1-sashal@kernel.org>
@@ -61,49 +61,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 72e2329e7c9bbe15e7a813670497ec9c6f919af3 ]
+[ Upstream commit 258e483a4d5e97a6a8caa74381ddc1f395ac1c71 ]
 
-We already depend on runtime PM to get the power domains and clocks for
-most of the devices supported by the vc4 driver, so let's just select it
-to make sure it's there.
+The current code tries to handle the case where CONFIG_PM isn't selected
+by first calling our runtime_resume implementation and then properly
+report the power state to the runtime_pm core.
 
-Link: https://lore.kernel.org/r/20220629123510.1915022-38-maxime@cerno.tech
+This allows to have a functionning device even if pm_runtime_get_*
+functions are nops.
+
+However, the device power state if CONFIG_PM is enabled is
+RPM_SUSPENDED, and thus our vc4_hdmi_write() and vc4_hdmi_read() calls
+in the runtime_pm hooks will now report a warning since the device might
+not be properly powered.
+
+Even more so, we need CONFIG_PM enabled since the previous RaspberryPi
+have a power domain that needs to be powered up for the HDMI controller
+to be usable.
+
+The previous patch has created a dependency on CONFIG_PM, now we can
+just assume it's there and only call pm_runtime_resume_and_get() to make
+sure our device is powered in bind.
+
+Link: https://lore.kernel.org/r/20220629123510.1915022-39-maxime@cerno.tech
 Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
 Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-(cherry picked from commit f1bc386b319e93e56453ae27e9e83817bb1f6f95)
+(cherry picked from commit 53565c28e6af2cef6bbf438c34250135e3564459)
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/Kconfig    | 1 +
- drivers/gpu/drm/vc4/vc4_hdmi.c | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/Kconfig b/drivers/gpu/drm/vc4/Kconfig
-index 061be9a6619df..b0f3117102ca5 100644
---- a/drivers/gpu/drm/vc4/Kconfig
-+++ b/drivers/gpu/drm/vc4/Kconfig
-@@ -8,6 +8,7 @@ config DRM_VC4
- 	depends on DRM
- 	depends on SND && SND_SOC
- 	depends on COMMON_CLK
-+	depends on PM
- 	select DRM_DISPLAY_HDMI_HELPER
- 	select DRM_DISPLAY_HELPER
- 	select DRM_KMS_HELPER
 diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 23ff6aa5e8f60..c5702f22fe1a8 100644
+index c5702f22fe1a8..199bc398817fa 100644
 --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
 +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -2875,7 +2875,7 @@ static int vc5_hdmi_init_resources(struct vc4_hdmi *vc4_hdmi)
- 	return 0;
- }
+@@ -2992,17 +2992,15 @@ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
+ 			vc4_hdmi->disable_4kp60 = true;
+ 	}
  
--static int __maybe_unused vc4_hdmi_runtime_suspend(struct device *dev)
-+static int vc4_hdmi_runtime_suspend(struct device *dev)
- {
- 	struct vc4_hdmi *vc4_hdmi = dev_get_drvdata(dev);
++	pm_runtime_enable(dev);
++
+ 	/*
+-	 * We need to have the device powered up at this point to call
+-	 * our reset hook and for the CEC init.
++	 *  We need to have the device powered up at this point to call
++	 *  our reset hook and for the CEC init.
+ 	 */
+-	ret = vc4_hdmi_runtime_resume(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret)
+-		goto err_put_ddc;
+-
+-	pm_runtime_get_noresume(dev);
+-	pm_runtime_set_active(dev);
+-	pm_runtime_enable(dev);
++		goto err_disable_runtime_pm;
  
+ 	if ((of_device_is_compatible(dev->of_node, "brcm,bcm2711-hdmi0") ||
+ 	     of_device_is_compatible(dev->of_node, "brcm,bcm2711-hdmi1")) &&
+@@ -3048,6 +3046,7 @@ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
+ err_destroy_encoder:
+ 	drm_encoder_cleanup(encoder);
+ 	pm_runtime_put_sync(dev);
++err_disable_runtime_pm:
+ 	pm_runtime_disable(dev);
+ err_put_ddc:
+ 	put_device(&vc4_hdmi->ddc->dev);
 -- 
 2.35.1
 
