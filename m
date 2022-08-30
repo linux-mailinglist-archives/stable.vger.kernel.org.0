@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 240215A6B16
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F645A6A58
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:28:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231416AbiH3Rpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:45:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43334 "EHLO
+        id S231592AbiH3R2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:28:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231564AbiH3RpU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:45:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA68D5E92;
-        Tue, 30 Aug 2022 10:41:53 -0700 (PDT)
+        with ESMTP id S231636AbiH3R1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:27:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73884DFC9;
+        Tue, 30 Aug 2022 10:25:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77304617B3;
-        Tue, 30 Aug 2022 17:23:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BFD4C4347C;
-        Tue, 30 Aug 2022 17:23:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3504B81D15;
+        Tue, 30 Aug 2022 17:23:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 960D7C433D7;
+        Tue, 30 Aug 2022 17:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880228;
-        bh=F4JNBWRRsruom+7qycrtF3bC1w50tyrEdpDUdXtc/3k=;
+        s=k20201202; t=1661880234;
+        bh=9BUB6F8qHCVRmkkXwqJ9eg/dFaiKKeYVazMEdqCcvko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q70iufNtohXl6WhqNeFwjX8TPCeklAFGbS8bchj+rVaXRoGMVrtSX33o+71ZMuLT2
-         m+zPTKLIgcfNkwctCDbvwRMHoyO5DzpZPvCWkJLwi65XotuDKT9ljaLXmTaj/7ikJr
-         tWaulIRI3aAF+Y1kePgVW3w3ACPUS+ZBWyb+IaY9ngr0EuWOthZOW9gmWBPZqHhtJQ
-         KXX11w88uiyXraL/FgW4hl7c7I0fXOYYNdXxP55GiPVRAoKOQ2HqCQSAQiwuM13un5
-         KdaQEXTymD1bGFgq+2n9yidAWOfe8B7C/Sxsu1qQo/I1OFzN3TPOOYcNNGSgiMfTs5
-         IXOc99mH15ynw==
+        b=e+C3uUTKjJWPEc1Yh3MLWKewRkfwOaz3fOlBmVZ+6bEy5MW1r0kP1ruoQMTk7LvTo
+         SY1Ar3z5s/RvImNgHxmswXvFK4Q+WqKNeUFMhy6pJMTItx1EMGdDzitchBhj7GvuUy
+         h9oF409pP2vOXt/CHfVrfSt2S7h/aJ5sc364PiVZ9CZ4Gd17dSRig0MDIfx0//e1sl
+         0Pb7M8tMqTnrgo5Lj/M/ht+Wx7nKC0Vm1RMmR9UW1b0JAWKZJf/5IMgJKH6/pgsGAs
+         9JgJ5VwWJZ1pKk2GHgP+aiH5kj7qEGvVl5XdoOolW6OcFkxe5u4swg7ikkddGdeFOP
+         JAl0WPsKZF6Bw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Qiong <liqiong@nfschina.com>, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>,
-        James.Bottomley@HansenPartnership.com, linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 08/16] parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()
-Date:   Tue, 30 Aug 2022 13:23:09 -0400
-Message-Id: <20220830172317.581397-8-sashal@kernel.org>
+Cc:     Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        James.Bottomley@HansenPartnership.com, svens@stackframe.org,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 09/16] parisc: Add runtime check to prevent PA2.0 kernels on PA1.x machines
+Date:   Tue, 30 Aug 2022 13:23:10 -0400
+Message-Id: <20220830172317.581397-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172317.581397-1-sashal@kernel.org>
 References: <20220830172317.581397-1-sashal@kernel.org>
@@ -56,56 +56,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Qiong <liqiong@nfschina.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit d46c742f827fa2326ab1f4faa1cccadb56912341 ]
+[ Upstream commit 591d2108f3abc4db9f9073cae37cf3591fd250d6 ]
 
-As the possible failure of the kmalloc(), it should be better
-to fix this error path, check and return '-ENOMEM' error code.
+If a 32-bit kernel was compiled for PA2.0 CPUs, it won't be able to run
+on machines with PA1.x CPUs. Add a check and bail out early if a PA1.x
+machine is detected.
 
-Signed-off-by: Li Qiong <liqiong@nfschina.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parisc/ccio-dma.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/parisc/kernel/head.S | 43 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
-index b916fab9b1618..ffd5000c23d39 100644
---- a/drivers/parisc/ccio-dma.c
-+++ b/drivers/parisc/ccio-dma.c
-@@ -1380,15 +1380,17 @@ ccio_init_resource(struct resource *res, char *name, void __iomem *ioaddr)
- 	}
- }
+diff --git a/arch/parisc/kernel/head.S b/arch/parisc/kernel/head.S
+index aa93d775c34db..598d0938449da 100644
+--- a/arch/parisc/kernel/head.S
++++ b/arch/parisc/kernel/head.S
+@@ -22,7 +22,7 @@
+ #include <linux/init.h>
+ #include <linux/pgtable.h>
  
--static void __init ccio_init_resources(struct ioc *ioc)
-+static int __init ccio_init_resources(struct ioc *ioc)
- {
- 	struct resource *res = ioc->mmio_region;
- 	char *name = kmalloc(14, GFP_KERNEL);
--
-+	if (unlikely(!name))
-+		return -ENOMEM;
- 	snprintf(name, 14, "GSC Bus [%d/]", ioc->hw_path);
+-	.level	PA_ASM_LEVEL
++	.level	1.1
  
- 	ccio_init_resource(res, name, &ioc->ioc_regs->io_io_low);
- 	ccio_init_resource(res + 1, name, &ioc->ioc_regs->io_io_low_hv);
-+	return 0;
- }
+ 	__INITDATA
+ ENTRY(boot_args)
+@@ -69,6 +69,47 @@ $bss_loop:
+ 	stw,ma          %arg2,4(%r1)
+ 	stw,ma          %arg3,4(%r1)
  
- static int new_ioc_area(struct resource *res, unsigned long size,
-@@ -1543,7 +1545,10 @@ static int __init ccio_probe(struct parisc_device *dev)
- 		return -ENOMEM;
- 	}
- 	ccio_ioc_init(ioc);
--	ccio_init_resources(ioc);
-+	if (ccio_init_resources(ioc)) {
-+		kfree(ioc);
-+		return -ENOMEM;
-+	}
- 	hppa_dma_ops = &ccio_ops;
- 
- 	hba = kzalloc(sizeof(*hba), GFP_KERNEL);
++#if !defined(CONFIG_64BIT) && defined(CONFIG_PA20)
++	/* This 32-bit kernel was compiled for PA2.0 CPUs. Check current CPU
++	 * and halt kernel if we detect a PA1.x CPU. */
++	ldi		32,%r10
++	mtctl		%r10,%cr11
++	.level 2.0
++	mfctl,w		%cr11,%r10
++	.level 1.1
++	comib,<>,n	0,%r10,$cpu_ok
++
++	load32		PA(msg1),%arg0
++	ldi		msg1_end-msg1,%arg1
++$iodc_panic:
++	copy		%arg0, %r10
++	copy		%arg1, %r11
++	load32		PA(init_stack),%sp
++#define MEM_CONS 0x3A0
++	ldw		MEM_CONS+32(%r0),%arg0	// HPA
++	ldi		ENTRY_IO_COUT,%arg1
++	ldw		MEM_CONS+36(%r0),%arg2	// SPA
++	ldw		MEM_CONS+8(%r0),%arg3	// layers
++	load32		PA(__bss_start),%r1
++	stw		%r1,-52(%sp)		// arg4
++	stw		%r0,-56(%sp)		// arg5
++	stw		%r10,-60(%sp)		// arg6 = ptr to text
++	stw		%r11,-64(%sp)		// arg7 = len
++	stw		%r0,-68(%sp)		// arg8
++	load32		PA(.iodc_panic_ret), %rp
++	ldw		MEM_CONS+40(%r0),%r1	// ENTRY_IODC
++	bv,n		(%r1)
++.iodc_panic_ret:
++	b .				/* wait endless with ... */
++	or		%r10,%r10,%r10	/* qemu idle sleep */
++msg1:	.ascii "Can't boot kernel which was built for PA8x00 CPUs on this machine.\r\n"
++msg1_end:
++
++$cpu_ok:
++#endif
++
++	.level	PA_ASM_LEVEL
++
+ 	/* Initialize startup VM. Just map first 16/32 MB of memory */
+ 	load32		PA(swapper_pg_dir),%r4
+ 	mtctl		%r4,%cr24	/* Initialize kernel root pointer */
 -- 
 2.35.1
 
