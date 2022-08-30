@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2249F5A6B4C
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25A0A5A6A95
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:31:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231206AbiH3RxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:53:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56066 "EHLO
+        id S231894AbiH3RbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:31:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231643AbiH3Rwx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:52:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE7CFDEA9;
-        Tue, 30 Aug 2022 10:49:59 -0700 (PDT)
+        with ESMTP id S231864AbiH3Raf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:30:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E02C32FB;
+        Tue, 30 Aug 2022 10:27:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19A4EB81D18;
-        Tue, 30 Aug 2022 17:25:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4CBEC433B5;
-        Tue, 30 Aug 2022 17:25:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A764617CA;
+        Tue, 30 Aug 2022 17:25:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A05ABC43470;
+        Tue, 30 Aug 2022 17:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880353;
-        bh=HQHYkKIuu2m483r8bXGwDp3s7/RFPN6AGKU9oMAMuI0=;
+        s=k20201202; t=1661880355;
+        bh=AMvkWcumkyw9/k0EQQQuY6LBmsfboRqftOvewoCknF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HKXaHrVt/91G1UySVTNsmFFw13l3a/T1AspMCCOEMo/rSaHpw4ZFSI9LxWtICGKkN
-         SxAbCSX3dGtCT6wjJJ9KejSDykRy/6+83b5QcgpwuaKFPkaUQSNleOzp7deRQjS0cH
-         igq34q44syt3z1k5yvgVkuNOBAoHdDaeMoB+0x1nK8hZARx+elT5CWTOdvrMSjmuJL
-         ZzCriiNQKan7iaZi3mLmEdIaFFIoJNVF/hlyWnNnnLtoimoHOyYnVpTTQZqtV8n//I
-         BC0gps7JpoLBGhBEmVUDnMc2x8HYMkOHILv5kVVBUKzQVGYLFrTmXgYI/qtxa7w3y8
-         +wCvdPwr/k8bg==
+        b=G7CDzrzPXB37ExIjDEKtF+MQUGyfZB32u8kEwqvW2tFxin/Keck9MoziJf+E7x9dF
+         4E3AWFUxC9a/eO5Kl9ClerXEsievVe8jXmMQ+CZh2hydyz/raAZu37yX/4iQtMb3zO
+         JTAksAGdmNQBQnkxVC9+c6wFU2IsphBz17Pfc2jseNnFc0buAA4f6KWyzONg1/krgt
+         yecCpqAuwvnzBnz1sA2q7MzLLVOdM4GyOBht+uAlsyt/Cbp9HLqztGzBIffIRHMfxY
+         pUr0ds6i5BvwIqIGooTM/54wNOGYHQNAwY3PKbQu1pfvLF5v9pYPR/VSDC8okA6+D6
+         yuWF/0EH77yIA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhenneng Li <lizhenneng@kylinos.cn>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
-        airlied@linux.ie, daniel@ffwll.ch, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 03/10] drm/radeon: add a force flush to delay work when radeon
-Date:   Tue, 30 Aug 2022 13:25:34 -0400
-Message-Id: <20220830172541.581820-3-sashal@kernel.org>
+Cc:     Li Qiong <liqiong@nfschina.com>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>,
+        James.Bottomley@HansenPartnership.com, linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 04/10] parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()
+Date:   Tue, 30 Aug 2022 13:25:35 -0400
+Message-Id: <20220830172541.581820-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172541.581820-1-sashal@kernel.org>
 References: <20220830172541.581820-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,72 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenneng Li <lizhenneng@kylinos.cn>
+From: Li Qiong <liqiong@nfschina.com>
 
-[ Upstream commit f461950fdc374a3ada5a63c669d997de4600dffe ]
+[ Upstream commit d46c742f827fa2326ab1f4faa1cccadb56912341 ]
 
-Although radeon card fence and wait for gpu to finish processing current batch rings,
-there is still a corner case that radeon lockup work queue may not be fully flushed,
-and meanwhile the radeon_suspend_kms() function has called pci_set_power_state() to
-put device in D3hot state.
-Per PCI spec rev 4.0 on 5.3.1.4.1 D3hot State.
-> Configuration and Message requests are the only TLPs accepted by a Function in
-> the D3hot state. All other received Requests must be handled as Unsupported Requests,
-> and all received Completions may optionally be handled as Unexpected Completions.
-This issue will happen in following logs:
-Unable to handle kernel paging request at virtual address 00008800e0008010
-CPU 0 kworker/0:3(131): Oops 0
-pc = [<ffffffff811bea5c>]  ra = [<ffffffff81240844>]  ps = 0000 Tainted: G        W
-pc is at si_gpu_check_soft_reset+0x3c/0x240
-ra is at si_dma_is_lockup+0x34/0xd0
-v0 = 0000000000000000  t0 = fff08800e0008010  t1 = 0000000000010000
-t2 = 0000000000008010  t3 = fff00007e3c00000  t4 = fff00007e3c00258
-t5 = 000000000000ffff  t6 = 0000000000000001  t7 = fff00007ef078000
-s0 = fff00007e3c016e8  s1 = fff00007e3c00000  s2 = fff00007e3c00018
-s3 = fff00007e3c00000  s4 = fff00007fff59d80  s5 = 0000000000000000
-s6 = fff00007ef07bd98
-a0 = fff00007e3c00000  a1 = fff00007e3c016e8  a2 = 0000000000000008
-a3 = 0000000000000001  a4 = 8f5c28f5c28f5c29  a5 = ffffffff810f4338
-t8 = 0000000000000275  t9 = ffffffff809b66f8  t10 = ff6769c5d964b800
-t11= 000000000000b886  pv = ffffffff811bea20  at = 0000000000000000
-gp = ffffffff81d89690  sp = 00000000aa814126
-Disabling lock debugging due to kernel taint
-Trace:
-[<ffffffff81240844>] si_dma_is_lockup+0x34/0xd0
-[<ffffffff81119610>] radeon_fence_check_lockup+0xd0/0x290
-[<ffffffff80977010>] process_one_work+0x280/0x550
-[<ffffffff80977350>] worker_thread+0x70/0x7c0
-[<ffffffff80977410>] worker_thread+0x130/0x7c0
-[<ffffffff80982040>] kthread+0x200/0x210
-[<ffffffff809772e0>] worker_thread+0x0/0x7c0
-[<ffffffff80981f8c>] kthread+0x14c/0x210
-[<ffffffff80911658>] ret_from_kernel_thread+0x18/0x20
-[<ffffffff80981e40>] kthread+0x0/0x210
- Code: ad3e0008  43f0074a  ad7e0018  ad9e0020  8c3001e8  40230101
- <88210000> 4821ed21
-So force lockup work queue flush to fix this problem.
+As the possible failure of the kmalloc(), it should be better
+to fix this error path, check and return '-ENOMEM' error code.
 
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Zhenneng Li <lizhenneng@kylinos.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Li Qiong <liqiong@nfschina.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_device.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/parisc/ccio-dma.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
-index 59c8a6647ff21..cc1c07963116c 100644
---- a/drivers/gpu/drm/radeon/radeon_device.c
-+++ b/drivers/gpu/drm/radeon/radeon_device.c
-@@ -1625,6 +1625,9 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend,
- 		if (r) {
- 			/* delay GPU reset to resume */
- 			radeon_fence_driver_force_completion(rdev, i);
-+		} else {
-+			/* finish executing delayed work */
-+			flush_delayed_work(&rdev->fence_drv[i].lockup_work);
- 		}
+diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
+index 6efab7a06c5fc..73ee74d6e7a3d 100644
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -1390,15 +1390,17 @@ ccio_init_resource(struct resource *res, char *name, void __iomem *ioaddr)
  	}
+ }
+ 
+-static void __init ccio_init_resources(struct ioc *ioc)
++static int __init ccio_init_resources(struct ioc *ioc)
+ {
+ 	struct resource *res = ioc->mmio_region;
+ 	char *name = kmalloc(14, GFP_KERNEL);
+-
++	if (unlikely(!name))
++		return -ENOMEM;
+ 	snprintf(name, 14, "GSC Bus [%d/]", ioc->hw_path);
+ 
+ 	ccio_init_resource(res, name, &ioc->ioc_regs->io_io_low);
+ 	ccio_init_resource(res + 1, name, &ioc->ioc_regs->io_io_low_hv);
++	return 0;
+ }
+ 
+ static int new_ioc_area(struct resource *res, unsigned long size,
+@@ -1552,7 +1554,10 @@ static int __init ccio_probe(struct parisc_device *dev)
+ 		return -ENOMEM;
+ 	}
+ 	ccio_ioc_init(ioc);
+-	ccio_init_resources(ioc);
++	if (ccio_init_resources(ioc)) {
++		kfree(ioc);
++		return -ENOMEM;
++	}
+ 	hppa_dma_ops = &ccio_ops;
+ 	dev->dev.platform_data = kzalloc(sizeof(struct pci_hba_data), GFP_KERNEL);
  
 -- 
 2.35.1
