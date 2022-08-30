@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BDD65A6A16
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 114E35A6AD7
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231580AbiH3R0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:26:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45678 "EHLO
+        id S231792AbiH3ReV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:34:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231341AbiH3RZc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:25:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053BE1616B6;
-        Tue, 30 Aug 2022 10:22:58 -0700 (PDT)
+        with ESMTP id S232093AbiH3RdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:33:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E039E68FC;
+        Tue, 30 Aug 2022 10:29:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12905B81D16;
-        Tue, 30 Aug 2022 17:22:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D8EC433D6;
-        Tue, 30 Aug 2022 17:22:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 498A761780;
+        Tue, 30 Aug 2022 17:22:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C80DC43142;
+        Tue, 30 Aug 2022 17:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880157;
-        bh=jOv8v60wKjLg//lVQgOMfjenwYCSv7sZQmxfzg2d6BU=;
+        s=k20201202; t=1661880159;
+        bh=viUhvXnEZZVKzg1dyNtgpmWDjQnR4hg7f8HjVdysiwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVGgHtZxJkMGG4w8RGQOlsQlY8SLmZ22IJ6t8Se68uQLKYiyedw9Us7IlZhpdz14x
-         GpHSjDS6ugXJyKWKn1PC3CIv9qC8+j4eFYrbzad6sOKp1smZGlNNNPAlTjA/2r1pra
-         GjNlpgsx/VE1dHBmnb1i+hncPvStdDEM+o43hpvroGtBBclGXSy+3OSb52T1BpTGv6
-         4LBOWC+H0C93YHGzS2CMR4YJqV4s0LxDRrblnTmG5lr0S8t5LI1GKnd90557FM7+Vn
-         sWQBMN7AYlx2alCyqeEgshxlOzl2JLHrDi0M3KFuIHrxk+UyO8To1bWCNAga+vduaS
-         htvVpy4k9YghQ==
+        b=SZRzS73PExGaufjcFG/laMYE2T9Db0xe1h/GcN65p7Q1uxhK3IAhHuaxnsj7KO1Ku
+         PQ4mAbcCTeKqVdnN3IMIQt0NZtCBcUmAfV3HpI280ykrji6gR6HjAkhIG7kqwdq3iR
+         J9EfbyVd3m2V2S+kDNp2cKpYHwXn3iBNBpiEUCJMDVdPNUcyElLIIgMUahytMxjLgM
+         2oIjJ8RM/+CDH6mcUiAMLXeTCICrf03Zvqoiw1nsw5fA6gIQ6gOg9H/fgEfzM9jiXc
+         OkWKBFQ2VG5xphNa2YEXv3sO8DFjMyoaIg44xiNLbpdWff8ma3oDLjOOhPbkLwOSl4
+         OTLbi+aiEc+FA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        seanjc@google.com, mark.rutland@arm.com, elver@google.com,
-        david.engraf@sysgo.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 14/23] arm64/signal: Raise limit on stack frames
-Date:   Tue, 30 Aug 2022 13:21:31 -0400
-Message-Id: <20220830172141.581086-14-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>, Sasha Levin <sashal@kernel.org>,
+        pablo@netfilter.org, kadlec@netfilter.org, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 15/23] netfilter: conntrack: work around exceeded receive window
+Date:   Tue, 30 Aug 2022 13:21:32 -0400
+Message-Id: <20220830172141.581086-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172141.581086-1-sashal@kernel.org>
 References: <20220830172141.581086-1-sashal@kernel.org>
@@ -58,42 +58,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 7ddcaf78e93c9282b4d92184f511b4d5bee75355 ]
+[ Upstream commit cf97769c761abfeac8931b35fe0e1a8d5fabc9d8 ]
 
-The signal code has a limit of 64K on the size of a stack frame that it
-will generate, if this limit is exceeded then a process will be killed if
-it receives a signal. Unfortunately with the advent of SME this limit is
-too small - the maximum possible size of the ZA register alone is 64K. This
-is not an issue for practical systems at present but is easily seen using
-virtual platforms.
+When a TCP sends more bytes than allowed by the receive window, all future
+packets can be marked as invalid.
+This can clog up the conntrack table because of 5-day default timeout.
 
-Raise the limit to 256K, this is substantially more than could be used by
-any current architecture extension.
+Sequence of packets:
+ 01 initiator > responder: [S], seq 171, win 5840, options [mss 1330,sackOK,TS val 63 ecr 0,nop,wscale 1]
+ 02 responder > initiator: [S.], seq 33211, ack 172, win 65535, options [mss 1460,sackOK,TS val 010 ecr 63,nop,wscale 8]
+ 03 initiator > responder: [.], ack 33212, win 2920, options [nop,nop,TS val 068 ecr 010], length 0
+ 04 initiator > responder: [P.], seq 172:240, ack 33212, win 2920, options [nop,nop,TS val 279 ecr 010], length 68
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20220817182324.638214-2-broonie@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Window is 5840 starting from 33212 -> 39052.
+
+ 05 responder > initiator: [.], ack 240, win 256, options [nop,nop,TS val 872 ecr 279], length 0
+ 06 responder > initiator: [.], seq 33212:34530, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
+
+This is fine, conntrack will flag the connection as having outstanding
+data (UNACKED), which lowers the conntrack timeout to 300s.
+
+ 07 responder > initiator: [.], seq 34530:35848, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
+ 08 responder > initiator: [.], seq 35848:37166, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
+ 09 responder > initiator: [.], seq 37166:38484, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
+ 10 responder > initiator: [.], seq 38484:39802, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
+
+Packet 10 is already sending more than permitted, but conntrack doesn't
+validate this (only seq is tested vs. maxend, not 'seq+len').
+
+38484 is acceptable, but only up to 39052, so this packet should
+not have been sent (or only 568 bytes, not 1318).
+
+At this point, connection is still in '300s' mode.
+
+Next packet however will get flagged:
+ 11 responder > initiator: [P.], seq 39802:40128, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 326
+
+nf_ct_proto_6: SEQ is over the upper bound (over the window of the receiver) .. LEN=378 .. SEQ=39802 ACK=240 ACK PSH ..
+
+Now, a couple of replies/acks comes in:
+
+ 12 initiator > responder: [.], ack 34530, win 4368,
+[.. irrelevant acks removed ]
+ 16 initiator > responder: [.], ack 39802, win 8712, options [nop,nop,TS val 296201291 ecr 2982371892], length 0
+
+This ack is significant -- this acks the last packet send by the
+responder that conntrack considered valid.
+
+This means that ack == td_end.  This will withdraw the
+'unacked data' flag, the connection moves back to the 5-day timeout
+of established conntracks.
+
+ 17 initiator > responder: ack 40128, win 10030, ...
+
+This packet is also flagged as invalid.
+
+Because conntrack only updates state based on packets that are
+considered valid, packet 11 'did not exist' and that gets us:
+
+nf_ct_proto_6: ACK is over upper bound 39803 (ACKed data not seen yet) .. SEQ=240 ACK=40128 WINDOW=10030 RES=0x00 ACK URG
+
+Because this received and processed by the endpoints, the conntrack entry
+remains in a bad state, no packets will ever be considered valid again:
+
+ 30 responder > initiator: [F.], seq 40432, ack 2045, win 391, ..
+ 31 initiator > responder: [.], ack 40433, win 11348, ..
+ 32 initiator > responder: [F.], seq 2045, ack 40433, win 11348 ..
+
+... all trigger 'ACK is over bound' test and we end up with
+non-early-evictable 5-day default timeout.
+
+NB: This patch triggers a bunch of checkpatch warnings because of silly
+indent.  I will resend the cleanup series linked below to reduce the
+indent level once this change has propagated to net-next.
+
+I could route the cleanup via nf but that causes extra backport work for
+stable maintainers.
+
+Link: https://lore.kernel.org/netfilter-devel/20220720175228.17880-1-fw@strlen.de/T/#mb1d7147d36294573cc4f81d00f9f8dadfdd06cd8
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/signal.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_proto_tcp.c | 31 ++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
-index b3e1beccf4588..8fdb89afd2b85 100644
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -91,7 +91,7 @@ static size_t sigframe_size(struct rt_sigframe_user_layout const *user)
-  * not taken into account.  This limit is not a guarantee and is
-  * NOT ABI.
-  */
--#define SIGFRAME_MAXSZ SZ_64K
-+#define SIGFRAME_MAXSZ SZ_256K
- 
- static int __sigframe_alloc(struct rt_sigframe_user_layout *user,
- 			    unsigned long *offset, size_t size, bool extend)
+diff --git a/net/netfilter/nf_conntrack_proto_tcp.c b/net/netfilter/nf_conntrack_proto_tcp.c
+index 3cee5d8ee7027..1ecfdc4f23be8 100644
+--- a/net/netfilter/nf_conntrack_proto_tcp.c
++++ b/net/netfilter/nf_conntrack_proto_tcp.c
+@@ -671,6 +671,37 @@ static bool tcp_in_window(struct nf_conn *ct,
+ 		    tn->tcp_be_liberal)
+ 			res = true;
+ 		if (!res) {
++			bool seq_ok = before(seq, sender->td_maxend + 1);
++
++			if (!seq_ok) {
++				u32 overshot = end - sender->td_maxend + 1;
++				bool ack_ok;
++
++				ack_ok = after(sack, receiver->td_end - MAXACKWINDOW(sender) - 1);
++
++				if (in_recv_win &&
++				    ack_ok &&
++				    overshot <= receiver->td_maxwin &&
++				    before(sack, receiver->td_end + 1)) {
++					/* Work around TCPs that send more bytes than allowed by
++					 * the receive window.
++					 *
++					 * If the (marked as invalid) packet is allowed to pass by
++					 * the ruleset and the peer acks this data, then its possible
++					 * all future packets will trigger 'ACK is over upper bound' check.
++					 *
++					 * Thus if only the sequence check fails then do update td_end so
++					 * possible ACK for this data can update internal state.
++					 */
++					sender->td_end = end;
++					sender->flags |= IP_CT_TCP_FLAG_DATA_UNACKNOWLEDGED;
++
++					nf_ct_l4proto_log_invalid(skb, ct, hook_state,
++								  "%u bytes more than expected", overshot);
++					return res;
++				}
++			}
++
+ 			nf_ct_l4proto_log_invalid(skb, ct, hook_state,
+ 			"%s",
+ 			before(seq, sender->td_maxend + 1) ?
 -- 
 2.35.1
 
