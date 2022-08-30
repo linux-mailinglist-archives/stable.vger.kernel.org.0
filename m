@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2FDF5A6989
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:20:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203FF5A698D
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230516AbiH3RUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:20:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60138 "EHLO
+        id S230348AbiH3RUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230184AbiH3RTl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:19:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA0E7F14CB;
-        Tue, 30 Aug 2022 10:19:24 -0700 (PDT)
+        with ESMTP id S231128AbiH3RTp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:19:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0646DD4E6;
+        Tue, 30 Aug 2022 10:19:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9697861734;
-        Tue, 30 Aug 2022 17:19:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61997C43140;
-        Tue, 30 Aug 2022 17:19:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CAAC161775;
+        Tue, 30 Aug 2022 17:19:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8BDFC433D6;
+        Tue, 30 Aug 2022 17:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661879955;
-        bh=Gf6K69+lkv4ZJgkil7/pyHJXXMnEeC5gYZJ9LHoQ7lU=;
+        s=k20201202; t=1661879962;
+        bh=avKLgB8ycs/5i5FbGLyyAohN1rYc0v6FmHyhCFQT7ME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HKP3vYY24CmubrNCKO3BRXr+e22U110iV5ZJPtAZeJ6n3Yi5XHdYRPbl5Kmw23cwO
-         HYWO4RSq8ImfEcQWxOjVXV5ZTBXeYeuZ8ZDIFQZUe8lCQgUAy4lnmRrJ/mndJjterd
-         ImzlvHtPb7cNGKIaFcOA4KyQkm2DkgKK/oEQ9rORdoR36+x7Z2EFoHffcYvUXvepb1
-         epSjpYZcl2VOEZyepTV95Dok94gxnqdMRqJoHwVofM5Uc84S+/lsZlGXIBIXtQXjqZ
-         7tmG2/ay22CPURFhdnc1jg3qQOb8XQ4K6385zIONsGxR2tIpOeXIF+YJliFp8IyOO8
-         iDo00+zMmNw9g==
+        b=sRlvWlT5viU3x2g5frNT5ictw8td/yUS/qL9Nnx3euq7b7jy680tctkvJckRUGne3
+         8S4jKl9dK34vIOI9ajmHpgGDs6B53+Udn43I5dBZ4vRt/jm4ojsMPcisY2gfi2g5cy
+         uRuzldrz2ADdtCJH3YQeR+nt17N27/iFGRwzbVnm3kPETtoyFrWn9rYtYjtcMJ7/2i
+         r4rhl3F4jzDw++BHOGncFXHH6FWY4tPk8Uumugkf5a//WegfU/CkdQNVjHWukbZqgy
+         37MAxraDgEhAkZ7cdvzfbNI7BM9xugs/sWYsqAZOS4L+1wjkymhXvpo3fr5uQYtJGS
+         0T19wwDub5zHw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Candice Li <candice.li@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
+Cc:     shaoyunl <shaoyun.liu@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
         Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        YiPeng.Chai@amd.com, tao.zhou1@amd.com, ricetons@gmail.com,
-        evan.quan@amd.com, victor.skvortsov@amd.com,
+        andrey.grodzovsky@amd.com, guchun.chen@amd.com,
+        Amaranath.Somalapuram@amd.com, lang.yu@amd.com,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 11/33] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
-Date:   Tue, 30 Aug 2022 13:18:02 -0400
-Message-Id: <20220830171825.580603-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 12/33] drm/amdgpu: Remove the additional kfd pre reset call for sriov
+Date:   Tue, 30 Aug 2022 13:18:03 -0400
+Message-Id: <20220830171825.580603-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830171825.580603-1-sashal@kernel.org>
 References: <20220830171825.580603-1-sashal@kernel.org>
@@ -61,34 +61,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Candice Li <candice.li@amd.com>
+From: shaoyunl <shaoyun.liu@amd.com>
 
-[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
+[ Upstream commit 06671734881af2bcf7f453661b5f8616e32bb3fc ]
 
-No need to set up rb when no gfx rings.
+The additional call is caused by merge conflict
 
-Signed-off-by: Candice Li <candice.li@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: shaoyunl <shaoyun.liu@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-index 5349ca4d19e38..6d8ff3b099422 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -2587,7 +2587,8 @@ static void gfx_v9_0_constants_init(struct amdgpu_device *adev)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index ea2b74c0fd229..67d4a3c13ed19 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -4475,8 +4475,6 @@ static int amdgpu_device_reset_sriov(struct amdgpu_device *adev,
+ retry:
+ 	amdgpu_amdkfd_pre_reset(adev);
  
- 	gfx_v9_0_tiling_mode_table_init(adev);
- 
--	gfx_v9_0_setup_rb(adev);
-+	if (adev->gfx.num_gfx_rings)
-+		gfx_v9_0_setup_rb(adev);
- 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
- 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
- 
+-	amdgpu_amdkfd_pre_reset(adev);
+-
+ 	if (from_hypervisor)
+ 		r = amdgpu_virt_request_full_gpu(adev, true);
+ 	else
 -- 
 2.35.1
 
