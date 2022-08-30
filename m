@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFDFC5A6ACF
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:33:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 867565A6ACB
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232105AbiH3RdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:33:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34940 "EHLO
+        id S231979AbiH3RdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:33:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231989AbiH3RcL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:32:11 -0400
+        with ESMTP id S231977AbiH3RcJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:32:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 674D2647C3;
-        Tue, 30 Aug 2022 10:28:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79232220EA;
+        Tue, 30 Aug 2022 10:28:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B68617AE;
-        Tue, 30 Aug 2022 17:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2E28C433C1;
-        Tue, 30 Aug 2022 17:27:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53738617BB;
+        Tue, 30 Aug 2022 17:27:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D7E1C433C1;
+        Tue, 30 Aug 2022 17:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880436;
-        bh=0cH85VvIYBOZ+pBLS98yG/BMwMyFTJk/yyn7iuR9B+E=;
+        s=k20201202; t=1661880442;
+        bh=KBLX5qXfyk5/dpxUQdEN56xZBiuWMnNl5Lfub9yUOrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQ39efbFUyO4uybn/w0+VZ4RKA4NJKOKZKknazGmGMwFCUuqi+lCKseChTwnJ1/3a
-         WI53qKU/khKmENNWZ1Rudzk1ObJ1JgDH4oWpq2e+aKi5Faa9GFIA+X9MqunluGckeE
-         +X6d0p3Gz6/A+CpVSpM++jLY4cpCrVl9+V1oDF19/M3gFExW4pqsyyHfB3I7NmiJLq
-         1rWaKAPmQ9JLPJ6cAfoW3vkbVE6Ia2IY0MQfH4lxQf42+PcADs2x+Trg/vrH09fDAF
-         DZoHDQWma1EXWVtDckgMQy4RRW62H9McPOYN3+1nBVMc1Ttc612Q8UFxHpYEQdTV3X
-         oecMuq2U12lYA==
+        b=ILl//zQYsR1crfAWeQqzAeN3hxcYmiyXmVnZt9wxCAaBs8Xy4bvZ5bzE4Pz5F9DIO
+         5WeLSwhy+Gx3f6BmXn2+U2lQWnNAQzesjzvV6GFq9OcRGy01/1nd7idZ+tlp7Onyxb
+         xq5DgATqw5uGl8PrMQk+fswgDmGoqqkQrbYh+t4z7Jc/8xadpBcv//EsAIy7RCcN3d
+         gx1Dd4C123/Zl2KEW/RjYQ40yprOmAcAp7ujrP6fgZLJ6mgnXvuipfI8NNiPiLp6sM
+         2gStRAkqLkc09mxEdI2XnRJMq5JJV1+6F+GaVjHJXBh6c5tfX8wiqpBiW2jSXaK+4s
+         Z13oMop6FYP0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        James.Bottomley@HansenPartnership.com, svens@stackframe.org,
-        linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 4/6] parisc: Add runtime check to prevent PA2.0 kernels on PA1.x machines
-Date:   Tue, 30 Aug 2022 13:27:04 -0400
-Message-Id: <20220830172706.582088-4-sashal@kernel.org>
+Cc:     Letu Ren <fantasquex@gmail.com>, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        baihaowen@meizu.com, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.9 5/6] fbdev: fb_pm2fb: Avoid potential divide by zero error
+Date:   Tue, 30 Aug 2022 13:27:05 -0400
+Message-Id: <20220830172706.582088-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172706.582088-1-sashal@kernel.org>
 References: <20220830172706.582088-1-sashal@kernel.org>
@@ -56,81 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Letu Ren <fantasquex@gmail.com>
 
-[ Upstream commit 591d2108f3abc4db9f9073cae37cf3591fd250d6 ]
+[ Upstream commit 19f953e7435644b81332dd632ba1b2d80b1e37af ]
 
-If a 32-bit kernel was compiled for PA2.0 CPUs, it won't be able to run
-on machines with PA1.x CPUs. Add a check and bail out early if a PA1.x
-machine is detected.
+In `do_fb_ioctl()` of fbmem.c, if cmd is FBIOPUT_VSCREENINFO, var will be
+copied from user, then go through `fb_set_var()` and
+`info->fbops->fb_check_var()` which could may be `pm2fb_check_var()`.
+Along the path, `var->pixclock` won't be modified. This function checks
+whether reciprocal of `var->pixclock` is too high. If `var->pixclock` is
+zero, there will be a divide by zero error. So, it is necessary to check
+whether denominator is zero to avoid crash. As this bug is found by
+Syzkaller, logs are listed below.
 
+divide error in pm2fb_check_var
+Call Trace:
+ <TASK>
+ fb_set_var+0x367/0xeb0 drivers/video/fbdev/core/fbmem.c:1015
+ do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
+ fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
+
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/head.S | 43 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 42 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/pm2fb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/parisc/kernel/head.S b/arch/parisc/kernel/head.S
-index 9b99eb0712ad1..2f570a5205866 100644
---- a/arch/parisc/kernel/head.S
-+++ b/arch/parisc/kernel/head.S
-@@ -22,7 +22,7 @@
- #include <linux/linkage.h>
- #include <linux/init.h>
+diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
+index 1a4070f719c29..9b32b9fc44a5c 100644
+--- a/drivers/video/fbdev/pm2fb.c
++++ b/drivers/video/fbdev/pm2fb.c
+@@ -614,6 +614,11 @@ static int pm2fb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ 		return -EINVAL;
+ 	}
  
--	.level	PA_ASM_LEVEL
-+	.level	1.1
- 
- 	__INITDATA
- ENTRY(boot_args)
-@@ -69,6 +69,47 @@ $bss_loop:
- 	stw,ma          %arg2,4(%r1)
- 	stw,ma          %arg3,4(%r1)
- 
-+#if !defined(CONFIG_64BIT) && defined(CONFIG_PA20)
-+	/* This 32-bit kernel was compiled for PA2.0 CPUs. Check current CPU
-+	 * and halt kernel if we detect a PA1.x CPU. */
-+	ldi		32,%r10
-+	mtctl		%r10,%cr11
-+	.level 2.0
-+	mfctl,w		%cr11,%r10
-+	.level 1.1
-+	comib,<>,n	0,%r10,$cpu_ok
++	if (!var->pixclock) {
++		DPRINTK("pixclock is zero\n");
++		return -EINVAL;
++	}
 +
-+	load32		PA(msg1),%arg0
-+	ldi		msg1_end-msg1,%arg1
-+$iodc_panic:
-+	copy		%arg0, %r10
-+	copy		%arg1, %r11
-+	load32		PA(init_stack),%sp
-+#define MEM_CONS 0x3A0
-+	ldw		MEM_CONS+32(%r0),%arg0	// HPA
-+	ldi		ENTRY_IO_COUT,%arg1
-+	ldw		MEM_CONS+36(%r0),%arg2	// SPA
-+	ldw		MEM_CONS+8(%r0),%arg3	// layers
-+	load32		PA(__bss_start),%r1
-+	stw		%r1,-52(%sp)		// arg4
-+	stw		%r0,-56(%sp)		// arg5
-+	stw		%r10,-60(%sp)		// arg6 = ptr to text
-+	stw		%r11,-64(%sp)		// arg7 = len
-+	stw		%r0,-68(%sp)		// arg8
-+	load32		PA(.iodc_panic_ret), %rp
-+	ldw		MEM_CONS+40(%r0),%r1	// ENTRY_IODC
-+	bv,n		(%r1)
-+.iodc_panic_ret:
-+	b .				/* wait endless with ... */
-+	or		%r10,%r10,%r10	/* qemu idle sleep */
-+msg1:	.ascii "Can't boot kernel which was built for PA8x00 CPUs on this machine.\r\n"
-+msg1_end:
-+
-+$cpu_ok:
-+#endif
-+
-+	.level	PA_ASM_LEVEL
-+
- 	/* Initialize startup VM. Just map first 16/32 MB of memory */
- 	load32		PA(swapper_pg_dir),%r4
- 	mtctl		%r4,%cr24	/* Initialize kernel root pointer */
+ 	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
+ 		DPRINTK("pixclock too high (%ldKHz)\n",
+ 			PICOS2KHZ(var->pixclock));
 -- 
 2.35.1
 
