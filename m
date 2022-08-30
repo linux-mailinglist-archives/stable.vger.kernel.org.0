@@ -2,68 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99D7D5A6BBB
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 20:06:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 047D35A6CC4
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 21:06:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229753AbiH3SGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 14:06:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33438 "EHLO
+        id S230251AbiH3TGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 15:06:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231450AbiH3SFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 14:05:49 -0400
-Received: from mail-oa1-x29.google.com (mail-oa1-x29.google.com [IPv6:2001:4860:4864:20::29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB7721F632
-        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 11:05:47 -0700 (PDT)
-Received: by mail-oa1-x29.google.com with SMTP id 586e51a60fabf-11f11d932a8so10228178fac.3
-        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 11:05:47 -0700 (PDT)
+        with ESMTP id S229522AbiH3TGt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 15:06:49 -0400
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B100167440;
+        Tue, 30 Aug 2022 12:06:48 -0700 (PDT)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27UHtkJG000517;
+        Tue, 30 Aug 2022 19:06:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-id : content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=APfnwWKhwxxT1Yqcq0Q187miBWNUxSU5HVPJ4WA8PeQ=;
+ b=HjLj0G2OhilJkVQM58yF/n+O2LlEObr2YI3X6Nst5q8eOV/+obahqgoyc1IKvrVFoL3+
+ hZFwzUpWQK1LeLTsQtyUPdAxeBqVBqlaelQ60OiXb7b1mEe6ac8mEfXDw9PnW9tkIEAL
+ n2p+9z6LFW7BFxVUMmwgcNQSkHWarzZFIbsYAITwAaiOuAG8O4u0KNZpSjPOcM7p9Ro1
+ 79TU5sn2YED46yhoKSdzbqvB969j5Ib92YR2ccUhb5FfnjfZWWhqDJ6/c2xbG/gflare
+ oRVaY51XIzl6VRqPFv7OCIr2bWyBd5Y/1E/RBL0Kb7pJeGgdoIaUA+5F4N6A1SSmxnKH vw== 
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3j7btt79w4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 30 Aug 2022 19:06:40 +0000
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 27UIXXK7036086;
+        Tue, 30 Aug 2022 19:06:39 GMT
+Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2176.outbound.protection.outlook.com [104.47.55.176])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3j79q4gy28-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 30 Aug 2022 19:06:39 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VJSW4MEwZyZnv4+GFvsmHjZG9MyuADPVKC1YdZCWfVz7CfbQqySsPccwiPPu+DVu094956DyLda09XwHCmuEOLVbsI4LPfS0x1ACvatkFdlaKOWJhHshT6WIyJqHDIaMwXg64z7bwtGwhsY20AbtvOtIom5IKJjRZXzEXyensATKIpdDHqreroBJ6TvuCyr8nW5ceDRO3ToMuAx8HhkCdssgThiKSTNZOxpaoYzJbZhcBtvDt7Glt7d7Pu2EWkZqG6S/EXasppxR9l8+qj73lEwoDvsqmHOJGJt1mOwevlROqUDli975wQuJmQyvcXiWOCxksk+VGSJFwv4XjBmLrw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=APfnwWKhwxxT1Yqcq0Q187miBWNUxSU5HVPJ4WA8PeQ=;
+ b=Dbe+A5T+9+g6rCtDmefswXUeDW9JYkx9UUS9T45iYrC2dE4xIir8gj4FimH+t5F117sFHCXQaZW/aVa6Dm/OK0bERBbn2OLBt7uVRrOEGTFe9WzfUI8D5sIkc1IeIXaXIvs4oPTnFPkSQbrYR88GRj51M+jcJ5SrerOk05ncnyeH4vnCzsjlAat2vEBMD+Xuif9N9KpvhA2uZ5PJ71aS/6bqrtn4t1CyS2Hunerl176yxR60r5Vvc50P+1DbYpfaj6wlFKWfxj3ecNf3vGnZibssyz4yu2Q83kvl544ASPv1oIVUnNyUtnJhGSR0PLt/0qL3isQTtfVNwUChLiknjQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc;
-        bh=F0ueCM60ir7/z3vaa7/6oFpmXX4wyDkZf5kv00q9Xb8=;
-        b=pdT69P/gkn+7YC4HLszaRJzzB2tTpn5opkil5K+QYAlVeEhvaXzSjJtc6syzeJCo7q
-         VwEyHn+cZVXcI3DmhLb1E47d2naq5G7QxcrD7xDXt3Tm2uJyjhzG+PuToY2vwapqzU4Q
-         IAsk/TNMjJ9hnXX/QkFLS6cnQbYsJVP/Q1cyvIRv0kNbJjWnqzbPtnkzhAPZGP0H4imy
-         hxl0gujrEoqiGvWQppWZHEiiYUBi/Nn96T17Q7aDAY+xQE/xvqeqkiSqFYYUJZQNwIac
-         MQ+6lyKmcuJQ14KZ0wLHlybJg2SMhFCWxf8cVtUaUexcwHq1oVPkP9TNpjUokig9voUK
-         dCsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
-        bh=F0ueCM60ir7/z3vaa7/6oFpmXX4wyDkZf5kv00q9Xb8=;
-        b=SfvAjRJUJUhTVLJxNK1JQcSUIwuhMZAzlSWN6gJCxR8kQaa7jtwfvXPWPPhz1zm3LZ
-         bkHqj4hhMHt/dCqu1+nbuLWBwze0z3GY65gKLgdprq8SzKMLm9dQbFZ2s15KLL1TZwOP
-         +51PvsrM0e1RHqrxwurSKPpjuvlpiLb97IjjQWDSOFE+r03/XrFYAsZDlkGrmReqvLbb
-         tBi+pFW7uM3yKQNJ9R82MdtabdvQLiQ0ysit4ccm+pi3uTdWVcGewwtQT01gr2IJx1D4
-         pm9LmsHIfbNK0fCMXpcOpr5sWjkkjo+ocCi27qw1UTCgdMS6W2AICsTVSkgmBJVWMHbo
-         2MSQ==
-X-Gm-Message-State: ACgBeo344Lz3Tg3cNdBL35Xcauz7xL4mo2O5G9ESJFr6uDxeV2j220Sf
-        9xh0Bwbv2JIAVeLowk9AlSBond1JWEJjIF1WqF4=
-X-Google-Smtp-Source: AA6agR4Rlj7SZjCskh1IOQP9jxWC3m2h/i7vhtSx7e2p1fkwqs7sFz4IJvtjmJ2iSyfB/sZa6qi9HDMdnfz/ylLCsA0=
-X-Received: by 2002:a05:6870:3484:b0:11e:4465:3d9b with SMTP id
- n4-20020a056870348400b0011e44653d9bmr11330039oah.46.1661882746925; Tue, 30
- Aug 2022 11:05:46 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220829081752.1258274-1-lijo.lazar@amd.com> <CADnq5_O=3u1Z4kH_5A+UsynQ31Grh-=j=3+hPWo398kfMi411w@mail.gmail.com>
- <3b2a9a8f-dedf-2781-0023-d6bd64f16d65@amd.com> <CADnq5_P0=+NNk2v_VOxyjOVSnY55SY=OX40xD5Bx6etspREnfA@mail.gmail.com>
- <1890aec6-a92d-e9b7-a782-fd6b0e8f8595@amd.com> <CADnq5_Pkpe_-SH8Wh=_s6FXDFEWvO8rr5Ls2=Q4HRXy9+eSOBQ@mail.gmail.com>
- <9ef0287a-e463-d440-58fe-0323a6eca94a@amd.com>
-In-Reply-To: <9ef0287a-e463-d440-58fe-0323a6eca94a@amd.com>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Tue, 30 Aug 2022 14:05:35 -0400
-Message-ID: <CADnq5_P1VV2zWpjtsedPCoJH_CKv+d-MuVJwxOBbdpo1fLFCjA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] drm/amdgpu: Move HDP remapping earlier during init
-To:     "Lazar, Lijo" <lijo.lazar@amd.com>
-Cc:     amd-gfx@lists.freedesktop.org, Felix.Kuehling@amd.com,
-        stable@vger.kernel.org, tseewald@gmail.com, helgaas@kernel.org,
-        Alexander.Deucher@amd.com, sr@denx.de, Christian.Koenig@amd.com,
-        Hawking.Zhang@amd.com
-Content-Type: text/plain; charset="UTF-8"
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=APfnwWKhwxxT1Yqcq0Q187miBWNUxSU5HVPJ4WA8PeQ=;
+ b=iMlNlSypeUu7qmUD2OYb6/DJCkQfty5vps0ScXwg9haUKDZaijtmRW3Ey41hVsBQpWfZGRkI8zy8aV9u+5ukUudv5jcaGMYy27uJOedzdBAJpN4O6DKwyT+jctBkoGDvroou5aTH7/86Ln3zglwP4J8edSJ+ZcIVpNyjBoHdj8c=
+Received: from SN6PR10MB3022.namprd10.prod.outlook.com (2603:10b6:805:d8::25)
+ by BY5PR10MB4322.namprd10.prod.outlook.com (2603:10b6:a03:208::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.10; Tue, 30 Aug
+ 2022 19:06:37 +0000
+Received: from SN6PR10MB3022.namprd10.prod.outlook.com
+ ([fe80::a420:3107:436d:d223]) by SN6PR10MB3022.namprd10.prod.outlook.com
+ ([fe80::a420:3107:436d:d223%5]) with mapi id 15.20.5566.021; Tue, 30 Aug 2022
+ 19:06:37 +0000
+From:   Liam Howlett <liam.howlett@oracle.com>
+To:     Carlos Llamas <cmllamas@google.com>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?iso-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "kernel-team@android.com" <kernel-team@android.com>,
+        "syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com" 
+        <syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com>,
+        "syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com" 
+        <syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] binder: fix alloc->vma_vm_mm null-ptr dereference
+Thread-Topic: [PATCH 1/7] binder: fix alloc->vma_vm_mm null-ptr dereference
+Thread-Index: AQHYu+O+8j78ewjyGUWdeBrLUwjJOK3Hz2wA
+Date:   Tue, 30 Aug 2022 19:06:37 +0000
+Message-ID: <20220830190515.dlrp2a3ypfyhzid5@revolver>
+References: <20220829201254.1814484-1-cmllamas@google.com>
+ <20220829201254.1814484-2-cmllamas@google.com>
+In-Reply-To: <20220829201254.1814484-2-cmllamas@google.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 2b56a364-cc48-4d26-6c70-08da8abac34e
+x-ms-traffictypediagnostic: BY5PR10MB4322:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: dI9ON/rSUFRWVx9DpRpOonnKKKXWRWEiJWK3uwOjUeZsBKm7nURurrGvgGTnpyjXEb2WUd9i0uIWUCa//KN/oKtPcfjRngxbxAHBvzUZloTX1JargVnzy/k+Ma5g0LhvKVocONHTsTwWmID3H8jUt/hwqXp4kPW7egu2xwl6ahgrl4Koj61LF5XLjbjOYxtR3a39ZiUHtq0dulpSCZ2SZiy+y9ujjdBoc24+gHXI0PdEyECahLYAsqtaeW37u8PAfExE/kA2ATtnbsUeWB1GEkm2QvA5yebRNi0S6ddR8nngsZxAqqCepPv+Exycu/5kCH4SGDynZQl7TXXHs7VQWAgS1ku9cs6DQwPtaG+G4ZCttrPa1rGrtacaJnXxfOVIQiQ9CAcIG5hst8fP7E8gbMU6SfV3Zjl+HU6ASBKK/xHPSFbqdgmYWfNSDM1v7kaVIb/VKhdA71lwLyXiKHSIFRIJxEepg9QrlOMrfyyOkhzSeT3WRrEO/7dUEiLeBhZI/4/JZYLjmcxQcpBavhZxtA7XUkn+Vu+Up1sfuX1eXU3qSuGvqQ3Yo4gs8E+t4O2hFpIcb6vwUWTlZb2FBrKia9EkKY7Es1SLBYbmOf4tArgeETl8u1EENIHevQxhfVB4G8acdSBQ6n2u/ia4ADzyxScolK2jRmgLsecoOeVTi15mjWRLKf8PnrpfH/QHLsxNUDEh5Inq9fFE5RQukMiemEdXFYwH1k8PWTK7PAhHdb3VAKzSN0uz58i8CKofumnIMQAdJ0Y8E4z6mb+VAjTHfJnOGI5amm5OWOxOxrx6q1b1mmcAp+OGJoUQOffKWFUmAUBL1W8OW8S1K+DGImeX88vRJa5iuSwVu/+xdDeGwbs=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR10MB3022.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(7916004)(39860400002)(376002)(346002)(136003)(396003)(366004)(186003)(38100700002)(1076003)(122000001)(2906002)(26005)(9686003)(6512007)(6506007)(86362001)(83380400001)(33716001)(38070700005)(66476007)(66946007)(66556008)(966005)(64756008)(66446008)(91956017)(316002)(6486002)(8676002)(478600001)(76116006)(4326008)(71200400001)(6916009)(54906003)(8936002)(44832011)(41300700001)(5660300002)(7416002)(99710200001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?m+U/4mShI+ZeqeJRyx0y3/2t/6rSwEtvLJs1yVw+RA1trU7uUQ1d4g4WDH?=
+ =?iso-8859-1?Q?YvZkJ6OcrAe6sjrbgVvxafEhdQqVNcW6Ngg4WMaleJaEGnACPbf1raVF0m?=
+ =?iso-8859-1?Q?tusHhNY1UBixVhGstJxLqySi22tBPUAEmHNrEVtwy0khfRoqDMvXv5mMgL?=
+ =?iso-8859-1?Q?Hwiejf2uMYZvN2v0O4SZy54q3sL8XyNambzdm/mua3xRo2PwXTrG/MUGNh?=
+ =?iso-8859-1?Q?oylQPmCk0VuPl7prDi+omFIBRc10UlYKQt2oiMIZrZz2SuvQ7eaeWM/+EV?=
+ =?iso-8859-1?Q?EwBtAiWuReBd/OtZufryvljENk8oZ9Q6lLVL+HG0k9toXs1MaNyFbf7Vu2?=
+ =?iso-8859-1?Q?7iCCx/U3udBH8WyFTim7GIGumqSVMu/5OvvT8xgK0KGZQh7VI67jxTW9HZ?=
+ =?iso-8859-1?Q?/Coc1BlpDXfS9cni5lIYIAgWsu6hGhWUoMRcPUHuCGLKEWtkqKhPZ9FGTX?=
+ =?iso-8859-1?Q?NHN0HpKiUdvp1cJmhuaWHiy/spo989phjMGwy1lhnPnp5hyYlFVuMP6dyB?=
+ =?iso-8859-1?Q?msMnX07F8x/kNGWOsb0VVtgBui27Gk5mFAUNUIxPRXE33RNjDu9NI7slCm?=
+ =?iso-8859-1?Q?mggljI7hzXvh6K3prMQiK5dYdW/xjPtNNphOKKBkQjDPOzgIp39vj0QHVe?=
+ =?iso-8859-1?Q?uVqbuuogzm0GzMVFnFsJPl6pxFP30kJCFKVCgCAMytCah9F3UX9UMDMfGK?=
+ =?iso-8859-1?Q?k92imW2qsCB3vnH2ihzhOPF0clY3CBe5oeKPxXd4MRG99FOESEU2ncF7LX?=
+ =?iso-8859-1?Q?4EP+DVxBmkPFg8wmwROBZSgY9HQF/PuX3C0Su79m/kH83Ypn1XDaA5FC2s?=
+ =?iso-8859-1?Q?0pZ399BK+cWRXP8I3J3odmOU4AbYjP0VckxuvURGvKOVY3rdefU+9CdiCQ?=
+ =?iso-8859-1?Q?l6G17ouMoBRSwW1wQFryRWuohuruHdHnL7BUmNLM8ZGG2bxZyRtt9c3NUU?=
+ =?iso-8859-1?Q?WR0JyyKzCFmlr64/6eac6/O/twVWRaAfZPC70vOu0S2BsGj9LLknRMFtJ7?=
+ =?iso-8859-1?Q?Dn4kJffxeosfH59ZVcU8GUni4Ik0jY76MGoeagJ96oW1W7VE+RfNqHi83B?=
+ =?iso-8859-1?Q?KAY+4NGVjMaiJv6q9YczCGyGGPfmeLuwK++I8z/Tqohfntra/mdN+JcIvB?=
+ =?iso-8859-1?Q?ffc1YKiNtp5K8YBOyRrwfTtncQ5N2nlgVSkFQHGMasdsZ0fKJbhLoDVVRo?=
+ =?iso-8859-1?Q?mbTsu2T7oL9yF0+reZ87GDHPbcfFvKCKhmKYxmog/uYe51uAHe3UbJ2//x?=
+ =?iso-8859-1?Q?nbG20XscPfxdeknIZrYoELXvp/olXyQPE20uoRww8MJ+kyQznaKZb6F7g0?=
+ =?iso-8859-1?Q?cEJP22ZQkbcPY89/SYxwR3iknpXTXFULblr+o5l/l/Ngc9+ZT54zZtB4ZW?=
+ =?iso-8859-1?Q?HPbfIij/XOS0adWWQs2mg1/zEvKY4Sxzq0EigESywwkBvlZ0GI3VMvd0sd?=
+ =?iso-8859-1?Q?BFv9p2tTp3p6Gv8Ganv8i7IAouPrMJYwfHcCcgE0PgeBMOieRpLM+c05VJ?=
+ =?iso-8859-1?Q?VqXoK+tdLBfqQ4j4eXKWt2jqsJB4r0WxavwbuU3FOEJSYue++PvK0/45xq?=
+ =?iso-8859-1?Q?gKZffHtdOMFRIXRIBVXgKEY3wSkX34K66HMvsN9oQuIbpwUTjoSmFz/7rg?=
+ =?iso-8859-1?Q?aXr/GYPGZlT+QFE8MCqbLjGkOxLKCZVuoyIZqIbdoDRj7iKMuX1vONUA?=
+ =?iso-8859-1?Q?=3D=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-ID: <A9DE44BB6F9743488B5CB0CEDA753981@namprd10.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+MIME-Version: 1.0
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR10MB3022.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2b56a364-cc48-4d26-6c70-08da8abac34e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Aug 2022 19:06:37.1280
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: cPuWUy6aTx/RP4m/04So4okRBbjIYR/0g1fBjhuXMiCGx699lpP2lgtLhUUlvLtTt4ZGubAwP4YQCXoExQrcCQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4322
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-30_10,2022-08-30_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 malwarescore=0 spamscore=0
+ adultscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
+ definitions=main-2208300085
+X-Proofpoint-ORIG-GUID: uE7uS9GySIXadLWA9wo1Zep1cNXDnLhO
+X-Proofpoint-GUID: uE7uS9GySIXadLWA9wo1Zep1cNXDnLhO
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,269 +162,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 30, 2022 at 12:06 PM Lazar, Lijo <lijo.lazar@amd.com> wrote:
->
->
->
-> On 8/30/2022 8:39 PM, Alex Deucher wrote:
-> > On Tue, Aug 30, 2022 at 10:45 AM Lazar, Lijo <lijo.lazar@amd.com> wrote=
-:
-> >>
-> >>
-> >>
-> >> On 8/30/2022 7:18 PM, Alex Deucher wrote:
-> >>> On Tue, Aug 30, 2022 at 12:05 AM Lazar, Lijo <lijo.lazar@amd.com> wro=
-te:
-> >>>>
-> >>>>
-> >>>>
-> >>>> On 8/29/2022 10:20 PM, Alex Deucher wrote:
-> >>>>> On Mon, Aug 29, 2022 at 4:18 AM Lijo Lazar <lijo.lazar@amd.com> wro=
-te:
-> >>>>>>
-> >>>>>> HDP flush is used early in the init sequence as part of memory con=
-troller
-> >>>>>> block initialization. Hence remapping of HDP registers needed for =
-flush
-> >>>>>> needs to happen earlier.
-> >>>>>>
-> >>>>>> This also fixes the Unsupported Request error reported through AER=
- during
-> >>>>>> driver load. The error happens as a write happens to the remap off=
-set
-> >>>>>> before real remapping is done.
-> >>>>>>
-> >>>>>> Link: https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%=
-3A%2F%2Fbugzilla.kernel.org%2Fshow_bug.cgi%3Fid%3D216373&amp;data=3D05%7C01=
-%7Clijo.lazar%40amd.com%7Cbe8781fe1b0c41d3bad408da8a99b3d8%7C3dd8961fe4884e=
-608e11a82d994e183d%7C0%7C0%7C637974690005710507%7CUnknown%7CTWFpbGZsb3d8eyJ=
-WIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7=
-C%7C&amp;sdata=3D98WWFEcwi2tzyf%2BxnYC%2FK3UcCE5mfXI00qfYGUpt2Sk%3D&amp;res=
-erved=3D0
-> >>>>>>
-> >>>>>> The error was unnoticed before and got visible because of the comm=
-it
-> >>>>>> referenced below. This doesn't fix anything in the commit below, r=
-ather
-> >>>>>> fixes the issue in amdgpu exposed by the commit. The reference is =
-only
-> >>>>>> to associate this commit with below one so that both go together.
-> >>>>>>
-> >>>>>> Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in =
-get_port_device_capability()")
-> >>>>>>
-> >>>>>> Reported-by: Tom Seewald <tseewald@gmail.com>
-> >>>>>> Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
-> >>>>>> Cc: stable@vger.kernel.org
-> >>>>>
-> >>>>> How about something like the attached patch rather than these two
-> >>>>> patches?  It's a bit bigger but seems cleaner and more defensive in=
- my
-> >>>>> opinion.
-> >>>>>
-> >>>>
-> >>>> Whenever device goes to suspend/reset and then comes back, remap off=
-set
-> >>>> has to be set back to 0 to make sure it doesn't use the wrong offset
-> >>>> when the register assumes default values again.
-> >>>>
-> >>>> To avoid the if-check in hdp_flush (which is more frequent), another=
- way
-> >>>> is to initialize the remap offset to default offset during early ini=
-t
-> >>>> and hw fini/suspend sequences. It won't be obvious (even with this
-> >>>> patch) as to when remap offset vs default offset is used though.
-> >>>
-> >>> On resume, the common IP is resumed first so it will always be set.
-> >>> The only case that is a problem is init because we init GMC out of
-> >>> order.  We could init common before GMC in amdgpu_device_ip_init().  =
-I
-> >>> think that should be fine, but I wasn't sure if there might be some
-> >>> fallout from that on certain cards.
-> >>>
-> >>
-> >> There are other places where an IP order is forced like in
-> >> amdgpu_device_ip_reinit_early_sriov(). This also may not affect this
-> >> case as remapping is not done for VF.
-> >>
-> >> Agree that a better way is to have the common IP to be inited first.
-> >
-> > How about these patches?
-> >
->
-> Looks good to me. BTW, is nbio 7.7 for an APU (in which case hdp flush
-> is not expected to be used)?
+* Carlos Llamas <cmllamas@google.com> [220829 16:13]:
+> Syzbot reported a couple issues introduced by commit 44e602b4e52f
+> ("binder_alloc: add missing mmap_lock calls when using the VMA"), in
+> which we attempt to acquire the mmap_lock when alloc->vma_vm_mm has not
+> been initialized yet.
+>=20
+> This can happen if a binder_proc receives a transaction without having
+> previously called mmap() to setup the binder_proc->alloc space in [1].
+> Also, a similar issue occurs via binder_alloc_print_pages() when we try
+> to dump the debugfs binder stats file in [2].
+>=20
+> Sample of syzbot's crash report:
+>   =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>   KASAN: null-ptr-deref in range [0x0000000000000128-0x000000000000012f]
+>   CPU: 0 PID: 3755 Comm: syz-executor229 Not tainted 6.0.0-rc1-next-20220=
+819-syzkaller #0
+>   syz-executor229[3755] cmdline: ./syz-executor2294415195
+>   Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS=
+ Google 07/22/2022
+>   RIP: 0010:__lock_acquire+0xd83/0x56d0 kernel/locking/lockdep.c:4923
+>   [...]
+>   Call Trace:
+>    <TASK>
+>    lock_acquire kernel/locking/lockdep.c:5666 [inline]
+>    lock_acquire+0x1ab/0x570 kernel/locking/lockdep.c:5631
+>    down_read+0x98/0x450 kernel/locking/rwsem.c:1499
+>    mmap_read_lock include/linux/mmap_lock.h:117 [inline]
+>    binder_alloc_new_buf_locked drivers/android/binder_alloc.c:405 [inline=
+]
+>    binder_alloc_new_buf+0xa5/0x19e0 drivers/android/binder_alloc.c:593
+>    binder_transaction+0x242e/0x9a80 drivers/android/binder.c:3199
+>    binder_thread_write+0x664/0x3220 drivers/android/binder.c:3986
+>    binder_ioctl_write_read drivers/android/binder.c:5036 [inline]
+>    binder_ioctl+0x3470/0x6d00 drivers/android/binder.c:5323
+>    vfs_ioctl fs/ioctl.c:51 [inline]
+>    __do_sys_ioctl fs/ioctl.c:870 [inline]
+>    __se_sys_ioctl fs/ioctl.c:856 [inline]
+>    __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:856
+>    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+>    do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+>    entry_SYSCALL_64_after_hwframe+0x63/0xcd
+>    [...]
+>   =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>=20
+> Fix these issues by setting up alloc->vma_vm_mm pointer during open()
+> and caching directly from current->mm. This guarantees we have a valid
+> reference to take the mmap_lock during scenarios described above.
+>=20
+> [1] https://syzkaller.appspot.com/bug?extid=3Df7dc54e5be28950ac459
+> [2] https://syzkaller.appspot.com/bug?extid=3Da75ebe0452711c9e56d9
+>=20
+> Fixes: 44e602b4e52f ("binder_alloc: add missing mmap_lock calls when usin=
+g the VMA")
+> Reported-by: syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com
+> Reported-by: syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com
+> Cc: <stable@vger.kernel.org> # v5.15+
+> Cc: Liam R. Howlett <Liam.Howlett@oracle.com>
+> Signed-off-by: Carlos Llamas <cmllamas@google.com>
+> ---
+>  drivers/android/binder_alloc.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_allo=
+c.c
+> index 51f4e1c5cd01..9b1778c00610 100644
+> --- a/drivers/android/binder_alloc.c
+> +++ b/drivers/android/binder_alloc.c
+> @@ -322,7 +322,6 @@ static inline void binder_alloc_set_vma(struct binder=
+_alloc *alloc,
+>  	 */
+>  	if (vma) {
+>  		vm_start =3D vma->vm_start;
+> -		alloc->vma_vm_mm =3D vma->vm_mm;
 
-It would be used in some cases, e.g., GPU VM passthrough where we use
-the BAR rather than the carve out.
+Is this really the null pointer dereference?  We check for vma above..?
 
-Alex
-
-
->
-> Thanks,
-> Lijo
->
-> > Alex
-> >
-> >
-> >>
-> >> Thanks,
-> >> Lijo
-> >>
-> >>> Alex
-> >>>
-> >>>>
-> >>>> Thanks,
-> >>>> Lijo
-> >>>>
-> >>>>> Alex
-> >>>>>
-> >>>>>> ---
-> >>>>>> v2:
-> >>>>>>            Take care of IP resume cases (Alex Deucher)
-> >>>>>>            Add NULL check to nbio.funcs to cover older (GFXv8) ASI=
-Cs (Felix Kuehling)
-> >>>>>>            Add more details in commit message and associate with A=
-ER patch (Bjorn
-> >>>>>> Helgaas)
-> >>>>>>
-> >>>>>>     drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 24 ++++++++++++++=
-++++++++
-> >>>>>>     drivers/gpu/drm/amd/amdgpu/nv.c            |  6 ------
-> >>>>>>     drivers/gpu/drm/amd/amdgpu/soc15.c         |  6 ------
-> >>>>>>     drivers/gpu/drm/amd/amdgpu/soc21.c         |  6 ------
-> >>>>>>     4 files changed, 24 insertions(+), 18 deletions(-)
-> >>>>>>
-> >>>>>> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/=
-gpu/drm/amd/amdgpu/amdgpu_device.c
-> >>>>>> index ce7d117efdb5..e420118769a5 100644
-> >>>>>> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-> >>>>>> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-> >>>>>> @@ -2334,6 +2334,26 @@ static int amdgpu_device_init_schedulers(st=
-ruct amdgpu_device *adev)
-> >>>>>>            return 0;
-> >>>>>>     }
-> >>>>>>
-> >>>>>> +/**
-> >>>>>> + * amdgpu_device_prepare_ip - prepare IPs for hardware initializa=
-tion
-> >>>>>> + *
-> >>>>>> + * @adev: amdgpu_device pointer
-> >>>>>> + *
-> >>>>>> + * Any common hardware initialization sequence that needs to be d=
-one before
-> >>>>>> + * hw init of individual IPs is performed here. This is different=
- from the
-> >>>>>> + * 'common block' which initializes a set of IPs.
-> >>>>>> + */
-> >>>>>> +static void amdgpu_device_prepare_ip(struct amdgpu_device *adev)
-> >>>>>> +{
-> >>>>>> +       /* Remap HDP registers to a hole in mmio space, for the pu=
-rpose
-> >>>>>> +        * of exposing those registers to process space. This need=
-s to be
-> >>>>>> +        * done before hw init of ip blocks to take care of HDP fl=
-ush
-> >>>>>> +        * operations through registers during hw_init.
-> >>>>>> +        */
-> >>>>>> +       if (adev->nbio.funcs && adev->nbio.funcs->remap_hdp_regist=
-ers &&
-> >>>>>> +           !amdgpu_sriov_vf(adev))
-> >>>>>> +               adev->nbio.funcs->remap_hdp_registers(adev);
-> >>>>>> +}
-> >>>>>>
-> >>>>>>     /**
-> >>>>>>      * amdgpu_device_ip_init - run init for hardware IPs
-> >>>>>> @@ -2376,6 +2396,8 @@ static int amdgpu_device_ip_init(struct amdg=
-pu_device *adev)
-> >>>>>>                                    DRM_ERROR("amdgpu_vram_scratch_=
-init failed %d\n", r);
-> >>>>>>                                    goto init_failed;
-> >>>>>>                            }
-> >>>>>> +
-> >>>>>> +                       amdgpu_device_prepare_ip(adev);
-> >>>>>>                            r =3D adev->ip_blocks[i].version->funcs=
-->hw_init((void *)adev);
-> >>>>>>                            if (r) {
-> >>>>>>                                    DRM_ERROR("hw_init %d failed %d=
-\n", i, r);
-> >>>>>> @@ -3058,6 +3080,7 @@ static int amdgpu_device_ip_reinit_early_sri=
-ov(struct amdgpu_device *adev)
-> >>>>>>                    AMD_IP_BLOCK_TYPE_IH,
-> >>>>>>            };
-> >>>>>>
-> >>>>>> +       amdgpu_device_prepare_ip(adev);
-> >>>>>>            for (i =3D 0; i < adev->num_ip_blocks; i++) {
-> >>>>>>                    int j;
-> >>>>>>                    struct amdgpu_ip_block *block;
-> >>>>>> @@ -3139,6 +3162,7 @@ static int amdgpu_device_ip_resume_phase1(st=
-ruct amdgpu_device *adev)
-> >>>>>>     {
-> >>>>>>            int i, r;
-> >>>>>>
-> >>>>>> +       amdgpu_device_prepare_ip(adev);
-> >>>>>>            for (i =3D 0; i < adev->num_ip_blocks; i++) {
-> >>>>>>                    if (!adev->ip_blocks[i].status.valid || adev->i=
-p_blocks[i].status.hw)
-> >>>>>>                            continue;
-> >>>>>> diff --git a/drivers/gpu/drm/amd/amdgpu/nv.c b/drivers/gpu/drm/amd=
-/amdgpu/nv.c
-> >>>>>> index b3fba8dea63c..3ac7fef74277 100644
-> >>>>>> --- a/drivers/gpu/drm/amd/amdgpu/nv.c
-> >>>>>> +++ b/drivers/gpu/drm/amd/amdgpu/nv.c
-> >>>>>> @@ -1032,12 +1032,6 @@ static int nv_common_hw_init(void *handle)
-> >>>>>>            nv_program_aspm(adev);
-> >>>>>>            /* setup nbio registers */
-> >>>>>>            adev->nbio.funcs->init_registers(adev);
-> >>>>>> -       /* remap HDP registers to a hole in mmio space,
-> >>>>>> -        * for the purpose of expose those registers
-> >>>>>> -        * to process space
-> >>>>>> -        */
-> >>>>>> -       if (adev->nbio.funcs->remap_hdp_registers && !amdgpu_sriov=
-_vf(adev))
-> >>>>>> -               adev->nbio.funcs->remap_hdp_registers(adev);
-> >>>>>>            /* enable the doorbell aperture */
-> >>>>>>            nv_enable_doorbell_aperture(adev, true);
-> >>>>>>
-> >>>>>> diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/=
-amd/amdgpu/soc15.c
-> >>>>>> index fde6154f2009..a0481e37d7cf 100644
-> >>>>>> --- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-> >>>>>> +++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-> >>>>>> @@ -1240,12 +1240,6 @@ static int soc15_common_hw_init(void *handl=
-e)
-> >>>>>>            soc15_program_aspm(adev);
-> >>>>>>            /* setup nbio registers */
-> >>>>>>            adev->nbio.funcs->init_registers(adev);
-> >>>>>> -       /* remap HDP registers to a hole in mmio space,
-> >>>>>> -        * for the purpose of expose those registers
-> >>>>>> -        * to process space
-> >>>>>> -        */
-> >>>>>> -       if (adev->nbio.funcs->remap_hdp_registers && !amdgpu_sriov=
-_vf(adev))
-> >>>>>> -               adev->nbio.funcs->remap_hdp_registers(adev);
-> >>>>>>
-> >>>>>>            /* enable the doorbell aperture */
-> >>>>>>            soc15_enable_doorbell_aperture(adev, true);
-> >>>>>> diff --git a/drivers/gpu/drm/amd/amdgpu/soc21.c b/drivers/gpu/drm/=
-amd/amdgpu/soc21.c
-> >>>>>> index 55284b24f113..16b447055102 100644
-> >>>>>> --- a/drivers/gpu/drm/amd/amdgpu/soc21.c
-> >>>>>> +++ b/drivers/gpu/drm/amd/amdgpu/soc21.c
-> >>>>>> @@ -660,12 +660,6 @@ static int soc21_common_hw_init(void *handle)
-> >>>>>>            soc21_program_aspm(adev);
-> >>>>>>            /* setup nbio registers */
-> >>>>>>            adev->nbio.funcs->init_registers(adev);
-> >>>>>> -       /* remap HDP registers to a hole in mmio space,
-> >>>>>> -        * for the purpose of expose those registers
-> >>>>>> -        * to process space
-> >>>>>> -        */
-> >>>>>> -       if (adev->nbio.funcs->remap_hdp_registers)
-> >>>>>> -               adev->nbio.funcs->remap_hdp_registers(adev);
-> >>>>>>            /* enable the doorbell aperture */
-> >>>>>>            soc21_enable_doorbell_aperture(adev, true);
-> >>>>>>
-> >>>>>> --
-> >>>>>> 2.25.1
-> >>>>>>
+>  		mmap_assert_write_locked(alloc->vma_vm_mm);
+>  	} else {
+>  		mmap_assert_locked(alloc->vma_vm_mm);
+> @@ -795,7 +794,6 @@ int binder_alloc_mmap_handler(struct binder_alloc *al=
+loc,
+>  	binder_insert_free_buffer(alloc, buffer);
+>  	alloc->free_async_space =3D alloc->buffer_size / 2;
+>  	binder_alloc_set_vma(alloc, vma);
+> -	mmgrab(alloc->vma_vm_mm);
+> =20
+>  	return 0;
+> =20
+> @@ -1091,6 +1089,8 @@ static struct shrinker binder_shrinker =3D {
+>  void binder_alloc_init(struct binder_alloc *alloc)
+>  {
+>  	alloc->pid =3D current->group_leader->pid;
+> +	alloc->vma_vm_mm =3D current->mm;
+> +	mmgrab(alloc->vma_vm_mm);
+>  	mutex_init(&alloc->mutex);
+>  	INIT_LIST_HEAD(&alloc->buffers);
+>  }
+> --=20
+> 2.37.2.672.g94769d06f0-goog
+> =
