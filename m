@@ -2,172 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 108305A7440
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 05:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1D185A74F6
+	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 06:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230000AbiHaDFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 23:05:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38206 "EHLO
+        id S231871AbiHaEXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Aug 2022 00:23:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbiHaDFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 23:05:21 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AAB32C66B;
-        Tue, 30 Aug 2022 20:05:17 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S230350AbiHaEX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 00:23:27 -0400
+X-Greylist: delayed 9861 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 30 Aug 2022 21:23:26 PDT
+Received: from dispatch1-us1.ppe-hosted.com (dispatch1-us1.ppe-hosted.com [67.231.154.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE142E4E;
+        Tue, 30 Aug 2022 21:23:26 -0700 (PDT)
+Received: from dispatch1-us1.ppe-hosted.com (localhost.localdomain [127.0.0.1])
+        by dispatch1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 70EC524B059;
+        Tue, 30 Aug 2022 22:16:28 +0000 (UTC)
+X-Virus-Scanned: Proofpoint Essentials engine
+Received: from mx1-us1.ppe-hosted.com (unknown [10.110.51.24])
+        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTPS id CD4B1A0068;
+        Tue, 30 Aug 2022 22:16:26 +0000 (UTC)
+Received: from mail3.candelatech.com (mail2.candelatech.com [208.74.158.173])
+        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 68CB63C007B;
+        Tue, 30 Aug 2022 22:16:25 +0000 (UTC)
+Received: from [192.168.100.195] (50-251-239-81-static.hfc.comcastbusiness.net [50.251.239.81])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 08CFCCE1CF6;
-        Wed, 31 Aug 2022 03:05:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00040C433D6;
-        Wed, 31 Aug 2022 03:05:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661915114;
-        bh=dVup0T/Gm724oVjCg6gv0zTexmWsoNH4XnK67lgI7vE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bQ30ftyUYj4WNesdVZUK9vAqMkE3skgwTYdXxXPOBfBzazE8a93xVE4JGmbGcPvEb
-         PB6qBqbBZaTTb21dHtzVekH9LPpziKxNQF9fLI9dQFsVqicqg3Hly3XL95+KA6dLp+
-         brMfAWgTDhPNB8aogrWkaTA/qO5fXLC5/7+qk8SuoVzSY9nUqYkywc5Cu+hkKNkI4v
-         NOV5W8zpZ47zcxAtHwfkyICuzMvzhGLdOpy9eR2RgH5hR8qsRYmYroiEUvX5P8Hyqc
-         Rl2XWH8wLl4ivgj/a3Z7tepiOmLG7lhvBr98cOs7BaxVL5B42V5xi9NkbXu9kmtH7M
-         Su6HC6623/5mQ==
-Date:   Tue, 30 Aug 2022 20:05:12 -0700
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     Chao Yu <chao@kernel.org>
-Cc:     syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: Re: [f2fs-dev] [PATCH] f2fs: fix missing mapping caused by the
- mount/umount race
-Message-ID: <Yw7P6BkNZmqxji3B@google.com>
-References: <20220829215206.3082124-1-jaegeuk@kernel.org>
- <cbc4bfe5-14f9-a4e0-c9c5-6b6b06437d5d@kernel.org>
- <Yw55Ebk8zLIgBFfn@google.com>
+        by mail3.candelatech.com (Postfix) with ESMTPSA id 8DFE413C2B0;
+        Tue, 30 Aug 2022 15:16:24 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail3.candelatech.com 8DFE413C2B0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=candelatech.com;
+        s=default; t=1661897784;
+        bh=lSb6iPlm/e00kQHUQGYl6VDRSpB7b+OgWRMKI9nT3uU=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=CP3ZuQEG4SgFmdfJdIVeZc0bTNf4qlGF8he8eFS1a4zwosC7aG/QtHDE64dPnl7Kx
+         1p4iZp4zW85Wt1Ln6PXqCh7R5DSv+Ov5Zkp2zDGjC/9WFa5uwhRs1umjDp2r9cdZ33
+         ZwRzmX6mUxYi3CGyPC75afd2uHxfYR/7DgzMG08s=
+Subject: Re: [PATCH 5.4 182/389] PCI/portdrv: Dont disable AER reporting in
+ get_port_device_capability()
+To:     =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bjorn@helgaas.com,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Stefan Roese <sr@denx.de>, Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Yao Hongbo <yaohongbo@linux.alibaba.com>,
+        Naveen Naidu <naveennaidu479@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+References: <20220823080115.331990024@linuxfoundation.org>
+ <20220823080123.228828362@linuxfoundation.org>
+ <CABhMZUVycsyy76j2Z=K+C6S1fwtzKE1Lx2povXKfB80o9g0MtQ@mail.gmail.com>
+ <YwXH/l37HaYQD66B@kroah.com>
+ <47b775c5-57fa-5edf-b59e-8a9041ffbee7@candelatech.com>
+ <20220830205832.g3lyysmgkarijkvj@pali>
+ <00735f18-11f9-c6c6-4abf-002d378957df@candelatech.com>
+ <20220830215532.6nnl6d4cfg55dmcl@pali>
+From:   Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+Message-ID: <370dee6c-919a-2f98-1404-a3feda14d1ba@candelatech.com>
+Date:   Tue, 30 Aug 2022 15:16:24 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yw55Ebk8zLIgBFfn@google.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220830215532.6nnl6d4cfg55dmcl@pali>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-MDID: 1661897787-3FcEtP5UB8oZ
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08/30, Jaegeuk Kim wrote:
-> On 08/30, Chao Yu wrote:
-> > On 2022/8/30 5:52, Jaegeuk Kim wrote:
-> > > Sometimes we can get a cached meta_inode which has no aops yet. Let's set it
-> > > all the time to fix the below panic.
-> > > 
-> > > Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-> > > Mem abort info:
-> > >    ESR = 0x0000000086000004
-> > >    EC = 0x21: IABT (current EL), IL = 32 bits
-> > >    SET = 0, FnV = 0
-> > >    EA = 0, S1PTW = 0
-> > >    FSC = 0x04: level 0 translation fault
-> > > user pgtable: 4k pages, 48-bit VAs, pgdp=0000000109ee4000
-> > > [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
-> > > Internal error: Oops: 86000004 [#1] PREEMPT SMP
-> > > Modules linked in:
-> > > CPU: 1 PID: 3045 Comm: syz-executor330 Not tainted 6.0.0-rc2-syzkaller-16455-ga41a877bc12d #0
-> > > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
-> > > pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> > > pc : 0x0
-> > > lr : folio_mark_dirty+0xbc/0x208 mm/page-writeback.c:2748
-> > > sp : ffff800012783970
-> > > x29: ffff800012783970 x28: 0000000000000000 x27: ffff800012783b08
-> > > x26: 0000000000000001 x25: 0000000000000400 x24: 0000000000000001
-> > > x23: ffff0000c736e000 x22: 0000000000000045 x21: 05ffc00000000015
-> > > x20: ffff0000ca7403b8 x19: fffffc00032ec600 x18: 0000000000000181
-> > > x17: ffff80000c04d6bc x16: ffff80000dbb8658 x15: 0000000000000000
-> > > x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-> > > x11: ff808000083e9814 x10: 0000000000000000 x9 : ffff8000083e9814
-> > > x8 : 0000000000000000 x7 : 0000000000000000 x6 : 0000000000000000
-> > > x5 : ffff0000cbb19000 x4 : ffff0000cb3d2000 x3 : ffff0000cbb18f80
-> > > x2 : fffffffffffffff0 x1 : fffffc00032ec600 x0 : ffff0000ca7403b8
-> > > Call trace:
-> > >   0x0
-> > >   set_page_dirty+0x38/0xbc mm/folio-compat.c:62
-> > >   f2fs_update_meta_page+0x80/0xa8 fs/f2fs/segment.c:2369
-> > >   do_checkpoint+0x794/0xea8 fs/f2fs/checkpoint.c:1522
-> > >   f2fs_write_checkpoint+0x3b8/0x568 fs/f2fs/checkpoint.c:1679
-> > > 
-> > > Cc: stable@vger.kernel.org
-> > > Reported-by: syzbot+775a3440817f74fddb8c@syzkaller.appspotmail.com
-> > > Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-> > > ---
-> > >   fs/f2fs/inode.c | 13 ++++++++-----
-> > >   1 file changed, 8 insertions(+), 5 deletions(-)
-> > > 
-> > > diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-> > > index 6d11c365d7b4..1feb0a8a699e 100644
-> > > --- a/fs/f2fs/inode.c
-> > > +++ b/fs/f2fs/inode.c
-> > > @@ -490,10 +490,7 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
-> > >   	if (!inode)
-> > >   		return ERR_PTR(-ENOMEM);
-> > > -	if (!(inode->i_state & I_NEW)) {
-> > > -		trace_f2fs_iget(inode);
-> > > -		return inode;
-> > > -	}
-> > > +	/* We can see an old cached inode. Let's set the aops all the time. */
-> > 
-> > Why an old cached inode (has no I_NEW flag) has NULL a_ops pointer? If it is a bad
-> > inode, it should be unhashed before unlock_new_inode().
+On 8/30/22 2:55 PM, Pali Rohár wrote:
+> On Tuesday 30 August 2022 14:28:14 Ben Greear wrote:
+>> On 8/30/22 1:58 PM, Pali Rohár wrote:
+>>> On Tuesday 30 August 2022 13:47:48 Ben Greear wrote:
+>>>> On 8/23/22 11:41 PM, Greg Kroah-Hartman wrote:
+>>>>> On Tue, Aug 23, 2022 at 07:20:14AM -0500, Bjorn Helgaas wrote:
+>>>>>> On Tue, Aug 23, 2022, 6:35 AM Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>>>>> wrote:
+>>>>>>
+>>>>>>> From: Stefan Roese <sr@denx.de>
+>>>>>>>
+>>>>>>> [ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
+>>>>>>>
+>>>>>>
+>>>>>> There's an open regression related to this commit:
+>>>>>>
+>>>>>> https://bugzilla.kernel.org/show_bug.cgi?id=216373
+>>>>>
+>>>>> This is already in the following released stable kernels:
+>>>>> 	5.10.137 5.15.61 5.18.18 5.19.2
+>>>>>
+>>>>> I'll go drop it from the 4.19 and 5.4 queues, but when this gets
+>>>>> resolved in Linus's tree, make sure there's a cc: stable on the fix so
+>>>>> that we know to backport it to the above branches as well.  Or at the
+>>>>> least, a "Fixes:" tag.
+>>>>
+>>>> This is still in 5.19.5.  We saw some funny iwlwifi crashes in 5.19.3+
+>>>> that we did not see in 5.19.0+.  I just bisected the scary looking AER errors to this
+>>>> patch, though I do not know for certain if it causes the iwlwifi related crashes yet.
+>>>>
+>>>> In general, from reading the commit msg, this patch doesn't seem to be a great candidate
+>>>> for stable in general.  Does it fix some important problem?
+>>>>
+>>>> In case it helps, here is example of what I see in dmesg.  The kernel crashes in iwlwifi
+>>>> had to do with rx messages from the firmware, and some warnings lead me to believe that
+>>>> pci messages were slow coming back and/or maybe duplicated.  So maybe this AER patch changes
+>>>> timing or otherwise screws up the PCI adapter boards we use...
+>>>
+>>>   From that log I have feeling that issue is in that intel wifi card and
+>>> it was there also before that commit. Card is crashing (or something
+>>> other happens on PCIe bus) and because kernel had disabled Error
+>>> Reporting for this card, nobody spotted any issue. And that commit just
+>>> opened eye to kernel to see those errors.
+>>>
+>>> I think this issue should be reported to intel wifi card developers,
+>>> maybe they comment it, why card is reporting errors.
+>>
+>> My main concern is not that AER messages started showing up, but that there
+>> started being kernel NPE and WARNINGS showing up sometime after 5.19.0.
+>>
+>> Possibly this AER thing is mis-direction and the real bug is elsewhere,
+>> but since the bugzilla also indicated (different) driver crashes, then
+>> I am suspicious this changes things more significantly, at least in a subset
+>> of hardware out there.
 > 
-> I'm trying to dig further tho, it's not a bad inode, nor I_FREEING | I_CLEAR.
-> It's very werid that thie meta inode is found in newly created superblock by
-> the global hash table. I've checked that the same superblock pointer was used
-> in the previous tests, but inode was evictied all the time.
-
-I'll drop this patch, since it turned out there is a bug in reiserfs which
-doesn't free the root inode (ino=2). That leads f2fs to find an ino=2 with
-the previous superblock point used by reiserfs. That stale inode has no valid
-inode that f2fs can use. I tried to find where the root cause is in reiserfs,
-but it seems quite hard to catch one.
-
-- reiserfs_fill_super
- - reiserfs_xattr_init
-  - create_privroot
-   - xattr_mkdir
-    - reiserfs_new_inode
-     - reiserfs_get_unused_objectid returned 0 due to map crash
-
-It seems the error path doesn't handle the root inode properly.
-
+> Yea, of course, this is something needed to investigate.
 > 
-> > 
-> > Thanks,
-> > 
-> > >   	if (ino == F2FS_NODE_INO(sbi) || ino == F2FS_META_INO(sbi))
-> > >   		goto make_now;
-> > > @@ -502,6 +499,11 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
-> > >   		goto make_now;
-> > >   #endif
-> > > +	if (!(inode->i_state & I_NEW)) {
-> > > +		trace_f2fs_iget(inode);
-> > > +		return inode;
-> > > +	}
-> > > +
-> > >   	ret = do_read_inode(inode);
-> > >   	if (ret)
-> > >   		goto bad_inode;
-> > > @@ -557,7 +559,8 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
-> > >   		file_dont_truncate(inode);
-> > >   	}
-> > > -	unlock_new_inode(inode);
-> > > +	if (inode->i_state & I_NEW)
-> > > +		unlock_new_inode(inode);
-> > >   	trace_f2fs_iget(inode);
-> > >   	return inode;
+> Anyway, do you see driver crashes? Or just these AER errors? And are
+> your PCIe cards working, or after seeing these messages in dmesg they
+> stopped working? It is needed to know if you are just spammed by tons of
+> lines in dmesg and otherwise everything works. Or if after AER errors
+> your PCIe devices stop working and rebooting system is required.
+
+We did see higher frequency of weird crashes (accessing null-ish pointer) after upgrading to 5.19.3,
+I am building kernel now with 5.19.5 and that AER patch reverted.  We will
+test to see if that solves the crashes.
+
+>> Also, any idea what this error in my logs is actually indicating?
 > 
+> Your PCIe controller received non-fatal, but uncorrected error. There is
+> also indication of Unsupported Request Completion Status. Unsupported
+> Request is generated by PCIe device when controller / host / kernel try
+> to do something which is not supported by device; pretty generic error.
+> PCIe base spec describe lot of scenarios when card should return this
+> error. Maybe some more detailed information are in TLP Header hexdump,
+> but I cannot decode it now.
 > 
-> _______________________________________________
-> Linux-f2fs-devel mailing list
-> Linux-f2fs-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel
+> Basically it is PCIe card driver who could know how fatal it is that
+> issue and how to recover from it. But as you can see intel wifi driver
+> does not implement that callback.
+
+Odds of me getting a good answer on that are pretty small.
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+
