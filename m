@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF6A75A6A32
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DEBC5A6A3A
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:27:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231643AbiH3R0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:26:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45416 "EHLO
+        id S231679AbiH3R07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:26:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231563AbiH3R0V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:26:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E04FD75B1;
-        Tue, 30 Aug 2022 10:24:29 -0700 (PDT)
+        with ESMTP id S231567AbiH3R03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:26:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A881D1286DE;
+        Tue, 30 Aug 2022 10:24:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9818761782;
-        Tue, 30 Aug 2022 17:22:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 151C1C433D6;
-        Tue, 30 Aug 2022 17:22:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11005617AD;
+        Tue, 30 Aug 2022 17:23:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA20C433C1;
+        Tue, 30 Aug 2022 17:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880176;
-        bh=P2yKcHcxOGwRoKPf3QkD6WvUqMKsj5wWrzv5nK7cFBE=;
+        s=k20201202; t=1661880182;
+        bh=0u026pqT58oZ4sONs/gvlH4NvnoS731D0/6bWyVkQHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FC2pPcrk/PQmD/8Ad9qCXqBsGKC2MCCiq3P1nYvksfQYZ3zbxEkQ5QlxAR9OzyvX6
-         8kJv+tgRsgNBpi+NFGyxqcNZ/HLGCgutvQoJAl8ikrwztGvkHslWlVrw4/v+JPm0CV
-         wf/YyaswSSF012d1GZeVGaM2G5lUOnMLcHdSCv9rnxTuajYEZpsVohRSTXb1uJZddq
-         uDi6/WBTtnEXqPFr6d2fhFAtHdfUur3yUod1+su47nXHeO/mXZDR/PIchTfTFntKil
-         MqHZKynR1CEkQJywo60H3I4dZ3EyFEjPbxWHNaSc6GH5hWJBga8z/dPdzBsmlviwXO
-         nsZcgPjY+v5vg==
+        b=fWHRsU7H7D+0sz6Lphzcqzy5cL91tzBv2tttGNKbB3wZxABsqMGIkphdPuXnLFaJT
+         MgdO6kEKKz3fbMYxFpgrn/q6P50oWyVVYCRxzASa+7uyJzObRVm3v1NNXr+EqrQS6H
+         LpMEhv12CUB4pc1W1EoMD/RwkEyjz1fDEKoLP5KTMKzcolCKqRcYMjuinAenvaY4S9
+         ojGweagA91xzclNzavjM0hki9TNHHm9o4tzOZRRBNPiLSYa4CjK0ZdW+WHK4BeV14a
+         McIsC2lDke8oUeEd16tRZn43RNovCKQcxZf0GVrsTasbeleNLo64O2Xu+GlNxsD8Zf
+         8gN4u9/exMr7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Letu Ren <fantasquex@gmail.com>, Zheyu Ma <zheyuma97@gmail.com>,
+Cc:     Shigeru Yoshida <syoshida@redhat.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        baihaowen@meizu.com, linux-fbdev@vger.kernel.org,
+        daniel@ffwll.ch, tzimmermann@suse.de, sam@ravnborg.org,
+        javierm@redhat.com, wangqing@vivo.com, linux-fbdev@vger.kernel.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 20/23] fbdev: fb_pm2fb: Avoid potential divide by zero error
-Date:   Tue, 30 Aug 2022 13:21:37 -0400
-Message-Id: <20220830172141.581086-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 21/23] fbdev: fbcon: Destroy mutex on freeing struct fb_info
+Date:   Tue, 30 Aug 2022 13:21:38 -0400
+Message-Id: <20220830172141.581086-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172141.581086-1-sashal@kernel.org>
 References: <20220830172141.581086-1-sashal@kernel.org>
@@ -57,50 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 19f953e7435644b81332dd632ba1b2d80b1e37af ]
+[ Upstream commit 58559dfc1ebba2ae0c7627dc8f8991ae1984c6e3 ]
 
-In `do_fb_ioctl()` of fbmem.c, if cmd is FBIOPUT_VSCREENINFO, var will be
-copied from user, then go through `fb_set_var()` and
-`info->fbops->fb_check_var()` which could may be `pm2fb_check_var()`.
-Along the path, `var->pixclock` won't be modified. This function checks
-whether reciprocal of `var->pixclock` is too high. If `var->pixclock` is
-zero, there will be a divide by zero error. So, it is necessary to check
-whether denominator is zero to avoid crash. As this bug is found by
-Syzkaller, logs are listed below.
+It's needed to destroy bl_curve_mutex on freeing struct fb_info since
+the mutex is embedded in the structure and initialized when it's
+allocated.
 
-divide error in pm2fb_check_var
-Call Trace:
- <TASK>
- fb_set_var+0x367/0xeb0 drivers/video/fbdev/core/fbmem.c:1015
- do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
- fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pm2fb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/video/fbdev/core/fbsysfs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
-index c68725eebee3b..cbcf112c88d30 100644
---- a/drivers/video/fbdev/pm2fb.c
-+++ b/drivers/video/fbdev/pm2fb.c
-@@ -617,6 +617,11 @@ static int pm2fb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/video/fbdev/core/fbsysfs.c b/drivers/video/fbdev/core/fbsysfs.c
+index ce699396d6bad..09ee27e7fc25f 100644
+--- a/drivers/video/fbdev/core/fbsysfs.c
++++ b/drivers/video/fbdev/core/fbsysfs.c
+@@ -84,6 +84,10 @@ void framebuffer_release(struct fb_info *info)
+ 	if (WARN_ON(refcount_read(&info->count)))
+ 		return;
  
-+	if (!var->pixclock) {
-+		DPRINTK("pixclock is zero\n");
-+		return -EINVAL;
-+	}
++#if IS_ENABLED(CONFIG_FB_BACKLIGHT)
++	mutex_destroy(&info->bl_curve_mutex);
++#endif
 +
- 	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
- 		DPRINTK("pixclock too high (%ldKHz)\n",
- 			PICOS2KHZ(var->pixclock));
+ 	kfree(info->apertures);
+ 	kfree(info);
+ }
 -- 
 2.35.1
 
