@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 347915A64D8
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 15:34:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A19E35A64DB
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 15:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229535AbiH3Nd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 09:33:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33336 "EHLO
+        id S230038AbiH3NeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 09:34:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230352AbiH3Ndz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 09:33:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6145D6B9B
-        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 06:33:54 -0700 (PDT)
+        with ESMTP id S230004AbiH3Nd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 09:33:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87335D7D04
+        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 06:33:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C162B81BF1
-        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 13:33:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90151C4347C;
-        Tue, 30 Aug 2022 13:33:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 142506132D
+        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 13:33:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A32A7C433C1;
+        Tue, 30 Aug 2022 13:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661866432;
-        bh=TRMXO79xHp8Akg7bczBglaL6RinWVd0WAsdbvdMSHlY=;
+        s=korg; t=1661866435;
+        bh=g3h2+lsVoPRL5opMD5114knvaNtd187crM9frgl/KhQ=;
         h=Subject:To:From:Date:From;
-        b=1zruejkM5xdHJRy+iVRj2HqhRGKd2A4VHjY/KFgbff0pD06yqHkxP6a9/P7TIElkU
-         hUMnOTVI4flYIUo2QON/Ny3CuD/AphLUNLK/HFvHZqJY1SE2aPmbv90nNnFLcMcRou
-         3X1szFWBEomcl+44Akt42f6VrTRa+EZ8Vf1PwctU=
-Subject: patch "usb: cdns3: fix issue with rearming ISO OUT endpoint" added to usb-linus
+        b=2ZJWrGWxQJ0gv65FhaCJUrzSir/j9DCOyqKnaj3wV3sO2//cyreqaM7yV3hXG09e6
+         YxocK3ivzdNa7v76chaDojhjWdDLOzWiULdwsSTCHqw7yJtjPRFIp1UstJs+I36MV2
+         W13p97rrQXQQb5nWFkHz9gr/qbJWNK+RBjv0CjWQ=
+Subject: patch "usb: cdns3: fix incorrect handling TRB_SMM flag for ISOC transfer" added to usb-linus
 To:     pawell@cadence.com, gregkh@linuxfoundation.org,
         peter.chen@kernel.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 30 Aug 2022 15:33:41 +0200
-Message-ID: <166186642141172@kroah.com>
+Message-ID: <1661866421239145@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: cdns3: fix issue with rearming ISO OUT endpoint
+    usb: cdns3: fix incorrect handling TRB_SMM flag for ISOC transfer
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -65,40 +65,48 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From b46a6b09fa056042a302b181a1941f0056944603 Mon Sep 17 00:00:00 2001
+From d5dcc33677d7415c5f23b3c052f9e80cbab9ea4e Mon Sep 17 00:00:00 2001
 From: Pawel Laszczak <pawell@cadence.com>
-Date: Thu, 25 Aug 2022 08:21:37 +0200
-Subject: usb: cdns3: fix issue with rearming ISO OUT endpoint
+Date: Thu, 25 Aug 2022 08:22:07 +0200
+Subject: usb: cdns3: fix incorrect handling TRB_SMM flag for ISOC transfer
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-ISO OUT endpoint is enabled during queuing first usb request
-in transfer ring and disabled when TRBERR is reported by controller.
-After TRBERR and before next transfer added to TR driver must again
-reenable endpoint but does not.
-To solve this issue during processing TRBERR event driver must
-set the flag EP_UPDATE_EP_TRBADDR in priv_ep->flags field.
+The TRB_SMM flag indicates that DMA has completed the TD service with
+this TRB. Usually it’s a last TRB in TD. In case of ISOC transfer for
+bInterval > 1 each ISOC transfer contains more than one TD associated
+with usb request (one TD per ITP). In such case the TRB_SMM flag will
+be set in every TD and driver will recognize the end of transfer after
+processing the first TD with TRB_SMM. In result driver stops updating
+request->actual and returns incorrect actual length.
+To fix this issue driver additionally must check TRB_CHAIN which is not
+used for isochronous transfers.
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Fixes: 249f0a25e8be ("usb: cdns3: gadget: handle sg list use case at completion correctly")
 cc: <stable@vger.kernel.org>
 Acked-by: Peter Chen <peter.chen@kernel.org>
 Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20220825062137.5766-1-pawell@cadence.com
+Link: https://lore.kernel.org/r/20220825062207.5824-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/cdns3/cdns3-gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index 4f11c311acaf..5adcb349718c 100644
+index d21b69997e75..4f11c311acaf 100644
 --- a/drivers/usb/cdns3/cdns3-gadget.c
 +++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -1691,6 +1691,7 @@ static int cdns3_check_ep_interrupt_proceed(struct cdns3_endpoint *priv_ep)
- 				ep_cfg &= ~EP_CFG_ENABLE;
- 				writel(ep_cfg, &priv_dev->regs->ep_cfg);
- 				priv_ep->flags &= ~EP_QUIRK_ISO_OUT_EN;
-+				priv_ep->flags |= EP_UPDATE_EP_TRBADDR;
- 			}
- 			cdns3_transfer_completed(priv_dev, priv_ep);
- 		} else if (!(priv_ep->flags & EP_STALLED) &&
+@@ -1530,7 +1530,8 @@ static void cdns3_transfer_completed(struct cdns3_device *priv_dev,
+ 						TRB_LEN(le32_to_cpu(trb->length));
+ 
+ 				if (priv_req->num_of_trb > 1 &&
+-					le32_to_cpu(trb->control) & TRB_SMM)
++					le32_to_cpu(trb->control) & TRB_SMM &&
++					le32_to_cpu(trb->control) & TRB_CHAIN)
+ 					transfer_end = true;
+ 
+ 				cdns3_ep_inc_deq(priv_ep);
 -- 
 2.37.2
 
