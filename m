@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DEBC5A6A3A
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 905555A6A20
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbiH3R07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:26:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45638 "EHLO
+        id S231602AbiH3R0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:26:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231567AbiH3R03 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:26:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A881D1286DE;
-        Tue, 30 Aug 2022 10:24:38 -0700 (PDT)
+        with ESMTP id S231523AbiH3RZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:25:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E00F8242;
+        Tue, 30 Aug 2022 10:23:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11005617AD;
-        Tue, 30 Aug 2022 17:23:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA20C433C1;
-        Tue, 30 Aug 2022 17:23:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E854B81D0C;
+        Tue, 30 Aug 2022 17:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A235C433D6;
+        Tue, 30 Aug 2022 17:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880182;
-        bh=0u026pqT58oZ4sONs/gvlH4NvnoS731D0/6bWyVkQHo=;
+        s=k20201202; t=1661880188;
+        bh=UyC6EuVYNPcXw2t8mig7weYbNDvzVVaZ6wLDTuTmYIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fWHRsU7H7D+0sz6Lphzcqzy5cL91tzBv2tttGNKbB3wZxABsqMGIkphdPuXnLFaJT
-         MgdO6kEKKz3fbMYxFpgrn/q6P50oWyVVYCRxzASa+7uyJzObRVm3v1NNXr+EqrQS6H
-         LpMEhv12CUB4pc1W1EoMD/RwkEyjz1fDEKoLP5KTMKzcolCKqRcYMjuinAenvaY4S9
-         ojGweagA91xzclNzavjM0hki9TNHHm9o4tzOZRRBNPiLSYa4CjK0ZdW+WHK4BeV14a
-         McIsC2lDke8oUeEd16tRZn43RNovCKQcxZf0GVrsTasbeleNLo64O2Xu+GlNxsD8Zf
-         8gN4u9/exMr7w==
+        b=deeR71hRpCRt+QoleHNpKdfcXqaM0U+PyUScxbKSyM5d5cVZCSQ6y4vq0+tOV57TS
+         uoqdSwRcGkdPQ4l8GlIr3TLfv7nD5A1jdhaSr0B0rvXfisV5XsoCMjuKfnbF1fwUbk
+         eL40u5ufNiZRpxaTe78ts9Z/eavNSh+0M3Q1FlgblRyLieeE1TgOmE1gWAkUeQmNf5
+         pEFfZYTx+2+VHpHpsbFVwgCqscOEV1lkGzOnzFE/kso0GpNfWsxj0NlNhohAEnVAmc
+         LQB1O7SnykPp5EvH1KCKVo/Ku/M+aLac/BUTfdo0xa6RjdUbh6ld1J82BxziispQQ6
+         immvVdFHpr+xA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shigeru Yoshida <syoshida@redhat.com>,
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        daniel@ffwll.ch, tzimmermann@suse.de, sam@ravnborg.org,
-        javierm@redhat.com, wangqing@vivo.com, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 21/23] fbdev: fbcon: Destroy mutex on freeing struct fb_info
-Date:   Tue, 30 Aug 2022 13:21:38 -0400
-Message-Id: <20220830172141.581086-21-sashal@kernel.org>
+        christophe.leroy@csgroup.eu, mpe@ellerman.id.au,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 22/23] fbdev: chipsfb: Add missing pci_disable_device() in chipsfb_pci_init()
+Date:   Tue, 30 Aug 2022 13:21:39 -0400
+Message-Id: <20220830172141.581086-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172141.581086-1-sashal@kernel.org>
 References: <20220830172141.581086-1-sashal@kernel.org>
@@ -58,35 +57,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 58559dfc1ebba2ae0c7627dc8f8991ae1984c6e3 ]
+[ Upstream commit 07c55c9803dea748d17a054000cbf1913ce06399 ]
 
-It's needed to destroy bl_curve_mutex on freeing struct fb_info since
-the mutex is embedded in the structure and initialized when it's
-allocated.
+Add missing pci_disable_device() in error path in chipsfb_pci_init().
 
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbsysfs.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/video/fbdev/chipsfb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/video/fbdev/core/fbsysfs.c b/drivers/video/fbdev/core/fbsysfs.c
-index ce699396d6bad..09ee27e7fc25f 100644
---- a/drivers/video/fbdev/core/fbsysfs.c
-+++ b/drivers/video/fbdev/core/fbsysfs.c
-@@ -84,6 +84,10 @@ void framebuffer_release(struct fb_info *info)
- 	if (WARN_ON(refcount_read(&info->count)))
- 		return;
- 
-+#if IS_ENABLED(CONFIG_FB_BACKLIGHT)
-+	mutex_destroy(&info->bl_curve_mutex);
-+#endif
-+
- 	kfree(info->apertures);
- 	kfree(info);
+diff --git a/drivers/video/fbdev/chipsfb.c b/drivers/video/fbdev/chipsfb.c
+index 393894af26f84..2b00a9d554fc0 100644
+--- a/drivers/video/fbdev/chipsfb.c
++++ b/drivers/video/fbdev/chipsfb.c
+@@ -430,6 +430,7 @@ static int chipsfb_pci_init(struct pci_dev *dp, const struct pci_device_id *ent)
+  err_release_fb:
+ 	framebuffer_release(p);
+  err_disable:
++	pci_disable_device(dp);
+  err_out:
+ 	return rc;
  }
 -- 
 2.35.1
