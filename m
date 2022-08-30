@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 178535A6AAE
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB46A5A6ABB
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231791AbiH3RcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:32:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
+        id S231358AbiH3Rcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:32:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231787AbiH3Rbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:31:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16542AC4D;
-        Tue, 30 Aug 2022 10:28:23 -0700 (PDT)
+        with ESMTP id S231868AbiH3Rbu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:31:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B0F8D2B2D;
+        Tue, 30 Aug 2022 10:28:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79362617C1;
-        Tue, 30 Aug 2022 17:26:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E868DC433C1;
-        Tue, 30 Aug 2022 17:26:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5F43B81D2A;
+        Tue, 30 Aug 2022 17:27:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3EEC433C1;
+        Tue, 30 Aug 2022 17:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880418;
-        bh=whvkUYJpp+OMkxLwPyh6AxZcY193wuz/Z41ppsLlUro=;
+        s=k20201202; t=1661880425;
+        bh=DnYQUcsVH32s4uZbj997262p3sc1ImMPNTeT3izOTnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6nLol4WFFGCCJZfC6MOvBLmuG168aw1V4B5RgoEqvkk9eSgyotEOjHd9xc44UHgD
-         NgvQNxAUv0Dnfh+WCxFLTa1xa23iOz+R3gPN7rhDjlzp+TdAVD+NeIjvFLmhGrKIcp
-         wtwdQBpRcYqXw826VXF+rYmwESpoYtlPlPI7M7oChzxISBM6V8dB1u9l5Byxjuy6+n
-         9dMBq4AjG/OAXr2rsllBYofoNVioBkCM6qBDAMgfkLK03I/rIvY+avQh0DGxeOJEBW
-         Qcusi5bvMvXd42fVdpRaVwtRXk9VqqJs7zGTFmBR30n+5zvRlFTeJJej1NuCkFN6QU
-         wwbK6vTH7qVVQ==
+        b=JTz+XukYPka2V8EUJH5G71d9eByxlOgEx56lOQ5mKrJn8vNKLqCwPGO4R2Y3qoW8L
+         SA+LHUQTFyY3Z1hVMCVZrLP/oNzIgKH8rpd+xGgWP6mQADvavicvZ0GPrrvItqTusi
+         3IJtT1glg1JlCF/5vGjMkxN1j/rfG1Bh6uDj1k8yKGRbgUAhrKPI+mnqhmiZ4Ftk07
+         eZwRL2eGW+BBNL4LpR/G3geImU/5PHrzGj5cxdETCgBhpMYm69TVwOjaVLz90B9r/2
+         vM+564p7tHZzQJu02yjkMe7pRvorxVUL5sPZwLuaH85rSkLclMT+WiVvFHE/pqyw0K
+         dshYpQLu0XouQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Letu Ren <fantasquex@gmail.com>, Zheyu Ma <zheyuma97@gmail.com>,
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        baihaowen@meizu.com, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 7/8] fbdev: fb_pm2fb: Avoid potential divide by zero error
-Date:   Tue, 30 Aug 2022 13:26:30 -0400
-Message-Id: <20220830172631.581969-7-sashal@kernel.org>
+        christophe.leroy@csgroup.eu, mpe@ellerman.id.au,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 8/8] fbdev: chipsfb: Add missing pci_disable_device() in chipsfb_pci_init()
+Date:   Tue, 30 Aug 2022 13:26:31 -0400
+Message-Id: <20220830172631.581969-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830172631.581969-1-sashal@kernel.org>
 References: <20220830172631.581969-1-sashal@kernel.org>
@@ -57,50 +57,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 19f953e7435644b81332dd632ba1b2d80b1e37af ]
+[ Upstream commit 07c55c9803dea748d17a054000cbf1913ce06399 ]
 
-In `do_fb_ioctl()` of fbmem.c, if cmd is FBIOPUT_VSCREENINFO, var will be
-copied from user, then go through `fb_set_var()` and
-`info->fbops->fb_check_var()` which could may be `pm2fb_check_var()`.
-Along the path, `var->pixclock` won't be modified. This function checks
-whether reciprocal of `var->pixclock` is too high. If `var->pixclock` is
-zero, there will be a divide by zero error. So, it is necessary to check
-whether denominator is zero to avoid crash. As this bug is found by
-Syzkaller, logs are listed below.
+Add missing pci_disable_device() in error path in chipsfb_pci_init().
 
-divide error in pm2fb_check_var
-Call Trace:
- <TASK>
- fb_set_var+0x367/0xeb0 drivers/video/fbdev/core/fbmem.c:1015
- do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
- fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pm2fb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/video/fbdev/chipsfb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
-index bd6c2f5f6095d..a5375b09415a6 100644
---- a/drivers/video/fbdev/pm2fb.c
-+++ b/drivers/video/fbdev/pm2fb.c
-@@ -614,6 +614,11 @@ static int pm2fb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
- 		return -EINVAL;
- 	}
- 
-+	if (!var->pixclock) {
-+		DPRINTK("pixclock is zero\n");
-+		return -EINVAL;
-+	}
-+
- 	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
- 		DPRINTK("pixclock too high (%ldKHz)\n",
- 			PICOS2KHZ(var->pixclock));
+diff --git a/drivers/video/fbdev/chipsfb.c b/drivers/video/fbdev/chipsfb.c
+index 413b465e69d8e..7ca149ab86d20 100644
+--- a/drivers/video/fbdev/chipsfb.c
++++ b/drivers/video/fbdev/chipsfb.c
+@@ -432,6 +432,7 @@ static int chipsfb_pci_init(struct pci_dev *dp, const struct pci_device_id *ent)
+  err_release_fb:
+ 	framebuffer_release(p);
+  err_disable:
++	pci_disable_device(dp);
+  err_out:
+ 	return rc;
+ }
 -- 
 2.35.1
 
