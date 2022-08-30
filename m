@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5123D5A69DA
-	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:24:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CB805A69E4
+	for <lists+stable@lfdr.de>; Tue, 30 Aug 2022 19:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230242AbiH3RXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 13:23:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60136 "EHLO
+        id S231438AbiH3RYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 13:24:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231416AbiH3RXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:23:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0009DF7B0D;
-        Tue, 30 Aug 2022 10:21:17 -0700 (PDT)
+        with ESMTP id S231443AbiH3RXa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 13:23:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FA5E12F125;
+        Tue, 30 Aug 2022 10:21:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2005E61798;
-        Tue, 30 Aug 2022 17:21:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E0CAC43140;
-        Tue, 30 Aug 2022 17:21:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B3BBB81D0C;
+        Tue, 30 Aug 2022 17:21:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35193C433B5;
+        Tue, 30 Aug 2022 17:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661880075;
-        bh=ZkrTeypSmERrNFe/JiRyKHiLqOClFRiNWGCIBvDj6WQ=;
+        s=k20201202; t=1661880089;
+        bh=5MbtQP/uBiDAzlP/MQTmHh2C6T6vAfc4ERxjYaKaQWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0Y/7I1fW3lzL1OMnAL9MWosdw4ub5ANUd7sq0RRd4QQTML33ovO9iOq6IcC6xXeb
-         2XIVj7InCcA5dV4vRXEwtqZ+ZVHpruaaAVOIRdPz3myILHtQKI8uc9W8LssZhbgLvI
-         gP0ZMSM0m5Mzqb9PTlTRHkWCPqpjE5X8thYqZ5AhWmA343rZbremPW6k9eSFuEGThL
-         vvFpKnS78389ESGltKhMMlJ9xlEzWngH0e1v3reKQfwViz0/HGmQTfl9p/rZq8TdpH
-         HKUoSTm9sXs0P7UgGmJCL7bcUMO0vhlObJiHikCCpxqQv3U722yNr3n1dM6rHOmi+S
-         tmdN6k+swtt+Q==
+        b=t578XEnAzSdcg6KGrqD89E6tNZsoFOPOqPVjepen0DzVhEGDxbaIJRjyBj1r8BTGo
+         dbg9+r5zTFgckZlXJUhwLW0LV5i/ww0gvNkAjIniVB9uHhieyR4M3B8nvMFsdcUTaf
+         HV4D2sBfoD5GTv6O3wUBcy2nFbOZ/M6Y/LoaTJpGwWxhhd8fPPBgfNr4zfV/iV9Gtm
+         AgkwUEmCqwjZDjTOE0RbIltVElH786feyMOG3BpSM7AXCjs6/QvrdvpgHLoFpAgqH+
+         tbN2V6N43Sltl8oBlH+vQjI2UgcStYSgcM1vDe1KYkf8GSvxPKdrJhPn5wiUIP3CiE
+         NCy9TFBQPH6TA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Michael Matz <matz@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, jpoimboe@kernel.org, brijesh.singh@amd.com,
-        michael.roth@amd.com, venu.busireddy@oracle.com,
-        thomas.lendacky@amd.com, Tianyu.Lan@microsoft.com,
-        kirill@shutemov.name, sterritt@google.com
-Subject: [PATCH AUTOSEL 5.19 31/33] x86/sev: Mark snp_abort() noreturn
-Date:   Tue, 30 Aug 2022 13:18:22 -0400
-Message-Id: <20220830171825.580603-31-sashal@kernel.org>
+Cc:     Tim Huang <tim.huang@amd.com>, Yifan Zhang <yifan1.zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        Hawking.Zhang@amd.com, ray.huang@amd.com, Jack.Xiao@amd.com,
+        Joseph.Greathouse@amd.com, Likun.Gao@amd.com, evan.quan@amd.com,
+        dan.carpenter@oracle.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 32/33] drm/amdgpu: add sdma instance check for gfx11 CGCG
+Date:   Tue, 30 Aug 2022 13:18:23 -0400
+Message-Id: <20220830171825.580603-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220830171825.580603-1-sashal@kernel.org>
 References: <20220830171825.580603-1-sashal@kernel.org>
@@ -61,113 +61,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Tim Huang <tim.huang@amd.com>
 
-[ Upstream commit c93c296fff6b369a7115916145047c8a3db6e27f ]
+[ Upstream commit 00047c3d967d7ef8adf8bac3c3579294a3bc0bb1 ]
 
-Mark both the function prototype and definition as noreturn in order to
-prevent the compiler from doing transformations which confuse objtool
-like so:
+For some ASICs, like GFX IP v11.0.1, only have one SDMA instance,
+so not need to configure SDMA1_RLC_CGCG_CTRL for this case.
 
-  vmlinux.o: warning: objtool: sme_enable+0x71: unreachable instruction
-
-This triggers with gcc-12.
-
-Add it and sev_es_terminate() to the objtool noreturn tracking array
-too. Sort it while at it.
-
-Suggested-by: Michael Matz <matz@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220824152420.20547-1-bp@alien8.de
+Signed-off-by: Tim Huang <tim.huang@amd.com>
+Reviewed-by: Yifan Zhang <yifan1.zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/sev.h |  2 +-
- arch/x86/kernel/sev.c      |  2 +-
- tools/objtool/check.c      | 34 ++++++++++++++++++----------------
- 3 files changed, 20 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/sev.h b/arch/x86/include/asm/sev.h
-index 4a23e52fe0ee1..ebc271bb6d8ed 100644
---- a/arch/x86/include/asm/sev.h
-+++ b/arch/x86/include/asm/sev.h
-@@ -195,7 +195,7 @@ void snp_set_memory_shared(unsigned long vaddr, unsigned int npages);
- void snp_set_memory_private(unsigned long vaddr, unsigned int npages);
- void snp_set_wakeup_secondary_cpu(void);
- bool snp_init(struct boot_params *bp);
--void snp_abort(void);
-+void __init __noreturn snp_abort(void);
- int snp_issue_guest_request(u64 exit_code, struct snp_req_data *input, unsigned long *fw_err);
- #else
- static inline void sev_es_ist_enter(struct pt_regs *regs) { }
-diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 63dc626627a03..ca4a94c7f7f76 100644
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -2100,7 +2100,7 @@ bool __init snp_init(struct boot_params *bp)
- 	return true;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
+index a4a6751b1e449..30998ac47707c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
+@@ -5090,9 +5090,12 @@ static void gfx_v11_0_update_coarse_grain_clock_gating(struct amdgpu_device *ade
+ 		data = REG_SET_FIELD(data, SDMA0_RLC_CGCG_CTRL, CGCG_INT_ENABLE, 1);
+ 		WREG32_SOC15(GC, 0, regSDMA0_RLC_CGCG_CTRL, data);
+ 
+-		data = RREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL);
+-		data = REG_SET_FIELD(data, SDMA1_RLC_CGCG_CTRL, CGCG_INT_ENABLE, 1);
+-		WREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL, data);
++		/* Some ASICs only have one SDMA instance, not need to configure SDMA1 */
++		if (adev->sdma.num_instances > 1) {
++			data = RREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL);
++			data = REG_SET_FIELD(data, SDMA1_RLC_CGCG_CTRL, CGCG_INT_ENABLE, 1);
++			WREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL, data);
++		}
+ 	} else {
+ 		/* Program RLC_CGCG_CGLS_CTRL */
+ 		def = data = RREG32_SOC15(GC, 0, regRLC_CGCG_CGLS_CTRL);
+@@ -5121,9 +5124,12 @@ static void gfx_v11_0_update_coarse_grain_clock_gating(struct amdgpu_device *ade
+ 		data &= ~SDMA0_RLC_CGCG_CTRL__CGCG_INT_ENABLE_MASK;
+ 		WREG32_SOC15(GC, 0, regSDMA0_RLC_CGCG_CTRL, data);
+ 
+-		data = RREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL);
+-		data &= ~SDMA1_RLC_CGCG_CTRL__CGCG_INT_ENABLE_MASK;
+-		WREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL, data);
++		/* Some ASICs only have one SDMA instance, not need to configure SDMA1 */
++		if (adev->sdma.num_instances > 1) {
++			data = RREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL);
++			data &= ~SDMA1_RLC_CGCG_CTRL__CGCG_INT_ENABLE_MASK;
++			WREG32_SOC15(GC, 0, regSDMA1_RLC_CGCG_CTRL, data);
++		}
+ 	}
  }
  
--void __init snp_abort(void)
-+void __init __noreturn snp_abort(void)
- {
- 	sev_es_terminate(SEV_TERM_SET_GEN, GHCB_SNP_UNSUPPORTED);
- }
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 31c719f99f66e..5d87e0b0d85f9 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -162,32 +162,34 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
- 
- 	/*
- 	 * Unfortunately these have to be hard coded because the noreturn
--	 * attribute isn't provided in ELF data.
-+	 * attribute isn't provided in ELF data. Keep 'em sorted.
- 	 */
- 	static const char * const global_noreturns[] = {
-+		"__invalid_creds",
-+		"__module_put_and_kthread_exit",
-+		"__reiserfs_panic",
- 		"__stack_chk_fail",
--		"panic",
-+		"__ubsan_handle_builtin_unreachable",
-+		"cpu_bringup_and_idle",
-+		"cpu_startup_entry",
- 		"do_exit",
-+		"do_group_exit",
- 		"do_task_dead",
--		"kthread_exit",
--		"make_task_dead",
--		"__module_put_and_kthread_exit",
-+		"ex_handler_msr_mce",
-+		"fortify_panic",
- 		"kthread_complete_and_exit",
--		"__reiserfs_panic",
-+		"kthread_exit",
-+		"kunit_try_catch_throw",
- 		"lbug_with_loc",
--		"fortify_panic",
--		"usercopy_abort",
- 		"machine_real_restart",
-+		"make_task_dead",
-+		"panic",
- 		"rewind_stack_and_make_dead",
--		"kunit_try_catch_throw",
--		"xen_start_kernel",
--		"cpu_bringup_and_idle",
--		"do_group_exit",
-+		"sev_es_terminate",
-+		"snp_abort",
- 		"stop_this_cpu",
--		"__invalid_creds",
--		"cpu_startup_entry",
--		"__ubsan_handle_builtin_unreachable",
--		"ex_handler_msr_mce",
-+		"usercopy_abort",
-+		"xen_start_kernel",
- 	};
- 
- 	if (!func)
 -- 
 2.35.1
 
