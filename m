@@ -2,159 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 407875A877A
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 22:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85DAC5A878B
+	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 22:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229746AbiHaUVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Aug 2022 16:21:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52814 "EHLO
+        id S229498AbiHaUbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Aug 2022 16:31:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbiHaUVl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 16:21:41 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE0BED86D0;
-        Wed, 31 Aug 2022 13:21:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=QOtbQ4yJveAuBSbPqKAD8fBOR2UFCoCezNEyy822MA8=; b=RWTXs0S5NMPiMNm3DzReyR7HIH
-        9BSyfgq0C/oLwpvxRj13cxPUljrsp99FTOgX4LJ9Q4dYT5K4DR26WlG975PZfHACip6e9tSAK0LOe
-        nYDaaKusx6MpomBtWMUVifptUtGEWjvkJOg/oNgQL5d6/Q279mMkefo3UYeQNX/ZUmEcOCThZhvaU
-        Eaga1uavqxmdS/8FLOeuCh5bvx9F/89dANjNuxsK8OIMcpQbHTfiGHrhpV1Mob2jXFWi/V4/Rtlon
-        JOlC/lYHYdo5lmbxTa8muqT+o9DnpVUToNhl4SmJvq69owrXnSUgK3jr53GBpMGyhxlUiC//Ny4vJ
-        kP9FZqBg==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:34026)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1oTUDN-0004ru-2y; Wed, 31 Aug 2022 21:21:33 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1oTUDJ-0002nh-Ke; Wed, 31 Aug 2022 21:21:29 +0100
-Date:   Wed, 31 Aug 2022 21:21:29 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "Isaac J. Manjarres" <isaacmanjarres@google.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
-        Guenter Roeck <linux@roeck-us.net>, kernel-team@android.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] driver core: Don't probe devices after
- bus_type.match() probe deferral
-Message-ID: <Yw/CyRFr1bYNlNGh@shell.armlinux.org.uk>
-References: <20220817184026.3468620-1-isaacmanjarres@google.com>
+        with ESMTP id S230078AbiHaUbO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 16:31:14 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A70ABDD777
+        for <stable@vger.kernel.org>; Wed, 31 Aug 2022 13:31:12 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id nc14so25750935ejc.4
+        for <stable@vger.kernel.org>; Wed, 31 Aug 2022 13:31:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=5sNXe7ttAzy6eFAgYbY4aDZhT4hUcOCsVcj/haerTok=;
+        b=AsITPviGKNvMGDW1yDKPFO+nSFNktYJXlUkfsrS4WTAjFewxA199SSwc07j443xpd/
+         2t6iiiWdfxz8lSX/sGzDHkgcW1IUNB7SSeCWpYV8Vz+UvC7uWap0RS+traWo7cXE22vl
+         9hd3S7Iv1DuTTuRWsXFtHoFwcmG82RHYcBG78kE8EFhCuioH6VM33TPL8MTwQoICwTO0
+         8nAYtR85rhYE280Jm+C3dOcEDHwBVpXpvCpVltHougyD7B1VzGJ1xGIBrkQdMIu/E0lw
+         TqHPiSc2afSkTSJO54BdGdhe3hLLffYfhXeZKzbXnhgBWn3/dtnpnqwWNhxNwiqUwRyh
+         CJgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=5sNXe7ttAzy6eFAgYbY4aDZhT4hUcOCsVcj/haerTok=;
+        b=EgHledTaUYA+ehnrtYmpbvskU6FiiDnyo6HaoVFM7sy/zNHKMR85MzC2opfdGlNcsX
+         K6CjfxP4mPsT0xXkPamVRw7nKS3LA9OSywIbwqhZZMEao1l7wwYNZ7Txnjp/bVk5WunI
+         vUzbqwSCpEcK5kcsnBgABlZP54UvFcYOpqWyYr1Yxo165G+8NLdhyqQlC+PduwUr5dBh
+         JnW8pvbpGl0tCSDNxzpaI0607C+nr4Qgy0lbQBX+kTIdW94nSWz7qxFbKFGSw9q/u2vp
+         7ahsNwPepQK8zASL0PVDlFAl35+qk8B/zhf2CzUNNVqWGimGZnM/u2IvLw6HOy6eoHNO
+         /rRA==
+X-Gm-Message-State: ACgBeo1TFi1WvXiQAbeyV/bwPDF+lRNSwDW8CAZstIcwb+EnyjQItvbl
+        9uXYYP+dGLyL7iVSpZxp+4K1hma5EaR7zA==
+X-Google-Smtp-Source: AA6agR4ikYz1WQ1HMk7oUYjBnR5JZAVldTWe43KwtX5nFKhZYEbd0mpW8MWKuh0US2dTl8S9vUO3IQ==
+X-Received: by 2002:a17:907:6e18:b0:73d:63d9:945f with SMTP id sd24-20020a1709076e1800b0073d63d9945fmr21633523ejc.12.1661977871013;
+        Wed, 31 Aug 2022 13:31:11 -0700 (PDT)
+Received: from localhost.localdomain (109-178-192-105.pat.ren.cosmote.net. [109.178.192.105])
+        by smtp.gmail.com with ESMTPSA id ee15-20020a056402290f00b00445d760fc69sm126342edb.50.2022.08.31.13.31.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 31 Aug 2022 13:31:10 -0700 (PDT)
+From:   Michael Bestas <mkbestas@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Hsin-Yi Wang <hsinyi@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Bestas <mkbestas@gmail.com>
+Subject: [PATCH] arm64: map FDT as RW for early_init_dt_scan()
+Date:   Wed, 31 Aug 2022 23:30:38 +0300
+Message-Id: <20220831203038.1677630-1-mkbestas@gmail.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220817184026.3468620-1-isaacmanjarres@google.com>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg,
+From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-Are you happy for me to pick up this patch as part of the fixes for the
-AMBA changes? The original patch that it is fixing is a patch that was
-part of a series that was merged through my tree.
+commit e112b032a72c78f15d0c803c5dc6be444c2e6c66 upstream.
 
-It's fixing a problem that has been noticed by several people and the
-fix is now a few weeks old.
+Currently in arm64, FDT is mapped to RO before it's passed to
+early_init_dt_scan(). However, there might be some codes
+(eg. commit "fdt: add support for rng-seed") that need to modify FDT
+during init. Map FDT to RO after early fixups are done.
 
-Thanks.
+Cc: stable@vger.kernel.org # 4.19
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+[mkbestas: fixed trivial conflicts for 4.19 backport]
+Signed-off-by: Michael Bestas <mkbestas@gmail.com>
+---
+ arch/arm64/include/asm/mmu.h |  2 +-
+ arch/arm64/kernel/kaslr.c    |  5 +----
+ arch/arm64/kernel/setup.c    |  9 ++++++++-
+ arch/arm64/mm/mmu.c          | 15 +--------------
+ 4 files changed, 11 insertions(+), 20 deletions(-)
 
-On Wed, Aug 17, 2022 at 11:40:26AM -0700, Isaac J. Manjarres wrote:
-> Both __device_attach_driver() and __driver_attach() check the return
-> code of the bus_type.match() function to see if the device needs to be
-> added to the deferred probe list. After adding the device to the list,
-> the logic attempts to bind the device to the driver anyway, as if the
-> device had matched with the driver, which is not correct.
-> 
-> If __device_attach_driver() detects that the device in question is not
-> ready to match with a driver on the bus, then it doesn't make sense for
-> the device to attempt to bind with the current driver or continue
-> attempting to match with any of the other drivers on the bus. So, update
-> the logic in __device_attach_driver() to reflect this.
-> 
-> If __driver_attach() detects that a driver tried to match with a device
-> that is not ready to match yet, then the driver should not attempt to bind
-> with the device. However, the driver can still attempt to match and bind
-> with other devices on the bus, as drivers can be bound to multiple
-> devices. So, update the logic in __driver_attach() to reflect this.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Saravana Kannan <saravanak@google.com>
-> Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
-> Reviewed-by: Saravana Kannan <saravanak@google.com>
-> ---
->  drivers/base/dd.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> v1 -> v2:
-> - Fixed the logic in __driver_attach() to allow a driver to continue
->   attempting to match and bind with devices in case of any error, not
->   just probe deferral.
-> 
-> v2 -> v3:
-> - Restored the patch back to v1.
-> - Added Guenter's Tested-by tag.
-> - Added Saravana's Reviewed-by tag.
-> - Cc'd stable@vger.kernel.org
-> 
-> Greg,
-> 
-> This is the final version of this patch. Can you please pick this up?
-> 
-> Thanks,
-> Isaac
-> 
-> diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-> index 70f79fc71539..90b31fb141a5 100644
-> --- a/drivers/base/dd.c
-> +++ b/drivers/base/dd.c
-> @@ -881,6 +881,11 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
->  		dev_dbg(dev, "Device match requests probe deferral\n");
->  		dev->can_match = true;
->  		driver_deferred_probe_add(dev);
-> +		/*
-> +		 * Device can't match with a driver right now, so don't attempt
-> +		 * to match or bind with other drivers on the bus.
-> +		 */
-> +		return ret;
->  	} else if (ret < 0) {
->  		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
->  		return ret;
-> @@ -1120,6 +1125,11 @@ static int __driver_attach(struct device *dev, void *data)
->  		dev_dbg(dev, "Device match requests probe deferral\n");
->  		dev->can_match = true;
->  		driver_deferred_probe_add(dev);
-> +		/*
-> +		 * Driver could not match with device, but may match with
-> +		 * another device on the bus.
-> +		 */
-> +		return 0;
->  	} else if (ret < 0) {
->  		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
->  		return ret;
-> -- 
-> 2.37.1.595.g718a3a8f04-goog
-> 
-> 
-
+diff --git a/arch/arm64/include/asm/mmu.h b/arch/arm64/include/asm/mmu.h
+index b37d185e0e841c..3dda6ff32efd7f 100644
+--- a/arch/arm64/include/asm/mmu.h
++++ b/arch/arm64/include/asm/mmu.h
+@@ -98,7 +98,7 @@ extern void init_mem_pgprot(void);
+ extern void create_pgd_mapping(struct mm_struct *mm, phys_addr_t phys,
+ 			       unsigned long virt, phys_addr_t size,
+ 			       pgprot_t prot, bool page_mappings_only);
+-extern void *fixmap_remap_fdt(phys_addr_t dt_phys);
++extern void *fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot);
+ extern void mark_linear_text_alias_ro(void);
+ 
+ #endif	/* !__ASSEMBLY__ */
+diff --git a/arch/arm64/kernel/kaslr.c b/arch/arm64/kernel/kaslr.c
+index 06941c1fe418e0..92bb53460401c0 100644
+--- a/arch/arm64/kernel/kaslr.c
++++ b/arch/arm64/kernel/kaslr.c
+@@ -65,9 +65,6 @@ static __init const u8 *kaslr_get_cmdline(void *fdt)
+ 	return default_cmdline;
+ }
+ 
+-extern void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size,
+-				       pgprot_t prot);
+-
+ /*
+  * This routine will be executed with the kernel mapped at its default virtual
+  * address, and if it returns successfully, the kernel will be remapped, and
+@@ -96,7 +93,7 @@ u64 __init kaslr_early_init(u64 dt_phys)
+ 	 * attempt at mapping the FDT in setup_machine()
+ 	 */
+ 	early_fixmap_init();
+-	fdt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
++	fdt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
+ 	if (!fdt)
+ 		return 0;
+ 
+diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
+index b3354ff94e7984..43e9786f1d6044 100644
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -183,9 +183,13 @@ static void __init smp_build_mpidr_hash(void)
+ 
+ static void __init setup_machine_fdt(phys_addr_t dt_phys)
+ {
+-	void *dt_virt = fixmap_remap_fdt(dt_phys);
++	int size;
++	void *dt_virt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
+ 	const char *name;
+ 
++	if (dt_virt)
++		memblock_reserve(dt_phys, size);
++
+ 	if (!dt_virt || !early_init_dt_scan(dt_virt)) {
+ 		pr_crit("\n"
+ 			"Error: invalid device tree blob at physical address %pa (virtual address 0x%p)\n"
+@@ -197,6 +201,9 @@ static void __init setup_machine_fdt(phys_addr_t dt_phys)
+ 			cpu_relax();
+ 	}
+ 
++	/* Early fixups are done, map the FDT as read-only now */
++	fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
++
+ 	name = of_flat_dt_get_machine_name();
+ 	if (!name)
+ 		return;
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index b0a83dbed2dc44..7042fbb6d92bac 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -859,7 +859,7 @@ void __set_fixmap(enum fixed_addresses idx,
+ 	}
+ }
+ 
+-void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
++void *__init fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
+ {
+ 	const u64 dt_virt_base = __fix_to_virt(FIX_FDT);
+ 	int offset;
+@@ -912,19 +912,6 @@ void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
+ 	return dt_virt;
+ }
+ 
+-void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
+-{
+-	void *dt_virt;
+-	int size;
+-
+-	dt_virt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
+-	if (!dt_virt)
+-		return NULL;
+-
+-	memblock_reserve(dt_phys, size);
+-	return dt_virt;
+-}
+-
+ int __init arch_ioremap_pud_supported(void)
+ {
+ 	/*
 -- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+2.37.3
+
