@@ -2,107 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A0485A7926
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 10:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A3695A7940
+	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 10:43:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbiHaIg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Aug 2022 04:36:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
+        id S229449AbiHaIny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Aug 2022 04:43:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231281AbiHaIg0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 04:36:26 -0400
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54958A6C04;
-        Wed, 31 Aug 2022 01:36:22 -0700 (PDT)
-Received: by mail-ed1-f43.google.com with SMTP id e18so9869016edj.3;
-        Wed, 31 Aug 2022 01:36:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=eoBdlz3UxAt4OJMWcqBIsQb2pG1LV+gZCLEcEgMHwN4=;
-        b=07XtgExLMSqvbaO/CTrJODH9vY4cjThLx5llHCsW0prW/5zTTzEITdwfFG68pJB+VK
-         Y0sde8gjhOuuGNtwcyw865txY5cI6SPzvzj+B5+pbxKtvwTq2J1VPQ2evOA72va30sJv
-         2UsJY89RverWKdUD1j/7n/g5s7/m9zCOe5F9FYrB3+j7R+3WerQLjmUCnTEjDJyzGhsc
-         nNHBs/UkozvZIk7zHHPkDlTSTwlSA8JJ3kGD146LLwKMWrSO1xm3TIc1HapyaVnkP44F
-         fZcSULAaFaUGtXUzufi9Aa0Qmm4SGq+3GytGOq05V7Gw71TYnuNWV+Kd2e/J+IUHM2oM
-         UzBg==
-X-Gm-Message-State: ACgBeo2/9aP8U8f1aF8Ek4ggpqhXtI/4FfUglfKbiz7Mjp7AWxTuTXOF
-        3U5e34L2vMLm5wn3yUTj/EtZv6m6UU6zjg==
-X-Google-Smtp-Source: AA6agR6cmMBIoZNnMIkivEC0hdZ5VeAguL/55mnTtG0s0HBAXx2Tpj/+yrYjFOdr5DhXEOMt2gLDSQ==
-X-Received: by 2002:a05:6402:1911:b0:448:da24:5f23 with SMTP id e17-20020a056402191100b00448da245f23mr5020370edz.61.1661934980602;
-        Wed, 31 Aug 2022 01:36:20 -0700 (PDT)
-Received: from ?IPV6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
-        by smtp.gmail.com with ESMTPSA id h7-20020a17090634c700b0073dde62713asm6786756ejb.89.2022.08.31.01.36.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 31 Aug 2022 01:36:20 -0700 (PDT)
-Message-ID: <863b4190-9b38-ed5a-0a18-74505702da21@kernel.org>
-Date:   Wed, 31 Aug 2022 10:36:18 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
+        with ESMTP id S231533AbiHaInw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 04:43:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D51F6B654D;
+        Wed, 31 Aug 2022 01:43:51 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7187C619FE;
+        Wed, 31 Aug 2022 08:43:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B32C433D6;
+        Wed, 31 Aug 2022 08:43:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1661935430;
+        bh=dm+pvJSM/8LOzQK4c/qlkqG81fhAs6PnuK9pqgoP4XU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ldbpOVcqHGil33wvOXJaontPgzI7+5Q3/7q+PyDzfjzndsSgw+y0Z2O1/AsVM5Ci9
+         UUQ7pZScIFhSn9hjOzb2F94fBZYBGkWeUNtghnPTE2ksvnIUD+j013IFUPmajOp9Ei
+         4bXCzVdd63xahb1Bn1wk+tn5+SIFHXlXe+JG/QhUP/hVL1gVOtbSnpKZRDoQrr+70B
+         IoCE9ljyB52RJTjno+gWYY+n8lw/GmqG0h+EzWI1rJgbVIQ2Le0Rq9/hcrpgqXTZIJ
+         FS2wG4bvsdiQSiI6gdMQRWSkjAupz0qA2rLdv6AYd6nkVmQuUZSpLWIcOkavtQlo6K
+         hO0dXdJcbn7CQ==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1oTJK7-0000nY-6Q; Wed, 31 Aug 2022 10:43:47 +0200
+Date:   Wed, 31 Aug 2022 10:43:47 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     Jonathan Woithe <jwoithe@just42.net>, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Subject: Re: [PATCH 1/2] USB: serial: ch341: fix lost character on LCR updates
-Content-Language: en-US
-To:     Johan Hovold <johan@kernel.org>,
-        Jonathan Woithe <jwoithe@just42.net>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
+Message-ID: <Yw8fQz2amdKKYNvS@hovoldconsulting.com>
 References: <20220831081525.30557-1-johan@kernel.org>
  <20220831081525.30557-2-johan@kernel.org>
-From:   Jiri Slaby <jirislaby@kernel.org>
-In-Reply-To: <20220831081525.30557-2-johan@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+ <863b4190-9b38-ed5a-0a18-74505702da21@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <863b4190-9b38-ed5a-0a18-74505702da21@kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 31. 08. 22, 10:15, Johan Hovold wrote:
-> Disable LCR updates for pre-0x30 devices which use a different (unknown)
-> protocol for line control and where the current register write causes
-> the next received character to be lost.
+On Wed, Aug 31, 2022 at 10:36:18AM +0200, Jiri Slaby wrote:
+> On 31. 08. 22, 10:15, Johan Hovold wrote:
+> > Disable LCR updates for pre-0x30 devices which use a different (unknown)
+> > protocol for line control and where the current register write causes
+> > the next received character to be lost.
+> > 
+> > Note that updating LCR using the INIT command has no effect on these
+> > devices either.
+> > 
+> > Reported-by: Jonathan Woithe <jwoithe@just42.net>
+> > Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
+> > Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
+> > Fixes: 55fa15b5987d ("USB: serial: ch341: fix baud rate and line-control handling")
+> > Cc: stable@vger.kernel.org      # 4.10
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > ---
+> >   drivers/usb/serial/ch341.c | 10 +++++++++-
+> >   1 file changed, 9 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
+> > index 2798fca71261..2bcce172355b 100644
+> > --- a/drivers/usb/serial/ch341.c
+> > +++ b/drivers/usb/serial/ch341.c
+> > @@ -97,7 +97,10 @@ struct ch341_private {
+> >   	u8 mcr;
+> >   	u8 msr;
+> >   	u8 lcr;
+> > +
+> >   	unsigned long quirks;
+> > +	u8 version;
 > 
-> Note that updating LCR using the INIT command has no effect on these
-> devices either.
-> 
-> Reported-by: Jonathan Woithe <jwoithe@just42.net>
-> Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
-> Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
-> Fixes: 55fa15b5987d ("USB: serial: ch341: fix baud rate and line-control handling")
-> Cc: stable@vger.kernel.org      # 4.10
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
->   drivers/usb/serial/ch341.c | 10 +++++++++-
->   1 file changed, 9 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
-> index 2798fca71261..2bcce172355b 100644
-> --- a/drivers/usb/serial/ch341.c
-> +++ b/drivers/usb/serial/ch341.c
-> @@ -97,7 +97,10 @@ struct ch341_private {
->   	u8 mcr;
->   	u8 msr;
->   	u8 lcr;
-> +
->   	unsigned long quirks;
-> +	u8 version;
+> Could you move version above quirks? That would not create another 
+> 7-byte padding in here. Actually it would not make ch341_private larger 
+> on 64bit at all, if I am looking correctly.
 
-Could you move version above quirks? That would not create another 
-7-byte padding in here. Actually it would not make ch341_private larger 
-on 64bit at all, if I am looking correctly.
+No, I added it after quirks on purpose as it isn't protected by the
+spinlock and doesn't change during runtime like the shadow registers.
 
-Other than that, looks good.
+And I really don't care about saving 8 bytes on 64-bit. :)
 
-thanks,
--- 
-js
-suse labs
-
+Johan
