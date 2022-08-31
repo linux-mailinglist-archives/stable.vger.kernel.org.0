@@ -2,171 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1D185A74F6
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 06:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D06E5A7524
+	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 06:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231871AbiHaEXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Aug 2022 00:23:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42112 "EHLO
+        id S230039AbiHaEZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Aug 2022 00:25:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230350AbiHaEX1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 00:23:27 -0400
-X-Greylist: delayed 9861 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 30 Aug 2022 21:23:26 PDT
-Received: from dispatch1-us1.ppe-hosted.com (dispatch1-us1.ppe-hosted.com [67.231.154.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE142E4E;
-        Tue, 30 Aug 2022 21:23:26 -0700 (PDT)
-Received: from dispatch1-us1.ppe-hosted.com (localhost.localdomain [127.0.0.1])
-        by dispatch1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 70EC524B059;
-        Tue, 30 Aug 2022 22:16:28 +0000 (UTC)
-X-Virus-Scanned: Proofpoint Essentials engine
-Received: from mx1-us1.ppe-hosted.com (unknown [10.110.51.24])
-        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTPS id CD4B1A0068;
-        Tue, 30 Aug 2022 22:16:26 +0000 (UTC)
-Received: from mail3.candelatech.com (mail2.candelatech.com [208.74.158.173])
-        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 68CB63C007B;
-        Tue, 30 Aug 2022 22:16:25 +0000 (UTC)
-Received: from [192.168.100.195] (50-251-239-81-static.hfc.comcastbusiness.net [50.251.239.81])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail3.candelatech.com (Postfix) with ESMTPSA id 8DFE413C2B0;
-        Tue, 30 Aug 2022 15:16:24 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail3.candelatech.com 8DFE413C2B0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=candelatech.com;
-        s=default; t=1661897784;
-        bh=lSb6iPlm/e00kQHUQGYl6VDRSpB7b+OgWRMKI9nT3uU=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=CP3ZuQEG4SgFmdfJdIVeZc0bTNf4qlGF8he8eFS1a4zwosC7aG/QtHDE64dPnl7Kx
-         1p4iZp4zW85Wt1Ln6PXqCh7R5DSv+Ov5Zkp2zDGjC/9WFa5uwhRs1umjDp2r9cdZ33
-         ZwRzmX6mUxYi3CGyPC75afd2uHxfYR/7DgzMG08s=
-Subject: Re: [PATCH 5.4 182/389] PCI/portdrv: Dont disable AER reporting in
- get_port_device_capability()
-To:     =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bjorn@helgaas.com,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Stefan Roese <sr@denx.de>, Bjorn Helgaas <bhelgaas@google.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Yao Hongbo <yaohongbo@linux.alibaba.com>,
-        Naveen Naidu <naveennaidu479@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20220823080115.331990024@linuxfoundation.org>
- <20220823080123.228828362@linuxfoundation.org>
- <CABhMZUVycsyy76j2Z=K+C6S1fwtzKE1Lx2povXKfB80o9g0MtQ@mail.gmail.com>
- <YwXH/l37HaYQD66B@kroah.com>
- <47b775c5-57fa-5edf-b59e-8a9041ffbee7@candelatech.com>
- <20220830205832.g3lyysmgkarijkvj@pali>
- <00735f18-11f9-c6c6-4abf-002d378957df@candelatech.com>
- <20220830215532.6nnl6d4cfg55dmcl@pali>
-From:   Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-Message-ID: <370dee6c-919a-2f98-1404-a3feda14d1ba@candelatech.com>
-Date:   Tue, 30 Aug 2022 15:16:24 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        with ESMTP id S229999AbiHaEZX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 00:25:23 -0400
+Received: from mail.avm.de (mail.avm.de [IPv6:2001:bf0:244:244::119])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E8B2C115
+        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 21:25:19 -0700 (PDT)
+Received: from mail-auth.avm.de (unknown [IPv6:2001:bf0:244:244::71])
+        by mail.avm.de (Postfix) with ESMTPS;
+        Wed, 31 Aug 2022 06:17:24 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+        t=1661919445; bh=fTNE5yheTlNVUb1SrK+4cGHva+WU7TcblD8/24xMJs4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=WZx7TGMlHwWTzXxovw+obgW6D1laTqz3Ky1FORHxcJI3OMcBaS5AbbOm6lZXozRJ3
+         kk6pxgisJSuDrATetn4WD3YqyLIIPqprgF9XQKQxqxCnT15BJ7QACEjKYJVd8DseTm
+         Znou5F3RMxSjwBVhazNO0j5vCHrqVBMpDU8Quspo=
+Received: from buildd.core.avm.de (buildd-sv-01.avm.de [172.16.0.225])
+        by mail-auth.avm.de (Postfix) with ESMTPA id 52DE080491;
+        Wed, 31 Aug 2022 06:17:24 +0200 (CEST)
+Received: by buildd.core.avm.de (Postfix, from userid 1000)
+        id 44FF1181E38; Wed, 31 Aug 2022 06:17:24 +0200 (CEST)
+From:   Nicolas Schier <n.schier@avm.de>
+To:     stable@vger.kernel.org
+Cc:     Jing Leng <jleng@ambarella.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nicolas Schier <n.schier@avm.de>
+Subject: [PATCH 5.10/5.15] kbuild: Fix include path in scripts/Makefile.modpost
+Date:   Wed, 31 Aug 2022 06:17:19 +0200
+Message-Id: <20220831041719.1493107-1-n.schier@avm.de>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-In-Reply-To: <20220830215532.6nnl6d4cfg55dmcl@pali>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-MDID: 1661897787-3FcEtP5UB8oZ
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-purgate-ID: 149429::1661919444-8F3FE9DB-E56408CA/0/0
+X-purgate-type: clean
+X-purgate-size: 1584
+X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
+X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
+X-purgate: clean
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/30/22 2:55 PM, Pali Rohár wrote:
-> On Tuesday 30 August 2022 14:28:14 Ben Greear wrote:
->> On 8/30/22 1:58 PM, Pali Rohár wrote:
->>> On Tuesday 30 August 2022 13:47:48 Ben Greear wrote:
->>>> On 8/23/22 11:41 PM, Greg Kroah-Hartman wrote:
->>>>> On Tue, Aug 23, 2022 at 07:20:14AM -0500, Bjorn Helgaas wrote:
->>>>>> On Tue, Aug 23, 2022, 6:35 AM Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>>>>> wrote:
->>>>>>
->>>>>>> From: Stefan Roese <sr@denx.de>
->>>>>>>
->>>>>>> [ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
->>>>>>>
->>>>>>
->>>>>> There's an open regression related to this commit:
->>>>>>
->>>>>> https://bugzilla.kernel.org/show_bug.cgi?id=216373
->>>>>
->>>>> This is already in the following released stable kernels:
->>>>> 	5.10.137 5.15.61 5.18.18 5.19.2
->>>>>
->>>>> I'll go drop it from the 4.19 and 5.4 queues, but when this gets
->>>>> resolved in Linus's tree, make sure there's a cc: stable on the fix so
->>>>> that we know to backport it to the above branches as well.  Or at the
->>>>> least, a "Fixes:" tag.
->>>>
->>>> This is still in 5.19.5.  We saw some funny iwlwifi crashes in 5.19.3+
->>>> that we did not see in 5.19.0+.  I just bisected the scary looking AER errors to this
->>>> patch, though I do not know for certain if it causes the iwlwifi related crashes yet.
->>>>
->>>> In general, from reading the commit msg, this patch doesn't seem to be a great candidate
->>>> for stable in general.  Does it fix some important problem?
->>>>
->>>> In case it helps, here is example of what I see in dmesg.  The kernel crashes in iwlwifi
->>>> had to do with rx messages from the firmware, and some warnings lead me to believe that
->>>> pci messages were slow coming back and/or maybe duplicated.  So maybe this AER patch changes
->>>> timing or otherwise screws up the PCI adapter boards we use...
->>>
->>>   From that log I have feeling that issue is in that intel wifi card and
->>> it was there also before that commit. Card is crashing (or something
->>> other happens on PCIe bus) and because kernel had disabled Error
->>> Reporting for this card, nobody spotted any issue. And that commit just
->>> opened eye to kernel to see those errors.
->>>
->>> I think this issue should be reported to intel wifi card developers,
->>> maybe they comment it, why card is reporting errors.
->>
->> My main concern is not that AER messages started showing up, but that there
->> started being kernel NPE and WARNINGS showing up sometime after 5.19.0.
->>
->> Possibly this AER thing is mis-direction and the real bug is elsewhere,
->> but since the bugzilla also indicated (different) driver crashes, then
->> I am suspicious this changes things more significantly, at least in a subset
->> of hardware out there.
-> 
-> Yea, of course, this is something needed to investigate.
-> 
-> Anyway, do you see driver crashes? Or just these AER errors? And are
-> your PCIe cards working, or after seeing these messages in dmesg they
-> stopped working? It is needed to know if you are just spammed by tons of
-> lines in dmesg and otherwise everything works. Or if after AER errors
-> your PCIe devices stop working and rebooting system is required.
+From: Jing Leng <jleng@ambarella.com>
 
-We did see higher frequency of weird crashes (accessing null-ish pointer) after upgrading to 5.19.3,
-I am building kernel now with 5.19.5 and that AER patch reverted.  We will
-test to see if that solves the crashes.
+commit 23a0cb8e3225122496bfa79172005c587c2d64bf upstream.
 
->> Also, any idea what this error in my logs is actually indicating?
-> 
-> Your PCIe controller received non-fatal, but uncorrected error. There is
-> also indication of Unsupported Request Completion Status. Unsupported
-> Request is generated by PCIe device when controller / host / kernel try
-> to do something which is not supported by device; pretty generic error.
-> PCIe base spec describe lot of scenarios when card should return this
-> error. Maybe some more detailed information are in TLP Header hexdump,
-> but I cannot decode it now.
-> 
-> Basically it is PCIe card driver who could know how fatal it is that
-> issue and how to recover from it. But as you can see intel wifi driver
-> does not implement that callback.
+When building an external module, if users don't need to separate the
+compilation output and source code, they run the following command:
+"make -C $(LINUX_SRC_DIR) M=$(PWD)". At this point, "$(KBUILD_EXTMOD)"
+and "$(src)" are the same.
 
-Odds of me getting a good answer on that are pretty small.
+If they need to separate them, they run "make -C $(KERNEL_SRC_DIR)
+O=$(KERNEL_OUT_DIR) M=$(OUT_DIR) src=$(PWD)". Before running the
+command, they need to copy "Kbuild" or "Makefile" to "$(OUT_DIR)" to
+prevent compilation failure.
 
-Thanks,
-Ben
+So the kernel should change the included path to avoid the copy operation.
 
+Signed-off-by: Jing Leng <jleng@ambarella.com>
+[masahiro: I do not think "M=$(OUT_DIR) src=$(PWD)" is the official way,
+but this patch is a nice clean up anyway.]
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Nicolas Schier <n.schier@avm.de>
+---
+ scripts/Makefile.modpost | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
+index 12a87be0fb44..42154b6df652 100644
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -87,8 +87,7 @@ obj := $(KBUILD_EXTMOD)
+ src := $(obj)
+ 
+ # Include the module's Makefile to find KBUILD_EXTRA_SYMBOLS
+-include $(if $(wildcard $(KBUILD_EXTMOD)/Kbuild), \
+-             $(KBUILD_EXTMOD)/Kbuild, $(KBUILD_EXTMOD)/Makefile)
++include $(if $(wildcard $(src)/Kbuild), $(src)/Kbuild, $(src)/Makefile)
+ 
+ # modpost option for external modules
+ MODPOST += -e
 -- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+2.37.2
 
