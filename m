@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E58D75A8851
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 23:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EEB15A88E2
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 00:17:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229807AbiHaVp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Aug 2022 17:45:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52500 "EHLO
+        id S229996AbiHaWR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Aug 2022 18:17:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229607AbiHaVp5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 17:45:57 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0D3A61DD
-        for <stable@vger.kernel.org>; Wed, 31 Aug 2022 14:45:57 -0700 (PDT)
+        with ESMTP id S229567AbiHaWR1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 18:17:27 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB8AE992C
+        for <stable@vger.kernel.org>; Wed, 31 Aug 2022 15:17:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1661982357; x=1693518357;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=CgfZOrTzypTOkFjDig+t1xZYrGOLozxvd1kz/gJ6/lU=;
-  b=Hj6JGnfbbF6jET4TESDS3ZNYR7JBlj4eE6gJMrTO1wj18IgE4CDWIcSo
-   ynTTbjG6tJrEf3xZeYsURZ6SV22Dv11pgJmNOm5xIBft8CH+/XXh8aqb6
-   1mftEdkoxAuL4EvWjaKrnLFgPsqbfxGteGwj/inyYjSHGP4f6OO12Ifp0
-   HULdFuASQwzySFn4qRr+Ur7GKpNuyFOdPEKhbk1OUnOsmEVxGgMoFxaaH
-   RefiDNaxQEqEljm/2Q76B+SrVZTfCWt4aHcv1MZWtw460gHK7gDtytusy
-   Fs/tKmxZXrYhQksvHsBxznhZBWFYTn51n/XmJ+e8wME3NcJxjIq/E4cbB
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10456"; a="275953296"
+  t=1661984247; x=1693520247;
+  h=date:message-id:from:to:cc:subject:in-reply-to:
+   references:mime-version;
+  bh=jKSmkrqHeadkRgWAwLgFLVWjEER1EW8V8CsqcOFO5Sk=;
+  b=dWaGtHz/YohYAOTZRWOJo6vLYUyqq4dMULvzaaK89gl+xYydu2iS2xB/
+   2T+C/VsKpjV729BwnDzukUgzFoIyXmpv0kpSUn0N3f2mROZjrcbASsL8u
+   kIsJcnKZX/LVsmuXG4tGr3pJalPRz1klgGY8BhB3RghBO6SzZ75ZVR/Az
+   zegSr87EVcA919E13YjpwGhKUC2tUn8E96m1ltOTJ0uajGSRp1wANFEQW
+   Up/DaUal5kpL1cI8XsKikUqHCS9aHN2Sil4g2l1p3lDOooE5LOzDXXpCZ
+   4U488qkygnGGA7VTXRxoeNhggH2e5immzCm1t3Ruy79L8PS/CDriy0Glc
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10456"; a="293134235"
 X-IronPort-AV: E=Sophos;i="5.93,279,1654585200"; 
-   d="scan'208";a="275953296"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Aug 2022 14:45:41 -0700
+   d="scan'208";a="293134235"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Aug 2022 15:17:26 -0700
 X-IronPort-AV: E=Sophos;i="5.93,279,1654585200"; 
-   d="scan'208";a="673537277"
-Received: from rbabtiwa-mobl.amr.corp.intel.com (HELO rdvivi-mobl4.intel.com) ([10.255.32.165])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Aug 2022 14:45:40 -0700
-From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org,
-        Ashutosh Dixit <ashutosh.dixit@intel.com>,
+   d="scan'208";a="788005830"
+Received: from adixit-mobl.amr.corp.intel.com (HELO adixit-arch.intel.com) ([10.209.25.8])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Aug 2022 15:17:26 -0700
+Date:   Wed, 31 Aug 2022 15:17:26 -0700
+Message-ID: <87v8q8rrbd.wl-ashutosh.dixit@intel.com>
+From:   "Dixit, Ashutosh" <ashutosh.dixit@intel.com>
+To:     Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc:     <intel-gfx@lists.freedesktop.org>, <stable@vger.kernel.org>,
         Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>
-Subject: [PATCH] drm/i915/slpc: Let's fix the PCODE min freq table setup for SLPC
-Date:   Wed, 31 Aug 2022 17:45:38 -0400
-Message-Id: <20220831214538.143950-1-rodrigo.vivi@intel.com>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <874jxtz1e7.wl-ashutosh.dixit@intel.com>
-References: <874jxtz1e7.wl-ashutosh.dixit@intel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+Subject: Re: [PATCH] drm/i915/slpc: Let's fix the PCODE min freq table setup for SLPC
+In-Reply-To: <20220831214538.143950-1-rodrigo.vivi@intel.com>
+References: <874jxtz1e7.wl-ashutosh.dixit@intel.com>    <20220831214538.143950-1-rodrigo.vivi@intel.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?ISO-8859-4?Q?Goj=F2?=) APEL-LB/10.8 EasyPG/1.0.0
+ Emacs/28.1 (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,168 +60,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We need to inform PCODE of a desired ring frequencies so PCODE update
-the memory frequencies to us. rps->min_freq and rps->max_freq are the
-frequencies used in that request. However they were unset when SLPC was
-enabled and PCODE never updated the memory freq.
+On Wed, 31 Aug 2022 14:45:38 -0700, Rodrigo Vivi wrote:
+>
 
-v2 (as Suggested by Ashutosh): if SLPC is in use, let's pick the right
-   frequencies from the get_ia_constants instead of the fake init of
-   rps' min and max.
+Hi Rodrigo,
 
-v3: don't forget the max <= min return
+> We need to inform PCODE of a desired ring frequencies so PCODE update
+> the memory frequencies to us. rps->min_freq and rps->max_freq are the
+> frequencies used in that request. However they were unset when SLPC was
+> enabled and PCODE never updated the memory freq.
+>
+> v2 (as Suggested by Ashutosh): if SLPC is in use, let's pick the right
+>    frequencies from the get_ia_constants instead of the fake init of
+>    rps' min and max.
+>
+> v3: don't forget the max <= min return
+>
+> v4: Move all the freq conversion to intel_rps.c. And the max <= min
+>     check to where it belongs.
+>
+> v5: (Ashutosh) Fix old comment s/50 HZ/50 MHz and add a doc explaining
+>     the "raw format"
 
-v4: Move all the freq conversion to intel_rps.c. And the max <= min
-    check to where it belongs.
+I think we both agree that mostly the way this patch is written it is to
+add SLPC but not risk disturbing host turbo, specially old platforms
+(CHV/VLV/ILK and pre-Gen 6). Also these freq units (sometimes 16.67 MHz
+units, sometimes 50 MHz, sometime MHz) in different places in the driver
+and different product generations is hugely confusing to say the least. For
+old platform we don't really know what units the freq's are in, we only
+know intel_gpu_freq will magically convert freq's to MHz. In any case let's
+work with what we have.
 
-v5: (Ashutosh) Fix old comment s/50 HZ/50 MHz and add a doc explaining
-    the "raw format"
+> @@ -130,6 +123,12 @@ static void gen6_update_ring_freq(struct intel_llc *llc)
+>	if (!get_ia_constants(llc, &consts))
+>		return;
+>
+> +	/*
+> +	 * Although this is unlikely on any platform during initialization,
+> +	 * let's ensure we don't get accidentally into infinite loop
+> +	 */
+> +	if (consts.max_gpu_freq <= consts.min_gpu_freq)
+> +		return;
 
-Fixes: 7ba79a671568 ("drm/i915/guc/slpc: Gate Host RPS when SLPC is enabled")
-Cc: <stable@vger.kernel.org> # v5.15+
-Cc: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Tested-by: Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
----
- drivers/gpu/drm/i915/gt/intel_llc.c | 19 ++++++-----
- drivers/gpu/drm/i915/gt/intel_rps.c | 50 +++++++++++++++++++++++++++++
- drivers/gpu/drm/i915/gt/intel_rps.h |  2 ++
- 3 files changed, 61 insertions(+), 10 deletions(-)
+As I said I would remove reference to "infinite loop", I am not seeing any
+infinite loop, maybe just delete the comment.
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_llc.c b/drivers/gpu/drm/i915/gt/intel_llc.c
-index 14fe65812e42..1d19c073ba2e 100644
---- a/drivers/gpu/drm/i915/gt/intel_llc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_llc.c
-@@ -12,6 +12,7 @@
- #include "intel_llc.h"
- #include "intel_mchbar_regs.h"
- #include "intel_pcode.h"
-+#include "intel_rps.h"
- 
- struct ia_constants {
- 	unsigned int min_gpu_freq;
-@@ -55,9 +56,6 @@ static bool get_ia_constants(struct intel_llc *llc,
- 	if (!HAS_LLC(i915) || IS_DGFX(i915))
- 		return false;
- 
--	if (rps->max_freq <= rps->min_freq)
--		return false;
--
- 	consts->max_ia_freq = cpu_max_MHz();
- 
- 	consts->min_ring_freq =
-@@ -65,13 +63,8 @@ static bool get_ia_constants(struct intel_llc *llc,
- 	/* convert DDR frequency from units of 266.6MHz to bandwidth */
- 	consts->min_ring_freq = mult_frac(consts->min_ring_freq, 8, 3);
- 
--	consts->min_gpu_freq = rps->min_freq;
--	consts->max_gpu_freq = rps->max_freq;
--	if (GRAPHICS_VER(i915) >= 9) {
--		/* Convert GT frequency to 50 HZ units */
--		consts->min_gpu_freq /= GEN9_FREQ_SCALER;
--		consts->max_gpu_freq /= GEN9_FREQ_SCALER;
--	}
-+	consts->min_gpu_freq = intel_rps_get_min_raw_freq(rps);
-+	consts->max_gpu_freq = intel_rps_get_max_raw_freq(rps);
- 
- 	return true;
- }
-@@ -130,6 +123,12 @@ static void gen6_update_ring_freq(struct intel_llc *llc)
- 	if (!get_ia_constants(llc, &consts))
- 		return;
- 
-+	/*
-+	 * Although this is unlikely on any platform during initialization,
-+	 * let's ensure we don't get accidentally into infinite loop
-+	 */
-+	if (consts.max_gpu_freq <= consts.min_gpu_freq)
-+		return;
- 	/*
- 	 * For each potential GPU frequency, load a ring frequency we'd like
- 	 * to use for memory access.  We do this by specifying the IA frequency
-diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
-index de794f5f8594..318bf913c507 100644
---- a/drivers/gpu/drm/i915/gt/intel_rps.c
-+++ b/drivers/gpu/drm/i915/gt/intel_rps.c
-@@ -2156,6 +2156,31 @@ u32 intel_rps_get_max_frequency(struct intel_rps *rps)
- 		return intel_gpu_freq(rps, rps->max_freq_softlimit);
- }
- 
-+/**
-+ * intel_rps_get_max_raw_freq - returns the max frequency in some raw format.
-+ * @rps: the intel_rps structure
-+ *
-+ * Returns the max frequency in a raw format. In newer platforms raw is in
-+ * units of 50 MHz.
-+ */
-+u32 intel_rps_get_max_raw_freq(struct intel_rps *rps)
-+{
-+	struct intel_guc_slpc *slpc = rps_to_slpc(rps);
-+	u32 freq;
-+
-+	if (rps_uses_slpc(rps)) {
-+		return DIV_ROUND_CLOSEST(slpc->rp0_freq,
-+					 GT_FREQUENCY_MULTIPLIER);
-+	} else {
-+		freq = rps->max_freq;
-+		if (GRAPHICS_VER(rps_to_i915(rps)) >= 9) {
-+			/* Convert GT frequency to 50 MHz units */
-+			freq /= GEN9_FREQ_SCALER;
-+		}
-+		return freq;
-+	}
-+}
-+
- u32 intel_rps_get_rp0_frequency(struct intel_rps *rps)
- {
- 	struct intel_guc_slpc *slpc = rps_to_slpc(rps);
-@@ -2244,6 +2269,31 @@ u32 intel_rps_get_min_frequency(struct intel_rps *rps)
- 		return intel_gpu_freq(rps, rps->min_freq_softlimit);
- }
- 
-+/**
-+ * intel_rps_get_min_raw_freq - returns the min frequency in some raw format.
-+ * @rps: the intel_rps structure
-+ *
-+ * Returns the min frequency in a raw format. In newer platforms raw is in
-+ * units of 50 MHz.
-+ */
-+u32 intel_rps_get_min_raw_freq(struct intel_rps *rps)
-+{
-+	struct intel_guc_slpc *slpc = rps_to_slpc(rps);
-+	u32 freq;
-+
-+	if (rps_uses_slpc(rps)) {
-+		return DIV_ROUND_CLOSEST(slpc->min_freq,
-+					 GT_FREQUENCY_MULTIPLIER);
-+	} else {
-+		freq = rps->min_freq;
-+		if (GRAPHICS_VER(rps_to_i915(rps)) >= 9) {
-+			/* Convert GT frequency to 50 MHz units */
-+			freq /= GEN9_FREQ_SCALER;
-+		}
-+		return freq;
-+	}
-+}
-+
- static int set_min_freq(struct intel_rps *rps, u32 val)
- {
- 	int ret = 0;
-diff --git a/drivers/gpu/drm/i915/gt/intel_rps.h b/drivers/gpu/drm/i915/gt/intel_rps.h
-index 8fe5a6bbdf66..64e4ef565e52 100644
---- a/drivers/gpu/drm/i915/gt/intel_rps.h
-+++ b/drivers/gpu/drm/i915/gt/intel_rps.h
-@@ -39,8 +39,10 @@ u32 intel_rps_get_cagf(struct intel_rps *rps, u32 rpstat1);
- u32 intel_rps_read_actual_frequency(struct intel_rps *rps);
- u32 intel_rps_get_requested_frequency(struct intel_rps *rps);
- u32 intel_rps_get_min_frequency(struct intel_rps *rps);
-+u32 intel_rps_get_min_raw_freq(struct intel_rps *rps);
- int intel_rps_set_min_frequency(struct intel_rps *rps, u32 val);
- u32 intel_rps_get_max_frequency(struct intel_rps *rps);
-+u32 intel_rps_get_max_raw_freq(struct intel_rps *rps);
- int intel_rps_set_max_frequency(struct intel_rps *rps, u32 val);
- u32 intel_rps_get_rp0_frequency(struct intel_rps *rps);
- u32 intel_rps_get_rp1_frequency(struct intel_rps *rps);
--- 
-2.37.2
+Also as I said I see the check above should be completely removed (so it is
+actually a pre-existing bug in the code). However since you want to carry
+it forward in order not to risk disturbing legacy behavior that's fine.
 
+Rest LGTM:
+
+Reviewed-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
