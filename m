@@ -2,100 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A3695A7940
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 10:43:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B54B35A7B7D
+	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 12:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbiHaIny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Aug 2022 04:43:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
+        id S229742AbiHaKjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Aug 2022 06:39:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231533AbiHaInw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 04:43:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D51F6B654D;
-        Wed, 31 Aug 2022 01:43:51 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7187C619FE;
-        Wed, 31 Aug 2022 08:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B32C433D6;
-        Wed, 31 Aug 2022 08:43:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661935430;
-        bh=dm+pvJSM/8LOzQK4c/qlkqG81fhAs6PnuK9pqgoP4XU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ldbpOVcqHGil33wvOXJaontPgzI7+5Q3/7q+PyDzfjzndsSgw+y0Z2O1/AsVM5Ci9
-         UUQ7pZScIFhSn9hjOzb2F94fBZYBGkWeUNtghnPTE2ksvnIUD+j013IFUPmajOp9Ei
-         4bXCzVdd63xahb1Bn1wk+tn5+SIFHXlXe+JG/QhUP/hVL1gVOtbSnpKZRDoQrr+70B
-         IoCE9ljyB52RJTjno+gWYY+n8lw/GmqG0h+EzWI1rJgbVIQ2Le0Rq9/hcrpgqXTZIJ
-         FS2wG4bvsdiQSiI6gdMQRWSkjAupz0qA2rLdv6AYd6nkVmQuUZSpLWIcOkavtQlo6K
-         hO0dXdJcbn7CQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1oTJK7-0000nY-6Q; Wed, 31 Aug 2022 10:43:47 +0200
-Date:   Wed, 31 Aug 2022 10:43:47 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Jiri Slaby <jirislaby@kernel.org>
-Cc:     Jonathan Woithe <jwoithe@just42.net>, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] USB: serial: ch341: fix lost character on LCR updates
-Message-ID: <Yw8fQz2amdKKYNvS@hovoldconsulting.com>
-References: <20220831081525.30557-1-johan@kernel.org>
- <20220831081525.30557-2-johan@kernel.org>
- <863b4190-9b38-ed5a-0a18-74505702da21@kernel.org>
+        with ESMTP id S229591AbiHaKjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 06:39:35 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3432B99CE;
+        Wed, 31 Aug 2022 03:39:34 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id q63so13141848pga.9;
+        Wed, 31 Aug 2022 03:39:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc;
+        bh=wOwY8itHt8uazUdkq94DxdZkg/SDR8+3Y3ahMNupefU=;
+        b=nfkSlY53P23F3x03xQrP4eu/bkO3JWBCJ9iyfQAQq4qWiJ7daGlQUwntPXT3PITeif
+         y16sWZr+GrhAwMAOp5gW3N+Y6jenP385CCPBdu6R6bGVsUmO7qCjntFspMzdVAeUMHfn
+         Z0zrxMhmvlEIC7omwrBrw26gwnStad+hRNooWWLyEcAbvsn8hfi6sIB4EhABufoYBNzh
+         qLUJv5asLy/ltrAvAF2bqRBELRXwW7psuNrQ92LDFMsX3u45Fr7kbKpQvKeuM5n74ZIi
+         Mdt0SC9Z4wxaCgmFJek8DCwm8z0lp1Uwwpa0bZvclZI0B9pEFIC6CkPEVPchF7HLOu7D
+         Xfng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
+        bh=wOwY8itHt8uazUdkq94DxdZkg/SDR8+3Y3ahMNupefU=;
+        b=rwt3b/Pjf1LoqPmQReim0VXyw2/BU8XqF3ZhGsoWSeQxlb5EdzdwUVhdeJUP6i1n3h
+         Q/GqSYkPeC1woGJ/pwVFX/0LnFesYZIGORkBHtMaquRpdeeXnmXOVskHd7nrHcgRQrUR
+         CpAt1llwBxucusRand4KH0FlAXQ2Svp+oTYJ5LKeHJXx6q1IRkIQxRCsNToccRN15NrG
+         E1ip/+C06gzYV9qWX2+s/rqFwiKWhDRP3S8deK8w6tOUKpgGVT9IMN43jOuyGWLDHl0T
+         TLK/dChDOQ5hbAexxU2eq8dumdv7vpOZaMrb2nvnRCHAJnn5DtcZXDXLAKzYcBzu/P2j
+         zQ/A==
+X-Gm-Message-State: ACgBeo2Hr7rnoLK1+BCZb4jYjTj3vLiUHPqtuuMWTsvaUBMOSFRnOUh1
+        7rTNCbumxCKRJMjZikY5Gl4=
+X-Google-Smtp-Source: AA6agR64P8U6wtu7FrDxOOS6p0FSnkiFLrwL6YILZB/NVOFoS+0twPVgULY7Qms4kloVOzZ9yLqIhw==
+X-Received: by 2002:a62:2503:0:b0:538:426a:af11 with SMTP id l3-20020a622503000000b00538426aaf11mr13608844pfl.22.1661942374066;
+        Wed, 31 Aug 2022 03:39:34 -0700 (PDT)
+Received: from localhost.localdomain ([118.235.13.86])
+        by smtp.gmail.com with ESMTPSA id jj22-20020a170903049600b00172dc6e1916sm11245808plb.220.2022.08.31.03.39.29
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 31 Aug 2022 03:39:33 -0700 (PDT)
+From:   Levi Yun <ppbuk5246@gmail.com>
+To:     catalin.marinas@arm.com, bhe@redhat.com
+Cc:     will@kernel.org, nramas@linux.microsoft.com,
+        thunder.leizhen@huawei.com, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, kexec@lists.infradead.org,
+        Levi Yun <ppbuk5246@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v3] arm64/kexec: Fix missing extra range for crashkres_low.
+Date:   Wed, 31 Aug 2022 19:39:13 +0900
+Message-Id: <20220831103913.12661-1-ppbuk5246@gmail.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <CAM7-yPRp7wpP1a=SrH4o2SBijF4ZfxkLTe7vpRXq_D_y1Kz-1g@mail.gmail.com>
+References: <CAM7-yPRp7wpP1a=SrH4o2SBijF4ZfxkLTe7vpRXq_D_y1Kz-1g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <863b4190-9b38-ed5a-0a18-74505702da21@kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 31, 2022 at 10:36:18AM +0200, Jiri Slaby wrote:
-> On 31. 08. 22, 10:15, Johan Hovold wrote:
-> > Disable LCR updates for pre-0x30 devices which use a different (unknown)
-> > protocol for line control and where the current register write causes
-> > the next received character to be lost.
-> > 
-> > Note that updating LCR using the INIT command has no effect on these
-> > devices either.
-> > 
-> > Reported-by: Jonathan Woithe <jwoithe@just42.net>
-> > Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
-> > Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
-> > Fixes: 55fa15b5987d ("USB: serial: ch341: fix baud rate and line-control handling")
-> > Cc: stable@vger.kernel.org      # 4.10
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> >   drivers/usb/serial/ch341.c | 10 +++++++++-
-> >   1 file changed, 9 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
-> > index 2798fca71261..2bcce172355b 100644
-> > --- a/drivers/usb/serial/ch341.c
-> > +++ b/drivers/usb/serial/ch341.c
-> > @@ -97,7 +97,10 @@ struct ch341_private {
-> >   	u8 mcr;
-> >   	u8 msr;
-> >   	u8 lcr;
-> > +
-> >   	unsigned long quirks;
-> > +	u8 version;
-> 
-> Could you move version above quirks? That would not create another 
-> 7-byte padding in here. Actually it would not make ch341_private larger 
-> on 64bit at all, if I am looking correctly.
+Like crashk_res, Calling crash_exclude_mem_range function with
+crashk_low_res area would need extra crash_mem range too.
 
-No, I added it after quirks on purpose as it isn't protected by the
-spinlock and doesn't change during runtime like the shadow registers.
+Add one more extra cmem slot in case of crashk_low_res is used.
 
-And I really don't care about saving 8 bytes on 64-bit. :)
+Signed-off-by: Levi Yun <ppbuk5246@gmail.com>
+Fixes: 944a45abfabc ("arm64: kdump: Reimplement crashkernel=X")
+Cc: <stable@vger.kernel.org> # 5.19.x
+Acked-by: Baoquan He <bhe@redhat.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+---
+ arch/arm64/kernel/machine_kexec_file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Johan
+diff --git a/arch/arm64/kernel/machine_kexec_file.c b/arch/arm64/kernel/machine_kexec_file.c
+index 889951291cc0..a11a6e14ba89 100644
+--- a/arch/arm64/kernel/machine_kexec_file.c
++++ b/arch/arm64/kernel/machine_kexec_file.c
+@@ -47,7 +47,7 @@ static int prepare_elf_headers(void **addr, unsigned long *sz)
+ 	u64 i;
+ 	phys_addr_t start, end;
+
+-	nr_ranges = 1; /* for exclusion of crashkernel region */
++	nr_ranges = 2; /* for exclusion of crashkernel region */
+ 	for_each_mem_range(i, &start, &end)
+ 		nr_ranges++;
+
+--
+2.35.1
