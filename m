@@ -2,259 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 075045A7156
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 01:03:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF4D5A72E6
+	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 02:46:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229778AbiH3XDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Aug 2022 19:03:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48332 "EHLO
+        id S230454AbiHaAq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Aug 2022 20:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229927AbiH3XDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 19:03:39 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B04CD94EE8;
-        Tue, 30 Aug 2022 16:03:38 -0700 (PDT)
+        with ESMTP id S230255AbiHaAqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Aug 2022 20:46:36 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A33D2A0636
+        for <stable@vger.kernel.org>; Tue, 30 Aug 2022 17:45:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1661900618; x=1693436618;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=EbOlkZ1krmZBhOoUvT0ozDnmo6bGQKW4lTmfOLCe094=;
-  b=VIummU2wv/DOvaIxQSZsDtJ3vUK/cSKw08vpaXBMKLzeGVHnq6kZyb8n
-   DquepY3kDfRMKwoJpBWA6NPeqvXcEEqorbZdVhRRnEcntYmb5GuCXqfQQ
-   f6mHpxuu9LwP+zzTIDFe7LYfBFpxfnD20o6EIMtwv9ohH1dApfuxQbgW8
-   08eN7Cra6/vMG190BwrETAhbPKHK2KbJKX+XPDlHk1T8hDPdpnR9SYXiZ
-   U+trqP67B+URSYwt/30Afnpng/M5LlqpuSCvmBRqkLkX2OmgoLpkdk26R
-   Uhtfneq4Uv5+sNisdbC33p29OhmJZXbnlDvMUxqJ8pD1Vpea1340qfcsw
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10455"; a="295330003"
+  t=1661906737; x=1693442737;
+  h=date:message-id:from:to:cc:subject:in-reply-to:
+   references:mime-version;
+  bh=tVfrExlQV0jCVOM+NN5vfPb2falWwdLiff378jx0lo4=;
+  b=aM8XjrWHiuMS8uDXfAu0bwvkBocEs96hkKiImm1cj1FEBX6Tg3OmS7gm
+   G14AE22BjSqkVgzqqsCacO+lFN6hjnFiogjgnTvmc10jYX6DGtKkFHUhH
+   KU9fzphEKSlEeOUgaY7e2i5nXTZakjzbd6TEfkxQ3HpyfIEkKiWZYuMyM
+   qHu+BfXvghtyNoJeauKysn/GDc5eSPkkk5KxCOyZow8QO7SaTK3FSuyR3
+   nTFJlw1kCKwRn4L3//2Yq+GAYSTv2iet4k6dgDtlymzO1GscKV5o0cfjH
+   RiC4wwu3OkwXpKQC6RU941Qx7k4yOhX14Yw0cJ25994gB1VY5FYMbfKKL
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10455"; a="282313489"
 X-IronPort-AV: E=Sophos;i="5.93,276,1654585200"; 
-   d="scan'208";a="295330003"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Aug 2022 16:03:25 -0700
+   d="scan'208";a="282313489"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Aug 2022 17:45:36 -0700
 X-IronPort-AV: E=Sophos;i="5.93,276,1654585200"; 
-   d="scan'208";a="673094621"
-Received: from skanpuri-mobl1.amr.corp.intel.com (HELO desk) ([10.212.18.137])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Aug 2022 16:03:24 -0700
-Date:   Tue, 30 Aug 2022 16:03:24 -0700
-From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, andrew.cooper3@citrix.com, bp@suse.de,
-        tony.luck@intel.com, antonio.gomez.iglesias@linux.intel.com,
-        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 4.9 2/2] x86/bugs: Add "unknown" reporting for MMIO Stale Data
-Message-ID: <5fd43d61e1c26271200f0a259c3bb6bca7d49a4d.1661899974.git.pawan.kumar.gupta@linux.intel.com>
-References: <81f08c055ed116d80a1b139b41f1b663867368b5.1661899974.git.pawan.kumar.gupta@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <81f08c055ed116d80a1b139b41f1b663867368b5.1661899974.git.pawan.kumar.gupta@linux.intel.com>
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+   d="scan'208";a="737941453"
+Received: from adixit-mobl.amr.corp.intel.com (HELO adixit-arch.intel.com) ([10.252.128.174])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Aug 2022 17:45:36 -0700
+Date:   Tue, 30 Aug 2022 17:45:36 -0700
+Message-ID: <874jxtz1e7.wl-ashutosh.dixit@intel.com>
+From:   "Dixit, Ashutosh" <ashutosh.dixit@intel.com>
+To:     Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc:     <intel-gfx@lists.freedesktop.org>, <stable@vger.kernel.org>,
+        Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>
+Subject: Re: [PATCH] drm/i915/slpc: Let's fix the PCODE min freq table setup for SLPC
+In-Reply-To: <20220830191620.45119-1-rodrigo.vivi@intel.com>
+References: <87edwxzqir.wl-ashutosh.dixit@intel.com>    <20220830191620.45119-1-rodrigo.vivi@intel.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?ISO-8859-4?Q?Goj=F2?=) APEL-LB/10.8 EasyPG/1.0.0
+ Emacs/28.1 (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7df548840c496b0141fb2404b889c346380c2b22 ]
+On Tue, 30 Aug 2022 12:16:20 -0700, Rodrigo Vivi wrote:
+>
 
-Older Intel CPUs that are not in the affected processor list for MMIO
-Stale Data vulnerabilities currently report "Not affected" in sysfs,
-which may not be correct. Vulnerability status for these older CPUs is
-unknown.
+Hi Rodrigo,
 
-Add known-not-affected CPUs to the whitelist. Report "unknown"
-mitigation status for CPUs that are not in blacklist, whitelist and also
-don't enumerate MSR ARCH_CAPABILITIES bits that reflect hardware
-immunity to MMIO Stale Data vulnerabilities.
+> @@ -65,13 +63,8 @@ static bool get_ia_constants(struct intel_llc *llc,
+>	/* convert DDR frequency from units of 266.6MHz to bandwidth */
+>	consts->min_ring_freq = mult_frac(consts->min_ring_freq, 8, 3);
+>
+> -	consts->min_gpu_freq = rps->min_freq;
+> -	consts->max_gpu_freq = rps->max_freq;
+> -	if (GRAPHICS_VER(i915) >= 9) {
+> -		/* Convert GT frequency to 50 HZ units */
+> -		consts->min_gpu_freq /= GEN9_FREQ_SCALER;
+> -		consts->max_gpu_freq /= GEN9_FREQ_SCALER;
+> -	}
+> +	consts->min_gpu_freq = intel_rps_get_min_raw_freq(rps);
+> +	consts->max_gpu_freq = intel_rps_get_max_raw_freq(rps);
+>
+>	return true;
+>  }
+> @@ -130,6 +123,12 @@ static void gen6_update_ring_freq(struct intel_llc *llc)
+>	if (!get_ia_constants(llc, &consts))
+>		return;
+>
+> +	/*
+> +	 * Although this is unlikely on any platform during initialization,
+> +	 * let's ensure we don't get accidentally into infinite loop
+> +	 */
+> +	if (consts.max_gpu_freq <= consts.min_gpu_freq)
+> +		return;
 
-Mitigation is not deployed when the status is unknown.
+As I said this is not correct and is not needed. If 'consts.max_gpu_freq ==
+consts.min_gpu_freq' we would *want* to program PCODE. If
+'consts.max_gpu_freq < consts.min_gpu_freq' the loop will automatically
+skip (and also it is not an infinite loop).
 
-  [ bp: Massage, fixup. ]
+> diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
+> index de794f5f8594..26af974292c7 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_rps.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_rps.c
+> @@ -2156,6 +2156,24 @@ u32 intel_rps_get_max_frequency(struct intel_rps *rps)
+>		return intel_gpu_freq(rps, rps->max_freq_softlimit);
+>  }
+>
+> +u32 intel_rps_get_max_raw_freq(struct intel_rps *rps)
 
-Fixes: 8d50cdf8b834 ("x86/speculation/mmio: Add sysfs reporting for Processor MMIO Stale Data")
-Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Suggested-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/a932c154772f2121794a5f2eded1a11013114711.1657846269.git.pawan.kumar.gupta@linux.intel.com
----
- .../hw-vuln/processor_mmio_stale_data.rst     | 14 ++++++++
- arch/x86/include/asm/cpufeatures.h            |  1 +
- arch/x86/kernel/cpu/bugs.c                    | 14 ++++++--
- arch/x86/kernel/cpu/common.c                  | 34 +++++++++++++------
- 4 files changed, 50 insertions(+), 13 deletions(-)
+What does "raw" mean? Or are we introducing a new concept here then we need
+to explain the new concept? I was previously told there is a concept of "hw
+units" of freq and intel_gpu_freq will convert from "hw units" to MHz.
 
-diff --git a/Documentation/hw-vuln/processor_mmio_stale_data.rst b/Documentation/hw-vuln/processor_mmio_stale_data.rst
-index 9393c50b5afc..c98fd11907cc 100644
---- a/Documentation/hw-vuln/processor_mmio_stale_data.rst
-+++ b/Documentation/hw-vuln/processor_mmio_stale_data.rst
-@@ -230,6 +230,20 @@ The possible values in this file are:
-      * - 'Mitigation: Clear CPU buffers'
-        - The processor is vulnerable and the CPU buffer clearing mitigation is
-          enabled.
-+     * - 'Unknown: No mitigations'
-+       - The processor vulnerability status is unknown because it is
-+	 out of Servicing period. Mitigation is not attempted.
-+
-+Definitions:
-+------------
-+
-+Servicing period: The process of providing functional and security updates to
-+Intel processors or platforms, utilizing the Intel Platform Update (IPU)
-+process or other similar mechanisms.
-+
-+End of Servicing Updates (ESU): ESU is the date at which Intel will no
-+longer provide Servicing, such as through IPU or other similar update
-+processes. ESU dates will typically be aligned to end of quarter.
- 
- If the processor is vulnerable then the following information is appended to
- the above information:
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index 910304aec2e6..a033fa5c596d 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -363,5 +363,6 @@
- #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
- #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
- #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
-+#define X86_BUG_MMIO_UNKNOWN		X86_BUG(26) /* CPU is too old and its MMIO Stale Data status is unknown */
- 
- #endif /* _ASM_X86_CPUFEATURES_H */
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index b4416df41d63..d8ba0b60e088 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -395,7 +395,8 @@ static void __init mmio_select_mitigation(void)
- 	u64 ia32_cap;
- 
- 	if (!boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA) ||
--	    cpu_mitigations_off()) {
-+	     boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN) ||
-+	     cpu_mitigations_off()) {
- 		mmio_mitigation = MMIO_MITIGATION_OFF;
- 		return;
- 	}
-@@ -500,6 +501,8 @@ static void __init md_clear_update_mitigation(void)
- 		pr_info("TAA: %s\n", taa_strings[taa_mitigation]);
- 	if (boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
- 		pr_info("MMIO Stale Data: %s\n", mmio_strings[mmio_mitigation]);
-+	else if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		pr_info("MMIO Stale Data: Unknown: No mitigations\n");
- }
- 
- static void __init md_clear_select_mitigation(void)
-@@ -1824,6 +1827,9 @@ static ssize_t tsx_async_abort_show_state(char *buf)
- 
- static ssize_t mmio_stale_data_show_state(char *buf)
- {
-+	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		return sysfs_emit(buf, "Unknown: No mitigations\n");
-+
- 	if (mmio_mitigation == MMIO_MITIGATION_OFF)
- 		return sysfs_emit(buf, "%s\n", mmio_strings[mmio_mitigation]);
- 
-@@ -1934,6 +1940,7 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
- 		return srbds_show_state(buf);
- 
- 	case X86_BUG_MMIO_STALE_DATA:
-+	case X86_BUG_MMIO_UNKNOWN:
- 		return mmio_stale_data_show_state(buf);
- 
- 	default:
-@@ -1990,6 +1997,9 @@ ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *
- 
- ssize_t cpu_show_mmio_stale_data(struct device *dev, struct device_attribute *attr, char *buf)
- {
--	return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
-+	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_UNKNOWN);
-+	else
-+		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
- }
- #endif
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 48843fc76695..656f336074a3 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -899,6 +899,7 @@ static void identify_cpu_without_cpuid(struct cpuinfo_x86 *c)
- #define MSBDS_ONLY		BIT(5)
- #define NO_SWAPGS		BIT(6)
- #define NO_ITLB_MULTIHIT	BIT(7)
-+#define NO_MMIO			BIT(8)
- 
- #define VULNWL(_vendor, _family, _model, _whitelist)	\
- 	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
-@@ -916,6 +917,11 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
- 	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
- 
- 	/* Intel Family 6 */
-+	VULNWL_INTEL(TIGERLAKE,			NO_MMIO),
-+	VULNWL_INTEL(TIGERLAKE_L,		NO_MMIO),
-+	VULNWL_INTEL(ALDERLAKE,			NO_MMIO),
-+	VULNWL_INTEL(ALDERLAKE_L,		NO_MMIO),
-+
- 	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION | NO_ITLB_MULTIHIT),
-@@ -933,9 +939,9 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
- 
- 	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
- 
--	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 
- 	/*
- 	 * Technically, swapgs isn't serializing on AMD (despite it previously
-@@ -946,13 +952,13 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
- 	 */
- 
- 	/* AMD Family 0xf - 0x12 */
--	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 
- 	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
--	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 	{}
- };
- 
-@@ -1092,10 +1098,16 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
- 	 * Affected CPU list is generally enough to enumerate the vulnerability,
- 	 * but for virtualization case check for ARCH_CAP MSR bits also, VMM may
- 	 * not want the guest to enumerate the bug.
-+	 *
-+	 * Set X86_BUG_MMIO_UNKNOWN for CPUs that are neither in the blacklist,
-+	 * nor in the whitelist and also don't enumerate MSR ARCH_CAP MMIO bits.
- 	 */
--	if (cpu_matches(cpu_vuln_blacklist, MMIO) &&
--	    !arch_cap_mmio_immune(ia32_cap))
--		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
-+	if (!arch_cap_mmio_immune(ia32_cap)) {
-+		if (cpu_matches(cpu_vuln_blacklist, MMIO))
-+			setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
-+		else if (!cpu_matches(cpu_vuln_whitelist, NO_MMIO))
-+			setup_force_cpu_bug(X86_BUG_MMIO_UNKNOWN);
-+	}
- 
- 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
- 		return;
--- 
-2.37.2
+Also, Is the return value in units of 50 MHz in all cases (we know it is
+for SLPC and Gen 9+)? In that case we should name such a function to
+something like intel_rps_get_max_freq_in_50mhz_units?
 
+> +{
+> +	struct intel_guc_slpc *slpc = rps_to_slpc(rps);
+> +	u32 freq;
+> +
+> +	if (rps_uses_slpc(rps)) {
+> +		return DIV_ROUND_CLOSEST(slpc->rp0_freq,
+> +					 GT_FREQUENCY_MULTIPLIER);
+> +	} else {
+> +		freq = rps->max_freq;
+> +		if (GRAPHICS_VER(rps_to_i915(rps)) >= 9) {
+> +			/* Convert GT frequency to 50 HZ units */
 
+50 MHz and not 50 Hz. Also the comment should be moved to above
+rps_uses_slpc() line if returned freq is always in units of 50 MHz.
+
+> +			freq /= GEN9_FREQ_SCALER;
+> +		}
+> +		return freq;
+> +	}
+> +}
+
+Also is this function equivalent to this:
+
+u32 intel_rps_get_max_freq_in_50mhz_units(struct intel_rps *rps)
+{
+	struct intel_guc_slpc *slpc = rps_to_slpc(rps);
+	u32 freq;
+
+	/* freq in MHz */
+	freq = rps_uses_slpc(rps) ? slpc->rp0_freq : intel_gpu_freq(rps->max_freq);
+
+	return DIV_ROUND_CLOSEST(freq, GT_FREQUENCY_MULTIPLIER);
+}
+
+Sorry I don't have a lot of history in how these frequencies are scaled
+specially for old platforms like CHV/VLV/Gen6+. But afaiu intel_gpu_freq()
+will convert the freq to MHz for all platforms.
+
+And then does get_ia_constants() accept freq in 50 MHz units for all
+platforms?
+
+If we are not sure about this, we can go with your version which is closer
+to the original version in get_ia_constants() and so "safer" I guess.
+
+Thanks.
+--
+Ashutosh
