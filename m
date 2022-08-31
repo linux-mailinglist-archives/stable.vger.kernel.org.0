@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85DAC5A878B
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 22:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C913B5A878C
+	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 22:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229498AbiHaUbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Aug 2022 16:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
+        id S230338AbiHaUcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Aug 2022 16:32:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230078AbiHaUbO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 16:31:14 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A70ABDD777
-        for <stable@vger.kernel.org>; Wed, 31 Aug 2022 13:31:12 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id nc14so25750935ejc.4
-        for <stable@vger.kernel.org>; Wed, 31 Aug 2022 13:31:12 -0700 (PDT)
+        with ESMTP id S229453AbiHaUcK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 16:32:10 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD662DF0B0
+        for <stable@vger.kernel.org>; Wed, 31 Aug 2022 13:32:08 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id b44so19892712edf.9
+        for <stable@vger.kernel.org>; Wed, 31 Aug 2022 13:32:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc;
-        bh=5sNXe7ttAzy6eFAgYbY4aDZhT4hUcOCsVcj/haerTok=;
-        b=AsITPviGKNvMGDW1yDKPFO+nSFNktYJXlUkfsrS4WTAjFewxA199SSwc07j443xpd/
-         2t6iiiWdfxz8lSX/sGzDHkgcW1IUNB7SSeCWpYV8Vz+UvC7uWap0RS+traWo7cXE22vl
-         9hd3S7Iv1DuTTuRWsXFtHoFwcmG82RHYcBG78kE8EFhCuioH6VM33TPL8MTwQoICwTO0
-         8nAYtR85rhYE280Jm+C3dOcEDHwBVpXpvCpVltHougyD7B1VzGJ1xGIBrkQdMIu/E0lw
-         TqHPiSc2afSkTSJO54BdGdhe3hLLffYfhXeZKzbXnhgBWn3/dtnpnqwWNhxNwiqUwRyh
-         CJgw==
+        bh=nhZQAxpTJRR+h+b4la73g7IspvP0PnepXoa+PWz6iPs=;
+        b=bnZx0xkK8l5sYuidFJi682wacSgAOOQzEKQkcFuCQ/wPTVLmB0fep4dMyHB6YQ4v5Q
+         KoQxXgRdSI0EGDgrpHHxX8XYGtQ5wbalcJvzb2so9FxkHxjO6GeAgfwoTUT/2pQ2OUjN
+         XzBiXwPPMXeSG6Tv8CbuhfgOQYeOd0zP5d14j/DpWl0cc6cYHhLPHXWUAuNpZ3R2tzEk
+         i18HgH/GhINJebUsMn6UvPeMs6H+Blw4kueML5dDYgRsNh+SkkKl89Ts2Lhn4ku9VHVJ
+         5hegTE3dte3TVox8kHJbRwHbD0aD3c5kMVW5rvmkf+heEisPY/t73qWH4PXfgYl+lavG
+         b5yA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc;
-        bh=5sNXe7ttAzy6eFAgYbY4aDZhT4hUcOCsVcj/haerTok=;
-        b=EgHledTaUYA+ehnrtYmpbvskU6FiiDnyo6HaoVFM7sy/zNHKMR85MzC2opfdGlNcsX
-         K6CjfxP4mPsT0xXkPamVRw7nKS3LA9OSywIbwqhZZMEao1l7wwYNZ7Txnjp/bVk5WunI
-         vUzbqwSCpEcK5kcsnBgABlZP54UvFcYOpqWyYr1Yxo165G+8NLdhyqQlC+PduwUr5dBh
-         JnW8pvbpGl0tCSDNxzpaI0607C+nr4Qgy0lbQBX+kTIdW94nSWz7qxFbKFGSw9q/u2vp
-         7ahsNwPepQK8zASL0PVDlFAl35+qk8B/zhf2CzUNNVqWGimGZnM/u2IvLw6HOy6eoHNO
-         /rRA==
-X-Gm-Message-State: ACgBeo1TFi1WvXiQAbeyV/bwPDF+lRNSwDW8CAZstIcwb+EnyjQItvbl
-        9uXYYP+dGLyL7iVSpZxp+4K1hma5EaR7zA==
-X-Google-Smtp-Source: AA6agR4ikYz1WQ1HMk7oUYjBnR5JZAVldTWe43KwtX5nFKhZYEbd0mpW8MWKuh0US2dTl8S9vUO3IQ==
-X-Received: by 2002:a17:907:6e18:b0:73d:63d9:945f with SMTP id sd24-20020a1709076e1800b0073d63d9945fmr21633523ejc.12.1661977871013;
-        Wed, 31 Aug 2022 13:31:11 -0700 (PDT)
+        bh=nhZQAxpTJRR+h+b4la73g7IspvP0PnepXoa+PWz6iPs=;
+        b=g8tZj87+IpjqPiRqV0VL7mslRq8DiAYuhj4gdzLRnXO69vcpkUFFp71e77sTa+3B1V
+         SSOxsoZRvzmFPac9nPXIjMbE3+0dM/OiSLkwPS/m8r+0yown4r2oWkgGKxBnm/MPX677
+         y8M5r+ibcaU6om3NoW+/quwHYtfO2BtZk6Xc7FlJSZf2WWzKvQev5ZOrHIZm0Y17W76q
+         1ZtnB9KKEWxjBYqTo+ww1SGskssV5OhlcJQpoMRZxYYhX4kF85qZw2Offrn6q6ofIQV4
+         rYONhZZNBWzek245iKGrVR4ue7u1NJKbNfALjDpFR7p+ubrHGt2OngmU6RB+JFarvZ6h
+         Yf4w==
+X-Gm-Message-State: ACgBeo2nhYXDrPzUuJ0WISZuxYP7gH3FRKrhmbpLs3AOcbkYBzYHCL9U
+        5OdLMDZbIHi/TNuNAJu9JAaTa1bQreEaJw==
+X-Google-Smtp-Source: AA6agR5tyPW9bstkcZHaFnW4BxiX4VouhQSYGYQjdGaJ9+MWXdCbKcOY8ZLjBVJoKXRQuvKjs3d+/w==
+X-Received: by 2002:a05:6402:518b:b0:448:f30:38b0 with SMTP id q11-20020a056402518b00b004480f3038b0mr19423413edd.164.1661977927376;
+        Wed, 31 Aug 2022 13:32:07 -0700 (PDT)
 Received: from localhost.localdomain (109-178-192-105.pat.ren.cosmote.net. [109.178.192.105])
-        by smtp.gmail.com with ESMTPSA id ee15-20020a056402290f00b00445d760fc69sm126342edb.50.2022.08.31.13.31.09
+        by smtp.gmail.com with ESMTPSA id a12-20020a50ff0c000000b00447d4109e16sm106380edu.87.2022.08.31.13.32.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Aug 2022 13:31:10 -0700 (PDT)
+        Wed, 31 Aug 2022 13:32:07 -0700 (PDT)
 From:   Michael Bestas <mkbestas@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Hsin-Yi Wang <hsinyi@chromium.org>,
@@ -55,8 +55,8 @@ Cc:     Hsin-Yi Wang <hsinyi@chromium.org>,
         Will Deacon <will@kernel.org>,
         Michael Bestas <mkbestas@gmail.com>
 Subject: [PATCH] arm64: map FDT as RW for early_init_dt_scan()
-Date:   Wed, 31 Aug 2022 23:30:38 +0300
-Message-Id: <20220831203038.1677630-1-mkbestas@gmail.com>
+Date:   Wed, 31 Aug 2022 23:32:00 +0300
+Message-Id: <20220831203200.1684696-1-mkbestas@gmail.com>
 X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -79,12 +79,12 @@ early_init_dt_scan(). However, there might be some codes
 (eg. commit "fdt: add support for rng-seed") that need to modify FDT
 during init. Map FDT to RO after early fixups are done.
 
-Cc: stable@vger.kernel.org # 4.19
+Cc: stable@vger.kernel.org # 4.14
 Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
 Reviewed-by: Stephen Boyd <swboyd@chromium.org>
 Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
 Signed-off-by: Will Deacon <will@kernel.org>
-[mkbestas: fixed trivial conflicts for 4.19 backport]
+[mkbestas: fixed trivial conflicts for 4.14 backport]
 Signed-off-by: Michael Bestas <mkbestas@gmail.com>
 ---
  arch/arm64/include/asm/mmu.h |  2 +-
@@ -94,10 +94,10 @@ Signed-off-by: Michael Bestas <mkbestas@gmail.com>
  4 files changed, 11 insertions(+), 20 deletions(-)
 
 diff --git a/arch/arm64/include/asm/mmu.h b/arch/arm64/include/asm/mmu.h
-index b37d185e0e841c..3dda6ff32efd7f 100644
+index 5a77dc775cc3c4..9494e35bf3a2a7 100644
 --- a/arch/arm64/include/asm/mmu.h
 +++ b/arch/arm64/include/asm/mmu.h
-@@ -98,7 +98,7 @@ extern void init_mem_pgprot(void);
+@@ -91,7 +91,7 @@ extern void init_mem_pgprot(void);
  extern void create_pgd_mapping(struct mm_struct *mm, phys_addr_t phys,
  			       unsigned long virt, phys_addr_t size,
  			       pgprot_t prot, bool page_mappings_only);
@@ -107,7 +107,7 @@ index b37d185e0e841c..3dda6ff32efd7f 100644
  
  #endif	/* !__ASSEMBLY__ */
 diff --git a/arch/arm64/kernel/kaslr.c b/arch/arm64/kernel/kaslr.c
-index 06941c1fe418e0..92bb53460401c0 100644
+index ae727828609491..17fa1d363fff2c 100644
 --- a/arch/arm64/kernel/kaslr.c
 +++ b/arch/arm64/kernel/kaslr.c
 @@ -65,9 +65,6 @@ static __init const u8 *kaslr_get_cmdline(void *fdt)
@@ -130,10 +130,10 @@ index 06941c1fe418e0..92bb53460401c0 100644
  		return 0;
  
 diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index b3354ff94e7984..43e9786f1d6044 100644
+index d4b740538ad574..01b15d9dd8d62d 100644
 --- a/arch/arm64/kernel/setup.c
 +++ b/arch/arm64/kernel/setup.c
-@@ -183,9 +183,13 @@ static void __init smp_build_mpidr_hash(void)
+@@ -179,9 +179,13 @@ static void __init smp_build_mpidr_hash(void)
  
  static void __init setup_machine_fdt(phys_addr_t dt_phys)
  {
@@ -148,7 +148,7 @@ index b3354ff94e7984..43e9786f1d6044 100644
  	if (!dt_virt || !early_init_dt_scan(dt_virt)) {
  		pr_crit("\n"
  			"Error: invalid device tree blob at physical address %pa (virtual address 0x%p)\n"
-@@ -197,6 +201,9 @@ static void __init setup_machine_fdt(phys_addr_t dt_phys)
+@@ -193,6 +197,9 @@ static void __init setup_machine_fdt(phys_addr_t dt_phys)
  			cpu_relax();
  	}
  
@@ -159,10 +159,10 @@ index b3354ff94e7984..43e9786f1d6044 100644
  	if (!name)
  		return;
 diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index b0a83dbed2dc44..7042fbb6d92bac 100644
+index 4d472907194dd3..ce8c57d70e5fc7 100644
 --- a/arch/arm64/mm/mmu.c
 +++ b/arch/arm64/mm/mmu.c
-@@ -859,7 +859,7 @@ void __set_fixmap(enum fixed_addresses idx,
+@@ -836,7 +836,7 @@ void __set_fixmap(enum fixed_addresses idx,
  	}
  }
  
@@ -171,7 +171,7 @@ index b0a83dbed2dc44..7042fbb6d92bac 100644
  {
  	const u64 dt_virt_base = __fix_to_virt(FIX_FDT);
  	int offset;
-@@ -912,19 +912,6 @@ void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
+@@ -889,19 +889,6 @@ void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
  	return dt_virt;
  }
  
