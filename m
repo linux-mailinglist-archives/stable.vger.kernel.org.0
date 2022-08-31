@@ -2,247 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD8695A8483
-	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 19:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAFFE5A867C
+	for <lists+stable@lfdr.de>; Wed, 31 Aug 2022 21:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230444AbiHaRix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 31 Aug 2022 13:38:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46476 "EHLO
+        id S231768AbiHaTM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 31 Aug 2022 15:12:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231547AbiHaRiu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 13:38:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7B8CE446;
-        Wed, 31 Aug 2022 10:38:48 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C931DB821E7;
-        Wed, 31 Aug 2022 17:38:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 340D3C433D7;
-        Wed, 31 Aug 2022 17:38:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661967525;
-        bh=BppzunDRHTv5qHtbXm5TCE5mexdtMdqPJE14TOy4eEA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=czQv26eA+wWVKfKnwmJBmyWtDh8ippxEWLHTNWfaEi0vmMJ0HE5LR9dYt4QCN0Adk
-         k1dUUuJZTS52vIW78sYuMOS2k7I7FYaMLKBFOvPfHdkl9w1AEHH9eIg+F/zu30VxcV
-         JXloT0y9gm58rJ23XjYPIvtvKAx6DRst7IR2ZvkiFzhDHCAFXk8PCdsLtaGHq0yjLE
-         xUHI5uZCOQ1b/m5+SNOBwqqynnRiC6FW2RvXlFcPGdpa7H4KB0njfpTDaAkCuCRXwi
-         FrMf7FukPmiyu9rCNBa0SKV2jvw3NqhCE55YZiHYDvBNn/k/AwuoprOuCfHoKKVALK
-         h+dIcYXHUaKuw==
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     linux-sgx@vger.kernel.org
-Cc:     Haitao Huang <haitao.huang@linux.intel.com>,
-        Vijay Dhanraj <vijay.dhanraj@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org (open list:X86 ARCHITECTURE (32-BIT AND
-        64-BIT))
-Subject: [PATCH v2 2/6] x86/sgx: Do not consider unsanitized pages an error
-Date:   Wed, 31 Aug 2022 20:38:25 +0300
-Message-Id: <20220831173829.126661-3-jarkko@kernel.org>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220831173829.126661-1-jarkko@kernel.org>
-References: <20220831173829.126661-1-jarkko@kernel.org>
+        with ESMTP id S229472AbiHaTMZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 31 Aug 2022 15:12:25 -0400
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD59ED83D9;
+        Wed, 31 Aug 2022 12:12:23 -0700 (PDT)
+Received: by mail-qk1-x734.google.com with SMTP id w18so11591506qki.8;
+        Wed, 31 Aug 2022 12:12:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:feedback-id:from:to:cc;
+        bh=BlRf7W3x/ZYNwUL/i+8WPajC7eIKtq4rRsLFRUO00UY=;
+        b=VwDMh3hjO0mzYMUaX3Gbi5C12cnleNpGMjqWcA82t/sPm5YtWOnSoguxQgUtFIvyHj
+         3F9+/03fOnPYbWbhTGNudrydWLgzabdo5uAOFkym9KE6GN1S6Qw2Oly0JHnNVdhE4Aon
+         OUn+o5Q+rshbxHEiEteg4YJJmR3Bjm/0JPKiVycMblC1caVgs9FEgLi/5bW0vM/8bbpT
+         chLurFdKNEi3Mcb/IUB9rVKT8Qbjcp48YyFSpyfDlPl5uCXSM/ijCHlsLz2nzccyK4io
+         4gwIJew9HfMPiTUEnFMG9HOSKi3qdqlg4Frtk6kkjRbHWc+8ncSZiMevOUzU4OlXa1H8
+         Db4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:feedback-id:x-gm-message-state:from:to:cc;
+        bh=BlRf7W3x/ZYNwUL/i+8WPajC7eIKtq4rRsLFRUO00UY=;
+        b=qxQNQra2P7UO85sUqaRsrn2Xqo8WFEufXRCWFnPQ7I7HfiDSvuFyrFyvcQpJsmGMSs
+         p/ji2082r6V8WMEd/jP5CcnF9yGnlzJI0nUQF+lv4xfgHLtZl7ZlHi3tjs6VqDvZqkOg
+         FnYERs/od4fpWZ/v0hYhVNdjyHByXR5cvBlPf97oqmj4/Elp11yY7IB3D0POJheJFd1k
+         9T/ndEPbPLh7YetUfLwMtdqAlcWdX0Zj6q1FPiwWTyFoz8o1bewlK5wDBLAE3XHsZ3Ae
+         XnyY23/uWZA0XTIsyRruAbiVedWIHAEuhTPCIE+B/HniKBcUvPZbqdp12xIQWLD4esA/
+         Vy+w==
+X-Gm-Message-State: ACgBeo33Om2c5b2ZKOR2Xglr1AqoH/zmnqLXCBetR2sF/QiJYlom6o/u
+        V/5ErB4k/SKvJG/aH+zTX+h429Q5QBs=
+X-Google-Smtp-Source: AA6agR440czcs4X1aV4EzQ4AiT3FymTTvuCugfm3euv1cnTiNJ342KELuSCOBVZvIJrQlrR0YSdFqA==
+X-Received: by 2002:a05:620a:b02:b0:6bb:ebe:248b with SMTP id t2-20020a05620a0b0200b006bb0ebe248bmr16654670qkg.420.1661973142873;
+        Wed, 31 Aug 2022 12:12:22 -0700 (PDT)
+Received: from auth2-smtp.messagingengine.com (auth2-smtp.messagingengine.com. [66.111.4.228])
+        by smtp.gmail.com with ESMTPSA id ge17-20020a05622a5c9100b003430589dd34sm9095655qtb.57.2022.08.31.12.12.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 31 Aug 2022 12:12:22 -0700 (PDT)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailauth.nyi.internal (Postfix) with ESMTP id 7DC9827C0054;
+        Wed, 31 Aug 2022 15:12:20 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 31 Aug 2022 15:12:20 -0400
+X-ME-Sender: <xms:lLIPYxB3qTvX1-AkkQAcOIBgelkbwoykY_cp_swDtqbyC87vsYoB-Q>
+    <xme:lLIPY_gt1pI0QNlxYdwk_X0gGqm0BjEdOgZ5j_EOdtickj-9rD28z_B_Rrm40qvcu
+    YuF7uYMBFBzWUF_UQ>
+X-ME-Received: <xmr:lLIPY8m6flquFM3dYY5TPOkgjgRT1PE8LCaYykB7XK8QuddW-XPfJ2m6vtM>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvdekiedguddtjecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeeuohhq
+    uhhnucfhvghnghcuoegsohhquhhnrdhfvghnghesghhmrghilhdrtghomheqnecuggftrf
+    grthhtvghrnhephedugfduffffteeutddvheeuveelvdfhleelieevtdeguefhgeeuveei
+    udffiedvnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epsghoqhhunhdomhgvshhmthhprghuthhhphgvrhhsohhnrghlihhthidqieelvdeghedt
+    ieegqddujeejkeehheehvddqsghoqhhunhdrfhgvnhhgpeepghhmrghilhdrtghomhesfh
+    higihmvgdrnhgrmhgv
+X-ME-Proxy: <xmx:lLIPY7yJ9SfImoLUIqOW7RQSJf5ctfc76SEk4pWazSIfNQrZ6MztKw>
+    <xmx:lLIPY2RR3tpdj1xWTrdavcmzL5chOJHsilhOfVPxE8x8Y_21BMDBXw>
+    <xmx:lLIPY-Yb3y6Deh6xSc5e0RVFs4gvIAsFEv35COKTpc9qN5y5MguUAg>
+    <xmx:lLIPY9KbY3Gm4O3b5YR9NSXwm3Xa3QZHqBtELxJRzEnJt3x0ufV-tg>
+Feedback-ID: iad51458e:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 31 Aug 2022 15:12:19 -0400 (EDT)
+Date:   Wed, 31 Aug 2022 12:11:20 -0700
+From:   Boqun Feng <boqun.feng@gmail.com>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        linux-hyperv@vger.kernel.org,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-kernel@vger.kernel.org, Wei Liu <wei.liu@kernel.org>
+Subject: Re: [PATCH v2 1/2] Drivers: hv: balloon: Support status report for
+ larger page sizes
+Message-ID: <Yw+yWFFpU+mwT97H@boqun-archlinux>
+References: <20220325023212.1570049-1-boqun.feng@gmail.com>
+ <20220325023212.1570049-2-boqun.feng@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220325023212.1570049-2-boqun.feng@gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In sgx_init(), if misc_register() fails or misc_register() succeeds but
-neither sgx_drv_init() nor sgx_vepc_init() succeeds, then ksgxd will be
-prematurely stopped. This may leave some unsanitized pages, which does
-not matter, because SGX will be disabled for the whole power cycle.
+Hi,
 
-This triggers WARN_ON() because sgx_dirty_page_list ends up being
-non-empty, and dumps the call stack:
+I think we also want this patch in the 5.15 stable. Without this patch,
+hv_balloon() will report incorrect memory usage to hypervisor when
+running on ARM64 with PAGE_SIZE > 4k. Only 5.15 needs this because ARM64
+support of HyperV guests arrived in 5.15.
 
-[    0.268103] sgx: EPC section 0x40200000-0x45f7ffff
-[    0.268591] ------------[ cut here ]------------
-[    0.268592] WARNING: CPU: 6 PID: 83 at
-arch/x86/kernel/cpu/sgx/main.c:401 ksgxd+0x1b7/0x1d0
-[    0.268598] Modules linked in:
-[    0.268600] CPU: 6 PID: 83 Comm: ksgxd Not tainted 6.0.0-rc2 #382
-[    0.268603] Hardware name: Dell Inc. XPS 13 9370/0RMYH9, BIOS 1.21.0
-07/06/2022
-[    0.268604] RIP: 0010:ksgxd+0x1b7/0x1d0
-[    0.268607] Code: ff e9 f2 fe ff ff 48 89 df e8 75 07 0e 00 84 c0 0f
-84 c3 fe ff ff 31 ff e8 e6 07 0e 00 84 c0 0f 85 94 fe ff ff e9 af fe ff
-ff <0f> 0b e9 7f fe ff ff e8 dd 9c 95 00 66 66 2e 0f 1f 84 00 00 00 00
-[    0.268608] RSP: 0000:ffffb6c7404f3ed8 EFLAGS: 00010287
-[    0.268610] RAX: ffffb6c740431a10 RBX: ffff8dcd8117b400 RCX:
-0000000000000000
-[    0.268612] RDX: 0000000080000000 RSI: ffffb6c7404319d0 RDI:
-00000000ffffffff
-[    0.268613] RBP: ffff8dcd820a4d80 R08: ffff8dcd820a4180 R09:
-ffff8dcd820a4180
-[    0.268614] R10: 0000000000000000 R11: 0000000000000006 R12:
-ffffb6c74006bce0
-[    0.268615] R13: ffff8dcd80e63880 R14: ffffffffa8a60f10 R15:
-0000000000000000
-[    0.268616] FS:  0000000000000000(0000) GS:ffff8dcf25580000(0000)
-knlGS:0000000000000000
-[    0.268617] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    0.268619] CR2: 0000000000000000 CR3: 0000000213410001 CR4:
-00000000003706e0
-[    0.268620] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
-0000000000000000
-[    0.268621] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
-0000000000000400
-[    0.268622] Call Trace:
-[    0.268624]  <TASK>
-[    0.268627]  ? _raw_spin_lock_irqsave+0x24/0x60
-[    0.268632]  ? _raw_spin_unlock_irqrestore+0x23/0x40
-[    0.268634]  ? __kthread_parkme+0x36/0x90
-[    0.268637]  kthread+0xe5/0x110
-[    0.268639]  ? kthread_complete_and_exit+0x20/0x20
-[    0.268642]  ret_from_fork+0x1f/0x30
-[    0.268647]  </TASK>
-[    0.268648] ---[ end trace 0000000000000000 ]---
+Upstream id b3d6dd09ff00fdcf4f7c0cb54700ffd5dd343502
 
-Ultimately this can crash the kernel, if the following is set:
+Cc: <stable@vger.kernel.org> # 5.15.x
 
-	/proc/sys/kernel/panic_on_warn
+Thanks!
 
-In premature stop, print nothing, as the number is by practical means a
-random number. Otherwise, it is an indicator of a bug in the driver, and
-therefore print the number of unsanitized pages with pr_err().
+Regards,
+Boqun
 
-Link: https://lore.kernel.org/linux-sgx/20220825051827.246698-1-jarkko@kernel.org/T/#u
-Fixes: 51ab30eb2ad4 ("x86/sgx: Replace section->init_laundry_list with sgx_dirty_page_list")
-Cc: stable@vger.kernel.org # v5.13+
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
----
-v6:
-- Address Reinette's feedback:
-  https://lore.kernel.org/linux-sgx/Yw6%2FiTzSdSw%2FY%2FVO@kernel.org/
-
-v5:
-- Add the klog dump and sysctl option to the commit message.
-
-v4:
-- Explain expectations for dirty_page_list in the function header, instead
-  of an inline comment.
-- Improve commit message to explain the conditions better.
-- Return the number of pages left dirty to ksgxd() and print warning after
-  the 2nd call, if there are any.
-
-v3:
-- Remove WARN_ON().
-- Tuned comments and the commit message a bit.
-
-v2:
-- Replaced WARN_ON() with optional pr_info() inside
-  __sgx_sanitize_pages().
-- Rewrote the commit message.
-- Added the fixes tag.
----
- arch/x86/kernel/cpu/sgx/main.c | 42 ++++++++++++++++++++++++++++------
- 1 file changed, 35 insertions(+), 7 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
-index 515e2a5f25bb..bcd6b64961bd 100644
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -49,17 +49,20 @@ static LIST_HEAD(sgx_dirty_page_list);
-  * Reset post-kexec EPC pages to the uninitialized state. The pages are removed
-  * from the input list, and made available for the page allocator. SECS pages
-  * prepending their children in the input list are left intact.
-+ *
-+ * Contents of the @dirty_page_list must be thread-local, i.e.
-+ * not shared by multiple threads.
-  */
--static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
-+static long __sgx_sanitize_pages(struct list_head *dirty_page_list)
- {
- 	struct sgx_epc_page *page;
-+	long left_dirty = 0;
- 	LIST_HEAD(dirty);
- 	int ret;
- 
--	/* dirty_page_list is thread-local, no need for a lock: */
- 	while (!list_empty(dirty_page_list)) {
- 		if (kthread_should_stop())
--			return;
-+			return -ECANCELED;
- 
- 		page = list_first_entry(dirty_page_list, struct sgx_epc_page, list);
- 
-@@ -92,12 +95,14 @@ static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
- 		} else {
- 			/* The page is not yet clean - move to the dirty list. */
- 			list_move_tail(&page->list, &dirty);
-+			left_dirty++;
- 		}
- 
- 		cond_resched();
- 	}
- 
- 	list_splice(&dirty, dirty_page_list);
-+	return left_dirty;
- }
- 
- static bool sgx_reclaimer_age(struct sgx_epc_page *epc_page)
-@@ -388,17 +393,40 @@ void sgx_reclaim_direct(void)
- 
- static int ksgxd(void *p)
- {
-+	long ret;
-+
- 	set_freezable();
- 
- 	/*
- 	 * Sanitize pages in order to recover from kexec(). The 2nd pass is
- 	 * required for SECS pages, whose child pages blocked EREMOVE.
- 	 */
--	__sgx_sanitize_pages(&sgx_dirty_page_list);
--	__sgx_sanitize_pages(&sgx_dirty_page_list);
-+	ret = __sgx_sanitize_pages(&sgx_dirty_page_list);
-+	if (ret == -ECANCELED)
-+		/* kthread stopped */
-+		return 0;
- 
--	/* sanity check: */
--	WARN_ON(!list_empty(&sgx_dirty_page_list));
-+	ret = __sgx_sanitize_pages(&sgx_dirty_page_list);
-+	switch (ret) {
-+	case 0:
-+		/* success, no unsanitized pages */
-+		break;
-+
-+	case -ECANCELED:
-+		/* kthread stopped */
-+		return 0;
-+
-+	default:
-+		/*
-+		 * Never expected to happen in a working driver. If it happens
-+		 * the bug is expected to be in the sanitization process, but
-+		 * successfully sanitized pages are still valid and driver can
-+		 * be used and most importantly debugged without issues. To put
-+		 * short, the global state of kernel is not corrupted so no
-+		 * reason to do any more complicated rollback.
-+		 */
-+		pr_err("%ld unsanitized pages\n", ret);
-+	}
- 
- 	while (!kthread_should_stop()) {
- 		if (try_to_freeze())
--- 
-2.37.2
-
+On Fri, Mar 25, 2022 at 10:32:11AM +0800, Boqun Feng wrote:
+> DM_STATUS_REPORT expects the numbers of pages in the unit of 4k pages
+> (HV_HYP_PAGE) instead of guest pages, so to make it work when guest page
+> sizes are larger than 4k, convert the numbers of guest pages into the
+> numbers of HV_HYP_PAGEs.
+> 
+> Note that the numbers of guest pages are still used for tracing because
+> tracing is internal to the guest kernel.
+> 
+> Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+> Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+> ---
+>  drivers/hv/hv_balloon.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+> index f2d05bff4245..062156b88a87 100644
+> --- a/drivers/hv/hv_balloon.c
+> +++ b/drivers/hv/hv_balloon.c
+> @@ -17,6 +17,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/kthread.h>
+>  #include <linux/completion.h>
+> +#include <linux/count_zeros.h>
+>  #include <linux/memory_hotplug.h>
+>  #include <linux/memory.h>
+>  #include <linux/notifier.h>
+> @@ -1130,6 +1131,7 @@ static void post_status(struct hv_dynmem_device *dm)
+>  	struct dm_status status;
+>  	unsigned long now = jiffies;
+>  	unsigned long last_post = last_post_time;
+> +	unsigned long num_pages_avail, num_pages_committed;
+>  
+>  	if (pressure_report_delay > 0) {
+>  		--pressure_report_delay;
+> @@ -1154,16 +1156,21 @@ static void post_status(struct hv_dynmem_device *dm)
+>  	 * num_pages_onlined) as committed to the host, otherwise it can try
+>  	 * asking us to balloon them out.
+>  	 */
+> -	status.num_avail = si_mem_available();
+> -	status.num_committed = vm_memory_committed() +
+> +	num_pages_avail = si_mem_available();
+> +	num_pages_committed = vm_memory_committed() +
+>  		dm->num_pages_ballooned +
+>  		(dm->num_pages_added > dm->num_pages_onlined ?
+>  		 dm->num_pages_added - dm->num_pages_onlined : 0) +
+>  		compute_balloon_floor();
+>  
+> -	trace_balloon_status(status.num_avail, status.num_committed,
+> +	trace_balloon_status(num_pages_avail, num_pages_committed,
+>  			     vm_memory_committed(), dm->num_pages_ballooned,
+>  			     dm->num_pages_added, dm->num_pages_onlined);
+> +
+> +	/* Convert numbers of pages into numbers of HV_HYP_PAGEs. */
+> +	status.num_avail = num_pages_avail * NR_HV_HYP_PAGES_IN_PAGE;
+> +	status.num_committed = num_pages_committed * NR_HV_HYP_PAGES_IN_PAGE;
+> +
+>  	/*
+>  	 * If our transaction ID is no longer current, just don't
+>  	 * send the status. This can happen if we were interrupted
+> -- 
+> 2.35.1
+> 
