@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7EC75A93FC
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9EF85A9408
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232715AbiIAKMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 06:12:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
+        id S232313AbiIAKQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 06:16:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231343AbiIAKMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:12:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A91EA131DC1
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 03:12:34 -0700 (PDT)
+        with ESMTP id S230064AbiIAKQO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:16:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E83132516;
+        Thu,  1 Sep 2022 03:16:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 532F7B82572
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 10:12:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C172C433D6;
-        Thu,  1 Sep 2022 10:12:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C156E61BBD;
+        Thu,  1 Sep 2022 10:16:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4799C433D6;
+        Thu,  1 Sep 2022 10:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662027152;
-        bh=MC2SWgpB2SraSeOCGrOmEsbs+1Ikep3PLC6vhGA+Zbc=;
+        s=korg; t=1662027372;
+        bh=uZ+oI9tPYlP6rcFKR0qKBUggEYKn53MeVCyIMmkvT4g=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jVdjoNRE8+kGkwsCWt9M4hrYLXF0FD8i3FQh4K3n5gJCnIw0u16RVap9AQTEAJD7L
-         Bk0kl89pjW/FBhdlkGT7TierW1GIJRfK63d+xtWOzxCHlWbv8hWfNZtAmFUBCIDjtr
-         WVqX5/ELOXt987fdoV//33fQ9hQBJFHiH6H+Firw=
-Date:   Thu, 1 Sep 2022 12:12:29 +0200
+        b=yoaisLSa3hD7MKb/tM8glDvfl0ElMn3nP23bJB2Ox4MHLgQEki88IOPqBxswlZODu
+         QLsCtL0DD5FU956du0Oc3sN/tj9qiQDjV+O2QDLyDHh5SED5LstzGcPq4T7p9SgnTJ
+         4pv53jcZNcDIgQUF2mPzmRi/pxWPVv3mC2XeG7kA=
+Date:   Thu, 1 Sep 2022 12:16:09 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     david@redhat.com, gor@linux.ibm.com, hca@linux.ibm.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.9] s390/mm: do not trigger write fault when vma does
- not allow VM_WRITE
-Message-ID: <YxCFjWQ1BAT6+Evj@kroah.com>
-References: <16617586646999@kroah.com>
- <20220829155238.3865621-1-gerald.schaefer@linux.ibm.com>
+To:     Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Cc:     stable@vger.kernel.org, andrew.cooper3@citrix.com, bp@suse.de,
+        tony.luck@intel.com, antonio.gomez.iglesias@linux.intel.com,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4.14 1/2] x86/cpu: Add Tiger Lake to Intel family
+Message-ID: <YxCGaVZ8QRW65sIc@kroah.com>
+References: <ec31e22b4f3b079d0da6b60f5899ffcd79d9bea0.1661899117.git.pawan.kumar.gupta@linux.intel.com>
+ <20220830230008.uvkdp2r54uexpwbz@desk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220829155238.3865621-1-gerald.schaefer@linux.ibm.com>
+In-Reply-To: <20220830230008.uvkdp2r54uexpwbz@desk>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -52,53 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 29, 2022 at 05:52:38PM +0200, Gerald Schaefer wrote:
-> commit 41ac42f137080bc230b5882e3c88c392ab7f2d32 upstream.
+On Tue, Aug 30, 2022 at 04:00:08PM -0700, Pawan Gupta wrote:
+> On Tue, Aug 30, 2022 at 03:43:25PM -0700, Pawan Gupta wrote:
+> > From: Gayatri Kammela <gayatri.kammela@intel.com>
+> > 
+> > [ Upstream commit 6e1c32c5dbb4b90eea8f964c2869d0bde050dbe0 ]
+> > 
+> > Add the model numbers/CPUIDs of Tiger Lake mobile and desktop to the
+> > Intel family.
+> > 
+> > Suggested-by: Tony Luck <tony.luck@intel.com>
+> > Signed-off-by: Gayatri Kammela <gayatri.kammela@intel.com>
+> > Signed-off-by: Tony Luck <tony.luck@intel.com>
+> > Reviewed-by: Tony Luck <tony.luck@intel.com>
+> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: Rahul Tanwar <rahul.tanwar@linux.intel.com>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Link: https://lkml.kernel.org/r/20190905193020.14707-2-tony.luck@intel.com
+> > Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> For non-protection pXd_none() page faults in do_dat_exception(), we
-> call do_exception() with access == (VM_READ | VM_WRITE | VM_EXEC).
-> In do_exception(), vma->vm_flags is checked against that before
-> calling handle_mm_fault().
+> Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 > 
-> Since commit 92f842eac7ee3 ("[S390] store indication fault optimization"),
-> we call handle_mm_fault() with FAULT_FLAG_WRITE, when recognizing that
-> it was a write access. However, the vma flags check is still only
-> checking against (VM_READ | VM_WRITE | VM_EXEC), and therefore also
-> calling handle_mm_fault() with FAULT_FLAG_WRITE in cases where the vma
-> does not allow VM_WRITE.
-> 
-> Fix this by changing access check in do_exception() to VM_WRITE only,
-> when recognizing write access.
-> 
-> Link: https://lkml.kernel.org/r/20220811103435.188481-3-david@redhat.com
-> Fixes: 92f842eac7ee3 ("[S390] store indication fault optimization")
-> Cc: <stable@vger.kernel.org>
-> Reported-by: David Hildenbrand <david@redhat.com>
-> Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> ---
->  arch/s390/mm/fault.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> index ba2f21873cbd..6fa4220e34b5 100644
-> --- a/arch/s390/mm/fault.c
-> +++ b/arch/s390/mm/fault.c
-> @@ -409,7 +409,9 @@ static inline int do_exception(struct pt_regs *regs, int access)
->  	flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
->  	if (user_mode(regs))
->  		flags |= FAULT_FLAG_USER;
-> -	if (access == VM_WRITE || (trans_exc_code & store_indication) == 0x400)
-> +	if ((trans_exc_code & store_indication) == 0x400)
-> +		access = VM_WRITE;
-> +	if (access == VM_WRITE)
->  		flags |= FAULT_FLAG_WRITE;
->  	down_read(&mm->mmap_sem);
->  
-> -- 
-> 2.34.1
-> 
+> I just realized that my sign-off was missing. I can resend the patch if
+> required.
 
-all now queued up, thanks.
+No need, I took it from here, thanks.
 
 greg k-h
