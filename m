@@ -2,217 +2,412 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F985AA318
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 00:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E925AA31F
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 00:33:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232833AbiIAWcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 18:32:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48328 "EHLO
+        id S235124AbiIAWdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 18:33:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233729AbiIAWcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 18:32:33 -0400
-Received: from smtp-fw-80006.amazon.com (smtp-fw-80006.amazon.com [99.78.197.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC49108B
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 15:32:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1662071552; x=1693607552;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=G8JdlIx2Xac+lqUhtF+N0rOmQq6A+lDdpJ+RpnSepcs=;
-  b=q3TeuQj68Y8dU3R8Xeh02AQ2/4FuEmvtW6lSIWBuLBRY+CVHSmCUbmc4
-   qNpH//hn/6o2r2Z6k/0HdvZVQuo3Qgs6tZjjKpff6EYXHDJMKmAx36JiT
-   THxubwGhKwwhF9bEEj+M9ohRMGEI1YAjKklUoRdvMG6iHEe8EExK8q6Mk
-   s=;
-X-IronPort-AV: E=Sophos;i="5.93,281,1654560000"; 
-   d="scan'208";a="125868115"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1a-87b71607.us-east-1.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-80006.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2022 22:32:15 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1a-87b71607.us-east-1.amazon.com (Postfix) with ESMTPS id 66456142CA0;
-        Thu,  1 Sep 2022 22:32:12 +0000 (UTC)
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Thu, 1 Sep 2022 22:32:11 +0000
-Received: from dev-dsk-kuniyu-2c-0edd2a20.us-west-2.amazon.com (10.43.161.172)
- by EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.12;
- Thu, 1 Sep 2022 22:32:09 +0000
-From:   Kuniyuki Iwashima <kuniyu@amazon.com>
-To:     <stable@vger.kernel.org>
-CC:     Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Ayushman Dutta <ayudutta@amazon.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        "Anil S Keshavamurthy" <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Wang Nan <wangnan0@huawei.com>,
-        Kuniyuki Iwashima <kuni1840@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH stable 5.4 5.10 5.15] kprobes: don't call disarm_kprobe() for disabled kprobes
-Date:   Thu, 1 Sep 2022 22:32:05 +0000
-Message-ID: <20220901223205.11648-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.37.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.43.161.172]
-X-ClientProxiedBy: EX13D31UWA002.ant.amazon.com (10.43.160.82) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
-X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S234920AbiIAWdx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 18:33:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E03C64;
+        Thu,  1 Sep 2022 15:33:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 139D362017;
+        Thu,  1 Sep 2022 22:33:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 692D4C433D6;
+        Thu,  1 Sep 2022 22:33:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1662071631;
+        bh=QA8Ot9fW28Lj0opQ0rfELQi8e3MbeWQma8DHBibugqY=;
+        h=Date:To:From:Subject:From;
+        b=KxNnMTr6Nx133nR9juak8AwdPYTjgSCykTi/LLn3Mui+d4jbZWLkdmhTQ7ErZuWNe
+         hnwzwwkTuRCdY0ZxROM0PQFwCH2mmaq9KvTVdj+ErwNCbMZ74EWcsfTVpYC2lJxf6A
+         PgqTLRoasBZ7+M7UExUfIEBVKJYhQ6Q/IcOrzulU=
+Date:   Thu, 01 Sep 2022 15:33:50 -0700
+To:     mm-commits@vger.kernel.org, will@kernel.org, vbabka@suse.cz,
+        stable@vger.kernel.org, shy828301@gmail.com, peterz@infradead.org,
+        peterx@redhat.com, paulmck@kernel.org, parri.andrea@gmail.com,
+        namit@vmware.com, mike.kravetz@oracle.com, mhocko@kernel.org,
+        jhubbard@nvidia.com, jgg@nvidia.com, hughd@google.com,
+        ddutile@redhat.com, crecklin@redhat.com, apopple@nvidia.com,
+        aarcange@redhat.com, david@redhat.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220901223351.692D4C433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 9c80e79906b4ca440d09e7f116609262bb747909 upstream.
 
-The assumption in __disable_kprobe() is wrong, and it could try to disarm
-an already disarmed kprobe and fire the WARN_ONCE() below. [0]  We can
-easily reproduce this issue.
+The patch titled
+     Subject: mm: fix PageAnonExclusive clearing racing with concurrent RCU GUP-fast
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast.patch
 
-1. Write 0 to /sys/kernel/debug/kprobes/enabled.
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast.patch
 
-  # echo 0 > /sys/kernel/debug/kprobes/enabled
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-2. Run execsnoop.  At this time, one kprobe is disabled.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-  # /usr/share/bcc/tools/execsnoop &
-  [1] 2460
-  PCOMM            PID    PPID   RET ARGS
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-  # cat /sys/kernel/debug/kprobes/list
-  ffffffff91345650  r  __x64_sys_execve+0x0    [FTRACE]
-  ffffffff91345650  k  __x64_sys_execve+0x0    [DISABLED][FTRACE]
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
 
-3. Write 1 to /sys/kernel/debug/kprobes/enabled, which changes
-   kprobes_all_disarmed to false but does not arm the disabled kprobe.
+------------------------------------------------------
+From: David Hildenbrand <david@redhat.com>
+Subject: mm: fix PageAnonExclusive clearing racing with concurrent RCU GUP-fast
+Date: Thu, 1 Sep 2022 10:35:59 +0200
 
-  # echo 1 > /sys/kernel/debug/kprobes/enabled
+commit 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with
+PG_anon_exclusive") made sure that when PageAnonExclusive() has to be
+cleared during temporary unmapping of a page, that the PTE is
+cleared/invalidated and that the TLB is flushed.
 
-  # cat /sys/kernel/debug/kprobes/list
-  ffffffff91345650  r  __x64_sys_execve+0x0    [FTRACE]
-  ffffffff91345650  k  __x64_sys_execve+0x0    [DISABLED][FTRACE]
+What we want to achieve in all cases is that we cannot end up with a pin on
+an anonymous page that may be shared, because such pins would be
+unreliable and could result in memory corruptions when the mapped page
+and the pin go out of sync due to a write fault.
 
-4. Kill execsnoop, when __disable_kprobe() calls disarm_kprobe() for the
-   disabled kprobe and hits the WARN_ONCE() in __disarm_kprobe_ftrace().
+That TLB flush handling was inspired by an outdated comment in
+mm/ksm.c:write_protect_page(), which similarly required the TLB flush in
+the past to synchronize with GUP-fast. However, ever since general RCU GUP
+fast was introduced in commit 2667f50e8b81 ("mm: introduce a general RCU
+get_user_pages_fast()"), a TLB flush is no longer sufficient to handle
+concurrent GUP-fast in all cases -- it only handles traditional IPI-based
+GUP-fast correctly.
 
-  # fg
-  /usr/share/bcc/tools/execsnoop
-  ^C
+Peter Xu (thankfully) questioned whether that TLB flush is really
+required. On architectures that send an IPI broadcast on TLB flush,
+it works as expected. To synchronize with RCU GUP-fast properly, we're
+conceptually fine, however, we have to enforce a certain memory order and
+are missing memory barriers.
 
-Actually, WARN_ONCE() is fired twice, and __unregister_kprobe_top() misses
-some cleanups and leaves the aggregated kprobe in the hash table.  Then,
-__unregister_trace_kprobe() initialises tk->rp.kp.list and creates an
-infinite loop like this.
+Let's document that, avoid the TLB flush where possible and use proper
+explicit memory barriers where required. We shouldn't really care about the
+additional memory barriers here, as we're not on extremely hot paths --
+and we're getting rid of some TLB flushes.
 
-  aggregated kprobe.list -> kprobe.list -.
-                                     ^    |
-                                     '.__.'
+We use a smp_mb() pair for handling concurrent pinning and a
+smp_rmb()/smp_wmb() pair for handling the corner case of only temporary
+PTE changes but permanent PageAnonExclusive changes.
 
-In this situation, these commands fall into the infinite loop and result
-in RCU stall or soft lockup.
+One extreme example, whereby GUP-fast takes a R/O pin and KSM wants to
+convert an exclusive anonymous page to a KSM page, and that page is already
+mapped write-protected (-> no PTE change) would be:
 
-  cat /sys/kernel/debug/kprobes/list : show_kprobe_addr() enters into the
-                                       infinite loop with RCU.
+	Thread 0 (KSM)			Thread 1 (GUP-fast)
 
-  /usr/share/bcc/tools/execsnoop : warn_kprobe_rereg() holds kprobe_mutex,
-                                   and __get_valid_kprobe() is stuck in
-				   the loop.
+					(B1) Read the PTE
+					# (B2) skipped without FOLL_WRITE
+	(A1) Clear PTE
+	smp_mb()
+	(A2) Check pinned
+					(B3) Pin the mapped page
+					smp_mb()
+	(A3) Clear PageAnonExclusive
+	smp_wmb()
+	(A4) Restore PTE
+					(B4) Check if the PTE changed
+					smp_rmb()
+					(B5) Check PageAnonExclusive
 
-To avoid the issue, make sure we don't call disarm_kprobe() for disabled
-kprobes.
+Thread 1 will properly detect that PageAnonExclusive was cleared and
+back off.
 
-[0]
-Failed to disarm kprobe-ftrace at __x64_sys_execve+0x0/0x40 (error -2)
-WARNING: CPU: 6 PID: 2460 at kernel/kprobes.c:1130 __disarm_kprobe_ftrace.isra.19 (kernel/kprobes.c:1129)
-Modules linked in: ena
-CPU: 6 PID: 2460 Comm: execsnoop Not tainted 5.19.0+ #28
-Hardware name: Amazon EC2 c5.2xlarge/, BIOS 1.0 10/16/2017
-RIP: 0010:__disarm_kprobe_ftrace.isra.19 (kernel/kprobes.c:1129)
-Code: 24 8b 02 eb c1 80 3d c4 83 f2 01 00 75 d4 48 8b 75 00 89 c2 48 c7 c7 90 fa 0f 92 89 04 24 c6 05 ab 83 01 e8 e4 94 f0 ff <0f> 0b 8b 04 24 eb b1 89 c6 48 c7 c7 60 fa 0f 92 89 04 24 e8 cc 94
-RSP: 0018:ffff9e6ec154bd98 EFLAGS: 00010282
-RAX: 0000000000000000 RBX: ffffffff930f7b00 RCX: 0000000000000001
-RDX: 0000000080000001 RSI: ffffffff921461c5 RDI: 00000000ffffffff
-RBP: ffff89c504286da8 R08: 0000000000000000 R09: c0000000fffeffff
-R10: 0000000000000000 R11: ffff9e6ec154bc28 R12: ffff89c502394e40
-R13: ffff89c502394c00 R14: ffff9e6ec154bc00 R15: 0000000000000000
-FS:  00007fe800398740(0000) GS:ffff89c812d80000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000c00057f010 CR3: 0000000103b54006 CR4: 00000000007706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
-<TASK>
- __disable_kprobe (kernel/kprobes.c:1716)
- disable_kprobe (kernel/kprobes.c:2392)
- __disable_trace_kprobe (kernel/trace/trace_kprobe.c:340)
- disable_trace_kprobe (kernel/trace/trace_kprobe.c:429)
- perf_trace_event_unreg.isra.2 (./include/linux/tracepoint.h:93 kernel/trace/trace_event_perf.c:168)
- perf_kprobe_destroy (kernel/trace/trace_event_perf.c:295)
- _free_event (kernel/events/core.c:4971)
- perf_event_release_kernel (kernel/events/core.c:5176)
- perf_release (kernel/events/core.c:5186)
- __fput (fs/file_table.c:321)
- task_work_run (./include/linux/sched.h:2056 (discriminator 1) kernel/task_work.c:179 (discriminator 1))
- exit_to_user_mode_prepare (./include/linux/resume_user_mode.h:49 kernel/entry/common.c:169 kernel/entry/common.c:201)
- syscall_exit_to_user_mode (./arch/x86/include/asm/jump_label.h:55 ./arch/x86/include/asm/nospec-branch.h:384 ./arch/x86/include/asm/entry-common.h:94 kernel/entry/common.c:133 kernel/entry/common.c:296)
- do_syscall_64 (arch/x86/entry/common.c:87)
- entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-RIP: 0033:0x7fe7ff210654
-Code: 15 79 89 20 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb be 0f 1f 00 8b 05 9a cd 20 00 48 63 ff 85 c0 75 11 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 3a f3 c3 48 83 ec 18 48 89 7c 24 08 e8 34 fc
-RSP: 002b:00007ffdbd1d3538 EFLAGS: 00000246 ORIG_RAX: 0000000000000003
-RAX: 0000000000000000 RBX: 0000000000000008 RCX: 00007fe7ff210654
-RDX: 0000000000000000 RSI: 0000000000002401 RDI: 0000000000000008
-RBP: 0000000000000000 R08: 94ae31d6fda838a4 R0900007fe8001c9d30
-R10: 00007ffdbd1d34b0 R11: 0000000000000246 R12: 00007ffdbd1d3600
-R13: 0000000000000000 R14: fffffffffffffffc R15: 00007ffdbd1d3560
-</TASK>
+Note that we don't need a memory barrier between checking if the page is
+pinned and clearing PageAnonExclusive, because stores are not
+speculated.
 
-Link: https://lkml.kernel.org/r/20220813020509.90805-1-kuniyu@amazon.com
-Fixes: 69d54b916d83 ("kprobes: makes kprobes/enabled works correctly for optimized kprobes.")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reported-by: Ayushman Dutta <ayudutta@amazon.com>
-Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Wang Nan <wangnan0@huawei.com>
-Cc: Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc: Kuniyuki Iwashima <kuni1840@gmail.com>
-Cc: Ayushman Dutta <ayudutta@amazon.com>
+The possible issues due to reordering are of theoretical nature so far
+and attempts to reproduce the race failed.
+
+Especially the "no PTE change" case isn't the common case, because we'd
+need an exclusive anonymous page that's mapped R/O and the PTE is clean
+in KSM code -- and using KSM with page pinning isn't extremely common.
+Further, the clear+TLB flush we used for now implies a memory barrier.
+So the problematic missing part should be the missing memory barrier
+after pinning but before checking if the PTE changed.
+
+Link: https://lkml.kernel.org/r/20220901083559.67446-1-david@redhat.com
+Fixes: 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Nadav Amit <namit@vmware.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Parri <parri.andrea@gmail.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Christoph von Recklinghausen <crecklin@redhat.com>
+Cc: Don Dutile <ddutile@redhat.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- kernel/kprobes.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 3a3c0166bd1f..ed3f24a81549 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1705,11 +1705,12 @@ static struct kprobe *__disable_kprobe(struct kprobe *p)
- 		/* Try to disarm and disable this/parent probe */
- 		if (p == orig_p || aggr_kprobe_disabled(orig_p)) {
- 			/*
--			 * If kprobes_all_disarmed is set, orig_p
--			 * should have already been disarmed, so
--			 * skip unneed disarming process.
-+			 * Don't be lazy here.  Even if 'kprobes_all_disarmed'
-+			 * is false, 'orig_p' might not have been armed yet.
-+			 * Note arm_all_kprobes() __tries__ to arm all kprobes
-+			 * on the best effort basis.
- 			 */
--			if (!kprobes_all_disarmed) {
-+			if (!kprobes_all_disarmed && !kprobe_disabled(orig_p)) {
- 				ret = disarm_kprobe(orig_p, true);
- 				if (ret) {
- 					p->flags &= ~KPROBE_FLAG_DISABLED;
--- 
-2.37.1
+ include/linux/mm.h   |    9 ++++-
+ include/linux/rmap.h |   66 +++++++++++++++++++++++++++++++++++++----
+ mm/gup.c             |    7 ++++
+ mm/huge_memory.c     |    3 +
+ mm/ksm.c             |    1 
+ mm/migrate_device.c  |   23 ++++++--------
+ mm/rmap.c            |   11 +++---
+ 7 files changed, 95 insertions(+), 25 deletions(-)
+
+--- a/include/linux/mm.h~mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast
++++ a/include/linux/mm.h
+@@ -2975,8 +2975,8 @@ static inline int vm_fault_to_errno(vm_f
+  * PageAnonExclusive() has to protect against concurrent GUP:
+  * * Ordinary GUP: Using the PT lock
+  * * GUP-fast and fork(): mm->write_protect_seq
+- * * GUP-fast and KSM or temporary unmapping (swap, migration):
+- *   clear/invalidate+flush of the page table entry
++ * * GUP-fast and KSM or temporary unmapping (swap, migration): see
++ *    page_try_share_anon_rmap()
+  *
+  * Must be called with the (sub)page that's actually referenced via the
+  * page table entry, which might not necessarily be the head page for a
+@@ -2997,6 +2997,11 @@ static inline bool gup_must_unshare(unsi
+ 	 */
+ 	if (!PageAnon(page))
+ 		return false;
++
++	/* Paired with a memory barrier in page_try_share_anon_rmap(). */
++	if (IS_ENABLED(CONFIG_HAVE_FAST_GUP))
++		smp_rmb();
++
+ 	/*
+ 	 * Note that PageKsm() pages cannot be exclusive, and consequently,
+ 	 * cannot get pinned.
+--- a/include/linux/rmap.h~mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast
++++ a/include/linux/rmap.h
+@@ -267,7 +267,7 @@ dup:
+  * @page: the exclusive anonymous page to try marking possibly shared
+  *
+  * The caller needs to hold the PT lock and has to have the page table entry
+- * cleared/invalidated+flushed, to properly sync against GUP-fast.
++ * cleared/invalidated.
+  *
+  * This is similar to page_try_dup_anon_rmap(), however, not used during fork()
+  * to duplicate a mapping, but instead to prepare for KSM or temporarily
+@@ -283,12 +283,68 @@ static inline int page_try_share_anon_rm
+ {
+ 	VM_BUG_ON_PAGE(!PageAnon(page) || !PageAnonExclusive(page), page);
+ 
+-	/* See page_try_dup_anon_rmap(). */
+-	if (likely(!is_device_private_page(page) &&
+-	    unlikely(page_maybe_dma_pinned(page))))
+-		return -EBUSY;
++	/* device private pages cannot get pinned via GUP. */
++	if (unlikely(is_device_private_page(page))) {
++		ClearPageAnonExclusive(page);
++		return 0;
++	}
++
++	/*
++	 * We have to make sure that when we clear PageAnonExclusive, that
++	 * the page is not pinned and that concurrent GUP-fast won't succeed in
++	 * concurrently pinning the page.
++	 *
++	 * Conceptually, PageAnonExclusive clearing consists of:
++	 * (A1) Clear PTE
++	 * (A2) Check if the page is pinned; back off if so.
++	 * (A3) Clear PageAnonExclusive
++	 * (A4) Restore PTE (optional, but certainly not writable)
++	 *
++	 * When clearing PageAnonExclusive, we cannot possibly map the page
++	 * writable again, because anon pages that may be shared must never
++	 * be writable. So in any case, if the PTE was writable it cannot
++	 * be writable anymore afterwards and there would be a PTE change. Only
++	 * if the PTE wasn't writable, there might not be a PTE change.
++	 *
++	 * Conceptually, GUP-fast pinning of an anon page consists of:
++	 * (B1) Read the PTE
++	 * (B2) FOLL_WRITE: check if the PTE is not writable; back off if so.
++	 * (B3) Pin the mapped page
++	 * (B4) Check if the PTE changed by re-reading it; back off if so.
++	 * (B5) If the original PTE is not writable, check if
++	 *	PageAnonExclusive is not set; back off if so.
++	 *
++	 * If the PTE was writable, we only have to make sure that GUP-fast
++	 * observes a PTE change and properly backs off.
++	 *
++	 * If the PTE was not writable, we have to make sure that GUP-fast either
++	 * detects a (temporary) PTE change or that PageAnonExclusive is cleared
++	 * and properly backs off.
++	 *
++	 * Consequently, when clearing PageAnonExclusive(), we have to make
++	 * sure that (A1), (A2)/(A3) and (A4) happen in the right memory
++	 * order. In GUP-fast pinning code, we have to make sure that (B3),(B4)
++	 * and (B5) happen in the right memory order.
++	 *
++	 * We assume that there might not be a memory barrier after
++	 * clearing/invalidating the PTE (A1) and before restoring the PTE (A4),
++	 * so we use explicit ones here.
++	 */
++
++	/* Paired with the memory barrier in try_grab_folio(). */
++	if (IS_ENABLED(CONFIG_HAVE_FAST_GUP))
++		smp_mb();
+ 
++	if (unlikely(page_maybe_dma_pinned(page)))
++		return -EBUSY;
+ 	ClearPageAnonExclusive(page);
++
++	/*
++	 * This is conceptually a smp_wmb() paired with the smp_rmb() in
++	 * gup_must_unshare().
++	 */
++	if (IS_ENABLED(CONFIG_HAVE_FAST_GUP))
++		smp_mb__after_atomic();
+ 	return 0;
+ }
+ 
+--- a/mm/gup.c~mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast
++++ a/mm/gup.c
+@@ -158,6 +158,13 @@ struct folio *try_grab_folio(struct page
+ 		else
+ 			folio_ref_add(folio,
+ 					refs * (GUP_PIN_COUNTING_BIAS - 1));
++		/*
++		 * Adjust the pincount before re-checking the PTE for changes.
++		 * This is essentially a smp_mb() and is paired with a memory
++		 * barrier in page_try_share_anon_rmap().
++		 */
++		smp_mb__after_atomic();
++
+ 		node_stat_mod_folio(folio, NR_FOLL_PIN_ACQUIRED, refs);
+ 
+ 		return folio;
+--- a/mm/huge_memory.c~mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast
++++ a/mm/huge_memory.c
+@@ -2140,6 +2140,8 @@ static void __split_huge_pmd_locked(stru
+ 		 *
+ 		 * In case we cannot clear PageAnonExclusive(), split the PMD
+ 		 * only and let try_to_migrate_one() fail later.
++		 *
++		 * See page_try_share_anon_rmap(): invalidate PMD first.
+ 		 */
+ 		anon_exclusive = PageAnon(page) && PageAnonExclusive(page);
+ 		if (freeze && anon_exclusive && page_try_share_anon_rmap(page))
+@@ -3177,6 +3179,7 @@ int set_pmd_migration_entry(struct page_
+ 	flush_cache_range(vma, address, address + HPAGE_PMD_SIZE);
+ 	pmdval = pmdp_invalidate(vma, address, pvmw->pmd);
+ 
++	/* See page_try_share_anon_rmap(): invalidate PMD first. */
+ 	anon_exclusive = PageAnon(page) && PageAnonExclusive(page);
+ 	if (anon_exclusive && page_try_share_anon_rmap(page)) {
+ 		set_pmd_at(mm, address, pvmw->pmd, pmdval);
+--- a/mm/ksm.c~mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast
++++ a/mm/ksm.c
+@@ -1095,6 +1095,7 @@ static int write_protect_page(struct vm_
+ 			goto out_unlock;
+ 		}
+ 
++		/* See page_try_share_anon_rmap(): clear PTE first. */
+ 		if (anon_exclusive && page_try_share_anon_rmap(page)) {
+ 			set_pte_at(mm, pvmw.address, pvmw.pte, entry);
+ 			goto out_unlock;
+--- a/mm/migrate_device.c~mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast
++++ a/mm/migrate_device.c
+@@ -193,20 +193,17 @@ again:
+ 			bool anon_exclusive;
+ 			pte_t swp_pte;
+ 
+-			anon_exclusive = PageAnon(page) && PageAnonExclusive(page);
+-			if (anon_exclusive) {
+-				flush_cache_page(vma, addr, pte_pfn(*ptep));
+-				ptep_clear_flush(vma, addr, ptep);
++			flush_cache_page(vma, addr, pte_pfn(*ptep));
++			ptep_get_and_clear(mm, addr, ptep);
+ 
+-				if (page_try_share_anon_rmap(page)) {
+-					set_pte_at(mm, addr, ptep, pte);
+-					unlock_page(page);
+-					put_page(page);
+-					mpfn = 0;
+-					goto next;
+-				}
+-			} else {
+-				ptep_get_and_clear(mm, addr, ptep);
++			/* See page_try_share_anon_rmap(): clear PTE first. */
++			anon_exclusive = PageAnon(page) && PageAnonExclusive(page);
++			if (anon_exclusive && page_try_share_anon_rmap(page)) {
++				set_pte_at(mm, addr, ptep, pte);
++				unlock_page(page);
++				put_page(page);
++				mpfn = 0;
++				goto next;
+ 			}
+ 
+ 			migrate->cpages++;
+--- a/mm/rmap.c~mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast
++++ a/mm/rmap.c
+@@ -1579,11 +1579,8 @@ static bool try_to_unmap_one(struct foli
+ 			pteval = huge_ptep_clear_flush(vma, address, pvmw.pte);
+ 		} else {
+ 			flush_cache_page(vma, address, pte_pfn(*pvmw.pte));
+-			/*
+-			 * Nuke the page table entry. When having to clear
+-			 * PageAnonExclusive(), we always have to flush.
+-			 */
+-			if (should_defer_flush(mm, flags) && !anon_exclusive) {
++			/* Nuke the page table entry. */
++			if (should_defer_flush(mm, flags)) {
+ 				/*
+ 				 * We clear the PTE but do not flush so potentially
+ 				 * a remote CPU could still be writing to the folio.
+@@ -1714,6 +1711,8 @@ static bool try_to_unmap_one(struct foli
+ 				page_vma_mapped_walk_done(&pvmw);
+ 				break;
+ 			}
++
++			/* See page_try_share_anon_rmap(): clear PTE first. */
+ 			if (anon_exclusive &&
+ 			    page_try_share_anon_rmap(subpage)) {
+ 				swap_free(entry);
+@@ -2045,6 +2044,8 @@ static bool try_to_migrate_one(struct fo
+ 			}
+ 			VM_BUG_ON_PAGE(pte_write(pteval) && folio_test_anon(folio) &&
+ 				       !anon_exclusive, subpage);
++
++			/* See page_try_share_anon_rmap(): clear PTE first. */
+ 			if (anon_exclusive &&
+ 			    page_try_share_anon_rmap(subpage)) {
+ 				if (folio_test_hugetlb(folio))
+_
+
+Patches currently in -mm which might be from david@redhat.com are
+
+mm-fix-pageanonexclusive-clearing-racing-with-concurrent-rcu-gup-fast.patch
+mm-gup-replace-foll_numa-by-gup_can_follow_protnone.patch
+mm-gup-use-gup_can_follow_protnone-also-in-gup-fast.patch
+mm-fixup-documentation-regarding-pte_numa-and-prot_numa.patch
 
