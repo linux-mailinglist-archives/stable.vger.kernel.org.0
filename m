@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA865A93B7
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 11:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EAF25A93BA
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 11:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232372AbiIAJ5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 05:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60828 "EHLO
+        id S229798AbiIAJ6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 05:58:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231717AbiIAJ47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 05:56:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0769913778D
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 02:56:57 -0700 (PDT)
+        with ESMTP id S231717AbiIAJ6C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 05:58:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412BC13778F
+        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 02:58:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDF6461B0D
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 09:56:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 061D4C433B5;
-        Thu,  1 Sep 2022 09:56:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF4B2B8255E
+        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 09:57:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A717C433D6;
+        Thu,  1 Sep 2022 09:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662026216;
-        bh=1PRT7jsFTGFoQyaoG6xS8KSWnD42E82X8OoMjvWcq8M=;
+        s=korg; t=1662026278;
+        bh=kV341kEud1SdNlHVGRW8mPXcJpeuxbGPwHt+lNvqVnw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EFVl15jAF+8BV4qjYJF9PHzPMvNVLZQpeskuztQif9r1/Rkmozh51rteCOuUT/7fe
-         xVIWl/UHjUkkzbGu5q2u3Qbh3XAv7AeYYGZoQ6GMA2qpZL09/TG7G1rBbsdfnBdK0R
-         8RndSrT35Wvntqnr2i/d/uaJZBI/nz3xiN29PbDw=
-Date:   Thu, 1 Sep 2022 11:56:53 +0200
+        b=Vp49PUrcgMhygoTTfL2HZ2aSPx9jp5xO98QU1pcylidRcjETcNNtgEvcgL7F4ZoG0
+         CIUGtUPs55H1qXQJFUAsdVjJpffnCH/b81ZZA9oz3tOVl7tH2F96CjSShiJKyr/XJS
+         8HMzsbGXChaLveqTJutzTTPB9f4XKZO/Kd7s18Jo=
+Date:   Thu, 1 Sep 2022 11:57:55 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Lucas Wei <lucaswei@google.com>
-Cc:     stable@vger.kernel.org, robinpeng@google.com,
-        willdeacon@google.com, aaronding@google.com,
-        danielmentz@google.com, James Morse <james.morse@arm.com>
-Subject: Re: [PATCH] arm64: errata: Add Cortex-A510 to the repeat tlbi list
-Message-ID: <YxCB5dzUHt17DZCe@kroah.com>
-References: <20220831132724.4101958-1-lucaswei@google.com>
+To:     Michael Bestas <mkbestas@gmail.com>
+Cc:     stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Will Deacon <will@kernel.org>
+Subject: Re: [PATCH] arm64: map FDT as RW for early_init_dt_scan()
+Message-ID: <YxCCI2c6l8OdA4GV@kroah.com>
+References: <20220831203200.1684696-1-mkbestas@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220831132724.4101958-1-lucaswei@google.com>
+In-Reply-To: <20220831203200.1684696-1-mkbestas@gmail.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,30 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 31, 2022 at 09:27:25PM +0800, Lucas Wei wrote:
-> From: James Morse <james.morse@arm.com>
+On Wed, Aug 31, 2022 at 11:32:00PM +0300, Michael Bestas wrote:
+> From: Hsin-Yi Wang <hsinyi@chromium.org>
 > 
-> commit 39fdb65f52e9a53d32a6ba719f96669fd300ae78 upstream.
+> commit e112b032a72c78f15d0c803c5dc6be444c2e6c66 upstream.
 > 
-> Cortex-A510 is affected by an erratum where in rare circumstances the
-> CPUs may not handle a race between a break-before-make sequence on one
-> CPU, and another CPU accessing the same page. This could allow a store
-> to a page that has been unmapped.
+> Currently in arm64, FDT is mapped to RO before it's passed to
+> early_init_dt_scan(). However, there might be some codes
+> (eg. commit "fdt: add support for rng-seed") that need to modify FDT
+> during init. Map FDT to RO after early fixups are done.
 > 
-> Work around this by adding the affected CPUs to the list that needs
-> TLB sequences to be done twice.
-> 
-> Cc: stable@vger.kernel.org # 5.15.x
-> Signed-off-by: James Morse <james.morse@arm.com>
-> Link: https://lore.kernel.org/r/20220704155732.21216-1-james.morse@arm.com
+> Cc: stable@vger.kernel.org # 4.14
+> Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+> Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+> Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
 > Signed-off-by: Will Deacon <will@kernel.org>
-> Signed-off-by: Lucas Wei <lucaswei@google.com>
+> [mkbestas: fixed trivial conflicts for 4.14 backport]
+> Signed-off-by: Michael Bestas <mkbestas@gmail.com>
 > ---
->  Documentation/arm64/silicon-errata.rst |  2 ++
->  arch/arm64/Kconfig                     | 17 +++++++++++++++++
->  arch/arm64/kernel/cpu_errata.c         |  8 +++++++-
->  3 files changed, 26 insertions(+), 1 deletion(-)
+>  arch/arm64/include/asm/mmu.h |  2 +-
+>  arch/arm64/kernel/kaslr.c    |  5 +----
+>  arch/arm64/kernel/setup.c    |  9 ++++++++-
+>  arch/arm64/mm/mmu.c          | 15 +--------------
+>  4 files changed, 11 insertions(+), 20 deletions(-)
+> 
 
-Now queued up, thanks.
+Both now queued up, thanks.
 
 greg k-h
