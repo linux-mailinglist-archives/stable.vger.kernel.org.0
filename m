@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB2B5A8DA2
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 07:49:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE995A8DA6
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 07:49:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233215AbiIAFtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 01:49:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41132 "EHLO
+        id S232377AbiIAFtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 01:49:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233236AbiIAFtd (ORCPT
+        with ESMTP id S233237AbiIAFtd (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 01:49:33 -0400
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B751178FB;
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13E481178D1;
         Wed, 31 Aug 2022 22:49:18 -0700 (PDT)
-Received: by mail-wm1-x331.google.com with SMTP id m17-20020a7bce11000000b003a5bedec07bso738296wmc.0;
+Received: by mail-wr1-x430.google.com with SMTP id e13so19946061wrm.1;
         Wed, 31 Aug 2022 22:49:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=xLW9Gby42tyiBFlIoDzW7LpOcnfeeekTuyuaQuWlQqE=;
-        b=g5h3FoJOwX1B/0q2TzBNU8HK5HFXNm3CfXKFc71pJYk04OeKbSr/Xri6VQvGfF8EYU
-         GFN1BqNZ0vo4ZCecNeK864N13E8kVOMjlwFW0KidBaApGVNcNPJsRUF8P6vQrbh5tPC0
-         /F63ULDpTvsGQTS2zoxNkLBaj1c10w6QOQyWIXC08jYOO4XjJaVXmaBZiTgJK3oNjhvK
-         xy9jCJIMhabxnrBpLwBru76InUebvagezSbpeYyWHC9TNX/NrlGzwBSbfvgRRpR3lqUo
-         +y2/ABJPRX2Z6vYomlnQenwBizG2pkG9LFBF3JEhdHkQXU01DSPSG5TK7z/EO9+kWr7+
-         e0YQ==
+        bh=4oxQGuYR2UpJS0BVOv4mLxNV2a7chSFxPlvyuLBVozo=;
+        b=WnIo4RCLAX4ieqoTb/VLjaFosBF1UY2gcAQHiVcDHiKznOSWTTLqfIwTf6n0LUht19
+         TBTorPVH2qhv8goh//74w7c7mVCw0k9YyOugXe3mOKWB/7XA24Kh1+CuHpqbG9iqrcOg
+         8WsK714TlYnPOVN4LOmkYxiaYv/Q0Naza/nAQnGH/+99QW7St58O5UfabzMYtzQunfr/
+         4Zr1WrwMSX18K6TqTQIyIuT64cDSF2Q5s1nnO9iaLPx5w69MXv0xZ4090Wy356jzIHQb
+         qk4v6UEIYY1VNsEzeT/lvx/iAqeJdXxR3QF0Ya05lpPMhNEr8exraCszr1UOi6VgYvrk
+         Ca5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=xLW9Gby42tyiBFlIoDzW7LpOcnfeeekTuyuaQuWlQqE=;
-        b=hqKPqzmft1hlVXNI3VgeVjlSjW/q+2JzJsjUAoINL5pRsweU6e5BJ/nzrr5hNp0QrS
-         HeOSgBT+bmbwOKvlQwPZri5o2sI8HH/50ltuer309nUgfslhfsjpGTOoq4+iM7emfJV3
-         eyKC2RWaMDD1tbrus0BzW74cuAr9TyGjyK+GneWBjlqvV4tqqAFv3xeEKNJ3D9SPZQlD
-         WVExacfIAciMv93TYLSfskyoNZZTj52i+vEOqBBRj/L2hu0dgZIFGaXaIdXRpDEaMCD4
-         yCREbUiDaYB1+KYdHtPv4CebVNgbHnulSs7wEANAm2ZxeMXlMv59eP9XCacUXscv7BBx
-         ERGw==
-X-Gm-Message-State: ACgBeo0DXw8HCe+OHyF/UtFGFWCM8KI+en//fNf0rvN8bUPaxm064Rmq
-        rHxENc1xcNRxQShm8M3H8nM=
-X-Google-Smtp-Source: AA6agR6lpyfen3E7ZZCl4CVsrYGtXwlqRud7ZXBehC5nogXSgojiQRclt8jcM6AlFw9ZEijwPW+8OA==
-X-Received: by 2002:a05:600c:384f:b0:3a6:603c:4338 with SMTP id s15-20020a05600c384f00b003a6603c4338mr3948107wmr.192.1662011348618;
-        Wed, 31 Aug 2022 22:49:08 -0700 (PDT)
+        bh=4oxQGuYR2UpJS0BVOv4mLxNV2a7chSFxPlvyuLBVozo=;
+        b=z9YoJTq1H82IATQaM1kN4WV1VIgNUkwZ3biDHdfuIIv5e6d9DNX1KaeZzAHWwP1Ijw
+         a/nVO0Zz6hKWPzkiS8W9NjmyvvNMds36BNMWB6kagvvRpB+u/nnCRpwerS85v/maMA2/
+         stWCxjA71XsHcrbh8RE21ZQm56BGrWrBDgtZ0bAc6jaR8hGw/B7eczdiylNUZOawhJJE
+         p34MVWwG8wwkPw0B850D0NM/fmXAtAtulik8zlas9XcHBwThTFcS53tFaXS9v7zUoyCr
+         nnFSxXPI/TetoZugJmU1fp24bKm0UipWAW0BwVnEfB9KYtEnnkTldQ6/wsCsN9RZ+01r
+         2vvg==
+X-Gm-Message-State: ACgBeo1dxm//rFQXyw7EMIQ29aBRm3poTapsFtG5s8hVeUumnydW49sZ
+        CYHup1ZppiBZMTwlnFNIplz2nAf53bk=
+X-Google-Smtp-Source: AA6agR5joboXJ50eoG2Z6BF5GBW6Yh5sfKVgZPkKsN9Ofcq93h+RS3Gip+6Kf0tI6cmW3ZIknNaXKw==
+X-Received: by 2002:a5d:4b4f:0:b0:226:e3d0:b6f8 with SMTP id w15-20020a5d4b4f000000b00226e3d0b6f8mr6342409wrs.355.1662011350617;
+        Wed, 31 Aug 2022 22:49:10 -0700 (PDT)
 Received: from localhost.localdomain ([77.137.66.49])
-        by smtp.gmail.com with ESMTPSA id bg15-20020a05600c3c8f00b003a4f08495b7sm4447262wmb.34.2022.08.31.22.49.06
+        by smtp.gmail.com with ESMTPSA id bg15-20020a05600c3c8f00b003a4f08495b7sm4447262wmb.34.2022.08.31.22.49.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Aug 2022 22:49:08 -0700 (PDT)
+        Wed, 31 Aug 2022 22:49:10 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -57,12 +57,12 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Adam Manzanares <a.manzanares@samsung.com>,
         linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Brian Foster <bfoster@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
+        Eric Sandeen <sandeen@redhat.com>,
+        Dave Chinner <dchinner@redhat.com>,
         Dave Chinner <david@fromorbit.com>
-Subject: [PATCH 5.10 v2 4/7] xfs: fix soft lockup via spinning in filestream ag selection loop
-Date:   Thu,  1 Sep 2022 08:48:51 +0300
-Message-Id: <20220901054854.2449416-5-amir73il@gmail.com>
+Subject: [PATCH 5.10 v2 5/7] xfs: revert "xfs: actually bump warning counts when we send warnings"
+Date:   Thu,  1 Sep 2022 08:48:52 +0300
+Message-Id: <20220901054854.2449416-6-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220901054854.2449416-1-amir73il@gmail.com>
 References: <20220901054854.2449416-1-amir73il@gmail.com>
@@ -78,57 +78,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Eric Sandeen <sandeen@redhat.com>
 
-commit f650df7171b882dca737ddbbeb414100b31f16af upstream.
+commit bc37e4fb5cac2925b2e286b1f1d4fc2b519f7d92 upstream.
 
-The filestream AG selection loop uses pagf data to aid in AG
-selection, which depends on pagf initialization. If the in-core
-structure is not initialized, the caller invokes the AGF read path
-to do so and carries on. If another task enters the loop and finds
-a pagf init already in progress, the AGF read returns -EAGAIN and
-the task continues the loop. This does not increment the current ag
-index, however, which means the task spins on the current AGF buffer
-until unlocked.
+This reverts commit 4b8628d57b725b32616965e66975fcdebe008fe7.
 
-If the AGF read I/O submitted by the initial task happens to be
-delayed for whatever reason, this results in soft lockup warnings
-via the spinning task. This is reproduced by xfs/170. To avoid this
-problem, fix the AGF trylock failure path to properly iterate to the
-next AG. If a task iterates all AGs without making progress, the
-trylock behavior is dropped in favor of blocking locks and thus a
-soft lockup is no longer possible.
+XFS quota has had the concept of a "quota warning limit" since
+the earliest Irix implementation, but a mechanism for incrementing
+the warning counter was never implemented, as documented in the
+xfs_quota(8) man page. We do know from the historical archive that
+it was never incremented at runtime during quota reservation
+operations.
 
-Fixes: f48e2df8a877ca1c ("xfs: make xfs_*read_agf return EAGAIN to ALLOC_FLAG_TRYLOCK callers")
-Signed-off-by: Brian Foster <bfoster@redhat.com>
+With this commit, the warning counter quickly increments for every
+allocation attempt after the user has crossed a quote soft
+limit threshold, and this in turn transitions the user to hard
+quota failures, rendering soft quota thresholds and timers useless.
+This was reported as a regression by users.
+
+Because the intended behavior of this warning counter has never been
+understood or documented, and the result of this change is a regression
+in soft quota functionality, revert this commit to make soft quota
+limits and timers operable again.
+
+Fixes: 4b8628d57b72 ("xfs: actually bump warning counts when we send warnings)
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
 Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Dave Chinner <david@fromorbit.com>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_filestream.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_trans_dquot.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_filestream.c b/fs/xfs/xfs_filestream.c
-index db23e455eb91..bc41ec0c483d 100644
---- a/fs/xfs/xfs_filestream.c
-+++ b/fs/xfs/xfs_filestream.c
-@@ -128,11 +128,12 @@ xfs_filestream_pick_ag(
- 		if (!pag->pagf_init) {
- 			err = xfs_alloc_pagf_init(mp, NULL, ag, trylock);
- 			if (err) {
--				xfs_perag_put(pag);
--				if (err != -EAGAIN)
-+				if (err != -EAGAIN) {
-+					xfs_perag_put(pag);
- 					return err;
-+				}
- 				/* Couldn't lock the AGF, skip this AG. */
--				continue;
-+				goto next_ag;
- 			}
+diff --git a/fs/xfs/xfs_trans_dquot.c b/fs/xfs/xfs_trans_dquot.c
+index fe45b0c3970c..288ea38c43ad 100644
+--- a/fs/xfs/xfs_trans_dquot.c
++++ b/fs/xfs/xfs_trans_dquot.c
+@@ -615,7 +615,6 @@ xfs_dqresv_check(
+ 			return QUOTA_NL_ISOFTLONGWARN;
  		}
+ 
+-		res->warnings++;
+ 		return QUOTA_NL_ISOFTWARN;
+ 	}
  
 -- 
 2.25.1
