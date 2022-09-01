@@ -2,84 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20AE15A9540
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F605A9573
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 13:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233328AbiIAK6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 06:58:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60852 "EHLO
+        id S233197AbiIALI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 07:08:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234321AbiIAK6b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:58:31 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22F82A4B17
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 03:58:31 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id z8so13242659edb.6
-        for <stable@vger.kernel.org>; Thu, 01 Sep 2022 03:58:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=cP4NBM0ETOYFq+TZhV3HDz5qwb6s5UdYnKys12wd3oA=;
-        b=ZqrP13Zm47ZNVk4pP620bBwfOofAMBWqoDzQ/7naOs3U0MmZFunXAITeJ3Is/znP6o
-         MgAZbVVj4Mwa8Ow09cb0pdGGjLsnDM+ocnnIJflUDCIYMn1VOYnyufws7Kb1TUZOiTXc
-         GNFPz9llitZTsOzknCIdN7dDgnolEgxkzmeAFG27ODjcQNGN7dToyn3HxF7YwjxAxJF3
-         P36aXaimEtrROrq9g25pP6C1WKNY4DO4ZylJhZBlbktANZuYm02Gtb+kvNGVi1wQScbL
-         4Xb7KSUMcxWFKnsAOA52AJaU5TRG9uw004QOzKhELv3t89e6EZ9YmD8hGC8Z3mt7IxWq
-         ebjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=cP4NBM0ETOYFq+TZhV3HDz5qwb6s5UdYnKys12wd3oA=;
-        b=BZry8zCm/zLGXQxZ0nFp94IGe/z2B55Zl3/9DwHvjc/TeZWwuuk1QBHTSz7l9aWaL1
-         mLa7Eb4O0wCAj30tXti+2kAyMVwJWgmVQAPGWiYsv1XT1DtL11vPlCy8j0yfP0B/7stS
-         rC6G62kTlDDBHTblPhYiDxB+Rh9jnDlEu1eWnAkC2PuA0BpkGQXA+Gia8qtuqod8SgUf
-         TDA8bpTFVloHwl1+OvVyheDGlAoSCm8jAm0pAks9tGfoqPb2aLHBzZmmehlMKvxWyMEu
-         MSaHTXMftfI8bIxtMyHnWLtMYsWHHyY1WF9os3EUcOhPAk/6HTLyuwIPaZMt9NQpTQzQ
-         s3sg==
-X-Gm-Message-State: ACgBeo0+5aQ6Lr+dIkWnzQwYIME+35TBxTOH3I8kksezaxIzBVicvCfj
-        OFq1QufOirzDeBNRDTrDtjc=
-X-Google-Smtp-Source: AA6agR7KVmiwEFmemAs4F1hF1UrTXwV0rvfCzZrf7a3NLms/q0ccr8sFSxqLchJaYLSit4bKyKkijw==
-X-Received: by 2002:a05:6402:641:b0:446:d:bd64 with SMTP id u1-20020a056402064100b00446000dbd64mr28329434edx.32.1662029909487;
-        Thu, 01 Sep 2022 03:58:29 -0700 (PDT)
-Received: from localhost.localdomain (109-178-192-105.pat.ren.cosmote.net. [109.178.192.105])
-        by smtp.gmail.com with ESMTPSA id s25-20020aa7d799000000b0044604ad8b41sm1140919edq.23.2022.09.01.03.58.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Sep 2022 03:58:28 -0700 (PDT)
-From:   Michael Bestas <mkbestas@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     hsinyi@chromium.org, mkbestas@gmail.com, rppt@linux.ibm.com,
-        stable@vger.kernel.org, swboyd@chromium.org, will@kernel.org
-Subject: Re: [PATCH] arm64: map FDT as RW for early_init_dt_scan()
-Date:   Thu,  1 Sep 2022 13:57:27 +0300
-Message-Id: <20220901105727.606047-1-mkbestas@gmail.com>
-X-Mailer: git-send-email 2.37.3
-In-Reply-To: <YxCCI2c6l8OdA4GV@kroah.com>
-References: <YxCCI2c6l8OdA4GV@kroah.com>
+        with ESMTP id S231484AbiIALIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 07:08:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9261321E8;
+        Thu,  1 Sep 2022 04:08:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2995161D76;
+        Thu,  1 Sep 2022 11:08:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E29C433C1;
+        Thu,  1 Sep 2022 11:08:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1662030533;
+        bh=GO5OWJyxvsNjXdz5eXwP4/4lg3DYoGMjM+O2CwFsH7M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Hf1MkGxfopSkLoYKyPfD0bOwVW4DvkvgULW5uBZRxcNaH5CfrxD6u95w3YyUfUOPx
+         cjqA1lU+cYsX2olFRE+jHT8gkYOVG1BTcRgp4ei6pxztB32L115JGtsZ8BSkhhgtAN
+         d8i6yXyIQ9/n195E+ExTOUkKFqCAcKPK0aHQM6HU=
+Date:   Thu, 1 Sep 2022 13:08:50 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Stefan Roese <sr@denx.de>
+Cc:     Bjorn Helgaas <helgaas@kernel.org>,
+        Ben Greear <greearb@candelatech.com>, bjorn@helgaas.com,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Yao Hongbo <yaohongbo@linux.alibaba.com>,
+        Naveen Naidu <naveennaidu479@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gregory Greenman <gregory.greenman@intel.com>,
+        linux-wireless@vger.kernel.org
+Subject: Re: [PATCH 5.4 182/389] PCI/portdrv: Dont disable AER reporting in
+ get_port_device_capability()
+Message-ID: <YxCSwtfrEcuJKBoS@kroah.com>
+References: <20220830221159.GA132418@bhelgaas>
+ <cdcf3377-c3fe-f22b-6f43-8ae8cb889da3@denx.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cdcf3377-c3fe-f22b-6f43-8ae8cb889da3@denx.de>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 1 Sep 2022 11:57:55 +0200
-Greg KH <gregkh@linuxfoundation.org> wrote:
+On Wed, Aug 31, 2022 at 07:52:00AM +0200, Stefan Roese wrote:
+> On 31.08.22 00:11, Bjorn Helgaas wrote:
+> > [+cc Gregory, linux-wireless for iwlwifi issue]
+> > 
+> > On Tue, Aug 30, 2022 at 01:47:48PM -0700, Ben Greear wrote:
+> > > On 8/23/22 11:41 PM, Greg Kroah-Hartman wrote:
+> > > > On Tue, Aug 23, 2022 at 07:20:14AM -0500, Bjorn Helgaas wrote:
+> > > > > On Tue, Aug 23, 2022, 6:35 AM Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > > wrote:
+> > > > > 
+> > > > > > From: Stefan Roese <sr@denx.de>
+> > > > > > 
+> > > > > > [ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
+> > > > > > 
+> > > > > 
+> > > > > There's an open regression related to this commit:
+> > > > > 
+> > > > > https://bugzilla.kernel.org/show_bug.cgi?id=216373
+> > > > 
+> > > > This is already in the following released stable kernels:
+> > > > 	5.10.137 5.15.61 5.18.18 5.19.2
+> > > > 
+> > > > I'll go drop it from the 4.19 and 5.4 queues, but when this gets
+> > > > resolved in Linus's tree, make sure there's a cc: stable on the fix so
+> > > > that we know to backport it to the above branches as well.  Or at the
+> > > > least, a "Fixes:" tag.
+> > > 
+> > > This is still in 5.19.5.  We saw some funny iwlwifi crashes in 5.19.3+
+> > > that we did not see in 5.19.0+.  I just bisected the scary looking
+> > > AER errors to this patch, though I do not know for certain if it
+> > > causes the iwlwifi related crashes yet.
+> > > 
+> > > In general, from reading the commit msg, this patch doesn't seem to
+> > > be a great candidate for stable in general.  Does it fix some
+> > > important problem?
+> > 
+> > I agree, I don't think this is a good candidate for stable.  It has
+> > already exposed latent amdgpu issues and we'll likely find more.  It's
+> > good to find and fix these things, but I'd rather do it in -rc than in
+> > stable kernels.
+> 
+> I also agree. It was not my intention to have this patch added to
+> the stable branches. Frankly I missed intervening when seeing the
+> mails about the integration into stable a few weeks ago.
 
-> Both now queued up, thanks.
->
-> greg k-h
+It was maked with a Fixes: tag, which makes it ripe for backporting,
+especially as it is written as "this fixes this problem".
 
-Could you also queue the 4.9 patch or I need to send it again?
-https://lore.kernel.org/all/20220809145624.1819905-1-mkbestas@gmail.com/
+Anyway, I've now reverted it from the stable trees. Hopefully you all
+get this figured out so that 6.0 doesn't have the same issue.
 
-Thanks,
+thanks,
 
-Michael Bestas
+greg k-h
