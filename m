@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B07855A93EA
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:10:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7EC75A93FC
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233318AbiIAKKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 06:10:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50384 "EHLO
+        id S232715AbiIAKMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 06:12:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233351AbiIAKKC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:10:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DADC1262A
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 03:10:01 -0700 (PDT)
+        with ESMTP id S231343AbiIAKMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:12:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A91EA131DC1
+        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 03:12:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DFE5161BBD
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 10:10:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 772A9C433C1;
-        Thu,  1 Sep 2022 10:09:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 532F7B82572
+        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 10:12:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C172C433D6;
+        Thu,  1 Sep 2022 10:12:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662027000;
-        bh=eQK1dW8MpFgNWago+wyyY/BQo8fhq2coqW9OZSsqews=;
+        s=korg; t=1662027152;
+        bh=MC2SWgpB2SraSeOCGrOmEsbs+1Ikep3PLC6vhGA+Zbc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TrYY4KWt+AFa2kr5YpvXktVZi5xuCXoRmkSPh1lFzZDc1yeZBBawwgFKX2TChy6p6
-         YIeZAbddGyLJjObN1joCELPLWUKuLY7Vkv6aaSnsXWNLFbU6uuncJeKZYJssgiYQJV
-         ugpYLKArsd49YUh77Fd6EJOOiIgtlKjRd8XTUUgM=
-Date:   Thu, 1 Sep 2022 12:09:52 +0200
+        b=jVdjoNRE8+kGkwsCWt9M4hrYLXF0FD8i3FQh4K3n5gJCnIw0u16RVap9AQTEAJD7L
+         Bk0kl89pjW/FBhdlkGT7TierW1GIJRfK63d+xtWOzxCHlWbv8hWfNZtAmFUBCIDjtr
+         WVqX5/ELOXt987fdoV//33fQ9hQBJFHiH6H+Firw=
+Date:   Thu, 1 Sep 2022 12:12:29 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
-Cc:     stable@vger.kernel.org, raajeshdasari@gmail.com,
-        jean-philippe@linaro.org
-Subject: Re: [PATCH 4.19 0/2] bpf: fix test_verifier, test_align selftests
-Message-ID: <YxCE8IvP3Xfn7QAV@kroah.com>
-References: <20220829115054.1714528-1-ovidiu.panait@windriver.com>
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc:     david@redhat.com, gor@linux.ibm.com, hca@linux.ibm.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.9] s390/mm: do not trigger write fault when vma does
+ not allow VM_WRITE
+Message-ID: <YxCFjWQ1BAT6+Evj@kroah.com>
+References: <16617586646999@kroah.com>
+ <20220829155238.3865621-1-gerald.schaefer@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220829115054.1714528-1-ovidiu.panait@windriver.com>
+In-Reply-To: <20220829155238.3865621-1-gerald.schaefer@linux.ibm.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -50,52 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 29, 2022 at 02:50:52PM +0300, Ovidiu Panait wrote:
-> Backport of upstream commits [1] and [2] to 4.19-stable broke test_verifier and
-> test_align bpf selftests.
-> [1] 2fa7d94afc1a ("bpf: Fix the off-by-two error in range markings")
-> [2] 294f2fc6da27 ("bpf: Verifer, adjust_scalar_min_max_vals to always call
->                    update_reg_bounds()")
+On Mon, Aug 29, 2022 at 05:52:38PM +0200, Gerald Schaefer wrote:
+> commit 41ac42f137080bc230b5882e3c88c392ab7f2d32 upstream.
 > 
-> This series fixes all failing test_verifier/test_align testcases for 4.19:
-> root@intel-x86-64:~/bpf# ./test_verifier
-> ...
-> #664/p mov64 src == dst OK
-> #665/p mov64 src != dst OK
-> #666/u calls: ctx read at start of subprog OK
-> #666/p calls: ctx read at start of subprog OK
-> Summary: 932 PASSED, 0 SKIPPED, 0 FAILED
+> For non-protection pXd_none() page faults in do_dat_exception(), we
+> call do_exception() with access == (VM_READ | VM_WRITE | VM_EXEC).
+> In do_exception(), vma->vm_flags is checked against that before
+> calling handle_mm_fault().
 > 
-> root@intel-x86-64:~/bpf# ./test_align
-> Test   0: mov ... PASS
-> Test   1: shift ... PASS
-> Test   2: addsub ... PASS
-> Test   3: mul ... PASS
-> Test   4: unknown shift ... PASS
-> Test   5: unknown mul ... PASS
-> Test   6: packet const offset ... PASS
-> Test   7: packet variable offset ... PASS
-> Test   8: packet variable offset 2 ... PASS
-> Test   9: dubious pointer arithmetic ... PASS
-> Test  10: variable subtraction ... PASS
-> Test  11: pointer variable subtraction ... PASS
-> Results: 12 pass 0 fail
+> Since commit 92f842eac7ee3 ("[S390] store indication fault optimization"),
+> we call handle_mm_fault() with FAULT_FLAG_WRITE, when recognizing that
+> it was a write access. However, the vma flags check is still only
+> checking against (VM_READ | VM_WRITE | VM_EXEC), and therefore also
+> calling handle_mm_fault() with FAULT_FLAG_WRITE in cases where the vma
+> does not allow VM_WRITE.
 > 
+> Fix this by changing access check in do_exception() to VM_WRITE only,
+> when recognizing write access.
 > 
-> Maxim Mikityanskiy (1):
->   bpf: Fix the off-by-two error in range markings
+> Link: https://lkml.kernel.org/r/20220811103435.188481-3-david@redhat.com
+> Fixes: 92f842eac7ee3 ("[S390] store indication fault optimization")
+> Cc: <stable@vger.kernel.org>
+> Reported-by: David Hildenbrand <david@redhat.com>
+> Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> ---
+>  arch/s390/mm/fault.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> Stanislav Fomichev (1):
->   selftests/bpf: Fix test_align verifier log patterns
-> 
->  tools/testing/selftests/bpf/test_align.c    | 27 ++++++++---------
->  tools/testing/selftests/bpf/test_verifier.c | 32 ++++++++++-----------
->  2 files changed, 30 insertions(+), 29 deletions(-)
-> 
+> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> index ba2f21873cbd..6fa4220e34b5 100644
+> --- a/arch/s390/mm/fault.c
+> +++ b/arch/s390/mm/fault.c
+> @@ -409,7 +409,9 @@ static inline int do_exception(struct pt_regs *regs, int access)
+>  	flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+>  	if (user_mode(regs))
+>  		flags |= FAULT_FLAG_USER;
+> -	if (access == VM_WRITE || (trans_exc_code & store_indication) == 0x400)
+> +	if ((trans_exc_code & store_indication) == 0x400)
+> +		access = VM_WRITE;
+> +	if (access == VM_WRITE)
+>  		flags |= FAULT_FLAG_WRITE;
+>  	down_read(&mm->mmap_sem);
+>  
 > -- 
-> 2.37.2
+> 2.34.1
 > 
 
-Now queued up, thanks!
+all now queued up, thanks.
 
 greg k-h
