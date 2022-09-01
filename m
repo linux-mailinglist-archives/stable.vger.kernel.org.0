@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 145A05A8D9C
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 07:49:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BB2B5A8DA2
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 07:49:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233176AbiIAFtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 01:49:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41122 "EHLO
+        id S233215AbiIAFtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 01:49:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233234AbiIAFtd (ORCPT
+        with ESMTP id S233236AbiIAFtd (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 01:49:33 -0400
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F4FA1178F8;
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B751178FB;
         Wed, 31 Aug 2022 22:49:18 -0700 (PDT)
-Received: by mail-wm1-x335.google.com with SMTP id n23-20020a7bc5d7000000b003a62f19b453so709387wmk.3;
+Received: by mail-wm1-x331.google.com with SMTP id m17-20020a7bce11000000b003a5bedec07bso738296wmc.0;
         Wed, 31 Aug 2022 22:49:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=rXO269FD1Qqh/3kSRd+jcHDLkTXo4nk6CloH8biq0G4=;
-        b=lcBt1D2ozbfxCreI8a5QDg6/ghKxaGngsLVwnAdnPAygerzAQSYoe3s8OksG+rl4d0
-         /myztBG8tQiuKXMBdzcwdpcxDoZ6TeYx59gZ/4/wZnUgcAgvYBNvVCdNFM/G5lzkNb2z
-         7krFgN0kkMlXyaFuu1MbqsfrtQFFUwPo3nPISnXAfPbBWPRChQ93WqVcOl0FMJ1/mZ8/
-         1USYKzYxOqCVScMZ3WYm6EQQ+a0O5GAJvNIKng9zIcFYxNKKJ8Bb4CxF1wSsBw44La/h
-         HqqvJ6EYVgxFaFCRgGU4hYUgfClKP1U5FCd9sNd8q83eVKAT6mo2tXMfn5mAwCp5EAYx
-         rsWQ==
+        bh=xLW9Gby42tyiBFlIoDzW7LpOcnfeeekTuyuaQuWlQqE=;
+        b=g5h3FoJOwX1B/0q2TzBNU8HK5HFXNm3CfXKFc71pJYk04OeKbSr/Xri6VQvGfF8EYU
+         GFN1BqNZ0vo4ZCecNeK864N13E8kVOMjlwFW0KidBaApGVNcNPJsRUF8P6vQrbh5tPC0
+         /F63ULDpTvsGQTS2zoxNkLBaj1c10w6QOQyWIXC08jYOO4XjJaVXmaBZiTgJK3oNjhvK
+         xy9jCJIMhabxnrBpLwBru76InUebvagezSbpeYyWHC9TNX/NrlGzwBSbfvgRRpR3lqUo
+         +y2/ABJPRX2Z6vYomlnQenwBizG2pkG9LFBF3JEhdHkQXU01DSPSG5TK7z/EO9+kWr7+
+         e0YQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=rXO269FD1Qqh/3kSRd+jcHDLkTXo4nk6CloH8biq0G4=;
-        b=Yio69aXhtA4Nb51rZyRchpHNePRWpQ6VP5Yy+2Q/tKtakaiGzBvXaepqdWBWjkCeW1
-         pJCJvpagj5VNhKvjAFA6VOsOyFu3CvuADEAKATFbFDm3co+DnsZnNDHP59Dk2X+o/rAU
-         eqTquJeDTjPk9tcTJzh8OC1ldf6bkiAcwvHKX+Rf97jEXuD0Y9tNcEK/EsWlHQ4i54EV
-         Cs6klg+tBplIdXjdFhfafNZCpbNWrwZ2/Oiy/tcgEfbugkqyBjW85NPeguy348oHKJnj
-         idJcF12oVEzNO5sJpl8eoRPPuUnqIHeAPvxGuYjJiW7etdqcEWpoPlTQGgKgZKIL24LU
-         s32A==
-X-Gm-Message-State: ACgBeo0HpzVOfJo73zfOs8hswX7fHw2NNT/2VP2UHiSkhw4AZp0nTraf
-        1B4P2g2BkwMpJPlR4FlmciM=
-X-Google-Smtp-Source: AA6agR6wP+xXOYpv+/W1Z5iqSGaKFtnj7VDL4EtJOlAuDX0SRIiKSnJggYSRVh+OkSgusl+5zmSVng==
-X-Received: by 2002:a05:600c:3b92:b0:3a6:5645:5fc7 with SMTP id n18-20020a05600c3b9200b003a656455fc7mr3891845wms.148.1662011346725;
-        Wed, 31 Aug 2022 22:49:06 -0700 (PDT)
+        bh=xLW9Gby42tyiBFlIoDzW7LpOcnfeeekTuyuaQuWlQqE=;
+        b=hqKPqzmft1hlVXNI3VgeVjlSjW/q+2JzJsjUAoINL5pRsweU6e5BJ/nzrr5hNp0QrS
+         HeOSgBT+bmbwOKvlQwPZri5o2sI8HH/50ltuer309nUgfslhfsjpGTOoq4+iM7emfJV3
+         eyKC2RWaMDD1tbrus0BzW74cuAr9TyGjyK+GneWBjlqvV4tqqAFv3xeEKNJ3D9SPZQlD
+         WVExacfIAciMv93TYLSfskyoNZZTj52i+vEOqBBRj/L2hu0dgZIFGaXaIdXRpDEaMCD4
+         yCREbUiDaYB1+KYdHtPv4CebVNgbHnulSs7wEANAm2ZxeMXlMv59eP9XCacUXscv7BBx
+         ERGw==
+X-Gm-Message-State: ACgBeo0DXw8HCe+OHyF/UtFGFWCM8KI+en//fNf0rvN8bUPaxm064Rmq
+        rHxENc1xcNRxQShm8M3H8nM=
+X-Google-Smtp-Source: AA6agR6lpyfen3E7ZZCl4CVsrYGtXwlqRud7ZXBehC5nogXSgojiQRclt8jcM6AlFw9ZEijwPW+8OA==
+X-Received: by 2002:a05:600c:384f:b0:3a6:603c:4338 with SMTP id s15-20020a05600c384f00b003a6603c4338mr3948107wmr.192.1662011348618;
+        Wed, 31 Aug 2022 22:49:08 -0700 (PDT)
 Received: from localhost.localdomain ([77.137.66.49])
-        by smtp.gmail.com with ESMTPSA id bg15-20020a05600c3c8f00b003a4f08495b7sm4447262wmb.34.2022.08.31.22.49.05
+        by smtp.gmail.com with ESMTPSA id bg15-20020a05600c3c8f00b003a4f08495b7sm4447262wmb.34.2022.08.31.22.49.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Aug 2022 22:49:06 -0700 (PDT)
+        Wed, 31 Aug 2022 22:49:08 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -57,10 +57,12 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Adam Manzanares <a.manzanares@samsung.com>,
         linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Dave Chinner <dchinner@redhat.com>
-Subject: [PATCH 5.10 v2 3/7] xfs: fix overfilling of reserve pool
-Date:   Thu,  1 Sep 2022 08:48:50 +0300
-Message-Id: <20220901054854.2449416-4-amir73il@gmail.com>
+        Brian Foster <bfoster@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <david@fromorbit.com>
+Subject: [PATCH 5.10 v2 4/7] xfs: fix soft lockup via spinning in filestream ag selection loop
+Date:   Thu,  1 Sep 2022 08:48:51 +0300
+Message-Id: <20220901054854.2449416-5-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220901054854.2449416-1-amir73il@gmail.com>
 References: <20220901054854.2449416-1-amir73il@gmail.com>
@@ -76,56 +78,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Brian Foster <bfoster@redhat.com>
 
-commit 82be38bcf8a2e056b4c99ce79a3827fa743df6ec upstream.
+commit f650df7171b882dca737ddbbeb414100b31f16af upstream.
 
-Due to cycling of m_sb_lock, it's possible for multiple callers of
-xfs_reserve_blocks to race at changing the pool size, subtracting blocks
-from fdblocks, and actually putting it in the pool.  The result of all
-this is that we can overfill the reserve pool to hilarious levels.
+The filestream AG selection loop uses pagf data to aid in AG
+selection, which depends on pagf initialization. If the in-core
+structure is not initialized, the caller invokes the AGF read path
+to do so and carries on. If another task enters the loop and finds
+a pagf init already in progress, the AGF read returns -EAGAIN and
+the task continues the loop. This does not increment the current ag
+index, however, which means the task spins on the current AGF buffer
+until unlocked.
 
-xfs_mod_fdblocks, when called with a positive value, already knows how
-to take freed blocks and either fill the reserve until it's full, or put
-them in fdblocks.  Use that instead of setting m_resblks_avail directly.
+If the AGF read I/O submitted by the initial task happens to be
+delayed for whatever reason, this results in soft lockup warnings
+via the spinning task. This is reproduced by xfs/170. To avoid this
+problem, fix the AGF trylock failure path to properly iterate to the
+next AG. If a task iterates all AGs without making progress, the
+trylock behavior is dropped in favor of blocking locks and thus a
+soft lockup is no longer possible.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Fixes: f48e2df8a877ca1c ("xfs: make xfs_*read_agf return EAGAIN to ALLOC_FLAG_TRYLOCK callers")
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_fsops.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ fs/xfs/xfs_filestream.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/xfs/xfs_fsops.c b/fs/xfs/xfs_fsops.c
-index dacead0d0934..775f833146e3 100644
---- a/fs/xfs/xfs_fsops.c
-+++ b/fs/xfs/xfs_fsops.c
-@@ -394,18 +394,17 @@ xfs_reserve_blocks(
- 		 * count or we'll get an ENOSPC.  Don't set the reserved flag
- 		 * here - we don't want to reserve the extra reserve blocks
- 		 * from the reserve.
-+		 *
-+		 * The desired reserve size can change after we drop the lock.
-+		 * Use mod_fdblocks to put the space into the reserve or into
-+		 * fdblocks as appropriate.
- 		 */
- 		fdblks_delta = min(free, delta);
- 		spin_unlock(&mp->m_sb_lock);
- 		error = xfs_mod_fdblocks(mp, -fdblks_delta, 0);
--		spin_lock(&mp->m_sb_lock);
--
--		/*
--		 * Update the reserve counters if blocks have been successfully
--		 * allocated.
--		 */
- 		if (!error)
--			mp->m_resblks_avail += fdblks_delta;
-+			xfs_mod_fdblocks(mp, fdblks_delta, 0);
-+		spin_lock(&mp->m_sb_lock);
- 	}
- out:
- 	if (outval) {
+diff --git a/fs/xfs/xfs_filestream.c b/fs/xfs/xfs_filestream.c
+index db23e455eb91..bc41ec0c483d 100644
+--- a/fs/xfs/xfs_filestream.c
++++ b/fs/xfs/xfs_filestream.c
+@@ -128,11 +128,12 @@ xfs_filestream_pick_ag(
+ 		if (!pag->pagf_init) {
+ 			err = xfs_alloc_pagf_init(mp, NULL, ag, trylock);
+ 			if (err) {
+-				xfs_perag_put(pag);
+-				if (err != -EAGAIN)
++				if (err != -EAGAIN) {
++					xfs_perag_put(pag);
+ 					return err;
++				}
+ 				/* Couldn't lock the AGF, skip this AG. */
+-				continue;
++				goto next_ag;
+ 			}
+ 		}
+ 
 -- 
 2.25.1
 
