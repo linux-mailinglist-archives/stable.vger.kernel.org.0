@@ -2,119 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50C275A946A
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:24:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01B55A9492
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233598AbiIAKXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 06:23:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47150 "EHLO
+        id S234002AbiIAK0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 06:26:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233943AbiIAKXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:23:31 -0400
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA7FD1360AA;
-        Thu,  1 Sep 2022 03:23:30 -0700 (PDT)
-Received: by mail-yb1-xb33.google.com with SMTP id 193so7948829ybc.10;
-        Thu, 01 Sep 2022 03:23:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=zuIt814uy8cH66N+75Ycqn2FRBkniQjebN0QWbVfWcw=;
-        b=S3g3LWq85ULTjqeOQKMoyjkoDB34kTgQTpXBC5dt+O/7OmNyhkfXpin84jkIR37dfT
-         8H7K1rvi/OEysJAj6cbE+dChbxEx5lPWOrDisPe0moP/KCmP7/8sC3PFgm3cBc9jqpYB
-         gC2i2vlaI69tOmgt/3z3AlJ2o6kdwP3DQndybSYaO74gzXvFxE7gnGcFwE8XrttAXER6
-         NFkGbFAO/mmQN+3S3Wsnp29MffqpEPZ25qiommPsr3vlvjAQbBU4yb4X/59L6EwTovge
-         BK8ukxe0YAsneVoIRbvb6SmIHGNfp81bbOjSoCxdLRNyDPVdm2EEeyEgOQKwRr2FCwpd
-         +qsw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=zuIt814uy8cH66N+75Ycqn2FRBkniQjebN0QWbVfWcw=;
-        b=AwMLa26sx12+ZOeNcCzfMTfqNMTSc8fhUZPovwNUavpOTJK6wWVhRcRNRCQCSBH0pY
-         Y/eWzhhM5l1vJYT2ITDH3U/on4nN1s5rF7KE1JsRO0ZdZjKaDTNG70P8f8bOOoi0qOlj
-         rogptLkU13eGB7qZ0Af0LRxROHw3X3/EaVgRsoYKYOz0tmvAAxpxML5lyt61vwpQf/Xo
-         nYayNumk4CMOCwCVh4U8YCWjVET4+ZfpCmg0ToJUa1A3FR/kKdKJpO8KRoKFopRhWAwL
-         6YNNVEzhP9zTv56cI4NZxOm2OegPKMjNBdCbeVTyDyH21n41Ohdw3tqFmynEMD4WKn75
-         w7lg==
-X-Gm-Message-State: ACgBeo3RQDI/vsdA0hxLlFlyCcIZ6pnHUxyPJ2YD7B8wjpLOjrgIx0Pq
-        OvNQEcANZ893W0p9xGBHO0aqiwh8rZr60kbTbaw=
-X-Google-Smtp-Source: AA6agR5QKMlivKE09ufpKBkhb+dXPLWiv4LXo3V9uv2CGz8tRLYiYIO9Y5CKTKiYsO9HUg82jjatDHUkzn44LiPpBAc=
-X-Received: by 2002:a5b:845:0:b0:683:6ed7:b3b6 with SMTP id
- v5-20020a5b0845000000b006836ed7b3b6mr18096646ybq.183.1662027809868; Thu, 01
- Sep 2022 03:23:29 -0700 (PDT)
+        with ESMTP id S234259AbiIAK0T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:26:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F34108538;
+        Thu,  1 Sep 2022 03:26:09 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B3C761CDF;
+        Thu,  1 Sep 2022 10:26:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B340AC433C1;
+        Thu,  1 Sep 2022 10:26:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1662027967;
+        bh=K2HZoQF7A8JO2OtNi6cb6Lq3BAyRtkajUMPvXcXtvLs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kgBz1KQIzMiOqY93N7FxyB3AwdIlcFIIybSxIo3LJhXjYHSuHox1DMyjf3mVx0SoC
+         o26f+wRZAPlMkuQ99MTYyNqpK8SzgKjPiyguTXBDhCUm5N5xa4GLHj8LZXUsjHi96a
+         ebX6d594IJSaQXZJrfKVKdE4vNAyAu2CqHGO/1Ks=
+Date:   Thu, 1 Sep 2022 12:26:04 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     Frank Hofmann <fhofmann@cloudflare.com>,
+        Sasha Levin <sashal@kernel.org>,
+        "Darrick J . Wong" <djwong@kernel.org>,
+        Leah Rumancik <leah.rumancik@gmail.com>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Adam Manzanares <a.manzanares@samsung.com>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Dave Chinner <dchinner@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <david@fromorbit.com>
+Subject: Re: [PATCH 5.10 v2 6/7] xfs: reorder iunlink remove operation in
+ xfs_ifree
+Message-ID: <YxCIvDAMzWdQrpEh@kroah.com>
+References: <20220901054854.2449416-1-amir73il@gmail.com>
+ <20220901054854.2449416-7-amir73il@gmail.com>
+ <CABEBQikqj+Uwae0XMHSbU7FVcrTR7cMb6zgbiRHC0PwFfB7+qw@mail.gmail.com>
+ <CAOQ4uxhNV=-nVO_ezP=Lc42+Q+A+wxdiCBqhVQz8qVkBJba1iA@mail.gmail.com>
+ <YxB+QmIwCgMtj1r+@kroah.com>
+ <CAOQ4uxjxq346_dwEhrTm7_WW8nDqaQxNUCfVqDwOYAJGtmtpQQ@mail.gmail.com>
 MIME-Version: 1.0
-References: <20220829105804.609007228@linuxfoundation.org> <CADVatmOLoaGgAW951JqEk3v88EA7mn3qur84Xd30QJWP21+eVg@mail.gmail.com>
- <YxB/ZPFEQG9zS+wa@kroah.com>
-In-Reply-To: <YxB/ZPFEQG9zS+wa@kroah.com>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Thu, 1 Sep 2022 11:22:53 +0100
-Message-ID: <CADVatmPxfdEA3yi9KGHtvmQA2n-mA=ekBidqU+keGrBsL+rFeQ@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/136] 5.15.64-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAOQ4uxjxq346_dwEhrTm7_WW8nDqaQxNUCfVqDwOYAJGtmtpQQ@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 1, 2022 at 10:46 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Aug 29, 2022 at 09:11:28PM +0100, Sudip Mukherjee wrote:
-> > Hi Greg,
+On Thu, Sep 01, 2022 at 01:16:33PM +0300, Amir Goldstein wrote:
+> On Thu, Sep 1, 2022 at 12:41 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
 > >
-> > On Mon, Aug 29, 2022 at 12:00 PM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
+> > On Thu, Sep 01, 2022 at 12:30:13PM +0300, Amir Goldstein wrote:
+> > > On Thu, Sep 1, 2022 at 12:04 PM Frank Hofmann <fhofmann@cloudflare.com> wrote:
+> > > >
+> > > > On Thu, Sep 1, 2022 at 6:49 AM Amir Goldstein <amir73il@gmail.com> wrote:
+> > > > >
+> > > > > From: Dave Chinner <dchinner@redhat.com>
+> > > > >
+> > > > > commit 9a5280b312e2e7898b6397b2ca3cfd03f67d7be1 upstream.
+> > > > >
+> > > > > [backport for 5.10.y]
+> > > >
+> > > > Hi Amir, hi Dave,
+> > > >
+> > > > I've got no objections to backporting this change at all. We've been
+> > > > using the patch on our internal 5.15 tracker branch happily for
+> > > > several months now.
+> > > >
+> > > > Would like to highlight though that it's currently not yet merged in
+> > > > linux-stable 5.15 branch either (it's in 5.19 and mainline alright).
+> > > > If this gets queued for 5.10 then maybe it also should be for 5.15 ?
+> > > >
 > > >
-> > > This is the start of the stable review cycle for the 5.15.64 release.
-> > > There are 136 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
+> > > Hi Frank,
 > > >
-> > > Responses should be made by Wed, 31 Aug 2022 10:57:37 +0000.
-> > > Anything received after that time might be too late.
+> > > Quoting from my cover letter:
+> > >
+> > > Patches 6-7 in this 5.10.y update have not been applied to 5.15.y yet.
+> > > I pointed Leah's attention to these patches and she said she will
+> > > include them in a following 5.15.y update.
 > >
-> > My builds are still running, but just an initial report for gcc-12. (I
-> > know v5.15.y still does not build completely with gcc-12).
+> > And as you know, this means I can't take this series at all until that
+> > series is ready, so to help us out, in the future, just don't even send
+> > them until they are all ready together.
 > >
-> > x86_64 and arm64 allmodconfig build fails with gcc-12, with the error:
-> >
+> 
+> What?
+> 
+> You cannot take backports to 5.10.y before they are applied to 5.15.y?
+> Since when?
 
-<snip>
+Since always.
 
-> >
-> > Introduced in v5.15.61 due to 2711bedab26c ("Bluetooth: L2CAP: Fix
-> > l2cap_global_chan_by_psm regression").
-> > But v5.19.y and mainline does not show the build failure as they also
-> > have 41b7a347bf14 ("powerpc: Book3S 64-bit outline-only KASAN
-> > support").
->
-> Ick, ok, what to do here?  I can't really backport 41b7a347bf14 to 5.15
-> easily as it's huge and a new feature.  Any other ideas?
+Why would you ever want someone to upgrade from an older tree (like
+5.10.y) to a newer one (5.15.y) and have a regression?
 
-Yeah.
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=b840304fb46cdf7012722f456bce06f151b3e81b
-will fix the it for mips and csky failure in mainline and v5.19.y. And
-I just verified that it will fix for powerpc also in v5.15.y. So, we
-just need to wait for now.
+So we always try to make sure patches are always applied to newer trees
+first.  Yes, sometimes we miss this and make mistakes, but it's always
+been this way and we fix that whenever it happens accidentally.
 
+I'll drop this series from my review queue for now until the 5.15.y
+series shows up.
 
--- 
-Regards
-Sudip
+thanks,
+
+greg k-h
