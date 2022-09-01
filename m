@@ -2,235 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7815AA059
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 21:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA025AA1B3
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 23:48:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233994AbiIATrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 15:47:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58118 "EHLO
+        id S233992AbiIAVr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 17:47:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbiIATrA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 15:47:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16D7D86B5A;
-        Thu,  1 Sep 2022 12:46:59 -0700 (PDT)
+        with ESMTP id S234112AbiIAVr4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 17:47:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C764D7B1C9;
+        Thu,  1 Sep 2022 14:47:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99DF6B825DC;
-        Thu,  1 Sep 2022 19:46:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DC00C433D6;
-        Thu,  1 Sep 2022 19:46:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1662061616;
-        bh=UjTusUM8YH1BcCSwd28legk1+gUPPxjxcHJCXDf+2mo=;
-        h=Date:To:From:Subject:From;
-        b=K7d4TtTE08OjUgRHFHkCFFwmvzbDSyW/GlyZf8ByCb9Hj0/n0b2Jn2jQBmmJ4ekwL
-         Pc2Q8jYl2zDl7OpE8zyhyKxDz5WtBvDmSwu74HijlXEUox7M7SG4VGwcUQntw93kRA
-         HDB6F+nzYgUwVMKHOKJZtsaTcn2nFPL8tRQoShgI=
-Date:   Thu, 01 Sep 2022 12:46:55 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        songmuchun@bytedance.com, mike.kravetz@oracle.com,
-        david@redhat.com, baolin.wang@linux.alibaba.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220901194656.4DC00C433D6@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98A9B61F5F;
+        Thu,  1 Sep 2022 21:47:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72EA2C433C1;
+        Thu,  1 Sep 2022 21:47:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662068869;
+        bh=OrQnwaTJvbac1g67sWB/Jasesgbc3kuqbK5ldTdmRTs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Uc5QxIjrQmSi65A9U0YDxDP1Sui0Cx3iWO3J8hFA3Rzwk1LmWpAG0Bl5Af5x3u7j2
+         9X2R9uVLdqLPhcgAMX0viFW0PNbtR1+vf0B5+g9axQw3qSRdoQRK9kD9OpKizpmuKT
+         R/JDn+6zQaID9VZA3SQyAk13ZDShYIOr3aw3Qcf8Ea/j3g2x/haflXgs7NM+pA49rY
+         VhRvkzi4RTZNMZ1A06ZFPx5ZjuB7lFJYSZyvReKC3H6IeIk1tA6NWmHyuWPFpDgVEL
+         /tcNp1RpxCSn0RpU8f4aAQS6UW7Cn8EN8XKSbi9SS5DnPgQTO6Rk4YzLiKQ6y2UAUE
+         AkwTXYBk90qjw==
+Date:   Fri, 2 Sep 2022 00:47:43 +0300
+From:   "jarkko@kernel.org" <jarkko@kernel.org>
+To:     "Huang, Kai" <kai.huang@intel.com>
+Cc:     "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        "Chatre, Reinette" <reinette.chatre@intel.com>,
+        "pmenzel@molgen.mpg.de" <pmenzel@molgen.mpg.de>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "Dhanraj, Vijay" <vijay.dhanraj@intel.com>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "hpa@zytor.com" <hpa@zytor.com>,
+        "haitao.huang@linux.intel.com" <haitao.huang@linux.intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 2/6] x86/sgx: Do not consider unsanitized pages an
+ error
+Message-ID: <YxEof73XWYc8pYdZ@kernel.org>
+References: <20220831173829.126661-1-jarkko@kernel.org>
+ <20220831173829.126661-3-jarkko@kernel.org>
+ <24906e57-461f-6c94-9e78-0d8507df01bb@intel.com>
+ <d6a3212aa11c2788d35094739abe40909373cd68.camel@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d6a3212aa11c2788d35094739abe40909373cd68.camel@intel.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Sep 01, 2022 at 10:50:07AM +0000, Huang, Kai wrote:
+> On Wed, 2022-08-31 at 13:39 -0700, Reinette Chatre wrote:
+> > >   static int ksgxd(void *p)
+> > >   {
+> > > +	long ret;
+> > > +
+> > >   	set_freezable();
+> > >   
+> > >   	/*
+> > >   	 * Sanitize pages in order to recover from kexec(). The 2nd pass is
+> > >   	 * required for SECS pages, whose child pages blocked EREMOVE.
+> > >   	 */
+> > > -	__sgx_sanitize_pages(&sgx_dirty_page_list);
+> > > -	__sgx_sanitize_pages(&sgx_dirty_page_list);
+> > > +	ret = __sgx_sanitize_pages(&sgx_dirty_page_list);
+> > > +	if (ret == -ECANCELED)
+> > > +		/* kthread stopped */
+> > > +		return 0;
+> > >   
+> > > -	/* sanity check: */
+> > > -	WARN_ON(!list_empty(&sgx_dirty_page_list));
+> > > +	ret = __sgx_sanitize_pages(&sgx_dirty_page_list);
+> > > +	switch (ret) {
+> > > +	case 0:
+> > > +		/* success, no unsanitized pages */
+> > > +		break;
+> > > +
+> > > +	case -ECANCELED:
+> > > +		/* kthread stopped */
+> > > +		return 0;
+> > > +
+> > > +	default:
+> > > +		/*
+> > > +		 * Never expected to happen in a working driver. If it
+> > > happens
+> > > +		 * the bug is expected to be in the sanitization process,
+> > > but
+> > > +		 * successfully sanitized pages are still valid and driver
+> > > can
+> > > +		 * be used and most importantly debugged without issues. To
+> > > put
+> > > +		 * short, the global state of kernel is not corrupted so no
+> > > +		 * reason to do any more complicated rollback.
+> > > +		 */
+> > > +		pr_err("%ld unsanitized pages\n", ret);
+> > > +	}
+> > >   
+> > >   	while (!kthread_should_stop()) {
+> > >   		if (try_to_freeze())
+> > 
+> > 
+> > I think I am missing something here. A lot of logic is added here but I
+> > do not see why it is necessary.  ksgxd() knows via kthread_should_stop() if
+> > the reclaimer was canceled. I am thus wondering, could the above not be
+> > simplified to something similar to V1:
+> > 
+> > @@ -388,6 +393,8 @@ void sgx_reclaim_direct(void)
+> >  
+> >  static int ksgxd(void *p)
+> >  {
+> > +	unsigned long left_dirty;
+> > +
+> >  	set_freezable();
+> >  
+> >  	/*
+> > @@ -395,10 +402,10 @@ static int ksgxd(void *p)
+> >  	 * required for SECS pages, whose child pages blocked EREMOVE.
+> >  	 */
+> >  	__sgx_sanitize_pages(&sgx_dirty_page_list);
+> > -	__sgx_sanitize_pages(&sgx_dirty_page_list);
+> >  
+> > -	/* sanity check: */
+> > -	WARN_ON(!list_empty(&sgx_dirty_page_list));
+> > +	left_dirty = __sgx_sanitize_pages(&sgx_dirty_page_list);
+> > +	if (left_dirty && !kthread_should_stop())
+> > +		pr_err("%lu unsanitized pages\n", left_dirty);
+> >  
+> 
+> This basically means driver bug if I understand correctly.  To be consistent
+> with the behaviour of existing code, how about just WARN()?
+> 	
+> 	...
+> 	left_dirty = __sgx_sanitize_pages(&sgx_dirty_page_list);
+> 	WARN_ON(left_dirty && !kthread_should_stop());
+> 
+> It seems there's little value to print out the unsanitized pages here.  The
+> existing code doesn't print it anyway.
 
-The patch titled
-     Subject: mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page.patch
+Using WARN IMHO here is too strong measure, given that
+it tear down the whole kernel, if panic_on_warn is enabled.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page.patch
+For debugging, any information is useful information, so
+would not make sense not print the number of pages, if 
+that is available. That could very well point out the
+issue why all pages are not sanitized if there was a bug.
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
-Subject: mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
-Date: Thu, 1 Sep 2022 18:41:31 +0800
-
-On some architectures (like ARM64), it can support CONT-PTE/PMD size
-hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
-1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
-
-So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
-use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
-hugetlb in follow_page_pte().  However this pte entry lock is incorrect
-for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
-the correct lock, which is mm->page_table_lock.
-
-That means the pte entry of the CONT-PTE size hugetlb under current pte
-lock is unstable in follow_page_pte(), we can continue to migrate or
-poison the pte entry of the CONT-PTE size hugetlb, which can cause some
-potential race issues, even though they are under the 'pte lock'.
-
-For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
-page by move_pages() syscall under the lock, however antoher thread B can
-migrate the CONT-PTE hugetlb page at the same time, which will cause
-thread A to get an incorrect page, if thread A also wants to do page
-migration, then data inconsistency error occurs.
-
-Moreover we have the same issue for CONT-PMD size hugetlb in
-follow_huge_pmd().
-
-To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
-to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
-get the correct pte entry lock to make the pte entry stable.
-
-Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- include/linux/hugetlb.h |    8 ++++----
- mm/gup.c                |   14 +++++++++++++-
- mm/hugetlb.c            |   27 +++++++++++++--------------
- 3 files changed, 30 insertions(+), 19 deletions(-)
-
---- a/include/linux/hugetlb.h~mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page
-+++ a/include/linux/hugetlb.h
-@@ -207,8 +207,8 @@ struct page *follow_huge_addr(struct mm_
- struct page *follow_huge_pd(struct vm_area_struct *vma,
- 			    unsigned long address, hugepd_t hpd,
- 			    int flags, int pdshift);
--struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--				pmd_t *pmd, int flags);
-+struct page *follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address,
-+				 int flags);
- struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
- 				pud_t *pud, int flags);
- struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
-@@ -312,8 +312,8 @@ static inline struct page *follow_huge_p
- 	return NULL;
- }
- 
--static inline struct page *follow_huge_pmd(struct mm_struct *mm,
--				unsigned long address, pmd_t *pmd, int flags)
-+static inline struct page *follow_huge_pmd_pte(struct vm_area_struct *vma,
-+				unsigned long address, int flags)
- {
- 	return NULL;
- }
---- a/mm/gup.c~mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page
-+++ a/mm/gup.c
-@@ -530,6 +530,18 @@ static struct page *follow_page_pte(stru
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
- 			 (FOLL_PIN | FOLL_GET)))
- 		return ERR_PTR(-EINVAL);
-+
-+	/*
-+	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
-+	 * ARM64 architecture.
-+	 */
-+	if (is_vm_hugetlb_page(vma)) {
-+		page = follow_huge_pmd_pte(vma, address, flags);
-+		if (page)
-+			return page;
-+		return no_page_table(vma, flags);
-+	}
-+
- retry:
- 	if (unlikely(pmd_bad(*pmd)))
- 		return no_page_table(vma, flags);
-@@ -662,7 +674,7 @@ static struct page *follow_pmd_mask(stru
- 	if (pmd_none(pmdval))
- 		return no_page_table(vma, flags);
- 	if (pmd_huge(pmdval) && is_vm_hugetlb_page(vma)) {
--		page = follow_huge_pmd(mm, address, pmd, flags);
-+		page = follow_huge_pmd_pte(vma, address, flags);
- 		if (page)
- 			return page;
- 		return no_page_table(vma, flags);
---- a/mm/hugetlb.c~mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page
-+++ a/mm/hugetlb.c
-@@ -6944,12 +6944,13 @@ follow_huge_pd(struct vm_area_struct *vm
- }
- 
- struct page * __weak
--follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--		pmd_t *pmd, int flags)
-+follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address, int flags)
- {
-+	struct hstate *h = hstate_vma(vma);
-+	struct mm_struct *mm = vma->vm_mm;
- 	struct page *page = NULL;
- 	spinlock_t *ptl;
--	pte_t pte;
-+	pte_t *ptep, pte;
- 
- 	/*
- 	 * FOLL_PIN is not supported for follow_page(). Ordinary GUP goes via
-@@ -6959,17 +6960,15 @@ follow_huge_pmd(struct mm_struct *mm, un
- 		return NULL;
- 
- retry:
--	ptl = pmd_lockptr(mm, pmd);
--	spin_lock(ptl);
--	/*
--	 * make sure that the address range covered by this pmd is not
--	 * unmapped from other threads.
--	 */
--	if (!pmd_huge(*pmd))
--		goto out;
--	pte = huge_ptep_get((pte_t *)pmd);
-+	ptep = huge_pte_offset(mm, address, huge_page_size(h));
-+	if (!ptep)
-+		return NULL;
-+
-+	ptl = huge_pte_lock(h, mm, ptep);
-+	pte = huge_ptep_get(ptep);
- 	if (pte_present(pte)) {
--		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
-+		page = pte_page(pte) +
-+			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
- 		/*
- 		 * try_grab_page() should always succeed here, because: a) we
- 		 * hold the pmd (ptl) lock, and b) we've just checked that the
-@@ -6985,7 +6984,7 @@ retry:
- 	} else {
- 		if (is_hugetlb_entry_migration(pte)) {
- 			spin_unlock(ptl);
--			__migration_entry_wait_huge((pte_t *)pmd, ptl);
-+			__migration_entry_wait_huge(ptep, ptl);
- 			goto retry;
- 		}
- 		/*
-_
-
-Patches currently in -mm which might be from baolin.wang@linux.alibaba.com are
-
-mm-hugetlb-fix-races-when-looking-up-a-cont-pte-pmd-size-hugetlb-page.patch
-mm-migrate-do-not-retry-10-times-for-the-subpages-of-fail-to-migrate-thp.patch
-mm-damon-validate-if-the-pmd-entry-is-present-before-accessing.patch
-mm-damon-replace-pmd_huge-with-pmd_trans_huge-for-thp.patch
-
+BR, Jarkko
