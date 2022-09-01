@@ -2,219 +2,384 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D1F5A9D8D
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 18:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 873F65A9E8E
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 20:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234618AbiIAQx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 12:53:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38820 "EHLO
+        id S232490AbiIASDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 14:03:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235103AbiIAQxz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 12:53:55 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E0B5985B1
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 09:53:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662051234; x=1693587234;
-  h=date:from:to:cc:subject:message-id:references:
-   in-reply-to:mime-version;
-  bh=wqFLH+hxHJ8Os6B0ZBuE3MPV5NawZepa1NaiIqnejLo=;
-  b=V2pI9fDCpLiJn3m25Zt+fzQC2GRctlMUxXd1R0Zefys2gue8nakXjyAD
-   LGxgQdjhhGYVPpZpSbG4RvSRevl3SiElZQvi+ARqQKPZqFpIAjJIEBWz1
-   PZ0YsjF1++nsbU8jQ5ZBxcmLcu8tYwJAca7z/BvqqXWw6C/OpjIfZxKyY
-   0QMOAtUMUD04L8VLwSpqpSFj05SqCD5A/8HoT9LSq9SgfA9d12OhNuu0s
-   eQj8LZ9T1rw1beCmpA39xGuxZKOGom4tbuzhKPWK6Qi8rHKUDkk1HDcyI
-   Q5IAOaCIT0ZQqHSSnJOiW6XALrns6PJJY5UFzbDzrAVC1u+pFwRto/iR8
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10457"; a="295779607"
-X-IronPort-AV: E=Sophos;i="5.93,281,1654585200"; 
-   d="scan'208";a="295779607"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2022 09:53:52 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,281,1654585200"; 
-   d="scan'208";a="642416133"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by orsmga008.jf.intel.com with ESMTP; 01 Sep 2022 09:53:52 -0700
-Received: from fmsmsx608.amr.corp.intel.com (10.18.126.88) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Thu, 1 Sep 2022 09:53:52 -0700
-Received: from fmsmsx608.amr.corp.intel.com (10.18.126.88) by
- fmsmsx608.amr.corp.intel.com (10.18.126.88) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Thu, 1 Sep 2022 09:53:52 -0700
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx608.amr.corp.intel.com (10.18.126.88) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31 via Frontend Transport; Thu, 1 Sep 2022 09:53:52 -0700
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (104.47.55.177)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2375.31; Thu, 1 Sep 2022 09:53:51 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=XM91D/me7cTNnluY4pyYRnO8nkA1NASMSyxB4SKE1bF5PRDv0FAxnID65sYu9kPrj7YlK7hJwINNALyNcR0dQZn9NpqAO6w4lfkDe/7ajblS2DYs4tPXe7IiopS/RvjA/WXJQgUCmyOq4QnCqCbk63KuCQ3v37fiui+3V9uW90SRiaLWGhwMho3oZLeXA9lltef3pNT+rQlodaYtFb2M8oBf1nuz7GGQPNlZfOir/FzMvTbJUqFoRx8OBULQdZlqwjvq3eNuEWQN6+qxpQ4SmK/lU9DmtOo5HqSZ6KrVOkNtYT02BXX+URxJzC9z2OZmgqDcwp+nG18d5OdcmmxwWw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jnzxuYeMs+TTIp49iijdwI+gVtLFJz3/rcfNufXi1BI=;
- b=nLf3j0qFaJbNxlt+ielWdD3v9xoBc/qNJ5i+ZsHkT6vZZb6LBeEqX5d5XkNPOzqNH4nFTL+OP5XaJ0WkCjcI7k9a3nKxdwIX1jBXktwcmD0KtdQl1p0lY64A6DkhiB+L9fHtByVClz60kAZh9bn6hHTSO6/d/0ndFadIAgEgxc1r3yqAMp1g17T1q79pOIR8GHEjx6hWnE18vExsihXGmY0XJk0+3Zq+LdhgcTheWzqlGOCNvznHodgKpGkZ/n3hOuQoSJFQ1rD4pJs6kfdnjq8Pjl6DKqJPqXs+g09QLd7Kc09ZqScyfq4nrMLYaqBtQbAZ58OHOTl1GHvfBTixuA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from MN0PR11MB6059.namprd11.prod.outlook.com (2603:10b6:208:377::9)
- by BN8PR11MB3539.namprd11.prod.outlook.com (2603:10b6:408:8b::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.10; Thu, 1 Sep
- 2022 16:53:49 +0000
-Received: from MN0PR11MB6059.namprd11.prod.outlook.com
- ([fe80::7ce8:1e4e:20d4:6bd4]) by MN0PR11MB6059.namprd11.prod.outlook.com
- ([fe80::7ce8:1e4e:20d4:6bd4%9]) with mapi id 15.20.5588.010; Thu, 1 Sep 2022
- 16:53:49 +0000
-Date:   Thu, 1 Sep 2022 12:53:45 -0400
-From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
-To:     "Dixit, Ashutosh" <ashutosh.dixit@intel.com>
-CC:     <intel-gfx@lists.freedesktop.org>,
-        Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>,
-        <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915/slpc: Let's fix the PCODE min freq
- table setup for SLPC
-Message-ID: <YxDjmSFS01Kb9cxA@intel.com>
-References: <874jxtz1e7.wl-ashutosh.dixit@intel.com>
- <20220831214538.143950-1-rodrigo.vivi@intel.com>
- <87v8q8rrbd.wl-ashutosh.dixit@intel.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <87v8q8rrbd.wl-ashutosh.dixit@intel.com>
-X-ClientProxiedBy: BYAPR05CA0087.namprd05.prod.outlook.com
- (2603:10b6:a03:e0::28) To MN0PR11MB6059.namprd11.prod.outlook.com
- (2603:10b6:208:377::9)
+        with ESMTP id S231447AbiIASDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 14:03:45 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37186E2C8
+        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 11:03:43 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id 202so17089088pgc.8
+        for <stable@vger.kernel.org>; Thu, 01 Sep 2022 11:03:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=osandov-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=/Kb0s03L08yISPG2LWL2pe0LZ3W0qJJz4MBqRAx8pUc=;
+        b=mMJR2Zg33m7YBHSWJIN0C5EslNb3T06OeJUp2xpy5kbI/APxW1ukPeci1sbRQxQth3
+         DVpgKsTtradf1A/ugFQwcl7IzZxI/vn1ZHX8ZxdfDAZKC/8Djfzjd/4l43jji5tXFPNs
+         IEmE/yi1Q2qNBUnTkiiw5TmMmvQ1T+KyaYYz91BhYo0otRDX4qjkRUKbR51JU3+El3zt
+         lYuyPXcE2HnXNCaVGxCE1R/sEwNU5BucfNCk/Sk6OoJAzeyBPu9cdFeI3UpS9YNLMb2u
+         39HvHQm4q02wvRwFQovDqModjhlCKrqVYtwUPEIDr7rp6KX5eRLv+TOdGv8rHgFtFBAm
+         DK5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=/Kb0s03L08yISPG2LWL2pe0LZ3W0qJJz4MBqRAx8pUc=;
+        b=cP9qM4tMobI+4WFwJ1IDfBf7Z2XV+exaviEK19/dRurtS977eyMQrlocVBuX+HrZqx
+         +WPb3w1wzJ17tYfofoHswyFMNWWFDY8AWlZO5GeMJc+W/aBTtwHNrWtXIeu3aG+z5DAP
+         qHKjJbJLyX8zNyTpKeFEe+HdrJ2r3rF1+s8OkBYqMnZ8cQF5uJue4FwjNARnBWgN0Xkr
+         53wRzyUfImIsQO0IVd73m9Q6gdRotNdCFYS4efMog7aQUwY/ws8+PiAU3CqJChbifzKi
+         B0FsvhP1TP1gM6A39Bi2sWhOefQPfbXhvur8VlQA92d6U9u3V/s+s1mMPqVRuJQCdZ6Y
+         Lx9Q==
+X-Gm-Message-State: ACgBeo3RHOLYxu/4XMUJICTDiGD/+U/oH4sdTGaWUNzzMlILn0MVM5/N
+        lKvYXGDRM2S9WMzsk9aoKMsn4p98vyj6lQ==
+X-Google-Smtp-Source: AA6agR7Hphykh1RJEueNKnnRn3QwV7V4P4ZJCIyWppRGXSDB16y94TBTrXQjh+CIVwAR5VRSFp4evw==
+X-Received: by 2002:a05:6a00:140d:b0:52a:d561:d991 with SMTP id l13-20020a056a00140d00b0052ad561d991mr32378925pfu.46.1662055422909;
+        Thu, 01 Sep 2022 11:03:42 -0700 (PDT)
+Received: from relinquished.thefacebook.com ([2620:10d:c090:500::594d])
+        by smtp.gmail.com with ESMTPSA id q5-20020aa79605000000b00536b8f91806sm13614706pfg.198.2022.09.01.11.03.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Sep 2022 11:03:41 -0700 (PDT)
+From:   Omar Sandoval <osandov@osandov.com>
+To:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
+Cc:     kernel-team@fb.com
+Subject: [PATCH 5.15] btrfs: fix space cache corruption and potential double allocations
+Date:   Thu,  1 Sep 2022 11:03:35 -0700
+Message-Id: <b07b2c2bcef831de5eaa6d2e61d46b92db4d41d5.1662055214.git.osandov@fb.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 5f1bcf42-493c-4108-c6fe-08da8c3a8adc
-X-MS-TrafficTypeDiagnostic: BN8PR11MB3539:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: bI5zkWPGN5I6ScA1YUB5Jhf3T6v9WPE5SWgQeBYKtqT4I7QRmhJQJ58V7XeMi2PcemWff7iyhZQoY7EImhCOmjHyqvoeGIng8hMHhK2AQz+DEoChXqomhrI79ngIcHuvEy4gbYf490K2Vk2BJvdpPJFhZoEBlbT18zdWR6jnXu+QBjBidoBnot2RYvIRo2cTWfdJ4UWshtCEW5p7q3ed6rmTlcy3j10fy3xc5eC0wgBFKNTIAFbDmXUcWMsFJaFP6EEzo7e5tzlqdAkC89/UUdEYW3VUi2BQpOZf/37yuatpEcnnTUmGDiN9bwApazWqUxKbtjEqsvJ71mfOK98BrtDFiS/9CcUkHQgwxzQtlSgTgL4geRqvKIx2wh+oiU2lzd5lYGslzVGIEdi5CPg5grDj8+3yPJAvwD9tAEUwBTz+bXk9ZjbydK5J/+o8J0fXkq2xqsjCykujeGfMXI228nM6Cs8Ks90xsXt/FM0jXQ0M+pWsMzY10GbhR2tjX2yrRC/Rc/11dp12e7z+4SOUxzbdBobqlPQTuJKp5Pabu+bYbTYYaPmvScu74P17evX7A87YjW3cWIDaLgSlwJxcFJvyb53+9blf0n0E/7pLjMTrMgSPVqb7TboVQwjTBKvxN8rlDju/h0X7xJRxiFArDI/wnUhdf2IvDCnpvFbuQNDLLNWNlZNJ6ZnrxnPU1nGMmm+Llb0r/Q6+a+JWmWrkRQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR11MB6059.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(376002)(396003)(136003)(39860400002)(346002)(366004)(83380400001)(82960400001)(66556008)(66946007)(6862004)(8936002)(2616005)(186003)(37006003)(2906002)(316002)(6636002)(5660300002)(66476007)(44832011)(4326008)(8676002)(36756003)(41300700001)(6506007)(6512007)(6666004)(26005)(38100700002)(478600001)(86362001)(6486002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?fqISfCyyJpnKdEqaorWCsUzjWYVutCuMgqjpn8RquFOJvbN2y67588ci+xGo?=
- =?us-ascii?Q?1LezNEINJv6GLbNhv1v20cwJaAK4OZIdGuvwSpUpijoqCW6dZpOPDAWMEPd9?=
- =?us-ascii?Q?yNaOY8F4G9zPBYIGrlV+GVTZT6bLNA7nJgA3egQB9280gtHjoibiMZssLEIj?=
- =?us-ascii?Q?Lh8hSUd6ymLv7GrFBsUQKoZ1jd0k9bN9Z1L5Q4kc1tSMHfpp8n+eskZFNNb6?=
- =?us-ascii?Q?XgNxwjNi1MOp9stpwNc42XdKXpoQUAna5LZDAwV31+Dp3rZIcYyaSGGNTaej?=
- =?us-ascii?Q?mk+w2Nc/zyfzGAV51qdTNpT4hkfaSsccdcKmei/4EIAG1EynpQ1YrxeJfNTJ?=
- =?us-ascii?Q?+10De5//FzPRHdcb2WdOdhmWJfrPohPVJJwzR1dyPvk8WYrf6xVmOx6OXqvm?=
- =?us-ascii?Q?xYO1gvxeqJ8vldooKVl8xoEH7ZIegyMEDWj/kZpDYIi1QON6/NFnYcOvMib8?=
- =?us-ascii?Q?EpteuyAveEys+m1lJwy7Vcoh+ENEMB2+8NYe/P4OygIlS9v4j8oedoJHwDu1?=
- =?us-ascii?Q?AEk7b1vmbW5a8I3/g0R3s+DezpaB/jpPSXamR8zuSKbyYBOkpZJvMjScWwBi?=
- =?us-ascii?Q?Pk/k4bZLhtUMF16cQAl5Z31VeVG5ujr+TLfVDkQWWpK8pd5mFtlOwbbYJWQY?=
- =?us-ascii?Q?cZUws3cxKK5jSZIP7DTFR2kxj30gIcQPxrzvHgoYupYWbk0QVdO1engp9LvP?=
- =?us-ascii?Q?sWJjFSBPQdu1SXVJ35TC5kd0DHVqDwxe4rXaPyMCdZbUyx5FywxdVqiZno0/?=
- =?us-ascii?Q?iHxoUgiveOOn+UF+sagx3P+bFC48+VbMNBhVJLvMOcZdrkuptE+Zc5Oic15X?=
- =?us-ascii?Q?wIkp4V7JZoK/7+YmDwY/8FHqD2pK5YnQRVtB3UKQJPQbeQ1TcmV0ENiR3WqI?=
- =?us-ascii?Q?ImTmKWXJd8ZMvH/9FS3QOOz2mLbXdDH8/xbLNgG1lDwhxifeojt4nJfS9V2N?=
- =?us-ascii?Q?y3AR5hhB+fQmiaZE0SrLenbX84tCTCYEadYdUnkH+eNOtuMBWWVI97TQx7Un?=
- =?us-ascii?Q?xblkhg5qzRE0epIZaDGjYzxXMsVIWTN2GBI4YguSCRxBOdWWHJIEKjVj+yY/?=
- =?us-ascii?Q?UqdynpNJkaXE/kLwrzDXdXwI0nOG0aAZTlnpD6nP8wwojoXIgykihgR+86Cq?=
- =?us-ascii?Q?17GJdn9IP3pDQDvrM23Uv4KhSVQL9cXKgjclfF3FdOJEv1FOH9CxaE/UQbKG?=
- =?us-ascii?Q?YUaT3wtI0iG/5PcVlONC80GQFD1eGfz7Qifa3LAX1s0Z6aDVQz17p0yRNA1w?=
- =?us-ascii?Q?mb8+f2V7xK+PQ6saJSTaXXCoxH10TUWGpLXyH7yS+gCXjJm6Z+OSIurR6gbN?=
- =?us-ascii?Q?2fmi/EdEY0aDVPB6coSalSe0JtOZaskIc9nY/UbcgXzw9p3MCTtR27ZrZB00?=
- =?us-ascii?Q?cz3ay41QQa7QdKP7IhsHFSQwIzQoVRRZObsuQ7yc3LTCYrjKIJCkfNbeAnrP?=
- =?us-ascii?Q?z3DT0lpjbmeR9I8FhaT6Mh9nexM4kwQmrTY28N80F7oX5MYgq5qSZDlHtTMk?=
- =?us-ascii?Q?EAnBZhfAecd8S8ZpVHDnNk7XFGxp7/N6JDYuvk1NJiQXNwCgd4pBpFSnmK/k?=
- =?us-ascii?Q?gogwo80oY6ELJsiXREXHp0xrAREBJxcayFeo8uL2v+PkGxeD4zay5rcrkc65?=
- =?us-ascii?Q?zA=3D=3D?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5f1bcf42-493c-4108-c6fe-08da8c3a8adc
-X-MS-Exchange-CrossTenant-AuthSource: MN0PR11MB6059.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2022 16:53:49.6281
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: KK+xZ+aXdTA8FtROaOaQLnK/pRzQg1KkrLM0/xAQq0YTHcJ++c8eBvKF+/UMaj0cRbjNPJaJbXFhUikEAZBoDg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR11MB3539
-X-OriginatorOrg: intel.com
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 31, 2022 at 03:17:26PM -0700, Dixit, Ashutosh wrote:
-> On Wed, 31 Aug 2022 14:45:38 -0700, Rodrigo Vivi wrote:
-> >
-> 
-> Hi Rodrigo,
-> 
-> > We need to inform PCODE of a desired ring frequencies so PCODE update
-> > the memory frequencies to us. rps->min_freq and rps->max_freq are the
-> > frequencies used in that request. However they were unset when SLPC was
-> > enabled and PCODE never updated the memory freq.
-> >
-> > v2 (as Suggested by Ashutosh): if SLPC is in use, let's pick the right
-> >    frequencies from the get_ia_constants instead of the fake init of
-> >    rps' min and max.
-> >
-> > v3: don't forget the max <= min return
-> >
-> > v4: Move all the freq conversion to intel_rps.c. And the max <= min
-> >     check to where it belongs.
-> >
-> > v5: (Ashutosh) Fix old comment s/50 HZ/50 MHz and add a doc explaining
-> >     the "raw format"
-> 
-> I think we both agree that mostly the way this patch is written it is to
-> add SLPC but not risk disturbing host turbo, specially old platforms
-> (CHV/VLV/ILK and pre-Gen 6). Also these freq units (sometimes 16.67 MHz
-> units, sometimes 50 MHz, sometime MHz) in different places in the driver
-> and different product generations is hugely confusing to say the least. For
-> old platform we don't really know what units the freq's are in, we only
-> know intel_gpu_freq will magically convert freq's to MHz. In any case let's
-> work with what we have.
+From: Omar Sandoval <osandov@fb.com>
 
-yeap!
+commit ced8ecf026fd8084cf175530ff85c76d6085d715 upstream.
 
-> 
-> > @@ -130,6 +123,12 @@ static void gen6_update_ring_freq(struct intel_llc *llc)
-> >	if (!get_ia_constants(llc, &consts))
-> >		return;
-> >
-> > +	/*
-> > +	 * Although this is unlikely on any platform during initialization,
-> > +	 * let's ensure we don't get accidentally into infinite loop
-> > +	 */
-> > +	if (consts.max_gpu_freq <= consts.min_gpu_freq)
-> > +		return;
-> 
-> As I said I would remove reference to "infinite loop", I am not seeing any
-> infinite loop, maybe just delete the comment.
-> 
-> Also as I said I see the check above should be completely removed (so it is
-> actually a pre-existing bug in the code). However since you want to carry
-> it forward in order not to risk disturbing legacy behavior that's fine.
+When testing space_cache v2 on a large set of machines, we encountered a
+few symptoms:
 
-I know we can get the infinit loop because I faced it here on a bad config
-where min = max. os if min >= max, the for loop will never close.
-And in case we have some fused parts with min = max we will take a while
-to figure out what's going on during po. and who knows about older platforms
-and skus out there as well.
+1. "unable to add free space :-17" (EEXIST) errors.
+2. Missing free space info items, sometimes caught with a "missing free
+   space info for X" error.
+3. Double-accounted space: ranges that were allocated in the extent tree
+   and also marked as free in the free space tree, ranges that were
+   marked as allocated twice in the extent tree, or ranges that were
+   marked as free twice in the free space tree. If the latter made it
+   onto disk, the next reboot would hit the BUG_ON() in
+   add_new_free_space().
+4. On some hosts with no on-disk corruption or error messages, the
+   in-memory space cache (dumped with drgn) disagreed with the free
+   space tree.
 
-I will keep the comment so we don't end up removing it from here.
+All of these symptoms have the same underlying cause: a race between
+caching the free space for a block group and returning free space to the
+in-memory space cache for pinned extents causes us to double-add a free
+range to the space cache. This race exists when free space is cached
+from the free space tree (space_cache=v2) or the extent tree
+(nospace_cache, or space_cache=v1 if the cache needs to be regenerated).
+struct btrfs_block_group::last_byte_to_unpin and struct
+btrfs_block_group::progress are supposed to protect against this race,
+but commit d0c2f4fa555e ("btrfs: make concurrent fsyncs wait less when
+waiting for a transaction commit") subtly broke this by allowing
+multiple transactions to be unpinning extents at the same time.
 
-> 
-> Rest LGTM:
-> 
-> Reviewed-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
+Specifically, the race is as follows:
 
-Thanks
+1. An extent is deleted from an uncached block group in transaction A.
+2. btrfs_commit_transaction() is called for transaction A.
+3. btrfs_run_delayed_refs() -> __btrfs_free_extent() runs the delayed
+   ref for the deleted extent.
+4. __btrfs_free_extent() -> do_free_extent_accounting() ->
+   add_to_free_space_tree() adds the deleted extent back to the free
+   space tree.
+5. do_free_extent_accounting() -> btrfs_update_block_group() ->
+   btrfs_cache_block_group() queues up the block group to get cached.
+   block_group->progress is set to block_group->start.
+6. btrfs_commit_transaction() for transaction A calls
+   switch_commit_roots(). It sets block_group->last_byte_to_unpin to
+   block_group->progress, which is block_group->start because the block
+   group hasn't been cached yet.
+7. The caching thread gets to our block group. Since the commit roots
+   were already switched, load_free_space_tree() sees the deleted extent
+   as free and adds it to the space cache. It finishes caching and sets
+   block_group->progress to U64_MAX.
+8. btrfs_commit_transaction() advances transaction A to
+   TRANS_STATE_SUPER_COMMITTED.
+9. fsync calls btrfs_commit_transaction() for transaction B. Since
+   transaction A is already in TRANS_STATE_SUPER_COMMITTED and the
+   commit is for fsync, it advances.
+10. btrfs_commit_transaction() for transaction B calls
+    switch_commit_roots(). This time, the block group has already been
+    cached, so it sets block_group->last_byte_to_unpin to U64_MAX.
+11. btrfs_commit_transaction() for transaction A calls
+    btrfs_finish_extent_commit(), which calls unpin_extent_range() for
+    the deleted extent. It sees last_byte_to_unpin set to U64_MAX (by
+    transaction B!), so it adds the deleted extent to the space cache
+    again!
+
+This explains all of our symptoms above:
+
+* If the sequence of events is exactly as described above, when the free
+  space is re-added in step 11, it will fail with EEXIST.
+* If another thread reallocates the deleted extent in between steps 7
+  and 11, then step 11 will silently re-add that space to the space
+  cache as free even though it is actually allocated. Then, if that
+  space is allocated *again*, the free space tree will be corrupted
+  (namely, the wrong item will be deleted).
+* If we don't catch this free space tree corruption, it will continue
+  to get worse as extents are deleted and reallocated.
+
+The v1 space_cache is synchronously loaded when an extent is deleted
+(btrfs_update_block_group() with alloc=0 calls btrfs_cache_block_group()
+with load_cache_only=1), so it is not normally affected by this bug.
+However, as noted above, if we fail to load the space cache, we will
+fall back to caching from the extent tree and may hit this bug.
+
+The easiest fix for this race is to also make caching from the free
+space tree or extent tree synchronous. Josef tested this and found no
+performance regressions.
+
+A few extra changes fall out of this change. Namely, this fix does the
+following, with step 2 being the crucial fix:
+
+1. Factor btrfs_caching_ctl_wait_done() out of
+   btrfs_wait_block_group_cache_done() to allow waiting on a caching_ctl
+   that we already hold a reference to.
+2. Change the call in btrfs_cache_block_group() of
+   btrfs_wait_space_cache_v1_finished() to
+   btrfs_caching_ctl_wait_done(), which makes us wait regardless of the
+   space_cache option.
+3. Delete the now unused btrfs_wait_space_cache_v1_finished() and
+   space_cache_v1_done().
+4. Change btrfs_cache_block_group()'s `int load_cache_only` parameter to
+   `bool wait` to more accurately describe its new meaning.
+5. Change a few callers which had a separate call to
+   btrfs_wait_block_group_cache_done() to use wait = true instead.
+6. Make btrfs_wait_block_group_cache_done() static now that it's not
+   used outside of block-group.c anymore.
+
+Fixes: d0c2f4fa555e ("btrfs: make concurrent fsyncs wait less when waiting for a transaction commit")
+CC: stable@vger.kernel.org # 5.12+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+Hi,
+
+This is the backport of commit ced8ecf026fd8084cf175530ff85c76d6085d715
+to the 5.15 stable branch. Please consider it for the next 5.15 stable
+release.
+
+Thanks,
+Omar
+
+ fs/btrfs/block-group.c | 47 ++++++++++++++----------------------------
+ fs/btrfs/block-group.h |  4 +---
+ fs/btrfs/ctree.h       |  1 -
+ fs/btrfs/extent-tree.c | 30 ++++++---------------------
+ 4 files changed, 22 insertions(+), 60 deletions(-)
+
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 909cc00ef5ce..474dcc0540a8 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -418,39 +418,26 @@ void btrfs_wait_block_group_cache_progress(struct btrfs_block_group *cache,
+ 	btrfs_put_caching_control(caching_ctl);
+ }
+ 
+-int btrfs_wait_block_group_cache_done(struct btrfs_block_group *cache)
++static int btrfs_caching_ctl_wait_done(struct btrfs_block_group *cache,
++				       struct btrfs_caching_control *caching_ctl)
++{
++	wait_event(caching_ctl->wait, btrfs_block_group_done(cache));
++	return cache->cached == BTRFS_CACHE_ERROR ? -EIO : 0;
++}
++
++static int btrfs_wait_block_group_cache_done(struct btrfs_block_group *cache)
+ {
+ 	struct btrfs_caching_control *caching_ctl;
+-	int ret = 0;
++	int ret;
+ 
+ 	caching_ctl = btrfs_get_caching_control(cache);
+ 	if (!caching_ctl)
+ 		return (cache->cached == BTRFS_CACHE_ERROR) ? -EIO : 0;
+-
+-	wait_event(caching_ctl->wait, btrfs_block_group_done(cache));
+-	if (cache->cached == BTRFS_CACHE_ERROR)
+-		ret = -EIO;
++	ret = btrfs_caching_ctl_wait_done(cache, caching_ctl);
+ 	btrfs_put_caching_control(caching_ctl);
+ 	return ret;
+ }
+ 
+-static bool space_cache_v1_done(struct btrfs_block_group *cache)
+-{
+-	bool ret;
+-
+-	spin_lock(&cache->lock);
+-	ret = cache->cached != BTRFS_CACHE_FAST;
+-	spin_unlock(&cache->lock);
+-
+-	return ret;
+-}
+-
+-void btrfs_wait_space_cache_v1_finished(struct btrfs_block_group *cache,
+-				struct btrfs_caching_control *caching_ctl)
+-{
+-	wait_event(caching_ctl->wait, space_cache_v1_done(cache));
+-}
+-
+ #ifdef CONFIG_BTRFS_DEBUG
+ static void fragment_free_space(struct btrfs_block_group *block_group)
+ {
+@@ -727,9 +714,8 @@ static noinline void caching_thread(struct btrfs_work *work)
+ 	btrfs_put_block_group(block_group);
+ }
+ 
+-int btrfs_cache_block_group(struct btrfs_block_group *cache, int load_cache_only)
++int btrfs_cache_block_group(struct btrfs_block_group *cache, bool wait)
+ {
+-	DEFINE_WAIT(wait);
+ 	struct btrfs_fs_info *fs_info = cache->fs_info;
+ 	struct btrfs_caching_control *caching_ctl = NULL;
+ 	int ret = 0;
+@@ -762,10 +748,7 @@ int btrfs_cache_block_group(struct btrfs_block_group *cache, int load_cache_only
+ 	}
+ 	WARN_ON(cache->caching_ctl);
+ 	cache->caching_ctl = caching_ctl;
+-	if (btrfs_test_opt(fs_info, SPACE_CACHE))
+-		cache->cached = BTRFS_CACHE_FAST;
+-	else
+-		cache->cached = BTRFS_CACHE_STARTED;
++	cache->cached = BTRFS_CACHE_STARTED;
+ 	cache->has_caching_ctl = 1;
+ 	spin_unlock(&cache->lock);
+ 
+@@ -778,8 +761,8 @@ int btrfs_cache_block_group(struct btrfs_block_group *cache, int load_cache_only
+ 
+ 	btrfs_queue_work(fs_info->caching_workers, &caching_ctl->work);
+ out:
+-	if (load_cache_only && caching_ctl)
+-		btrfs_wait_space_cache_v1_finished(cache, caching_ctl);
++	if (wait && caching_ctl)
++		ret = btrfs_caching_ctl_wait_done(cache, caching_ctl);
+ 	if (caching_ctl)
+ 		btrfs_put_caching_control(caching_ctl);
+ 
+@@ -3200,7 +3183,7 @@ int btrfs_update_block_group(struct btrfs_trans_handle *trans,
+ 		 * space back to the block group, otherwise we will leak space.
+ 		 */
+ 		if (!alloc && !btrfs_block_group_done(cache))
+-			btrfs_cache_block_group(cache, 1);
++			btrfs_cache_block_group(cache, true);
+ 
+ 		byte_in_group = bytenr - cache->start;
+ 		WARN_ON(byte_in_group > cache->length);
+diff --git a/fs/btrfs/block-group.h b/fs/btrfs/block-group.h
+index d73db0dfacb2..a15868d607a9 100644
+--- a/fs/btrfs/block-group.h
++++ b/fs/btrfs/block-group.h
+@@ -251,9 +251,7 @@ void btrfs_dec_nocow_writers(struct btrfs_fs_info *fs_info, u64 bytenr);
+ void btrfs_wait_nocow_writers(struct btrfs_block_group *bg);
+ void btrfs_wait_block_group_cache_progress(struct btrfs_block_group *cache,
+ 				           u64 num_bytes);
+-int btrfs_wait_block_group_cache_done(struct btrfs_block_group *cache);
+-int btrfs_cache_block_group(struct btrfs_block_group *cache,
+-			    int load_cache_only);
++int btrfs_cache_block_group(struct btrfs_block_group *cache, bool wait);
+ void btrfs_put_caching_control(struct btrfs_caching_control *ctl);
+ struct btrfs_caching_control *btrfs_get_caching_control(
+ 		struct btrfs_block_group *cache);
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index d1838de0b39c..8dafb6bf62bd 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -462,7 +462,6 @@ struct btrfs_free_cluster {
+ enum btrfs_caching_type {
+ 	BTRFS_CACHE_NO,
+ 	BTRFS_CACHE_STARTED,
+-	BTRFS_CACHE_FAST,
+ 	BTRFS_CACHE_FINISHED,
+ 	BTRFS_CACHE_ERROR,
+ };
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 248ea15c9734..8c007abf81f0 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -2572,17 +2572,10 @@ int btrfs_pin_extent_for_log_replay(struct btrfs_trans_handle *trans,
+ 		return -EINVAL;
+ 
+ 	/*
+-	 * pull in the free space cache (if any) so that our pin
+-	 * removes the free space from the cache.  We have load_only set
+-	 * to one because the slow code to read in the free extents does check
+-	 * the pinned extents.
++	 * Fully cache the free space first so that our pin removes the free space
++	 * from the cache.
+ 	 */
+-	btrfs_cache_block_group(cache, 1);
+-	/*
+-	 * Make sure we wait until the cache is completely built in case it is
+-	 * missing or is invalid and therefore needs to be rebuilt.
+-	 */
+-	ret = btrfs_wait_block_group_cache_done(cache);
++	ret = btrfs_cache_block_group(cache, true);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -2605,12 +2598,7 @@ static int __exclude_logged_extent(struct btrfs_fs_info *fs_info,
+ 	if (!block_group)
+ 		return -EINVAL;
+ 
+-	btrfs_cache_block_group(block_group, 1);
+-	/*
+-	 * Make sure we wait until the cache is completely built in case it is
+-	 * missing or is invalid and therefore needs to be rebuilt.
+-	 */
+-	ret = btrfs_wait_block_group_cache_done(block_group);
++	ret = btrfs_cache_block_group(block_group, true);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -4324,7 +4312,7 @@ static noinline int find_free_extent(struct btrfs_root *root,
+ 		ffe_ctl.cached = btrfs_block_group_done(block_group);
+ 		if (unlikely(!ffe_ctl.cached)) {
+ 			ffe_ctl.have_caching_bg = true;
+-			ret = btrfs_cache_block_group(block_group, 0);
++			ret = btrfs_cache_block_group(block_group, false);
+ 
+ 			/*
+ 			 * If we get ENOMEM here or something else we want to
+@@ -6066,13 +6054,7 @@ int btrfs_trim_fs(struct btrfs_fs_info *fs_info, struct fstrim_range *range)
+ 
+ 		if (end - start >= range->minlen) {
+ 			if (!btrfs_block_group_done(cache)) {
+-				ret = btrfs_cache_block_group(cache, 0);
+-				if (ret) {
+-					bg_failed++;
+-					bg_ret = ret;
+-					continue;
+-				}
+-				ret = btrfs_wait_block_group_cache_done(cache);
++				ret = btrfs_cache_block_group(cache, true);
+ 				if (ret) {
+ 					bg_failed++;
+ 					bg_ret = ret;
+-- 
+2.30.2
+
