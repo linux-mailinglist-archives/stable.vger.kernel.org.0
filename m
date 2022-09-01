@@ -2,54 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D82765A949F
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:29:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F395A94A4
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbiIAK3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 06:29:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60142 "EHLO
+        id S232804AbiIAKav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 06:30:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234288AbiIAK30 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:29:26 -0400
-X-Greylist: delayed 108716 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 01 Sep 2022 03:29:23 PDT
-Received: from mail.avm.de (mail.avm.de [212.42.244.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA275D25E7
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 03:29:23 -0700 (PDT)
-Received: from mail-auth.avm.de (unknown [IPv6:2001:bf0:244:244::71])
-        by mail.avm.de (Postfix) with ESMTPS;
-        Thu,  1 Sep 2022 12:29:20 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-        t=1662028160; bh=pCVsKFB9GopN8z6OOChumzZDeRaBlXHqNl1/bAWLHVY=;
+        with ESMTP id S234071AbiIAKar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:30:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27315DD744;
+        Thu,  1 Sep 2022 03:30:43 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1082961CEF;
+        Thu,  1 Sep 2022 10:30:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA065C433B5;
+        Thu,  1 Sep 2022 10:30:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1662028241;
+        bh=5x525oxOQnL5n2nwqhJjrzExqTe/rEL0u72839GNWBE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qRsAbiNfQoh//1U6JfSbh+Dcq4Uuw1mSDFxzCsqE+NK3hXbLyyoGCr0Kb55k9a+vw
-         xJKiWqli7Riv5nrE7lk55a0FZh5vb1O2fAsYrOltJn7LGG2SR6VdS/N0sSKx7CFsPd
-         0yRKMBuALl944sdibVJAukRLuxbQ9OzadW1f6uuU=
-Received: from buildd.core.avm.de (buildd-sv-01.avm.de [172.16.0.225])
-        by mail-auth.avm.de (Postfix) with ESMTPA id 46DD0803D8;
-        Thu,  1 Sep 2022 12:29:21 +0200 (CEST)
-Received: by buildd.core.avm.de (Postfix, from userid 1000)
-        id 3CF18181D55; Thu,  1 Sep 2022 12:29:21 +0200 (CEST)
-Date:   Thu, 1 Sep 2022 12:29:21 +0200
-From:   Nicolas Schier <n.schier@avm.de>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, Jing Leng <jleng@ambarella.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: Re: [PATCH 5.4] kbuild: Fix include path in scripts/Makefile.modpost
-Message-ID: <YxCJgQ+Dvu1FbN4x@buildd.core.avm.de>
-References: <20220831041724.1493230-1-n.schier@avm.de>
- <YxCHiTdsFI4WRF7F@kroah.com>
+        b=QU0V3e0WFz9AhpRDxUHs/QGDxBSbwSxyBzxh9MUe6detw1ed0d7y6qv1F0f8VsMSf
+         bixtTRnEKXniCojgtzgzjjr4ua6y6m0DAmR0udb4jzjKoDMbtsnaumC7uVzHRk9lzD
+         8GIlS7IFbC6dWaj0Wy9Kq7PczxHvDhsgJSwAw/cs=
+Date:   Thu, 1 Sep 2022 12:30:38 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
+Subject: Re: [PATCH 5.15 000/136] 5.15.64-rc1 review
+Message-ID: <YxCJzr0XCd+6/JW4@kroah.com>
+References: <20220829105804.609007228@linuxfoundation.org>
+ <CADVatmOLoaGgAW951JqEk3v88EA7mn3qur84Xd30QJWP21+eVg@mail.gmail.com>
+ <YxB/ZPFEQG9zS+wa@kroah.com>
+ <CADVatmPxfdEA3yi9KGHtvmQA2n-mA=ekBidqU+keGrBsL+rFeQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YxCHiTdsFI4WRF7F@kroah.com>
-X-purgate-ID: 149429::1662028160-AD71B03E-1C8CDAD1/0/0
-X-purgate-type: clean
-X-purgate-size: 2114
-X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
-X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
-X-purgate: clean
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+In-Reply-To: <CADVatmPxfdEA3yi9KGHtvmQA2n-mA=ekBidqU+keGrBsL+rFeQ@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,57 +60,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 01, 2022 at 12:20:57PM +0200, Greg KH wrote:
-> On Wed, Aug 31, 2022 at 06:17:24AM +0200, Nicolas Schier wrote:
-> > From: Jing Leng <jleng@ambarella.com>
-> > 
-> > commit 23a0cb8e3225122496bfa79172005c587c2d64bf upstream.
-> > 
-> > When building an external module, if users don't need to separate the
-> > compilation output and source code, they run the following command:
-> > "make -C $(LINUX_SRC_DIR) M=$(PWD)". At this point, "$(KBUILD_EXTMOD)"
-> > and "$(src)" are the same.
-> > 
-> > If they need to separate them, they run "make -C $(KERNEL_SRC_DIR)
-> > O=$(KERNEL_OUT_DIR) M=$(OUT_DIR) src=$(PWD)". Before running the
-> > command, they need to copy "Kbuild" or "Makefile" to "$(OUT_DIR)" to
-> > prevent compilation failure.
-> > 
-> > So the kernel should change the included path to avoid the copy operation.
-> > 
-> > Signed-off-by: Jing Leng <jleng@ambarella.com>
-> > [masahiro: I do not think "M=$(OUT_DIR) src=$(PWD)" is the official way,
-> > but this patch is a nice clean up anyway.]
-> > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> > [nsc: updated context for v5.4]
-> > Signed-off-by: Nicolas Schier <n.schier@avm.de>
-> > ---
-> >  scripts/Makefile.modpost | 3 +--
-> >  1 file changed, 1 insertion(+), 2 deletions(-)
-> > 
-> > diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
-> > index 48585c4d04ad..0273bf7375e2 100644
-> > --- a/scripts/Makefile.modpost
-> > +++ b/scripts/Makefile.modpost
-> > @@ -87,8 +87,7 @@ obj := $(KBUILD_EXTMOD)
-> >  src := $(obj)
-> >  
-> >  # Include the module's Makefile to find KBUILD_EXTRA_SYMBOLS
-> > -include $(if $(wildcard $(KBUILD_EXTMOD)/Kbuild), \
-> > -             $(KBUILD_EXTMOD)/Kbuild, $(KBUILD_EXTMOD)/Makefile)
-> > +include $(if $(wildcard $(src)/Kbuild), $(src)/Kbuild, $(src)/Makefile)
-> >  
-> >  # modpost option for external modules
-> >  MODPOST += -e
-> > -- 
-> > 2.37.2
-> > 
+On Thu, Sep 01, 2022 at 11:22:53AM +0100, Sudip Mukherjee wrote:
+> On Thu, Sep 1, 2022 at 10:46 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, Aug 29, 2022 at 09:11:28PM +0100, Sudip Mukherjee wrote:
+> > > Hi Greg,
+> > >
+> > > On Mon, Aug 29, 2022 at 12:00 PM Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > This is the start of the stable review cycle for the 5.15.64 release.
+> > > > There are 136 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > >
+> > > > Responses should be made by Wed, 31 Aug 2022 10:57:37 +0000.
+> > > > Anything received after that time might be too late.
+> > >
+> > > My builds are still running, but just an initial report for gcc-12. (I
+> > > know v5.15.y still does not build completely with gcc-12).
+> > >
+> > > x86_64 and arm64 allmodconfig build fails with gcc-12, with the error:
+> > >
 > 
-> Does not apply to the 5.4.y tree at all, are you sure you generated this
-> properly?
+> <snip>
+> 
+> > >
+> > > Introduced in v5.15.61 due to 2711bedab26c ("Bluetooth: L2CAP: Fix
+> > > l2cap_global_chan_by_psm regression").
+> > > But v5.19.y and mainline does not show the build failure as they also
+> > > have 41b7a347bf14 ("powerpc: Book3S 64-bit outline-only KASAN
+> > > support").
+> >
+> > Ick, ok, what to do here?  I can't really backport 41b7a347bf14 to 5.15
+> > easily as it's huge and a new feature.  Any other ideas?
+> 
+> Yeah.
+> https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=b840304fb46cdf7012722f456bce06f151b3e81b
+> will fix the it for mips and csky failure in mainline and v5.19.y. And
+> I just verified that it will fix for powerpc also in v5.15.y. So, we
+> just need to wait for now.
 
-oh, I mixed up something locally.  Thanks for taking the v4.9 version of
-it.
+Ah good, thanks for pointing that out!
 
-Kind regards,
-Nicolas
+greg k-h
