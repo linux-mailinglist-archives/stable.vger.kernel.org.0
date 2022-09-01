@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1E35A8DA8
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 07:49:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD335A8DA4
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 07:49:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbiIAFtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 01:49:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40350 "EHLO
+        id S231764AbiIAFtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 01:49:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231443AbiIAFtg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 01:49:36 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9F291178E6;
-        Wed, 31 Aug 2022 22:49:19 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id m3-20020a05600c3b0300b003a5e0557150so2667849wms.0;
-        Wed, 31 Aug 2022 22:49:19 -0700 (PDT)
+        with ESMTP id S233239AbiIAFte (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 01:49:34 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62382117ACB;
+        Wed, 31 Aug 2022 22:49:20 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id m16so20829486wru.9;
+        Wed, 31 Aug 2022 22:49:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=esm7WY5NBPF0ohza2iIRHTShjFzVuQEeXBALGm/uCz0=;
-        b=f3BwabQXtFLB3sxcrI4AExoIkU478Q8Jxpm2w9lj9pBCD+cbfY8Uv6g81zSDZoMDsz
-         twHcHeOU1vNxl6UMErBxjozzoYlMcMN553ZIT+wmXHKF555+uLZ1KdnswWAKKHNDLl4U
-         wLWuUASVVTvxdbT4Ckkc2q7H7vXUokYILLCBb49+zmKg00iagU/e8klfu11nz0juXVh9
-         kAIi+jZXHi2YvYT63sDn+0JS2sVC5HOXyB9K0kkE+K6OCVUMdVyJkxOshdy2Z7cBy0ab
-         BXZAoR+KM1yXfkG/jBAHaGYA6oIDW/RQZP52/Y0hLmU3xN9Sge2HG+ivl7td0f6AoGGX
-         tzAQ==
+        bh=M3jAT3YQCl4NufeW6oCkMl9aVNOp6TjzxP0+mQ9Dows=;
+        b=q74S3j9a2DH2WQcHC5XMVxoVDw/gyodqLA0RLf2ByvyojIvpvtfmtB7Lu66e+pc6dL
+         4Lxla631n8+TW2rNUGZ1tjXENxN+51Up7tPqyyXNXI/3fb3gdD82OTBua6nuvuQyowkC
+         Vk2J+vl7h79XyH6g61NZMz7PjcmbYE2JFgdFNVusxZP3Jsj0t0D10HCB1DO07vVt+fqW
+         psPCQg53dGojhx/sPTAwEggvbNR/PEe0IOkOM7hkG5xzMx2V8JHVVzabLaeLapWl7yfw
+         AMYDnLf0ItvaasNmbdq6rTAX60GbcW7Oo/TUU0vSDPPbhM1kRNfWO1/NZzXcXfL0mQFl
+         uerA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=esm7WY5NBPF0ohza2iIRHTShjFzVuQEeXBALGm/uCz0=;
-        b=sKDRiVJq3iy5eBiDE1psiqgAJrSPoJ1zsrl4CMCf4lXKw8N7+4ouop9hTZCksViaj4
-         RdP7ia3ZzL5ndqnhmLjGUQ6+XbsbYx4H2ktxJYThg3b9CpPYu+zpsuHg/p+LQhNcbf1i
-         nZQ3U+2olEYSaAgvDpUcH+ksaDi+/BexXW9dPQhSpo0aJNce8pvdaTqmtBjD/y1RZDM1
-         lrMXYAtFF3xhGKBG3zuCWHy8ZIEkhusqSenUi4xjG/r47BD1RalnguXpcOXfY0zwIdvz
-         8C5TrmbFf9rSoFer9YxRMkswMpHgd+e83AIhHZNNiNANRMV9/YhukZ//02L9Tx1lYW+4
-         xxyQ==
-X-Gm-Message-State: ACgBeo2d3ENpH+EpQTxfy1GuKMk/uAGveZx+c/ceHkjJAGgbNY9g7KUK
-        LEjuR0xqyELFe8/HFmxv8sA=
-X-Google-Smtp-Source: AA6agR5fg+7Au2KoQmAhTByhBycyzCYTbLAzUG//LZsbjYv4u+RKV64y8EHg21CMHJ/uDh5TGIX6Sw==
-X-Received: by 2002:a1c:3b55:0:b0:3a6:7b62:3901 with SMTP id i82-20020a1c3b55000000b003a67b623901mr3927634wma.113.1662011352705;
-        Wed, 31 Aug 2022 22:49:12 -0700 (PDT)
+        bh=M3jAT3YQCl4NufeW6oCkMl9aVNOp6TjzxP0+mQ9Dows=;
+        b=GKtlr5kwT08qp3AQ8waVMfQgknrPV8VgHlBW+F+jZmBzpuLdZb2/j88Nq8fn3N4OZt
+         IPFZeKQqpbaq0OH48TIGZVzpiS/jniXtTqdR1r2dMlwN+A7fnGinpokUbzO7z7waT3wj
+         Kf65GJiNiGJAZEaxSrjDQmRc94Y7ARo9qlyw/CbNDQvlHKOf+eRLzR+iXjUIcyL3m8ih
+         679cO+FWh69UFuzk3EMPjUN4BWO/zKd3k+6uc2zBC63X5mOZkAiyNpYZrKg5viV4pN9F
+         HVy/cSS7YrOWTDldYNw8GTdxgD+lWezmf6f538YH7OGWtULCUVhACkmuAB+fVXQ2cfAF
+         xiYw==
+X-Gm-Message-State: ACgBeo24hgMY8EOBbYCJnG7vdAqaA4C6rC75frPDntcXglCaTi7V5JHY
+        kMT+YOf3nNtXvlzxcfjdrkA=
+X-Google-Smtp-Source: AA6agR5ylTkx2uA7K//Y5OfnOmGzIarMLx3C+fZn4k9NX2XzlPcp0IAPpeD+4lFd9V3BJkARXK41sQ==
+X-Received: by 2002:a5d:598f:0:b0:220:8005:7def with SMTP id n15-20020a5d598f000000b0022080057defmr13924910wri.435.1662011354515;
+        Wed, 31 Aug 2022 22:49:14 -0700 (PDT)
 Received: from localhost.localdomain ([77.137.66.49])
-        by smtp.gmail.com with ESMTPSA id bg15-20020a05600c3c8f00b003a4f08495b7sm4447262wmb.34.2022.08.31.22.49.10
+        by smtp.gmail.com with ESMTPSA id bg15-20020a05600c3c8f00b003a4f08495b7sm4447262wmb.34.2022.08.31.22.49.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Aug 2022 22:49:12 -0700 (PDT)
+        Wed, 31 Aug 2022 22:49:14 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -58,12 +58,11 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Adam Manzanares <a.manzanares@samsung.com>,
         linux-xfs@vger.kernel.org, stable@vger.kernel.org,
         Dave Chinner <dchinner@redhat.com>,
-        Frank Hofmann <fhofmann@cloudflare.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
         Dave Chinner <david@fromorbit.com>
-Subject: [PATCH 5.10 v2 6/7] xfs: reorder iunlink remove operation in xfs_ifree
-Date:   Thu,  1 Sep 2022 08:48:53 +0300
-Message-Id: <20220901054854.2449416-7-amir73il@gmail.com>
+Subject: [PATCH 5.10 v2 7/7] xfs: validate inode fork size against fork format
+Date:   Thu,  1 Sep 2022 08:48:54 +0300
+Message-Id: <20220901054854.2449416-8-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220901054854.2449416-1-amir73il@gmail.com>
 References: <20220901054854.2449416-1-amir73il@gmail.com>
@@ -81,89 +80,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Chinner <dchinner@redhat.com>
 
-commit 9a5280b312e2e7898b6397b2ca3cfd03f67d7be1 upstream.
+commit 1eb70f54c445fcbb25817841e774adb3d912f3e8 upstream.
 
 [backport for 5.10.y]
 
-The O_TMPFILE creation implementation creates a specific order of
-operations for inode allocation/freeing and unlinked list
-modification. Currently both are serialised by the AGI, so the order
-doesn't strictly matter as long as the are both in the same
-transaction.
+xfs_repair catches fork size/format mismatches, but the in-kernel
+verifier doesn't, leading to null pointer failures when attempting
+to perform operations on the fork. This can occur in the
+xfs_dir_is_empty() where the in-memory fork format does not match
+the size and so the fork data pointer is accessed incorrectly.
 
-However, if we want to move the unlinked list insertions largely out
-from under the AGI lock, then we have to be concerned about the
-order in which we do unlinked list modification operations.
-O_TMPFILE creation tells us this order is inode allocation/free,
-then unlinked list modification.
+Note: this causes new failures in xfs/348 which is testing mode vs
+ftype mismatches. We now detect a regular file that has been changed
+to a directory or symlink mode as being corrupt because the data
+fork is for a symlink or directory should be in local form when
+there are only 3 bytes of data in the data fork. Hence the inode
+verify for the regular file now fires w/ -EFSCORRUPTED because
+the inode fork format does not match the format the corrupted mode
+says it should be in.
 
-Change xfs_ifree() to use this same ordering on unlinked list
-removal. This way we always guarantee that when we enter the
-iunlinked list removal code from this path, we already have the AGI
-locked and we don't have to worry about lock nesting AGI reads
-inside unlink list locks because it's already locked and attached to
-the transaction.
-
-We can do this safely as the inode freeing and unlinked list removal
-are done in the same transaction and hence are atomic operations
-with respect to log recovery.
-
-Reported-by: Frank Hofmann <fhofmann@cloudflare.com>
-Fixes: 298f7bec503f ("xfs: pin inode backing buffer to the inode log item")
 Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Dave Chinner <david@fromorbit.com>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_inode.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ fs/xfs/libxfs/xfs_inode_buf.c | 35 ++++++++++++++++++++++++++---------
+ 1 file changed, 26 insertions(+), 9 deletions(-)
 
-diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
-index 1f61e085676b..929ed3bc5619 100644
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -2669,14 +2669,13 @@ xfs_ifree_cluster(
- }
+diff --git a/fs/xfs/libxfs/xfs_inode_buf.c b/fs/xfs/libxfs/xfs_inode_buf.c
+index c667c63f2cb0..fa8aefe6b7ec 100644
+--- a/fs/xfs/libxfs/xfs_inode_buf.c
++++ b/fs/xfs/libxfs/xfs_inode_buf.c
+@@ -358,19 +358,36 @@ xfs_dinode_verify_fork(
+ 	int			whichfork)
+ {
+ 	uint32_t		di_nextents = XFS_DFORK_NEXTENTS(dip, whichfork);
++	mode_t			mode = be16_to_cpu(dip->di_mode);
++	uint32_t		fork_size = XFS_DFORK_SIZE(dip, mp, whichfork);
++	uint32_t		fork_format = XFS_DFORK_FORMAT(dip, whichfork);
  
- /*
-- * This is called to return an inode to the inode free list.
-- * The inode should already be truncated to 0 length and have
-- * no pages associated with it.  This routine also assumes that
-- * the inode is already a part of the transaction.
-+ * This is called to return an inode to the inode free list.  The inode should
-+ * already be truncated to 0 length and have no pages associated with it.  This
-+ * routine also assumes that the inode is already a part of the transaction.
-  *
-- * The on-disk copy of the inode will have been added to the list
-- * of unlinked inodes in the AGI. We need to remove the inode from
-- * that list atomically with respect to freeing it here.
-+ * The on-disk copy of the inode will have been added to the list of unlinked
-+ * inodes in the AGI. We need to remove the inode from that list atomically with
-+ * respect to freeing it here.
-  */
- int
- xfs_ifree(
-@@ -2694,13 +2693,16 @@ xfs_ifree(
- 	ASSERT(ip->i_d.di_nblocks == 0);
- 
- 	/*
--	 * Pull the on-disk inode from the AGI unlinked list.
-+	 * Free the inode first so that we guarantee that the AGI lock is going
-+	 * to be taken before we remove the inode from the unlinked list. This
-+	 * makes the AGI lock -> unlinked list modification order the same as
-+	 * used in O_TMPFILE creation.
- 	 */
--	error = xfs_iunlink_remove(tp, ip);
-+	error = xfs_difree(tp, ip->i_ino, &xic);
- 	if (error)
- 		return error;
- 
--	error = xfs_difree(tp, ip->i_ino, &xic);
-+	error = xfs_iunlink_remove(tp, ip);
- 	if (error)
- 		return error;
- 
+-	switch (XFS_DFORK_FORMAT(dip, whichfork)) {
++	/*
++	 * For fork types that can contain local data, check that the fork
++	 * format matches the size of local data contained within the fork.
++	 *
++	 * For all types, check that when the size says the should be in extent
++	 * or btree format, the inode isn't claiming it is in local format.
++	 */
++	if (whichfork == XFS_DATA_FORK) {
++		if (S_ISDIR(mode) || S_ISLNK(mode)) {
++			if (be64_to_cpu(dip->di_size) <= fork_size &&
++			    fork_format != XFS_DINODE_FMT_LOCAL)
++				return __this_address;
++		}
++
++		if (be64_to_cpu(dip->di_size) > fork_size &&
++		    fork_format == XFS_DINODE_FMT_LOCAL)
++			return __this_address;
++	}
++
++	switch (fork_format) {
+ 	case XFS_DINODE_FMT_LOCAL:
+ 		/*
+-		 * no local regular files yet
++		 * No local regular files yet.
+ 		 */
+-		if (whichfork == XFS_DATA_FORK) {
+-			if (S_ISREG(be16_to_cpu(dip->di_mode)))
+-				return __this_address;
+-			if (be64_to_cpu(dip->di_size) >
+-					XFS_DFORK_SIZE(dip, mp, whichfork))
+-				return __this_address;
+-		}
++		if (S_ISREG(mode) && whichfork == XFS_DATA_FORK)
++			return __this_address;
+ 		if (di_nextents)
+ 			return __this_address;
+ 		break;
 -- 
 2.25.1
 
