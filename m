@@ -2,166 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF365A99E8
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 16:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB17A5A9A9A
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 16:42:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234626AbiIAORW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 10:17:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57390 "EHLO
+        id S234582AbiIAOkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 10:40:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234625AbiIAORD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 10:17:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6387205C8
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 07:16:33 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D40CB826E2
-        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 14:16:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE9C5C433C1;
-        Thu,  1 Sep 2022 14:16:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662041791;
-        bh=8B9wngONNWsDYy9JtPx5Zzu/JIgxs2x2rjNnb98q9As=;
-        h=Subject:To:From:Date:From;
-        b=I8IlzbIAVW7PMNy2K/Ihj1cNEFZrWJ+Wl/zMsvRCnKiCYTRV8m+h/0+vCRzpZxiEK
-         sAQZtxq0cT3YBomiNe6UQIw2UgU9dJXZH8Ml81TWHlD39LjuKyySTpTW50gZyo+869
-         PaCUK/qge+oUtf0XC8hpepKyu1lrx7AFwtwmLLLs=
-Subject: patch "binder: fix alloc->vma_vm_mm null-ptr dereference" added to char-misc-linus
-To:     cmllamas@google.com, Liam.Howlett@oracle.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        tkjos@google.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 01 Sep 2022 16:16:28 +0200
-Message-ID: <166204178844166@kroah.com>
+        with ESMTP id S233808AbiIAOj6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 10:39:58 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF37E5FBA;
+        Thu,  1 Sep 2022 07:39:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1662043197; x=1693579197;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=jlOuWqXv3W1+nK5gEHgXZ0S9vII+w0v5W+k4c+5u558=;
+  b=LWhEGaS192pV68s6tvCPsqbsL/IGxA/QTx1mPdDSZG3eqDxvRjzoJycv
+   EGLzvzK+wRwAbffRygl45L+gvsOx5q2rBUdFdIdWYgCV/K7PI1eyBF/Pf
+   5UThP9xQ619moO/1feja22r7CIwRyKoDxmwH2RyBlTmvulShIxMxrGUuZ
+   J4ukkmY8KHtVQzJmdKmOX8aFkBt7M7G1gaPt6o+j2mfnrRTT60K2xiQjr
+   hqSS7p2MQ/L+gQLPDX0lLG74H/cRqtan4km3ByYFcDib/U9M1dgs7gA8v
+   4dmUgBxo7kBPWNdtti+MSMY6B3wY9UGsgvB410NTzbMGZt3XL62iErFit
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10457"; a="359690403"
+X-IronPort-AV: E=Sophos;i="5.93,281,1654585200"; 
+   d="scan'208";a="359690403"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2022 07:39:55 -0700
+X-IronPort-AV: E=Sophos;i="5.93,281,1654585200"; 
+   d="scan'208";a="642356668"
+Received: from rmalliu-mobl.amr.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.249.44.65])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2022 07:39:50 -0700
+From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        linux-serial@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Stephen Warren <swarren@nvidia.com>,
+        Alan Cox <alan@linux.intel.com>, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        stable@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH v2 RESEND 2/3] serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting
+Date:   Thu,  1 Sep 2022 17:39:33 +0300
+Message-Id: <20220901143934.8850-3-ilpo.jarvinen@linux.intel.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220901143934.8850-1-ilpo.jarvinen@linux.intel.com>
+References: <20220901143934.8850-1-ilpo.jarvinen@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+DMA complete & stop paths did not correctly account Tx'ed characters
+into icount.tx. Using uart_xmit_advance() fixes the problem.
 
-This is a note to let you know that I've just added the patch titled
-
-    binder: fix alloc->vma_vm_mm null-ptr dereference
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 1da52815d5f1b654c89044db0cdc6adce43da1f1 Mon Sep 17 00:00:00 2001
-From: Carlos Llamas <cmllamas@google.com>
-Date: Mon, 29 Aug 2022 20:12:48 +0000
-Subject: binder: fix alloc->vma_vm_mm null-ptr dereference
-
-Syzbot reported a couple issues introduced by commit 44e602b4e52f
-("binder_alloc: add missing mmap_lock calls when using the VMA"), in
-which we attempt to acquire the mmap_lock when alloc->vma_vm_mm has not
-been initialized yet.
-
-This can happen if a binder_proc receives a transaction without having
-previously called mmap() to setup the binder_proc->alloc space in [1].
-Also, a similar issue occurs via binder_alloc_print_pages() when we try
-to dump the debugfs binder stats file in [2].
-
-Sample of syzbot's crash report:
-  ==================================================================
-  KASAN: null-ptr-deref in range [0x0000000000000128-0x000000000000012f]
-  CPU: 0 PID: 3755 Comm: syz-executor229 Not tainted 6.0.0-rc1-next-20220819-syzkaller #0
-  syz-executor229[3755] cmdline: ./syz-executor2294415195
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
-  RIP: 0010:__lock_acquire+0xd83/0x56d0 kernel/locking/lockdep.c:4923
-  [...]
-  Call Trace:
-   <TASK>
-   lock_acquire kernel/locking/lockdep.c:5666 [inline]
-   lock_acquire+0x1ab/0x570 kernel/locking/lockdep.c:5631
-   down_read+0x98/0x450 kernel/locking/rwsem.c:1499
-   mmap_read_lock include/linux/mmap_lock.h:117 [inline]
-   binder_alloc_new_buf_locked drivers/android/binder_alloc.c:405 [inline]
-   binder_alloc_new_buf+0xa5/0x19e0 drivers/android/binder_alloc.c:593
-   binder_transaction+0x242e/0x9a80 drivers/android/binder.c:3199
-   binder_thread_write+0x664/0x3220 drivers/android/binder.c:3986
-   binder_ioctl_write_read drivers/android/binder.c:5036 [inline]
-   binder_ioctl+0x3470/0x6d00 drivers/android/binder.c:5323
-   vfs_ioctl fs/ioctl.c:51 [inline]
-   __do_sys_ioctl fs/ioctl.c:870 [inline]
-   __se_sys_ioctl fs/ioctl.c:856 [inline]
-   __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:856
-   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-   do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-   [...]
-  ==================================================================
-
-Fix these issues by setting up alloc->vma_vm_mm pointer during open()
-and caching directly from current->mm. This guarantees we have a valid
-reference to take the mmap_lock during scenarios described above.
-
-[1] https://syzkaller.appspot.com/bug?extid=f7dc54e5be28950ac459
-[2] https://syzkaller.appspot.com/bug?extid=a75ebe0452711c9e56d9
-
-Fixes: 44e602b4e52f ("binder_alloc: add missing mmap_lock calls when using the VMA")
-Cc: <stable@vger.kernel.org> # v5.15+
-Cc: Liam R. Howlett <Liam.Howlett@oracle.com>
-Reported-by: syzbot+f7dc54e5be28950ac459@syzkaller.appspotmail.com
-Reported-by: syzbot+a75ebe0452711c9e56d9@syzkaller.appspotmail.com
-Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Acked-by: Todd Kjos <tkjos@google.com>
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Link: https://lore.kernel.org/r/20220829201254.1814484-2-cmllamas@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org> # serial: Create uart_xmit_advance()
+Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 ---
- drivers/android/binder_alloc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/serial-tegra.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-index 1014beb12802..a61df6e1103a 100644
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -322,7 +322,6 @@ static inline void binder_alloc_set_vma(struct binder_alloc *alloc,
- 	 */
- 	if (vma) {
- 		vm_start = vma->vm_start;
--		alloc->vma_vm_mm = vma->vm_mm;
- 		mmap_assert_write_locked(alloc->vma_vm_mm);
- 	} else {
- 		mmap_assert_locked(alloc->vma_vm_mm);
-@@ -792,7 +791,6 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
- 	binder_insert_free_buffer(alloc, buffer);
- 	alloc->free_async_space = alloc->buffer_size / 2;
- 	binder_alloc_set_vma(alloc, vma);
--	mmgrab(alloc->vma_vm_mm);
- 
- 	return 0;
- 
-@@ -1080,6 +1078,8 @@ static struct shrinker binder_shrinker = {
- void binder_alloc_init(struct binder_alloc *alloc)
+diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
+index ad4f3567ff90..a5748e41483b 100644
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -525,7 +525,7 @@ static void tegra_uart_tx_dma_complete(void *args)
+ 	count = tup->tx_bytes_requested - state.residue;
+ 	async_tx_ack(tup->tx_dma_desc);
+ 	spin_lock_irqsave(&tup->uport.lock, flags);
+-	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
++	uart_xmit_advance(&tup->uport, count);
+ 	tup->tx_in_progress = 0;
+ 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
+ 		uart_write_wakeup(&tup->uport);
+@@ -613,7 +613,6 @@ static unsigned int tegra_uart_tx_empty(struct uart_port *u)
+ static void tegra_uart_stop_tx(struct uart_port *u)
  {
- 	alloc->pid = current->group_leader->pid;
-+	alloc->vma_vm_mm = current->mm;
-+	mmgrab(alloc->vma_vm_mm);
- 	mutex_init(&alloc->mutex);
- 	INIT_LIST_HEAD(&alloc->buffers);
+ 	struct tegra_uart_port *tup = to_tegra_uport(u);
+-	struct circ_buf *xmit = &tup->uport.state->xmit;
+ 	struct dma_tx_state state;
+ 	unsigned int count;
+ 
+@@ -624,7 +623,7 @@ static void tegra_uart_stop_tx(struct uart_port *u)
+ 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
+ 	count = tup->tx_bytes_requested - state.residue;
+ 	async_tx_ack(tup->tx_dma_desc);
+-	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
++	uart_xmit_advance(&tup->uport, count);
+ 	tup->tx_in_progress = 0;
  }
+ 
 -- 
-2.37.3
-
+2.30.2
 
