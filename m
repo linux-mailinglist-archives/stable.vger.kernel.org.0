@@ -2,129 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C80C75A952F
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20AE15A9540
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 12:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234258AbiIAK5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 06:57:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53272 "EHLO
+        id S233328AbiIAK6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 06:58:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234344AbiIAK47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:56:59 -0400
-Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41E3FACA08;
-        Thu,  1 Sep 2022 03:56:57 -0700 (PDT)
-Received: by mail-yb1-xb2e.google.com with SMTP id 123so8044683ybv.7;
-        Thu, 01 Sep 2022 03:56:56 -0700 (PDT)
+        with ESMTP id S234321AbiIAK6b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 06:58:31 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22F82A4B17
+        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 03:58:31 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id z8so13242659edb.6
+        for <stable@vger.kernel.org>; Thu, 01 Sep 2022 03:58:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=ySjRx9EiLtDb+jiYSjMGVVtxd7TNBgsAeUe7zB2i7b0=;
-        b=J924zAxFzeRKsSvSIwzzN0MWsHSXuXofjgUb1YM7vhpazMju53+TbfYNNqywjKLh2Y
-         z6YmENDzFzjT8i87zornN0IaPmVEIjPXMtzkZPToSUtfIo09LEGzAzYQU0jT/3FTj3Vo
-         /RgdJWvfVAMKT6Ub49J10Vr8+jOh9dueRLv8TdaAdxXOGcqcHqEMEORKAv0HJk4Jlfsb
-         FNqktrQofknQdSy9zy3+LFsIWu0IR567G+8Jj2placPQHz4alz91v0McM9aqsD3Kew/m
-         KtVN8/7Nx0AilFXIlXf+gUDbjoJ+1IJj5pQmutDSiOKbmmbrRBxyU5b//yr53Aw8F0j2
-         z57A==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
+        bh=cP4NBM0ETOYFq+TZhV3HDz5qwb6s5UdYnKys12wd3oA=;
+        b=ZqrP13Zm47ZNVk4pP620bBwfOofAMBWqoDzQ/7naOs3U0MmZFunXAITeJ3Is/znP6o
+         MgAZbVVj4Mwa8Ow09cb0pdGGjLsnDM+ocnnIJflUDCIYMn1VOYnyufws7Kb1TUZOiTXc
+         GNFPz9llitZTsOzknCIdN7dDgnolEgxkzmeAFG27ODjcQNGN7dToyn3HxF7YwjxAxJF3
+         P36aXaimEtrROrq9g25pP6C1WKNY4DO4ZylJhZBlbktANZuYm02Gtb+kvNGVi1wQScbL
+         4Xb7KSUMcxWFKnsAOA52AJaU5TRG9uw004QOzKhELv3t89e6EZ9YmD8hGC8Z3mt7IxWq
+         ebjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=ySjRx9EiLtDb+jiYSjMGVVtxd7TNBgsAeUe7zB2i7b0=;
-        b=JbsDtaKE243y6HrnI4W8SYUUIYKHHmexg1EzNMOi3XuEExtR3uCxZE6107d0vcX9md
-         U63A0M4DDuGTXkl9msc1aL70kKvS+9HT7HxQWXMQJ3CCC61T+eMdOHSxchv31v9V9+ch
-         33LvDNtYQSxMe883FAwAVLmCS/j1hVyy8Q3+CiPcoCC+R39AmEUb6hct9lc73IszbYIJ
-         eiPvgnvQMIidiwv1nbIo1geziE7XztB9JSWBNRtA77elV7tZ7GapEWtUlWXI3cIDEMPC
-         d0iUuMS0iLpX74/YC64nQxJAehGz1cEZW8jxgQu/RZE9zwnzds+xKJ3TfajU2s+etR+A
-         zrqQ==
-X-Gm-Message-State: ACgBeo03aQznvNXpUzdRm+il4meGA3AJb97Av/HkWNkj0Q7VopZiB1mU
-        LiAIR6SVdLZDmGdoV8JdqRVEkhtT+7gaODQtHmU=
-X-Google-Smtp-Source: AA6agR4qVqRdcyxMrmMVnY3SusWM/mlHEXED98DAr5cfcB1cKm0l+uwvJPjFj9+JEE68skEo/Z24B2hOwb+f+gqPVus=
-X-Received: by 2002:a25:3b46:0:b0:69c:a60e:2e57 with SMTP id
- i67-20020a253b46000000b0069ca60e2e57mr6795788yba.364.1662029815992; Thu, 01
- Sep 2022 03:56:55 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=cP4NBM0ETOYFq+TZhV3HDz5qwb6s5UdYnKys12wd3oA=;
+        b=BZry8zCm/zLGXQxZ0nFp94IGe/z2B55Zl3/9DwHvjc/TeZWwuuk1QBHTSz7l9aWaL1
+         mLa7Eb4O0wCAj30tXti+2kAyMVwJWgmVQAPGWiYsv1XT1DtL11vPlCy8j0yfP0B/7stS
+         rC6G62kTlDDBHTblPhYiDxB+Rh9jnDlEu1eWnAkC2PuA0BpkGQXA+Gia8qtuqod8SgUf
+         TDA8bpTFVloHwl1+OvVyheDGlAoSCm8jAm0pAks9tGfoqPb2aLHBzZmmehlMKvxWyMEu
+         MSaHTXMftfI8bIxtMyHnWLtMYsWHHyY1WF9os3EUcOhPAk/6HTLyuwIPaZMt9NQpTQzQ
+         s3sg==
+X-Gm-Message-State: ACgBeo0+5aQ6Lr+dIkWnzQwYIME+35TBxTOH3I8kksezaxIzBVicvCfj
+        OFq1QufOirzDeBNRDTrDtjc=
+X-Google-Smtp-Source: AA6agR7KVmiwEFmemAs4F1hF1UrTXwV0rvfCzZrf7a3NLms/q0ccr8sFSxqLchJaYLSit4bKyKkijw==
+X-Received: by 2002:a05:6402:641:b0:446:d:bd64 with SMTP id u1-20020a056402064100b00446000dbd64mr28329434edx.32.1662029909487;
+        Thu, 01 Sep 2022 03:58:29 -0700 (PDT)
+Received: from localhost.localdomain (109-178-192-105.pat.ren.cosmote.net. [109.178.192.105])
+        by smtp.gmail.com with ESMTPSA id s25-20020aa7d799000000b0044604ad8b41sm1140919edq.23.2022.09.01.03.58.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Sep 2022 03:58:28 -0700 (PDT)
+From:   Michael Bestas <mkbestas@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     hsinyi@chromium.org, mkbestas@gmail.com, rppt@linux.ibm.com,
+        stable@vger.kernel.org, swboyd@chromium.org, will@kernel.org
+Subject: Re: [PATCH] arm64: map FDT as RW for early_init_dt_scan()
+Date:   Thu,  1 Sep 2022 13:57:27 +0300
+Message-Id: <20220901105727.606047-1-mkbestas@gmail.com>
+X-Mailer: git-send-email 2.37.3
+In-Reply-To: <YxCCI2c6l8OdA4GV@kroah.com>
+References: <YxCCI2c6l8OdA4GV@kroah.com>
 MIME-Version: 1.0
-References: <20220829105804.609007228@linuxfoundation.org> <CADVatmOLoaGgAW951JqEk3v88EA7mn3qur84Xd30QJWP21+eVg@mail.gmail.com>
- <YxB/ZPFEQG9zS+wa@kroah.com> <CADVatmPxfdEA3yi9KGHtvmQA2n-mA=ekBidqU+keGrBsL+rFeQ@mail.gmail.com>
- <YxCJzr0XCd+6/JW4@kroah.com>
-In-Reply-To: <YxCJzr0XCd+6/JW4@kroah.com>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Thu, 1 Sep 2022 11:56:20 +0100
-Message-ID: <CADVatmPMGmvabWb0S21P8Xycu5ZYe+imyR8tbG27qX28VuyUtg@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/136] 5.15.64-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        RCVD_IN_DNSWL_NONE,SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 1, 2022 at 11:30 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Thu, 1 Sep 2022 11:57:55 +0200
+Greg KH <gregkh@linuxfoundation.org> wrote:
+
+> Both now queued up, thanks.
 >
-> On Thu, Sep 01, 2022 at 11:22:53AM +0100, Sudip Mukherjee wrote:
-> > On Thu, Sep 1, 2022 at 10:46 AM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Mon, Aug 29, 2022 at 09:11:28PM +0100, Sudip Mukherjee wrote:
-> > > > Hi Greg,
-> > > >
-> > > > On Mon, Aug 29, 2022 at 12:00 PM Greg Kroah-Hartman
-> > > > <gregkh@linuxfoundation.org> wrote:
-> > > > >
-> > > > > This is the start of the stable review cycle for the 5.15.64 release.
-> > > > > There are 136 patches in this series, all will be posted as a response
-> > > > > to this one.  If anyone has any issues with these being applied, please
-> > > > > let me know.
-> > > > >
-> > > > > Responses should be made by Wed, 31 Aug 2022 10:57:37 +0000.
-> > > > > Anything received after that time might be too late.
-> > > >
-> > > > My builds are still running, but just an initial report for gcc-12. (I
-> > > > know v5.15.y still does not build completely with gcc-12).
-> > > >
-> > > > x86_64 and arm64 allmodconfig build fails with gcc-12, with the error:
-> > > >
-> >
-> > <snip>
-> >
-> > > >
-> > > > Introduced in v5.15.61 due to 2711bedab26c ("Bluetooth: L2CAP: Fix
-> > > > l2cap_global_chan_by_psm regression").
-> > > > But v5.19.y and mainline does not show the build failure as they also
-> > > > have 41b7a347bf14 ("powerpc: Book3S 64-bit outline-only KASAN
-> > > > support").
-> > >
-> > > Ick, ok, what to do here?  I can't really backport 41b7a347bf14 to 5.15
-> > > easily as it's huge and a new feature.  Any other ideas?
-> >
-> > Yeah.
-> > https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=b840304fb46cdf7012722f456bce06f151b3e81b
-> > will fix the it for mips and csky failure in mainline and v5.19.y. And
-> > I just verified that it will fix for powerpc also in v5.15.y. So, we
-> > just need to wait for now.
->
-> Ah good, thanks for pointing that out!
+> greg k-h
 
-uhh.. I can see you already added to the stable tree, but its not in
-mainline yet.
+Could you also queue the 4.9 patch or I need to send it again?
+https://lore.kernel.org/all/20220809145624.1819905-1-mkbestas@gmail.com/
 
+Thanks,
 
--- 
-Regards
-Sudip
+Michael Bestas
