@@ -2,93 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3743F5A9A9E
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 16:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AC475A9B62
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 17:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234923AbiIAOkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 10:40:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34942 "EHLO
+        id S232699AbiIAPSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 11:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234921AbiIAOkS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 10:40:18 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695742BB33;
-        Thu,  1 Sep 2022 07:40:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662043206; x=1693579206;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=esWDLWdVUmofxHacNDJ2TfKXCQbNLSqrTFIBVUEvytQ=;
-  b=AWwHUs6XmAs8XyA3YI4lSCzxDlQ+eUJ20cBFBKz4peRxDT32wYS+euKD
-   +p/36cVElFCNGlel0dRDf2bsQ1YvIJVRIy3FnVeDmoTfzzSgdCh7Xio1c
-   JIAXZBeoc1M1kz9z9ucRg3TNQcW3Gg3MA35nvYfdu2z0+wY43KLGKihAM
-   r+mJOEe1LOmXhqx9inIEq1yWZvro3630MUYWWJdDbEneDVEGSl+f4DMLF
-   j/1dWi6ynyZAQlLrmPpncq5agUnOr8GTwxaGeahTQ7Nuzkj5RcVLwRCI9
-   pFHedv9VTwRGwduKQPxqlkfz8CVylMCBrPop+qb4zzGHDhTiNIuDDRHyb
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10457"; a="297014837"
-X-IronPort-AV: E=Sophos;i="5.93,281,1654585200"; 
-   d="scan'208";a="297014837"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2022 07:40:03 -0700
-X-IronPort-AV: E=Sophos;i="5.93,281,1654585200"; 
-   d="scan'208";a="642356704"
-Received: from rmalliu-mobl.amr.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.249.44.65])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2022 07:39:57 -0700
-From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        linux-serial@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        stable@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v2 RESEND 3/3] serial: tegra-tcu: Use uart_xmit_advance(), fixes icount.tx accounting
-Date:   Thu,  1 Sep 2022 17:39:34 +0300
-Message-Id: <20220901143934.8850-4-ilpo.jarvinen@linux.intel.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220901143934.8850-1-ilpo.jarvinen@linux.intel.com>
-References: <20220901143934.8850-1-ilpo.jarvinen@linux.intel.com>
+        with ESMTP id S232539AbiIAPSH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 11:18:07 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8FC86061
+        for <stable@vger.kernel.org>; Thu,  1 Sep 2022 08:18:06 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id se27so27664251ejb.8
+        for <stable@vger.kernel.org>; Thu, 01 Sep 2022 08:18:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=TOaHOLQnFqvnzUiS319uxuR7CQHPBsaxAZncnYNsBTw=;
+        b=ZsVc7Q2x8FBqksmrclwo4l2ygsyxeOJ52FCvDAbuRIg2rkdSShcoYHfTXQKo5NBXhJ
+         mGvPJK1kQh6cBu5U8Sy1qco/7QxHBNNeq/jliFclbWiomb5hzQhbuTkyq9WPy8NOOkQ8
+         mzsegLx/jdKCIIWaWvZ65O6pqAvdz9Wb9ps42MQhFZY9AW+WAzNruHpUAEWltKPjASuT
+         gvLKoWIYdNK6tFG7izCbDW6ZFh45APanzQLjUsWyUq2xqvkc9IgcmWbGGL7yLxK2QxUH
+         2k6x3TD6TfvxVRLeYXot4MBA3xk2c0VF4HiR+XpCuFeOelJzy8qfkWTa4Ek8D7ZYdrnn
+         gJ0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=TOaHOLQnFqvnzUiS319uxuR7CQHPBsaxAZncnYNsBTw=;
+        b=BWMmLSBO1oMkMPJfUiDm3hPdx+aBSANfD1gFSOCD3Q7xvLtgYggK2ZxBHJGYw7l2X9
+         4YfObhYu7n37a9NBFE5sypziGUCA1NLBgiLodcd8DSnS27iFaRZtZxVQRoi5rmH2ChTH
+         Ex7OdrjGWp/HZMijqv1YifhpjjwK1jSXF4Ns+OI96WE0R3BimB1BP5/ndHu2cqDC+3E9
+         IOHm8zfUMB+7vY6UMy9To14tMGeUIvdQpf1MRyJM2NKGVbyaEVKIteoVkiwUhQJl8LNy
+         PFD04jcC1pWK5QxAGmKVu2aPNpZ3e2hqgVCpdgyS6nnllF8Wrov5UjJpbbLqmyKQ2E/b
+         N1/A==
+X-Gm-Message-State: ACgBeo0FIV4qAfnsp8WO86EgxNFLyhXVOj0iQ0b+UBmS4oO4RgfSVG5e
+        N6mR/pyHYPnRmekRfvBEK1FU6QEGS7o=
+X-Google-Smtp-Source: AA6agR5UKVtym3XZbF3wQDXQSbLBZA/tyVJe21He49maMfPDGxf2oNZ1LeNKAGhyogo+zFUZPCBfSw==
+X-Received: by 2002:a17:906:11d:b0:712:abf:3210 with SMTP id 29-20020a170906011d00b007120abf3210mr23834093eje.292.1662045484301;
+        Thu, 01 Sep 2022 08:18:04 -0700 (PDT)
+Received: from 127.0.0.1localhost.com ([2620:10d:c092:600::2:554f])
+        by smtp.gmail.com with ESMTPSA id 1-20020a170906218100b007081282cbd8sm8559183eju.76.2022.09.01.08.18.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Sep 2022 08:18:03 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
+Subject: [PATCH stable-5.10 1/1] io_uring: disable polling pollfree files
+Date:   Thu,  1 Sep 2022 16:16:10 +0100
+Message-Id: <4f4668f469baa8f1387e746fd2533ec662500f3a.1662042761.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tx'ing does not correctly account Tx'ed characters into icount.tx.
-Using uart_xmit_advance() fixes the problem.
+Older kernels lack io_uring POLLFREE handling. As only affected files
+are signalfd and android binder the safest option would be to disable
+polling those files via io_uring and hope there are no users.
 
-Cc: <stable@vger.kernel.org> # serial: Create uart_xmit_advance()
-Fixes: 2d908b38d409 ("serial: Add Tegra Combined UART driver")
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- drivers/tty/serial/tegra-tcu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/android/binder.c | 1 +
+ fs/io_uring.c            | 5 +++++
+ fs/signalfd.c            | 1 +
+ include/linux/fs.h       | 1 +
+ 4 files changed, 8 insertions(+)
 
-diff --git a/drivers/tty/serial/tegra-tcu.c b/drivers/tty/serial/tegra-tcu.c
-index 4877c54c613d..889b701ba7c6 100644
---- a/drivers/tty/serial/tegra-tcu.c
-+++ b/drivers/tty/serial/tegra-tcu.c
-@@ -101,7 +101,7 @@ static void tegra_tcu_uart_start_tx(struct uart_port *port)
- 			break;
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index 366b12405708..a5d5247c4f3e 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -6069,6 +6069,7 @@ const struct file_operations binder_fops = {
+ 	.open = binder_open,
+ 	.flush = binder_flush,
+ 	.release = binder_release,
++	.may_pollfree = true,
+ };
  
- 		tegra_tcu_write(tcu, &xmit->buf[xmit->tail], count);
--		xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
-+		uart_xmit_advance(port, count);
- 	}
+ static int __init init_binder_device(const char *name)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index a952288b2ab8..9654b60a06a5 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5198,6 +5198,11 @@ static __poll_t __io_arm_poll_handler(struct io_kiocb *req,
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	bool cancel = false;
  
- 	uart_write_wakeup(port);
++	if (req->file->f_op->may_pollfree) {
++		spin_lock_irq(&ctx->completion_lock);
++		return -EOPNOTSUPP;
++	}
++
+ 	INIT_HLIST_NODE(&req->hash_node);
+ 	io_init_poll_iocb(poll, mask, wake_func);
+ 	poll->file = req->file;
+diff --git a/fs/signalfd.c b/fs/signalfd.c
+index b94fb5f81797..41dc597b78cc 100644
+--- a/fs/signalfd.c
++++ b/fs/signalfd.c
+@@ -248,6 +248,7 @@ static const struct file_operations signalfd_fops = {
+ 	.poll		= signalfd_poll,
+ 	.read		= signalfd_read,
+ 	.llseek		= noop_llseek,
++	.may_pollfree	= true,
+ };
+ 
+ static int do_signalfd4(int ufd, sigset_t *mask, int flags)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 42d246a94228..c8f887641878 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1859,6 +1859,7 @@ struct file_operations {
+ 				   struct file *file_out, loff_t pos_out,
+ 				   loff_t len, unsigned int remap_flags);
+ 	int (*fadvise)(struct file *, loff_t, loff_t, int);
++	bool may_pollfree;
+ } __randomize_layout;
+ 
+ struct inode_operations {
 -- 
-2.30.2
+2.37.2
 
