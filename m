@@ -2,161 +2,248 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAD6A5A8DEF
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 08:04:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 874625A8E04
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 08:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232897AbiIAGEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 02:04:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41000 "EHLO
+        id S232538AbiIAGMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 02:12:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232440AbiIAGEf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 02:04:35 -0400
-Received: from m13111.mail.163.com (m13111.mail.163.com [220.181.13.111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DEA91E8339;
-        Wed, 31 Aug 2022 23:04:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=Date:From:Subject:MIME-Version:Message-ID; bh=TXvoI
-        haUY/iXJSdIN8mkn50AsHOGVufvR2Mtl3RH4BM=; b=ggqzbHFQNUWhsr0bD5kwm
-        C5+lYXTyNQ69PRbpS66nbsEyX5vuPJG8Vgb4CoS0veH2RkqdIENNkoH/9Ds7WBYR
-        Zuj5SVpcH8YDqRzXJP3IpqEX1Pg+ytE6gmH/Be2E4n6U31w0wJLBu7DWAvZCsW9T
-        zEgCidXcKBCkemVe0iZuh8=
-Received: from 15815827059$163.com ( [116.128.244.169] ) by
- ajax-webmail-wmsvr111 (Coremail) ; Thu, 1 Sep 2022 14:03:48 +0800 (CST)
-X-Originating-IP: [116.128.244.169]
-Date:   Thu, 1 Sep 2022 14:03:48 +0800 (CST)
-From:   huhai <15815827059@163.com>
-To:     "Sathya Prakash Veerichetty" <sathya.prakash@broadcom.com>
+        with ESMTP id S229746AbiIAGMl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 02:12:41 -0400
+Received: from out0.migadu.com (out0.migadu.com [94.23.1.103])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C105F1195E5;
+        Wed, 31 Aug 2022 23:12:38 -0700 (PDT)
+Message-ID: <1f035daa-1905-1edd-687e-2426f6bda90e@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1662012755;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=LylrUWZZwGt8NJUNyP64kxnBFR3e4U6j0g2p8eJuHKQ=;
+        b=aLIhVBUyVumYoO28x11m2Yn6HDwi3I3UX14mp2qgawMDsnrb2quaQgN4pGIivbKqifTOAf
+        XN0cLu8ZLLkur/d+VTEox1iArLrChWh2R0kmP0uS95w1A5D8ON29ruUYCP38YE1MGlKpbR
+        xoOStJeMAX6Q6GKXv5OnwfO4eh7ISvc=
+Date:   Thu, 1 Sep 2022 14:12:23 +0800
+MIME-Version: 1.0
+Subject: Re: [PATCH] scsi: mpt3sas: Fix NULL pointer crash due to missing
+ check device hostdata
+Content-Language: en-US
+To:     huhai <15815827059@163.com>,
+        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
 Cc:     jejb@linux.ibm.com,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Sreekanth Reddy" <sreekanth.reddy@broadcom.com>,
-        "Suganath Prabu Subramani" <suganath-prabu.subramani@broadcom.com>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        Suganath Prabu Subramani 
+        <suganath-prabu.subramani@broadcom.com>,
         PDL-MPT-FUSIONLINUX <MPT-FusionLinux.pdl@broadcom.com>,
         linux-scsi <linux-scsi@vger.kernel.org>,
         linux-kernel <linux-kernel@vger.kernel.org>,
-        huhai <huhai@kylinos.cn>, stable@vger.kernel.org,
-        "Jackie Liu" <liuyun01@kylinos.cn>
-Subject: Re:Re: [PATCH] scsi: mpt3sas: Fix NULL pointer crash due to missing
- check device hostdata
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version XT5.0.13 build 20220113(9671e152)
- Copyright (c) 2002-2022 www.mailtech.cn 163com
-In-Reply-To: <CAFdVvOzAWcFLgPi_y8HW5Jx5JbC1AgBtADnwvd9usq8veU0vOg@mail.gmail.com>
+        huhai <huhai@kylinos.cn>, stable@vger.kernel.org
 References: <20220825092645.326953-1-15815827059@163.com>
  <49b0768d.96d.182f69a26f6.Coremail.15815827059@163.com>
  <CAFdVvOzAWcFLgPi_y8HW5Jx5JbC1AgBtADnwvd9usq8veU0vOg@mail.gmail.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
-MIME-Version: 1.0
-Message-ID: <3b74287a.3728.182f7a604b3.Coremail.15815827059@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID: b8GowAD3TNtFSxBjugZMAA--.28828W
-X-CM-SenderInfo: rprvmiivyslimvzbiqqrwthudrp/xtbB3xdvhWBHLk8cHQABsk
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,FROM_LOCAL_DIGITS,
-        FROM_LOCAL_HEX,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+ <3b74287a.3728.182f7a604b3.Coremail.15815827059@163.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Jackie Liu <liu.yun@linux.dev>
+In-Reply-To: <3b74287a.3728.182f7a604b3.Coremail.15815827059@163.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
+X-Migadu-Auth-User: linux.dev
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-CkF0IDIwMjItMDktMDEgMTM6MDg6MTQsICJTYXRoeWEgUHJha2FzaCBWZWVyaWNoZXR0eSIgPHNh
-dGh5YS5wcmFrYXNoQGJyb2FkY29tLmNvbT4gd3JvdGU6Cj5UaGUgcGF0Y2ggY291bGQgYmUgaW1w
-cm92ZWQgdG8gY2xlYXIgdGhlIGF0YV9jbWRfcGVuZGluZyBiaXQgZm9yIHRoZQo+Y2FzZXMgIXNh
-c19kZXZpY2VfcHJpdl9kYXRhLT5zYXNfdGFyZ2V0IGFuZAo+c2FzX2RldmljZV9wcml2X2RhdGEt
-PnNhc190YXJnZXQtPmRlbGV0ZWQgYmVmb3JlIHJldHVybmluZwoKPkRJRF9OT19DT05ORUNUIHRv
-IHJldGFpbiB0aGUgY3VycmVudCBmdW5jdGlvbmFsaXR5LgoKSGksIAoKTWF5YmUgbXkgY29tbWl0
-IGluZm9ybWF0aW9uIGlzIG5vdCBjbGVhciBlbm91Z2ijrFRoaXMgcGF0Y2ggaXMgZml4ZWQgTlVM
-TCBwb2ludGVyIGNyYXNoCmR1dG8gdG8gInN0cnVjdCBNUFQzU0FTX0RFVklDRSAqcHJpdiA9IHNj
-bWQtPmRldmljZS0+aG9zdGRhdGE7IiAgZ290IGEgTlVMTCBwb2ludGVyLCBhbmQKd2hlbiAiY2xl
-YXJfYml0KDAsICZwcml2LT5hdGFfY29tbWFuZF9wZW5kaW5nKTsiIGlzIGNhbGxlZCwga2VybmVs
-IHdpbGwgcGFuaWMuIAoKVGhhbmtzCgo+Cj4KPk9uIFdlZCwgQXVnIDMxLCAyMDIyIGF0IDc6MTEg
-UE0gaHVoYWkgPDE1ODE1ODI3MDU5QDE2My5jb20+IHdyb3RlOgo+Pgo+PiBGcmllbmRseSBwaW5n
-Lgo+Pgo+Pgo+PiBBdCAyMDIyLTA4LTI1IDE3OjI2OjQ1LCAiaHVoYWkiIDwxNTgxNTgyNzA1OUAx
-NjMuY29tPiB3cm90ZToKPj4gPkZyb206IGh1aGFpIDxodWhhaUBreWxpbm9zLmNuPgo+PiA+Cj4+
-ID5JZiBfc2NzaWhfaW9fZG9uZSgpIGlzIGNhbGxlZCB3aXRoIHNjbWQtPmRldmljZS0+aG9zdGRh
-dGE9TlVMTCwgaXQgY2FuIGxlYWQKPj4gPnRvIHRoZSBmb2xsb3dpbmcgcGFuaWM6Cj4+ID4KPj4g
-PiAgQlVHOiB1bmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVuY2Ug
-YXQgMDAwMDAwMDAwMDAwMDAxOAo+PiA+ICBQR0QgNDU0N2E0MDY3IFA0RCA0NTQ3YTQwNjcgUFVE
-IDAKPj4gPiAgT29wczogMDAwMiBbIzFdIFNNUCBOT1BUSQo+PiA+ICBDUFU6IDYyIFBJRDogMCBD
-b21tOiBzd2FwcGVyLzYyIEtkdW1wOiBsb2FkZWQgTm90IHRhaW50ZWQgNC4xOS45MC0yNC40LnYy
-MTAxLmt5MTAueDg2XzY0ICMxCj4+ID4gIEhhcmR3YXJlIG5hbWU6IFN0b3JhZ2UgU2VydmVyLzY1
-TjMyLVVTLCBCSU9TIFNRTDEwNDEyMTcgMDUvMzAvMjAyMgo+PiA+ICBSSVA6IDAwMTA6X3Njc2lo
-X3NldF9zYXRsX3BlbmRpbmcrMHgyZC8weDUwIFttcHQzc2FzXQo+PiA+ICBDb2RlOiAwMCAwMCA0
-OCA4YiA4NyA2MCAwMSAwMCAwMCAwZiBiNiAxMCA4MCBmYSBhMSA3NCAwOSAzMSBjMCA4MCBmYSA4
-NSA3NCAwMiBmMyBjMyA0OCA4YiA0NyAzOCA0MCA4NCBmNiA0OCA4YiA4MCA5OCAwMCAwMCAwMCA3
-NSAwOCA8ZjA+IDgwIDYwIDE4IGZlIDMxIGMwIGMzIGYwIDQ4IDBmIGJhIDY4IDE4IDAwIDBmIDky
-IGMwIDBmIGI2IGMwIGMzCj4+ID4gIFJTUDogMDAxODpmZmZmOGVjMjJmYzAzZTAwIEVGTEFHUzog
-MDAwMTAwNDYKPj4gPiAgUkFYOiAwMDAwMDAwMDAwMDAwMDAwIFJCWDogZmZmZjhlYmExYjA3MjUx
-OCBSQ1g6IDAwMDAwMDAwMDAwMDAwMDEKPj4gPiAgUkRYOiAwMDAwMDAwMDAwMDAwMDg1IFJTSTog
-MDAwMDAwMDAwMDAwMDAwMCBSREk6IGZmZmY4ZWJhMWIwNzI1MTgKPj4gPiAgUkJQOiAwMDAwMDAw
-MDAwMDAwZGJkIFIwODogMDAwMDAwMDAwMDAwMDAwMCBSMDk6IDAwMDAwMDAwMDAwMjk3MDAKPj4g
-PiAgUjEwOiBmZmZmOGVjMjJmYzAzZjgwIFIxMTogMDAwMDAwMDAwMDAwMDAwMCBSMTI6IGZmZmY4
-ZWJlMmQzNjA5ZTgKPj4gPiAgUjEzOiBmZmZmOGViZTJhNzJiNjAwIFIxNDogZmZmZjhlY2E0NzI3
-MDdlMCBSMTU6IDAwMDAwMDAwMDAwMDAwMjAKPj4gPiAgRlM6ICAwMDAwMDAwMDAwMDAwMDAwKDAw
-MDApIEdTOmZmZmY4ZWMyMmZjMDAwMDAoMDAwMCkga25sR1M6MDAwMDAwMDAwMDAwMDAwMAo+PiA+
-ICBDUzogIDAwMTAgRFM6IDAwMDAgRVM6IDAwMDAgQ1IwOiAwMDAwMDAwMDgwMDUwMDMzCj4+ID4g
-IENSMjogMDAwMDAwMDAwMDAwMDAxOCBDUjM6IDAwMDAwMDA0NmU1ZjYwMDAgQ1I0OiAwMDAwMDAw
-MDAwMzQwNmUwCj4+ID4gIENhbGwgVHJhY2U6Cj4+ID4gICA8SVJRPgo+PiA+ICAgX3Njc2loX2lv
-X2RvbmUrMHg0YS8weDlmMCBbbXB0M3Nhc10KPj4gPiAgIF9iYXNlX2ludGVycnVwdCsweDIzZi8w
-eGUxMCBbbXB0M3Nhc10KPj4gPiAgIF9faGFuZGxlX2lycV9ldmVudF9wZXJjcHUrMHg0MC8weDE5
-MAo+PiA+ICAgaGFuZGxlX2lycV9ldmVudF9wZXJjcHUrMHgzMC8weDcwCj4+ID4gICBoYW5kbGVf
-aXJxX2V2ZW50KzB4MzYvMHg2MAo+PiA+ICAgaGFuZGxlX2VkZ2VfaXJxKzB4N2UvMHgxOTAKPj4g
-PiAgIGhhbmRsZV9pcnErMHhhOC8weDExMAo+PiA+ICAgZG9fSVJRKzB4NDkvMHhlMAo+PiA+Cj4+
-ID5GaXggaXQgYnkgbW92ZSBzY21kLT5kZXZpY2UtPmhvc3RkYXRhIGNoZWNrIGJlZm9yZSBfc2Nz
-aWhfc2V0X3NhdGxfcGVuZGluZwo+PiA+Y2FsbGVkLgo+PiA+Cj4+ID5PdGhlciBjaGFuZ2VzOgo+
-PiA+LSBJdCBsb29rcyBjbGVhciB0byBtb3ZlIGdldCBtcGlfcmVwbHkgdG8gbmVhciBpdHMgY2hl
-Y2suCj4+ID4KPj4gPkZpeGVzOiBmZmI1ODQ1NjU4OTQgKCJzY3NpOiBtcHQzc2FzOiBmaXggaGFu
-ZyBvbiBhdGEgcGFzc3Rocm91Z2ggY29tbWFuZHMiKQo+PiA+Q2M6IDxzdGFibGVAdmdlci5rZXJu
-ZWwub3JnPiAjIHY0LjkrCj4+ID5Dby1kZXZlbG9wZWQtYnk6IEphY2tpZSBMaXUgPGxpdXl1bjAx
-QGt5bGlub3MuY24+Cj4+ID5TaWduZWQtb2ZmLWJ5OiBKYWNraWUgTGl1IDxsaXV5dW4wMUBreWxp
-bm9zLmNuPgo+PiA+U2lnbmVkLW9mZi1ieTogaHVoYWkgPGh1aGFpQGt5bGlub3MuY24+Cj4+ID4t
-LS0KPj4gPiBkcml2ZXJzL3Njc2kvbXB0M3Nhcy9tcHQzc2FzX3Njc2loLmMgfCAxNSArKysrKysr
-LS0tLS0tLS0KPj4gPiAxIGZpbGUgY2hhbmdlZCwgNyBpbnNlcnRpb25zKCspLCA4IGRlbGV0aW9u
-cygtKQo+PiA+Cj4+ID5kaWZmIC0tZ2l0IGEvZHJpdmVycy9zY3NpL21wdDNzYXMvbXB0M3Nhc19z
-Y3NpaC5jIGIvZHJpdmVycy9zY3NpL21wdDNzYXMvbXB0M3Nhc19zY3NpaC5jCj4+ID5pbmRleCBk
-ZWYzN2E3ZTU5ODAuLjg1ZjU3NDlhMDQyMSAxMDA2NDQKPj4gPi0tLSBhL2RyaXZlcnMvc2NzaS9t
-cHQzc2FzL21wdDNzYXNfc2NzaWguYwo+PiA+KysrIGIvZHJpdmVycy9zY3NpL21wdDNzYXMvbXB0
-M3Nhc19zY3NpaC5jCj4+ID5AQCAtNTcwNCwyNyArNTcwNCwyNiBAQCBfc2NzaWhfaW9fZG9uZShz
-dHJ1Y3QgTVBUM1NBU19BREFQVEVSICppb2MsIHUxNiBzbWlkLCB1OCBtc2l4X2luZGV4LCB1MzIg
-cmVwbHkpCj4+ID4gICAgICAgc3RydWN0IE1QVDNTQVNfREVWSUNFICpzYXNfZGV2aWNlX3ByaXZf
-ZGF0YTsKPj4gPiAgICAgICB1MzIgcmVzcG9uc2VfY29kZSA9IDA7Cj4+ID4KPj4gPi0gICAgICBt
-cGlfcmVwbHkgPSBtcHQzc2FzX2Jhc2VfZ2V0X3JlcGx5X3ZpcnRfYWRkcihpb2MsIHJlcGx5KTsK
-Pj4gPi0KPj4gPiAgICAgICBzY21kID0gbXB0M3Nhc19zY3NpaF9zY3NpX2xvb2t1cF9nZXQoaW9j
-LCBzbWlkKTsKPj4gPiAgICAgICBpZiAoc2NtZCA9PSBOVUxMKQo+PiA+ICAgICAgICAgICAgICAg
-cmV0dXJuIDE7Cj4+ID4KPj4gPisgICAgICBzYXNfZGV2aWNlX3ByaXZfZGF0YSA9IHNjbWQtPmRl
-dmljZS0+aG9zdGRhdGE7Cj4+ID4rICAgICAgaWYgKCFzYXNfZGV2aWNlX3ByaXZfZGF0YSB8fCAh
-c2FzX2RldmljZV9wcml2X2RhdGEtPnNhc190YXJnZXQgfHwKPj4gPisgICAgICAgICAgIHNhc19k
-ZXZpY2VfcHJpdl9kYXRhLT5zYXNfdGFyZ2V0LT5kZWxldGVkKSB7Cj4+ID4rICAgICAgICAgICAg
-ICBzY21kLT5yZXN1bHQgPSBESURfTk9fQ09OTkVDVCA8PCAxNjsKPj4gPisgICAgICAgICAgICAg
-IGdvdG8gb3V0Owo+PiA+KyAgICAgIH0KPj4gPiAgICAgICBfc2NzaWhfc2V0X3NhdGxfcGVuZGlu
-ZyhzY21kLCBmYWxzZSk7Cj4+ID4KPj4gPiAgICAgICBtcGlfcmVxdWVzdCA9IG1wdDNzYXNfYmFz
-ZV9nZXRfbXNnX2ZyYW1lKGlvYywgc21pZCk7Cj4+ID4KPj4gPisgICAgICBtcGlfcmVwbHkgPSBt
-cHQzc2FzX2Jhc2VfZ2V0X3JlcGx5X3ZpcnRfYWRkcihpb2MsIHJlcGx5KTsKPj4gPiAgICAgICBp
-ZiAobXBpX3JlcGx5ID09IE5VTEwpIHsKPj4gPiAgICAgICAgICAgICAgIHNjbWQtPnJlc3VsdCA9
-IERJRF9PSyA8PCAxNjsKPj4gPiAgICAgICAgICAgICAgIGdvdG8gb3V0Owo+PiA+ICAgICAgIH0K
-Pj4gPgo+PiA+LSAgICAgIHNhc19kZXZpY2VfcHJpdl9kYXRhID0gc2NtZC0+ZGV2aWNlLT5ob3N0
-ZGF0YTsKPj4gPi0gICAgICBpZiAoIXNhc19kZXZpY2VfcHJpdl9kYXRhIHx8ICFzYXNfZGV2aWNl
-X3ByaXZfZGF0YS0+c2FzX3RhcmdldCB8fAo+PiA+LSAgICAgICAgICAgc2FzX2RldmljZV9wcml2
-X2RhdGEtPnNhc190YXJnZXQtPmRlbGV0ZWQpIHsKPj4gPi0gICAgICAgICAgICAgIHNjbWQtPnJl
-c3VsdCA9IERJRF9OT19DT05ORUNUIDw8IDE2Owo+PiA+LSAgICAgICAgICAgICAgZ290byBvdXQ7
-Cj4+ID4tICAgICAgfQo+PiA+ICAgICAgIGlvY19zdGF0dXMgPSBsZTE2X3RvX2NwdShtcGlfcmVw
-bHktPklPQ1N0YXR1cyk7Cj4+ID4KPj4gPiAgICAgICAvKgo+PiA+LS0KPj4gPjIuMjcuMAo+PiA+
-Cj4+ID4KPj4gPk5vIHZpcnVzIGZvdW5kCj4+ID4gICAgICAgICAgICAgICBDaGVja2VkIGJ5IEhp
-bGxzdG9uZSBOZXR3b3JrIEFudGlWaXJ1cwo+Cj4tLSAKPlRoaXMgZWxlY3Ryb25pYyBjb21tdW5p
-Y2F0aW9uIGFuZCB0aGUgaW5mb3JtYXRpb24gYW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCAKPndp
-dGggaXQsIG9yIGF0dGFjaGVkIHRvIGl0LCBhcmUgY29uZmlkZW50aWFsIGFuZCBhcmUgaW50ZW5k
-ZWQgc29sZWx5IGZvciAKPnRoZSB1c2Ugb2YgdGhlIGluZGl2aWR1YWwgb3IgZW50aXR5IHRvIHdo
-b20gaXQgaXMgYWRkcmVzc2VkIGFuZCBtYXkgY29udGFpbiAKPmluZm9ybWF0aW9uIHRoYXQgaXMg
-Y29uZmlkZW50aWFsLCBsZWdhbGx5IHByaXZpbGVnZWQsIHByb3RlY3RlZCBieSBwcml2YWN5IAo+
-bGF3cywgb3Igb3RoZXJ3aXNlIHJlc3RyaWN0ZWQgZnJvbSBkaXNjbG9zdXJlIHRvIGFueW9uZSBl
-bHNlLiBJZiB5b3UgYXJlIAo+bm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQgb3IgdGhlIHBlcnNv
-biByZXNwb25zaWJsZSBmb3IgZGVsaXZlcmluZyB0aGUgCj5lLW1haWwgdG8gdGhlIGludGVuZGVk
-IHJlY2lwaWVudCwgeW91IGFyZSBoZXJlYnkgbm90aWZpZWQgdGhhdCBhbnkgdXNlLCAKPmNvcHlp
-bmcsIGRpc3RyaWJ1dGluZywgZGlzc2VtaW5hdGlvbiwgZm9yd2FyZGluZywgcHJpbnRpbmcsIG9y
-IGNvcHlpbmcgb2YgCj50aGlzIGUtbWFpbCBpcyBzdHJpY3RseSBwcm9oaWJpdGVkLiBJZiB5b3Ug
-cmVjZWl2ZWQgdGhpcyBlLW1haWwgaW4gZXJyb3IsIAo+cGxlYXNlIHJldHVybiB0aGUgZS1tYWls
-IHRvIHRoZSBzZW5kZXIsIGRlbGV0ZSBpdCBmcm9tIHlvdXIgY29tcHV0ZXIsIGFuZCAKPmRlc3Ry
-b3kgYW55IHByaW50ZWQgY29weSBvZiBpdC4K
+hu hai:
+
+I think Sathya means this:
+
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c 
+b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index def37a7e5980..2a8c1fef1d34 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -5704,27 +5704,31 @@ _scsih_io_done(struct MPT3SAS_ADAPTER *ioc, u16 
+smid, u8 msix_index, u32 reply)
+         struct MPT3SAS_DEVICE *sas_device_priv_data;
+         u32 response_code = 0;
+
+-       mpi_reply = mpt3sas_base_get_reply_virt_addr(ioc, reply);
+-
+         scmd = mpt3sas_scsih_scsi_lookup_get(ioc, smid);
+         if (scmd == NULL)
+                 return 1;
+
++       sas_device_priv_data = scmd->device->hostdata;
++       if (!sas_device_priv_data || !sas_device_priv_data->sas_target)
++               scmd->result = DID_NO_CONNECT << 16;
++               goto out;
++       }
++
+         _scsih_set_satl_pending(scmd, false);
+
++       if (sas_device_priv_data->sas_target->deleted) {
++               scmd->result = DID_NO_CONNECT << 16;
++               goto out;
++       }
++
+         mpi_request = mpt3sas_base_get_msg_frame(ioc, smid);
+
++       mpi_reply = mpt3sas_base_get_reply_virt_addr(ioc, reply);
+         if (mpi_reply == NULL) {
+                 scmd->result = DID_OK << 16;
+                 goto out;
+         }
+
+-       sas_device_priv_data = scmd->device->hostdata;
+-       if (!sas_device_priv_data || !sas_device_priv_data->sas_target ||
+-            sas_device_priv_data->sas_target->deleted) {
+-               scmd->result = DID_NO_CONNECT << 16;
+-               goto out;
+-       }
+         ioc_status = le16_to_cpu(mpi_reply->IOCStatus);
+
+         /*
+
+-- 
+Jackie Liu
+
+
+在 2022/9/1 14:03, huhai 写道:
+> 
+> At 2022-09-01 13:08:14, "Sathya Prakash Veerichetty" <sathya.prakash@broadcom.com> wrote:
+>> The patch could be improved to clear the ata_cmd_pending bit for the
+>> cases !sas_device_priv_data->sas_target and
+>> sas_device_priv_data->sas_target->deleted before returning
+> 
+>> DID_NO_CONNECT to retain the current functionality.
+> 
+> Hi,
+> 
+> Maybe my commit information is not clear enough，This patch is fixed NULL pointer crash
+> duto to "struct MPT3SAS_DEVICE *priv = scmd->device->hostdata;"  got a NULL pointer, and
+> when "clear_bit(0, &priv->ata_command_pending);" is called, kernel will panic.
+> 
+> Thanks
+> 
+>>
+>>
+>> On Wed, Aug 31, 2022 at 7:11 PM huhai <15815827059@163.com> wrote:
+>>>
+>>> Friendly ping.
+>>>
+>>>
+>>> At 2022-08-25 17:26:45, "huhai" <15815827059@163.com> wrote:
+>>>> From: huhai <huhai@kylinos.cn>
+>>>>
+>>>> If _scsih_io_done() is called with scmd->device->hostdata=NULL, it can lead
+>>>> to the following panic:
+>>>>
+>>>>   BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
+>>>>   PGD 4547a4067 P4D 4547a4067 PUD 0
+>>>>   Oops: 0002 [#1] SMP NOPTI
+>>>>   CPU: 62 PID: 0 Comm: swapper/62 Kdump: loaded Not tainted 4.19.90-24.4.v2101.ky10.x86_64 #1
+>>>>   Hardware name: Storage Server/65N32-US, BIOS SQL1041217 05/30/2022
+>>>>   RIP: 0010:_scsih_set_satl_pending+0x2d/0x50 [mpt3sas]
+>>>>   Code: 00 00 48 8b 87 60 01 00 00 0f b6 10 80 fa a1 74 09 31 c0 80 fa 85 74 02 f3 c3 48 8b 47 38 40 84 f6 48 8b 80 98 00 00 00 75 08 <f0> 80 60 18 fe 31 c0 c3 f0 48 0f ba 68 18 00 0f 92 c0 0f b6 c0 c3
+>>>>   RSP: 0018:ffff8ec22fc03e00 EFLAGS: 00010046
+>>>>   RAX: 0000000000000000 RBX: ffff8eba1b072518 RCX: 0000000000000001
+>>>>   RDX: 0000000000000085 RSI: 0000000000000000 RDI: ffff8eba1b072518
+>>>>   RBP: 0000000000000dbd R08: 0000000000000000 R09: 0000000000029700
+>>>>   R10: ffff8ec22fc03f80 R11: 0000000000000000 R12: ffff8ebe2d3609e8
+>>>>   R13: ffff8ebe2a72b600 R14: ffff8eca472707e0 R15: 0000000000000020
+>>>>   FS:  0000000000000000(0000) GS:ffff8ec22fc00000(0000) knlGS:0000000000000000
+>>>>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>>>   CR2: 0000000000000018 CR3: 000000046e5f6000 CR4: 00000000003406e0
+>>>>   Call Trace:
+>>>>    <IRQ>
+>>>>    _scsih_io_done+0x4a/0x9f0 [mpt3sas]
+>>>>    _base_interrupt+0x23f/0xe10 [mpt3sas]
+>>>>    __handle_irq_event_percpu+0x40/0x190
+>>>>    handle_irq_event_percpu+0x30/0x70
+>>>>    handle_irq_event+0x36/0x60
+>>>>    handle_edge_irq+0x7e/0x190
+>>>>    handle_irq+0xa8/0x110
+>>>>    do_IRQ+0x49/0xe0
+>>>>
+>>>> Fix it by move scmd->device->hostdata check before _scsih_set_satl_pending
+>>>> called.
+>>>>
+>>>> Other changes:
+>>>> - It looks clear to move get mpi_reply to near its check.
+>>>>
+>>>> Fixes: ffb584565894 ("scsi: mpt3sas: fix hang on ata passthrough commands")
+>>>> Cc: <stable@vger.kernel.org> # v4.9+
+>>>> Co-developed-by: Jackie Liu <liuyun01@kylinos.cn>
+>>>> Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+>>>> Signed-off-by: huhai <huhai@kylinos.cn>
+>>>> ---
+>>>> drivers/scsi/mpt3sas/mpt3sas_scsih.c | 15 +++++++--------
+>>>> 1 file changed, 7 insertions(+), 8 deletions(-)
+>>>>
+>>>> diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+>>>> index def37a7e5980..85f5749a0421 100644
+>>>> --- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+>>>> +++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+>>>> @@ -5704,27 +5704,26 @@ _scsih_io_done(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index, u32 reply)
+>>>>        struct MPT3SAS_DEVICE *sas_device_priv_data;
+>>>>        u32 response_code = 0;
+>>>>
+>>>> -      mpi_reply = mpt3sas_base_get_reply_virt_addr(ioc, reply);
+>>>> -
+>>>>        scmd = mpt3sas_scsih_scsi_lookup_get(ioc, smid);
+>>>>        if (scmd == NULL)
+>>>>                return 1;
+>>>>
+>>>> +      sas_device_priv_data = scmd->device->hostdata;
+>>>> +      if (!sas_device_priv_data || !sas_device_priv_data->sas_target ||
+>>>> +           sas_device_priv_data->sas_target->deleted) {
+>>>> +              scmd->result = DID_NO_CONNECT << 16;
+>>>> +              goto out;
+>>>> +      }
+>>>>        _scsih_set_satl_pending(scmd, false);
+>>>>
+>>>>        mpi_request = mpt3sas_base_get_msg_frame(ioc, smid);
+>>>>
+>>>> +      mpi_reply = mpt3sas_base_get_reply_virt_addr(ioc, reply);
+>>>>        if (mpi_reply == NULL) {
+>>>>                scmd->result = DID_OK << 16;
+>>>>                goto out;
+>>>>        }
+>>>>
+>>>> -      sas_device_priv_data = scmd->device->hostdata;
+>>>> -      if (!sas_device_priv_data || !sas_device_priv_data->sas_target ||
+>>>> -           sas_device_priv_data->sas_target->deleted) {
+>>>> -              scmd->result = DID_NO_CONNECT << 16;
+>>>> -              goto out;
+>>>> -      }
+>>>>        ioc_status = le16_to_cpu(mpi_reply->IOCStatus);
+>>>>
+>>>>        /*
+>>>> --
+>>>> 2.27.0
+>>>>
+>>>>
+>>>> No virus found
+>>>>                Checked by Hillstone Network AntiVirus
+>>
+>> -- 
+>> This electronic communication and the information and any files transmitted
+>> with it, or attached to it, are confidential and are intended solely for
+>> the use of the individual or entity to whom it is addressed and may contain
+>> information that is confidential, legally privileged, protected by privacy
+>> laws, or otherwise restricted from disclosure to anyone else. If you are
+>> not the intended recipient or the person responsible for delivering the
+>> e-mail to the intended recipient, you are hereby notified that any use,
+>> copying, distributing, dissemination, forwarding, printing, or copying of
+>> this e-mail is strictly prohibited. If you received this e-mail in error,
+>> please return the e-mail to the sender, delete it from your computer, and
+>> destroy any printed copy of it.
