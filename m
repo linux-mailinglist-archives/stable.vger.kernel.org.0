@@ -2,163 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DD335A8DA4
-	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 07:49:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAD6A5A8DEF
+	for <lists+stable@lfdr.de>; Thu,  1 Sep 2022 08:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231764AbiIAFtu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Sep 2022 01:49:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41172 "EHLO
+        id S232897AbiIAGEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Sep 2022 02:04:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233239AbiIAFte (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 01:49:34 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62382117ACB;
-        Wed, 31 Aug 2022 22:49:20 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id m16so20829486wru.9;
-        Wed, 31 Aug 2022 22:49:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=M3jAT3YQCl4NufeW6oCkMl9aVNOp6TjzxP0+mQ9Dows=;
-        b=q74S3j9a2DH2WQcHC5XMVxoVDw/gyodqLA0RLf2ByvyojIvpvtfmtB7Lu66e+pc6dL
-         4Lxla631n8+TW2rNUGZ1tjXENxN+51Up7tPqyyXNXI/3fb3gdD82OTBua6nuvuQyowkC
-         Vk2J+vl7h79XyH6g61NZMz7PjcmbYE2JFgdFNVusxZP3Jsj0t0D10HCB1DO07vVt+fqW
-         psPCQg53dGojhx/sPTAwEggvbNR/PEe0IOkOM7hkG5xzMx2V8JHVVzabLaeLapWl7yfw
-         AMYDnLf0ItvaasNmbdq6rTAX60GbcW7Oo/TUU0vSDPPbhM1kRNfWO1/NZzXcXfL0mQFl
-         uerA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=M3jAT3YQCl4NufeW6oCkMl9aVNOp6TjzxP0+mQ9Dows=;
-        b=GKtlr5kwT08qp3AQ8waVMfQgknrPV8VgHlBW+F+jZmBzpuLdZb2/j88Nq8fn3N4OZt
-         IPFZeKQqpbaq0OH48TIGZVzpiS/jniXtTqdR1r2dMlwN+A7fnGinpokUbzO7z7waT3wj
-         Kf65GJiNiGJAZEaxSrjDQmRc94Y7ARo9qlyw/CbNDQvlHKOf+eRLzR+iXjUIcyL3m8ih
-         679cO+FWh69UFuzk3EMPjUN4BWO/zKd3k+6uc2zBC63X5mOZkAiyNpYZrKg5viV4pN9F
-         HVy/cSS7YrOWTDldYNw8GTdxgD+lWezmf6f538YH7OGWtULCUVhACkmuAB+fVXQ2cfAF
-         xiYw==
-X-Gm-Message-State: ACgBeo24hgMY8EOBbYCJnG7vdAqaA4C6rC75frPDntcXglCaTi7V5JHY
-        kMT+YOf3nNtXvlzxcfjdrkA=
-X-Google-Smtp-Source: AA6agR5ylTkx2uA7K//Y5OfnOmGzIarMLx3C+fZn4k9NX2XzlPcp0IAPpeD+4lFd9V3BJkARXK41sQ==
-X-Received: by 2002:a5d:598f:0:b0:220:8005:7def with SMTP id n15-20020a5d598f000000b0022080057defmr13924910wri.435.1662011354515;
-        Wed, 31 Aug 2022 22:49:14 -0700 (PDT)
-Received: from localhost.localdomain ([77.137.66.49])
-        by smtp.gmail.com with ESMTPSA id bg15-20020a05600c3c8f00b003a4f08495b7sm4447262wmb.34.2022.08.31.22.49.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Aug 2022 22:49:14 -0700 (PDT)
-From:   Amir Goldstein <amir73il@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Adam Manzanares <a.manzanares@samsung.com>,
-        linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dave Chinner <david@fromorbit.com>
-Subject: [PATCH 5.10 v2 7/7] xfs: validate inode fork size against fork format
-Date:   Thu,  1 Sep 2022 08:48:54 +0300
-Message-Id: <20220901054854.2449416-8-amir73il@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220901054854.2449416-1-amir73il@gmail.com>
-References: <20220901054854.2449416-1-amir73il@gmail.com>
+        with ESMTP id S232440AbiIAGEf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Sep 2022 02:04:35 -0400
+Received: from m13111.mail.163.com (m13111.mail.163.com [220.181.13.111])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DEA91E8339;
+        Wed, 31 Aug 2022 23:04:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=Date:From:Subject:MIME-Version:Message-ID; bh=TXvoI
+        haUY/iXJSdIN8mkn50AsHOGVufvR2Mtl3RH4BM=; b=ggqzbHFQNUWhsr0bD5kwm
+        C5+lYXTyNQ69PRbpS66nbsEyX5vuPJG8Vgb4CoS0veH2RkqdIENNkoH/9Ds7WBYR
+        Zuj5SVpcH8YDqRzXJP3IpqEX1Pg+ytE6gmH/Be2E4n6U31w0wJLBu7DWAvZCsW9T
+        zEgCidXcKBCkemVe0iZuh8=
+Received: from 15815827059$163.com ( [116.128.244.169] ) by
+ ajax-webmail-wmsvr111 (Coremail) ; Thu, 1 Sep 2022 14:03:48 +0800 (CST)
+X-Originating-IP: [116.128.244.169]
+Date:   Thu, 1 Sep 2022 14:03:48 +0800 (CST)
+From:   huhai <15815827059@163.com>
+To:     "Sathya Prakash Veerichetty" <sathya.prakash@broadcom.com>
+Cc:     jejb@linux.ibm.com,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Sreekanth Reddy" <sreekanth.reddy@broadcom.com>,
+        "Suganath Prabu Subramani" <suganath-prabu.subramani@broadcom.com>,
+        PDL-MPT-FUSIONLINUX <MPT-FusionLinux.pdl@broadcom.com>,
+        linux-scsi <linux-scsi@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        huhai <huhai@kylinos.cn>, stable@vger.kernel.org,
+        "Jackie Liu" <liuyun01@kylinos.cn>
+Subject: Re:Re: [PATCH] scsi: mpt3sas: Fix NULL pointer crash due to missing
+ check device hostdata
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version XT5.0.13 build 20220113(9671e152)
+ Copyright (c) 2002-2022 www.mailtech.cn 163com
+In-Reply-To: <CAFdVvOzAWcFLgPi_y8HW5Jx5JbC1AgBtADnwvd9usq8veU0vOg@mail.gmail.com>
+References: <20220825092645.326953-1-15815827059@163.com>
+ <49b0768d.96d.182f69a26f6.Coremail.15815827059@163.com>
+ <CAFdVvOzAWcFLgPi_y8HW5Jx5JbC1AgBtADnwvd9usq8veU0vOg@mail.gmail.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=GBK
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <3b74287a.3728.182f7a604b3.Coremail.15815827059@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID: b8GowAD3TNtFSxBjugZMAA--.28828W
+X-CM-SenderInfo: rprvmiivyslimvzbiqqrwthudrp/xtbB3xdvhWBHLk8cHQABsk
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,FROM_LOCAL_DIGITS,
+        FROM_LOCAL_HEX,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
-
-commit 1eb70f54c445fcbb25817841e774adb3d912f3e8 upstream.
-
-[backport for 5.10.y]
-
-xfs_repair catches fork size/format mismatches, but the in-kernel
-verifier doesn't, leading to null pointer failures when attempting
-to perform operations on the fork. This can occur in the
-xfs_dir_is_empty() where the in-memory fork format does not match
-the size and so the fork data pointer is accessed incorrectly.
-
-Note: this causes new failures in xfs/348 which is testing mode vs
-ftype mismatches. We now detect a regular file that has been changed
-to a directory or symlink mode as being corrupt because the data
-fork is for a symlink or directory should be in local form when
-there are only 3 bytes of data in the data fork. Hence the inode
-verify for the regular file now fires w/ -EFSCORRUPTED because
-the inode fork format does not match the format the corrupted mode
-says it should be in.
-
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Dave Chinner <david@fromorbit.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
----
- fs/xfs/libxfs/xfs_inode_buf.c | 35 ++++++++++++++++++++++++++---------
- 1 file changed, 26 insertions(+), 9 deletions(-)
-
-diff --git a/fs/xfs/libxfs/xfs_inode_buf.c b/fs/xfs/libxfs/xfs_inode_buf.c
-index c667c63f2cb0..fa8aefe6b7ec 100644
---- a/fs/xfs/libxfs/xfs_inode_buf.c
-+++ b/fs/xfs/libxfs/xfs_inode_buf.c
-@@ -358,19 +358,36 @@ xfs_dinode_verify_fork(
- 	int			whichfork)
- {
- 	uint32_t		di_nextents = XFS_DFORK_NEXTENTS(dip, whichfork);
-+	mode_t			mode = be16_to_cpu(dip->di_mode);
-+	uint32_t		fork_size = XFS_DFORK_SIZE(dip, mp, whichfork);
-+	uint32_t		fork_format = XFS_DFORK_FORMAT(dip, whichfork);
- 
--	switch (XFS_DFORK_FORMAT(dip, whichfork)) {
-+	/*
-+	 * For fork types that can contain local data, check that the fork
-+	 * format matches the size of local data contained within the fork.
-+	 *
-+	 * For all types, check that when the size says the should be in extent
-+	 * or btree format, the inode isn't claiming it is in local format.
-+	 */
-+	if (whichfork == XFS_DATA_FORK) {
-+		if (S_ISDIR(mode) || S_ISLNK(mode)) {
-+			if (be64_to_cpu(dip->di_size) <= fork_size &&
-+			    fork_format != XFS_DINODE_FMT_LOCAL)
-+				return __this_address;
-+		}
-+
-+		if (be64_to_cpu(dip->di_size) > fork_size &&
-+		    fork_format == XFS_DINODE_FMT_LOCAL)
-+			return __this_address;
-+	}
-+
-+	switch (fork_format) {
- 	case XFS_DINODE_FMT_LOCAL:
- 		/*
--		 * no local regular files yet
-+		 * No local regular files yet.
- 		 */
--		if (whichfork == XFS_DATA_FORK) {
--			if (S_ISREG(be16_to_cpu(dip->di_mode)))
--				return __this_address;
--			if (be64_to_cpu(dip->di_size) >
--					XFS_DFORK_SIZE(dip, mp, whichfork))
--				return __this_address;
--		}
-+		if (S_ISREG(mode) && whichfork == XFS_DATA_FORK)
-+			return __this_address;
- 		if (di_nextents)
- 			return __this_address;
- 		break;
--- 
-2.25.1
-
+CkF0IDIwMjItMDktMDEgMTM6MDg6MTQsICJTYXRoeWEgUHJha2FzaCBWZWVyaWNoZXR0eSIgPHNh
+dGh5YS5wcmFrYXNoQGJyb2FkY29tLmNvbT4gd3JvdGU6Cj5UaGUgcGF0Y2ggY291bGQgYmUgaW1w
+cm92ZWQgdG8gY2xlYXIgdGhlIGF0YV9jbWRfcGVuZGluZyBiaXQgZm9yIHRoZQo+Y2FzZXMgIXNh
+c19kZXZpY2VfcHJpdl9kYXRhLT5zYXNfdGFyZ2V0IGFuZAo+c2FzX2RldmljZV9wcml2X2RhdGEt
+PnNhc190YXJnZXQtPmRlbGV0ZWQgYmVmb3JlIHJldHVybmluZwoKPkRJRF9OT19DT05ORUNUIHRv
+IHJldGFpbiB0aGUgY3VycmVudCBmdW5jdGlvbmFsaXR5LgoKSGksIAoKTWF5YmUgbXkgY29tbWl0
+IGluZm9ybWF0aW9uIGlzIG5vdCBjbGVhciBlbm91Z2ijrFRoaXMgcGF0Y2ggaXMgZml4ZWQgTlVM
+TCBwb2ludGVyIGNyYXNoCmR1dG8gdG8gInN0cnVjdCBNUFQzU0FTX0RFVklDRSAqcHJpdiA9IHNj
+bWQtPmRldmljZS0+aG9zdGRhdGE7IiAgZ290IGEgTlVMTCBwb2ludGVyLCBhbmQKd2hlbiAiY2xl
+YXJfYml0KDAsICZwcml2LT5hdGFfY29tbWFuZF9wZW5kaW5nKTsiIGlzIGNhbGxlZCwga2VybmVs
+IHdpbGwgcGFuaWMuIAoKVGhhbmtzCgo+Cj4KPk9uIFdlZCwgQXVnIDMxLCAyMDIyIGF0IDc6MTEg
+UE0gaHVoYWkgPDE1ODE1ODI3MDU5QDE2My5jb20+IHdyb3RlOgo+Pgo+PiBGcmllbmRseSBwaW5n
+Lgo+Pgo+Pgo+PiBBdCAyMDIyLTA4LTI1IDE3OjI2OjQ1LCAiaHVoYWkiIDwxNTgxNTgyNzA1OUAx
+NjMuY29tPiB3cm90ZToKPj4gPkZyb206IGh1aGFpIDxodWhhaUBreWxpbm9zLmNuPgo+PiA+Cj4+
+ID5JZiBfc2NzaWhfaW9fZG9uZSgpIGlzIGNhbGxlZCB3aXRoIHNjbWQtPmRldmljZS0+aG9zdGRh
+dGE9TlVMTCwgaXQgY2FuIGxlYWQKPj4gPnRvIHRoZSBmb2xsb3dpbmcgcGFuaWM6Cj4+ID4KPj4g
+PiAgQlVHOiB1bmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVuY2Ug
+YXQgMDAwMDAwMDAwMDAwMDAxOAo+PiA+ICBQR0QgNDU0N2E0MDY3IFA0RCA0NTQ3YTQwNjcgUFVE
+IDAKPj4gPiAgT29wczogMDAwMiBbIzFdIFNNUCBOT1BUSQo+PiA+ICBDUFU6IDYyIFBJRDogMCBD
+b21tOiBzd2FwcGVyLzYyIEtkdW1wOiBsb2FkZWQgTm90IHRhaW50ZWQgNC4xOS45MC0yNC40LnYy
+MTAxLmt5MTAueDg2XzY0ICMxCj4+ID4gIEhhcmR3YXJlIG5hbWU6IFN0b3JhZ2UgU2VydmVyLzY1
+TjMyLVVTLCBCSU9TIFNRTDEwNDEyMTcgMDUvMzAvMjAyMgo+PiA+ICBSSVA6IDAwMTA6X3Njc2lo
+X3NldF9zYXRsX3BlbmRpbmcrMHgyZC8weDUwIFttcHQzc2FzXQo+PiA+ICBDb2RlOiAwMCAwMCA0
+OCA4YiA4NyA2MCAwMSAwMCAwMCAwZiBiNiAxMCA4MCBmYSBhMSA3NCAwOSAzMSBjMCA4MCBmYSA4
+NSA3NCAwMiBmMyBjMyA0OCA4YiA0NyAzOCA0MCA4NCBmNiA0OCA4YiA4MCA5OCAwMCAwMCAwMCA3
+NSAwOCA8ZjA+IDgwIDYwIDE4IGZlIDMxIGMwIGMzIGYwIDQ4IDBmIGJhIDY4IDE4IDAwIDBmIDky
+IGMwIDBmIGI2IGMwIGMzCj4+ID4gIFJTUDogMDAxODpmZmZmOGVjMjJmYzAzZTAwIEVGTEFHUzog
+MDAwMTAwNDYKPj4gPiAgUkFYOiAwMDAwMDAwMDAwMDAwMDAwIFJCWDogZmZmZjhlYmExYjA3MjUx
+OCBSQ1g6IDAwMDAwMDAwMDAwMDAwMDEKPj4gPiAgUkRYOiAwMDAwMDAwMDAwMDAwMDg1IFJTSTog
+MDAwMDAwMDAwMDAwMDAwMCBSREk6IGZmZmY4ZWJhMWIwNzI1MTgKPj4gPiAgUkJQOiAwMDAwMDAw
+MDAwMDAwZGJkIFIwODogMDAwMDAwMDAwMDAwMDAwMCBSMDk6IDAwMDAwMDAwMDAwMjk3MDAKPj4g
+PiAgUjEwOiBmZmZmOGVjMjJmYzAzZjgwIFIxMTogMDAwMDAwMDAwMDAwMDAwMCBSMTI6IGZmZmY4
+ZWJlMmQzNjA5ZTgKPj4gPiAgUjEzOiBmZmZmOGViZTJhNzJiNjAwIFIxNDogZmZmZjhlY2E0NzI3
+MDdlMCBSMTU6IDAwMDAwMDAwMDAwMDAwMjAKPj4gPiAgRlM6ICAwMDAwMDAwMDAwMDAwMDAwKDAw
+MDApIEdTOmZmZmY4ZWMyMmZjMDAwMDAoMDAwMCkga25sR1M6MDAwMDAwMDAwMDAwMDAwMAo+PiA+
+ICBDUzogIDAwMTAgRFM6IDAwMDAgRVM6IDAwMDAgQ1IwOiAwMDAwMDAwMDgwMDUwMDMzCj4+ID4g
+IENSMjogMDAwMDAwMDAwMDAwMDAxOCBDUjM6IDAwMDAwMDA0NmU1ZjYwMDAgQ1I0OiAwMDAwMDAw
+MDAwMzQwNmUwCj4+ID4gIENhbGwgVHJhY2U6Cj4+ID4gICA8SVJRPgo+PiA+ICAgX3Njc2loX2lv
+X2RvbmUrMHg0YS8weDlmMCBbbXB0M3Nhc10KPj4gPiAgIF9iYXNlX2ludGVycnVwdCsweDIzZi8w
+eGUxMCBbbXB0M3Nhc10KPj4gPiAgIF9faGFuZGxlX2lycV9ldmVudF9wZXJjcHUrMHg0MC8weDE5
+MAo+PiA+ICAgaGFuZGxlX2lycV9ldmVudF9wZXJjcHUrMHgzMC8weDcwCj4+ID4gICBoYW5kbGVf
+aXJxX2V2ZW50KzB4MzYvMHg2MAo+PiA+ICAgaGFuZGxlX2VkZ2VfaXJxKzB4N2UvMHgxOTAKPj4g
+PiAgIGhhbmRsZV9pcnErMHhhOC8weDExMAo+PiA+ICAgZG9fSVJRKzB4NDkvMHhlMAo+PiA+Cj4+
+ID5GaXggaXQgYnkgbW92ZSBzY21kLT5kZXZpY2UtPmhvc3RkYXRhIGNoZWNrIGJlZm9yZSBfc2Nz
+aWhfc2V0X3NhdGxfcGVuZGluZwo+PiA+Y2FsbGVkLgo+PiA+Cj4+ID5PdGhlciBjaGFuZ2VzOgo+
+PiA+LSBJdCBsb29rcyBjbGVhciB0byBtb3ZlIGdldCBtcGlfcmVwbHkgdG8gbmVhciBpdHMgY2hl
+Y2suCj4+ID4KPj4gPkZpeGVzOiBmZmI1ODQ1NjU4OTQgKCJzY3NpOiBtcHQzc2FzOiBmaXggaGFu
+ZyBvbiBhdGEgcGFzc3Rocm91Z2ggY29tbWFuZHMiKQo+PiA+Q2M6IDxzdGFibGVAdmdlci5rZXJu
+ZWwub3JnPiAjIHY0LjkrCj4+ID5Dby1kZXZlbG9wZWQtYnk6IEphY2tpZSBMaXUgPGxpdXl1bjAx
+QGt5bGlub3MuY24+Cj4+ID5TaWduZWQtb2ZmLWJ5OiBKYWNraWUgTGl1IDxsaXV5dW4wMUBreWxp
+bm9zLmNuPgo+PiA+U2lnbmVkLW9mZi1ieTogaHVoYWkgPGh1aGFpQGt5bGlub3MuY24+Cj4+ID4t
+LS0KPj4gPiBkcml2ZXJzL3Njc2kvbXB0M3Nhcy9tcHQzc2FzX3Njc2loLmMgfCAxNSArKysrKysr
+LS0tLS0tLS0KPj4gPiAxIGZpbGUgY2hhbmdlZCwgNyBpbnNlcnRpb25zKCspLCA4IGRlbGV0aW9u
+cygtKQo+PiA+Cj4+ID5kaWZmIC0tZ2l0IGEvZHJpdmVycy9zY3NpL21wdDNzYXMvbXB0M3Nhc19z
+Y3NpaC5jIGIvZHJpdmVycy9zY3NpL21wdDNzYXMvbXB0M3Nhc19zY3NpaC5jCj4+ID5pbmRleCBk
+ZWYzN2E3ZTU5ODAuLjg1ZjU3NDlhMDQyMSAxMDA2NDQKPj4gPi0tLSBhL2RyaXZlcnMvc2NzaS9t
+cHQzc2FzL21wdDNzYXNfc2NzaWguYwo+PiA+KysrIGIvZHJpdmVycy9zY3NpL21wdDNzYXMvbXB0
+M3Nhc19zY3NpaC5jCj4+ID5AQCAtNTcwNCwyNyArNTcwNCwyNiBAQCBfc2NzaWhfaW9fZG9uZShz
+dHJ1Y3QgTVBUM1NBU19BREFQVEVSICppb2MsIHUxNiBzbWlkLCB1OCBtc2l4X2luZGV4LCB1MzIg
+cmVwbHkpCj4+ID4gICAgICAgc3RydWN0IE1QVDNTQVNfREVWSUNFICpzYXNfZGV2aWNlX3ByaXZf
+ZGF0YTsKPj4gPiAgICAgICB1MzIgcmVzcG9uc2VfY29kZSA9IDA7Cj4+ID4KPj4gPi0gICAgICBt
+cGlfcmVwbHkgPSBtcHQzc2FzX2Jhc2VfZ2V0X3JlcGx5X3ZpcnRfYWRkcihpb2MsIHJlcGx5KTsK
+Pj4gPi0KPj4gPiAgICAgICBzY21kID0gbXB0M3Nhc19zY3NpaF9zY3NpX2xvb2t1cF9nZXQoaW9j
+LCBzbWlkKTsKPj4gPiAgICAgICBpZiAoc2NtZCA9PSBOVUxMKQo+PiA+ICAgICAgICAgICAgICAg
+cmV0dXJuIDE7Cj4+ID4KPj4gPisgICAgICBzYXNfZGV2aWNlX3ByaXZfZGF0YSA9IHNjbWQtPmRl
+dmljZS0+aG9zdGRhdGE7Cj4+ID4rICAgICAgaWYgKCFzYXNfZGV2aWNlX3ByaXZfZGF0YSB8fCAh
+c2FzX2RldmljZV9wcml2X2RhdGEtPnNhc190YXJnZXQgfHwKPj4gPisgICAgICAgICAgIHNhc19k
+ZXZpY2VfcHJpdl9kYXRhLT5zYXNfdGFyZ2V0LT5kZWxldGVkKSB7Cj4+ID4rICAgICAgICAgICAg
+ICBzY21kLT5yZXN1bHQgPSBESURfTk9fQ09OTkVDVCA8PCAxNjsKPj4gPisgICAgICAgICAgICAg
+IGdvdG8gb3V0Owo+PiA+KyAgICAgIH0KPj4gPiAgICAgICBfc2NzaWhfc2V0X3NhdGxfcGVuZGlu
+ZyhzY21kLCBmYWxzZSk7Cj4+ID4KPj4gPiAgICAgICBtcGlfcmVxdWVzdCA9IG1wdDNzYXNfYmFz
+ZV9nZXRfbXNnX2ZyYW1lKGlvYywgc21pZCk7Cj4+ID4KPj4gPisgICAgICBtcGlfcmVwbHkgPSBt
+cHQzc2FzX2Jhc2VfZ2V0X3JlcGx5X3ZpcnRfYWRkcihpb2MsIHJlcGx5KTsKPj4gPiAgICAgICBp
+ZiAobXBpX3JlcGx5ID09IE5VTEwpIHsKPj4gPiAgICAgICAgICAgICAgIHNjbWQtPnJlc3VsdCA9
+IERJRF9PSyA8PCAxNjsKPj4gPiAgICAgICAgICAgICAgIGdvdG8gb3V0Owo+PiA+ICAgICAgIH0K
+Pj4gPgo+PiA+LSAgICAgIHNhc19kZXZpY2VfcHJpdl9kYXRhID0gc2NtZC0+ZGV2aWNlLT5ob3N0
+ZGF0YTsKPj4gPi0gICAgICBpZiAoIXNhc19kZXZpY2VfcHJpdl9kYXRhIHx8ICFzYXNfZGV2aWNl
+X3ByaXZfZGF0YS0+c2FzX3RhcmdldCB8fAo+PiA+LSAgICAgICAgICAgc2FzX2RldmljZV9wcml2
+X2RhdGEtPnNhc190YXJnZXQtPmRlbGV0ZWQpIHsKPj4gPi0gICAgICAgICAgICAgIHNjbWQtPnJl
+c3VsdCA9IERJRF9OT19DT05ORUNUIDw8IDE2Owo+PiA+LSAgICAgICAgICAgICAgZ290byBvdXQ7
+Cj4+ID4tICAgICAgfQo+PiA+ICAgICAgIGlvY19zdGF0dXMgPSBsZTE2X3RvX2NwdShtcGlfcmVw
+bHktPklPQ1N0YXR1cyk7Cj4+ID4KPj4gPiAgICAgICAvKgo+PiA+LS0KPj4gPjIuMjcuMAo+PiA+
+Cj4+ID4KPj4gPk5vIHZpcnVzIGZvdW5kCj4+ID4gICAgICAgICAgICAgICBDaGVja2VkIGJ5IEhp
+bGxzdG9uZSBOZXR3b3JrIEFudGlWaXJ1cwo+Cj4tLSAKPlRoaXMgZWxlY3Ryb25pYyBjb21tdW5p
+Y2F0aW9uIGFuZCB0aGUgaW5mb3JtYXRpb24gYW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCAKPndp
+dGggaXQsIG9yIGF0dGFjaGVkIHRvIGl0LCBhcmUgY29uZmlkZW50aWFsIGFuZCBhcmUgaW50ZW5k
+ZWQgc29sZWx5IGZvciAKPnRoZSB1c2Ugb2YgdGhlIGluZGl2aWR1YWwgb3IgZW50aXR5IHRvIHdo
+b20gaXQgaXMgYWRkcmVzc2VkIGFuZCBtYXkgY29udGFpbiAKPmluZm9ybWF0aW9uIHRoYXQgaXMg
+Y29uZmlkZW50aWFsLCBsZWdhbGx5IHByaXZpbGVnZWQsIHByb3RlY3RlZCBieSBwcml2YWN5IAo+
+bGF3cywgb3Igb3RoZXJ3aXNlIHJlc3RyaWN0ZWQgZnJvbSBkaXNjbG9zdXJlIHRvIGFueW9uZSBl
+bHNlLiBJZiB5b3UgYXJlIAo+bm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQgb3IgdGhlIHBlcnNv
+biByZXNwb25zaWJsZSBmb3IgZGVsaXZlcmluZyB0aGUgCj5lLW1haWwgdG8gdGhlIGludGVuZGVk
+IHJlY2lwaWVudCwgeW91IGFyZSBoZXJlYnkgbm90aWZpZWQgdGhhdCBhbnkgdXNlLCAKPmNvcHlp
+bmcsIGRpc3RyaWJ1dGluZywgZGlzc2VtaW5hdGlvbiwgZm9yd2FyZGluZywgcHJpbnRpbmcsIG9y
+IGNvcHlpbmcgb2YgCj50aGlzIGUtbWFpbCBpcyBzdHJpY3RseSBwcm9oaWJpdGVkLiBJZiB5b3Ug
+cmVjZWl2ZWQgdGhpcyBlLW1haWwgaW4gZXJyb3IsIAo+cGxlYXNlIHJldHVybiB0aGUgZS1tYWls
+IHRvIHRoZSBzZW5kZXIsIGRlbGV0ZSBpdCBmcm9tIHlvdXIgY29tcHV0ZXIsIGFuZCAKPmRlc3Ry
+b3kgYW55IHByaW50ZWQgY29weSBvZiBpdC4K
