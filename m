@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 031BF5AAFD6
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D7E5AAF2A
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:34:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237411AbiIBMok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:44:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44796 "EHLO
+        id S236788AbiIBMeR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:34:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237453AbiIBMnl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B74FFEC4E9;
-        Fri,  2 Sep 2022 05:32:28 -0700 (PDT)
+        with ESMTP id S236920AbiIBMdn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:33:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9DD3E341D;
+        Fri,  2 Sep 2022 05:28:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B729EB82A94;
-        Fri,  2 Sep 2022 12:32:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C31FC433D7;
-        Fri,  2 Sep 2022 12:32:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E63F6212F;
+        Fri,  2 Sep 2022 12:25:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 392F2C433D7;
+        Fri,  2 Sep 2022 12:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121937;
-        bh=JnS4R41g1EDQM5cJKDxo7Wnpup4SqjxxJmoRcYUjADc=;
+        s=korg; t=1662121533;
+        bh=8Lz+pmGCiHcrZq+DOgArrV7Lud6twmDPeiu7WWmVb6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KTJpCgtZsm/Dyk5xS+N5AiSPy2mZtSrUXJMbP66SE3MZebvrtRecHF3MtRFbT0sbE
-         bBqdZsAx3q4ldR8YE6OeoYsBz1BHqyLo7heGoEc6SaEl5y5C80k4v6Jekvo0+azYog
-         8qYw+XxzEswjStW7lLsOIoYVeYjwBXzyIDhOonNM=
+        b=ktJIQ7q8skg4t3zDNEt5R6SIWpU/X37wDC3AdFLf3+AMZlwSf5FL3HveOP0YGSVTP
+         J3fUlCkn0bhSxSSSlXjJOFrtXp2bURrEsSemSipXLFexYzesHcZJzwNahhyqwhPw4y
+         GESZbfe09gjz0uZiaOWIGwBinbFAxhKT2S0Jy53U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 35/73] mm/rmap: Fix anon_vma->degree ambiguity leading to double-reuse
+        Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 39/56] bpf: Fix the off-by-two error in range markings
 Date:   Fri,  2 Sep 2022 14:18:59 +0200
-Message-Id: <20220902121405.599778788@linuxfoundation.org>
+Message-Id: <20220902121401.690194719@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,167 +54,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-commit 2555283eb40df89945557273121e9393ef9b542b upstream.
+commit 2fa7d94afc1afbb4d702760c058dc2d7ed30f226 upstream.
 
-anon_vma->degree tracks the combined number of child anon_vmas and VMAs
-that use the anon_vma as their ->anon_vma.
+The first commit cited below attempts to fix the off-by-one error that
+appeared in some comparisons with an open range. Due to this error,
+arithmetically equivalent pieces of code could get different verdicts
+from the verifier, for example (pseudocode):
 
-anon_vma_clone() then assumes that for any anon_vma attached to
-src->anon_vma_chain other than src->anon_vma, it is impossible for it to
-be a leaf node of the VMA tree, meaning that for such VMAs ->degree is
-elevated by 1 because of a child anon_vma, meaning that if ->degree
-equals 1 there are no VMAs that use the anon_vma as their ->anon_vma.
+  // 1. Passes the verifier:
+  if (data + 8 > data_end)
+      return early
+  read *(u64 *)data, i.e. [data; data+7]
 
-This assumption is wrong because the ->degree optimization leads to leaf
-nodes being abandoned on anon_vma_clone() - an existing anon_vma is
-reused and no new parent-child relationship is created.  So it is
-possible to reuse an anon_vma for one VMA while it is still tied to
-another VMA.
+  // 2. Rejected by the verifier (should still pass):
+  if (data + 7 >= data_end)
+      return early
+  read *(u64 *)data, i.e. [data; data+7]
 
-This is an issue because is_mergeable_anon_vma() and its callers assume
-that if two VMAs have the same ->anon_vma, the list of anon_vmas
-attached to the VMAs is guaranteed to be the same.  When this assumption
-is violated, vma_merge() can merge pages into a VMA that is not attached
-to the corresponding anon_vma, leading to dangling page->mapping
-pointers that will be dereferenced during rmap walks.
+The attempted fix, however, shifts the range by one in a wrong
+direction, so the bug not only remains, but also such piece of code
+starts failing in the verifier:
 
-Fix it by separately tracking the number of child anon_vmas and the
-number of VMAs using the anon_vma as their ->anon_vma.
+  // 3. Rejected by the verifier, but the check is stricter than in #1.
+  if (data + 8 >= data_end)
+      return early
+  read *(u64 *)data, i.e. [data; data+7]
 
-Fixes: 7a3ef208e662 ("mm: prevent endless growth of anon_vma hierarchy")
-Cc: stable@kernel.org
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The change performed by that fix converted an off-by-one bug into
+off-by-two. The second commit cited below added the BPF selftests
+written to ensure than code chunks like #3 are rejected, however,
+they should be accepted.
+
+This commit fixes the off-by-two error by adjusting new_range in the
+right direction and fixes the tests by changing the range into the
+one that should actually fail.
+
+Fixes: fb2a311a31d3 ("bpf: fix off by one for range markings with L{T, E} patterns")
+Fixes: b37242c773b2 ("bpf: add test cases to bpf selftests to cover all access tests")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20211130181607.593149-1-maximmi@nvidia.com
+[OP: cherry-pick selftest changes only]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/rmap.h |    7 +++++--
- mm/rmap.c            |   29 ++++++++++++++++-------------
- 2 files changed, 21 insertions(+), 15 deletions(-)
+ tools/testing/selftests/bpf/test_verifier.c |   32 ++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
---- a/include/linux/rmap.h
-+++ b/include/linux/rmap.h
-@@ -39,12 +39,15 @@ struct anon_vma {
- 	atomic_t refcount;
- 
- 	/*
--	 * Count of child anon_vmas and VMAs which points to this anon_vma.
-+	 * Count of child anon_vmas. Equals to the count of all anon_vmas that
-+	 * have ->parent pointing to this one, including itself.
- 	 *
- 	 * This counter is used for making decision about reusing anon_vma
- 	 * instead of forking new one. See comments in function anon_vma_clone.
- 	 */
--	unsigned degree;
-+	unsigned long num_children;
-+	/* Count of VMAs whose ->anon_vma pointer points to this object. */
-+	unsigned long num_active_vmas;
- 
- 	struct anon_vma *parent;	/* Parent of this anon_vma */
- 
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -90,7 +90,8 @@ static inline struct anon_vma *anon_vma_
- 	anon_vma = kmem_cache_alloc(anon_vma_cachep, GFP_KERNEL);
- 	if (anon_vma) {
- 		atomic_set(&anon_vma->refcount, 1);
--		anon_vma->degree = 1;	/* Reference for first vma */
-+		anon_vma->num_children = 0;
-+		anon_vma->num_active_vmas = 0;
- 		anon_vma->parent = anon_vma;
- 		/*
- 		 * Initialise the anon_vma root to point to itself. If called
-@@ -198,6 +199,7 @@ int __anon_vma_prepare(struct vm_area_st
- 		anon_vma = anon_vma_alloc();
- 		if (unlikely(!anon_vma))
- 			goto out_enomem_free_avc;
-+		anon_vma->num_children++; /* self-parent link for new root */
- 		allocated = anon_vma;
- 	}
- 
-@@ -207,8 +209,7 @@ int __anon_vma_prepare(struct vm_area_st
- 	if (likely(!vma->anon_vma)) {
- 		vma->anon_vma = anon_vma;
- 		anon_vma_chain_link(vma, avc, anon_vma);
--		/* vma reference or self-parent link for new root */
--		anon_vma->degree++;
-+		anon_vma->num_active_vmas++;
- 		allocated = NULL;
- 		avc = NULL;
- 	}
-@@ -293,19 +294,19 @@ int anon_vma_clone(struct vm_area_struct
- 		anon_vma_chain_link(dst, avc, anon_vma);
- 
- 		/*
--		 * Reuse existing anon_vma if its degree lower than two,
--		 * that means it has no vma and only one anon_vma child.
-+		 * Reuse existing anon_vma if it has no vma and only one
-+		 * anon_vma child.
- 		 *
--		 * Do not chose parent anon_vma, otherwise first child
--		 * will always reuse it. Root anon_vma is never reused:
-+		 * Root anon_vma is never reused:
- 		 * it has self-parent reference and at least one child.
- 		 */
- 		if (!dst->anon_vma && src->anon_vma &&
--		    anon_vma != src->anon_vma && anon_vma->degree < 2)
-+		    anon_vma->num_children < 2 &&
-+		    anon_vma->num_active_vmas == 0)
- 			dst->anon_vma = anon_vma;
- 	}
- 	if (dst->anon_vma)
--		dst->anon_vma->degree++;
-+		dst->anon_vma->num_active_vmas++;
- 	unlock_anon_vma_root(root);
- 	return 0;
- 
-@@ -355,6 +356,7 @@ int anon_vma_fork(struct vm_area_struct
- 	anon_vma = anon_vma_alloc();
- 	if (!anon_vma)
- 		goto out_error;
-+	anon_vma->num_active_vmas++;
- 	avc = anon_vma_chain_alloc(GFP_KERNEL);
- 	if (!avc)
- 		goto out_error_free_anon_vma;
-@@ -375,7 +377,7 @@ int anon_vma_fork(struct vm_area_struct
- 	vma->anon_vma = anon_vma;
- 	anon_vma_lock_write(anon_vma);
- 	anon_vma_chain_link(vma, avc, anon_vma);
--	anon_vma->parent->degree++;
-+	anon_vma->parent->num_children++;
- 	anon_vma_unlock_write(anon_vma);
- 
- 	return 0;
-@@ -407,7 +409,7 @@ void unlink_anon_vmas(struct vm_area_str
- 		 * to free them outside the lock.
- 		 */
- 		if (RB_EMPTY_ROOT(&anon_vma->rb_root.rb_root)) {
--			anon_vma->parent->degree--;
-+			anon_vma->parent->num_children--;
- 			continue;
- 		}
- 
-@@ -415,7 +417,7 @@ void unlink_anon_vmas(struct vm_area_str
- 		anon_vma_chain_free(avc);
- 	}
- 	if (vma->anon_vma) {
--		vma->anon_vma->degree--;
-+		vma->anon_vma->num_active_vmas--;
- 
- 		/*
- 		 * vma would still be needed after unlink, and anon_vma will be prepared
-@@ -433,7 +435,8 @@ void unlink_anon_vmas(struct vm_area_str
- 	list_for_each_entry_safe(avc, next, &vma->anon_vma_chain, same_vma) {
- 		struct anon_vma *anon_vma = avc->anon_vma;
- 
--		VM_WARN_ON(anon_vma->degree);
-+		VM_WARN_ON(anon_vma->num_children);
-+		VM_WARN_ON(anon_vma->num_active_vmas);
- 		put_anon_vma(anon_vma);
- 
- 		list_del(&avc->same_vma);
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -9108,10 +9108,10 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data_end)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JGT, BPF_REG_3, BPF_REG_1, 1),
+ 			BPF_JMP_IMM(BPF_JA, 0, 0, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
+ 		},
+@@ -9166,10 +9166,10 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data_end)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JLT, BPF_REG_1, BPF_REG_3, 1),
+ 			BPF_JMP_IMM(BPF_JA, 0, 0, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
+ 		},
+@@ -9279,9 +9279,9 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data_end)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JGE, BPF_REG_1, BPF_REG_3, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
+ 		},
+@@ -9451,9 +9451,9 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data_end)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JLE, BPF_REG_3, BPF_REG_1, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
+ 		},
+@@ -9564,10 +9564,10 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JGT, BPF_REG_3, BPF_REG_1, 1),
+ 			BPF_JMP_IMM(BPF_JA, 0, 0, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
+ 		},
+@@ -9622,10 +9622,10 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JLT, BPF_REG_1, BPF_REG_3, 1),
+ 			BPF_JMP_IMM(BPF_JA, 0, 0, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
+ 		},
+@@ -9735,9 +9735,9 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JGE, BPF_REG_1, BPF_REG_3, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
+ 		},
+@@ -9907,9 +9907,9 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JLE, BPF_REG_3, BPF_REG_1, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
+ 		},
 
 
