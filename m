@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E9335AAF71
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B475AAFCD
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237105AbiIBMiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:38:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40236 "EHLO
+        id S237371AbiIBMof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:44:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237084AbiIBMhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:37:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2050A10FF;
-        Fri,  2 Sep 2022 05:29:48 -0700 (PDT)
+        with ESMTP id S237410AbiIBMnf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DC4E9257;
+        Fri,  2 Sep 2022 05:32:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D9076211C;
-        Fri,  2 Sep 2022 12:23:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76E96C433D7;
-        Fri,  2 Sep 2022 12:23:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AE87B82A9B;
+        Fri,  2 Sep 2022 12:32:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55ACDC4314B;
+        Fri,  2 Sep 2022 12:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121402;
-        bh=c38qPjBlwIU12u9Uk9yjYbiD99ZrXmEcOmC9gitduTY=;
+        s=korg; t=1662121924;
+        bh=CIU+DSpGaqtV1Ayuy5qvMGgr20i13hzoq4HyAWpOpEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqttkCobkVthfNQpMlcz/MgOtRr3YoPpZVHIsbyHxM29Q45QXdxtrIb5TU1iJdcbE
-         mICdr+t5XhsHvOMBUj4oaif9YxwFROyX/hPTY68BSQ6DtE38oQNrOhsBOdnDzzOn06
-         G0I6t/63niYKsJ3pVOd7BuUWCKA387TVk91KscNA=
+        b=GPdBj4wnxZpQBeV0351CcKSAT5oOsux9Png2Rr9zbxd2vJQbpZzppCbNEakcODK3A
+         5wQJzjqWPJwBX401rqKf8F3B8VUYUpZWGDvWuBquGD2DYk/GA6bBgyT8HDbyrNQJLt
+         xS468v1wRl6kLAjZKHnvJW/dMAd5oXfq4fKDWUus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
-        Sainath Grandhi <sainath.grandhi@intel.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/42] net: ipvtap - add __init/__exit annotations to module init/exit funcs
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>
+Subject: [PATCH 5.15 08/73] Drivers: hv: balloon: Support status report for larger page sizes
 Date:   Fri,  2 Sep 2022 14:18:32 +0200
-Message-Id: <20220902121359.087699818@linuxfoundation.org>
+Message-Id: <20220902121404.716677682@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit 4b2e3a17e9f279325712b79fb01d1493f9e3e005 ]
+commit b3d6dd09ff00fdcf4f7c0cb54700ffd5dd343502 upstream.
 
-Looks to have been left out in an oversight.
+DM_STATUS_REPORT expects the numbers of pages in the unit of 4k pages
+(HV_HYP_PAGE) instead of guest pages, so to make it work when guest page
+sizes are larger than 4k, convert the numbers of guest pages into the
+numbers of HV_HYP_PAGEs.
 
-Cc: Mahesh Bandewar <maheshb@google.com>
-Cc: Sainath Grandhi <sainath.grandhi@intel.com>
-Fixes: 235a9d89da97 ('ipvtap: IP-VLAN based tap driver')
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20220821130808.12143-1-zenczykowski@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that the numbers of guest pages are still used for tracing because
+tracing is internal to the guest kernel.
+
+Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20220325023212.1570049-2-boqun.feng@gmail.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipvlan/ipvtap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hv/hv_balloon.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ipvlan/ipvtap.c b/drivers/net/ipvlan/ipvtap.c
-index 0bcc07f346c3e..2e517e30c5ac1 100644
---- a/drivers/net/ipvlan/ipvtap.c
-+++ b/drivers/net/ipvlan/ipvtap.c
-@@ -193,7 +193,7 @@ static struct notifier_block ipvtap_notifier_block __read_mostly = {
- 	.notifier_call	= ipvtap_device_event,
- };
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -17,6 +17,7 @@
+ #include <linux/slab.h>
+ #include <linux/kthread.h>
+ #include <linux/completion.h>
++#include <linux/count_zeros.h>
+ #include <linux/memory_hotplug.h>
+ #include <linux/memory.h>
+ #include <linux/notifier.h>
+@@ -1130,6 +1131,7 @@ static void post_status(struct hv_dynmem
+ 	struct dm_status status;
+ 	unsigned long now = jiffies;
+ 	unsigned long last_post = last_post_time;
++	unsigned long num_pages_avail, num_pages_committed;
  
--static int ipvtap_init(void)
-+static int __init ipvtap_init(void)
- {
- 	int err;
+ 	if (pressure_report_delay > 0) {
+ 		--pressure_report_delay;
+@@ -1154,16 +1156,21 @@ static void post_status(struct hv_dynmem
+ 	 * num_pages_onlined) as committed to the host, otherwise it can try
+ 	 * asking us to balloon them out.
+ 	 */
+-	status.num_avail = si_mem_available();
+-	status.num_committed = vm_memory_committed() +
++	num_pages_avail = si_mem_available();
++	num_pages_committed = vm_memory_committed() +
+ 		dm->num_pages_ballooned +
+ 		(dm->num_pages_added > dm->num_pages_onlined ?
+ 		 dm->num_pages_added - dm->num_pages_onlined : 0) +
+ 		compute_balloon_floor();
  
-@@ -227,7 +227,7 @@ static int ipvtap_init(void)
- }
- module_init(ipvtap_init);
- 
--static void ipvtap_exit(void)
-+static void __exit ipvtap_exit(void)
- {
- 	rtnl_link_unregister(&ipvtap_link_ops);
- 	unregister_netdevice_notifier(&ipvtap_notifier_block);
--- 
-2.35.1
-
+-	trace_balloon_status(status.num_avail, status.num_committed,
++	trace_balloon_status(num_pages_avail, num_pages_committed,
+ 			     vm_memory_committed(), dm->num_pages_ballooned,
+ 			     dm->num_pages_added, dm->num_pages_onlined);
++
++	/* Convert numbers of pages into numbers of HV_HYP_PAGEs. */
++	status.num_avail = num_pages_avail * NR_HV_HYP_PAGES_IN_PAGE;
++	status.num_committed = num_pages_committed * NR_HV_HYP_PAGES_IN_PAGE;
++
+ 	/*
+ 	 * If our transaction ID is no longer current, just don't
+ 	 * send the status. This can happen if we were interrupted
 
 
