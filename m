@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67AF15AB0CD
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E24DB5AAFD3
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238143AbiIBM7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:59:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50346 "EHLO
+        id S237439AbiIBMov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238098AbiIBM63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:58:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF24447B80;
-        Fri,  2 Sep 2022 05:39:36 -0700 (PDT)
+        with ESMTP id S237534AbiIBMoA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:44:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1363E1AB7;
+        Fri,  2 Sep 2022 05:32:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B22F62192;
-        Fri,  2 Sep 2022 12:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37965C433D7;
-        Fri,  2 Sep 2022 12:30:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6194DB829E8;
+        Fri,  2 Sep 2022 12:32:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98DFBC433D7;
+        Fri,  2 Sep 2022 12:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121829;
-        bh=4xJJOHqLzP7spsbVN3XdLsPg6PaX12EVx7PC1XKrqDs=;
+        s=korg; t=1662121962;
+        bh=57v22oWKlBJNCWurriBwjO5ps+GiYL40nKe2KYU6GkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVxiYBWM8EJJQ2rCJ5GtNIfvE9yMUsEJG/JiwZQsGez8cvdFatFqj6dxs0fbsh+d9
-         1MXS2ZMqk365EgjcojosOyFnxw0XmqOLSxnjBBpSpqiuj0DP8ncSY609sGzniwDbzL
-         rCgSC+8P+WkPbhnO4AIdSocdG8Qyr8d4MK5QgBcA=
+        b=wSlY5kIvIoAt5yZpFsPIZnWkj4v8shheciT/Ta+XHmG06o+YEt79l+UpbXMiAAPbU
+         IEg71KECvnxib4aH2wJF9GbM7IQQHGteQTJ+hQ6CYIWTcbA/AqhV8oU2Bm06ZQDw7/
+         ZYw6FV0ZrXvglmizVCGREcgHTGbyQQKRxA0c4V6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Letu Ren <fantasquex@gmail.com>, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 58/77] fbdev: fb_pm2fb: Avoid potential divide by zero error
+        stable@vger.kernel.org, Yifeng Zhao <yifeng.zhao@rock-chips.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 43/73] mmc: sdhci-of-dwcmshc: add reset call back for rockchip Socs
 Date:   Fri,  2 Sep 2022 14:19:07 +0200
-Message-Id: <20220902121405.610362813@linuxfoundation.org>
+Message-Id: <20220902121405.860443029@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +56,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Yifeng Zhao <yifeng.zhao@rock-chips.com>
 
-commit 19f953e7435644b81332dd632ba1b2d80b1e37af upstream.
+[ Upstream commit 70f832206fe72e9998b46363e8e59e89b0b757bc ]
 
-In `do_fb_ioctl()` of fbmem.c, if cmd is FBIOPUT_VSCREENINFO, var will be
-copied from user, then go through `fb_set_var()` and
-`info->fbops->fb_check_var()` which could may be `pm2fb_check_var()`.
-Along the path, `var->pixclock` won't be modified. This function checks
-whether reciprocal of `var->pixclock` is too high. If `var->pixclock` is
-zero, there will be a divide by zero error. So, it is necessary to check
-whether denominator is zero to avoid crash. As this bug is found by
-Syzkaller, logs are listed below.
+The reset function build in the SDHCI will not reset the logic
+circuit related to the tuning function, which may cause data
+reading errors. Resetting the complete SDHCI controller through
+the reset controller fixes the issue.
 
-divide error in pm2fb_check_var
-Call Trace:
- <TASK>
- fb_set_var+0x367/0xeb0 drivers/video/fbdev/core/fbmem.c:1015
- do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
- fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yifeng Zhao <yifeng.zhao@rock-chips.com>
+[rebase, use optional variant of reset getter]
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Link: https://lore.kernel.org/r/20220504213251.264819-10-sebastian.reichel@collabora.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pm2fb.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mmc/host/sdhci-of-dwcmshc.c | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/pm2fb.c
-+++ b/drivers/video/fbdev/pm2fb.c
-@@ -616,6 +616,11 @@ static int pm2fb_check_var(struct fb_var
- 		return -EINVAL;
- 	}
+diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
+index bac874ab0b33a..3a1b5ba364051 100644
+--- a/drivers/mmc/host/sdhci-of-dwcmshc.c
++++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
+@@ -15,6 +15,7 @@
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#include <linux/reset.h>
+ #include <linux/sizes.h>
  
-+	if (!var->pixclock) {
-+		DPRINTK("pixclock is zero\n");
-+		return -EINVAL;
+ #include "sdhci-pltfm.h"
+@@ -63,6 +64,7 @@
+ struct rk3568_priv {
+ 	/* Rockchip specified optional clocks */
+ 	struct clk_bulk_data rockchip_clks[RK3568_MAX_CLKS];
++	struct reset_control *reset;
+ 	u8 txclk_tapnum;
+ };
+ 
+@@ -255,6 +257,21 @@ static void dwcmshc_rk3568_set_clock(struct sdhci_host *host, unsigned int clock
+ 	sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_STRBIN);
+ }
+ 
++static void rk35xx_sdhci_reset(struct sdhci_host *host, u8 mask)
++{
++	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
++	struct dwcmshc_priv *dwc_priv = sdhci_pltfm_priv(pltfm_host);
++	struct rk35xx_priv *priv = dwc_priv->priv;
++
++	if (mask & SDHCI_RESET_ALL && priv->reset) {
++		reset_control_assert(priv->reset);
++		udelay(1);
++		reset_control_deassert(priv->reset);
 +	}
 +
- 	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
- 		DPRINTK("pixclock too high (%ldKHz)\n",
- 			PICOS2KHZ(var->pixclock));
++	sdhci_reset(host, mask);
++}
++
+ static const struct sdhci_ops sdhci_dwcmshc_ops = {
+ 	.set_clock		= sdhci_set_clock,
+ 	.set_bus_width		= sdhci_set_bus_width,
+@@ -269,7 +286,7 @@ static const struct sdhci_ops sdhci_dwcmshc_rk3568_ops = {
+ 	.set_bus_width		= sdhci_set_bus_width,
+ 	.set_uhs_signaling	= dwcmshc_set_uhs_signaling,
+ 	.get_max_clock		= sdhci_pltfm_clk_get_max_clock,
+-	.reset			= sdhci_reset,
++	.reset			= rk35xx_sdhci_reset,
+ 	.adma_write_desc	= dwcmshc_adma_write_desc,
+ };
+ 
+@@ -292,6 +309,13 @@ static int dwcmshc_rk3568_init(struct sdhci_host *host, struct dwcmshc_priv *dwc
+ 	int err;
+ 	struct rk3568_priv *priv = dwc_priv->priv;
+ 
++	priv->reset = devm_reset_control_array_get_optional_exclusive(mmc_dev(host->mmc));
++	if (IS_ERR(priv->reset)) {
++		err = PTR_ERR(priv->reset);
++		dev_err(mmc_dev(host->mmc), "failed to get reset control %d\n", err);
++		return err;
++	}
++
+ 	priv->rockchip_clks[0].id = "axi";
+ 	priv->rockchip_clks[1].id = "block";
+ 	priv->rockchip_clks[2].id = "timer";
+-- 
+2.35.1
+
 
 
