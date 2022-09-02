@@ -2,45 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89EB55AB1B1
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6C385AB01C
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:49:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237454AbiIBNi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:38:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57532 "EHLO
+        id S237517AbiIBMtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:49:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236255AbiIBNh4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:37:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D8F124872;
-        Fri,  2 Sep 2022 06:16:27 -0700 (PDT)
+        with ESMTP id S237791AbiIBMsx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:48:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26532D5735;
+        Fri,  2 Sep 2022 05:35:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC034621EC;
-        Fri,  2 Sep 2022 12:36:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BECE6C433C1;
-        Fri,  2 Sep 2022 12:36:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ACB7621D8;
+        Fri,  2 Sep 2022 12:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E65CC433D6;
+        Fri,  2 Sep 2022 12:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122201;
-        bh=qPtMQN6i7xa1IWnEibQFMTsGeomTP4hM3LBvwPWuPms=;
+        s=korg; t=1662122011;
+        bh=RAQlFA1OIGDbziGH6iSCHQIyr2VXKo3315hzhKZgPwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2jlOZHXz8AA371DAKf5q5T4a/s6WJ7G+oS9VoXACN3U6+Pfzbk+9OMFUMxFzjHym
-         2S+lxB9b31Z2gJ+VHaFhsLjVzr+2qHlZm/xYe0bHlO2203ViRIy5NBhB3+YvxRsI/z
-         B1a2zeON6/2oYpq82p23u/9oApXbyIhzPQNA92ns=
+        b=sK8nhtpw1DZU+QXbGbNsKUFPQ3jRHnyIphChQ7KYP/dHxVdYCA78S3oY07isTle8y
+         EPZidTtkXpuuHNLyPIKGfjUXq3Ak7mKJKLYNOVvFmwvRhjWD/axQYdQxgHw6X02dsd
+         c41QYZCnIrKzoju2hycsO3Uh6azYktKnWKxCm0P0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Xiaogang Chen <Xiaogang.Chen@amd.com>
-Subject: [PATCH 5.19 44/72] drm/amdkfd: Handle restart of kfd_ioctl_wait_events
-Date:   Fri,  2 Sep 2022 14:19:20 +0200
-Message-Id: <20220902121406.223114522@linuxfoundation.org>
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        David Ahern <dsahern@kernel.org>,
+        Yajun Deng <yajun.deng@linux.dev>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        Christian Brauner <brauner@kernel.org>, netdev@vger.kernel.org,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
+        Konstantin Khorenko <khorenko@virtuozzo.com>,
+        kernel@openvz.org, devel@openvz.org,
+        "Denis V. Lunev" <den@openvz.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 57/73] neigh: fix possible DoS due to net iface start/stop loop
+Date:   Fri,  2 Sep 2022 14:19:21 +0200
+Message-Id: <20220902121406.312414201@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,125 +65,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Denis V. Lunev <den@openvz.org>
 
-[ Upstream commit bea9a56afbc4b5a41ea579b8b0dc5e189b439504 ]
+[ Upstream commit 66ba215cb51323e4e55e38fd5f250e0fae0cbc94 ]
 
-When kfd_ioctl_wait_events needs to restart due to a signal, we need to
-update the timeout to account for the time already elapsed. We also need
-to undo auto_reset of events that have signaled already, so that the
-restarted ioctl will be able to count those signals again.
+Normal processing of ARP request (usually this is Ethernet broadcast
+packet) coming to the host is looking like the following:
+* the packet comes to arp_process() call and is passed through routing
+  procedure
+* the request is put into the queue using pneigh_enqueue() if
+  corresponding ARP record is not local (common case for container
+  records on the host)
+* the request is processed by timer (within 80 jiffies by default) and
+  ARP reply is sent from the same arp_process() using
+  NEIGH_CB(skb)->flags & LOCALLY_ENQUEUED condition (flag is set inside
+  pneigh_enqueue())
 
-This fixes infinite hangs when kfd_ioctl_wait_events is interrupted by a
-signal.
+And here the problem comes. Linux kernel calls pneigh_queue_purge()
+which destroys the whole queue of ARP requests on ANY network interface
+start/stop event through __neigh_ifdown().
 
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-and-tested-by: Xiaogang Chen <Xiaogang.Chen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This is actually not a problem within the original world as network
+interface start/stop was accessible to the host 'root' only, which
+could do more destructive things. But the world is changed and there
+are Linux containers available. Here container 'root' has an access
+to this API and could be considered as untrusted user in the hosting
+(container's) world.
+
+Thus there is an attack vector to other containers on node when
+container's root will endlessly start/stop interfaces. We have observed
+similar situation on a real production node when docker container was
+doing such activity and thus other containers on the node become not
+accessible.
+
+The patch proposed doing very simple thing. It drops only packets from
+the same namespace in the pneigh_queue_purge() where network interface
+state change is detected. This is enough to prevent the problem for the
+whole node preserving original semantics of the code.
+
+v2:
+	- do del_timer_sync() if queue is empty after pneigh_queue_purge()
+v3:
+	- rebase to net tree
+
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: David Ahern <dsahern@kernel.org>
+Cc: Yajun Deng <yajun.deng@linux.dev>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+Cc: Konstantin Khorenko <khorenko@virtuozzo.com>
+Cc: kernel@openvz.org
+Cc: devel@openvz.org
+Investigated-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_chardev.c |  2 +-
- drivers/gpu/drm/amd/amdkfd/kfd_events.c  | 24 ++++++++++++------------
- drivers/gpu/drm/amd/amdkfd/kfd_priv.h    |  2 +-
- 3 files changed, 14 insertions(+), 14 deletions(-)
+ net/core/neighbour.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-index 1c7016958d6d9..bfca17ca399c6 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-@@ -814,7 +814,7 @@ static int kfd_ioctl_wait_events(struct file *filp, struct kfd_process *p,
- 	err = kfd_wait_on_events(p, args->num_events,
- 			(void __user *)args->events_ptr,
- 			(args->wait_for_all != 0),
--			args->timeout, &args->wait_result);
-+			&args->timeout, &args->wait_result);
- 
- 	return err;
- }
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-index 4df9c36146ba9..cbc20d779e5aa 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-@@ -895,7 +895,8 @@ static long user_timeout_to_jiffies(uint32_t user_timeout_ms)
- 	return msecs_to_jiffies(user_timeout_ms) + 1;
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index ff049733cceeb..f0be42c140b91 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -279,14 +279,23 @@ static int neigh_del_timer(struct neighbour *n)
+ 	return 0;
  }
  
--static void free_waiters(uint32_t num_events, struct kfd_event_waiter *waiters)
-+static void free_waiters(uint32_t num_events, struct kfd_event_waiter *waiters,
-+			 bool undo_auto_reset)
+-static void pneigh_queue_purge(struct sk_buff_head *list)
++static void pneigh_queue_purge(struct sk_buff_head *list, struct net *net)
  {
- 	uint32_t i;
++	unsigned long flags;
+ 	struct sk_buff *skb;
  
-@@ -904,6 +905,9 @@ static void free_waiters(uint32_t num_events, struct kfd_event_waiter *waiters)
- 			spin_lock(&waiters[i].event->lock);
- 			remove_wait_queue(&waiters[i].event->wq,
- 					  &waiters[i].wait);
-+			if (undo_auto_reset && waiters[i].activated &&
-+			    waiters[i].event && waiters[i].event->auto_reset)
-+				set_event(waiters[i].event);
- 			spin_unlock(&waiters[i].event->lock);
- 		}
+-	while ((skb = skb_dequeue(list)) != NULL) {
+-		dev_put(skb->dev);
+-		kfree_skb(skb);
++	spin_lock_irqsave(&list->lock, flags);
++	skb = skb_peek(list);
++	while (skb != NULL) {
++		struct sk_buff *skb_next = skb_peek_next(skb, list);
++		if (net == NULL || net_eq(dev_net(skb->dev), net)) {
++			__skb_unlink(skb, list);
++			dev_put(skb->dev);
++			kfree_skb(skb);
++		}
++		skb = skb_next;
+ 	}
++	spin_unlock_irqrestore(&list->lock, flags);
+ }
  
-@@ -912,7 +916,7 @@ static void free_waiters(uint32_t num_events, struct kfd_event_waiter *waiters)
+ static void neigh_flush_dev(struct neigh_table *tbl, struct net_device *dev,
+@@ -357,9 +366,9 @@ static int __neigh_ifdown(struct neigh_table *tbl, struct net_device *dev,
+ 	write_lock_bh(&tbl->lock);
+ 	neigh_flush_dev(tbl, dev, skip_perm);
+ 	pneigh_ifdown_and_unlock(tbl, dev);
+-
+-	del_timer_sync(&tbl->proxy_timer);
+-	pneigh_queue_purge(&tbl->proxy_queue);
++	pneigh_queue_purge(&tbl->proxy_queue, dev_net(dev));
++	if (skb_queue_empty_lockless(&tbl->proxy_queue))
++		del_timer_sync(&tbl->proxy_timer);
+ 	return 0;
+ }
  
- int kfd_wait_on_events(struct kfd_process *p,
- 		       uint32_t num_events, void __user *data,
--		       bool all, uint32_t user_timeout_ms,
-+		       bool all, uint32_t *user_timeout_ms,
- 		       uint32_t *wait_result)
- {
- 	struct kfd_event_data __user *events =
-@@ -921,7 +925,7 @@ int kfd_wait_on_events(struct kfd_process *p,
- 	int ret = 0;
- 
- 	struct kfd_event_waiter *event_waiters = NULL;
--	long timeout = user_timeout_to_jiffies(user_timeout_ms);
-+	long timeout = user_timeout_to_jiffies(*user_timeout_ms);
- 
- 	event_waiters = alloc_event_waiters(num_events);
- 	if (!event_waiters) {
-@@ -971,15 +975,11 @@ int kfd_wait_on_events(struct kfd_process *p,
- 		}
- 
- 		if (signal_pending(current)) {
--			/*
--			 * This is wrong when a nonzero, non-infinite timeout
--			 * is specified. We need to use
--			 * ERESTARTSYS_RESTARTBLOCK, but struct restart_block
--			 * contains a union with data for each user and it's
--			 * in generic kernel code that I don't want to
--			 * touch yet.
--			 */
- 			ret = -ERESTARTSYS;
-+			if (*user_timeout_ms != KFD_EVENT_TIMEOUT_IMMEDIATE &&
-+			    *user_timeout_ms != KFD_EVENT_TIMEOUT_INFINITE)
-+				*user_timeout_ms = jiffies_to_msecs(
-+					max(0l, timeout-1));
- 			break;
- 		}
- 
-@@ -1020,7 +1020,7 @@ int kfd_wait_on_events(struct kfd_process *p,
- 					       event_waiters, events);
- 
- out_unlock:
--	free_waiters(num_events, event_waiters);
-+	free_waiters(num_events, event_waiters, ret == -ERESTARTSYS);
- 	mutex_unlock(&p->event_mutex);
- out:
- 	if (ret)
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_priv.h b/drivers/gpu/drm/amd/amdkfd/kfd_priv.h
-index 2585d6e61d422..c6eec54b8102f 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_priv.h
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_priv.h
-@@ -1314,7 +1314,7 @@ void kfd_event_free_process(struct kfd_process *p);
- int kfd_event_mmap(struct kfd_process *process, struct vm_area_struct *vma);
- int kfd_wait_on_events(struct kfd_process *p,
- 		       uint32_t num_events, void __user *data,
--		       bool all, uint32_t user_timeout_ms,
-+		       bool all, uint32_t *user_timeout_ms,
- 		       uint32_t *wait_result);
- void kfd_signal_event_interrupt(u32 pasid, uint32_t partial_id,
- 				uint32_t valid_id_bits);
+@@ -1735,7 +1744,7 @@ int neigh_table_clear(int index, struct neigh_table *tbl)
+ 	/* It is not clean... Fix it to unload IPv6 module safely */
+ 	cancel_delayed_work_sync(&tbl->gc_work);
+ 	del_timer_sync(&tbl->proxy_timer);
+-	pneigh_queue_purge(&tbl->proxy_queue);
++	pneigh_queue_purge(&tbl->proxy_queue, NULL);
+ 	neigh_ifdown(tbl, NULL);
+ 	if (atomic_read(&tbl->entries))
+ 		pr_crit("neighbour leakage\n");
 -- 
 2.35.1
 
