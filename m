@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD7F5AB0D0
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39CC25AAE3B
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:21:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238356AbiIBM7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:59:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48678 "EHLO
+        id S235136AbiIBMVR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:21:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238647AbiIBM7O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:59:14 -0400
+        with ESMTP id S235891AbiIBMVO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:21:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1682BD5DCB;
-        Fri,  2 Sep 2022 05:40:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A1D1C918;
+        Fri,  2 Sep 2022 05:20:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A9C2B82A95;
-        Fri,  2 Sep 2022 12:25:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A052AC433C1;
-        Fri,  2 Sep 2022 12:25:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2964FB82A8F;
+        Fri,  2 Sep 2022 12:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 834E2C433D6;
+        Fri,  2 Sep 2022 12:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121511;
-        bh=JPy/xrZXxNcdbj1iowz4GQ8lByASYODcJqylTdob+MA=;
+        s=korg; t=1662121218;
+        bh=pFKhXZLCEw9lbHn/kXTMOmBZMFo1jHjmSiJceNQgyTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWECyqW/I9wHgw0tHd3/qTmX8LhA0Xj+40TQbDNyVT9KjBgDlIoqBgteuCMC26YXC
-         FBcVmng1B9EKU/2mhCpYNy3x3qIwXQEa/QD1GDYp+XE6FdRnRxE6gqmqffllmwcq82
-         oZGXuwS/LdIHcvuIb83jcz+Xcr2TLAdlmYKNpPQM=
+        b=RFg4bdDL5cQs2w6e74lG1wquZ58PgEWBVR2TMkgtB5peqK8nLXrE32dGhe3HOUcfB
+         yePxKCKVcCDbP3WXIQZFNyGgM/OzTbVi6Nf5gEHA6LK7q39AAWZgV/DWFkGXG5zGfZ
+         aGh+fH4GWOfLyIbrOtX6bNXMojR1MqLc/gzjtSE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "srivatsab@vmware.com, srivatsa@csail.mit.edu, akaher@vmware.com,
-        amakhalov@vmware.com, vsirnapalli@vmware.com, sturlapati@vmware.com,
-        bordoloih@vmware.com, keerthanak@vmware.com, Ankit Jain" 
-        <ankitja@vmware.com>, Hui Su <suhui_kernel@163.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Ankit Jain <ankitja@vmware.com>
-Subject: [PATCH 4.19 08/56] kernel/sched: Remove dl_boosted flag comment
+        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 02/31] xfrm: fix refcount leak in __xfrm_policy_check()
 Date:   Fri,  2 Sep 2022 14:18:28 +0200
-Message-Id: <20220902121400.478281825@linuxfoundation.org>
+Message-Id: <20220902121356.838472344@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
-References: <20220902121400.219861128@linuxfoundation.org>
+In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
+References: <20220902121356.732130937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,37 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Su <suhui_kernel@163.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-commit 0e3872499de1a1230cef5221607d71aa09264bd5 upstream.
+[ Upstream commit 9c9cb23e00ddf45679b21b4dacc11d1ae7961ebe ]
 
-since commit 2279f540ea7d ("sched/deadline: Fix priority
-inheritance with multiple scheduling classes"), we should not
-keep it here.
+The issue happens on an error path in __xfrm_policy_check(). When the
+fetching process of the object `pols[1]` fails, the function simply
+returns 0, forgetting to decrement the reference count of `pols[0]`,
+which is incremented earlier by either xfrm_sk_policy_lookup() or
+xfrm_policy_lookup(). This may result in memory leaks.
 
-Signed-off-by: Hui Su <suhui_kernel@163.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Daniel Bristot de Oliveira <bristot@redhat.com>
-Link: https://lore.kernel.org/r/20220107095254.GA49258@localhost.localdomain
-[Ankit: Regenerated the patch for v4.19.y]
-Signed-off-by: Ankit Jain <ankitja@vmware.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix it by decreasing the reference count of `pols[0]` in that path.
+
+Fixes: 134b0fc544ba ("IPsec: propagate security module errors up from flow_cache_lookup")
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched.h |    4 ----
- 1 file changed, 4 deletions(-)
+ net/xfrm/xfrm_policy.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -528,10 +528,6 @@ struct sched_dl_entity {
- 	 * task has to wait for a replenishment to be performed at the
- 	 * next firing of dl_timer.
- 	 *
--	 * @dl_boosted tells if we are boosted due to DI. If so we are
--	 * outside bandwidth enforcement mechanism (but only until we
--	 * exit the critical section);
--	 *
- 	 * @dl_yielded tells if task gave up the CPU before consuming
- 	 * all its available runtime during the last job.
- 	 *
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 0894108f561cb..ae90a273475c0 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -2538,6 +2538,7 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
+ 		if (pols[1]) {
+ 			if (IS_ERR(pols[1])) {
+ 				XFRM_INC_STATS(net, LINUX_MIB_XFRMINPOLERROR);
++				xfrm_pol_put(pols[0]);
+ 				return 0;
+ 			}
+ 			pols[1]->curlft.use_time = get_seconds();
+-- 
+2.35.1
+
 
 
