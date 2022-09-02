@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5603C5AB01A
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:49:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FC005AAEE2
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:31:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237459AbiIBMth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:49:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56190 "EHLO
+        id S236546AbiIBMbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:31:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236077AbiIBMs2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:48:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA9C356F1;
-        Fri,  2 Sep 2022 05:34:57 -0700 (PDT)
+        with ESMTP id S235949AbiIBMaz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:30:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 462CDDC081;
+        Fri,  2 Sep 2022 05:26:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B24E5621EC;
-        Fri,  2 Sep 2022 12:34:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9A8DC433D6;
-        Fri,  2 Sep 2022 12:34:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6014B82AA5;
+        Fri,  2 Sep 2022 12:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AFFEC433C1;
+        Fri,  2 Sep 2022 12:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122097;
-        bh=GnataGiAFSX5NG5nekK6YOQLkPP8Hse4ndp5l0psnBA=;
+        s=korg; t=1662121554;
+        bh=EDral1MergIKIBDfNCfqq2/5n6WX0jOlMuekLNB2UFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vqV0trct8Wfq9mPEo2C6P8VI0DYax7Ka69IDVf3d0pgD3BGowlbowrX0jc36BSy9e
-         q58Lo4CN7G5cggQG3xOgXLcYDkEmWgQiIXs5AJIe6ah3nmw/4Ge4ZgSMWWZzW9+GjM
-         RoVaekIa+pMl5VGqWTCHuNZsCOn3wetmNsRorE2Y=
+        b=2FcHDWNjV2Og+V1MYFessvp1QjKcwuE2qT9hMt+ypl+zPS0qXke/WVueBYyp9cQgx
+         wgJ0nlbDZns5M+OWiy5nF83+KyIdU0DxbrsoJJRJ05KP2De/yfdkHg0Viz29z5DsMj
+         61QXWjibkwxTyItSF5Li/gw/4de5lNlBYfy9uAE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+b0de012ceb1e2a97891b@syzkaller.appspotmail.com
-Subject: [PATCH 5.19 12/72] USB: gadget: Fix use-after-free Read in usb_udc_uevent()
+        stable@vger.kernel.org, Steve Payne <spayne@aurora.tech>,
+        Ilya Evenbach <ievenbach@aurora.tech>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 4.19 28/56] ixgbe: stop resetting SYSTIME in ixgbe_ptp_start_cyclecounter
 Date:   Fri,  2 Sep 2022 14:18:48 +0200
-Message-Id: <20220902121405.199084223@linuxfoundation.org>
+Message-Id: <20220902121401.213619464@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +57,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-commit 2191c00855b03aa59c20e698be713d952d51fc18 upstream.
+[ Upstream commit 25d7a5f5a6bb15a2dae0a3f39ea5dda215024726 ]
 
-The syzbot fuzzer found a race between uevent callbacks and gadget
-driver unregistration that can cause a use-after-free bug:
+The ixgbe_ptp_start_cyclecounter is intended to be called whenever the
+cyclecounter parameters need to be changed.
 
----------------------------------------------------------------
-BUG: KASAN: use-after-free in usb_udc_uevent+0x11f/0x130
-drivers/usb/gadget/udc/core.c:1732
-Read of size 8 at addr ffff888078ce2050 by task udevd/2968
+Since commit a9763f3cb54c ("ixgbe: Update PTP to support X550EM_x
+devices"), this function has cleared the SYSTIME registers and reset the
+TSAUXC DISABLE_SYSTIME bit.
 
-CPU: 1 PID: 2968 Comm: udevd Not tainted 5.19.0-rc4-next-20220628-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google
-06/29/2022
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:317 [inline]
- print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
- kasan_report+0xbe/0x1f0 mm/kasan/report.c:495
- usb_udc_uevent+0x11f/0x130 drivers/usb/gadget/udc/core.c:1732
- dev_uevent+0x290/0x770 drivers/base/core.c:2424
----------------------------------------------------------------
+While these need to be cleared during ixgbe_ptp_reset, it is wrong to clear
+them during ixgbe_ptp_start_cyclecounter. This function may be called
+during both reset and link status change. When link changes, the SYSTIME
+counter is still operating normally, but the cyclecounter should be updated
+to account for the possibly changed parameters.
 
-The bug occurs because usb_udc_uevent() dereferences udc->driver but
-does so without acquiring the udc_lock mutex, which protects this
-field.  If the gadget driver is unbound from the udc concurrently with
-uevent processing, the driver structure may be accessed after it has
-been deallocated.
+Clearing SYSTIME when link changes causes the timecounter to jump because
+the cycle counter now reads zero.
 
-To prevent the race, we make sure that the routine holds the mutex
-around the racing accesses.
+Extract the SYSTIME initialization out to a new function and call this
+during ixgbe_ptp_reset. This prevents the timecounter adjustment and avoids
+an unnecessary reset of the current time.
 
-Link: <https://lore.kernel.org/all/0000000000004de90405a719c951@google.com>
-CC: stable@vger.kernel.org # fc274c1e9973
-Reported-and-tested-by: syzbot+b0de012ceb1e2a97891b@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YtlrnhHyrHsSky9m@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This also restores the original SYSTIME clearing that occurred during
+ixgbe_ptp_reset before the commit above.
+
+Reported-by: Steve Payne <spayne@aurora.tech>
+Reported-by: Ilya Evenbach <ievenbach@aurora.tech>
+Fixes: a9763f3cb54c ("ixgbe: Update PTP to support X550EM_x devices")
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/core.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c | 59 +++++++++++++++-----
+ 1 file changed, 46 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/core.c b/drivers/usb/gadget/udc/core.c
-index 7886497253cc..cafcf260394c 100644
---- a/drivers/usb/gadget/udc/core.c
-+++ b/drivers/usb/gadget/udc/core.c
-@@ -1728,13 +1728,14 @@ static int usb_udc_uevent(struct device *dev, struct kobj_uevent_env *env)
- 		return ret;
- 	}
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
+index b3e0d8bb5cbd8..eec68cc9288c8 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
+@@ -1066,7 +1066,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
+ 	struct cyclecounter cc;
+ 	unsigned long flags;
+ 	u32 incval = 0;
+-	u32 tsauxc = 0;
+ 	u32 fuse0 = 0;
  
--	if (udc->driver) {
-+	mutex_lock(&udc_lock);
-+	if (udc->driver)
- 		ret = add_uevent_var(env, "USB_UDC_DRIVER=%s",
- 				udc->driver->function);
--		if (ret) {
--			dev_err(dev, "failed to add uevent USB_UDC_DRIVER\n");
--			return ret;
--		}
-+	mutex_unlock(&udc_lock);
-+	if (ret) {
-+		dev_err(dev, "failed to add uevent USB_UDC_DRIVER\n");
-+		return ret;
- 	}
+ 	/* For some of the boards below this mask is technically incorrect.
+@@ -1101,18 +1100,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
+ 	case ixgbe_mac_x550em_a:
+ 	case ixgbe_mac_X550:
+ 		cc.read = ixgbe_ptp_read_X550;
+-
+-		/* enable SYSTIME counter */
+-		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMR, 0);
+-		IXGBE_WRITE_REG(hw, IXGBE_SYSTIML, 0);
+-		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMH, 0);
+-		tsauxc = IXGBE_READ_REG(hw, IXGBE_TSAUXC);
+-		IXGBE_WRITE_REG(hw, IXGBE_TSAUXC,
+-				tsauxc & ~IXGBE_TSAUXC_DISABLE_SYSTIME);
+-		IXGBE_WRITE_REG(hw, IXGBE_TSIM, IXGBE_TSIM_TXTS);
+-		IXGBE_WRITE_REG(hw, IXGBE_EIMS, IXGBE_EIMS_TIMESYNC);
+-
+-		IXGBE_WRITE_FLUSH(hw);
+ 		break;
+ 	case ixgbe_mac_X540:
+ 		cc.read = ixgbe_ptp_read_82599;
+@@ -1144,6 +1131,50 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
+ 	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
+ }
  
- 	return 0;
++/**
++ * ixgbe_ptp_init_systime - Initialize SYSTIME registers
++ * @adapter: the ixgbe private board structure
++ *
++ * Initialize and start the SYSTIME registers.
++ */
++static void ixgbe_ptp_init_systime(struct ixgbe_adapter *adapter)
++{
++	struct ixgbe_hw *hw = &adapter->hw;
++	u32 tsauxc;
++
++	switch (hw->mac.type) {
++	case ixgbe_mac_X550EM_x:
++	case ixgbe_mac_x550em_a:
++	case ixgbe_mac_X550:
++		tsauxc = IXGBE_READ_REG(hw, IXGBE_TSAUXC);
++
++		/* Reset SYSTIME registers to 0 */
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMR, 0);
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIML, 0);
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMH, 0);
++
++		/* Reset interrupt settings */
++		IXGBE_WRITE_REG(hw, IXGBE_TSIM, IXGBE_TSIM_TXTS);
++		IXGBE_WRITE_REG(hw, IXGBE_EIMS, IXGBE_EIMS_TIMESYNC);
++
++		/* Activate the SYSTIME counter */
++		IXGBE_WRITE_REG(hw, IXGBE_TSAUXC,
++				tsauxc & ~IXGBE_TSAUXC_DISABLE_SYSTIME);
++		break;
++	case ixgbe_mac_X540:
++	case ixgbe_mac_82599EB:
++		/* Reset SYSTIME registers to 0 */
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIML, 0);
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMH, 0);
++		break;
++	default:
++		/* Other devices aren't supported */
++		return;
++	};
++
++	IXGBE_WRITE_FLUSH(hw);
++}
++
+ /**
+  * ixgbe_ptp_reset
+  * @adapter: the ixgbe private board structure
+@@ -1170,6 +1201,8 @@ void ixgbe_ptp_reset(struct ixgbe_adapter *adapter)
+ 
+ 	ixgbe_ptp_start_cyclecounter(adapter);
+ 
++	ixgbe_ptp_init_systime(adapter);
++
+ 	spin_lock_irqsave(&adapter->tmreg_lock, flags);
+ 	timecounter_init(&adapter->hw_tc, &adapter->hw_cc,
+ 			 ktime_to_ns(ktime_get_real()));
 -- 
-2.37.2
+2.35.1
 
 
 
