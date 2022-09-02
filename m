@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0A425AAEC9
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:29:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07D925AAEBD
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236453AbiIBM3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:29:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34226 "EHLO
+        id S236347AbiIBM3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:29:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236520AbiIBM2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:28:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA7095FE7;
-        Fri,  2 Sep 2022 05:24:47 -0700 (PDT)
+        with ESMTP id S236493AbiIBM1x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:27:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA54D3EC4;
+        Fri,  2 Sep 2022 05:24:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E86986210A;
-        Fri,  2 Sep 2022 12:23:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB6B6C433D7;
-        Fri,  2 Sep 2022 12:23:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D624B82A8B;
+        Fri,  2 Sep 2022 12:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDD8CC433D7;
+        Fri,  2 Sep 2022 12:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121415;
-        bh=HCozxiwfuRdOkCThfE6MAv65G6TqAXwpnaKlKnXiZpM=;
+        s=korg; t=1662121463;
+        bh=Rk1WS9y8pDkFDaZEbT9tCSSI1OHbxBTz6GYp05s8Cmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovw0sxi5piyST3asPeFV0HJpuSicyaLZwi6QrD4IbdtHIiaYStLaQQFKEZ+dw3smI
-         rJZ5c7E7gn4J6TEUGmDkAnGnq6S1GlX5+ylR/25G/HTQuCjSZm9Lij1MqDRTDMcp4y
-         AXP4NWuk4BYNp7UwBOJmoXLiXJf+0G7wf4KifkgQ=
+        b=xh+p1qP62Gkh2nY3bVqgP0V843BdUidziwebDdFPXbMGiWtpQtvU7vhpAHtcBmVls
+         RebsmZMNX9fsb5RaOLmEiNkMmoeL98gXexjXHhZliId46uXzm4vHAsr9pugAVL2Wx6
+         7bFdxFkwbQvrn5o5b6MD3WDhq9AU4QA9DmWSNYUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/42] net: Fix data-races around weight_p and dev_weight_[rt]x_bias.
+Subject: [PATCH 4.19 16/56] netfilter: nft_payload: do not truncate csum_offset and csum_type
 Date:   Fri,  2 Sep 2022 14:18:36 +0200
-Message-Id: <20220902121359.234283065@linuxfoundation.org>
+Message-Id: <20220902121400.739212698@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit bf955b5ab8f6f7b0632cdef8e36b14e4f6e77829 ]
+[ Upstream commit 7044ab281febae9e2fa9b0b247693d6026166293 ]
 
-While reading weight_p, it can be changed concurrently.  Thus, we need
-to add READ_ONCE() to its reader.
+Instead report ERANGE if csum_offset is too long, and EOPNOTSUPP if type
+is not support.
 
-Also, dev_[rt]x_weight can be read/written at the same time.  So, we
-need to use READ_ONCE() and WRITE_ONCE() for its access.  Moreover, to
-use the same weight_p while changing dev_[rt]x_weight, we add a mutex
-in proc_do_dev_weight().
-
-Fixes: 3d48b53fb2ae ("net: dev_weight: TX/RX orthogonality")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7ec3f7b47b8d ("netfilter: nft_payload: add packet mangling support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c             |  2 +-
- net/core/sysctl_net_core.c | 15 +++++++++------
- net/sched/sch_generic.c    |  2 +-
- 3 files changed, 11 insertions(+), 8 deletions(-)
+ net/netfilter/nft_payload.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index ea09e0809c122..51721fb2e30cf 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5186,7 +5186,7 @@ static int process_backlog(struct napi_struct *napi, int quota)
- 		net_rps_action_and_irq_enable(sd);
+diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
+index 04b9df9e39554..5732b32ab9320 100644
+--- a/net/netfilter/nft_payload.c
++++ b/net/netfilter/nft_payload.c
+@@ -332,6 +332,8 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
+ 				const struct nlattr * const tb[])
+ {
+ 	struct nft_payload_set *priv = nft_expr_priv(expr);
++	u32 csum_offset, csum_type = NFT_PAYLOAD_CSUM_NONE;
++	int err;
+ 
+ 	priv->base        = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_BASE]));
+ 	priv->offset      = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
+@@ -339,11 +341,15 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
+ 	priv->sreg        = nft_parse_register(tb[NFTA_PAYLOAD_SREG]);
+ 
+ 	if (tb[NFTA_PAYLOAD_CSUM_TYPE])
+-		priv->csum_type =
+-			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
+-	if (tb[NFTA_PAYLOAD_CSUM_OFFSET])
+-		priv->csum_offset =
+-			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_OFFSET]));
++		csum_type = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
++	if (tb[NFTA_PAYLOAD_CSUM_OFFSET]) {
++		err = nft_parse_u32_check(tb[NFTA_PAYLOAD_CSUM_OFFSET], U8_MAX,
++					  &csum_offset);
++		if (err < 0)
++			return err;
++
++		priv->csum_offset = csum_offset;
++	}
+ 	if (tb[NFTA_PAYLOAD_CSUM_FLAGS]) {
+ 		u32 flags;
+ 
+@@ -354,13 +360,14 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
+ 		priv->csum_flags = flags;
  	}
  
--	napi->weight = dev_rx_weight;
-+	napi->weight = READ_ONCE(dev_rx_weight);
- 	while (again) {
- 		struct sk_buff *skb;
+-	switch (priv->csum_type) {
++	switch (csum_type) {
+ 	case NFT_PAYLOAD_CSUM_NONE:
+ 	case NFT_PAYLOAD_CSUM_INET:
+ 		break;
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
++	priv->csum_type = csum_type;
  
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index ac1a32d5cad3c..1b5749f2ef9c0 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -229,14 +229,17 @@ static int set_default_qdisc(struct ctl_table *table, int write,
- static int proc_do_dev_weight(struct ctl_table *table, int write,
- 			   void __user *buffer, size_t *lenp, loff_t *ppos)
- {
--	int ret;
-+	static DEFINE_MUTEX(dev_weight_mutex);
-+	int ret, weight;
- 
-+	mutex_lock(&dev_weight_mutex);
- 	ret = proc_dointvec(table, write, buffer, lenp, ppos);
--	if (ret != 0)
--		return ret;
--
--	dev_rx_weight = weight_p * dev_weight_rx_bias;
--	dev_tx_weight = weight_p * dev_weight_tx_bias;
-+	if (!ret && write) {
-+		weight = READ_ONCE(weight_p);
-+		WRITE_ONCE(dev_rx_weight, weight * dev_weight_rx_bias);
-+		WRITE_ONCE(dev_tx_weight, weight * dev_weight_tx_bias);
-+	}
-+	mutex_unlock(&dev_weight_mutex);
- 
- 	return ret;
+ 	return nft_validate_register_load(priv->sreg, priv->len);
  }
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 82752dcbf2a2c..4a76ceeca6fdd 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -251,7 +251,7 @@ static inline int qdisc_restart(struct Qdisc *q, int *packets)
- 
- void __qdisc_run(struct Qdisc *q)
- {
--	int quota = dev_tx_weight;
-+	int quota = READ_ONCE(dev_tx_weight);
- 	int packets;
- 
- 	while (qdisc_restart(q, &packets)) {
 -- 
 2.35.1
 
