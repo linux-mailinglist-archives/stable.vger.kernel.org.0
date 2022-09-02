@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1D555AAEBB
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29A0C5AAE4C
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235829AbiIBM3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:29:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36846 "EHLO
+        id S236028AbiIBMVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:21:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236481AbiIBM1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:27:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34859DEB59;
-        Fri,  2 Sep 2022 05:24:34 -0700 (PDT)
+        with ESMTP id S235804AbiIBMVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:21:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F4079CCD7;
+        Fri,  2 Sep 2022 05:21:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65970B829B6;
-        Fri,  2 Sep 2022 12:23:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C698BC433C1;
-        Fri,  2 Sep 2022 12:23:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1141FB82A8F;
+        Fri,  2 Sep 2022 12:21:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6011AC433D6;
+        Fri,  2 Sep 2022 12:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121409;
-        bh=nWRoO5ttH0qgnkkzYxYakfYShlDNVFZKpmajFJ1cLSU=;
+        s=korg; t=1662121260;
+        bh=ShxWmdastEh/OaWYqrIvumXK97FZMf4Sx12fYRQGky4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=InX7/bB/5PI7EiwQyJP2Kb+VHORDIfl5tPcckMwvFIKePWX1bSMeEVJ7YGjPFYvcx
-         k8dM/iV+e3EEj6PGchKm88AkwhCFXhrZSnMOt+GlLHIrKVJ023+AmcFxlU/e67tvg4
-         HKl6T4/l9HSVDOmt/t+ZLgZzYdbL58/uz49OAHv0=
+        b=DvZjSK4uDTr31vh4G/mSF+xkzfo48jCTC62zxcKCoZnfIIuqxzwZ1hpm/IPUuRQxE
+         ovvnax6NWD18wCvvb6J/Q7V5LmPP2KJgxYBR024oOZP4tK1iUFhA7nROS5qb0911yX
+         0yR5u7445w1wNoRlnZelsdBhZsRR8kXVjanZq+Hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/42] netfilter: nft_payload: report ERANGE for too long offset and length
-Date:   Fri,  2 Sep 2022 14:18:34 +0200
-Message-Id: <20220902121359.165093492@linuxfoundation.org>
+Subject: [PATCH 4.9 09/31] net: Fix a data-race around sysctl_net_busy_poll.
+Date:   Fri,  2 Sep 2022 14:18:35 +0200
+Message-Id: <20220902121357.096918197@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
+References: <20220902121356.732130937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 94254f990c07e9ddf1634e0b727fab821c3b5bf9 ]
+[ Upstream commit c42b7cddea47503411bfb5f2f93a4154aaffa2d9 ]
 
-Instead of offset and length are truncation to u8, report ERANGE.
+While reading sysctl_net_busy_poll, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 060212928670 ("net: add low latency socket poll")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_payload.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ include/net/busy_poll.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
-index fd87216bc0a99..04b9df9e39554 100644
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -398,6 +398,7 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
+diff --git a/include/net/busy_poll.h b/include/net/busy_poll.h
+index 2fbeb1313c0f4..e522187cb6935 100644
+--- a/include/net/busy_poll.h
++++ b/include/net/busy_poll.h
+@@ -39,7 +39,7 @@ extern unsigned int sysctl_net_busy_poll __read_mostly;
+ 
+ static inline bool net_busy_loop_on(void)
  {
- 	enum nft_payload_bases base;
- 	unsigned int offset, len;
-+	int err;
+-	return sysctl_net_busy_poll;
++	return READ_ONCE(sysctl_net_busy_poll);
+ }
  
- 	if (tb[NFTA_PAYLOAD_BASE] == NULL ||
- 	    tb[NFTA_PAYLOAD_OFFSET] == NULL ||
-@@ -423,8 +424,13 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
- 	if (tb[NFTA_PAYLOAD_DREG] == NULL)
- 		return ERR_PTR(-EINVAL);
- 
--	offset = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
--	len    = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_LEN]));
-+	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_OFFSET], U8_MAX, &offset);
-+	if (err < 0)
-+		return ERR_PTR(err);
-+
-+	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_LEN], U8_MAX, &len);
-+	if (err < 0)
-+		return ERR_PTR(err);
- 
- 	if (len <= 4 && is_power_of_2(len) && IS_ALIGNED(offset, len) &&
- 	    base != NFT_PAYLOAD_LL_HEADER)
+ static inline u64 busy_loop_us_clock(void)
 -- 
 2.35.1
 
