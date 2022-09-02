@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2DD5AAE70
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D987E5AAF47
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236092AbiIBMXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:23:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49916 "EHLO
+        id S236397AbiIBMfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:35:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236195AbiIBMWi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:22:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77AE2D572E;
-        Fri,  2 Sep 2022 05:21:47 -0700 (PDT)
+        with ESMTP id S236036AbiIBMeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:34:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D9C9E3988;
+        Fri,  2 Sep 2022 05:28:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5350B82A98;
-        Fri,  2 Sep 2022 12:21:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3CE5C4314E;
-        Fri,  2 Sep 2022 12:21:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7075562136;
+        Fri,  2 Sep 2022 12:26:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74338C433D6;
+        Fri,  2 Sep 2022 12:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121294;
-        bh=LXFuGh52Ih6ViWxD28QZenZPx37roNq6XBQnL5p6ONg=;
+        s=korg; t=1662121586;
+        bh=lmIPIPSBVldjHAb2BCMXUesAoUg65FxjM5NXsjyYyYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bNSsLdOAkcOrJF2jS0/J8H8nmLSzvYtJs016Egh1bn/cmNQtT9lz2IZSKmOuqQe8Q
-         o55az21jHwv41ZZEgmrXbCd0Olna3tEY+NvopWpHZD878CO6gyCMrPRL6TOh5RPcpc
-         1rZbJMEVtXq14TnQh2trjn72M0k1Ed2xZK7H6siw=
+        b=jpS8S7ZluCYrSrZnrOGexXXkhM2hrWJbB6HQ3NffLql60Sp3TMTUJzlkVePUYEQNE
+         P82dBLC4c8cje+l00TB7FNLwQaMA59UrthLFOURBZOQDndTji8Zjd1BmZFnz/Fmmjy
+         r/8XB5CFWMBlCO/3tdY8W9iF5x8XlxKLhEeb3bgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.9 23/31] media: pvrusb2: fix memory leak in pvr_probe
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 29/56] btrfs: check if root is readonly while setting security xattr
 Date:   Fri,  2 Sep 2022 14:18:49 +0200
-Message-Id: <20220902121357.611984352@linuxfoundation.org>
+Message-Id: <20220902121401.248191627@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
-References: <20220902121356.732130937@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLACK autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,36 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Goldwyn Rodrigues <rgoldwyn@suse.de>
 
-commit 945a9a8e448b65bec055d37eba58f711b39f66f0 upstream.
+commit b51111271b0352aa596c5ae8faf06939e91b3b68 upstream.
 
-The error handling code in pvr2_hdw_create forgets to unregister the
-v4l2 device. When pvr2_hdw_create returns back to pvr2_context_create,
-it calls pvr2_context_destroy to destroy context, but mp->hdw is NULL,
-which leads to that pvr2_hdw_destroy directly returns.
+For a filesystem which has btrfs read-only property set to true, all
+write operations including xattr should be denied. However, security
+xattr can still be changed even if btrfs ro property is true.
 
-Fix this by adding v4l2_device_unregister to decrease the refcount of
-usb interface.
+This happens because xattr_permission() does not have any restrictions
+on security.*, system.*  and in some cases trusted.* from VFS and
+the decision is left to the underlying filesystem. See comments in
+xattr_permission() for more details.
 
-Reported-by: syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+This patch checks if the root is read-only before performing the set
+xattr operation.
+
+Testcase:
+
+  DEV=/dev/vdb
+  MNT=/mnt
+
+  mkfs.btrfs -f $DEV
+  mount $DEV $MNT
+  echo "file one" > $MNT/f1
+
+  setfattr -n "security.one" -v 2 $MNT/f1
+  btrfs property set /mnt ro true
+
+  setfattr -n "security.one" -v 1 $MNT/f1
+
+  umount $MNT
+
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/xattr.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -2656,6 +2656,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct
- 		del_timer_sync(&hdw->encoder_run_timer);
- 		del_timer_sync(&hdw->encoder_wait_timer);
- 		flush_work(&hdw->workpoll);
-+		v4l2_device_unregister(&hdw->v4l2_dev);
- 		usb_free_urb(hdw->ctl_read_urb);
- 		usb_free_urb(hdw->ctl_write_urb);
- 		kfree(hdw->ctl_read_buffer);
+--- a/fs/btrfs/xattr.c
++++ b/fs/btrfs/xattr.c
+@@ -369,6 +369,9 @@ static int btrfs_xattr_handler_set(const
+ 				   const char *name, const void *buffer,
+ 				   size_t size, int flags)
+ {
++	if (btrfs_root_readonly(BTRFS_I(inode)->root))
++		return -EROFS;
++
+ 	name = xattr_full_name(handler, name);
+ 	return btrfs_setxattr(NULL, inode, name, buffer, size, flags);
+ }
 
 
