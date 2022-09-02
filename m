@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 169E85AAF6B
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F36245AAFD0
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237058AbiIBMha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:37:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54830 "EHLO
+        id S237331AbiIBMoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:44:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237062AbiIBMhA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:37:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F49FE5886;
-        Fri,  2 Sep 2022 05:29:29 -0700 (PDT)
+        with ESMTP id S237428AbiIBMnh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24CAEEA882;
+        Fri,  2 Sep 2022 05:32:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFC8AB829B6;
-        Fri,  2 Sep 2022 12:27:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EC89C433D6;
-        Fri,  2 Sep 2022 12:27:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2457B82AC9;
+        Fri,  2 Sep 2022 12:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A26BC4347C;
+        Fri,  2 Sep 2022 12:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121677;
-        bh=X1ADLifz4xkdtxx8IQXklXNBOLgY87zEzsW+DZA+a/k=;
+        s=korg; t=1662121921;
+        bh=K07g13l32rClJcNoxbLcDmonK4zHo/OsvyUnY5GNgG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ds1sv1rqgF5yX1Y9PqtaBJbMNSEBhir7SVZqhkL87bPjdQRd514x2vkUva/ud8zQq
-         ZDOqjNZXU+fus/KUYj6ZhwpP9nUPNPD4ReQ06OWX0U5rBxcF+7tfvov7JYfETcKtW+
-         EnURGxPTyl/Ln/5FKhRUmp0gVn/ZCJet7mxMmTvk=
+        b=f6pgUYJZrSFKYp2Xw3kmWaAmHyXVkWNwx2utBm3esCBN0IOlG7tHRudY6PgtGQBGY
+         1S95xZPM3ZJmNL2r1rGUtC0UYfCTeu2KKQiDN2qxuCt1NAjnM2N97eFgqKiqwWHtuL
+         drZFLwBuQvfXiHirYmv9PNXMJrGOa1+ZFYMHL67Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/77] netfilter: nft_payload: report ERANGE for too long offset and length
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.15 07/73] crypto: lib - remove unneeded selection of XOR_BLOCKS
 Date:   Fri,  2 Sep 2022 14:18:31 +0200
-Message-Id: <20220902121404.392669371@linuxfoundation.org>
+Message-Id: <20220902121404.687586651@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 94254f990c07e9ddf1634e0b727fab821c3b5bf9 ]
+commit 874b301985ef2f89b8b592ad255e03fb6fbfe605 upstream.
 
-Instead of offset and length are truncation to u8, report ERANGE.
+CRYPTO_LIB_CHACHA_GENERIC doesn't need to select XOR_BLOCKS.  It perhaps
+was thought that it's needed for __crypto_xor, but that's not the case.
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Enabling XOR_BLOCKS is problematic because the XOR_BLOCKS code runs a
+benchmark when it is initialized.  That causes a boot time regression on
+systems that didn't have it enabled before.
+
+Therefore, remove this unnecessary and problematic selection.
+
+Fixes: e56e18985596 ("lib/crypto: add prompts back to crypto libraries")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_payload.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ lib/crypto/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
-index cf0512fc648e7..7520ec17cabb7 100644
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -624,6 +624,7 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
- {
- 	enum nft_payload_bases base;
- 	unsigned int offset, len;
-+	int err;
+--- a/lib/crypto/Kconfig
++++ b/lib/crypto/Kconfig
+@@ -33,7 +33,6 @@ config CRYPTO_ARCH_HAVE_LIB_CHACHA
  
- 	if (tb[NFTA_PAYLOAD_BASE] == NULL ||
- 	    tb[NFTA_PAYLOAD_OFFSET] == NULL ||
-@@ -649,8 +650,13 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
- 	if (tb[NFTA_PAYLOAD_DREG] == NULL)
- 		return ERR_PTR(-EINVAL);
- 
--	offset = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
--	len    = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_LEN]));
-+	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_OFFSET], U8_MAX, &offset);
-+	if (err < 0)
-+		return ERR_PTR(err);
-+
-+	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_LEN], U8_MAX, &len);
-+	if (err < 0)
-+		return ERR_PTR(err);
- 
- 	if (len <= 4 && is_power_of_2(len) && IS_ALIGNED(offset, len) &&
- 	    base != NFT_PAYLOAD_LL_HEADER)
--- 
-2.35.1
-
+ config CRYPTO_LIB_CHACHA_GENERIC
+ 	tristate
+-	select XOR_BLOCKS
+ 	help
+ 	  This symbol can be depended upon by arch implementations of the
+ 	  ChaCha library interface that require the generic code as a
 
 
