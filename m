@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A05805AAFAA
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBCA5AB017
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237251AbiIBMmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:42:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35000 "EHLO
+        id S237366AbiIBMtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:49:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237261AbiIBMlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:41:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A77E725E;
-        Fri,  2 Sep 2022 05:31:24 -0700 (PDT)
+        with ESMTP id S237405AbiIBMsU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:48:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE33357CC;
+        Fri,  2 Sep 2022 05:34:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 309A6B82A8E;
-        Fri,  2 Sep 2022 12:29:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 834A5C433C1;
-        Fri,  2 Sep 2022 12:29:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B91BACE2E1A;
+        Fri,  2 Sep 2022 12:33:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16F7C433D6;
+        Fri,  2 Sep 2022 12:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121795;
-        bh=88JnIP67Dou7CqPdf10PNQ7CLyF2nEZpaadM9YCR9bs=;
+        s=korg; t=1662121996;
+        bh=VqUFmf3dgywGA5D28W+viP+k0XEn9NNB/QalNgf6nw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQB7AoxmATXv0dkdMp9Yp07eNRc6C9p31dRIwWvn1qKLj0jkTyBErMbmnvBHo565D
-         rOQgdbiuZv/ocQbl2Vivh2O2StqAoh8AQ+1TWVdSKtxHzYEgXhmpNiENUu0zzEMpz8
-         Bw2AUQHB4LNdgtTHHx0kr7/n7Eobm3glocv4VTX0=
+        b=w81wIb3gyhKe3nTCjb5kcmqe7ei6VMnEI3Wbh4xoMEX6TdiUYotX+VId0qH+Z5WaY
+         Vxdf8We2fnDmh5wBbPNaL6XiI1Em/vCt31F6cpelInNQF18yRBD+JQALkVKTwdgQpT
+         rJQ8K8IRGodFQBJ3X37YfRrdBWTK4lyU8ViUW9w4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        Leo Ma <hanghong.ma@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 68/77] s390/hypfs: avoid error message under KVM
+Subject: [PATCH 5.15 53/73] drm/amd/display: Fix HDMI VSIF V3 incorrect issue
 Date:   Fri,  2 Sep 2022 14:19:17 +0200
-Message-Id: <20220902121405.946095239@linuxfoundation.org>
+Message-Id: <20220902121406.193792439@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +57,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Leo Ma <hanghong.ma@amd.com>
 
-[ Upstream commit 7b6670b03641ac308aaa6fa2e6f964ac993b5ea3 ]
+[ Upstream commit 0591183699fceeafb4c4141072d47775de83ecfb ]
 
-When booting under KVM the following error messages are issued:
+[Why]
+Reported from customer the checksum in AMD VSIF V3 is incorrect and
+causing blank screen issue.
 
-hypfs.7f5705: The hardware system does not support hypfs
-hypfs.7a79f0: Initialization of hypfs failed with rc=-61
+[How]
+Fix the packet length issue on AMD HDMI VSIF V3.
 
-Demote the severity of first message from "error" to "info" and issue
-the second message only in other error cases.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220620094534.18967-1-jgross@suse.com
-[arch/s390/hypfs/hypfs_diag.c changed description]
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: Leo Ma <hanghong.ma@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/hypfs/hypfs_diag.c | 2 +-
- arch/s390/hypfs/inode.c      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ .../drm/amd/display/modules/freesync/freesync.c   | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
-index f0bc4dc3e9bf0..6511d15ace45e 100644
---- a/arch/s390/hypfs/hypfs_diag.c
-+++ b/arch/s390/hypfs/hypfs_diag.c
-@@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
- 	int rc;
- 
- 	if (diag204_probe()) {
--		pr_err("The hardware system does not support hypfs\n");
-+		pr_info("The hardware system does not support hypfs\n");
- 		return -ENODATA;
- 	}
- 
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index 70139d0791b61..ca4fc66a361fb 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -501,9 +501,9 @@ static int __init hypfs_init(void)
- 	hypfs_vm_exit();
- fail_hypfs_diag_exit:
- 	hypfs_diag_exit();
-+	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
- fail_dbfs_exit:
- 	hypfs_dbfs_exit();
--	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
- 	return rc;
+diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+index b99aa232bd8b1..4bee6d018bfa9 100644
+--- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
++++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+@@ -567,10 +567,6 @@ static void build_vrr_infopacket_data_v1(const struct mod_vrr_params *vrr,
+ 	 * Note: We should never go above the field rate of the mode timing set.
+ 	 */
+ 	infopacket->sb[8] = (unsigned char)((vrr->max_refresh_in_uhz + 500000) / 1000000);
+-
+-	/* FreeSync HDR */
+-	infopacket->sb[9] = 0;
+-	infopacket->sb[10] = 0;
  }
- device_initcall(hypfs_init)
+ 
+ static void build_vrr_infopacket_data_v3(const struct mod_vrr_params *vrr,
+@@ -638,10 +634,6 @@ static void build_vrr_infopacket_data_v3(const struct mod_vrr_params *vrr,
+ 
+ 	/* PB16 : Reserved bits 7:1, FixedRate bit 0 */
+ 	infopacket->sb[16] = (vrr->state == VRR_STATE_ACTIVE_FIXED) ? 1 : 0;
+-
+-	//FreeSync HDR
+-	infopacket->sb[9] = 0;
+-	infopacket->sb[10] = 0;
+ }
+ 
+ static void build_vrr_infopacket_fs2_data(enum color_transfer_func app_tf,
+@@ -726,8 +718,7 @@ static void build_vrr_infopacket_header_v2(enum signal_type signal,
+ 		/* HB2  = [Bits 7:5 = 0] [Bits 4:0 = Length = 0x09] */
+ 		infopacket->hb2 = 0x09;
+ 
+-		*payload_size = 0x0A;
+-
++		*payload_size = 0x09;
+ 	} else if (dc_is_dp_signal(signal)) {
+ 
+ 		/* HEADER */
+@@ -776,9 +767,9 @@ static void build_vrr_infopacket_header_v3(enum signal_type signal,
+ 		infopacket->hb1 = version;
+ 
+ 		/* HB2  = [Bits 7:5 = 0] [Bits 4:0 = Length] */
+-		*payload_size = 0x10;
+-		infopacket->hb2 = *payload_size - 1; //-1 for checksum
++		infopacket->hb2 = 0x10;
+ 
++		*payload_size = 0x10;
+ 	} else if (dc_is_dp_signal(signal)) {
+ 
+ 		/* HEADER */
 -- 
 2.35.1
 
