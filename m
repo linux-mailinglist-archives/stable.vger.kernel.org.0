@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20D4F5AB079
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:55:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A57D5AB0DA
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237971AbiIBMyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:54:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60010 "EHLO
+        id S238737AbiIBM7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:59:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238124AbiIBMxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB87FAC7B;
-        Fri,  2 Sep 2022 05:38:24 -0700 (PDT)
+        with ESMTP id S238216AbiIBM5Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:57:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9250DFB295;
+        Fri,  2 Sep 2022 05:39:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A5D76216B;
-        Fri,  2 Sep 2022 12:37:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ED98C433C1;
-        Fri,  2 Sep 2022 12:37:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3427DB829E5;
+        Fri,  2 Sep 2022 12:39:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70BC7C433C1;
+        Fri,  2 Sep 2022 12:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122267;
-        bh=UmXgAtYxvtJdJ8CvrVbOxcYJQZh2qyqKSwBQJ49/NUE=;
+        s=korg; t=1662122351;
+        bh=Yi0ZLQXekHALMCo1xZjaKGu0N21/ZoJLrfDzDxhFFZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZOkddhUvavKsVTihvQkXhIi7MsfzCsXVpSbBf2GHSbSXJ5ebLzJ2m6vNJQHimJoK
-         2A7M3igf/vscRRax4labx2w2kD3sxqzCbMrWfLcZxxKIdB2Z2wfV5uA5U9/18Lk+qz
-         6YNWuq7/d3NCJQjcaQlcZnd6cV+T+HcWI7wv+eL8=
+        b=hoY2tbE2Wx9AhXh7mv11dwWM0BAGtRwWWLgXyXju5whxnSf9Hd4X6KUOxgXr2HvKP
+         buJyldqZ6Xm553Gm/3OuiXeCfonX8Hx4z90eSesZgBTn0d0SO4Rv6bqn8PoTSbbaib
+         Rz8yAQm8H+NKWSmKIKV8N23GIUdELO9jgd471ylM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Martin Leung <Martin.Leung@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        Alvin Lee <alvin.lee2@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 66/72] btrfs: move lockdep class helpers to locking.c
+Subject: [PATCH 5.10 20/37] drm/amd/display: For stereo keep "FLIP_ANY_FRAME"
 Date:   Fri,  2 Sep 2022 14:19:42 +0200
-Message-Id: <20220902121406.948116422@linuxfoundation.org>
+Message-Id: <20220902121359.805894912@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
+References: <20220902121359.177846782@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,246 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Alvin Lee <alvin.lee2@amd.com>
 
-[ Upstream commit 0a27a0474d146eb79e09ec88bf0d4229f4cfc1b8 ]
+[ Upstream commit 84ef99c728079dfd21d6bc70b4c3e4af20602b3c ]
 
-These definitions exist in disk-io.c, which is not related to the
-locking.  Move this over to locking.h/c where it makes more sense.
+[Description]
+Observed in stereomode that programming FLIP_LEFT_EYE
+can cause hangs. Keep FLIP_ANY_FRAME in stereo mode so
+the surface flip can take place before left or right eye
 
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: Alvin Lee <alvin.lee2@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c | 82 ----------------------------------------------
- fs/btrfs/disk-io.h | 10 ------
- fs/btrfs/locking.c | 80 ++++++++++++++++++++++++++++++++++++++++++++
- fs/btrfs/locking.h |  9 +++++
- 4 files changed, 89 insertions(+), 92 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index bc30306615837..a2505cfc6bc10 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -121,88 +121,6 @@ struct async_submit_bio {
- 	blk_status_t status;
- };
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c
+index af462fe4260de..b0fd8859bd2f2 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c
+@@ -86,7 +86,7 @@ bool hubp3_program_surface_flip_and_addr(
+ 			VMID, address->vmid);
  
--/*
-- * Lockdep class keys for extent_buffer->lock's in this root.  For a given
-- * eb, the lockdep key is determined by the btrfs_root it belongs to and
-- * the level the eb occupies in the tree.
-- *
-- * Different roots are used for different purposes and may nest inside each
-- * other and they require separate keysets.  As lockdep keys should be
-- * static, assign keysets according to the purpose of the root as indicated
-- * by btrfs_root->root_key.objectid.  This ensures that all special purpose
-- * roots have separate keysets.
-- *
-- * Lock-nesting across peer nodes is always done with the immediate parent
-- * node locked thus preventing deadlock.  As lockdep doesn't know this, use
-- * subclass to avoid triggering lockdep warning in such cases.
-- *
-- * The key is set by the readpage_end_io_hook after the buffer has passed
-- * csum validation but before the pages are unlocked.  It is also set by
-- * btrfs_init_new_buffer on freshly allocated blocks.
-- *
-- * We also add a check to make sure the highest level of the tree is the
-- * same as our lockdep setup here.  If BTRFS_MAX_LEVEL changes, this code
-- * needs update as well.
-- */
--#ifdef CONFIG_DEBUG_LOCK_ALLOC
--# if BTRFS_MAX_LEVEL != 8
--#  error
--# endif
--
--#define DEFINE_LEVEL(stem, level)					\
--	.names[level] = "btrfs-" stem "-0" #level,
--
--#define DEFINE_NAME(stem)						\
--	DEFINE_LEVEL(stem, 0)						\
--	DEFINE_LEVEL(stem, 1)						\
--	DEFINE_LEVEL(stem, 2)						\
--	DEFINE_LEVEL(stem, 3)						\
--	DEFINE_LEVEL(stem, 4)						\
--	DEFINE_LEVEL(stem, 5)						\
--	DEFINE_LEVEL(stem, 6)						\
--	DEFINE_LEVEL(stem, 7)
--
--static struct btrfs_lockdep_keyset {
--	u64			id;		/* root objectid */
--	/* Longest entry: btrfs-free-space-00 */
--	char			names[BTRFS_MAX_LEVEL][20];
--	struct lock_class_key	keys[BTRFS_MAX_LEVEL];
--} btrfs_lockdep_keysets[] = {
--	{ .id = BTRFS_ROOT_TREE_OBJECTID,	DEFINE_NAME("root")	},
--	{ .id = BTRFS_EXTENT_TREE_OBJECTID,	DEFINE_NAME("extent")	},
--	{ .id = BTRFS_CHUNK_TREE_OBJECTID,	DEFINE_NAME("chunk")	},
--	{ .id = BTRFS_DEV_TREE_OBJECTID,	DEFINE_NAME("dev")	},
--	{ .id = BTRFS_CSUM_TREE_OBJECTID,	DEFINE_NAME("csum")	},
--	{ .id = BTRFS_QUOTA_TREE_OBJECTID,	DEFINE_NAME("quota")	},
--	{ .id = BTRFS_TREE_LOG_OBJECTID,	DEFINE_NAME("log")	},
--	{ .id = BTRFS_TREE_RELOC_OBJECTID,	DEFINE_NAME("treloc")	},
--	{ .id = BTRFS_DATA_RELOC_TREE_OBJECTID,	DEFINE_NAME("dreloc")	},
--	{ .id = BTRFS_UUID_TREE_OBJECTID,	DEFINE_NAME("uuid")	},
--	{ .id = BTRFS_FREE_SPACE_TREE_OBJECTID,	DEFINE_NAME("free-space") },
--	{ .id = 0,				DEFINE_NAME("tree")	},
--};
--
--#undef DEFINE_LEVEL
--#undef DEFINE_NAME
--
--void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb,
--				    int level)
--{
--	struct btrfs_lockdep_keyset *ks;
--
--	BUG_ON(level >= ARRAY_SIZE(ks->keys));
--
--	/* find the matching keyset, id 0 is the default entry */
--	for (ks = btrfs_lockdep_keysets; ks->id; ks++)
--		if (ks->id == objectid)
--			break;
--
--	lockdep_set_class_and_name(&eb->lock,
--				   &ks->keys[level], ks->names[level]);
--}
--
--#endif
--
- /*
-  * Compute the csum of a btree block and store the result to provided buffer.
-  */
-diff --git a/fs/btrfs/disk-io.h b/fs/btrfs/disk-io.h
-index 4ee8c42c9f783..b4962b7d7117d 100644
---- a/fs/btrfs/disk-io.h
-+++ b/fs/btrfs/disk-io.h
-@@ -148,14 +148,4 @@ int btrfs_init_root_free_objectid(struct btrfs_root *root);
- int __init btrfs_end_io_wq_init(void);
- void __cold btrfs_end_io_wq_exit(void);
+ 	if (address->type == PLN_ADDR_TYPE_GRPH_STEREO) {
+-		REG_UPDATE(DCSURF_FLIP_CONTROL, SURFACE_FLIP_MODE_FOR_STEREOSYNC, 0x1);
++		REG_UPDATE(DCSURF_FLIP_CONTROL, SURFACE_FLIP_MODE_FOR_STEREOSYNC, 0);
+ 		REG_UPDATE(DCSURF_FLIP_CONTROL, SURFACE_FLIP_IN_STEREOSYNC, 0x1);
  
--#ifdef CONFIG_DEBUG_LOCK_ALLOC
--void btrfs_set_buffer_lockdep_class(u64 objectid,
--			            struct extent_buffer *eb, int level);
--#else
--static inline void btrfs_set_buffer_lockdep_class(u64 objectid,
--					struct extent_buffer *eb, int level)
--{
--}
--#endif
--
- #endif
-diff --git a/fs/btrfs/locking.c b/fs/btrfs/locking.c
-index 33461b4f9c8b5..5747c63929df7 100644
---- a/fs/btrfs/locking.c
-+++ b/fs/btrfs/locking.c
-@@ -13,6 +13,86 @@
- #include "extent_io.h"
- #include "locking.h"
- 
-+/*
-+ * Lockdep class keys for extent_buffer->lock's in this root.  For a given
-+ * eb, the lockdep key is determined by the btrfs_root it belongs to and
-+ * the level the eb occupies in the tree.
-+ *
-+ * Different roots are used for different purposes and may nest inside each
-+ * other and they require separate keysets.  As lockdep keys should be
-+ * static, assign keysets according to the purpose of the root as indicated
-+ * by btrfs_root->root_key.objectid.  This ensures that all special purpose
-+ * roots have separate keysets.
-+ *
-+ * Lock-nesting across peer nodes is always done with the immediate parent
-+ * node locked thus preventing deadlock.  As lockdep doesn't know this, use
-+ * subclass to avoid triggering lockdep warning in such cases.
-+ *
-+ * The key is set by the readpage_end_io_hook after the buffer has passed
-+ * csum validation but before the pages are unlocked.  It is also set by
-+ * btrfs_init_new_buffer on freshly allocated blocks.
-+ *
-+ * We also add a check to make sure the highest level of the tree is the
-+ * same as our lockdep setup here.  If BTRFS_MAX_LEVEL changes, this code
-+ * needs update as well.
-+ */
-+#ifdef CONFIG_DEBUG_LOCK_ALLOC
-+#if BTRFS_MAX_LEVEL != 8
-+#error
-+#endif
-+
-+#define DEFINE_LEVEL(stem, level)					\
-+	.names[level] = "btrfs-" stem "-0" #level,
-+
-+#define DEFINE_NAME(stem)						\
-+	DEFINE_LEVEL(stem, 0)						\
-+	DEFINE_LEVEL(stem, 1)						\
-+	DEFINE_LEVEL(stem, 2)						\
-+	DEFINE_LEVEL(stem, 3)						\
-+	DEFINE_LEVEL(stem, 4)						\
-+	DEFINE_LEVEL(stem, 5)						\
-+	DEFINE_LEVEL(stem, 6)						\
-+	DEFINE_LEVEL(stem, 7)
-+
-+static struct btrfs_lockdep_keyset {
-+	u64			id;		/* root objectid */
-+	/* Longest entry: btrfs-free-space-00 */
-+	char			names[BTRFS_MAX_LEVEL][20];
-+	struct lock_class_key	keys[BTRFS_MAX_LEVEL];
-+} btrfs_lockdep_keysets[] = {
-+	{ .id = BTRFS_ROOT_TREE_OBJECTID,	DEFINE_NAME("root")	},
-+	{ .id = BTRFS_EXTENT_TREE_OBJECTID,	DEFINE_NAME("extent")	},
-+	{ .id = BTRFS_CHUNK_TREE_OBJECTID,	DEFINE_NAME("chunk")	},
-+	{ .id = BTRFS_DEV_TREE_OBJECTID,	DEFINE_NAME("dev")	},
-+	{ .id = BTRFS_CSUM_TREE_OBJECTID,	DEFINE_NAME("csum")	},
-+	{ .id = BTRFS_QUOTA_TREE_OBJECTID,	DEFINE_NAME("quota")	},
-+	{ .id = BTRFS_TREE_LOG_OBJECTID,	DEFINE_NAME("log")	},
-+	{ .id = BTRFS_TREE_RELOC_OBJECTID,	DEFINE_NAME("treloc")	},
-+	{ .id = BTRFS_DATA_RELOC_TREE_OBJECTID,	DEFINE_NAME("dreloc")	},
-+	{ .id = BTRFS_UUID_TREE_OBJECTID,	DEFINE_NAME("uuid")	},
-+	{ .id = BTRFS_FREE_SPACE_TREE_OBJECTID,	DEFINE_NAME("free-space") },
-+	{ .id = 0,				DEFINE_NAME("tree")	},
-+};
-+
-+#undef DEFINE_LEVEL
-+#undef DEFINE_NAME
-+
-+void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb, int level)
-+{
-+	struct btrfs_lockdep_keyset *ks;
-+
-+	BUG_ON(level >= ARRAY_SIZE(ks->keys));
-+
-+	/* Find the matching keyset, id 0 is the default entry */
-+	for (ks = btrfs_lockdep_keysets; ks->id; ks++)
-+		if (ks->id == objectid)
-+			break;
-+
-+	lockdep_set_class_and_name(&eb->lock, &ks->keys[level], ks->names[level]);
-+}
-+
-+#endif
-+
- /*
-  * Extent buffer locking
-  * =====================
-diff --git a/fs/btrfs/locking.h b/fs/btrfs/locking.h
-index bbc45534ae9a6..b21372cab8409 100644
---- a/fs/btrfs/locking.h
-+++ b/fs/btrfs/locking.h
-@@ -131,4 +131,13 @@ void btrfs_drew_write_unlock(struct btrfs_drew_lock *lock);
- void btrfs_drew_read_lock(struct btrfs_drew_lock *lock);
- void btrfs_drew_read_unlock(struct btrfs_drew_lock *lock);
- 
-+#ifdef CONFIG_DEBUG_LOCK_ALLOC
-+void btrfs_set_buffer_lockdep_class(u64 objectid, struct extent_buffer *eb, int level);
-+#else
-+static inline void btrfs_set_buffer_lockdep_class(u64 objectid,
-+					struct extent_buffer *eb, int level)
-+{
-+}
-+#endif
-+
- #endif
+ 	} else {
 -- 
 2.35.1
 
