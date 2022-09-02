@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 074FD5AB216
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D0E85AB125
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237684AbiIBNvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:51:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34330 "EHLO
+        id S236362AbiIBNEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:04:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237675AbiIBNvH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:51:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E518AC12D3;
-        Fri,  2 Sep 2022 06:25:50 -0700 (PDT)
+        with ESMTP id S238396AbiIBNDK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:03:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9044810F093;
+        Fri,  2 Sep 2022 05:41:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5EC99B82A9F;
-        Fri,  2 Sep 2022 12:24:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4455C43149;
-        Fri,  2 Sep 2022 12:23:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5829E62133;
+        Fri,  2 Sep 2022 12:25:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E95EC433D7;
+        Fri,  2 Sep 2022 12:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121439;
-        bh=V9A0EwG/aX+YjLSOdCVioJulTU+wCxpArl6ri0QFYpM=;
+        s=korg; t=1662121539;
+        bh=gkz6s2RIEKzRZ+614VP7yBempYAr+jNb4MNz4wJKp28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uvq4qgYH05k59pa9Kpc3V3BW5xDlOC4UIzgF+mSa73X8jsAImwlbRN9f/TN6IBWA7
-         Yx23sDnucD3pOvBQRRdXFxN+7DuMGEBCUAFDU1GFPUvsjzNVh3Q6VCmIaloOZjVuRP
-         yPrgpGzEsNIJxfMBmZ+mH82OVdyxK+2NHne+u6wg=
+        b=xYSs6w1CbWg05GEPaip2rfePar7XVifphSk5nabcUq7oyXeKOIxQp6pf9LGHPmUic
+         oGFJ68YpevHzLtDo8+pmKDVYl+iPG4jRQH9Cyv0WRUWb+Fg48HWzB4HLvsMw3HolQf
+         BVqf78NdbHGd/pfB+oXha8tX8bRu2fIimQ+gIgAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 37/42] mm/rmap: Fix anon_vma->degree ambiguity leading to double-reuse
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.19 41/56] s390/mm: do not trigger write fault when vma does not allow VM_WRITE
 Date:   Fri,  2 Sep 2022 14:19:01 +0200
-Message-Id: <20220902121400.056184517@linuxfoundation.org>
+Message-Id: <20220902121401.780910897@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,168 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit 2555283eb40df89945557273121e9393ef9b542b upstream.
+commit 41ac42f137080bc230b5882e3c88c392ab7f2d32 upstream.
 
-anon_vma->degree tracks the combined number of child anon_vmas and VMAs
-that use the anon_vma as their ->anon_vma.
+For non-protection pXd_none() page faults in do_dat_exception(), we
+call do_exception() with access == (VM_READ | VM_WRITE | VM_EXEC).
+In do_exception(), vma->vm_flags is checked against that before
+calling handle_mm_fault().
 
-anon_vma_clone() then assumes that for any anon_vma attached to
-src->anon_vma_chain other than src->anon_vma, it is impossible for it to
-be a leaf node of the VMA tree, meaning that for such VMAs ->degree is
-elevated by 1 because of a child anon_vma, meaning that if ->degree
-equals 1 there are no VMAs that use the anon_vma as their ->anon_vma.
+Since commit 92f842eac7ee3 ("[S390] store indication fault optimization"),
+we call handle_mm_fault() with FAULT_FLAG_WRITE, when recognizing that
+it was a write access. However, the vma flags check is still only
+checking against (VM_READ | VM_WRITE | VM_EXEC), and therefore also
+calling handle_mm_fault() with FAULT_FLAG_WRITE in cases where the vma
+does not allow VM_WRITE.
 
-This assumption is wrong because the ->degree optimization leads to leaf
-nodes being abandoned on anon_vma_clone() - an existing anon_vma is
-reused and no new parent-child relationship is created.  So it is
-possible to reuse an anon_vma for one VMA while it is still tied to
-another VMA.
+Fix this by changing access check in do_exception() to VM_WRITE only,
+when recognizing write access.
 
-This is an issue because is_mergeable_anon_vma() and its callers assume
-that if two VMAs have the same ->anon_vma, the list of anon_vmas
-attached to the VMAs is guaranteed to be the same.  When this assumption
-is violated, vma_merge() can merge pages into a VMA that is not attached
-to the corresponding anon_vma, leading to dangling page->mapping
-pointers that will be dereferenced during rmap walks.
-
-Fix it by separately tracking the number of child anon_vmas and the
-number of VMAs using the anon_vma as their ->anon_vma.
-
-Fixes: 7a3ef208e662 ("mm: prevent endless growth of anon_vma hierarchy")
-Cc: stable@kernel.org
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lkml.kernel.org/r/20220811103435.188481-3-david@redhat.com
+Fixes: 92f842eac7ee3 ("[S390] store indication fault optimization")
+Cc: <stable@vger.kernel.org>
+Reported-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/rmap.h |    7 +++++--
- mm/rmap.c            |   31 +++++++++++++++++--------------
- 2 files changed, 22 insertions(+), 16 deletions(-)
+ arch/s390/mm/fault.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/rmap.h
-+++ b/include/linux/rmap.h
-@@ -39,12 +39,15 @@ struct anon_vma {
- 	atomic_t refcount;
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -455,7 +455,9 @@ static inline vm_fault_t do_exception(st
+ 	flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+ 	if (user_mode(regs))
+ 		flags |= FAULT_FLAG_USER;
+-	if (access == VM_WRITE || (trans_exc_code & store_indication) == 0x400)
++	if ((trans_exc_code & store_indication) == 0x400)
++		access = VM_WRITE;
++	if (access == VM_WRITE)
+ 		flags |= FAULT_FLAG_WRITE;
+ 	down_read(&mm->mmap_sem);
  
- 	/*
--	 * Count of child anon_vmas and VMAs which points to this anon_vma.
-+	 * Count of child anon_vmas. Equals to the count of all anon_vmas that
-+	 * have ->parent pointing to this one, including itself.
- 	 *
- 	 * This counter is used for making decision about reusing anon_vma
- 	 * instead of forking new one. See comments in function anon_vma_clone.
- 	 */
--	unsigned degree;
-+	unsigned long num_children;
-+	/* Count of VMAs whose ->anon_vma pointer points to this object. */
-+	unsigned long num_active_vmas;
- 
- 	struct anon_vma *parent;	/* Parent of this anon_vma */
- 
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -82,7 +82,8 @@ static inline struct anon_vma *anon_vma_
- 	anon_vma = kmem_cache_alloc(anon_vma_cachep, GFP_KERNEL);
- 	if (anon_vma) {
- 		atomic_set(&anon_vma->refcount, 1);
--		anon_vma->degree = 1;	/* Reference for first vma */
-+		anon_vma->num_children = 0;
-+		anon_vma->num_active_vmas = 0;
- 		anon_vma->parent = anon_vma;
- 		/*
- 		 * Initialise the anon_vma root to point to itself. If called
-@@ -190,6 +191,7 @@ int __anon_vma_prepare(struct vm_area_st
- 		anon_vma = anon_vma_alloc();
- 		if (unlikely(!anon_vma))
- 			goto out_enomem_free_avc;
-+		anon_vma->num_children++; /* self-parent link for new root */
- 		allocated = anon_vma;
- 	}
- 
-@@ -199,8 +201,7 @@ int __anon_vma_prepare(struct vm_area_st
- 	if (likely(!vma->anon_vma)) {
- 		vma->anon_vma = anon_vma;
- 		anon_vma_chain_link(vma, avc, anon_vma);
--		/* vma reference or self-parent link for new root */
--		anon_vma->degree++;
-+		anon_vma->num_active_vmas++;
- 		allocated = NULL;
- 		avc = NULL;
- 	}
-@@ -279,19 +280,19 @@ int anon_vma_clone(struct vm_area_struct
- 		anon_vma_chain_link(dst, avc, anon_vma);
- 
- 		/*
--		 * Reuse existing anon_vma if its degree lower than two,
--		 * that means it has no vma and only one anon_vma child.
-+		 * Reuse existing anon_vma if it has no vma and only one
-+		 * anon_vma child.
- 		 *
--		 * Do not chose parent anon_vma, otherwise first child
--		 * will always reuse it. Root anon_vma is never reused:
-+		 * Root anon_vma is never reused:
- 		 * it has self-parent reference and at least one child.
- 		 */
--		if (!dst->anon_vma && anon_vma != src->anon_vma &&
--				anon_vma->degree < 2)
-+		if (!dst->anon_vma &&
-+		    anon_vma->num_children < 2 &&
-+		    anon_vma->num_active_vmas == 0)
- 			dst->anon_vma = anon_vma;
- 	}
- 	if (dst->anon_vma)
--		dst->anon_vma->degree++;
-+		dst->anon_vma->num_active_vmas++;
- 	unlock_anon_vma_root(root);
- 	return 0;
- 
-@@ -341,6 +342,7 @@ int anon_vma_fork(struct vm_area_struct
- 	anon_vma = anon_vma_alloc();
- 	if (!anon_vma)
- 		goto out_error;
-+	anon_vma->num_active_vmas++;
- 	avc = anon_vma_chain_alloc(GFP_KERNEL);
- 	if (!avc)
- 		goto out_error_free_anon_vma;
-@@ -361,7 +363,7 @@ int anon_vma_fork(struct vm_area_struct
- 	vma->anon_vma = anon_vma;
- 	anon_vma_lock_write(anon_vma);
- 	anon_vma_chain_link(vma, avc, anon_vma);
--	anon_vma->parent->degree++;
-+	anon_vma->parent->num_children++;
- 	anon_vma_unlock_write(anon_vma);
- 
- 	return 0;
-@@ -393,7 +395,7 @@ void unlink_anon_vmas(struct vm_area_str
- 		 * to free them outside the lock.
- 		 */
- 		if (RB_EMPTY_ROOT(&anon_vma->rb_root.rb_root)) {
--			anon_vma->parent->degree--;
-+			anon_vma->parent->num_children--;
- 			continue;
- 		}
- 
-@@ -401,7 +403,7 @@ void unlink_anon_vmas(struct vm_area_str
- 		anon_vma_chain_free(avc);
- 	}
- 	if (vma->anon_vma)
--		vma->anon_vma->degree--;
-+		vma->anon_vma->num_active_vmas--;
- 	unlock_anon_vma_root(root);
- 
- 	/*
-@@ -412,7 +414,8 @@ void unlink_anon_vmas(struct vm_area_str
- 	list_for_each_entry_safe(avc, next, &vma->anon_vma_chain, same_vma) {
- 		struct anon_vma *anon_vma = avc->anon_vma;
- 
--		VM_WARN_ON(anon_vma->degree);
-+		VM_WARN_ON(anon_vma->num_children);
-+		VM_WARN_ON(anon_vma->num_active_vmas);
- 		put_anon_vma(anon_vma);
- 
- 		list_del(&avc->same_vma);
 
 
