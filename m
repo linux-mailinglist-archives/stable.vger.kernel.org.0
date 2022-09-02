@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B34CA5AB119
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:03:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA27B5AAEC6
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238610AbiIBNDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:03:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39092 "EHLO
+        id S236420AbiIBM3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:29:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236362AbiIBNDE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:03:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FEDC10DE72;
-        Fri,  2 Sep 2022 05:41:47 -0700 (PDT)
+        with ESMTP id S236515AbiIBM2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:28:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E88CBD8E33;
+        Fri,  2 Sep 2022 05:24:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58C6462162;
-        Fri,  2 Sep 2022 12:27:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA3EC433D6;
-        Fri,  2 Sep 2022 12:27:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F9F0B82A9E;
+        Fri,  2 Sep 2022 12:24:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CC87C433C1;
+        Fri,  2 Sep 2022 12:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121625;
-        bh=ApNfnb3FFa3CMZAD9qK8lMfCD5QMDVBULyhY9SBxFn0=;
+        s=korg; t=1662121475;
+        bh=GRY44WcHqY/SgymLIc9wHIjeXiuJ7rxdOZn+fozOfg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lai89Atjv8L3hmrlkt463ckhLCklHyoJwpR1imTccwhf4hUED02pF/0HpAi4hsaCw
-         JzBR6LSKR/xiI+KptCSOieQpeimx8KiA/mVKN+ESDbPu6dY0piLeOzVyLmPEFnS8WS
-         PfbogGrk8I536HGUHu4jNUq/RZkvEFE4ALoFin2E=
+        b=HV2bL/CoKqKFL/f0QUPQjKRNxBdz76le4erdchl5u8oKYuFbBIDCmCuNkmZo3zzBp
+         LaJ6TDsECzSRlEYMyh74CIr1WNcZLsEC/DOsQZAdtfZa5k3gw7TUNh80b26Zp1oSvr
+         CGObnOK9b9EYSPfvu/5uPxpzVGPCwshUp4Jy767E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/77] af_key: Do not call xfrm_probe_algs in parallel
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 02/56] parisc: Fix exception handler for fldw and fstw instructions
 Date:   Fri,  2 Sep 2022 14:18:22 +0200
-Message-Id: <20220902121404.080846598@linuxfoundation.org>
+Message-Id: <20220902121400.299316707@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit ba953a9d89a00c078b85f4b190bc1dde66fe16b5 ]
+commit 7ae1f5508d9a33fd58ed3059bd2d569961e3b8bd upstream.
 
-When namespace support was added to xfrm/afkey, it caused the
-previously single-threaded call to xfrm_probe_algs to become
-multi-threaded.  This is buggy and needs to be fixed with a mutex.
+The exception handler is broken for unaligned memory acceses with fldw
+and fstw instructions, because it trashes or uses randomly some other
+floating point register than the one specified in the instruction word
+on loads and stores.
 
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Fixes: 283bc9f35bbb ("xfrm: Namespacify xfrm state/policy locks")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The instruction "fldw 0(addr),%fr22L" (and the other fldw/fstw
+instructions) encode the target register (%fr22) in the rightmost 5 bits
+of the instruction word. The 7th rightmost bit of the instruction word
+defines if the left or right half of %fr22 should be used.
+
+While processing unaligned address accesses, the FR3() define is used to
+extract the offset into the local floating-point register set.  But the
+calculation in FR3() was buggy, so that for example instead of %fr22,
+register %fr12 [((22 * 2) & 0x1f) = 12] was used.
+
+This bug has been since forever in the parisc kernel and I wonder why it
+wasn't detected earlier. Interestingly I noticed this bug just because
+the libime debian package failed to build on *native* hardware, while it
+successfully built in qemu.
+
+This patch corrects the bitshift and masking calculation in FR3().
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/key/af_key.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/parisc/kernel/unaligned.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index 32fe99cd01fc8..c06cc48c68c90 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -1701,9 +1701,12 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
- 		pfk->registered |= (1<<hdr->sadb_msg_satype);
- 	}
- 
-+	mutex_lock(&pfkey_mutex);
- 	xfrm_probe_algs();
- 
- 	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
-+	mutex_unlock(&pfkey_mutex);
-+
- 	if (!supp_skb) {
- 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
- 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
--- 
-2.35.1
-
+--- a/arch/parisc/kernel/unaligned.c
++++ b/arch/parisc/kernel/unaligned.c
+@@ -121,7 +121,7 @@
+ #define R1(i) (((i)>>21)&0x1f)
+ #define R2(i) (((i)>>16)&0x1f)
+ #define R3(i) ((i)&0x1f)
+-#define FR3(i) ((((i)<<1)&0x1f)|(((i)>>6)&1))
++#define FR3(i) ((((i)&0x1f)<<1)|(((i)>>6)&1))
+ #define IM(i,n) (((i)>>1&((1<<(n-1))-1))|((i)&1?((0-1L)<<(n-1)):0))
+ #define IM5_2(i) IM((i)>>16,5)
+ #define IM5_3(i) IM((i),5)
 
 
