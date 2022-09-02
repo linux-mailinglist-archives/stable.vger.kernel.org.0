@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFAF55AAFDA
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90ECA5AAF98
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237441AbiIBMow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:44:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44804 "EHLO
+        id S237186AbiIBMke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:40:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237588AbiIBMoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:44:13 -0400
+        with ESMTP id S237464AbiIBMjn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:39:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1803CEEC79;
-        Fri,  2 Sep 2022 05:32:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2655C6CD9;
+        Fri,  2 Sep 2022 05:30:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96447B81CCF;
-        Fri,  2 Sep 2022 12:32:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5EF6C433D7;
-        Fri,  2 Sep 2022 12:32:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9947B82AA5;
+        Fri,  2 Sep 2022 12:30:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34CB3C433D6;
+        Fri,  2 Sep 2022 12:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121971;
-        bh=offp41GCZkSMjK/menYUEckaRbWIdkOoLjZE3dJk2QQ=;
+        s=korg; t=1662121838;
+        bh=rD9g72oViAjhyfdIc51l3u7E5wJQ9WDnZPSEBTo7VUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sLGE9n/ZK0sTEldXGAA/4LZU8bE/0ql7n5VbuvJ7+Rc0+0ynrbK6E7XlpUWphR9Et
-         sByKfW4ugQd3S9u75VV91bV4Jg5Cu6/UgMN7eFfrzq3Fzn/0P66Z2P2CmmfE/86Nek
-         q5K45e5s348gKfkpAp1QGjW/7jVyECLiuLF856AI=
+        b=KNBk2t/IO7KFuJtVaeehQfvV5CaXdyxOSK7EEY9hm5cLI77Kx26sntG5rYjvRVlfY
+         sZOjg8Mtm8thve66hX/0b2j/X+FSxwupPWYLz0Ne6me97FiZngQBWcUWMSWG857XMT
+         bPPu9yoDiQ+MXcXlJ1T8Z3enho6AFzYlLMC0uXgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woods <davwoods@nvidia.com>,
-        Liming Sun <limings@nvidia.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 45/73] mmc: sdhci-of-dwcmshc: Re-enable support for the BlueField-3 SoC
-Date:   Fri,  2 Sep 2022 14:19:09 +0200
-Message-Id: <20220902121405.935667503@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 61/77] mm/rmap: Fix anon_vma->degree ambiguity leading to double-reuse
+Date:   Fri,  2 Sep 2022 14:19:10 +0200
+Message-Id: <20220902121405.695459492@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,73 +55,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liming Sun <limings@nvidia.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit a0753ef66c34c1739580219dca664eda648164b7 ]
+commit 2555283eb40df89945557273121e9393ef9b542b upstream.
 
-The commit 08f3dff799d4 (mmc: sdhci-of-dwcmshc: add rockchip platform
-support") introduces the use of_device_get_match_data() to check for some
-chips. Unfortunately, it also breaks the BlueField-3 FW, which uses ACPI.
+anon_vma->degree tracks the combined number of child anon_vmas and VMAs
+that use the anon_vma as their ->anon_vma.
 
-To fix the problem, let's add the ACPI match data and the corresponding
-quirks to re-enable the support for the BlueField-3 SoC.
+anon_vma_clone() then assumes that for any anon_vma attached to
+src->anon_vma_chain other than src->anon_vma, it is impossible for it to
+be a leaf node of the VMA tree, meaning that for such VMAs ->degree is
+elevated by 1 because of a child anon_vma, meaning that if ->degree
+equals 1 there are no VMAs that use the anon_vma as their ->anon_vma.
 
-Reviewed-by: David Woods <davwoods@nvidia.com>
-Signed-off-by: Liming Sun <limings@nvidia.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 08f3dff799d4 ("mmc: sdhci-of-dwcmshc: add rockchip platform support")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220809173742.178440-1-limings@nvidia.com
-[Ulf: Clarified the commit message a bit]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This assumption is wrong because the ->degree optimization leads to leaf
+nodes being abandoned on anon_vma_clone() - an existing anon_vma is
+reused and no new parent-child relationship is created.  So it is
+possible to reuse an anon_vma for one VMA while it is still tied to
+another VMA.
+
+This is an issue because is_mergeable_anon_vma() and its callers assume
+that if two VMAs have the same ->anon_vma, the list of anon_vmas
+attached to the VMAs is guaranteed to be the same.  When this assumption
+is violated, vma_merge() can merge pages into a VMA that is not attached
+to the corresponding anon_vma, leading to dangling page->mapping
+pointers that will be dereferenced during rmap walks.
+
+Fix it by separately tracking the number of child anon_vmas and the
+number of VMAs using the anon_vma as their ->anon_vma.
+
+Fixes: 7a3ef208e662 ("mm: prevent endless growth of anon_vma hierarchy")
+Cc: stable@kernel.org
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-of-dwcmshc.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ include/linux/rmap.h |    7 +++++--
+ mm/rmap.c            |   31 +++++++++++++++++--------------
+ 2 files changed, 22 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
-index f5fd88c7adef1..335c88fd849c4 100644
---- a/drivers/mmc/host/sdhci-of-dwcmshc.c
-+++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
-@@ -296,6 +296,15 @@ static const struct sdhci_pltfm_data sdhci_dwcmshc_pdata = {
- 	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
- };
+--- a/include/linux/rmap.h
++++ b/include/linux/rmap.h
+@@ -39,12 +39,15 @@ struct anon_vma {
+ 	atomic_t refcount;
  
-+#ifdef CONFIG_ACPI
-+static const struct sdhci_pltfm_data sdhci_dwcmshc_bf3_pdata = {
-+	.ops = &sdhci_dwcmshc_ops,
-+	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
-+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN |
-+		   SDHCI_QUIRK2_ACMD23_BROKEN,
-+};
-+#endif
-+
- static const struct sdhci_pltfm_data sdhci_dwcmshc_rk35xx_pdata = {
- 	.ops = &sdhci_dwcmshc_rk35xx_ops,
- 	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN |
-@@ -360,7 +369,10 @@ MODULE_DEVICE_TABLE(of, sdhci_dwcmshc_dt_ids);
+ 	/*
+-	 * Count of child anon_vmas and VMAs which points to this anon_vma.
++	 * Count of child anon_vmas. Equals to the count of all anon_vmas that
++	 * have ->parent pointing to this one, including itself.
+ 	 *
+ 	 * This counter is used for making decision about reusing anon_vma
+ 	 * instead of forking new one. See comments in function anon_vma_clone.
+ 	 */
+-	unsigned degree;
++	unsigned long num_children;
++	/* Count of VMAs whose ->anon_vma pointer points to this object. */
++	unsigned long num_active_vmas;
  
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id sdhci_dwcmshc_acpi_ids[] = {
--	{ .id = "MLNXBF30" },
-+	{
-+		.id = "MLNXBF30",
-+		.driver_data = (kernel_ulong_t)&sdhci_dwcmshc_bf3_pdata,
-+	},
- 	{}
- };
- #endif
-@@ -376,7 +388,7 @@ static int dwcmshc_probe(struct platform_device *pdev)
- 	int err;
- 	u32 extra;
+ 	struct anon_vma *parent;	/* Parent of this anon_vma */
  
--	pltfm_data = of_device_get_match_data(&pdev->dev);
-+	pltfm_data = device_get_match_data(&pdev->dev);
- 	if (!pltfm_data) {
- 		dev_err(&pdev->dev, "Error: No device match data found\n");
- 		return -ENODEV;
--- 
-2.35.1
-
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -83,7 +83,8 @@ static inline struct anon_vma *anon_vma_
+ 	anon_vma = kmem_cache_alloc(anon_vma_cachep, GFP_KERNEL);
+ 	if (anon_vma) {
+ 		atomic_set(&anon_vma->refcount, 1);
+-		anon_vma->degree = 1;	/* Reference for first vma */
++		anon_vma->num_children = 0;
++		anon_vma->num_active_vmas = 0;
+ 		anon_vma->parent = anon_vma;
+ 		/*
+ 		 * Initialise the anon_vma root to point to itself. If called
+@@ -191,6 +192,7 @@ int __anon_vma_prepare(struct vm_area_st
+ 		anon_vma = anon_vma_alloc();
+ 		if (unlikely(!anon_vma))
+ 			goto out_enomem_free_avc;
++		anon_vma->num_children++; /* self-parent link for new root */
+ 		allocated = anon_vma;
+ 	}
+ 
+@@ -200,8 +202,7 @@ int __anon_vma_prepare(struct vm_area_st
+ 	if (likely(!vma->anon_vma)) {
+ 		vma->anon_vma = anon_vma;
+ 		anon_vma_chain_link(vma, avc, anon_vma);
+-		/* vma reference or self-parent link for new root */
+-		anon_vma->degree++;
++		anon_vma->num_active_vmas++;
+ 		allocated = NULL;
+ 		avc = NULL;
+ 	}
+@@ -280,19 +281,19 @@ int anon_vma_clone(struct vm_area_struct
+ 		anon_vma_chain_link(dst, avc, anon_vma);
+ 
+ 		/*
+-		 * Reuse existing anon_vma if its degree lower than two,
+-		 * that means it has no vma and only one anon_vma child.
++		 * Reuse existing anon_vma if it has no vma and only one
++		 * anon_vma child.
+ 		 *
+-		 * Do not chose parent anon_vma, otherwise first child
+-		 * will always reuse it. Root anon_vma is never reused:
++		 * Root anon_vma is never reused:
+ 		 * it has self-parent reference and at least one child.
+ 		 */
+-		if (!dst->anon_vma && anon_vma != src->anon_vma &&
+-				anon_vma->degree < 2)
++		if (!dst->anon_vma &&
++		    anon_vma->num_children < 2 &&
++		    anon_vma->num_active_vmas == 0)
+ 			dst->anon_vma = anon_vma;
+ 	}
+ 	if (dst->anon_vma)
+-		dst->anon_vma->degree++;
++		dst->anon_vma->num_active_vmas++;
+ 	unlock_anon_vma_root(root);
+ 	return 0;
+ 
+@@ -342,6 +343,7 @@ int anon_vma_fork(struct vm_area_struct
+ 	anon_vma = anon_vma_alloc();
+ 	if (!anon_vma)
+ 		goto out_error;
++	anon_vma->num_active_vmas++;
+ 	avc = anon_vma_chain_alloc(GFP_KERNEL);
+ 	if (!avc)
+ 		goto out_error_free_anon_vma;
+@@ -362,7 +364,7 @@ int anon_vma_fork(struct vm_area_struct
+ 	vma->anon_vma = anon_vma;
+ 	anon_vma_lock_write(anon_vma);
+ 	anon_vma_chain_link(vma, avc, anon_vma);
+-	anon_vma->parent->degree++;
++	anon_vma->parent->num_children++;
+ 	anon_vma_unlock_write(anon_vma);
+ 
+ 	return 0;
+@@ -394,7 +396,7 @@ void unlink_anon_vmas(struct vm_area_str
+ 		 * to free them outside the lock.
+ 		 */
+ 		if (RB_EMPTY_ROOT(&anon_vma->rb_root.rb_root)) {
+-			anon_vma->parent->degree--;
++			anon_vma->parent->num_children--;
+ 			continue;
+ 		}
+ 
+@@ -402,7 +404,7 @@ void unlink_anon_vmas(struct vm_area_str
+ 		anon_vma_chain_free(avc);
+ 	}
+ 	if (vma->anon_vma)
+-		vma->anon_vma->degree--;
++		vma->anon_vma->num_active_vmas--;
+ 	unlock_anon_vma_root(root);
+ 
+ 	/*
+@@ -413,7 +415,8 @@ void unlink_anon_vmas(struct vm_area_str
+ 	list_for_each_entry_safe(avc, next, &vma->anon_vma_chain, same_vma) {
+ 		struct anon_vma *anon_vma = avc->anon_vma;
+ 
+-		VM_WARN_ON(anon_vma->degree);
++		VM_WARN_ON(anon_vma->num_children);
++		VM_WARN_ON(anon_vma->num_active_vmas);
+ 		put_anon_vma(anon_vma);
+ 
+ 		list_del(&avc->same_vma);
 
 
