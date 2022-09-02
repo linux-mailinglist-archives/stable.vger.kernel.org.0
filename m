@@ -2,45 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D7D5AAECA
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 524445AAF57
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235989AbiIBM3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35424 "EHLO
+        id S236762AbiIBMgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:36:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236431AbiIBM2C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:28:02 -0400
+        with ESMTP id S236897AbiIBMe7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:34:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1178DEB7B;
-        Fri,  2 Sep 2022 05:24:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E63DDA9D;
+        Fri,  2 Sep 2022 05:28:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46D2C62109;
-        Fri,  2 Sep 2022 12:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5313CC433B5;
-        Fri,  2 Sep 2022 12:22:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4714262169;
+        Fri,  2 Sep 2022 12:26:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 227A5C433C1;
+        Fri,  2 Sep 2022 12:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121378;
-        bh=lQq/Az5ivwGvOXuttwwyW65SjmR9luulNBvxjzKKSdw=;
+        s=korg; t=1662121604;
+        bh=fR9sprY+XFhzju+GknKGQWVKeO5tDoaSoCfhx3r0z8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sq+wIYn6Q/vqhyml2sOnjUeOLc26n1jwvot9NORk1Jvk3dulJ0zXPlcY0L/jJN7ZX
-         7RmbdCj8sm6AqEPVQkU0MMnxbEXJAUDH4liq0hQHls/Q/RtzrXk4K/3lIbLv8m/6P4
-         bf1WTGx26TmKXxYDcVjil1NqxBBOOPAnq4AbMIpc=
+        b=mo8TKiymtqD0rUNMi9oV2g/amlSlFBQzopyutxudK8aG4Jp9j+DrY6/ah700ACbwS
+         StSIj2d2lL3XRRLTNV4fsfe5qBnMnwExuw6zQY6TrXjhThUPgFxiyaRBAukabQJOMt
+         xuFh7rBNjVXS41gv5iPI9YGQbzZEbNeiSkP7wP7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.14 30/42] x86/bugs: Add "unknown" reporting for MMIO Stale Data
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Feiner <pfeiner@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Cyrill Gorcunov <gorcunov@openvz.org>,
+        Pavel Emelyanov <xemul@parallels.com>,
+        Jamie Liu <jamieliu@google.com>,
+        Hugh Dickins <hughd@google.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.19 34/56] mm/hugetlb: fix hugetlb not supporting softdirty tracking
 Date:   Fri,  2 Sep 2022 14:18:54 +0200
-Message-Id: <20220902121359.843101620@linuxfoundation.org>
+Message-Id: <20220902121401.463956465@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,194 +64,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 7df548840c496b0141fb2404b889c346380c2b22 upstream.
+commit f96f7a40874d7c746680c0b9f57cef2262ae551f upstream.
 
-Older Intel CPUs that are not in the affected processor list for MMIO
-Stale Data vulnerabilities currently report "Not affected" in sysfs,
-which may not be correct. Vulnerability status for these older CPUs is
-unknown.
+Patch series "mm/hugetlb: fix write-fault handling for shared mappings", v2.
 
-Add known-not-affected CPUs to the whitelist. Report "unknown"
-mitigation status for CPUs that are not in blacklist, whitelist and also
-don't enumerate MSR ARCH_CAPABILITIES bits that reflect hardware
-immunity to MMIO Stale Data vulnerabilities.
+I observed that hugetlb does not support/expect write-faults in shared
+mappings that would have to map the R/O-mapped page writable -- and I
+found two case where we could currently get such faults and would
+erroneously map an anon page into a shared mapping.
 
-Mitigation is not deployed when the status is unknown.
+Reproducers part of the patches.
 
-  [ bp: Massage, fixup. ]
+I propose to backport both fixes to stable trees.  The first fix needs a
+small adjustment.
 
-Fixes: 8d50cdf8b834 ("x86/speculation/mmio: Add sysfs reporting for Processor MMIO Stale Data")
-Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Suggested-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/a932c154772f2121794a5f2eded1a11013114711.1657846269.git.pawan.kumar.gupta@linux.intel.com
+
+This patch (of 2):
+
+Staring at hugetlb_wp(), one might wonder where all the logic for shared
+mappings is when stumbling over a write-protected page in a shared
+mapping.  In fact, there is none, and so far we thought we could get away
+with that because e.g., mprotect() should always do the right thing and
+map all pages directly writable.
+
+Looks like we were wrong:
+
+--------------------------------------------------------------------------
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <errno.h>
+ #include <sys/mman.h>
+
+ #define HUGETLB_SIZE (2 * 1024 * 1024u)
+
+ static void clear_softdirty(void)
+ {
+         int fd = open("/proc/self/clear_refs", O_WRONLY);
+         const char *ctrl = "4";
+         int ret;
+
+         if (fd < 0) {
+                 fprintf(stderr, "open(clear_refs) failed\n");
+                 exit(1);
+         }
+         ret = write(fd, ctrl, strlen(ctrl));
+         if (ret != strlen(ctrl)) {
+                 fprintf(stderr, "write(clear_refs) failed\n");
+                 exit(1);
+         }
+         close(fd);
+ }
+
+ int main(int argc, char **argv)
+ {
+         char *map;
+         int fd;
+
+         fd = open("/dev/hugepages/tmp", O_RDWR | O_CREAT);
+         if (!fd) {
+                 fprintf(stderr, "open() failed\n");
+                 return -errno;
+         }
+         if (ftruncate(fd, HUGETLB_SIZE)) {
+                 fprintf(stderr, "ftruncate() failed\n");
+                 return -errno;
+         }
+
+         map = mmap(NULL, HUGETLB_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+         if (map == MAP_FAILED) {
+                 fprintf(stderr, "mmap() failed\n");
+                 return -errno;
+         }
+
+         *map = 0;
+
+         if (mprotect(map, HUGETLB_SIZE, PROT_READ)) {
+                 fprintf(stderr, "mmprotect() failed\n");
+                 return -errno;
+         }
+
+         clear_softdirty();
+
+         if (mprotect(map, HUGETLB_SIZE, PROT_READ|PROT_WRITE)) {
+                 fprintf(stderr, "mmprotect() failed\n");
+                 return -errno;
+         }
+
+         *map = 0;
+
+         return 0;
+ }
+--------------------------------------------------------------------------
+
+Above test fails with SIGBUS when there is only a single free hugetlb page.
+ # echo 1 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+ # ./test
+ Bus error (core dumped)
+
+And worse, with sufficient free hugetlb pages it will map an anonymous page
+into a shared mapping, for example, messing up accounting during unmap
+and breaking MAP_SHARED semantics:
+ # echo 2 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+ # ./test
+ # cat /proc/meminfo | grep HugePages_
+ HugePages_Total:       2
+ HugePages_Free:        1
+ HugePages_Rsvd:    18446744073709551615
+ HugePages_Surp:        0
+
+Reason in this particular case is that vma_wants_writenotify() will
+return "true", removing VM_SHARED in vma_set_page_prot() to map pages
+write-protected. Let's teach vma_wants_writenotify() that hugetlb does not
+support softdirty tracking.
+
+Link: https://lkml.kernel.org/r/20220811103435.188481-1-david@redhat.com
+Link: https://lkml.kernel.org/r/20220811103435.188481-2-david@redhat.com
+Fixes: 64e455079e1b ("mm: softdirty: enable write notifications on VMAs after VM_SOFTDIRTY cleared")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Feiner <pfeiner@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Cyrill Gorcunov <gorcunov@openvz.org>
+Cc: Pavel Emelyanov <xemul@parallels.com>
+Cc: Jamie Liu <jamieliu@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>	[3.18+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst |   14 ++++
- arch/x86/include/asm/cpufeatures.h                              |    1 
- arch/x86/kernel/cpu/bugs.c                                      |   14 +++-
- arch/x86/kernel/cpu/common.c                                    |   34 ++++++----
- 4 files changed, 50 insertions(+), 13 deletions(-)
+ mm/mmap.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
-+++ b/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
-@@ -230,6 +230,20 @@ The possible values in this file are:
-      * - 'Mitigation: Clear CPU buffers'
-        - The processor is vulnerable and the CPU buffer clearing mitigation is
-          enabled.
-+     * - 'Unknown: No mitigations'
-+       - The processor vulnerability status is unknown because it is
-+	 out of Servicing period. Mitigation is not attempted.
-+
-+Definitions:
-+------------
-+
-+Servicing period: The process of providing functional and security updates to
-+Intel processors or platforms, utilizing the Intel Platform Update (IPU)
-+process or other similar mechanisms.
-+
-+End of Servicing Updates (ESU): ESU is the date at which Intel will no
-+longer provide Servicing, such as through IPU or other similar update
-+processes. ESU dates will typically be aligned to end of quarter.
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1640,8 +1640,12 @@ int vma_wants_writenotify(struct vm_area
+ 	    pgprot_val(vm_pgprot_modify(vm_page_prot, vm_flags)))
+ 		return 0;
  
- If the processor is vulnerable then the following information is appended to
- the above information:
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -394,5 +394,6 @@
- #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
- #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
- #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
-+#define X86_BUG_MMIO_UNKNOWN		X86_BUG(26) /* CPU is too old and its MMIO Stale Data status is unknown */
+-	/* Do we need to track softdirty? */
+-	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) && !(vm_flags & VM_SOFTDIRTY))
++	/*
++	 * Do we need to track softdirty? hugetlb does not support softdirty
++	 * tracking yet.
++	 */
++	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) && !(vm_flags & VM_SOFTDIRTY) &&
++	    !is_vm_hugetlb_page(vma))
+ 		return 1;
  
- #endif /* _ASM_X86_CPUFEATURES_H */
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -396,7 +396,8 @@ static void __init mmio_select_mitigatio
- 	u64 ia32_cap;
- 
- 	if (!boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA) ||
--	    cpu_mitigations_off()) {
-+	     boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN) ||
-+	     cpu_mitigations_off()) {
- 		mmio_mitigation = MMIO_MITIGATION_OFF;
- 		return;
- 	}
-@@ -501,6 +502,8 @@ out:
- 		pr_info("TAA: %s\n", taa_strings[taa_mitigation]);
- 	if (boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
- 		pr_info("MMIO Stale Data: %s\n", mmio_strings[mmio_mitigation]);
-+	else if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		pr_info("MMIO Stale Data: Unknown: No mitigations\n");
- }
- 
- static void __init md_clear_select_mitigation(void)
-@@ -1823,6 +1826,9 @@ static ssize_t tsx_async_abort_show_stat
- 
- static ssize_t mmio_stale_data_show_state(char *buf)
- {
-+	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		return sysfs_emit(buf, "Unknown: No mitigations\n");
-+
- 	if (mmio_mitigation == MMIO_MITIGATION_OFF)
- 		return sysfs_emit(buf, "%s\n", mmio_strings[mmio_mitigation]);
- 
-@@ -1933,6 +1939,7 @@ static ssize_t cpu_show_common(struct de
- 		return srbds_show_state(buf);
- 
- 	case X86_BUG_MMIO_STALE_DATA:
-+	case X86_BUG_MMIO_UNKNOWN:
- 		return mmio_stale_data_show_state(buf);
- 
- 	default:
-@@ -1989,6 +1996,9 @@ ssize_t cpu_show_srbds(struct device *de
- 
- ssize_t cpu_show_mmio_stale_data(struct device *dev, struct device_attribute *attr, char *buf)
- {
--	return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
-+	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
-+		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_UNKNOWN);
-+	else
-+		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
- }
- #endif
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -905,6 +905,7 @@ static void identify_cpu_without_cpuid(s
- #define MSBDS_ONLY		BIT(5)
- #define NO_SWAPGS		BIT(6)
- #define NO_ITLB_MULTIHIT	BIT(7)
-+#define NO_MMIO			BIT(8)
- 
- #define VULNWL(_vendor, _family, _model, _whitelist)	\
- 	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
-@@ -922,6 +923,11 @@ static const __initconst struct x86_cpu_
- 	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
- 
- 	/* Intel Family 6 */
-+	VULNWL_INTEL(TIGERLAKE,			NO_MMIO),
-+	VULNWL_INTEL(TIGERLAKE_L,		NO_MMIO),
-+	VULNWL_INTEL(ALDERLAKE,			NO_MMIO),
-+	VULNWL_INTEL(ALDERLAKE_L,		NO_MMIO),
-+
- 	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION | NO_ITLB_MULTIHIT),
- 	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION | NO_ITLB_MULTIHIT),
-@@ -939,9 +945,9 @@ static const __initconst struct x86_cpu_
- 
- 	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
- 
--	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 
- 	/*
- 	 * Technically, swapgs isn't serializing on AMD (despite it previously
-@@ -954,13 +960,13 @@ static const __initconst struct x86_cpu_
- 	VULNWL_INTEL(ATOM_TREMONT_X,		NO_ITLB_MULTIHIT),
- 
- 	/* AMD Family 0xf - 0x12 */
--	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
--	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-+	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 
- 	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
--	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
-+	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 	{}
- };
- 
-@@ -1100,10 +1106,16 @@ static void __init cpu_set_bug_bits(stru
- 	 * Affected CPU list is generally enough to enumerate the vulnerability,
- 	 * but for virtualization case check for ARCH_CAP MSR bits also, VMM may
- 	 * not want the guest to enumerate the bug.
-+	 *
-+	 * Set X86_BUG_MMIO_UNKNOWN for CPUs that are neither in the blacklist,
-+	 * nor in the whitelist and also don't enumerate MSR ARCH_CAP MMIO bits.
- 	 */
--	if (cpu_matches(cpu_vuln_blacklist, MMIO) &&
--	    !arch_cap_mmio_immune(ia32_cap))
--		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
-+	if (!arch_cap_mmio_immune(ia32_cap)) {
-+		if (cpu_matches(cpu_vuln_blacklist, MMIO))
-+			setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
-+		else if (!cpu_matches(cpu_vuln_whitelist, NO_MMIO))
-+			setup_force_cpu_bug(X86_BUG_MMIO_UNKNOWN);
-+	}
- 
- 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
- 		return;
+ 	/* Specialty mapping? */
 
 
