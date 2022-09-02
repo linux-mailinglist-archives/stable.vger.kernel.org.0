@@ -2,80 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 414315AB4BD
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 17:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFFF25AB4F8
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 17:23:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236845AbiIBPMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 11:12:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55318 "EHLO
+        id S236746AbiIBPXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 11:23:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236246AbiIBPMB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 11:12:01 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57955130A0E
-        for <stable@vger.kernel.org>; Fri,  2 Sep 2022 07:41:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662129715; x=1693665715;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   in-reply-to;
-  bh=KHELKon6tAPeaiGieUR1l95nkZ4Z9JCYIPgZsmbS3zs=;
-  b=WyREVZ8DJDLzvTByE3Tb4hz1rwu+1Wav6cNcBAIaP/bOFg2T+9G5xpvN
-   vGIBYKome/Yq49qPH/UltKB9L/WXG0OEbS3o4y11t5Xw8kcIBSq3QZGDl
-   5WQb1vHji4fSvz9ij6prwk09iruME+ZloLz95I5eXXUONkUZ5R/8/09CY
-   7p+XG+lMVvr23jlnJCiEoyaM2OeEcYWg3d1NkF6AqVidyR3VMKbTPvzGc
-   FlAlKDyArpvj3VK5BXIhg+XsifHECSa3rch1EPKbUI45E1eHihQ4GyxjG
-   uvtrVx1h80hVfgbdEVIHJbSVIw3RA4DL4c4a+wDbI0b+Qa7kUCfaBMavq
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10458"; a="282980548"
-X-IronPort-AV: E=Sophos;i="5.93,283,1654585200"; 
-   d="scan'208";a="282980548"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Sep 2022 07:41:55 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,283,1654585200"; 
-   d="scan'208";a="642927698"
-Received: from lkp-server02.sh.intel.com (HELO 95dfd251caa2) ([10.239.97.151])
-  by orsmga008.jf.intel.com with ESMTP; 02 Sep 2022 07:41:54 -0700
-Received: from kbuild by 95dfd251caa2 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1oU7rl-0000CI-15;
-        Fri, 02 Sep 2022 14:41:53 +0000
-Date:   Fri, 2 Sep 2022 22:41:07 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Varsha Teratipally <teratipally@google.com>
-Cc:     stable@vger.kernel.org, kbuild-all@lists.01.org
-Subject: Re: [PATCH] ipc: replace costly bailout check in sysvipc_find_ipc()
-Message-ID: <YxIWA7QIiPsgX1o8@876d715a1888>
+        with ESMTP id S235891AbiIBPWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 11:22:50 -0400
+Received: from mail-yw1-x1130.google.com (mail-yw1-x1130.google.com [IPv6:2607:f8b0:4864:20::1130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A53105B40
+        for <stable@vger.kernel.org>; Fri,  2 Sep 2022 07:56:06 -0700 (PDT)
+Received: by mail-yw1-x1130.google.com with SMTP id 00721157ae682-344fc86d87cso4786357b3.3
+        for <stable@vger.kernel.org>; Fri, 02 Sep 2022 07:56:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kylehuey.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=5puXSXyNPgfcUFe4Jn/d6QN/HZApr6oHFwTb8VmTKrQ=;
+        b=EbhB96vaJrIXiSpbfhJQW1pMsRKRpMrQXkU2bUK86oMObNxFJCfUYPDW4HWXgsgD2C
+         rN4uQJiT23YX9Gzh4baN9GBIt9Pza8RVfgvHzauMvhZGalpH1ognoJ/lCYZmVgnehjuh
+         0fxJT3w01yO7/VqrDXfehzbN9sq3xU80EsKDqFIndwq4ai0JqfaY/yHxDHcMZc2BukqH
+         VaqEERfgEa4oHAWOuZIaWZaOF57M3iZ9Z43JtzdII5yR3wWka11BGSUzHvmrZAD3aa/e
+         c0n/bP/mE1LLkD9DAY6X99BaJFWgJJ5CBhOWKvZ1aqm1kWptB1k7VYZ/rNNm9tC6DtWF
+         oFPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=5puXSXyNPgfcUFe4Jn/d6QN/HZApr6oHFwTb8VmTKrQ=;
+        b=spP/7Gv6wGg6LAxr63snFOTeJGmIo5pzjY4XC2gJ47Dlw6NE3TFaip3KPOvC+Nkxxo
+         Nrjzw2q/US7bV7Lk+NbLagBHcj9XEa8dIBTu/UOidOsfcsPbihAFu5wQCtf9TvJDPv4b
+         k2XcN49bUiWfpW1ZrLxFCUfTNjRGyNulRQ8jgIY6/JH4HNx4N4BME+UeGQwWjsaQu7rH
+         dvNiuliaQD+Txg65zhAOLoRJw+YYXrZ4NwwfWvuSeJTKa0LfvAWRAPExUmwwkZFg1W3h
+         dZSgOuyiZU6FptL4sUIuvgKKtyEbuZ2X1mQipWQ00SZYwhEBdEV+6UDLObAiHXlDwiOI
+         9o5Q==
+X-Gm-Message-State: ACgBeo133P1qfioYh4TZsDk8YlIUqPwyrc/rbTc/ln1Cs0TnCT5/43qx
+        VuFOgGmle2rtcxPOCZ2bZEFzf2qTZJIVMhb6Gpi8Zg==
+X-Google-Smtp-Source: AA6agR7fOH5Hb21ZbPQEF1JrLyxAT8BpwnpyXkscqlvOhS0EBSwiDPA0q3CexQ4xX2zSzVdgSUAh6Z8aFDQPx2zG5Go=
+X-Received: by 2002:a81:1492:0:b0:33d:a446:808f with SMTP id
+ 140-20020a811492000000b0033da446808fmr29480466ywu.159.1662130565590; Fri, 02
+ Sep 2022 07:56:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220902135912.816188-2-teratipally@google.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220829194905.81713-1-khuey@kylehuey.com> <YxDP6jie4cwzZIHp@google.com>
+In-Reply-To: <YxDP6jie4cwzZIHp@google.com>
+From:   Kyle Huey <me@kylehuey.com>
+Date:   Fri, 2 Sep 2022 07:55:51 -0700
+Message-ID: <CAP045Aqc7T8in-MQz0hj4dOZ7TU6oAKuBNFtH57KttZ8Ueng-g@mail.gmail.com>
+Subject: Re: [PATCH v6 1/2] x86/fpu: Allow PKRU to be (once again) written by ptrace.
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@redhat.com>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org,
+        "Robert O'Callahan" <robert@ocallahan.org>,
+        David Manouchehri <david.manouchehri@riseup.net>,
+        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Thu, Sep 1, 2022 at 8:29 AM Sean Christopherson <seanjc@google.com> wrote:
+>
+> On Mon, Aug 29, 2022, Kyle Huey wrote:
+> > @@ -1246,6 +1246,21 @@ static int copy_uabi_to_xstate(struct fpstate *fpstate, const void *kbuf,
+> >               }
+> >       }
+> >
+> > +     /*
+> > +      * Update the user protection key storage. Allow KVM to
+> > +      * pass in a NULL pkru pointer if the mask bit is unset
+> > +      * for its legacy ABI behavior.
+> > +      */
+> > +     if (pkru)
+> > +             *pkru = 0;
+> > +
+> > +     if (hdr.xfeatures & XFEATURE_MASK_PKRU) {
+> > +             struct pkru_state *xpkru;
+> > +
+> > +             xpkru = __raw_xsave_addr(xsave, XFEATURE_PKRU);
+> > +             *pkru = xpkru->pkru;
+> > +     }
+>
+> What about writing this as:
+>
+>         if (hdr.xfeatures & XFEATURE_MASK_PKRU) {
+>                 ...
+>
+>                 *pkru = xpkru->pkru;
+>         } else if (pkru) {
+>                 *pkru = 0;
+>         }
+>
+> to make it slightly more obvious that @pkru must be non-NULL if the feature flag
+> is enabled?
 
-Thanks for your patch.
+tglx didn't seem to like the branchiness before but maybe he'll change
+his mind since we have to have the `if (pkru)` now anyways.
 
-FYI: kernel test robot notices the stable kernel rule is not satisfied.
+> Or we could be paranoid, though I'm not sure this is worthwhile.
+>
+>         if ((hdr.xfeatures & XFEATURE_MASK_PKRU) &&
+>             !WARN_ON_ONCE(!pkru)) {
+>                 ...
+>
+>                 *pkru = xpkru->pkru;
+>         } else if (pkru) {
+>                 *pkru = 0;
+>         }
 
-Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-Subject: [PATCH] ipc: replace costly bailout check in sysvipc_find_ipc()
-Link: https://lore.kernel.org/stable/20220902135912.816188-2-teratipally%40google.com
+I don't feel strongly about this.
 
-The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> Otherwise, looks good from a KVM perspective.  Thanks!
 
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+Great.
 
-
-
+- Kyle
