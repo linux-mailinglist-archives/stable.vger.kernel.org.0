@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D1255AB240
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 787365AAF86
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237871AbiIBNyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:54:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45932 "EHLO
+        id S237061AbiIBMkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:40:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238781AbiIBNxz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:53:55 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82B3E926C;
-        Fri,  2 Sep 2022 06:28:38 -0700 (PDT)
+        with ESMTP id S237268AbiIBMi5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:38:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDAE6B8D1;
+        Fri,  2 Sep 2022 05:30:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7F4C7CE2E56;
-        Fri,  2 Sep 2022 12:34:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65AF3C433D7;
-        Fri,  2 Sep 2022 12:34:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04097B82AA1;
+        Fri,  2 Sep 2022 12:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E261C433C1;
+        Fri,  2 Sep 2022 12:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122059;
-        bh=TmXeJuglAgVGYW7Cjhjpvw7uoOB6YdgfC75RtXFbKEc=;
+        s=korg; t=1662121826;
+        bh=qJtlZbyOTsV51PIP1uTB7gctPH/B6Gl+DB+pExHFlyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mh180HpgYa8GphlfKjog5/HTDi5zqbySWn/RJV2t1iF2VkTcP6MIqg9kbrmTOAWtX
-         sYn11OiuMyRzRx4lxf7Gh5fYr7UJGPmugt6NxXV6pAxf9bH5SpeBsTMF3dBwo5LN+y
-         KfUJUS9zyGW8MnnqliFVoJh7GND9WW3zrVD80mlI=
+        b=ZiO9ex39oc/ykwU/40wU9xIchlcVqZJ5hq2rap+/VPWjNkwzdTbb4jh02PHv3FX8/
+         4KUeUvdRoOYmBCgX4WqZpJqO41rQuQsW4p5ypAP1gfmov3wkrMy6ntD/kPFYziUjpY
+         1OfA/5JWAlSgbJRhIxH7IlA3scl4qLthJccsCQhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aric Cyr <Aric.Cyr@amd.com>,
-        Brian Chang <Brian.Chang@amd.com>,
-        Ilya Bakoulin <Ilya.Bakoulin@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 61/73] drm/amd/display: Fix pixel clock programming
-Date:   Fri,  2 Sep 2022 14:19:25 +0200
-Message-Id: <20220902121406.426904775@linuxfoundation.org>
+        stable@vger.kernel.org, "Denis V. Lunev" <den@openvz.org>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 77/77] net: neigh: dont call kfree_skb() under spin_lock_irqsave()
+Date:   Fri,  2 Sep 2022 14:19:26 +0200
+Message-Id: <20220902121406.246311198@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 04fb918bf421b299feaee1006e82921d7d381f18 ]
+commit d5485d9dd24e1d04e5509916515260186eb1455c upstream.
 
-[Why]
-Some pixel clock values could cause HDMI TMDS SSCPs to be misaligned
-between different HDMI lanes when using YCbCr420 10-bit pixel format.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So add all skb to
+a tmp list, then free them after spin_unlock_irqrestore() at
+once.
 
-BIOS functions for transmitter/encoder control take pixel clock in kHz
-increments, whereas the function for setting the pixel clock is in 100Hz
-increments. Setting pixel clock to a value that is not on a kHz boundary
-will cause the issue.
-
-[How]
-Round pixel clock down to nearest kHz in 10/12-bpc cases.
-
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Brian Chang <Brian.Chang@amd.com>
-Signed-off-by: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 66ba215cb513 ("neigh: fix possible DoS due to net iface start/stop loop")
+Suggested-by: Denis V. Lunev <den@openvz.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/core/neighbour.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
-index 054823d12403d..5f1b735da5063 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
-@@ -545,9 +545,11 @@ static void dce112_get_pix_clk_dividers_helper (
- 		switch (pix_clk_params->color_depth) {
- 		case COLOR_DEPTH_101010:
- 			actual_pixel_clock_100hz = (actual_pixel_clock_100hz * 5) >> 2;
-+			actual_pixel_clock_100hz -= actual_pixel_clock_100hz % 10;
- 			break;
- 		case COLOR_DEPTH_121212:
- 			actual_pixel_clock_100hz = (actual_pixel_clock_100hz * 6) >> 2;
-+			actual_pixel_clock_100hz -= actual_pixel_clock_100hz % 10;
- 			break;
- 		case COLOR_DEPTH_161616:
- 			actual_pixel_clock_100hz = actual_pixel_clock_100hz * 2;
--- 
-2.35.1
-
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -282,21 +282,27 @@ static int neigh_del_timer(struct neighb
+ 
+ static void pneigh_queue_purge(struct sk_buff_head *list, struct net *net)
+ {
++	struct sk_buff_head tmp;
+ 	unsigned long flags;
+ 	struct sk_buff *skb;
+ 
++	skb_queue_head_init(&tmp);
+ 	spin_lock_irqsave(&list->lock, flags);
+ 	skb = skb_peek(list);
+ 	while (skb != NULL) {
+ 		struct sk_buff *skb_next = skb_peek_next(skb, list);
+ 		if (net == NULL || net_eq(dev_net(skb->dev), net)) {
+ 			__skb_unlink(skb, list);
+-			dev_put(skb->dev);
+-			kfree_skb(skb);
++			__skb_queue_tail(&tmp, skb);
+ 		}
+ 		skb = skb_next;
+ 	}
+ 	spin_unlock_irqrestore(&list->lock, flags);
++
++	while ((skb = __skb_dequeue(&tmp))) {
++		dev_put(skb->dev);
++		kfree_skb(skb);
++	}
+ }
+ 
+ static void neigh_flush_dev(struct neigh_table *tbl, struct net_device *dev,
 
 
