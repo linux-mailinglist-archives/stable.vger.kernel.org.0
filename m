@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 667C35AAF83
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 363135AB0DE
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236508AbiIBMjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:39:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37064 "EHLO
+        id S236187AbiIBM7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:59:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237356AbiIBMjZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:39:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1723BA1A74;
-        Fri,  2 Sep 2022 05:30:40 -0700 (PDT)
+        with ESMTP id S238145AbiIBM5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:57:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72881FC10B;
+        Fri,  2 Sep 2022 05:39:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFAEDB82AA3;
-        Fri,  2 Sep 2022 12:28:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2774AC433C1;
-        Fri,  2 Sep 2022 12:28:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1CABB829FB;
+        Fri,  2 Sep 2022 12:35:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC7D9C433D7;
+        Fri,  2 Sep 2022 12:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121720;
-        bh=GuzXSFrL/EBvMxMZXb2JOrr+YkM+uKtUf0mRfOOrHEM=;
+        s=korg; t=1662122110;
+        bh=ISCvssO8DzFYG6Pmr74SnRAybhIqwLKZrkE7I2lH8R0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYt9DSztylV8zpd6cZcWTc9OA83VCViHYcmxlI9GcgT2We4eqsrW9SJwsDAHGevQ5
-         LfYlrLzUEiantoueES1HYgOiqXvyoMcqy0K6qgWmt7P2gRKnw07ySlGxfnkVYz75x9
-         NZzqKvnDPLTYKgUkmQ2Qo9g0VI/V1CiavvwA4dZI=
+        b=q5Ed4NRAldFuCPRG1qcEdbXjADOUdGg5PAKenN/nIkm8pvhezn4Y7lA3Mgwdw1XmQ
+         kOZTeaRU4PlFWqBh4ee1nwo6uEISfhwbRu5ugcD4wDp4pYWhL3tW2ozr8EiaRCkFFo
+         DaAD4znB3MDPB9aRUdjfgM43HxFIYK/rN29YnV2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 43/77] s390: fix double free of GS and RI CBs on fork() failure
+        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Yang Jihong <yangjihong1@huawei.com>
+Subject: [PATCH 5.19 16/72] ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
 Date:   Fri,  2 Sep 2022 14:18:52 +0200
-Message-Id: <20220902121405.088058691@linuxfoundation.org>
+Message-Id: <20220902121405.323113848@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
+References: <20220902121404.772492078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,81 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-commit 13cccafe0edcd03bf1c841de8ab8a1c8e34f77d9 upstream.
+commit c3b0f72e805f0801f05fa2aa52011c4bfc694c44 upstream.
 
-The pointers for guarded storage and runtime instrumentation control
-blocks are stored in the thread_struct of the associated task. These
-pointers are initially copied on fork() via arch_dup_task_struct()
-and then cleared via copy_thread() before fork() returns. If fork()
-happens to fail after the initial task dup and before copy_thread(),
-the newly allocated task and associated thread_struct memory are
-freed via free_task() -> arch_release_task_struct(). This results in
-a double free of the guarded storage and runtime info structs
-because the fields in the failed task still refer to memory
-associated with the source task.
+ftrace_startup does not remove ops from ftrace_ops_list when
+ftrace_startup_enable fails:
 
-This problem can manifest as a BUG_ON() in set_freepointer() (with
-CONFIG_SLAB_FREELIST_HARDENED enabled) or KASAN splat (if enabled)
-when running trinity syscall fuzz tests on s390x. To avoid this
-problem, clear the associated pointer fields in
-arch_dup_task_struct() immediately after the new task is copied.
-Note that the RI flag is still cleared in copy_thread() because it
-resides in thread stack memory and that is where stack info is
-copied.
+register_ftrace_function
+  ftrace_startup
+    __register_ftrace_function
+      ...
+      add_ftrace_ops(&ftrace_ops_list, ops)
+      ...
+    ...
+    ftrace_startup_enable // if ftrace failed to modify, ftrace_disabled is set to 1
+    ...
+  return 0 // ops is in the ftrace_ops_list.
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Fixes: 8d9047f8b967c ("s390/runtime instrumentation: simplify task exit handling")
-Fixes: 7b83c6297d2fc ("s390/guarded storage: simplify task exit handling")
-Cc: <stable@vger.kernel.org> # 4.15
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220816155407.537372-1-bfoster@redhat.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+When ftrace_disabled = 1, unregister_ftrace_function simply returns without doing anything:
+unregister_ftrace_function
+  ftrace_shutdown
+    if (unlikely(ftrace_disabled))
+            return -ENODEV;  // return here, __unregister_ftrace_function is not executed,
+                             // as a result, ops is still in the ftrace_ops_list
+    __unregister_ftrace_function
+    ...
+
+If ops is dynamically allocated, it will be free later, in this case,
+is_ftrace_trampoline accesses NULL pointer:
+
+is_ftrace_trampoline
+  ftrace_ops_trampoline
+    do_for_each_ftrace_op(op, ftrace_ops_list) // OOPS! op may be NULL!
+
+Syzkaller reports as follows:
+[ 1203.506103] BUG: kernel NULL pointer dereference, address: 000000000000010b
+[ 1203.508039] #PF: supervisor read access in kernel mode
+[ 1203.508798] #PF: error_code(0x0000) - not-present page
+[ 1203.509558] PGD 800000011660b067 P4D 800000011660b067 PUD 130fb8067 PMD 0
+[ 1203.510560] Oops: 0000 [#1] SMP KASAN PTI
+[ 1203.511189] CPU: 6 PID: 29532 Comm: syz-executor.2 Tainted: G    B   W         5.10.0 #8
+[ 1203.512324] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[ 1203.513895] RIP: 0010:is_ftrace_trampoline+0x26/0xb0
+[ 1203.514644] Code: ff eb d3 90 41 55 41 54 49 89 fc 55 53 e8 f2 00 fd ff 48 8b 1d 3b 35 5d 03 e8 e6 00 fd ff 48 8d bb 90 00 00 00 e8 2a 81 26 00 <48> 8b ab 90 00 00 00 48 85 ed 74 1d e8 c9 00 fd ff 48 8d bb 98 00
+[ 1203.518838] RSP: 0018:ffffc900012cf960 EFLAGS: 00010246
+[ 1203.520092] RAX: 0000000000000000 RBX: 000000000000007b RCX: ffffffff8a331866
+[ 1203.521469] RDX: 0000000000000000 RSI: 0000000000000008 RDI: 000000000000010b
+[ 1203.522583] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffff8df18b07
+[ 1203.523550] R10: fffffbfff1be3160 R11: 0000000000000001 R12: 0000000000478399
+[ 1203.524596] R13: 0000000000000000 R14: ffff888145088000 R15: 0000000000000008
+[ 1203.525634] FS:  00007f429f5f4700(0000) GS:ffff8881daf00000(0000) knlGS:0000000000000000
+[ 1203.526801] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1203.527626] CR2: 000000000000010b CR3: 0000000170e1e001 CR4: 00000000003706e0
+[ 1203.528611] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 1203.529605] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+Therefore, when ftrace_startup_enable fails, we need to rollback registration
+process and remove ops from ftrace_ops_list.
+
+Link: https://lkml.kernel.org/r/20220818032659.56209-1-yangjihong1@huawei.com
+
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/process.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ kernel/trace/ftrace.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -76,6 +76,18 @@ int arch_dup_task_struct(struct task_str
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -2937,6 +2937,16 @@ int ftrace_startup(struct ftrace_ops *op
  
- 	memcpy(dst, src, arch_task_struct_size);
- 	dst->thread.fpu.regs = dst->thread.fpu.fprs;
-+
+ 	ftrace_startup_enable(command);
+ 
 +	/*
-+	 * Don't transfer over the runtime instrumentation or the guarded
-+	 * storage control block pointers. These fields are cleared here instead
-+	 * of in copy_thread() to avoid premature freeing of associated memory
-+	 * on fork() failure. Wait to clear the RI flag because ->stack still
-+	 * refers to the source thread.
++	 * If ftrace is in an undefined state, we just remove ops from list
++	 * to prevent the NULL pointer, instead of totally rolling it back and
++	 * free trampoline, because those actions could cause further damage.
 +	 */
-+	dst->thread.ri_cb = NULL;
-+	dst->thread.gs_cb = NULL;
-+	dst->thread.gs_bc_cb = NULL;
++	if (unlikely(ftrace_disabled)) {
++		__unregister_ftrace_function(ops);
++		return -ENODEV;
++	}
 +
+ 	ops->flags &= ~FTRACE_OPS_FL_ADDING;
+ 
  	return 0;
- }
- 
-@@ -133,13 +145,11 @@ int copy_thread_tls(unsigned long clone_
- 	frame->childregs.flags = 0;
- 	if (new_stackp)
- 		frame->childregs.gprs[15] = new_stackp;
--
--	/* Don't copy runtime instrumentation info */
--	p->thread.ri_cb = NULL;
-+	/*
-+	 * Clear the runtime instrumentation flag after the above childregs
-+	 * copy. The CB pointer was already cleared in arch_dup_task_struct().
-+	 */
- 	frame->childregs.psw.mask &= ~PSW_MASK_RI;
--	/* Don't copy guarded storage control block */
--	p->thread.gs_cb = NULL;
--	p->thread.gs_bc_cb = NULL;
- 
- 	/* Set a new TLS ?  */
- 	if (clone_flags & CLONE_SETTLS) {
 
 
