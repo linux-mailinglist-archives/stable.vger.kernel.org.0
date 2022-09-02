@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 758D25AAE6F
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 964EB5AAEBF
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236085AbiIBMXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:23:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48466 "EHLO
+        id S236383AbiIBM3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:29:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236201AbiIBMWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:22:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B33FD5E88;
-        Fri,  2 Sep 2022 05:21:47 -0700 (PDT)
+        with ESMTP id S236497AbiIBM1z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:27:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E25D99CB;
+        Fri,  2 Sep 2022 05:24:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB04F620C5;
-        Fri,  2 Sep 2022 12:21:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DDEC433C1;
-        Fri,  2 Sep 2022 12:21:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66067620FE;
+        Fri,  2 Sep 2022 12:22:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AA48C4347C;
+        Fri,  2 Sep 2022 12:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121297;
-        bh=ggkzR7fXpZd66zV4XncdCKBI8YV+okgrGR8z07c89yk=;
+        s=korg; t=1662121366;
+        bh=CaPcejMvq5lnvRq2Ub3CTht8iOus3RIxbKRjKmiWj2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ss8vjLUQSGodLcIZgP1SaS4jeLIY6QMKK4e41oOO5DQ7TiLzY8fPTBbFOF8M1vuqn
-         ItLBYhpHD2P4/hWl3Hoxej/DeITI/eRYVJpLBzgJPx2HVWDQKK/+FYUX7Y8+INtQLU
-         6qnmQlfT4pdqC0Y58ouHSsXAfSN9CBOtk+DC/1Ek=
+        b=EyYdkMPw1MfZi0vPQJlzg7jN53DXNBwGHZbYAqt8drmI2AYcR8A712LIArKSAYEEL
+         99oSToi13QFTxMR88cZeZV94yBd+LXeSH8mXzFSh6J4VorcAiDzS9d48x1v3bAAoRx
+         ieJ6hsu2U2QV/GIW++yy6SOhCYxfI42cokXxXtyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f59100a0428e6ded9443@syzkaller.appspotmail.com,
-        Karthik Alapati <mail@karthek.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.9 24/31] HID: hidraw: fix memory leak in hidraw_release()
+        Jann Horn <jannh@google.com>
+Subject: [PATCH 4.14 26/42] mm: Force TLB flush for PFNMAP mappings before unlink_file_vma()
 Date:   Fri,  2 Sep 2022 14:18:50 +0200
-Message-Id: <20220902121357.642923635@linuxfoundation.org>
+Message-Id: <20220902121359.707993240@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
-References: <20220902121356.732130937@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthik Alapati <mail@karthek.com>
+From: Jann Horn <jannh@google.com>
 
-commit a5623a203cffe2d2b84d2f6c989d9017db1856af upstream.
+commit b67fbebd4cf980aecbcc750e1462128bffe8ae15 upstream.
 
-Free the buffered reports before deleting the list entry.
+Some drivers rely on having all VMAs through which a PFN might be
+accessible listed in the rmap for correctness.
+However, on X86, it was possible for a VMA with stale TLB entries
+to not be listed in the rmap.
 
-BUG: memory leak
-unreferenced object 0xffff88810e72f180 (size 32):
-  comm "softirq", pid 0, jiffies 4294945143 (age 16.080s)
-  hex dump (first 32 bytes):
-    64 f3 c6 6a d1 88 07 04 00 00 00 00 00 00 00 00  d..j............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff814ac6c3>] kmemdup+0x23/0x50 mm/util.c:128
-    [<ffffffff8357c1d2>] kmemdup include/linux/fortify-string.h:440 [inline]
-    [<ffffffff8357c1d2>] hidraw_report_event+0xa2/0x150 drivers/hid/hidraw.c:521
-    [<ffffffff8356ddad>] hid_report_raw_event+0x27d/0x740 drivers/hid/hid-core.c:1992
-    [<ffffffff8356e41e>] hid_input_report+0x1ae/0x270 drivers/hid/hid-core.c:2065
-    [<ffffffff835f0d3f>] hid_irq_in+0x1ff/0x250 drivers/hid/usbhid/hid-core.c:284
-    [<ffffffff82d3c7f9>] __usb_hcd_giveback_urb+0xf9/0x230 drivers/usb/core/hcd.c:1670
-    [<ffffffff82d3cc26>] usb_hcd_giveback_urb+0x1b6/0x1d0 drivers/usb/core/hcd.c:1747
-    [<ffffffff82ef1e14>] dummy_timer+0x8e4/0x14c0 drivers/usb/gadget/udc/dummy_hcd.c:1988
-    [<ffffffff812f50a8>] call_timer_fn+0x38/0x200 kernel/time/timer.c:1474
-    [<ffffffff812f5586>] expire_timers kernel/time/timer.c:1519 [inline]
-    [<ffffffff812f5586>] __run_timers.part.0+0x316/0x430 kernel/time/timer.c:1790
-    [<ffffffff812f56e4>] __run_timers kernel/time/timer.c:1768 [inline]
-    [<ffffffff812f56e4>] run_timer_softirq+0x44/0x90 kernel/time/timer.c:1803
-    [<ffffffff848000e6>] __do_softirq+0xe6/0x2ea kernel/softirq.c:571
-    [<ffffffff81246db0>] invoke_softirq kernel/softirq.c:445 [inline]
-    [<ffffffff81246db0>] __irq_exit_rcu kernel/softirq.c:650 [inline]
-    [<ffffffff81246db0>] irq_exit_rcu+0xc0/0x110 kernel/softirq.c:662
-    [<ffffffff84574f02>] sysvec_apic_timer_interrupt+0xa2/0xd0 arch/x86/kernel/apic/apic.c:1106
-    [<ffffffff84600c8b>] asm_sysvec_apic_timer_interrupt+0x1b/0x20 arch/x86/include/asm/idtentry.h:649
-    [<ffffffff8458a070>] native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
-    [<ffffffff8458a070>] arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
-    [<ffffffff8458a070>] acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
-    [<ffffffff8458a070>] acpi_idle_do_entry+0xc0/0xd0 drivers/acpi/processor_idle.c:554
+This was fixed in mainline with
+commit b67fbebd4cf9 ("mmu_gather: Force tlb-flush VM_PFNMAP vmas"),
+but that commit relies on preceding refactoring in
+commit 18ba064e42df3 ("mmu_gather: Let there be one tlb_{start,end}_vma()
+implementation") and commit 1e9fdf21a4339 ("mmu_gather: Remove per arch
+tlb_{start,end}_vma()").
 
-Link: https://syzkaller.appspot.com/bug?id=19a04b43c75ed1092021010419b5e560a8172c4f
-Reported-by: syzbot+f59100a0428e6ded9443@syzkaller.appspotmail.com
-Signed-off-by: Karthik Alapati <mail@karthek.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+This patch provides equivalent protection without needing that
+refactoring, by forcing a TLB flush between removing PTEs in
+unmap_vmas() and the call to unlink_file_vma() in free_pgtables().
+
+[This is a stable-specific rewrite of the upstream commit!]
+Signed-off-by: Jann Horn <jannh@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hidraw.c |    3 +++
- 1 file changed, 3 insertions(+)
+ mm/mmap.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -354,10 +354,13 @@ static int hidraw_release(struct inode *
- 	unsigned int minor = iminor(inode);
- 	struct hidraw_list *list = file->private_data;
- 	unsigned long flags;
-+	int i;
- 
- 	mutex_lock(&minors_lock);
- 
- 	spin_lock_irqsave(&hidraw_table[minor]->list_lock, flags);
-+	for (i = list->tail; i < list->head; i++)
-+		kfree(list->buffer[i].value);
- 	list_del(&list->node);
- 	spin_unlock_irqrestore(&hidraw_table[minor]->list_lock, flags);
- 	kfree(list);
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2529,6 +2529,18 @@ static void unmap_region(struct mm_struc
+ 	tlb_gather_mmu(&tlb, mm, start, end);
+ 	update_hiwater_rss(mm);
+ 	unmap_vmas(&tlb, vma, start, end);
++
++	/*
++	 * Ensure we have no stale TLB entries by the time this mapping is
++	 * removed from the rmap.
++	 * Note that we don't have to worry about nested flushes here because
++	 * we're holding the mm semaphore for removing the mapping - so any
++	 * concurrent flush in this region has to be coming through the rmap,
++	 * and we synchronize against that using the rmap lock.
++	 */
++	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
++		tlb_flush_mmu(&tlb);
++
+ 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
+ 				 next ? next->vm_start : USER_PGTABLES_CEILING);
+ 	tlb_finish_mmu(&tlb, start, end);
 
 
