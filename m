@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A4185AB057
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 031BF5AAFD6
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:45:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237659AbiIBMwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:52:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41926 "EHLO
+        id S237411AbiIBMok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:44:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237811AbiIBMvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:51:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A08EF8EED;
-        Fri,  2 Sep 2022 05:37:15 -0700 (PDT)
+        with ESMTP id S237453AbiIBMnl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B74FFEC4E9;
+        Fri,  2 Sep 2022 05:32:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1BAEB82ADF;
-        Fri,  2 Sep 2022 12:35:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E453C433B5;
-        Fri,  2 Sep 2022 12:35:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B729EB82A94;
+        Fri,  2 Sep 2022 12:32:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C31FC433D7;
+        Fri,  2 Sep 2022 12:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122157;
-        bh=mf1teGMEOWSgwfn7Vz5ipwIsBvF8fMKbCe1bwBIL/fU=;
+        s=korg; t=1662121937;
+        bh=JnS4R41g1EDQM5cJKDxo7Wnpup4SqjxxJmoRcYUjADc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nECcDZLZ1JwFbf3cKYxLOHaZPCkD0vCnR9oV60ImdUU+W4k3gCP5dIIngLU45Sglj
-         +Fxd2dN4WJHKQJ5HY4LufSJOOXbyZi/FuBy/wzQFdrHk3FgQfCqHSZoylRJ/DO+kwi
-         sER/pRKOq+l4IaZa4JGpYbY2bFaIUTQ4WhNNYBfs=
+        b=KTJpCgtZsm/Dyk5xS+N5AiSPy2mZtSrUXJMbP66SE3MZebvrtRecHF3MtRFbT0sbE
+         bBqdZsAx3q4ldR8YE6OeoYsBz1BHqyLo7heGoEc6SaEl5y5C80k4v6Jekvo0+azYog
+         8qYw+XxzEswjStW7lLsOIoYVeYjwBXzyIDhOonNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Garg <gargaditya08@live.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.19 23/72] HID: Add Apple Touchbar on T2 Macs in hid_have_special_driver list
+        stable@vger.kernel.org, stable@kernel.org,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 35/73] mm/rmap: Fix anon_vma->degree ambiguity leading to double-reuse
 Date:   Fri,  2 Sep 2022 14:18:59 +0200
-Message-Id: <20220902121405.549386554@linuxfoundation.org>
+Message-Id: <20220902121405.599778788@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +55,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Jann Horn <jannh@google.com>
 
-commit 750ec977288d96e9a11424e3507ede097af732c4 upstream.
+commit 2555283eb40df89945557273121e9393ef9b542b upstream.
 
-The touchbar on Apple T2 Macs has 2 modes, one that shows the function
-keys and other that shows the media controls. The user can use the fn
-key on his keyboard to switch between the 2 modes.
+anon_vma->degree tracks the combined number of child anon_vmas and VMAs
+that use the anon_vma as their ->anon_vma.
 
-On Linux, if people were using an external keyboard or mouse, the
-touchbar failed to change modes on pressing the fn key with the following
-in dmesg :-
+anon_vma_clone() then assumes that for any anon_vma attached to
+src->anon_vma_chain other than src->anon_vma, it is impossible for it to
+be a leaf node of the VMA tree, meaning that for such VMAs ->degree is
+elevated by 1 because of a child anon_vma, meaning that if ->degree
+equals 1 there are no VMAs that use the anon_vma as their ->anon_vma.
 
-[   10.661445] apple-ib-als 0003:05AC:8262.0001: : USB HID v1.01 Device [Apple Inc. Ambient Light Sensor] on usb-bce-vhci-3/input0
-[   11.830992] apple-ib-touchbar 0003:05AC:8302.0007: input: USB HID v1.01 Keyboard [Apple Inc. Touch Bar Display] on usb-bce-vhci-6/input0
-[   12.139407] apple-ib-touchbar 0003:05AC:8102.0008: : USB HID v1.01 Device [Apple Inc. Touch Bar Backlight] on usb-bce-vhci-7/input0
-[   12.211824] apple-ib-touchbar 0003:05AC:8102.0009: : USB HID v1.01 Device [Apple Inc. Touch Bar Backlight] on usb-bce-vhci-7/input1
-[   14.219759] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 2 (-110)
-[   24.395670] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 2 (-110)
-[   34.635791] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 2 (-110)
-[  269.579233] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 1 (-110)
+This assumption is wrong because the ->degree optimization leads to leaf
+nodes being abandoned on anon_vma_clone() - an existing anon_vma is
+reused and no new parent-child relationship is created.  So it is
+possible to reuse an anon_vma for one VMA while it is still tied to
+another VMA.
 
-Add the USB IDs of the touchbar found in T2 Macs to HID have special
-driver list to fix the issue.
+This is an issue because is_mergeable_anon_vma() and its callers assume
+that if two VMAs have the same ->anon_vma, the list of anon_vmas
+attached to the VMAs is guaranteed to be the same.  When this assumption
+is violated, vma_merge() can merge pages into a VMA that is not attached
+to the corresponding anon_vma, leading to dangling page->mapping
+pointers that will be dereferenced during rmap walks.
 
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fix it by separately tracking the number of child anon_vmas and the
+number of VMAs using the anon_vma as their ->anon_vma.
+
+Fixes: 7a3ef208e662 ("mm: prevent endless growth of anon_vma hierarchy")
+Cc: stable@kernel.org
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h    |    2 ++
- drivers/hid/hid-quirks.c |    2 ++
- 2 files changed, 4 insertions(+)
+ include/linux/rmap.h |    7 +++++--
+ mm/rmap.c            |   29 ++++++++++++++++-------------
+ 2 files changed, 21 insertions(+), 15 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -185,6 +185,8 @@
- #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021   0x029c
- #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021   0x029a
- #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021   0x029f
-+#define USB_DEVICE_ID_APPLE_TOUCHBAR_BACKLIGHT 0x8102
-+#define USB_DEVICE_ID_APPLE_TOUCHBAR_DISPLAY 0x8302
+--- a/include/linux/rmap.h
++++ b/include/linux/rmap.h
+@@ -39,12 +39,15 @@ struct anon_vma {
+ 	atomic_t refcount;
  
- #define USB_VENDOR_ID_ASUS		0x0486
- #define USB_DEVICE_ID_ASUS_T91MT	0x0185
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -314,6 +314,8 @@ static const struct hid_device_id hid_ha
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_TOUCHBAR_BACKLIGHT) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_TOUCHBAR_DISPLAY) },
- #endif
- #if IS_ENABLED(CONFIG_HID_APPLEIR)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) },
+ 	/*
+-	 * Count of child anon_vmas and VMAs which points to this anon_vma.
++	 * Count of child anon_vmas. Equals to the count of all anon_vmas that
++	 * have ->parent pointing to this one, including itself.
+ 	 *
+ 	 * This counter is used for making decision about reusing anon_vma
+ 	 * instead of forking new one. See comments in function anon_vma_clone.
+ 	 */
+-	unsigned degree;
++	unsigned long num_children;
++	/* Count of VMAs whose ->anon_vma pointer points to this object. */
++	unsigned long num_active_vmas;
+ 
+ 	struct anon_vma *parent;	/* Parent of this anon_vma */
+ 
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -90,7 +90,8 @@ static inline struct anon_vma *anon_vma_
+ 	anon_vma = kmem_cache_alloc(anon_vma_cachep, GFP_KERNEL);
+ 	if (anon_vma) {
+ 		atomic_set(&anon_vma->refcount, 1);
+-		anon_vma->degree = 1;	/* Reference for first vma */
++		anon_vma->num_children = 0;
++		anon_vma->num_active_vmas = 0;
+ 		anon_vma->parent = anon_vma;
+ 		/*
+ 		 * Initialise the anon_vma root to point to itself. If called
+@@ -198,6 +199,7 @@ int __anon_vma_prepare(struct vm_area_st
+ 		anon_vma = anon_vma_alloc();
+ 		if (unlikely(!anon_vma))
+ 			goto out_enomem_free_avc;
++		anon_vma->num_children++; /* self-parent link for new root */
+ 		allocated = anon_vma;
+ 	}
+ 
+@@ -207,8 +209,7 @@ int __anon_vma_prepare(struct vm_area_st
+ 	if (likely(!vma->anon_vma)) {
+ 		vma->anon_vma = anon_vma;
+ 		anon_vma_chain_link(vma, avc, anon_vma);
+-		/* vma reference or self-parent link for new root */
+-		anon_vma->degree++;
++		anon_vma->num_active_vmas++;
+ 		allocated = NULL;
+ 		avc = NULL;
+ 	}
+@@ -293,19 +294,19 @@ int anon_vma_clone(struct vm_area_struct
+ 		anon_vma_chain_link(dst, avc, anon_vma);
+ 
+ 		/*
+-		 * Reuse existing anon_vma if its degree lower than two,
+-		 * that means it has no vma and only one anon_vma child.
++		 * Reuse existing anon_vma if it has no vma and only one
++		 * anon_vma child.
+ 		 *
+-		 * Do not chose parent anon_vma, otherwise first child
+-		 * will always reuse it. Root anon_vma is never reused:
++		 * Root anon_vma is never reused:
+ 		 * it has self-parent reference and at least one child.
+ 		 */
+ 		if (!dst->anon_vma && src->anon_vma &&
+-		    anon_vma != src->anon_vma && anon_vma->degree < 2)
++		    anon_vma->num_children < 2 &&
++		    anon_vma->num_active_vmas == 0)
+ 			dst->anon_vma = anon_vma;
+ 	}
+ 	if (dst->anon_vma)
+-		dst->anon_vma->degree++;
++		dst->anon_vma->num_active_vmas++;
+ 	unlock_anon_vma_root(root);
+ 	return 0;
+ 
+@@ -355,6 +356,7 @@ int anon_vma_fork(struct vm_area_struct
+ 	anon_vma = anon_vma_alloc();
+ 	if (!anon_vma)
+ 		goto out_error;
++	anon_vma->num_active_vmas++;
+ 	avc = anon_vma_chain_alloc(GFP_KERNEL);
+ 	if (!avc)
+ 		goto out_error_free_anon_vma;
+@@ -375,7 +377,7 @@ int anon_vma_fork(struct vm_area_struct
+ 	vma->anon_vma = anon_vma;
+ 	anon_vma_lock_write(anon_vma);
+ 	anon_vma_chain_link(vma, avc, anon_vma);
+-	anon_vma->parent->degree++;
++	anon_vma->parent->num_children++;
+ 	anon_vma_unlock_write(anon_vma);
+ 
+ 	return 0;
+@@ -407,7 +409,7 @@ void unlink_anon_vmas(struct vm_area_str
+ 		 * to free them outside the lock.
+ 		 */
+ 		if (RB_EMPTY_ROOT(&anon_vma->rb_root.rb_root)) {
+-			anon_vma->parent->degree--;
++			anon_vma->parent->num_children--;
+ 			continue;
+ 		}
+ 
+@@ -415,7 +417,7 @@ void unlink_anon_vmas(struct vm_area_str
+ 		anon_vma_chain_free(avc);
+ 	}
+ 	if (vma->anon_vma) {
+-		vma->anon_vma->degree--;
++		vma->anon_vma->num_active_vmas--;
+ 
+ 		/*
+ 		 * vma would still be needed after unlink, and anon_vma will be prepared
+@@ -433,7 +435,8 @@ void unlink_anon_vmas(struct vm_area_str
+ 	list_for_each_entry_safe(avc, next, &vma->anon_vma_chain, same_vma) {
+ 		struct anon_vma *anon_vma = avc->anon_vma;
+ 
+-		VM_WARN_ON(anon_vma->degree);
++		VM_WARN_ON(anon_vma->num_children);
++		VM_WARN_ON(anon_vma->num_active_vmas);
+ 		put_anon_vma(anon_vma);
+ 
+ 		list_del(&avc->same_vma);
 
 
