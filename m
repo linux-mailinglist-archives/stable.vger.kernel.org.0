@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A90535AAF61
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:37:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36FD65AAFD4
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237083AbiIBMhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:37:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53252 "EHLO
+        id S237419AbiIBMoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:44:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236502AbiIBMgi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:36:38 -0400
+        with ESMTP id S237507AbiIBMnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A84C1E42C7;
-        Fri,  2 Sep 2022 05:29:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63861EE4BD;
+        Fri,  2 Sep 2022 05:32:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB718B82A9B;
-        Fri,  2 Sep 2022 12:29:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2AE2C433B5;
-        Fri,  2 Sep 2022 12:29:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43E94B82AD5;
+        Fri,  2 Sep 2022 12:32:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF223C433D6;
+        Fri,  2 Sep 2022 12:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121757;
-        bh=Bs2CQBsnUjpIZ+XxHHFSiRhfkB928kkGSKMck2e8gws=;
+        s=korg; t=1662121953;
+        bh=lV7mb2d2P7zCPfmJmyz0dYwCOsfkfJLOefpZXPPvb/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3j3IgD1kKVWm2WE1xMlpJp7t/UoCnTyVE3LyLmUtYIImTcovHGhQKRWAFFKze3Jl
-         PQ3qrbKeUGVelThdnauWqVr7EDhsheRiASKpDjCFZucGhP2n5LOO8cgqA9SqDheazO
-         9TZVPmQu2N60ADZdJOfXPLFBM+H913ssFSuLtZMU=
+        b=dYSK+/quhCTFcXJ8NoCZvUehwp6avjtH6kjeS2Z3HSxeAmsJtWFUKEj6fgKtdOMOO
+         JwGLaxgKl7r0H4RdwtzYFeJOwQKrJka2303CWBxHSxqH3tBGqcCBCT+qno9K25ckuk
+         lVIKM5zY9tXhyFGAWAvUt3E3YoqqukhdJIZ/a+aU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michael=20H=C3=BCbner?= <michaelh.95@t-online.de>,
         Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 54/77] HID: steam: Prevent NULL pointer dereference in steam_{recv,send}_report
-Date:   Fri,  2 Sep 2022 14:19:03 +0200
-Message-Id: <20220902121405.472911966@linuxfoundation.org>
+Subject: [PATCH 5.15 40/73] HID: thrustmaster: Add sparco wheel and fix array length
+Date:   Fri,  2 Sep 2022 14:19:04 +0200
+Message-Id: <20220902121405.761983346@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Michael Hübner <michaelh.95@t-online.de>
 
-commit cd11d1a6114bd4bc6450ae59f6e110ec47362126 upstream.
+commit d9a17651f3749e69890db57ca66e677dfee70829 upstream.
 
-It is possible for a malicious device to forgo submitting a Feature
-Report.  The HID Steam driver presently makes no prevision for this
-and de-references the 'struct hid_report' pointer obtained from the
-HID devices without first checking its validity.  Let's change that.
+Add device id for the Sparco R383 Mod wheel.
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Fixes: c164d6abf3841 ("HID: add driver for Valve Steam Controller")
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fix wheel info array length to match actual wheel count present in the array.
+
+Signed-off-by: Michael Hübner <michaelh.95@t-online.de>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-steam.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/hid/hid-thrustmaster.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -134,6 +134,11 @@ static int steam_recv_report(struct stea
- 	int ret;
+--- a/drivers/hid/hid-thrustmaster.c
++++ b/drivers/hid/hid-thrustmaster.c
+@@ -67,12 +67,13 @@ static const struct tm_wheel_info tm_whe
+ 	{0x0200, 0x0005, "Thrustmaster T300RS (Missing Attachment)"},
+ 	{0x0206, 0x0005, "Thrustmaster T300RS"},
+ 	{0x0209, 0x0005, "Thrustmaster T300RS (Open Wheel Attachment)"},
++	{0x020a, 0x0005, "Thrustmaster T300RS (Sparco R383 Mod)"},
+ 	{0x0204, 0x0005, "Thrustmaster T300 Ferrari Alcantara Edition"},
+ 	{0x0002, 0x0002, "Thrustmaster T500RS"}
+ 	//{0x0407, 0x0001, "Thrustmaster TMX"}
+ };
  
- 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-+	if (!r) {
-+		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
-+		return -EINVAL;
-+	}
-+
- 	if (hid_report_len(r) < 64)
- 		return -EINVAL;
+-static const uint8_t tm_wheels_infos_length = 4;
++static const uint8_t tm_wheels_infos_length = 7;
  
-@@ -165,6 +170,11 @@ static int steam_send_report(struct stea
- 	int ret;
- 
- 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-+	if (!r) {
-+		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
-+		return -EINVAL;
-+	}
-+
- 	if (hid_report_len(r) < 64)
- 		return -EINVAL;
- 
+ /*
+  * This structs contains (in little endian) the response data
 
 
