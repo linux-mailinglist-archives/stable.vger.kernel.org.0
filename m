@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 369B35AB010
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8F125AAF80
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237678AbiIBMsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:48:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33764 "EHLO
+        id S237051AbiIBMkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:40:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237518AbiIBMsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:48:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D91B0F2430;
-        Fri,  2 Sep 2022 05:34:37 -0700 (PDT)
+        with ESMTP id S236960AbiIBMiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:38:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77FE626575;
+        Fri,  2 Sep 2022 05:30:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A24C9621AF;
-        Fri,  2 Sep 2022 12:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5320C433D6;
-        Fri,  2 Sep 2022 12:32:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78498B82A90;
+        Fri,  2 Sep 2022 12:23:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D89F5C433B5;
+        Fri,  2 Sep 2022 12:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121950;
-        bh=qoyw/ywdNO6sZyo1tUQ3AoaTQwR0eePql9n0oiR6GcI=;
+        s=korg; t=1662121427;
+        bh=vfB4k2SeQ29GA069iFUDeC8iBhO7QGdaUDS12pAlEZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjSCePsB+G6UUZ6fv8prV0bPPcJpCqB2jZNwSmcn7/HNEWhYHxXUUNTK898jDrfD9
-         BHnTJGBYx6tnQlKNw3npqk6TUKmTAG1vSbTAs5KjeqhW/4TEMkChxPFw9s1s5Pe2nR
-         rFjFRQ0GUmsqNduEax5d0H7HKfIS6Odwihzq2FW0=
+        b=QUhJoUtBt5mV07XC1rkfGNLAikPxiMbv9bpcucfl5rTcQLFpxLWWgS3qAD67wMUMy
+         oCbkAm8FvkL4U6q/H8k4Vrc/Rm2f98fQKkoJUKdszqoNeW+aNozOy5SR/kD1w8J8Ee
+         peZ3OrdAWNs4Yrt9mrPX0HfhAxLGBGrOptk+XoZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Kilmer <srjek2@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.15 39/73] HID: asus: ROG NKey: Ignore portion of 0x5a report
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 39/42] s390/hypfs: avoid error message under KVM
 Date:   Fri,  2 Sep 2022 14:19:03 +0200
-Message-Id: <20220902121405.718984071@linuxfoundation.org>
+Message-Id: <20220902121400.114616456@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Kilmer <srjek2@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 1c0cc9d11c665020cbeb80e660fb8929164407f4 upstream.
+[ Upstream commit 7b6670b03641ac308aaa6fa2e6f964ac993b5ea3 ]
 
-On an Asus G513QY, of the 5 bytes in a 0x5a report, only the first byte
-is a meaningful keycode. The other bytes are zeroed out or hold garbage
-from the last packet sent to the keyboard.
+When booting under KVM the following error messages are issued:
 
-This patch fixes up the report descriptor for this event so that the
-general hid code will only process 1 byte for keycodes, avoiding
-spurious key events and unmapped Asus vendor usagepage code warnings.
+hypfs.7f5705: The hardware system does not support hypfs
+hypfs.7a79f0: Initialization of hypfs failed with rc=-61
 
-Signed-off-by: Josh Kilmer <srjek2@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Demote the severity of first message from "error" to "info" and issue
+the second message only in other error cases.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220620094534.18967-1-jgross@suse.com
+[arch/s390/hypfs/hypfs_diag.c changed description]
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-asus.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/s390/hypfs/hypfs_diag.c | 2 +-
+ arch/s390/hypfs/inode.c      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1212,6 +1212,13 @@ static __u8 *asus_report_fixup(struct hi
- 		rdesc = new_rdesc;
+diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
+index be8cc53204b50..46338c65c75bf 100644
+--- a/arch/s390/hypfs/hypfs_diag.c
++++ b/arch/s390/hypfs/hypfs_diag.c
+@@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
+ 	int rc;
+ 
+ 	if (diag204_probe()) {
+-		pr_err("The hardware system does not support hypfs\n");
++		pr_info("The hardware system does not support hypfs\n");
+ 		return -ENODATA;
  	}
- 
-+	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD &&
-+			*rsize == 331 && rdesc[190] == 0x85 && rdesc[191] == 0x5a &&
-+			rdesc[204] == 0x95 && rdesc[205] == 0x05) {
-+		hid_info(hdev, "Fixing up Asus N-KEY keyb report descriptor\n");
-+		rdesc[205] = 0x01;
-+	}
-+
- 	return rdesc;
+ 	if (diag204_info_type == DIAG204_INFO_EXT) {
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index 32f5b3fb069f3..2a34c075fef66 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -494,9 +494,9 @@ static int __init hypfs_init(void)
+ 	hypfs_vm_exit();
+ fail_hypfs_diag_exit:
+ 	hypfs_diag_exit();
++	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ fail_dbfs_exit:
+ 	hypfs_dbfs_exit();
+-	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ 	return rc;
  }
- 
+ device_initcall(hypfs_init)
+-- 
+2.35.1
+
 
 
