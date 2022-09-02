@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D60085AB089
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1335AB105
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:02:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238131AbiIBMzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:55:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34826 "EHLO
+        id S238534AbiIBNCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:02:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238233AbiIBMyI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:54:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 090F0D9D;
-        Fri,  2 Sep 2022 05:38:44 -0700 (PDT)
+        with ESMTP id S238532AbiIBNAh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:00:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84402E833C;
+        Fri,  2 Sep 2022 05:41:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8D3662181;
-        Fri,  2 Sep 2022 12:38:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E1D2C433C1;
-        Fri,  2 Sep 2022 12:38:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86A76B82A99;
+        Fri,  2 Sep 2022 12:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9CD5C433D7;
+        Fri,  2 Sep 2022 12:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122300;
-        bh=oMTC32BuVSAw4PAlLwY406UsI1M/nTgKc6MBfnXNkKQ=;
+        s=korg; t=1662122429;
+        bh=4xJJOHqLzP7spsbVN3XdLsPg6PaX12EVx7PC1XKrqDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6D4h+GHTJSRFUCl27KJXT9YNm0G2k0ILu/vQ6c/Ut3zA06aMRBAZLx0hoBLP2Msk
-         gp257EojnvXghi3R1mnpaOH5VlMQczQR47BPYcufoVB1BkrEAF7ExE/Qx3s8fcno0K
-         Qqj14/gsl2qnHe3Ggu+LA59ZaaUmDd/gBEWpRXvc=
+        b=mzejSoSoLvQ8Pg5L+PbiR89fQcLrTv0OOM78iudqg+FobLZqXriZCQlugtw/HxGos
+         3FnfhuWYFq6CGHsQyTsHyhTpR5FacN962Qt0DTQA/1roxOq60nYbGya9WE+uLLD5Od
+         /KBvqsWL94glaakksTjbqWxSD3L8tVf3E3h4e+uU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shane Xiao <shane.xiao@amd.com>,
-        Aaron Liu <aaron.liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 60/72] drm/amdgpu: Add secure display TA load for Renoir
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Letu Ren <fantasquex@gmail.com>, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 14/37] fbdev: fb_pm2fb: Avoid potential divide by zero error
 Date:   Fri,  2 Sep 2022 14:19:36 +0200
-Message-Id: <20220902121406.750858595@linuxfoundation.org>
+Message-Id: <20220902121359.612473653@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
+References: <20220902121359.177846782@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shane Xiao <shane.xiao@amd.com>
+From: Letu Ren <fantasquex@gmail.com>
 
-[ Upstream commit e42dfa66d59240afbdd8d4b47b87486db39504aa ]
+commit 19f953e7435644b81332dd632ba1b2d80b1e37af upstream.
 
-Add secure display TA load for Renoir
+In `do_fb_ioctl()` of fbmem.c, if cmd is FBIOPUT_VSCREENINFO, var will be
+copied from user, then go through `fb_set_var()` and
+`info->fbops->fb_check_var()` which could may be `pm2fb_check_var()`.
+Along the path, `var->pixclock` won't be modified. This function checks
+whether reciprocal of `var->pixclock` is too high. If `var->pixclock` is
+zero, there will be a divide by zero error. So, it is necessary to check
+whether denominator is zero to avoid crash. As this bug is found by
+Syzkaller, logs are listed below.
 
-Signed-off-by: Shane Xiao <shane.xiao@amd.com>
-Reviewed-by: Aaron Liu <aaron.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+divide error in pm2fb_check_var
+Call Trace:
+ <TASK>
+ fb_set_var+0x367/0xeb0 drivers/video/fbdev/core/fbmem.c:1015
+ do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
+ fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
+
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/psp_v12_0.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/video/fbdev/pm2fb.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/psp_v12_0.c b/drivers/gpu/drm/amd/amdgpu/psp_v12_0.c
-index a2588200ea580..0b2ac418e4ac4 100644
---- a/drivers/gpu/drm/amd/amdgpu/psp_v12_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/psp_v12_0.c
-@@ -101,6 +101,16 @@ static int psp_v12_0_init_microcode(struct psp_context *psp)
- 		adev->psp.dtm_context.context.bin_desc.start_addr =
- 			(uint8_t *)adev->psp.hdcp_context.context.bin_desc.start_addr +
- 			le32_to_cpu(ta_hdr->dtm.offset_bytes);
-+
-+		if (adev->apu_flags & AMD_APU_IS_RENOIR) {
-+			adev->psp.securedisplay_context.context.bin_desc.fw_version =
-+				le32_to_cpu(ta_hdr->securedisplay.fw_version);
-+			adev->psp.securedisplay_context.context.bin_desc.size_bytes =
-+				le32_to_cpu(ta_hdr->securedisplay.size_bytes);
-+			adev->psp.securedisplay_context.context.bin_desc.start_addr =
-+				(uint8_t *)adev->psp.hdcp_context.context.bin_desc.start_addr +
-+				le32_to_cpu(ta_hdr->securedisplay.offset_bytes);
-+		}
+--- a/drivers/video/fbdev/pm2fb.c
++++ b/drivers/video/fbdev/pm2fb.c
+@@ -616,6 +616,11 @@ static int pm2fb_check_var(struct fb_var
+ 		return -EINVAL;
  	}
  
- 	return 0;
--- 
-2.35.1
-
++	if (!var->pixclock) {
++		DPRINTK("pixclock is zero\n");
++		return -EINVAL;
++	}
++
+ 	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
+ 		DPRINTK("pixclock too high (%ldKHz)\n",
+ 			PICOS2KHZ(var->pixclock));
 
 
