@@ -2,44 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DD7C5AAFDC
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0A605AAF37
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237432AbiIBMou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:44:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52164 "EHLO
+        id S236485AbiIBMeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:34:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237518AbiIBMnx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 931A1EC4EF;
-        Fri,  2 Sep 2022 05:32:29 -0700 (PDT)
+        with ESMTP id S236941AbiIBMdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:33:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DBEBE3989;
+        Fri,  2 Sep 2022 05:28:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84DB6B82AA0;
-        Fri,  2 Sep 2022 12:30:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D895C433D6;
-        Fri,  2 Sep 2022 12:30:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02E5D6217A;
+        Fri,  2 Sep 2022 12:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D97C0C433D7;
+        Fri,  2 Sep 2022 12:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121845;
-        bh=3zvCWS6sOwZGE2ccYnr97ZJIx0tpowQ+AOrzJspelSE=;
+        s=korg; t=1662121574;
+        bh=G2xOLKpuAKcePb2irL1aIOX5dcxSD0R38MJXGNKY5LQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rytm21RkNFQeK4pyCkFaHhrtyzGQNrQkVoDqNcI2cqV+rzAMbuwxXIr8gcVj/EZjq
-         ftGg56r3t+9PtT5nfTU5L2H78opto5rgo/QXpdQLn15xI0+mqGijtBOyn1AKj4SwWL
-         DrgQCxLCjPIC0YIdrjwW59DIlib45bIX2LqvZrzg=
+        b=qvhrj4isx7GO0M7hxmKqynEvjFJV9Q8zLDYQjbkNVEpM4PacxLPSCtW/FtcPvonyi
+         OiAFzCbCSjqnsN5DqvCc8OAvrYRrBvsGD48WuZmOTzxI3UwkTy8QrVocbBMSCXpp+N
+         bv/OONg7hoznWY94sIPZesMLE/01a+2662YkYHKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 63/77] btrfs: do not pin logs too early during renames
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        David Ahern <dsahern@kernel.org>,
+        Yajun Deng <yajun.deng@linux.dev>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        Christian Brauner <brauner@kernel.org>, netdev@vger.kernel.org,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
+        Konstantin Khorenko <khorenko@virtuozzo.com>,
+        kernel@openvz.org, devel@openvz.org,
+        "Denis V. Lunev" <den@openvz.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 52/56] neigh: fix possible DoS due to net iface start/stop loop
 Date:   Fri,  2 Sep 2022 14:19:12 +0200
-Message-Id: <20220902121405.775494630@linuxfoundation.org>
+Message-Id: <20220902121402.254709519@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,242 +65,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Denis V. Lunev <den@openvz.org>
 
-[ Upstream commit bd54f381a12ac695593271a663d36d14220215b2 ]
+[ Upstream commit 66ba215cb51323e4e55e38fd5f250e0fae0cbc94 ]
 
-During renames we pin the logs of the roots a bit too early, before the
-calls to btrfs_insert_inode_ref(). We can pin the logs after those calls,
-since those will not change anything in a log tree.
+Normal processing of ARP request (usually this is Ethernet broadcast
+packet) coming to the host is looking like the following:
+* the packet comes to arp_process() call and is passed through routing
+  procedure
+* the request is put into the queue using pneigh_enqueue() if
+  corresponding ARP record is not local (common case for container
+  records on the host)
+* the request is processed by timer (within 80 jiffies by default) and
+  ARP reply is sent from the same arp_process() using
+  NEIGH_CB(skb)->flags & LOCALLY_ENQUEUED condition (flag is set inside
+  pneigh_enqueue())
 
-In a scenario where we have multiple and diverse filesystem operations
-running in parallel, those calls can take a significant amount of time,
-due to lock contention on extent buffers, and delay log commits from other
-tasks for longer than necessary.
+And here the problem comes. Linux kernel calls pneigh_queue_purge()
+which destroys the whole queue of ARP requests on ANY network interface
+start/stop event through __neigh_ifdown().
 
-So just pin logs after calls to btrfs_insert_inode_ref() and right before
-the first operation that can update a log tree.
+This is actually not a problem within the original world as network
+interface start/stop was accessible to the host 'root' only, which
+could do more destructive things. But the world is changed and there
+are Linux containers available. Here container 'root' has an access
+to this API and could be considered as untrusted user in the hosting
+(container's) world.
 
-The following script that uses dbench was used for testing:
+Thus there is an attack vector to other containers on node when
+container's root will endlessly start/stop interfaces. We have observed
+similar situation on a real production node when docker container was
+doing such activity and thus other containers on the node become not
+accessible.
 
-  $ cat dbench-test.sh
-  #!/bin/bash
+The patch proposed doing very simple thing. It drops only packets from
+the same namespace in the pneigh_queue_purge() where network interface
+state change is detected. This is enough to prevent the problem for the
+whole node preserving original semantics of the code.
 
-  DEV=/dev/nvme0n1
-  MNT=/mnt/nvme0n1
-  MOUNT_OPTIONS="-o ssd"
-  MKFS_OPTIONS="-m single -d single"
+v2:
+	- do del_timer_sync() if queue is empty after pneigh_queue_purge()
+v3:
+	- rebase to net tree
 
-  echo "performance" | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
-
-  umount $DEV &> /dev/null
-  mkfs.btrfs -f $MKFS_OPTIONS $DEV
-  mount $MOUNT_OPTIONS $DEV $MNT
-
-  dbench -D $MNT -t 120 16
-
-  umount $MNT
-
-The tests were run on a machine with 12 cores, 64G of RAN, a NVMe device
-and using a non-debug kernel config (Debian's default config).
-
-The results compare a branch without this patch and without the previous
-patch in the series, that has the subject:
-
- "btrfs: eliminate some false positives when checking if inode was logged"
-
-Versus the same branch with these two patches applied.
-
-dbench with 8 clients, results before:
-
- Operation      Count    AvgLat    MaxLat
- ----------------------------------------
- NTCreateX    4391359     0.009   249.745
- Close        3225882     0.001     3.243
- Rename        185953     0.065   240.643
- Unlink        886669     0.049   249.906
- Deltree          112     2.455   217.433
- Mkdir             56     0.002     0.004
- Qpathinfo    3980281     0.004     3.109
- Qfileinfo     697579     0.001     0.187
- Qfsinfo       729780     0.002     2.424
- Sfileinfo     357764     0.004     1.415
- Find         1538861     0.016     4.863
- WriteX       2189666     0.010     3.327
- ReadX        6883443     0.002     0.729
- LockX          14298     0.002     0.073
- UnlockX        14298     0.001     0.042
- Flush         307777     2.447   303.663
-
-Throughput 1149.6 MB/sec  8 clients  8 procs  max_latency=303.666 ms
-
-dbench with 8 clients, results after:
-
- Operation      Count    AvgLat    MaxLat
- ----------------------------------------
- NTCreateX    4269920     0.009   213.532
- Close        3136653     0.001     0.690
- Rename        180805     0.082   213.858
- Unlink        862189     0.050   172.893
- Deltree          112     2.998   218.328
- Mkdir             56     0.002     0.003
- Qpathinfo    3870158     0.004     5.072
- Qfileinfo     678375     0.001     0.194
- Qfsinfo       709604     0.002     0.485
- Sfileinfo     347850     0.004     1.304
- Find         1496310     0.017     5.504
- WriteX       2129613     0.010     2.882
- ReadX        6693066     0.002     1.517
- LockX          13902     0.002     0.075
- UnlockX        13902     0.001     0.055
- Flush         299276     2.511   220.189
-
-Throughput 1187.33 MB/sec  8 clients  8 procs  max_latency=220.194 ms
-
-+3.2% throughput, -31.8% max latency
-
-dbench with 16 clients, results before:
-
- Operation      Count    AvgLat    MaxLat
- ----------------------------------------
- NTCreateX    5978334     0.028   156.507
- Close        4391598     0.001     1.345
- Rename        253136     0.241   155.057
- Unlink       1207220     0.182   257.344
- Deltree          160     6.123    36.277
- Mkdir             80     0.003     0.005
- Qpathinfo    5418817     0.012     6.867
- Qfileinfo     949929     0.001     0.941
- Qfsinfo       993560     0.002     1.386
- Sfileinfo     486904     0.004     2.829
- Find         2095088     0.059     8.164
- WriteX       2982319     0.017     9.029
- ReadX        9371484     0.002     4.052
- LockX          19470     0.002     0.461
- UnlockX        19470     0.001     0.990
- Flush         418936     2.740   347.902
-
-Throughput 1495.31 MB/sec  16 clients  16 procs  max_latency=347.909 ms
-
-dbench with 16 clients, results after:
-
- Operation      Count    AvgLat    MaxLat
- ----------------------------------------
- NTCreateX    5711833     0.029   131.240
- Close        4195897     0.001     1.732
- Rename        241849     0.204   147.831
- Unlink       1153341     0.184   231.322
- Deltree          160     6.086    30.198
- Mkdir             80     0.003     0.021
- Qpathinfo    5177011     0.012     7.150
- Qfileinfo     907768     0.001     0.793
- Qfsinfo       949205     0.002     1.431
- Sfileinfo     465317     0.004     2.454
- Find         2001541     0.058     7.819
- WriteX       2850661     0.017     9.110
- ReadX        8952289     0.002     3.991
- LockX          18596     0.002     0.655
- UnlockX        18596     0.001     0.179
- Flush         400342     2.879   293.607
-
-Throughput 1565.73 MB/sec  16 clients  16 procs  max_latency=293.611 ms
-
-+4.6% throughput, -16.9% max latency
-
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: David Ahern <dsahern@kernel.org>
+Cc: Yajun Deng <yajun.deng@linux.dev>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+Cc: Konstantin Khorenko <khorenko@virtuozzo.com>
+Cc: kernel@openvz.org
+Cc: devel@openvz.org
+Investigated-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 48 ++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 42 insertions(+), 6 deletions(-)
+ net/core/neighbour.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 7755a0362a3ad..20c5db8ef8427 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -9751,8 +9751,6 @@ static int btrfs_rename_exchange(struct inode *old_dir,
- 		/* force full log commit if subvolume involved. */
- 		btrfs_set_log_full_commit(trans);
- 	} else {
--		btrfs_pin_log_trans(root);
--		root_log_pinned = true;
- 		ret = btrfs_insert_inode_ref(trans, dest,
- 					     new_dentry->d_name.name,
- 					     new_dentry->d_name.len,
-@@ -9768,8 +9766,6 @@ static int btrfs_rename_exchange(struct inode *old_dir,
- 		/* force full log commit if subvolume involved. */
- 		btrfs_set_log_full_commit(trans);
- 	} else {
--		btrfs_pin_log_trans(dest);
--		dest_log_pinned = true;
- 		ret = btrfs_insert_inode_ref(trans, root,
- 					     old_dentry->d_name.name,
- 					     old_dentry->d_name.len,
-@@ -9797,6 +9793,29 @@ static int btrfs_rename_exchange(struct inode *old_dir,
- 				BTRFS_I(new_inode), 1);
- 	}
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 6233e9856016e..65e80aaa09481 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -224,14 +224,23 @@ static int neigh_del_timer(struct neighbour *n)
+ 	return 0;
+ }
  
-+	/*
-+	 * Now pin the logs of the roots. We do it to ensure that no other task
-+	 * can sync the logs while we are in progress with the rename, because
-+	 * that could result in an inconsistency in case any of the inodes that
-+	 * are part of this rename operation were logged before.
-+	 *
-+	 * We pin the logs even if at this precise moment none of the inodes was
-+	 * logged before. This is because right after we checked for that, some
-+	 * other task fsyncing some other inode not involved with this rename
-+	 * operation could log that one of our inodes exists.
-+	 *
-+	 * We don't need to pin the logs before the above calls to
-+	 * btrfs_insert_inode_ref(), since those don't ever need to change a log.
-+	 */
-+	if (old_ino != BTRFS_FIRST_FREE_OBJECTID) {
-+		btrfs_pin_log_trans(root);
-+		root_log_pinned = true;
-+	}
-+	if (new_ino != BTRFS_FIRST_FREE_OBJECTID) {
-+		btrfs_pin_log_trans(dest);
-+		dest_log_pinned = true;
-+	}
-+
- 	/* src is a subvolume */
- 	if (old_ino == BTRFS_FIRST_FREE_OBJECTID) {
- 		ret = btrfs_unlink_subvol(trans, old_dir, old_dentry);
-@@ -10046,8 +10065,6 @@ static int btrfs_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		/* force full log commit if subvolume involved. */
- 		btrfs_set_log_full_commit(trans);
- 	} else {
--		btrfs_pin_log_trans(root);
--		log_pinned = true;
- 		ret = btrfs_insert_inode_ref(trans, dest,
- 					     new_dentry->d_name.name,
- 					     new_dentry->d_name.len,
-@@ -10071,6 +10088,25 @@ static int btrfs_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	if (unlikely(old_ino == BTRFS_FIRST_FREE_OBJECTID)) {
- 		ret = btrfs_unlink_subvol(trans, old_dir, old_dentry);
- 	} else {
-+		/*
-+		 * Now pin the log. We do it to ensure that no other task can
-+		 * sync the log while we are in progress with the rename, as
-+		 * that could result in an inconsistency in case any of the
-+		 * inodes that are part of this rename operation were logged
-+		 * before.
-+		 *
-+		 * We pin the log even if at this precise moment none of the
-+		 * inodes was logged before. This is because right after we
-+		 * checked for that, some other task fsyncing some other inode
-+		 * not involved with this rename operation could log that one of
-+		 * our inodes exists.
-+		 *
-+		 * We don't need to pin the logs before the above call to
-+		 * btrfs_insert_inode_ref(), since that does not need to change
-+		 * a log.
-+		 */
-+		btrfs_pin_log_trans(root);
-+		log_pinned = true;
- 		ret = __btrfs_unlink_inode(trans, root, BTRFS_I(old_dir),
- 					BTRFS_I(d_inode(old_dentry)),
- 					old_dentry->d_name.name,
+-static void pneigh_queue_purge(struct sk_buff_head *list)
++static void pneigh_queue_purge(struct sk_buff_head *list, struct net *net)
+ {
++	unsigned long flags;
+ 	struct sk_buff *skb;
+ 
+-	while ((skb = skb_dequeue(list)) != NULL) {
+-		dev_put(skb->dev);
+-		kfree_skb(skb);
++	spin_lock_irqsave(&list->lock, flags);
++	skb = skb_peek(list);
++	while (skb != NULL) {
++		struct sk_buff *skb_next = skb_peek_next(skb, list);
++		if (net == NULL || net_eq(dev_net(skb->dev), net)) {
++			__skb_unlink(skb, list);
++			dev_put(skb->dev);
++			kfree_skb(skb);
++		}
++		skb = skb_next;
+ 	}
++	spin_unlock_irqrestore(&list->lock, flags);
+ }
+ 
+ static void neigh_flush_dev(struct neigh_table *tbl, struct net_device *dev)
+@@ -297,9 +306,9 @@ int neigh_ifdown(struct neigh_table *tbl, struct net_device *dev)
+ 	write_lock_bh(&tbl->lock);
+ 	neigh_flush_dev(tbl, dev);
+ 	pneigh_ifdown_and_unlock(tbl, dev);
+-
+-	del_timer_sync(&tbl->proxy_timer);
+-	pneigh_queue_purge(&tbl->proxy_queue);
++	pneigh_queue_purge(&tbl->proxy_queue, dev_net(dev));
++	if (skb_queue_empty_lockless(&tbl->proxy_queue))
++		del_timer_sync(&tbl->proxy_timer);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(neigh_ifdown);
+@@ -1614,7 +1623,7 @@ int neigh_table_clear(int index, struct neigh_table *tbl)
+ 	/* It is not clean... Fix it to unload IPv6 module safely */
+ 	cancel_delayed_work_sync(&tbl->gc_work);
+ 	del_timer_sync(&tbl->proxy_timer);
+-	pneigh_queue_purge(&tbl->proxy_queue);
++	pneigh_queue_purge(&tbl->proxy_queue, NULL);
+ 	neigh_ifdown(tbl, NULL);
+ 	if (atomic_read(&tbl->entries))
+ 		pr_crit("neighbour leakage\n");
 -- 
 2.35.1
 
