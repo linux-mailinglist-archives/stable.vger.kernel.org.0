@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 195245AAF13
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 565305AB16F
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236824AbiIBMdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:33:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47798 "EHLO
+        id S236859AbiIBNc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236255AbiIBMcI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:32:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63993E1A87;
-        Fri,  2 Sep 2022 05:27:03 -0700 (PDT)
+        with ESMTP id S236576AbiIBNch (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:32:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDF4111B605;
+        Fri,  2 Sep 2022 06:11:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03D7AB82A93;
-        Fri,  2 Sep 2022 12:26:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C714C433C1;
-        Fri,  2 Sep 2022 12:26:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98AFBB82AD5;
+        Fri,  2 Sep 2022 12:35:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECC67C433D6;
+        Fri,  2 Sep 2022 12:35:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121601;
-        bh=nN8ADwqc5PZvKklE1YnMtGZ5CSJV3QwI3GVA9DAi9VU=;
+        s=korg; t=1662122113;
+        bh=aPKFJmxk4ZvRsdW5e6kiQ6asp9b+m3LYnX4sZA3272A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnoWNNfcntcwFYqYOCLJc1oySTMNh3Ctxq8Nyi3F5ntrP47Npu7ixyXuB6a/lsL0N
-         du2KoEl2jaRmTHNOLtMntWCw3/KRcQCauK/t5ZnnhKpptQyEsJHHBvpg0aqWVYocPf
-         mf6lUkUWvR6yIjyTljRJKB/TMFydqBk4YpO3RzVk=
+        b=cfrewgwXtMq0o23Wb+i4ypYR+zN40xyrrbSSCjBL7NQsm1BLvtVRj8rshRk9gWnzm
+         wpdwHHcUB+hQqORDPmT3ddQg30nsXYPQMXmuVPx5fzDy+EUPRhU57lS+BKKuFYIXYD
+         7RyJmObJ7JfuqH5pSkW+vi5eYxD+M91uIdmnTXWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.19 33/56] s390: fix double free of GS and RI CBs on fork() failure
+        stable@vger.kernel.org,
+        syzbot+7a12909485b94426aceb@syzkaller.appspotmail.com,
+        Zhengchao Shao <shaozhengchao@huawei.com>,
+        Stanislav Fomichev <sdf@google.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.19 17/72] bpf: Dont redirect packets with invalid pkt_len
 Date:   Fri,  2 Sep 2022 14:18:53 +0200
-Message-Id: <20220902121401.424236751@linuxfoundation.org>
+Message-Id: <20220902121405.351517438@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
-References: <20220902121400.219861128@linuxfoundation.org>
+In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
+References: <20220902121404.772492078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-commit 13cccafe0edcd03bf1c841de8ab8a1c8e34f77d9 upstream.
+commit fd1894224407c484f652ad456e1ce423e89bb3eb upstream.
 
-The pointers for guarded storage and runtime instrumentation control
-blocks are stored in the thread_struct of the associated task. These
-pointers are initially copied on fork() via arch_dup_task_struct()
-and then cleared via copy_thread() before fork() returns. If fork()
-happens to fail after the initial task dup and before copy_thread(),
-the newly allocated task and associated thread_struct memory are
-freed via free_task() -> arch_release_task_struct(). This results in
-a double free of the guarded storage and runtime info structs
-because the fields in the failed task still refer to memory
-associated with the source task.
+Syzbot found an issue [1]: fq_codel_drop() try to drop a flow whitout any
+skbs, that is, the flow->head is null.
+The root cause, as the [2] says, is because that bpf_prog_test_run_skb()
+run a bpf prog which redirects empty skbs.
+So we should determine whether the length of the packet modified by bpf
+prog or others like bpf_prog_test is valid before forwarding it directly.
 
-This problem can manifest as a BUG_ON() in set_freepointer() (with
-CONFIG_SLAB_FREELIST_HARDENED enabled) or KASAN splat (if enabled)
-when running trinity syscall fuzz tests on s390x. To avoid this
-problem, clear the associated pointer fields in
-arch_dup_task_struct() immediately after the new task is copied.
-Note that the RI flag is still cleared in copy_thread() because it
-resides in thread stack memory and that is where stack info is
-copied.
+LINK: [1] https://syzkaller.appspot.com/bug?id=0b84da80c2917757915afa89f7738a9d16ec96c5
+LINK: [2] https://www.spinics.net/lists/netdev/msg777503.html
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Fixes: 8d9047f8b967c ("s390/runtime instrumentation: simplify task exit handling")
-Fixes: 7b83c6297d2fc ("s390/guarded storage: simplify task exit handling")
-Cc: <stable@vger.kernel.org> # 4.15
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220816155407.537372-1-bfoster@redhat.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Reported-by: syzbot+7a12909485b94426aceb@syzkaller.appspotmail.com
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20220715115559.139691-1-shaozhengchao@huawei.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/process.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ include/linux/skbuff.h |    8 ++++++++
+ net/bpf/test_run.c     |    3 +++
+ net/core/dev.c         |    1 +
+ 3 files changed, 12 insertions(+)
 
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -75,6 +75,18 @@ int arch_dup_task_struct(struct task_str
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -2624,6 +2624,14 @@ static inline void skb_set_tail_pointer(
  
- 	memcpy(dst, src, arch_task_struct_size);
- 	dst->thread.fpu.regs = dst->thread.fpu.fprs;
+ #endif /* NET_SKBUFF_DATA_USES_OFFSET */
+ 
++static inline void skb_assert_len(struct sk_buff *skb)
++{
++#ifdef CONFIG_DEBUG_NET
++	if (WARN_ONCE(!skb->len, "%s\n", __func__))
++		DO_ONCE_LITE(skb_dump, KERN_ERR, skb, false);
++#endif /* CONFIG_DEBUG_NET */
++}
 +
-+	/*
-+	 * Don't transfer over the runtime instrumentation or the guarded
-+	 * storage control block pointers. These fields are cleared here instead
-+	 * of in copy_thread() to avoid premature freeing of associated memory
-+	 * on fork() failure. Wait to clear the RI flag because ->stack still
-+	 * refers to the source thread.
-+	 */
-+	dst->thread.ri_cb = NULL;
-+	dst->thread.gs_cb = NULL;
-+	dst->thread.gs_bc_cb = NULL;
+ /*
+  *	Add data to an sk_buff
+  */
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -955,6 +955,9 @@ static int convert___skb_to_skb(struct s
+ {
+ 	struct qdisc_skb_cb *cb = (struct qdisc_skb_cb *)skb->cb;
+ 
++	if (!skb->len)
++		return -EINVAL;
 +
- 	return 0;
- }
+ 	if (!__skb)
+ 		return 0;
  
-@@ -131,13 +143,11 @@ int copy_thread_tls(unsigned long clone_
- 	frame->childregs.flags = 0;
- 	if (new_stackp)
- 		frame->childregs.gprs[15] = new_stackp;
--
--	/* Don't copy runtime instrumentation info */
--	p->thread.ri_cb = NULL;
-+	/*
-+	 * Clear the runtime instrumentation flag after the above childregs
-+	 * copy. The CB pointer was already cleared in arch_dup_task_struct().
-+	 */
- 	frame->childregs.psw.mask &= ~PSW_MASK_RI;
--	/* Don't copy guarded storage control block */
--	p->thread.gs_cb = NULL;
--	p->thread.gs_bc_cb = NULL;
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4168,6 +4168,7 @@ int __dev_queue_xmit(struct sk_buff *skb
+ 	bool again = false;
  
- 	/* Set a new TLS ?  */
- 	if (clone_flags & CLONE_SETTLS) {
+ 	skb_reset_mac_header(skb);
++	skb_assert_len(skb);
+ 
+ 	if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_SCHED_TSTAMP))
+ 		__skb_tstamp_tx(skb, NULL, NULL, skb->sk, SCM_TSTAMP_SCHED);
 
 
