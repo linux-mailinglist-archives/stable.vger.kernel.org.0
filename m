@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C4D5AB3B9
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 16:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E17CB5AB300
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 16:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235287AbiIBOeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 10:34:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38546 "EHLO
+        id S238804AbiIBOHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 10:07:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236489AbiIBOcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:32:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 961671FCD3;
-        Fri,  2 Sep 2022 06:55:18 -0700 (PDT)
+        with ESMTP id S238388AbiIBOHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:07:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E6E6201B8;
+        Fri,  2 Sep 2022 06:35:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AB20B82A77;
-        Fri,  2 Sep 2022 12:37:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E515C433C1;
-        Fri,  2 Sep 2022 12:37:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 532CEB82AA1;
+        Fri,  2 Sep 2022 12:38:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91D9CC433C1;
+        Fri,  2 Sep 2022 12:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122236;
-        bh=bCF/wtT9qhY2o2fiAbXiqrUVuVfn3Hpp0lo+dq3HfM8=;
+        s=korg; t=1662122315;
+        bh=C0kRf5bfCnAeS9Hjj1AXvIeKcZDY5VMANtibcHCCYZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZaOLC5WBG5/zwZnMsP3XmwoE+3LAI9xg1437s5C/7Cz3uW3MJuAUd1gD3Y1Qu85mi
-         P07fg1O7ZCyO+cOq7EfyRk00yG2I+6SA63Sk3xLlmpYmcH+GrGZ/Hlym070EzwQvF0
-         +qXmf9plJjovKGSR0TKl7jTcm5Nph5WM/EkFpWLc=
+        b=JCOw1pAMEnG/Nb0wKOg+H7CkFVyh130rp/HWJ5hw2dv7hEsxewZ2xBkDqc82jojQz
+         MyKtgK+/M4BoutZCuWaT8C9cBNcZjxfl4jCeshiiM3K3sbMq5asA9Uc2VqAi0q0MVq
+         /oqjh6n9anvhuQO8ZbEZ7h+aljfwiGpFGqrocb0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        stable@vger.kernel.org, Aric Cyr <Aric.Cyr@amd.com>,
+        Brian Chang <Brian.Chang@amd.com>,
+        Ilya Bakoulin <Ilya.Bakoulin@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 54/72] drm/amd/pm: add missing ->fini_xxxx interfaces for some SMU13 asics
-Date:   Fri,  2 Sep 2022 14:19:30 +0200
-Message-Id: <20220902121406.540255185@linuxfoundation.org>
+Subject: [PATCH 5.19 55/72] drm/amd/display: Fix pixel clock programming
+Date:   Fri,  2 Sep 2022 14:19:31 +0200
+Message-Id: <20220902121406.569076375@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
 References: <20220902121404.772492078@linuxfoundation.org>
@@ -54,49 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
 
-[ Upstream commit 4bac1c846eff8042dd59ddecd0a43f3b9de5fd23 ]
+[ Upstream commit 04fb918bf421b299feaee1006e82921d7d381f18 ]
 
-Without these, potential memory leak may be induced.
+[Why]
+Some pixel clock values could cause HDMI TMDS SSCPs to be misaligned
+between different HDMI lanes when using YCbCr420 10-bit pixel format.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+BIOS functions for transmitter/encoder control take pixel clock in kHz
+increments, whereas the function for setting the pixel clock is in 100Hz
+increments. Setting pixel clock to a value that is not on a kHz boundary
+will cause the issue.
+
+[How]
+Round pixel clock down to nearest kHz in 10/12-bpc cases.
+
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Brian Chang <Brian.Chang@amd.com>
+Signed-off-by: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c | 2 ++
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-index 7432b3e76d3d7..201546c369945 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-@@ -1583,7 +1583,9 @@ static const struct pptable_funcs smu_v13_0_0_ppt_funcs = {
- 	.dump_pptable = smu_v13_0_0_dump_pptable,
- 	.init_microcode = smu_v13_0_init_microcode,
- 	.load_microcode = smu_v13_0_load_microcode,
-+	.fini_microcode = smu_v13_0_fini_microcode,
- 	.init_smc_tables = smu_v13_0_0_init_smc_tables,
-+	.fini_smc_tables = smu_v13_0_fini_smc_tables,
- 	.init_power = smu_v13_0_init_power,
- 	.fini_power = smu_v13_0_fini_power,
- 	.check_fw_status = smu_v13_0_check_fw_status,
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-index 4e1861fb2c6a4..9cde13b07dd26 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-@@ -1539,7 +1539,9 @@ static const struct pptable_funcs smu_v13_0_7_ppt_funcs = {
- 	.dump_pptable = smu_v13_0_7_dump_pptable,
- 	.init_microcode = smu_v13_0_init_microcode,
- 	.load_microcode = smu_v13_0_load_microcode,
-+	.fini_microcode = smu_v13_0_fini_microcode,
- 	.init_smc_tables = smu_v13_0_7_init_smc_tables,
-+	.fini_smc_tables = smu_v13_0_fini_smc_tables,
- 	.init_power = smu_v13_0_init_power,
- 	.check_fw_status = smu_v13_0_7_check_fw_status,
- 	.setup_pptable = smu_v13_0_7_setup_pptable,
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
+index 845aa8a1027d8..c4040adb88b03 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
+@@ -545,9 +545,11 @@ static void dce112_get_pix_clk_dividers_helper (
+ 		switch (pix_clk_params->color_depth) {
+ 		case COLOR_DEPTH_101010:
+ 			actual_pixel_clock_100hz = (actual_pixel_clock_100hz * 5) >> 2;
++			actual_pixel_clock_100hz -= actual_pixel_clock_100hz % 10;
+ 			break;
+ 		case COLOR_DEPTH_121212:
+ 			actual_pixel_clock_100hz = (actual_pixel_clock_100hz * 6) >> 2;
++			actual_pixel_clock_100hz -= actual_pixel_clock_100hz % 10;
+ 			break;
+ 		case COLOR_DEPTH_161616:
+ 			actual_pixel_clock_100hz = actual_pixel_clock_100hz * 2;
 -- 
 2.35.1
 
