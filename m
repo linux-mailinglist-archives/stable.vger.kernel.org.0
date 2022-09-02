@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D87FC5AB07D
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:55:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 095255AB0AB
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237989AbiIBMyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:54:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45452 "EHLO
+        id S238244AbiIBM4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:56:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238068AbiIBMxn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10409E58B2;
-        Fri,  2 Sep 2022 05:38:13 -0700 (PDT)
+        with ESMTP id S238001AbiIBMyo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:54:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BDB2B33;
+        Fri,  2 Sep 2022 05:39:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 086F7B82AC9;
-        Fri,  2 Sep 2022 12:37:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17B94C433C1;
-        Fri,  2 Sep 2022 12:37:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2A5A6215D;
+        Fri,  2 Sep 2022 12:38:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2311C433C1;
+        Fri,  2 Sep 2022 12:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122229;
-        bh=W5oQC4Zg2/zldJq0JW/tS/rGH5fjKgrukQ6IFTGSIVw=;
+        s=korg; t=1662122333;
+        bh=BCPPt0LOctTxI2SeC9BJPqci9jzrGee47gQKv2P6LsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AiaH40t/Ydxq2doZMcfEsp3J8hnPozctnsGAOi22tcCqcgNC5/1OhLQBtc7QHz180
-         r/znxTupkimq7Zv/mWEd0rleH7Jh8JomSoWWpeWSPmjIc0r7sWvJfmMNEknOilXKIA
-         kvpCCMbGOZd2GWnyOqWfur/av7WVvGmeLqIvjJsc=
+        b=S+JPoxsFnksEkX0THWA3YPOOcGMS6BhWSZoEAm2HA0Qraal0RBkifuh6wMh4lmHx9
+         Fbx8jXoLcHC8vTdtIAt42yXBaSohiuoMsMz9vz+J2z0QFOvwcnbO5RhBzM0k+0LQoM
+         l3/ELnSw5zaFWe9u8s3NmP+i9o81lPr37HUPV2qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 52/72] drm/amdgpu: disable 3DCGCG/CGLS temporarily due to stability issue
+        stable@vger.kernel.org, Jing Leng <jleng@ambarella.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nicolas Schier <n.schier@avm.de>
+Subject: [PATCH 5.10 06/37] kbuild: Fix include path in scripts/Makefile.modpost
 Date:   Fri,  2 Sep 2022 14:19:28 +0200
-Message-Id: <20220902121406.484061206@linuxfoundation.org>
+Message-Id: <20220902121359.376467893@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
+References: <20220902121359.177846782@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Jing Leng <jleng@ambarella.com>
 
-[ Upstream commit 1b586595df6d04c27088ef348b8202204ce26d45 ]
+commit 23a0cb8e3225122496bfa79172005c587c2d64bf upstream.
 
-Some stability issues were reported with these features.
+When building an external module, if users don't need to separate the
+compilation output and source code, they run the following command:
+"make -C $(LINUX_SRC_DIR) M=$(PWD)". At this point, "$(KBUILD_EXTMOD)"
+and "$(src)" are the same.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If they need to separate them, they run "make -C $(KERNEL_SRC_DIR)
+O=$(KERNEL_OUT_DIR) M=$(OUT_DIR) src=$(PWD)". Before running the
+command, they need to copy "Kbuild" or "Makefile" to "$(OUT_DIR)" to
+prevent compilation failure.
+
+So the kernel should change the included path to avoid the copy operation.
+
+Signed-off-by: Jing Leng <jleng@ambarella.com>
+[masahiro: I do not think "M=$(OUT_DIR) src=$(PWD)" is the official way,
+but this patch is a nice clean up anyway.]
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Nicolas Schier <n.schier@avm.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc21.c | 2 ++
- 1 file changed, 2 insertions(+)
+ scripts/Makefile.modpost |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc21.c b/drivers/gpu/drm/amd/amdgpu/soc21.c
-index 9e18a2b22607b..8d5c452a91007 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc21.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc21.c
-@@ -530,8 +530,10 @@ static int soc21_common_early_init(void *handle)
- 	case IP_VERSION(11, 0, 0):
- 		adev->cg_flags = AMD_CG_SUPPORT_GFX_CGCG |
- 			AMD_CG_SUPPORT_GFX_CGLS |
-+#if 0
- 			AMD_CG_SUPPORT_GFX_3D_CGCG |
- 			AMD_CG_SUPPORT_GFX_3D_CGLS |
-+#endif
- 			AMD_CG_SUPPORT_GFX_MGCG |
- 			AMD_CG_SUPPORT_REPEATER_FGCG |
- 			AMD_CG_SUPPORT_GFX_FGCG |
--- 
-2.35.1
-
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -87,8 +87,7 @@ obj := $(KBUILD_EXTMOD)
+ src := $(obj)
+ 
+ # Include the module's Makefile to find KBUILD_EXTRA_SYMBOLS
+-include $(if $(wildcard $(KBUILD_EXTMOD)/Kbuild), \
+-             $(KBUILD_EXTMOD)/Kbuild, $(KBUILD_EXTMOD)/Makefile)
++include $(if $(wildcard $(src)/Kbuild), $(src)/Kbuild, $(src)/Makefile)
+ 
+ # modpost option for external modules
+ MODPOST += -e
 
 
