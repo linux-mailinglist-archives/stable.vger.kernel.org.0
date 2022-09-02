@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48FE15AAEA5
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:26:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 374845AAFCE
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236274AbiIBM0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:26:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49224 "EHLO
+        id S237375AbiIBMoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:44:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236223AbiIBM0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:26:08 -0400
+        with ESMTP id S237420AbiIBMng (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05A96DD765;
-        Fri,  2 Sep 2022 05:23:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F25B2EB855;
+        Fri,  2 Sep 2022 05:32:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66B67B82A94;
-        Fri,  2 Sep 2022 12:23:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 769F5C433C1;
-        Fri,  2 Sep 2022 12:23:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 349D7B82AA5;
+        Fri,  2 Sep 2022 12:32:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D9CC433D7;
+        Fri,  2 Sep 2022 12:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121406;
-        bh=yz7bO2xHTeK3O/aUbQnyXZZEfzdlJbDagDmauRQ58IM=;
+        s=korg; t=1662121928;
+        bh=FyeLDq2PH9S41l9QFfUpiWJFrh1e22Akt8LbPtNul28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vuFBbzqAjVmULri/N/TjgU4YwEKebRKAz2VfGS58IXdOFfuS4gKRYJz2T5QEAUl2Z
-         BDiLP7B4kP1HKWsxzqx80eEZNmElLOZwtCVhNCeY6qGSvE5lxxpXhu0FFZtU2qRqi1
-         kAWmMrvUbyPBZ3ChE5QKbjBiLbENjOKMnmy5qXyA=
+        b=gUwz6PpKP7WvVuIH2EjddkUu0kcLi3XTYNUIH4SZI5HPkR8gay5X5m1Qhw1334YXe
+         qFmGdSf8G68sREdIOE8E63l+rN/c7W41qG6vw4PSfW2mSvrg2AvMgkxb6ZgCN4iN35
+         M2osU0QqF6h9C1hBhOU2tOi4N/2udbsB70/5R1bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        syzkaller <syzkaller@googlegroups.com>,
-        Florian Westphal <fw@strlen.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/42] netfilter: ebtables: reject blobs that dont provide all entry points
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 09/73] mm/hugetlb: avoid corrupting page->mapping in hugetlb_mcopy_atomic_pte
 Date:   Fri,  2 Sep 2022 14:18:33 +0200
-Message-Id: <20220902121359.127943794@linuxfoundation.org>
+Message-Id: <20220902121404.745542492@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,165 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 7997eff82828304b780dc0a39707e1946d6f1ebf ]
+commit ab74ef708dc51df7cf2b8a890b9c6990fac5c0c6 upstream.
 
-Harshit Mogalapalli says:
- In ebt_do_table() function dereferencing 'private->hook_entry[hook]'
- can lead to NULL pointer dereference. [..] Kernel panic:
+In MCOPY_ATOMIC_CONTINUE case with a non-shared VMA, pages in the page
+cache are installed in the ptes.  But hugepage_add_new_anon_rmap is called
+for them mistakenly because they're not vm_shared.  This will corrupt the
+page->mapping used by page cache code.
 
-general protection fault, probably for non-canonical address 0xdffffc0000000005: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000028-0x000000000000002f]
-[..]
-RIP: 0010:ebt_do_table+0x1dc/0x1ce0
-Code: 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 5c 16 00 00 48 b8 00 00 00 00 00 fc ff df 49 8b 6c df 08 48 8d 7d 2c 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 88
-[..]
-Call Trace:
- nf_hook_slow+0xb1/0x170
- __br_forward+0x289/0x730
- maybe_deliver+0x24b/0x380
- br_flood+0xc6/0x390
- br_dev_xmit+0xa2e/0x12c0
-
-For some reason ebtables rejects blobs that provide entry points that are
-not supported by the table, but what it should instead reject is the
-opposite: blobs that DO NOT provide an entry point supported by the table.
-
-t->valid_hooks is the bitmask of hooks (input, forward ...) that will see
-packets.  Providing an entry point that is not support is harmless
-(never called/used), but the inverse isn't: it results in a crash
-because the ebtables traverser doesn't expect a NULL blob for a location
-its receiving packets for.
-
-Instead of fixing all the individual checks, do what iptables is doing and
-reject all blobs that differ from the expected hooks.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220712130542.18836-1-linmiaohe@huawei.com
+Fixes: f619147104c8 ("userfaultfd: add UFFDIO_CONTINUE ioctl")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/netfilter_bridge/ebtables.h | 4 ----
- net/bridge/netfilter/ebtable_broute.c     | 8 --------
- net/bridge/netfilter/ebtable_filter.c     | 8 --------
- net/bridge/netfilter/ebtable_nat.c        | 8 --------
- net/bridge/netfilter/ebtables.c           | 8 +-------
- 5 files changed, 1 insertion(+), 35 deletions(-)
+ mm/hugetlb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/netfilter_bridge/ebtables.h b/include/linux/netfilter_bridge/ebtables.h
-index 0773b5a032f1f..f014aee2f7184 100644
---- a/include/linux/netfilter_bridge/ebtables.h
-+++ b/include/linux/netfilter_bridge/ebtables.h
-@@ -98,10 +98,6 @@ struct ebt_table {
- 	struct ebt_replace_kernel *table;
- 	unsigned int valid_hooks;
- 	rwlock_t lock;
--	/* e.g. could be the table explicitly only allows certain
--	 * matches, targets, ... 0 == let it in */
--	int (*check)(const struct ebt_table_info *info,
--	   unsigned int valid_hooks);
- 	/* the data used by the kernel */
- 	struct ebt_table_info *private;
- 	struct module *me;
-diff --git a/net/bridge/netfilter/ebtable_broute.c b/net/bridge/netfilter/ebtable_broute.c
-index 276b60262981c..b21c8a317be73 100644
---- a/net/bridge/netfilter/ebtable_broute.c
-+++ b/net/bridge/netfilter/ebtable_broute.c
-@@ -33,18 +33,10 @@ static struct ebt_replace_kernel initial_table = {
- 	.entries	= (char *)&initial_chain,
- };
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5371,7 +5371,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
+ 	if (!huge_pte_none(huge_ptep_get(dst_pte)))
+ 		goto out_release_unlock;
  
--static int check(const struct ebt_table_info *info, unsigned int valid_hooks)
--{
--	if (valid_hooks & ~(1 << NF_BR_BROUTING))
--		return -EINVAL;
--	return 0;
--}
--
- static const struct ebt_table broute_table = {
- 	.name		= "broute",
- 	.table		= &initial_table,
- 	.valid_hooks	= 1 << NF_BR_BROUTING,
--	.check		= check,
- 	.me		= THIS_MODULE,
- };
- 
-diff --git a/net/bridge/netfilter/ebtable_filter.c b/net/bridge/netfilter/ebtable_filter.c
-index c41da5fac84f4..c59021989af32 100644
---- a/net/bridge/netfilter/ebtable_filter.c
-+++ b/net/bridge/netfilter/ebtable_filter.c
-@@ -41,18 +41,10 @@ static struct ebt_replace_kernel initial_table = {
- 	.entries	= (char *)initial_chains,
- };
- 
--static int check(const struct ebt_table_info *info, unsigned int valid_hooks)
--{
--	if (valid_hooks & ~FILTER_VALID_HOOKS)
--		return -EINVAL;
--	return 0;
--}
--
- static const struct ebt_table frame_filter = {
- 	.name		= "filter",
- 	.table		= &initial_table,
- 	.valid_hooks	= FILTER_VALID_HOOKS,
--	.check		= check,
- 	.me		= THIS_MODULE,
- };
- 
-diff --git a/net/bridge/netfilter/ebtable_nat.c b/net/bridge/netfilter/ebtable_nat.c
-index 08df7406ecb38..1bb12157ce09d 100644
---- a/net/bridge/netfilter/ebtable_nat.c
-+++ b/net/bridge/netfilter/ebtable_nat.c
-@@ -41,18 +41,10 @@ static struct ebt_replace_kernel initial_table = {
- 	.entries	= (char *)initial_chains,
- };
- 
--static int check(const struct ebt_table_info *info, unsigned int valid_hooks)
--{
--	if (valid_hooks & ~NAT_VALID_HOOKS)
--		return -EINVAL;
--	return 0;
--}
--
- static const struct ebt_table frame_nat = {
- 	.name		= "nat",
- 	.table		= &initial_table,
- 	.valid_hooks	= NAT_VALID_HOOKS,
--	.check		= check,
- 	.me		= THIS_MODULE,
- };
- 
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index a1834ad7422ce..a54149f10f7ef 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -991,8 +991,7 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
- 		goto free_iterate;
- 	}
- 
--	/* the table doesn't like it */
--	if (t->check && (ret = t->check(newinfo, repl->valid_hooks)))
-+	if (repl->valid_hooks != t->valid_hooks)
- 		goto free_unlock;
- 
- 	if (repl->num_counters && repl->num_counters != t->private->nentries) {
-@@ -1200,11 +1199,6 @@ int ebt_register_table(struct net *net, const struct ebt_table *input_table,
- 	if (ret != 0)
- 		goto free_chainstack;
- 
--	if (table->check && table->check(newinfo, table->valid_hooks)) {
--		ret = -EINVAL;
--		goto free_chainstack;
--	}
--
- 	table->private = newinfo;
- 	rwlock_init(&table->lock);
- 	mutex_lock(&ebt_mutex);
--- 
-2.35.1
-
+-	if (vm_shared) {
++	if (page_in_pagecache) {
+ 		page_dup_rmap(page, true);
+ 	} else {
+ 		ClearHPageRestoreReserve(page);
 
 
