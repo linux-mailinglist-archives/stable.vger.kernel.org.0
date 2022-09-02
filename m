@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD44B5AAFA2
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:42:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6F1E5AAE48
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:21:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237231AbiIBMl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:41:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34094 "EHLO
+        id S235960AbiIBMVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:21:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237173AbiIBMkc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:40:32 -0400
+        with ESMTP id S235903AbiIBMVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:21:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68ADAE68C6;
-        Fri,  2 Sep 2022 05:31:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA7E7CA92;
+        Fri,  2 Sep 2022 05:20:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07CA5B82A9B;
-        Fri,  2 Sep 2022 12:29:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B10AC433D6;
-        Fri,  2 Sep 2022 12:29:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB394B82A90;
+        Fri,  2 Sep 2022 12:20:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30489C433B5;
+        Fri,  2 Sep 2022 12:20:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121779;
-        bh=ra/Uw8WmSXQfY+fMpLEKrLdp7DcB7dUfee/hSdOc/sc=;
+        s=korg; t=1662121248;
+        bh=ZMWaJo5CykCTwhf8tVV/9lOdC2N4HDzR9rVeLsNOKRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFYiwa/gVl1HeFpFDOvuPKbDs+dM9Ws1JF1lHhm/23QHyzPJP5byls2I2zALviarR
-         200irtTrWrJQArRcHwndksDibgAjv6Vl7W4d9Wyr9RZKmLyi6zgj9DDIiq+sTfnMf5
-         cnCSy22fi50bRO5QlkqpOYsIQv3U/mYdCkZL5pZQ=
+        b=j4f1YyJfwpvb2E8h0YHYa3/qtgvkXrhzQZ2XSeffbQubbf7wYwwoHLu6nusXLdqCh
+         zSaZ+Vhx2En+X0e+6eD8Qmrkg9gigtrigeKuPlbNqYQsGZ1t0v28hb5CTgvKeae9H+
+         C2Dp2/55WDmpTGqCtDIB7RRTTihvILLSsbq1/XGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vikas Gupta <vikas.gupta@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Jonathan Toppins <jtoppins@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/77] bnxt_en: fix NQ resource accounting during vf creation on 57500 chips
-Date:   Fri,  2 Sep 2022 14:18:30 +0200
-Message-Id: <20220902121404.354208596@linuxfoundation.org>
+Subject: [PATCH 4.9 05/31] bonding: 802.3ad: fix no transmission of LACPDUs
+Date:   Fri,  2 Sep 2022 14:18:31 +0200
+Message-Id: <20220902121356.952773780@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
+References: <20220902121356.732130937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vikas Gupta <vikas.gupta@broadcom.com>
+From: Jonathan Toppins <jtoppins@redhat.com>
 
-[ Upstream commit 09a89cc59ad67794a11e1d3dd13c5b3172adcc51 ]
+[ Upstream commit d745b5062ad2b5da90a5e728d7ca884fc07315fd ]
 
-There are 2 issues:
+This is caused by the global variable ad_ticks_per_sec being zero as
+demonstrated by the reproducer script discussed below. This causes
+all timer values in __ad_timer_to_ticks to be zero, resulting
+in the periodic timer to never fire.
 
-1. We should decrement hw_resc->max_nqs instead of hw_resc->max_irqs
-   with the number of NQs assigned to the VFs.  The IRQs are fixed
-   on each function and cannot be re-assigned.  Only the NQs are being
-   assigned to the VFs.
+To reproduce:
+Run the script in
+`tools/testing/selftests/drivers/net/bonding/bond-break-lacpdu-tx.sh` which
+puts bonding into a state where it never transmits LACPDUs.
 
-2. vf_msix is the total number of NQs to be assigned to the VFs.  So
-   we should decrement vf_msix from hw_resc->max_nqs.
+line 44: ip link add fbond type bond mode 4 miimon 200 \
+            xmit_hash_policy 1 ad_actor_sys_prio 65535 lacp_rate fast
+setting bond param: ad_actor_sys_prio
+given:
+    params.ad_actor_system = 0
+call stack:
+    bond_option_ad_actor_sys_prio()
+    -> bond_3ad_update_ad_actor_settings()
+       -> set ad.system.sys_priority = bond->params.ad_actor_sys_prio
+       -> ad.system.sys_mac_addr = bond->dev->dev_addr; because
+            params.ad_actor_system == 0
+results:
+     ad.system.sys_mac_addr = bond->dev->dev_addr
 
-Fixes: b16b68918674 ("bnxt_en: Add SR-IOV support for 57500 chips.")
-Signed-off-by: Vikas Gupta <vikas.gupta@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+line 48: ip link set fbond address 52:54:00:3B:7C:A6
+setting bond MAC addr
+call stack:
+    bond->dev->dev_addr = new_mac
+
+line 52: ip link set fbond type bond ad_actor_sys_prio 65535
+setting bond param: ad_actor_sys_prio
+given:
+    params.ad_actor_system = 0
+call stack:
+    bond_option_ad_actor_sys_prio()
+    -> bond_3ad_update_ad_actor_settings()
+       -> set ad.system.sys_priority = bond->params.ad_actor_sys_prio
+       -> ad.system.sys_mac_addr = bond->dev->dev_addr; because
+            params.ad_actor_system == 0
+results:
+     ad.system.sys_mac_addr = bond->dev->dev_addr
+
+line 60: ip link set veth1-bond down master fbond
+given:
+    params.ad_actor_system = 0
+    params.mode = BOND_MODE_8023AD
+    ad.system.sys_mac_addr == bond->dev->dev_addr
+call stack:
+    bond_enslave
+    -> bond_3ad_initialize(); because first slave
+       -> if ad.system.sys_mac_addr != bond->dev->dev_addr
+          return
+results:
+     Nothing is run in bond_3ad_initialize() because dev_addr equals
+     sys_mac_addr leaving the global ad_ticks_per_sec zero as it is
+     never initialized anywhere else.
+
+The if check around the contents of bond_3ad_initialize() is no longer
+needed due to commit 5ee14e6d336f ("bonding: 3ad: apply ad_actor settings
+changes immediately") which sets ad.system.sys_mac_addr if any one of
+the bonding parameters whos set function calls
+bond_3ad_update_ad_actor_settings(). This is because if
+ad.system.sys_mac_addr is zero it will be set to the current bond mac
+address, this causes the if check to never be true.
+
+Fixes: 5ee14e6d336f ("bonding: 3ad: apply ad_actor settings changes immediately")
+Signed-off-by: Jonathan Toppins <jtoppins@redhat.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/bonding/bond_3ad.c | 38 ++++++++++++++--------------------
+ 1 file changed, 16 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-index 452be9749827a..3434ad6824a05 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
-@@ -597,7 +597,7 @@ static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs, bool reset)
- 		hw_resc->max_stat_ctxs -= le16_to_cpu(req.min_stat_ctx) * n;
- 		hw_resc->max_vnics -= le16_to_cpu(req.min_vnics) * n;
- 		if (bp->flags & BNXT_FLAG_CHIP_P5)
--			hw_resc->max_irqs -= vf_msix * n;
-+			hw_resc->max_nqs -= vf_msix;
+diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
+index 8ec0671f97113..7ba724ecef302 100644
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -1941,30 +1941,24 @@ void bond_3ad_initiate_agg_selection(struct bonding *bond, int timeout)
+  */
+ void bond_3ad_initialize(struct bonding *bond, u16 tick_resolution)
+ {
+-	/* check that the bond is not initialized yet */
+-	if (!MAC_ADDRESS_EQUAL(&(BOND_AD_INFO(bond).system.sys_mac_addr),
+-				bond->dev->dev_addr)) {
+-
+-		BOND_AD_INFO(bond).aggregator_identifier = 0;
+-
+-		BOND_AD_INFO(bond).system.sys_priority =
+-			bond->params.ad_actor_sys_prio;
+-		if (is_zero_ether_addr(bond->params.ad_actor_system))
+-			BOND_AD_INFO(bond).system.sys_mac_addr =
+-			    *((struct mac_addr *)bond->dev->dev_addr);
+-		else
+-			BOND_AD_INFO(bond).system.sys_mac_addr =
+-			    *((struct mac_addr *)bond->params.ad_actor_system);
++	BOND_AD_INFO(bond).aggregator_identifier = 0;
++	BOND_AD_INFO(bond).system.sys_priority =
++		bond->params.ad_actor_sys_prio;
++	if (is_zero_ether_addr(bond->params.ad_actor_system))
++		BOND_AD_INFO(bond).system.sys_mac_addr =
++		    *((struct mac_addr *)bond->dev->dev_addr);
++	else
++		BOND_AD_INFO(bond).system.sys_mac_addr =
++		    *((struct mac_addr *)bond->params.ad_actor_system);
  
- 		rc = pf->active_vfs;
- 	}
+-		/* initialize how many times this module is called in one
+-		 * second (should be about every 100ms)
+-		 */
+-		ad_ticks_per_sec = tick_resolution;
++	/* initialize how many times this module is called in one
++	 * second (should be about every 100ms)
++	 */
++	ad_ticks_per_sec = tick_resolution;
+ 
+-		bond_3ad_initiate_agg_selection(bond,
+-						AD_AGGREGATOR_SELECTION_TIMER *
+-						ad_ticks_per_sec);
+-	}
++	bond_3ad_initiate_agg_selection(bond,
++					AD_AGGREGATOR_SELECTION_TIMER *
++					ad_ticks_per_sec);
+ }
+ 
+ /**
 -- 
 2.35.1
 
