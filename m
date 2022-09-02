@@ -2,149 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEDBF5AB483
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 16:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4D715AB499
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 16:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236746AbiIBO6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 10:58:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48688 "EHLO
+        id S236573AbiIBO7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 10:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237086AbiIBO5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:57:35 -0400
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFE99F2D47;
-        Fri,  2 Sep 2022 07:22:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazon201209;
-  t=1662128533; x=1693664533;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=UKSdy9ljsTc9naNZmAjGvtO5F0jQVq8xZyMjs59heuU=;
-  b=ZA+Rp71z2jUdcy2YJsmwG9UbbyKKg1SUOWW1bSRYP2DS44ZC2jDJ2Cin
-   e0doFUwLSe/TK2MdTNuMCGsGg6ATFG06EnC78xaCgfTGLcThvo925f0Cl
-   BRCH6hhM6h/VPKa0tglyfJqhh0wnOQ6WnhkR1NTMoshQwpsQcAn/jHJbh
-   k=;
-X-IronPort-AV: E=Sophos;i="5.93,283,1654560000"; 
-   d="scan'208";a="255595992"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1a-b27d4a00.us-east-1.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Sep 2022 14:21:52 +0000
-Received: from EX13D08EUB003.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1a-b27d4a00.us-east-1.amazon.com (Postfix) with ESMTPS id 03919810AD;
-        Fri,  2 Sep 2022 14:21:49 +0000 (UTC)
-Received: from EX13MTAUWB001.ant.amazon.com (10.43.161.207) by
- EX13D08EUB003.ant.amazon.com (10.43.166.117) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Fri, 2 Sep 2022 14:21:48 +0000
-Received: from dev-dsk-ptyadav-1c-613f0921.eu-west-1.amazon.com (10.15.8.155)
- by mail-relay.amazon.com (10.43.161.249) with Microsoft SMTP Server id
- 15.0.1497.38 via Frontend Transport; Fri, 2 Sep 2022 14:21:46 +0000
-Received: by dev-dsk-ptyadav-1c-613f0921.eu-west-1.amazon.com (Postfix, from userid 23027615)
-        id 406C025972; Fri,  2 Sep 2022 14:21:45 +0000 (UTC)
-Date:   Fri, 2 Sep 2022 14:21:45 +0000
-From:   Pratyush Yadav <ptyadav@amazon.de>
-To:     Juergen Gross <jgross@suse.com>
-CC:     SeongJae Park <sj@kernel.org>, <roger.pau@citrix.com>,
-        <marmarek@invisiblethingslab.com>, <mheyne@amazon.de>,
-        <xen-devel@lists.xenproject.org>, <axboe@kernel.dk>,
-        <linux-block@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 1/3] xen-blkback: Advertise feature-persistent as user
- requested
-Message-ID: <20220902142145.txtszulz6edsf455@amazon.de>
-References: <20220831165824.94815-1-sj@kernel.org>
- <20220831165824.94815-2-sj@kernel.org>
- <20220902095207.y3whbc5mw4hyqphg@yadavpratyush.com>
- <84def263-c061-605f-44da-580c745bf5b6@suse.com>
+        with ESMTP id S237168AbiIBO7a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:59:30 -0400
+Received: from maynard.decadent.org.uk (maynard.decadent.org.uk [95.217.213.242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C9F6F2D5E
+        for <stable@vger.kernel.org>; Fri,  2 Sep 2022 07:27:19 -0700 (PDT)
+Received: from [46.183.103.8] (helo=deadeye)
+        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1oU7db-0003uP-A5; Fri, 02 Sep 2022 16:27:15 +0200
+Received: from ben by deadeye with local (Exim 4.96)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1oU7dO-002XWH-21;
+        Fri, 02 Sep 2022 16:27:02 +0200
+Message-ID: <ff8d3521a32e1a425af32711856d0d8fdfa84d2b.camel@decadent.org.uk>
+Subject: Re: FAILED: patch "[PATCH] x86/nospec: Fix i386 RSB stuffing"
+ failed to apply to 5.10-stable tree
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     peterz@infradead.org, stable@vger.kernel.org,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>
+Date:   Fri, 02 Sep 2022 16:26:57 +0200
+In-Reply-To: <YxB+xgcz9QD5BK77@kroah.com>
+References: <166176181110563@kroah.com>
+         <3e14d81d0576aed9583d07fbd14e6a502f2d4739.camel@decadent.org.uk>
+         <YxB+xgcz9QD5BK77@kroah.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-cMXtPABZemhkc0VW3bNe"
+User-Agent: Evolution 3.44.3-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <84def263-c061-605f-44da-580c745bf5b6@suse.com>
-X-Spam-Status: No, score=-14.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+X-SA-Exim-Connect-IP: 46.183.103.8
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 02/09/22 01:08PM, Juergen Gross wrote:
-> On 02.09.22 11:53, Pratyush Yadav wrote:
-> > On 31/08/22 04:58PM, SeongJae Park wrote:
-> > > The advertisement of the persistent grants feature (writing
-> > > 'feature-persistent' to xenbus) should mean not the decision for using
-> > > the feature but only the availability of the feature.  However, commit
-> > > aac8a70db24b ("xen-blkback: add a parameter for disabling of persistent
-> > > grants") made a field of blkback, which was a place for saving only the
-> > > negotiation result, to be used for yet another purpose: caching of the
-> > > 'feature_persistent' parameter value.  As a result, the advertisement,
-> > > which should follow only the parameter value, becomes inconsistent.
-> > > 
-> > > This commit fixes the misuse of the semantic by making blkback saves the
-> > > parameter value in a separate place and advertises the support based on
-> > > only the saved value.
-> > > 
-> > > Fixes: aac8a70db24b ("xen-blkback: add a parameter for disabling of persistent grants")
-> > > Cc: <stable@vger.kernel.org> # 5.10.x
-> > > Suggested-by: Juergen Gross <jgross@suse.com>
-> > > Signed-off-by: SeongJae Park <sj@kernel.org>
-> > > ---
-> > >   drivers/block/xen-blkback/common.h | 3 +++
-> > >   drivers/block/xen-blkback/xenbus.c | 6 ++++--
-> > >   2 files changed, 7 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/drivers/block/xen-blkback/common.h b/drivers/block/xen-blkback/common.h
-> > > index bda5c815e441..a28473470e66 100644
-> > > --- a/drivers/block/xen-blkback/common.h
-> > > +++ b/drivers/block/xen-blkback/common.h
-> > > @@ -226,6 +226,9 @@ struct xen_vbd {
-> > >          sector_t                size;
-> > >          unsigned int            flush_support:1;
-> > >          unsigned int            discard_secure:1;
-> > > +       /* Connect-time cached feature_persistent parameter value */
-> > > +       unsigned int            feature_gnt_persistent_parm:1;
-> > 
-> > Continuing over from the previous version:
-> > 
-> > > > If feature_gnt_persistent_parm is always going to be equal to
-> > > > feature_persistent, then why introduce it at all? Why not just use
-> > > > feature_persistent directly? This way you avoid adding an extra flag
-> > > > whose purpose is not immediately clear, and you also avoid all the
-> > > > mess with setting this flag at the right time.
-> > > 
-> > > Mainly because the parameter should read twice (once for
-> > > advertisement, and once later just before the negotitation, for
-> > > checking if we advertised or not), and the user might change the
-> > > parameter value between the two reads.
-> > > 
-> > > For the detailed available sequence of the race, you could refer to the
-> > > prior conversation[1].
-> > > 
-> > > [1] https://lore.kernel.org/linux-block/20200922111259.GJ19254@Air-de-Roger/
-> > 
-> > Okay, I see. Thanks for the pointer. But still, I think it would be
-> > better to not maintain two copies of the value. How about doing:
-> > 
-> > 	blkif->vbd.feature_gnt_persistent =
-> > 		xenbus_read_unsigned(dev->nodename, "feature-persistent", 0) &&
-> > 		xenbus_read_unsigned(dev->otherend, "feature-persistent", 0);
-> > 
-> > This makes it quite clear that we only enable persistent grants if
-> > _both_ ends support it. We can do the same for blkfront.
-> 
-> I prefer it as is, as it will not rely on nobody having modified the
-> Xenstore node (which would in theory be possible).
 
-Okay. In that case,
+--=-cMXtPABZemhkc0VW3bNe
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Pratyush Yadav <ptyadav@amazon.de>
+On Thu, 2022-09-01 at 11:43 +0200, Greg KH wrote:
+> On Mon, Aug 29, 2022 at 04:04:58PM +0200, Ben Hutchings wrote:
+> > On Mon, 2022-08-29 at 10:30 +0200, gregkh@linuxfoundation.org wrote:
+> > > The patch below does not apply to the 5.10-stable tree.
+> > > If someone wants it applied there, or to any other stable or longterm
+> > > tree, then please email the backport, including the original git comm=
+it
+> > > id to <stable@vger.kernel.org>.
+> > >=20
+> >=20
+> > You need commit 4e3aa9238277 "x86/nospec: Unwreck the RSB stuffing"
+> > before this one.  I've attached the backport of that for 5.10.  I
+> > haven't checked the older branches.
+>=20
+> Great, thanks, this worked.  But the backport did not apply to 4.19, so
+> I will need that in order to take this one as well.
 
--- 
-Amazon Development Center Germany GmbH
-Krausenstr. 38
-10117 Berlin
-Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
-Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
-Sitz: Berlin
-Ust-ID: DE 289 237 879
+I've had a look at 5.4, and it's sufficiently different from upstream
+that I don't see how to move forward.
+
+However, I also found that the PBRSB mitigation seems broken, as commit
+fc02735b14ff "KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS"
+was not backported (and would be hard to add).
+
+So, perhaps it would be best to revert the backports of:
+
+2b1299322016 x86/speculation: Add RSB VM Exit protections
+ba6e31af2be9 x86/speculation: Add LFENCE to RSB fill sequence
+
+in stable branches older than 5.10.
+
+Ben.
+
+--=20
+Ben Hutchings
+Lowery's Law:
+        If it jams, force it. If it breaks, it needed replacing anyway.
+
+--=-cMXtPABZemhkc0VW3bNe
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmMSErEACgkQ57/I7JWG
+EQln6A/+K+wnP0kdgqKTGV1h/qaIGlF4M6xvzmbbJUKd2QPVlDOek3A3l4mPulwK
+5yJBjedbBkBF8tK0m0bsQGP6rie7rYomG5zHbimB0HxgLOUywXylatZjOVfDuosc
+plZidiFCcvJLKeWpjHpS017tZKU557ma1fzt0o22Y9tdUOmF2mIbd5TQUjPhzG+U
+OBFe54gZ0a1s1SDwk5+et4T5X9osed9bL7roPBfu7DjEgk2MB1MdyTHYWPAf0s78
+lWIsoIPnHOci65dyQcBbdjIS28srSouDUTXrksjnWOTXheVomqdpELnQmJ7m9fqE
+/9K/rLE088LQ0cJ5G+6B6TslrMe63heqxH3fGdChD2hLhGCSM24ttuHQmM3iLaR8
+3mGorbpvjicmGZ3t1guAC8Fg+SpFpbrYNupxj+7vlB8zrWRTVBQdKN32nDcWQ+Ud
+wrs/Ty1UXZ7J6ej3Y1ZKBFJytWIMV373IwUfIGMnOIICNANaY9j3AGCyns1XhUIG
+e3l+8nHfZpnqjb/2MWvxem07P0zKA/jZ1Nqp4m9iYLqC7BdjmhYxQIf1FtEP3zN8
+Bt8PzN0Ayv2CHh0Sca8oq768RJZkfW5nnHGpsdyJ3q77UfiK2/ljajHUpCOKqHTD
+3kc58Nucc5oFwloCyJPqBnO02mMrplv1k1HANF3rITqXhu9v4Tg=
+=dmoQ
+-----END PGP SIGNATURE-----
+
+--=-cMXtPABZemhkc0VW3bNe--
