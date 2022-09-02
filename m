@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 380365AB08C
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F865AB1CA
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:40:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237970AbiIBMyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:54:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59954 "EHLO
+        id S236626AbiIBNks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:40:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236398AbiIBMxU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0581AFAC5E;
-        Fri,  2 Sep 2022 05:38:10 -0700 (PDT)
+        with ESMTP id S236490AbiIBNkO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:40:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E460CF8F6B;
+        Fri,  2 Sep 2022 06:17:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B130B82A99;
-        Fri,  2 Sep 2022 12:37:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7CDFC433C1;
-        Fri,  2 Sep 2022 12:37:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EFED6218F;
+        Fri,  2 Sep 2022 12:29:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D58EC433D6;
+        Fri,  2 Sep 2022 12:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122226;
-        bh=dQCyYYdHFTcYP0ibPebQBQKt6XsoJLS/blVx6w2TSvA=;
+        s=korg; t=1662121751;
+        bh=eD8hPXiqhltoVaonaNs7OuOm9CRuggKzV8BzNUVDAgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iifTHv9PuRq/LAmziGZ+CuAmQ8XsN3BdH0DvTfJ+O7p+SEUAjynpkuSE17/u6HWXu
-         09RXXx5riEDZ3+QMVrhQ9kRnlmrO8bq4lrFu0a3mh86opLLSj6RAuCinAERGx1Jiyg
-         gcfllfhvjwrjMRkG/jLEi+jvOtU863nS1ml4dHEs=
+        b=JY6oaeTaHlikcg3UQFCsRHSJ9dDQgzUjPVKXFdF4QdD9CYKrFc9sz8+GktbQ2sW6x
+         Rbalq9gcWiHC0yfBZ9TQtihk6yjS2PYGzo3OZqzTC9BEVXjXwJnM+rSIM8lRfw4eES
+         G1fN9wYnZEetjFYsNMb/LEGMe70lHF3Nob6lbVks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Daniel J. Ogorchock" <djogorchock@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.19 25/72] HID: nintendo: fix rumble worker null pointer deref
+        stable@vger.kernel.org, Jing Leng <jleng@ambarella.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nicolas Schier <n.schier@avm.de>
+Subject: [PATCH 5.4 52/77] kbuild: Fix include path in scripts/Makefile.modpost
 Date:   Fri,  2 Sep 2022 14:19:01 +0200
-Message-Id: <20220902121405.623143625@linuxfoundation.org>
+Message-Id: <20220902121405.386283923@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel J. Ogorchock <djogorchock@gmail.com>
+From: Jing Leng <jleng@ambarella.com>
 
-commit 1ff89e06c2e5fab30274e4b02360d4241d6e605e upstream.
+commit 23a0cb8e3225122496bfa79172005c587c2d64bf upstream.
 
-We can dereference a null pointer trying to queue work to a destroyed
-workqueue.
+When building an external module, if users don't need to separate the
+compilation output and source code, they run the following command:
+"make -C $(LINUX_SRC_DIR) M=$(PWD)". At this point, "$(KBUILD_EXTMOD)"
+and "$(src)" are the same.
 
-If the device is disconnected, nintendo_hid_remove is called, in which
-the rumble_queue is destroyed. Avoid using that queue to defer rumble
-work once the controller state is set to JOYCON_CTLR_STATE_REMOVED.
+If they need to separate them, they run "make -C $(KERNEL_SRC_DIR)
+O=$(KERNEL_OUT_DIR) M=$(OUT_DIR) src=$(PWD)". Before running the
+command, they need to copy "Kbuild" or "Makefile" to "$(OUT_DIR)" to
+prevent compilation failure.
 
-This eliminates the null pointer dereference.
+So the kernel should change the included path to avoid the copy operation.
 
-Signed-off-by: Daniel J. Ogorchock <djogorchock@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Jing Leng <jleng@ambarella.com>
+[masahiro: I do not think "M=$(OUT_DIR) src=$(PWD)" is the official way,
+but this patch is a nice clean up anyway.]
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+[nsc: updated context for v4.19]
+Signed-off-by: Nicolas Schier <n.schier@avm.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-nintendo.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ scripts/Makefile.modpost |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -1222,6 +1222,7 @@ static void joycon_parse_report(struct j
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -75,8 +75,7 @@ obj := $(KBUILD_EXTMOD)
+ src := $(obj)
  
- 	spin_lock_irqsave(&ctlr->lock, flags);
- 	if (IS_ENABLED(CONFIG_NINTENDO_FF) && rep->vibrator_report &&
-+	    ctlr->ctlr_state != JOYCON_CTLR_STATE_REMOVED &&
- 	    (msecs - ctlr->rumble_msecs) >= JC_RUMBLE_PERIOD_MS &&
- 	    (ctlr->rumble_queue_head != ctlr->rumble_queue_tail ||
- 	     ctlr->rumble_zero_countdown > 0)) {
-@@ -1546,12 +1547,13 @@ static int joycon_set_rumble(struct joyc
- 		ctlr->rumble_queue_head = 0;
- 	memcpy(ctlr->rumble_data[ctlr->rumble_queue_head], data,
- 	       JC_RUMBLE_DATA_SIZE);
--	spin_unlock_irqrestore(&ctlr->lock, flags);
+ # Include the module's Makefile to find KBUILD_EXTRA_SYMBOLS
+-include $(if $(wildcard $(KBUILD_EXTMOD)/Kbuild), \
+-             $(KBUILD_EXTMOD)/Kbuild, $(KBUILD_EXTMOD)/Makefile)
++include $(if $(wildcard $(src)/Kbuild), $(src)/Kbuild, $(src)/Makefile)
+ endif
  
- 	/* don't wait for the periodic send (reduces latency) */
--	if (schedule_now)
-+	if (schedule_now && ctlr->ctlr_state != JOYCON_CTLR_STATE_REMOVED)
- 		queue_work(ctlr->rumble_queue, &ctlr->rumble_worker);
- 
-+	spin_unlock_irqrestore(&ctlr->lock, flags);
-+
- 	return 0;
- }
- 
+ MODPOST += $(subst -i,-n,$(filter -i,$(MAKEFLAGS))) -s -T - $(wildcard vmlinux)
 
 
