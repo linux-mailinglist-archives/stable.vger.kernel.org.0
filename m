@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 951135AB050
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A1FD5AAEA0
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:26:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237926AbiIBMw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:52:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44606 "EHLO
+        id S235922AbiIBM0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:26:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237839AbiIBMvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:51:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD14EF8278;
-        Fri,  2 Sep 2022 05:37:05 -0700 (PDT)
+        with ESMTP id S236188AbiIBMZ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:25:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6EBDD4F2;
+        Fri,  2 Sep 2022 05:23:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0A8E6217E;
-        Fri,  2 Sep 2022 12:28:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 965F5C433B5;
-        Fri,  2 Sep 2022 12:28:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FB93620B2;
+        Fri,  2 Sep 2022 12:22:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 678BBC433D7;
+        Fri,  2 Sep 2022 12:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121693;
-        bh=OO1G1jDZihidEmUZy6sJubKsxM9ByjH1uhBM6pruH74=;
+        s=korg; t=1662121345;
+        bh=sbCg1g3fJ94m2Mzmxtkol3ZLqiQazqlhif8LhQ0yo+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MhhEwzMFk/cxJOg7Q85jsK/oTvMcQPBK6QbX0P1xhpeATjxhdiPKSGE/HlKIjBFrw
-         WIYpffvzKZYrMgQoT5TcbwmHCWPuzh7u9/eCutVfIR7JOlwfDTeeeaHeREcg7wMF8E
-         2Qy+6QXCFQW8T0C2gjXUZdXRBpFMcVGjLgZhI/Ys=
+        b=mqXqmB/SM7yjRExrSkyPt8SlSsDaNQUTf43K7dS+F/Qt39DQ0bPXq8EhuiaPv9yVv
+         /eY6VnFycQDLWVE36uMu1xQrKw4Pf6DkIfL4PIM7T12Pg0huxDLC6hH1quvnKBswYu
+         SCM1rIeK2lgaE7T8OJa/yLBkckRtGAe2PIah3dNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,19 +37,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.4 35/77] ixgbe: stop resetting SYSTIME in ixgbe_ptp_start_cyclecounter
+Subject: [PATCH 4.14 20/42] ixgbe: stop resetting SYSTIME in ixgbe_ptp_start_cyclecounter
 Date:   Fri,  2 Sep 2022 14:18:44 +0200
-Message-Id: <20220902121404.810415471@linuxfoundation.org>
+Message-Id: <20220902121359.495054214@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -96,10 +96,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 46 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
-index 0be13a90ff792..d155181b939e4 100644
+index 86d6924a2b714..ad51b521e693a 100644
 --- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
 +++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
-@@ -1211,7 +1211,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
+@@ -1090,7 +1090,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
  	struct cyclecounter cc;
  	unsigned long flags;
  	u32 incval = 0;
@@ -107,7 +107,7 @@ index 0be13a90ff792..d155181b939e4 100644
  	u32 fuse0 = 0;
  
  	/* For some of the boards below this mask is technically incorrect.
-@@ -1246,18 +1245,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
+@@ -1125,18 +1124,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
  	case ixgbe_mac_x550em_a:
  	case ixgbe_mac_X550:
  		cc.read = ixgbe_ptp_read_X550;
@@ -126,7 +126,7 @@ index 0be13a90ff792..d155181b939e4 100644
  		break;
  	case ixgbe_mac_X540:
  		cc.read = ixgbe_ptp_read_82599;
-@@ -1289,6 +1276,50 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
+@@ -1168,6 +1155,50 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
  	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
  }
  
@@ -177,7 +177,7 @@ index 0be13a90ff792..d155181b939e4 100644
  /**
   * ixgbe_ptp_reset
   * @adapter: the ixgbe private board structure
-@@ -1315,6 +1346,8 @@ void ixgbe_ptp_reset(struct ixgbe_adapter *adapter)
+@@ -1194,6 +1225,8 @@ void ixgbe_ptp_reset(struct ixgbe_adapter *adapter)
  
  	ixgbe_ptp_start_cyclecounter(adapter);
  
