@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 798DA5AAFB8
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92D165AB176
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237240AbiIBMmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:42:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44772 "EHLO
+        id S237146AbiIBNeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:34:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237181AbiIBMmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:42:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BC175B7A6;
-        Fri,  2 Sep 2022 05:31:37 -0700 (PDT)
+        with ESMTP id S237208AbiIBNdj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:33:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC75EF2402;
+        Fri,  2 Sep 2022 06:13:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5E89B82AC9;
-        Fri,  2 Sep 2022 12:31:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF1A0C433D6;
-        Fri,  2 Sep 2022 12:31:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DC28620ED;
+        Fri,  2 Sep 2022 12:22:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 540B1C433C1;
+        Fri,  2 Sep 2022 12:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121876;
-        bh=h+GfMyh6NtoOf91jqcS/nVhsx8iBfFEUNzTg3tAQC00=;
+        s=korg; t=1662121333;
+        bh=ij5KCR1VkNyiKKuIIzSu5WLIKEMZQOqM/A7SoOPm7Yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZuNvaBMuPDLVcczKosOV3UWnADCHDbJLL93ECxYvyC2DZKYuyU83KZPt+SIAQgqA1
-         HGcC9AkRm+kMt5FVqaxun3/a1wuVWHSRopgYrEugGkdyn9Fwr41LaV1KY2rRwDglGi
-         87CVo/GSbgEaSl3rxr2YgqYPVuLbNUJsGxZy2T7w=
+        b=weNSnnY9oIfnksPt58aMeiIgoHpsqK/QBeOvP39l5RlvG6QGhvwgxkLLwHQL/IKVt
+         3kxYjGpc6/RIm6sQ4hTpBHl6E51IjVi1cHO5mYQTpMGtnpXeEfXM/edMG5HIKQX+qe
+         vXUCUbhGPQPTiqh8OukcbyerJ7LDcPEaLGGUNO0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 16/73] io_uring: inline io_poll_complete
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 16/42] net: Fix a data-race around sysctl_net_busy_read.
 Date:   Fri,  2 Sep 2022 14:18:40 +0200
-Message-Id: <20220902121404.992001264@linuxfoundation.org>
+Message-Id: <20220902121359.371677951@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ upstream commmit eb6e6f0690c846f7de46181bab3954c12c96e11e ]
+[ Upstream commit e59ef36f0795696ab229569c153936bfd068d21c ]
 
-Inline io_poll_complete(), it's simple and doesn't have any particular
-purpose.
+While reading sysctl_net_busy_read, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/933d7ee3e4450749a2d892235462c8f18d030293.1633373302.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[pavel: backport]
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2d48d67fa8cd ("net: poll/select low latency socket support")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ net/core/sock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5447,16 +5447,6 @@ static bool __io_poll_complete(struct io
- 	return !(flags & IORING_CQE_F_MORE);
- }
+diff --git a/net/core/sock.c b/net/core/sock.c
+index bbf9517218ff3..002c91dd7191f 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2783,7 +2783,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
  
--static inline bool io_poll_complete(struct io_kiocb *req, __poll_t mask)
--	__must_hold(&req->ctx->completion_lock)
--{
--	bool done;
--
--	done = __io_poll_complete(req, mask);
--	io_commit_cqring(req->ctx);
--	return done;
--}
--
- static void io_poll_task_func(struct io_kiocb *req, bool *locked)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -5910,7 +5900,8 @@ static int io_poll_add(struct io_kiocb *
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+ 	sk->sk_napi_id		=	0;
+-	sk->sk_ll_usec		=	sysctl_net_busy_read;
++	sk->sk_ll_usec		=	READ_ONCE(sysctl_net_busy_read);
+ #endif
  
- 	if (mask) { /* no async, we'd stolen it */
- 		ipt.error = 0;
--		done = io_poll_complete(req, mask);
-+		done = __io_poll_complete(req, mask);
-+		io_commit_cqring(req->ctx);
- 	}
- 	spin_unlock(&ctx->completion_lock);
- 
+ 	sk->sk_max_pacing_rate = ~0U;
+-- 
+2.35.1
+
 
 
