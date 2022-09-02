@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 965955AB072
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:54:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A90535AAF61
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237835AbiIBMyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:54:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55502 "EHLO
+        id S237083AbiIBMhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:37:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238044AbiIBMxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D0A4B69;
-        Fri,  2 Sep 2022 05:38:19 -0700 (PDT)
+        with ESMTP id S236502AbiIBMgi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:36:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A84C1E42C7;
+        Fri,  2 Sep 2022 05:29:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93926B82AE6;
-        Fri,  2 Sep 2022 12:37:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB80DC433C1;
-        Fri,  2 Sep 2022 12:37:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB718B82A9B;
+        Fri,  2 Sep 2022 12:29:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2AE2C433B5;
+        Fri,  2 Sep 2022 12:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122242;
-        bh=MOj0Ic4N15HWpDxWQhM6QmWUotzFLYKuIljYUisKX/0=;
+        s=korg; t=1662121757;
+        bh=Bs2CQBsnUjpIZ+XxHHFSiRhfkB928kkGSKMck2e8gws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KAQE73gxu0lxMgXTRjAyrWCbcAqI3Z+0uDPyGuWGkKj9i5E/9KvXgLaqfaN6iBdp3
-         PdbFmh89SC7bvp1+7YLbv8YFqNucgTlwOHF7FxGnpMIsQ8cswezoyK+2VQsFB4OI52
-         1lFD3D3UcjhyW4XJIPKuV/pZfpSmmXTbPj4dy0/E=
+        b=K3j3IgD1kKVWm2WE1xMlpJp7t/UoCnTyVE3LyLmUtYIImTcovHGhQKRWAFFKze3Jl
+         PQ3qrbKeUGVelThdnauWqVr7EDhsheRiASKpDjCFZucGhP2n5LOO8cgqA9SqDheazO
+         9TZVPmQu2N60ADZdJOfXPLFBM+H913ssFSuLtZMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Even Xu <even.xu@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
         Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.19 27/72] HID: intel-ish-hid: ipc: Add Meteor Lake PCI device ID
+Subject: [PATCH 5.4 54/77] HID: steam: Prevent NULL pointer dereference in steam_{recv,send}_report
 Date:   Fri,  2 Sep 2022 14:19:03 +0200
-Message-Id: <20220902121405.692956847@linuxfoundation.org>
+Message-Id: <20220902121405.472911966@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Even Xu <even.xu@intel.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-commit 467249a7dff68451868ca79696aef69764193a8a upstream.
+commit cd11d1a6114bd4bc6450ae59f6e110ec47362126 upstream.
 
-Add device ID of Meteor Lake P into ishtp support list.
+It is possible for a malicious device to forgo submitting a Feature
+Report.  The HID Steam driver presently makes no prevision for this
+and de-references the 'struct hid_report' pointer obtained from the
+HID devices without first checking its validity.  Let's change that.
 
-Signed-off-by: Even Xu <even.xu@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
+Fixes: c164d6abf3841 ("HID: add driver for Valve Steam Controller")
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/intel-ish-hid/ipc/hw-ish.h  |    1 +
- drivers/hid/intel-ish-hid/ipc/pci-ish.c |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/hid/hid-steam.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-+++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-@@ -32,6 +32,7 @@
- #define ADL_P_DEVICE_ID		0x51FC
- #define ADL_N_DEVICE_ID		0x54FC
- #define RPL_S_DEVICE_ID		0x7A78
-+#define MTL_P_DEVICE_ID		0x7E45
+--- a/drivers/hid/hid-steam.c
++++ b/drivers/hid/hid-steam.c
+@@ -134,6 +134,11 @@ static int steam_recv_report(struct stea
+ 	int ret;
  
- #define	REVISION_ID_CHT_A0	0x6
- #define	REVISION_ID_CHT_Ax_SI	0x0
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -43,6 +43,7 @@ static const struct pci_device_id ish_pc
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ADL_P_DEVICE_ID)},
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ADL_N_DEVICE_ID)},
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, RPL_S_DEVICE_ID)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MTL_P_DEVICE_ID)},
- 	{0, }
- };
- MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
+ 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
++	if (!r) {
++		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
++		return -EINVAL;
++	}
++
+ 	if (hid_report_len(r) < 64)
+ 		return -EINVAL;
+ 
+@@ -165,6 +170,11 @@ static int steam_send_report(struct stea
+ 	int ret;
+ 
+ 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
++	if (!r) {
++		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
++		return -EINVAL;
++	}
++
+ 	if (hid_report_len(r) < 64)
+ 		return -EINVAL;
+ 
 
 
