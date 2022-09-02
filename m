@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CB225AB171
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 758D25AAE6F
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237053AbiIBNdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:33:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33420 "EHLO
+        id S236085AbiIBMXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:23:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236981AbiIBNci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:32:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B22C11B630;
-        Fri,  2 Sep 2022 06:11:50 -0700 (PDT)
+        with ESMTP id S236201AbiIBMWn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:22:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B33FD5E88;
+        Fri,  2 Sep 2022 05:21:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90A23B82AD0;
-        Fri,  2 Sep 2022 12:35:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB805C433D6;
-        Fri,  2 Sep 2022 12:35:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB04F620C5;
+        Fri,  2 Sep 2022 12:21:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DDEC433C1;
+        Fri,  2 Sep 2022 12:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122103;
-        bh=YxCit/Xl6s/o/k3ghIFQB+uYFGiyCNux87AZntC9tpw=;
+        s=korg; t=1662121297;
+        bh=ggkzR7fXpZd66zV4XncdCKBI8YV+okgrGR8z07c89yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bxnhc58vT4PpQ1P3J0yaHKOSO8oFWi0Gzv5U5J9DEAxuASbk2l+AsHG7if0rmg+b/
-         nco/EG5klLE/+ZWKhPdFRrn0jK3xl9CNg9RBj358oA3d411AJlYXyBE5fkZ+RKVxwz
-         mpcwJWM+srJDmn1uaT80FxLrJ/xCk+Cn1GIJe1Qo=
+        b=Ss8vjLUQSGodLcIZgP1SaS4jeLIY6QMKK4e41oOO5DQ7TiLzY8fPTBbFOF8M1vuqn
+         ItLBYhpHD2P4/hWl3Hoxej/DeITI/eRYVJpLBzgJPx2HVWDQKK/+FYUX7Y8+INtQLU
+         6qnmQlfT4pdqC0Y58ouHSsXAfSN9CBOtk+DC/1Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        syzbot+5f26f85569bd179c18ce@syzkaller.appspotmail.com
-Subject: [PATCH 5.19 14/72] net: fix refcount bug in sk_psock_get (2)
+        stable@vger.kernel.org,
+        syzbot+f59100a0428e6ded9443@syzkaller.appspotmail.com,
+        Karthik Alapati <mail@karthek.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.9 24/31] HID: hidraw: fix memory leak in hidraw_release()
 Date:   Fri,  2 Sep 2022 14:18:50 +0200
-Message-Id: <20220902121405.257399777@linuxfoundation.org>
+Message-Id: <20220902121357.642923635@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
+References: <20220902121356.732130937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,192 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Karthik Alapati <mail@karthek.com>
 
-commit 2a0133723f9ebeb751cfce19f74ec07e108bef1f upstream.
+commit a5623a203cffe2d2b84d2f6c989d9017db1856af upstream.
 
-Syzkaller reports refcount bug as follows:
-------------[ cut here ]------------
-refcount_t: saturated; leaking memory.
-WARNING: CPU: 1 PID: 3605 at lib/refcount.c:19 refcount_warn_saturate+0xf4/0x1e0 lib/refcount.c:19
-Modules linked in:
-CPU: 1 PID: 3605 Comm: syz-executor208 Not tainted 5.18.0-syzkaller-03023-g7e062cda7d90 #0
- <TASK>
- __refcount_add_not_zero include/linux/refcount.h:163 [inline]
- __refcount_inc_not_zero include/linux/refcount.h:227 [inline]
- refcount_inc_not_zero include/linux/refcount.h:245 [inline]
- sk_psock_get+0x3bc/0x410 include/linux/skmsg.h:439
- tls_data_ready+0x6d/0x1b0 net/tls/tls_sw.c:2091
- tcp_data_ready+0x106/0x520 net/ipv4/tcp_input.c:4983
- tcp_data_queue+0x25f2/0x4c90 net/ipv4/tcp_input.c:5057
- tcp_rcv_state_process+0x1774/0x4e80 net/ipv4/tcp_input.c:6659
- tcp_v4_do_rcv+0x339/0x980 net/ipv4/tcp_ipv4.c:1682
- sk_backlog_rcv include/net/sock.h:1061 [inline]
- __release_sock+0x134/0x3b0 net/core/sock.c:2849
- release_sock+0x54/0x1b0 net/core/sock.c:3404
- inet_shutdown+0x1e0/0x430 net/ipv4/af_inet.c:909
- __sys_shutdown_sock net/socket.c:2331 [inline]
- __sys_shutdown_sock net/socket.c:2325 [inline]
- __sys_shutdown+0xf1/0x1b0 net/socket.c:2343
- __do_sys_shutdown net/socket.c:2351 [inline]
- __se_sys_shutdown net/socket.c:2349 [inline]
- __x64_sys_shutdown+0x50/0x70 net/socket.c:2349
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
- </TASK>
+Free the buffered reports before deleting the list entry.
 
-During SMC fallback process in connect syscall, kernel will
-replaces TCP with SMC. In order to forward wakeup
-smc socket waitqueue after fallback, kernel will sets
-clcsk->sk_user_data to origin smc socket in
-smc_fback_replace_callbacks().
+BUG: memory leak
+unreferenced object 0xffff88810e72f180 (size 32):
+  comm "softirq", pid 0, jiffies 4294945143 (age 16.080s)
+  hex dump (first 32 bytes):
+    64 f3 c6 6a d1 88 07 04 00 00 00 00 00 00 00 00  d..j............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff814ac6c3>] kmemdup+0x23/0x50 mm/util.c:128
+    [<ffffffff8357c1d2>] kmemdup include/linux/fortify-string.h:440 [inline]
+    [<ffffffff8357c1d2>] hidraw_report_event+0xa2/0x150 drivers/hid/hidraw.c:521
+    [<ffffffff8356ddad>] hid_report_raw_event+0x27d/0x740 drivers/hid/hid-core.c:1992
+    [<ffffffff8356e41e>] hid_input_report+0x1ae/0x270 drivers/hid/hid-core.c:2065
+    [<ffffffff835f0d3f>] hid_irq_in+0x1ff/0x250 drivers/hid/usbhid/hid-core.c:284
+    [<ffffffff82d3c7f9>] __usb_hcd_giveback_urb+0xf9/0x230 drivers/usb/core/hcd.c:1670
+    [<ffffffff82d3cc26>] usb_hcd_giveback_urb+0x1b6/0x1d0 drivers/usb/core/hcd.c:1747
+    [<ffffffff82ef1e14>] dummy_timer+0x8e4/0x14c0 drivers/usb/gadget/udc/dummy_hcd.c:1988
+    [<ffffffff812f50a8>] call_timer_fn+0x38/0x200 kernel/time/timer.c:1474
+    [<ffffffff812f5586>] expire_timers kernel/time/timer.c:1519 [inline]
+    [<ffffffff812f5586>] __run_timers.part.0+0x316/0x430 kernel/time/timer.c:1790
+    [<ffffffff812f56e4>] __run_timers kernel/time/timer.c:1768 [inline]
+    [<ffffffff812f56e4>] run_timer_softirq+0x44/0x90 kernel/time/timer.c:1803
+    [<ffffffff848000e6>] __do_softirq+0xe6/0x2ea kernel/softirq.c:571
+    [<ffffffff81246db0>] invoke_softirq kernel/softirq.c:445 [inline]
+    [<ffffffff81246db0>] __irq_exit_rcu kernel/softirq.c:650 [inline]
+    [<ffffffff81246db0>] irq_exit_rcu+0xc0/0x110 kernel/softirq.c:662
+    [<ffffffff84574f02>] sysvec_apic_timer_interrupt+0xa2/0xd0 arch/x86/kernel/apic/apic.c:1106
+    [<ffffffff84600c8b>] asm_sysvec_apic_timer_interrupt+0x1b/0x20 arch/x86/include/asm/idtentry.h:649
+    [<ffffffff8458a070>] native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
+    [<ffffffff8458a070>] arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
+    [<ffffffff8458a070>] acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
+    [<ffffffff8458a070>] acpi_idle_do_entry+0xc0/0xd0 drivers/acpi/processor_idle.c:554
 
-Later, in shutdown syscall, kernel will calls
-sk_psock_get(), which treats the clcsk->sk_user_data
-as psock type, triggering the refcnt warning.
-
-So, the root cause is that smc and psock, both will use
-sk_user_data field. So they will mismatch this field
-easily.
-
-This patch solves it by using another bit(defined as
-SK_USER_DATA_PSOCK) in PTRMASK, to mark whether
-sk_user_data points to a psock object or not.
-This patch depends on a PTRMASK introduced in commit f1ff5ce2cd5e
-("net, sk_msg: Clear sk_user_data pointer on clone if tagged").
-
-For there will possibly be more flags in the sk_user_data field,
-this patch also refactor sk_user_data flags code to be more generic
-to improve its maintainability.
-
-Reported-and-tested-by: syzbot+5f26f85569bd179c18ce@syzkaller.appspotmail.com
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Wen Gu <guwen@linux.alibaba.com>
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://syzkaller.appspot.com/bug?id=19a04b43c75ed1092021010419b5e560a8172c4f
+Reported-by: syzbot+f59100a0428e6ded9443@syzkaller.appspotmail.com
+Signed-off-by: Karthik Alapati <mail@karthek.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skmsg.h |    3 +-
- include/net/sock.h    |   68 +++++++++++++++++++++++++++++++++++---------------
- net/core/skmsg.c      |    4 ++
- 3 files changed, 53 insertions(+), 22 deletions(-)
+ drivers/hid/hidraw.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -277,7 +277,8 @@ static inline void sk_msg_sg_copy_clear(
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -354,10 +354,13 @@ static int hidraw_release(struct inode *
+ 	unsigned int minor = iminor(inode);
+ 	struct hidraw_list *list = file->private_data;
+ 	unsigned long flags;
++	int i;
  
- static inline struct sk_psock *sk_psock(const struct sock *sk)
- {
--	return rcu_dereference_sk_user_data(sk);
-+	return __rcu_dereference_sk_user_data_with_flags(sk,
-+							 SK_USER_DATA_PSOCK);
- }
+ 	mutex_lock(&minors_lock);
  
- static inline void sk_psock_set_state(struct sk_psock *psock,
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -545,14 +545,26 @@ enum sk_pacing {
- 	SK_PACING_FQ		= 2,
- };
- 
--/* Pointer stored in sk_user_data might not be suitable for copying
-- * when cloning the socket. For instance, it can point to a reference
-- * counted object. sk_user_data bottom bit is set if pointer must not
-- * be copied.
-+/* flag bits in sk_user_data
-+ *
-+ * - SK_USER_DATA_NOCOPY:      Pointer stored in sk_user_data might
-+ *   not be suitable for copying when cloning the socket. For instance,
-+ *   it can point to a reference counted object. sk_user_data bottom
-+ *   bit is set if pointer must not be copied.
-+ *
-+ * - SK_USER_DATA_BPF:         Mark whether sk_user_data field is
-+ *   managed/owned by a BPF reuseport array. This bit should be set
-+ *   when sk_user_data's sk is added to the bpf's reuseport_array.
-+ *
-+ * - SK_USER_DATA_PSOCK:       Mark whether pointer stored in
-+ *   sk_user_data points to psock type. This bit should be set
-+ *   when sk_user_data is assigned to a psock object.
-  */
- #define SK_USER_DATA_NOCOPY	1UL
--#define SK_USER_DATA_BPF	2UL	/* Managed by BPF */
--#define SK_USER_DATA_PTRMASK	~(SK_USER_DATA_NOCOPY | SK_USER_DATA_BPF)
-+#define SK_USER_DATA_BPF	2UL
-+#define SK_USER_DATA_PSOCK	4UL
-+#define SK_USER_DATA_PTRMASK	~(SK_USER_DATA_NOCOPY | SK_USER_DATA_BPF |\
-+				  SK_USER_DATA_PSOCK)
- 
- /**
-  * sk_user_data_is_nocopy - Test if sk_user_data pointer must not be copied
-@@ -565,24 +577,40 @@ static inline bool sk_user_data_is_nocop
- 
- #define __sk_user_data(sk) ((*((void __rcu **)&(sk)->sk_user_data)))
- 
-+/**
-+ * __rcu_dereference_sk_user_data_with_flags - return the pointer
-+ * only if argument flags all has been set in sk_user_data. Otherwise
-+ * return NULL
-+ *
-+ * @sk: socket
-+ * @flags: flag bits
-+ */
-+static inline void *
-+__rcu_dereference_sk_user_data_with_flags(const struct sock *sk,
-+					  uintptr_t flags)
-+{
-+	uintptr_t sk_user_data = (uintptr_t)rcu_dereference(__sk_user_data(sk));
-+
-+	WARN_ON_ONCE(flags & SK_USER_DATA_PTRMASK);
-+
-+	if ((sk_user_data & flags) == flags)
-+		return (void *)(sk_user_data & SK_USER_DATA_PTRMASK);
-+	return NULL;
-+}
-+
- #define rcu_dereference_sk_user_data(sk)				\
-+	__rcu_dereference_sk_user_data_with_flags(sk, 0)
-+#define __rcu_assign_sk_user_data_with_flags(sk, ptr, flags)		\
- ({									\
--	void *__tmp = rcu_dereference(__sk_user_data((sk)));		\
--	(void *)((uintptr_t)__tmp & SK_USER_DATA_PTRMASK);		\
--})
--#define rcu_assign_sk_user_data(sk, ptr)				\
--({									\
--	uintptr_t __tmp = (uintptr_t)(ptr);				\
--	WARN_ON_ONCE(__tmp & ~SK_USER_DATA_PTRMASK);			\
--	rcu_assign_pointer(__sk_user_data((sk)), __tmp);		\
--})
--#define rcu_assign_sk_user_data_nocopy(sk, ptr)				\
--({									\
--	uintptr_t __tmp = (uintptr_t)(ptr);				\
--	WARN_ON_ONCE(__tmp & ~SK_USER_DATA_PTRMASK);			\
-+	uintptr_t __tmp1 = (uintptr_t)(ptr),				\
-+		  __tmp2 = (uintptr_t)(flags);				\
-+	WARN_ON_ONCE(__tmp1 & ~SK_USER_DATA_PTRMASK);			\
-+	WARN_ON_ONCE(__tmp2 & SK_USER_DATA_PTRMASK);			\
- 	rcu_assign_pointer(__sk_user_data((sk)),			\
--			   __tmp | SK_USER_DATA_NOCOPY);		\
-+			   __tmp1 | __tmp2);				\
- })
-+#define rcu_assign_sk_user_data(sk, ptr)				\
-+	__rcu_assign_sk_user_data_with_flags(sk, ptr, 0)
- 
- static inline
- struct net *sock_net(const struct sock *sk)
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -735,7 +735,9 @@ struct sk_psock *sk_psock_init(struct so
- 	sk_psock_set_state(psock, SK_PSOCK_TX_ENABLED);
- 	refcount_set(&psock->refcnt, 1);
- 
--	rcu_assign_sk_user_data_nocopy(sk, psock);
-+	__rcu_assign_sk_user_data_with_flags(sk, psock,
-+					     SK_USER_DATA_NOCOPY |
-+					     SK_USER_DATA_PSOCK);
- 	sock_hold(sk);
- 
- out:
+ 	spin_lock_irqsave(&hidraw_table[minor]->list_lock, flags);
++	for (i = list->tail; i < list->head; i++)
++		kfree(list->buffer[i].value);
+ 	list_del(&list->node);
+ 	spin_unlock_irqrestore(&hidraw_table[minor]->list_lock, flags);
+ 	kfree(list);
 
 
