@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8284A5AAE97
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF385AAE9C
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236225AbiIBM0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:26:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51010 "EHLO
+        id S236314AbiIBM0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:26:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236275AbiIBMZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:25:38 -0400
+        with ESMTP id S236400AbiIBMZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:25:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187ACDC08B;
-        Fri,  2 Sep 2022 05:23:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D351BDB7C8;
+        Fri,  2 Sep 2022 05:23:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0590B829B6;
-        Fri,  2 Sep 2022 12:22:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E531C433D7;
-        Fri,  2 Sep 2022 12:22:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D1A9B82A90;
+        Fri,  2 Sep 2022 12:22:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 637A0C433C1;
+        Fri,  2 Sep 2022 12:22:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121369;
-        bh=3fcpXD+as3eRC0Verdoa2PQP1rMKSElj8/i6wDbbRtk=;
+        s=korg; t=1662121372;
+        bh=vaSaG99LV0kyYcx8pVsd4ThRLsnqyd65JG3prdiW6NM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2RfcrWlWzjXH+gu7guylIYsQ2swRO8xU8D2OVykMWgiKaehxk/p0A74cHU/gc1btS
-         ZTBX8JvVF//S8sRHfeZCUbYxE8FQ24VFyhg1fOh3i+YYY5yOqYGrpmSebiCRyrsJGu
-         jTremtzFP8aIG3pLvegDBq7l8507CjIJRvNGbi+E=
+        b=oYJ1EBhQ/NdhbJbweXpTjWU7SoiZSAP0lbaaCF37WaIbWLcCaXVld1nRfzA4kBbB0
+         3XsxGC60T6FKvzqcgaqzaQ8Mdjx+LGe7OQ540qBeU7hFey6xCw7DGEKND6lFZ/Moq/
+         9vIWStPAvCXk91J5P22EjQHZe3nCo3Gwgj61R8os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Bestas <mkbestas@gmail.com>
-Subject: [PATCH 4.14 27/42] arm64: map FDT as RW for early_init_dt_scan()
-Date:   Fri,  2 Sep 2022 14:18:51 +0200
-Message-Id: <20220902121359.743151703@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 28/42] s390/mm: do not trigger write fault when vma does not allow VM_WRITE
+Date:   Fri,  2 Sep 2022 14:18:52 +0200
+Message-Id: <20220902121359.771415560@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
 References: <20220902121358.773776406@linuxfoundation.org>
@@ -56,118 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit e112b032a72c78f15d0c803c5dc6be444c2e6c66 upstream.
+commit 41ac42f137080bc230b5882e3c88c392ab7f2d32 upstream.
 
-Currently in arm64, FDT is mapped to RO before it's passed to
-early_init_dt_scan(). However, there might be some codes
-(eg. commit "fdt: add support for rng-seed") that need to modify FDT
-during init. Map FDT to RO after early fixups are done.
+For non-protection pXd_none() page faults in do_dat_exception(), we
+call do_exception() with access == (VM_READ | VM_WRITE | VM_EXEC).
+In do_exception(), vma->vm_flags is checked against that before
+calling handle_mm_fault().
 
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-[mkbestas: fixed trivial conflicts for 4.14 backport]
-Signed-off-by: Michael Bestas <mkbestas@gmail.com>
+Since commit 92f842eac7ee3 ("[S390] store indication fault optimization"),
+we call handle_mm_fault() with FAULT_FLAG_WRITE, when recognizing that
+it was a write access. However, the vma flags check is still only
+checking against (VM_READ | VM_WRITE | VM_EXEC), and therefore also
+calling handle_mm_fault() with FAULT_FLAG_WRITE in cases where the vma
+does not allow VM_WRITE.
+
+Fix this by changing access check in do_exception() to VM_WRITE only,
+when recognizing write access.
+
+Link: https://lkml.kernel.org/r/20220811103435.188481-3-david@redhat.com
+Fixes: 92f842eac7ee3 ("[S390] store indication fault optimization")
+Cc: <stable@vger.kernel.org>
+Reported-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/mmu.h |    2 +-
- arch/arm64/kernel/kaslr.c    |    5 +----
- arch/arm64/kernel/setup.c    |    9 ++++++++-
- arch/arm64/mm/mmu.c          |   15 +--------------
- 4 files changed, 11 insertions(+), 20 deletions(-)
+ arch/s390/mm/fault.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/mmu.h
-+++ b/arch/arm64/include/asm/mmu.h
-@@ -91,7 +91,7 @@ extern void init_mem_pgprot(void);
- extern void create_pgd_mapping(struct mm_struct *mm, phys_addr_t phys,
- 			       unsigned long virt, phys_addr_t size,
- 			       pgprot_t prot, bool page_mappings_only);
--extern void *fixmap_remap_fdt(phys_addr_t dt_phys);
-+extern void *fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot);
- extern void mark_linear_text_alias_ro(void);
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -433,7 +433,9 @@ static inline int do_exception(struct pt
+ 	flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+ 	if (user_mode(regs))
+ 		flags |= FAULT_FLAG_USER;
+-	if (access == VM_WRITE || (trans_exc_code & store_indication) == 0x400)
++	if ((trans_exc_code & store_indication) == 0x400)
++		access = VM_WRITE;
++	if (access == VM_WRITE)
+ 		flags |= FAULT_FLAG_WRITE;
+ 	down_read(&mm->mmap_sem);
  
- #endif	/* !__ASSEMBLY__ */
---- a/arch/arm64/kernel/kaslr.c
-+++ b/arch/arm64/kernel/kaslr.c
-@@ -65,9 +65,6 @@ out:
- 	return default_cmdline;
- }
- 
--extern void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size,
--				       pgprot_t prot);
--
- /*
-  * This routine will be executed with the kernel mapped at its default virtual
-  * address, and if it returns successfully, the kernel will be remapped, and
-@@ -96,7 +93,7 @@ u64 __init kaslr_early_init(u64 dt_phys)
- 	 * attempt at mapping the FDT in setup_machine()
- 	 */
- 	early_fixmap_init();
--	fdt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
-+	fdt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
- 	if (!fdt)
- 		return 0;
- 
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -179,9 +179,13 @@ static void __init smp_build_mpidr_hash(
- 
- static void __init setup_machine_fdt(phys_addr_t dt_phys)
- {
--	void *dt_virt = fixmap_remap_fdt(dt_phys);
-+	int size;
-+	void *dt_virt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
- 	const char *name;
- 
-+	if (dt_virt)
-+		memblock_reserve(dt_phys, size);
-+
- 	if (!dt_virt || !early_init_dt_scan(dt_virt)) {
- 		pr_crit("\n"
- 			"Error: invalid device tree blob at physical address %pa (virtual address 0x%p)\n"
-@@ -193,6 +197,9 @@ static void __init setup_machine_fdt(phy
- 			cpu_relax();
- 	}
- 
-+	/* Early fixups are done, map the FDT as read-only now */
-+	fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
-+
- 	name = of_flat_dt_get_machine_name();
- 	if (!name)
- 		return;
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -836,7 +836,7 @@ void __set_fixmap(enum fixed_addresses i
- 	}
- }
- 
--void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
-+void *__init fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
- {
- 	const u64 dt_virt_base = __fix_to_virt(FIX_FDT);
- 	int offset;
-@@ -889,19 +889,6 @@ void *__init __fixmap_remap_fdt(phys_add
- 	return dt_virt;
- }
- 
--void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
--{
--	void *dt_virt;
--	int size;
--
--	dt_virt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
--	if (!dt_virt)
--		return NULL;
--
--	memblock_reserve(dt_phys, size);
--	return dt_virt;
--}
--
- int __init arch_ioremap_pud_supported(void)
- {
- 	/*
 
 
