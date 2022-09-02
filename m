@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 363135AB0DE
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:00:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76CEC5AAE72
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236187AbiIBM7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:59:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33884 "EHLO
+        id S236036AbiIBMXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:23:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238145AbiIBM5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:57:45 -0400
+        with ESMTP id S236117AbiIBMWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:22:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72881FC10B;
-        Fri,  2 Sep 2022 05:39:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D03D7D2E;
+        Fri,  2 Sep 2022 05:21:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1CABB829FB;
-        Fri,  2 Sep 2022 12:35:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC7D9C433D7;
-        Fri,  2 Sep 2022 12:35:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6216DB82A91;
+        Fri,  2 Sep 2022 12:21:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B06F0C433C1;
+        Fri,  2 Sep 2022 12:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122110;
-        bh=ISCvssO8DzFYG6Pmr74SnRAybhIqwLKZrkE7I2lH8R0=;
+        s=korg; t=1662121303;
+        bh=e7jvzLJ4xkatYaKX3SS3SbMecQCTJzC7+f0vHrbkEco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5Ed4NRAldFuCPRG1qcEdbXjADOUdGg5PAKenN/nIkm8pvhezn4Y7lA3Mgwdw1XmQ
-         kOZTeaRU4PlFWqBh4ee1nwo6uEISfhwbRu5ugcD4wDp4pYWhL3tW2ozr8EiaRCkFFo
-         DaAD4znB3MDPB9aRUdjfgM43HxFIYK/rN29YnV2s=
+        b=EtimhdcFXbK9Kj41FBYyUrXv+9JyY2El51kxVJ5j8QiIRDTKRygARQljaHpFJPi8f
+         QZsxVnlxOsvQ5W6emQjNlcu6tpBI4pWmef+OrxeUU2eDe1NehReJ+eQkXe+pI0zxXs
+         xeQ9CPeYLZzpyzCkY2AudHZs6tmobchIOYy7X3tU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
         Yang Jihong <yangjihong1@huawei.com>
-Subject: [PATCH 5.19 16/72] ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
+Subject: [PATCH 4.9 26/31] ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
 Date:   Fri,  2 Sep 2022 14:18:52 +0200
-Message-Id: <20220902121405.323113848@linuxfoundation.org>
+Message-Id: <20220902121357.702815495@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
+References: <20220902121356.732130937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -124,7 +124,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/kernel/trace/ftrace.c
 +++ b/kernel/trace/ftrace.c
-@@ -2937,6 +2937,16 @@ int ftrace_startup(struct ftrace_ops *op
+@@ -2737,6 +2737,16 @@ static int ftrace_startup(struct ftrace_
  
  	ftrace_startup_enable(command);
  
