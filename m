@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 484E25AB005
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:47:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B50C65AAF6F
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237610AbiIBMro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:47:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41704 "EHLO
+        id S237119AbiIBMhz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:37:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237423AbiIBMrQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:47:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68311DC0AB;
-        Fri,  2 Sep 2022 05:34:10 -0700 (PDT)
+        with ESMTP id S237048AbiIBMhW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:37:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3585D196;
+        Fri,  2 Sep 2022 05:29:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D8B5620DF;
-        Fri,  2 Sep 2022 12:33:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 830F8C433D7;
-        Fri,  2 Sep 2022 12:33:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 932E0B82A9A;
+        Fri,  2 Sep 2022 12:23:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB62AC433C1;
+        Fri,  2 Sep 2022 12:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122031;
-        bh=3u/H4timVfmTu4TI8lTmRpcihulhc0G04dcwQREX1LU=;
+        s=korg; t=1662121387;
+        bh=6gPjV9rlOUbTsXIzcLSSToBwAPpGY0Nzgw13d+QBlOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCj/+I2EIpEfwJXcybozBrUNJSX8sYpmz5dyLj2kxMvpvZh58SO/wCxgukJe5a+0z
-         VmwAKZKVlSYvNqKeKGyBFUcovhOVnM7IzeXD2A+mR+SKPYkJXdbbmlAXcQffYGNfN1
-         n16rHzQdBmA1TgB97ki1OsboJTSji2yI1dxKxyhU=
+        b=AJlSrDYKFXmKPk7bfDG1VCJkMBOeE5CjzX9uSEB7tY4OV5a2ZaHsGaarVSDfMQCDJ
+         Ia1vVnes1RrdR1540AhjmePEahOhL+Bzn3leb3qrHS7ldvaSY/qIGAn+BbS9Ptqomv
+         PvfSgX2YFvKqWIdihoNkFM44pFNUNf3jNybGTwck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-        Yang Jihong <yangjihong1@huawei.com>
-Subject: [PATCH 5.15 33/73] ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
+        stable@vger.kernel.org,
+        syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 4.14 33/42] media: pvrusb2: fix memory leak in pvr_probe
 Date:   Fri,  2 Sep 2022 14:18:57 +0200
-Message-Id: <20220902121405.544206171@linuxfoundation.org>
+Message-Id: <20220902121359.933312834@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,93 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit c3b0f72e805f0801f05fa2aa52011c4bfc694c44 upstream.
+commit 945a9a8e448b65bec055d37eba58f711b39f66f0 upstream.
 
-ftrace_startup does not remove ops from ftrace_ops_list when
-ftrace_startup_enable fails:
+The error handling code in pvr2_hdw_create forgets to unregister the
+v4l2 device. When pvr2_hdw_create returns back to pvr2_context_create,
+it calls pvr2_context_destroy to destroy context, but mp->hdw is NULL,
+which leads to that pvr2_hdw_destroy directly returns.
 
-register_ftrace_function
-  ftrace_startup
-    __register_ftrace_function
-      ...
-      add_ftrace_ops(&ftrace_ops_list, ops)
-      ...
-    ...
-    ftrace_startup_enable // if ftrace failed to modify, ftrace_disabled is set to 1
-    ...
-  return 0 // ops is in the ftrace_ops_list.
+Fix this by adding v4l2_device_unregister to decrease the refcount of
+usb interface.
 
-When ftrace_disabled = 1, unregister_ftrace_function simply returns without doing anything:
-unregister_ftrace_function
-  ftrace_shutdown
-    if (unlikely(ftrace_disabled))
-            return -ENODEV;  // return here, __unregister_ftrace_function is not executed,
-                             // as a result, ops is still in the ftrace_ops_list
-    __unregister_ftrace_function
-    ...
-
-If ops is dynamically allocated, it will be free later, in this case,
-is_ftrace_trampoline accesses NULL pointer:
-
-is_ftrace_trampoline
-  ftrace_ops_trampoline
-    do_for_each_ftrace_op(op, ftrace_ops_list) // OOPS! op may be NULL!
-
-Syzkaller reports as follows:
-[ 1203.506103] BUG: kernel NULL pointer dereference, address: 000000000000010b
-[ 1203.508039] #PF: supervisor read access in kernel mode
-[ 1203.508798] #PF: error_code(0x0000) - not-present page
-[ 1203.509558] PGD 800000011660b067 P4D 800000011660b067 PUD 130fb8067 PMD 0
-[ 1203.510560] Oops: 0000 [#1] SMP KASAN PTI
-[ 1203.511189] CPU: 6 PID: 29532 Comm: syz-executor.2 Tainted: G    B   W         5.10.0 #8
-[ 1203.512324] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[ 1203.513895] RIP: 0010:is_ftrace_trampoline+0x26/0xb0
-[ 1203.514644] Code: ff eb d3 90 41 55 41 54 49 89 fc 55 53 e8 f2 00 fd ff 48 8b 1d 3b 35 5d 03 e8 e6 00 fd ff 48 8d bb 90 00 00 00 e8 2a 81 26 00 <48> 8b ab 90 00 00 00 48 85 ed 74 1d e8 c9 00 fd ff 48 8d bb 98 00
-[ 1203.518838] RSP: 0018:ffffc900012cf960 EFLAGS: 00010246
-[ 1203.520092] RAX: 0000000000000000 RBX: 000000000000007b RCX: ffffffff8a331866
-[ 1203.521469] RDX: 0000000000000000 RSI: 0000000000000008 RDI: 000000000000010b
-[ 1203.522583] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffff8df18b07
-[ 1203.523550] R10: fffffbfff1be3160 R11: 0000000000000001 R12: 0000000000478399
-[ 1203.524596] R13: 0000000000000000 R14: ffff888145088000 R15: 0000000000000008
-[ 1203.525634] FS:  00007f429f5f4700(0000) GS:ffff8881daf00000(0000) knlGS:0000000000000000
-[ 1203.526801] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1203.527626] CR2: 000000000000010b CR3: 0000000170e1e001 CR4: 00000000003706e0
-[ 1203.528611] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 1203.529605] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-Therefore, when ftrace_startup_enable fails, we need to rollback registration
-process and remove ops from ftrace_ops_list.
-
-Link: https://lkml.kernel.org/r/20220818032659.56209-1-yangjihong1@huawei.com
-
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reported-by: syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -2901,6 +2901,16 @@ int ftrace_startup(struct ftrace_ops *op
- 
- 	ftrace_startup_enable(command);
- 
-+	/*
-+	 * If ftrace is in an undefined state, we just remove ops from list
-+	 * to prevent the NULL pointer, instead of totally rolling it back and
-+	 * free trampoline, because those actions could cause further damage.
-+	 */
-+	if (unlikely(ftrace_disabled)) {
-+		__unregister_ftrace_function(ops);
-+		return -ENODEV;
-+	}
-+
- 	ops->flags &= ~FTRACE_OPS_FL_ADDING;
- 
- 	return 0;
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -2604,6 +2604,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct
+ 		del_timer_sync(&hdw->encoder_run_timer);
+ 		del_timer_sync(&hdw->encoder_wait_timer);
+ 		flush_work(&hdw->workpoll);
++		v4l2_device_unregister(&hdw->v4l2_dev);
+ 		usb_free_urb(hdw->ctl_read_urb);
+ 		usb_free_urb(hdw->ctl_write_urb);
+ 		kfree(hdw->ctl_read_buffer);
 
 
