@@ -2,73 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A893F5AB8D8
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 21:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E17835AB8DD
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 21:26:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229775AbiIBTYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 15:24:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37964 "EHLO
+        id S230129AbiIBT0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 15:26:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229837AbiIBTYU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 15:24:20 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3281FCA16
-        for <stable@vger.kernel.org>; Fri,  2 Sep 2022 12:24:18 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id w19so3205230ljj.7
-        for <stable@vger.kernel.org>; Fri, 02 Sep 2022 12:24:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date;
-        bh=eMVCF1fPAuqmYegJoCJUJU7da8MHPWujB10GZ78eaYE=;
-        b=fNR+Mf5eQDIx615BOisYbxd+oM+RngWssXUcTip7lixU/8LGfAPKOa4RZ5hNJCjRJi
-         Red3e36gVM9wbI8vY1DUKz78m1cJstDr81Tsyb2bPZ84RNeryaNOiXMdlEmhK948GQ0E
-         fff9xIOboPIWQ1+eY8mOjk4j4GJKTaZ2yaNAhvPXXVqS1pwiTQHWFNlZpKy52hZTWfFy
-         9cW6RkALP1f5l/EP4bcJHOYFa5y3uchkPLclzbZfq7M+lrM5gobeG5S0fgwN/7UCuBWG
-         Rp3mYI231nwM81mclByMG9VEKVN0YMBwWG2xHXuwsMmhoROuwqWfnUQCZ6Mgg5xX3ot9
-         YDIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=eMVCF1fPAuqmYegJoCJUJU7da8MHPWujB10GZ78eaYE=;
-        b=JgXZibyTTW1FyVJwyLU8jvhofwSn9ofqOxFuhCEweFcT4KBtaXIENKUWjGOR3kvU1t
-         SUDzq8kFxJpISnu+i4NMuYwiJ2M4YQ7t9DrMFqWsOK3Vp3oCX0M1RIax6Xn24EhmzMea
-         8wtQaCkidPptYUqJrC/Ajj1wDFm4x/B7WQAhrJgT3eifk3feH7Vdnq3vZjk/9Yq9Eo2F
-         FBa5jAMPmI1FNxzvLCitAj1CbC4nMRbG0ZzE+0lI5CU0Imya1iG8ODNuEsm3jR4RamDW
-         Qlfwfi8kAEa5sORRfJiTz8AA/EF9ULVeyACHFKYc+jCTdj2oX6TiETi24rbdL0IIXv96
-         Z3AQ==
-X-Gm-Message-State: ACgBeo2QSfXnJwjfxpY4ZKMG4td8BvkYFY6KpD3NqOkjILP86hFiYtgJ
-        RXkoaPEXc9Bs2G3T8+0adZmutdyEULJDdvHe/4I=
-X-Google-Smtp-Source: AA6agR5uhYIpngtibXKhYjbPPBqIGBuka4esQpKB3YbEzqBF31mh/lzrqwNU8IimlIqNGobiKf4eGSHHmtGpL+coMYM=
-X-Received: by 2002:a05:651c:b26:b0:267:18e2:2024 with SMTP id
- b38-20020a05651c0b2600b0026718e22024mr6096808ljr.409.1662146657295; Fri, 02
- Sep 2022 12:24:17 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a05:6520:5d4:b0:20f:1586:b51 with HTTP; Fri, 2 Sep 2022
- 12:24:15 -0700 (PDT)
-Reply-To: officeeemaf@gmail.com
-From:   "Chester R. Ellis" <offficcemua@gmail.com>
-Date:   Fri, 2 Sep 2022 20:24:15 +0100
-Message-ID: <CALY5DG9jtLAeiHeTcWA6AU9VYzAtQZLQjtEzM2dKNZ0=T+c2kQ@mail.gmail.com>
-Subject: Greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+        with ESMTP id S229685AbiIBT0g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 15:26:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 859F4FB284;
+        Fri,  2 Sep 2022 12:26:35 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23B76608CD;
+        Fri,  2 Sep 2022 19:26:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79235C433D6;
+        Fri,  2 Sep 2022 19:26:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1662146794;
+        bh=AexgeAdsFhSAVfIJLFjvTuCgd3PmbuZfA2HEKBKnbcM=;
+        h=Date:To:From:Subject:From;
+        b=hs8eKQiRI1DrSNihgr8GbOuU+TDPJiu7cs2CJPBNd1pL9We7pzqPx4+9LeU5kFQqA
+         xw2uSTM/U8oCAZ3BAtsarRyW849h6fbHNLZknJGTfngk2IZr4za0m2IzDnSDMf4ApM
+         HgMI2mAIvoMUYL4YQYULcmNkcM5OL9YpFfkF4L3s=
+Date:   Fri, 02 Sep 2022 12:26:33 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, sj@kernel.org,
+        gregkh@linuxfoundation.org, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-damon-dbgfs-fix-memory-leak-when-using.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220902192634.79235C433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings
 
-I have sent you emails, but still have not receive a response. Kindly
-get back to me for a mutual benefit transaction.
+The patch titled
+     Subject: mm/damon/dbgfs: fix memory leak when using
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-damon-dbgfs-fix-memory-leak-when-using.patch
 
-Thank you.
-Chester R. Ellis
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-damon-dbgfs-fix-memory-leak-when-using.patch
+
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: mm/damon/dbgfs: fix memory leak when using
+Date: Fri, 2 Sep 2022 19:11:49 +0000
+
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  Fix this up by properly calling
+dput().
+
+Link: https://lkml.kernel.org/r/20220902191149.112434-1-sj@kernel.org
+Fixes: 75c1c2b53c78b ("mm/damon/dbgfs: support multiple contexts")
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: SeongJae Park <sj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/damon/dbgfs.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+--- a/mm/damon/dbgfs.c~mm-damon-dbgfs-fix-memory-leak-when-using
++++ a/mm/damon/dbgfs.c
+@@ -884,6 +884,7 @@ static int dbgfs_rm_context(char *name)
+ 	struct dentry *root, *dir, **new_dirs;
+ 	struct damon_ctx **new_ctxs;
+ 	int i, j;
++	int ret = 0;
+ 
+ 	if (damon_nr_running_ctxs())
+ 		return -EBUSY;
+@@ -898,14 +899,16 @@ static int dbgfs_rm_context(char *name)
+ 
+ 	new_dirs = kmalloc_array(dbgfs_nr_ctxs - 1, sizeof(*dbgfs_dirs),
+ 			GFP_KERNEL);
+-	if (!new_dirs)
+-		return -ENOMEM;
++	if (!new_dirs) {
++		ret = -ENOMEM;
++		goto out_dput;
++	}
+ 
+ 	new_ctxs = kmalloc_array(dbgfs_nr_ctxs - 1, sizeof(*dbgfs_ctxs),
+ 			GFP_KERNEL);
+ 	if (!new_ctxs) {
+-		kfree(new_dirs);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto out_new_dirs;
+ 	}
+ 
+ 	for (i = 0, j = 0; i < dbgfs_nr_ctxs; i++) {
+@@ -925,7 +928,13 @@ static int dbgfs_rm_context(char *name)
+ 	dbgfs_ctxs = new_ctxs;
+ 	dbgfs_nr_ctxs--;
+ 
+-	return 0;
++	goto out_dput;
++
++out_new_dirs:
++	kfree(new_dirs);
++out_dput:
++	dput(dir);
++	return ret;
+ }
+ 
+ static ssize_t dbgfs_rm_context_write(struct file *file,
+_
+
+Patches currently in -mm which might be from gregkh@linuxfoundation.org are
+
+mm-damon-dbgfs-fix-memory-leak-when-using.patch
+
