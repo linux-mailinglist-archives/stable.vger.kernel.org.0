@@ -2,42 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C1175AB095
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3B6D5AB0A2
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238047AbiIBMyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:54:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34596 "EHLO
+        id S238252AbiIBMze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:55:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238189AbiIBMyD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:54:03 -0400
+        with ESMTP id S238279AbiIBMyQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:54:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C95FB0DF;
-        Fri,  2 Sep 2022 05:38:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14D83F995D;
+        Fri,  2 Sep 2022 05:38:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEB8662190;
-        Fri,  2 Sep 2022 12:37:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5391C433C1;
-        Fri,  2 Sep 2022 12:37:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E41C362211;
+        Fri,  2 Sep 2022 12:37:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7240C433D6;
+        Fri,  2 Sep 2022 12:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122274;
-        bh=OcfyeE3fbS7IKNlI13n5GlUJOEXKlKESfM6h74E8J5M=;
+        s=korg; t=1662122277;
+        bh=MSnkjPP/MYSfeJHpJPpx1Hxgi4ylFwUpQBUk8PBVVwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bu3zpcl1nax5wazQoxI5/gf/Ap5Z9r8d6es/DLp/jHVOBRciXFAcQfIvoGYv9LrLe
-         hB7TFb5rm8w7ccR0c+u8vjIb9pYAy2Kp8VSRqk9YeMdPfK44LiToi130dd6by7hnlv
-         BOhLQzt7EHcek459AEtevqMcyVjmASRuAMEjGEiw=
+        b=HZs3ZK4tt5XHv76UEkywjCgAG4eMJHOhGGPnnpXouOkg5Uu5Oj/casmNbIuskZYM+
+         eR0IT0C95xkV5VmBkmNwpdpnJaOALpPGWZeT2XCP8TK+NS3ysOwQ+gbTJG+ZiWaEWQ
+         AVPlGWAjiJqCrurmpxS6b/V8NpWw0naU/p6vYoEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 68/72] btrfs: tree-checker: check for overlapping extent items
-Date:   Fri,  2 Sep 2022 14:19:44 +0200
-Message-Id: <20220902121407.032552411@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        syzbot+da54fa8d793ca89c741f@syzkaller.appspotmail.com,
+        Todd Kjos <tkjos@google.com>,
+        =?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?= <arve@android.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Hridya Valsaraju <hridya@google.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Martijn Coenen <maco@android.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.19 69/72] android: binder: fix lockdep check on clearing vma
+Date:   Fri,  2 Sep 2022 14:19:45 +0200
+Message-Id: <20220902121407.062516874@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
 References: <20220902121404.772492078@linuxfoundation.org>
@@ -55,72 +62,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Liam Howlett <liam.howlett@oracle.com>
 
-[ Upstream commit 899b7f69f244e539ea5df1b4d756046337de44a5 ]
+commit b0cab80ecd54ae3b2356bb081af0bffd538c8265 upstream.
 
-We're seeing a weird problem in production where we have overlapping
-extent items in the extent tree.  It's unclear where these are coming
-from, and in debugging we realized there's no check in the tree checker
-for this sort of problem.  Add a check to the tree-checker to make sure
-that the extents do not overlap each other.
+When munmapping a vma, the mmap_lock can be degraded to a write before
+calling close() on the file handle.  The binder close() function calls
+binder_alloc_set_vma() to clear the vma address, which now has a lock dep
+check for writing on the mmap_lock.  Change the lockdep check to ensure
+the reading lock is held while clearing and keep the write check while
+writing.
 
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220627151857.2316964-1-Liam.Howlett@oracle.com
+Fixes: 472a68df605b ("android: binder: stop saving a pointer to the VMA")
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Reported-by: syzbot+da54fa8d793ca89c741f@syzkaller.appspotmail.com
+Acked-by: Todd Kjos <tkjos@google.com>
+Cc: "Arve Hjønnevåg" <arve@android.com>
+Cc: Christian Brauner (Microsoft) <brauner@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Hridya Valsaraju <hridya@google.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Martijn Coenen <maco@android.com>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-checker.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/android/binder_alloc.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -1233,7 +1233,8 @@ static void extent_err(const struct exte
- }
- 
- static int check_extent_item(struct extent_buffer *leaf,
--			     struct btrfs_key *key, int slot)
-+			     struct btrfs_key *key, int slot,
-+			     struct btrfs_key *prev_key)
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -315,12 +315,19 @@ static inline void binder_alloc_set_vma(
  {
- 	struct btrfs_fs_info *fs_info = leaf->fs_info;
- 	struct btrfs_extent_item *ei;
-@@ -1453,6 +1454,26 @@ static int check_extent_item(struct exte
- 			   total_refs, inline_refs);
- 		return -EUCLEAN;
+ 	unsigned long vm_start = 0;
+ 
++	/*
++	 * Allow clearing the vma with holding just the read lock to allow
++	 * munmapping downgrade of the write lock before freeing and closing the
++	 * file using binder_alloc_vma_close().
++	 */
+ 	if (vma) {
+ 		vm_start = vma->vm_start;
+ 		alloc->vma_vm_mm = vma->vm_mm;
++		mmap_assert_write_locked(alloc->vma_vm_mm);
++	} else {
++		mmap_assert_locked(alloc->vma_vm_mm);
  	}
-+
-+	if ((prev_key->type == BTRFS_EXTENT_ITEM_KEY) ||
-+	    (prev_key->type == BTRFS_METADATA_ITEM_KEY)) {
-+		u64 prev_end = prev_key->objectid;
-+
-+		if (prev_key->type == BTRFS_METADATA_ITEM_KEY)
-+			prev_end += fs_info->nodesize;
-+		else
-+			prev_end += prev_key->offset;
-+
-+		if (unlikely(prev_end > key->objectid)) {
-+			extent_err(leaf, slot,
-+	"previous extent [%llu %u %llu] overlaps current extent [%llu %u %llu]",
-+				   prev_key->objectid, prev_key->type,
-+				   prev_key->offset, key->objectid, key->type,
-+				   key->offset);
-+			return -EUCLEAN;
-+		}
-+	}
-+
- 	return 0;
+ 
+-	mmap_assert_write_locked(alloc->vma_vm_mm);
+ 	alloc->vma_addr = vm_start;
  }
  
-@@ -1621,7 +1642,7 @@ static int check_leaf_item(struct extent
- 		break;
- 	case BTRFS_EXTENT_ITEM_KEY:
- 	case BTRFS_METADATA_ITEM_KEY:
--		ret = check_extent_item(leaf, key, slot);
-+		ret = check_extent_item(leaf, key, slot, prev_key);
- 		break;
- 	case BTRFS_TREE_BLOCK_REF_KEY:
- 	case BTRFS_SHARED_DATA_REF_KEY:
 
 
