@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E29865AAE90
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 378065AAF4A
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236281AbiIBMZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:25:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49542 "EHLO
+        id S236983AbiIBMfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:35:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236293AbiIBMZH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:25:07 -0400
+        with ESMTP id S236565AbiIBMeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:34:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF9A1D7404;
-        Fri,  2 Sep 2022 05:23:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D42D632F;
+        Fri,  2 Sep 2022 05:28:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69440620FD;
-        Fri,  2 Sep 2022 12:22:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C3E1C433C1;
-        Fri,  2 Sep 2022 12:22:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 273FA62160;
+        Fri,  2 Sep 2022 12:28:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC77C433D6;
+        Fri,  2 Sep 2022 12:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121363;
-        bh=WynDvxHoxmJta2Gj6rL0/fOVSZIoA7wkQqCFBQ7arEg=;
+        s=korg; t=1662121708;
+        bh=eimgQIMxHZOEPBtE5nCL9Itkgzj3zGOzM7yaxfP4ZyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAdHX4ZboBBlGd/X1pS1qgObQJRuNOGby6uX/QhCqJ5G3N8BX9vOacfUs+0tHI0xt
-         XmlpxorTaOcDXq3TDelgfjsp8MkFvJFTBGm/r4jctyQqu5gawFOdO3x4adLks6kXVV
-         iPjy0AMXKiLFJOO6aP/CmpodeqBoOoAE3kLihZxY=
+        b=E9L1T/1ETqzvVmFpm6xkhmWVMFqggDJh89QYIvSglmqqzleXLo63UaIkDICK9hYX7
+         /tr6XooYHxo+xMbq5A9dr7WUIxqbivgbSNvXule4chDkJuLlrAW6qa4TyC5+aGA8+E
+         rz7xLiFpAqKlfNk9xGFv2cXLaYgMKDEGOHs9BpJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 4.14 25/42] md: call __md_stop_writes in md_stop
+        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 40/77] x86/unwind/orc: Unwind ftrace trampolines with correct ORC entry
 Date:   Fri,  2 Sep 2022 14:18:49 +0200
-Message-Id: <20220902121359.669121787@linuxfoundation.org>
+Message-Id: <20220902121404.981315369@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@linux.dev>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit 0dd84b319352bb8ba64752d4e45396d8b13e6018 upstream.
+commit fc2e426b1161761561624ebd43ce8c8d2fa058da upstream.
 
->From the link [1], we can see raid1d was running even after the path
-raid_dtr -> md_stop -> __md_stop.
+When meeting ftrace trampolines in ORC unwinding, unwinder uses address
+of ftrace_{regs_}call address to find the ORC entry, which gets next frame at
+sp+176.
 
-Let's stop write first in destructor to align with normal md-raid to
-fix the KASAN issue.
+If there is an IRQ hitting at sub $0xa8,%rsp, the next frame should be
+sp+8 instead of 176. It makes unwinder skip correct frame and throw
+warnings such as "wrong direction" or "can't access registers", etc,
+depending on the content of the incorrect frame address.
 
-[1]. https://lore.kernel.org/linux-raid/CAPhsuW5gc4AakdGNdF8ubpezAuDLFOYUO_sfMZcec6hQFm8nhg@mail.gmail.com/T/#m7f12bf90481c02c6d2da68c64aeed4779b7df74a
+By adding the base address ftrace_{regs_}caller with the offset
+*ip - ops->trampoline*, we can get the correct address to find the ORC entry.
 
-Fixes: 48df498daf62 ("md: move bitmap_destroy to the beginning of __md_stop")
-Reported-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Song Liu <song@kernel.org>
+Also change "caller" to "tramp_addr" to make variable name conform to
+its content.
+
+[ mingo: Clarified the changelog a bit. ]
+
+Fixes: 6be7fa3c74d1 ("ftrace, orc, x86: Handle ftrace dynamically allocated trampolines")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220819084334.244016-1-chenzhongjin@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/unwind_orc.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -5908,6 +5908,7 @@ void md_stop(struct mddev *mddev)
- 	/* stop the array and free an attached data structures.
- 	 * This is called from dm-raid
- 	 */
-+	__md_stop_writes(mddev);
- 	__md_stop(mddev);
- 	if (mddev->bio_set)
- 		bioset_free(mddev->bio_set);
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -90,22 +90,27 @@ static struct orc_entry *orc_find(unsign
+ static struct orc_entry *orc_ftrace_find(unsigned long ip)
+ {
+ 	struct ftrace_ops *ops;
+-	unsigned long caller;
++	unsigned long tramp_addr, offset;
+ 
+ 	ops = ftrace_ops_trampoline(ip);
+ 	if (!ops)
+ 		return NULL;
+ 
++	/* Set tramp_addr to the start of the code copied by the trampoline */
+ 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
+-		caller = (unsigned long)ftrace_regs_call;
++		tramp_addr = (unsigned long)ftrace_regs_caller;
+ 	else
+-		caller = (unsigned long)ftrace_call;
++		tramp_addr = (unsigned long)ftrace_caller;
++
++	/* Now place tramp_addr to the location within the trampoline ip is at */
++	offset = ip - ops->trampoline;
++	tramp_addr += offset;
+ 
+ 	/* Prevent unlikely recursion */
+-	if (ip == caller)
++	if (ip == tramp_addr)
+ 		return NULL;
+ 
+-	return orc_find(caller);
++	return orc_find(tramp_addr);
+ }
+ #else
+ static struct orc_entry *orc_ftrace_find(unsigned long ip)
 
 
