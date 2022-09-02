@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C58445AAEF6
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18C1E5AAE55
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:21:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236534AbiIBMb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36614 "EHLO
+        id S236051AbiIBMVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:21:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236661AbiIBMbT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:31:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41113E190B;
-        Fri,  2 Sep 2022 05:26:53 -0700 (PDT)
+        with ESMTP id S235936AbiIBMVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:21:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7F9686FE1;
+        Fri,  2 Sep 2022 05:21:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29D3A62109;
-        Fri,  2 Sep 2022 12:24:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC7BC433C1;
-        Fri,  2 Sep 2022 12:24:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6FA6EB82A8F;
+        Fri,  2 Sep 2022 12:21:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94011C433D6;
+        Fri,  2 Sep 2022 12:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121489;
-        bh=48K8ti4/WbEJQ+8DJb0y3V3p3MGlpvPYyectvO5r+L0=;
+        s=korg; t=1662121270;
+        bh=iAOuRObImeftCmpLIn8rH+IQRg9TxZTmsm9QwblKeRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=afQpzJo2wU24i9wMsaZ7WuRkd1NBidx+WNWRK9Fth6Oycut0/8rhToQjniqYX8Dp+
-         BafiK/uL2JrajNYwRdAviUbEtZXFxMy7PfZqfjtKv3TJqc/V1huqnk25bKRGb2l6vt
-         +/v5uILpbOru9O2M0sN9EGAScJjn7bFQc7i1eLvY=
+        b=hHp+OAKDWJ2c8VqL/Nwbuof4i+EjNlFr8jNNdkhUCzoZ4WqOFvBrxQ5xWUFPg+Ulc
+         QB7bQeh/SKby6hDw1dqsszliIBUfqJCqgtKxIoiqBP9zsFTK6Ue3OhfEQzCv8cMgP1
+         P13HodsjIqaoI1ANHFHF0Phq22H9hxgy2rK2VJL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/56] net: Fix a data-race around sysctl_net_busy_read.
-Date:   Fri,  2 Sep 2022 14:18:44 +0200
-Message-Id: <20220902121401.037492311@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Gayatri Kammela <gayatri.kammela@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Rahul Tanwar <rahul.tanwar@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Subject: [PATCH 4.9 19/31] x86/cpu: Add Tiger Lake to Intel family
+Date:   Fri,  2 Sep 2022 14:18:45 +0200
+Message-Id: <20220902121357.468592657@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
-References: <20220902121400.219861128@linuxfoundation.org>
+In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
+References: <20220902121356.732130937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +59,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Gayatri Kammela <gayatri.kammela@intel.com>
 
-[ Upstream commit e59ef36f0795696ab229569c153936bfd068d21c ]
+commit 6e1c32c5dbb4b90eea8f964c2869d0bde050dbe0 upstream.
 
-While reading sysctl_net_busy_read, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+Add the model numbers/CPUIDs of Tiger Lake mobile and desktop to the
+Intel family.
 
-Fixes: 2d48d67fa8cd ("net: poll/select low latency socket support")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Gayatri Kammela <gayatri.kammela@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rahul Tanwar <rahul.tanwar@linux.intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190905193020.14707-2-tony.luck@intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/sock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/intel-family.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 79f085df52cef..cd23a8e4556ca 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2856,7 +2856,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -70,6 +70,9 @@
+ #define INTEL_FAM6_ALDERLAKE		0x97
+ #define INTEL_FAM6_ALDERLAKE_L		0x9A
  
- #ifdef CONFIG_NET_RX_BUSY_POLL
- 	sk->sk_napi_id		=	0;
--	sk->sk_ll_usec		=	sysctl_net_busy_read;
-+	sk->sk_ll_usec		=	READ_ONCE(sysctl_net_busy_read);
- #endif
++#define INTEL_FAM6_TIGERLAKE_L		0x8C
++#define INTEL_FAM6_TIGERLAKE		0x8D
++
+ /* "Small Core" Processors (Atom) */
  
- 	sk->sk_max_pacing_rate = ~0U;
--- 
-2.35.1
-
+ #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
 
 
