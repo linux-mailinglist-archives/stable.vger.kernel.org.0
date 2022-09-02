@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F285AAF4C
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9335AAF71
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236992AbiIBMgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:36:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53860 "EHLO
+        id S237105AbiIBMiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:38:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236759AbiIBMeO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:34:14 -0400
+        with ESMTP id S237084AbiIBMhs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:37:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1814BD9EBC;
-        Fri,  2 Sep 2022 05:28:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2050A10FF;
+        Fri,  2 Sep 2022 05:29:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12CDE6218D;
-        Fri,  2 Sep 2022 12:28:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2216BC433C1;
-        Fri,  2 Sep 2022 12:28:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D9076211C;
+        Fri,  2 Sep 2022 12:23:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76E96C433D7;
+        Fri,  2 Sep 2022 12:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121711;
-        bh=02dvi00mHdGtZ2LxDeSycdfEgjyDOflIKnkQinHHrZg=;
+        s=korg; t=1662121402;
+        bh=c38qPjBlwIU12u9Uk9yjYbiD99ZrXmEcOmC9gitduTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dR4Rmkpb08hi1RGDUD+h74aG4YJnY18mAvMxq9DdDZOHvIVq3ZILSG310NSWGu0uR
-         BdBHthNR3R+b9Iex724MztBnxQHcXzYIe+kTPLza2LKJBrHDXBaSeYJPysd56UGsuo
-         eJijuq8jCq/rWA6HG73pHQSEcbjxkA2++Jiq3hNg=
+        b=fqttkCobkVthfNQpMlcz/MgOtRr3YoPpZVHIsbyHxM29Q45QXdxtrIb5TU1iJdcbE
+         mICdr+t5XhsHvOMBUj4oaif9YxwFROyX/hPTY68BSQ6DtE38oQNrOhsBOdnDzzOn06
+         G0I6t/63niYKsJ3pVOd7BuUWCKA387TVk91KscNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
+        Sainath Grandhi <sainath.grandhi@intel.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/77] netfilter: nft_payload: do not truncate csum_offset and csum_type
+Subject: [PATCH 4.14 08/42] net: ipvtap - add __init/__exit annotations to module init/exit funcs
 Date:   Fri,  2 Sep 2022 14:18:32 +0200
-Message-Id: <20220902121404.420648109@linuxfoundation.org>
+Message-Id: <20220902121359.087699818@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Maciej Żenczykowski <maze@google.com>
 
-[ Upstream commit 7044ab281febae9e2fa9b0b247693d6026166293 ]
+[ Upstream commit 4b2e3a17e9f279325712b79fb01d1493f9e3e005 ]
 
-Instead report ERANGE if csum_offset is too long, and EOPNOTSUPP if type
-is not support.
+Looks to have been left out in an oversight.
 
-Fixes: 7ec3f7b47b8d ("netfilter: nft_payload: add packet mangling support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Mahesh Bandewar <maheshb@google.com>
+Cc: Sainath Grandhi <sainath.grandhi@intel.com>
+Fixes: 235a9d89da97 ('ipvtap: IP-VLAN based tap driver')
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Link: https://lore.kernel.org/r/20220821130808.12143-1-zenczykowski@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_payload.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/net/ipvlan/ipvtap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
-index 7520ec17cabb7..6ed6ccef5e1ad 100644
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -558,6 +558,8 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
- 				const struct nlattr * const tb[])
+diff --git a/drivers/net/ipvlan/ipvtap.c b/drivers/net/ipvlan/ipvtap.c
+index 0bcc07f346c3e..2e517e30c5ac1 100644
+--- a/drivers/net/ipvlan/ipvtap.c
++++ b/drivers/net/ipvlan/ipvtap.c
+@@ -193,7 +193,7 @@ static struct notifier_block ipvtap_notifier_block __read_mostly = {
+ 	.notifier_call	= ipvtap_device_event,
+ };
+ 
+-static int ipvtap_init(void)
++static int __init ipvtap_init(void)
  {
- 	struct nft_payload_set *priv = nft_expr_priv(expr);
-+	u32 csum_offset, csum_type = NFT_PAYLOAD_CSUM_NONE;
-+	int err;
+ 	int err;
  
- 	priv->base        = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_BASE]));
- 	priv->offset      = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
-@@ -565,11 +567,15 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
- 	priv->sreg        = nft_parse_register(tb[NFTA_PAYLOAD_SREG]);
- 
- 	if (tb[NFTA_PAYLOAD_CSUM_TYPE])
--		priv->csum_type =
--			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
--	if (tb[NFTA_PAYLOAD_CSUM_OFFSET])
--		priv->csum_offset =
--			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_OFFSET]));
-+		csum_type = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
-+	if (tb[NFTA_PAYLOAD_CSUM_OFFSET]) {
-+		err = nft_parse_u32_check(tb[NFTA_PAYLOAD_CSUM_OFFSET], U8_MAX,
-+					  &csum_offset);
-+		if (err < 0)
-+			return err;
-+
-+		priv->csum_offset = csum_offset;
-+	}
- 	if (tb[NFTA_PAYLOAD_CSUM_FLAGS]) {
- 		u32 flags;
- 
-@@ -580,13 +586,14 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
- 		priv->csum_flags = flags;
- 	}
- 
--	switch (priv->csum_type) {
-+	switch (csum_type) {
- 	case NFT_PAYLOAD_CSUM_NONE:
- 	case NFT_PAYLOAD_CSUM_INET:
- 		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-+	priv->csum_type = csum_type;
- 
- 	return nft_validate_register_load(priv->sreg, priv->len);
+@@ -227,7 +227,7 @@ static int ipvtap_init(void)
  }
+ module_init(ipvtap_init);
+ 
+-static void ipvtap_exit(void)
++static void __exit ipvtap_exit(void)
+ {
+ 	rtnl_link_unregister(&ipvtap_link_ops);
+ 	unregister_netdevice_notifier(&ipvtap_notifier_block);
 -- 
 2.35.1
 
