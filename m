@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E1B5AAEAF
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:27:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4AA5AB09F
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236426AbiIBM1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:27:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36806 "EHLO
+        id S237847AbiIBMyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:54:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236431AbiIBM12 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:27:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 726DBDA3CE;
-        Fri,  2 Sep 2022 05:24:14 -0700 (PDT)
+        with ESMTP id S238100AbiIBMxs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 562C93B973;
+        Fri,  2 Sep 2022 05:38:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B8A2620E6;
-        Fri,  2 Sep 2022 12:23:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30498C433C1;
-        Fri,  2 Sep 2022 12:23:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 600EBB829E5;
+        Fri,  2 Sep 2022 12:33:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6DEAC433D7;
+        Fri,  2 Sep 2022 12:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121393;
-        bh=ggkzR7fXpZd66zV4XncdCKBI8YV+okgrGR8z07c89yk=;
+        s=korg; t=1662122034;
+        bh=PLtZJf+Wm46YI8pm5QFdb+mj1OBebtzjoLY6V0ztVpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5vyUS4vqCaoOJulRyWWWC+pgCFduTaufkDcIf7rRoBAA5oU/VP/6hbnnBCbUCd48
-         wSdcwury+SitAR13BWH/JDuIiJ89008FwK9WxtClPlII23ANSRmMzJyPdjkS4mtx0P
-         fGFEkfEI8VV6oWCN/mKc0NfqNgO8JjJxKxxIyvpM=
+        b=ZNdXZ6OCqz9NqiJSyzc0VeC465JPsaXshBiEnybNbKs4oSO/71q+eQEsxGih0iLAH
+         NPh+HoF3lHI75WAOzgykpgKHcA7sZhPqhW75GWtlfWeVa93zP/cj9MdVHyChNYA/LU
+         jpcegdPnsgj3E9aevQ92i43e821lqKgHfVYM4ykc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+f59100a0428e6ded9443@syzkaller.appspotmail.com,
-        Karthik Alapati <mail@karthek.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.14 34/42] HID: hidraw: fix memory leak in hidraw_release()
+        syzbot+7a12909485b94426aceb@syzkaller.appspotmail.com,
+        Zhengchao Shao <shaozhengchao@huawei.com>,
+        Stanislav Fomichev <sdf@google.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.15 34/73] bpf: Dont redirect packets with invalid pkt_len
 Date:   Fri,  2 Sep 2022 14:18:58 +0200
-Message-Id: <20220902121359.966089852@linuxfoundation.org>
+Message-Id: <20220902121405.571447887@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthik Alapati <mail@karthek.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-commit a5623a203cffe2d2b84d2f6c989d9017db1856af upstream.
+commit fd1894224407c484f652ad456e1ce423e89bb3eb upstream.
 
-Free the buffered reports before deleting the list entry.
+Syzbot found an issue [1]: fq_codel_drop() try to drop a flow whitout any
+skbs, that is, the flow->head is null.
+The root cause, as the [2] says, is because that bpf_prog_test_run_skb()
+run a bpf prog which redirects empty skbs.
+So we should determine whether the length of the packet modified by bpf
+prog or others like bpf_prog_test is valid before forwarding it directly.
 
-BUG: memory leak
-unreferenced object 0xffff88810e72f180 (size 32):
-  comm "softirq", pid 0, jiffies 4294945143 (age 16.080s)
-  hex dump (first 32 bytes):
-    64 f3 c6 6a d1 88 07 04 00 00 00 00 00 00 00 00  d..j............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff814ac6c3>] kmemdup+0x23/0x50 mm/util.c:128
-    [<ffffffff8357c1d2>] kmemdup include/linux/fortify-string.h:440 [inline]
-    [<ffffffff8357c1d2>] hidraw_report_event+0xa2/0x150 drivers/hid/hidraw.c:521
-    [<ffffffff8356ddad>] hid_report_raw_event+0x27d/0x740 drivers/hid/hid-core.c:1992
-    [<ffffffff8356e41e>] hid_input_report+0x1ae/0x270 drivers/hid/hid-core.c:2065
-    [<ffffffff835f0d3f>] hid_irq_in+0x1ff/0x250 drivers/hid/usbhid/hid-core.c:284
-    [<ffffffff82d3c7f9>] __usb_hcd_giveback_urb+0xf9/0x230 drivers/usb/core/hcd.c:1670
-    [<ffffffff82d3cc26>] usb_hcd_giveback_urb+0x1b6/0x1d0 drivers/usb/core/hcd.c:1747
-    [<ffffffff82ef1e14>] dummy_timer+0x8e4/0x14c0 drivers/usb/gadget/udc/dummy_hcd.c:1988
-    [<ffffffff812f50a8>] call_timer_fn+0x38/0x200 kernel/time/timer.c:1474
-    [<ffffffff812f5586>] expire_timers kernel/time/timer.c:1519 [inline]
-    [<ffffffff812f5586>] __run_timers.part.0+0x316/0x430 kernel/time/timer.c:1790
-    [<ffffffff812f56e4>] __run_timers kernel/time/timer.c:1768 [inline]
-    [<ffffffff812f56e4>] run_timer_softirq+0x44/0x90 kernel/time/timer.c:1803
-    [<ffffffff848000e6>] __do_softirq+0xe6/0x2ea kernel/softirq.c:571
-    [<ffffffff81246db0>] invoke_softirq kernel/softirq.c:445 [inline]
-    [<ffffffff81246db0>] __irq_exit_rcu kernel/softirq.c:650 [inline]
-    [<ffffffff81246db0>] irq_exit_rcu+0xc0/0x110 kernel/softirq.c:662
-    [<ffffffff84574f02>] sysvec_apic_timer_interrupt+0xa2/0xd0 arch/x86/kernel/apic/apic.c:1106
-    [<ffffffff84600c8b>] asm_sysvec_apic_timer_interrupt+0x1b/0x20 arch/x86/include/asm/idtentry.h:649
-    [<ffffffff8458a070>] native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
-    [<ffffffff8458a070>] arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
-    [<ffffffff8458a070>] acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
-    [<ffffffff8458a070>] acpi_idle_do_entry+0xc0/0xd0 drivers/acpi/processor_idle.c:554
+LINK: [1] https://syzkaller.appspot.com/bug?id=0b84da80c2917757915afa89f7738a9d16ec96c5
+LINK: [2] https://www.spinics.net/lists/netdev/msg777503.html
 
-Link: https://syzkaller.appspot.com/bug?id=19a04b43c75ed1092021010419b5e560a8172c4f
-Reported-by: syzbot+f59100a0428e6ded9443@syzkaller.appspotmail.com
-Signed-off-by: Karthik Alapati <mail@karthek.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: syzbot+7a12909485b94426aceb@syzkaller.appspotmail.com
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20220715115559.139691-1-shaozhengchao@huawei.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hidraw.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/skbuff.h |    8 ++++++++
+ net/bpf/test_run.c     |    3 +++
+ net/core/dev.c         |    1 +
+ 3 files changed, 12 insertions(+)
 
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -354,10 +354,13 @@ static int hidraw_release(struct inode *
- 	unsigned int minor = iminor(inode);
- 	struct hidraw_list *list = file->private_data;
- 	unsigned long flags;
-+	int i;
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -2328,6 +2328,14 @@ static inline void skb_set_tail_pointer(
  
- 	mutex_lock(&minors_lock);
+ #endif /* NET_SKBUFF_DATA_USES_OFFSET */
  
- 	spin_lock_irqsave(&hidraw_table[minor]->list_lock, flags);
-+	for (i = list->tail; i < list->head; i++)
-+		kfree(list->buffer[i].value);
- 	list_del(&list->node);
- 	spin_unlock_irqrestore(&hidraw_table[minor]->list_lock, flags);
- 	kfree(list);
++static inline void skb_assert_len(struct sk_buff *skb)
++{
++#ifdef CONFIG_DEBUG_NET
++	if (WARN_ONCE(!skb->len, "%s\n", __func__))
++		DO_ONCE_LITE(skb_dump, KERN_ERR, skb, false);
++#endif /* CONFIG_DEBUG_NET */
++}
++
+ /*
+  *	Add data to an sk_buff
+  */
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -469,6 +469,9 @@ static int convert___skb_to_skb(struct s
+ {
+ 	struct qdisc_skb_cb *cb = (struct qdisc_skb_cb *)skb->cb;
+ 
++	if (!skb->len)
++		return -EINVAL;
++
+ 	if (!__skb)
+ 		return 0;
+ 
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4147,6 +4147,7 @@ static int __dev_queue_xmit(struct sk_bu
+ 	bool again = false;
+ 
+ 	skb_reset_mac_header(skb);
++	skb_assert_len(skb);
+ 
+ 	if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_SCHED_TSTAMP))
+ 		__skb_tstamp_tx(skb, NULL, NULL, skb->sk, SCM_TSTAMP_SCHED);
 
 
