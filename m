@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 209015AB12E
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:06:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C58445AAEF6
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238571AbiIBNG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:06:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38462 "EHLO
+        id S236534AbiIBMb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:31:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238580AbiIBNGB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:06:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7EBEA8AD;
-        Fri,  2 Sep 2022 05:43:42 -0700 (PDT)
+        with ESMTP id S236661AbiIBMbT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:31:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41113E190B;
+        Fri,  2 Sep 2022 05:26:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 085A862194;
-        Fri,  2 Sep 2022 12:31:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B37C433D6;
-        Fri,  2 Sep 2022 12:31:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29D3A62109;
+        Fri,  2 Sep 2022 12:24:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC7BC433C1;
+        Fri,  2 Sep 2022 12:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121892;
-        bh=exs1M14G2hFHIOYMQ8AYApY+iIFCvLSFnU0OjU75pHQ=;
+        s=korg; t=1662121489;
+        bh=48K8ti4/WbEJQ+8DJb0y3V3p3MGlpvPYyectvO5r+L0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xD5hvNG0pn5RpVX/G8wsHM8LOHvXZ5dMcEWmxQUiK4zHfjK2R9inNbdA3DrQYaRDh
-         +NEK2E66o24zNDCXCSqgG5eGYzWkXtlKh0TeTlER/TObxU608iOQ2TuTjt5BZlnyZj
-         bJ71LFazFacGTIMFnGJoGVueb8qrQ1om66YrUnbI=
+        b=afQpzJo2wU24i9wMsaZ7WuRkd1NBidx+WNWRK9Fth6Oycut0/8rhToQjniqYX8Dp+
+         BafiK/uL2JrajNYwRdAviUbEtZXFxMy7PfZqfjtKv3TJqc/V1huqnk25bKRGb2l6vt
+         +/v5uILpbOru9O2M0sN9EGAScJjn7bFQc7i1eLvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.15 20/73] io_uring: bump poll refs to full 31-bits
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/56] net: Fix a data-race around sysctl_net_busy_read.
 Date:   Fri,  2 Sep 2022 14:18:44 +0200
-Message-Id: <20220902121405.123856088@linuxfoundation.org>
+Message-Id: <20220902121401.037492311@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ upstream commmit e2c0cb7c0cc72939b61a7efee376206725796625 ]
+[ Upstream commit e59ef36f0795696ab229569c153936bfd068d21c ]
 
-The previous commit:
+While reading sysctl_net_busy_read, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-1bc84c40088 ("io_uring: remove poll entry from list when canceling all")
-
-removed a potential overflow condition for the poll references. They
-are currently limited to 20-bits, even if we have 31-bits available. The
-upper bit is used to mark for cancelation.
-
-Bump the poll ref space to 31-bits, making that kind of situation much
-harder to trigger in general. We'll separately add overflow checking
-and handling.
-
-Fixes: aa43477b0402 ("io_uring: poll rework")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[pavel: backport]
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2d48d67fa8cd ("net: poll/select low latency socket support")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    2 +-
+ net/core/sock.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5314,7 +5314,7 @@ struct io_poll_table {
- };
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 79f085df52cef..cd23a8e4556ca 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2856,7 +2856,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
  
- #define IO_POLL_CANCEL_FLAG	BIT(31)
--#define IO_POLL_REF_MASK	((1u << 20)-1)
-+#define IO_POLL_REF_MASK	GENMASK(30, 0)
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+ 	sk->sk_napi_id		=	0;
+-	sk->sk_ll_usec		=	sysctl_net_busy_read;
++	sk->sk_ll_usec		=	READ_ONCE(sysctl_net_busy_read);
+ #endif
  
- /*
-  * If refs part of ->poll_refs (see IO_POLL_REF_MASK) is 0, it's free. We can
+ 	sk->sk_max_pacing_rate = ~0U;
+-- 
+2.35.1
+
 
 
