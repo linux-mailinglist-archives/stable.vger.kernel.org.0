@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9CD15AB0D2
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B0EC5AB08A
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238108AbiIBM7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:59:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45498 "EHLO
+        id S237915AbiIBMyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:54:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238370AbiIBM57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:57:59 -0400
+        with ESMTP id S238132AbiIBMx4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A62260F9;
-        Fri,  2 Sep 2022 05:39:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658DDE394C;
+        Fri,  2 Sep 2022 05:38:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5466B81CCF;
-        Fri,  2 Sep 2022 12:39:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC475C433C1;
-        Fri,  2 Sep 2022 12:39:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2090FB82ADB;
+        Fri,  2 Sep 2022 12:38:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51794C433C1;
+        Fri,  2 Sep 2022 12:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122373;
-        bh=GRfRgwRNZtPb6r67mlPpKY252biLe89b9FGSVYoHyMk=;
+        s=korg; t=1662122286;
+        bh=5g9JY2Gz2Jm4NNrnqoRRHvvbwd4YFiYpKQ3LyeEkhgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHKgzAr0SmmGReN5yDYEgsnXwO11r//94jj/BnoPLUXJAvbjs9SMgFQxBgeOilVom
-         IiK/tUcvnpr7QTOdORFxUYPFN6x9tXEc0y94dMaSphQ599ruZoEsYXcltX78iF7fX2
-         Amj8WrNG+UyRtuqrPxI+0UReIkWNKpz30yCZWTbE=
+        b=hXpB0CWthtEpvBrBtE7dv0vT28CmW65PCipzRc8v1i9YwmbavXzWLV793DzorGWpc
+         Pg6YwTIXogYK3PWpxSI7Jf5bQGSMULQzqgfNSKKBTv3gxuR+Wtzcv1AvPOOnCHGPjf
+         R85tsJSZIEDtldWw8R0S7G7hGCDxxMne7QU1oNJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dusica Milinkovic <Dusica.Milinkovic@amd.com>,
-        Shaoyun Liu <shaoyun.liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 26/37] drm/amdgpu: Increase tlb flush timeout for sriov
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Bruno Goncalves <bgoncalv@redhat.com>
+Subject: [PATCH 5.19 72/72] arm64: cacheinfo: Fix incorrect assignment of signed error value to unsigned fw_level
 Date:   Fri,  2 Sep 2022 14:19:48 +0200
-Message-Id: <20220902121359.988440574@linuxfoundation.org>
+Message-Id: <20220902121407.183705625@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
-References: <20220902121359.177846782@linuxfoundation.org>
+In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
+References: <20220902121404.772492078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,87 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dusica Milinkovic <Dusica.Milinkovic@amd.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 373008bfc9cdb0f050258947fa5a095f0657e1bc ]
+commit e75d18cecbb3805895d8ed64da4f78575ec96043 upstream.
 
-[Why]
-During multi-vf executing benchmark (Luxmark) observed kiq error timeout.
-It happenes because all of VFs do the tlb invalidation at the same time.
-Although each VF has the invalidate register set, from hardware side
-the invalidate requests are queue to execute.
+Though acpi_find_last_cache_level() always returned signed value and the
+document states it will return any errors caused by lack of a PPTT table,
+it never returned negative values before.
 
-[How]
-In case of 12 VF increase timeout on 12*100ms
+Commit 0c80f9e165f8 ("ACPI: PPTT: Leave the table mapped for the runtime usage")
+however changed it by returning -ENOENT if no PPTT was found. The value
+returned from acpi_find_last_cache_level() is then assigned to unsigned
+fw_level.
 
-Signed-off-by: Dusica Milinkovic <Dusica.Milinkovic@amd.com>
-Acked-by: Shaoyun Liu <shaoyun.liu@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It will result in the number of cache leaves calculated incorrectly as
+a huge value which will then cause the following warning from __alloc_pages
+as the order would be great than MAX_ORDER because of incorrect and huge
+cache leaves value.
+
+  |  WARNING: CPU: 0 PID: 1 at mm/page_alloc.c:5407 __alloc_pages+0x74/0x314
+  |  Modules linked in:
+  |  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-10393-g7c2a8d3ac4c0 #73
+  |  pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+  |  pc : __alloc_pages+0x74/0x314
+  |  lr : alloc_pages+0xe8/0x318
+  |  Call trace:
+  |   __alloc_pages+0x74/0x314
+  |   alloc_pages+0xe8/0x318
+  |   kmalloc_order_trace+0x68/0x1dc
+  |   __kmalloc+0x240/0x338
+  |   detect_cache_attributes+0xe0/0x56c
+  |   update_siblings_masks+0x38/0x284
+  |   store_cpu_topology+0x78/0x84
+  |   smp_prepare_cpus+0x48/0x134
+  |   kernel_init_freeable+0xc4/0x14c
+  |   kernel_init+0x2c/0x1b4
+  |   ret_from_fork+0x10/0x20
+
+Fix the same by changing fw_level to be signed integer and return the
+error from init_cache_level() early in case of error.
+
+Reported-and-Tested-by: Bruno Goncalves <bgoncalv@redhat.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Link: https://lore.kernel.org/r/20220808084640.3165368-1-sudeep.holla@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu.h    | 2 +-
- drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c | 3 ++-
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c  | 3 ++-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/cacheinfo.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu.h b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-index d949d6c52f24b..ff5555353eb4f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-@@ -283,7 +283,7 @@ enum amdgpu_kiq_irq {
- 	AMDGPU_CP_KIQ_IRQ_DRIVER0 = 0,
- 	AMDGPU_CP_KIQ_IRQ_LAST
- };
--
-+#define SRIOV_USEC_TIMEOUT  1200000 /* wait 12 * 100ms for SRIOV */
- #define MAX_KIQ_REG_WAIT       5000 /* in usecs, 5ms */
- #define MAX_KIQ_REG_BAILOUT_INTERVAL   5 /* in msecs, 5ms */
- #define MAX_KIQ_REG_TRY 80 /* 20 -> 80 */
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
-index 150fa5258fb6f..2aa9242c58ab9 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
-@@ -371,6 +371,7 @@ static int gmc_v10_0_flush_gpu_tlb_pasid(struct amdgpu_device *adev,
- 	uint32_t seq;
- 	uint16_t queried_pasid;
- 	bool ret;
-+	u32 usec_timeout = amdgpu_sriov_vf(adev) ? SRIOV_USEC_TIMEOUT : adev->usec_timeout;
- 	struct amdgpu_ring *ring = &adev->gfx.kiq.ring;
- 	struct amdgpu_kiq *kiq = &adev->gfx.kiq;
+--- a/arch/arm64/kernel/cacheinfo.c
++++ b/arch/arm64/kernel/cacheinfo.c
+@@ -45,7 +45,8 @@ static void ci_leaf_init(struct cacheinf
  
-@@ -389,7 +390,7 @@ static int gmc_v10_0_flush_gpu_tlb_pasid(struct amdgpu_device *adev,
+ int init_cache_level(unsigned int cpu)
+ {
+-	unsigned int ctype, level, leaves, fw_level;
++	unsigned int ctype, level, leaves;
++	int fw_level;
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
  
- 		amdgpu_ring_commit(ring);
- 		spin_unlock(&adev->gfx.kiq.ring_lock);
--		r = amdgpu_fence_wait_polling(ring, seq, adev->usec_timeout);
-+		r = amdgpu_fence_wait_polling(ring, seq, usec_timeout);
- 		if (r < 1) {
- 			dev_err(adev->dev, "wait for kiq fence error: %ld.\n", r);
- 			return -ETIME;
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-index 3a864041968f6..1673bf3bae55a 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-@@ -839,6 +839,7 @@ static int gmc_v9_0_flush_gpu_tlb_pasid(struct amdgpu_device *adev,
- 	uint32_t seq;
- 	uint16_t queried_pasid;
- 	bool ret;
-+	u32 usec_timeout = amdgpu_sriov_vf(adev) ? SRIOV_USEC_TIMEOUT : adev->usec_timeout;
- 	struct amdgpu_ring *ring = &adev->gfx.kiq.ring;
- 	struct amdgpu_kiq *kiq = &adev->gfx.kiq;
+ 	for (level = 1, leaves = 0; level <= MAX_CACHE_LEVEL; level++) {
+@@ -63,6 +64,9 @@ int init_cache_level(unsigned int cpu)
+ 	else
+ 		fw_level = acpi_find_last_cache_level(cpu);
  
-@@ -878,7 +879,7 @@ static int gmc_v9_0_flush_gpu_tlb_pasid(struct amdgpu_device *adev,
- 
- 		amdgpu_ring_commit(ring);
- 		spin_unlock(&adev->gfx.kiq.ring_lock);
--		r = amdgpu_fence_wait_polling(ring, seq, adev->usec_timeout);
-+		r = amdgpu_fence_wait_polling(ring, seq, usec_timeout);
- 		if (r < 1) {
- 			dev_err(adev->dev, "wait for kiq fence error: %ld.\n", r);
- 			up_read(&adev->reset_sem);
--- 
-2.35.1
-
++	if (fw_level < 0)
++		return fw_level;
++
+ 	if (level < fw_level) {
+ 		/*
+ 		 * some external caches not specified in CLIDR_EL1
 
 
