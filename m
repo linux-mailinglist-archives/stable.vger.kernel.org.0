@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F275AB035
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A0E95AAF74
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:38:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237827AbiIBMvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:51:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34780 "EHLO
+        id S237146AbiIBMie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237752AbiIBMuZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:50:25 -0400
+        with ESMTP id S237113AbiIBMhx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:37:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E51C0F61AE;
-        Fri,  2 Sep 2022 05:36:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDD76582B;
+        Fri,  2 Sep 2022 05:29:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E58EB82AC9;
-        Fri,  2 Sep 2022 12:34:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE38C433D7;
-        Fri,  2 Sep 2022 12:34:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C29D7B82AA0;
+        Fri,  2 Sep 2022 12:28:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22A2AC433C1;
+        Fri,  2 Sep 2022 12:28:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122090;
-        bh=XO/6roOm1bYyVKh5LKfKvJch7EOtmX81Ike/t1QqfLA=;
+        s=korg; t=1662121702;
+        bh=zNWRUZADOgj+xnYc4FqfxSrVRPcHNXVyJfRGwVPcYK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GirKjppPtpiYtR5dTYWTlgFh9t7Z5MzZPNZWXxnD81UK2U9jx5uhJRzaGBz34Hjv8
-         HE8NOa5/Q/2rPSYF267xNvrNvQO47QzrkORBRxXmCqr0aYOo/FtEb305xe2rISc2Yn
-         sVx6BSl299vHaVatScG0ckrQU/lWjfu1EW15v2Tw=
+        b=Lc+UacfzIW3DyGxmd3fLp9VUMYiY7rsL251NMV9ToSOuIkUd5rzIqLL03s+6qbJRP
+         6B7N7Qn7fiHK1n5VwtuPJ/WlMQg1RFE2Cd2SHpJJJfIi3C2YUlVHV/CZ+/2NVTYepO
+         mOWuPrQfMfr2w6bgEnHGRekq0nj6ZEV+ygr5zBjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+10e27961f4da37c443b2@syzkaller.appspotmail.com,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Vivek Kasireddy <vivek.kasireddy@intel.com>
-Subject: [PATCH 5.19 10/72] udmabuf: Set the DMA mask for the udmabuf device (v2)
-Date:   Fri,  2 Sep 2022 14:18:46 +0200
-Message-Id: <20220902121405.141649523@linuxfoundation.org>
+        stable@vger.kernel.org, Samuel Greiner <samuel@balkonien.org>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 38/77] btrfs: add info when mount fails due to stale replace target
+Date:   Fri,  2 Sep 2022 14:18:47 +0200
+Message-Id: <20220902121404.916620561@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivek Kasireddy <vivek.kasireddy@intel.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit 9e9fa6a9198b767b00f48160800128e83a038f9f upstream.
+commit f2c3bec215694fb8bc0ef5010f2a758d1906fc2d upstream.
 
-If the DMA mask is not set explicitly, the following warning occurs
-when the userspace tries to access the dma-buf via the CPU as
-reported by syzbot here:
+If the replace target device reappears after the suspended replace is
+cancelled, it blocks the mount operation as it can't find the matching
+replace-item in the metadata. As shown below,
 
-WARNING: CPU: 1 PID: 3595 at kernel/dma/mapping.c:188
-__dma_map_sg_attrs+0x181/0x1f0 kernel/dma/mapping.c:188
-Modules linked in:
-CPU: 0 PID: 3595 Comm: syz-executor249 Not tainted
-5.17.0-rc2-syzkaller-00316-g0457e5153e0e #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-RIP: 0010:__dma_map_sg_attrs+0x181/0x1f0 kernel/dma/mapping.c:188
-Code: 00 00 00 00 00 fc ff df 48 c1 e8 03 80 3c 10 00 75 71 4c 8b 3d c0
-83 b5 0d e9 db fe ff ff e8 b6 0f 13 00 0f 0b e8 af 0f 13 00 <0f> 0b 45
-   31 e4 e9 54 ff ff ff e8 a0 0f 13 00 49 8d 7f 50 48 b8 00
-RSP: 0018:ffffc90002a07d68 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff88807e25e2c0 RSI: ffffffff81649e91 RDI: ffff88801b848408
-RBP: ffff88801b848000 R08: 0000000000000002 R09: ffff88801d86c74f
-R10: ffffffff81649d72 R11: 0000000000000001 R12: 0000000000000002
-R13: ffff88801d86c680 R14: 0000000000000001 R15: 0000000000000000
-FS:  0000555556e30300(0000) GS:ffff8880b9d00000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000200000cc CR3: 000000001d74a000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- dma_map_sgtable+0x70/0xf0 kernel/dma/mapping.c:264
- get_sg_table.isra.0+0xe0/0x160 drivers/dma-buf/udmabuf.c:72
- begin_cpu_udmabuf+0x130/0x1d0 drivers/dma-buf/udmabuf.c:126
- dma_buf_begin_cpu_access+0xfd/0x1d0 drivers/dma-buf/dma-buf.c:1164
- dma_buf_ioctl+0x259/0x2b0 drivers/dma-buf/dma-buf.c:363
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:874 [inline]
- __se_sys_ioctl fs/ioctl.c:860 [inline]
- __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:860
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f62fcf530f9
-Code: 28 c3 e8 2a 14 00 00 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 89
-f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
-f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffe3edab9b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f62fcf530f9
-RDX: 0000000020000200 RSI: 0000000040086200 RDI: 0000000000000006
-RBP: 00007f62fcf170e0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f62fcf17170
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
+   BTRFS error (device sda5): replace devid present without an active replace item
 
-v2: Dont't forget to deregister if DMA mask setup fails.
+To overcome this situation, the user can run the command
 
-Reported-by: syzbot+10e27961f4da37c443b2@syzkaller.appspotmail.com
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Vivek Kasireddy <vivek.kasireddy@intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220520205235.3687336-1-vivek.kasireddy@intel.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+   btrfs device scan --forget <replace target device>
+
+and try the mount command again. And also, to avoid repeating the issue,
+superblock on the devid=0 must be wiped.
+
+   wipefs -a device-path-to-devid=0.
+
+This patch adds some info when this situation occurs.
+
+Reported-by: Samuel Greiner <samuel@balkonien.org>
+Link: https://lore.kernel.org/linux-btrfs/b4f62b10-b295-26ea-71f9-9a5c9299d42c@balkonien.org/T/
+CC: stable@vger.kernel.org # 5.0+
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma-buf/udmabuf.c |   18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ fs/btrfs/dev-replace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma-buf/udmabuf.c
-+++ b/drivers/dma-buf/udmabuf.c
-@@ -368,7 +368,23 @@ static struct miscdevice udmabuf_misc =
- 
- static int __init udmabuf_dev_init(void)
- {
--	return misc_register(&udmabuf_misc);
-+	int ret;
-+
-+	ret = misc_register(&udmabuf_misc);
-+	if (ret < 0) {
-+		pr_err("Could not initialize udmabuf device\n");
-+		return ret;
-+	}
-+
-+	ret = dma_coerce_mask_and_coherent(udmabuf_misc.this_device,
-+					   DMA_BIT_MASK(64));
-+	if (ret < 0) {
-+		pr_err("Could not setup DMA mask for udmabuf device\n");
-+		misc_deregister(&udmabuf_misc);
-+		return ret;
-+	}
-+
-+	return 0;
- }
- 
- static void __exit udmabuf_dev_exit(void)
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -125,7 +125,7 @@ no_valid_dev_replace_entry_found:
+ 		if (btrfs_find_device(fs_info->fs_devices,
+ 				      BTRFS_DEV_REPLACE_DEVID, NULL, NULL, false)) {
+ 			btrfs_err(fs_info,
+-			"replace devid present without an active replace item");
++"replace without active item, run 'device scan --forget' on the target device");
+ 			ret = -EUCLEAN;
+ 		} else {
+ 			dev_replace->srcdev = NULL;
 
 
