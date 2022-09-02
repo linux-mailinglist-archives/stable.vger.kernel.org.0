@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E5195AB098
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033F45AB02C
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238052AbiIBMzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:55:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45358 "EHLO
+        id S237773AbiIBMum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:50:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238049AbiIBMxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E794CFAC56;
-        Fri,  2 Sep 2022 05:38:09 -0700 (PDT)
+        with ESMTP id S238026AbiIBMtc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:49:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14DADF490E;
+        Fri,  2 Sep 2022 05:36:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37D7AB82AC5;
-        Fri,  2 Sep 2022 12:37:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9865BC433C1;
-        Fri,  2 Sep 2022 12:37:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E756B82A91;
+        Fri,  2 Sep 2022 12:34:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A20D6C433D7;
+        Fri,  2 Sep 2022 12:34:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122223;
-        bh=2gkOyJHEOnhy8KuSVDxmg+uLWkfhEMajGgSqFWI+bi4=;
+        s=korg; t=1662122066;
+        bh=XlpRlleOfgifAD8pu3t/mBaUonQB1oJolSrwU3msclo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEyHwzieAe1li/IrzoObLuUpyZBUW2Bi7KC+gtsaOTiHJQ9UssRsKmm/RraGCWPHJ
-         TNoecoK+XsWw6nKRKMmwqVzwSB4ShOYuQX/2KhPqBjfQ91ZSd0Uhsalty3OPVYsLm/
-         rpk5t2RTZaW5qEjtIelw9yquviCEpOfPd0pD1i10=
+        b=zlLCTzq07Ys6EXIGwHD0r3rIdMR85ZbWaT+nra0YJQXe0COHBWG/dCX6IJ7Fx3Vca
+         BvUUAfDKw6tsSibtaEvH4CIeBllGT7PqoMlzLvkejJSOtg8/N+vh7MWi/2HZfdce1j
+         aYvUra1JIyEW+/tRCmx0MWtc8b+wm9j/YwQPPIkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
-        Hyunchul Lee <hyc.lee@gmail.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Martin Leung <Martin.Leung@amd.com>,
+        Brian Chang <Brian.Chang@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 51/72] ksmbd: dont remove dos attribute xattr on O_TRUNC open
+Subject: [PATCH 5.15 63/73] drm/amd/display: avoid doing vm_init multiple time
 Date:   Fri,  2 Sep 2022 14:19:27 +0200
-Message-Id: <20220902121406.446240162@linuxfoundation.org>
+Message-Id: <20220902121406.494013281@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Charlene Liu <Charlene.Liu@amd.com>
 
-[ Upstream commit 17661ecf6a64eb11ae7f1108fe88686388b2acd5 ]
+[ Upstream commit 5544a7b5a07480192eb5fd3536462faed2c21528 ]
 
-When smb client open file in ksmbd share with O_TRUNC, dos attribute
-xattr is removed as well as data in file. This cause the FSCTL_SET_SPARSE
-request from the client fails because ksmbd can't update the dos attribute
-after setting ATTR_SPARSE_FILE. And this patch fix xfstests generic/469
-test also.
+[why]
+this is to ensure that driver will not reprogram hvm_prefetch_req again if
+it is done.
 
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Acked-by: Brian Chang <Brian.Chang@amd.com>
+Signed-off-by: Charlene Liu <Charlene.Liu@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index bbb3958b6469d..35f5ea1c9dfcd 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -2315,15 +2315,15 @@ static int smb2_remove_smb_xattrs(struct path *path)
- 			name += strlen(name) + 1) {
- 		ksmbd_debug(SMB, "%s, len %zd\n", name, strlen(name));
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c
+index 36044cb8ec834..1c0f56d8ba8bb 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c
+@@ -67,9 +67,15 @@ static uint32_t convert_and_clamp(
+ void dcn21_dchvm_init(struct hubbub *hubbub)
+ {
+ 	struct dcn20_hubbub *hubbub1 = TO_DCN20_HUBBUB(hubbub);
+-	uint32_t riommu_active;
++	uint32_t riommu_active, prefetch_done;
+ 	int i;
  
--		if (strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN) &&
--		    strncmp(&name[XATTR_USER_PREFIX_LEN], DOS_ATTRIBUTE_PREFIX,
--			    DOS_ATTRIBUTE_PREFIX_LEN) &&
--		    strncmp(&name[XATTR_USER_PREFIX_LEN], STREAM_PREFIX, STREAM_PREFIX_LEN))
--			continue;
--
--		err = ksmbd_vfs_remove_xattr(user_ns, path->dentry, name);
--		if (err)
--			ksmbd_debug(SMB, "remove xattr failed : %s\n", name);
-+		if (!strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN) &&
-+		    !strncmp(&name[XATTR_USER_PREFIX_LEN], STREAM_PREFIX,
-+			     STREAM_PREFIX_LEN)) {
-+			err = ksmbd_vfs_remove_xattr(user_ns, path->dentry,
-+						     name);
-+			if (err)
-+				ksmbd_debug(SMB, "remove xattr failed : %s\n",
-+					    name);
-+		}
- 	}
- out:
- 	kvfree(xattr_list);
++	REG_GET(DCHVM_RIOMMU_STAT0, HOSTVM_PREFETCH_DONE, &prefetch_done);
++
++	if (prefetch_done) {
++		hubbub->riommu_active = true;
++		return;
++	}
+ 	//Init DCHVM block
+ 	REG_UPDATE(DCHVM_CTRL0, HOSTVM_INIT_REQ, 1);
+ 
 -- 
 2.35.1
 
