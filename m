@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F125AAF80
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 965955AB072
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:54:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237051AbiIBMkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:40:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55274 "EHLO
+        id S237835AbiIBMyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:54:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236960AbiIBMiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:38:18 -0400
+        with ESMTP id S238044AbiIBMxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77FE626575;
-        Fri,  2 Sep 2022 05:30:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D0A4B69;
+        Fri,  2 Sep 2022 05:38:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78498B82A90;
-        Fri,  2 Sep 2022 12:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D89F5C433B5;
-        Fri,  2 Sep 2022 12:23:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93926B82AE6;
+        Fri,  2 Sep 2022 12:37:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB80DC433C1;
+        Fri,  2 Sep 2022 12:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121427;
-        bh=vfB4k2SeQ29GA069iFUDeC8iBhO7QGdaUDS12pAlEZU=;
+        s=korg; t=1662122242;
+        bh=MOj0Ic4N15HWpDxWQhM6QmWUotzFLYKuIljYUisKX/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUhJoUtBt5mV07XC1rkfGNLAikPxiMbv9bpcucfl5rTcQLFpxLWWgS3qAD67wMUMy
-         oCbkAm8FvkL4U6q/H8k4Vrc/Rm2f98fQKkoJUKdszqoNeW+aNozOy5SR/kD1w8J8Ee
-         peZ3OrdAWNs4Yrt9mrPX0HfhAxLGBGrOptk+XoZU=
+        b=KAQE73gxu0lxMgXTRjAyrWCbcAqI3Z+0uDPyGuWGkKj9i5E/9KvXgLaqfaN6iBdp3
+         PdbFmh89SC7bvp1+7YLbv8YFqNucgTlwOHF7FxGnpMIsQ8cswezoyK+2VQsFB4OI52
+         1lFD3D3UcjhyW4XJIPKuV/pZfpSmmXTbPj4dy0/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/42] s390/hypfs: avoid error message under KVM
+        stable@vger.kernel.org, Even Xu <even.xu@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.19 27/72] HID: intel-ish-hid: ipc: Add Meteor Lake PCI device ID
 Date:   Fri,  2 Sep 2022 14:19:03 +0200
-Message-Id: <20220902121400.114616456@linuxfoundation.org>
+Message-Id: <20220902121405.692956847@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
+References: <20220902121404.772492078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Even Xu <even.xu@intel.com>
 
-[ Upstream commit 7b6670b03641ac308aaa6fa2e6f964ac993b5ea3 ]
+commit 467249a7dff68451868ca79696aef69764193a8a upstream.
 
-When booting under KVM the following error messages are issued:
+Add device ID of Meteor Lake P into ishtp support list.
 
-hypfs.7f5705: The hardware system does not support hypfs
-hypfs.7a79f0: Initialization of hypfs failed with rc=-61
-
-Demote the severity of first message from "error" to "info" and issue
-the second message only in other error cases.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220620094534.18967-1-jgross@suse.com
-[arch/s390/hypfs/hypfs_diag.c changed description]
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Even Xu <even.xu@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/hypfs/hypfs_diag.c | 2 +-
- arch/s390/hypfs/inode.c      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/intel-ish-hid/ipc/hw-ish.h  |    1 +
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c |    1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
-index be8cc53204b50..46338c65c75bf 100644
---- a/arch/s390/hypfs/hypfs_diag.c
-+++ b/arch/s390/hypfs/hypfs_diag.c
-@@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
- 	int rc;
+--- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
++++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+@@ -32,6 +32,7 @@
+ #define ADL_P_DEVICE_ID		0x51FC
+ #define ADL_N_DEVICE_ID		0x54FC
+ #define RPL_S_DEVICE_ID		0x7A78
++#define MTL_P_DEVICE_ID		0x7E45
  
- 	if (diag204_probe()) {
--		pr_err("The hardware system does not support hypfs\n");
-+		pr_info("The hardware system does not support hypfs\n");
- 		return -ENODATA;
- 	}
- 	if (diag204_info_type == DIAG204_INFO_EXT) {
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index 32f5b3fb069f3..2a34c075fef66 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -494,9 +494,9 @@ static int __init hypfs_init(void)
- 	hypfs_vm_exit();
- fail_hypfs_diag_exit:
- 	hypfs_diag_exit();
-+	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
- fail_dbfs_exit:
- 	hypfs_dbfs_exit();
--	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
- 	return rc;
- }
- device_initcall(hypfs_init)
--- 
-2.35.1
-
+ #define	REVISION_ID_CHT_A0	0x6
+ #define	REVISION_ID_CHT_Ax_SI	0x0
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -43,6 +43,7 @@ static const struct pci_device_id ish_pc
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ADL_P_DEVICE_ID)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ADL_N_DEVICE_ID)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, RPL_S_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MTL_P_DEVICE_ID)},
+ 	{0, }
+ };
+ MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
 
 
