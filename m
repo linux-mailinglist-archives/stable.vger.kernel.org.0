@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 109BF5AB3EE
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 16:45:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A4645AB409
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 16:49:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235741AbiIBOpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 10:45:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48830 "EHLO
+        id S236918AbiIBOtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 10:49:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236652AbiIBOpV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:45:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83698135B81;
-        Fri,  2 Sep 2022 07:05:56 -0700 (PDT)
+        with ESMTP id S237266AbiIBOst (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:48:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C680BC8A;
+        Fri,  2 Sep 2022 07:10:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A319B82AA7;
-        Fri,  2 Sep 2022 12:30:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11770C433D7;
-        Fri,  2 Sep 2022 12:30:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CD59B82A92;
+        Fri,  2 Sep 2022 12:23:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A298EC433D7;
+        Fri,  2 Sep 2022 12:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121857;
-        bh=VMIYCM4Qj9jiuMktXiXRSCAmF412h4t7gocB1eu3T6g=;
+        s=korg; t=1662121412;
+        bh=Rk1WS9y8pDkFDaZEbT9tCSSI1OHbxBTz6GYp05s8Cmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ooqSHbCHde+ND49X1q1GnYxnth0JPi0JsgmW/SN2Fw26Smt3EafbI5fctKEmcba6w
-         Fa3iny+uXwzvMrEglmfAN0zmIYfTKeR7zJj7OQVigyeMsPUhgDq0FWZgDAgDhuFW/D
-         jY9enmGmqRdrhgSN6ytqbOxJ3FwS+AYC73kct9kc=
+        b=qUZE1iyPh0x1hi+d3AgTW1NbKZu7WgLkQQwjULaN0P57ozIucvIHMU05khKUyR42o
+         Eu46crq2aa52HtBYir0h1CPpXqWXl6y7ay4NQoWmoOH0oaPym/1YKtf73zKGtPgtS0
+         f/GGucZ8N5JuFlJb6imFD8Pv8ZOCt0/ig7pxolXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>, Lucas Wei <lucaswei@google.com>
-Subject: [PATCH 5.15 10/73] arm64: errata: Add Cortex-A510 to the repeat tlbi list
-Date:   Fri,  2 Sep 2022 14:18:34 +0200
-Message-Id: <20220902121404.778460993@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 11/42] netfilter: nft_payload: do not truncate csum_offset and csum_type
+Date:   Fri,  2 Sep 2022 14:18:35 +0200
+Message-Id: <20220902121359.205058135@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 39fdb65f52e9a53d32a6ba719f96669fd300ae78 upstream.
+[ Upstream commit 7044ab281febae9e2fa9b0b247693d6026166293 ]
 
-Cortex-A510 is affected by an erratum where in rare circumstances the
-CPUs may not handle a race between a break-before-make sequence on one
-CPU, and another CPU accessing the same page. This could allow a store
-to a page that has been unmapped.
+Instead report ERANGE if csum_offset is too long, and EOPNOTSUPP if type
+is not support.
 
-Work around this by adding the affected CPUs to the list that needs
-TLB sequences to be done twice.
-
-Signed-off-by: James Morse <james.morse@arm.com>
-Link: https://lore.kernel.org/r/20220704155732.21216-1-james.morse@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Lucas Wei <lucaswei@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7ec3f7b47b8d ("netfilter: nft_payload: add packet mangling support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/arm64/silicon-errata.rst |    2 ++
- arch/arm64/Kconfig                     |   17 +++++++++++++++++
- arch/arm64/kernel/cpu_errata.c         |    8 +++++++-
- 3 files changed, 26 insertions(+), 1 deletion(-)
+ net/netfilter/nft_payload.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -92,6 +92,8 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A77      | #1508412        | ARM64_ERRATUM_1508412       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| ARM            | Cortex-A510     | #2441009        | ARM64_ERRATUM_2441009       |
-++----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Neoverse-N1     | #1188873,1418040| ARM64_ERRATUM_1418040       |
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Neoverse-N1     | #1349291        | N/A                         |
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -666,6 +666,23 @@ config ARM64_ERRATUM_1508412
+diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
+index 04b9df9e39554..5732b32ab9320 100644
+--- a/net/netfilter/nft_payload.c
++++ b/net/netfilter/nft_payload.c
+@@ -332,6 +332,8 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
+ 				const struct nlattr * const tb[])
+ {
+ 	struct nft_payload_set *priv = nft_expr_priv(expr);
++	u32 csum_offset, csum_type = NFT_PAYLOAD_CSUM_NONE;
++	int err;
  
- 	  If unsure, say Y.
+ 	priv->base        = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_BASE]));
+ 	priv->offset      = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
+@@ -339,11 +341,15 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
+ 	priv->sreg        = nft_parse_register(tb[NFTA_PAYLOAD_SREG]);
  
-+config ARM64_ERRATUM_2441009
-+	bool "Cortex-A510: Completion of affected memory accesses might not be guaranteed by completion of a TLBI"
-+	default y
-+	select ARM64_WORKAROUND_REPEAT_TLBI
-+	help
-+	  This option adds a workaround for ARM Cortex-A510 erratum #2441009.
+ 	if (tb[NFTA_PAYLOAD_CSUM_TYPE])
+-		priv->csum_type =
+-			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
+-	if (tb[NFTA_PAYLOAD_CSUM_OFFSET])
+-		priv->csum_offset =
+-			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_OFFSET]));
++		csum_type = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
++	if (tb[NFTA_PAYLOAD_CSUM_OFFSET]) {
++		err = nft_parse_u32_check(tb[NFTA_PAYLOAD_CSUM_OFFSET], U8_MAX,
++					  &csum_offset);
++		if (err < 0)
++			return err;
 +
-+	  Under very rare circumstances, affected Cortex-A510 CPUs
-+	  may not handle a race between a break-before-make sequence on one
-+	  CPU, and another CPU accessing the same page. This could allow a
-+	  store to a page that has been unmapped.
-+
-+	  Work around this by adding the affected CPUs to the list that needs
-+	  TLB sequences to be done twice.
-+
-+	  If unsure, say Y.
-+
- config CAVIUM_ERRATUM_22375
- 	bool "Cavium erratum 22375, 24313"
- 	default y
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -214,6 +214,12 @@ static const struct arm64_cpu_capabiliti
- 		ERRATA_MIDR_RANGE(MIDR_QCOM_KRYO_4XX_GOLD, 0xc, 0xe, 0xf, 0xe),
- 	},
- #endif
-+#ifdef CONFIG_ARM64_ERRATUM_2441009
-+	{
-+		/* Cortex-A510 r0p0 -> r1p1. Fixed in r1p2 */
-+		ERRATA_MIDR_RANGE(MIDR_CORTEX_A510, 0, 0, 1, 1),
-+	},
-+#endif
- 	{},
- };
- #endif
-@@ -429,7 +435,7 @@ const struct arm64_cpu_capabilities arm6
- #endif
- #ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
- 	{
--		.desc = "Qualcomm erratum 1009, or ARM erratum 1286807",
-+		.desc = "Qualcomm erratum 1009, or ARM erratum 1286807, 2441009",
- 		.capability = ARM64_WORKAROUND_REPEAT_TLBI,
- 		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
- 		.matches = cpucap_multi_entry_cap_matches,
++		priv->csum_offset = csum_offset;
++	}
+ 	if (tb[NFTA_PAYLOAD_CSUM_FLAGS]) {
+ 		u32 flags;
+ 
+@@ -354,13 +360,14 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
+ 		priv->csum_flags = flags;
+ 	}
+ 
+-	switch (priv->csum_type) {
++	switch (csum_type) {
+ 	case NFT_PAYLOAD_CSUM_NONE:
+ 	case NFT_PAYLOAD_CSUM_INET:
+ 		break;
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
++	priv->csum_type = csum_type;
+ 
+ 	return nft_validate_register_load(priv->sreg, priv->len);
+ }
+-- 
+2.35.1
+
 
 
