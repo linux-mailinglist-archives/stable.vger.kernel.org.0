@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 593525AAFCC
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D3D5AAF93
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237367AbiIBMof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53788 "EHLO
+        id S237086AbiIBMkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:40:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237401AbiIBMnX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CBFAEA8A9;
-        Fri,  2 Sep 2022 05:32:19 -0700 (PDT)
+        with ESMTP id S237176AbiIBMim (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:38:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FED250063;
+        Fri,  2 Sep 2022 05:30:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DFEDE621A6;
-        Fri,  2 Sep 2022 12:32:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 993D6C433B5;
-        Fri,  2 Sep 2022 12:32:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4A00B82AA1;
+        Fri,  2 Sep 2022 12:28:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0432DC433C1;
+        Fri,  2 Sep 2022 12:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121934;
-        bh=592iDz/BO08z3ictvlp22YVVxQH8ZjZrTk0zzma+jgo=;
+        s=korg; t=1662121714;
+        bh=WyLP5ydkN6YSnIDeflr0Opmd73Mf9jckl4YO+rrhNWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVU9uqkjcIXJIMtS7LjPwm3FpfoKD5NXt/Fx/mV8JWyC1rmDX/4Dd/b6pDLqSUf6j
-         bHwMeiEQXZX6YeZcxZfCfYOf1QpWgQU9NYlnDtQAGu9NwqK+knB1IKr541xidwuRpU
-         RoPvTNRKpDLkKXTcvp4DnmkjradgSiargDLzCN38=
+        b=ReEw3j/c+ZjjcFWWHHLPPhuOn4+JHFMCFZUADtOzXB3l4uHErzWtXMuc7/2hrqCz1
+         yWf8bagSXpTXEI+4AKAeybz2ANrSEZRTJBoSWObmYEPXsZnbLFnmj3SKCuec1Nyx4e
+         UjhJL+hW9e1R+b+EpJS+Iugmi567sOrKeDRJtWx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
-        Stefan Roese <sr@denx.de>, Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Yao Hongbo <yaohongbo@linux.alibaba.com>,
-        Naveen Naidu <naveennaidu479@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 26/73] Revert "PCI/portdrv: Dont disable AER reporting in get_port_device_capability()"
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Siddh Raman Pant <code@siddh.me>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 41/77] loop: Check for overflow while configuring loop
 Date:   Fri,  2 Sep 2022 14:18:50 +0200
-Message-Id: <20220902121405.308996274@linuxfoundation.org>
+Message-Id: <20220902121405.014969652@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,48 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Siddh Raman Pant <code@siddh.me>
 
-This reverts commit c968af565ca6c18b2f2af60fc1493c8db15abb3c which is
-commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 upstream.
+commit c490a0b5a4f36da3918181a8acdc6991d967c5f3 upstream.
 
-It is reported to cause problems, so drop it from the stable trees for
-now until it gets sorted out.
+The userspace can configure a loop using an ioctl call, wherein
+a configuration of type loop_config is passed (see lo_ioctl()'s
+case on line 1550 of drivers/block/loop.c). This proceeds to call
+loop_configure() which in turn calls loop_set_status_from_info()
+(see line 1050 of loop.c), passing &config->info which is of type
+loop_info64*. This function then sets the appropriate values, like
+the offset.
 
-Link: https://lore.kernel.org/r/47b775c5-57fa-5edf-b59e-8a9041ffbee7@candelatech.com
-Reported-by: Ben Greear <greearb@candelatech.com>
-Cc: Stefan Roese <sr@denx.de>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Pali Rohár <pali@kernel.org>
-Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-Cc: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Cc: Yao Hongbo <yaohongbo@linux.alibaba.com>
-Cc: Naveen Naidu <naveennaidu479@gmail.com>
-Cc: Sasha Levin <sashal@kernel.org>
+loop_device has lo_offset of type loff_t (see line 52 of loop.c),
+which is typdef-chained to long long, whereas loop_info64 has
+lo_offset of type __u64 (see line 56 of include/uapi/linux/loop.h).
+
+The function directly copies offset from info to the device as
+follows (See line 980 of loop.c):
+	lo->lo_offset = info->lo_offset;
+
+This results in an overflow, which triggers a warning in iomap_iter()
+due to a call to iomap_iter_done() which has:
+	WARN_ON_ONCE(iter->iomap.offset > iter->pos);
+
+Thus, check for negative value during loop_set_status_from_info().
+
+Bug report: https://syzkaller.appspot.com/bug?id=c620fe14aac810396d3c3edc9ad73848bf69a29e
+
+Reported-and-tested-by: syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220823160810.181275-1-code@siddh.me
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pcie/portdrv_core.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/block/loop.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/pci/pcie/portdrv_core.c
-+++ b/drivers/pci/pcie/portdrv_core.c
-@@ -222,8 +222,15 @@ static int get_port_device_capability(st
- 
- #ifdef CONFIG_PCIEAER
- 	if (dev->aer_cap && pci_aer_available() &&
--	    (pcie_ports_native || host->native_aer))
-+	    (pcie_ports_native || host->native_aer)) {
- 		services |= PCIE_PORT_SERVICE_AER;
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1397,6 +1397,11 @@ loop_get_status(struct loop_device *lo,
+ 	info->lo_number = lo->lo_number;
+ 	info->lo_offset = lo->lo_offset;
+ 	info->lo_sizelimit = lo->lo_sizelimit;
 +
-+		/*
-+		 * Disable AER on this port in case it's been enabled by the
-+		 * BIOS (the AER service driver will enable it when necessary).
-+		 */
-+		pci_disable_pcie_error_reporting(dev);
-+	}
- #endif
- 
- 	/* Root Ports and Root Complex Event Collectors may generate PMEs */
++	/* loff_t vars have been assigned __u64 */
++	if (lo->lo_offset < 0 || lo->lo_sizelimit < 0)
++		return -EOVERFLOW;
++
+ 	info->lo_flags = lo->lo_flags;
+ 	memcpy(info->lo_file_name, lo->lo_file_name, LO_NAME_SIZE);
+ 	memcpy(info->lo_crypt_name, lo->lo_crypt_name, LO_NAME_SIZE);
 
 
