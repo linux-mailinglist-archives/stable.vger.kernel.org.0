@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7277B5AB20F
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFAF55AAFDA
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236886AbiIBNtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:49:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
+        id S237441AbiIBMow (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:44:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236960AbiIBNti (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:49:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE66132ED1;
-        Fri,  2 Sep 2022 06:24:26 -0700 (PDT)
+        with ESMTP id S237588AbiIBMoN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:44:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1803CEEC79;
+        Fri,  2 Sep 2022 05:32:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B8FAFCE2E6B;
-        Fri,  2 Sep 2022 12:36:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F0E9C433D7;
-        Fri,  2 Sep 2022 12:36:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96447B81CCF;
+        Fri,  2 Sep 2022 12:32:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5EF6C433D7;
+        Fri,  2 Sep 2022 12:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122164;
-        bh=coAGS/lQZ4tcWZ/q1MpitTrR7Gs3ITON93+C3oPxELQ=;
+        s=korg; t=1662121971;
+        bh=offp41GCZkSMjK/menYUEckaRbWIdkOoLjZE3dJk2QQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkjwAbHZnY+N4yP5OsHcb1XHsYBTdwP7WnF3gdruhk6ciOt8jEy4rgMJSSPzcO93i
-         FSrtWkAQoi5xenWeGzVg5tOm8MFN+LG+3ChpiQ6+VSrnP9ajag0aMIpf6Ld8bqDZWw
-         39C9zZh4BorOW1fChQSTis9/iG6SGVVypSbS1prU=
+        b=sLGE9n/ZK0sTEldXGAA/4LZU8bE/0ql7n5VbuvJ7+Rc0+0ynrbK6E7XlpUWphR9Et
+         sByKfW4ugQd3S9u75VV91bV4Jg5Cu6/UgMN7eFfrzq3Fzn/0P66Z2P2CmmfE/86Nek
+         q5K45e5s348gKfkpAp1QGjW/7jVyECLiuLF856AI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, David Woods <davwoods@nvidia.com>,
+        Liming Sun <limings@nvidia.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 33/72] ASoC: sh: rz-ssi: Improve error handling in rz_ssi_probe() error path
+Subject: [PATCH 5.15 45/73] mmc: sdhci-of-dwcmshc: Re-enable support for the BlueField-3 SoC
 Date:   Fri,  2 Sep 2022 14:19:09 +0200
-Message-Id: <20220902121405.883050423@linuxfoundation.org>
+Message-Id: <20220902121405.935667503@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Liming Sun <limings@nvidia.com>
 
-[ Upstream commit c75ed9f54ce8d349fee557f2b471a4d637ed2a6b ]
+[ Upstream commit a0753ef66c34c1739580219dca664eda648164b7 ]
 
-We usually do cleanup in reverse order of init. Currently in case of
-error rz_ssi_release_dma_channels() done in the reverse order. This
-patch improves error handling in rz_ssi_probe() error path.
+The commit 08f3dff799d4 (mmc: sdhci-of-dwcmshc: add rockchip platform
+support") introduces the use of_device_get_match_data() to check for some
+chips. Unfortunately, it also breaks the BlueField-3 FW, which uses ACPI.
 
-While at it, use "goto cleanup" style to reduce code duplication.
+To fix the problem, let's add the ACPI match data and the corresponding
+quirks to re-enable the support for the BlueField-3 SoC.
 
-Reported-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/r/20220728092612.38858-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: David Woods <davwoods@nvidia.com>
+Signed-off-by: Liming Sun <limings@nvidia.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 08f3dff799d4 ("mmc: sdhci-of-dwcmshc: add rockchip platform support")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220809173742.178440-1-limings@nvidia.com
+[Ulf: Clarified the commit message a bit]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rz-ssi.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ drivers/mmc/host/sdhci-of-dwcmshc.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/sh/rz-ssi.c b/sound/soc/sh/rz-ssi.c
-index e392de7a262ef..3d74acffec11f 100644
---- a/sound/soc/sh/rz-ssi.c
-+++ b/sound/soc/sh/rz-ssi.c
-@@ -1016,32 +1016,36 @@ static int rz_ssi_probe(struct platform_device *pdev)
+diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
+index f5fd88c7adef1..335c88fd849c4 100644
+--- a/drivers/mmc/host/sdhci-of-dwcmshc.c
++++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
+@@ -296,6 +296,15 @@ static const struct sdhci_pltfm_data sdhci_dwcmshc_pdata = {
+ 	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+ };
  
- 	ssi->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
- 	if (IS_ERR(ssi->rstc)) {
--		rz_ssi_release_dma_channels(ssi);
--		return PTR_ERR(ssi->rstc);
-+		ret = PTR_ERR(ssi->rstc);
-+		goto err_reset;
- 	}
- 
- 	reset_control_deassert(ssi->rstc);
- 	pm_runtime_enable(&pdev->dev);
- 	ret = pm_runtime_resume_and_get(&pdev->dev);
- 	if (ret < 0) {
--		rz_ssi_release_dma_channels(ssi);
--		pm_runtime_disable(ssi->dev);
--		reset_control_assert(ssi->rstc);
--		return dev_err_probe(ssi->dev, ret, "pm_runtime_resume_and_get failed\n");
-+		dev_err(&pdev->dev, "pm_runtime_resume_and_get failed\n");
-+		goto err_pm;
- 	}
- 
- 	ret = devm_snd_soc_register_component(&pdev->dev, &rz_ssi_soc_component,
- 					      rz_ssi_soc_dai,
- 					      ARRAY_SIZE(rz_ssi_soc_dai));
- 	if (ret < 0) {
--		rz_ssi_release_dma_channels(ssi);
--
--		pm_runtime_put(ssi->dev);
--		pm_runtime_disable(ssi->dev);
--		reset_control_assert(ssi->rstc);
- 		dev_err(&pdev->dev, "failed to register snd component\n");
-+		goto err_snd_soc;
- 	}
- 
-+	return 0;
++#ifdef CONFIG_ACPI
++static const struct sdhci_pltfm_data sdhci_dwcmshc_bf3_pdata = {
++	.ops = &sdhci_dwcmshc_ops,
++	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
++	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN |
++		   SDHCI_QUIRK2_ACMD23_BROKEN,
++};
++#endif
 +
-+err_snd_soc:
-+	pm_runtime_put(ssi->dev);
-+err_pm:
-+	pm_runtime_disable(ssi->dev);
-+	reset_control_assert(ssi->rstc);
-+err_reset:
-+	rz_ssi_release_dma_channels(ssi);
-+
- 	return ret;
- }
+ static const struct sdhci_pltfm_data sdhci_dwcmshc_rk35xx_pdata = {
+ 	.ops = &sdhci_dwcmshc_rk35xx_ops,
+ 	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN |
+@@ -360,7 +369,10 @@ MODULE_DEVICE_TABLE(of, sdhci_dwcmshc_dt_ids);
  
+ #ifdef CONFIG_ACPI
+ static const struct acpi_device_id sdhci_dwcmshc_acpi_ids[] = {
+-	{ .id = "MLNXBF30" },
++	{
++		.id = "MLNXBF30",
++		.driver_data = (kernel_ulong_t)&sdhci_dwcmshc_bf3_pdata,
++	},
+ 	{}
+ };
+ #endif
+@@ -376,7 +388,7 @@ static int dwcmshc_probe(struct platform_device *pdev)
+ 	int err;
+ 	u32 extra;
+ 
+-	pltfm_data = of_device_get_match_data(&pdev->dev);
++	pltfm_data = device_get_match_data(&pdev->dev);
+ 	if (!pltfm_data) {
+ 		dev_err(&pdev->dev, "Error: No device match data found\n");
+ 		return -ENODEV;
 -- 
 2.35.1
 
