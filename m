@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E24FA5AAE9F
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:26:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8027D5AB14C
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236261AbiIBM02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:26:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48540 "EHLO
+        id S236278AbiIBNTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:19:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236344AbiIBMZy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:25:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B668C6CFD;
-        Fri,  2 Sep 2022 05:23:33 -0700 (PDT)
+        with ESMTP id S236092AbiIBNS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:18:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4D92D4F64;
+        Fri,  2 Sep 2022 05:55:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6730B82A95;
-        Fri,  2 Sep 2022 12:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F14E5C433D7;
-        Fri,  2 Sep 2022 12:23:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 77A76CE2E67;
+        Fri,  2 Sep 2022 12:35:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71C65C433D7;
+        Fri,  2 Sep 2022 12:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121384;
-        bh=JQFNrQh+IOFH4m7hcCdP9BS4HmO5CZMsPhFqdg8qEUM=;
+        s=korg; t=1662122125;
+        bh=I0grwLaSN42BWeq13VtFyJ/P4Grxplt0kp3cRmVG1sA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Avs4sQn4mL4uVvR5niIJEwQMM+JOz0yvBVyexFEcEkbfQ2/tAmV3oma1un647elCf
-         DgTeJ5NRdRChw5bcANkB0cbo2b2JLSFB0dP+9XHSd6sNUSCOGhHnP9vaA9Yejc/OdP
-         RwrQrmBPzfRjXzINYl2TZhNJ2BiAUfi6FTKmMMkE=
+        b=yNYgyu9v+rtmEMvmehKoa2RMBETerMYR6bpN+kSYEYUZ/Z1ArmDgHdm+1Blt/bDrC
+         v7+dB6gWVpnXxlsHYUamlxswHPBg15PwxvFnpUiS1HXckkqDPEKlCaAjSeXqPNK8R/
+         /OoAbzaPqZ98n3XXp/QpZmlCAa358itIr38FyQzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 32/42] Bluetooth: L2CAP: Fix build errors in some archs
+        stable@vger.kernel.org, Stefan Hansson <newbie13xd@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.19 20/72] HID: input: fix uclogic tablets
 Date:   Fri,  2 Sep 2022 14:18:56 +0200
-Message-Id: <20220902121359.904649476@linuxfoundation.org>
+Message-Id: <20220902121405.445523018@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
+References: <20220902121404.772492078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-commit b840304fb46cdf7012722f456bce06f151b3e81b upstream.
+commit 8db8be9cfc89935c97d791c7e6264e710a7e8a56 upstream.
 
-This attempts to fix the follow errors:
+commit 87562fcd1342 ("HID: input: remove the need for HID_QUIRK_INVERT")
+made the assumption that it was the only one handling tablets and thus
+kept an internal state regarding the tool.
 
-In function 'memcmp',
-    inlined from 'bacmp' at ./include/net/bluetooth/bluetooth.h:347:9,
-    inlined from 'l2cap_global_chan_by_psm' at
-    net/bluetooth/l2cap_core.c:2003:15:
-./include/linux/fortify-string.h:44:33: error: '__builtin_memcmp'
-specified bound 6 exceeds source size 0 [-Werror=stringop-overread]
-   44 | #define __underlying_memcmp     __builtin_memcmp
-      |                                 ^
-./include/linux/fortify-string.h:420:16: note: in expansion of macro
-'__underlying_memcmp'
-  420 |         return __underlying_memcmp(p, q, size);
-      |                ^~~~~~~~~~~~~~~~~~~
-In function 'memcmp',
-    inlined from 'bacmp' at ./include/net/bluetooth/bluetooth.h:347:9,
-    inlined from 'l2cap_global_chan_by_psm' at
-    net/bluetooth/l2cap_core.c:2004:15:
-./include/linux/fortify-string.h:44:33: error: '__builtin_memcmp'
-specified bound 6 exceeds source size 0 [-Werror=stringop-overread]
-   44 | #define __underlying_memcmp     __builtin_memcmp
-      |                                 ^
-./include/linux/fortify-string.h:420:16: note: in expansion of macro
-'__underlying_memcmp'
-  420 |         return __underlying_memcmp(p, q, size);
-      |                ^~~~~~~~~~~~~~~~~~~
+Turns out that the uclogic driver has a timer to release the in range
+bit, effectively making hid-input ignoring all in range information
+after the very first one.
 
-Fixes: 332f1795ca20 ("Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm regression")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fix that by having a more rationale approach which consists in forwarding
+every event and let the input stack filter out the duplicates.
+
+Reported-by: Stefan Hansson <newbie13xd@gmail.com>
+Fixes: 87562fcd1342 ("HID: input: remove the need for HID_QUIRK_INVERT")
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hid/hid-input.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1826,11 +1826,11 @@ static struct l2cap_chan *l2cap_global_c
- 			src_match = !bacmp(&c->src, src);
- 			dst_match = !bacmp(&c->dst, dst);
- 			if (src_match && dst_match) {
--				c = l2cap_chan_hold_unless_zero(c);
--				if (c) {
--					read_unlock(&chan_list_lock);
--					return c;
--				}
-+				if (!l2cap_chan_hold_unless_zero(c))
-+					continue;
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1532,7 +1532,10 @@ void hidinput_hid_event(struct hid_devic
+ 			 * assume ours
+ 			 */
+ 			if (!report->tool)
+-				hid_report_set_tool(report, input, usage->code);
++				report->tool = usage->code;
 +
-+				read_unlock(&chan_list_lock);
-+				return c;
- 			}
- 
- 			/* Closest match */
++			/* drivers may have changed the value behind our back, resend it */
++			hid_report_set_tool(report, input, report->tool);
+ 		} else {
+ 			hid_report_release_tool(report, input, usage->code);
+ 		}
 
 
