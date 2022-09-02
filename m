@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D275AB12A
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:06:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 484E25AB005
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238697AbiIBNGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:06:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38428 "EHLO
+        id S237610AbiIBMro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:47:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238644AbiIBNE5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:04:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 883BF1123B5;
-        Fri,  2 Sep 2022 05:43:22 -0700 (PDT)
+        with ESMTP id S237423AbiIBMrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:47:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68311DC0AB;
+        Fri,  2 Sep 2022 05:34:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 225BC6215A;
-        Fri,  2 Sep 2022 12:35:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D059C433D6;
-        Fri,  2 Sep 2022 12:35:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D8B5620DF;
+        Fri,  2 Sep 2022 12:33:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 830F8C433D7;
+        Fri,  2 Sep 2022 12:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122129;
-        bh=IC0Xcmb1kumLQWLiI4eJziIM3Bb2aDtDDQkA3g87UtU=;
+        s=korg; t=1662122031;
+        bh=3u/H4timVfmTu4TI8lTmRpcihulhc0G04dcwQREX1LU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbC8GQra80jAdf+wJ2iZS0FbMAJu01/GGlGEG5kKC4XY2irQWR+aPXStBi/Bujxyy
-         uNDAlYWI84koikYFjl07UgUHTS9/hd7kQw4s87BhfiSObDfuBgUFKtEPizqcsiy0sq
-         AjkcaTIWVNR5hu4JqCGCnVwAvC+PjcVIs8uNyg5E=
+        b=HCj/+I2EIpEfwJXcybozBrUNJSX8sYpmz5dyLj2kxMvpvZh58SO/wCxgukJe5a+0z
+         VmwAKZKVlSYvNqKeKGyBFUcovhOVnM7IzeXD2A+mR+SKPYkJXdbbmlAXcQffYGNfN1
+         n16rHzQdBmA1TgB97ki1OsboJTSji2yI1dxKxyhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steev Klimaszewski <steev@kali.org>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.19 21/72] HID: add Lenovo Yoga C630 battery quirk
+        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Yang Jihong <yangjihong1@huawei.com>
+Subject: [PATCH 5.15 33/73] ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
 Date:   Fri,  2 Sep 2022 14:18:57 +0200
-Message-Id: <20220902121405.483023351@linuxfoundation.org>
+Message-Id: <20220902121405.544206171@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steev Klimaszewski <steev@kali.org>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-commit 3a47fa7b14c7d9613909a844aba27f99d3c58634 upstream.
+commit c3b0f72e805f0801f05fa2aa52011c4bfc694c44 upstream.
 
-Similar to the Surface Go devices, the Elantech touchscreen/digitizer in
-the Lenovo Yoga C630 mistakenly reports the battery of the stylus, and
-always reports an empty battery.
+ftrace_startup does not remove ops from ftrace_ops_list when
+ftrace_startup_enable fails:
 
-Apply the HID_BATTERY_QUIRK_IGNORE quirk to ignore this battery and
-prevent the erroneous low battery warnings.
+register_ftrace_function
+  ftrace_startup
+    __register_ftrace_function
+      ...
+      add_ftrace_ops(&ftrace_ops_list, ops)
+      ...
+    ...
+    ftrace_startup_enable // if ftrace failed to modify, ftrace_disabled is set to 1
+    ...
+  return 0 // ops is in the ftrace_ops_list.
 
-Signed-off-by: Steev Klimaszewski <steev@kali.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+When ftrace_disabled = 1, unregister_ftrace_function simply returns without doing anything:
+unregister_ftrace_function
+  ftrace_shutdown
+    if (unlikely(ftrace_disabled))
+            return -ENODEV;  // return here, __unregister_ftrace_function is not executed,
+                             // as a result, ops is still in the ftrace_ops_list
+    __unregister_ftrace_function
+    ...
+
+If ops is dynamically allocated, it will be free later, in this case,
+is_ftrace_trampoline accesses NULL pointer:
+
+is_ftrace_trampoline
+  ftrace_ops_trampoline
+    do_for_each_ftrace_op(op, ftrace_ops_list) // OOPS! op may be NULL!
+
+Syzkaller reports as follows:
+[ 1203.506103] BUG: kernel NULL pointer dereference, address: 000000000000010b
+[ 1203.508039] #PF: supervisor read access in kernel mode
+[ 1203.508798] #PF: error_code(0x0000) - not-present page
+[ 1203.509558] PGD 800000011660b067 P4D 800000011660b067 PUD 130fb8067 PMD 0
+[ 1203.510560] Oops: 0000 [#1] SMP KASAN PTI
+[ 1203.511189] CPU: 6 PID: 29532 Comm: syz-executor.2 Tainted: G    B   W         5.10.0 #8
+[ 1203.512324] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[ 1203.513895] RIP: 0010:is_ftrace_trampoline+0x26/0xb0
+[ 1203.514644] Code: ff eb d3 90 41 55 41 54 49 89 fc 55 53 e8 f2 00 fd ff 48 8b 1d 3b 35 5d 03 e8 e6 00 fd ff 48 8d bb 90 00 00 00 e8 2a 81 26 00 <48> 8b ab 90 00 00 00 48 85 ed 74 1d e8 c9 00 fd ff 48 8d bb 98 00
+[ 1203.518838] RSP: 0018:ffffc900012cf960 EFLAGS: 00010246
+[ 1203.520092] RAX: 0000000000000000 RBX: 000000000000007b RCX: ffffffff8a331866
+[ 1203.521469] RDX: 0000000000000000 RSI: 0000000000000008 RDI: 000000000000010b
+[ 1203.522583] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffff8df18b07
+[ 1203.523550] R10: fffffbfff1be3160 R11: 0000000000000001 R12: 0000000000478399
+[ 1203.524596] R13: 0000000000000000 R14: ffff888145088000 R15: 0000000000000008
+[ 1203.525634] FS:  00007f429f5f4700(0000) GS:ffff8881daf00000(0000) knlGS:0000000000000000
+[ 1203.526801] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1203.527626] CR2: 000000000000010b CR3: 0000000170e1e001 CR4: 00000000003706e0
+[ 1203.528611] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 1203.529605] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+Therefore, when ftrace_startup_enable fails, we need to rollback registration
+process and remove ops from ftrace_ops_list.
+
+Link: https://lkml.kernel.org/r/20220818032659.56209-1-yangjihong1@huawei.com
+
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h   |    1 +
- drivers/hid/hid-input.c |    2 ++
- 2 files changed, 3 insertions(+)
+ kernel/trace/ftrace.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -414,6 +414,7 @@
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
- #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
- #define I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN	0x2A1C
-+#define I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN	0x279F
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -2901,6 +2901,16 @@ int ftrace_startup(struct ftrace_ops *op
  
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -383,6 +383,8 @@ static const struct hid_device_id hid_ba
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
+ 	ftrace_startup_enable(command);
  
++	/*
++	 * If ftrace is in an undefined state, we just remove ops from list
++	 * to prevent the NULL pointer, instead of totally rolling it back and
++	 * free trampoline, because those actions could cause further damage.
++	 */
++	if (unlikely(ftrace_disabled)) {
++		__unregister_ftrace_function(ops);
++		return -ENODEV;
++	}
++
+ 	ops->flags &= ~FTRACE_OPS_FL_ADDING;
+ 
+ 	return 0;
 
 
