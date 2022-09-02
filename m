@@ -2,139 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F19E5AA87B
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 09:03:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 365CE5AA87D
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 09:04:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235403AbiIBHD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 03:03:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45748 "EHLO
+        id S231544AbiIBHES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 03:04:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235356AbiIBHDX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 03:03:23 -0400
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4114BCC1A
-        for <stable@vger.kernel.org>; Fri,  2 Sep 2022 00:03:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662102202; x=1693638202;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=2kEVMerJzzNBHXgKnx0r6fq6Mc/Ic+VfiRCxqauUitY=;
-  b=lhXWirzS/5ICzB8vGQCbG/ysG1ZAcbAgHwGjcOzS8yd4VRjzpOB2GS88
-   NSg1T1hZu94li6v03V3GsAEgxQ37io8XruZOsHBYWN7HIMSa3/0/VKcd5
-   l2R1aK5X1lJ2u2P0/xL2ByMC64vVkg07dN9P2lUFV+d3IyMWCcjZ3Rj1n
-   PUO6fBQ/3QMwD94OuIFcclq+MUTB8TLtpemlRDelGe8hPtm0l5yAzmNMg
-   B30V0qoSyV5P1dZ1IMu9xI0f0nXepIm91FrQtBKR1eHQxRxGmvUIroHhB
-   LWz7583nea2lvfhsPPYq0EAHQ7JHVTf+h5UJrfhhhAeKGYM126dUTlz/u
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10457"; a="293488687"
-X-IronPort-AV: E=Sophos;i="5.93,283,1654585200"; 
-   d="scan'208";a="293488687"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Sep 2022 00:03:22 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,283,1654585200"; 
-   d="scan'208";a="716417089"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.191])
-  by fmsmga002.fm.intel.com with SMTP; 02 Sep 2022 00:03:19 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Fri, 02 Sep 2022 10:03:19 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>,
-        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 1/2] drm/i915: Implement WaEdpLinkRateDataReload
-Date:   Fri,  2 Sep 2022 10:03:18 +0300
-Message-Id: <20220902070319.15395-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S230295AbiIBHER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 03:04:17 -0400
+Received: from mail-ua1-x929.google.com (mail-ua1-x929.google.com [IPv6:2607:f8b0:4864:20::929])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C012FBC101;
+        Fri,  2 Sep 2022 00:04:16 -0700 (PDT)
+Received: by mail-ua1-x929.google.com with SMTP id x5so508220uaf.0;
+        Fri, 02 Sep 2022 00:04:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=D5mNJYlN1uS8OgKjt0YRjR63MZ/emfhtzN8JpVQFkdY=;
+        b=TyoSedZlNm0kRQmcISzVC8xkaZYDUns1VRhaL5OtQa16w7buPs/aCoCXyFwF9mxtuK
+         L1jbMOxlf/bU3NFrhZ/6+UVMWokdVo/MYS4gmJGpZh14aPkWhGNEYd4lUgI82v4NbB5Q
+         N99v50L/2Zid65zgdPvHp9QsN+OUWyAQ+wiwQKBK+yrxLbb8j61iR6DzNZb2mf26QiRV
+         /9bOhVdkvmRP7uJeIDqwWTslZsUyUN98pHW4FHi8D3qZEsU1Px8BAYZ9uROyLG14UKfb
+         tSogGmL2tYlI9CiLBqDJcJEXBxnC+fixEYEk1giMGMxqtTpP90vOt9Rf7hIUO5LEvC7D
+         2sng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=D5mNJYlN1uS8OgKjt0YRjR63MZ/emfhtzN8JpVQFkdY=;
+        b=qHutcoIU4EV52nn2pI4uK1lDrRpCUngI3nz8NXV0iFSwDmP3/3lvmB7WXd1N2067YC
+         HcZURPfx6foZbbbdOz7Fmbpp7ZV4N3NggNRuDkB56PcergGq+Z1FtHsaohHhTQ4KxsPX
+         ZGq+fry8cS60vGXK8hmlPQN0McY9dbQ9XSFJEwLoelUTFaBRnJ/jdrBkakr6mNMeTyNn
+         /3Hzi7akxAtKv3m7p+KTjYmiQMw+XXK1DzD5+6r9gTnR5cu03FR2WYCz6F4AaPZ1Nj8i
+         zSU0yF+igeeoHfGcB6/kRQFPa2DR+Zhobd9C1BiWkxKcnXhTjVr4ToLHbx1f02zJLhB8
+         1Ohw==
+X-Gm-Message-State: ACgBeo0zEgloaVuShYcooD2Fizci+Zno43wcggaKxpLCHAjp/u30a+jv
+        PoqaNJpZqGMw2k4nvcS53okoYA19EwWfbgrXHZY=
+X-Google-Smtp-Source: AA6agR7wlzsvRio8NikTh1qfXvXSSvbH4+yU6cAsVJmWRLwsa2E+u+QpgUCDsB22SSwvuFn7kilLOlNAqC/c5/aAgCk=
+X-Received: by 2002:a9f:2067:0:b0:387:984d:4a8e with SMTP id
+ 94-20020a9f2067000000b00387984d4a8emr10527013uam.60.1662102255887; Fri, 02
+ Sep 2022 00:04:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+References: <20220901133356.2473299-1-amir73il@gmail.com> <20220901133356.2473299-2-amir73il@gmail.com>
+ <YxGfxaCrKW9NUxYZ@kroah.com>
+In-Reply-To: <YxGfxaCrKW9NUxYZ@kroah.com>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Fri, 2 Sep 2022 10:04:04 +0300
+Message-ID: <CAOQ4uxgL82GpXdGhKH7YxwCT6wm-5HobQpeuAYARUFzPRvXu9Q@mail.gmail.com>
+Subject: Re: [PATCH 5.10 v3 1/5] xfs: remove infinite loop when reserving free
+ block pool
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "Darrick J . Wong" <djwong@kernel.org>,
+        Leah Rumancik <leah.rumancik@gmail.com>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Adam Manzanares <a.manzanares@samsung.com>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Dave Chinner <dchinner@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Fri, Sep 2, 2022 at 9:16 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Sep 01, 2022 at 04:33:52PM +0300, Amir Goldstein wrote:
+> > commit 15f04fdc75aaaa1cccb0b8b3af1be290e118a7bc upstream.
+> >
+> > [Added wrapper xfs_fdblocks_unavailable() for 5.10.y backport]
+>
+> You forgot the correct Author/From: information here :(
+>
+> Please be more careful next time.
+>
 
-A lot of modern laptops use the Parade PS8461E MUX for eDP
-switching. The MUX can operate in jitter cleaning mode or
-redriver mode, the first one resulting in higher link
-quality. The jitter cleaning mode needs to know the link
-rate used and the MUX achieves this by snooping the
-LINK_BW_SET, LINK_RATE_SELECT and SUPPORTED_LINK_RATES
-DPCD accesses.
+Sorry.
+I noticed that happens from time to time and sometimes
+I catch that.
+I wonder why/when git has done that. during cherry-pick? rebase?
+I certainly did not do --reset-author at any point.
 
-When the MUX is powered down (seems this can happen whenever
-the display is turned off) it loses track of the snooped
-link rates so when we do the LINK_RATE_SELECT write it no
-longer knowns which link rate we're selecting, and thus it
-falls back to the lower quality redriver mode. This results
-in unstable high link rates (eg. usually 8.1Gbps link rate
-no longer works correctly).
+I might have added an original commit adding the Accessor
+and then squashed it in rebase. That may be the reason.
 
-In order to avoid all that let's re-snoop SUPPORTED_LINK_RATES
-from the sink at the start of every link training.
+I'll remember to add the From: check to my pre-post eyeballing.
 
-Unfortunately we don't have a way to detect the presence of
-the MUX. It looks like the set of laptops equipped with this
-MUX is fairly large and contains devices from multiple
-manufacturers. It may also still be growing with new models.
-So a quirk doesn't seem like a very easily maintainable
-option, thus we shall attempt to do this unconditionally on
-all machines that use LINK_RATE_SELECT. Hopefully this extra
-DPCD read doesn't cause issues for any unaffected machine.
-If that turns out to be the case we'll need to convert this
-into a quirk in the future.
-
-Cc: stable@vger.kernel.org
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6205
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- .../drm/i915/display/intel_dp_link_training.c | 22 +++++++++++++++++++
- 1 file changed, 22 insertions(+)
-
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-index 9feaf1a589f3..d213d8ad1ea5 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-@@ -671,6 +671,28 @@ intel_dp_prepare_link_train(struct intel_dp *intel_dp,
- 	intel_dp_compute_rate(intel_dp, crtc_state->port_clock,
- 			      &link_bw, &rate_select);
- 
-+	/*
-+	 * WaEdpLinkRateDataReload
-+	 *
-+	 * Parade PS8461E MUX (used on varius TGL+ laptops) needs
-+	 * to snoop the link rates reported by the sink when we
-+	 * use LINK_RATE_SET in order to operate in jitter cleaning
-+	 * mode (as opposed to redriver mode). Unfortunately it
-+	 * loses track of the snooped link rates when powered down,
-+	 * so we need to make it re-snoop often. Without this high
-+	 * link rates are not stable.
-+	 */
-+	if (!link_bw) {
-+		struct intel_connector *connector = intel_dp->attached_connector;
-+		__le16 sink_rates[DP_MAX_SUPPORTED_RATES];
-+
-+		drm_dbg_kms(&i915->drm, "[CONNECTOR:%d:%s] Reloading eDP link rates\n",
-+			    connector->base.base.id, connector->base.name);
-+
-+		drm_dp_dpcd_read(&intel_dp->aux, DP_SUPPORTED_LINK_RATES,
-+				 sink_rates, sizeof(sink_rates));
-+	}
-+
- 	if (link_bw)
- 		drm_dbg_kms(&i915->drm,
- 			    "[ENCODER:%d:%s] Using LINK_BW_SET value %02x\n",
--- 
-2.35.1
-
+Thanks,
+Amir.
