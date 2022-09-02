@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF415AAF02
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 691CE5AAEFC
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236765AbiIBMcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:32:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35360 "EHLO
+        id S236772AbiIBMch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236666AbiIBMbi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:31:38 -0400
+        with ESMTP id S236675AbiIBMbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:31:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD4EE190E;
-        Fri,  2 Sep 2022 05:26:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35104DD75A;
+        Fri,  2 Sep 2022 05:26:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B80B9B82ABD;
-        Fri,  2 Sep 2022 12:26:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28271C433B5;
-        Fri,  2 Sep 2022 12:26:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5201B82AB6;
+        Fri,  2 Sep 2022 12:26:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FFB0C433D6;
+        Fri,  2 Sep 2022 12:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121592;
-        bh=ygv5b7Fd2GBK1PHrrtgvE32HVeC9KUYkOtlJ+Y/J1Ds=;
+        s=korg; t=1662121595;
+        bh=7APQlxl+5Xdd2RpaXOxtTlui/y4z1tADJAtSHRII6MU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pp9fxtoqede/2v52gayNt+ZHQTHqnTxBEUO0GGFp4k9U4bpDIy3an1DT6rNiPyL77
-         mSp7y2GfuT/UrwMpbYEBin4MGo03V58+nuqoftmI4hvWcptpXYpYVG2bc6ujIO98r6
-         3VGo9EA1Bp7iVx/ItSNdBd9h3nPgov0cO5aRyu+Y=
+        b=2Wxr9kJyvQfhnAxluiPzIwz4pfCRCwjgKtg8Z2W1IXNv7GBDR5UsTR243dm6iTBSM
+         KvOMdbBO42U8HGWJNWqygpGb0FFzcgYkZOnerl4/O/eR9Egy6ZacqzUfhtKCiT7Ree
+         8rTGWd2b941yRLXrqLPRsWBia7z8gX6so6/FgO5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 30/56] x86/unwind/orc: Unwind ftrace trampolines with correct ORC entry
-Date:   Fri,  2 Sep 2022 14:18:50 +0200
-Message-Id: <20220902121401.293170735@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Siddh Raman Pant <code@siddh.me>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 31/56] loop: Check for overflow while configuring loop
+Date:   Fri,  2 Sep 2022 14:18:51 +0200
+Message-Id: <20220902121401.341355341@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
 References: <20220902121400.219861128@linuxfoundation.org>
@@ -54,72 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Siddh Raman Pant <code@siddh.me>
 
-commit fc2e426b1161761561624ebd43ce8c8d2fa058da upstream.
+commit c490a0b5a4f36da3918181a8acdc6991d967c5f3 upstream.
 
-When meeting ftrace trampolines in ORC unwinding, unwinder uses address
-of ftrace_{regs_}call address to find the ORC entry, which gets next frame at
-sp+176.
+The userspace can configure a loop using an ioctl call, wherein
+a configuration of type loop_config is passed (see lo_ioctl()'s
+case on line 1550 of drivers/block/loop.c). This proceeds to call
+loop_configure() which in turn calls loop_set_status_from_info()
+(see line 1050 of loop.c), passing &config->info which is of type
+loop_info64*. This function then sets the appropriate values, like
+the offset.
 
-If there is an IRQ hitting at sub $0xa8,%rsp, the next frame should be
-sp+8 instead of 176. It makes unwinder skip correct frame and throw
-warnings such as "wrong direction" or "can't access registers", etc,
-depending on the content of the incorrect frame address.
+loop_device has lo_offset of type loff_t (see line 52 of loop.c),
+which is typdef-chained to long long, whereas loop_info64 has
+lo_offset of type __u64 (see line 56 of include/uapi/linux/loop.h).
 
-By adding the base address ftrace_{regs_}caller with the offset
-*ip - ops->trampoline*, we can get the correct address to find the ORC entry.
+The function directly copies offset from info to the device as
+follows (See line 980 of loop.c):
+	lo->lo_offset = info->lo_offset;
 
-Also change "caller" to "tramp_addr" to make variable name conform to
-its content.
+This results in an overflow, which triggers a warning in iomap_iter()
+due to a call to iomap_iter_done() which has:
+	WARN_ON_ONCE(iter->iomap.offset > iter->pos);
 
-[ mingo: Clarified the changelog a bit. ]
+Thus, check for negative value during loop_set_status_from_info().
 
-Fixes: 6be7fa3c74d1 ("ftrace, orc, x86: Handle ftrace dynamically allocated trampolines")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220819084334.244016-1-chenzhongjin@huawei.com
+Bug report: https://syzkaller.appspot.com/bug?id=c620fe14aac810396d3c3edc9ad73848bf69a29e
+
+Reported-and-tested-by: syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220823160810.181275-1-code@siddh.me
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/unwind_orc.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/block/loop.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -89,22 +89,27 @@ static struct orc_entry *orc_find(unsign
- static struct orc_entry *orc_ftrace_find(unsigned long ip)
- {
- 	struct ftrace_ops *ops;
--	unsigned long caller;
-+	unsigned long tramp_addr, offset;
- 
- 	ops = ftrace_ops_trampoline(ip);
- 	if (!ops)
- 		return NULL;
- 
-+	/* Set tramp_addr to the start of the code copied by the trampoline */
- 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
--		caller = (unsigned long)ftrace_regs_call;
-+		tramp_addr = (unsigned long)ftrace_regs_caller;
- 	else
--		caller = (unsigned long)ftrace_call;
-+		tramp_addr = (unsigned long)ftrace_caller;
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1351,6 +1351,11 @@ loop_get_status(struct loop_device *lo,
+ 	info->lo_number = lo->lo_number;
+ 	info->lo_offset = lo->lo_offset;
+ 	info->lo_sizelimit = lo->lo_sizelimit;
 +
-+	/* Now place tramp_addr to the location within the trampoline ip is at */
-+	offset = ip - ops->trampoline;
-+	tramp_addr += offset;
- 
- 	/* Prevent unlikely recursion */
--	if (ip == caller)
-+	if (ip == tramp_addr)
- 		return NULL;
- 
--	return orc_find(caller);
-+	return orc_find(tramp_addr);
- }
- #else
- static struct orc_entry *orc_ftrace_find(unsigned long ip)
++	/* loff_t vars have been assigned __u64 */
++	if (lo->lo_offset < 0 || lo->lo_sizelimit < 0)
++		return -EOVERFLOW;
++
+ 	info->lo_flags = lo->lo_flags;
+ 	memcpy(info->lo_file_name, lo->lo_file_name, LO_NAME_SIZE);
+ 	memcpy(info->lo_crypt_name, lo->lo_crypt_name, LO_NAME_SIZE);
 
 
