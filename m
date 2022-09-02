@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FDBD5AAEAC
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:27:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51FC85AAF25
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:34:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236479AbiIBM1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:27:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51418 "EHLO
+        id S236715AbiIBMeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:34:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236363AbiIBM1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:27:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 828C3DDAA2;
-        Fri,  2 Sep 2022 05:23:48 -0700 (PDT)
+        with ESMTP id S236879AbiIBMdg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:33:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CE0E193D;
+        Fri,  2 Sep 2022 05:27:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5ADFBB82A8F;
-        Fri,  2 Sep 2022 12:22:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA1E0C433C1;
-        Fri,  2 Sep 2022 12:22:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC9CD6211D;
+        Fri,  2 Sep 2022 12:25:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D30FEC433C1;
+        Fri,  2 Sep 2022 12:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121355;
-        bh=/vUfvoVjM8YHAz6X8BDDMo3LD+0clPvNLObkX/HL5xQ=;
+        s=korg; t=1662121520;
+        bh=E63Stpnr3yidX6/oPg6+aQlRal9zM08EPfNrXFXspmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNcIzsbWuQLSqw51k6C+wySJ0kt6JdrSXVdJT0N5HgpepyvNNe/Loo1Log89P+Ioh
-         cMkG1Y9GuezVAIJP6a8a34NyLTevDiyvETT3d+jqNsegec5ezQ3CoSDBghIepMX4xL
-         Us/mNo9GN8RtpgCpg/0zZlPJiQHAcMYiXvTtL4m0=
+        b=x2TsJ2AhxK/Is7YP6qoH+zY8hUA4z1hgSDoOn94/SniSY5NqybyAvWDfmKsVJ6Pm/
+         BjZ9H0QVmgW96hqmNMASEr8IlVenA0r8iFORanxaLniZvPnaQwiymskS44u1Rs+XDp
+         HXIzQKj1RNELgDDS5Cxf8UUdbaLTExBUbQbgJxk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Quanyang Wang <quanyang.wang@windriver.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Thierry Reding <treding@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 23/42] asm-generic: sections: refactor memory_intersects
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 27/56] net: Fix a data-race around sysctl_somaxconn.
 Date:   Fri,  2 Sep 2022 14:18:47 +0200
-Message-Id: <20220902121359.606580799@linuxfoundation.org>
+Message-Id: <20220902121401.166047129@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,96 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quanyang Wang <quanyang.wang@windriver.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 0c7d7cc2b4fe2e74ef8728f030f0f1674f9f6aee upstream.
+[ Upstream commit 3c9ba81d72047f2e81bb535d42856517b613aba7 ]
 
-There are two problems with the current code of memory_intersects:
+While reading sysctl_somaxconn, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-First, it doesn't check whether the region (begin, end) falls inside the
-region (virt, vend), that is (virt < begin && vend > end).
-
-The second problem is if vend is equal to begin, it will return true but
-this is wrong since vend (virt + size) is not the last address of the
-memory region but (virt + size -1) is.  The wrong determination will
-trigger the misreporting when the function check_for_illegal_area calls
-memory_intersects to check if the dma region intersects with stext region.
-
-The misreporting is as below (stext is at 0x80100000):
- WARNING: CPU: 0 PID: 77 at kernel/dma/debug.c:1073 check_for_illegal_area+0x130/0x168
- DMA-API: chipidea-usb2 e0002000.usb: device driver maps memory from kernel text or rodata [addr=800f0000] [len=65536]
- Modules linked in:
- CPU: 1 PID: 77 Comm: usb-storage Not tainted 5.19.0-yocto-standard #5
- Hardware name: Xilinx Zynq Platform
-  unwind_backtrace from show_stack+0x18/0x1c
-  show_stack from dump_stack_lvl+0x58/0x70
-  dump_stack_lvl from __warn+0xb0/0x198
-  __warn from warn_slowpath_fmt+0x80/0xb4
-  warn_slowpath_fmt from check_for_illegal_area+0x130/0x168
-  check_for_illegal_area from debug_dma_map_sg+0x94/0x368
-  debug_dma_map_sg from __dma_map_sg_attrs+0x114/0x128
-  __dma_map_sg_attrs from dma_map_sg_attrs+0x18/0x24
-  dma_map_sg_attrs from usb_hcd_map_urb_for_dma+0x250/0x3b4
-  usb_hcd_map_urb_for_dma from usb_hcd_submit_urb+0x194/0x214
-  usb_hcd_submit_urb from usb_sg_wait+0xa4/0x118
-  usb_sg_wait from usb_stor_bulk_transfer_sglist+0xa0/0xec
-  usb_stor_bulk_transfer_sglist from usb_stor_bulk_srb+0x38/0x70
-  usb_stor_bulk_srb from usb_stor_Bulk_transport+0x150/0x360
-  usb_stor_Bulk_transport from usb_stor_invoke_transport+0x38/0x440
-  usb_stor_invoke_transport from usb_stor_control_thread+0x1e0/0x238
-  usb_stor_control_thread from kthread+0xf8/0x104
-  kthread from ret_from_fork+0x14/0x2c
-
-Refactor memory_intersects to fix the two problems above.
-
-Before the 1d7db834a027e ("dma-debug: use memory_intersects()
-directly"), memory_intersects is called only by printk_late_init:
-
-printk_late_init -> init_section_intersects ->memory_intersects.
-
-There were few places where memory_intersects was called.
-
-When commit 1d7db834a027e ("dma-debug: use memory_intersects()
-directly") was merged and CONFIG_DMA_API_DEBUG is enabled, the DMA
-subsystem uses it to check for an illegal area and the calltrace above
-is triggered.
-
-[akpm@linux-foundation.org: fix nearby comment typo]
-Link: https://lkml.kernel.org/r/20220819081145.948016-1-quanyang.wang@windriver.com
-Fixes: 979559362516 ("asm/sections: add helpers to check for section data")
-Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Thierry Reding <treding@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/sections.h |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/socket.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/asm-generic/sections.h
-+++ b/include/asm-generic/sections.h
-@@ -92,7 +92,7 @@ static inline bool memory_contains(void
- /**
-  * memory_intersects - checks if the region occupied by an object intersects
-  *                     with another memory region
-- * @begin: virtual address of the beginning of the memory regien
-+ * @begin: virtual address of the beginning of the memory region
-  * @end: virtual address of the end of the memory region
-  * @virt: virtual address of the memory object
-  * @size: size of the memory object
-@@ -105,7 +105,10 @@ static inline bool memory_intersects(voi
- {
- 	void *vend = virt + size;
+diff --git a/net/socket.c b/net/socket.c
+index e5cc9f2b981ed..a5167f03c31db 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1619,7 +1619,7 @@ int __sys_listen(int fd, int backlog)
  
--	return (virt >= begin && virt < end) || (vend >= begin && vend < end);
-+	if (virt < end && vend > begin)
-+		return true;
-+
-+	return false;
- }
+ 	sock = sockfd_lookup_light(fd, &err, &fput_needed);
+ 	if (sock) {
+-		somaxconn = sock_net(sock->sk)->core.sysctl_somaxconn;
++		somaxconn = READ_ONCE(sock_net(sock->sk)->core.sysctl_somaxconn);
+ 		if ((unsigned int)backlog > somaxconn)
+ 			backlog = somaxconn;
  
- /**
+-- 
+2.35.1
+
 
 
