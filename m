@@ -2,174 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 244EE5AB8CC
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 21:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F382A5AB8D1
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 21:21:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230244AbiIBTRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 15:17:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56338 "EHLO
+        id S230255AbiIBTVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 15:21:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230242AbiIBTRQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 15:17:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BBABF32C9;
-        Fri,  2 Sep 2022 12:17:15 -0700 (PDT)
+        with ESMTP id S229775AbiIBTVF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 15:21:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CD85DF0A8;
+        Fri,  2 Sep 2022 12:21:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF7CBB82D6E;
-        Fri,  2 Sep 2022 19:17:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99C88C43144;
-        Fri,  2 Sep 2022 19:17:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1662146232;
-        bh=4yl99sRPWmrUl6KsCGJ2NVYDBi+JRyRa0pafSkClRQo=;
-        h=Date:To:From:Subject:From;
-        b=oXl5HI7n66waP0rOMqoDPGZ80PLmV8Lh5bU8LO/43v/V1RuYlaq5DRDBtGKcFAFE2
-         B5pfCmGTxhB/v8DPEUeNobAiySm6zMbuaO0jKIp0JFXDojKt1kYNNDl9QE680Fkyzk
-         X/iQcX0Vz5e5Moe5sCi6nKcyL6k4qeMyedn58jrc=
-Date:   Fri, 02 Sep 2022 12:17:11 -0700
-To:     mm-commits@vger.kernel.org, ying.huang@intel.com,
-        willy@infradead.org, stable@vger.kernel.org, rcampbell@nvidia.com,
-        peterx@redhat.com, paulus@ozlabs.org, nadav.amit@gmail.com,
-        lyude@redhat.com, logang@deltatee.com, kherbst@redhat.com,
-        jhubbard@nvidia.com, jgg@nvidia.com, huang.ying.caritas@gmail.com,
-        Felix.Kuehling@amd.com, david@redhat.com, bskeggs@redhat.com,
-        alex.sierra@amd.com, apopple@nvidia.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-migrate_devicec-copy-pte-dirty-bit-to-page.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220902191712.99C88C43144@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B37A62297;
+        Fri,  2 Sep 2022 19:21:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7387AC433D6;
+        Fri,  2 Sep 2022 19:21:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662146464;
+        bh=K8BGjhy+0YQS+LACFDgvDPfLnu+2CbH/clQ8DkWsJbM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=liWMEdemKbFpZWLY/soRCTkD8UO2XGe0QeJetOISEetc0v98PVvDajeNoq7ml1jtL
+         TQ+LPmnLeQmBit3DL51TAzW1HGGYBLDEJxyXZVqi2bY8JwPX9ZnTUiWAuNkKXVPeZm
+         yE1fmE5e3dzD6LB9NdVkEm+O5BcJFsAD+0/jCS2L8PwERe8YrrOi23gQHF7wAdA8d7
+         QSFVlHjaPCQ5RY+a/z7KRibnDOApgBUXO2VFppUyUYegGDn/cQXpx3SeCCX+FT7rsX
+         jTg4MFgiQK5Lp8BL+1sxLs1Pm0tKJTR69X8mJUKenl8rybXvXip+d+F5Z6MyDmPRb4
+         TIc/jSM+3/m+Q==
+Date:   Fri, 2 Sep 2022 22:20:58 +0300
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Reinette Chatre <reinette.chatre@intel.com>
+Cc:     linux-sgx@vger.kernel.org,
+        Haitao Huang <haitao.huang@linux.intel.com>,
+        Vijay Dhanraj <vijay.dhanraj@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>, stable@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "open list:X86 ARCHITECTURE (32-BIT AND 64-BIT)" 
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 2/6] x86/sgx: Do not consider unsanitized pages an
+ error
+Message-ID: <YxJXmuxTeKtDN9qu@kernel.org>
+References: <20220831173829.126661-3-jarkko@kernel.org>
+ <24906e57-461f-6c94-9e78-0d8507df01bb@intel.com>
+ <YxEp8Ji+ukLBoNE+@kernel.org>
+ <84b8eb06-7b77-675f-5bc8-292fe27dd2f5@intel.com>
+ <YxFGykqMb+TD4L4l@kernel.org>
+ <YxIEm4uHVvUY/rv6@kernel.org>
+ <YxInD1m7rEnQ/yxW@kernel.org>
+ <b418161b-2613-4bb9-9269-b4995de65794@intel.com>
+ <YxIvr33xgjCbW6qu@kernel.org>
+ <8d66f94f-9981-1456-9040-066e35c7ba1f@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8d66f94f-9981-1456-9040-066e35c7ba1f@intel.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Sep 02, 2022 at 10:38:34AM -0700, Reinette Chatre wrote:
+> Hi Jarkko,
+> 
+> On 9/2/2022 9:30 AM, Jarkko Sakkinen wrote:
+> > On Fri, Sep 02, 2022 at 09:08:23AM -0700, Reinette Chatre wrote:
+> >> Hi Jarkko,
+> >>
+> >> On 9/2/2022 8:53 AM, Jarkko Sakkinen wrote:
+> >>> On Fri, Sep 02, 2022 at 04:26:51PM +0300, Jarkko Sakkinen wrote:
+> >>>> +	if (ret)
+> >>>> +		pr_err("%ld unsanitized pages\n", left_dirty);
+> >>>
+> >>> Yeah, I know, should be 'left_dirty'. I just quickly drafted
+> >>> the patch for the email.
+> >>>
+> >>
+> >> No problem - you did mention that it was an informal patch.
+> >>
+> >> (btw ... also watch out for the long local parameter returned
+> >> as an unsigned long and the signed vs unsigned printing
+> >> format string.) I also continue to recommend that you trim
+> > 
+> > Point taken.
+> > 
+> >> that backtrace ... this patch is heading to x86 area where
+> >> this is required.
+> > 
+> > Should I just cut the whole stack trace, and leave the
+> > part before it?
+> 
+> The trace is printed because of a WARN_ON() in the code.
+> I do not think there is anything very helpful in that trace.
+> I think the only helpful parts are the WARN itself that includes
+> the line number and then information on which kernel it was
+> encountered on.
+> 
+> How about something like (please note the FIXME within):
+> 
+> "
+> Paul reported the following WARN while running kernel vFIXME:
+>   WARNING: CPU: 6 PID: 83 at arch/x86/kernel/cpu/sgx/main.c:401 ksgxd+0x1b7/0x1d0
 
-The patch titled
-     Subject: mm/migrate_device.c: copy pte dirty bit to page
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-migrate_devicec-copy-pte-dirty-bit-to-page.patch
+Yeah, this is a great idea, the use of WARN() is the whole point.
+Thank you.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-migrate_devicec-copy-pte-dirty-bit-to-page.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Alistair Popple <apopple@nvidia.com>
-Subject: mm/migrate_device.c: copy pte dirty bit to page
-Date: Fri, 2 Sep 2022 10:35:53 +1000
-
-migrate_vma_setup() has a fast path in migrate_vma_collect_pmd() that
-installs migration entries directly if it can lock the migrating page. 
-When removing a dirty pte the dirty bit is supposed to be carried over to
-the underlying page to prevent it being lost.
-
-Currently migrate_vma_*() can only be used for private anonymous mappings.
-That means loss of the dirty bit usually doesn't result in data loss
-because these pages are typically not file-backed.  However pages may be
-backed by swap storage which can result in data loss if an attempt is made
-to migrate a dirty page that doesn't yet have the PageDirty flag set.
-
-In this case migration will fail due to unexpected references but the
-dirty pte bit will be lost.  If the page is subsequently reclaimed data
-won't be written back to swap storage as it is considered uptodate,
-resulting in data loss if the page is subsequently accessed.
-
-Prevent this by copying the dirty bit to the page when removing the pte to
-match what try_to_migrate_one() does.
-
-Link: https://lkml.kernel.org/r/dd48e4882ce859c295c1a77612f66d198b0403f9.1662078528.git-series.apopple@nvidia.com
-Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
-Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Reported-by: "Huang, Ying" <ying.huang@intel.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Alex Sierra <alex.sierra@amd.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-Cc: huang ying <huang.ying.caritas@gmail.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: Paul Mackerras <paulus@ozlabs.org>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/migrate_device.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
---- a/mm/migrate_device.c~mm-migrate_devicec-copy-pte-dirty-bit-to-page
-+++ a/mm/migrate_device.c
-@@ -7,6 +7,7 @@
- #include <linux/export.h>
- #include <linux/memremap.h>
- #include <linux/migrate.h>
-+#include <linux/mm.h>
- #include <linux/mm_inline.h>
- #include <linux/mmu_notifier.h>
- #include <linux/oom.h>
-@@ -196,7 +197,7 @@ again:
- 			flush_cache_page(vma, addr, pte_pfn(*ptep));
- 			anon_exclusive = PageAnon(page) && PageAnonExclusive(page);
- 			if (anon_exclusive) {
--				ptep_clear_flush(vma, addr, ptep);
-+				pte = ptep_clear_flush(vma, addr, ptep);
- 
- 				if (page_try_share_anon_rmap(page)) {
- 					set_pte_at(mm, addr, ptep, pte);
-@@ -206,11 +207,15 @@ again:
- 					goto next;
- 				}
- 			} else {
--				ptep_get_and_clear(mm, addr, ptep);
-+				pte = ptep_get_and_clear(mm, addr, ptep);
- 			}
- 
- 			migrate->cpages++;
- 
-+			/* Set the dirty flag on the folio now the pte is gone. */
-+			if (pte_dirty(pte))
-+				folio_mark_dirty(page_folio(page));
-+
- 			/* Setup special migration page table entry */
- 			if (mpfn & MIGRATE_PFN_WRITE)
- 				entry = make_writable_migration_entry(
-_
-
-Patches currently in -mm which might be from apopple@nvidia.com are
-
-mm-migrate_devicec-flush-tlb-while-holding-ptl.patch
-mm-migrate_devicec-add-missing-flush_cache_page.patch
-mm-migrate_devicec-copy-pte-dirty-bit-to-page.patch
-mm-gupc-simplify-and-fix-check_and_migrate_movable_pages-return-codes.patch
-selftests-hmm-tests-add-test-for-dirty-bits.patch
-mm-gupc-dont-pass-gup_flags-to-check_and_migrate_movable_pages.patch
-mm-gupc-refactor-check_and_migrate_movable_pages.patch
-mm-migrate_devicec-fix-a-misleading-and-out-dated-comment.patch
+BR, Jarkko
 
