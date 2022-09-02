@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD3D85AB1C8
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ABE15AB0FD
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237692AbiIBNkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:40:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49118 "EHLO
+        id S238390AbiIBNBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:01:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236846AbiIBNjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:39:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40324F8FE7;
-        Fri,  2 Sep 2022 06:17:30 -0700 (PDT)
+        with ESMTP id S238398AbiIBM7w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:59:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 676D6FC32F;
+        Fri,  2 Sep 2022 05:40:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 512616220E;
-        Fri,  2 Sep 2022 12:40:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42F54C433C1;
-        Fri,  2 Sep 2022 12:40:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06693B82ADF;
+        Fri,  2 Sep 2022 12:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 508D9C433D6;
+        Fri,  2 Sep 2022 12:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122407;
-        bh=l55iIEOTa99MJyVj0bZkhMqp2quVOE9KQuUvpsRy65E=;
+        s=korg; t=1662122410;
+        bh=qJtlZbyOTsV51PIP1uTB7gctPH/B6Gl+DB+pExHFlyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y1Q925U9h01tRQO8xaxutTCu9bHx00BIk/aU7j9IXuEdHwtu5hmQTZ/oKq4Uzdenx
-         AwOp7HtpOVzTgzfNIRY/CpR051ZWZ/ekoqnQQxs95TECkffacvCfEQ02j4A1yUJmd5
-         UPo9gAVG8wchLX622nor8kts5qSqxMKae5cpIXGM=
+        b=cLcVk9RbfRpPHpATjxZ0FUVlW6m0JrenCE2v61mLeGb9n8ZMDZp0cNpYHFyoyWhSD
+         Q2IzTVFp3LeRO9fzk3Bdyc1ADl/PMTqwVhWf34I9mW27Bd3OsU3tpekU87T4qG37rl
+         dqzkXuQVPW/8pRGxqk6Cjit6OeZylF23AtjkG48U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com,
-        Zhengchao Shao <shaozhengchao@huawei.com>,
+        stable@vger.kernel.org, "Denis V. Lunev" <den@openvz.org>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 36/37] net/af_packet: check len when min_header_len equals to 0
-Date:   Fri,  2 Sep 2022 14:19:58 +0200
-Message-Id: <20220902121400.298585305@linuxfoundation.org>
+Subject: [PATCH 5.10 37/37] net: neigh: dont call kfree_skb() under spin_lock_irqsave()
+Date:   Fri,  2 Sep 2022 14:19:59 +0200
+Message-Id: <20220902121400.327532774@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
 References: <20220902121359.177846782@linuxfoundation.org>
@@ -55,35 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit dc633700f00f726e027846a318c5ffeb8deaaeda upstream.
+commit d5485d9dd24e1d04e5509916515260186eb1455c upstream.
 
-User can use AF_PACKET socket to send packets with the length of 0.
-When min_header_len equals to 0, packet_snd will call __dev_queue_xmit
-to send packets, and sock->type can be any type.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So add all skb to
+a tmp list, then free them after spin_unlock_irqrestore() at
+once.
 
-Reported-by: syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com
-Fixes: fd1894224407 ("bpf: Don't redirect packets with invalid pkt_len")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Fixes: 66ba215cb513 ("neigh: fix possible DoS due to net iface start/stop loop")
+Suggested-by: Denis V. Lunev <den@openvz.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/packet/af_packet.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/neighbour.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2986,8 +2986,8 @@ static int packet_snd(struct socket *soc
- 	if (err)
- 		goto out_free;
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -282,21 +282,27 @@ static int neigh_del_timer(struct neighb
  
--	if (sock->type == SOCK_RAW &&
--	    !dev_validate_header(dev, skb->data, len)) {
-+	if ((sock->type == SOCK_RAW &&
-+	     !dev_validate_header(dev, skb->data, len)) || !skb->len) {
- 		err = -EINVAL;
- 		goto out_free;
+ static void pneigh_queue_purge(struct sk_buff_head *list, struct net *net)
+ {
++	struct sk_buff_head tmp;
+ 	unsigned long flags;
+ 	struct sk_buff *skb;
+ 
++	skb_queue_head_init(&tmp);
+ 	spin_lock_irqsave(&list->lock, flags);
+ 	skb = skb_peek(list);
+ 	while (skb != NULL) {
+ 		struct sk_buff *skb_next = skb_peek_next(skb, list);
+ 		if (net == NULL || net_eq(dev_net(skb->dev), net)) {
+ 			__skb_unlink(skb, list);
+-			dev_put(skb->dev);
+-			kfree_skb(skb);
++			__skb_queue_tail(&tmp, skb);
+ 		}
+ 		skb = skb_next;
  	}
+ 	spin_unlock_irqrestore(&list->lock, flags);
++
++	while ((skb = __skb_dequeue(&tmp))) {
++		dev_put(skb->dev);
++		kfree_skb(skb);
++	}
+ }
+ 
+ static void neigh_flush_dev(struct neigh_table *tbl, struct net_device *dev,
 
 
