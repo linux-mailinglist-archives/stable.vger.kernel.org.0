@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A17295AB00B
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8284A5AAE97
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237676AbiIBMru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:47:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54192 "EHLO
+        id S236225AbiIBM0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:26:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237614AbiIBMrU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:47:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C7FF1B68;
-        Fri,  2 Sep 2022 05:34:22 -0700 (PDT)
+        with ESMTP id S236275AbiIBMZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:25:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187ACDC08B;
+        Fri,  2 Sep 2022 05:23:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9640621C5;
-        Fri,  2 Sep 2022 12:32:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4B9CC433D6;
-        Fri,  2 Sep 2022 12:32:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0590B829B6;
+        Fri,  2 Sep 2022 12:22:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E531C433D7;
+        Fri,  2 Sep 2022 12:22:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121968;
-        bh=Bs2CQBsnUjpIZ+XxHHFSiRhfkB928kkGSKMck2e8gws=;
+        s=korg; t=1662121369;
+        bh=3fcpXD+as3eRC0Verdoa2PQP1rMKSElj8/i6wDbbRtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2S7f3DLAcGIv/TbAkH8hmjUJtkK4Db4EdFarO78GYsnrHDzOoQ+0t54Lfv1TAnY5h
-         m7DoUKjgHtFy36be93UiiEMqmd2ljIG5e7fB6hNPqLvIgEPWnkZnPi5mc4Dbm9nmRz
-         TnfkRiEBxoeEY5OadduRKnL1YcUz8oZYffTYCDPs=
+        b=2RfcrWlWzjXH+gu7guylIYsQ2swRO8xU8D2OVykMWgiKaehxk/p0A74cHU/gc1btS
+         ZTBX8JvVF//S8sRHfeZCUbYxE8FQ24VFyhg1fOh3i+YYY5yOqYGrpmSebiCRyrsJGu
+         jTremtzFP8aIG3pLvegDBq7l8507CjIJRvNGbi+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.15 27/73] HID: steam: Prevent NULL pointer dereference in steam_{recv,send}_report
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Bestas <mkbestas@gmail.com>
+Subject: [PATCH 4.14 27/42] arm64: map FDT as RW for early_init_dt_scan()
 Date:   Fri,  2 Sep 2022 14:18:51 +0200
-Message-Id: <20220902121405.336885912@linuxfoundation.org>
+Message-Id: <20220902121359.743151703@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +56,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-commit cd11d1a6114bd4bc6450ae59f6e110ec47362126 upstream.
+commit e112b032a72c78f15d0c803c5dc6be444c2e6c66 upstream.
 
-It is possible for a malicious device to forgo submitting a Feature
-Report.  The HID Steam driver presently makes no prevision for this
-and de-references the 'struct hid_report' pointer obtained from the
-HID devices without first checking its validity.  Let's change that.
+Currently in arm64, FDT is mapped to RO before it's passed to
+early_init_dt_scan(). However, there might be some codes
+(eg. commit "fdt: add support for rng-seed") that need to modify FDT
+during init. Map FDT to RO after early fixups are done.
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Fixes: c164d6abf3841 ("HID: add driver for Valve Steam Controller")
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+[mkbestas: fixed trivial conflicts for 4.14 backport]
+Signed-off-by: Michael Bestas <mkbestas@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-steam.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm64/include/asm/mmu.h |    2 +-
+ arch/arm64/kernel/kaslr.c    |    5 +----
+ arch/arm64/kernel/setup.c    |    9 ++++++++-
+ arch/arm64/mm/mmu.c          |   15 +--------------
+ 4 files changed, 11 insertions(+), 20 deletions(-)
 
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -134,6 +134,11 @@ static int steam_recv_report(struct stea
- 	int ret;
+--- a/arch/arm64/include/asm/mmu.h
++++ b/arch/arm64/include/asm/mmu.h
+@@ -91,7 +91,7 @@ extern void init_mem_pgprot(void);
+ extern void create_pgd_mapping(struct mm_struct *mm, phys_addr_t phys,
+ 			       unsigned long virt, phys_addr_t size,
+ 			       pgprot_t prot, bool page_mappings_only);
+-extern void *fixmap_remap_fdt(phys_addr_t dt_phys);
++extern void *fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot);
+ extern void mark_linear_text_alias_ro(void);
  
- 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-+	if (!r) {
-+		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
-+		return -EINVAL;
-+	}
+ #endif	/* !__ASSEMBLY__ */
+--- a/arch/arm64/kernel/kaslr.c
++++ b/arch/arm64/kernel/kaslr.c
+@@ -65,9 +65,6 @@ out:
+ 	return default_cmdline;
+ }
+ 
+-extern void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size,
+-				       pgprot_t prot);
+-
+ /*
+  * This routine will be executed with the kernel mapped at its default virtual
+  * address, and if it returns successfully, the kernel will be remapped, and
+@@ -96,7 +93,7 @@ u64 __init kaslr_early_init(u64 dt_phys)
+ 	 * attempt at mapping the FDT in setup_machine()
+ 	 */
+ 	early_fixmap_init();
+-	fdt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
++	fdt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
+ 	if (!fdt)
+ 		return 0;
+ 
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -179,9 +179,13 @@ static void __init smp_build_mpidr_hash(
+ 
+ static void __init setup_machine_fdt(phys_addr_t dt_phys)
+ {
+-	void *dt_virt = fixmap_remap_fdt(dt_phys);
++	int size;
++	void *dt_virt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
+ 	const char *name;
+ 
++	if (dt_virt)
++		memblock_reserve(dt_phys, size);
 +
- 	if (hid_report_len(r) < 64)
- 		return -EINVAL;
+ 	if (!dt_virt || !early_init_dt_scan(dt_virt)) {
+ 		pr_crit("\n"
+ 			"Error: invalid device tree blob at physical address %pa (virtual address 0x%p)\n"
+@@ -193,6 +197,9 @@ static void __init setup_machine_fdt(phy
+ 			cpu_relax();
+ 	}
  
-@@ -165,6 +170,11 @@ static int steam_send_report(struct stea
- 	int ret;
- 
- 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-+	if (!r) {
-+		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
-+		return -EINVAL;
-+	}
++	/* Early fixups are done, map the FDT as read-only now */
++	fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
 +
- 	if (hid_report_len(r) < 64)
- 		return -EINVAL;
+ 	name = of_flat_dt_get_machine_name();
+ 	if (!name)
+ 		return;
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -836,7 +836,7 @@ void __set_fixmap(enum fixed_addresses i
+ 	}
+ }
  
+-void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
++void *__init fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
+ {
+ 	const u64 dt_virt_base = __fix_to_virt(FIX_FDT);
+ 	int offset;
+@@ -889,19 +889,6 @@ void *__init __fixmap_remap_fdt(phys_add
+ 	return dt_virt;
+ }
+ 
+-void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
+-{
+-	void *dt_virt;
+-	int size;
+-
+-	dt_virt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
+-	if (!dt_virt)
+-		return NULL;
+-
+-	memblock_reserve(dt_phys, size);
+-	return dt_virt;
+-}
+-
+ int __init arch_ioremap_pud_supported(void)
+ {
+ 	/*
 
 
