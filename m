@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE27B5AAF17
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:34:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE8F5AB1F9
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:47:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236817AbiIBMdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:33:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36696 "EHLO
+        id S237863AbiIBNrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:47:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236702AbiIBMcF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:32:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75E8E1934;
-        Fri,  2 Sep 2022 05:27:23 -0700 (PDT)
+        with ESMTP id S236951AbiIBNrJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:47:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7178323168;
+        Fri,  2 Sep 2022 06:22:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A10EB82AA2;
-        Fri,  2 Sep 2022 12:25:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 868D0C433D7;
-        Fri,  2 Sep 2022 12:25:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59EF462180;
+        Fri,  2 Sep 2022 12:28:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55629C433C1;
+        Fri,  2 Sep 2022 12:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121524;
-        bh=datHgiSjND2VmkLLoF7eduR5OnhuevfGSmxmRwUU9Jg=;
+        s=korg; t=1662121732;
+        bh=GXpS0K7nMoJ0lD89ZTWvPSyPpAQxwDn/AVLCeVa0IZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sCUSvf4kzN5e+Tj84nq2/X2zb5mdjSEoHAlZcrh2D/vTkLiZakf3mzwzvxECs2AHp
-         nJv2ODDrhDT5DBV9yOo3bNETSOa3vxq3SbAiKTIHvCQVJsKGeojTplKnd77jikU/Wa
-         KM27q+3hw2DEYuJS3OnhWNLvmRt6Urz0URCS++dE=
+        b=PCmoN/aRW1pVkxKaYE3PG4TqTs7BgucLTThPLfmVpcueWr8kOWBGXfLYgoh5KVuLT
+         JNWsBtzJHMgiQJnnVO8EgsGDbKPGTLmnq6S5IRYjnrJxBPAMnriV1anjIFBxz24MGD
+         4wekye8glsLuNwcnVVsGX8tk1TVpKfw34zJKqoNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Saurabh Sengar <ssengar@linux.microsoft.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 36/56] scsi: storvsc: Remove WQ_MEM_RECLAIM from storvsc_error_wq
+        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>
+Subject: [PATCH 5.4 47/77] perf/x86/intel/uncore: Fix broken read_counter() for SNB IMC PMU
 Date:   Fri,  2 Sep 2022 14:18:56 +0200
-Message-Id: <20220902121401.554898954@linuxfoundation.org>
+Message-Id: <20220902121405.211947115@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
-References: <20220902121400.219861128@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurabh Sengar <ssengar@linux.microsoft.com>
+From: Stephane Eranian <eranian@google.com>
 
-commit d957e7ffb2c72410bcc1a514153a46719255a5da upstream.
+commit 11745ecfe8fea4b4a4c322967a7605d2ecbd5080 upstream.
 
-storvsc_error_wq workqueue should not be marked as WQ_MEM_RECLAIM as it
-doesn't need to make forward progress under memory pressure.  Marking this
-workqueue as WQ_MEM_RECLAIM may cause deadlock while flushing a
-non-WQ_MEM_RECLAIM workqueue.  In the current state it causes the following
-warning:
+Existing code was generating bogus counts for the SNB IMC bandwidth counters:
 
-[   14.506347] ------------[ cut here ]------------
-[   14.506354] workqueue: WQ_MEM_RECLAIM storvsc_error_wq_0:storvsc_remove_lun is flushing !WQ_MEM_RECLAIM events_freezable_power_:disk_events_workfn
-[   14.506360] WARNING: CPU: 0 PID: 8 at <-snip->kernel/workqueue.c:2623 check_flush_dependency+0xb5/0x130
-[   14.506390] CPU: 0 PID: 8 Comm: kworker/u4:0 Not tainted 5.4.0-1086-azure #91~18.04.1-Ubuntu
-[   14.506391] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.1 05/09/2022
-[   14.506393] Workqueue: storvsc_error_wq_0 storvsc_remove_lun
-[   14.506395] RIP: 0010:check_flush_dependency+0xb5/0x130
-		<-snip->
-[   14.506408] Call Trace:
-[   14.506412]  __flush_work+0xf1/0x1c0
-[   14.506414]  __cancel_work_timer+0x12f/0x1b0
-[   14.506417]  ? kernfs_put+0xf0/0x190
-[   14.506418]  cancel_delayed_work_sync+0x13/0x20
-[   14.506420]  disk_block_events+0x78/0x80
-[   14.506421]  del_gendisk+0x3d/0x2f0
-[   14.506423]  sr_remove+0x28/0x70
-[   14.506427]  device_release_driver_internal+0xef/0x1c0
-[   14.506428]  device_release_driver+0x12/0x20
-[   14.506429]  bus_remove_device+0xe1/0x150
-[   14.506431]  device_del+0x167/0x380
-[   14.506432]  __scsi_remove_device+0x11d/0x150
-[   14.506433]  scsi_remove_device+0x26/0x40
-[   14.506434]  storvsc_remove_lun+0x40/0x60
-[   14.506436]  process_one_work+0x209/0x400
-[   14.506437]  worker_thread+0x34/0x400
-[   14.506439]  kthread+0x121/0x140
-[   14.506440]  ? process_one_work+0x400/0x400
-[   14.506441]  ? kthread_park+0x90/0x90
-[   14.506443]  ret_from_fork+0x35/0x40
-[   14.506445] ---[ end trace 2d9633159fdc6ee7 ]---
+$ perf stat -a -I 1000 -e uncore_imc/data_reads/,uncore_imc/data_writes/
+     1.000327813           1,024.03 MiB  uncore_imc/data_reads/
+     1.000327813              20.73 MiB  uncore_imc/data_writes/
+     2.000580153         261,120.00 MiB  uncore_imc/data_reads/
+     2.000580153              23.28 MiB  uncore_imc/data_writes/
 
-Link: https://lore.kernel.org/r/1659628534-17539-1-git-send-email-ssengar@linux.microsoft.com
-Fixes: 436ad9413353 ("scsi: storvsc: Allow only one remove lun work item to be issued per lun")
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The problem was introduced by commit:
+  07ce734dd8ad ("perf/x86/intel/uncore: Clean up client IMC")
+
+Where the read_counter callback was replace to point to the generic
+uncore_mmio_read_counter() function.
+
+The SNB IMC counters are freerunnig 32-bit counters laid out contiguously in
+MMIO. But uncore_mmio_read_counter() is using a readq() call to read from
+MMIO therefore reading 64-bit from MMIO. Although this is okay for the
+uncore_perf_event_update() function because it is shifting the value based
+on the actual counter width to compute a delta, it is not okay for the
+uncore_pmu_event_start() which is simply reading the counter  and therefore
+priming the event->prev_count with a bogus value which is responsible for
+causing bogus deltas in the perf stat command above.
+
+The fix is to reintroduce the custom callback for read_counter for the SNB
+IMC PMU and use readl() instead of readq(). With the change the output of
+perf stat is back to normal:
+$ perf stat -a -I 1000 -e uncore_imc/data_reads/,uncore_imc/data_writes/
+     1.000120987             296.94 MiB  uncore_imc/data_reads/
+     1.000120987             138.42 MiB  uncore_imc/data_writes/
+     2.000403144             175.91 MiB  uncore_imc/data_reads/
+     2.000403144              68.50 MiB  uncore_imc/data_writes/
+
+Fixes: 07ce734dd8ad ("perf/x86/intel/uncore: Clean up client IMC")
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Link: https://lore.kernel.org/r/20220803160031.1379788-1-eranian@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/storvsc_drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/uncore_snb.c |   18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -1858,7 +1858,7 @@ static int storvsc_probe(struct hv_devic
- 	 */
- 	host_dev->handle_error_wq =
- 			alloc_ordered_workqueue("storvsc_error_wq_%d",
--						WQ_MEM_RECLAIM,
-+						0,
- 						host->host_no);
- 	if (!host_dev->handle_error_wq)
- 		goto err_out2;
+--- a/arch/x86/events/intel/uncore_snb.c
++++ b/arch/x86/events/intel/uncore_snb.c
+@@ -575,6 +575,22 @@ int snb_pci2phy_map_init(int devid)
+ 	return 0;
+ }
+ 
++static u64 snb_uncore_imc_read_counter(struct intel_uncore_box *box, struct perf_event *event)
++{
++	struct hw_perf_event *hwc = &event->hw;
++
++	/*
++	 * SNB IMC counters are 32-bit and are laid out back to back
++	 * in MMIO space. Therefore we must use a 32-bit accessor function
++	 * using readq() from uncore_mmio_read_counter() causes problems
++	 * because it is reading 64-bit at a time. This is okay for the
++	 * uncore_perf_event_update() function because it drops the upper
++	 * 32-bits but not okay for plain uncore_read_counter() as invoked
++	 * in uncore_pmu_event_start().
++	 */
++	return (u64)readl(box->io_addr + hwc->event_base);
++}
++
+ static struct pmu snb_uncore_imc_pmu = {
+ 	.task_ctx_nr	= perf_invalid_context,
+ 	.event_init	= snb_uncore_imc_event_init,
+@@ -594,7 +610,7 @@ static struct intel_uncore_ops snb_uncor
+ 	.disable_event	= snb_uncore_imc_disable_event,
+ 	.enable_event	= snb_uncore_imc_enable_event,
+ 	.hw_config	= snb_uncore_imc_hw_config,
+-	.read_counter	= uncore_mmio_read_counter,
++	.read_counter	= snb_uncore_imc_read_counter,
+ };
+ 
+ static struct intel_uncore_type snb_uncore_imc = {
 
 
