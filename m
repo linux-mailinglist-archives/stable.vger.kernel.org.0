@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5340F5AAF30
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:35:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC6125AAFEE
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236116AbiIBMeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:34:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55478 "EHLO
+        id S237404AbiIBMqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:46:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236957AbiIBMdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:33:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9DBFE395D;
-        Fri,  2 Sep 2022 05:28:17 -0700 (PDT)
+        with ESMTP id S237414AbiIBMol (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:44:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A114E1AB0;
+        Fri,  2 Sep 2022 05:33:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8772062160;
-        Fri,  2 Sep 2022 12:28:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6473EC433D7;
-        Fri,  2 Sep 2022 12:28:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 789586212E;
+        Fri,  2 Sep 2022 12:31:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8027DC433D6;
+        Fri,  2 Sep 2022 12:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121687;
-        bh=RiliGPSZwKdFTnul30LcNjErRFxYycneIXzWkkJauHU=;
+        s=korg; t=1662121885;
+        bh=RlgmLsc1QgR4aQk2lM5b0iqGogmpdMQV8MKniSME4yQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGTKDkDe/2a07v4r8vFl3Z2ZKWGUiRi0BX2EcSM+53H5DwMNqGrA5v6UojIhvmhIr
-         tXiBhrm795DF7wih5wTOb5KvBALQ5pbd2tSFZl2UygaIx66ML9EWHL2RRX9p7qIBqU
-         v7fxB+1oOvE24wr5GXof7jSod1/z6mpdOqHRMAeM=
+        b=Utm8PHSPtEFtTPj10hirOLj80NeepQPy/PpAHhFMcaGCYX0m1IUgfC8ypD/4VGECB
+         RiSEoco1HimpzvcEMh2ZygYafinR9i7t6CeZq0HY+qJiOF+eTg4WLHtZHv6tsTfOmu
+         /wvfUtM29fid/vzgxezccbKb57H0cm3yQiXFYjl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/77] net: Fix a data-race around netdev_budget_usecs.
-Date:   Fri,  2 Sep 2022 14:18:42 +0200
-Message-Id: <20220902121404.739072097@linuxfoundation.org>
+        Dylan Yudaken <dylany@fb.com>, Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Subject: [PATCH 5.15 19/73] io_uring: remove poll entry from list when canceling all
+Date:   Fri,  2 Sep 2022 14:18:43 +0200
+Message-Id: <20220902121405.091863140@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,36 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit fa45d484c52c73f79db2c23b0cdfc6c6455093ad ]
+[ upstream commmit 61bc84c4008812d784c398cfb54118c1ba396dfc ]
 
-While reading netdev_budget_usecs, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+When the ring is exiting, as part of the shutdown, poll requests are
+removed. But io_poll_remove_all() does not remove entries when finding
+them, and since completions are done out-of-band, we can find and remove
+the same entry multiple times.
 
-Fixes: 7acf8a1e8a28 ("Replace 2 jiffies with sysctl netdev_budget_usecs to enable softirq tuning")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We do guard the poll execution by poll ownership, but that does not
+exclude us from reissuing a new one once the previous removal ownership
+goes away.
+
+This can race with poll execution as well, where we then end up seeing
+req->apoll be NULL because a previous task_work requeue finished the
+request.
+
+Remove the poll entry when we find it and get ownership of it. This
+prevents multiple invocations from finding it.
+
+Fixes: aa43477b0402 ("io_uring: poll rework")
+Reported-by: Dylan Yudaken <dylany@fb.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[pavel: backport]
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 7c19e672dde84..25b4fe06fbb4e 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6393,7 +6393,7 @@ static __latent_entropy void net_rx_action(struct softirq_action *h)
- {
- 	struct softnet_data *sd = this_cpu_ptr(&softnet_data);
- 	unsigned long time_limit = jiffies +
--		usecs_to_jiffies(netdev_budget_usecs);
-+		usecs_to_jiffies(READ_ONCE(netdev_budget_usecs));
- 	int budget = READ_ONCE(netdev_budget);
- 	LIST_HEAD(list);
- 	LIST_HEAD(repoll);
--- 
-2.35.1
-
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5720,6 +5720,7 @@ static bool io_poll_remove_all(struct io
+ 		list = &ctx->cancel_hash[i];
+ 		hlist_for_each_entry_safe(req, tmp, list, hash_node) {
+ 			if (io_match_task_safe(req, tsk, cancel_all)) {
++				hlist_del_init(&req->hash_node);
+ 				io_poll_cancel_req(req);
+ 				found = true;
+ 			}
 
 
