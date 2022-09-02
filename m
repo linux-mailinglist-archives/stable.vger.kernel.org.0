@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D71E05AAF75
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 580E15AAEC4
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237002AbiIBMj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:39:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41764 "EHLO
+        id S236468AbiIBM3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:29:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237395AbiIBMjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:39:32 -0400
+        with ESMTP id S236610AbiIBM2s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:28:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29171DF668;
-        Fri,  2 Sep 2022 05:30:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4BB728716;
+        Fri,  2 Sep 2022 05:25:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFCAC621AE;
-        Fri,  2 Sep 2022 12:30:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1FEBC433D7;
-        Fri,  2 Sep 2022 12:30:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B18762159;
+        Fri,  2 Sep 2022 12:25:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 625C5C433C1;
+        Fri,  2 Sep 2022 12:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121854;
-        bh=MteKdNzVp6cflqnKE+4HSQpIqrWCVu9lmRjk+wi8mcA=;
+        s=korg; t=1662121501;
+        bh=U7GMaY2it9Z4WBOXUdiR9o362PqChtpkJaBmnyMrYZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNxhBx7YPbYEjQcuY0k4HocXTXNFoZKU3TAWqQaRpDxy8RET8GjFN9SDfhzRoAon0
-         kp7QEKqZKupmNJIotm6/SwjTplbW3R4w1dzIH/ETY4aWxENrsDwy02Ec+R991ZJaEy
-         4yCWEoJwh5XBTiDcx7IwIG86ertg5VZ6NfhUu160=
+        b=CQsRf3uzB6mh2SvFuIfC002gEiIkLmHhyV73CVS1qzC5lkoswzclCeoOkSR9n6nGJ
+         dkHs8r67qvxCApGjP1aEbr0pcU6Dk3po/3YyuErNvJ9D96LjQNfQp4zwN4xmbmpXrN
+         7WOj3g1fHzJKcYXLauJ7dQLW03hV7jH+lxA5nDAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jann Horn <jannh@google.com>
-Subject: [PATCH 5.15 01/73] mm: Force TLB flush for PFNMAP mappings before unlink_file_vma()
+        stable@vger.kernel.org,
+        "srivatsab@vmware.com, srivatsa@csail.mit.edu, akaher@vmware.com,
+        amakhalov@vmware.com, vsirnapalli@vmware.com, sturlapati@vmware.com,
+        bordoloih@vmware.com, keerthanak@vmware.com, Ankit Jain" 
+        <ankitja@vmware.com>, Mark Simmons <msimmons@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Ankit Jain <ankitja@vmware.com>
+Subject: [PATCH 4.19 05/56] sched/deadline: Unthrottle PI boosted threads while enqueuing
 Date:   Fri,  2 Sep 2022 14:18:25 +0200
-Message-Id: <20220902121404.484452365@linuxfoundation.org>
+Message-Id: <20220902121400.390643885@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,53 +60,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Daniel Bristot de Oliveira <bristot@redhat.com>
 
-commit b67fbebd4cf980aecbcc750e1462128bffe8ae15 upstream.
+commit feff2e65efd8d84cf831668e182b2ce73c604bbb upstream.
 
-Some drivers rely on having all VMAs through which a PFN might be
-accessible listed in the rmap for correctness.
-However, on X86, it was possible for a VMA with stale TLB entries
-to not be listed in the rmap.
+stress-ng has a test (stress-ng --cyclic) that creates a set of threads
+under SCHED_DEADLINE with the following parameters:
 
-This was fixed in mainline with
-commit b67fbebd4cf9 ("mmu_gather: Force tlb-flush VM_PFNMAP vmas"),
-but that commit relies on preceding refactoring in
-commit 18ba064e42df3 ("mmu_gather: Let there be one tlb_{start,end}_vma()
-implementation") and commit 1e9fdf21a4339 ("mmu_gather: Remove per arch
-tlb_{start,end}_vma()").
+    dl_runtime   =  10000 (10 us)
+    dl_deadline  = 100000 (100 us)
+    dl_period    = 100000 (100 us)
 
-This patch provides equivalent protection without needing that
-refactoring, by forcing a TLB flush between removing PTEs in
-unmap_vmas() and the call to unlink_file_vma() in free_pgtables().
+These parameters are very aggressive. When using a system without HRTICK
+set, these threads can easily execute longer than the dl_runtime because
+the throttling happens with 1/HZ resolution.
 
-[This is a stable-specific rewrite of the upstream commit!]
-Signed-off-by: Jann Horn <jannh@google.com>
+During the main part of the test, the system works just fine because
+the workload does not try to run over the 10 us. The problem happens at
+the end of the test, on the exit() path. During exit(), the threads need
+to do some cleanups that require real-time mutex locks, mainly those
+related to memory management, resulting in this scenario:
+
+Note: locks are rt_mutexes...
+ ------------------------------------------------------------------------
+    TASK A:		TASK B:				TASK C:
+    activation
+							activation
+			activation
+
+    lock(a): OK!	lock(b): OK!
+    			<overrun runtime>
+    			lock(a)
+    			-> block (task A owns it)
+			  -> self notice/set throttled
+ +--<			  -> arm replenished timer
+ |    			switch-out
+ |    							lock(b)
+ |    							-> <C prio > B prio>
+ |    							-> boost TASK B
+ |  unlock(a)						switch-out
+ |  -> handle lock a to B
+ |    -> wakeup(B)
+ |      -> B is throttled:
+ |        -> do not enqueue
+ |     switch-out
+ |
+ |
+ +---------------------> replenishment timer
+			-> TASK B is boosted:
+			  -> do not enqueue
+ ------------------------------------------------------------------------
+
+BOOM: TASK B is runnable but !enqueued, holding TASK C: the system
+crashes with hung task C.
+
+This problem is avoided by removing the throttle state from the boosted
+thread while boosting it (by TASK A in the example above), allowing it to
+be queued and run boosted.
+
+The next replenishment will take care of the runtime overrun, pushing
+the deadline further away. See the "while (dl_se->runtime <= 0)" on
+replenish_dl_entity() for more information.
+
+Reported-by: Mark Simmons <msimmons@redhat.com>
+Signed-off-by: Daniel Bristot de Oliveira <bristot@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Juri Lelli <juri.lelli@redhat.com>
+Tested-by: Mark Simmons <msimmons@redhat.com>
+Link: https://lkml.kernel.org/r/5076e003450835ec74e6fa5917d02c4fa41687e6.1600170294.git.bristot@redhat.com
+[Ankit: Regenerated the patch for v4.19.y]
+Signed-off-by: Ankit Jain <ankitja@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mmap.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ kernel/sched/deadline.c |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -2643,6 +2643,18 @@ static void unmap_region(struct mm_struc
- 	tlb_gather_mmu(&tlb, mm);
- 	update_hiwater_rss(mm);
- 	unmap_vmas(&tlb, vma, start, end);
-+
-+	/*
-+	 * Ensure we have no stale TLB entries by the time this mapping is
-+	 * removed from the rmap.
-+	 * Note that we don't have to worry about nested flushes here because
-+	 * we're holding the mm semaphore for removing the mapping - so any
-+	 * concurrent flush in this region has to be coming through the rmap,
-+	 * and we synchronize against that using the rmap lock.
-+	 */
-+	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
-+		tlb_flush_mmu(&tlb);
-+
- 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
- 				 next ? next->vm_start : USER_PGTABLES_CEILING);
- 	tlb_finish_mmu(&tlb);
+--- a/kernel/sched/deadline.c
++++ b/kernel/sched/deadline.c
+@@ -1484,6 +1484,27 @@ static void enqueue_task_dl(struct rq *r
+ 	 */
+ 	if (pi_task && dl_prio(pi_task->normal_prio) && p->dl.dl_boosted) {
+ 		pi_se = &pi_task->dl;
++		/*
++		 * Because of delays in the detection of the overrun of a
++		 * thread's runtime, it might be the case that a thread
++		 * goes to sleep in a rt mutex with negative runtime. As
++		 * a consequence, the thread will be throttled.
++		 *
++		 * While waiting for the mutex, this thread can also be
++		 * boosted via PI, resulting in a thread that is throttled
++		 * and boosted at the same time.
++		 *
++		 * In this case, the boost overrides the throttle.
++		 */
++		if (p->dl.dl_throttled) {
++			/*
++			 * The replenish timer needs to be canceled. No
++			 * problem if it fires concurrently: boosted threads
++			 * are ignored in dl_task_timer().
++			 */
++			hrtimer_try_to_cancel(&p->dl.dl_timer);
++			p->dl.dl_throttled = 0;
++		}
+ 	} else if (!dl_prio(p->normal_prio)) {
+ 		/*
+ 		 * Special case in which we have a !SCHED_DEADLINE task
 
 
