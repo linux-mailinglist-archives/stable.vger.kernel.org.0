@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B10FD5AB0D8
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2867F5AB111
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:03:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238328AbiIBM7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:59:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34772 "EHLO
+        id S238595AbiIBNDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:03:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238532AbiIBM67 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:58:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F19520BF;
-        Fri,  2 Sep 2022 05:40:17 -0700 (PDT)
+        with ESMTP id S238401AbiIBNCo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:02:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA8810B971;
+        Fri,  2 Sep 2022 05:41:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DE78B82AD7;
-        Fri,  2 Sep 2022 12:39:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57321C433C1;
-        Fri,  2 Sep 2022 12:39:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E556621AD;
+        Fri,  2 Sep 2022 12:39:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E1C3C433D6;
+        Fri,  2 Sep 2022 12:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122385;
-        bh=G2T7Tlf5fBjaTBzZT3U25YetWR9g+p/O4H0DDcDcyqA=;
+        s=korg; t=1662122388;
+        bh=dxzaYWsKEC/iaUOjhi3s42CTv+Z/QYHQanu3QtWLlWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDPvrazkY4Ok2dMzwogmXskXeKiG/NGH/GrCyqgx7OsJsifLO8kqJqGmEP0LCSe4D
-         +oh9TplYp3RzWPYB2FptO0MuOGRk9J6PIFdvZFsnjYnFqe/UUywA9r1F5YuJ3veDgU
-         0pYounfvlGKbc9nCRDc8DgO/6+xVpRHZbJMb7l0U=
+        b=tDEfYGI7VXWpN6dpYUvbRjKoz4+Yv5wJjv9f+ody21gcIoawHoGIXlba4hhPZyMye
+         LAYOPpp02sxPiSEUdx0PQe7Csigp0DZNGXCcwWDcZH2PvcdoFBX6jaTrKFoM/40153
+         6SAOJIn8JKPrszKT+UM5bFnyBOaa7b+SdyNldNO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.10 30/37] io_uring: disable polling pollfree files
-Date:   Fri,  2 Sep 2022 14:19:52 +0200
-Message-Id: <20220902121400.115965399@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Chinner <dchinner@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 31/37] xfs: remove infinite loop when reserving free block pool
+Date:   Fri,  2 Sep 2022 14:19:53 +0200
+Message-Id: <20220902121400.150139481@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
 References: <20220902121359.177846782@linuxfoundation.org>
@@ -52,65 +55,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-Older kernels lack io_uring POLLFREE handling. As only affected files
-are signalfd and android binder the safest option would be to disable
-polling those files via io_uring and hope there are no users.
+commit 15f04fdc75aaaa1cccb0b8b3af1be290e118a7bc upstream.
 
-Fixes: 221c5eb233823 ("io_uring: add support for IORING_OP_POLL")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+[Added wrapper xfs_fdblocks_unavailable() for 5.10.y backport]
+
+Infinite loops in kernel code are scary.  Calls to xfs_reserve_blocks
+should be rare (people should just use the defaults!) so we really don't
+need to try so hard.  Simplify the logic here by removing the infinite
+loop.
+
+Cc: Brian Foster <bfoster@redhat.com>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c |    1 +
- fs/io_uring.c            |    5 +++++
- fs/signalfd.c            |    1 +
- include/linux/fs.h       |    1 +
- 4 files changed, 8 insertions(+)
+ fs/xfs/xfs_fsops.c |   52 +++++++++++++++++++++-------------------------------
+ fs/xfs/xfs_mount.h |    8 ++++++++
+ 2 files changed, 29 insertions(+), 31 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -6069,6 +6069,7 @@ const struct file_operations binder_fops
- 	.open = binder_open,
- 	.flush = binder_flush,
- 	.release = binder_release,
-+	.may_pollfree = true,
- };
+--- a/fs/xfs/xfs_fsops.c
++++ b/fs/xfs/xfs_fsops.c
+@@ -376,46 +376,36 @@ xfs_reserve_blocks(
+ 	 * If the request is larger than the current reservation, reserve the
+ 	 * blocks before we update the reserve counters. Sample m_fdblocks and
+ 	 * perform a partial reservation if the request exceeds free space.
++	 *
++	 * The code below estimates how many blocks it can request from
++	 * fdblocks to stash in the reserve pool.  This is a classic TOCTOU
++	 * race since fdblocks updates are not always coordinated via
++	 * m_sb_lock.
+ 	 */
+-	error = -ENOSPC;
+-	do {
+-		free = percpu_counter_sum(&mp->m_fdblocks) -
+-						mp->m_alloc_set_aside;
+-		if (free <= 0)
+-			break;
+-
+-		delta = request - mp->m_resblks;
+-		lcounter = free - delta;
+-		if (lcounter < 0)
+-			/* We can't satisfy the request, just get what we can */
+-			fdblks_delta = free;
+-		else
+-			fdblks_delta = delta;
+-
++	free = percpu_counter_sum(&mp->m_fdblocks) -
++						xfs_fdblocks_unavailable(mp);
++	delta = request - mp->m_resblks;
++	if (delta > 0 && free > 0) {
+ 		/*
+ 		 * We'll either succeed in getting space from the free block
+-		 * count or we'll get an ENOSPC. If we get a ENOSPC, it means
+-		 * things changed while we were calculating fdblks_delta and so
+-		 * we should try again to see if there is anything left to
+-		 * reserve.
+-		 *
+-		 * Don't set the reserved flag here - we don't want to reserve
+-		 * the extra reserve blocks from the reserve.....
++		 * count or we'll get an ENOSPC.  Don't set the reserved flag
++		 * here - we don't want to reserve the extra reserve blocks
++		 * from the reserve.
+ 		 */
++		fdblks_delta = min(free, delta);
+ 		spin_unlock(&mp->m_sb_lock);
+ 		error = xfs_mod_fdblocks(mp, -fdblks_delta, 0);
+ 		spin_lock(&mp->m_sb_lock);
+-	} while (error == -ENOSPC);
  
- static int __init init_binder_device(const char *name)
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5198,6 +5198,11 @@ static __poll_t __io_arm_poll_handler(st
- 	struct io_ring_ctx *ctx = req->ctx;
- 	bool cancel = false;
+-	/*
+-	 * Update the reserve counters if blocks have been successfully
+-	 * allocated.
+-	 */
+-	if (!error && fdblks_delta) {
+-		mp->m_resblks += fdblks_delta;
+-		mp->m_resblks_avail += fdblks_delta;
++		/*
++		 * Update the reserve counters if blocks have been successfully
++		 * allocated.
++		 */
++		if (!error) {
++			mp->m_resblks += fdblks_delta;
++			mp->m_resblks_avail += fdblks_delta;
++		}
+ 	}
+-
+ out:
+ 	if (outval) {
+ 		outval->resblks = mp->m_resblks;
+--- a/fs/xfs/xfs_mount.h
++++ b/fs/xfs/xfs_mount.h
+@@ -406,6 +406,14 @@ extern int	xfs_initialize_perag(xfs_moun
+ 				     xfs_agnumber_t *maxagi);
+ extern void	xfs_unmountfs(xfs_mount_t *);
  
-+	if (req->file->f_op->may_pollfree) {
-+		spin_lock_irq(&ctx->completion_lock);
-+		return -EOPNOTSUPP;
-+	}
++/* Accessor added for 5.10.y backport */
++static inline uint64_t
++xfs_fdblocks_unavailable(
++	struct xfs_mount	*mp)
++{
++	return mp->m_alloc_set_aside;
++}
 +
- 	INIT_HLIST_NODE(&req->hash_node);
- 	io_init_poll_iocb(poll, mask, wake_func);
- 	poll->file = req->file;
---- a/fs/signalfd.c
-+++ b/fs/signalfd.c
-@@ -248,6 +248,7 @@ static const struct file_operations sign
- 	.poll		= signalfd_poll,
- 	.read		= signalfd_read,
- 	.llseek		= noop_llseek,
-+	.may_pollfree	= true,
- };
- 
- static int do_signalfd4(int ufd, sigset_t *mask, int flags)
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -1859,6 +1859,7 @@ struct file_operations {
- 				   struct file *file_out, loff_t pos_out,
- 				   loff_t len, unsigned int remap_flags);
- 	int (*fadvise)(struct file *, loff_t, loff_t, int);
-+	bool may_pollfree;
- } __randomize_layout;
- 
- struct inode_operations {
+ extern int	xfs_mod_fdblocks(struct xfs_mount *mp, int64_t delta,
+ 				 bool reserved);
+ extern int	xfs_mod_frextents(struct xfs_mount *mp, int64_t delta);
 
 
