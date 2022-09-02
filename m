@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85A4D5AAFB9
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FDBD5AAEAC
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:27:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237271AbiIBMnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:43:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42070 "EHLO
+        id S236479AbiIBM1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:27:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237313AbiIBMmg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:42:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 639F9E9255;
-        Fri,  2 Sep 2022 05:31:46 -0700 (PDT)
+        with ESMTP id S236363AbiIBM1Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:27:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 828C3DDAA2;
+        Fri,  2 Sep 2022 05:23:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED083621A6;
-        Fri,  2 Sep 2022 12:31:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E38C433D7;
-        Fri,  2 Sep 2022 12:31:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5ADFBB82A8F;
+        Fri,  2 Sep 2022 12:22:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA1E0C433C1;
+        Fri,  2 Sep 2022 12:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121902;
-        bh=a9DYgK2g59OD5cCAIuKdT7mUo0T9p9dpCE3R3Zs+vG0=;
+        s=korg; t=1662121355;
+        bh=/vUfvoVjM8YHAz6X8BDDMo3LD+0clPvNLObkX/HL5xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klhIzGsdr08QCKXsewSLiES5fEYhOi8imtwGzGc3uCxoRlX5+wK2sNKlEJJ1vcAfZ
-         wpAbH/KHTyR7lJUaSZQBKbjcHQpDF/30S+6sz6yO95gp0XbVUba8yp4gbRhF8bVxrK
-         dGrgJVhNg6BBENcyLNEbPytqivcxUWFJDtdluX5I=
+        b=jNcIzsbWuQLSqw51k6C+wySJ0kt6JdrSXVdJT0N5HgpepyvNNe/Loo1Log89P+Ioh
+         cMkG1Y9GuezVAIJP6a8a34NyLTevDiyvETT3d+jqNsegec5ezQ3CoSDBghIepMX4xL
+         Us/mNo9GN8RtpgCpg/0zZlPJiQHAcMYiXvTtL4m0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        syzbot+5426c7ed6868c705ca14@syzkaller.appspotmail.com
-Subject: [PATCH 5.15 23/73] io_uring: fix UAF due to missing POLLFREE handling
+        stable@vger.kernel.org,
+        Quanyang Wang <quanyang.wang@windriver.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Thierry Reding <treding@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 23/42] asm-generic: sections: refactor memory_intersects
 Date:   Fri,  2 Sep 2022 14:18:47 +0200
-Message-Id: <20220902121405.211182833@linuxfoundation.org>
+Message-Id: <20220902121359.606580799@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
-References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,116 +57,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ upstream commmit 791f3465c4afde02d7f16cf7424ca87070b69396 ]
+commit 0c7d7cc2b4fe2e74ef8728f030f0f1674f9f6aee upstream.
 
-Fixes a problem described in 50252e4b5e989
-("aio: fix use-after-free due to missing POLLFREE handling")
-and copies the approach used there.
+There are two problems with the current code of memory_intersects:
 
-In short, we have to forcibly eject a poll entry when we meet POLLFREE.
-We can't rely on io_poll_get_ownership() as can't wait for potentially
-running tw handlers, so we use the fact that wqs are RCU freed. See
-Eric's patch and comments for more details.
+First, it doesn't check whether the region (begin, end) falls inside the
+region (virt, vend), that is (virt < begin && vend > end).
 
-Reported-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20211209010455.42744-6-ebiggers@kernel.org
-Reported-and-tested-by: syzbot+5426c7ed6868c705ca14@syzkaller.appspotmail.com
-Fixes: 221c5eb233823 ("io_uring: add support for IORING_OP_POLL")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/4ed56b6f548f7ea337603a82315750449412748a.1642161259.git.asml.silence@gmail.com
-[axboe: drop non-functional change from patch]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[pavel: backport]
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+The second problem is if vend is equal to begin, it will return true but
+this is wrong since vend (virt + size) is not the last address of the
+memory region but (virt + size -1) is.  The wrong determination will
+trigger the misreporting when the function check_for_illegal_area calls
+memory_intersects to check if the dma region intersects with stext region.
+
+The misreporting is as below (stext is at 0x80100000):
+ WARNING: CPU: 0 PID: 77 at kernel/dma/debug.c:1073 check_for_illegal_area+0x130/0x168
+ DMA-API: chipidea-usb2 e0002000.usb: device driver maps memory from kernel text or rodata [addr=800f0000] [len=65536]
+ Modules linked in:
+ CPU: 1 PID: 77 Comm: usb-storage Not tainted 5.19.0-yocto-standard #5
+ Hardware name: Xilinx Zynq Platform
+  unwind_backtrace from show_stack+0x18/0x1c
+  show_stack from dump_stack_lvl+0x58/0x70
+  dump_stack_lvl from __warn+0xb0/0x198
+  __warn from warn_slowpath_fmt+0x80/0xb4
+  warn_slowpath_fmt from check_for_illegal_area+0x130/0x168
+  check_for_illegal_area from debug_dma_map_sg+0x94/0x368
+  debug_dma_map_sg from __dma_map_sg_attrs+0x114/0x128
+  __dma_map_sg_attrs from dma_map_sg_attrs+0x18/0x24
+  dma_map_sg_attrs from usb_hcd_map_urb_for_dma+0x250/0x3b4
+  usb_hcd_map_urb_for_dma from usb_hcd_submit_urb+0x194/0x214
+  usb_hcd_submit_urb from usb_sg_wait+0xa4/0x118
+  usb_sg_wait from usb_stor_bulk_transfer_sglist+0xa0/0xec
+  usb_stor_bulk_transfer_sglist from usb_stor_bulk_srb+0x38/0x70
+  usb_stor_bulk_srb from usb_stor_Bulk_transport+0x150/0x360
+  usb_stor_Bulk_transport from usb_stor_invoke_transport+0x38/0x440
+  usb_stor_invoke_transport from usb_stor_control_thread+0x1e0/0x238
+  usb_stor_control_thread from kthread+0xf8/0x104
+  kthread from ret_from_fork+0x14/0x2c
+
+Refactor memory_intersects to fix the two problems above.
+
+Before the 1d7db834a027e ("dma-debug: use memory_intersects()
+directly"), memory_intersects is called only by printk_late_init:
+
+printk_late_init -> init_section_intersects ->memory_intersects.
+
+There were few places where memory_intersects was called.
+
+When commit 1d7db834a027e ("dma-debug: use memory_intersects()
+directly") was merged and CONFIG_DMA_API_DEBUG is enabled, the DMA
+subsystem uses it to check for an illegal area and the calltrace above
+is triggered.
+
+[akpm@linux-foundation.org: fix nearby comment typo]
+Link: https://lkml.kernel.org/r/20220819081145.948016-1-quanyang.wang@windriver.com
+Fixes: 979559362516 ("asm/sections: add helpers to check for section data")
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   58 ++++++++++++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 50 insertions(+), 8 deletions(-)
+ include/asm-generic/sections.h |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5369,12 +5369,14 @@ static void io_init_poll_iocb(struct io_
- 
- static inline void io_poll_remove_entry(struct io_poll_iocb *poll)
+--- a/include/asm-generic/sections.h
++++ b/include/asm-generic/sections.h
+@@ -92,7 +92,7 @@ static inline bool memory_contains(void
+ /**
+  * memory_intersects - checks if the region occupied by an object intersects
+  *                     with another memory region
+- * @begin: virtual address of the beginning of the memory regien
++ * @begin: virtual address of the beginning of the memory region
+  * @end: virtual address of the end of the memory region
+  * @virt: virtual address of the memory object
+  * @size: size of the memory object
+@@ -105,7 +105,10 @@ static inline bool memory_intersects(voi
  {
--	struct wait_queue_head *head = poll->head;
-+	struct wait_queue_head *head = smp_load_acquire(&poll->head);
+ 	void *vend = virt + size;
  
--	spin_lock_irq(&head->lock);
--	list_del_init(&poll->wait.entry);
--	poll->head = NULL;
--	spin_unlock_irq(&head->lock);
-+	if (head) {
-+		spin_lock_irq(&head->lock);
-+		list_del_init(&poll->wait.entry);
-+		poll->head = NULL;
-+		spin_unlock_irq(&head->lock);
-+	}
+-	return (virt >= begin && virt < end) || (vend >= begin && vend < end);
++	if (virt < end && vend > begin)
++		return true;
++
++	return false;
  }
  
- static void io_poll_remove_entries(struct io_kiocb *req)
-@@ -5382,10 +5384,26 @@ static void io_poll_remove_entries(struc
- 	struct io_poll_iocb *poll = io_poll_get_single(req);
- 	struct io_poll_iocb *poll_double = io_poll_get_double(req);
- 
--	if (poll->head)
--		io_poll_remove_entry(poll);
--	if (poll_double && poll_double->head)
-+	/*
-+	 * While we hold the waitqueue lock and the waitqueue is nonempty,
-+	 * wake_up_pollfree() will wait for us.  However, taking the waitqueue
-+	 * lock in the first place can race with the waitqueue being freed.
-+	 *
-+	 * We solve this as eventpoll does: by taking advantage of the fact that
-+	 * all users of wake_up_pollfree() will RCU-delay the actual free.  If
-+	 * we enter rcu_read_lock() and see that the pointer to the queue is
-+	 * non-NULL, we can then lock it without the memory being freed out from
-+	 * under us.
-+	 *
-+	 * Keep holding rcu_read_lock() as long as we hold the queue lock, in
-+	 * case the caller deletes the entry from the queue, leaving it empty.
-+	 * In that case, only RCU prevents the queue memory from being freed.
-+	 */
-+	rcu_read_lock();
-+	io_poll_remove_entry(poll);
-+	if (poll_double)
- 		io_poll_remove_entry(poll_double);
-+	rcu_read_unlock();
- }
- 
- /*
-@@ -5523,6 +5541,30 @@ static int io_poll_wake(struct wait_queu
- 						 wait);
- 	__poll_t mask = key_to_poll(key);
- 
-+	if (unlikely(mask & POLLFREE)) {
-+		io_poll_mark_cancelled(req);
-+		/* we have to kick tw in case it's not already */
-+		io_poll_execute(req, 0);
-+
-+		/*
-+		 * If the waitqueue is being freed early but someone is already
-+		 * holds ownership over it, we have to tear down the request as
-+		 * best we can. That means immediately removing the request from
-+		 * its waitqueue and preventing all further accesses to the
-+		 * waitqueue via the request.
-+		 */
-+		list_del_init(&poll->wait.entry);
-+
-+		/*
-+		 * Careful: this *must* be the last step, since as soon
-+		 * as req->head is NULL'ed out, the request can be
-+		 * completed and freed, since aio_poll_complete_work()
-+		 * will no longer need to take the waitqueue lock.
-+		 */
-+		smp_store_release(&poll->head, NULL);
-+		return 1;
-+	}
-+
- 	/* for instances that support it check for an event match first */
- 	if (mask && !(mask & poll->events))
- 		return 0;
+ /**
 
 
