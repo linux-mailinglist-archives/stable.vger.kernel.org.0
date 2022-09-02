@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AB0F5AB071
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:54:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B878B5AB01F
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237749AbiIBMyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:54:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56926 "EHLO
+        id S237648AbiIBMt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:49:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237847AbiIBMxR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E224F8FE4;
-        Fri,  2 Sep 2022 05:37:44 -0700 (PDT)
+        with ESMTP id S237955AbiIBMtS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:49:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF23D9EB8;
+        Fri,  2 Sep 2022 05:35:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 866BAB82A91;
-        Fri,  2 Sep 2022 12:36:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D06FBC433C1;
-        Fri,  2 Sep 2022 12:36:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DA15621BE;
+        Fri,  2 Sep 2022 12:33:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22FCFC433D7;
+        Fri,  2 Sep 2022 12:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122198;
-        bh=RtY/8ZtIdexA5KplFfjBrgI2nAZ6OSMG37qt/NcJDC4=;
+        s=korg; t=1662122005;
+        bh=tU0CSPW7Wpbx9znL3/33fzBgj7xdlhoFpnuci/3+y14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7PS2vrAme0yGFNLgUW/oY33g1rSgNWv+h1KkfLF3V4orxb634szyCotEKmAcbJH9
-         QnmXx7DMFa6oBZT4zi3uXuPkFWcAQeQtlUB5im9JE0LogS9GhRUQbfOkz7+yOwBG74
-         XByFydVBhAC5L5Te1t7VJ1YA8F8IWW7divnza7+Q=
+        b=mgAiT8lY4PdGEGVnjhzfkA97digmZn1R/GkAAQ1hnZ3j9fsjDC3NBHQ8v1tPGwXQV
+         pxpIfBx+ECP87/VcDFIky9OXhM/ek1gkQJy7HIFzWZUoqoXevg3jbrUKz9ZbpMSgME
+         nXzw/nTVXfaq8mvDf4hWxSzjTTtDI2gKe501/qQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenneth Feng <kenneth.feng@amd.com>,
-        Feifei Xu <Feifei.Xu@amd.com>,
+        stable@vger.kernel.org, Alvin Lee <alvin.lee2@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        Fudong Wang <Fudong.Wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 43/72] drm/amd/pm: skip pptable override for smu_v13_0_7
+Subject: [PATCH 5.15 55/73] drm/amd/display: clear optc underflow before turn off odm clock
 Date:   Fri,  2 Sep 2022 14:19:19 +0200
-Message-Id: <20220902121406.185535938@linuxfoundation.org>
+Message-Id: <20220902121406.250816449@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kenneth Feng <kenneth.feng@amd.com>
+From: Fudong Wang <Fudong.Wang@amd.com>
 
-[ Upstream commit 4e64b529c5b04e7944b41de554ee686ecab00744 ]
+[ Upstream commit b2a93490201300a749ad261b5c5d05cb50179c44 ]
 
-skip pptable override for smu_v13_0_7 secure boards only.
+[Why]
+After ODM clock off, optc underflow bit will be kept there always and clear not work.
+We need to clear that before clock off.
 
-Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
-Reviewed-by: Feifei Xu <Feifei.Xu@amd.com>
+[How]
+Clear that if have when clock off.
+
+Reviewed-by: Alvin Lee <alvin.lee2@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: Fudong Wang <Fudong.Wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
-index 5aa08c031f721..1d8a9e5b3cc08 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
-@@ -203,6 +203,9 @@ int smu_v13_0_init_pptable_microcode(struct smu_context *smu)
- 	if (!adev->scpm_enabled)
- 		return 0;
- 
-+	if (adev->ip_versions[MP1_HWIP][0] == IP_VERSION(13, 0, 7))
-+		return 0;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+index 37848f4577b18..92fee47278e5a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+@@ -480,6 +480,11 @@ void optc1_enable_optc_clock(struct timing_generator *optc, bool enable)
+ 				OTG_CLOCK_ON, 1,
+ 				1, 1000);
+ 	} else  {
 +
- 	/* override pptable_id from driver parameter */
- 	if (amdgpu_smu_pptable_id >= 0) {
- 		pptable_id = amdgpu_smu_pptable_id;
-@@ -210,13 +213,6 @@ int smu_v13_0_init_pptable_microcode(struct smu_context *smu)
- 	} else {
- 		pptable_id = smu->smu_table.boot_values.pp_table_id;
- 
--		if (adev->ip_versions[MP1_HWIP][0] == IP_VERSION(13, 0, 7) &&
--			pptable_id == 3667)
--			pptable_id = 36671;
--
--		if (adev->ip_versions[MP1_HWIP][0] == IP_VERSION(13, 0, 7) &&
--			pptable_id == 3688)
--			pptable_id = 36881;
- 		/*
- 		 * Temporary solution for SMU V13.0.0 with SCPM enabled:
- 		 *   - use 36831 signed pptable when pp_table_id is 3683
++		//last chance to clear underflow, otherwise, it will always there due to clock is off.
++		if (optc->funcs->is_optc_underflow_occurred(optc) == true)
++			optc->funcs->clear_optc_underflow(optc);
++
+ 		REG_UPDATE_2(OTG_CLOCK_CONTROL,
+ 				OTG_CLOCK_GATE_DIS, 0,
+ 				OTG_CLOCK_EN, 0);
 -- 
 2.35.1
 
