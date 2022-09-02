@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14ABC5AAFDB
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F025AAE8D
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237400AbiIBMoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:44:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54282 "EHLO
+        id S236001AbiIBMZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:25:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237436AbiIBMni (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62E4E9A9D;
-        Fri,  2 Sep 2022 05:32:25 -0700 (PDT)
+        with ESMTP id S236356AbiIBMY5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:24:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8265FD3E71;
+        Fri,  2 Sep 2022 05:22:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7658FB82A71;
-        Fri,  2 Sep 2022 12:32:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 745F3C433D6;
-        Fri,  2 Sep 2022 12:32:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C6B3B82A8B;
+        Fri,  2 Sep 2022 12:22:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD105C433C1;
+        Fri,  2 Sep 2022 12:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121931;
-        bh=TYn5xNj1+u/y1/C0FtNglHlJQAGkda7XdlvO94xulw0=;
+        s=korg; t=1662121321;
+        bh=7YkRdm6aAGi/ARTFAnVLDYfQy0JaBSN5hKwYUU/touk=;
         h=From:To:Cc:Subject:Date:From;
-        b=1gxotqm23qQqpfKoxMyAGgx/6PHBQnTghrIL9CCMwWeoFCJ9fIUbi10/Y7wRbRcTs
-         jlgh1O3oLGbvdhoN0PTq4wfvW7Ix/wX6ON1XlZbae8YN/PeJzzGEr3W8EUbTcVEI7z
-         xLBUIESXSxxARQ15CphPmLM9w1BIKG52jsR+A0Dc=
+        b=VlaeTozcHuBDiX9meCCg1jGEblhGhHunLH2275sF+7TXg0pXqy409GnsxlslBTqw/
+         0vyX+D31WEm4HCuWSeuVzvoONl0VOQCPpsiYMw8pKJjpLypl6uoDLvbVCtlaAWiK/Q
+         hCUcoMJ5mEK6ftpsawl2eiMDU5kNomeVNngErKII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,19 +36,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
         sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.15 00/73] 5.15.65-rc1 review
+Subject: [PATCH 4.14 00/42] 4.14.292-rc1 review
 Date:   Fri,  2 Sep 2022 14:18:24 +0200
-Message-Id: <20220902121404.435662285@linuxfoundation.org>
+Message-Id: <20220902121358.773776406@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.65-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.292-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.65-rc1
+X-KernelTest-Version: 4.14.292-rc1
 X-KernelTest-Deadline: 2022-09-04T12:14+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -62,8 +62,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.65 release.
-There are 73 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 4.14.292 release.
+There are 42 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -71,9 +71,9 @@ Responses should be made by Sun, 04 Sep 2022 12:13:47 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.65-rc1.gz
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.292-rc1.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
 and the diffstat can be found below.
 
 thanks,
@@ -84,52 +84,16 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.65-rc1
+    Linux 4.14.292-rc1
 
 Yang Yingliang <yangyingliang@huawei.com>
     net: neigh: don't call kfree_skb() under spin_lock_irqsave()
 
-Zhengchao Shao <shaozhengchao@huawei.com>
-    net/af_packet: check len when min_header_len equals to 0
-
-Liam Howlett <liam.howlett@oracle.com>
-    android: binder: fix lockdep check on clearing vma
-
-Omar Sandoval <osandov@fb.com>
-    btrfs: fix space cache corruption and potential double allocations
-
 Kuniyuki Iwashima <kuniyu@amazon.com>
     kprobes: don't call disarm_kprobe() for disabled kprobes
 
-Josef Bacik <josef@toxicpanda.com>
-    btrfs: tree-checker: check for overlapping extent items
-
-Josef Bacik <josef@toxicpanda.com>
-    btrfs: fix lockdep splat with reloc root extent buffers
-
-Josef Bacik <josef@toxicpanda.com>
-    btrfs: move lockdep class helpers to locking.c
-
-Florian Westphal <fw@strlen.de>
-    testing: selftests: nft_flowtable.sh: use random netns names
-
 Geert Uytterhoeven <geert@linux-m68k.org>
     netfilter: conntrack: NF_CONNTRACK_PROCFS should no longer default to y
-
-Charlene Liu <Charlene.Liu@amd.com>
-    drm/amd/display: avoid doing vm_init multiple time
-
-Dusica Milinkovic <Dusica.Milinkovic@amd.com>
-    drm/amdgpu: Increase tlb flush timeout for sriov
-
-Ilya Bakoulin <Ilya.Bakoulin@amd.com>
-    drm/amd/display: Fix pixel clock programming
-
-Evan Quan <evan.quan@amd.com>
-    drm/amd/pm: add missing ->fini_microcode interface for Sienna Cichlid
-
-Namjae Jeon <linkinjeon@kernel.org>
-    ksmbd: don't remove dos attribute xattr on O_TRUNC open
 
 Juergen Gross <jgross@suse.com>
     s390/hypfs: avoid error message under KVM
@@ -137,74 +101,8 @@ Juergen Gross <jgross@suse.com>
 Denis V. Lunev <den@openvz.org>
     neigh: fix possible DoS due to net iface start/stop loop
 
-Namjae Jeon <linkinjeon@kernel.org>
-    ksmbd: return STATUS_BAD_NETWORK_NAME error status if share is not configured
-
-Fudong Wang <Fudong.Wang@amd.com>
-    drm/amd/display: clear optc underflow before turn off odm clock
-
-Alvin Lee <alvin.lee2@amd.com>
-    drm/amd/display: For stereo keep "FLIP_ANY_FRAME"
-
-Leo Ma <hanghong.ma@amd.com>
-    drm/amd/display: Fix HDMI VSIF V3 incorrect issue
-
-Josip Pavic <Josip.Pavic@amd.com>
-    drm/amd/display: Avoid MPC infinite loop
-
-Biju Das <biju.das.jz@bp.renesas.com>
-    ASoC: sh: rz-ssi: Improve error handling in rz_ssi_probe() error path
-
-Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-    fs/ntfs3: Fix work with fragmented xattr
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix warning during log replay when bumping inode link count
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: add and use helper for unlinking inode during log replay
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: remove no longer needed logic for replaying directory deletes
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: remove root argument from btrfs_unlink_inode()
-
-Liming Sun <limings@nvidia.com>
-    mmc: sdhci-of-dwcmshc: Re-enable support for the BlueField-3 SoC
-
-Sebastian Reichel <sebastian.reichel@collabora.com>
-    mmc: sdhci-of-dwcmshc: rename rk3568 to rk35xx
-
-Yifeng Zhao <yifeng.zhao@rock-chips.com>
-    mmc: sdhci-of-dwcmshc: add reset call back for rockchip Socs
-
-Wenbin Mei <wenbin.mei@mediatek.com>
-    mmc: mtk-sd: Clear interrupts when cqe off/disable
-
-Chris Wilson <chris.p.wilson@intel.com>
-    drm/i915/gt: Skip TLB invalidations once wedged
-
-Michael Hübner <michaelh.95@t-online.de>
-    HID: thrustmaster: Add sparco wheel and fix array length
-
-Josh Kilmer <srjek2@gmail.com>
-    HID: asus: ROG NKey: Ignore portion of 0x5a report
-
-Akihiko Odaki <akihiko.odaki@gmail.com>
-    HID: AMD_SFH: Add a DMI quirk entry for Chromebooks
-
-Steev Klimaszewski <steev@kali.org>
-    HID: add Lenovo Yoga C630 battery quirk
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: usb-audio: Add quirk for LH Labs Geek Out HD Audio 1V5
-
 Jann Horn <jannh@google.com>
     mm/rmap: Fix anon_vma->degree ambiguity leading to double-reuse
-
-Zhengchao Shao <shaozhengchao@huawei.com>
-    bpf: Don't redirect packets with invalid pkt_len
 
 Yang Jihong <yangjihong1@huawei.com>
     ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
@@ -212,23 +110,11 @@ Yang Jihong <yangjihong1@huawei.com>
 Letu Ren <fantasquex@gmail.com>
     fbdev: fb_pm2fb: Avoid potential divide by zero error
 
-Hawkins Jiawei <yin31149@gmail.com>
-    net: fix refcount bug in sk_psock_get (2)
-
 Karthik Alapati <mail@karthek.com>
     HID: hidraw: fix memory leak in hidraw_release()
 
 Dongliang Mu <mudongliangabcd@gmail.com>
     media: pvrusb2: fix memory leak in pvr_probe
-
-Vivek Kasireddy <vivek.kasireddy@intel.com>
-    udmabuf: Set the DMA mask for the udmabuf device (v2)
-
-Lee Jones <lee.jones@linaro.org>
-    HID: steam: Prevent NULL pointer dereference in steam_{recv,send}_report
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "PCI/portdrv: Don't disable AER reporting in get_port_device_capability()"
 
 Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
     Bluetooth: L2CAP: Fix build errors in some archs
@@ -236,158 +122,153 @@ Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Jing Leng <jleng@ambarella.com>
     kbuild: Fix include path in scripts/Makefile.modpost
 
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: fix UAF due to missing POLLFREE handling
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/bugs: Add "unknown" reporting for MMIO Stale Data
 
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: fix wrong arm_poll error handling
+Gayatri Kammela <gayatri.kammela@intel.com>
+    x86/cpu: Add Tiger Lake to Intel family
 
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: fail links when poll fails
+Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+    s390/mm: do not trigger write fault when vma does not allow VM_WRITE
 
-Jens Axboe <axboe@kernel.dk>
-    io_uring: bump poll refs to full 31-bits
-
-Jens Axboe <axboe@kernel.dk>
-    io_uring: remove poll entry from list when canceling all
-
-Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-    io_uring: Remove unused function req_ref_put
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: poll rework
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: inline io_poll_complete
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: kill poll linking optimisation
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: move common poll bits
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: refactor poll update
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: clean cqe filling functions
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: correct fill events helpers types
-
-James Morse <james.morse@arm.com>
-    arm64: errata: Add Cortex-A510 to the repeat tlbi list
-
-Miaohe Lin <linmiaohe@huawei.com>
-    mm/hugetlb: avoid corrupting page->mapping in hugetlb_mcopy_atomic_pte
-
-Boqun Feng <boqun.feng@gmail.com>
-    Drivers: hv: balloon: Support status report for larger page sizes
-
-Eric Biggers <ebiggers@google.com>
-    crypto: lib - remove unneeded selection of XOR_BLOCKS
-
-Timo Alho <talho@nvidia.com>
-    firmware: tegra: bpmp: Do only aligned access to IPC memory area
-
-Maxime Ripard <maxime@cerno.tech>
-    drm/vc4: hdmi: Depends on CONFIG_PM
-
-Maxime Ripard <maxime@cerno.tech>
-    drm/vc4: hdmi: Rework power up
-
-Adam Borowski <kilobyte@angband.pl>
-    ACPI: thermal: drop an always true check
-
-Maxime Ripard <maxime@cerno.tech>
-    drm/bridge: Add stubs for devm_drm_of_get_bridge when OF is disabled
+Hsin-Yi Wang <hsinyi@chromium.org>
+    arm64: map FDT as RW for early_init_dt_scan()
 
 Jann Horn <jannh@google.com>
     mm: Force TLB flush for PFNMAP mappings before unlink_file_vma()
+
+Guoqing Jiang <guoqing.jiang@linux.dev>
+    md: call __md_stop_writes in md_stop
+
+David Hildenbrand <david@redhat.com>
+    mm/hugetlb: fix hugetlb not supporting softdirty tracking
+
+Quanyang Wang <quanyang.wang@windriver.com>
+    asm-generic: sections: refactor memory_intersects
+
+Siddh Raman Pant <code@siddh.me>
+    loop: Check for overflow while configuring loop
+
+Goldwyn Rodrigues <rgoldwyn@suse.de>
+    btrfs: check if root is readonly while setting security xattr
+
+Jacob Keller <jacob.e.keller@intel.com>
+    ixgbe: stop resetting SYSTIME in ixgbe_ptp_start_cyclecounter
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around sysctl_somaxconn.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around netdev_budget_usecs.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around netdev_budget.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around sysctl_net_busy_read.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around sysctl_net_busy_poll.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around sysctl_tstamp_allow_data.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    ratelimit: Fix data-races in ___ratelimit().
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix data-races around weight_p and dev_weight_[rt]x_bias.
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nft_payload: do not truncate csum_offset and csum_type
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nft_payload: report ERANGE for too long offset and length
+
+Florian Westphal <fw@strlen.de>
+    netfilter: ebtables: reject blobs that don't provide all entry points
+
+Maciej Żenczykowski <maze@google.com>
+    net: ipvtap - add __init/__exit annotations to module init/exit funcs
+
+Jonathan Toppins <jtoppins@redhat.com>
+    bonding: 802.3ad: fix no transmission of LACPDUs
+
+Bernard Pidoux <f6bvp@free.fr>
+    rose: check NULL rose_loopback_neigh->loopback
+
+Herbert Xu <herbert@gondor.apana.org.au>
+    af_key: Do not call xfrm_probe_algs in parallel
+
+Xin Xiong <xiongx18@fudan.edu.cn>
+    xfrm: fix refcount leak in __xfrm_policy_check()
+
+Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+    pinctrl: amd: Don't save/restore interrupt status and wake status bits
+
+Helge Deller <deller@gmx.de>
+    parisc: Fix exception handler for fldw and fstw instructions
+
+Gaosheng Cui <cuigaosheng1@huawei.com>
+    audit: fix potential double free on error path from fsnotify_add_inode_mark
 
 
 -------------
 
 Diffstat:
 
- Documentation/arm64/silicon-errata.rst             |   2 +
- Makefile                                           |   4 +-
- arch/arm64/Kconfig                                 |  17 +
- arch/arm64/kernel/cpu_errata.c                     |   8 +-
- arch/s390/hypfs/hypfs_diag.c                       |   2 +-
- arch/s390/hypfs/inode.c                            |   2 +-
- drivers/acpi/thermal.c                             |   2 -
- drivers/android/binder_alloc.c                     |   9 +-
- drivers/dma-buf/udmabuf.c                          |  18 +-
- drivers/firmware/tegra/bpmp.c                      |   6 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu.h                |   2 +-
- drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c             |   3 +-
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c              |   3 +-
- .../gpu/drm/amd/display/dc/dce/dce_clock_source.c  |   2 +
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_mpc.c   |   6 +
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c  |   5 +
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_mpc.c   |   6 +
- .../gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c    |   8 +-
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.c  |   2 +-
- .../drm/amd/display/modules/freesync/freesync.c    |  15 +-
- .../drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c    |   1 +
- drivers/gpu/drm/i915/gt/intel_gt.c                 |   3 +
- drivers/gpu/drm/vc4/Kconfig                        |   1 +
- drivers/gpu/drm/vc4/vc4_hdmi.c                     |  17 +-
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c             |  18 +
- drivers/hid/hid-asus.c                             |   7 +
- drivers/hid/hid-ids.h                              |   1 +
- drivers/hid/hid-input.c                            |   2 +
- drivers/hid/hid-steam.c                            |  10 +
- drivers/hid/hid-thrustmaster.c                     |   3 +-
- drivers/hid/hidraw.c                               |   3 +
- drivers/hv/hv_balloon.c                            |  13 +-
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c            |   1 +
- drivers/mmc/host/mtk-sd.c                          |   6 +
- drivers/mmc/host/sdhci-of-dwcmshc.c                |  88 ++-
- drivers/pci/pcie/portdrv_core.c                    |   9 +-
- drivers/video/fbdev/pm2fb.c                        |   5 +
- fs/btrfs/block-group.c                             |  47 +-
- fs/btrfs/block-group.h                             |   4 +-
- fs/btrfs/ctree.c                                   |   3 +
- fs/btrfs/ctree.h                                   |   4 +-
- fs/btrfs/disk-io.c                                 |  82 ---
- fs/btrfs/disk-io.h                                 |  10 -
- fs/btrfs/extent-tree.c                             |  48 +-
- fs/btrfs/extent_io.c                               |  11 +-
- fs/btrfs/inode.c                                   |  25 +-
- fs/btrfs/locking.c                                 |  91 +++
- fs/btrfs/locking.h                                 |  14 +
- fs/btrfs/relocation.c                              |   2 +
- fs/btrfs/tree-checker.c                            |  25 +-
- fs/btrfs/tree-log.c                                | 221 +++---
- fs/io_uring.c                                      | 746 ++++++++++-----------
- fs/ksmbd/mgmt/tree_connect.c                       |   2 +-
- fs/ksmbd/smb2pdu.c                                 |  21 +-
- fs/ntfs3/xattr.c                                   |   7 +-
- include/drm/drm_bridge.h                           |  13 +-
- include/linux/rmap.h                               |   7 +-
- include/linux/skbuff.h                             |   8 +
- include/linux/skmsg.h                              |   3 +-
- include/net/sock.h                                 |  68 +-
- include/uapi/linux/btrfs_tree.h                    |   4 +-
- kernel/kprobes.c                                   |   9 +-
- kernel/trace/ftrace.c                              |  10 +
- lib/crypto/Kconfig                                 |   1 -
- mm/hugetlb.c                                       |   2 +-
- mm/mmap.c                                          |  12 +
- mm/rmap.c                                          |  29 +-
- net/bluetooth/l2cap_core.c                         |  10 +-
- net/bpf/test_run.c                                 |   3 +
- net/core/dev.c                                     |   1 +
- net/core/neighbour.c                               |  27 +-
- net/core/skmsg.c                                   |   4 +-
- net/netfilter/Kconfig                              |   1 -
- net/packet/af_packet.c                             |   4 +-
- scripts/Makefile.modpost                           |   3 +-
- sound/soc/sh/rz-ssi.c                              |  26 +-
- sound/usb/quirks.c                                 |   2 +
- tools/testing/selftests/netfilter/nft_flowtable.sh | 246 +++----
- 78 files changed, 1195 insertions(+), 971 deletions(-)
+ .../hw-vuln/processor_mmio_stale_data.rst          | 14 +++++
+ Makefile                                           |  4 +-
+ arch/arm64/include/asm/mmu.h                       |  2 +-
+ arch/arm64/kernel/kaslr.c                          |  5 +-
+ arch/arm64/kernel/setup.c                          |  9 +++-
+ arch/arm64/mm/mmu.c                                | 15 +-----
+ arch/parisc/kernel/unaligned.c                     |  2 +-
+ arch/s390/hypfs/hypfs_diag.c                       |  2 +-
+ arch/s390/hypfs/inode.c                            |  2 +-
+ arch/s390/mm/fault.c                               |  4 +-
+ arch/x86/include/asm/cpufeatures.h                 |  1 +
+ arch/x86/include/asm/intel-family.h                |  3 ++
+ arch/x86/kernel/cpu/bugs.c                         | 14 ++++-
+ arch/x86/kernel/cpu/common.c                       | 34 +++++++++----
+ drivers/block/loop.c                               |  5 ++
+ drivers/hid/hidraw.c                               |  3 ++
+ drivers/md/md.c                                    |  1 +
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c            |  1 +
+ drivers/net/bonding/bond_3ad.c                     | 38 ++++++--------
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c       | 59 +++++++++++++++++-----
+ drivers/net/ipvlan/ipvtap.c                        |  4 +-
+ drivers/pinctrl/pinctrl-amd.c                      | 11 +++-
+ drivers/video/fbdev/pm2fb.c                        |  5 ++
+ fs/btrfs/xattr.c                                   |  3 ++
+ include/asm-generic/sections.h                     |  7 ++-
+ include/linux/netfilter_bridge/ebtables.h          |  4 --
+ include/linux/rmap.h                               |  7 ++-
+ include/net/busy_poll.h                            |  2 +-
+ kernel/audit_fsnotify.c                            |  1 +
+ kernel/kprobes.c                                   | 10 ++--
+ kernel/trace/ftrace.c                              | 10 ++++
+ lib/ratelimit.c                                    | 12 +++--
+ mm/mmap.c                                          | 20 +++++++-
+ mm/rmap.c                                          | 31 +++++++-----
+ net/bluetooth/l2cap_core.c                         | 10 ++--
+ net/bridge/netfilter/ebtable_broute.c              |  8 ---
+ net/bridge/netfilter/ebtable_filter.c              |  8 ---
+ net/bridge/netfilter/ebtable_nat.c                 |  8 ---
+ net/bridge/netfilter/ebtables.c                    |  8 +--
+ net/core/dev.c                                     |  6 +--
+ net/core/neighbour.c                               | 27 +++++++---
+ net/core/skbuff.c                                  |  2 +-
+ net/core/sock.c                                    |  2 +-
+ net/core/sysctl_net_core.c                         | 15 +++---
+ net/key/af_key.c                                   |  3 ++
+ net/netfilter/Kconfig                              |  1 -
+ net/netfilter/nft_payload.c                        | 29 ++++++++---
+ net/rose/rose_loopback.c                           |  3 +-
+ net/sched/sch_generic.c                            |  2 +-
+ net/socket.c                                       |  2 +-
+ net/xfrm/xfrm_policy.c                             |  1 +
+ scripts/Makefile.modpost                           |  3 +-
+ 52 files changed, 306 insertions(+), 177 deletions(-)
 
 
