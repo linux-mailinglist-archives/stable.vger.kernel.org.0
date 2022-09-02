@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA5A5AB44F
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 16:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 346B85AB302
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 16:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236202AbiIBOxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 10:53:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34778 "EHLO
+        id S238932AbiIBOH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 10:07:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236358AbiIBOwo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:52:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A6E11BE23;
-        Fri,  2 Sep 2022 07:16:33 -0700 (PDT)
+        with ESMTP id S238915AbiIBOHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:07:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A9032A963;
+        Fri,  2 Sep 2022 06:35:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C90C621FA;
-        Fri,  2 Sep 2022 12:36:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DA85C433D7;
-        Fri,  2 Sep 2022 12:36:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB689B829E6;
+        Fri,  2 Sep 2022 12:36:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45928C433D6;
+        Fri,  2 Sep 2022 12:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122160;
-        bh=nGHRekiHJDUXn0sZHOOVP80X+BUueqVNywIyYa9X1NQ=;
+        s=korg; t=1662122173;
+        bh=r1Y3OJV+YGLJqZpyhIjb0C5nbwFq/NU3LvJWzdODIdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ff+JFKYOJ5Zbs+GHFF2G9bzwYh0M/ClJI6Vet5AOBYqVKX7dPVizJk1I3yrryQazG
-         DRdJwtw+ac+V84OgIyzcb0hrO35pAq5KAAcbLzkuZqlW3elS/mXNT3ORzNOmGERDX+
-         tml3vXge8xeZG/ipbX+JvDxwcltVSq9hDyNo289k=
+        b=ssiC387961+zXn6RLnMOsWUzf5EHiEvN33j7nkRLj6BOaJEPkFqRnBfpLKMai9HVK
+         dIe9cX07FPMlGp6i7audsh88VRPjGW+HibRGdIL8Gny10d3cNJOtbhmC801JacbGoE
+         Zi2ztfnxRA5Ow1btMmaLGxzKm0ZT4NrfZzEtJxfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 32/72] fs/ntfs3: Fix work with fragmented xattr
-Date:   Fri,  2 Sep 2022 14:19:08 +0200
-Message-Id: <20220902121405.845761902@linuxfoundation.org>
+Subject: [PATCH 5.19 36/72] drm/amd/display: Add a missing register field for HPO DP stream encoder
+Date:   Fri,  2 Sep 2022 14:19:12 +0200
+Message-Id: <20220902121405.973616576@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
 References: <20220902121404.772492078@linuxfoundation.org>
@@ -54,44 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit 42f86b1226a42bfc79a7125af435432ad4680a32 ]
+[ Upstream commit 37bc31f0e7da4fbad4664e64d906ae7b9009e550 ]
 
-In some cases xattr is too fragmented,
-so we need to load it before writing.
+[Why&How]
+Add the missing definition to set the register field
+HBLANK_MINIMUM_SYMBOL_WIDTH
 
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/xattr.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ .../gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ntfs3/xattr.c b/fs/ntfs3/xattr.c
-index 3629049decac1..e3d443ccb9be6 100644
---- a/fs/ntfs3/xattr.c
-+++ b/fs/ntfs3/xattr.c
-@@ -118,7 +118,7 @@ static int ntfs_read_ea(struct ntfs_inode *ni, struct EA_FULL **ea,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h
+index 7c77c71591a08..82c3b3ac1f0d0 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hpo_dp_stream_encoder.h
+@@ -162,7 +162,8 @@
+ 	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_SDP_AUDIO_CONTROL0, AIP_ENABLE, mask_sh),\
+ 	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_SDP_AUDIO_CONTROL0, ACM_ENABLE, mask_sh),\
+ 	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_VID_CRC_CONTROL, CRC_ENABLE, mask_sh),\
+-	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_VID_CRC_CONTROL, CRC_CONT_MODE_ENABLE, mask_sh)
++	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_VID_CRC_CONTROL, CRC_CONT_MODE_ENABLE, mask_sh),\
++	SE_SF(DP_SYM32_ENC0_DP_SYM32_ENC_HBLANK_CONTROL, HBLANK_MINIMUM_SYMBOL_WIDTH, mask_sh)
  
- 		run_init(&run);
  
--		err = attr_load_runs(attr_ea, ni, &run, NULL);
-+		err = attr_load_runs_range(ni, ATTR_EA, NULL, 0, &run, 0, size);
- 		if (!err)
- 			err = ntfs_read_run_nb(sbi, &run, 0, ea_p, size, NULL);
- 		run_close(&run);
-@@ -444,6 +444,11 @@ static noinline int ntfs_set_ea(struct inode *inode, const char *name,
- 		/* Delete xattr, ATTR_EA */
- 		ni_remove_attr_le(ni, attr, mi, le);
- 	} else if (attr->non_res) {
-+		err = attr_load_runs_range(ni, ATTR_EA, NULL, 0, &ea_run, 0,
-+					   size);
-+		if (err)
-+			goto out;
-+
- 		err = ntfs_sb_write_run(sbi, &ea_run, 0, ea_all, size, 0);
- 		if (err)
- 			goto out;
+ #define DCN3_1_HPO_DP_STREAM_ENC_REG_FIELD_LIST(type) \
 -- 
 2.35.1
 
