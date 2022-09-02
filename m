@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68A8A5AAE6B
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF6BE5AB019
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:49:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236241AbiIBMXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:23:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49224 "EHLO
+        id S237446AbiIBMtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:49:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235974AbiIBMWZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:22:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB22D5E82;
-        Fri,  2 Sep 2022 05:21:34 -0700 (PDT)
+        with ESMTP id S237837AbiIBMtA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:49:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25D4152E60;
+        Fri,  2 Sep 2022 05:35:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88374B82A90;
-        Fri,  2 Sep 2022 12:21:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED74AC433D6;
-        Fri,  2 Sep 2022 12:21:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C238FB82A71;
+        Fri,  2 Sep 2022 12:33:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 173A8C433D6;
+        Fri,  2 Sep 2022 12:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121291;
-        bh=JQFNrQh+IOFH4m7hcCdP9BS4HmO5CZMsPhFqdg8qEUM=;
+        s=korg; t=1662122037;
+        bh=QrJc/PcuDZ8Iu7xYsKO5cbixq/O3Dprx/WDWhp7RFWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2sXizUrkSeMOgkDMcVrLGxUifRUG/FoDJlczpWyrPzR4fSak7MNoWGYkhktBnKWFW
-         47CtmleKVL8ue/pWeivTZRaH3mcJwmM0c7kU8ZidN3bJMVW4ktZjN9OWtnqu0+sfn/
-         k/9v0/sk3jmTfVR/XTlhTzCia1yxQm5YcRhLktfk=
+        b=qFSb9WL/hwK3GYhPoAiXsNkUO3199sEHynC1IcaVW4HH/Gl23Iwf7TS3oPu/rRHU5
+         BocNFT2VYnMsL9xF5Kk6PWzBr4MmOacC1d4dF7c1hSd+MUUtOXHDCkpTfebn3Eg+NE
+         SDUJP7BD4Xex6x3E97fnYaPjAWmUQhmBfyo4k8AE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 22/31] Bluetooth: L2CAP: Fix build errors in some archs
-Date:   Fri,  2 Sep 2022 14:18:48 +0200
-Message-Id: <20220902121357.578821105@linuxfoundation.org>
+Subject: [PATCH 5.15 25/73] Bluetooth: L2CAP: Fix build errors in some archs
+Date:   Fri,  2 Sep 2022 14:18:49 +0200
+Message-Id: <20220902121405.280648453@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
-References: <20220902121356.732130937@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/bluetooth/l2cap_core.c
 +++ b/net/bluetooth/l2cap_core.c
-@@ -1826,11 +1826,11 @@ static struct l2cap_chan *l2cap_global_c
+@@ -1992,11 +1992,11 @@ static struct l2cap_chan *l2cap_global_c
  			src_match = !bacmp(&c->src, src);
  			dst_match = !bacmp(&c->dst, dst);
  			if (src_match && dst_match) {
