@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D925AAEBD
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:29:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FA795AAF79
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236347AbiIBM3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:29:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58584 "EHLO
+        id S236966AbiIBMj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:39:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236493AbiIBM1x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:27:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA54D3EC4;
-        Fri,  2 Sep 2022 05:24:25 -0700 (PDT)
+        with ESMTP id S236274AbiIBMi1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:38:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2C713DC1;
+        Fri,  2 Sep 2022 05:30:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D624B82A8B;
-        Fri,  2 Sep 2022 12:24:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDD8CC433D7;
-        Fri,  2 Sep 2022 12:24:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC43B62175;
+        Fri,  2 Sep 2022 12:29:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0A0BC433D6;
+        Fri,  2 Sep 2022 12:29:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121463;
-        bh=Rk1WS9y8pDkFDaZEbT9tCSSI1OHbxBTz6GYp05s8Cmk=;
+        s=korg; t=1662121767;
+        bh=9NWEiSryDCA9PIKWIcExTflup0XRLRkcGw2V8ePGtIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xh+p1qP62Gkh2nY3bVqgP0V843BdUidziwebDdFPXbMGiWtpQtvU7vhpAHtcBmVls
-         RebsmZMNX9fsb5RaOLmEiNkMmoeL98gXexjXHhZliId46uXzm4vHAsr9pugAVL2Wx6
-         7bFdxFkwbQvrn5o5b6MD3WDhq9AU4QA9DmWSNYUU=
+        b=guereO6JVavvwR5KAE+ln0vN0JQJfg9TD05HSONDZvNjPAlvm3JZOkNQwVMZ9ElkY
+         BI1p4bcMOz1QUB1KC+FmPVdn2T78cg1UTgpAkRK0e6wlD6Ihg8j4OLLPsm3of+iKqT
+         kFlB330EENnoDTFhvDOBcQzv9TG9YOeLzIMjImi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/56] netfilter: nft_payload: do not truncate csum_offset and csum_type
+Subject: [PATCH 5.4 27/77] net: Fix data-races around netdev_tstamp_prequeue.
 Date:   Fri,  2 Sep 2022 14:18:36 +0200
-Message-Id: <20220902121400.739212698@linuxfoundation.org>
+Message-Id: <20220902121404.544964153@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
-References: <20220902121400.219861128@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 7044ab281febae9e2fa9b0b247693d6026166293 ]
+[ Upstream commit 61adf447e38664447526698872e21c04623afb8e ]
 
-Instead report ERANGE if csum_offset is too long, and EOPNOTSUPP if type
-is not support.
+While reading netdev_tstamp_prequeue, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Fixes: 7ec3f7b47b8d ("netfilter: nft_payload: add packet mangling support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 3b098e2d7c69 ("net: Consistent skb timestamping")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_payload.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ net/core/dev.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
-index 04b9df9e39554..5732b32ab9320 100644
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -332,6 +332,8 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
- 				const struct nlattr * const tb[])
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 517fb03a0bb89..99b0025864984 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4411,7 +4411,7 @@ static int netif_rx_internal(struct sk_buff *skb)
  {
- 	struct nft_payload_set *priv = nft_expr_priv(expr);
-+	u32 csum_offset, csum_type = NFT_PAYLOAD_CSUM_NONE;
-+	int err;
+ 	int ret;
  
- 	priv->base        = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_BASE]));
- 	priv->offset      = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
-@@ -339,11 +341,15 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
- 	priv->sreg        = nft_parse_register(tb[NFTA_PAYLOAD_SREG]);
+-	net_timestamp_check(netdev_tstamp_prequeue, skb);
++	net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
  
- 	if (tb[NFTA_PAYLOAD_CSUM_TYPE])
--		priv->csum_type =
--			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
--	if (tb[NFTA_PAYLOAD_CSUM_OFFSET])
--		priv->csum_offset =
--			ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_OFFSET]));
-+		csum_type = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_CSUM_TYPE]));
-+	if (tb[NFTA_PAYLOAD_CSUM_OFFSET]) {
-+		err = nft_parse_u32_check(tb[NFTA_PAYLOAD_CSUM_OFFSET], U8_MAX,
-+					  &csum_offset);
-+		if (err < 0)
-+			return err;
-+
-+		priv->csum_offset = csum_offset;
-+	}
- 	if (tb[NFTA_PAYLOAD_CSUM_FLAGS]) {
- 		u32 flags;
+ 	trace_netif_rx(skb);
  
-@@ -354,13 +360,14 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
- 		priv->csum_flags = flags;
- 	}
+@@ -4753,7 +4753,7 @@ static int __netif_receive_skb_core(struct sk_buff **pskb, bool pfmemalloc,
+ 	int ret = NET_RX_DROP;
+ 	__be16 type;
  
--	switch (priv->csum_type) {
-+	switch (csum_type) {
- 	case NFT_PAYLOAD_CSUM_NONE:
- 	case NFT_PAYLOAD_CSUM_INET:
- 		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-+	priv->csum_type = csum_type;
+-	net_timestamp_check(!netdev_tstamp_prequeue, skb);
++	net_timestamp_check(!READ_ONCE(netdev_tstamp_prequeue), skb);
  
- 	return nft_validate_register_load(priv->sreg, priv->len);
- }
+ 	trace_netif_receive_skb(skb);
+ 
+@@ -5135,7 +5135,7 @@ static int netif_receive_skb_internal(struct sk_buff *skb)
+ {
+ 	int ret;
+ 
+-	net_timestamp_check(netdev_tstamp_prequeue, skb);
++	net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
+ 
+ 	if (skb_defer_rx_timestamp(skb))
+ 		return NET_RX_SUCCESS;
+@@ -5165,7 +5165,7 @@ static void netif_receive_skb_list_internal(struct list_head *head)
+ 
+ 	INIT_LIST_HEAD(&sublist);
+ 	list_for_each_entry_safe(skb, next, head, list) {
+-		net_timestamp_check(netdev_tstamp_prequeue, skb);
++		net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
+ 		skb_list_del_init(skb);
+ 		if (!skb_defer_rx_timestamp(skb))
+ 			list_add_tail(&skb->list, &sublist);
 -- 
 2.35.1
 
