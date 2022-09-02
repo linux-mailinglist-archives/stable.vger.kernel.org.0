@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E17835AB8DD
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 21:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3AF5AB8DE
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 21:26:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbiIBT0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 15:26:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45302 "EHLO
+        id S230192AbiIBT05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 15:26:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229685AbiIBT0g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 15:26:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 859F4FB284;
-        Fri,  2 Sep 2022 12:26:35 -0700 (PDT)
+        with ESMTP id S229685AbiIBT04 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 15:26:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92334F9940;
+        Fri,  2 Sep 2022 12:26:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23B76608CD;
-        Fri,  2 Sep 2022 19:26:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79235C433D6;
-        Fri,  2 Sep 2022 19:26:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 527D6B82CD1;
+        Fri,  2 Sep 2022 19:26:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E87EDC433C1;
+        Fri,  2 Sep 2022 19:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1662146794;
-        bh=AexgeAdsFhSAVfIJLFjvTuCgd3PmbuZfA2HEKBKnbcM=;
+        s=korg; t=1662146813;
+        bh=O3tXGUxF5nACL3gGBxStVpOUAaXlmhZspowxurCY7iE=;
         h=Date:To:From:Subject:From;
-        b=hs8eKQiRI1DrSNihgr8GbOuU+TDPJiu7cs2CJPBNd1pL9We7pzqPx4+9LeU5kFQqA
-         xw2uSTM/U8oCAZ3BAtsarRyW849h6fbHNLZknJGTfngk2IZr4za0m2IzDnSDMf4ApM
-         HgMI2mAIvoMUYL4YQYULcmNkcM5OL9YpFfkF4L3s=
-Date:   Fri, 02 Sep 2022 12:26:33 -0700
+        b=f2CFXdMDU2FFoigR0CPqE56mwbMz0uTVIxqeEN4irDBvG0VKJXqzahqVvbo+MYfkZ
+         7bY+5Gp15B1VZczAvpcMuCVMTWTRu5Uo7WjWxUVFPpFjqKDENOQNGjrXhN3lZj9joB
+         39nA+eFFyvoBkJC6cwgq55iDBRaKWnvb1pC4ixPc=
+Date:   Fri, 02 Sep 2022 12:26:52 -0700
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, sj@kernel.org,
         gregkh@linuxfoundation.org, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
 Subject: + mm-damon-dbgfs-fix-memory-leak-when-using.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220902192634.79235C433D6@smtp.kernel.org>
+Message-Id: <20220902192652.E87EDC433C1@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -46,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/damon/dbgfs: fix memory leak when using
+     Subject: mm/damon/dbgfs: fix memory leak when using debugfs_lookup()
 has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
      mm-damon-dbgfs-fix-memory-leak-when-using.patch
 
@@ -70,7 +70,7 @@ and is updated there every 2-3 working days
 
 ------------------------------------------------------
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: mm/damon/dbgfs: fix memory leak when using
+Subject: mm/damon/dbgfs: fix memory leak when using debugfs_lookup()
 Date: Fri, 2 Sep 2022 19:11:49 +0000
 
 When calling debugfs_lookup() the result must have dput() called on it,
