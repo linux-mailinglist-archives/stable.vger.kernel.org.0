@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 580E15AAEC4
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:29:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDC25AAE86
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:24:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236468AbiIBM3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:29:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36292 "EHLO
+        id S236256AbiIBMYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:24:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236610AbiIBM2s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:28:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4BB728716;
-        Fri,  2 Sep 2022 05:25:02 -0700 (PDT)
+        with ESMTP id S236259AbiIBMYO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:24:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149D9D347F;
+        Fri,  2 Sep 2022 05:22:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B18762159;
-        Fri,  2 Sep 2022 12:25:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 625C5C433C1;
-        Fri,  2 Sep 2022 12:25:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F25B1620FB;
+        Fri,  2 Sep 2022 12:21:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08801C433C1;
+        Fri,  2 Sep 2022 12:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121501;
-        bh=U7GMaY2it9Z4WBOXUdiR9o362PqChtpkJaBmnyMrYZA=;
+        s=korg; t=1662121312;
+        bh=TpU6l5g02zbis8XEGsCk0XSgQ9cTnQU9Y4JX6Odi2S8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQsRf3uzB6mh2SvFuIfC002gEiIkLmHhyV73CVS1qzC5lkoswzclCeoOkSR9n6nGJ
-         dkHs8r67qvxCApGjP1aEbr0pcU6Dk3po/3YyuErNvJ9D96LjQNfQp4zwN4xmbmpXrN
-         7WOj3g1fHzJKcYXLauJ7dQLW03hV7jH+lxA5nDAY=
+        b=k8nmXvNzo91jPdgmdZIHw9f6fnZ+j/gnIaBVnoo5IWg6s0zbdfpsPAp9TNSQwYoV4
+         2o1czqfNytCwtWii9EG24QtcapwxUjAYE47/7pj0WQzkVSkp/5xV/PbjdSPZETGUYj
+         JOxtq2a8y4M5gh+hwTzCz6g2H0ZjqnjqO9mS/4W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "srivatsab@vmware.com, srivatsa@csail.mit.edu, akaher@vmware.com,
-        amakhalov@vmware.com, vsirnapalli@vmware.com, sturlapati@vmware.com,
-        bordoloih@vmware.com, keerthanak@vmware.com, Ankit Jain" 
-        <ankitja@vmware.com>, Mark Simmons <msimmons@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Ankit Jain <ankitja@vmware.com>
-Subject: [PATCH 4.19 05/56] sched/deadline: Unthrottle PI boosted threads while enqueuing
+        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Jan Kara <jack@suse.cz>, Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.14 01/42] audit: fix potential double free on error path from fsnotify_add_inode_mark
 Date:   Fri,  2 Sep 2022 14:18:25 +0200
-Message-Id: <20220902121400.390643885@linuxfoundation.org>
+Message-Id: <20220902121358.823143232@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
-References: <20220902121400.219861128@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,110 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Bristot de Oliveira <bristot@redhat.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-commit feff2e65efd8d84cf831668e182b2ce73c604bbb upstream.
+commit ad982c3be4e60c7d39c03f782733503cbd88fd2a upstream.
 
-stress-ng has a test (stress-ng --cyclic) that creates a set of threads
-under SCHED_DEADLINE with the following parameters:
+Audit_alloc_mark() assign pathname to audit_mark->path, on error path
+from fsnotify_add_inode_mark(), fsnotify_put_mark will free memory
+of audit_mark->path, but the caller of audit_alloc_mark will free
+the pathname again, so there will be double free problem.
 
-    dl_runtime   =  10000 (10 us)
-    dl_deadline  = 100000 (100 us)
-    dl_period    = 100000 (100 us)
+Fix this by resetting audit_mark->path to NULL pointer on error path
+from fsnotify_add_inode_mark().
 
-These parameters are very aggressive. When using a system without HRTICK
-set, these threads can easily execute longer than the dl_runtime because
-the throttling happens with 1/HZ resolution.
-
-During the main part of the test, the system works just fine because
-the workload does not try to run over the 10 us. The problem happens at
-the end of the test, on the exit() path. During exit(), the threads need
-to do some cleanups that require real-time mutex locks, mainly those
-related to memory management, resulting in this scenario:
-
-Note: locks are rt_mutexes...
- ------------------------------------------------------------------------
-    TASK A:		TASK B:				TASK C:
-    activation
-							activation
-			activation
-
-    lock(a): OK!	lock(b): OK!
-    			<overrun runtime>
-    			lock(a)
-    			-> block (task A owns it)
-			  -> self notice/set throttled
- +--<			  -> arm replenished timer
- |    			switch-out
- |    							lock(b)
- |    							-> <C prio > B prio>
- |    							-> boost TASK B
- |  unlock(a)						switch-out
- |  -> handle lock a to B
- |    -> wakeup(B)
- |      -> B is throttled:
- |        -> do not enqueue
- |     switch-out
- |
- |
- +---------------------> replenishment timer
-			-> TASK B is boosted:
-			  -> do not enqueue
- ------------------------------------------------------------------------
-
-BOOM: TASK B is runnable but !enqueued, holding TASK C: the system
-crashes with hung task C.
-
-This problem is avoided by removing the throttle state from the boosted
-thread while boosting it (by TASK A in the example above), allowing it to
-be queued and run boosted.
-
-The next replenishment will take care of the runtime overrun, pushing
-the deadline further away. See the "while (dl_se->runtime <= 0)" on
-replenish_dl_entity() for more information.
-
-Reported-by: Mark Simmons <msimmons@redhat.com>
-Signed-off-by: Daniel Bristot de Oliveira <bristot@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Juri Lelli <juri.lelli@redhat.com>
-Tested-by: Mark Simmons <msimmons@redhat.com>
-Link: https://lkml.kernel.org/r/5076e003450835ec74e6fa5917d02c4fa41687e6.1600170294.git.bristot@redhat.com
-[Ankit: Regenerated the patch for v4.19.y]
-Signed-off-by: Ankit Jain <ankitja@vmware.com>
+Cc: stable@vger.kernel.org
+Fixes: 7b1293234084d ("fsnotify: Add group pointer in fsnotify_init_mark()")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/deadline.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ kernel/audit_fsnotify.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/sched/deadline.c
-+++ b/kernel/sched/deadline.c
-@@ -1484,6 +1484,27 @@ static void enqueue_task_dl(struct rq *r
- 	 */
- 	if (pi_task && dl_prio(pi_task->normal_prio) && p->dl.dl_boosted) {
- 		pi_se = &pi_task->dl;
-+		/*
-+		 * Because of delays in the detection of the overrun of a
-+		 * thread's runtime, it might be the case that a thread
-+		 * goes to sleep in a rt mutex with negative runtime. As
-+		 * a consequence, the thread will be throttled.
-+		 *
-+		 * While waiting for the mutex, this thread can also be
-+		 * boosted via PI, resulting in a thread that is throttled
-+		 * and boosted at the same time.
-+		 *
-+		 * In this case, the boost overrides the throttle.
-+		 */
-+		if (p->dl.dl_throttled) {
-+			/*
-+			 * The replenish timer needs to be canceled. No
-+			 * problem if it fires concurrently: boosted threads
-+			 * are ignored in dl_task_timer().
-+			 */
-+			hrtimer_try_to_cancel(&p->dl.dl_timer);
-+			p->dl.dl_throttled = 0;
-+		}
- 	} else if (!dl_prio(p->normal_prio)) {
- 		/*
- 		 * Special case in which we have a !SCHED_DEADLINE task
+--- a/kernel/audit_fsnotify.c
++++ b/kernel/audit_fsnotify.c
+@@ -111,6 +111,7 @@ struct audit_fsnotify_mark *audit_alloc_
+ 
+ 	ret = fsnotify_add_mark(&audit_mark->mark, inode, NULL, true);
+ 	if (ret < 0) {
++		audit_mark->path = NULL;
+ 		fsnotify_put_mark(&audit_mark->mark);
+ 		audit_mark = ERR_PTR(ret);
+ 	}
 
 
