@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20D845AB069
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:54:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1FD5AAF56
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237871AbiIBMxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:53:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44146 "EHLO
+        id S236942AbiIBMgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:36:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237798AbiIBMws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:52:48 -0400
+        with ESMTP id S236945AbiIBMf3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:35:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07873F8EF2;
-        Fri,  2 Sep 2022 05:37:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52EC7D9D64;
+        Fri,  2 Sep 2022 05:28:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 399446215D;
-        Fri,  2 Sep 2022 12:24:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A968C433C1;
-        Fri,  2 Sep 2022 12:24:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB6C36212F;
+        Fri,  2 Sep 2022 12:28:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1255C433C1;
+        Fri,  2 Sep 2022 12:28:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121492;
-        bh=12bl4ZDThM0MI4U8an5jo2OECDpPHdp23b10tvR/9nY=;
+        s=korg; t=1662121696;
+        bh=6mqy5Wkl20w3CMC3oxYQb1A16d6We5aBAIxQMRwkoiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EAWEWfzJeDJOhoWLcb4OX9LnYhpYitNlPO7LLGmIfK/prCPLgbQaidxVKf7AHAVTm
-         ZyDDtiTlpZJxqYLACXu2z5Z2OrLbCfaorb33R8v2lxJBGozi4iLCufhG5Ap+C9dM8Q
-         fEEja1dzWfvpc+dGpOawhMDlOLxhoh3vk0jCW1Ic=
+        b=R9j0otvSFSU0yvvzTRUvV33r6RfJrcxizPJzh9B00dLJFobsrnEIzJvuVr+XnMSiY
+         Ay9hc70X91J1vqb5pi0hoRN6XEoeDhtRd6XACUzji1nMGulLWoPdnZDnE8tiSMF4fr
+         W8/GEInCk7JfnA9Al3F+6v7yYUDVAPc2MRpx7cEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/56] net: Fix a data-race around netdev_budget.
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 36/77] btrfs: fix silent failure when deleting root reference
 Date:   Fri,  2 Sep 2022 14:18:45 +0200
-Message-Id: <20220902121401.076805275@linuxfoundation.org>
+Message-Id: <20220902121404.848682885@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
-References: <20220902121400.219861128@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 2e0c42374ee32e72948559d2ae2f7ba3dc6b977c ]
+commit 47bf225a8d2cccb15f7e8d4a1ed9b757dd86afd7 upstream.
 
-While reading netdev_budget, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+At btrfs_del_root_ref(), if btrfs_search_slot() returns an error, we end
+up returning from the function with a value of 0 (success). This happens
+because the function returns the value stored in the variable 'err',
+which is 0, while the error value we got from btrfs_search_slot() is
+stored in the 'ret' variable.
 
-Fixes: 51b0bdedb8e7 ("[NET]: Separate two usages of netdev_max_backlog.")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So fix it by setting 'err' with the error value.
+
+Fixes: 8289ed9f93bef2 ("btrfs: replace the BUG_ON in btrfs_del_root_ref with proper error handling")
+CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/root-tree.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index d5bef2bb0b7c8..c93068ea2e4f2 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6336,7 +6336,7 @@ static __latent_entropy void net_rx_action(struct softirq_action *h)
- 	struct softnet_data *sd = this_cpu_ptr(&softnet_data);
- 	unsigned long time_limit = jiffies +
- 		usecs_to_jiffies(netdev_budget_usecs);
--	int budget = netdev_budget;
-+	int budget = READ_ONCE(netdev_budget);
- 	LIST_HEAD(list);
- 	LIST_HEAD(repoll);
- 
--- 
-2.35.1
-
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -371,9 +371,10 @@ int btrfs_del_root_ref(struct btrfs_tran
+ 	key.offset = ref_id;
+ again:
+ 	ret = btrfs_search_slot(trans, tree_root, &key, path, -1, 1);
+-	if (ret < 0)
++	if (ret < 0) {
++		err = ret;
+ 		goto out;
+-	if (ret == 0) {
++	} else if (ret == 0) {
+ 		leaf = path->nodes[0];
+ 		ref = btrfs_item_ptr(leaf, path->slots[0],
+ 				     struct btrfs_root_ref);
 
 
