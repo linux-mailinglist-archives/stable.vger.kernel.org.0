@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53EEA5AB3C1
+	by mail.lfdr.de (Postfix) with ESMTP id CC1CF5AB3C2
 	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 16:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235677AbiIBOgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236902AbiIBOgP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 2 Sep 2022 10:36:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53010 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235685AbiIBOfi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:35:38 -0400
+        with ESMTP id S236297AbiIBOfk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 10:35:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8963168A32;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8444167476;
         Fri,  2 Sep 2022 06:56:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B12B62178;
-        Fri,  2 Sep 2022 12:38:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 152A3C433D6;
-        Fri,  2 Sep 2022 12:37:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A95596217F;
+        Fri,  2 Sep 2022 12:39:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF2AAC433C1;
+        Fri,  2 Sep 2022 12:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122280;
-        bh=S1ziajJp7xs/vpXYFoVk59BE8C1BfxDdOtGKt2qmjSE=;
+        s=korg; t=1662122364;
+        bh=fnN0EiVZn6o6LF1pXzUjmt8WAUMjyGbBmYQqntl8lKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oaqKIHDoHHkLZVKZiJs822v4OBOv+dxuu0O09aPtDKaKuZtAQgOZIiC4CTqsUBXnm
-         I9Ua6/gLAcs36iQybOa4nqLWlX3VTzVuInEO5ymE9wVeEFH+AF/hTTvVFk7QWDm2Ei
-         j7lJQasaUo6uHnq7tnNFjXiXTUCSpq2DsvWOPr9Y=
+        b=gW3V/2b09SnWKas4isj5lqtEzNbhWOxe8U+piQHLxpID5F5HGWmWClIohL8v2YIze
+         PasliXceOpDdMmDSAlcWCBi9WL4ArF80jHBUxgYlKGFArYez03Mpuk+/KFQZW989Df
+         8DwVKQEtY003flM3Q1Rv7ARB2rwGEHjKbgyT5pvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com,
-        Zhengchao Shao <shaozhengchao@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.19 70/72] net/af_packet: check len when min_header_len equals to 0
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 24/37] drm/amd/pm: add missing ->fini_microcode interface for Sienna Cichlid
 Date:   Fri,  2 Sep 2022 14:19:46 +0200
-Message-Id: <20220902121407.097023450@linuxfoundation.org>
+Message-Id: <20220902121359.932334412@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
+References: <20220902121359.177846782@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Evan Quan <evan.quan@amd.com>
 
-commit dc633700f00f726e027846a318c5ffeb8deaaeda upstream.
+[ Upstream commit 0a2d922a5618377cdf8fa476351362733ef55342 ]
 
-User can use AF_PACKET socket to send packets with the length of 0.
-When min_header_len equals to 0, packet_snd will call __dev_queue_xmit
-to send packets, and sock->type can be any type.
+To avoid any potential memory leak.
 
-Reported-by: syzbot+5ea725c25d06fb9114c4@syzkaller.appspotmail.com
-Fixes: fd1894224407 ("bpf: Don't redirect packets with invalid pkt_len")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -3037,8 +3037,8 @@ static int packet_snd(struct socket *soc
- 	if (err)
- 		goto out_free;
- 
--	if (sock->type == SOCK_RAW &&
--	    !dev_validate_header(dev, skb->data, len)) {
-+	if ((sock->type == SOCK_RAW &&
-+	     !dev_validate_header(dev, skb->data, len)) || !skb->len) {
- 		err = -EINVAL;
- 		goto out_free;
- 	}
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+index 8556c229ff598..49d7fa1d08427 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+@@ -2759,6 +2759,7 @@ static const struct pptable_funcs sienna_cichlid_ppt_funcs = {
+ 	.dump_pptable = sienna_cichlid_dump_pptable,
+ 	.init_microcode = smu_v11_0_init_microcode,
+ 	.load_microcode = smu_v11_0_load_microcode,
++	.fini_microcode = smu_v11_0_fini_microcode,
+ 	.init_smc_tables = sienna_cichlid_init_smc_tables,
+ 	.fini_smc_tables = smu_v11_0_fini_smc_tables,
+ 	.init_power = smu_v11_0_init_power,
+-- 
+2.35.1
+
 
 
