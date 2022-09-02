@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6338F5AB06C
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9E15AB21B
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:51:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237952AbiIBMxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59954 "EHLO
+        id S238235AbiIBNvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:51:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237955AbiIBMwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:52:47 -0400
+        with ESMTP id S236787AbiIBNv1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:51:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED2DC6E8C;
-        Fri,  2 Sep 2022 05:37:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2662982F;
+        Fri,  2 Sep 2022 06:25:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4256FB82AE0;
-        Fri,  2 Sep 2022 12:36:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 866E2C433C1;
-        Fri,  2 Sep 2022 12:36:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4846EB829E7;
+        Fri,  2 Sep 2022 12:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95FF9C433D7;
+        Fri,  2 Sep 2022 12:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122182;
-        bh=oDWp68Ak99AvOvb/+yh5XbIXaQUzblhv9yQDlBb2sfM=;
+        s=korg; t=1662121990;
+        bh=Anhl2QGuM9FhBcz0l6zuTOPT3o4b337e8YDFCN4lQio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CuJhO4Mga/O3aGm+TPV9n1DJgzWXmIuGfdU7Bo88MFKYqXnnCAHVScbooteZEgG6
-         H0cqlUPba7JxUJ3MKpxoq1bmeH+C6i8FKR5koDrPQTOlrP4js2UCi9Fh0EsD6NVLFS
-         pPShsY/DJWK/uHeqptaJGBeO7Ja0T3r8/Tsgy4pE=
+        b=FBsnhpfnxy1D5rV4p/zl7uHChDuKMd3z2QJ3y43SdvbEeOL2RZndiasjMR+r5y/dz
+         uUkz5hlbiYMPDbMqnbPtW3lI8geWwkmKkj9H+m747SJ+uPtRnkXr/Zr+fSKmT+AQWt
+         hyffGlOY6I8QLA2oZJforlK9fZPfrtThXCGyBANY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>,
-        Leo Ma <hanghong.ma@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 39/72] drm/amd/display: Fix HDMI VSIF V3 incorrect issue
+Subject: [PATCH 5.15 51/73] ASoC: sh: rz-ssi: Improve error handling in rz_ssi_probe() error path
 Date:   Fri,  2 Sep 2022 14:19:15 +0200
-Message-Id: <20220902121406.061356332@linuxfoundation.org>
+Message-Id: <20220902121406.124483008@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,75 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Ma <hanghong.ma@amd.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 0591183699fceeafb4c4141072d47775de83ecfb ]
+[ Upstream commit c75ed9f54ce8d349fee557f2b471a4d637ed2a6b ]
 
-[Why]
-Reported from customer the checksum in AMD VSIF V3 is incorrect and
-causing blank screen issue.
+We usually do cleanup in reverse order of init. Currently in case of
+error rz_ssi_release_dma_channels() done in the reverse order. This
+patch improves error handling in rz_ssi_probe() error path.
 
-[How]
-Fix the packet length issue on AMD HDMI VSIF V3.
+While at it, use "goto cleanup" style to reduce code duplication.
 
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Leo Ma <hanghong.ma@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20220728092612.38858-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/modules/freesync/freesync.c   | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+ sound/soc/sh/rz-ssi.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
-index 03fa63d56fa65..948151e735739 100644
---- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
-+++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
-@@ -615,10 +615,6 @@ static void build_vrr_infopacket_data_v1(const struct mod_vrr_params *vrr,
- 	 * Note: We should never go above the field rate of the mode timing set.
- 	 */
- 	infopacket->sb[8] = (unsigned char)((vrr->max_refresh_in_uhz + 500000) / 1000000);
+diff --git a/sound/soc/sh/rz-ssi.c b/sound/soc/sh/rz-ssi.c
+index 6d794eaaf4c39..2e33a1fa0a6f4 100644
+--- a/sound/soc/sh/rz-ssi.c
++++ b/sound/soc/sh/rz-ssi.c
+@@ -1022,32 +1022,36 @@ static int rz_ssi_probe(struct platform_device *pdev)
+ 
+ 	ssi->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+ 	if (IS_ERR(ssi->rstc)) {
+-		rz_ssi_release_dma_channels(ssi);
+-		return PTR_ERR(ssi->rstc);
++		ret = PTR_ERR(ssi->rstc);
++		goto err_reset;
+ 	}
+ 
+ 	reset_control_deassert(ssi->rstc);
+ 	pm_runtime_enable(&pdev->dev);
+ 	ret = pm_runtime_resume_and_get(&pdev->dev);
+ 	if (ret < 0) {
+-		rz_ssi_release_dma_channels(ssi);
+-		pm_runtime_disable(ssi->dev);
+-		reset_control_assert(ssi->rstc);
+-		return dev_err_probe(ssi->dev, ret, "pm_runtime_resume_and_get failed\n");
++		dev_err(&pdev->dev, "pm_runtime_resume_and_get failed\n");
++		goto err_pm;
+ 	}
+ 
+ 	ret = devm_snd_soc_register_component(&pdev->dev, &rz_ssi_soc_component,
+ 					      rz_ssi_soc_dai,
+ 					      ARRAY_SIZE(rz_ssi_soc_dai));
+ 	if (ret < 0) {
+-		rz_ssi_release_dma_channels(ssi);
 -
--	/* FreeSync HDR */
--	infopacket->sb[9] = 0;
--	infopacket->sb[10] = 0;
+-		pm_runtime_put(ssi->dev);
+-		pm_runtime_disable(ssi->dev);
+-		reset_control_assert(ssi->rstc);
+ 		dev_err(&pdev->dev, "failed to register snd component\n");
++		goto err_snd_soc;
+ 	}
+ 
++	return 0;
++
++err_snd_soc:
++	pm_runtime_put(ssi->dev);
++err_pm:
++	pm_runtime_disable(ssi->dev);
++	reset_control_assert(ssi->rstc);
++err_reset:
++	rz_ssi_release_dma_channels(ssi);
++
+ 	return ret;
  }
  
- static void build_vrr_infopacket_data_v3(const struct mod_vrr_params *vrr,
-@@ -686,10 +682,6 @@ static void build_vrr_infopacket_data_v3(const struct mod_vrr_params *vrr,
- 
- 	/* PB16 : Reserved bits 7:1, FixedRate bit 0 */
- 	infopacket->sb[16] = (vrr->state == VRR_STATE_ACTIVE_FIXED) ? 1 : 0;
--
--	//FreeSync HDR
--	infopacket->sb[9] = 0;
--	infopacket->sb[10] = 0;
- }
- 
- static void build_vrr_infopacket_fs2_data(enum color_transfer_func app_tf,
-@@ -774,8 +766,7 @@ static void build_vrr_infopacket_header_v2(enum signal_type signal,
- 		/* HB2  = [Bits 7:5 = 0] [Bits 4:0 = Length = 0x09] */
- 		infopacket->hb2 = 0x09;
- 
--		*payload_size = 0x0A;
--
-+		*payload_size = 0x09;
- 	} else if (dc_is_dp_signal(signal)) {
- 
- 		/* HEADER */
-@@ -824,9 +815,9 @@ static void build_vrr_infopacket_header_v3(enum signal_type signal,
- 		infopacket->hb1 = version;
- 
- 		/* HB2  = [Bits 7:5 = 0] [Bits 4:0 = Length] */
--		*payload_size = 0x10;
--		infopacket->hb2 = *payload_size - 1; //-1 for checksum
-+		infopacket->hb2 = 0x10;
- 
-+		*payload_size = 0x10;
- 	} else if (dc_is_dp_signal(signal)) {
- 
- 		/* HEADER */
 -- 
 2.35.1
 
