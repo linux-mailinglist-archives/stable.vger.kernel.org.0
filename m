@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F7E5AAE6E
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1EB55AB1B9
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235620AbiIBMXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:23:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51408 "EHLO
+        id S236336AbiIBNiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:38:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236081AbiIBMWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:22:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A68D477D;
-        Fri,  2 Sep 2022 05:21:31 -0700 (PDT)
+        with ESMTP id S237542AbiIBNh7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:37:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B2A0125B81;
+        Fri,  2 Sep 2022 06:16:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB03AB82A8B;
-        Fri,  2 Sep 2022 12:21:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEC50C433C1;
-        Fri,  2 Sep 2022 12:21:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E114621E3;
+        Fri,  2 Sep 2022 12:34:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C9A9C433D7;
+        Fri,  2 Sep 2022 12:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121288;
-        bh=lFrJ5b/r1x+uUtrX8t1nEyxRMS2asjNZ1cChTPFOAK0=;
+        s=korg; t=1662122094;
+        bh=xIwGVScQaB9wNQuwUy6UEhNULReYG68Iz9QNMVFlI5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMGuasyU9dO74C5BCFW/0Rp9OZHpF+aXRQ2jKAg83KdXTT7cmaair5zwSekfVjYiN
-         WNyFtSWiSkUy2xkQXdiwQK34sjX3RTmFtabDI/FCtwW5Lh8AL71BnvWsuJ5rZlcwS/
-         vL14UzKWyA6Sv3mEeQtGQTpp0HVl81nUoWQrb1vQ=
+        b=xP5Rsd4f5bnyctrj7SsA85/GUiaAxiOlRmvPwjWys6D5iqvZunNrM6JQklIXfOyeu
+         n6CoXy1hqnY8ZWy2KM+efzfN+/slaa5ugqJR3gAZJXQ0NDA4TJbKrKWIj+HrqK7oDB
+         Ror4lL1ripmBGZ2Ad9Ky1YClriA70qygx5LN3xUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Leng <jleng@ambarella.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nicolas Schier <n.schier@avm.de>
-Subject: [PATCH 4.9 21/31] kbuild: Fix include path in scripts/Makefile.modpost
+        stable@vger.kernel.org,
+        syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.19 11/72] media: pvrusb2: fix memory leak in pvr_probe
 Date:   Fri,  2 Sep 2022 14:18:47 +0200
-Message-Id: <20220902121357.540870777@linuxfoundation.org>
+Message-Id: <20220902121405.169501601@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
-References: <20220902121356.732130937@linuxfoundation.org>
+In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
+References: <20220902121404.772492078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Leng <jleng@ambarella.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 23a0cb8e3225122496bfa79172005c587c2d64bf upstream.
+commit 945a9a8e448b65bec055d37eba58f711b39f66f0 upstream.
 
-When building an external module, if users don't need to separate the
-compilation output and source code, they run the following command:
-"make -C $(LINUX_SRC_DIR) M=$(PWD)". At this point, "$(KBUILD_EXTMOD)"
-and "$(src)" are the same.
+The error handling code in pvr2_hdw_create forgets to unregister the
+v4l2 device. When pvr2_hdw_create returns back to pvr2_context_create,
+it calls pvr2_context_destroy to destroy context, but mp->hdw is NULL,
+which leads to that pvr2_hdw_destroy directly returns.
 
-If they need to separate them, they run "make -C $(KERNEL_SRC_DIR)
-O=$(KERNEL_OUT_DIR) M=$(OUT_DIR) src=$(PWD)". Before running the
-command, they need to copy "Kbuild" or "Makefile" to "$(OUT_DIR)" to
-prevent compilation failure.
+Fix this by adding v4l2_device_unregister to decrease the refcount of
+usb interface.
 
-So the kernel should change the included path to avoid the copy operation.
-
-Signed-off-by: Jing Leng <jleng@ambarella.com>
-[masahiro: I do not think "M=$(OUT_DIR) src=$(PWD)" is the official way,
-but this patch is a nice clean up anyway.]
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-[nsc: updated context for v4.19]
-Signed-off-by: Nicolas Schier <n.schier@avm.de>
+Reported-by: syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/Makefile.modpost |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/scripts/Makefile.modpost
-+++ b/scripts/Makefile.modpost
-@@ -50,8 +50,7 @@ obj := $(KBUILD_EXTMOD)
- src := $(obj)
- 
- # Include the module's Makefile to find KBUILD_EXTRA_SYMBOLS
--include $(if $(wildcard $(KBUILD_EXTMOD)/Kbuild), \
--             $(KBUILD_EXTMOD)/Kbuild, $(KBUILD_EXTMOD)/Makefile)
-+include $(if $(wildcard $(src)/Kbuild), $(src)/Kbuild, $(src)/Makefile)
- endif
- 
- include scripts/Makefile.lib
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -2610,6 +2610,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct
+ 		del_timer_sync(&hdw->encoder_run_timer);
+ 		del_timer_sync(&hdw->encoder_wait_timer);
+ 		flush_work(&hdw->workpoll);
++		v4l2_device_unregister(&hdw->v4l2_dev);
+ 		usb_free_urb(hdw->ctl_read_urb);
+ 		usb_free_urb(hdw->ctl_write_urb);
+ 		kfree(hdw->ctl_read_buffer);
 
 
