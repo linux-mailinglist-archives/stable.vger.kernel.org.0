@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B6D5AB0A2
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADAA55AB0F1
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238252AbiIBMze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:55:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55426 "EHLO
+        id S238102AbiIBNA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:00:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238279AbiIBMyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:54:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14D83F995D;
-        Fri,  2 Sep 2022 05:38:32 -0700 (PDT)
+        with ESMTP id S238112AbiIBM7c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:59:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96012FC33A;
+        Fri,  2 Sep 2022 05:40:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E41C362211;
-        Fri,  2 Sep 2022 12:37:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7240C433D6;
-        Fri,  2 Sep 2022 12:37:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B041E6217E;
+        Fri,  2 Sep 2022 12:39:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8EDFC433C1;
+        Fri,  2 Sep 2022 12:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122277;
-        bh=MSnkjPP/MYSfeJHpJPpx1Hxgi4ylFwUpQBUk8PBVVwQ=;
+        s=korg; t=1662122361;
+        bh=lVgdqr38Jt4ri3oENA3ZbW/QQK5tDQxvfQtgt9PHjxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZs3ZK4tt5XHv76UEkywjCgAG4eMJHOhGGPnnpXouOkg5Uu5Oj/casmNbIuskZYM+
-         eR0IT0C95xkV5VmBkmNwpdpnJaOALpPGWZeT2XCP8TK+NS3ysOwQ+gbTJG+ZiWaEWQ
-         AVPlGWAjiJqCrurmpxS6b/V8NpWw0naU/p6vYoEs=
+        b=WKWbpZ4D+zPT0fJc6AcDqAbE1v4bbekjhWPGbIz+r88rOzDG1pBrAlN2U7k+9HQcU
+         5/hS54Dcg05s9RD8hnVBtcTXRspaHKgba5k6DXlLaSI8mEvXxrIU6Re84DWJisrhqi
+         LkUQFlK8UftjheEclqPi3JTmZytsYXkJ4VW6OLdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        syzbot+da54fa8d793ca89c741f@syzkaller.appspotmail.com,
-        Todd Kjos <tkjos@google.com>,
-        =?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?= <arve@android.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Hridya Valsaraju <hridya@google.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Martijn Coenen <maco@android.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.19 69/72] android: binder: fix lockdep check on clearing vma
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 23/37] s390/hypfs: avoid error message under KVM
 Date:   Fri,  2 Sep 2022 14:19:45 +0200
-Message-Id: <20220902121407.062516874@linuxfoundation.org>
+Message-Id: <20220902121359.902181760@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
+References: <20220902121359.177846782@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,57 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam Howlett <liam.howlett@oracle.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit b0cab80ecd54ae3b2356bb081af0bffd538c8265 upstream.
+[ Upstream commit 7b6670b03641ac308aaa6fa2e6f964ac993b5ea3 ]
 
-When munmapping a vma, the mmap_lock can be degraded to a write before
-calling close() on the file handle.  The binder close() function calls
-binder_alloc_set_vma() to clear the vma address, which now has a lock dep
-check for writing on the mmap_lock.  Change the lockdep check to ensure
-the reading lock is held while clearing and keep the write check while
-writing.
+When booting under KVM the following error messages are issued:
 
-Link: https://lkml.kernel.org/r/20220627151857.2316964-1-Liam.Howlett@oracle.com
-Fixes: 472a68df605b ("android: binder: stop saving a pointer to the VMA")
-Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Reported-by: syzbot+da54fa8d793ca89c741f@syzkaller.appspotmail.com
-Acked-by: Todd Kjos <tkjos@google.com>
-Cc: "Arve Hjønnevåg" <arve@android.com>
-Cc: Christian Brauner (Microsoft) <brauner@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Hridya Valsaraju <hridya@google.com>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Cc: Martijn Coenen <maco@android.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+hypfs.7f5705: The hardware system does not support hypfs
+hypfs.7a79f0: Initialization of hypfs failed with rc=-61
+
+Demote the severity of first message from "error" to "info" and issue
+the second message only in other error cases.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220620094534.18967-1-jgross@suse.com
+[arch/s390/hypfs/hypfs_diag.c changed description]
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder_alloc.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/s390/hypfs/hypfs_diag.c | 2 +-
+ arch/s390/hypfs/inode.c      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -315,12 +315,19 @@ static inline void binder_alloc_set_vma(
- {
- 	unsigned long vm_start = 0;
+diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
+index f0bc4dc3e9bf0..6511d15ace45e 100644
+--- a/arch/s390/hypfs/hypfs_diag.c
++++ b/arch/s390/hypfs/hypfs_diag.c
+@@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
+ 	int rc;
  
-+	/*
-+	 * Allow clearing the vma with holding just the read lock to allow
-+	 * munmapping downgrade of the write lock before freeing and closing the
-+	 * file using binder_alloc_vma_close().
-+	 */
- 	if (vma) {
- 		vm_start = vma->vm_start;
- 		alloc->vma_vm_mm = vma->vm_mm;
-+		mmap_assert_write_locked(alloc->vma_vm_mm);
-+	} else {
-+		mmap_assert_locked(alloc->vma_vm_mm);
+ 	if (diag204_probe()) {
+-		pr_err("The hardware system does not support hypfs\n");
++		pr_info("The hardware system does not support hypfs\n");
+ 		return -ENODATA;
  	}
  
--	mmap_assert_write_locked(alloc->vma_vm_mm);
- 	alloc->vma_addr = vm_start;
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index 5c97f48cea91d..ee919bfc81867 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -496,9 +496,9 @@ static int __init hypfs_init(void)
+ 	hypfs_vm_exit();
+ fail_hypfs_diag_exit:
+ 	hypfs_diag_exit();
++	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ fail_dbfs_exit:
+ 	hypfs_dbfs_exit();
+-	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ 	return rc;
  }
- 
+ device_initcall(hypfs_init)
+-- 
+2.35.1
+
 
 
