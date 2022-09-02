@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0EC5AB08A
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83C8B5AB0F7
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237915AbiIBMyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:54:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33158 "EHLO
+        id S238237AbiIBNBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:01:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238132AbiIBMx4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658DDE394C;
-        Fri,  2 Sep 2022 05:38:25 -0700 (PDT)
+        with ESMTP id S238265AbiIBM7g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:59:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 528D6D4F51;
+        Fri,  2 Sep 2022 05:40:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2090FB82ADB;
-        Fri,  2 Sep 2022 12:38:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51794C433C1;
-        Fri,  2 Sep 2022 12:38:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9ECFB82AC5;
+        Fri,  2 Sep 2022 12:39:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 227F6C433D6;
+        Fri,  2 Sep 2022 12:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122286;
-        bh=5g9JY2Gz2Jm4NNrnqoRRHvvbwd4YFiYpKQ3LyeEkhgc=;
+        s=korg; t=1662122376;
+        bh=Rl54nJO1BHf012tRjZqYPLcT3BC/VSEP7sb101CBww0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hXpB0CWthtEpvBrBtE7dv0vT28CmW65PCipzRc8v1i9YwmbavXzWLV793DzorGWpc
-         Pg6YwTIXogYK3PWpxSI7Jf5bQGSMULQzqgfNSKKBTv3gxuR+Wtzcv1AvPOOnCHGPjf
-         R85tsJSZIEDtldWw8R0S7G7hGCDxxMne7QU1oNJI=
+        b=dfOfup6MlQQjFdDr9IN/GFj0NBgmptaGgS67G858XwY1QhcKlj9oAp0zzYfKrzTTI
+         UeG2ynyDL0oJvwAkYmyPEa77Oyg1Y3afAk5zMnDkHAO7aX1HxMVAXPEozXRk11HAAv
+         KqBq6WVRYjRB7fpnSCE1cTcBJJ2KkvMued2j9/XM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Bruno Goncalves <bgoncalv@redhat.com>
-Subject: [PATCH 5.19 72/72] arm64: cacheinfo: Fix incorrect assignment of signed error value to unsigned fw_level
-Date:   Fri,  2 Sep 2022 14:19:48 +0200
-Message-Id: <20220902121407.183705625@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 27/37] netfilter: conntrack: NF_CONNTRACK_PROCFS should no longer default to y
+Date:   Fri,  2 Sep 2022 14:19:49 +0200
+Message-Id: <20220902121400.016500501@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
+References: <20220902121359.177846782@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-commit e75d18cecbb3805895d8ed64da4f78575ec96043 upstream.
+[ Upstream commit aa5762c34213aba7a72dc58e70601370805fa794 ]
 
-Though acpi_find_last_cache_level() always returned signed value and the
-document states it will return any errors caused by lack of a PPTT table,
-it never returned negative values before.
+NF_CONNTRACK_PROCFS was marked obsolete in commit 54b07dca68557b09
+("netfilter: provide config option to disable ancient procfs parts") in
+v3.3.
 
-Commit 0c80f9e165f8 ("ACPI: PPTT: Leave the table mapped for the runtime usage")
-however changed it by returning -ENOENT if no PPTT was found. The value
-returned from acpi_find_last_cache_level() is then assigned to unsigned
-fw_level.
-
-It will result in the number of cache leaves calculated incorrectly as
-a huge value which will then cause the following warning from __alloc_pages
-as the order would be great than MAX_ORDER because of incorrect and huge
-cache leaves value.
-
-  |  WARNING: CPU: 0 PID: 1 at mm/page_alloc.c:5407 __alloc_pages+0x74/0x314
-  |  Modules linked in:
-  |  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-10393-g7c2a8d3ac4c0 #73
-  |  pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-  |  pc : __alloc_pages+0x74/0x314
-  |  lr : alloc_pages+0xe8/0x318
-  |  Call trace:
-  |   __alloc_pages+0x74/0x314
-  |   alloc_pages+0xe8/0x318
-  |   kmalloc_order_trace+0x68/0x1dc
-  |   __kmalloc+0x240/0x338
-  |   detect_cache_attributes+0xe0/0x56c
-  |   update_siblings_masks+0x38/0x284
-  |   store_cpu_topology+0x78/0x84
-  |   smp_prepare_cpus+0x48/0x134
-  |   kernel_init_freeable+0xc4/0x14c
-  |   kernel_init+0x2c/0x1b4
-  |   ret_from_fork+0x10/0x20
-
-Fix the same by changing fw_level to be signed integer and return the
-error from init_cache_level() early in case of error.
-
-Reported-and-Tested-by: Bruno Goncalves <bgoncalv@redhat.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Link: https://lore.kernel.org/r/20220808084640.3165368-1-sudeep.holla@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cacheinfo.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/netfilter/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm64/kernel/cacheinfo.c
-+++ b/arch/arm64/kernel/cacheinfo.c
-@@ -45,7 +45,8 @@ static void ci_leaf_init(struct cacheinf
+diff --git a/net/netfilter/Kconfig b/net/netfilter/Kconfig
+index 6bafd3876aff3..8bf70ce03f951 100644
+--- a/net/netfilter/Kconfig
++++ b/net/netfilter/Kconfig
+@@ -118,7 +118,6 @@ config NF_CONNTRACK_ZONES
  
- int init_cache_level(unsigned int cpu)
- {
--	unsigned int ctype, level, leaves, fw_level;
-+	unsigned int ctype, level, leaves;
-+	int fw_level;
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
- 
- 	for (level = 1, leaves = 0; level <= MAX_CACHE_LEVEL; level++) {
-@@ -63,6 +64,9 @@ int init_cache_level(unsigned int cpu)
- 	else
- 		fw_level = acpi_find_last_cache_level(cpu);
- 
-+	if (fw_level < 0)
-+		return fw_level;
-+
- 	if (level < fw_level) {
- 		/*
- 		 * some external caches not specified in CLIDR_EL1
+ config NF_CONNTRACK_PROCFS
+ 	bool "Supply CT list in procfs (OBSOLETE)"
+-	default y
+ 	depends on PROC_FS
+ 	help
+ 	This option enables for the list of known conntrack entries
+-- 
+2.35.1
+
 
 
