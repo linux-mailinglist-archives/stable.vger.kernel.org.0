@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 387C65AB012
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:48:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C385B5AAFD8
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:45:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237346AbiIBMse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:48:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56198 "EHLO
+        id S237435AbiIBMou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:44:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237596AbiIBMsL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:48:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94CF2F23C2;
-        Fri,  2 Sep 2022 05:34:43 -0700 (PDT)
+        with ESMTP id S237516AbiIBMnw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:43:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5629EE690;
+        Fri,  2 Sep 2022 05:32:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97A0B621AD;
-        Fri,  2 Sep 2022 12:32:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7528BC433D7;
-        Fri,  2 Sep 2022 12:32:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B345B829E6;
+        Fri,  2 Sep 2022 12:32:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CCB7C433D7;
+        Fri,  2 Sep 2022 12:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121956;
-        bh=FltnmrbUJl4Kk01iRhvVTQ+ruxZmvAigpAopAE70PwY=;
+        s=korg; t=1662121958;
+        bh=v3hPVAcakroHq2YJdqRMX+F4HVlTTf3DjLVRPVwNyLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJIbfbuDPJYXF2Fy2hfko2XyqHDTD8k36wh/Z8/gGRqnm51OjelOO+mlfLyVq1fuW
-         orwqIHGFKfdQFCFlF2JNcGOj4WH1yovXTJKMSq4a6lqfrxGr2+fVylpz51HoyjAWdu
-         mCh4SyBZJV1wR4dO8lZggbgZicKglCUYTJg7Tquc=
+        b=xSytj6j6AFdtQclTNLk4URUvekA9ezYrgiz1yZUe7JpUhtbyDmWkug066VwGkV0F4
+         /UCovvhUU5JGt407W61hk0leNoVg0k/SJJ8ivy4/SdrNGHgctNPxJP731iSfdeTXsn
+         +xS557xAps2djruyg2xInFXYqw+XBA+EmA6QbqvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris.p.wilson@intel.com>,
-        Fei Yang <fei.yang@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Wenbin Mei <wenbin.mei@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 41/73] drm/i915/gt: Skip TLB invalidations once wedged
-Date:   Fri,  2 Sep 2022 14:19:05 +0200
-Message-Id: <20220902121405.797844124@linuxfoundation.org>
+Subject: [PATCH 5.15 42/73] mmc: mtk-sd: Clear interrupts when cqe off/disable
+Date:   Fri,  2 Sep 2022 14:19:06 +0200
+Message-Id: <20220902121405.830982325@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
 References: <20220902121404.435662285@linuxfoundation.org>
@@ -60,50 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris.p.wilson@intel.com>
+From: Wenbin Mei <wenbin.mei@mediatek.com>
 
-[ Upstream commit e5a95c83ed1492c0f442b448b20c90c8faaf702b ]
+[ Upstream commit cc5d1692600613e72f32af60e27330fe0c79f4fe ]
 
-Skip all further TLB invalidations once the device is wedged and
-had been reset, as, on such cases, it can no longer process instructions
-on the GPU and the user no longer has access to the TLB's in each engine.
+Currently we don't clear MSDC interrupts when cqe off/disable, which led
+to the data complete interrupt will be reserved for the next command.
+If the next command with data transfer after cqe off/disable, we process
+the CMD ready interrupt and trigger DMA start for data, but the data
+complete interrupt is already exists, then SW assume that the data transfer
+is complete, SW will trigger DMA stop, but the data may not be transmitted
+yet or is transmitting, so we may encounter the following error:
+mtk-msdc 11230000.mmc: CMD bus busy detected.
 
-So, an attempt to do a TLB cache invalidation will produce a timeout.
-
-That helps to reduce the performance regression introduced by TLB
-invalidate logic.
-
+Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+Fixes: 88bd652b3c74 ("mmc: mediatek: command queue support")
 Cc: stable@vger.kernel.org
-Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
-Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-Cc: Fei Yang <fei.yang@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/5aa86564b9ec5fe7fe605c1dd7de76855401ed73.1658924372.git.mchehab@kernel.org
-(cherry picked from commit be0366f168033374a93e4c43fdaa1a90ab905184)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://lore.kernel.org/r/20220728080048.21336-1-wenbin.mei@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mmc/host/mtk-sd.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index 3a76000d15bfd..ed8ad3b263959 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -949,6 +949,9 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 	if (I915_SELFTEST_ONLY(gt->awake == -ENODEV))
- 		return;
+diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
+index f9b2897569bb4..99d8881a7d6c2 100644
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -2345,6 +2345,9 @@ static void msdc_cqe_disable(struct mmc_host *mmc, bool recovery)
+ 	/* disable busy check */
+ 	sdr_clr_bits(host->base + MSDC_PATCH_BIT1, MSDC_PB1_BUSY_CHECK_SEL);
  
-+	if (intel_gt_is_wedged(gt))
-+		return;
++	val = readl(host->base + MSDC_INT);
++	writel(val, host->base + MSDC_INT);
 +
- 	if (GRAPHICS_VER(i915) == 12) {
- 		regs = gen12_regs;
- 		num = ARRAY_SIZE(gen12_regs);
+ 	if (recovery) {
+ 		sdr_set_field(host->base + MSDC_DMA_CTRL,
+ 			      MSDC_DMA_CTRL_STOP, 1);
+@@ -2785,11 +2788,14 @@ static int __maybe_unused msdc_suspend(struct device *dev)
+ {
+ 	struct mmc_host *mmc = dev_get_drvdata(dev);
+ 	int ret;
++	u32 val;
+ 
+ 	if (mmc->caps2 & MMC_CAP2_CQE) {
+ 		ret = cqhci_suspend(mmc);
+ 		if (ret)
+ 			return ret;
++		val = readl(((struct msdc_host *)mmc_priv(mmc))->base + MSDC_INT);
++		writel(val, ((struct msdc_host *)mmc_priv(mmc))->base + MSDC_INT);
+ 	}
+ 
+ 	return pm_runtime_force_suspend(dev);
 -- 
 2.35.1
 
