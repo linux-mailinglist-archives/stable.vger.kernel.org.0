@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F1335AB105
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:02:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D35465AB096
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238534AbiIBNCC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:02:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50346 "EHLO
+        id S238150AbiIBMzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:55:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238532AbiIBNAh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:00:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84402E833C;
-        Fri,  2 Sep 2022 05:41:04 -0700 (PDT)
+        with ESMTP id S238250AbiIBMyL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:54:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 061496345;
+        Fri,  2 Sep 2022 05:38:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86A76B82A99;
-        Fri,  2 Sep 2022 12:40:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9CD5C433D7;
-        Fri,  2 Sep 2022 12:40:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D36456217E;
+        Fri,  2 Sep 2022 12:38:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C92E5C433C1;
+        Fri,  2 Sep 2022 12:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122429;
-        bh=4xJJOHqLzP7spsbVN3XdLsPg6PaX12EVx7PC1XKrqDs=;
+        s=korg; t=1662122303;
+        bh=3NtiLngTKqFl9XPjbLhNrrjCOUogu4M6f4ka2ODAOf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzejSoSoLvQ8Pg5L+PbiR89fQcLrTv0OOM78iudqg+FobLZqXriZCQlugtw/HxGos
-         3FnfhuWYFq6CGHsQyTsHyhTpR5FacN962Qt0DTQA/1roxOq60nYbGya9WE+uLLD5Od
-         /KBvqsWL94glaakksTjbqWxSD3L8tVf3E3h4e+uU=
+        b=w2LCRsZrKiE3YK7BAoziZl1wWAcyybOmoRbZvwO1DRf3kQlZ7QGDa+ETUkzk5P6NU
+         cX260EqnlSTV4OWJe4ocWoYnOtrBnet8K7QdsiUZmDQyhtCnJ+04+IbphP3xC6OOe5
+         C5wtdTOQfLWEsM1W5XkDZtymADf73TRtpmHUhoZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Letu Ren <fantasquex@gmail.com>, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 14/37] fbdev: fb_pm2fb: Avoid potential divide by zero error
-Date:   Fri,  2 Sep 2022 14:19:36 +0200
-Message-Id: <20220902121359.612473653@linuxfoundation.org>
+        stable@vger.kernel.org, Mukul Joshi <mukul.joshi@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 61/72] drm/amdgpu: Fix interrupt handling on ih_soft ring
+Date:   Fri,  2 Sep 2022 14:19:37 +0200
+Message-Id: <20220902121406.786915743@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121359.177846782@linuxfoundation.org>
-References: <20220902121359.177846782@linuxfoundation.org>
+In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
+References: <20220902121404.772492078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +56,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Mukul Joshi <mukul.joshi@amd.com>
 
-commit 19f953e7435644b81332dd632ba1b2d80b1e37af upstream.
+[ Upstream commit de8341ee3ce7316883e836a2c4e9bf01ab651e0f ]
 
-In `do_fb_ioctl()` of fbmem.c, if cmd is FBIOPUT_VSCREENINFO, var will be
-copied from user, then go through `fb_set_var()` and
-`info->fbops->fb_check_var()` which could may be `pm2fb_check_var()`.
-Along the path, `var->pixclock` won't be modified. This function checks
-whether reciprocal of `var->pixclock` is too high. If `var->pixclock` is
-zero, there will be a divide by zero error. So, it is necessary to check
-whether denominator is zero to avoid crash. As this bug is found by
-Syzkaller, logs are listed below.
+There are no backing hardware registers for ih_soft ring.
+As a result, don't try to access hardware registers for read
+and write pointers when processing interrupts on the IH soft
+ring.
 
-divide error in pm2fb_check_var
-Call Trace:
- <TASK>
- fb_set_var+0x367/0xeb0 drivers/video/fbdev/core/fbmem.c:1015
- do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
- fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mukul Joshi <mukul.joshi@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pm2fb.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/navi10_ih.c | 7 ++++++-
+ drivers/gpu/drm/amd/amdgpu/vega10_ih.c | 7 ++++++-
+ drivers/gpu/drm/amd/amdgpu/vega20_ih.c | 7 ++++++-
+ 3 files changed, 18 insertions(+), 3 deletions(-)
 
---- a/drivers/video/fbdev/pm2fb.c
-+++ b/drivers/video/fbdev/pm2fb.c
-@@ -616,6 +616,11 @@ static int pm2fb_check_var(struct fb_var
- 		return -EINVAL;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/navi10_ih.c b/drivers/gpu/drm/amd/amdgpu/navi10_ih.c
+index 4b5396d3e60f6..eec13cb5bf758 100644
+--- a/drivers/gpu/drm/amd/amdgpu/navi10_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/navi10_ih.c
+@@ -409,9 +409,11 @@ static u32 navi10_ih_get_wptr(struct amdgpu_device *adev,
+ 	u32 wptr, tmp;
+ 	struct amdgpu_ih_regs *ih_regs;
  
-+	if (!var->pixclock) {
-+		DPRINTK("pixclock is zero\n");
-+		return -EINVAL;
-+	}
+-	if (ih == &adev->irq.ih) {
++	if (ih == &adev->irq.ih || ih == &adev->irq.ih_soft) {
+ 		/* Only ring0 supports writeback. On other rings fall back
+ 		 * to register-based code with overflow checking below.
++		 * ih_soft ring doesn't have any backing hardware registers,
++		 * update wptr and return.
+ 		 */
+ 		wptr = le32_to_cpu(*ih->wptr_cpu);
+ 
+@@ -483,6 +485,9 @@ static void navi10_ih_set_rptr(struct amdgpu_device *adev,
+ {
+ 	struct amdgpu_ih_regs *ih_regs;
+ 
++	if (ih == &adev->irq.ih_soft)
++		return;
 +
- 	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
- 		DPRINTK("pixclock too high (%ldKHz)\n",
- 			PICOS2KHZ(var->pixclock));
+ 	if (ih->use_doorbell) {
+ 		/* XXX check if swapping is necessary on BE */
+ 		*ih->rptr_cpu = ih->rptr;
+diff --git a/drivers/gpu/drm/amd/amdgpu/vega10_ih.c b/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
+index cdd599a081258..03b7066471f9a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
+@@ -334,9 +334,11 @@ static u32 vega10_ih_get_wptr(struct amdgpu_device *adev,
+ 	u32 wptr, tmp;
+ 	struct amdgpu_ih_regs *ih_regs;
+ 
+-	if (ih == &adev->irq.ih) {
++	if (ih == &adev->irq.ih || ih == &adev->irq.ih_soft) {
+ 		/* Only ring0 supports writeback. On other rings fall back
+ 		 * to register-based code with overflow checking below.
++		 * ih_soft ring doesn't have any backing hardware registers,
++		 * update wptr and return.
+ 		 */
+ 		wptr = le32_to_cpu(*ih->wptr_cpu);
+ 
+@@ -409,6 +411,9 @@ static void vega10_ih_set_rptr(struct amdgpu_device *adev,
+ {
+ 	struct amdgpu_ih_regs *ih_regs;
+ 
++	if (ih == &adev->irq.ih_soft)
++		return;
++
+ 	if (ih->use_doorbell) {
+ 		/* XXX check if swapping is necessary on BE */
+ 		*ih->rptr_cpu = ih->rptr;
+diff --git a/drivers/gpu/drm/amd/amdgpu/vega20_ih.c b/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
+index 3b4eb8285943c..2022ffbb8dba5 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
+@@ -385,9 +385,11 @@ static u32 vega20_ih_get_wptr(struct amdgpu_device *adev,
+ 	u32 wptr, tmp;
+ 	struct amdgpu_ih_regs *ih_regs;
+ 
+-	if (ih == &adev->irq.ih) {
++	if (ih == &adev->irq.ih || ih == &adev->irq.ih_soft) {
+ 		/* Only ring0 supports writeback. On other rings fall back
+ 		 * to register-based code with overflow checking below.
++		 * ih_soft ring doesn't have any backing hardware registers,
++		 * update wptr and return.
+ 		 */
+ 		wptr = le32_to_cpu(*ih->wptr_cpu);
+ 
+@@ -461,6 +463,9 @@ static void vega20_ih_set_rptr(struct amdgpu_device *adev,
+ {
+ 	struct amdgpu_ih_regs *ih_regs;
+ 
++	if (ih == &adev->irq.ih_soft)
++		return;
++
+ 	if (ih->use_doorbell) {
+ 		/* XXX check if swapping is necessary on BE */
+ 		*ih->rptr_cpu = ih->rptr;
+-- 
+2.35.1
+
 
 
