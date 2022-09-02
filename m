@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9CB05AAF99
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 387C65AB012
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237101AbiIBMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:40:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41076 "EHLO
+        id S237346AbiIBMse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:48:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237053AbiIBMiM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:38:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27B83B33;
-        Fri,  2 Sep 2022 05:29:44 -0700 (PDT)
+        with ESMTP id S237596AbiIBMsL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:48:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94CF2F23C2;
+        Fri,  2 Sep 2022 05:34:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34084B82A9D;
-        Fri,  2 Sep 2022 12:29:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67E5DC433D6;
-        Fri,  2 Sep 2022 12:29:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97A0B621AD;
+        Fri,  2 Sep 2022 12:32:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7528BC433D7;
+        Fri,  2 Sep 2022 12:32:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121782;
-        bh=GYn0TkjAII05z9pCYcIRoOHlN6MT+QAzlIGZeA4VpQE=;
+        s=korg; t=1662121956;
+        bh=FltnmrbUJl4Kk01iRhvVTQ+ruxZmvAigpAopAE70PwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x4ujdBviWpoho88IUaNa6EDko6JlN07Yygk5NWzS8ZxENdZXRpyL+OcBpemKDyM9j
-         o3wfFd1VSWQ4dbrCt1vfluNNjjyqhJn8WGUPGtQT+4BZnQpG1Ti0kg/Qni0g+DxJ41
-         0PU/qp9nmtqo7aufypa8LxGeQd4wX1/t0fo4mvac=
+        b=TJIbfbuDPJYXF2Fy2hfko2XyqHDTD8k36wh/Z8/gGRqnm51OjelOO+mlfLyVq1fuW
+         orwqIHGFKfdQFCFlF2JNcGOj4WH1yovXTJKMSq4a6lqfrxGr2+fVylpz51HoyjAWdu
+         mCh4SyBZJV1wR4dO8lZggbgZicKglCUYTJg7Tquc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.4 56/77] media: pvrusb2: fix memory leak in pvr_probe
+        stable@vger.kernel.org, Chris Wilson <chris.p.wilson@intel.com>,
+        Fei Yang <fei.yang@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 41/73] drm/i915/gt: Skip TLB invalidations once wedged
 Date:   Fri,  2 Sep 2022 14:19:05 +0200
-Message-Id: <20220902121405.543478779@linuxfoundation.org>
+Message-Id: <20220902121405.797844124@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +60,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Chris Wilson <chris.p.wilson@intel.com>
 
-commit 945a9a8e448b65bec055d37eba58f711b39f66f0 upstream.
+[ Upstream commit e5a95c83ed1492c0f442b448b20c90c8faaf702b ]
 
-The error handling code in pvr2_hdw_create forgets to unregister the
-v4l2 device. When pvr2_hdw_create returns back to pvr2_context_create,
-it calls pvr2_context_destroy to destroy context, but mp->hdw is NULL,
-which leads to that pvr2_hdw_destroy directly returns.
+Skip all further TLB invalidations once the device is wedged and
+had been reset, as, on such cases, it can no longer process instructions
+on the GPU and the user no longer has access to the TLB's in each engine.
 
-Fix this by adding v4l2_device_unregister to decrease the refcount of
-usb interface.
+So, an attempt to do a TLB cache invalidation will produce a timeout.
 
-Reported-by: syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+That helps to reduce the performance regression introduced by TLB
+invalidate logic.
+
+Cc: stable@vger.kernel.org
+Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
+Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
+Cc: Fei Yang <fei.yang@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/5aa86564b9ec5fe7fe605c1dd7de76855401ed73.1658924372.git.mchehab@kernel.org
+(cherry picked from commit be0366f168033374a93e4c43fdaa1a90ab905184)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/gt/intel_gt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -2611,6 +2611,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct
- 		del_timer_sync(&hdw->encoder_run_timer);
- 		del_timer_sync(&hdw->encoder_wait_timer);
- 		flush_work(&hdw->workpoll);
-+		v4l2_device_unregister(&hdw->v4l2_dev);
- 		usb_free_urb(hdw->ctl_read_urb);
- 		usb_free_urb(hdw->ctl_write_urb);
- 		kfree(hdw->ctl_read_buffer);
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
+index 3a76000d15bfd..ed8ad3b263959 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt.c
+@@ -949,6 +949,9 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
+ 	if (I915_SELFTEST_ONLY(gt->awake == -ENODEV))
+ 		return;
+ 
++	if (intel_gt_is_wedged(gt))
++		return;
++
+ 	if (GRAPHICS_VER(i915) == 12) {
+ 		regs = gen12_regs;
+ 		num = ARRAY_SIZE(gen12_regs);
+-- 
+2.35.1
+
 
 
