@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F13E25AAF7E
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ABD65AAE74
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237034AbiIBMkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:40:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34094 "EHLO
+        id S235992AbiIBMXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:23:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236947AbiIBMiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:38:17 -0400
+        with ESMTP id S236214AbiIBMWs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:22:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A52D65E6;
-        Fri,  2 Sep 2022 05:30:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F59D7D2A;
+        Fri,  2 Sep 2022 05:21:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 111B462160;
-        Fri,  2 Sep 2022 12:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19934C433C1;
-        Fri,  2 Sep 2022 12:28:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C21036210A;
+        Fri,  2 Sep 2022 12:21:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CDAC433C1;
+        Fri,  2 Sep 2022 12:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121723;
-        bh=j/8XAWMQ7PlP+5WrROnEfX7lfhQhIwUDBWAojUg3vvM=;
+        s=korg; t=1662121306;
+        bh=OMHiNt1YikKt3MUFMW0UMBSOVzf0m8ARmas6rDbfFeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bce+ex7L1Isuslx8Z5x0OKXBF8m02AmNP+lbK0/sIMcnvNLZX+f/oVfO9FadtgbEm
-         Bkt+/tdt8ADZc/1+EEgIdCExc3MSiRSNtWJJnhg51a2XGOC4PZqB2tkKDk1cb19/Lo
-         G0mz4nxDjtPvMib5chsCUMoBXgemLyydD/3Lmo8A=
+        b=D9bS/9FG+81bOlMjS+ioTazyPt5pjaYgx/TyvoBQVFVtqw0MevKNjXgM62AcLrKXU
+         7FQpL8ESnJTmGitdaSY0jAlPwti0AK2XAqfEuhv+uxeyZrVz1YVKgz35s9qID6YvOy
+         v63Leg1H8DK5MCvOFJ/Pgw2/wQiChA8nnox+RfkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <Jeremy.Linton@arm.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Riwen Lu <luriwen@kylinos.cn>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 44/77] ACPI: processor: Remove freq Qos request for all CPUs
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Bestas <mkbestas@gmail.com>
+Subject: [PATCH 4.9 27/31] arm64: map FDT as RW for early_init_dt_scan()
 Date:   Fri,  2 Sep 2022 14:18:53 +0200
-Message-Id: <20220902121405.116990661@linuxfoundation.org>
+Message-Id: <20220902121357.730656291@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
+References: <20220902121356.732130937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +56,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riwen Lu <luriwen@kylinos.cn>
+From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-commit 36527b9d882362567ceb4eea8666813280f30e6f upstream.
+commit e112b032a72c78f15d0c803c5dc6be444c2e6c66 upstream.
 
-The freq Qos request would be removed repeatedly if the cpufreq policy
-relates to more than one CPU. Then, it would cause the "called for unknown
-object" warning.
+Currently in arm64, FDT is mapped to RO before it's passed to
+early_init_dt_scan(). However, there might be some codes
+(eg. commit "fdt: add support for rng-seed") that need to modify FDT
+during init. Map FDT to RO after early fixups are done.
 
-Remove the freq Qos request for each CPU relates to the cpufreq policy,
-instead of removing repeatedly for the last CPU of it.
-
-Fixes: a1bb46c36ce3 ("ACPI: processor: Add QoS requests for all CPUs")
-Reported-by: Jeremy Linton <Jeremy.Linton@arm.com>
-Tested-by: Jeremy Linton <jeremy.linton@arm.com>
-Signed-off-by: Riwen Lu <luriwen@kylinos.cn>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+[mkbestas: fixed trivial conflicts for 4.9 backport]
+Signed-off-by: Michael Bestas <mkbestas@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/processor_thermal.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/mmu.h |    2 +-
+ arch/arm64/kernel/kaslr.c    |    5 +----
+ arch/arm64/kernel/setup.c    |    9 ++++++++-
+ arch/arm64/mm/mmu.c          |   15 +--------------
+ 4 files changed, 11 insertions(+), 20 deletions(-)
 
---- a/drivers/acpi/processor_thermal.c
-+++ b/drivers/acpi/processor_thermal.c
-@@ -150,7 +150,7 @@ void acpi_thermal_cpufreq_exit(struct cp
- 	unsigned int cpu;
+--- a/arch/arm64/include/asm/mmu.h
++++ b/arch/arm64/include/asm/mmu.h
+@@ -90,7 +90,7 @@ extern void init_mem_pgprot(void);
+ extern void create_pgd_mapping(struct mm_struct *mm, phys_addr_t phys,
+ 			       unsigned long virt, phys_addr_t size,
+ 			       pgprot_t prot, bool allow_block_mappings);
+-extern void *fixmap_remap_fdt(phys_addr_t dt_phys);
++extern void *fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot);
  
- 	for_each_cpu(cpu, policy->related_cpus) {
--		struct acpi_processor *pr = per_cpu(processors, policy->cpu);
-+		struct acpi_processor *pr = per_cpu(processors, cpu);
+ #endif	/* !__ASSEMBLY__ */
+ #endif
+--- a/arch/arm64/kernel/kaslr.c
++++ b/arch/arm64/kernel/kaslr.c
+@@ -65,9 +65,6 @@ out:
+ 	return default_cmdline;
+ }
  
- 		if (pr)
- 			freq_qos_remove_request(&pr->thermal_req);
+-extern void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size,
+-				       pgprot_t prot);
+-
+ /*
+  * This routine will be executed with the kernel mapped at its default virtual
+  * address, and if it returns successfully, the kernel will be remapped, and
+@@ -96,7 +93,7 @@ u64 __init kaslr_early_init(u64 dt_phys,
+ 	 * attempt at mapping the FDT in setup_machine()
+ 	 */
+ 	early_fixmap_init();
+-	fdt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
++	fdt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
+ 	if (!fdt)
+ 		return 0;
+ 
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -178,7 +178,11 @@ static void __init smp_build_mpidr_hash(
+ 
+ static void __init setup_machine_fdt(phys_addr_t dt_phys)
+ {
+-	void *dt_virt = fixmap_remap_fdt(dt_phys);
++	int size;
++	void *dt_virt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
++
++	if (dt_virt)
++		memblock_reserve(dt_phys, size);
+ 
+ 	if (!dt_virt || !early_init_dt_scan(dt_virt)) {
+ 		pr_crit("\n"
+@@ -191,6 +195,9 @@ static void __init setup_machine_fdt(phy
+ 			cpu_relax();
+ 	}
+ 
++	/* Early fixups are done, map the FDT as read-only now */
++	fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
++
+ 	dump_stack_set_arch_desc("%s (DT)", of_flat_dt_get_machine_name());
+ }
+ 
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -718,7 +718,7 @@ void __set_fixmap(enum fixed_addresses i
+ 	}
+ }
+ 
+-void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
++void *__init fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
+ {
+ 	const u64 dt_virt_base = __fix_to_virt(FIX_FDT);
+ 	int offset;
+@@ -771,19 +771,6 @@ void *__init __fixmap_remap_fdt(phys_add
+ 	return dt_virt;
+ }
+ 
+-void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
+-{
+-	void *dt_virt;
+-	int size;
+-
+-	dt_virt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
+-	if (!dt_virt)
+-		return NULL;
+-
+-	memblock_reserve(dt_phys, size);
+-	return dt_virt;
+-}
+-
+ int __init arch_ioremap_pud_supported(void)
+ {
+ 	/*
 
 
