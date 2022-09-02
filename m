@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F865AB1CA
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:40:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A04D15AB123
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:05:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236626AbiIBNks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 09:40:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
+        id S238495AbiIBNEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:04:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236490AbiIBNkO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:40:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E460CF8F6B;
-        Fri,  2 Sep 2022 06:17:48 -0700 (PDT)
+        with ESMTP id S238723AbiIBNDr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:03:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D95110F080;
+        Fri,  2 Sep 2022 05:42:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EFED6218F;
-        Fri,  2 Sep 2022 12:29:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D58EC433D6;
-        Fri,  2 Sep 2022 12:29:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3819F6211C;
+        Fri,  2 Sep 2022 12:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E06FC433D6;
+        Fri,  2 Sep 2022 12:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121751;
-        bh=eD8hPXiqhltoVaonaNs7OuOm9CRuggKzV8BzNUVDAgs=;
+        s=korg; t=1662121943;
+        bh=QXhlD+e++6kgBMShPi6oO6OcUkdZpztpCjKg39eR83k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JY6oaeTaHlikcg3UQFCsRHSJ9dDQgzUjPVKXFdF4QdD9CYKrFc9sz8+GktbQ2sW6x
-         Rbalq9gcWiHC0yfBZ9TQtihk6yjS2PYGzo3OZqzTC9BEVXjXwJnM+rSIM8lRfw4eES
-         G1fN9wYnZEetjFYsNMb/LEGMe70lHF3Nob6lbVks=
+        b=CzIP9wI8ajNBR1PwPlQd9BoYN+vOKJUxkADcx7j8iEJ4LqJGjJxpUOAJu8Q1L178K
+         p/woON2/fN98iJXq0oT/co1vGFTLnrVh9eFDipadOIn7KmxKRHriBA7PXuK+tf1x1i
+         WHgjDYrfMyePt+kne4DIv0cFMV/QEqT432hD1kbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Leng <jleng@ambarella.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nicolas Schier <n.schier@avm.de>
-Subject: [PATCH 5.4 52/77] kbuild: Fix include path in scripts/Makefile.modpost
+        stable@vger.kernel.org, Steev Klimaszewski <steev@kali.org>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.15 37/73] HID: add Lenovo Yoga C630 battery quirk
 Date:   Fri,  2 Sep 2022 14:19:01 +0200
-Message-Id: <20220902121405.386283923@linuxfoundation.org>
+Message-Id: <20220902121405.661670249@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Leng <jleng@ambarella.com>
+From: Steev Klimaszewski <steev@kali.org>
 
-commit 23a0cb8e3225122496bfa79172005c587c2d64bf upstream.
+commit 3a47fa7b14c7d9613909a844aba27f99d3c58634 upstream.
 
-When building an external module, if users don't need to separate the
-compilation output and source code, they run the following command:
-"make -C $(LINUX_SRC_DIR) M=$(PWD)". At this point, "$(KBUILD_EXTMOD)"
-and "$(src)" are the same.
+Similar to the Surface Go devices, the Elantech touchscreen/digitizer in
+the Lenovo Yoga C630 mistakenly reports the battery of the stylus, and
+always reports an empty battery.
 
-If they need to separate them, they run "make -C $(KERNEL_SRC_DIR)
-O=$(KERNEL_OUT_DIR) M=$(OUT_DIR) src=$(PWD)". Before running the
-command, they need to copy "Kbuild" or "Makefile" to "$(OUT_DIR)" to
-prevent compilation failure.
+Apply the HID_BATTERY_QUIRK_IGNORE quirk to ignore this battery and
+prevent the erroneous low battery warnings.
 
-So the kernel should change the included path to avoid the copy operation.
-
-Signed-off-by: Jing Leng <jleng@ambarella.com>
-[masahiro: I do not think "M=$(OUT_DIR) src=$(PWD)" is the official way,
-but this patch is a nice clean up anyway.]
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-[nsc: updated context for v4.19]
-Signed-off-by: Nicolas Schier <n.schier@avm.de>
+Signed-off-by: Steev Klimaszewski <steev@kali.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/Makefile.modpost |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/hid/hid-ids.h   |    1 +
+ drivers/hid/hid-input.c |    2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/scripts/Makefile.modpost
-+++ b/scripts/Makefile.modpost
-@@ -75,8 +75,7 @@ obj := $(KBUILD_EXTMOD)
- src := $(obj)
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -399,6 +399,7 @@
+ #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
+ #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
+ #define I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN	0x2A1C
++#define I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN	0x279F
  
- # Include the module's Makefile to find KBUILD_EXTRA_SYMBOLS
--include $(if $(wildcard $(KBUILD_EXTMOD)/Kbuild), \
--             $(KBUILD_EXTMOD)/Kbuild, $(KBUILD_EXTMOD)/Makefile)
-+include $(if $(wildcard $(src)/Kbuild), $(src)/Kbuild, $(src)/Makefile)
- endif
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -335,6 +335,8 @@ static const struct hid_device_id hid_ba
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{}
+ };
  
- MODPOST += $(subst -i,-n,$(filter -i,$(MAKEFLAGS))) -s -T - $(wildcard vmlinux)
 
 
