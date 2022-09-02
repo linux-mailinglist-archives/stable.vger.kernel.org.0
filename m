@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE3115AB051
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E47B5AB0A4
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237853AbiIBMwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:52:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45584 "EHLO
+        id S238041AbiIBMyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:54:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237792AbiIBMvn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:51:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB918E340E;
-        Fri,  2 Sep 2022 05:37:18 -0700 (PDT)
+        with ESMTP id S238021AbiIBMxb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 440AEE58B1;
+        Fri,  2 Sep 2022 05:38:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C074F6211D;
-        Fri,  2 Sep 2022 12:29:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B770DC433C1;
-        Fri,  2 Sep 2022 12:29:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 979AAB82A8B;
+        Fri,  2 Sep 2022 12:37:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09A69C433C1;
+        Fri,  2 Sep 2022 12:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121754;
-        bh=mHzs6d5hxU1i6+1Mo1KuGNkiU33DBxG/VTXMU/Qg5zw=;
+        s=korg; t=1662122239;
+        bh=lV7mb2d2P7zCPfmJmyz0dYwCOsfkfJLOefpZXPPvb/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LtG509XWJPdOKuWPczs28bXumTt83PlwTGHtTgMS5SK+ha3Hvt91lFj3EXz7pqluJ
-         I8uquRWBDBraAeNSSW4zziFE5JTAqKgyvnssehWLiE0XoD9ler9GjvCndz4nCklnnt
-         PqBFNs759PlkrOCEroRxLUwr5WCt9iyCDaQm74WY=
+        b=v575zYHYD0O6KL2SP9qdf9VRff1zVb7D7ghqntoQ0EuOaTsUXD9QfTczk7SEEPMDF
+         XwGbFKl8Ib9mf5CSMGDL6aLIUHFbTHbKSMI/gwhUNkWSqtgRh9PbnOXLleHjxWey1m
+         D0RqqlYvjfSyg38LD/JBKXkrWxwAUgqnqXYQgzVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 53/77] Bluetooth: L2CAP: Fix build errors in some archs
+        =?UTF-8?q?Michael=20H=C3=BCbner?= <michaelh.95@t-online.de>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.19 26/72] HID: thrustmaster: Add sparco wheel and fix array length
 Date:   Fri,  2 Sep 2022 14:19:02 +0200
-Message-Id: <20220902121405.425755290@linuxfoundation.org>
+Message-Id: <20220902121405.660611157@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
+References: <20220902121404.772492078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Michael Hübner <michaelh.95@t-online.de>
 
-commit b840304fb46cdf7012722f456bce06f151b3e81b upstream.
+commit d9a17651f3749e69890db57ca66e677dfee70829 upstream.
 
-This attempts to fix the follow errors:
+Add device id for the Sparco R383 Mod wheel.
 
-In function 'memcmp',
-    inlined from 'bacmp' at ./include/net/bluetooth/bluetooth.h:347:9,
-    inlined from 'l2cap_global_chan_by_psm' at
-    net/bluetooth/l2cap_core.c:2003:15:
-./include/linux/fortify-string.h:44:33: error: '__builtin_memcmp'
-specified bound 6 exceeds source size 0 [-Werror=stringop-overread]
-   44 | #define __underlying_memcmp     __builtin_memcmp
-      |                                 ^
-./include/linux/fortify-string.h:420:16: note: in expansion of macro
-'__underlying_memcmp'
-  420 |         return __underlying_memcmp(p, q, size);
-      |                ^~~~~~~~~~~~~~~~~~~
-In function 'memcmp',
-    inlined from 'bacmp' at ./include/net/bluetooth/bluetooth.h:347:9,
-    inlined from 'l2cap_global_chan_by_psm' at
-    net/bluetooth/l2cap_core.c:2004:15:
-./include/linux/fortify-string.h:44:33: error: '__builtin_memcmp'
-specified bound 6 exceeds source size 0 [-Werror=stringop-overread]
-   44 | #define __underlying_memcmp     __builtin_memcmp
-      |                                 ^
-./include/linux/fortify-string.h:420:16: note: in expansion of macro
-'__underlying_memcmp'
-  420 |         return __underlying_memcmp(p, q, size);
-      |                ^~~~~~~~~~~~~~~~~~~
+Fix wheel info array length to match actual wheel count present in the array.
 
-Fixes: 332f1795ca20 ("Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm regression")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Michael Hübner <michaelh.95@t-online.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hid/hid-thrustmaster.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1835,11 +1835,11 @@ static struct l2cap_chan *l2cap_global_c
- 			src_match = !bacmp(&c->src, src);
- 			dst_match = !bacmp(&c->dst, dst);
- 			if (src_match && dst_match) {
--				c = l2cap_chan_hold_unless_zero(c);
--				if (c) {
--					read_unlock(&chan_list_lock);
--					return c;
--				}
-+				if (!l2cap_chan_hold_unless_zero(c))
-+					continue;
-+
-+				read_unlock(&chan_list_lock);
-+				return c;
- 			}
+--- a/drivers/hid/hid-thrustmaster.c
++++ b/drivers/hid/hid-thrustmaster.c
+@@ -67,12 +67,13 @@ static const struct tm_wheel_info tm_whe
+ 	{0x0200, 0x0005, "Thrustmaster T300RS (Missing Attachment)"},
+ 	{0x0206, 0x0005, "Thrustmaster T300RS"},
+ 	{0x0209, 0x0005, "Thrustmaster T300RS (Open Wheel Attachment)"},
++	{0x020a, 0x0005, "Thrustmaster T300RS (Sparco R383 Mod)"},
+ 	{0x0204, 0x0005, "Thrustmaster T300 Ferrari Alcantara Edition"},
+ 	{0x0002, 0x0002, "Thrustmaster T500RS"}
+ 	//{0x0407, 0x0001, "Thrustmaster TMX"}
+ };
  
- 			/* Closest match */
+-static const uint8_t tm_wheels_infos_length = 4;
++static const uint8_t tm_wheels_infos_length = 7;
+ 
+ /*
+  * This structs contains (in little endian) the response data
 
 
