@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0F25AAF1C
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:34:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE3E5AAEA9
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:27:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236487AbiIBMeK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:34:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46674 "EHLO
+        id S236380AbiIBM1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:27:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236307AbiIBMdF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:33:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE39EDD4E8;
-        Fri,  2 Sep 2022 05:27:28 -0700 (PDT)
+        with ESMTP id S235984AbiIBM0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:26:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C0BDD6324;
+        Fri,  2 Sep 2022 05:23:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16628B82AB6;
-        Fri,  2 Sep 2022 12:27:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A90BC433C1;
-        Fri,  2 Sep 2022 12:27:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA7B8620B2;
+        Fri,  2 Sep 2022 12:23:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBCD3C433D7;
+        Fri,  2 Sep 2022 12:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121643;
-        bh=Sz3Q4UxT7dqoQblVzdJOQZ/hjUT/fosBNY6GHX19QdM=;
+        s=korg; t=1662121421;
+        bh=zjwEXxb++TeUTAa1pfKN3QoIk0hmTP11K/4XesBwa5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrOjPGvxUtAI0boJvAL/HPRkRrhP2G6m3g0wUBnU775c2H03dPiQ9C7wICrW0H2fm
-         CsczwrUukwGf7bpmPLgpAUqLLCh5cwOo7HSjyTZdqiWzJXxDz6mpDaSupTh3VATlIs
-         XMY/3XttTvtMLRT8H5U1JMoQ79KErXMSwDXBFBe4=
+        b=jcTwpat349AKSPVMobhpvDtDiGmyMCHcQTryPfdOqEyeFXGNuEFZogwuqCgPn8xPH
+         85HDmo+tz2+PiCfBJv9HtXV379frdtjzDR6NsCf5aT64biMNOqgMEApiaLpFJvMGFc
+         s5nOeMvhEYaksQlqrWa/fHIH4V/RAyzH816N6YQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
-        Sainath Grandhi <sainath.grandhi@intel.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 19/77] net: ipvtap - add __init/__exit annotations to module init/exit funcs
+Subject: [PATCH 4.14 04/42] xfrm: fix refcount leak in __xfrm_policy_check()
 Date:   Fri,  2 Sep 2022 14:18:28 +0200
-Message-Id: <20220902121404.283202582@linuxfoundation.org>
+Message-Id: <20220902121358.937148262@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,45 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit 4b2e3a17e9f279325712b79fb01d1493f9e3e005 ]
+[ Upstream commit 9c9cb23e00ddf45679b21b4dacc11d1ae7961ebe ]
 
-Looks to have been left out in an oversight.
+The issue happens on an error path in __xfrm_policy_check(). When the
+fetching process of the object `pols[1]` fails, the function simply
+returns 0, forgetting to decrement the reference count of `pols[0]`,
+which is incremented earlier by either xfrm_sk_policy_lookup() or
+xfrm_policy_lookup(). This may result in memory leaks.
 
-Cc: Mahesh Bandewar <maheshb@google.com>
-Cc: Sainath Grandhi <sainath.grandhi@intel.com>
-Fixes: 235a9d89da97 ('ipvtap: IP-VLAN based tap driver')
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20220821130808.12143-1-zenczykowski@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fix it by decreasing the reference count of `pols[0]` in that path.
+
+Fixes: 134b0fc544ba ("IPsec: propagate security module errors up from flow_cache_lookup")
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipvlan/ipvtap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/xfrm/xfrm_policy.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ipvlan/ipvtap.c b/drivers/net/ipvlan/ipvtap.c
-index 1cedb634f4f7b..f01078b2581ce 100644
---- a/drivers/net/ipvlan/ipvtap.c
-+++ b/drivers/net/ipvlan/ipvtap.c
-@@ -194,7 +194,7 @@ static struct notifier_block ipvtap_notifier_block __read_mostly = {
- 	.notifier_call	= ipvtap_device_event,
- };
- 
--static int ipvtap_init(void)
-+static int __init ipvtap_init(void)
- {
- 	int err;
- 
-@@ -228,7 +228,7 @@ static int ipvtap_init(void)
- }
- module_init(ipvtap_init);
- 
--static void ipvtap_exit(void)
-+static void __exit ipvtap_exit(void)
- {
- 	rtnl_link_unregister(&ipvtap_link_ops);
- 	unregister_netdevice_notifier(&ipvtap_notifier_block);
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index e1840f70c0ff0..66c23a1b8758f 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -2332,6 +2332,7 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
+ 		if (pols[1]) {
+ 			if (IS_ERR(pols[1])) {
+ 				XFRM_INC_STATS(net, LINUX_MIB_XFRMINPOLERROR);
++				xfrm_pol_put(pols[0]);
+ 				return 0;
+ 			}
+ 			pols[1]->curlft.use_time = get_seconds();
 -- 
 2.35.1
 
