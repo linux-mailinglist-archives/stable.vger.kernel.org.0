@@ -2,234 +2,411 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02D595AAE0F
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:05:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC9595AAF6C
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235741AbiIBMEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:04:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45966 "EHLO
+        id S237110AbiIBMhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:37:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235636AbiIBMEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:04:22 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2063.outbound.protection.outlook.com [40.107.92.63])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4629DC0BD3
-        for <stable@vger.kernel.org>; Fri,  2 Sep 2022 05:04:18 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=L7MZHutWA2Cfw1v7EF/6byYtUBj0Yva6MzvbSkK0Rj6PeVibw4WrQtz5Rwc2LUI1WXG6KVDq+jGeuPocDjNVCgRXrwHJQ1Bz3QXll24R4Z+SQL2qR0hlDOo7FLbmMTDpuJgm1XCXrDcwVo19fBSsEojCpiqixcMA4UCim7oNhHla2vIJgLurQ4S7HYkkvKG9nSvtmlmqAmnKN4Bd/FGFwflmlOfaXP1HvWMR+kDyD34x90iGeut/j3smtfzfiHBvkBhDhxbv8SiDkpq8Pr+J8Pti/GotyrrwMIO5391IOML0Np9y5jzXVzSi+hPqGRoUhn+/xDn7PqNFeLXRcyV3ag==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=t/jBE1weq3Tp7QZGzk30NV+L0PI2gbvzWZ750b2skfA=;
- b=mQ5u4tYlucYDGdBiskjVhXXkQjClixwK2FbbDv1Z8P13Z0shVLWtna/FZpa6nHDtXBmNfT/tIuAJH30bvUlimTFPZGqbQ+GiFUHEVa5msz1oBOgq13CJbV+jjhcb6bXe8Qg+evjQvxKib82WYvFplfAS95fN4x/9+Oiju4N56wPksSuCMCRzJtmxU8dzI23M5O3r057G11qOZ1Hcc3E4EkqxPslqYjNc+qgx72Lun7D4AhbXMIqdnEglus6jcpzqc+c+UJmowskNBDfXI03XyqvzjC74rREdafgh48tBjS2WV6Wq7zqwCkUtEruE+KWwua5ysHq9/PH3jst1MI/Nww==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=t/jBE1weq3Tp7QZGzk30NV+L0PI2gbvzWZ750b2skfA=;
- b=TG8lyB3T3G0hDvyykMO50ZX3s7kI9BubTRl4QexdZqXatv/eJufegeAVDbGJ9bWmLzPofpZjWGELuJGlEd8k1PlpSSNo3a0nn1UZ1sMB6Lt37jwjCCtM/bETqiTS1jilyOKc2kQvssWudqQrlnO8M5IeH4I/V9RBDHumMD5sW8s=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com (2603:10b6:208:3cb::10)
- by CH3PR12MB7617.namprd12.prod.outlook.com (2603:10b6:610:140::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.10; Fri, 2 Sep
- 2022 12:04:15 +0000
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::e00a:1f8c:dcd1:afc3]) by MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::e00a:1f8c:dcd1:afc3%5]) with mapi id 15.20.5588.012; Fri, 2 Sep 2022
- 12:04:15 +0000
-Message-ID: <16ba0dd3-b500-e75c-fdb6-a5c024212105@amd.com>
-Date:   Fri, 2 Sep 2022 07:04:12 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: Properly reflect IOMMU DMA Protection in 5.15.y+
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <MN0PR12MB6101D6CA042DB26E76179482E27A9@MN0PR12MB6101.namprd12.prod.outlook.com>
- <YxGUnAjojULtdhfL@kroah.com> <2f525452-fbe8-6780-b552-9ba7c16047e7@amd.com>
- <YxG2VIMFLXX9k+nx@kroah.com>
-From:   Mario Limonciello <mario.limonciello@amd.com>
-In-Reply-To: <YxG2VIMFLXX9k+nx@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SN4PR0501CA0012.namprd05.prod.outlook.com
- (2603:10b6:803:40::25) To MN0PR12MB6101.namprd12.prod.outlook.com
- (2603:10b6:208:3cb::10)
+        with ESMTP id S236982AbiIBMhS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:37:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9B6F5B07E;
+        Fri,  2 Sep 2022 05:29:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1B00B82A9D;
+        Fri,  2 Sep 2022 12:27:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6FD6C433D7;
+        Fri,  2 Sep 2022 12:27:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1662121674;
+        bh=r6FeWRx7xrmk2PuoWSai+ht1kUpwPfk6nSP4/MVeNGc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vYXTzswkTqjDNw0I9KCoXLnWArr7JpEsDxv9ZlwUTmTfiVXIsg/A0QDRqbijnwEfo
+         YSmdVwNfGKoB4AHYW6xb2eNMnYxs+yiLdCjeVbi1VRD4B/YpgNFIPTw7C0Us4k0ePy
+         SylX6Lxaha7usodHD3P1tOZro2WdcqfWsoQeZFZM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.4 00/77] 5.4.212-rc1 review
+Date:   Fri,  2 Sep 2022 14:18:09 +0200
+Message-Id: <20220902121403.569927325@linuxfoundation.org>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 64260793-5044-49e6-e45a-08da8cdb41b8
-X-MS-TrafficTypeDiagnostic: CH3PR12MB7617:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 4B36gIWw3mLb6lg9FfqrD8LJ9YfwC5MU3xExJwx/CV6RO0tdZaqBL7XS3jxAkoz41QIQPHDngdprTsHbY7GyepOq0CXevr9B7cFyAH4bItMermJBeuy86EIg+ohkp898SE/fTp6XrBbAb6bo8CMqPnmveB5psbKislWgMIaMDR6c7qZubnq1VJXFMT2OkM8IMWSHIKyIDQhscL8L/iNqjKUgJGNkTYbZPbx45W5mk9+dlEL3TkdnIQv8SNYnujdv3EfnsCMcCdaGRonDAU16bh6D0oY2Ia6rYV7ZLwlmf3cek8QfyQgYe+xfYBYImZ/gNPWT2TjuWOf80yx9R5ecfwuCqCbvcj9JWcNp3DAS5dJWDm8DkEKFYrxCt+qHwKcrn0dBko49g5qnem0/SyLgs6JDr+hZsI9KrN+4vD8o0cvg8L4USFYxfOTNnKRPUqa3lQflUMwT2zFAODMzVjcM87DSj3Fw0zwmDEZT3dryUqryNH0kqRxGczbE5nCdE9T51bOzv9wYYGGB4l6zdEQ36WHRs5EbIMXxh8SM9NPlBgrkQMu1PM7u4F4Ts4Dh7gEBbCNTU6Dey5n0/kOjOzwA5z0X8WRHIAKqu9QiBd4RMCMQ6KpG/y4gI3CTZDBlDgWLhSBm88if4RsVBmmKIeHP3sLimKPEnMPwo6+ALURccEIWPHqgD1najO7oUjweZY8i0e6whV4LB6Og+xywV5EasmOleQIiNaWIuYiZeA24ORxRIGRYx4DSkjoMUFP/7sXN2xFlsBGZeUABgR8Hl9VhXSEYCsXIz2rZwb6kXXQBe7s=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR12MB6101.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(396003)(136003)(366004)(376002)(39860400002)(346002)(186003)(478600001)(53546011)(6666004)(6512007)(6486002)(41300700001)(83380400001)(6506007)(26005)(2616005)(8936002)(2906002)(44832011)(6916009)(5660300002)(316002)(86362001)(4326008)(66946007)(66476007)(8676002)(31696002)(66556008)(38100700002)(31686004)(36756003)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cmEyNDRVMFZ6M3F1NmI5em5WVFdrZjBxQVpWSlgxLzFoQXBhOHZHcDJKeXo5?=
- =?utf-8?B?VDN5WjR2OU01QXBwN2xhc05xa0RKSnNyUGRkOXM0M0F2cG9FaEJKOXJER0xY?=
- =?utf-8?B?NlR4QWJjTkk0d3NUVnI2aDIzVCtDVnhIaWgwY01VQ1kwQnkyZDhvYzJiTVdO?=
- =?utf-8?B?eTljWHY3bDFPUGd5ZEkrSU4wNW54TmRuUGd4emxMZkdROFl6YUxJNHRsNHo3?=
- =?utf-8?B?bDBvY2pVTkpSVzN3dGdZYUR5Q1NZRjdZdXNzUFNmMGNzTk5GU0YwN3RDYll6?=
- =?utf-8?B?UHBBTkVUTkdEYWRkMVRCRHRNQllaTHhETE5BN2dJb1JxTzdUa3FYa0xWeXFI?=
- =?utf-8?B?ZEdSMGttUmJNN21CWmZibHlaNE1PandhYkpwTXRpZnJKQ1pndDQ5RFRQWitD?=
- =?utf-8?B?cEwvSVBNcU9QUzZyQURiWE1QLytuYUFKZWN4dm43cFJ1ZmNqbkFtZ0U3eW9M?=
- =?utf-8?B?OURMR25jUGl1cE85d0dNMjZKM0ZCVWpNcGZKYVNCMHpHdnJPMEpJbW1lRzFN?=
- =?utf-8?B?eTVtTWFhakJZT0hpWkNZUHlEcTFDSmJuRDhDcDBEeW11OW1VbUJGei9OWUw2?=
- =?utf-8?B?N3VxNGpyTkVSbmthbGEvT2pOdytBbGZGWDUyV1ZKbHlOMHByVkJJVzE0dEZq?=
- =?utf-8?B?R1MwYUppY1R5ekNyQnhGL1JBZW1UazVHeFVyRjZDclJzRlZINWQ1YXVGOUhy?=
- =?utf-8?B?VVE5ZUludlJZUnlxUisvWEVBaVkzai9nNUE1SThLSUJoTURNSEdSRytHZkxu?=
- =?utf-8?B?M3JNeTNqc01VSzZwbUFCazhaRmMrU3RZQWxqMnR5eFF1YkhreEk5L2VRbTRW?=
- =?utf-8?B?ZU1lUy82RmZlZGorUUxTUTh3ZkV2NFkxRVpndWRBMW5rRTVBTGNxb1Vtckxo?=
- =?utf-8?B?WGJYckNjMDZWa2c4M0YybWEwT3FrbnM5RStDZThjQXBYU3drVWhCdkVrNzBO?=
- =?utf-8?B?REdTNzJzSm5ZOEVMTDhabVpINUppbGt4K3JGQzZ1cWF5aFU3NCsxamdsaFIx?=
- =?utf-8?B?TkhiMFZLTnYzVGRPZUtKT3k0RkhkMUZ4Z3BwaFFYSXRqelZFUDVKbmhOQ0tS?=
- =?utf-8?B?SFk4MjVERW5wVnNkYlBvVnd5THNqbTVJWk9Va1lRUTJTaFkrL3BkaEgzclNz?=
- =?utf-8?B?SDlhN09tQ2pORzF1MG1OcWlpdU9Xc0FSSHpFU0UzSkxHNFd0Ui9iOVVobkkv?=
- =?utf-8?B?NmF1SHdBbnZNWGhscVJzdmcvQlZtdkRoUjQ3MWduVTRhVG1vQm1oeXJWOU9I?=
- =?utf-8?B?ajIrRzA0a2NQR1lSUzRJbDBiTXhUeE5UeW1aRmpRVjJxSllzTWVkM3FRNXJL?=
- =?utf-8?B?ckdHakhuYmErOVlsMUdNNDlnVGZEQ2VWODRlWFFpMk54SnI0eVhOYjV2eHpi?=
- =?utf-8?B?Q0dRZEg2M3RWcDB1U1BzOWs0MDZHazBTa3ZqZXJySzJvdFBmTVhjZ3AzTXVY?=
- =?utf-8?B?cE1BSGMrdWtVNUhSNkVCMm4zZXFHN0ZuN2JRMktuUGNXdm1KV3FjNW1xRnJ6?=
- =?utf-8?B?U0lwUWpDTFRoVU1XM3p1aTZULzF5RHlqTC9xZlRRSW9iQjZ2cjJzbkx6anlG?=
- =?utf-8?B?eG5jNkJoTVBhRUorU1R5WStTL2NURHYxMXFvV1JKSUlBZFNtbGFrbklmMGFW?=
- =?utf-8?B?dTNqcGJpWi9sSXAxMENvWllwRFh6WGNFZFFKRElpd3NhbGFpMWpjWG15UGdu?=
- =?utf-8?B?L1Q5TlE5T2ZQNWRFMm4zQTdkSWdhQllBMWgzU2kyS01oQXV4Y0ltMWg4MHEv?=
- =?utf-8?B?cW4yclNkRTQ5alV3M0JRSDdpWG1UbEtFbDlGZUJmU1NDZGF6OUl4UEhZbVd1?=
- =?utf-8?B?dnQ4dDZ4YVdJMEtQQ25XemdaVFRtZ2pvdGU5ekplSHJSUnAyVnM4VXV4UGMw?=
- =?utf-8?B?dThDN3NDbWxDeHZ3VVVmS2lGNHd2MmZOQjVFakJ6OWZ1bGVUcFlZcnBBbUh3?=
- =?utf-8?B?V1gyTGNIcjc4ZkVPRFEvUDlQVE5pWnhMMXNCWUl0VlZzQjZZaEd3RGdrVWt4?=
- =?utf-8?B?azcyK2E4ekdJbkJrOUR1ck1rMEJ3ZDZTNmRhUWhBSFVFNDllUWRvbVo1akZP?=
- =?utf-8?B?YktjL2VCQUh6N0RRdmo4Tjl3NzZycEMxamxBNVJZM3QyM1UwNDdEVlNXemdu?=
- =?utf-8?Q?A6rVT4G2ApDBn+8v2aNnh6t+k?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 64260793-5044-49e6-e45a-08da8cdb41b8
-X-MS-Exchange-CrossTenant-AuthSource: MN0PR12MB6101.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Sep 2022 12:04:15.8010
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: pOX548XbeSaauWdt8aeRZRaBghj4IcT6NgwI2JHgA/vKjBftizprxnsjF1S7FNX9xMpuEcKtarLZboiJ9dQYgQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB7617
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.212-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.212-rc1
+X-KernelTest-Deadline: 2022-09-04T12:14+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/2/22 02:52, Greg KH wrote:
-> On Fri, Sep 02, 2022 at 12:37:15AM -0500, Mario Limonciello wrote:
->> On 9/2/22 00:29, Greg KH wrote:
->>> On Fri, Sep 02, 2022 at 03:00:26AM +0000, Limonciello, Mario wrote:
->>>> [Public]
->>>>
->>>> Hi,
->>>>
->>>> A sysfs file /sys/bus/thunderbolt/devices/domainX/iommu_dma_protection is exported from the kernel and used by userspace to make judgments on whether to automatically authorize PCIe tunnels for USB4 devices.
->>>> Before kernel 5.19 this file was only populated on Intel USB4 and TBT3 controllers, but starting with 5.19 it also populates for non-Intel as well.
->>>
->>> So that's a new kernel feature?
->>
->> The sysfs file was there all along, but it always showed "0" for anything
->> but Intel systems.  This makes it work properly on everyone else.
->>
->>>
->>>> This is accomplished by an assertion from the IOMMU subsystem that it's safe to do so by a combination of firmware and hardware.
->>>>
->>>> Here is the patch series on top of 5.15.64:
->>>>
->>>> 3f6634d997dba8140b3a7cba01776b9638d70dff
->>>> ed36d04e8f8d7b00db451b0fa56a54e8e02ec43e
->>>> d0be55fbeb6ac694d15af5d1aad19cdec8cd64e5
->>>> f316ba0a8814f4c91e80a435da3421baf0ddd24c
->>>> f1ca70717bcb4525e29da422f3d280acbddb36fe
->>>> bfb3ba32061da1a9217ef6d02fbcffb528e4c8df
->>>> 418e0a3551bbef5b221705b0e5b8412cdc0afd39
->>>> acdb89b6c87a2d7b5c48a82756e6f5c6f599f60a
->>>> ea4692c75e1c63926e4fb0728f5775ef0d733888
->>>> 86eaf4a5b4312bea8676fb79399d9e08b53d8e71
->>>>
->>>> Can you please consider backporting them to 5.15.y+?
->>>
->>> I don't understand why all of the string helpers are needed just for the
->>> last commit, are you sure this is all necessary?
->>>
->> The last commit (thunderbolt commit) uses one of them.  That commit for the
->> one of them doesn't come back cleanly, but catching all of them up does.
->>
->> So I could potentially change the thunderbolt commit to not use the string
->> helper, but figured this was cleaner.
->>
->>> And again, this feels like new features are being added that are much
->>> more than just a "new device id added".  Why not just use 5.19 for this
->>> hardware?
->>
->> Stuff like this is targeted towards businesses that would want to be using
->> LTS kernels.  In fact I heard "But on Intel we just plug in the dock and it
->> just works" is what prompted the series in the first place.
->>
->> It improves usability quite a bit because without it you need to know to
->> manually change the sysfs file for your dock to work or you need to have
->> GNOME installed and go and find the panel to change it.
->>
->> With this sysfs file is showing the right value you get all that happening
->> automatically.
-> 
-> I understand the wish to have hardware work on older kernel versions,
-> but in looking over the full patch series here, it's not just a trivial
-> addition.  This is adding lots of things that were never in 5.15 to
-> start with for AMD hardware (and touching other platform's code at the
-> same time), which is fine for newer kernels, but not to backport to
-> older ones.
-> 
-> Here's the overall diffstat of what you are asking for:
-> 
->   drivers/iommu/amd/amd_iommu_types.h |  4 ++++
->   drivers/iommu/amd/init.c            |  3 +++
->   drivers/iommu/amd/iommu.c           |  2 ++
->   drivers/iommu/dma-iommu.c           |  5 +++++
->   drivers/iommu/intel/iommu.c         |  2 ++
->   drivers/iommu/iommu.c               | 73 ++++++++++++++++++++++++++++++++++++++++++++++++-------------------------
->   drivers/thunderbolt/domain.c        | 12 +++---------
->   drivers/thunderbolt/nhi.c           | 44 ++++++++++++++++++++++++++++++++++++++++++++
->   include/linux/iommu.h               | 19 +++++++++++++++++++
->   include/linux/string_helpers.h      | 25 +++++++++++++++++++++++++
->   include/linux/thunderbolt.h         |  2 ++
->   lib/string_helpers.c                | 64 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->   12 files changed, 221 insertions(+), 34 deletions(-)
-> 
-> The string helpers are trivial, but those iommu changes were not.
-> 
-> As proof of that, you missed some fixes in the kernel tree for the above
-> requested commits that would have caused problems.  Heck, even the
-> string helpers needed a fix that you missed, so I was wrong in saying
-> they were trivial!
-> 
-> So if I would have taken these commits as asked for, they might not have
-> even worked properly and caused problems for people.  So for that reason
-> alone I would have had to reject this request.
-> 
-> Remember, stable kernels are not for "new hardware enablement", unlike
-> how some distro kernels work.  If you wanted this hardware to be
-> supported for last year's stable kernel release, you all would have done
-> the work back then to get it accepted as obviously you all had the
-> hardware back then and knew it was going to be an issue.
-> 
-> Just point any user of this hardware to the latest kernel release, and
-> all will be fine.  And work on getting your new hardware supported
-> upstream quicker please.  That will prevent this issue from happening
-> again in the future.
-> 
-> thanks,
-> 
-> greg k-h
+This is the start of the stable review cycle for the 5.4.212 release.
+There are 77 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Got it, thanks for your review and guidance.
+Responses should be made by Sun, 04 Sep 2022 12:13:47 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.212-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.212-rc1
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: neigh: don't call kfree_skb() under spin_lock_irqsave()
+
+Zhengchao Shao <shaozhengchao@huawei.com>
+    net/af_packet: check len when min_header_len equals to 0
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: disable polling pollfree files
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    kprobes: don't call disarm_kprobe() for disabled kprobes
+
+Andrei Vagin <avagin@gmail.com>
+    lib/vdso: Mark do_hres() and do_coarse() as __always_inline
+
+Christophe Leroy <christophe.leroy@c-s.fr>
+    lib/vdso: Let do_coarse() return 0 to simplify the callsite
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: tree-checker: check for overlapping extent items
+
+Geert Uytterhoeven <geert@linux-m68k.org>
+    netfilter: conntrack: NF_CONNTRACK_PROCFS should no longer default to y
+
+Ilya Bakoulin <Ilya.Bakoulin@amd.com>
+    drm/amd/display: Fix pixel clock programming
+
+Juergen Gross <jgross@suse.com>
+    s390/hypfs: avoid error message under KVM
+
+Denis V. Lunev <den@openvz.org>
+    neigh: fix possible DoS due to net iface start/stop loop
+
+Fudong Wang <Fudong.Wang@amd.com>
+    drm/amd/display: clear optc underflow before turn off odm clock
+
+Josip Pavic <Josip.Pavic@amd.com>
+    drm/amd/display: Avoid MPC infinite loop
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: unify lookup return value when dir entry is missing
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: do not pin logs too early during renames
+
+Marcos Paulo de Souza <mpdesouza@suse.com>
+    btrfs: introduce btrfs_lookup_match_dir
+
+Jann Horn <jannh@google.com>
+    mm/rmap: Fix anon_vma->degree ambiguity leading to double-reuse
+
+Zhengchao Shao <shaozhengchao@huawei.com>
+    bpf: Don't redirect packets with invalid pkt_len
+
+Yang Jihong <yangjihong1@huawei.com>
+    ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
+
+Letu Ren <fantasquex@gmail.com>
+    fbdev: fb_pm2fb: Avoid potential divide by zero error
+
+Karthik Alapati <mail@karthek.com>
+    HID: hidraw: fix memory leak in hidraw_release()
+
+Dongliang Mu <mudongliangabcd@gmail.com>
+    media: pvrusb2: fix memory leak in pvr_probe
+
+Vivek Kasireddy <vivek.kasireddy@intel.com>
+    udmabuf: Set the DMA mask for the udmabuf device (v2)
+
+Lee Jones <lee.jones@linaro.org>
+    HID: steam: Prevent NULL pointer dereference in steam_{recv,send}_report
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: L2CAP: Fix build errors in some archs
+
+Jing Leng <jleng@ambarella.com>
+    kbuild: Fix include path in scripts/Makefile.modpost
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/bugs: Add "unknown" reporting for MMIO Stale Data
+
+Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+    s390/mm: do not trigger write fault when vma does not allow VM_WRITE
+
+Jann Horn <jannh@google.com>
+    mm: Force TLB flush for PFNMAP mappings before unlink_file_vma()
+
+Saurabh Sengar <ssengar@linux.microsoft.com>
+    scsi: storvsc: Remove WQ_MEM_RECLAIM from storvsc_error_wq
+
+Stephane Eranian <eranian@google.com>
+    perf/x86/intel/uncore: Fix broken read_counter() for SNB IMC PMU
+
+Guoqing Jiang <guoqing.jiang@linux.dev>
+    md: call __md_stop_writes in md_stop
+
+David Hildenbrand <david@redhat.com>
+    mm/hugetlb: fix hugetlb not supporting softdirty tracking
+
+Riwen Lu <luriwen@kylinos.cn>
+    ACPI: processor: Remove freq Qos request for all CPUs
+
+Brian Foster <bfoster@redhat.com>
+    s390: fix double free of GS and RI CBs on fork() failure
+
+Quanyang Wang <quanyang.wang@windriver.com>
+    asm-generic: sections: refactor memory_intersects
+
+Siddh Raman Pant <code@siddh.me>
+    loop: Check for overflow while configuring loop
+
+Chen Zhongjin <chenzhongjin@huawei.com>
+    x86/unwind/orc: Unwind ftrace trampolines with correct ORC entry
+
+Goldwyn Rodrigues <rgoldwyn@suse.de>
+    btrfs: check if root is readonly while setting security xattr
+
+Anand Jain <anand.jain@oracle.com>
+    btrfs: add info when mount fails due to stale replace target
+
+Anand Jain <anand.jain@oracle.com>
+    btrfs: replace: drop assert for suspended replace
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix silent failure when deleting root reference
+
+Jacob Keller <jacob.e.keller@intel.com>
+    ixgbe: stop resetting SYSTIME in ixgbe_ptp_start_cyclecounter
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around sysctl_somaxconn.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around netdev_budget_usecs.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around netdev_budget.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around sysctl_net_busy_read.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around sysctl_net_busy_poll.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix a data-race around sysctl_tstamp_allow_data.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    ratelimit: Fix data-races in ___ratelimit().
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix data-races around netdev_tstamp_prequeue.
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Fix data-races around weight_p and dev_weight_[rt]x_bias.
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nft_tunnel: restrict it to netdev family
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nft_osf: restrict osf to ipv4, ipv6 and inet families
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nft_payload: do not truncate csum_offset and csum_type
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nft_payload: report ERANGE for too long offset and length
+
+Vikas Gupta <vikas.gupta@broadcom.com>
+    bnxt_en: fix NQ resource accounting during vf creation on 57500 chips
+
+Florian Westphal <fw@strlen.de>
+    netfilter: ebtables: reject blobs that don't provide all entry points
+
+Maciej Żenczykowski <maze@google.com>
+    net: ipvtap - add __init/__exit annotations to module init/exit funcs
+
+Jonathan Toppins <jtoppins@redhat.com>
+    bonding: 802.3ad: fix no transmission of LACPDUs
+
+Sergei Antonov <saproj@gmail.com>
+    net: moxa: get rid of asymmetry in DMA mapping/unmapping
+
+Vlad Buslov <vladbu@nvidia.com>
+    net/mlx5e: Properly disable vlan strip on non-UL reps
+
+Bernard Pidoux <f6bvp@free.fr>
+    rose: check NULL rose_loopback_neigh->loopback
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    SUNRPC: RPC level errors should set task->tk_rpc_status
+
+Herbert Xu <herbert@gondor.apana.org.au>
+    af_key: Do not call xfrm_probe_algs in parallel
+
+Xin Xiong <xiongx18@fudan.edu.cn>
+    xfrm: fix refcount leak in __xfrm_policy_check()
+
+Hui Su <suhui_kernel@163.com>
+    kernel/sched: Remove dl_boosted flag comment
+
+Juri Lelli <juri.lelli@redhat.com>
+    sched/deadline: Fix priority inheritance with multiple scheduling classes
+
+Lucas Stach <l.stach@pengutronix.de>
+    sched/deadline: Fix stale throttling on de-/boosted tasks
+
+Daniel Bristot de Oliveira <bristot@redhat.com>
+    sched/deadline: Unthrottle PI boosted threads while enqueuing
+
+Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+    pinctrl: amd: Don't save/restore interrupt status and wake status bits
+
+Jean-Philippe Brucker <jean-philippe@linaro.org>
+    Revert "selftests/bpf: Fix test_align verifier log patterns"
+
+Jean-Philippe Brucker <jean-philippe@linaro.org>
+    Revert "selftests/bpf: Fix "dubious pointer arithmetic" test"
+
+Pawel Laszczak <pawell@cadence.com>
+    usb: cdns3: Fix issue for clear halt endpoint
+
+Randy Dunlap <rdunlap@infradead.org>
+    kernel/sys_ni: add compat entry for fadvise64_64
+
+Helge Deller <deller@gmx.de>
+    parisc: Fix exception handler for fldw and fstw instructions
+
+Gaosheng Cui <cuigaosheng1@huawei.com>
+    audit: fix potential double free on error path from fsnotify_add_inode_mark
+
+
+-------------
+
+Diffstat:
+
+ .../hw-vuln/processor_mmio_stale_data.rst          |  14 +++
+ Makefile                                           |   4 +-
+ arch/parisc/kernel/unaligned.c                     |   2 +-
+ arch/s390/hypfs/hypfs_diag.c                       |   2 +-
+ arch/s390/hypfs/inode.c                            |   2 +-
+ arch/s390/kernel/process.c                         |  22 +++-
+ arch/s390/mm/fault.c                               |   4 +-
+ arch/x86/events/intel/uncore_snb.c                 |  18 ++-
+ arch/x86/include/asm/cpufeatures.h                 |   3 +-
+ arch/x86/kernel/cpu/bugs.c                         |  14 ++-
+ arch/x86/kernel/cpu/common.c                       |  40 ++++---
+ arch/x86/kernel/unwind_orc.c                       |  15 ++-
+ drivers/acpi/processor_thermal.c                   |   2 +-
+ drivers/android/binder.c                           |   1 +
+ drivers/block/loop.c                               |   5 +
+ drivers/dma-buf/udmabuf.c                          |  18 ++-
+ .../gpu/drm/amd/display/dc/dce/dce_clock_source.c  |   2 +
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_mpc.c   |   6 +
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c  |   5 +
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_mpc.c   |   6 +
+ drivers/hid/hid-steam.c                            |  10 ++
+ drivers/hid/hidraw.c                               |   3 +
+ drivers/md/md.c                                    |   1 +
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c            |   1 +
+ drivers/net/bonding/bond_3ad.c                     |  38 +++---
+ drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c    |   2 +-
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c       |  59 ++++++++--
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.c   |   2 +
+ drivers/net/ethernet/moxa/moxart_ether.c           |  11 +-
+ drivers/net/ipvlan/ipvtap.c                        |   4 +-
+ drivers/pinctrl/pinctrl-amd.c                      |  11 +-
+ drivers/scsi/storvsc_drv.c                         |   2 +-
+ drivers/usb/cdns3/gadget.c                         |   8 +-
+ drivers/video/fbdev/pm2fb.c                        |   5 +
+ fs/btrfs/ctree.h                                   |   2 +-
+ fs/btrfs/dev-replace.c                             |   5 +-
+ fs/btrfs/dir-item.c                                | 122 +++++++++++--------
+ fs/btrfs/inode.c                                   |  48 +++++++-
+ fs/btrfs/root-tree.c                               |   5 +-
+ fs/btrfs/tree-checker.c                            |  25 +++-
+ fs/btrfs/tree-log.c                                |  14 +--
+ fs/btrfs/xattr.c                                   |   3 +
+ fs/io_uring.c                                      |   3 +
+ fs/signalfd.c                                      |   1 +
+ include/asm-generic/sections.h                     |   7 +-
+ include/linux/fs.h                                 |   1 +
+ include/linux/netfilter_bridge/ebtables.h          |   4 -
+ include/linux/rmap.h                               |   7 +-
+ include/linux/sched.h                              |  14 ++-
+ include/linux/skbuff.h                             |   8 ++
+ include/net/busy_poll.h                            |   2 +-
+ kernel/audit_fsnotify.c                            |   1 +
+ kernel/kprobes.c                                   |   9 +-
+ kernel/sched/core.c                                |  11 +-
+ kernel/sched/deadline.c                            | 131 +++++++++++++--------
+ kernel/sys_ni.c                                    |   1 +
+ kernel/trace/ftrace.c                              |  10 ++
+ lib/ratelimit.c                                    |  12 +-
+ lib/vdso/gettimeofday.c                            |  27 +++--
+ mm/mmap.c                                          |  20 +++-
+ mm/rmap.c                                          |  31 ++---
+ net/bluetooth/l2cap_core.c                         |  10 +-
+ net/bpf/test_run.c                                 |   3 +
+ net/bridge/netfilter/ebtable_broute.c              |   8 --
+ net/bridge/netfilter/ebtable_filter.c              |   8 --
+ net/bridge/netfilter/ebtable_nat.c                 |   8 --
+ net/bridge/netfilter/ebtables.c                    |   8 +-
+ net/core/dev.c                                     |  15 +--
+ net/core/neighbour.c                               |  27 ++++-
+ net/core/skbuff.c                                  |   2 +-
+ net/core/sock.c                                    |   2 +-
+ net/core/sysctl_net_core.c                         |  15 ++-
+ net/key/af_key.c                                   |   3 +
+ net/netfilter/Kconfig                              |   1 -
+ net/netfilter/nft_osf.c                            |  18 ++-
+ net/netfilter/nft_payload.c                        |  29 +++--
+ net/netfilter/nft_tunnel.c                         |   1 +
+ net/packet/af_packet.c                             |   4 +-
+ net/rose/rose_loopback.c                           |   3 +-
+ net/sched/sch_generic.c                            |   2 +-
+ net/socket.c                                       |   2 +-
+ net/sunrpc/clnt.c                                  |   2 +-
+ net/xfrm/xfrm_policy.c                             |   1 +
+ scripts/Makefile.modpost                           |   3 +-
+ tools/testing/selftests/bpf/test_align.c           |  14 +--
+ 85 files changed, 712 insertions(+), 343 deletions(-)
+
 
