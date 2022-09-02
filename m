@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66FA25AAE8A
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:25:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C705AAF12
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236361AbiIBMZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:25:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50932 "EHLO
+        id S236255AbiIBMdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:33:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236318AbiIBMYW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:24:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C00D3E44;
-        Fri,  2 Sep 2022 05:22:33 -0700 (PDT)
+        with ESMTP id S236594AbiIBMc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:32:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B9D7E2C48;
+        Fri,  2 Sep 2022 05:27:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C253620F0;
-        Fri,  2 Sep 2022 12:21:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10AEFC433D6;
-        Fri,  2 Sep 2022 12:21:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A714B82AA1;
+        Fri,  2 Sep 2022 12:27:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1E0FC43142;
+        Fri,  2 Sep 2022 12:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121315;
-        bh=GRY44WcHqY/SgymLIc9wHIjeXiuJ7rxdOZn+fozOfg8=;
+        s=korg; t=1662121638;
+        bh=zFzdsXRNGhgpzL0zy6R6uex/IZJ/4hFDVtMV0UFxGGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhY4v3COGunXWzIwt+UHFFBsy/NnCEEtLKubgObivEfEm76kvjemDxKVjW08RuP2C
-         KVvSBe7X4h3Co3WFaLa1fKJ+l5nI5EkEWaAsxF3QRPXMvNthv8PLNVkqFR2+CNjkIL
-         H5muqMnlYANnVAKMQUke/Vl6btq8g75lEgUfUwp4=
+        b=nkfge/YHGBiS88Od/englGEB8q01UjlCPro340LFXlSmKmwFn+ZvHaOZw3e0mL3IQ
+         9sEyVtLIQIPBvo9Iyd/N5L2CX9TKR92/RUW/Owjo8gfc+XFNiOEjQc9d6BjE9Zhkyo
+         chV6EnLYXsQcCdAIoanSoGdh8b/6T7OMMHJida4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 02/42] parisc: Fix exception handler for fldw and fstw instructions
+        stable@vger.kernel.org, Sergei Antonov <saproj@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/77] net: moxa: get rid of asymmetry in DMA mapping/unmapping
 Date:   Fri,  2 Sep 2022 14:18:26 +0200
-Message-Id: <20220902121358.861391702@linuxfoundation.org>
+Message-Id: <20220902121404.221001880@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
-References: <20220902121358.773776406@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,49 +54,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Sergei Antonov <saproj@gmail.com>
 
-commit 7ae1f5508d9a33fd58ed3059bd2d569961e3b8bd upstream.
+[ Upstream commit 0ee7828dfc56e97d71e51e6374dc7b4eb2b6e081 ]
 
-The exception handler is broken for unaligned memory acceses with fldw
-and fstw instructions, because it trashes or uses randomly some other
-floating point register than the one specified in the instruction word
-on loads and stores.
+Since priv->rx_mapping[i] is maped in moxart_mac_open(), we
+should unmap it from moxart_mac_stop(). Fixes 2 warnings.
 
-The instruction "fldw 0(addr),%fr22L" (and the other fldw/fstw
-instructions) encode the target register (%fr22) in the rightmost 5 bits
-of the instruction word. The 7th rightmost bit of the instruction word
-defines if the left or right half of %fr22 should be used.
+1. During error unwinding in moxart_mac_probe(): "goto init_fail;",
+then moxart_mac_free_memory() calls dma_unmap_single() with
+priv->rx_mapping[i] pointers zeroed.
 
-While processing unaligned address accesses, the FR3() define is used to
-extract the offset into the local floating-point register set.  But the
-calculation in FR3() was buggy, so that for example instead of %fr22,
-register %fr12 [((22 * 2) & 0x1f) = 12] was used.
+WARNING: CPU: 0 PID: 1 at kernel/dma/debug.c:963 check_unmap+0x704/0x980
+DMA-API: moxart-ethernet 92000000.mac: device driver tries to free DMA memory it has not allocated [device address=0x0000000000000000] [size=1600 bytes]
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.19.0+ #60
+Hardware name: Generic DT based system
+ unwind_backtrace from show_stack+0x10/0x14
+ show_stack from dump_stack_lvl+0x34/0x44
+ dump_stack_lvl from __warn+0xbc/0x1f0
+ __warn from warn_slowpath_fmt+0x94/0xc8
+ warn_slowpath_fmt from check_unmap+0x704/0x980
+ check_unmap from debug_dma_unmap_page+0x8c/0x9c
+ debug_dma_unmap_page from moxart_mac_free_memory+0x3c/0xa8
+ moxart_mac_free_memory from moxart_mac_probe+0x190/0x218
+ moxart_mac_probe from platform_probe+0x48/0x88
+ platform_probe from really_probe+0xc0/0x2e4
 
-This bug has been since forever in the parisc kernel and I wonder why it
-wasn't detected earlier. Interestingly I noticed this bug just because
-the libime debian package failed to build on *native* hardware, while it
-successfully built in qemu.
+2. After commands:
+ ip link set dev eth0 down
+ ip link set dev eth0 up
 
-This patch corrects the bitshift and masking calculation in FR3().
+WARNING: CPU: 0 PID: 55 at kernel/dma/debug.c:570 add_dma_entry+0x204/0x2ec
+DMA-API: moxart-ethernet 92000000.mac: cacheline tracking EEXIST, overlapping mappings aren't supported
+CPU: 0 PID: 55 Comm: ip Not tainted 5.19.0+ #57
+Hardware name: Generic DT based system
+ unwind_backtrace from show_stack+0x10/0x14
+ show_stack from dump_stack_lvl+0x34/0x44
+ dump_stack_lvl from __warn+0xbc/0x1f0
+ __warn from warn_slowpath_fmt+0x94/0xc8
+ warn_slowpath_fmt from add_dma_entry+0x204/0x2ec
+ add_dma_entry from dma_map_page_attrs+0x110/0x328
+ dma_map_page_attrs from moxart_mac_open+0x134/0x320
+ moxart_mac_open from __dev_open+0x11c/0x1ec
+ __dev_open from __dev_change_flags+0x194/0x22c
+ __dev_change_flags from dev_change_flags+0x14/0x44
+ dev_change_flags from devinet_ioctl+0x6d4/0x93c
+ devinet_ioctl from inet_ioctl+0x1ac/0x25c
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+v1 -> v2:
+Extraneous change removed.
+
+Fixes: 6c821bd9edc9 ("net: Add MOXA ART SoCs ethernet driver")
+Signed-off-by: Sergei Antonov <saproj@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220819110519.1230877-1-saproj@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/unaligned.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/moxa/moxart_ether.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/parisc/kernel/unaligned.c
-+++ b/arch/parisc/kernel/unaligned.c
-@@ -121,7 +121,7 @@
- #define R1(i) (((i)>>21)&0x1f)
- #define R2(i) (((i)>>16)&0x1f)
- #define R3(i) ((i)&0x1f)
--#define FR3(i) ((((i)<<1)&0x1f)|(((i)>>6)&1))
-+#define FR3(i) ((((i)&0x1f)<<1)|(((i)>>6)&1))
- #define IM(i,n) (((i)>>1&((1<<(n-1))-1))|((i)&1?((0-1L)<<(n-1)):0))
- #define IM5_2(i) IM((i)>>16,5)
- #define IM5_3(i) IM((i),5)
+diff --git a/drivers/net/ethernet/moxa/moxart_ether.c b/drivers/net/ethernet/moxa/moxart_ether.c
+index 383d72415c659..87327086ea8ca 100644
+--- a/drivers/net/ethernet/moxa/moxart_ether.c
++++ b/drivers/net/ethernet/moxa/moxart_ether.c
+@@ -74,11 +74,6 @@ static int moxart_set_mac_address(struct net_device *ndev, void *addr)
+ static void moxart_mac_free_memory(struct net_device *ndev)
+ {
+ 	struct moxart_mac_priv_t *priv = netdev_priv(ndev);
+-	int i;
+-
+-	for (i = 0; i < RX_DESC_NUM; i++)
+-		dma_unmap_single(&priv->pdev->dev, priv->rx_mapping[i],
+-				 priv->rx_buf_size, DMA_FROM_DEVICE);
+ 
+ 	if (priv->tx_desc_base)
+ 		dma_free_coherent(&priv->pdev->dev,
+@@ -193,6 +188,7 @@ static int moxart_mac_open(struct net_device *ndev)
+ static int moxart_mac_stop(struct net_device *ndev)
+ {
+ 	struct moxart_mac_priv_t *priv = netdev_priv(ndev);
++	int i;
+ 
+ 	napi_disable(&priv->napi);
+ 
+@@ -204,6 +200,11 @@ static int moxart_mac_stop(struct net_device *ndev)
+ 	/* disable all functions */
+ 	writel(0, priv->base + REG_MAC_CTRL);
+ 
++	/* unmap areas mapped in moxart_mac_setup_desc_ring() */
++	for (i = 0; i < RX_DESC_NUM; i++)
++		dma_unmap_single(&priv->pdev->dev, priv->rx_mapping[i],
++				 priv->rx_buf_size, DMA_FROM_DEVICE);
++
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
+
 
 
