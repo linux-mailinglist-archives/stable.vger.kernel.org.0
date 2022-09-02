@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BC55AB0A3
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE115AAE85
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237976AbiIBMyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:54:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45390 "EHLO
+        id S236178AbiIBMYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:24:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238053AbiIBMxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2122FAC5C;
-        Fri,  2 Sep 2022 05:38:10 -0700 (PDT)
+        with ESMTP id S234985AbiIBMYN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:24:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE2ED7CC3;
+        Fri,  2 Sep 2022 05:22:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E94E3621AD;
-        Fri,  2 Sep 2022 12:35:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF27AC43140;
-        Fri,  2 Sep 2022 12:35:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D9EFB82A92;
+        Fri,  2 Sep 2022 12:22:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4A6BC433C1;
+        Fri,  2 Sep 2022 12:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122139;
-        bh=Tcnr0M/+JklF6IJ1Gko6tigbWpUs6RoHLcVvYm7plkg=;
+        s=korg; t=1662121337;
+        bh=MolakyFmjNbfxyrFA1j8Zfr9J+QdKVMz8ceNyw+BLG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJhCwAM1uCTevyy2LEfnjos0qiZz58eKkkj8CKiqaczma1Ij0QuJWtZzdMxRayzBq
-         U2qgqDlBRyLpc/Y0dq04AchU2+RuIwAXTvQXU2+tdILWR5QYEJCg3F8UiO9DRZQO0D
-         hllW0fH42pr1mw8c4TdZvRe4WYy4ZVJZsapX40ms=
+        b=clEJM6lda484Aud1s5g400eYk5x5hZc69iJdZa3XMrqJ5KbM7nCuzuMHw4HZw7XL8
+         ZpI++bfOyduoXvVT29Zvg3LMj4C6H7strx2U8i5khPYtz5uekQwtAjxrbJmHQFfNPG
+         NW9JXm4q32Lz3PnoBIN8RKzoR6NZj9B0WqrFpkPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akira Yokosawa <akiyks@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.19 05/72] docs: kerneldoc-preamble: Test xeCJK.sty before loading
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 17/42] net: Fix a data-race around netdev_budget.
 Date:   Fri,  2 Sep 2022 14:18:41 +0200
-Message-Id: <20220902121404.960927228@linuxfoundation.org>
+Message-Id: <20220902121359.401149952@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121358.773776406@linuxfoundation.org>
+References: <20220902121358.773776406@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akira Yokosawa <akiyks@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit cee7db1b0239468b22c295cf04a8c40c34ecd35a upstream.
+[ Upstream commit 2e0c42374ee32e72948559d2ae2f7ba3dc6b977c ]
 
-On distros whose texlive packaging is fine-grained, texlive-xecjk
-can be installed/removed independently of other texlive packages.
-Conditionally loading xeCJK depending only on the existence of the
-"Noto Sans CJK SC" font might end up in xelatex error of
-"xeCJK.sty not found!".
+While reading netdev_budget, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Improve the situation by testing existence of xeCJK.sty before
-loading it.
-
-This is useful on RHEL 9 and its clone distros where texlive-xecjk
-doesn't work at the moment due to a missing dependency [1].
-"make pdfdocs" for non-CJK contents should work after removing
-texlive-xecjk.
-
-Link: [1] https://bugzilla.redhat.com/show_bug.cgi?id=2086254
-Fixes: 398f7abdcb7e ("docs: pdfdocs: Pull LaTeX preamble part out of conf.py")
-Cc: stable@vger.kernel.org # v5.18+
-Signed-off-by: Akira Yokosawa <akiyks@gmail.com>
-Acked-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Link: https://lore.kernel.org/r/c24c2a87-70b2-5342-bcc9-de467940466e@gmail.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 51b0bdedb8e7 ("[NET]: Separate two usages of netdev_max_backlog.")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/sphinx/kerneldoc-preamble.sty | 22 +++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ net/core/dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/sphinx/kerneldoc-preamble.sty b/Documentation/sphinx/kerneldoc-preamble.sty
-index 2a29cbe51396..9707e033c8c4 100644
---- a/Documentation/sphinx/kerneldoc-preamble.sty
-+++ b/Documentation/sphinx/kerneldoc-preamble.sty
-@@ -70,8 +70,16 @@
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 51721fb2e30cf..f6d3cbc57425c 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5649,7 +5649,7 @@ static __latent_entropy void net_rx_action(struct softirq_action *h)
+ 	struct softnet_data *sd = this_cpu_ptr(&softnet_data);
+ 	unsigned long time_limit = jiffies +
+ 		usecs_to_jiffies(netdev_budget_usecs);
+-	int budget = netdev_budget;
++	int budget = READ_ONCE(netdev_budget);
+ 	LIST_HEAD(list);
+ 	LIST_HEAD(repoll);
  
- % Translations have Asian (CJK) characters which are only displayed if
- % xeCJK is used
-+\usepackage{ifthen}
-+\newboolean{enablecjk}
-+\setboolean{enablecjk}{false}
- \IfFontExistsTF{Noto Sans CJK SC}{
--    % Load xeCJK when CJK font is available
-+    \IfFileExists{xeCJK.sty}{
-+	\setboolean{enablecjk}{true}
-+    }{}
-+}{}
-+\ifthenelse{\boolean{enablecjk}}{
-+    % Load xeCJK when both the Noto Sans CJK font and xeCJK.sty are available.
-     \usepackage{xeCJK}
-     % Noto CJK fonts don't provide slant shape. [AutoFakeSlant] permits
-     % its emulation.
-@@ -196,7 +204,7 @@
-     % Inactivate CJK after tableofcontents
-     \apptocmd{\sphinxtableofcontents}{\kerneldocCJKoff}{}{}
-     \xeCJKsetup{CJKspace = true}% For inter-phrase space of Korean TOC
--}{ % No CJK font found
-+}{ % Don't enable CJK
-     % Custom macros to on/off CJK and switch CJK fonts (Dummy)
-     \newcommand{\kerneldocCJKon}{}
-     \newcommand{\kerneldocCJKoff}{}
-@@ -204,14 +212,16 @@
-     %% and ignore the argument (#1) in their definitions, whole contents of
-     %% CJK chapters can be ignored.
-     \newcommand{\kerneldocBeginSC}[1]{%
--	%% Put a note on missing CJK fonts in place of zh_CN translation.
--	\begin{sphinxadmonition}{note}{Note on missing fonts:}
-+	%% Put a note on missing CJK fonts or the xecjk package in place of
-+	%% zh_CN translation.
-+	\begin{sphinxadmonition}{note}{Note on missing fonts and a package:}
- 	    Translations of Simplified Chinese (zh\_CN), Traditional Chinese
- 	    (zh\_TW), Korean (ko\_KR), and Japanese (ja\_JP) were skipped
--	    due to the lack of suitable font families.
-+	    due to the lack of suitable font families and/or the texlive-xecjk
-+	    package.
- 
- 	    If you want them, please install ``Noto Sans CJK'' font families
--	    by following instructions from
-+	    along with the texlive-xecjk package by following instructions from
- 	    \sphinxcode{./scripts/sphinx-pre-install}.
- 	    Having optional ``Noto Serif CJK'' font families will improve
- 	    the looks of those translations.
 -- 
-2.37.2
+2.35.1
 
 
 
