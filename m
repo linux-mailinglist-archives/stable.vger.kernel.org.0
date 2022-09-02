@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C8175AB078
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FF725AAF4D
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237882AbiIBMya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45428 "EHLO
+        id S236427AbiIBMgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:36:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238059AbiIBMxm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:53:42 -0400
+        with ESMTP id S236762AbiIBMe5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:34:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 991DBDF4E9;
-        Fri,  2 Sep 2022 05:38:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0208FE39B4;
+        Fri,  2 Sep 2022 05:28:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03DF4B82AC1;
-        Fri,  2 Sep 2022 12:37:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 229FBC433D6;
-        Fri,  2 Sep 2022 12:37:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0157DB82A8F;
+        Fri,  2 Sep 2022 12:25:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49DF9C433C1;
+        Fri,  2 Sep 2022 12:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662122248;
-        bh=57v22oWKlBJNCWurriBwjO5ps+GiYL40nKe2KYU6GkM=;
+        s=korg; t=1662121551;
+        bh=Bs2CQBsnUjpIZ+XxHHFSiRhfkB928kkGSKMck2e8gws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hfdlv0DnCdov4ZDvSLzT6deg9Dii6bpuGI5ygX8SbjXwoY1U1FRrZ/YtCdt+W6jeB
-         2SFXMgKYcpcOaNRWcwmLujvPcKfLYg5AAiwFzgR+LPsLWLcknr+qPQhKO8OKwDan8t
-         V/sIpOYPpi75FyHOwHKpSPyY7D3HDwqPwclt1omM=
+        b=JFQlI8gO1LRZJf69vh4KLKPovu68caMWGOCZajoI2FxIiNk1l4o/DBXKZbo1Xo/kt
+         LtM4i3tS2+f+I+IBVfB09c3B3LBlvunWEjrTe8n+caQzLQcacfxq91cXdIvG3Ov+32
+         DvcI2dGK73VGqFAu5hCiLZ2MYQ3wpiO0syBByBAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yifeng Zhao <yifeng.zhao@rock-chips.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 29/72] mmc: sdhci-of-dwcmshc: add reset call back for rockchip Socs
+        stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 45/56] HID: steam: Prevent NULL pointer dereference in steam_{recv,send}_report
 Date:   Fri,  2 Sep 2022 14:19:05 +0200
-Message-Id: <20220902121405.750003506@linuxfoundation.org>
+Message-Id: <20220902121401.962049712@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121404.772492078@linuxfoundation.org>
-References: <20220902121404.772492078@linuxfoundation.org>
+In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
+References: <20220902121400.219861128@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,93 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifeng Zhao <yifeng.zhao@rock-chips.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit 70f832206fe72e9998b46363e8e59e89b0b757bc ]
+commit cd11d1a6114bd4bc6450ae59f6e110ec47362126 upstream.
 
-The reset function build in the SDHCI will not reset the logic
-circuit related to the tuning function, which may cause data
-reading errors. Resetting the complete SDHCI controller through
-the reset controller fixes the issue.
+It is possible for a malicious device to forgo submitting a Feature
+Report.  The HID Steam driver presently makes no prevision for this
+and de-references the 'struct hid_report' pointer obtained from the
+HID devices without first checking its validity.  Let's change that.
 
-Signed-off-by: Yifeng Zhao <yifeng.zhao@rock-chips.com>
-[rebase, use optional variant of reset getter]
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Link: https://lore.kernel.org/r/20220504213251.264819-10-sebastian.reichel@collabora.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
+Fixes: c164d6abf3841 ("HID: add driver for Valve Steam Controller")
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-of-dwcmshc.c | 26 +++++++++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+ drivers/hid/hid-steam.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
-index bac874ab0b33a..3a1b5ba364051 100644
---- a/drivers/mmc/host/sdhci-of-dwcmshc.c
-+++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
-@@ -15,6 +15,7 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/reset.h>
- #include <linux/sizes.h>
+--- a/drivers/hid/hid-steam.c
++++ b/drivers/hid/hid-steam.c
+@@ -134,6 +134,11 @@ static int steam_recv_report(struct stea
+ 	int ret;
  
- #include "sdhci-pltfm.h"
-@@ -63,6 +64,7 @@
- struct rk3568_priv {
- 	/* Rockchip specified optional clocks */
- 	struct clk_bulk_data rockchip_clks[RK3568_MAX_CLKS];
-+	struct reset_control *reset;
- 	u8 txclk_tapnum;
- };
- 
-@@ -255,6 +257,21 @@ static void dwcmshc_rk3568_set_clock(struct sdhci_host *host, unsigned int clock
- 	sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_STRBIN);
- }
- 
-+static void rk35xx_sdhci_reset(struct sdhci_host *host, u8 mask)
-+{
-+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
-+	struct dwcmshc_priv *dwc_priv = sdhci_pltfm_priv(pltfm_host);
-+	struct rk35xx_priv *priv = dwc_priv->priv;
-+
-+	if (mask & SDHCI_RESET_ALL && priv->reset) {
-+		reset_control_assert(priv->reset);
-+		udelay(1);
-+		reset_control_deassert(priv->reset);
+ 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
++	if (!r) {
++		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
++		return -EINVAL;
 +	}
 +
-+	sdhci_reset(host, mask);
-+}
-+
- static const struct sdhci_ops sdhci_dwcmshc_ops = {
- 	.set_clock		= sdhci_set_clock,
- 	.set_bus_width		= sdhci_set_bus_width,
-@@ -269,7 +286,7 @@ static const struct sdhci_ops sdhci_dwcmshc_rk3568_ops = {
- 	.set_bus_width		= sdhci_set_bus_width,
- 	.set_uhs_signaling	= dwcmshc_set_uhs_signaling,
- 	.get_max_clock		= sdhci_pltfm_clk_get_max_clock,
--	.reset			= sdhci_reset,
-+	.reset			= rk35xx_sdhci_reset,
- 	.adma_write_desc	= dwcmshc_adma_write_desc,
- };
+ 	if (hid_report_len(r) < 64)
+ 		return -EINVAL;
  
-@@ -292,6 +309,13 @@ static int dwcmshc_rk3568_init(struct sdhci_host *host, struct dwcmshc_priv *dwc
- 	int err;
- 	struct rk3568_priv *priv = dwc_priv->priv;
+@@ -165,6 +170,11 @@ static int steam_send_report(struct stea
+ 	int ret;
  
-+	priv->reset = devm_reset_control_array_get_optional_exclusive(mmc_dev(host->mmc));
-+	if (IS_ERR(priv->reset)) {
-+		err = PTR_ERR(priv->reset);
-+		dev_err(mmc_dev(host->mmc), "failed to get reset control %d\n", err);
-+		return err;
+ 	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
++	if (!r) {
++		hid_err(steam->hdev, "No HID_FEATURE_REPORT submitted -  nothing to read\n");
++		return -EINVAL;
 +	}
 +
- 	priv->rockchip_clks[0].id = "axi";
- 	priv->rockchip_clks[1].id = "block";
- 	priv->rockchip_clks[2].id = "timer";
--- 
-2.35.1
-
+ 	if (hid_report_len(r) < 64)
+ 		return -EINVAL;
+ 
 
 
