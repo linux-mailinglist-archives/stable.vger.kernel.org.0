@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0E95AAF74
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:38:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85A4D5AAFB9
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237146AbiIBMie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:38:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54288 "EHLO
+        id S237271AbiIBMnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:43:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237113AbiIBMhx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:37:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDD76582B;
-        Fri,  2 Sep 2022 05:29:43 -0700 (PDT)
+        with ESMTP id S237313AbiIBMmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:42:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 639F9E9255;
+        Fri,  2 Sep 2022 05:31:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C29D7B82AA0;
-        Fri,  2 Sep 2022 12:28:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22A2AC433C1;
-        Fri,  2 Sep 2022 12:28:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED083621A6;
+        Fri,  2 Sep 2022 12:31:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E38C433D7;
+        Fri,  2 Sep 2022 12:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121702;
-        bh=zNWRUZADOgj+xnYc4FqfxSrVRPcHNXVyJfRGwVPcYK4=;
+        s=korg; t=1662121902;
+        bh=a9DYgK2g59OD5cCAIuKdT7mUo0T9p9dpCE3R3Zs+vG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lc+UacfzIW3DyGxmd3fLp9VUMYiY7rsL251NMV9ToSOuIkUd5rzIqLL03s+6qbJRP
-         6B7N7Qn7fiHK1n5VwtuPJ/WlMQg1RFE2Cd2SHpJJJfIi3C2YUlVHV/CZ+/2NVTYepO
-         mOWuPrQfMfr2w6bgEnHGRekq0nj6ZEV+ygr5zBjQ=
+        b=klhIzGsdr08QCKXsewSLiES5fEYhOi8imtwGzGc3uCxoRlX5+wK2sNKlEJJ1vcAfZ
+         wpAbH/KHTyR7lJUaSZQBKbjcHQpDF/30S+6sz6yO95gp0XbVUba8yp4gbRhF8bVxrK
+         dGrgJVhNg6BBENcyLNEbPytqivcxUWFJDtdluX5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Greiner <samuel@balkonien.org>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 38/77] btrfs: add info when mount fails due to stale replace target
+        Eric Biggers <ebiggers@google.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        syzbot+5426c7ed6868c705ca14@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 23/73] io_uring: fix UAF due to missing POLLFREE handling
 Date:   Fri,  2 Sep 2022 14:18:47 +0200
-Message-Id: <20220902121404.916620561@linuxfoundation.org>
+Message-Id: <20220902121405.211182833@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
-References: <20220902121403.569927325@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit f2c3bec215694fb8bc0ef5010f2a758d1906fc2d upstream.
+[ upstream commmit 791f3465c4afde02d7f16cf7424ca87070b69396 ]
 
-If the replace target device reappears after the suspended replace is
-cancelled, it blocks the mount operation as it can't find the matching
-replace-item in the metadata. As shown below,
+Fixes a problem described in 50252e4b5e989
+("aio: fix use-after-free due to missing POLLFREE handling")
+and copies the approach used there.
 
-   BTRFS error (device sda5): replace devid present without an active replace item
+In short, we have to forcibly eject a poll entry when we meet POLLFREE.
+We can't rely on io_poll_get_ownership() as can't wait for potentially
+running tw handlers, so we use the fact that wqs are RCU freed. See
+Eric's patch and comments for more details.
 
-To overcome this situation, the user can run the command
-
-   btrfs device scan --forget <replace target device>
-
-and try the mount command again. And also, to avoid repeating the issue,
-superblock on the devid=0 must be wiped.
-
-   wipefs -a device-path-to-devid=0.
-
-This patch adds some info when this situation occurs.
-
-Reported-by: Samuel Greiner <samuel@balkonien.org>
-Link: https://lore.kernel.org/linux-btrfs/b4f62b10-b295-26ea-71f9-9a5c9299d42c@balkonien.org/T/
-CC: stable@vger.kernel.org # 5.0+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20211209010455.42744-6-ebiggers@kernel.org
+Reported-and-tested-by: syzbot+5426c7ed6868c705ca14@syzkaller.appspotmail.com
+Fixes: 221c5eb233823 ("io_uring: add support for IORING_OP_POLL")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/4ed56b6f548f7ea337603a82315750449412748a.1642161259.git.asml.silence@gmail.com
+[axboe: drop non-functional change from patch]
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[pavel: backport]
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/dev-replace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |   58 ++++++++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 50 insertions(+), 8 deletions(-)
 
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -125,7 +125,7 @@ no_valid_dev_replace_entry_found:
- 		if (btrfs_find_device(fs_info->fs_devices,
- 				      BTRFS_DEV_REPLACE_DEVID, NULL, NULL, false)) {
- 			btrfs_err(fs_info,
--			"replace devid present without an active replace item");
-+"replace without active item, run 'device scan --forget' on the target device");
- 			ret = -EUCLEAN;
- 		} else {
- 			dev_replace->srcdev = NULL;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5369,12 +5369,14 @@ static void io_init_poll_iocb(struct io_
+ 
+ static inline void io_poll_remove_entry(struct io_poll_iocb *poll)
+ {
+-	struct wait_queue_head *head = poll->head;
++	struct wait_queue_head *head = smp_load_acquire(&poll->head);
+ 
+-	spin_lock_irq(&head->lock);
+-	list_del_init(&poll->wait.entry);
+-	poll->head = NULL;
+-	spin_unlock_irq(&head->lock);
++	if (head) {
++		spin_lock_irq(&head->lock);
++		list_del_init(&poll->wait.entry);
++		poll->head = NULL;
++		spin_unlock_irq(&head->lock);
++	}
+ }
+ 
+ static void io_poll_remove_entries(struct io_kiocb *req)
+@@ -5382,10 +5384,26 @@ static void io_poll_remove_entries(struc
+ 	struct io_poll_iocb *poll = io_poll_get_single(req);
+ 	struct io_poll_iocb *poll_double = io_poll_get_double(req);
+ 
+-	if (poll->head)
+-		io_poll_remove_entry(poll);
+-	if (poll_double && poll_double->head)
++	/*
++	 * While we hold the waitqueue lock and the waitqueue is nonempty,
++	 * wake_up_pollfree() will wait for us.  However, taking the waitqueue
++	 * lock in the first place can race with the waitqueue being freed.
++	 *
++	 * We solve this as eventpoll does: by taking advantage of the fact that
++	 * all users of wake_up_pollfree() will RCU-delay the actual free.  If
++	 * we enter rcu_read_lock() and see that the pointer to the queue is
++	 * non-NULL, we can then lock it without the memory being freed out from
++	 * under us.
++	 *
++	 * Keep holding rcu_read_lock() as long as we hold the queue lock, in
++	 * case the caller deletes the entry from the queue, leaving it empty.
++	 * In that case, only RCU prevents the queue memory from being freed.
++	 */
++	rcu_read_lock();
++	io_poll_remove_entry(poll);
++	if (poll_double)
+ 		io_poll_remove_entry(poll_double);
++	rcu_read_unlock();
+ }
+ 
+ /*
+@@ -5523,6 +5541,30 @@ static int io_poll_wake(struct wait_queu
+ 						 wait);
+ 	__poll_t mask = key_to_poll(key);
+ 
++	if (unlikely(mask & POLLFREE)) {
++		io_poll_mark_cancelled(req);
++		/* we have to kick tw in case it's not already */
++		io_poll_execute(req, 0);
++
++		/*
++		 * If the waitqueue is being freed early but someone is already
++		 * holds ownership over it, we have to tear down the request as
++		 * best we can. That means immediately removing the request from
++		 * its waitqueue and preventing all further accesses to the
++		 * waitqueue via the request.
++		 */
++		list_del_init(&poll->wait.entry);
++
++		/*
++		 * Careful: this *must* be the last step, since as soon
++		 * as req->head is NULL'ed out, the request can be
++		 * completed and freed, since aio_poll_complete_work()
++		 * will no longer need to take the waitqueue lock.
++		 */
++		smp_store_release(&poll->head, NULL);
++		return 1;
++	}
++
+ 	/* for instances that support it check for an event match first */
+ 	if (mask && !(mask & poll->events))
+ 		return 0;
 
 
