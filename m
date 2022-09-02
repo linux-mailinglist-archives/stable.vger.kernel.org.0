@@ -2,55 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0A605AAF37
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A87795AB1FC
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 15:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236485AbiIBMeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:34:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45922 "EHLO
+        id S237346AbiIBNr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 09:47:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236941AbiIBMdr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:33:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DBEBE3989;
-        Fri,  2 Sep 2022 05:28:16 -0700 (PDT)
+        with ESMTP id S237366AbiIBNrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 09:47:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9DE11314DA;
+        Fri,  2 Sep 2022 06:22:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02E5D6217A;
-        Fri,  2 Sep 2022 12:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D97C0C433D7;
-        Fri,  2 Sep 2022 12:26:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42ECB621DC;
+        Fri,  2 Sep 2022 12:33:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FBE4C4314B;
+        Fri,  2 Sep 2022 12:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121574;
-        bh=G2xOLKpuAKcePb2irL1aIOX5dcxSD0R38MJXGNKY5LQ=;
+        s=korg; t=1662121980;
+        bh=OPFqOeplPxjLpT7FNeHNIjL3xnGd6cc0XPttc6ZELYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvhrj4isx7GO0M7hxmKqynEvjFJV9Q8zLDYQjbkNVEpM4PacxLPSCtW/FtcPvonyi
-         OiAFzCbCSjqnsN5DqvCc8OAvrYRrBvsGD48WuZmOTzxI3UwkTy8QrVocbBMSCXpp+N
-         bv/OONg7hoznWY94sIPZesMLE/01a+2662YkYHKU=
+        b=0ErwuQNIGFoUwh1+WuaOnApFtRsmikA58wFvyEFF3uy1WRoE9VjKO4UoLYCZFkNPB
+         K6Npc70rn38hAgnLbjMq1GcRtO5oRdiIHHUyg7V0pxtjWsR4IS8XtWy6b59ZXfhtMc
+         ATFCoQgysLg33+KXQk9V1upOobUnIkJQbS+h1T0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        David Ahern <dsahern@kernel.org>,
-        Yajun Deng <yajun.deng@linux.dev>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        Christian Brauner <brauner@kernel.org>, netdev@vger.kernel.org,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
-        Konstantin Khorenko <khorenko@virtuozzo.com>,
-        kernel@openvz.org, devel@openvz.org,
-        "Denis V. Lunev" <den@openvz.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 52/56] neigh: fix possible DoS due to net iface start/stop loop
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 48/73] btrfs: add and use helper for unlinking inode during log replay
 Date:   Fri,  2 Sep 2022 14:19:12 +0200
-Message-Id: <20220902121402.254709519@linuxfoundation.org>
+Message-Id: <20220902121406.040599652@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
-References: <20220902121400.219861128@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+References: <20220902121404.435662285@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,127 +54,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis V. Lunev <den@openvz.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 66ba215cb51323e4e55e38fd5f250e0fae0cbc94 ]
+[ Upstream commit 313ab75399d0c7d0ebc718c545572c1b4d8d22ef ]
 
-Normal processing of ARP request (usually this is Ethernet broadcast
-packet) coming to the host is looking like the following:
-* the packet comes to arp_process() call and is passed through routing
-  procedure
-* the request is put into the queue using pneigh_enqueue() if
-  corresponding ARP record is not local (common case for container
-  records on the host)
-* the request is processed by timer (within 80 jiffies by default) and
-  ARP reply is sent from the same arp_process() using
-  NEIGH_CB(skb)->flags & LOCALLY_ENQUEUED condition (flag is set inside
-  pneigh_enqueue())
+During log replay there is this pattern of running delayed items after
+every inode unlink. To avoid repeating this several times, move the
+logic into an helper function and use it instead of calling
+btrfs_unlink_inode() followed by btrfs_run_delayed_items().
 
-And here the problem comes. Linux kernel calls pneigh_queue_purge()
-which destroys the whole queue of ARP requests on ANY network interface
-start/stop event through __neigh_ifdown().
-
-This is actually not a problem within the original world as network
-interface start/stop was accessible to the host 'root' only, which
-could do more destructive things. But the world is changed and there
-are Linux containers available. Here container 'root' has an access
-to this API and could be considered as untrusted user in the hosting
-(container's) world.
-
-Thus there is an attack vector to other containers on node when
-container's root will endlessly start/stop interfaces. We have observed
-similar situation on a real production node when docker container was
-doing such activity and thus other containers on the node become not
-accessible.
-
-The patch proposed doing very simple thing. It drops only packets from
-the same namespace in the pneigh_queue_purge() where network interface
-state change is detected. This is enough to prevent the problem for the
-whole node preserving original semantics of the code.
-
-v2:
-	- do del_timer_sync() if queue is empty after pneigh_queue_purge()
-v3:
-	- rebase to net tree
-
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: David Ahern <dsahern@kernel.org>
-Cc: Yajun Deng <yajun.deng@linux.dev>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Cc: Konstantin Khorenko <khorenko@virtuozzo.com>
-Cc: kernel@openvz.org
-Cc: devel@openvz.org
-Investigated-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Signed-off-by: Denis V. Lunev <den@openvz.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ fs/btrfs/tree-log.c | 77 +++++++++++++++++----------------------------
+ 1 file changed, 29 insertions(+), 48 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 6233e9856016e..65e80aaa09481 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -224,14 +224,23 @@ static int neigh_del_timer(struct neighbour *n)
- 	return 0;
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 4ab1bbc344760..c56a89d224bbb 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -884,6 +884,26 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
+ 	return ret;
  }
  
--static void pneigh_queue_purge(struct sk_buff_head *list)
-+static void pneigh_queue_purge(struct sk_buff_head *list, struct net *net)
- {
-+	unsigned long flags;
- 	struct sk_buff *skb;
++static int unlink_inode_for_log_replay(struct btrfs_trans_handle *trans,
++				       struct btrfs_inode *dir,
++				       struct btrfs_inode *inode,
++				       const char *name,
++				       int name_len)
++{
++	int ret;
++
++	ret = btrfs_unlink_inode(trans, dir, inode, name, name_len);
++	if (ret)
++		return ret;
++	/*
++	 * Whenever we need to check if a name exists or not, we check the
++	 * fs/subvolume tree. So after an unlink we must run delayed items, so
++	 * that future checks for a name during log replay see that the name
++	 * does not exists anymore.
++	 */
++	return btrfs_run_delayed_items(trans);
++}
++
+ /*
+  * when cleaning up conflicts between the directory names in the
+  * subvolume, directory names in the log and directory names in the
+@@ -926,12 +946,8 @@ static noinline int drop_one_dir_item(struct btrfs_trans_handle *trans,
+ 	if (ret)
+ 		goto out;
  
--	while ((skb = skb_dequeue(list)) != NULL) {
--		dev_put(skb->dev);
--		kfree_skb(skb);
-+	spin_lock_irqsave(&list->lock, flags);
-+	skb = skb_peek(list);
-+	while (skb != NULL) {
-+		struct sk_buff *skb_next = skb_peek_next(skb, list);
-+		if (net == NULL || net_eq(dev_net(skb->dev), net)) {
-+			__skb_unlink(skb, list);
-+			dev_put(skb->dev);
-+			kfree_skb(skb);
-+		}
-+		skb = skb_next;
+-	ret = btrfs_unlink_inode(trans, dir, BTRFS_I(inode), name,
++	ret = unlink_inode_for_log_replay(trans, dir, BTRFS_I(inode), name,
+ 			name_len);
+-	if (ret)
+-		goto out;
+-	else
+-		ret = btrfs_run_delayed_items(trans);
+ out:
+ 	kfree(name);
+ 	iput(inode);
+@@ -1091,12 +1107,9 @@ static inline int __add_inode_ref(struct btrfs_trans_handle *trans,
+ 				inc_nlink(&inode->vfs_inode);
+ 				btrfs_release_path(path);
+ 
+-				ret = btrfs_unlink_inode(trans, dir, inode,
++				ret = unlink_inode_for_log_replay(trans, dir, inode,
+ 						victim_name, victim_name_len);
+ 				kfree(victim_name);
+-				if (ret)
+-					return ret;
+-				ret = btrfs_run_delayed_items(trans);
+ 				if (ret)
+ 					return ret;
+ 				*search_done = 1;
+@@ -1165,14 +1178,11 @@ static inline int __add_inode_ref(struct btrfs_trans_handle *trans,
+ 					inc_nlink(&inode->vfs_inode);
+ 					btrfs_release_path(path);
+ 
+-					ret = btrfs_unlink_inode(trans,
++					ret = unlink_inode_for_log_replay(trans,
+ 							BTRFS_I(victim_parent),
+ 							inode,
+ 							victim_name,
+ 							victim_name_len);
+-					if (!ret)
+-						ret = btrfs_run_delayed_items(
+-								  trans);
+ 				}
+ 				iput(victim_parent);
+ 				kfree(victim_name);
+@@ -1327,19 +1337,10 @@ static int unlink_old_inode_refs(struct btrfs_trans_handle *trans,
+ 				kfree(name);
+ 				goto out;
+ 			}
+-			ret = btrfs_unlink_inode(trans, BTRFS_I(dir),
++			ret = unlink_inode_for_log_replay(trans, BTRFS_I(dir),
+ 						 inode, name, namelen);
+ 			kfree(name);
+ 			iput(dir);
+-			/*
+-			 * Whenever we need to check if a name exists or not, we
+-			 * check the subvolume tree. So after an unlink we must
+-			 * run delayed items, so that future checks for a name
+-			 * during log replay see that the name does not exists
+-			 * anymore.
+-			 */
+-			if (!ret)
+-				ret = btrfs_run_delayed_items(trans);
+ 			if (ret)
+ 				goto out;
+ 			goto again;
+@@ -1434,8 +1435,8 @@ static int add_link(struct btrfs_trans_handle *trans, struct btrfs_root *root,
+ 		ret = -ENOENT;
+ 		goto out;
  	}
-+	spin_unlock_irqrestore(&list->lock, flags);
- }
- 
- static void neigh_flush_dev(struct neigh_table *tbl, struct net_device *dev)
-@@ -297,9 +306,9 @@ int neigh_ifdown(struct neigh_table *tbl, struct net_device *dev)
- 	write_lock_bh(&tbl->lock);
- 	neigh_flush_dev(tbl, dev);
- 	pneigh_ifdown_and_unlock(tbl, dev);
+-	ret = btrfs_unlink_inode(trans, BTRFS_I(dir), BTRFS_I(other_inode),
+-				 name, namelen);
++	ret = unlink_inode_for_log_replay(trans, BTRFS_I(dir), BTRFS_I(other_inode),
++					  name, namelen);
+ 	if (ret)
+ 		goto out;
+ 	/*
+@@ -1444,10 +1445,6 @@ static int add_link(struct btrfs_trans_handle *trans, struct btrfs_root *root,
+ 	 */
+ 	if (other_inode->i_nlink == 0)
+ 		inc_nlink(other_inode);
 -
--	del_timer_sync(&tbl->proxy_timer);
--	pneigh_queue_purge(&tbl->proxy_queue);
-+	pneigh_queue_purge(&tbl->proxy_queue, dev_net(dev));
-+	if (skb_queue_empty_lockless(&tbl->proxy_queue))
-+		del_timer_sync(&tbl->proxy_timer);
- 	return 0;
- }
- EXPORT_SYMBOL(neigh_ifdown);
-@@ -1614,7 +1623,7 @@ int neigh_table_clear(int index, struct neigh_table *tbl)
- 	/* It is not clean... Fix it to unload IPv6 module safely */
- 	cancel_delayed_work_sync(&tbl->gc_work);
- 	del_timer_sync(&tbl->proxy_timer);
--	pneigh_queue_purge(&tbl->proxy_queue);
-+	pneigh_queue_purge(&tbl->proxy_queue, NULL);
- 	neigh_ifdown(tbl, NULL);
- 	if (atomic_read(&tbl->entries))
- 		pr_crit("neighbour leakage\n");
+-	ret = btrfs_run_delayed_items(trans);
+-	if (ret)
+-		goto out;
+ add_link:
+ 	ret = btrfs_add_link(trans, BTRFS_I(dir), BTRFS_I(inode),
+ 			     name, namelen, 0, ref_index);
+@@ -1580,7 +1577,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 			ret = btrfs_inode_ref_exists(inode, dir, key->type,
+ 						     name, namelen);
+ 			if (ret > 0) {
+-				ret = btrfs_unlink_inode(trans,
++				ret = unlink_inode_for_log_replay(trans,
+ 							 BTRFS_I(dir),
+ 							 BTRFS_I(inode),
+ 							 name, namelen);
+@@ -1591,15 +1588,6 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 				 */
+ 				if (!ret && inode->i_nlink == 0)
+ 					inc_nlink(inode);
+-				/*
+-				 * Whenever we need to check if a name exists or
+-				 * not, we check the subvolume tree. So after an
+-				 * unlink we must run delayed items, so that future
+-				 * checks for a name during log replay see that the
+-				 * name does not exists anymore.
+-				 */
+-				if (!ret)
+-					ret = btrfs_run_delayed_items(trans);
+ 			}
+ 			if (ret < 0)
+ 				goto out;
+@@ -2339,15 +2327,8 @@ static noinline int check_item_in_log(struct btrfs_trans_handle *trans,
+ 		goto out;
+ 
+ 	inc_nlink(inode);
+-	ret = btrfs_unlink_inode(trans, BTRFS_I(dir), BTRFS_I(inode), name,
+-				 name_len);
+-	if (ret)
+-		goto out;
+-
+-	ret = btrfs_run_delayed_items(trans);
+-	if (ret)
+-		goto out;
+-
++	ret = unlink_inode_for_log_replay(trans, BTRFS_I(dir), BTRFS_I(inode),
++					  name, name_len);
+ 	/*
+ 	 * Unlike dir item keys, dir index keys can only have one name (entry) in
+ 	 * them, as there are no key collisions since each key has a unique offset
 -- 
 2.35.1
 
