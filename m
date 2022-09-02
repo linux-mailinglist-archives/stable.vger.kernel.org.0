@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EDD15AAEEB
-	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECB3A5AAF8C
+	for <lists+stable@lfdr.de>; Fri,  2 Sep 2022 14:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236609AbiIBMby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 08:31:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46674 "EHLO
+        id S237053AbiIBMkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 08:40:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236533AbiIBMbN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:31:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB66DB047;
-        Fri,  2 Sep 2022 05:26:49 -0700 (PDT)
+        with ESMTP id S237226AbiIBMiu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 08:38:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68818220EC;
+        Fri,  2 Sep 2022 05:30:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC1146215B;
-        Fri,  2 Sep 2022 12:24:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2537C433C1;
-        Fri,  2 Sep 2022 12:24:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D8706217A;
+        Fri,  2 Sep 2022 12:29:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 507E3C433D7;
+        Fri,  2 Sep 2022 12:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662121454;
-        bh=c38qPjBlwIU12u9Uk9yjYbiD99ZrXmEcOmC9gitduTY=;
+        s=korg; t=1662121744;
+        bh=rXtFO/uek9ssxy6G6iRJq92+PbXKnX93fIwM3lb08pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VcRQF5KKekYNNvIcV0Rs6pNr4HoORtluqhNcMw3DEfRe7HLCEg4a/hMkpTDadPz4s
-         nmqFnBpIyYJytgvTfcRF+wP4CShoTbOceqAalHgQbmfGzZaUwL1+pd3KOvaHjjCHRk
-         o3czDyteucpyOl1+F4XHslMhg5joMV0UL0Wo8PxQ=
+        b=blAPWDeYO36cr+un9hoZVSWWo72P/kdNzSB2wc5dEHNgC1JvBbG+V+6ne6YjqmtP4
+         5l+0EtNghqN6s9u7MgbQ64CRx2EJhLVyKsJGKoAiiT9pPDb0Fz/p+4QStkbY1O00zU
+         qXDMtmU0k5PtNvM4WkMgVoOHQmSAtYGLjMUpwcX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
-        Sainath Grandhi <sainath.grandhi@intel.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/56] net: ipvtap - add __init/__exit annotations to module init/exit funcs
+Subject: [PATCH 5.4 24/77] netfilter: nft_osf: restrict osf to ipv4, ipv6 and inet families
 Date:   Fri,  2 Sep 2022 14:18:33 +0200
-Message-Id: <20220902121400.633843066@linuxfoundation.org>
+Message-Id: <20220902121404.459178343@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220902121400.219861128@linuxfoundation.org>
-References: <20220902121400.219861128@linuxfoundation.org>
+In-Reply-To: <20220902121403.569927325@linuxfoundation.org>
+References: <20220902121403.569927325@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 4b2e3a17e9f279325712b79fb01d1493f9e3e005 ]
+[ Upstream commit 5f3b7aae14a706d0d7da9f9e39def52ff5fc3d39 ]
 
-Looks to have been left out in an oversight.
+As it was originally intended, restrict extension to supported families.
 
-Cc: Mahesh Bandewar <maheshb@google.com>
-Cc: Sainath Grandhi <sainath.grandhi@intel.com>
-Fixes: 235a9d89da97 ('ipvtap: IP-VLAN based tap driver')
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20220821130808.12143-1-zenczykowski@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: b96af92d6eaf ("netfilter: nf_tables: implement Passive OS fingerprint module in nft_osf")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipvlan/ipvtap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nft_osf.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ipvlan/ipvtap.c b/drivers/net/ipvlan/ipvtap.c
-index 0bcc07f346c3e..2e517e30c5ac1 100644
---- a/drivers/net/ipvlan/ipvtap.c
-+++ b/drivers/net/ipvlan/ipvtap.c
-@@ -193,7 +193,7 @@ static struct notifier_block ipvtap_notifier_block __read_mostly = {
- 	.notifier_call	= ipvtap_device_event,
- };
- 
--static int ipvtap_init(void)
-+static int __init ipvtap_init(void)
+diff --git a/net/netfilter/nft_osf.c b/net/netfilter/nft_osf.c
+index 4911f8eb394ff..d966a3aff1d33 100644
+--- a/net/netfilter/nft_osf.c
++++ b/net/netfilter/nft_osf.c
+@@ -115,9 +115,21 @@ static int nft_osf_validate(const struct nft_ctx *ctx,
+ 			    const struct nft_expr *expr,
+ 			    const struct nft_data **data)
  {
- 	int err;
- 
-@@ -227,7 +227,7 @@ static int ipvtap_init(void)
+-	return nft_chain_validate_hooks(ctx->chain, (1 << NF_INET_LOCAL_IN) |
+-						    (1 << NF_INET_PRE_ROUTING) |
+-						    (1 << NF_INET_FORWARD));
++	unsigned int hooks;
++
++	switch (ctx->family) {
++	case NFPROTO_IPV4:
++	case NFPROTO_IPV6:
++	case NFPROTO_INET:
++		hooks = (1 << NF_INET_LOCAL_IN) |
++			(1 << NF_INET_PRE_ROUTING) |
++			(1 << NF_INET_FORWARD);
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	return nft_chain_validate_hooks(ctx->chain, hooks);
  }
- module_init(ipvtap_init);
  
--static void ipvtap_exit(void)
-+static void __exit ipvtap_exit(void)
- {
- 	rtnl_link_unregister(&ipvtap_link_ops);
- 	unregister_netdevice_notifier(&ipvtap_notifier_block);
+ static struct nft_expr_type nft_osf_type;
 -- 
 2.35.1
 
