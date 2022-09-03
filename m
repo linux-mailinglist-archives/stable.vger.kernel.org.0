@@ -2,45 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C0A5ABD3E
-	for <lists+stable@lfdr.de>; Sat,  3 Sep 2022 07:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AEB55ABD50
+	for <lists+stable@lfdr.de>; Sat,  3 Sep 2022 08:02:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231799AbiICFgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Sep 2022 01:36:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39974 "EHLO
+        id S229952AbiICGBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Sep 2022 02:01:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231760AbiICFgW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Sep 2022 01:36:22 -0400
+        with ESMTP id S229508AbiICGBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Sep 2022 02:01:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9A02C64F;
-        Fri,  2 Sep 2022 22:36:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E970918B2B;
+        Fri,  2 Sep 2022 23:01:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6429609D0;
-        Sat,  3 Sep 2022 05:36:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70DB3C433C1;
-        Sat,  3 Sep 2022 05:36:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662183381;
-        bh=OpKJfWdrDc3n3wA6yyELGco8XbWwsYE05NA7T35/G2M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Hv3UQax3zC9KwiMM1HJaOv5cCenbfX3sbxN7smMl4G/+VABgRVil24EXJn7Ho32Cb
-         +ScKqzdQxPZGXOux5Guv75MhbvbZNmu+ISgv7Ob8aQEX2OiTUghk0btQpKrPiysz81
-         KJaKP+lACKs8DYJdw2+aSzSLI4laZi++O54F71sw=
-Date:   Sat, 3 Sep 2022 07:36:38 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     SeongJae Park <sj@kernel.org>
-Cc:     akpm@linux-foundation.org, damon@lists.linux.dev,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] mm/damon/dbgfs: fix memory leak when using
-Message-ID: <YxLn5kSmX+xE5QLe@kroah.com>
-References: <20220902191149.112434-1-sj@kernel.org>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5218E60B81;
+        Sat,  3 Sep 2022 06:01:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 639E7C433D7;
+        Sat,  3 Sep 2022 06:01:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662184893;
+        bh=sI33xlLAUaH4cdr016uruCb0i4EaryzepKAX77QNFME=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=eB5DpyHuMXf92QJjvhjc2Vsy0SK8NOOpas+LQ9JWK9hVnazFZFzInAfoAyQhEMi20
+         KAi8qQDFK0ZwgnLaSo2lfvvLvxkNbwOs2L3oEmPZo7Hvlyl8OVrqnxVAw/KoDQ+5R0
+         zVXLKppvBnUdaj/eVtiyGdHLwV+0P/kDMra6Ze42JZooyRFewS50CzhO2tKQBElViN
+         1B+KIZ5bUd/DoOzzKtu9+VHSLbn7bvbrso6IwKunzR/NJ3+w98zZaXzjD/groQCGvv
+         pPX29zEPwepcv/3fhCWMRrnz6uy1eR0ND6rojneFdSi52ifsL+4JZi53+sC3nZCRrO
+         HF3xeI6L9Ul7w==
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     linux-sgx@vger.kernel.org
+Cc:     Haitao Huang <haitao.huang@linux.intel.com>,
+        Vijay Dhanraj <vijay.dhanraj@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org (open list:X86 ARCHITECTURE (32-BIT AND
+        64-BIT))
+Subject: [PATCH 1/2] x86/sgx: Do not fail on incomplete sanitization on premature stop of ksgxd
+Date:   Sat,  3 Sep 2022 09:01:07 +0300
+Message-Id: <20220903060108.1709739-2-jarkko@kernel.org>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20220903060108.1709739-1-jarkko@kernel.org>
+References: <20220903060108.1709739-1-jarkko@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220902191149.112434-1-sj@kernel.org>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,35 +63,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 02, 2022 at 07:11:49PM +0000, SeongJae Park wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> debugfs_lookup()
-> Date: Fri,  2 Sep 2022 14:56:31 +0200	[thread overview]
-> Message-ID: <20220902125631.128329-1-gregkh@linuxfoundation.org> (raw)
-> 
-> When calling debugfs_lookup() the result must have dput() called on it,
-> otherwise the memory will leak over time.  Fix this up by properly
-> calling dput().
-> 
-> Fixes: 75c1c2b53c78b ("mm/damon/dbgfs: support multiple contexts")
-> Cc: <stable@vger.kernel.org> # 5.15.x
-> Cc: SeongJae Park <sj@kernel.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: damon@lists.linux.dev
-> Cc: linux-mm@kvack.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: SeongJae Park <sj@kernel.org>
-> ---
-> Changes from v1
-> (https://lore.kernel.org/damon/20220902125631.128329-1-gregkh@linuxfoundation.org/)
-> - Call dput() for failure-return case (Andrew Morton)
+Unsanitized pages trigger WARN_ON() unconditionally, which can panic the
+whole computer, if /proc/sys/kernel/panic_on_warn is set.
 
-Thanks for fixing this up, I missed the other return error cases in my
-rush to audit the whole tree at once.
+In sgx_init(), if misc_register() fails or misc_register() succeeds but
+neither sgx_drv_init() nor sgx_vepc_init() succeeds, then ksgxd will be
+prematurely stopped. This may leave unsanitized pages, which will result a
+false warning.
 
-This version looks great, and I see Andrew has taken it now into his
-tree, thanks!
+Refine __sgx_sanitize_pages() to return:
 
-greg k-h
+1. Zero when the sanitization process is complete or ksgxd has been
+   requested to stop.
+2. The number of unsanitized pages otherwise.
+
+Use the return value as the criteria for triggering output, and tone down
+the output to pr_err() to prevent the whole system to be taken down if for
+some reason sanitization process does not complete.
+
+Link: https://lore.kernel.org/linux-sgx/20220825051827.246698-1-jarkko@kernel.org/T/#u
+Fixes: 51ab30eb2ad4 ("x86/sgx: Replace section->init_laundry_list with sgx_dirty_page_list")
+Cc: stable@vger.kernel.org # v5.13+
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+v7:
+- Rewrote commit message.
+- Do not return -ECANCELED on premature stop. Instead use zero both
+  premature stop and complete sanitization.
+
+v6:
+- Address Reinette's feedback:
+  https://lore.kernel.org/linux-sgx/Yw6%2FiTzSdSw%2FY%2FVO@kernel.org/
+
+v5:
+- Add the klog dump and sysctl option to the commit message.
+
+v4:
+- Explain expectations for dirty_page_list in the function header, instead
+  of an inline comment.
+- Improve commit message to explain the conditions better.
+- Return the number of pages left dirty to ksgxd() and print warning after
+  the 2nd call, if there are any.
+
+v3:
+- Remove WARN_ON().
+- Tuned comments and the commit message a bit.
+
+v2:
+- Replaced WARN_ON() with optional pr_info() inside
+  __sgx_sanitize_pages().
+- Rewrote the commit message.
+- Added the fixes tag.
+---
+ arch/x86/kernel/cpu/sgx/main.c | 33 ++++++++++++++++++++++++++-------
+ 1 file changed, 26 insertions(+), 7 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
+index 515e2a5f25bb..c0a5ce19c608 100644
+--- a/arch/x86/kernel/cpu/sgx/main.c
++++ b/arch/x86/kernel/cpu/sgx/main.c
+@@ -49,17 +49,23 @@ static LIST_HEAD(sgx_dirty_page_list);
+  * Reset post-kexec EPC pages to the uninitialized state. The pages are removed
+  * from the input list, and made available for the page allocator. SECS pages
+  * prepending their children in the input list are left intact.
++ *
++ * Contents of the @dirty_page_list must be thread-local, i.e.
++ * not shared by multiple threads.
++ *
++ * Return 0 when sanitization was successful or kthread was stopped, and the
++ * number of unsanitized pages otherwise.
+  */
+-static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
++static unsigned long __sgx_sanitize_pages(struct list_head *dirty_page_list)
+ {
++	unsigned long left_dirty = 0;
+ 	struct sgx_epc_page *page;
+ 	LIST_HEAD(dirty);
+ 	int ret;
+ 
+-	/* dirty_page_list is thread-local, no need for a lock: */
+ 	while (!list_empty(dirty_page_list)) {
+ 		if (kthread_should_stop())
+-			return;
++			return 0;
+ 
+ 		page = list_first_entry(dirty_page_list, struct sgx_epc_page, list);
+ 
+@@ -92,12 +98,14 @@ static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
+ 		} else {
+ 			/* The page is not yet clean - move to the dirty list. */
+ 			list_move_tail(&page->list, &dirty);
++			left_dirty++;
+ 		}
+ 
+ 		cond_resched();
+ 	}
+ 
+ 	list_splice(&dirty, dirty_page_list);
++	return left_dirty;
+ }
+ 
+ static bool sgx_reclaimer_age(struct sgx_epc_page *epc_page)
+@@ -388,17 +396,28 @@ void sgx_reclaim_direct(void)
+ 
+ static int ksgxd(void *p)
+ {
++	unsigned long left_dirty;
++
+ 	set_freezable();
+ 
+ 	/*
+ 	 * Sanitize pages in order to recover from kexec(). The 2nd pass is
+ 	 * required for SECS pages, whose child pages blocked EREMOVE.
+ 	 */
+-	__sgx_sanitize_pages(&sgx_dirty_page_list);
+-	__sgx_sanitize_pages(&sgx_dirty_page_list);
++	left_dirty = __sgx_sanitize_pages(&sgx_dirty_page_list);
++	pr_debug("%ld unsanitized pages\n", left_dirty);
+ 
+-	/* sanity check: */
+-	WARN_ON(!list_empty(&sgx_dirty_page_list));
++	left_dirty = __sgx_sanitize_pages(&sgx_dirty_page_list);
++	/*
++	 * Never expected to happen in a working driver. If it happens the bug
++	 * is expected to be in the sanitization process, but successfully
++	 * sanitized pages are still valid and driver can be used and most
++	 * importantly debugged without issues. To put short, the global state
++	 * of kernel is not corrupted so no reason to do any more complicated
++	 * rollback.
++	 */
++	if (left_dirty)
++		pr_err("%ld unsanitized pages\n", left_dirty);
+ 
+ 	while (!kthread_should_stop()) {
+ 		if (try_to_freeze())
+-- 
+2.37.2
+
