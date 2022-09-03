@@ -2,132 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7F325ABC95
-	for <lists+stable@lfdr.de>; Sat,  3 Sep 2022 05:31:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 727465ABC96
+	for <lists+stable@lfdr.de>; Sat,  3 Sep 2022 05:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229538AbiICDbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Sep 2022 23:31:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59116 "EHLO
+        id S230319AbiICDd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Sep 2022 23:33:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229520AbiICDbS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 23:31:18 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B59B08A8
-        for <stable@vger.kernel.org>; Fri,  2 Sep 2022 20:31:16 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id 9so394089plj.11
-        for <stable@vger.kernel.org>; Fri, 02 Sep 2022 20:31:16 -0700 (PDT)
+        with ESMTP id S229839AbiICDdz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Sep 2022 23:33:55 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48AF9E2C73
+        for <stable@vger.kernel.org>; Fri,  2 Sep 2022 20:33:54 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id og21so7262436ejc.2
+        for <stable@vger.kernel.org>; Fri, 02 Sep 2022 20:33:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=5jdnm1DdJc3RzpTrcZrpund1Y8ITdNhKRH7mliGU3V0=;
-        b=TrJsR7C1Zpxg3sZnBLCqsd72cmAjNJC06IE0t2NudyyW7T7nPRdONJ8rT7XkRtr72R
-         q9+F5OyOiPCdjvOFbYOmZMQakvBXpintbpQFeHWhmGHHmD4b0yZsXWXQs3d2F0GbMhrO
-         f7rk4X1pzCKy7qZSsCFaP98EEcr4eHl1kWr2B5qE6XK0pon1PwYwOTZJjtYRTMV7d5Uy
-         DTiKlPvUox5XfNOGQQiHcPiwApFcTPAYT/F+Py3w1ajQN8pHvoHwiLMZK+/1FwsxLE/n
-         tpRNXbWH5Ya4ZeX1PYQBYC9WeoIAzoTaxuLskl9GSEqxwpmMOb5SkNUVcFd9ahxQFOTJ
-         NTiA==
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=hp6nv6h7bty1ARLn1E+z6KwR5eZiuL+MItLPO1Nzzt8=;
+        b=GaJOygzrJaHGChNu7cINHp0pXLkfGcJr5SxOXk50B6ZnX5cK0S6tYm1Sj4PrjR5fBH
+         0R8J6Z60gd4mkCsd0loYB7htt5jO9It1P3X6dTgCUfq5GCzjia+18e88Ryy4V9wnFcPt
+         2lMEduSxPTRj3wQtiYWLnCHtriO8n5BgAO3pzui1GBg0UnAhBdxih/ffyoTeAKTmPtA3
+         SYWNPqV4JqjZAgJ5HBAKZKgH30A5NmI+9jHEUv5DYcEJ5YvDO1Qcd+Sz146Vgxjyp4+M
+         IUSh8AqL8O/vrtsSBJT5+lpJtk8BNUmm+wLDHrQKWI6cX7yuIIJrHd8GSJakxQqLRB3w
+         Ss1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=5jdnm1DdJc3RzpTrcZrpund1Y8ITdNhKRH7mliGU3V0=;
-        b=a7uwlLWKfY3fBL3HvqQw2AapGIGuPpUBHkfwTiLz0iOti813by64TCySYKxSEGb0Qa
-         /44P1wlMKMWkjVoh+8buPSkmv9hpgWxnBw6Cc33B3pMTOgoJOhaP5gMVqm6aZnPPxFGd
-         TVSTJK5woE+IqrITrd1HRZJnz4WoJuYIquh/Qh76H9WEanwRU3o8f3UfpH1peSp2SYAM
-         7UNFl0VhCuQPX+O77xU3fwrtWd/ECj5NhS8Rdyl9yhl0EFa4/ExJT2jk/9v/ul3iDZHL
-         y4Ohwd2V7vLVrakUS7PzIffwVk7crgE1pWJu06XqJ2KOlTj3FpIVcwu40Zi1COKUm8c+
-         9yeA==
-X-Gm-Message-State: ACgBeo3jRDzttH2oQlB7IvvHvRTNUF7KPP0SYQHX0AzHy4rT98bKST5a
-        G9gOb4LevM93G3wOdlkxWvf1+hZGVUqDD95Q6rE=
-X-Google-Smtp-Source: AA6agR5wXcYB9WlcJNqWfZW3WeLXlxRQFEQq69DHLj8GypfgNURZe6H52IoC7yk0ajjsELGD20e2Hg==
-X-Received: by 2002:a17:90b:23d0:b0:1fd:af26:cee9 with SMTP id md16-20020a17090b23d000b001fdaf26cee9mr8314963pjb.23.1662175876012;
-        Fri, 02 Sep 2022 20:31:16 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a12-20020a170902710c00b0016ee4b0bd60sm2408778pll.166.2022.09.02.20.31.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Sep 2022 20:31:15 -0700 (PDT)
-Message-ID: <6312ca83.170a0220.c67ac.4789@mx.google.com>
-Date:   Fri, 02 Sep 2022 20:31:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=hp6nv6h7bty1ARLn1E+z6KwR5eZiuL+MItLPO1Nzzt8=;
+        b=Rlbg9D7K6G3Vb9lam+6yg9nFYPfzvMueFQ8OiAMVJf3nQhayt3IWca4tSlDuMwVHlX
+         DZQHSJW9UzUTT6vA+L9mxd+kGY3HAyRRONQjrpma/BQEsxavvzQ+Gjy2SYRjKna5TbDb
+         i17nqzZyvkvacCazSF1r2kIf+XKLbOk4j54yaGEapT3GnF1MeV7Gx/R71czmCVDyCk+u
+         rHAXIP0Z8XguSUCpZRGCfcyAnDrAdRh61Dictz3+JKIB0abunjxQNCmSKDaDa7S1C6Rr
+         g9Lfu/gTzkzvRFD3YR/tMPdwAdbPpeNB0SpyHItg8wHywBI2ARgWZA6WtE5+n/jbvNuS
+         W1AQ==
+X-Gm-Message-State: ACgBeo3oyfTc8zV7+KJMqi42b5WE9RGPNfvOCahwSRVIuDbEDeYI5lVR
+        4OmXsQdzeKRZbFOfFQVUQkXrvEG4pN9HfcFWdP27FA==
+X-Google-Smtp-Source: AA6agR4qnIVh4QrhKfBstj8mL7plaDZwIluX24qYlrj+31jsVoT3h3420nWjX6jaWumXyvrbHeHA9RLb1LO7sjirmq0=
+X-Received: by 2002:a17:906:da86:b0:740:7120:c6e6 with SMTP id
+ xh6-20020a170906da8600b007407120c6e6mr24895516ejb.44.1662176032507; Fri, 02
+ Sep 2022 20:33:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.19.4-234-gdd6b2254d7a72
-Subject: stable-rc/linux-5.19.y baseline: 199 runs,
- 1 regressions (v5.19.4-234-gdd6b2254d7a72)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220902121404.435662285@linuxfoundation.org>
+In-Reply-To: <20220902121404.435662285@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 3 Sep 2022 09:03:40 +0530
+Message-ID: <CA+G9fYtST3tfAMOsnRhLDumH+zBDTRLbA-_XnAVNqT=f0v6p4A@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/73] 5.15.65-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.19.y baseline: 199 runs, 1 regressions (v5.19.4-234-gdd6b=
-2254d7a72)
-
-Regressions Summary
--------------------
-
-platform        | arch | lab           | compiler | defconfig       | regre=
-ssions
-----------------+------+---------------+----------+-----------------+------=
-------
-qemu_mips-malta | mips | lab-collabora | gcc-10   | malta_defconfig | 1    =
-      =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.19.y/ker=
-nel/v5.19.4-234-gdd6b2254d7a72/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.19.y
-  Describe: v5.19.4-234-gdd6b2254d7a72
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dd6b2254d7a728898c6d445789248f8a57f7bd97 =
+On Fri, 2 Sept 2022 at 18:02, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.65 release.
+> There are 73 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 04 Sep 2022 12:13:47 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.65-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
 
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Test Regressions
----------------- =
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+## Build
+* kernel: 5.15.65-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: ad2e22e028e72136a55cb6c301a29aa0178fe7d6
+* git describe: v5.15.63-211-gad2e22e028e7
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15.63-211-gad2e22e028e7
 
+## No test Regressions (compared to v5.15.63)
 
-platform        | arch | lab           | compiler | defconfig       | regre=
-ssions
-----------------+------+---------------+----------+-----------------+------=
-------
-qemu_mips-malta | mips | lab-collabora | gcc-10   | malta_defconfig | 1    =
-      =
+## No metric Regressions (compared to v5.15.63)
 
+## No test Fixes (compared to v5.15.63)
 
-  Details:     https://kernelci.org/test/plan/id/631293ab955066be6a35566b
+## No metric Fixes (compared to v5.15.63)
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: malta_defconfig
-  Compiler:    gcc-10 (mips-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.4=
--234-gdd6b2254d7a72/mips/malta_defconfig/gcc-10/lab-collabora/baseline-qemu=
-_mips-malta.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.19.y/v5.19.4=
--234-gdd6b2254d7a72/mips/malta_defconfig/gcc-10/lab-collabora/baseline-qemu=
-_mips-malta.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/mipsel/rootfs.cpio.gz =
+## Test result summary
+total: 107640, pass: 94949, fail: 685, skip: 11690, xfail: 316
 
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 306 total, 303 passed, 3 failed
+* arm64: 68 total, 65 passed, 3 failed
+* i386: 57 total, 51 passed, 6 failed
+* mips: 50 total, 47 passed, 3 failed
+* parisc: 14 total, 14 passed, 0 failed
+* powerpc: 59 total, 56 passed, 3 failed
+* riscv: 27 total, 26 passed, 1 failed
+* s390: 26 total, 23 passed, 3 failed
+* sh: 26 total, 24 passed, 2 failed
+* sparc: 14 total, 14 passed, 0 failed
+* x86_64: 61 total, 58 passed, 3 failed
 
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
 
-  * baseline.login: https://kernelci.org/test/case/id/631293ab955066be6a355=
-66c
-        new failure (last pass: v5.19.3-366-g32f80a5b58e2) =
-
- =20
+--
+Linaro LKFT
+https://lkft.linaro.org
