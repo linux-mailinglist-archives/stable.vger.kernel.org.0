@@ -2,65 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75FAF5ABF17
-	for <lists+stable@lfdr.de>; Sat,  3 Sep 2022 15:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A71875ABF3E
+	for <lists+stable@lfdr.de>; Sat,  3 Sep 2022 16:13:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230130AbiICNRO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Sep 2022 09:17:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32978 "EHLO
+        id S231127AbiICONw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Sep 2022 10:13:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229771AbiICNRN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Sep 2022 09:17:13 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0774C5A2D1
-        for <stable@vger.kernel.org>; Sat,  3 Sep 2022 06:17:11 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id kk26so8686891ejc.11
-        for <stable@vger.kernel.org>; Sat, 03 Sep 2022 06:17:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=A5m8u+5uqpMKc3evmGG/jgqJU35MvPMmTk1hUbHuCGk=;
-        b=qB8jdXQxchn89Bu0ekr/PJuXP7eAYQBkGL7teXX4wPmcDt82q2QxWc6rLrdDh01rxd
-         3qRpP1b00RxbxrQiEaAzcLdPywaNx9+6Wlv32MMe0rbm7PswCXjcdSD737rmmxt8p3A8
-         bGaQW4VvimINPMv3fzan/GOtN+E2ovNU41YBVHX+iHfUH3uR15IuoZzYfzUdnlOZR5v0
-         CNMovQ/ftX013YeduwOgbTpvXxWZL5+JWgD/I0//Ckr9BKYeimHgyRRTQhYdcj+s0SlE
-         j2qM3MUrv5JllRBtjuwg+OBuVT6WacdQ7RxXsKncG9Lnzo84ycqf3EjMhLBekrLQV6lK
-         l4Hg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=A5m8u+5uqpMKc3evmGG/jgqJU35MvPMmTk1hUbHuCGk=;
-        b=rtbz1LrcZfEVVGzSoqkJugtT38XRDNw5V3aOiqXqEstGqCofIEDmiicPL1zw1FcNHf
-         uKClC3+MBPZwYb7ktBTnK4cW95o0pRY0O93G0ZAt/4QNtWQK26o0X7sDcTOLKQb3aIYJ
-         wFl2LyngF2sYmwXBGvVNV+CLuCvx7+7CT6VOoss19l7x/QZHVxSyOqKUwfaUZothCQ5H
-         OYCvBOon2gjYFj4bBKl+lroqAvI5D/clLyNwxpRih36Sz0yCSSMDrlfLS83C4R6VHjtf
-         2XePv/G5pF78VRt65x9+huTBa/Guwy88E6entGD7wxGGF2NUsnLlw/Uz21R9j4Tgus9e
-         GYMg==
-X-Gm-Message-State: ACgBeo3uvohZpyBX8Qhu/kmNVgct3CLPnYdrbZ8qOeBu9lxZFOZKOgnW
-        4JkDztqJIB6/4UxXlCYt3cgFsKWaW7HkByEfll+MKKBN4Yl1EA==
-X-Google-Smtp-Source: AA6agR6c9PpLEdImSQnWD6Rg4iCJM+DbfGkZaUPrOb/hrM2d8IMYI7tO12oBCbKkFjb6RvqqcbT4urKiY9EhhksUNwo=
-X-Received: by 2002:a17:906:cc15:b0:73d:d87f:f039 with SMTP id
- ml21-20020a170906cc1500b0073dd87ff039mr28291031ejb.253.1662211029422; Sat, 03
- Sep 2022 06:17:09 -0700 (PDT)
+        with ESMTP id S229463AbiICONv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Sep 2022 10:13:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5F7958517;
+        Sat,  3 Sep 2022 07:13:49 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AC126151E;
+        Sat,  3 Sep 2022 14:13:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8490CC433C1;
+        Sat,  3 Sep 2022 14:13:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662214428;
+        bh=wR96nJJd4WNj9UMkwxs6pSZVS/BHL8f9p4HAQZWJjJ4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Z3KeN3h26tWcHPiPLDiRO4iFIQGbenqR+bbtXn+Gm+0Mj+oZjU9/kFZRypspfbkXu
+         M07a/V/D2PNHdKU1SowaN+ZbmpawwguKXZ+xnmJnihSw3ITOR/wMz+y7N4LjroLGEh
+         RXFY2pv6jxQoJnnx0k0tiicFmdOshTpjVf4EuETNLVIT5VPpIUDnq7IpDuEXxzDpD/
+         wOFgFnOddWCi6B2Zoff/qcDqLE+hER+qRV5rGnraBrvB9H2u81jECvO8wOKsEi0//c
+         lGkfTCz5Zhw832mHKjDB4ZA9tdIkExmy/TAjm9uD97oNRPpguFbAYf5u5B4rmwVBhF
+         u+vDa7vg8Kfiw==
+Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
+        id 0CE6F404A1; Sat,  3 Sep 2022 11:13:46 -0300 (-03)
+Date:   Sat, 3 Sep 2022 11:13:45 -0300
+From:   Arnaldo Carvalho de Melo <acme@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Jiri Olsa <olsajiri@gmail.com>, stable@vger.kernel.org,
+        bpf@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>, Yonghong Song <yhs@fb.com>
+Subject: Re: [PATCH bpf v2] bpf: Add config for skipping BTF enum64s
+Message-ID: <YxNhGc7Q+eiHCIr5@kernel.org>
+References: <20220828233317.35464-1-yakoyoku@gmail.com>
+ <YxI0dO2yuqTK0H6f@krava>
+ <YxLlouzk1O1Prg3J@kroah.com>
 MIME-Version: 1.0
-References: <20220902121356.732130937@linuxfoundation.org>
-In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 3 Sep 2022 18:46:57 +0530
-Message-ID: <CA+G9fYtFEgczDg_6c67oYrR97V0KQRAtsM9pOQbuJYzjE3Prig@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/31] 4.9.327-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YxLlouzk1O1Prg3J@kroah.com>
+X-Url:  http://acmel.wordpress.com
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -69,104 +60,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2 Sept 2022 at 17:50, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.327 release.
-> There are 31 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 04 Sep 2022 12:13:47 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.327-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Em Sat, Sep 03, 2022 at 07:26:58AM +0200, Greg KH escreveu:
+> On Fri, Sep 02, 2022 at 06:51:00PM +0200, Jiri Olsa wrote:
+> > On Sun, Aug 28, 2022 at 08:33:17PM -0300, Martin Rodriguez Reboredo wrote:
+> > > After the release of pahole 1.24 some people in the dwarves mailing list
+> > > notified issues related to building the kernel with the BTF_DEBUG_INFO
+> > > option toggled. They seem to be happenning due to the kernel and
+> > > resolve_btfids interpreting btf types erroneously. In the dwarves list
+> > > I've proposed a change to the scripts that I've written while testing
+> > > the Rust kernel, it simply passes the --skip_encoding_btf_enum64 to
+> > > pahole if it has version 1.24.
+> > > 
+> > > v1 -> v2:
+> > > - Switch to off by default and remove the config option.
+> > > - Send it to stable instead.
+> > 
+> > hi,
+> > we have change that needs to go to stable kernels but does not have the
+> > equivalent fix in Linus tree
+> 
+> Why isn't it also relevant in Linus's tree?
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+See below.
+ 
+> > what would be the best way to submit it?
+> 
+> Submit it here and document the heck out of why this isn't in Linus's
+> tree, what changes instead fixed it there, and so on.  Look in the
+> archives for examples of how this is done, one recent one that I can
+> think of is here:
+> 	https://lore.kernel.org/r/20220831191348.3388208-1-jannh@google.com
+> 
+> > the issue is that new 'pahole' will generate BTF data that are not supported
+> > by older kernels, so we need to add --skip_encoding_btf_enum64 option to
+> > stable kernel's scripts/pahole-flags.sh to generate proper BTF data
+> > 
+> > we got complains that after upgrading to latest pahole the stable kernel
+> > compilation fails
+> 
+> And what is happening in Linus's tree for this same issue?
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+So, BTF_KIND_ENUM64 is a new BTF tag, one that is not accepted by older
+kernels, but is accepted by the BPF verifier on Linus' tree.
 
-## Build
-* kernel: 4.9.327-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.9.y
-* git commit: 24fc65df6e8a89f1c917a8aef1636e5c17901edb
-* git describe: v4.9.326-32-g24fc65df6e8a
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.326-32-g24fc65df6e8a
+Its about avoiding having a pahole command line with lots of
+--enable-new-feature-foo for new stuff with the default producing the
+most recent BTF spec.
 
-## No test Regressions (compared to v4.9.326)
+One way to documenting it: if you update pahole, then please use
+--skip_encoding_FOO for these new FOO features on kernels where those
+aren't supported.
 
-## No metric Regressions (compared to v4.9.326)
+So this isn't a backport from a fix on Linus' tree, as both the older
+pahole that doesn't encode BTF_KIND_ENUM64 and the new one, that encodes
+it by default, work with Linus' tree.
 
-## No test Fixes (compared to v4.9.326)
+Does this violates the stable@ rules?
 
-## No metric Fixes (compared to v4.9.326)
-
-## Test result summary
-total: 78542, pass: 67880, fail: 721, skip: 9575, xfail: 366
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 250 total, 245 passed, 5 failed
-* arm64: 50 total, 43 passed, 7 failed
-* i386: 26 total, 25 passed, 1 failed
-* mips: 30 total, 30 passed, 0 failed
-* parisc: 12 total, 0 passed, 12 failed
-* powerpc: 36 total, 16 passed, 20 failed
-* s390: 12 total, 9 passed, 3 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 45 total, 44 passed, 1 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+- Arnaldo
