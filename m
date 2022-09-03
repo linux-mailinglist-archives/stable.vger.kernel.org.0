@@ -2,105 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B21B5ABF58
-	for <lists+stable@lfdr.de>; Sat,  3 Sep 2022 16:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E4B5AC098
+	for <lists+stable@lfdr.de>; Sat,  3 Sep 2022 20:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229594AbiICOX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Sep 2022 10:23:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35136 "EHLO
+        id S232383AbiICSWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Sep 2022 14:22:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231127AbiICOX4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Sep 2022 10:23:56 -0400
-Received: from mail-vk1-xa30.google.com (mail-vk1-xa30.google.com [IPv6:2607:f8b0:4864:20::a30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9555E5E650
-        for <stable@vger.kernel.org>; Sat,  3 Sep 2022 07:23:44 -0700 (PDT)
-Received: by mail-vk1-xa30.google.com with SMTP id s66so2257915vkb.4
-        for <stable@vger.kernel.org>; Sat, 03 Sep 2022 07:23:44 -0700 (PDT)
+        with ESMTP id S232017AbiICSWI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Sep 2022 14:22:08 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C1B4E874
+        for <stable@vger.kernel.org>; Sat,  3 Sep 2022 11:22:07 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id q7so7681528lfu.5
+        for <stable@vger.kernel.org>; Sat, 03 Sep 2022 11:22:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:from:to:cc:subject:date;
-        bh=R+M1YvVpdR2Y/vihfHhLq4Wuj9YhHF0H0u4Cbj7WBq8=;
-        b=a+kxIj5wIaakMgsskOOJhiOqycF5xrT2lUntkBNfbnokCkzsl5m4MOzrJmYJq+n66A
-         3znl42F2laGbAqb8nqoPVdDC0GxDXdDZj0iMnUyqfMdc3qoLVs8XnvtlcgnQNzstVXVD
-         wczsVzrV/2zsXLG7Rg71LfehaTSq/bDBrTI6VE/z8eZ8RR30LHC7MzEiKVe9tqMDuomp
-         VYpFFIhZiUR1qD8uTaXLRk9NsOadnKCKz/N/CPTbTg8oXoHbJy08F7at5FWHMPJnatTt
-         /IA0iVAYnBOv/4wOB8m4bAM/Icqyubw8wUz+41dmhhekyKj5/DaAXTqRO0dpYWPuRLwl
-         eE6A==
+        d=kvaser.com; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=Q2prn5n6newbXXuJ8BZvUmVYF/i8jBG0q25CnLkH4Nc=;
+        b=PLiLs7HkOLwViGixLW5/dqW5QWftgjsNsNA9XhBfpIpHH8xZO6V7QEyfB+ajTRqIqH
+         l0EejjN+d/g01qsJH1jyrQLkk+EmyQuykbHW0FrwOAAqU0r1vYltpUbWiEMGxYfwg+HU
+         Aytwg4hu3KE310I7jyhB60w2d/X3jDNWcfgg5oDwSJJdPgijms90g5c22k9jtIIwhyQ6
+         T4NZEDill6IqGNFDP0twX9B1tHKjYwWJlJs6x2l5wwgOpsH8QFbmu7O74Kb/b2hvm2rL
+         vahBcVMwzEgtWxSc4E167FZHWPrkcXRvv8scrto0RPbnYDLofU73qP+TioDdSx26D8PU
+         z7CA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=R+M1YvVpdR2Y/vihfHhLq4Wuj9YhHF0H0u4Cbj7WBq8=;
-        b=HpBlY9dWCo7o+pMDk9SvyRvQh/tgED9VBA8g8Q6klz836vNWgmkwD0WXbG/BF4jU6J
-         szvNHy+KC9PPy91vbY2mzN4XSMjh7ALYvY8CkbMpgChyMRvol3sLAufyW0HYY4McBn6N
-         V3tfvjrinOSfxTf8NUFirHb5qkrQJhynVFIfJHt35g5xCe6gNYxCGsa+o+A8TvfqG/cI
-         9abC4IqGtvg0TYBKxnzW1i4jiyNOvMCv/pN1z8EzwEV6kSwoq0Dh7aoTe8pRVopDKSRn
-         EKwRC4SeUIcXP3fBQ7HNdrBORGRuRM/uauS9LrxQqAfmSf1zT/6Oiiy/pIZ/rmx79/K/
-         ywVw==
-X-Gm-Message-State: ACgBeo2g/vemV15aYiQZ5lwy4xJgRl3F0y+mCBb+nseaMRqmv4lN0gB4
-        8uj9PoXFyqNMuivJGlgG3MYc2IOY3FHh4N9KWow=
-X-Google-Smtp-Source: AA6agR6bFpbG1LA19v7vQgRzWK6KKazSbJOuAvDp/OpEhIvraypidx8otCYplS9N6zaQ3MOPiPRmd1k1PWQlVzxrIGc=
-X-Received: by 2002:a1f:a958:0:b0:378:d584:dd0e with SMTP id
- s85-20020a1fa958000000b00378d584dd0emr11858567vke.17.1662215023676; Sat, 03
- Sep 2022 07:23:43 -0700 (PDT)
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=Q2prn5n6newbXXuJ8BZvUmVYF/i8jBG0q25CnLkH4Nc=;
+        b=jFVJ0vA2xhMH7zdxU1/iuf1HsDKgfAt2r6JErkMzQ/gjpkNJWuXqsHbWE2+MWaZfoJ
+         om1AYFwOlPww6gYDcSUVcb716nSQMusmOrsXsbmK1jWP3Pbl9dOFE8ERJWePoQBz628f
+         FKZyGkX04z4UuA9siH+AO+KLA2KR/ewdrDVsb0z8THJ7Z7DCbe9p0KZrF2VJHHbXIkTt
+         vtZFmnV6V+OeiAORByGOoPiIgFwTfJ/Xp8BXA6ocJMtY363gklc6UZLSdUf6rof9k47I
+         rUAanj3aUU9BMmqwe5Kq0Bc7ZSjC8Qls5Ga/dh6/MkyDaFBdBtDXoPcW5LIQA+IjoyFX
+         SChg==
+X-Gm-Message-State: ACgBeo0ZY5MIVlakx7X9K/Ugbyt743D32F4GG5JIfKxBcQOloJQI2uE1
+        g7WQEonPlkvrHH4m9jtL3TzyTzIuKHK2Sg==
+X-Google-Smtp-Source: AA6agR55O0d5r9d7AxS3IPcHoBFGJUeAVagfXYsLXWpZUBoedkNkDVsMflBDdYuJ7JWQ0lMtQY/YPA==
+X-Received: by 2002:a05:6512:33d5:b0:48b:17a:6b86 with SMTP id d21-20020a05651233d500b0048b017a6b86mr15315782lfg.671.1662229325880;
+        Sat, 03 Sep 2022 11:22:05 -0700 (PDT)
+Received: from [192.168.16.196] (h-155-4-68-234.A785.priv.bahnhof.se. [155.4.68.234])
+        by smtp.gmail.com with ESMTPSA id u4-20020ac258c4000000b0048b03ec561fsm655685lfo.150.2022.09.03.11.22.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 03 Sep 2022 11:22:05 -0700 (PDT)
+Message-ID: <43824cd0-a25f-5d3b-ca85-7b8488201ef2@kvaser.com>
+Date:   Sat, 3 Sep 2022 20:21:09 +0200
 MIME-Version: 1.0
-Received: by 2002:a59:d3eb:0:b0:2d1:220c:9afa with HTTP; Sat, 3 Sep 2022
- 07:23:43 -0700 (PDT)
-Reply-To: keenjr73@gmail.com
-From:   "keen J. Richardson" <roseibrahim1985@gmail.com>
-Date:   Sat, 3 Sep 2022 14:23:43 +0000
-Message-ID: <CAEJJipWwwuqVTKP2NOE+yRoZrYj2HzsqtRid2U8+mBM=qGsPDA@mail.gmail.com>
-Subject: Guten Morgen
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:a30 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [roseibrahim1985[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [keenjr73[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [roseibrahim1985[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.2 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH v3 04/15] can: kvaser_usb: kvaser_usb_leaf: Get
+ capabilities from device
+Content-Language: en-US
+To:     Anssi Hannula <anssi.hannula@bitwise.fi>,
+        linux-can@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     Jimmy Assarsson <jimmyassarsson@gmail.com>, stable@vger.kernel.org
+References: <20220901122729.271-1-extja@kvaser.com>
+ <20220901122729.271-5-extja@kvaser.com>
+ <e1c06d77-9758-49e3-f772-084d2df365b9@bitwise.fi>
+From:   Jimmy Assarsson <extja@kvaser.com>
+In-Reply-To: <e1c06d77-9758-49e3-f772-084d2df365b9@bitwise.fi>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Irgendwann letzte Woche wurde Ihnen eine Mail mit der Erwartung von gesende=
-t
-Ich habe eine Antwortmail von Ihnen erhalten, aber zu meiner
-=C3=9Cberraschung haben Sie sich nie die M=C3=BChe gemacht, zu antworten.
-Bitte antworten Sie f=C3=BCr weitere Erkl=C3=A4rungen.
+On 9/2/22 13:40, Anssi Hannula wrote:
+> Hi,
+> 
+> On 1.9.2022 15.27, Jimmy Assarsson wrote:
+>> Use the CMD_GET_CAPABILITIES_REQ command to query the device for certain
+>> capabilities. We are only interested in LISTENONLY mode and wither the
+>> device reports CAN error counters.
+>>
+>> And remove hard coded capabilities for all Leaf devices.
+> 
+> I think the second paragraph is no longer accurate.
 
-Hochachtungsvoll,
-Keen J. Richardson.
+Oops, will fix this in v4.
+
+> But the patch itself works for me now with no regressions that I can see.
+> 
+> Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+> 
+> Thanks for taking care of the patchset!
+Thanks again for testing!
+
+>> Cc: stable@vger.kernel.org
+>> Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+>> Reported-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+>> Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+>> ---
+>> Changes in v3
+>>   - Rebased on 1d5eeda23f36 ("can: kvaser_usb: advertise timestamping capabilities and add ioctl support")
+>>   - Add stable to CC
+>>   - Re-add hard coded capabilities for Leaf M32C devices, to fix regression
+>>     found by Anssi Hannula in v2 [1].
+>>
+>> Changes in v2:
+>>    - New in v2. Replaces [PATCH 04/12] can: kvaser_usb: Mark Mini PCIe 2xHS as supporting
+>>   error counters
+>>    - Fixed Anssi's comments; https://lore.kernel.org/linux-can/9742e7ab-3650-74d8-5a44-136555788c08@bitwise.fi/
+>>
+>> [1] https://lore.kernel.org/linux-can/b25bc059-d776-146d-0b3c-41aecf4bd9f8@bitwise.fi/
+>>
+>>   .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 144 +++++++++++++++++-
+>>   1 file changed, 143 insertions(+), 1 deletion(-)
+>>
+> [...]
