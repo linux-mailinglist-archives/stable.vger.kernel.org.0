@@ -2,81 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A78E5AC478
-	for <lists+stable@lfdr.de>; Sun,  4 Sep 2022 15:21:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C3CA5AC4A1
+	for <lists+stable@lfdr.de>; Sun,  4 Sep 2022 16:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229903AbiIDNVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Sep 2022 09:21:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33514 "EHLO
+        id S234122AbiIDOF3 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 4 Sep 2022 10:05:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229748AbiIDNU6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Sep 2022 09:20:58 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C8552A26D
-        for <stable@vger.kernel.org>; Sun,  4 Sep 2022 06:20:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662297658; x=1693833658;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   in-reply-to;
-  bh=V6AD01z9fJJphGnpw2+GTGDvfh/RO9iL9SIXQF3Xudw=;
-  b=JddmAy2FRWp6t+zVPNy74Oo7Tx7pXQfk7m5tEX7QWL4JxYSSrUYSY1Uv
-   SXU8zexBSRCBLMgtNH/L6nkjokpYsVSpO65VZwU9bMi+G5oqvuAnR32gO
-   3h6hO05/3RB+HTkPzhmA+fPzOuPh5Jo/NWWpzGOmEcBkSP1f41HJT4LJX
-   JkLYs/MGWtT42UxioVDmBCYQ8BqY9O7SNBSh8n0Lgo+aEZVtvQuzUVSVB
-   0bijJnnsPb+hdDZQXLrbgwfexnhUiWqTedK6fp+1jje7ZbwpVXZugEfks
-   lZTivu6MrD8RH/OBadp1DYc1jB84WWGKHIi1O6wX7ad9drEqzPDu7U+C4
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10460"; a="297026979"
-X-IronPort-AV: E=Sophos;i="5.93,289,1654585200"; 
-   d="scan'208";a="297026979"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Sep 2022 06:20:57 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,289,1654585200"; 
-   d="scan'208";a="941809856"
-Received: from lkp-server02.sh.intel.com (HELO 95dfd251caa2) ([10.239.97.151])
-  by fmsmga005.fm.intel.com with ESMTP; 04 Sep 2022 06:20:56 -0700
-Received: from kbuild by 95dfd251caa2 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1oUpYV-00035h-2U;
-        Sun, 04 Sep 2022 13:20:55 +0000
-Date:   Sun, 4 Sep 2022 21:20:48 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Jiri Olsa <jolsa@kernel.org>
-Cc:     stable@vger.kernel.org, kbuild-all@lists.01.org
-Subject: Re: [PATCH stable 5.15 2/2] kbuild: Add skip_encoding_btf_enum64
- option to pahole
-Message-ID: <YxSmMFXC1a02zBDn@876d715a1888>
+        with ESMTP id S229782AbiIDOFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Sep 2022 10:05:25 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BAC42FFEB
+        for <stable@vger.kernel.org>; Sun,  4 Sep 2022 07:05:23 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-125-62v7-tjuNvizpZ-y9KtpGQ-1; Sun, 04 Sep 2022 15:05:21 +0100
+X-MC-Unique: 62v7-tjuNvizpZ-y9KtpGQ-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Sun, 4 Sep
+ 2022 15:05:20 +0100
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.040; Sun, 4 Sep 2022 15:05:20 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     Eric Dumazet <edumazet@google.com>
+Subject: setns() affecting other threads in 5.10.132 and 6.0
+Thread-Topic: setns() affecting other threads in 5.10.132 and 6.0
+Thread-Index: AdjAZGr2bm2+BO9aR228APTLkn1hUg==
+Date:   Sun, 4 Sep 2022 14:05:20 +0000
+Message-ID: <d9f7a7d26eb5489e93742e57e55ebc02@AcuMS.aculab.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220904131901.13025-3-jolsa@kernel.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Sometime after 5.10.105 (5.10.132 and 6.0) there is a change that
+makes setns(open("/proc/1/ns/net")) in the main process change
+the behaviour of other process threads.
 
-Thanks for your patch.
+I don't know how much is broken, but the following fails.
 
-FYI: kernel test robot notices the stable kernel rule is not satisfied.
+Create a network namespace (eg "test").
+Create a 'bond' interface (eg "test0") in the namespace.
 
-Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-Subject: [PATCH stable 5.15 2/2] kbuild: Add skip_encoding_btf_enum64 option to pahole
-Link: https://lore.kernel.org/stable/20220904131901.13025-3-jolsa%40kernel.org
+Then /proc/net/bonding/test0 only exists inside the namespace.
 
-The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+However if you run a program in the "test" namespace that does:
+- create a thread.
+- change the main thread to in "init" namespace.
+- try to open /proc/net/bonding/test0 in the thread.
+then the open fails.
 
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+I don't know how much else is affected and haven't tried
+to bisect (I can't create bonds on my normal test kernel).
+
+The test program below shows the problem.
+Compile and run as:
+# ip netns exec test strace -f test_prog /proc/net/bonding/test0
+
+The second open by the child should succeed, but fails.
+
+I can't see any changes to the bonding code, so I suspect
+it is something much more fundamental.
+It might only affect /proc/net, but it might also affect
+which namespace sockets get created in.
+IIRC ls -l /proc/n/task/*/ns gives the correct namespaces.
+
+	David
 
 
+#define _GNU_SOURCE
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <poll.h>
+#include <pthread.h>
+#include <sched.h>
+
+#define delay(secs) poll(0,0, (secs) * 1000)
+
+static void *thread_fn(void *file)
+{
+        delay(2);
+        open(file, O_RDONLY);
+
+        delay(5);
+        open(file, O_RDONLY);
+
+        return NULL;
+}
+
+int main(int argc, char **argv)
+{
+        pthread_t id;
+
+        pthread_create(&id, NULL, thread_fn, argv[1]);
+
+        delay(1);
+        open(argv[1], O_RDONLY);
+
+        delay(2);
+        setns(open("/proc/1/ns/net", O_RDONLY), 0);
+
+        delay(1);
+        open(argv[1], O_RDONLY);
+
+        delay(4);
+
+        return 0;
+}
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
