@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 865EE5AC4A9
-	for <lists+stable@lfdr.de>; Sun,  4 Sep 2022 16:10:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 942D55AC4AC
+	for <lists+stable@lfdr.de>; Sun,  4 Sep 2022 16:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233979AbiIDOKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Sep 2022 10:10:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54898 "EHLO
+        id S233711AbiIDOKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Sep 2022 10:10:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230013AbiIDOKn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Sep 2022 10:10:43 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E0CB2AE3C
-        for <stable@vger.kernel.org>; Sun,  4 Sep 2022 07:10:42 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id fs14so1382681pjb.5
-        for <stable@vger.kernel.org>; Sun, 04 Sep 2022 07:10:42 -0700 (PDT)
+        with ESMTP id S233768AbiIDOKx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Sep 2022 10:10:53 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13B87326DE
+        for <stable@vger.kernel.org>; Sun,  4 Sep 2022 07:10:52 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id z187so6336650pfb.12
+        for <stable@vger.kernel.org>; Sun, 04 Sep 2022 07:10:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=amarulasolutions.com; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=C3neU1AtxmqWdDSuYqkB7lF7A3shUmwSCsbgD00NRVo=;
-        b=TGI1HUQ/5A3/uzMQv8C2zewVZr/OY4vypQbommNxD5sQavjSSSDRWLjlzWCal2oEhF
-         vpr4/CDDA/nEGztaBVVD8NaVQB3OtkrtheeVpQEIIMZhAKUqH0ZFamQdtAPFCTLr0i60
-         iM/t1rOXa6v8pbbmsCfEfJUZk4qc3h9rDXkI4=
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
+        bh=NvLw5KU+55jz8ItVCImcVo81PfvmbTqj67db51rQx28=;
+        b=mA5YuvaEcz9geqjvbYjrvj1uTFyLPeCLOL+HNvpQHyO0Zv2nV/o1TqHc/bzTId7zL7
+         d9fpPVSRB7wCgOAG2faGq1j8xKPTmmpFos9w4mt4yXKJKfkJsKLzI4MTu8izMH7fHxh6
+         4xsmAxiEMQbDa00GtWWbsqCvS9Ca6O+7Xz5kE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=C3neU1AtxmqWdDSuYqkB7lF7A3shUmwSCsbgD00NRVo=;
-        b=lduX3ux9xyi+GCovHfp6JYq14XanODovsSGBJfgXD7TjxKi6rYhc9OxT0SNj2IVq91
-         kypyczW+sEdNHoJYm2WyiEfWLGHYT2PagArB97Sfszxy64uP8Z0qx+zChJfeeYOM1648
-         4dUgvL4r08C2qZzrPdZXJJitaYLc2pKzcVfgl7fuWOnZtRbASa2gv2ecFwnwn2Nq+grk
-         5PYgtVtE40w3EbJpdkFclLQYoyQr+/XZynP4bRJMHkqkTkPMDUVgLBHj1MfgVRLFxmWi
-         RBqLcXtWPrLbXhuJ/80gunTJZ4krVsqa9qR6Lm4uOUyhoWLlPriGZaPJZqf88G89FUbl
-         8RPg==
-X-Gm-Message-State: ACgBeo0sQM2nSxSikDsK4jVoQ5r/ooPFO0dI2neUKA59pA14xj1lmmeA
-        HPx1H14unFMAxVdtOne3qIh1+g==
-X-Google-Smtp-Source: AA6agR7W2dAAZHLXIRcbnomqLVD5PKLOUBKC64dhk5b5GYVE46etYXIyADU10b/L0HCyE+aVCdIRsQ==
-X-Received: by 2002:a17:902:820f:b0:176:9654:354d with SMTP id x15-20020a170902820f00b001769654354dmr4925350pln.79.1662300641893;
-        Sun, 04 Sep 2022 07:10:41 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=NvLw5KU+55jz8ItVCImcVo81PfvmbTqj67db51rQx28=;
+        b=fAt6Yl3nzbeWookYbZOoc8+8XlX2WSE23vTeWIxtUpmzxGfNn+q97LEcaiJuDbP3eM
+         FoNeKZfGmI8WM5hFF1JfvHsBqgTEzRMB8LTOpU4UTAkYotZiWtmb16J7L2D1PJmNgiHc
+         d/xyP9jrRxXiP3qTqsSVgpv+fFnTRoqgnf/TtcPisdj1BAQLXf3la12UsHpILfkQIKkA
+         C2diOqsmx/7Z76QGn35q2OqIgLuKF4otiL2wzv8Qy8IncLNlyghFe/umBPfd8RD251rk
+         VnxjrLBxRZFajRqgiqSWPsFPLfiXCTBqWIpteHmD4L/iAcgs4d4OmgxMwCvfx7+ZYt/4
+         49aA==
+X-Gm-Message-State: ACgBeo1N+h7EvhH1b+hcZusm6ot7p5hW/eI60BL/lI9KftNllD5OjmWt
+        L4VWBhZomiRD3MsGcHdwXpN1xw==
+X-Google-Smtp-Source: AA6agR4USjcm3W8RIzfgrbED9CyUkSroEFickkr7JF56t7MZ5obBKpMtezqBj392uWfNcSMg9f4NQA==
+X-Received: by 2002:a63:5a50:0:b0:429:8580:fc61 with SMTP id k16-20020a635a50000000b004298580fc61mr39578533pgm.215.1662300651563;
+        Sun, 04 Sep 2022 07:10:51 -0700 (PDT)
 Received: from dario-ThinkPad-T14s-Gen-2i.pdxnet.pdxeng.ch (host-79-31-31-9.retail.telecomitalia.it. [79.31.31.9])
-        by smtp.gmail.com with ESMTPSA id z9-20020a17090a170900b001fe136b4930sm8606760pjd.50.2022.09.04.07.10.32
+        by smtp.gmail.com with ESMTPSA id z9-20020a17090a170900b001fe136b4930sm8606760pjd.50.2022.09.04.07.10.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Sep 2022 07:10:40 -0700 (PDT)
+        Sun, 04 Sep 2022 07:10:50 -0700 (PDT)
 From:   Dario Binacchi <dario.binacchi@amarulasolutions.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     linux-amarula@amarulasolutions.com,
@@ -55,15 +56,17 @@ Cc:     linux-amarula@amarulasolutions.com,
         Sascha Hauer <s.hauer@pengutronix.de>,
         Shawn Guo <shawnguo@kernel.org>, Vinod Koul <vkoul@kernel.org>,
         dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [RESEND PATCH v5 1/2] dmaengine: mxs: use platform_driver_register
-Date:   Sun,  4 Sep 2022 16:10:19 +0200
-Message-Id: <20220904141020.2947725-1-dario.binacchi@amarulasolutions.com>
+Subject: [RESEND PATCH v5 2/2] dmaengine: mxs: fix section mismatch
+Date:   Sun,  4 Sep 2022 16:10:20 +0200
+Message-Id: <20220904141020.2947725-2-dario.binacchi@amarulasolutions.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220904141020.2947725-1-dario.binacchi@amarulasolutions.com>
+References: <20220904141020.2947725-1-dario.binacchi@amarulasolutions.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,61 +74,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Driver registration fails on SOC imx8mn as its supplier, the clock
-control module, is probed later than subsys initcall level. This driver
-uses platform_driver_probe which is not compatible with deferred probing
-and won't be probed again later if probe function fails due to clock not
-being available at that time.
+The patch was suggested by the following modpost warning:
 
-This patch replaces the use of platform_driver_probe with
-platform_driver_register which will allow probing the driver later again
-when the clock control module will be available.
+WARNING: modpost: vmlinux.o(.data+0xa3900): Section mismatch in reference from the variable mxs_dma_driver to the function .init.text:mxs_dma_probe()
+The variable mxs_dma_driver references
+the function __init mxs_dma_probe()
+If the reference is valid then annotate the
+variable with __init* or __refdata (see linux/init.h) or name the variable:
+*_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
 
-Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
 Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
 Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
 Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
 Cc: stable@vger.kernel.org
-
 ---
 
-Changes in v5:
-- Update the commit message.
-- Add the patch "dmaengine: mxs: fix section mismatch" to remove the
-  warning raised by this patch.
+(no changes since v1)
 
-Changes in v4:
-- Restore __init in front of mxs_dma_probe() definition.
-- Rename the mxs_dma_driver variable to mxs_dma_driver_probe.
-- Update the commit message.
-- Use builtin_platform_driver() instead of module_platform_driver().
-
-Changes in v3:
-- Restore __init in front of mxs_dma_init() definition.
-
-Changes in v2:
-- Add the tag "Cc: stable@vger.kernel.org" in the sign-off area.
-
- drivers/dma/mxs-dma.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/dma/mxs-dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
-index 994fc4d2aca4..18f8154b859b 100644
+index 18f8154b859b..a01953e06048 100644
 --- a/drivers/dma/mxs-dma.c
 +++ b/drivers/dma/mxs-dma.c
-@@ -839,10 +839,6 @@ static struct platform_driver mxs_dma_driver = {
+@@ -834,7 +834,7 @@ static int __init mxs_dma_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static struct platform_driver mxs_dma_driver = {
++static struct platform_driver mxs_dma_driver __initdata = {
+ 	.driver		= {
  		.name	= "mxs-dma",
  		.of_match_table = mxs_dma_dt_ids,
- 	},
-+	.probe = mxs_dma_probe,
- };
--
--static int __init mxs_dma_module_init(void)
--{
--	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
--}
--subsys_initcall(mxs_dma_module_init);
-+builtin_platform_driver(mxs_dma_driver);
 -- 
 2.32.0
 
