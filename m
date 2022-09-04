@@ -2,111 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 942D55AC4AC
-	for <lists+stable@lfdr.de>; Sun,  4 Sep 2022 16:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 879F25AC5C9
+	for <lists+stable@lfdr.de>; Sun,  4 Sep 2022 19:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233711AbiIDOKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Sep 2022 10:10:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55114 "EHLO
+        id S231339AbiIDReJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Sep 2022 13:34:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233768AbiIDOKx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Sep 2022 10:10:53 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13B87326DE
-        for <stable@vger.kernel.org>; Sun,  4 Sep 2022 07:10:52 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id z187so6336650pfb.12
-        for <stable@vger.kernel.org>; Sun, 04 Sep 2022 07:10:52 -0700 (PDT)
+        with ESMTP id S229725AbiIDReJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Sep 2022 13:34:09 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A04630F4C
+        for <stable@vger.kernel.org>; Sun,  4 Sep 2022 10:34:08 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id 29so3653412edv.2
+        for <stable@vger.kernel.org>; Sun, 04 Sep 2022 10:34:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amarulasolutions.com; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=NvLw5KU+55jz8ItVCImcVo81PfvmbTqj67db51rQx28=;
-        b=mA5YuvaEcz9geqjvbYjrvj1uTFyLPeCLOL+HNvpQHyO0Zv2nV/o1TqHc/bzTId7zL7
-         d9fpPVSRB7wCgOAG2faGq1j8xKPTmmpFos9w4mt4yXKJKfkJsKLzI4MTu8izMH7fHxh6
-         4xsmAxiEMQbDa00GtWWbsqCvS9Ca6O+7Xz5kE=
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc:subject:date;
+        bh=oCmySCCtxBE48Ui6XKBQ0txK+3L6YNxq4OeBEJat9Kc=;
+        b=PrpEN6ChMmqKG816IZBtymLVxNWhlD1LK0CoyXzmDPWcFNObWYCxobfIlIhCKZYiA6
+         im8cOruSVoH1qHinw0jxZJZ3GfyPlSfC+DnYQtUPMxfmx1aNV9wse7e36n+gsjCTZ5t5
+         3pL7u7Rh+APvDKvDfYZu6KlELcRMtXLfYd1ZFhUr8y6uJJYFByMlR0GN+1lxuyULfCF6
+         iLNGsiJleK53hIQN+MsQAZ5U2fZsIWcxuVZu35oxs4dtPSQ91i2ck6wBB6MdIRSFQ45Y
+         +JYn40UXBfWVtRrL5oXL54bkQY5Gj+rYBDgktoSpCGUzZ1NtjCVuY0f09NmbaZBqceeZ
+         3xsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=NvLw5KU+55jz8ItVCImcVo81PfvmbTqj67db51rQx28=;
-        b=fAt6Yl3nzbeWookYbZOoc8+8XlX2WSE23vTeWIxtUpmzxGfNn+q97LEcaiJuDbP3eM
-         FoNeKZfGmI8WM5hFF1JfvHsBqgTEzRMB8LTOpU4UTAkYotZiWtmb16J7L2D1PJmNgiHc
-         d/xyP9jrRxXiP3qTqsSVgpv+fFnTRoqgnf/TtcPisdj1BAQLXf3la12UsHpILfkQIKkA
-         C2diOqsmx/7Z76QGn35q2OqIgLuKF4otiL2wzv8Qy8IncLNlyghFe/umBPfd8RD251rk
-         VnxjrLBxRZFajRqgiqSWPsFPLfiXCTBqWIpteHmD4L/iAcgs4d4OmgxMwCvfx7+ZYt/4
-         49aA==
-X-Gm-Message-State: ACgBeo1N+h7EvhH1b+hcZusm6ot7p5hW/eI60BL/lI9KftNllD5OjmWt
-        L4VWBhZomiRD3MsGcHdwXpN1xw==
-X-Google-Smtp-Source: AA6agR4USjcm3W8RIzfgrbED9CyUkSroEFickkr7JF56t7MZ5obBKpMtezqBj392uWfNcSMg9f4NQA==
-X-Received: by 2002:a63:5a50:0:b0:429:8580:fc61 with SMTP id k16-20020a635a50000000b004298580fc61mr39578533pgm.215.1662300651563;
-        Sun, 04 Sep 2022 07:10:51 -0700 (PDT)
-Received: from dario-ThinkPad-T14s-Gen-2i.pdxnet.pdxeng.ch (host-79-31-31-9.retail.telecomitalia.it. [79.31.31.9])
-        by smtp.gmail.com with ESMTPSA id z9-20020a17090a170900b001fe136b4930sm8606760pjd.50.2022.09.04.07.10.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Sep 2022 07:10:50 -0700 (PDT)
-From:   Dario Binacchi <dario.binacchi@amarulasolutions.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-amarula@amarulasolutions.com,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [RESEND PATCH v5 2/2] dmaengine: mxs: fix section mismatch
-Date:   Sun,  4 Sep 2022 16:10:20 +0200
-Message-Id: <20220904141020.2947725-2-dario.binacchi@amarulasolutions.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220904141020.2947725-1-dario.binacchi@amarulasolutions.com>
-References: <20220904141020.2947725-1-dario.binacchi@amarulasolutions.com>
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=oCmySCCtxBE48Ui6XKBQ0txK+3L6YNxq4OeBEJat9Kc=;
+        b=Yo3AfngkklqKSkSrDyuQEIjUPXMGUgNJClZpZr33hpAKlerS1fyt1Z5RPSdgOEkV54
+         s7QdxXQG7r3n3gNAqkAo1xG+qcqWWFQ2Eg7/Y17+VlJE2LcEvCmgbJ7joeTSoJuhROzx
+         LHJfCXe4nVcj0mEPbwgAEQX5BeN2rcd5GS4Y8AnIo0/GCsmuqdI6pSId5vzdHj1yFll4
+         V0v/1hTno32PcIf/5EZ+8tTPf3cwp8MjOmK3F2497rc+FpZ8ai5in4BGq6QTjr5To+dl
+         rChdXTWWncrs8gHWwjmeM4mMZrUkJ6e2QNKDFd2blC1ASkdAj5qkWCZ0mDsDywgv77Ba
+         yO2Q==
+X-Gm-Message-State: ACgBeo1y4TYFhWnmUzB27BoG3/3hAgOIN/ts/u7WVOhp4lUFSkaB1AW6
+        tYSvGrhZwFSHI2+IclCpj2JfRRSgyuBvfdGiCaA=
+X-Google-Smtp-Source: AA6agR5bNs33Hkvn8Qi+rIFjxIH0u+F+eNwjLpYVBxU8EOBU+5FXCBzCzg6EKRxmICxqWLo018VrLZyCafMXScbfAdA=
+X-Received: by 2002:a05:6402:538b:b0:446:34f:2232 with SMTP id
+ ew11-20020a056402538b00b00446034f2232mr38782366edb.4.1662312846961; Sun, 04
+ Sep 2022 10:34:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Received: by 2002:a54:28c5:0:0:0:0:0 with HTTP; Sun, 4 Sep 2022 10:34:06 -0700 (PDT)
+Reply-To: proctorjulius@yahoo.com
+From:   Julius Proctor <jeswa7m@gmail.com>
+Date:   Sun, 4 Sep 2022 17:34:06 +0000
+Message-ID: <CACGCBD5zYeiRtazBS53QNkH3a0bNaqHEiu6rzkgGOhQkzsejdA@mail.gmail.com>
+Subject: =?UTF-8?B?UG90xZllYnVqaSB2YcWhaSBvZHBvdsSbxI8sIHByb3PDrW0sIHDFmWlqxI90ZQ==?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=3.9 required=5.0 tests=BAYES_20,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ***
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch was suggested by the following modpost warning:
+Dobr=C3=BD den
 
-WARNING: modpost: vmlinux.o(.data+0xa3900): Section mismatch in reference from the variable mxs_dma_driver to the function .init.text:mxs_dma_probe()
-The variable mxs_dma_driver references
-the function __init mxs_dma_probe()
-If the reference is valid then annotate the
-variable with __init* or __refdata (see linux/init.h) or name the variable:
-*_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
+Jsem Julius Proctor, pr=C3=A1vn=C3=AD z=C3=A1stupce z advok=C3=A1tn=C3=AD k=
+ancel=C3=A1=C5=99e Proctor.
+Kontaktoval jsem v=C3=A1s ohledn=C4=9B pozdn=C3=ADho majetku Dr. Edwin Fond=
+ o 8,5
+milionu dolar=C5=AF, abyste byli repatriov=C3=A1ni na v=C3=A1=C5=A1 =C3=BA=
+=C4=8Det. Krom=C4=9B toho v
+t=C3=A9to transakci chci, abyste odpov=C4=9Bd=C4=9Bli d=C5=AFv=C4=9Brn=C4=
+=9B.
 
-Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Cc: stable@vger.kernel.org
----
-
-(no changes since v1)
-
- drivers/dma/mxs-dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
-index 18f8154b859b..a01953e06048 100644
---- a/drivers/dma/mxs-dma.c
-+++ b/drivers/dma/mxs-dma.c
-@@ -834,7 +834,7 @@ static int __init mxs_dma_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static struct platform_driver mxs_dma_driver = {
-+static struct platform_driver mxs_dma_driver __initdata = {
- 	.driver		= {
- 		.name	= "mxs-dma",
- 		.of_match_table = mxs_dma_dt_ids,
--- 
-2.32.0
-
+Julius Proctor
