@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4B35AD6EF
-	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 17:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3F895AD6F1
+	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 17:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229875AbiIEPyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 11:54:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49650 "EHLO
+        id S231582AbiIEPy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 11:54:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231582AbiIEPyv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 11:54:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D81F1A838
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 08:54:50 -0700 (PDT)
+        with ESMTP id S229897AbiIEPy4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 11:54:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1344F1B7B0
+        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 08:54:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2BA29B81158
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 15:54:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE5FC433D6;
-        Mon,  5 Sep 2022 15:54:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5021B80EFB
+        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 15:54:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EACCC433C1;
+        Mon,  5 Sep 2022 15:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662393287;
-        bh=K5b1VjHNq/bAeqEgU2xP/X11JSRHVtfGRA/mBeE4bDk=;
+        s=korg; t=1662393290;
+        bh=PiARY/cuTJe6Xk0h+uVqlmKzHG1772T7GTDrJGVM0Iw=;
         h=Subject:To:Cc:From:Date:From;
-        b=okE73NJKiVDgNDgTI+uwuLIlYe4ZZ7Jcos0FVeTbtrmAtmT3Re+KVEyEMXh8vwgUd
-         i38ZfUgnYDAqAsJvNXK2qP4YSiMYgSteTGQrWnievyYadukbuOXHlstVDeokeZPD/0
-         4MagExqT/sjfcnd7IOezXJxLdX7zCDt//Z7fsvjY=
-Subject: FAILED: patch "[PATCH] tty: serial: lpuart: disable flow control while waiting for" failed to apply to 4.9-stable tree
+        b=yk2TAtohTY36OjtfYEFpz1HMUJzZgRuuPYBNu9WwT2pRxLYatf6cwntx7wNYn8p3+
+         TFAZiaj+4LA16ushLE6gqXb5idnsXnCi4iW0igSWSQqMzKY2qOn/850GmLzC50R+yK
+         10m3zWCK2fNfT3PAQPH85nYqsdOHveYCFjZn/Wkw=
+Subject: FAILED: patch "[PATCH] tty: serial: lpuart: disable flow control while waiting for" failed to apply to 4.14-stable tree
 To:     sherry.sun@nxp.com, gregkh@linuxfoundation.org, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 05 Sep 2022 17:54:37 +0200
-Message-ID: <166239327719106@kroah.com>
+Message-ID: <1662393277105103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
