@@ -2,54 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CF75AD85B
-	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 19:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F085AD866
+	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 19:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238036AbiIERYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 13:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57392 "EHLO
+        id S231811AbiIERcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 13:32:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238200AbiIERYv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 13:24:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB65EE0B2;
-        Mon,  5 Sep 2022 10:24:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CE0861452;
-        Mon,  5 Sep 2022 17:24:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B00C43148;
-        Mon,  5 Sep 2022 17:24:44 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="WX80YJUF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1662398682;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=15u8SZysQdXdnJ0Lhxhb3Ja9sWg70vq/vukI3EoVIq0=;
-        b=WX80YJUFndbD6GKX/JCaglZaFDQQlllHKAnS0EWVKGi53q5TARlxp6JoDCfd5vPH1yRd17
-        p8OHP7tYfTw9K9eMb/zK3mvIJ7N5hPCaR49XKz3cQo98KZRrLRhnQ+nGtVlKIu67DyCSiI
-        RDjuKft8TjBfyZRlY4WNGiQApKGXp1o=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 5c83de47 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Mon, 5 Sep 2022 17:24:42 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     linux-pm@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
-        "Rafael J . Wysocki" <rafael@kernel.org>
-Subject: [PATCH RESEND] power: supply: avoid nullptr deref in __power_supply_is_system_supplied
-Date:   Mon,  5 Sep 2022 19:24:28 +0200
-Message-Id: <20220905172428.105564-1-Jason@zx2c4.com>
-In-Reply-To: <CAJZ5v0js78b3qZXoxgXEwG7g0a7n_ALnEYjjzBGaQW7q4_ceCA@mail.gmail.com>
-References: <CAJZ5v0js78b3qZXoxgXEwG7g0a7n_ALnEYjjzBGaQW7q4_ceCA@mail.gmail.com>
+        with ESMTP id S236801AbiIERcm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 13:32:42 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 938245A3C8;
+        Mon,  5 Sep 2022 10:32:41 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id p16so18338646ejb.9;
+        Mon, 05 Sep 2022 10:32:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date;
+        bh=88RvRU4ThtDB+LtTsoJu6zAQGFmOnQzmalV+PKKcYX0=;
+        b=ZMjUlTSjsvyvuViz6o0KelDAws8H+GU3P5JZJHSaSzK1ZN0bLVMlIZx22d0MOS3Roz
+         JPn3o7AwgLfk357T3um0ofDEGl8sHhfWA3ZBRz3s1nSPZCALhoJCzXZoYhlUR/x5BVZ2
+         YIFFIjhWPZQqjeObY8SIYvORpaaDDmuj37g8UlWcoxOq0F8xm0AJwgXVEI0JjyQGD8up
+         dbVd7jCOdKllEYYRYD+mwvpMXF4o5FjZ6ANhqccofA+dP4S5bxXjRLoVDFoWBXRhX0IL
+         UsaI+Kg93WR8OlPi6SUztnVPDEUmv5VolL3eREhRiikKx1iSR2KdUxZjDCNs9TaZtKkB
+         0PQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+        bh=88RvRU4ThtDB+LtTsoJu6zAQGFmOnQzmalV+PKKcYX0=;
+        b=Gy0geq9QbYJsYc4O1oNpRv9zoteZve/7+DRkBQYzoeUSel0dePq4c0VPpdQ6BhiCZp
+         wG1yJRN0igXtUtWUAutkmtRZhk3rzMRDoiDxgg3jU9/KtcvUonSXhxURQzcncn0cECQy
+         jV8yNei8jxozKRxFja9FJm5OSrHbIbaO4qGrV8MYvL9HarBSgiemz0hPFP9XVMOILgdC
+         LMoPLDJVaIgvPz/qZRaVOfL5UBtRuq/0pCTRPdzcxzDf/ZC3TKnmghoPGYm8a9jzR0sN
+         R+gz7DDYyGGyxUhjH80WaT5qckvy5GDNrkPfVnuAfcqjDdgRwy+x1V419Hr+tDamQAn0
+         66RA==
+X-Gm-Message-State: ACgBeo3oG3ahyTBFxDy38nqa/JORWZ6JuXE5kqlWmS8kHhjGOzEyYhHF
+        L6ZmjJAVBXJCuve8wjQAWz2mIWXwCg==
+X-Google-Smtp-Source: AA6agR6XiECda7DbpsPoLOhCgSz7f263f954LjGex1UvoUKxY/0M+xypaz5mgANtg3gVFUU6x282AA==
+X-Received: by 2002:a17:907:728d:b0:731:8396:ea86 with SMTP id dt13-20020a170907728d00b007318396ea86mr36637006ejc.361.1662399160091;
+        Mon, 05 Sep 2022 10:32:40 -0700 (PDT)
+Received: from localhost.localdomain ([46.53.251.11])
+        by smtp.gmail.com with ESMTPSA id q37-20020a05640224a500b00448176872f7sm6766273eda.81.2022.09.05.10.32.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Sep 2022 10:32:38 -0700 (PDT)
+Date:   Mon, 5 Sep 2022 20:32:36 +0300
+From:   Alexey Dobriyan <adobriyan@gmail.com>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>
+Subject: Re: setns() affecting other threads in 5.10.132 and 6.0
+Message-ID: <YxYytPTFwYr7vBTo@localhost.localdomain>
+References: <d9f7a7d26eb5489e93742e57e55ebc02@AcuMS.aculab.com>
+ <fcf51181f86e417285a101059d559382@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <fcf51181f86e417285a101059d559382@AcuMS.aculab.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,118 +73,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix the following OOPS:
+On Mon, Sep 05, 2022 at 09:54:34AM +0000, David Laight wrote:
+> 7055197705709c59b8ab77e6a5c7d46d61edd96e
+> Author: Alexey Dobriyan <adobriyan@gmail.com>
+>     Cc: Al Viro <viro@zeniv.linux.org.uk>
+>     Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> c6c75deda813
+> 1fde6f21d90f
+> 
+> > -----Original Message-----
+> > From: David Laight <David.Laight@ACULAB.COM>
+> > Sent: 04 September 2022 15:05
+> > 
+> > Sometime after 5.10.105 (5.10.132 and 6.0) there is a change that
+> > makes setns(open("/proc/1/ns/net")) in the main process change
+> > the behaviour of other process threads.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 0 P4D 0
-Oops: 0010 [#1] PREEMPT SMP
-CPU: 14 PID: 1156 Comm: upowerd Tainted: G S   U             6.0.0-rc1+ #366
-Hardware name: LENOVO 20Y5CTO1WW/20Y5CTO1WW, BIOS N40ET36W (1.18 ) 07/19/2022
-RIP: 0010:0x0
-Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-RSP: 0018:ffff88815350bd08 EFLAGS: 00010212
-RAX: ffff88810207d620 RBX: ffff88815350bd7c RCX: 000000000000394e
-RDX: ffff88815350bd10 RSI: 0000000000000004 RDI: ffff888111722c00
-RBP: ffff88815350bd68 R08: ffff8881187a8af8 R09: ffff8881187a8af8
-R10: 0000000000000000 R11: 000000000000005f R12: ffffffff8162d0b0
-R13: ffff88810159a038 R14: ffffffff823b3768 R15: ffff88810159a000
-FS:  00007fd1f0958140(0000) GS:ffff88901f780000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 0000000152c7a004 CR4: 0000000000770ee0
-PKRU: 55555554
-Call Trace:
- <TASK>
- __power_supply_is_system_supplied+0x26/0x40
- class_for_each_device+0xa5/0xd0
- ? acpi_battery_get_state+0x4e/0x1f0
- power_supply_is_system_supplied+0x26/0x40
- acpi_battery_get_property+0x301/0x310
- power_supply_show_property+0xa5/0x1d0
- dev_attr_show+0x10/0x30
- sysfs_kf_seq_show+0x78/0xc0
- seq_read_iter+0xfd/0x3e0
- vfs_read+0x1cb/0x290
- ksys_read+0x4e/0xc0
- do_syscall_64+0x2b/0x50
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7fd1f0bed70c
-Code: ec 28 48 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 39 a4 f8 ff 41 89 c0 48 8b 54 24 18 48 8b 74 24 10 8b 7c 24 08 31 c0 0f 05 <48> 3d 00 f0 ff ff 77 34 44 89 c7 48 89 44 24 08 e8 8f a4 f8 ff 48
-RSP: 002b:00007ffc8d3f27e0 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fd1f0bed70c
-RDX: 0000000000001000 RSI: 000055957d534850 RDI: 000000000000000c
-RBP: 000055957d50b1d0 R08: 0000000000000000 R09: 0000000000001000
-R10: 000000000000006f R11: 0000000000000246 R12: 00007ffc8d3f2910
-R13: 0000000000000000 R14: 0000000000000000 R15: 000000000000000c
- </TASK>
+Not again...
 
-CR2: 0000000000000000
----[ end trace 0000000000000000 ]---
-RIP: 0010:0x0
-Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-RSP: 0018:ffff88815350bd08 EFLAGS: 00010212
-RAX: ffff88810207d620 RBX: ffff88815350bd7c RCX: 000000000000394e
-RDX: ffff88815350bd10 RSI: 0000000000000004 RDI: ffff888111722c00
-RBP: ffff88815350bd68 R08: ffff8881187a8af8 R09: ffff8881187a8af8
-R10: 0000000000000000 R11: 000000000000005f R12: ffffffff8162d0b0
-R13: ffff88810159a038 R14: ffffffff823b3768 R15: ffff88810159a000
-FS:  00007fd1f0958140(0000) GS:ffff88901f780000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 0000000152c7a004 CR4: 0000000000770ee0
+> > I don't know how much is broken, but the following fails.
+> > 
+> > Create a network namespace (eg "test").
+> > Create a 'bond' interface (eg "test0") in the namespace.
+> > 
+> > Then /proc/net/bonding/test0 only exists inside the namespace.
+> > 
+> > However if you run a program in the "test" namespace that does:
+> > - create a thread.
+> > - change the main thread to in "init" namespace.
+> > - try to open /proc/net/bonding/test0 in the thread.
+> > then the open fails.
+> > 
+> > I don't know how much else is affected and haven't tried
+> > to bisect (I can't create bonds on my normal test kernel).
+> 
+> I've now bisected it.
+> Prior to change 7055197705709c59b8ab77e6a5c7d46d61edd96e
+>     proc: fix dentry/inode overinstantiating under /proc/${pid}/net
+> the setns() had no effect of either thread.
+> Afterwards both threads see the entries in the init namespace.
+> 
+> However I think that in 5.10.105 the setns() did affect
+> the thread it was run in.
+> That might be the behaviour before c6c75deda813.
+>     proc: fix lookup in /proc/net subdirectories after setns(2)
+> 
+> There is also the earlier 1fde6f21d90f
+>     proc: fix /proc/net/* after setns(2)
+> 
+> From the commit messages it does look as though setns() should
+> change what is seen, but just for the current thread.
+> So it is currently broken - and has been since 5.18.0-rc4
+> and whichever stable branches the change was backported to.
+> 
+> 	David
+> 
+> > 
+> > The test program below shows the problem.
+> > Compile and run as:
+> > # ip netns exec test strace -f test_prog /proc/net/bonding/test0
+> > 
+> > The second open by the child should succeed, but fails.
+> > 
+> > I can't see any changes to the bonding code, so I suspect
+> > it is something much more fundamental.
+> > It might only affect /proc/net, but it might also affect
+> > which namespace sockets get created in.
 
-The disassembly of the top function in the stack trace is:
+How? setns(2) acts on "current", and sockets are created from
+current->nsproxy->net_ns?
 
-.text:0000000000000000 __power_supply_is_system_supplied proc near
-.text:0000000000000000                                         ; DATA XREF: power_supply_is_system_supplied+12↓o
-.text:0000000000000000
-.text:0000000000000000 var_8           = qword ptr -8
-.text:0000000000000000
-.text:0000000000000000                 sub     rsp, 8
-.text:0000000000000004                 mov     rdi, [rdi+78h]
-.text:0000000000000008                 inc     dword ptr [rsi]
-.text:000000000000000A                 mov     [rsp+8+var_8], 0
-.text:0000000000000012                 mov     rax, [rdi]
-.text:0000000000000015                 cmp     dword ptr [rax+8], 1
-.text:0000000000000019                 jz      short loc_2A
-.text:000000000000001B                 mov     rdx, rsp
-.text:000000000000001E                 mov     esi, 4
-.text:0000000000000023                 call    qword ptr [rax+30h]
-.text:0000000000000026                 test    eax, eax
-.text:0000000000000028                 jz      short loc_31
-.text:000000000000002A
-.text:000000000000002A loc_2A:                                 ; CODE XREF: __power_supply_is_system_supplied+19↑j
-.text:000000000000002A                 xor     eax, eax
-.text:000000000000002C                 add     rsp, 8
-.text:0000000000000030                 retn
-.text:0000000000000031 ; ---------------------------------------------------------------------------
-.text:0000000000000031
-.text:0000000000000031 loc_31:                                 ; CODE XREF: __power_supply_is_system_supplied+28↑j
-.text:0000000000000031                 mov     eax, dword ptr [rsp+8+var_8]
-.text:0000000000000034                 add     rsp, 8
-.text:0000000000000038                 retn
-.text:0000000000000038 __power_supply_is_system_supplied endp
+> > IIRC ls -l /proc/n/task/*/ns gives the correct namespaces.
 
-So presumably `call    qword ptr [rax+30h]` is jumping to NULL.
+> > 
+> > 	David
+> > 
+> > 
+> > #define _GNU_SOURCE
+> > 
+> > #include <fcntl.h>
+> > #include <unistd.h>
+> > #include <poll.h>
+> > #include <pthread.h>
+> > #include <sched.h>
+> > 
+> > #define delay(secs) poll(0,0, (secs) * 1000)
+> > 
+> > static void *thread_fn(void *file)
+> > {
+> >         delay(2);
+> >         open(file, O_RDONLY);
+> > 
+> >         delay(5);
+> >         open(file, O_RDONLY);
+> > 
+> >         return NULL;
+> > }
+> > 
+> > int main(int argc, char **argv)
+> > {
+> >         pthread_t id;
+> > 
+> >         pthread_create(&id, NULL, thread_fn, argv[1]);
+> > 
+> >         delay(1);
+> >         open(argv[1], O_RDONLY);
+> > 
+> >         delay(2);
+> >         setns(open("/proc/1/ns/net", O_RDONLY), 0);
+> > 
+> >         delay(1);
+> >         open(argv[1], O_RDONLY);
+> > 
+> >         delay(4);
+> > 
+> >         return 0;
+> > }
 
-Cc: stable@vger.kernel.org
-Acked-by: Rafael J. Wysocki <rafael@kernel.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- drivers/power/supply/power_supply_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Can you test before this one? This is where it all started.
 
-diff --git a/drivers/power/supply/power_supply_core.c b/drivers/power/supply/power_supply_core.c
-index 4b5fb172fa99..aa4c97f11588 100644
---- a/drivers/power/supply/power_supply_core.c
-+++ b/drivers/power/supply/power_supply_core.c
-@@ -349,7 +349,7 @@ static int __power_supply_is_system_supplied(struct device *dev, void *data)
- 	unsigned int *count = data;
- 
- 	(*count)++;
--	if (psy->desc->type != POWER_SUPPLY_TYPE_BATTERY)
-+	if (psy->desc->type != POWER_SUPPLY_TYPE_BATTERY && psy->desc->get_property)
- 		if (!psy->desc->get_property(psy, POWER_SUPPLY_PROP_ONLINE,
- 					&ret))
- 			return ret.intval;
--- 
-2.37.3
+	commit 1da4d377f943fe4194ffb9fb9c26cc58fad4dd24
+	Author: Alexey Dobriyan <adobriyan@gmail.com>
+	Date:   Fri Apr 13 15:35:42 2018 -0700
 
+	    proc: revalidate misc dentries
