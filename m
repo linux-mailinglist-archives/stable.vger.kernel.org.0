@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B955AD6C8
-	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 17:44:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BFAB5AD6F0
+	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 17:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237401AbiIEPoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 11:44:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34944 "EHLO
+        id S229797AbiIEPyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 11:54:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237921AbiIEPoE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 11:44:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A90E44541
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 08:44:03 -0700 (PDT)
+        with ESMTP id S229897AbiIEPyn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 11:54:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55044B1EB
+        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 08:54:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D127AB811F0
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 15:44:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CEC2C433D6;
-        Mon,  5 Sep 2022 15:44:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F099B811F3
+        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 15:54:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 724F4C433C1;
+        Mon,  5 Sep 2022 15:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662392640;
-        bh=pijMKLV4ubw2HdOfkl5tqCfCtPsg0iOkgXtkX0oFvcg=;
+        s=korg; t=1662393279;
+        bh=0JP9GgWU62jkTUBSdqC5SGvVMnljyyAFqzLavP7gm/U=;
         h=Subject:To:Cc:From:Date:From;
-        b=1cksfYzhZwbC9gkILe2Jn29zwf3Hfltth+gg+ILJ2/4bNIjM5fCZSy3IuwYX1jY3Z
-         z3AP/zWtU6G7t/6QPVNdeAM04JeFUftnRMhL3118yiVyEhpJ+KSF15nY5/uhv0d8Ln
-         4enTfDWIPT1S9YETHBqf0Q1T4kznU6nlMGyEgH3o=
-Subject: FAILED: patch "[PATCH] tty: serial: atmel: Preserve previous USART mode if RS485" failed to apply to 4.19-stable tree
-To:     sergiu.moga@microchip.com, gregkh@linuxfoundation.org,
-        ilpo.jarvinen@linux.intel.com, stable@kernel.org
+        b=MELMr0YSJoclB5rN4gfV1M+W2PbZlbvLa+tl6FxJyiTctQqzy5tFTllpxfn9HY906
+         AgVmrIheHzOmlQxrmTt3TzUm3CazCRkK5aXybbTFw9s6hTrmiSq7e0sspBVQB7wiEu
+         raMK+gaXSGGaLBd7fQnPsfFlZuV/IeNCsmZVhLlY=
+Subject: FAILED: patch "[PATCH] tty: serial: lpuart: disable flow control while waiting for" failed to apply to 4.19-stable tree
+To:     sherry.sun@nxp.com, gregkh@linuxfoundation.org, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Sep 2022 17:43:48 +0200
-Message-ID: <1662392628176130@kroah.com>
+Date:   Mon, 05 Sep 2022 17:54:36 +0200
+Message-ID: <16623932768494@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,68 +59,34 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 692a8ebcfc24f4a5bea0eb2967e450f584193da6 Mon Sep 17 00:00:00 2001
-From: Sergiu Moga <sergiu.moga@microchip.com>
-Date: Wed, 24 Aug 2022 17:29:03 +0300
-Subject: [PATCH] tty: serial: atmel: Preserve previous USART mode if RS485
- disabled
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From d5a2e0834364377a5d5a2fff1890a0b3f0bafd1f Mon Sep 17 00:00:00 2001
+From: Sherry Sun <sherry.sun@nxp.com>
+Date: Sun, 21 Aug 2022 18:15:27 +0800
+Subject: [PATCH] tty: serial: lpuart: disable flow control while waiting for
+ the transmit engine to complete
 
-Whenever the atmel_rs485_config() driver method would be called,
-the USART mode is reset to normal mode before even checking if
-RS485 flag is set, thus resulting in losing the previous USART
-mode in the case where the checking fails.
+When the user initializes the uart port, and waits for the transmit
+engine to complete in lpuart32_set_termios(), if the UART TX fifo has
+dirty data and the UARTMODIR enable the flow control, the TX fifo may
+never be empty. So here we should disable the flow control first to make
+sure the transmit engin can complete.
 
-Some tools, such as `linux-serial-test`, lead to the driver calling
-this method when doing the setup of the serial port: after setting the
-port mode (Hardware Flow Control, Normal Mode, RS485 Mode, etc.),
-`linux-serial-test` tries to enable/disable RS485 depending on
-the commandline arguments that were passed.
-
-Example of how this issue could reveal itself:
-When doing a serial communication with Hardware Flow Control through
-`linux-serial-test`, the tool would lead to the driver roughly doing
-the following:
-- set the corresponding bit to 1 (ATMEL_US_USMODE_HWHS bit in the
-ATMEL_US_MR register) through the atmel_set_termios() to enable
-Hardware Flow Control
-- disable RS485 through the atmel_config_rs485() method
-Thus, when the latter is called, the mode will be reset and the
-previously set bit is unset, leaving USART in normal mode instead of
-the expected Hardware Flow Control mode.
-
-This fix ensures that this reset is only done if the checking for
-RS485 succeeds and that the previous mode is preserved otherwise.
-
-Fixes: e8faff7330a35 ("ARM: 6092/1: atmel_serial: support for RS485 communications")
+Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
 Cc: stable <stable@kernel.org>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Sergiu Moga <sergiu.moga@microchip.com>
-Link: https://lore.kernel.org/r/20220824142902.502596-1-sergiu.moga@microchip.com
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20220821101527.10066-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
-index 30ba9eef7b39..7450d3853031 100644
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -294,9 +294,6 @@ static int atmel_config_rs485(struct uart_port *port, struct ktermios *termios,
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index e9ba0f0bd441..b20f6f2fa51c 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2191,6 +2191,7 @@ lpuart32_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	uart_update_timeout(port, termios->c_cflag, baud);
  
- 	mode = atmel_uart_readl(port, ATMEL_US_MR);
+ 	/* wait transmit engin complete */
++	lpuart32_write(&sport->port, 0, UARTMODIR);
+ 	lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
  
--	/* Resetting serial mode to RS232 (0x0) */
--	mode &= ~ATMEL_US_USMODE;
--
- 	if (rs485conf->flags & SER_RS485_ENABLED) {
- 		dev_dbg(port->dev, "Setting UART to RS485\n");
- 		if (rs485conf->flags & SER_RS485_RX_DURING_TX)
-@@ -306,6 +303,7 @@ static int atmel_config_rs485(struct uart_port *port, struct ktermios *termios,
- 
- 		atmel_uart_writel(port, ATMEL_US_TTGR,
- 				  rs485conf->delay_rts_after_send);
-+		mode &= ~ATMEL_US_USMODE;
- 		mode |= ATMEL_US_USMODE_RS485;
- 	} else {
- 		dev_dbg(port->dev, "Setting UART to RS232\n");
+ 	/* disable transmit and receive */
 
