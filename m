@@ -2,382 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 271A05ADBF8
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 01:50:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4EB55ADC08
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 01:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230425AbiIEXun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 19:50:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48198 "EHLO
+        id S232634AbiIEXyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 19:54:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229546AbiIEXul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 19:50:41 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E3682CDFE
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 16:50:40 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id f24so9700004plr.1
-        for <stable@vger.kernel.org>; Mon, 05 Sep 2022 16:50:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=ZaTJ/u9q3mDE459JKlR/LD9u2a5Vzqhu56bkMj/BEMM=;
-        b=ciSlESOujDNconq3uwTzmdJ04Flag4/z+jisigaAgq0weVjLK3kxQstOaf0cl9493c
-         6/rvfmlvkSOf2gvtQEF6qOtWKnyv/O0yymUdQL71OWOcahFfbMF5VtHBoW5fFc4R2bpr
-         hpbT0DtetVaK1pgLLvoc6qJoHhyKuqFdox46pNRcaN8aG49Bkk3rMAsz89/1AKypGYck
-         fIZhnbQ9bBS3akwheo3nSV8TcsJOdz/eb1ZLaevaawRwyLESEntnmCcPY0Euw60C4mAQ
-         FnlBnjMF2vAKwtchB6GEKnI3xPp5ohxxPe5//RGbjr3JA9lA7hakhp5oBvG1wdYZAiNP
-         ls0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=ZaTJ/u9q3mDE459JKlR/LD9u2a5Vzqhu56bkMj/BEMM=;
-        b=zTHQ1mnqspfpDVkGgFlp3NipigFvdTn5xNQO25H26NZwhmY7Mtg47n3pvaKOH3W6Ep
-         7rqeGePvCOI20wUyDg2eUvIGN7NNMv6aS116+jPYMtEqrhpm9P41JutgS8QSMiPVPST2
-         E376+8sDn5H47nvtGnC991dENd/m8+9ZPMozlhm77Q2czAvQ/LsOgoeqvp6DJF8FTYDO
-         g3Fn01JoROuMP7lbW27XOnox7dGaTuJkuabsmr1Gah9SjYojAUbOEFqBR9MQSNsfxwFD
-         IKoyJkBo79y+lCTdPgRIUwYcWte14/9yTxy74P0RwItTbYjFRrlm+jAlYIFDScNPhehJ
-         VX2A==
-X-Gm-Message-State: ACgBeo3jiaK6rd401/thBy3phYzGM5Pq2uxLnLZPyBPkw3uPVlqlWs0r
-        5iqH20vBm4mBObn5TVU77ElYDHGjRjRazM8hnbg=
-X-Google-Smtp-Source: AA6agR4ZdaoUDkZvzVG/AmIkPzdsLUCNNyueSUj8BvzZHsdQJDs07QHAIsE85fmwpSWSJ9SBhirIGg==
-X-Received: by 2002:a17:902:c209:b0:175:1a78:a170 with SMTP id 9-20020a170902c20900b001751a78a170mr34037157pll.45.1662421839497;
-        Mon, 05 Sep 2022 16:50:39 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y7-20020a1709029b8700b0016dbe37cebdsm8089911plp.246.2022.09.05.16.50.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Sep 2022 16:50:39 -0700 (PDT)
-Message-ID: <63168b4f.170a0220.7d0ae.c5ea@mx.google.com>
-Date:   Mon, 05 Sep 2022 16:50:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232432AbiIEXyh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 19:54:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E54BFE00C;
+        Mon,  5 Sep 2022 16:54:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AB1660EBD;
+        Mon,  5 Sep 2022 23:54:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50579C433C1;
+        Mon,  5 Sep 2022 23:54:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662422067;
+        bh=vvuMPl31A2NsTLseaVjxryl65N/xiu0DmIwNE5n8IGU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=sJqlItyapxrefZztsXaWBQvXBxOeula1KpJqHpWooIPapa8Yl61M4yjv+XNf4w9ao
+         9HyriwP9UOQ4x/j7vJb5ABM2KUia5XQe+asr1R+AwdALzHl7kkTnRIHa7QOtW5mJBX
+         Ke22+fIg7MzEdyxoz8L/0yEt6uLY6vwMePcoOW/knL65oZeHFXCTRn2QfPn3uQaWY0
+         9zKQIHWegNhYqnoWrY8p6O2ISw6danXOlq97g1KE+OuyorFtO73D7027PGY3RQ4YWa
+         oKy2Pc3rRhuAUQOjM57wf9sf2vkscIN89ZynoXeBvL4bibmSgZfSR8VHo3erWzTKxv
+         Ohl7QK97BeIvg==
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     linux-sgx@vger.kernel.org
+Cc:     Haitao Huang <haitao.huang@linux.intel.com>,
+        Vijay Dhanraj <vijay.dhanraj@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org (open list:X86 ARCHITECTURE (32-BIT AND
+        64-BIT))
+Subject: [PATCH v2 1/2] x86/sgx: Do not fail on incomplete sanitization on premature stop of ksgxd
+Date:   Tue,  6 Sep 2022 02:54:14 +0300
+Message-Id: <20220905235415.9519-2-jarkko@kernel.org>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20220905235415.9519-1-jarkko@kernel.org>
+References: <20220905235415.9519-1-jarkko@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.18
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.19-1-g1330c8c8f8f63
-Subject: stable-rc/queue/5.18 baseline: 200 runs,
- 7 regressions (v5.18.19-1-g1330c8c8f8f63)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.18 baseline: 200 runs, 7 regressions (v5.18.19-1-g1330c8c=
-8f8f63)
+Unsanitized pages trigger WARN_ON() unconditionally, which can panic the
+whole computer, if /proc/sys/kernel/panic_on_warn is set.
+
+In sgx_init(), if misc_register() fails or misc_register() succeeds but
+neither sgx_drv_init() nor sgx_vepc_init() succeeds, then ksgxd will be
+prematurely stopped. This may leave unsanitized pages, which will result a
+false warning.
+
+Refine __sgx_sanitize_pages() to return:
+
+1. Zero when the sanitization process is complete or ksgxd has been
+   requested to stop.
+2. The number of unsanitized pages otherwise.
+
+Use the return value as the criteria for triggering output, and tone down
+the output to pr_err() to prevent the whole system to be taken down if for
+some reason sanitization process does not complete.
+
+Link: https://lore.kernel.org/linux-sgx/20220825051827.246698-1-jarkko@kernel.org/T/#u
+Fixes: 51ab30eb2ad4 ("x86/sgx: Replace section->init_laundry_list with sgx_dirty_page_list")
+Cc: stable@vger.kernel.org # v5.13+
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+v8:
+- Discard changes that are not relevant for the stable fix. This
+  does absolutely minimum to address the bug:
+  https://lore.kernel.org/linux-sgx/a5fa56bdc57d6472a306bd8d795afc674b724538.camel@intel.com/
+
+v7:
+- Rewrote commit message.
+- Do not return -ECANCELED on premature stop. Instead use zero both
+  premature stop and complete sanitization.
+
+v6:
+- Address Reinette's feedback:
+  https://lore.kernel.org/linux-sgx/Yw6%2FiTzSdSw%2FY%2FVO@kernel.org/
+
+v5:
+- Add the klog dump and sysctl option to the commit message.
+
+v4:
+- Explain expectations for dirty_page_list in the function header, instead
+  of an inline comment.
+- Improve commit message to explain the conditions better.
+- Return the number of pages left dirty to ksgxd() and print warning after
+  the 2nd call, if there are any.
+
+v3:
+- Remove WARN_ON().
+- Tuned comments and the commit message a bit.
+
+v2:
+- Replaced WARN_ON() with optional pr_info() inside
+  __sgx_sanitize_pages().
+- Rewrote the commit message.
+- Added the fixes tag.
+---
+ arch/x86/kernel/cpu/sgx/main.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
+index 515e2a5f25bb..2ec2d7b7da54 100644
+--- a/arch/x86/kernel/cpu/sgx/main.c
++++ b/arch/x86/kernel/cpu/sgx/main.c
+@@ -49,9 +49,13 @@ static LIST_HEAD(sgx_dirty_page_list);
+  * Reset post-kexec EPC pages to the uninitialized state. The pages are removed
+  * from the input list, and made available for the page allocator. SECS pages
+  * prepending their children in the input list are left intact.
++ *
++ * Return 0 when sanitization was successful or kthread was stopped, and the
++ * number of unsanitized pages otherwise.
+  */
+-static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
++static unsigned long __sgx_sanitize_pages(struct list_head *dirty_page_list)
+ {
++	unsigned long left_dirty = 0;
+ 	struct sgx_epc_page *page;
+ 	LIST_HEAD(dirty);
+ 	int ret;
+@@ -59,7 +63,7 @@ static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
+ 	/* dirty_page_list is thread-local, no need for a lock: */
+ 	while (!list_empty(dirty_page_list)) {
+ 		if (kthread_should_stop())
+-			return;
++			return 0;
+ 
+ 		page = list_first_entry(dirty_page_list, struct sgx_epc_page, list);
+ 
+@@ -92,12 +96,14 @@ static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
+ 		} else {
+ 			/* The page is not yet clean - move to the dirty list. */
+ 			list_move_tail(&page->list, &dirty);
++			left_dirty++;
+ 		}
+ 
+ 		cond_resched();
+ 	}
+ 
+ 	list_splice(&dirty, dirty_page_list);
++	return left_dirty;
+ }
+ 
+ static bool sgx_reclaimer_age(struct sgx_epc_page *epc_page)
+@@ -388,6 +394,8 @@ void sgx_reclaim_direct(void)
+ 
+ static int ksgxd(void *p)
+ {
++	unsigned long left_dirty;
++
+ 	set_freezable();
+ 
+ 	/*
+@@ -395,10 +403,7 @@ static int ksgxd(void *p)
+ 	 * required for SECS pages, whose child pages blocked EREMOVE.
+ 	 */
+ 	__sgx_sanitize_pages(&sgx_dirty_page_list);
+-	__sgx_sanitize_pages(&sgx_dirty_page_list);
+-
+-	/* sanity check: */
+-	WARN_ON(!list_empty(&sgx_dirty_page_list));
++	WARN_ON(__sgx_sanitize_pages(&sgx_dirty_page_list));
+ 
+ 	while (!kthread_should_stop()) {
+ 		if (try_to_freeze())
+-- 
+2.37.2
 
-Regressions Summary
--------------------
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-bcm2835-rpi-b-rev2 | arm    | lab-broonie     | gcc-10   | bcm2835_defconfi=
-g            | 1          =
-
-bcm2836-rpi-2-b    | arm    | lab-collabora   | gcc-10   | bcm2835_defconfi=
-g            | 1          =
-
-beagle-xm          | arm    | lab-baylibre    | gcc-10   | omap2plus_defcon=
-fig          | 1          =
-
-hp-11A-G6-EE-grunt | x86_64 | lab-collabora   | gcc-10   | x86_64_defcon...=
-6-chromebook | 1          =
-
-imx6ul-pico-hobbit | arm    | lab-pengutronix | gcc-10   | multi_v7_defconf=
-ig           | 1          =
-
-odroid-xu3         | arm    | lab-collabora   | gcc-10   | exynos_defconfig=
-             | 1          =
-
-rk3288-veyron-jaq  | arm    | lab-collabora   | gcc-10   | multi_v7_defconf=
-ig           | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
-nel/v5.18.19-1-g1330c8c8f8f63/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.18
-  Describe: v5.18.19-1-g1330c8c8f8f63
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1330c8c8f8f63a2ee2b7c08b6052851a15ff466b =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-bcm2835-rpi-b-rev2 | arm    | lab-broonie     | gcc-10   | bcm2835_defconfi=
-g            | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63165322600dbae518355642
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-=
-rpi-b-rev2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-=
-rpi-b-rev2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63165322600dbae518355=
-643
-        failing since 20 days (last pass: v5.18.16-7-g7fc5e6c7e4db1, first =
-fail: v5.18.17-1094-g906dae830019d) =
-
- =
-
-
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-bcm2836-rpi-2-b    | arm    | lab-collabora   | gcc-10   | bcm2835_defconfi=
-g            | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6316531521fe66175b35566d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/bcm2835_defconfig/gcc-10/lab-collabora/baseline-bcm283=
-6-rpi-2-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/bcm2835_defconfig/gcc-10/lab-collabora/baseline-bcm283=
-6-rpi-2-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6316531521fe66175b355=
-66e
-        failing since 21 days (last pass: v5.18.17-134-g620d3eac5bbd1, firs=
-t fail: v5.18.17-1078-g5c55e4c4afa02) =
-
- =
-
-
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-beagle-xm          | arm    | lab-baylibre    | gcc-10   | omap2plus_defcon=
-fig          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/631659745c6d92377e35567e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/631659745c6d92377e355=
-67f
-        new failure (last pass: v5.18.18-6-gad8a0ac8e472) =
-
- =
-
-
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-hp-11A-G6-EE-grunt | x86_64 | lab-collabora   | gcc-10   | x86_64_defcon...=
-6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/631654617004450332355659
-
-  Results:     18 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
-a/baseline-hp-11A-G6-EE-grunt.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
-a/baseline-hp-11A-G6-EE-grunt.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.tpm-chip-is-online: https://kernelci.org/test/case/id/6=
-3165461700445033235566c
-        new failure (last pass: v5.18.18-6-gad8a0ac8e472)
-
-    2022-09-05T19:55:52.219378  /usr/bin/tpm2_getcap
-    2022-09-05T19:55:52.244544  ERROR:tcti:src/tss2-tcti/tcti-device.c:286:=
-tcti_device_receive() Failed to read response from fd 3, got errno 14: Bad =
-address =
-
-    2022-09-05T19:55:52.253131  ERROR:esys:src/tss2-esys/api/Esys_GetCapabi=
-lity.c:307:Esys_GetCapability_Finish() Received a non-TPM Error =
-
-    2022-09-05T19:55:52.263453  ERROR:esys:src/tss2-esys/api/Esys_GetCapabi=
-lity.c:107:Esys_GetCapability() Esys Finish ErrorCode (0x000a000a) =
-
-    2022-09-05T19:55:52.266399  ERROR: Esys_GetCapability(0xA000A) - tcti:I=
-O failure
-    2022-09-05T19:55:52.269216  ERROR: Unable to run tpm2_getcap
-    2022-09-05T19:55:53.265152  ERROR:tcti:src/tss2-tcti/tcti-device.c:286:=
-tcti_device_receive() Failed to read response from fd 3, got errno 14: Bad =
-address =
-
-    2022-09-05T19:55:53.273712  ERROR:esys:src/tss2-esys/api/Esys_GetCapabi=
-lity.c:307:Esys_GetCapability_Finish() Received a non-TPM Error =
-
-    2022-09-05T19:55:53.284694  ERROR:esys:src/tss2-esys/api/Esys_GetCapabi=
-lity.c:107:Esys_GetCapability() Esys Finish ErrorCode (0x000a000a) =
-
-    2022-09-05T19:55:53.288260  ERROR: Esys_GetCapability(0xA000A) - tcti:I=
-O failure =
-
-    ... (42 line(s) more)  =
-
- =
-
-
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-imx6ul-pico-hobbit | arm    | lab-pengutronix | gcc-10   | multi_v7_defconf=
-ig           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63165b3987ca1bf3ec355659
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63165b3987ca1bf3ec355=
-65a
-        failing since 61 days (last pass: v5.18.9-96-g91cfa3d0b94d, first f=
-ail: v5.18.9-102-ga6b8287ea0b9) =
-
- =
-
-
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-odroid-xu3         | arm    | lab-collabora   | gcc-10   | exynos_defconfig=
-             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6316541ad7cbd5ab7535565d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: exynos_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/exynos_defconfig/gcc-10/lab-collabora/baseline-odroid-=
-xu3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/exynos_defconfig/gcc-10/lab-collabora/baseline-odroid-=
-xu3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6316541ad7cbd5ab75355=
-65e
-        failing since 23 days (last pass: v5.18.17-41-g6a725335d402d, first=
- fail: v5.18.17-134-g620d3eac5bbd1) =
-
- =
-
-
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-rk3288-veyron-jaq  | arm    | lab-collabora   | gcc-10   | multi_v7_defconf=
-ig           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/631665257decad72c9355652
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.19-=
-1-g1330c8c8f8f63/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/631665257decad72c9355=
-653
-        failing since 21 days (last pass: v5.18.17-134-g620d3eac5bbd1, firs=
-t fail: v5.18.17-1078-g5c55e4c4afa02) =
-
- =20
