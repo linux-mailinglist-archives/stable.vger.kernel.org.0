@@ -2,62 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 691735ACC4E
-	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 09:28:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A28DE5ACCED
+	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 09:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237556AbiIEHSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 03:18:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60708 "EHLO
+        id S236366AbiIEHmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 03:42:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237323AbiIEHSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 03:18:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15ACA4CA0C;
-        Mon,  5 Sep 2022 00:12:48 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0183B80EA6;
-        Mon,  5 Sep 2022 07:11:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47571C433C1;
-        Mon,  5 Sep 2022 07:11:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662361881;
-        bh=KEeK/plLeSx5m/ZM2c1u6quOMC2MIqanMz4aSL/KzLw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jgJJNvLPNFuIfmP5WdeYTMTprXhJFyVqbsfpqFrxvhltGKVV9gVpE/On6qmPzuCZC
-         Y1+kI10KrGk+nIvcTVm6FWQetNFpOnckro2JbPCqGX4hpQOrbNsoqMyzw0xKVIpEWi
-         t4uEQGQD0x+b3wB3pEeyQr1RhAjSd6n/m8oWnkDM=
-Date:   Mon, 5 Sep 2022 09:11:18 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Eric Dumazet <edumazet@google.com>
-Subject: Re: setns() affecting other threads in 5.10.132 and 6.0
-Message-ID: <YxWhFuwM1y28ZRGf@kroah.com>
-References: <d9f7a7d26eb5489e93742e57e55ebc02@AcuMS.aculab.com>
+        with ESMTP id S236065AbiIEHme (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 03:42:34 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A15E022290;
+        Mon,  5 Sep 2022 00:42:31 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 202F31C0004; Mon,  5 Sep 2022 09:42:29 +0200 (CEST)
+Date:   Mon, 5 Sep 2022 09:42:28 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 00/31] 4.9.327-rc1 review
+Message-ID: <20220905074228.GA14983@duo.ucw.cz>
+References: <20220902121356.732130937@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
 Content-Disposition: inline
-In-Reply-To: <d9f7a7d26eb5489e93742e57e55ebc02@AcuMS.aculab.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220902121356.732130937@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 04, 2022 at 02:05:20PM +0000, David Laight wrote:
-> Sometime after 5.10.105 (5.10.132 and 6.0) there is a change that
-> makes setns(open("/proc/1/ns/net")) in the main process change
-> the behaviour of other process threads.
 
-Can you use 'git bisect' to find the offending commit?
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+Hi!
 
-greg k-h
+> This is the start of the stable review cycle for the 4.9.327 release.
+> There are 31 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+
+CIP testing did not find any problems here:                                =
+           =20
+                                                                           =
+           =20
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.9.y      =20
+                                                                           =
+           =20
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>                              =
+           =20
+                                                                           =
+           =20
+Best regards,                                                              =
+           =20
+                                                                Pavel      =
+           =20
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYxWoZAAKCRAw5/Bqldv6
+8s/EAJ92/Q6Eh6E5ebNJetOLumH0kduuLQCcCjj+hWDarFP/f6s57o2BHfhBCqk=
+=Qte1
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--
