@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E2B25AD6FB
-	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 17:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BD875AD705
+	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 17:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230447AbiIEP4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 11:56:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
+        id S231558AbiIEP7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 11:59:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230043AbiIEP43 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 5 Sep 2022 11:56:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62E457556
-        for <Stable@vger.kernel.org>; Mon,  5 Sep 2022 08:56:28 -0700 (PDT)
+        with ESMTP id S230043AbiIEP7M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 11:59:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1272712616
+        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 08:59:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5644A6132F
-        for <Stable@vger.kernel.org>; Mon,  5 Sep 2022 15:56:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 632E6C433D6;
-        Mon,  5 Sep 2022 15:56:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA7CAB81201
+        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 15:59:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16731C433C1;
+        Mon,  5 Sep 2022 15:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662393387;
-        bh=o558+5cWEfA0C+dG3iDNa/lAceYL70HgtkHRi03dfWY=;
+        s=korg; t=1662393549;
+        bh=K8irKvhFKFNAIzyGN+nplpH75F0JNplKKZFFXWH/5jw=;
         h=Subject:To:Cc:From:Date:From;
-        b=GuTzRpzmVrsXUSFhrHzETCCzTnsVhx6FSJcjRoePYzISszx6afPfQku8Ry+/VEIjf
-         J+9mkWHrcEYcgS9ClTbApODwLQHCFYHVfxT3sGFrGnW7HhnM3yWZqIhj8PdsTPfcMT
-         DVJzSV3Q3eKvqxE4uiP5Xjin3uR5XG1GScFMpwS8=
-Subject: FAILED: patch "[PATCH] iio: adc: mcp3911: correct "microchip,device-addr" property" failed to apply to 5.10-stable tree
-To:     marcus.folkesson@gmail.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, andy.shevchenko@gmail.com
+        b=V0ql+CtTDlcFQxYQ1DNDsxYcw4PJZSho0V5L24ZT9tM2iuW29UnO/8/l8o/mKvRIk
+         ibj8BJTinbgNsj8G3UlgNJ5N0yjNHxBcb3Z8dzrVzFnIFyyZwD+3gZyKPkTIr0ySq4
+         KRLINMgmsU5ueKH+7UxgkBCsEw4GHFdWd3W/GM3Q=
+Subject: FAILED: patch "[PATCH] mmc: core: Fix UHS-I SD 1.8V workaround branch" failed to apply to 5.10-stable tree
+To:     adrian.hunter@intel.com, sh043.lee@samsung.com,
+        ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 05 Sep 2022 17:56:13 +0200
-Message-ID: <16623933732388@kroah.com>
+Date:   Mon, 05 Sep 2022 17:59:06 +0200
+Message-ID: <166239354678155@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,38 +60,54 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cfbd76d5c9c449739bb74288d982bccf9ff822f4 Mon Sep 17 00:00:00 2001
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Date: Fri, 22 Jul 2022 15:07:19 +0200
-Subject: [PATCH] iio: adc: mcp3911: correct "microchip,device-addr" property
+From 15c56208c79c340686869c31595c209d1431c5e8 Mon Sep 17 00:00:00 2001
+From: Adrian Hunter <adrian.hunter@intel.com>
+Date: Mon, 15 Aug 2022 10:33:20 +0300
+Subject: [PATCH] mmc: core: Fix UHS-I SD 1.8V workaround branch
 
-Go for the right property name that is documented in the bindings.
+When introduced, upon success, the 1.8V fixup workaround in
+mmc_sd_init_card() would branch to practically the end of the function, to
+a label named "done". Unfortunately, perhaps due to the label name, over
+time new code has been added that really should have come after "done" not
+before it. Let's fix the problem by moving the label to the correct place
+and rename it "cont".
 
-Fixes: 3a89b289df5d ("iio: adc: add support for mcp3911")
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220722130726.7627-3-marcus.folkesson@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 045d705dc1fb ("mmc: core: Enable the MMC host software queue for the SD card")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Seunghui Lee <sh043.lee@samsung.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220815073321.63382-2-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-diff --git a/drivers/iio/adc/mcp3911.c b/drivers/iio/adc/mcp3911.c
-index f581cefb6719..f8875076ae80 100644
---- a/drivers/iio/adc/mcp3911.c
-+++ b/drivers/iio/adc/mcp3911.c
-@@ -210,7 +210,14 @@ static int mcp3911_config(struct mcp3911 *adc)
- 	u32 configreg;
- 	int ret;
+diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
+index cee4c0b59f43..bc84d7dfc8e1 100644
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -1498,7 +1498,7 @@ static int mmc_sd_init_card(struct mmc_host *host, u32 ocr,
+ 					mmc_remove_card(card);
+ 				goto retry;
+ 			}
+-			goto done;
++			goto cont;
+ 		}
+ 	}
  
--	device_property_read_u32(dev, "device-addr", &adc->dev_addr);
-+	ret = device_property_read_u32(dev, "microchip,device-addr", &adc->dev_addr);
+@@ -1534,7 +1534,7 @@ static int mmc_sd_init_card(struct mmc_host *host, u32 ocr,
+ 			mmc_set_bus_width(host, MMC_BUS_WIDTH_4);
+ 		}
+ 	}
+-
++cont:
+ 	if (!oldcard) {
+ 		/* Read/parse the extension registers. */
+ 		err = sd_read_ext_regs(card);
+@@ -1566,7 +1566,7 @@ static int mmc_sd_init_card(struct mmc_host *host, u32 ocr,
+ 		err = -EINVAL;
+ 		goto free_card;
+ 	}
+-done:
 +
-+	/*
-+	 * Fallback to "device-addr" due to historical mismatch between
-+	 * dt-bindings and implementation
-+	 */
-+	if (ret)
-+		device_property_read_u32(dev, "device-addr", &adc->dev_addr);
- 	if (adc->dev_addr > 3) {
- 		dev_err(&adc->spi->dev,
- 			"invalid device address (%i). Must be in range 0-3.\n",
+ 	host->card = card;
+ 	return 0;
+ 
 
