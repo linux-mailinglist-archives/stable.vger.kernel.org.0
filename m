@@ -2,66 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E2535ACFFC
-	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 12:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D245AD018
+	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 12:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236405AbiIEKS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 06:18:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59354 "EHLO
+        id S237484AbiIEKdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 06:33:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237660AbiIEKSf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 06:18:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E3C543D0;
-        Mon,  5 Sep 2022 03:17:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40836B80F00;
-        Mon,  5 Sep 2022 10:17:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 978BAC433C1;
-        Mon,  5 Sep 2022 10:17:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662373057;
-        bh=nK8Zb48Wne5nhL9HOe0FujHipATbPnEIBFN7VAl1t4U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Kul+PCyi5BHBk8xB+YyaUgvKsGmkmkcgcqgXRMCWc9WzRQTo4yicNcb/pHC8Nw/V0
-         vhFYjF8ekxorruzTAL1iEWNXaYIhJwKwdZBMhgqPDl9Z6MBPaggtmBBrx50AyDANuU
-         4Lg/zjoRcPcl7GRvUTqYwD9nTvh5ByOhTG4qvC0UGzuQ5jj7RiLRGnQBJT1tt3iVZZ
-         GIxfNI45Ps/I4Wy6vQPpxq9UlKd5v2AlgGxHz2ux7U6EAS7KXOBN+N8eaMLehTERCb
-         3hnu0G6on3Ckn0WeCIU+rXD6Py2OMpCAmq72qtqp28+tcntvIa3YNNfKdaNjjoPoif
-         d7bsV2deUfpcg==
-Date:   Mon, 5 Sep 2022 13:17:32 +0300
-From:   "jarkko@kernel.org" <jarkko@kernel.org>
-To:     "Huang, Kai" <kai.huang@intel.com>
-Cc:     "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        "pmenzel@molgen.mpg.de" <pmenzel@molgen.mpg.de>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "bp@alien8.de" <bp@alien8.de>,
-        "Dhanraj, Vijay" <vijay.dhanraj@intel.com>,
-        "Chatre, Reinette" <reinette.chatre@intel.com>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "haitao.huang@linux.intel.com" <haitao.huang@linux.intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "hpa@zytor.com" <hpa@zytor.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] x86/sgx: Do not fail on incomplete sanitization on
- premature stop of ksgxd
-Message-ID: <YxXMvPLfxdv8QlJo@kernel.org>
-References: <20220903060108.1709739-1-jarkko@kernel.org>
- <20220903060108.1709739-2-jarkko@kernel.org>
- <YxMr7hIXsNcWAiN5@kernel.org>
- <a5fa56bdc57d6472a306bd8d795afc674b724538.camel@intel.com>
- <YxXFGLSmRri2T1yb@kernel.org>
+        with ESMTP id S236437AbiIEKc7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 06:32:59 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B586A39B96;
+        Mon,  5 Sep 2022 03:32:58 -0700 (PDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1oV9PV-0003SA-9P; Mon, 05 Sep 2022 12:32:57 +0200
+Message-ID: <38d9783f-9b1a-69bb-4f5d-3c77239d53fc@leemhuis.info>
+Date:   Mon, 5 Sep 2022 12:32:56 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YxXFGLSmRri2T1yb@kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+Subject: Re: setns() affecting other threads in 5.10.132 and 6.0
+Content-Language: en-US, de-DE
+To:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
+References: <d9f7a7d26eb5489e93742e57e55ebc02@AcuMS.aculab.com>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <d9f7a7d26eb5489e93742e57e55ebc02@AcuMS.aculab.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1662373978;de8de917;
+X-HE-SMSGID: 1oV9PV-0003SA-9P
+X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,NICE_REPLY_A,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -70,41 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 05, 2022 at 12:44:56PM +0300, jarkko@kernel.org wrote:
-> On Mon, Sep 05, 2022 at 07:50:33AM +0000, Huang, Kai wrote:
-> > On Sat, 2022-09-03 at 13:26 +0300, Jarkko Sakkinen wrote:
-> > > >   static int ksgxd(void *p)
-> > > >   {
-> > > > +	unsigned long left_dirty;
-> > > > +
-> > > >   	set_freezable();
-> > > >   
-> > > >   	/*
-> > > >   	 * Sanitize pages in order to recover from kexec(). The 2nd pass is
-> > > >   	 * required for SECS pages, whose child pages blocked EREMOVE.
-> > > >   	 */
-> > > > -	__sgx_sanitize_pages(&sgx_dirty_page_list);
-> > > > -	__sgx_sanitize_pages(&sgx_dirty_page_list);
-> > > > +	left_dirty = __sgx_sanitize_pages(&sgx_dirty_page_list);
-> > > > +	pr_debug("%ld unsanitized pages\n", left_dirty);
-> > >                   %lu
-> > > 
-> > 
-> > I assume the intention is to print out the unsanitized SECS pages, but what is
-> > the value of printing it? To me it doesn't provide any useful information, even
-> > for debug.
-> 
-> How do you measure "useful"?
-> 
-> If for some reason there were unsanitized pages, I would at least
-> want to know where it ended on the first value.
-> 
-> Plus it does zero harm unless you explicitly turn it on.
+TWIMC: this mail is primarily send for documentation purposes and for
+regzbot, my Linux kernel regression tracking bot. These mails usually
+contain '#forregzbot' in the subject, to make them easy to spot and filter.
 
-I would split it though for a separate patch because it does not need
-to be part of the stable fix and change it to:
+[TLDR: I'm adding this regression report to the list of tracked
+regressions; all text from me you find below is based on a few templates
+paragraphs you might have encountered already already in similar form.]
 
-        if (left_dirty)
-                pr_debug("%lu unsanitized pages\n", left_dirty);
+Hi, this is your Linux kernel regression tracker. CCing the regression
+mailing list, as it should be in the loop for all regressions, as
+explained here:
+https://www.kernel.org/doc/html/latest/admin-guide/reporting-issues.html
 
-BR, Jarkko
+On 04.09.22 16:05, David Laight wrote:
+> Sometime after 5.10.105 (5.10.132 and 6.0) there is a change that
+> makes setns(open("/proc/1/ns/net")) in the main process change
+> the behaviour of other process threads.
+> 
+> I don't know how much is broken, but the following fails.
+> 
+> Create a network namespace (eg "test").
+> Create a 'bond' interface (eg "test0") in the namespace.
+> 
+> Then /proc/net/bonding/test0 only exists inside the namespace.
+> 
+> However if you run a program in the "test" namespace that does:
+> - create a thread.
+> - change the main thread to in "init" namespace.
+> - try to open /proc/net/bonding/test0 in the thread.
+> then the open fails.
+> 
+> I don't know how much else is affected and haven't tried
+> to bisect (I can't create bonds on my normal test kernel).
+> 
+> The test program below shows the problem.
+> Compile and run as:
+> # ip netns exec test strace -f test_prog /proc/net/bonding/test0
+> 
+> The second open by the child should succeed, but fails.
+> 
+> I can't see any changes to the bonding code, so I suspect
+> it is something much more fundamental.
+> It might only affect /proc/net, but it might also affect
+> which namespace sockets get created in.
+> IIRC ls -l /proc/n/task/*/ns gives the correct namespaces.
+> 
+> 	David
+> 
+> 
+> #define _GNU_SOURCE
+> 
+> #include <fcntl.h>
+> #include <unistd.h>
+> #include <poll.h>
+> #include <pthread.h>
+> #include <sched.h>
+> 
+> #define delay(secs) poll(0,0, (secs) * 1000)
+> 
+> static void *thread_fn(void *file)
+> {
+>         delay(2);
+>         open(file, O_RDONLY);
+> 
+>         delay(5);
+>         open(file, O_RDONLY);
+> 
+>         return NULL;
+> }
+> 
+> int main(int argc, char **argv)
+> {
+>         pthread_t id;
+> 
+>         pthread_create(&id, NULL, thread_fn, argv[1]);
+> 
+>         delay(1);
+>         open(argv[1], O_RDONLY);
+> 
+>         delay(2);
+>         setns(open("/proc/1/ns/net", O_RDONLY), 0);
+> 
+>         delay(1);
+>         open(argv[1], O_RDONLY);
+> 
+>         delay(4);
+> 
+>         return 0;
+> }
+> 
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
+> 
+
+Thanks for the report. To be sure below issue doesn't fall through the
+cracks unnoticed, I'm adding it to regzbot, my Linux kernel regression
+tracking bot:
+
+#regzbot ^introduced v5.10.105..v5.10.132
+#regzbot title setns() affecting other threads (also in 6.0-rc)
+#regzbot ignore-activity
+
+This isn't a regression? This issue or a fix for it are already
+discussed somewhere else? It was fixed already? You want to clarify when
+the regression started to happen? Or point out I got the title or
+something else totally wrong? Then just reply -- ideally with also
+telling regzbot about it, as explained here:
+https://linux-regtracking.leemhuis.info/tracked-regression/
+
+Reminder for developers: When fixing the issue, add 'Link:' tags
+pointing to the report (the mail this one replies to), as explained for
+in the Linux kernel's documentation; above webpage explains why this is
+important for tracked regressions.
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
