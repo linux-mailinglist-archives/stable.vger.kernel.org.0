@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE2E5AD773
-	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 18:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDC95AD772
+	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 18:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231582AbiIEQau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 12:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38246 "EHLO
+        id S231545AbiIEQap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 12:30:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231553AbiIEQat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 12:30:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F98527CDA
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 09:30:48 -0700 (PDT)
+        with ESMTP id S229476AbiIEQao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 12:30:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56CC127CDA
+        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 09:30:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 202C5B81218
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 16:30:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8913AC433D7;
-        Mon,  5 Sep 2022 16:30:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E794161344
+        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 16:30:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3A8CC433C1;
+        Mon,  5 Sep 2022 16:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662395445;
-        bh=/vMuzxws7XHr8h5ubN9mgZYhdH37rp+dqR3HJjLW95s=;
+        s=korg; t=1662395442;
+        bh=ZrGP/p1H1nwD/Ea/lKvZXyg0z7UffLBzaqNVkAZmLvs=;
         h=Subject:To:Cc:From:Date:From;
-        b=N7o9YxIToFUUZVcdNV3tSMfz+R3NyxM/ewrQwBCTaNA8epBrPpthacf0j8oCkXfB4
-         PPyTuGP1MYfk77pZXL4q1wv2HSbhiuLxeuLAIQG2Mt9eyVq/pWRZVaLyWEJLavZas+
-         Erg/4i0IGV1psVd+Lqg4pZHvWMglXiREe7DW+J2E=
-Subject: FAILED: patch "[PATCH] cifs: fix small mempool leak in SMB2_negotiate()" failed to apply to 5.4-stable tree
+        b=FLylv8zB0JGckn8o5SrYGEHKsP8EOf9F7ICv+jfl6dYcia/fPWr3mZEtJ46yxuE5S
+         l2yr1my/s8QxBeOj7QAQdSHn0VJJoDyPL4dBDhGlVpJ1oU1hw5bGihQvLRKf1+L1Xq
+         jiajJg4wDGtPOzrx28L+1MyTmY2TSAr199rcPCdQ=
+Subject: FAILED: patch "[PATCH] cifs: fix small mempool leak in SMB2_negotiate()" failed to apply to 4.19-stable tree
 To:     ematsumiya@suse.de, lsahlber@redhat.com, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 05 Sep 2022 18:30:31 +0200
-Message-ID: <166239543121672@kroah.com>
+Message-ID: <1662395431133246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
