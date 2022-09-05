@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57EC45AD002
-	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 12:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CE155ACFF0
+	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 12:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236332AbiIEKMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 06:12:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47864 "EHLO
+        id S237289AbiIEKMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 06:12:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236991AbiIEKML (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 06:12:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D5C4DF3C;
-        Mon,  5 Sep 2022 03:12:09 -0700 (PDT)
+        with ESMTP id S237301AbiIEKMU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 06:12:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 370584E876;
+        Mon,  5 Sep 2022 03:12:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CEBFB80F9F;
-        Mon,  5 Sep 2022 10:12:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2CF9C433C1;
-        Mon,  5 Sep 2022 10:12:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B75FECE1142;
+        Mon,  5 Sep 2022 10:12:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B5ACC433D6;
+        Mon,  5 Sep 2022 10:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662372727;
-        bh=1VL/XTFkmu+9hXElRggT7MH3mGSH1N14dnaXkYpOTgg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Hh1wIyfqHo7wxw6uzYFMC113+kEnCBjOpMoa4VliXbIZxg4OI+fBWMCZLIs+isOJk
-         D1bpYHmeizWZ1LfkFvGN+7rrwK9Mrx6I3bYkSzpzMQfOL/sDyXdj4yTcsqKFf96s6P
-         U4Z43npyw0BvKuu0/FbMgm6MvsGSI30oGYDrK9vA=
+        s=korg; t=1662372731;
+        bh=OGcY4zAct1gI5QG8xzXmL6mYJGBogGCuZv06MGdr+Lc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=tjcBoHn58uCXJf5RuKP0jtcsqzd3Y5CJo8H9vd5YYhDKxSTPw5mB6Efwv2kF6W+PY
+         LXWcUjXuUHegFNt+gR+VP1Puw1YHo+ft3Dpas9YaCq1R6VByx3J0i4Uc+ZzADGdrxE
+         A5CobXANoLXFYT1Cb3MubM+RvgoM5NB2py4iYVo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.9.327
-Date:   Mon,  5 Sep 2022 12:12:03 +0200
-Message-Id: <1662372723221228@kroah.com>
+Subject: Re: Linux 4.9.327
+Date:   Mon,  5 Sep 2022 12:12:04 +0200
+Message-Id: <166237272375105@kroah.com>
 X-Mailer: git-send-email 2.37.3
+In-Reply-To: <1662372723221228@kroah.com>
+References: <1662372723221228@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -49,143 +51,1006 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.9.327 kernel.
-
-All users of the 4.9 kernel series must upgrade.
-
-The updated 4.9.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Documentation/hw-vuln/processor_mmio_stale_data.rst |   14 ++++
- Makefile                                            |    2 
- arch/arm64/include/asm/mmu.h                        |    2 
- arch/arm64/kernel/kaslr.c                           |    5 -
- arch/arm64/kernel/setup.c                           |    9 ++-
- arch/arm64/mm/mmu.c                                 |   15 -----
- arch/parisc/kernel/unaligned.c                      |    2 
- arch/s390/hypfs/hypfs_diag.c                        |    2 
- arch/s390/hypfs/inode.c                             |    2 
- arch/s390/mm/fault.c                                |    4 +
- arch/x86/include/asm/cpufeatures.h                  |    1 
- arch/x86/include/asm/intel-family.h                 |    3 +
- arch/x86/kernel/cpu/bugs.c                          |   14 ++++
- arch/x86/kernel/cpu/common.c                        |   34 +++++++----
- drivers/block/loop.c                                |    5 +
- drivers/hid/hidraw.c                                |    3 +
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c             |    1 
- drivers/net/bonding/bond_3ad.c                      |   38 +++++-------
- drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c        |   59 +++++++++++++++-----
- drivers/video/fbdev/pm2fb.c                         |    5 +
- fs/btrfs/xattr.c                                    |    3 +
- include/asm-generic/sections.h                      |    7 +-
- include/linux/rmap.h                                |    7 +-
- include/net/busy_poll.h                             |    2 
- kernel/kprobes.c                                    |   10 ++-
- kernel/trace/ftrace.c                               |   10 +++
- lib/ratelimit.c                                     |   12 +++-
- mm/mmap.c                                           |   20 ++++++
- mm/rmap.c                                           |   31 +++++-----
- net/bluetooth/l2cap_core.c                          |   10 +--
- net/core/skbuff.c                                   |    2 
- net/core/sock.c                                     |    2 
- net/key/af_key.c                                    |    3 +
- net/netfilter/Kconfig                               |    1 
- net/netfilter/nft_payload.c                         |   10 ++-
- net/rose/rose_loopback.c                            |    3 -
- net/socket.c                                        |    2 
- net/xfrm/xfrm_policy.c                              |    1 
- scripts/Makefile.modpost                            |    3 -
- 39 files changed, 244 insertions(+), 115 deletions(-)
-
-Bernard Pidoux (1):
-      rose: check NULL rose_loopback_neigh->loopback
-
-David Hildenbrand (1):
-      mm/hugetlb: fix hugetlb not supporting softdirty tracking
-
-Dongliang Mu (1):
-      media: pvrusb2: fix memory leak in pvr_probe
-
-Gayatri Kammela (1):
-      x86/cpu: Add Tiger Lake to Intel family
-
-Geert Uytterhoeven (1):
-      netfilter: conntrack: NF_CONNTRACK_PROCFS should no longer default to y
-
-Gerald Schaefer (1):
-      s390/mm: do not trigger write fault when vma does not allow VM_WRITE
-
-Goldwyn Rodrigues (1):
-      btrfs: check if root is readonly while setting security xattr
-
-Greg Kroah-Hartman (1):
-      Linux 4.9.327
-
-Helge Deller (1):
-      parisc: Fix exception handler for fldw and fstw instructions
-
-Herbert Xu (1):
-      af_key: Do not call xfrm_probe_algs in parallel
-
-Hsin-Yi Wang (1):
-      arm64: map FDT as RW for early_init_dt_scan()
-
-Jacob Keller (1):
-      ixgbe: stop resetting SYSTIME in ixgbe_ptp_start_cyclecounter
-
-Jann Horn (2):
-      mm: Force TLB flush for PFNMAP mappings before unlink_file_vma()
-      mm/rmap: Fix anon_vma->degree ambiguity leading to double-reuse
-
-Jing Leng (1):
-      kbuild: Fix include path in scripts/Makefile.modpost
-
-Jonathan Toppins (1):
-      bonding: 802.3ad: fix no transmission of LACPDUs
-
-Juergen Gross (1):
-      s390/hypfs: avoid error message under KVM
-
-Karthik Alapati (1):
-      HID: hidraw: fix memory leak in hidraw_release()
-
-Kuniyuki Iwashima (6):
-      ratelimit: Fix data-races in ___ratelimit().
-      net: Fix a data-race around sysctl_tstamp_allow_data.
-      net: Fix a data-race around sysctl_net_busy_poll.
-      net: Fix a data-race around sysctl_net_busy_read.
-      net: Fix a data-race around sysctl_somaxconn.
-      kprobes: don't call disarm_kprobe() for disabled kprobes
-
-Letu Ren (1):
-      fbdev: fb_pm2fb: Avoid potential divide by zero error
-
-Luiz Augusto von Dentz (1):
-      Bluetooth: L2CAP: Fix build errors in some archs
-
-Pablo Neira Ayuso (1):
-      netfilter: nft_payload: report ERANGE for too long offset and length
-
-Pawan Gupta (1):
-      x86/bugs: Add "unknown" reporting for MMIO Stale Data
-
-Quanyang Wang (1):
-      asm-generic: sections: refactor memory_intersects
-
-Siddh Raman Pant (1):
-      loop: Check for overflow while configuring loop
-
-Xin Xiong (1):
-      xfrm: fix refcount leak in __xfrm_policy_check()
-
-Yang Jihong (1):
-      ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
-
+diff --git a/Documentation/hw-vuln/processor_mmio_stale_data.rst b/Documentation/hw-vuln/processor_mmio_stale_data.rst
+index 9393c50b5afc..c98fd11907cc 100644
+--- a/Documentation/hw-vuln/processor_mmio_stale_data.rst
++++ b/Documentation/hw-vuln/processor_mmio_stale_data.rst
+@@ -230,6 +230,20 @@ The possible values in this file are:
+      * - 'Mitigation: Clear CPU buffers'
+        - The processor is vulnerable and the CPU buffer clearing mitigation is
+          enabled.
++     * - 'Unknown: No mitigations'
++       - The processor vulnerability status is unknown because it is
++	 out of Servicing period. Mitigation is not attempted.
++
++Definitions:
++------------
++
++Servicing period: The process of providing functional and security updates to
++Intel processors or platforms, utilizing the Intel Platform Update (IPU)
++process or other similar mechanisms.
++
++End of Servicing Updates (ESU): ESU is the date at which Intel will no
++longer provide Servicing, such as through IPU or other similar update
++processes. ESU dates will typically be aligned to end of quarter.
+ 
+ If the processor is vulnerable then the following information is appended to
+ the above information:
+diff --git a/Makefile b/Makefile
+index e12236237dfa..df5f7e0d3039 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 9
+-SUBLEVEL = 326
++SUBLEVEL = 327
+ EXTRAVERSION =
+ NAME = Roaring Lionus
+ 
+diff --git a/arch/arm64/include/asm/mmu.h b/arch/arm64/include/asm/mmu.h
+index f4377b005cba..c944253b3a4b 100644
+--- a/arch/arm64/include/asm/mmu.h
++++ b/arch/arm64/include/asm/mmu.h
+@@ -90,7 +90,7 @@ extern void init_mem_pgprot(void);
+ extern void create_pgd_mapping(struct mm_struct *mm, phys_addr_t phys,
+ 			       unsigned long virt, phys_addr_t size,
+ 			       pgprot_t prot, bool allow_block_mappings);
+-extern void *fixmap_remap_fdt(phys_addr_t dt_phys);
++extern void *fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot);
+ 
+ #endif	/* !__ASSEMBLY__ */
+ #endif
+diff --git a/arch/arm64/kernel/kaslr.c b/arch/arm64/kernel/kaslr.c
+index c9ca903462a6..6a9668f6e933 100644
+--- a/arch/arm64/kernel/kaslr.c
++++ b/arch/arm64/kernel/kaslr.c
+@@ -65,9 +65,6 @@ static __init const u8 *kaslr_get_cmdline(void *fdt)
+ 	return default_cmdline;
+ }
+ 
+-extern void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size,
+-				       pgprot_t prot);
+-
+ /*
+  * This routine will be executed with the kernel mapped at its default virtual
+  * address, and if it returns successfully, the kernel will be remapped, and
+@@ -96,7 +93,7 @@ u64 __init kaslr_early_init(u64 dt_phys, u64 modulo_offset)
+ 	 * attempt at mapping the FDT in setup_machine()
+ 	 */
+ 	early_fixmap_init();
+-	fdt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
++	fdt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
+ 	if (!fdt)
+ 		return 0;
+ 
+diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
+index f534f492a268..ae82d9694542 100644
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -178,7 +178,11 @@ static void __init smp_build_mpidr_hash(void)
+ 
+ static void __init setup_machine_fdt(phys_addr_t dt_phys)
+ {
+-	void *dt_virt = fixmap_remap_fdt(dt_phys);
++	int size;
++	void *dt_virt = fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL);
++
++	if (dt_virt)
++		memblock_reserve(dt_phys, size);
+ 
+ 	if (!dt_virt || !early_init_dt_scan(dt_virt)) {
+ 		pr_crit("\n"
+@@ -191,6 +195,9 @@ static void __init setup_machine_fdt(phys_addr_t dt_phys)
+ 			cpu_relax();
+ 	}
+ 
++	/* Early fixups are done, map the FDT as read-only now */
++	fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
++
+ 	dump_stack_set_arch_desc("%s (DT)", of_flat_dt_get_machine_name());
+ }
+ 
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 36bd50091c4b..784ea7c8d996 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -718,7 +718,7 @@ void __set_fixmap(enum fixed_addresses idx,
+ 	}
+ }
+ 
+-void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
++void *__init fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
+ {
+ 	const u64 dt_virt_base = __fix_to_virt(FIX_FDT);
+ 	int offset;
+@@ -771,19 +771,6 @@ void *__init __fixmap_remap_fdt(phys_addr_t dt_phys, int *size, pgprot_t prot)
+ 	return dt_virt;
+ }
+ 
+-void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
+-{
+-	void *dt_virt;
+-	int size;
+-
+-	dt_virt = __fixmap_remap_fdt(dt_phys, &size, PAGE_KERNEL_RO);
+-	if (!dt_virt)
+-		return NULL;
+-
+-	memblock_reserve(dt_phys, size);
+-	return dt_virt;
+-}
+-
+ int __init arch_ioremap_pud_supported(void)
+ {
+ 	/*
+diff --git a/arch/parisc/kernel/unaligned.c b/arch/parisc/kernel/unaligned.c
+index 957bdeb7a5c7..b02d5c395a70 100644
+--- a/arch/parisc/kernel/unaligned.c
++++ b/arch/parisc/kernel/unaligned.c
+@@ -120,7 +120,7 @@
+ #define R1(i) (((i)>>21)&0x1f)
+ #define R2(i) (((i)>>16)&0x1f)
+ #define R3(i) ((i)&0x1f)
+-#define FR3(i) ((((i)<<1)&0x1f)|(((i)>>6)&1))
++#define FR3(i) ((((i)&0x1f)<<1)|(((i)>>6)&1))
+ #define IM(i,n) (((i)>>1&((1<<(n-1))-1))|((i)&1?((0-1L)<<(n-1)):0))
+ #define IM5_2(i) IM((i)>>16,5)
+ #define IM5_3(i) IM((i),5)
+diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
+index 794bebb43d23..64448c0998eb 100644
+--- a/arch/s390/hypfs/hypfs_diag.c
++++ b/arch/s390/hypfs/hypfs_diag.c
+@@ -436,7 +436,7 @@ __init int hypfs_diag_init(void)
+ 	int rc;
+ 
+ 	if (diag204_probe()) {
+-		pr_err("The hardware system does not support hypfs\n");
++		pr_info("The hardware system does not support hypfs\n");
+ 		return -ENODATA;
+ 	}
+ 	if (diag204_info_type == DIAG204_INFO_EXT) {
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index 224aeda1e8cc..d73d2d001a62 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -493,9 +493,9 @@ static int __init hypfs_init(void)
+ 	hypfs_vm_exit();
+ fail_hypfs_diag_exit:
+ 	hypfs_diag_exit();
++	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ fail_dbfs_exit:
+ 	hypfs_dbfs_exit();
+-	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ 	return rc;
+ }
+ 
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index ba2f21873cbd..6fa4220e34b5 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -409,7 +409,9 @@ static inline int do_exception(struct pt_regs *regs, int access)
+ 	flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+ 	if (user_mode(regs))
+ 		flags |= FAULT_FLAG_USER;
+-	if (access == VM_WRITE || (trans_exc_code & store_indication) == 0x400)
++	if ((trans_exc_code & store_indication) == 0x400)
++		access = VM_WRITE;
++	if (access == VM_WRITE)
+ 		flags |= FAULT_FLAG_WRITE;
+ 	down_read(&mm->mmap_sem);
+ 
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index 910304aec2e6..a033fa5c596d 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -363,5 +363,6 @@
+ #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
+ #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
+ #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
++#define X86_BUG_MMIO_UNKNOWN		X86_BUG(26) /* CPU is too old and its MMIO Stale Data status is unknown */
+ 
+ #endif /* _ASM_X86_CPUFEATURES_H */
+diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
+index 8b6c01774ca2..aadb91d43eef 100644
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -70,6 +70,9 @@
+ #define INTEL_FAM6_ALDERLAKE		0x97
+ #define INTEL_FAM6_ALDERLAKE_L		0x9A
+ 
++#define INTEL_FAM6_TIGERLAKE_L		0x8C
++#define INTEL_FAM6_TIGERLAKE		0x8D
++
+ /* "Small Core" Processors (Atom) */
+ 
+ #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index b4416df41d63..d8ba0b60e088 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -395,7 +395,8 @@ static void __init mmio_select_mitigation(void)
+ 	u64 ia32_cap;
+ 
+ 	if (!boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA) ||
+-	    cpu_mitigations_off()) {
++	     boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN) ||
++	     cpu_mitigations_off()) {
+ 		mmio_mitigation = MMIO_MITIGATION_OFF;
+ 		return;
+ 	}
+@@ -500,6 +501,8 @@ static void __init md_clear_update_mitigation(void)
+ 		pr_info("TAA: %s\n", taa_strings[taa_mitigation]);
+ 	if (boot_cpu_has_bug(X86_BUG_MMIO_STALE_DATA))
+ 		pr_info("MMIO Stale Data: %s\n", mmio_strings[mmio_mitigation]);
++	else if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
++		pr_info("MMIO Stale Data: Unknown: No mitigations\n");
+ }
+ 
+ static void __init md_clear_select_mitigation(void)
+@@ -1824,6 +1827,9 @@ static ssize_t tsx_async_abort_show_state(char *buf)
+ 
+ static ssize_t mmio_stale_data_show_state(char *buf)
+ {
++	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
++		return sysfs_emit(buf, "Unknown: No mitigations\n");
++
+ 	if (mmio_mitigation == MMIO_MITIGATION_OFF)
+ 		return sysfs_emit(buf, "%s\n", mmio_strings[mmio_mitigation]);
+ 
+@@ -1934,6 +1940,7 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
+ 		return srbds_show_state(buf);
+ 
+ 	case X86_BUG_MMIO_STALE_DATA:
++	case X86_BUG_MMIO_UNKNOWN:
+ 		return mmio_stale_data_show_state(buf);
+ 
+ 	default:
+@@ -1990,6 +1997,9 @@ ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *
+ 
+ ssize_t cpu_show_mmio_stale_data(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-	return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
++	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
++		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_UNKNOWN);
++	else
++		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
+ }
+ #endif
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index 48843fc76695..656f336074a3 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -899,6 +899,7 @@ static void identify_cpu_without_cpuid(struct cpuinfo_x86 *c)
+ #define MSBDS_ONLY		BIT(5)
+ #define NO_SWAPGS		BIT(6)
+ #define NO_ITLB_MULTIHIT	BIT(7)
++#define NO_MMIO			BIT(8)
+ 
+ #define VULNWL(_vendor, _family, _model, _whitelist)	\
+ 	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
+@@ -916,6 +917,11 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
+ 	VULNWL(NSC,	5, X86_MODEL_ANY,	NO_SPECULATION),
+ 
+ 	/* Intel Family 6 */
++	VULNWL_INTEL(TIGERLAKE,			NO_MMIO),
++	VULNWL_INTEL(TIGERLAKE_L,		NO_MMIO),
++	VULNWL_INTEL(ALDERLAKE,			NO_MMIO),
++	VULNWL_INTEL(ALDERLAKE_L,		NO_MMIO),
++
+ 	VULNWL_INTEL(ATOM_SALTWELL,		NO_SPECULATION | NO_ITLB_MULTIHIT),
+ 	VULNWL_INTEL(ATOM_SALTWELL_TABLET,	NO_SPECULATION | NO_ITLB_MULTIHIT),
+ 	VULNWL_INTEL(ATOM_SALTWELL_MID,		NO_SPECULATION | NO_ITLB_MULTIHIT),
+@@ -933,9 +939,9 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
+ 
+ 	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
+ 
+-	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
+-	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
+-	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
++	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
++	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
++	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
+ 
+ 	/*
+ 	 * Technically, swapgs isn't serializing on AMD (despite it previously
+@@ -946,13 +952,13 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
+ 	 */
+ 
+ 	/* AMD Family 0xf - 0x12 */
+-	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
+-	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
+-	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
+-	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
++	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
++	VULNWL_AMD(0x10,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
++	VULNWL_AMD(0x11,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
++	VULNWL_AMD(0x12,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
+ 
+ 	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
+-	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
++	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
+ 	{}
+ };
+ 
+@@ -1092,10 +1098,16 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+ 	 * Affected CPU list is generally enough to enumerate the vulnerability,
+ 	 * but for virtualization case check for ARCH_CAP MSR bits also, VMM may
+ 	 * not want the guest to enumerate the bug.
++	 *
++	 * Set X86_BUG_MMIO_UNKNOWN for CPUs that are neither in the blacklist,
++	 * nor in the whitelist and also don't enumerate MSR ARCH_CAP MMIO bits.
+ 	 */
+-	if (cpu_matches(cpu_vuln_blacklist, MMIO) &&
+-	    !arch_cap_mmio_immune(ia32_cap))
+-		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
++	if (!arch_cap_mmio_immune(ia32_cap)) {
++		if (cpu_matches(cpu_vuln_blacklist, MMIO))
++			setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
++		else if (!cpu_matches(cpu_vuln_whitelist, NO_MMIO))
++			setup_force_cpu_bug(X86_BUG_MMIO_UNKNOWN);
++	}
+ 
+ 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
+ 		return;
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 2ff17b397cd2..a23c903753b5 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1202,6 +1202,11 @@ loop_get_status(struct loop_device *lo, struct loop_info64 *info)
+ 	info->lo_rdevice = huge_encode_dev(lo->lo_device ? stat.rdev : stat.dev);
+ 	info->lo_offset = lo->lo_offset;
+ 	info->lo_sizelimit = lo->lo_sizelimit;
++
++	/* loff_t vars have been assigned __u64 */
++	if (lo->lo_offset < 0 || lo->lo_sizelimit < 0)
++		return -EOVERFLOW;
++
+ 	info->lo_flags = lo->lo_flags;
+ 	memcpy(info->lo_file_name, lo->lo_file_name, LO_NAME_SIZE);
+ 	memcpy(info->lo_crypt_name, lo->lo_crypt_name, LO_NAME_SIZE);
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index ed6591f92f71..0b1bb99e05e8 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -354,10 +354,13 @@ static int hidraw_release(struct inode * inode, struct file * file)
+ 	unsigned int minor = iminor(inode);
+ 	struct hidraw_list *list = file->private_data;
+ 	unsigned long flags;
++	int i;
+ 
+ 	mutex_lock(&minors_lock);
+ 
+ 	spin_lock_irqsave(&hidraw_table[minor]->list_lock, flags);
++	for (i = list->tail; i < list->head; i++)
++		kfree(list->buffer[i].value);
+ 	list_del(&list->node);
+ 	spin_unlock_irqrestore(&hidraw_table[minor]->list_lock, flags);
+ 	kfree(list);
+diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+index b868a77a048c..a02da1d55fd0 100644
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -2656,6 +2656,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
+ 		del_timer_sync(&hdw->encoder_run_timer);
+ 		del_timer_sync(&hdw->encoder_wait_timer);
+ 		flush_work(&hdw->workpoll);
++		v4l2_device_unregister(&hdw->v4l2_dev);
+ 		usb_free_urb(hdw->ctl_read_urb);
+ 		usb_free_urb(hdw->ctl_write_urb);
+ 		kfree(hdw->ctl_read_buffer);
+diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
+index 8ec0671f9711..7ba724ecef30 100644
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -1941,30 +1941,24 @@ void bond_3ad_initiate_agg_selection(struct bonding *bond, int timeout)
+  */
+ void bond_3ad_initialize(struct bonding *bond, u16 tick_resolution)
+ {
+-	/* check that the bond is not initialized yet */
+-	if (!MAC_ADDRESS_EQUAL(&(BOND_AD_INFO(bond).system.sys_mac_addr),
+-				bond->dev->dev_addr)) {
+-
+-		BOND_AD_INFO(bond).aggregator_identifier = 0;
+-
+-		BOND_AD_INFO(bond).system.sys_priority =
+-			bond->params.ad_actor_sys_prio;
+-		if (is_zero_ether_addr(bond->params.ad_actor_system))
+-			BOND_AD_INFO(bond).system.sys_mac_addr =
+-			    *((struct mac_addr *)bond->dev->dev_addr);
+-		else
+-			BOND_AD_INFO(bond).system.sys_mac_addr =
+-			    *((struct mac_addr *)bond->params.ad_actor_system);
++	BOND_AD_INFO(bond).aggregator_identifier = 0;
++	BOND_AD_INFO(bond).system.sys_priority =
++		bond->params.ad_actor_sys_prio;
++	if (is_zero_ether_addr(bond->params.ad_actor_system))
++		BOND_AD_INFO(bond).system.sys_mac_addr =
++		    *((struct mac_addr *)bond->dev->dev_addr);
++	else
++		BOND_AD_INFO(bond).system.sys_mac_addr =
++		    *((struct mac_addr *)bond->params.ad_actor_system);
+ 
+-		/* initialize how many times this module is called in one
+-		 * second (should be about every 100ms)
+-		 */
+-		ad_ticks_per_sec = tick_resolution;
++	/* initialize how many times this module is called in one
++	 * second (should be about every 100ms)
++	 */
++	ad_ticks_per_sec = tick_resolution;
+ 
+-		bond_3ad_initiate_agg_selection(bond,
+-						AD_AGGREGATOR_SELECTION_TIMER *
+-						ad_ticks_per_sec);
+-	}
++	bond_3ad_initiate_agg_selection(bond,
++					AD_AGGREGATOR_SELECTION_TIMER *
++					ad_ticks_per_sec);
+ }
+ 
+ /**
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
+index a93a1b3bb8e4..2ae59af3e16f 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c
+@@ -1080,7 +1080,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
+ 	struct cyclecounter cc;
+ 	unsigned long flags;
+ 	u32 incval = 0;
+-	u32 tsauxc = 0;
+ 	u32 fuse0 = 0;
+ 
+ 	/* For some of the boards below this mask is technically incorrect.
+@@ -1115,18 +1114,6 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
+ 	case ixgbe_mac_x550em_a:
+ 	case ixgbe_mac_X550:
+ 		cc.read = ixgbe_ptp_read_X550;
+-
+-		/* enable SYSTIME counter */
+-		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMR, 0);
+-		IXGBE_WRITE_REG(hw, IXGBE_SYSTIML, 0);
+-		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMH, 0);
+-		tsauxc = IXGBE_READ_REG(hw, IXGBE_TSAUXC);
+-		IXGBE_WRITE_REG(hw, IXGBE_TSAUXC,
+-				tsauxc & ~IXGBE_TSAUXC_DISABLE_SYSTIME);
+-		IXGBE_WRITE_REG(hw, IXGBE_TSIM, IXGBE_TSIM_TXTS);
+-		IXGBE_WRITE_REG(hw, IXGBE_EIMS, IXGBE_EIMS_TIMESYNC);
+-
+-		IXGBE_WRITE_FLUSH(hw);
+ 		break;
+ 	case ixgbe_mac_X540:
+ 		cc.read = ixgbe_ptp_read_82599;
+@@ -1158,6 +1145,50 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
+ 	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
+ }
+ 
++/**
++ * ixgbe_ptp_init_systime - Initialize SYSTIME registers
++ * @adapter: the ixgbe private board structure
++ *
++ * Initialize and start the SYSTIME registers.
++ */
++static void ixgbe_ptp_init_systime(struct ixgbe_adapter *adapter)
++{
++	struct ixgbe_hw *hw = &adapter->hw;
++	u32 tsauxc;
++
++	switch (hw->mac.type) {
++	case ixgbe_mac_X550EM_x:
++	case ixgbe_mac_x550em_a:
++	case ixgbe_mac_X550:
++		tsauxc = IXGBE_READ_REG(hw, IXGBE_TSAUXC);
++
++		/* Reset SYSTIME registers to 0 */
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMR, 0);
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIML, 0);
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMH, 0);
++
++		/* Reset interrupt settings */
++		IXGBE_WRITE_REG(hw, IXGBE_TSIM, IXGBE_TSIM_TXTS);
++		IXGBE_WRITE_REG(hw, IXGBE_EIMS, IXGBE_EIMS_TIMESYNC);
++
++		/* Activate the SYSTIME counter */
++		IXGBE_WRITE_REG(hw, IXGBE_TSAUXC,
++				tsauxc & ~IXGBE_TSAUXC_DISABLE_SYSTIME);
++		break;
++	case ixgbe_mac_X540:
++	case ixgbe_mac_82599EB:
++		/* Reset SYSTIME registers to 0 */
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIML, 0);
++		IXGBE_WRITE_REG(hw, IXGBE_SYSTIMH, 0);
++		break;
++	default:
++		/* Other devices aren't supported */
++		return;
++	};
++
++	IXGBE_WRITE_FLUSH(hw);
++}
++
+ /**
+  * ixgbe_ptp_reset
+  * @adapter: the ixgbe private board structure
+@@ -1184,6 +1215,8 @@ void ixgbe_ptp_reset(struct ixgbe_adapter *adapter)
+ 
+ 	ixgbe_ptp_start_cyclecounter(adapter);
+ 
++	ixgbe_ptp_init_systime(adapter);
++
+ 	spin_lock_irqsave(&adapter->tmreg_lock, flags);
+ 	timecounter_init(&adapter->hw_tc, &adapter->hw_cc,
+ 			 ktime_to_ns(ktime_get_real()));
+diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
+index 1a4070f719c2..9b32b9fc44a5 100644
+--- a/drivers/video/fbdev/pm2fb.c
++++ b/drivers/video/fbdev/pm2fb.c
+@@ -614,6 +614,11 @@ static int pm2fb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ 		return -EINVAL;
+ 	}
+ 
++	if (!var->pixclock) {
++		DPRINTK("pixclock is zero\n");
++		return -EINVAL;
++	}
++
+ 	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
+ 		DPRINTK("pixclock too high (%ldKHz)\n",
+ 			PICOS2KHZ(var->pixclock));
+diff --git a/fs/btrfs/xattr.c b/fs/btrfs/xattr.c
+index fccbf5567e78..783214344ac1 100644
+--- a/fs/btrfs/xattr.c
++++ b/fs/btrfs/xattr.c
+@@ -375,6 +375,9 @@ static int btrfs_xattr_handler_get(const struct xattr_handler *handler,
+ 				   struct dentry *unused, struct inode *inode,
+ 				   const char *name, void *buffer, size_t size)
+ {
++	if (btrfs_root_readonly(BTRFS_I(inode)->root))
++		return -EROFS;
++
+ 	name = xattr_full_name(handler, name);
+ 	return __btrfs_getxattr(inode, name, buffer, size);
+ }
+diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
+index 4df64a1fc09e..09e9fd061ac0 100644
+--- a/include/asm-generic/sections.h
++++ b/include/asm-generic/sections.h
+@@ -87,7 +87,7 @@ static inline bool memory_contains(void *begin, void *end, void *virt,
+ /**
+  * memory_intersects - checks if the region occupied by an object intersects
+  *                     with another memory region
+- * @begin: virtual address of the beginning of the memory regien
++ * @begin: virtual address of the beginning of the memory region
+  * @end: virtual address of the end of the memory region
+  * @virt: virtual address of the memory object
+  * @size: size of the memory object
+@@ -100,7 +100,10 @@ static inline bool memory_intersects(void *begin, void *end, void *virt,
+ {
+ 	void *vend = virt + size;
+ 
+-	return (virt >= begin && virt < end) || (vend >= begin && vend < end);
++	if (virt < end && vend > begin)
++		return true;
++
++	return false;
+ }
+ 
+ /**
+diff --git a/include/linux/rmap.h b/include/linux/rmap.h
+index b46bb5620a76..9dc3617a5bfc 100644
+--- a/include/linux/rmap.h
++++ b/include/linux/rmap.h
+@@ -37,12 +37,15 @@ struct anon_vma {
+ 	atomic_t refcount;
+ 
+ 	/*
+-	 * Count of child anon_vmas and VMAs which points to this anon_vma.
++	 * Count of child anon_vmas. Equals to the count of all anon_vmas that
++	 * have ->parent pointing to this one, including itself.
+ 	 *
+ 	 * This counter is used for making decision about reusing anon_vma
+ 	 * instead of forking new one. See comments in function anon_vma_clone.
+ 	 */
+-	unsigned degree;
++	unsigned long num_children;
++	/* Count of VMAs whose ->anon_vma pointer points to this object. */
++	unsigned long num_active_vmas;
+ 
+ 	struct anon_vma *parent;	/* Parent of this anon_vma */
+ 
+diff --git a/include/net/busy_poll.h b/include/net/busy_poll.h
+index 2fbeb1313c0f..e522187cb693 100644
+--- a/include/net/busy_poll.h
++++ b/include/net/busy_poll.h
+@@ -39,7 +39,7 @@ extern unsigned int sysctl_net_busy_poll __read_mostly;
+ 
+ static inline bool net_busy_loop_on(void)
+ {
+-	return sysctl_net_busy_poll;
++	return READ_ONCE(sysctl_net_busy_poll);
+ }
+ 
+ static inline u64 busy_loop_us_clock(void)
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index fb2357d0dbc8..63509602e932 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1616,12 +1616,14 @@ static struct kprobe *__disable_kprobe(struct kprobe *p)
+ 		/* Try to disarm and disable this/parent probe */
+ 		if (p == orig_p || aggr_kprobe_disabled(orig_p)) {
+ 			/*
+-			 * If kprobes_all_disarmed is set, orig_p
+-			 * should have already been disarmed, so
+-			 * skip unneed disarming process.
++			 * Don't be lazy here.  Even if 'kprobes_all_disarmed'
++			 * is false, 'orig_p' might not have been armed yet.
++			 * Note arm_all_kprobes() __tries__ to arm all kprobes
++			 * on the best effort basis.
+ 			 */
+-			if (!kprobes_all_disarmed)
++			if (!kprobes_all_disarmed && !kprobe_disabled(orig_p))
+ 				disarm_kprobe(orig_p, true);
++
+ 			orig_p->flags |= KPROBE_FLAG_DISABLED;
+ 		}
+ 	}
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 06841602025e..7ffb9f122555 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -2737,6 +2737,16 @@ static int ftrace_startup(struct ftrace_ops *ops, int command)
+ 
+ 	ftrace_startup_enable(command);
+ 
++	/*
++	 * If ftrace is in an undefined state, we just remove ops from list
++	 * to prevent the NULL pointer, instead of totally rolling it back and
++	 * free trampoline, because those actions could cause further damage.
++	 */
++	if (unlikely(ftrace_disabled)) {
++		__unregister_ftrace_function(ops);
++		return -ENODEV;
++	}
++
+ 	ops->flags &= ~FTRACE_OPS_FL_ADDING;
+ 
+ 	return 0;
+diff --git a/lib/ratelimit.c b/lib/ratelimit.c
+index d01f47135239..b805702de84d 100644
+--- a/lib/ratelimit.c
++++ b/lib/ratelimit.c
+@@ -27,10 +27,16 @@
+  */
+ int ___ratelimit(struct ratelimit_state *rs, const char *func)
+ {
++	/* Paired with WRITE_ONCE() in .proc_handler().
++	 * Changing two values seperately could be inconsistent
++	 * and some message could be lost.  (See: net_ratelimit_state).
++	 */
++	int interval = READ_ONCE(rs->interval);
++	int burst = READ_ONCE(rs->burst);
+ 	unsigned long flags;
+ 	int ret;
+ 
+-	if (!rs->interval)
++	if (!interval)
+ 		return 1;
+ 
+ 	/*
+@@ -45,7 +51,7 @@ int ___ratelimit(struct ratelimit_state *rs, const char *func)
+ 	if (!rs->begin)
+ 		rs->begin = jiffies;
+ 
+-	if (time_is_before_jiffies(rs->begin + rs->interval)) {
++	if (time_is_before_jiffies(rs->begin + interval)) {
+ 		if (rs->missed) {
+ 			if (!(rs->flags & RATELIMIT_MSG_ON_RELEASE)) {
+ 				printk_deferred(KERN_WARNING
+@@ -57,7 +63,7 @@ int ___ratelimit(struct ratelimit_state *rs, const char *func)
+ 		rs->begin   = jiffies;
+ 		rs->printed = 0;
+ 	}
+-	if (rs->burst && rs->burst > rs->printed) {
++	if (burst && burst > rs->printed) {
+ 		rs->printed++;
+ 		ret = 1;
+ 	} else {
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 18bd38ac1531..a696c17ba9b0 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1593,8 +1593,12 @@ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot)
+ 	    pgprot_val(vm_pgprot_modify(vm_page_prot, vm_flags)))
+ 		return 0;
+ 
+-	/* Do we need to track softdirty? */
+-	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) && !(vm_flags & VM_SOFTDIRTY))
++	/*
++	 * Do we need to track softdirty? hugetlb does not support softdirty
++	 * tracking yet.
++	 */
++	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) && !(vm_flags & VM_SOFTDIRTY) &&
++	    !is_vm_hugetlb_page(vma))
+ 		return 1;
+ 
+ 	/* Specialty mapping? */
+@@ -2525,6 +2529,18 @@ static void unmap_region(struct mm_struct *mm,
+ 	tlb_gather_mmu(&tlb, mm, start, end);
+ 	update_hiwater_rss(mm);
+ 	unmap_vmas(&tlb, vma, start, end);
++
++	/*
++	 * Ensure we have no stale TLB entries by the time this mapping is
++	 * removed from the rmap.
++	 * Note that we don't have to worry about nested flushes here because
++	 * we're holding the mm semaphore for removing the mapping - so any
++	 * concurrent flush in this region has to be coming through the rmap,
++	 * and we synchronize against that using the rmap lock.
++	 */
++	if ((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) != 0)
++		tlb_flush_mmu(&tlb);
++
+ 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
+ 				 next ? next->vm_start : USER_PGTABLES_CEILING);
+ 	tlb_finish_mmu(&tlb, start, end);
+diff --git a/mm/rmap.c b/mm/rmap.c
+index 0a5310b76ec8..76064d964918 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -78,7 +78,8 @@ static inline struct anon_vma *anon_vma_alloc(void)
+ 	anon_vma = kmem_cache_alloc(anon_vma_cachep, GFP_KERNEL);
+ 	if (anon_vma) {
+ 		atomic_set(&anon_vma->refcount, 1);
+-		anon_vma->degree = 1;	/* Reference for first vma */
++		anon_vma->num_children = 0;
++		anon_vma->num_active_vmas = 0;
+ 		anon_vma->parent = anon_vma;
+ 		/*
+ 		 * Initialise the anon_vma root to point to itself. If called
+@@ -187,6 +188,7 @@ int anon_vma_prepare(struct vm_area_struct *vma)
+ 			anon_vma = anon_vma_alloc();
+ 			if (unlikely(!anon_vma))
+ 				goto out_enomem_free_avc;
++			anon_vma->num_children++; /* self-parent link for new root */
+ 			allocated = anon_vma;
+ 		}
+ 
+@@ -196,8 +198,7 @@ int anon_vma_prepare(struct vm_area_struct *vma)
+ 		if (likely(!vma->anon_vma)) {
+ 			vma->anon_vma = anon_vma;
+ 			anon_vma_chain_link(vma, avc, anon_vma);
+-			/* vma reference or self-parent link for new root */
+-			anon_vma->degree++;
++			anon_vma->num_active_vmas++;
+ 			allocated = NULL;
+ 			avc = NULL;
+ 		}
+@@ -276,19 +277,19 @@ int anon_vma_clone(struct vm_area_struct *dst, struct vm_area_struct *src)
+ 		anon_vma_chain_link(dst, avc, anon_vma);
+ 
+ 		/*
+-		 * Reuse existing anon_vma if its degree lower than two,
+-		 * that means it has no vma and only one anon_vma child.
++		 * Reuse existing anon_vma if it has no vma and only one
++		 * anon_vma child.
+ 		 *
+-		 * Do not chose parent anon_vma, otherwise first child
+-		 * will always reuse it. Root anon_vma is never reused:
++		 * Root anon_vma is never reused:
+ 		 * it has self-parent reference and at least one child.
+ 		 */
+-		if (!dst->anon_vma && anon_vma != src->anon_vma &&
+-				anon_vma->degree < 2)
++		if (!dst->anon_vma &&
++		    anon_vma->num_children < 2 &&
++		    anon_vma->num_active_vmas == 0)
+ 			dst->anon_vma = anon_vma;
+ 	}
+ 	if (dst->anon_vma)
+-		dst->anon_vma->degree++;
++		dst->anon_vma->num_active_vmas++;
+ 	unlock_anon_vma_root(root);
+ 	return 0;
+ 
+@@ -338,6 +339,7 @@ int anon_vma_fork(struct vm_area_struct *vma, struct vm_area_struct *pvma)
+ 	anon_vma = anon_vma_alloc();
+ 	if (!anon_vma)
+ 		goto out_error;
++	anon_vma->num_active_vmas++;
+ 	avc = anon_vma_chain_alloc(GFP_KERNEL);
+ 	if (!avc)
+ 		goto out_error_free_anon_vma;
+@@ -358,7 +360,7 @@ int anon_vma_fork(struct vm_area_struct *vma, struct vm_area_struct *pvma)
+ 	vma->anon_vma = anon_vma;
+ 	anon_vma_lock_write(anon_vma);
+ 	anon_vma_chain_link(vma, avc, anon_vma);
+-	anon_vma->parent->degree++;
++	anon_vma->parent->num_children++;
+ 	anon_vma_unlock_write(anon_vma);
+ 
+ 	return 0;
+@@ -390,7 +392,7 @@ void unlink_anon_vmas(struct vm_area_struct *vma)
+ 		 * to free them outside the lock.
+ 		 */
+ 		if (RB_EMPTY_ROOT(&anon_vma->rb_root)) {
+-			anon_vma->parent->degree--;
++			anon_vma->parent->num_children--;
+ 			continue;
+ 		}
+ 
+@@ -398,7 +400,7 @@ void unlink_anon_vmas(struct vm_area_struct *vma)
+ 		anon_vma_chain_free(avc);
+ 	}
+ 	if (vma->anon_vma)
+-		vma->anon_vma->degree--;
++		vma->anon_vma->num_active_vmas--;
+ 	unlock_anon_vma_root(root);
+ 
+ 	/*
+@@ -409,7 +411,8 @@ void unlink_anon_vmas(struct vm_area_struct *vma)
+ 	list_for_each_entry_safe(avc, next, &vma->anon_vma_chain, same_vma) {
+ 		struct anon_vma *anon_vma = avc->anon_vma;
+ 
+-		VM_WARN_ON(anon_vma->degree);
++		VM_WARN_ON(anon_vma->num_children);
++		VM_WARN_ON(anon_vma->num_active_vmas);
+ 		put_anon_vma(anon_vma);
+ 
+ 		list_del(&avc->same_vma);
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 78cf9508b7c1..474c12d4f8ba 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -1826,11 +1826,11 @@ static struct l2cap_chan *l2cap_global_chan_by_psm(int state, __le16 psm,
+ 			src_match = !bacmp(&c->src, src);
+ 			dst_match = !bacmp(&c->dst, dst);
+ 			if (src_match && dst_match) {
+-				c = l2cap_chan_hold_unless_zero(c);
+-				if (c) {
+-					read_unlock(&chan_list_lock);
+-					return c;
+-				}
++				if (!l2cap_chan_hold_unless_zero(c))
++					continue;
++
++				read_unlock(&chan_list_lock);
++				return c;
+ 			}
+ 
+ 			/* Closest match */
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 22b216629f9b..022e26c18024 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3905,7 +3905,7 @@ static bool skb_may_tx_timestamp(struct sock *sk, bool tsonly)
+ {
+ 	bool ret;
+ 
+-	if (likely(sysctl_tstamp_allow_data || tsonly))
++	if (likely(READ_ONCE(sysctl_tstamp_allow_data) || tsonly))
+ 		return true;
+ 
+ 	read_lock_bh(&sk->sk_callback_lock);
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 1845a37d9f7e..e4b28c10901e 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2508,7 +2508,7 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+ 
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+ 	sk->sk_napi_id		=	0;
+-	sk->sk_ll_usec		=	sysctl_net_busy_read;
++	sk->sk_ll_usec		=	READ_ONCE(sysctl_net_busy_read);
+ #endif
+ 
+ 	sk->sk_max_pacing_rate = ~0U;
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 0737fc7b7ebd..88d4a3a02ab7 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -1724,9 +1724,12 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
+ 		pfk->registered |= (1<<hdr->sadb_msg_satype);
+ 	}
+ 
++	mutex_lock(&pfkey_mutex);
+ 	xfrm_probe_algs();
+ 
+ 	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
++	mutex_unlock(&pfkey_mutex);
++
+ 	if (!supp_skb) {
+ 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
+ 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
+diff --git a/net/netfilter/Kconfig b/net/netfilter/Kconfig
+index dacd2d34a790..f7cc20641b09 100644
+--- a/net/netfilter/Kconfig
++++ b/net/netfilter/Kconfig
+@@ -96,7 +96,6 @@ config NF_CONNTRACK_ZONES
+ 
+ config NF_CONNTRACK_PROCFS
+ 	bool "Supply CT list in procfs (OBSOLETE)"
+-	default y
+ 	depends on PROC_FS
+ 	---help---
+ 	This option enables for the list of known conntrack entries
+diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
+index f73d47b3ffb7..82bcd14fbcb3 100644
+--- a/net/netfilter/nft_payload.c
++++ b/net/netfilter/nft_payload.c
+@@ -287,6 +287,7 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
+ {
+ 	enum nft_payload_bases base;
+ 	unsigned int offset, len;
++	int err;
+ 
+ 	if (tb[NFTA_PAYLOAD_BASE] == NULL ||
+ 	    tb[NFTA_PAYLOAD_OFFSET] == NULL ||
+@@ -312,8 +313,13 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
+ 	if (tb[NFTA_PAYLOAD_DREG] == NULL)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	offset = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_OFFSET]));
+-	len    = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_LEN]));
++	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_OFFSET], U8_MAX, &offset);
++	if (err < 0)
++		return ERR_PTR(err);
++
++	err = nft_parse_u32_check(tb[NFTA_PAYLOAD_LEN], U8_MAX, &len);
++	if (err < 0)
++		return ERR_PTR(err);
+ 
+ 	if (len <= 4 && is_power_of_2(len) && IS_ALIGNED(offset, len) &&
+ 	    base != NFT_PAYLOAD_LL_HEADER)
+diff --git a/net/rose/rose_loopback.c b/net/rose/rose_loopback.c
+index 0f371e50d9c4..e6526c8ecacc 100644
+--- a/net/rose/rose_loopback.c
++++ b/net/rose/rose_loopback.c
+@@ -99,7 +99,8 @@ static void rose_loopback_timer(unsigned long param)
+ 		}
+ 
+ 		if (frametype == ROSE_CALL_REQUEST) {
+-			if (!rose_loopback_neigh->dev) {
++			if (!rose_loopback_neigh->dev &&
++			    !rose_loopback_neigh->loopback) {
+ 				kfree_skb(skb);
+ 				continue;
+ 			}
+diff --git a/net/socket.c b/net/socket.c
+index ab64ae80ca2c..6f1abcba0e36 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1403,7 +1403,7 @@ SYSCALL_DEFINE2(listen, int, fd, int, backlog)
+ 
+ 	sock = sockfd_lookup_light(fd, &err, &fput_needed);
+ 	if (sock) {
+-		somaxconn = sock_net(sock->sk)->core.sysctl_somaxconn;
++		somaxconn = READ_ONCE(sock_net(sock->sk)->core.sysctl_somaxconn);
+ 		if ((unsigned int)backlog > somaxconn)
+ 			backlog = somaxconn;
+ 
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 0894108f561c..ae90a273475c 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -2538,6 +2538,7 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
+ 		if (pols[1]) {
+ 			if (IS_ERR(pols[1])) {
+ 				XFRM_INC_STATS(net, LINUX_MIB_XFRMINPOLERROR);
++				xfrm_pol_put(pols[0]);
+ 				return 0;
+ 			}
+ 			pols[1]->curlft.use_time = get_seconds();
+diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
+index 8cb7971b3f25..43b93e32ed58 100644
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -50,8 +50,7 @@ obj := $(KBUILD_EXTMOD)
+ src := $(obj)
+ 
+ # Include the module's Makefile to find KBUILD_EXTRA_SYMBOLS
+-include $(if $(wildcard $(KBUILD_EXTMOD)/Kbuild), \
+-             $(KBUILD_EXTMOD)/Kbuild, $(KBUILD_EXTMOD)/Makefile)
++include $(if $(wildcard $(src)/Kbuild), $(src)/Kbuild, $(src)/Makefile)
+ endif
+ 
+ include scripts/Makefile.lib
