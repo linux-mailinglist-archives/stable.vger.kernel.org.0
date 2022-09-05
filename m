@@ -2,55 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F285ACF4A
-	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 11:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57EC45AD002
+	for <lists+stable@lfdr.de>; Mon,  5 Sep 2022 12:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237251AbiIEJyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 05:54:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45668 "EHLO
+        id S236332AbiIEKMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 06:12:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236514AbiIEJym (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 05:54:42 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909EA2BF1
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 02:54:39 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-401-VgGwiLkVPyyGbA9Btd8BWw-1; Mon, 05 Sep 2022 10:54:37 +0100
-X-MC-Unique: VgGwiLkVPyyGbA9Btd8BWw-1
-Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
- (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Mon, 5 Sep
- 2022 10:54:34 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.040; Mon, 5 Sep 2022 10:54:34 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Eric Dumazet <edumazet@google.com>,
-        "'adobriyan@gmail.com'" <adobriyan@gmail.com>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>
-Subject: RE: setns() affecting other threads in 5.10.132 and 6.0
-Thread-Topic: setns() affecting other threads in 5.10.132 and 6.0
-Thread-Index: AdjAZGr2bm2+BO9aR228APTLkn1hUgApqGgQ
-Date:   Mon, 5 Sep 2022 09:54:34 +0000
-Message-ID: <fcf51181f86e417285a101059d559382@AcuMS.aculab.com>
-References: <d9f7a7d26eb5489e93742e57e55ebc02@AcuMS.aculab.com>
-In-Reply-To: <d9f7a7d26eb5489e93742e57e55ebc02@AcuMS.aculab.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S236991AbiIEKML (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 06:12:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D5C4DF3C;
+        Mon,  5 Sep 2022 03:12:09 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8CEBFB80F9F;
+        Mon,  5 Sep 2022 10:12:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2CF9C433C1;
+        Mon,  5 Sep 2022 10:12:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1662372727;
+        bh=1VL/XTFkmu+9hXElRggT7MH3mGSH1N14dnaXkYpOTgg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Hh1wIyfqHo7wxw6uzYFMC113+kEnCBjOpMoa4VliXbIZxg4OI+fBWMCZLIs+isOJk
+         D1bpYHmeizWZ1LfkFvGN+7rrwK9Mrx6I3bYkSzpzMQfOL/sDyXdj4yTcsqKFf96s6P
+         U4Z43npyw0BvKuu0/FbMgm6MvsGSI30oGYDrK9vA=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.9.327
+Date:   Mon,  5 Sep 2022 12:12:03 +0200
+Message-Id: <1662372723221228@kroah.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,65 +49,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-NzA1NTE5NzcwNTcwOWM1OWI4YWI3N2U2YTVjN2Q0NmQ2MWVkZDk2ZQ0KQXV0aG9yOiBBbGV4ZXkg
-RG9icml5YW4gPGFkb2JyaXlhbkBnbWFpbC5jb20+DQogICAgQ2M6IEFsIFZpcm8gPHZpcm9AemVu
-aXYubGludXgub3JnLnVrPg0KICAgIFNpZ25lZC1vZmYtYnk6IEFuZHJldyBNb3J0b24gPGFrcG1A
-bGludXgtZm91bmRhdGlvbi5vcmc+DQpjNmM3NWRlZGE4MTMNCjFmZGU2ZjIxZDkwZg0KDQo+IC0t
-LS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IERhdmlkIExhaWdodCA8RGF2aWQuTGFp
-Z2h0QEFDVUxBQi5DT00+DQo+IFNlbnQ6IDA0IFNlcHRlbWJlciAyMDIyIDE1OjA1DQo+IA0KPiBT
-b21ldGltZSBhZnRlciA1LjEwLjEwNSAoNS4xMC4xMzIgYW5kIDYuMCkgdGhlcmUgaXMgYSBjaGFu
-Z2UgdGhhdA0KPiBtYWtlcyBzZXRucyhvcGVuKCIvcHJvYy8xL25zL25ldCIpKSBpbiB0aGUgbWFp
-biBwcm9jZXNzIGNoYW5nZQ0KPiB0aGUgYmVoYXZpb3VyIG9mIG90aGVyIHByb2Nlc3MgdGhyZWFk
-cy4NCj4gDQo+IEkgZG9uJ3Qga25vdyBob3cgbXVjaCBpcyBicm9rZW4sIGJ1dCB0aGUgZm9sbG93
-aW5nIGZhaWxzLg0KPiANCj4gQ3JlYXRlIGEgbmV0d29yayBuYW1lc3BhY2UgKGVnICJ0ZXN0Iiku
-DQo+IENyZWF0ZSBhICdib25kJyBpbnRlcmZhY2UgKGVnICJ0ZXN0MCIpIGluIHRoZSBuYW1lc3Bh
-Y2UuDQo+IA0KPiBUaGVuIC9wcm9jL25ldC9ib25kaW5nL3Rlc3QwIG9ubHkgZXhpc3RzIGluc2lk
-ZSB0aGUgbmFtZXNwYWNlLg0KPiANCj4gSG93ZXZlciBpZiB5b3UgcnVuIGEgcHJvZ3JhbSBpbiB0
-aGUgInRlc3QiIG5hbWVzcGFjZSB0aGF0IGRvZXM6DQo+IC0gY3JlYXRlIGEgdGhyZWFkLg0KPiAt
-IGNoYW5nZSB0aGUgbWFpbiB0aHJlYWQgdG8gaW4gImluaXQiIG5hbWVzcGFjZS4NCj4gLSB0cnkg
-dG8gb3BlbiAvcHJvYy9uZXQvYm9uZGluZy90ZXN0MCBpbiB0aGUgdGhyZWFkLg0KPiB0aGVuIHRo
-ZSBvcGVuIGZhaWxzLg0KPiANCj4gSSBkb24ndCBrbm93IGhvdyBtdWNoIGVsc2UgaXMgYWZmZWN0
-ZWQgYW5kIGhhdmVuJ3QgdHJpZWQNCj4gdG8gYmlzZWN0IChJIGNhbid0IGNyZWF0ZSBib25kcyBv
-biBteSBub3JtYWwgdGVzdCBrZXJuZWwpLg0KDQpJJ3ZlIG5vdyBiaXNlY3RlZCBpdC4NClByaW9y
-IHRvIGNoYW5nZSA3MDU1MTk3NzA1NzA5YzU5YjhhYjc3ZTZhNWM3ZDQ2ZDYxZWRkOTZlDQogICAg
-cHJvYzogZml4IGRlbnRyeS9pbm9kZSBvdmVyaW5zdGFudGlhdGluZyB1bmRlciAvcHJvYy8ke3Bp
-ZH0vbmV0DQp0aGUgc2V0bnMoKSBoYWQgbm8gZWZmZWN0IG9mIGVpdGhlciB0aHJlYWQuDQpBZnRl
-cndhcmRzIGJvdGggdGhyZWFkcyBzZWUgdGhlIGVudHJpZXMgaW4gdGhlIGluaXQgbmFtZXNwYWNl
-Lg0KDQpIb3dldmVyIEkgdGhpbmsgdGhhdCBpbiA1LjEwLjEwNSB0aGUgc2V0bnMoKSBkaWQgYWZm
-ZWN0DQp0aGUgdGhyZWFkIGl0IHdhcyBydW4gaW4uDQpUaGF0IG1pZ2h0IGJlIHRoZSBiZWhhdmlv
-dXIgYmVmb3JlIGM2Yzc1ZGVkYTgxMy4NCiAgICBwcm9jOiBmaXggbG9va3VwIGluIC9wcm9jL25l
-dCBzdWJkaXJlY3RvcmllcyBhZnRlciBzZXRucygyKQ0KDQpUaGVyZSBpcyBhbHNvIHRoZSBlYXJs
-aWVyIDFmZGU2ZjIxZDkwZg0KICAgIHByb2M6IGZpeCAvcHJvYy9uZXQvKiBhZnRlciBzZXRucygy
-KQ0KDQpGcm9tIHRoZSBjb21taXQgbWVzc2FnZXMgaXQgZG9lcyBsb29rIGFzIHRob3VnaCBzZXRu
-cygpIHNob3VsZA0KY2hhbmdlIHdoYXQgaXMgc2VlbiwgYnV0IGp1c3QgZm9yIHRoZSBjdXJyZW50
-IHRocmVhZC4NClNvIGl0IGlzIGN1cnJlbnRseSBicm9rZW4gLSBhbmQgaGFzIGJlZW4gc2luY2Ug
-NS4xOC4wLXJjNA0KYW5kIHdoaWNoZXZlciBzdGFibGUgYnJhbmNoZXMgdGhlIGNoYW5nZSB3YXMg
-YmFja3BvcnRlZCB0by4NCg0KCURhdmlkDQoNCj4gDQo+IFRoZSB0ZXN0IHByb2dyYW0gYmVsb3cg
-c2hvd3MgdGhlIHByb2JsZW0uDQo+IENvbXBpbGUgYW5kIHJ1biBhczoNCj4gIyBpcCBuZXRucyBl
-eGVjIHRlc3Qgc3RyYWNlIC1mIHRlc3RfcHJvZyAvcHJvYy9uZXQvYm9uZGluZy90ZXN0MA0KPiAN
-Cj4gVGhlIHNlY29uZCBvcGVuIGJ5IHRoZSBjaGlsZCBzaG91bGQgc3VjY2VlZCwgYnV0IGZhaWxz
-Lg0KPiANCj4gSSBjYW4ndCBzZWUgYW55IGNoYW5nZXMgdG8gdGhlIGJvbmRpbmcgY29kZSwgc28g
-SSBzdXNwZWN0DQo+IGl0IGlzIHNvbWV0aGluZyBtdWNoIG1vcmUgZnVuZGFtZW50YWwuDQo+IEl0
-IG1pZ2h0IG9ubHkgYWZmZWN0IC9wcm9jL25ldCwgYnV0IGl0IG1pZ2h0IGFsc28gYWZmZWN0DQo+
-IHdoaWNoIG5hbWVzcGFjZSBzb2NrZXRzIGdldCBjcmVhdGVkIGluLg0KPiBJSVJDIGxzIC1sIC9w
-cm9jL24vdGFzay8qL25zIGdpdmVzIHRoZSBjb3JyZWN0IG5hbWVzcGFjZXMuDQo+IA0KPiAJRGF2
-aWQNCj4gDQo+IA0KPiAjZGVmaW5lIF9HTlVfU09VUkNFDQo+IA0KPiAjaW5jbHVkZSA8ZmNudGwu
-aD4NCj4gI2luY2x1ZGUgPHVuaXN0ZC5oPg0KPiAjaW5jbHVkZSA8cG9sbC5oPg0KPiAjaW5jbHVk
-ZSA8cHRocmVhZC5oPg0KPiAjaW5jbHVkZSA8c2NoZWQuaD4NCj4gDQo+ICNkZWZpbmUgZGVsYXko
-c2VjcykgcG9sbCgwLDAsIChzZWNzKSAqIDEwMDApDQo+IA0KPiBzdGF0aWMgdm9pZCAqdGhyZWFk
-X2ZuKHZvaWQgKmZpbGUpDQo+IHsNCj4gICAgICAgICBkZWxheSgyKTsNCj4gICAgICAgICBvcGVu
-KGZpbGUsIE9fUkRPTkxZKTsNCj4gDQo+ICAgICAgICAgZGVsYXkoNSk7DQo+ICAgICAgICAgb3Bl
-bihmaWxlLCBPX1JET05MWSk7DQo+IA0KPiAgICAgICAgIHJldHVybiBOVUxMOw0KPiB9DQo+IA0K
-PiBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3YpDQo+IHsNCj4gICAgICAgICBwdGhyZWFk
-X3QgaWQ7DQo+IA0KPiAgICAgICAgIHB0aHJlYWRfY3JlYXRlKCZpZCwgTlVMTCwgdGhyZWFkX2Zu
-LCBhcmd2WzFdKTsNCj4gDQo+ICAgICAgICAgZGVsYXkoMSk7DQo+ICAgICAgICAgb3Blbihhcmd2
-WzFdLCBPX1JET05MWSk7DQo+IA0KPiAgICAgICAgIGRlbGF5KDIpOw0KPiAgICAgICAgIHNldG5z
-KG9wZW4oIi9wcm9jLzEvbnMvbmV0IiwgT19SRE9OTFkpLCAwKTsNCj4gDQo+ICAgICAgICAgZGVs
-YXkoMSk7DQo+ICAgICAgICAgb3Blbihhcmd2WzFdLCBPX1JET05MWSk7DQo+IA0KPiAgICAgICAg
-IGRlbGF5KDQpOw0KPiANCj4gICAgICAgICByZXR1cm4gMDsNCj4gfQ0KPiANCj4gLQ0KPiBSZWdp
-c3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9u
-IEtleW5lcywgTUsxIDFQVCwgVUsNCj4gUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykN
-Cg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZh
-cm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYg
-KFdhbGVzKQ0K
+I'm announcing the release of the 4.9.327 kernel.
+
+All users of the 4.9 kernel series must upgrade.
+
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Documentation/hw-vuln/processor_mmio_stale_data.rst |   14 ++++
+ Makefile                                            |    2 
+ arch/arm64/include/asm/mmu.h                        |    2 
+ arch/arm64/kernel/kaslr.c                           |    5 -
+ arch/arm64/kernel/setup.c                           |    9 ++-
+ arch/arm64/mm/mmu.c                                 |   15 -----
+ arch/parisc/kernel/unaligned.c                      |    2 
+ arch/s390/hypfs/hypfs_diag.c                        |    2 
+ arch/s390/hypfs/inode.c                             |    2 
+ arch/s390/mm/fault.c                                |    4 +
+ arch/x86/include/asm/cpufeatures.h                  |    1 
+ arch/x86/include/asm/intel-family.h                 |    3 +
+ arch/x86/kernel/cpu/bugs.c                          |   14 ++++
+ arch/x86/kernel/cpu/common.c                        |   34 +++++++----
+ drivers/block/loop.c                                |    5 +
+ drivers/hid/hidraw.c                                |    3 +
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c             |    1 
+ drivers/net/bonding/bond_3ad.c                      |   38 +++++-------
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ptp.c        |   59 +++++++++++++++-----
+ drivers/video/fbdev/pm2fb.c                         |    5 +
+ fs/btrfs/xattr.c                                    |    3 +
+ include/asm-generic/sections.h                      |    7 +-
+ include/linux/rmap.h                                |    7 +-
+ include/net/busy_poll.h                             |    2 
+ kernel/kprobes.c                                    |   10 ++-
+ kernel/trace/ftrace.c                               |   10 +++
+ lib/ratelimit.c                                     |   12 +++-
+ mm/mmap.c                                           |   20 ++++++
+ mm/rmap.c                                           |   31 +++++-----
+ net/bluetooth/l2cap_core.c                          |   10 +--
+ net/core/skbuff.c                                   |    2 
+ net/core/sock.c                                     |    2 
+ net/key/af_key.c                                    |    3 +
+ net/netfilter/Kconfig                               |    1 
+ net/netfilter/nft_payload.c                         |   10 ++-
+ net/rose/rose_loopback.c                            |    3 -
+ net/socket.c                                        |    2 
+ net/xfrm/xfrm_policy.c                              |    1 
+ scripts/Makefile.modpost                            |    3 -
+ 39 files changed, 244 insertions(+), 115 deletions(-)
+
+Bernard Pidoux (1):
+      rose: check NULL rose_loopback_neigh->loopback
+
+David Hildenbrand (1):
+      mm/hugetlb: fix hugetlb not supporting softdirty tracking
+
+Dongliang Mu (1):
+      media: pvrusb2: fix memory leak in pvr_probe
+
+Gayatri Kammela (1):
+      x86/cpu: Add Tiger Lake to Intel family
+
+Geert Uytterhoeven (1):
+      netfilter: conntrack: NF_CONNTRACK_PROCFS should no longer default to y
+
+Gerald Schaefer (1):
+      s390/mm: do not trigger write fault when vma does not allow VM_WRITE
+
+Goldwyn Rodrigues (1):
+      btrfs: check if root is readonly while setting security xattr
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.327
+
+Helge Deller (1):
+      parisc: Fix exception handler for fldw and fstw instructions
+
+Herbert Xu (1):
+      af_key: Do not call xfrm_probe_algs in parallel
+
+Hsin-Yi Wang (1):
+      arm64: map FDT as RW for early_init_dt_scan()
+
+Jacob Keller (1):
+      ixgbe: stop resetting SYSTIME in ixgbe_ptp_start_cyclecounter
+
+Jann Horn (2):
+      mm: Force TLB flush for PFNMAP mappings before unlink_file_vma()
+      mm/rmap: Fix anon_vma->degree ambiguity leading to double-reuse
+
+Jing Leng (1):
+      kbuild: Fix include path in scripts/Makefile.modpost
+
+Jonathan Toppins (1):
+      bonding: 802.3ad: fix no transmission of LACPDUs
+
+Juergen Gross (1):
+      s390/hypfs: avoid error message under KVM
+
+Karthik Alapati (1):
+      HID: hidraw: fix memory leak in hidraw_release()
+
+Kuniyuki Iwashima (6):
+      ratelimit: Fix data-races in ___ratelimit().
+      net: Fix a data-race around sysctl_tstamp_allow_data.
+      net: Fix a data-race around sysctl_net_busy_poll.
+      net: Fix a data-race around sysctl_net_busy_read.
+      net: Fix a data-race around sysctl_somaxconn.
+      kprobes: don't call disarm_kprobe() for disabled kprobes
+
+Letu Ren (1):
+      fbdev: fb_pm2fb: Avoid potential divide by zero error
+
+Luiz Augusto von Dentz (1):
+      Bluetooth: L2CAP: Fix build errors in some archs
+
+Pablo Neira Ayuso (1):
+      netfilter: nft_payload: report ERANGE for too long offset and length
+
+Pawan Gupta (1):
+      x86/bugs: Add "unknown" reporting for MMIO Stale Data
+
+Quanyang Wang (1):
+      asm-generic: sections: refactor memory_intersects
+
+Siddh Raman Pant (1):
+      loop: Check for overflow while configuring loop
+
+Xin Xiong (1):
+      xfrm: fix refcount leak in __xfrm_policy_check()
+
+Yang Jihong (1):
+      ftrace: Fix NULL pointer dereference in is_ftrace_trampoline when ftrace is dead
 
