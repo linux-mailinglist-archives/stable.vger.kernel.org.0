@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A80B55AECEA
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B90515AECFA
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240928AbiIFOC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:02:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43856 "EHLO
+        id S239734AbiIFOFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240915AbiIFOBO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:01:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE992720;
-        Tue,  6 Sep 2022 06:44:27 -0700 (PDT)
+        with ESMTP id S241525AbiIFOEp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:04:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 899156E8BD;
+        Tue,  6 Sep 2022 06:45:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C6DA6154A;
-        Tue,  6 Sep 2022 13:43:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37CF5C433D6;
-        Tue,  6 Sep 2022 13:43:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38410B81632;
+        Tue,  6 Sep 2022 13:43:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F9A9C433D6;
+        Tue,  6 Sep 2022 13:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471793;
-        bh=8qNxysi4JFpH/cVZhgEkyhnyAzErsC9knToOeJgwz7U=;
+        s=korg; t=1662471824;
+        bh=791EB7ACDZ4+Pt/Y8rEBGdliYCVHEM8g32knVTTvI8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2d9XwENVjIj7QqT5byz4F5H0eybsiemT/yPNeS5+fFX+lKLzUPqCCZUeTK7nN/iEx
-         +PaMcuI5JQ2brvB3OzkbRWJvBH3At0XYaj0Qu8Ie+n/c0PRXSU9fYWrG57oc5bij/K
-         b0KqWfluBdy1HEXVvv2OF6jYzb+GEa/DYlEas8lY=
+        b=yuPOtA+sA06W+heVXwB9wpJBpV+znx0nTIbIQ7HXsh1QeC5tCF9pkgaihjj9blbjX
+         yTXgrVvo7izpvzNs0lxvhKRiMfY/bXbx7YZCONTGRqrnUDRHys8k6TbRCdlRyBjTNC
+         nA3Eff7pqeUlOF4FU4ynXrmwy7C/piJKTgdZCTDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Casper Andersson <casper.casan@gmail.com>,
-        Steen Hegelund <Steen.Hegelund@microchip.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 033/155] net: sparx5: fix handling uneven length packets in manual extraction
-Date:   Tue,  6 Sep 2022 15:29:41 +0200
-Message-Id: <20220906132830.825331642@linuxfoundation.org>
+Subject: [PATCH 5.19 034/155] net: smsc911x: Stop and start PHY during suspend and resume
+Date:   Tue,  6 Sep 2022 15:29:42 +0200
+Message-Id: <20220906132830.874268456@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,38 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casper Andersson <casper.casan@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 7498a457ecf7ff2c4d379360aa8f24566bb1543e ]
+[ Upstream commit 3ce9f2bef75528936c78a7053301f5725f622f3a ]
 
-Packets that are not of length divisible by 4 (e.g. 77, 78, 79) would
-have the checksum included up to next multiple of 4 (a 77 bytes packet
-would have 3 bytes of ethernet checksum included). The check for the
-value expects it in host (Little) endian.
+Commit 744d23c71af3 ("net: phy: Warn about incorrect
+mdio_bus_phy_resume() state") unveiled that the smsc911x driver was not
+properly stopping and restarting the PHY during suspend/resume. Correct
+that by indicating that the MAC is in charge of PHY PM operations and
+ensure that all MDIO bus activity is quiescent during suspend.
 
-Fixes: f3cad2611a77 ("net: sparx5: add hostmode with phylink support")
-Signed-off-by: Casper Andersson <casper.casan@gmail.com>
-Reviewed-by: Steen Hegelund <Steen.Hegelund@microchip.com>
-Link: https://lore.kernel.org/r/20220825084955.684637-1-casper.casan@gmail.com
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Fixes: fba863b81604 ("net: phy: make PHY PM ops a no-op if MAC driver manages PHY PM")
+Fixes: 2aa70f864955 ("net: smsc911x: Quieten netif during suspend")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220825023951.3220-1-f.fainelli@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/sparx5/sparx5_packet.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/smsc/smsc911x.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
-index 304f84aadc36b..21844beba72df 100644
---- a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
-+++ b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
-@@ -113,6 +113,8 @@ static void sparx5_xtr_grp(struct sparx5 *sparx5, u8 grp, bool byte_swap)
- 			/* This assumes STATUS_WORD_POS == 1, Status
- 			 * just after last data
- 			 */
-+			if (!byte_swap)
-+				val = ntohl((__force __be32)val);
- 			byte_cnt -= (4 - XTR_VALID_BYTES(val));
- 			eof_flag = true;
- 			break;
+diff --git a/drivers/net/ethernet/smsc/smsc911x.c b/drivers/net/ethernet/smsc/smsc911x.c
+index 3bf20211cceb4..3829c2805b16c 100644
+--- a/drivers/net/ethernet/smsc/smsc911x.c
++++ b/drivers/net/ethernet/smsc/smsc911x.c
+@@ -1037,6 +1037,8 @@ static int smsc911x_mii_probe(struct net_device *dev)
+ 		return ret;
+ 	}
+ 
++	/* Indicate that the MAC is responsible for managing PHY PM */
++	phydev->mac_managed_pm = true;
+ 	phy_attached_info(phydev);
+ 
+ 	phy_set_max_speed(phydev, SPEED_100);
+@@ -2587,6 +2589,8 @@ static int smsc911x_suspend(struct device *dev)
+ 	if (netif_running(ndev)) {
+ 		netif_stop_queue(ndev);
+ 		netif_device_detach(ndev);
++		if (!device_may_wakeup(dev))
++			phy_stop(ndev->phydev);
+ 	}
+ 
+ 	/* enable wake on LAN, energy detection and the external PME
+@@ -2628,6 +2632,8 @@ static int smsc911x_resume(struct device *dev)
+ 	if (netif_running(ndev)) {
+ 		netif_device_attach(ndev);
+ 		netif_start_queue(ndev);
++		if (!device_may_wakeup(dev))
++			phy_start(ndev->phydev);
+ 	}
+ 
+ 	return 0;
 -- 
 2.35.1
 
