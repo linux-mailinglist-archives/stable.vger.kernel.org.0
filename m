@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D0E95AED1F
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16D775AEC77
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233799AbiIFOKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:10:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59780 "EHLO
+        id S241337AbiIFOM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:12:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233349AbiIFOIo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:08:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A61C86050;
-        Tue,  6 Sep 2022 06:45:55 -0700 (PDT)
+        with ESMTP id S241612AbiIFOKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:10:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7218E86FF5;
+        Tue,  6 Sep 2022 06:47:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B24B561540;
-        Tue,  6 Sep 2022 13:45:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7913C433C1;
-        Tue,  6 Sep 2022 13:45:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A6C8B818E0;
+        Tue,  6 Sep 2022 13:46:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06EAFC433D6;
+        Tue,  6 Sep 2022 13:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471954;
-        bh=083OfJKByJziQrYc13jloizTv4GyIcdcB08yBp/+ttU=;
+        s=korg; t=1662471965;
+        bh=ovvOVOt9r+5itWzJLQAvGa3PmonSJtv2U078KyGl1yA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bfmvQz0/adxbcjC6KVAgiTsoJm92/5R0jx6T0TkxXWtpLhQLG1cMvuZi6l0wkHgKZ
-         v308IQnAqDBACXeFJWaj3Bhjah5ctrrcxV3YmSZdpRp5pcjesTzEs6Bew9NkS/xkYI
-         PEN1D1sqXT5NecofXtB+n9mPKFVW2YX0XnrxLCAg=
+        b=IDia24vna82iNufqYJZSNtj3qfg3H5v5LMRvaHZn/+7mrxCH4KOArzAcowO1h/c5i
+         Zrmx4dpCE9RKq7KJ7earJcjVQqJK23awP+R1/0QCEUvrg0cxZ5OoiOnkk8nMW/WEN2
+         WK4W7lhqMQWGWOPub3rSipyEWpk+XJ6C3zkdiS3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matti Vaittinen <mazziesaccount@gmail.com>,
-        Marcelo Schmitt <marcelo.schmitt1@gmail.com>,
+        stable@vger.kernel.org,
+        Marcus Folkesson <marcus.folkesson@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.19 069/155] iio: ad7292: Prevent regulator double disable
-Date:   Tue,  6 Sep 2022 15:30:17 +0200
-Message-Id: <20220906132832.357610741@linuxfoundation.org>
+Subject: [PATCH 5.19 070/155] iio: adc: mcp3911: correct "microchip,device-addr" property
+Date:   Tue,  6 Sep 2022 15:30:18 +0200
+Message-Id: <20220906132832.393762004@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,44 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <mazziesaccount@gmail.com>
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
 
-commit 22b4277641c6823ec03d5b1cd82628e5e53e75b7 upstream.
+commit cfbd76d5c9c449739bb74288d982bccf9ff822f4 upstream.
 
-The ad7292 tries to add an devm_action for disabling a regulator at
-device detach using devm_add_action_or_reset(). The
-devm_add_action_or_reset() does call the release function should adding
-action fail. The driver inspects the value returned by
-devm_add_action_or_reset() and manually calls regulator_disable() if
-adding the action has failed. This leads to double disable and messes
-the enable count for regulator.
+Go for the right property name that is documented in the bindings.
 
-Do not manually call disable if devm_add_action_or_reset() fails.
-
-Fixes: 506d2e317a0a ("iio: adc: Add driver support for AD7292")
-Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-Tested-by: Marcelo Schmitt <marcelo.schmitt1@gmail.com>
-Link: https://lore.kernel.org/r/Yv9O+9sxU7gAv3vM@fedora
+Fixes: 3a89b289df5d ("iio: adc: add support for mcp3911")
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220722130726.7627-3-marcus.folkesson@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7292.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/iio/adc/mcp3911.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/ad7292.c
-+++ b/drivers/iio/adc/ad7292.c
-@@ -287,10 +287,8 @@ static int ad7292_probe(struct spi_devic
+--- a/drivers/iio/adc/mcp3911.c
++++ b/drivers/iio/adc/mcp3911.c
+@@ -210,7 +210,14 @@ static int mcp3911_config(struct mcp3911
+ 	u32 configreg;
+ 	int ret;
  
- 		ret = devm_add_action_or_reset(&spi->dev,
- 					       ad7292_regulator_disable, st);
--		if (ret) {
--			regulator_disable(st->reg);
-+		if (ret)
- 			return ret;
--		}
- 
- 		ret = regulator_get_voltage(st->reg);
- 		if (ret < 0)
+-	device_property_read_u32(dev, "device-addr", &adc->dev_addr);
++	ret = device_property_read_u32(dev, "microchip,device-addr", &adc->dev_addr);
++
++	/*
++	 * Fallback to "device-addr" due to historical mismatch between
++	 * dt-bindings and implementation
++	 */
++	if (ret)
++		device_property_read_u32(dev, "device-addr", &adc->dev_addr);
+ 	if (adc->dev_addr > 3) {
+ 		dev_err(&adc->spi->dev,
+ 			"invalid device address (%i). Must be in range 0-3.\n",
 
 
