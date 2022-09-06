@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 152D25AE9E5
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E255AEB16
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240522AbiIFNey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:34:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51838 "EHLO
+        id S238405AbiIFNu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240528AbiIFNeJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:34:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C941776458;
-        Tue,  6 Sep 2022 06:33:19 -0700 (PDT)
+        with ESMTP id S233845AbiIFNs1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:48:27 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8FA7F27D;
+        Tue,  6 Sep 2022 06:39:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21D1DB8162F;
-        Tue,  6 Sep 2022 13:33:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10802C433C1;
-        Tue,  6 Sep 2022 13:33:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 98E11CE1780;
+        Tue,  6 Sep 2022 13:38:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EA4EC433D7;
+        Tue,  6 Sep 2022 13:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471196;
-        bh=zg/sOoQpE0AjjldedRJe+dc3QpG3rVgfQcCR/ffvN9o=;
+        s=korg; t=1662471503;
+        bh=Zk48IUKtQINSipB806vFhlCrnAEYhLzY44m4JbLhUNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+z/m6qhTcMGqYx6dvEJe+YzdttGa2k3OiH3msDUyG0reyPla+dC5SsuAwF7yEk2S
-         yVdMKe9kaWHEUlJ2ERZWdGi6kj9RW48kYbq7nr4at/mGv7aYepfmH+inGCMTMXQx+5
-         R3/7pfCfUl9w0fXw0ExtFHsII+MYdoT5sQmfwnHg=
+        b=QK0thbc/mNB79dn6HfQ2YoRxFUNQbf+eLye4USFCoA2panTlA9V8sFxS7EUJ/bip9
+         39Hms+r0YWhtIQ3vpN32BugWQmtR/AsMne4eQdgKEheURD9DefeUnZ+HGDll5wje55
+         orLgzsfNu1o1AGTXl5ywkKcx2L5241PAjIeV3xMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niek Nooijens <niek.nooijens@omron.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 31/80] USB: serial: ftdi_sio: add Omron CS1W-CIF31 device id
-Date:   Tue,  6 Sep 2022 15:30:28 +0200
-Message-Id: <20220906132818.263246100@linuxfoundation.org>
+        stable@vger.kernel.org, Enzo Matsumiya <ematsumiya@suse.de>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 048/107] cifs: fix small mempool leak in SMB2_negotiate()
+Date:   Tue,  6 Sep 2022 15:30:29 +0200
+Message-Id: <20220906132823.873166010@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niek Nooijens <niek.nooijens@omron.com>
+From: Enzo Matsumiya <ematsumiya@suse.de>
 
-commit 001047ea241a9646010b2744451dfbc7289542f3 upstream.
+commit 27893dfc1285f80f80f46b3b8c95f5d15d2e66d0 upstream.
 
-works perfectly with:
-modprobe ftdi_sio
-echo "0590 00b2" | tee
-/sys/module/ftdi_sio/drivers/usb-serial\:ftdi_sio/new_id > /dev/null
+In some cases of failure (dialect mismatches) in SMB2_negotiate(), after
+the request is sent, the checks would return -EIO when they should be
+rather setting rc = -EIO and jumping to neg_exit to free the response
+buffer from mempool.
 
-but doing this every reboot is a pain in the ass.
-
-Signed-off-by: Niek Nooijens <niek.nooijens@omron.com>
+Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    2 ++
- drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
- 2 files changed, 8 insertions(+)
+ fs/cifs/smb2pdu.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1045,6 +1045,8 @@ static const struct usb_device_id id_tab
- 	/* IDS GmbH devices */
- 	{ USB_DEVICE(IDS_VID, IDS_SI31A_PID) },
- 	{ USB_DEVICE(IDS_VID, IDS_CM31A_PID) },
-+	/* Omron devices */
-+	{ USB_DEVICE(OMRON_VID, OMRON_CS1W_CIF31_PID) },
- 	/* U-Blox devices */
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -662,6 +662,12 @@
- #define INFINEON_TRIBOARD_TC2X7_PID	0x0043 /* DAS JTAG TriBoard TC2X7 V1.0 */
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -933,16 +933,17 @@ SMB2_negotiate(const unsigned int xid, s
+ 	} else if (rc != 0)
+ 		goto neg_exit;
  
- /*
-+ * Omron corporation (https://www.omron.com)
-+ */
-+ #define OMRON_VID			0x0590
-+ #define OMRON_CS1W_CIF31_PID		0x00b2
++	rc = -EIO;
+ 	if (strcmp(server->vals->version_string,
+ 		   SMB3ANY_VERSION_STRING) == 0) {
+ 		if (rsp->DialectRevision == cpu_to_le16(SMB20_PROT_ID)) {
+ 			cifs_server_dbg(VFS,
+ 				"SMB2 dialect returned but not requested\n");
+-			return -EIO;
++			goto neg_exit;
+ 		} else if (rsp->DialectRevision == cpu_to_le16(SMB21_PROT_ID)) {
+ 			cifs_server_dbg(VFS,
+ 				"SMB2.1 dialect returned but not requested\n");
+-			return -EIO;
++			goto neg_exit;
+ 		} else if (rsp->DialectRevision == cpu_to_le16(SMB311_PROT_ID)) {
+ 			/* ops set to 3.0 by default for default so update */
+ 			server->ops = &smb311_operations;
+@@ -953,7 +954,7 @@ SMB2_negotiate(const unsigned int xid, s
+ 		if (rsp->DialectRevision == cpu_to_le16(SMB20_PROT_ID)) {
+ 			cifs_server_dbg(VFS,
+ 				"SMB2 dialect returned but not requested\n");
+-			return -EIO;
++			goto neg_exit;
+ 		} else if (rsp->DialectRevision == cpu_to_le16(SMB21_PROT_ID)) {
+ 			/* ops set to 3.0 by default for default so update */
+ 			server->ops = &smb21_operations;
+@@ -967,7 +968,7 @@ SMB2_negotiate(const unsigned int xid, s
+ 		/* if requested single dialect ensure returned dialect matched */
+ 		cifs_server_dbg(VFS, "Invalid 0x%x dialect returned: not requested\n",
+ 				le16_to_cpu(rsp->DialectRevision));
+-		return -EIO;
++		goto neg_exit;
+ 	}
+ 
+ 	cifs_dbg(FYI, "mode 0x%x\n", rsp->SecurityMode);
+@@ -985,9 +986,10 @@ SMB2_negotiate(const unsigned int xid, s
+ 	else {
+ 		cifs_server_dbg(VFS, "Invalid dialect returned by server 0x%x\n",
+ 				le16_to_cpu(rsp->DialectRevision));
+-		rc = -EIO;
+ 		goto neg_exit;
+ 	}
 +
-+/*
-  * Acton Research Corp.
-  */
- #define ACTON_VID		0x0647	/* Vendor ID */
++	rc = 0;
+ 	server->dialect = le16_to_cpu(rsp->DialectRevision);
+ 
+ 	/*
 
 
