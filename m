@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B6E05AECA4
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB935AEC16
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239266AbiIFN5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:57:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57258 "EHLO
+        id S239848AbiIFOAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:00:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239208AbiIFNzS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:55:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB2E8274F;
-        Tue,  6 Sep 2022 06:42:04 -0700 (PDT)
+        with ESMTP id S240509AbiIFN5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:57:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B0F78BC5;
+        Tue,  6 Sep 2022 06:42:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6BD461539;
-        Tue,  6 Sep 2022 13:41:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E63A0C433C1;
-        Tue,  6 Sep 2022 13:41:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CA6FB81636;
+        Tue,  6 Sep 2022 13:41:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F4CC433D7;
+        Tue,  6 Sep 2022 13:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471712;
-        bh=ZMuCM/AEbr9Rl8T6O2PaMteciFpLHboakfrG1XUUxnE=;
+        s=korg; t=1662471715;
+        bh=zkfqekhPS+p6+BJUAlqNpuJtYBlshZ7oJ2takpsDA30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IxAb3GAv4MK95y7JtNeurvfc6TinGnN4/kKj8K3cLkSXV6EYoMdEHgWcIIycSravq
-         OLZHqwno7IJ+ddMWRWspX9L/Q4GzLxwq7PK2tGoPo7bHNmyoQ0F4oCehVSkIg+l9vh
-         K5kdrte8rX7V5FIpkMCa/WNNEq3Yp0rQVVIqSw3s=
+        b=sQ8en1cwBCvULkCO0x553E+tRYNNHnJSNmwLyDFsEVYotjbcOzMInY/4/PZo3GU7V
+         IpOZApQegVooNcwqSkMbgJOhAtBz4UM3UWXKid6jX2WIJSUFSq/S8qeB1oqY6SN4oY
+         rJQ0jpP27DnPwut9p4iatSLcXAfDKdcEoKa7kxAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        stable@vger.kernel.org, YiFei Zhu <zhuyifei@google.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 013/155] skmsg: Fix wrong last sg check in sk_msg_recvmsg()
-Date:   Tue,  6 Sep 2022 15:29:21 +0200
-Message-Id: <20220906132830.000332645@linuxfoundation.org>
+Subject: [PATCH 5.19 014/155] bpf: Restrict bpf_sys_bpf to CAP_PERFMON
+Date:   Tue,  6 Sep 2022 15:29:22 +0200
+Message-Id: <20220906132830.033423812@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -56,65 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: YiFei Zhu <zhuyifei@google.com>
 
-[ Upstream commit 583585e48d965338e73e1eb383768d16e0922d73 ]
+[ Upstream commit 14b20b784f59bdd95f6f1cfb112c9818bcec4d84 ]
 
-Fix one kernel NULL pointer dereference as below:
+The verifier cannot perform sufficient validation of any pointers passed
+into bpf_attr and treats them as integers rather than pointers. The helper
+will then read from arbitrary pointers passed into it. Restrict the helper
+to CAP_PERFMON since the security model in BPF of arbitrary kernel read is
+CAP_BPF + CAP_PERFMON.
 
-[  224.462334] Call Trace:
-[  224.462394]  __tcp_bpf_recvmsg+0xd3/0x380
-[  224.462441]  ? sock_has_perm+0x78/0xa0
-[  224.462463]  tcp_bpf_recvmsg+0x12e/0x220
-[  224.462494]  inet_recvmsg+0x5b/0xd0
-[  224.462534]  __sys_recvfrom+0xc8/0x130
-[  224.462574]  ? syscall_trace_enter+0x1df/0x2e0
-[  224.462606]  ? __do_page_fault+0x2de/0x500
-[  224.462635]  __x64_sys_recvfrom+0x24/0x30
-[  224.462660]  do_syscall_64+0x5d/0x1d0
-[  224.462709]  entry_SYSCALL_64_after_hwframe+0x65/0xca
-
-In commit 9974d37ea75f ("skmsg: Fix invalid last sg check in
-sk_msg_recvmsg()"), we change last sg check to sg_is_last(),
-but in sockmap redirection case (without stream_parser/stream_verdict/
-skb_verdict), we did not mark the end of the scatterlist. Check the
-sk_msg_alloc, sk_msg_page_add, and bpf_msg_push_data functions, they all
-do not mark the end of sg. They are expected to use sg.end for end
-judgment. So the judgment of '(i != msg_rx->sg.end)' is added back here.
-
-Fixes: 9974d37ea75f ("skmsg: Fix invalid last sg check in sk_msg_recvmsg()")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
+Fixes: af2ac3e13e45 ("bpf: Prepare bpf syscall to be used from kernel and user space.")
+Signed-off-by: YiFei Zhu <zhuyifei@google.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20220809094915.150391-1-liujian56@huawei.com
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220816205517.682470-1-zhuyifei@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/bpf/syscall.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 84209e661171e..69ac686c7cae3 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -462,7 +462,7 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
- 
- 			if (copied == len)
- 				break;
--		} while (!sg_is_last(sge));
-+		} while ((i != msg_rx->sg.end) && !sg_is_last(sge));
- 
- 		if (unlikely(peek)) {
- 			msg_rx = sk_psock_next_msg(psock, msg_rx);
-@@ -472,7 +472,7 @@ int sk_msg_recvmsg(struct sock *sk, struct sk_psock *psock, struct msghdr *msg,
- 		}
- 
- 		msg_rx->sg.start = i;
--		if (!sge->length && sg_is_last(sge)) {
-+		if (!sge->length && (i == msg_rx->sg.end || sg_is_last(sge))) {
- 			msg_rx = sk_psock_dequeue_msg(psock);
- 			kfree_sk_msg(msg_rx);
- 		}
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index 82e83cfb4114a..dd0fc2a86ce17 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -5153,7 +5153,7 @@ syscall_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+ {
+ 	switch (func_id) {
+ 	case BPF_FUNC_sys_bpf:
+-		return &bpf_sys_bpf_proto;
++		return !perfmon_capable() ? NULL : &bpf_sys_bpf_proto;
+ 	case BPF_FUNC_btf_find_by_name_kind:
+ 		return &bpf_btf_find_by_name_kind_proto;
+ 	case BPF_FUNC_sys_close:
 -- 
 2.35.1
 
