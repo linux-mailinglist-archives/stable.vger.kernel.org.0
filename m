@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 562BE5AECC2
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1EE5AEC78
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229631AbiIFNzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:55:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45824 "EHLO
+        id S241549AbiIFOUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:20:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239836AbiIFNyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:54:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6ECD804A2;
-        Tue,  6 Sep 2022 06:41:06 -0700 (PDT)
+        with ESMTP id S242111AbiIFOTh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:19:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E611D8B2F6;
+        Tue,  6 Sep 2022 06:50:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 786DE614C9;
-        Tue,  6 Sep 2022 13:41:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85019C433D6;
-        Tue,  6 Sep 2022 13:41:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44666B818E2;
+        Tue,  6 Sep 2022 13:48:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AC02C433C1;
+        Tue,  6 Sep 2022 13:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471665;
-        bh=hu6botTHiQm8Tl+D3CgsImgm+NidKmwEjsE9sSec0lo=;
+        s=korg; t=1662472135;
+        bh=DXU2fytwxzmrl9SUms9dI7mpnguBF0nHu9GaaMmVIYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3G9xZ63km0sebwUu5G+HNxBA0+uv/f5lZbXkC1t9ihWU5r1Asno/CThA1kyz+us+
-         uKYiU9YMP+WnC1mUQaUnB+3CYSpQfKwCy6XHGsQgzsOkbz6w52ClxXVI+V9OhBGWVe
-         hTPyCr/3HG5FN+huAmTIkptxXI5Mncj4hi9hO04M=
+        b=PwsGID+sxFnC0xgpPds0hFOCCe7ToxNgBzZGT67/BWiHNR6iS9bUV0cM5SWQZ10Xr
+         Zs2zCUTYqfhwMRJWtrYXcBVTuT8Mg5HzMlk+qmbZyz6ZWk66Hoi6TkRySSeddl52E/
+         +CyYBRgNkgg0jBpG4VrzrJveuPoIaS3Pkl9o1V9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        stable <stable@kernel.org>,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 5.15 105/107] usb: dwc3: disable USB core PHY management
-Date:   Tue,  6 Sep 2022 15:31:26 +0200
-Message-Id: <20220906132826.312588809@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com,
+        Siddh Raman Pant <code@siddh.me>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.19 139/155] wifi: mac80211: Dont finalize CSA in IBSS mode if state is disconnected
+Date:   Tue,  6 Sep 2022 15:31:27 +0200
+Message-Id: <20220906132835.336930592@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
+References: <20220906132829.417117002@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Siddh Raman Pant <code@siddh.me>
 
-commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
+commit 15bc8966b6d3a5b9bfe4c9facfa02f2b69b1e5f0 upstream.
 
-The dwc3 driver manages its PHYs itself so the USB core PHY management
-needs to be disabled.
+When we are not connected to a channel, sending channel "switch"
+announcement doesn't make any sense.
 
-Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
-host: xhci-plat: add platform data support") and f768e718911e ("usb:
-host: xhci-plat: add priv quirk for skip PHY initialization") to
-propagate the setting for now.
+The BSS list is empty in that case. This causes the for loop in
+cfg80211_get_bss() to be bypassed, so the function returns NULL
+(check line 1424 of net/wireless/scan.c), causing the WARN_ON()
+in ieee80211_ibss_csa_beacon() to get triggered (check line 500
+of net/mac80211/ibss.c), which was consequently reported on the
+syzkaller dashboard.
 
-Fixes: 4e88d4c08301 ("usb: add a flag to skip PHY initialization to struct usb_hcd")
-Fixes: 178a0bce05cb ("usb: core: hcd: integrate the PHY wrapper into the HCD core")
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Cc: stable <stable@kernel.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220825131836.19769-1-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ johan: adjust context to 5.15 ]
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Thus, check if we have an existing connection before generating
+the CSA beacon in ieee80211_ibss_finish_csa().
+
+Cc: stable@vger.kernel.org
+Fixes: cd7760e62c2a ("mac80211: add support for CSA in IBSS mode")
+Link: https://syzkaller.appspot.com/bug?id=05603ef4ae8926761b678d2939a3b2ad28ab9ca6
+Reported-by: syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Tested-by: syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20220814151512.9985-1-code@siddh.me
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/host.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/mac80211/ibss.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -10,8 +10,13 @@
- #include <linux/acpi.h>
- #include <linux/platform_device.h>
+--- a/net/mac80211/ibss.c
++++ b/net/mac80211/ibss.c
+@@ -534,6 +534,10 @@ int ieee80211_ibss_finish_csa(struct iee
  
-+#include "../host/xhci-plat.h"
- #include "core.h"
+ 	sdata_assert_lock(sdata);
  
-+static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
-+	.quirks = XHCI_SKIP_PHY_INIT,
-+};
++	/* When not connected/joined, sending CSA doesn't make sense. */
++	if (ifibss->state != IEEE80211_IBSS_MLME_JOINED)
++		return -ENOLINK;
 +
- static int dwc3_host_get_irq(struct dwc3 *dwc)
- {
- 	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
-@@ -87,6 +92,11 @@ int dwc3_host_init(struct dwc3 *dwc)
- 		goto err;
- 	}
- 
-+	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
-+					sizeof(dwc3_xhci_plat_priv));
-+	if (ret)
-+		goto err;
-+
- 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
- 
- 	if (dwc->usb3_lpm_capable)
+ 	/* update cfg80211 bss information with the new channel */
+ 	if (!is_zero_ether_addr(ifibss->bssid)) {
+ 		cbss = cfg80211_get_bss(sdata->local->hw.wiphy,
 
 
