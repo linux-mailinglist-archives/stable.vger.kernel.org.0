@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F7E5AE6A5
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A275AE6A7
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232384AbiIFLdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:33:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51422 "EHLO
+        id S232725AbiIFLdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:33:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231562AbiIFLdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:33:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 464F44F191
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:33:41 -0700 (PDT)
+        with ESMTP id S231562AbiIFLdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:33:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3AE84C639
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:33:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA3F061495
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:33:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B43C0C433C1;
-        Tue,  6 Sep 2022 11:33:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 910FC60BBC
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:33:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A15D6C433C1;
+        Tue,  6 Sep 2022 11:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662464020;
-        bh=JjLdXlMjxqgtWIxou7uQAQaWNnsiikU1aJU8NopjEi4=;
+        s=korg; t=1662464026;
+        bh=KzIM83CY8xJKWjkGhTTl9VBFh5Pi97FIJRysbk8KxVA=;
         h=Subject:To:Cc:From:Date:From;
-        b=2dspD8NrNgfS0sLl7vJKZo6sipcHb0AZQfyjHicYdJijkVY6A8GFRKP5CuIrMYwY+
-         A0CRXYZLlTDSiRUbNJs5AYny6VGGg5ILH3b+YxmLTg7edavRFU48DifoXQag8auyeX
-         0LzsK+zC15uRDJ9PLRwg4ovH0Ie5jOrpLEs7PiIM=
-Subject: FAILED: patch "[PATCH] smb3: fix temporary data corruption in insert range" failed to apply to 5.19-stable tree
-To:     dhowells@redhat.com, lsahlber@redhat.com, stfrench@microsoft.com
+        b=AGHKAHhMSbRtKbInni6XP24QBunOFT9/G9yaZo46HyN3lC8R2a3+c/a3VxfwMKELk
+         Rpv+uKwToMHIL7k6ObhRsxV0SWshSte11xiMTExvUoaZlSOGmXtNPqfYgr1PPWbZ/r
+         5JYJsKYDXw1UwjbjsdGSYVxDjnRTRyYyAXtF9ET8=
+Subject: FAILED: patch "[PATCH] smb3: fix temporary data corruption in collapse range" failed to apply to 5.19-stable tree
+To:     stfrench@microsoft.com, dhowells@redhat.com, lsahlber@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:33:27 +0200
-Message-ID: <1662464007237185@kroah.com>
+Date:   Tue, 06 Sep 2022 13:33:34 +0200
+Message-ID: <166246401467253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,72 +59,82 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9c8b7a293f50253e694f19161c045817a938e551 Mon Sep 17 00:00:00 2001
-From: David Howells <dhowells@redhat.com>
-Date: Tue, 23 Aug 2022 14:07:55 +0100
-Subject: [PATCH] smb3: fix temporary data corruption in insert range
+From fa30a81f255a56cccd89552cd6ce7ea6e8d8acc4 Mon Sep 17 00:00:00 2001
+From: Steve French <stfrench@microsoft.com>
+Date: Tue, 23 Aug 2022 14:07:41 +0100
+Subject: [PATCH] smb3: fix temporary data corruption in collapse range
 
-insert range doesn't discard the affected cached region
-so can risk temporarily corrupting file data.
+collapse range doesn't discard the affected cached region
+so can risk temporarily corrupting the file data. This
+fixes xfstest generic/031
 
-Also includes some minor cleanup (avoiding rereading
-inode size repeatedly unnecessarily) to make it clearer.
+I also decided to merge a minor cleanup to this into the same patch
+(avoiding rereading inode size repeatedly unnecessarily) to make it
+clearer.
 
 Cc: stable@vger.kernel.org
-Fixes: 7fe6fe95b936 ("cifs: add FALLOC_FL_INSERT_RANGE support")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 5476b5dd82c8b ("cifs: add support for FALLOC_FL_COLLAPSE_RANGE")
+Reported-by: David Howells <dhowells@redhat.com>
+Tested-by: David Howells <dhowells@redhat.com>
+Reviewed-by: David Howells <dhowells@redhat.com>
 cc: Ronnie Sahlberg <lsahlber@redhat.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 
 diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 5b5ddc1b4638..7c941ce1e7a9 100644
+index 674cf187fb0f..5b5ddc1b4638 100644
 --- a/fs/cifs/smb2ops.c
 +++ b/fs/cifs/smb2ops.c
-@@ -3722,35 +3722,43 @@ static long smb3_insert_range(struct file *file, struct cifs_tcon *tcon,
+@@ -3669,41 +3669,47 @@ static long smb3_collapse_range(struct file *file, struct cifs_tcon *tcon,
+ {
+ 	int rc;
+ 	unsigned int xid;
+-	struct inode *inode;
++	struct inode *inode = file_inode(file);
  	struct cifsFileInfo *cfile = file->private_data;
- 	struct inode *inode = file_inode(file);
+-	struct cifsInodeInfo *cifsi;
++	struct cifsInodeInfo *cifsi = CIFS_I(inode);
  	__le64 eof;
--	__u64  count;
-+	__u64  count, old_eof;
++	loff_t old_eof;
  
  	xid = get_xid();
  
--	if (off >= i_size_read(inode)) {
+-	inode = d_inode(cfile->dentry);
+-	cifsi = CIFS_I(inode);
 +	inode_lock(inode);
-+
+ 
+-	if (off >= i_size_read(inode) ||
+-	    off + len >= i_size_read(inode)) {
 +	old_eof = i_size_read(inode);
-+	if (off >= old_eof) {
++	if ((off >= old_eof) ||
++	    off + len >= old_eof) {
  		rc = -EINVAL;
  		goto out;
  	}
- 
--	count = i_size_read(inode) - off;
--	eof = cpu_to_le64(i_size_read(inode) + len);
-+	count = old_eof - off;
-+	eof = cpu_to_le64(old_eof + len);
  
 +	filemap_invalidate_lock(inode->i_mapping);
  	filemap_write_and_wait(inode->i_mapping);
 +	truncate_pagecache_range(inode, off, old_eof);
  
+ 	rc = smb2_copychunk_range(xid, cfile, cfile, off + len,
+-				  i_size_read(inode) - off - len, off);
++				  old_eof - off - len, off);
+ 	if (rc < 0)
+-		goto out;
++		goto out_2;
+ 
+-	eof = cpu_to_le64(i_size_read(inode) - len);
++	eof = cpu_to_le64(old_eof - len);
  	rc = SMB2_set_eof(xid, tcon, cfile->fid.persistent_fid,
  			  cfile->fid.volatile_fid, cfile->pid, &eof);
  	if (rc < 0)
 -		goto out;
 +		goto out_2;
  
- 	rc = smb2_copychunk_range(xid, cfile, cfile, off, count, off + len);
- 	if (rc < 0)
--		goto out;
-+		goto out_2;
- 
--	rc = smb3_zero_range(file, tcon, off, len, 1);
-+	rc = smb3_zero_data(file, tcon, off, len, xid);
- 	if (rc < 0)
--		goto out;
-+		goto out_2;
- 
  	rc = 0;
+ 
+ 	cifsi->server_eof = i_size_read(inode) - len;
+ 	truncate_setsize(inode, cifsi->server_eof);
+ 	fscache_resize_cookie(cifs_inode_cookie(inode), cifsi->server_eof);
 +out_2:
 +	filemap_invalidate_unlock(inode->i_mapping);
   out:
