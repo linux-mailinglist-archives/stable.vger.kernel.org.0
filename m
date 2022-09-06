@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2EB25AEA42
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECCA5AEAC2
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233184AbiIFNju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:39:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39422 "EHLO
+        id S239514AbiIFNzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:55:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240819AbiIFNip (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:38:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CD082703;
-        Tue,  6 Sep 2022 06:35:51 -0700 (PDT)
+        with ESMTP id S239745AbiIFNyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:54:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C053680B55;
+        Tue,  6 Sep 2022 06:41:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73D8B6154E;
-        Tue,  6 Sep 2022 13:34:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 831A1C433C1;
-        Tue,  6 Sep 2022 13:34:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9F8BB81632;
+        Tue,  6 Sep 2022 13:40:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 347A6C433D6;
+        Tue,  6 Sep 2022 13:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471292;
-        bh=qOPfv6rN3G08Au0xWngt92uuyIDREJjHLEVh3jzqV5I=;
+        s=korg; t=1662471651;
+        bh=z/Oako/OHqlxEBsGpExXXPCoqeefWnC2mfT3YBb4Hms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pUMHJY4J4Imi33CuPVbC4Ak1v+nAWgB5p+uRwwqz2joxtWLOGD6NPZm3DXBrmSsP2
-         n8fXQGwY3rGYpudWhyXOcDa1YfyEKOflvGR1LZd4KyiOAb3XoJjnmxPhRmJnpsUjkJ
-         VD07oAnd2E5KyDT8MYAuz/Yh9KfcnwT4l9BONMEg=
+        b=TBtu7nocHDS+pbLGhtFGwFtVsoJob9fpAtzT0h07Y1cyAVHPpYTIMNvLABd/Bnw/L
+         v6zJi8RTI0u8CSdqlnFLuSGH2xCQMNjno4mb0ndM91ZhJeUac3u8W2BjjASyzFvvXZ
+         SRN0t7YEkNgBKoTtziiPGQvLyrU8IjLdIR9UMce0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yan Xinyu <sdlyyxy@bupt.edu.cn>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 53/80] USB: serial: option: add support for OPPO R11 diag port
+        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Rondreis <linhaoguo86@gmail.com>
+Subject: [PATCH 5.15 069/107] media: mceusb: Use new usb_control_msg_*() routines
 Date:   Tue,  6 Sep 2022 15:30:50 +0200
-Message-Id: <20220906132819.257861371@linuxfoundation.org>
+Message-Id: <20220906132824.727202054@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan Xinyu <sdlyyxy@bupt.edu.cn>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 8d5fc280392735e4441b35de14f2f4860fa8d83c upstream.
+commit 608e58a0f4617977178131f5f68a3fce1d3f5316 upstream.
 
-Add support for OPPO R11 USB diag serial port to option driver. This
-phone uses Qualcomm Snapdragon 660 SoC.
+Automatic kernel fuzzing led to a WARN about invalid pipe direction in
+the mceusb driver:
 
-usb-devices output:
-T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22d9 ProdID=276c Rev=04.04
-S:  Manufacturer=OPPO
-S:  Product=SDM660-MTP _SN:09C6BCA7
-S:  SerialNumber=beb2c403
-C:  #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=usbfs
+------------[ cut here ]------------
+usb 6-1: BOGUS control dir, pipe 80000380 doesn't match bRequestType 40
+WARNING: CPU: 0 PID: 2465 at drivers/usb/core/urb.c:410
+usb_submit_urb+0x1326/0x1820 drivers/usb/core/urb.c:410
+Modules linked in:
+CPU: 0 PID: 2465 Comm: kworker/0:2 Not tainted 5.19.0-rc4-00208-g69cb6c6556ad #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.13.0-1ubuntu1.1 04/01/2014
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:usb_submit_urb+0x1326/0x1820 drivers/usb/core/urb.c:410
+Code: 7c 24 40 e8 ac 23 91 fd 48 8b 7c 24 40 e8 b2 70 1b ff 45 89 e8
+44 89 f1 4c 89 e2 48 89 c6 48 c7 c7 a0 30 a9 86 e8 48 07 11 02 <0f> 0b
+e9 1c f0 ff ff e8 7e 23 91 fd 0f b6 1d 63 22 83 05 31 ff 41
+RSP: 0018:ffffc900032becf0 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: ffff8881100f3058 RCX: 0000000000000000
+RDX: ffffc90004961000 RSI: ffff888114c6d580 RDI: fffff52000657d90
+RBP: ffff888105ad90f0 R08: ffffffff812c3638 R09: 0000000000000000
+R10: 0000000000000005 R11: ffffed1023504ef1 R12: ffff888105ad9000
+R13: 0000000000000040 R14: 0000000080000380 R15: ffff88810ba96500
+FS: 0000000000000000(0000) GS:ffff88811a800000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffe810bda58 CR3: 000000010b720000 CR4: 0000000000350ef0
+Call Trace:
+<TASK>
+usb_start_wait_urb+0x101/0x4c0 drivers/usb/core/message.c:58
+usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+usb_control_msg+0x31c/0x4a0 drivers/usb/core/message.c:153
+mceusb_gen1_init drivers/media/rc/mceusb.c:1431 [inline]
+mceusb_dev_probe+0x258e/0x33f0 drivers/media/rc/mceusb.c:1807
 
-Signed-off-by: Yan Xinyu <sdlyyxy@bupt.edu.cn>
-Link: https://lore.kernel.org/r/20220714102037.4113889-1-sdlyyxy@bupt.edu.cn
-Link: https://lore.kernel.org/r/Yt1WfSZk03Plpnan@hovoldconsulting.com
+The reason for the warning is clear enough; the driver sends an
+unusual read request on endpoint 0 but does not set the USB_DIR_IN bit
+in the bRequestType field.
+
+More importantly, the whole situation can be avoided and the driver
+simplified by converting it over to the relatively new
+usb_control_msg_recv() and usb_control_msg_send() routines.  That's
+what this fix does.
+
+Link: https://lore.kernel.org/all/CAB7eexLLApHJwZfMQ=X-PtRhw0BgO+5KcSMS05FNUYejJXqtSA@mail.gmail.com/
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-and-tested-by: Rondreis <linhaoguo86@gmail.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/YwkfnBFCSEVC6XZu@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/rc/mceusb.c |   35 ++++++++++++++---------------------
+ 1 file changed, 14 insertions(+), 21 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -573,6 +573,10 @@ static void option_instat_callback(struc
- #define WETELECOM_PRODUCT_6802			0x6802
- #define WETELECOM_PRODUCT_WMD300		0x6803
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1416,42 +1416,37 @@ static void mceusb_gen1_init(struct mceu
+ {
+ 	int ret;
+ 	struct device *dev = ir->dev;
+-	char *data;
+-
+-	data = kzalloc(USB_CTRL_MSG_SZ, GFP_KERNEL);
+-	if (!data) {
+-		dev_err(dev, "%s: memory allocation failed!", __func__);
+-		return;
+-	}
++	char data[USB_CTRL_MSG_SZ];
  
-+/* OPPO products */
-+#define OPPO_VENDOR_ID				0x22d9
-+#define OPPO_PRODUCT_R11			0x276c
-+
+ 	/*
+ 	 * This is a strange one. Windows issues a set address to the device
+ 	 * on the receive control pipe and expect a certain value pair back
+ 	 */
+-	ret = usb_control_msg(ir->usbdev, usb_rcvctrlpipe(ir->usbdev, 0),
+-			      USB_REQ_SET_ADDRESS, USB_TYPE_VENDOR, 0, 0,
+-			      data, USB_CTRL_MSG_SZ, 3000);
++	ret = usb_control_msg_recv(ir->usbdev, 0, USB_REQ_SET_ADDRESS,
++				   USB_DIR_IN | USB_TYPE_VENDOR,
++				   0, 0, data, USB_CTRL_MSG_SZ, 3000,
++				   GFP_KERNEL);
+ 	dev_dbg(dev, "set address - ret = %d", ret);
+ 	dev_dbg(dev, "set address - data[0] = %d, data[1] = %d",
+ 						data[0], data[1]);
  
- /* Device flags */
+ 	/* set feature: bit rate 38400 bps */
+-	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+-			      USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
+-			      0xc04e, 0x0000, NULL, 0, 3000);
++	ret = usb_control_msg_send(ir->usbdev, 0,
++				   USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
++				   0xc04e, 0x0000, NULL, 0, 3000, GFP_KERNEL);
  
-@@ -2155,6 +2159,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
- 	{ } /* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, option_ids);
+ 	dev_dbg(dev, "set feature - ret = %d", ret);
+ 
+ 	/* bRequest 4: set char length to 8 bits */
+-	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+-			      4, USB_TYPE_VENDOR,
+-			      0x0808, 0x0000, NULL, 0, 3000);
++	ret = usb_control_msg_send(ir->usbdev, 0,
++				   4, USB_TYPE_VENDOR,
++				   0x0808, 0x0000, NULL, 0, 3000, GFP_KERNEL);
+ 	dev_dbg(dev, "set char length - retB = %d", ret);
+ 
+ 	/* bRequest 2: set handshaking to use DTR/DSR */
+-	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+-			      2, USB_TYPE_VENDOR,
+-			      0x0000, 0x0100, NULL, 0, 3000);
++	ret = usb_control_msg_send(ir->usbdev, 0,
++				   2, USB_TYPE_VENDOR,
++				   0x0000, 0x0100, NULL, 0, 3000, GFP_KERNEL);
+ 	dev_dbg(dev, "set handshake  - retC = %d", ret);
+ 
+ 	/* device resume */
+@@ -1459,8 +1454,6 @@ static void mceusb_gen1_init(struct mceu
+ 
+ 	/* get hw/sw revision? */
+ 	mce_command_out(ir, GET_REVISION, sizeof(GET_REVISION));
+-
+-	kfree(data);
+ }
+ 
+ static void mceusb_gen2_init(struct mceusb_dev *ir)
 
 
