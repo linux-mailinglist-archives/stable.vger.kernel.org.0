@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F37DD5AE9D1
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 965B25AEAAC
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240691AbiIFNgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:36:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52372 "EHLO
+        id S238535AbiIFNue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240692AbiIFNf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:35:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 563087AC22;
-        Tue,  6 Sep 2022 06:33:58 -0700 (PDT)
+        with ESMTP id S239294AbiIFNtT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A38C31EC5F;
+        Tue,  6 Sep 2022 06:39:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6F1D61549;
-        Tue,  6 Sep 2022 13:33:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFDC7C433D6;
-        Tue,  6 Sep 2022 13:33:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9150AB818D3;
+        Tue,  6 Sep 2022 13:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E54B4C433D6;
+        Tue,  6 Sep 2022 13:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471237;
-        bh=2U7iI0nmhUphuAQOvU5vkJ0Ft2zgRmZO5Dr6eh1Hc7g=;
+        s=korg; t=1662471541;
+        bh=rdypZS0tNWFcxBgXElanM8dpWaEOVqTRY4t1YevE2ZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q9DbzcK5WMb60WBsHidxsIwhlEc+w4WfrcYoWuIoyztHrBOdvEI/1vGA1BBTAnPU0
-         dRbYJsxeRdXLQuL6/MyA1WokSrhMpC5+zXTk+2lNfvCZruMQaQadHwr546tRv7X6LO
-         77g+hGNHHhY0IDi9go1/hclC2Ofw4uTrdN6W7Fl8=
+        b=OdK4PG1yKKX9oaSbkVeB4sauGugN/lVZZFDd2yqzrSmnNGCLafbagFHUKYnmXDPq5
+         USzaZrMLL7v5UndYaVsFDtRX/2D2HtX7Yj/GLc4bs7f6d8CVJQ12XWD1C+CImvV+oA
+         IAWH9sU1zgBUY3D9Ok6ffxE7atyXBW3YhAYPVdpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
         Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 43/80] gpio: pca953x: Add mutex_lock for regcache sync in PM
-Date:   Tue,  6 Sep 2022 15:30:40 +0200
-Message-Id: <20220906132818.811111055@linuxfoundation.org>
+Subject: [PATCH 5.15 060/107] gpio: pca953x: Add mutex_lock for regcache sync in PM
+Date:   Tue,  6 Sep 2022 15:30:41 +0200
+Message-Id: <20220906132824.376866734@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -79,10 +79,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index 957be5f69406a..3ad1a9e432c8a 100644
+index 64befd6f702b2..4860bf3b7e002 100644
 --- a/drivers/gpio/gpio-pca953x.c
 +++ b/drivers/gpio/gpio-pca953x.c
-@@ -1162,7 +1162,9 @@ static int pca953x_suspend(struct device *dev)
+@@ -1163,7 +1163,9 @@ static int pca953x_suspend(struct device *dev)
  {
  	struct pca953x_chip *chip = dev_get_drvdata(dev);
  
@@ -92,7 +92,7 @@ index 957be5f69406a..3ad1a9e432c8a 100644
  
  	if (atomic_read(&chip->wakeup_path))
  		device_set_wakeup_path(dev);
-@@ -1185,13 +1187,17 @@ static int pca953x_resume(struct device *dev)
+@@ -1186,13 +1188,17 @@ static int pca953x_resume(struct device *dev)
  		}
  	}
  
