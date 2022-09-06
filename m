@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 922885AEA2D
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7DAD5AEA43
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231441AbiIFNld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:41:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39346 "EHLO
+        id S233912AbiIFNlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:41:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232733AbiIFNjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:39:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BBE87D1F0;
-        Tue,  6 Sep 2022 06:36:39 -0700 (PDT)
+        with ESMTP id S233972AbiIFNkO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:40:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D852B7DF4E;
+        Tue,  6 Sep 2022 06:37:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BBD061555;
-        Tue,  6 Sep 2022 13:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D1A6C433D6;
-        Tue,  6 Sep 2022 13:35:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1785A61554;
+        Tue,  6 Sep 2022 13:35:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20815C433D6;
+        Tue,  6 Sep 2022 13:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471308;
-        bh=ncR27amRLgoeFbOMFz/zV4jrHbdgghFuP1I4mukXaL8=;
+        s=korg; t=1662471311;
+        bh=CRt/nAFidu2/Fa+kSY83hNUBSE8UekJvMXGOpiPP4Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HRIZhMwWirZ3GLFR8gpK282IdoGuf+vNzR4M9gLM32kcLMesMwvLVGdfF/OFWqE15
-         x5qL/0rsXOYW5n0D21KksCcSCJRtRFr1vW7nRq2pe0xUkFzffRwA7y/OG9QOYcQLG/
-         x1eqJTYyZN040wy/ifYyyTvfHPt8x9B0ARxjfGZ4=
+        b=NAapCTsFpZW0XxASrtbqhrduMjEhZPWRsR/KOq82xV7KhEXuaJEtIqX8m/cavKWqQ
+         gDYwgBpylkLW7sT6shztLwyCwajjLADa94UAD9MTT/Glyl7S1+tgRUAxD0te5VmIsH
+         UqoeJlZ1capSOWuZlpNinIpKJXJUj+Si/yu5n0Kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Siddh Raman Pant <code@siddh.me>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 66/80] wifi: mac80211: Fix UAF in ieee80211_scan_rx()
-Date:   Tue,  6 Sep 2022 15:31:03 +0200
-Message-Id: <20220906132819.834452293@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
+        Heng Qi <hengqi@linux.alibaba.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 67/80] ip: fix triggering of icmp redirect
+Date:   Tue,  6 Sep 2022 15:31:04 +0200
+Message-Id: <20220906132819.883154337@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
 References: <20220906132816.936069583@linuxfoundation.org>
@@ -56,57 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddh Raman Pant <code@siddh.me>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit 60deb9f10eec5c6a20252ed36238b55d8b614a2c upstream.
+commit eb55dc09b5dd040232d5de32812cc83001a23da6 upstream.
 
-ieee80211_scan_rx() tries to access scan_req->flags after a
-null check, but a UAF is observed when the scan is completed
-and __ieee80211_scan_completed() executes, which then calls
-cfg80211_scan_done() leading to the freeing of scan_req.
+__mkroute_input() uses fib_validate_source() to trigger an icmp redirect.
+My understanding is that fib_validate_source() is used to know if the src
+address and the gateway address are on the same link. For that,
+fib_validate_source() returns 1 (same link) or 0 (not the same network).
+__mkroute_input() is the only user of these positive values, all other
+callers only look if the returned value is negative.
 
-Since scan_req is rcu_dereference()'d, prevent the racing in
-__ieee80211_scan_completed() by ensuring that from mac80211's
-POV it is no longer accessed from an RCU read critical section
-before we call cfg80211_scan_done().
+Since the below patch, fib_validate_source() didn't return anymore 1 when
+both addresses are on the same network, because the route lookup returns
+RT_SCOPE_LINK instead of RT_SCOPE_HOST. But this is, in fact, right.
+Let's adapat the test to return 1 again when both addresses are on the same
+link.
 
-Cc: stable@vger.kernel.org
-Link: https://syzkaller.appspot.com/bug?extid=f9acff9bf08a845f225d
-Reported-by: syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com
-Suggested-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
-Link: https://lore.kernel.org/r/20220819200340.34826-1-code@siddh.me
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+CC: stable@vger.kernel.org
+Fixes: 747c14307214 ("ip: fix dflt addr selection for connected nexthop")
+Reported-by: kernel test robot <yujie.liu@intel.com>
+Reported-by: Heng Qi <hengqi@linux.alibaba.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220829100121.3821-1-nicolas.dichtel@6wind.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/scan.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ net/ipv4/fib_frontend.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/mac80211/scan.c
-+++ b/net/mac80211/scan.c
-@@ -461,16 +461,19 @@ static void __ieee80211_scan_completed(s
- 	scan_req = rcu_dereference_protected(local->scan_req,
- 					     lockdep_is_held(&local->mtx));
- 
--	if (scan_req != local->int_scan_req) {
--		local->scan_info.aborted = aborted;
--		cfg80211_scan_done(scan_req, &local->scan_info);
--	}
- 	RCU_INIT_POINTER(local->scan_req, NULL);
- 	RCU_INIT_POINTER(local->scan_sdata, NULL);
- 
- 	local->scanning = 0;
- 	local->scan_chandef.chan = NULL;
- 
-+	synchronize_rcu();
-+
-+	if (scan_req != local->int_scan_req) {
-+		local->scan_info.aborted = aborted;
-+		cfg80211_scan_done(scan_req, &local->scan_info);
-+	}
-+
- 	/* Set power back to normal operating levels. */
- 	ieee80211_hw_config(local, 0);
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -389,7 +389,7 @@ static int __fib_validate_source(struct
+ 	dev_match = dev_match || (res.type == RTN_LOCAL &&
+ 				  dev == net->loopback_dev);
+ 	if (dev_match) {
+-		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
++		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
+ 		return ret;
+ 	}
+ 	if (no_addr)
+@@ -401,7 +401,7 @@ static int __fib_validate_source(struct
+ 	ret = 0;
+ 	if (fib_lookup(net, &fl4, &res, FIB_LOOKUP_IGNORE_LINKSTATE) == 0) {
+ 		if (res.type == RTN_UNICAST)
+-			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
++			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
+ 	}
+ 	return ret;
  
 
 
