@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F3755AEC22
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 324555AEBA1
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241608AbiIFOO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:14:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49088 "EHLO
+        id S241481AbiIFOOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:14:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241849AbiIFOOV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:14:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE9998991D;
-        Tue,  6 Sep 2022 06:49:01 -0700 (PDT)
+        with ESMTP id S241682AbiIFONw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:13:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D94407694E;
+        Tue,  6 Sep 2022 06:48:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BEA1B818D4;
-        Tue,  6 Sep 2022 13:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7334C433D6;
-        Tue,  6 Sep 2022 13:46:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94AFC614C9;
+        Tue,  6 Sep 2022 13:46:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 953B4C433C1;
+        Tue,  6 Sep 2022 13:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471991;
-        bh=gh8XiKj50FQL6mp4Rsc5LB0h18GzvE3L10AiNAuBAIo=;
+        s=korg; t=1662471994;
+        bh=BLKt3sXsnjJfaikD6GS4b3J1vS+NSVoxDchTvMXSrkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iL7qzeKBjsXUkG2t3v5sIEGJBl8zC4+iWSqHVZw57/UANWHdRHwuGCJ99SIEBWyXi
-         ZFYiNH5YAx2Stk8MpRhSNOCWcaiu/m7BNyOGcfswDWhH7OK4QifP0nIj5m/oyI6pLE
-         TFsxbeeZpO3VjrvyIhDwInvtgRNuZ3wqqo6NNtV0=
+        b=pkGA59EUtXtL17+I/F1sk5Es+/gNXO0xS5xoYAl6lJ8RY3TmG0aWO/j2pmsaKSeo3
+         /wd+Ur0vZiecP7MLMEMno+YMEPyba5J++RuzgzZnxkI9ibaaobcD2TP5Fa0gzdgAJ+
+         4pY6dByeUs7oS5Zj4mYG+g0nWi50LHZyq8+FlgzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        stable <stable@kernel.org>,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 5.19 110/155] usb: dwc3: disable USB core PHY management
-Date:   Tue,  6 Sep 2022 15:30:58 +0200
-Message-Id: <20220906132834.125401283@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Wesley Cheng <quic_wcheng@quicinc.com>
+Subject: [PATCH 5.19 111/155] usb: dwc3: gadget: Avoid duplicate requests to enable Run/Stop
+Date:   Tue,  6 Sep 2022 15:30:59 +0200
+Message-Id: <20220906132834.161346397@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,57 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Wesley Cheng <quic_wcheng@quicinc.com>
 
-commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
+commit 040f2dbd2010c43f33ad27249e6dac48456f4d99 upstream.
 
-The dwc3 driver manages its PHYs itself so the USB core PHY management
-needs to be disabled.
+Relocate the pullups_connected check until after it is ensured that there
+are no runtime PM transitions.  If another context triggered the DWC3
+core's runtime resume, it may have already enabled the Run/Stop.  Do not
+re-run the entire pullup sequence again, as it may issue a core soft
+reset while Run/Stop is already set.
 
-Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
-host: xhci-plat: add platform data support") and f768e718911e ("usb:
-host: xhci-plat: add priv quirk for skip PHY initialization") to
-propagate the setting for now.
+This patch depends on
+  commit 69e131d1ac4e ("usb: dwc3: gadget: Prevent repeat pullup()")
 
-Fixes: 4e88d4c08301 ("usb: add a flag to skip PHY initialization to struct usb_hcd")
-Fixes: 178a0bce05cb ("usb: core: hcd: integrate the PHY wrapper into the HCD core")
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Fixes: 77adb8bdf422 ("usb: dwc3: gadget: Allow runtime suspend if UDC unbinded")
 Cc: stable <stable@kernel.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220825131836.19769-1-johan+linaro@kernel.org
+Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
+Link: https://lore.kernel.org/r/20220728020647.9377-1-quic_wcheng@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/host.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/usb/dwc3/gadget.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -11,8 +11,13 @@
- #include <linux/of.h>
- #include <linux/platform_device.h>
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2538,9 +2538,6 @@ static int dwc3_gadget_pullup(struct usb
  
-+#include "../host/xhci-plat.h"
- #include "core.h"
+ 	is_on = !!is_on;
  
-+static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
-+	.quirks = XHCI_SKIP_PHY_INIT,
-+};
-+
- static void dwc3_host_fill_xhci_irq_res(struct dwc3 *dwc,
- 					int irq, char *name)
- {
-@@ -92,6 +97,11 @@ int dwc3_host_init(struct dwc3 *dwc)
- 		goto err;
+-	if (dwc->pullups_connected == is_on)
+-		return 0;
+-
+ 	dwc->softconnect = is_on;
+ 
+ 	/*
+@@ -2564,6 +2561,11 @@ static int dwc3_gadget_pullup(struct usb
+ 		pm_runtime_put(dwc->dev);
+ 		return 0;
  	}
- 
-+	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
-+					sizeof(dwc3_xhci_plat_priv));
-+	if (ret)
-+		goto err;
 +
- 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
++	if (dwc->pullups_connected == is_on) {
++		pm_runtime_put(dwc->dev);
++		return 0;
++	}
  
- 	if (dwc->usb3_lpm_capable)
+ 	if (!is_on) {
+ 		ret = dwc3_gadget_soft_disconnect(dwc);
 
 
