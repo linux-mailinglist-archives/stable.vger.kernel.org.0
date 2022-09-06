@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 073CA5AED2B
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FD545AED2F
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238987AbiIFOFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:05:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43704 "EHLO
+        id S240876AbiIFOIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:08:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241103AbiIFOCj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:02:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B6879FED;
-        Tue,  6 Sep 2022 06:44:31 -0700 (PDT)
+        with ESMTP id S239801AbiIFOHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:07:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80DC85F84;
+        Tue,  6 Sep 2022 06:45:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0D9F61558;
-        Tue,  6 Sep 2022 13:44:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED1C8C433D7;
-        Tue,  6 Sep 2022 13:44:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83040B8162F;
+        Tue,  6 Sep 2022 13:44:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB0FDC433D7;
+        Tue,  6 Sep 2022 13:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471870;
-        bh=/kphMfvmy1N44Mxd+GftXLtvXOVvSnNM2bEouU3MPoE=;
+        s=korg; t=1662471873;
+        bh=99zUrlUzgDoAoInppoeVr3lh4X3fhNxHqvt5PoHBQNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xaAoTn7PO2+E7UPO++SXjkfWRKELRLE8twAjEvSfi4p2O9ZOlFqQfrLBxbvY8848O
-         4crwQb4qs+kD3dXktcYVjDmCrDAw8/v655w2uLRJ7uStZPPVxChxcE1PHRS1grYGx1
-         IPxzHQOSS0V8Irm5q834CmWVDT+u5r8hig5bHKEI=
+        b=m9oWsGIyY2l/DV0e6/7/KfKyTxLjYNbM8ifHr4u+gW3Ko97AU1+KF8bcpDV6jrYag
+         rcQGwoUHA8BwIw+UiXkJFgecILgWkoo7jdLVeY4w/3p64QCqE5IVkIdtRRM2jnsJ22
+         Bw2aDW3rbOZYc4deWRNjHDgsjVE4uhZZxJ6ZK3Ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianyu Yuan <tianyu.yuan@corigine.com>,
-        Baowen Zheng <baowen.zheng@corigine.com>,
-        Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        George McCollister <george.mccollister@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 036/155] nfp: flower: fix ingress police using matchall filter
-Date:   Tue,  6 Sep 2022 15:29:44 +0200
-Message-Id: <20220906132830.951055764@linuxfoundation.org>
+Subject: [PATCH 5.19 037/155] net: dsa: xrs700x: Use irqsave variant for u64 stats update
+Date:   Tue,  6 Sep 2022 15:29:45 +0200
+Message-Id: <20220906132830.996581586@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -57,48 +59,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Yuan <tianyu.yuan@corigine.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit ebe5555c2f34505cdb1ae5c3de8b24e33740b3e0 ]
+[ Upstream commit 3f8ae9fe0409698799e173f698b714f34570b64b ]
 
-Referenced commit introduced nfp_policer_validate in the progress
-installing rate limiter. This validate check the action id and will
-reject police with CONTINUE, which is required to support ingress
-police offload.
+xrs700x_read_port_counters() updates the stats from a worker using the
+u64_stats_update_begin() version. This is okay on 32-UP since on the
+reader side preemption is disabled.
+On 32bit-SMP the writer can be preempted by the reader at which point
+the reader will spin on the seqcount until writer continues and
+completes the update.
 
-Fix this issue by allowing FLOW_ACTION_CONTINUE as notexceed action
-id in nfp_policer_validate
+Assigning the mib_mutex mutex to the underlying seqcount would ensure
+proper synchronisation. The API for that on the u64_stats_init() side
+isn't available. Since it is the only user, just use disable interrupts
+during the update.
 
-Fixes: d97b4b105ce7 ("flow_offload: reject offload for all drivers with invalid police parameters")
-Signed-off-by: Tianyu Yuan <tianyu.yuan@corigine.com>
-Reviewed-by: Baowen Zheng <baowen.zheng@corigine.com>
-Reviewed-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20220825080845.507534-1-simon.horman@corigine.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Use u64_stats_update_begin_irqsave() on the writer side to ensure an
+uninterrupted update.
+
+Fixes: ee00b24f32eb8 ("net: dsa: add Arrow SpeedChips XRS700x driver")
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: George McCollister <george.mccollister@gmail.com>
+Cc: Vivien Didelot <vivien.didelot@gmail.com>
+Cc: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Acked-by: George McCollister <george.mccollister@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/flower/qos_conf.c | 5 +++--
+ drivers/net/dsa/xrs700x/xrs700x.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/flower/qos_conf.c b/drivers/net/ethernet/netronome/nfp/flower/qos_conf.c
-index 3206ba83b1aaa..de2ef5bf8c694 100644
---- a/drivers/net/ethernet/netronome/nfp/flower/qos_conf.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/qos_conf.c
-@@ -127,10 +127,11 @@ static int nfp_policer_validate(const struct flow_action *action,
- 		return -EOPNOTSUPP;
- 	}
+diff --git a/drivers/net/dsa/xrs700x/xrs700x.c b/drivers/net/dsa/xrs700x/xrs700x.c
+index 3887ed33c5fe2..fa622639d6401 100644
+--- a/drivers/net/dsa/xrs700x/xrs700x.c
++++ b/drivers/net/dsa/xrs700x/xrs700x.c
+@@ -109,6 +109,7 @@ static void xrs700x_read_port_counters(struct xrs700x *priv, int port)
+ {
+ 	struct xrs700x_port *p = &priv->ports[port];
+ 	struct rtnl_link_stats64 stats;
++	unsigned long flags;
+ 	int i;
  
--	if (act->police.notexceed.act_id != FLOW_ACTION_PIPE &&
-+	if (act->police.notexceed.act_id != FLOW_ACTION_CONTINUE &&
-+	    act->police.notexceed.act_id != FLOW_ACTION_PIPE &&
- 	    act->police.notexceed.act_id != FLOW_ACTION_ACCEPT) {
- 		NL_SET_ERR_MSG_MOD(extack,
--				   "Offload not supported when conform action is not pipe or ok");
-+				   "Offload not supported when conform action is not continue, pipe or ok");
- 		return -EOPNOTSUPP;
- 	}
+ 	memset(&stats, 0, sizeof(stats));
+@@ -138,9 +139,9 @@ static void xrs700x_read_port_counters(struct xrs700x *priv, int port)
+ 	 */
+ 	stats.rx_packets += stats.multicast;
  
+-	u64_stats_update_begin(&p->syncp);
++	flags = u64_stats_update_begin_irqsave(&p->syncp);
+ 	p->stats64 = stats;
+-	u64_stats_update_end(&p->syncp);
++	u64_stats_update_end_irqrestore(&p->syncp, flags);
+ 
+ 	mutex_unlock(&p->mib_mutex);
+ }
 -- 
 2.35.1
 
