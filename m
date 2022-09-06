@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E45B5AEA22
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1D85AEAF0
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234072AbiIFNlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:41:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38314 "EHLO
+        id S239582AbiIFNzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:55:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234091AbiIFNkS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:40:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDBF77DF6E;
-        Tue,  6 Sep 2022 06:37:08 -0700 (PDT)
+        with ESMTP id S237977AbiIFNx1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:53:27 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C62A07B283;
+        Tue,  6 Sep 2022 06:40:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D3E961545;
-        Tue,  6 Sep 2022 13:35:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45E94C433C1;
-        Tue,  6 Sep 2022 13:35:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5F92FCE1779;
+        Tue,  6 Sep 2022 13:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2929C433C1;
+        Tue,  6 Sep 2022 13:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471335;
-        bh=PyZMdcACp8aTscjyxRfpRWX7/YNAAuHy+coEThDCwoM=;
+        s=korg; t=1662471628;
+        bh=ncR27amRLgoeFbOMFz/zV4jrHbdgghFuP1I4mukXaL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07HjAYw80ureUN+dIRbYhVvO9wzmyBZ5xtSflug6JnSOrDL035nwZHKdI9U1tIBXF
-         DSkzuzeabhfk6V9rSmek3fmrL1jCn0zSBb3w9OLx/0j2VloEYzWMLoxU9KrtXRrNXG
-         mzE2FAf3J//iHieNjCQl2z7Ve1gSRC15kIfss2II=
+        b=wVGR+8ah1ruTSXqVniVGpfoRSgHwji4rugJPjfVPWZIV9y8Q+ksCY5M8+2PFqX2Bg
+         HqXUNjjzFtp0L2CC5bkCzOf6MuNx69rGda0BM+F2PI21hYlsCO/pQVvaGcmeUN4tYT
+         uZ56Y5D4JoRptdx+igZLcRt20rD/RFEub9fHXB0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 74/80] btrfs: harden identification of a stale device
-Date:   Tue,  6 Sep 2022 15:31:11 +0200
-Message-Id: <20220906132820.223588978@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Siddh Raman Pant <code@siddh.me>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.15 091/107] wifi: mac80211: Fix UAF in ieee80211_scan_rx()
+Date:   Tue,  6 Sep 2022 15:31:12 +0200
+Message-Id: <20220906132825.673203768@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,95 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Siddh Raman Pant <code@siddh.me>
 
-commit 770c79fb65506fc7c16459855c3839429f46cb32 upstream.
+commit 60deb9f10eec5c6a20252ed36238b55d8b614a2c upstream.
 
-Identifying and removing the stale device from the fs_uuids list is done
-by btrfs_free_stale_devices().  btrfs_free_stale_devices() in turn
-depends on device_path_matched() to check if the device appears in more
-than one btrfs_device structure.
+ieee80211_scan_rx() tries to access scan_req->flags after a
+null check, but a UAF is observed when the scan is completed
+and __ieee80211_scan_completed() executes, which then calls
+cfg80211_scan_done() leading to the freeing of scan_req.
 
-The matching of the device happens by its path, the device path. However,
-when device mapper is in use, the dm device paths are nothing but a link
-to the actual block device, which leads to the device_path_matched()
-failing to match.
+Since scan_req is rcu_dereference()'d, prevent the racing in
+__ieee80211_scan_completed() by ensuring that from mac80211's
+POV it is no longer accessed from an RCU read critical section
+before we call cfg80211_scan_done().
 
-Fix this by matching the dev_t as provided by lookup_bdev() instead of
-plain string compare of the device paths.
-
-Reported-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Link: https://syzkaller.appspot.com/bug?extid=f9acff9bf08a845f225d
+Reported-by: syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com
+Suggested-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Link: https://lore.kernel.org/r/20220819200340.34826-1-code@siddh.me
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c |   44 +++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 37 insertions(+), 7 deletions(-)
+ net/mac80211/scan.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -540,15 +540,47 @@ error:
- 	return ret;
- }
+--- a/net/mac80211/scan.c
++++ b/net/mac80211/scan.c
+@@ -461,16 +461,19 @@ static void __ieee80211_scan_completed(s
+ 	scan_req = rcu_dereference_protected(local->scan_req,
+ 					     lockdep_is_held(&local->mtx));
  
--static bool device_path_matched(const char *path, struct btrfs_device *device)
-+/*
-+ * Check if the device in the path matches the device in the given struct device.
-+ *
-+ * Returns:
-+ *   true  If it is the same device.
-+ *   false If it is not the same device or on error.
-+ */
-+static bool device_matched(const struct btrfs_device *device, const char *path)
- {
--	int found;
-+	char *device_name;
-+	struct block_device *bdev_old;
-+	struct block_device *bdev_new;
-+
-+	/*
-+	 * If we are looking for a device with the matching dev_t, then skip
-+	 * device without a name (a missing device).
-+	 */
-+	if (!device->name)
-+		return false;
-+
-+	device_name = kzalloc(BTRFS_PATH_NAME_MAX, GFP_KERNEL);
-+	if (!device_name)
-+		return false;
+-	if (scan_req != local->int_scan_req) {
+-		local->scan_info.aborted = aborted;
+-		cfg80211_scan_done(scan_req, &local->scan_info);
+-	}
+ 	RCU_INIT_POINTER(local->scan_req, NULL);
+ 	RCU_INIT_POINTER(local->scan_sdata, NULL);
  
- 	rcu_read_lock();
--	found = strcmp(rcu_str_deref(device->name), path);
-+	scnprintf(device_name, BTRFS_PATH_NAME_MAX, "%s", rcu_str_deref(device->name));
- 	rcu_read_unlock();
+ 	local->scanning = 0;
+ 	local->scan_chandef.chan = NULL;
  
--	return found == 0;
-+	bdev_old = lookup_bdev(device_name);
-+	kfree(device_name);
-+	if (IS_ERR(bdev_old))
-+		return false;
++	synchronize_rcu();
 +
-+	bdev_new = lookup_bdev(path);
-+	if (IS_ERR(bdev_new))
-+		return false;
++	if (scan_req != local->int_scan_req) {
++		local->scan_info.aborted = aborted;
++		cfg80211_scan_done(scan_req, &local->scan_info);
++	}
 +
-+	if (bdev_old == bdev_new)
-+		return true;
-+
-+	return false;
- }
+ 	/* Set power back to normal operating levels. */
+ 	ieee80211_hw_config(local, 0);
  
- /*
-@@ -581,9 +613,7 @@ static int btrfs_free_stale_devices(cons
- 					 &fs_devices->devices, dev_list) {
- 			if (skip_device && skip_device == device)
- 				continue;
--			if (path && !device->name)
--				continue;
--			if (path && !device_path_matched(path, device))
-+			if (path && !device_matched(device, path))
- 				continue;
- 			if (fs_devices->opened) {
- 				/* for an already deleted device return 0 */
 
 
