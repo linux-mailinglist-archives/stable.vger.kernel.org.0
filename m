@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB1E5AEC8F
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EACA65AEC10
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241508AbiIFOOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:14:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49088 "EHLO
+        id S240953AbiIFOLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:11:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241722AbiIFON6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:13:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2231785A6;
-        Tue,  6 Sep 2022 06:48:25 -0700 (PDT)
+        with ESMTP id S241551AbiIFOKJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:10:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B7E186C13;
+        Tue,  6 Sep 2022 06:47:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BF36B818E1;
-        Tue,  6 Sep 2022 13:47:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 801A2C433C1;
-        Tue,  6 Sep 2022 13:47:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FAE760F89;
+        Tue,  6 Sep 2022 13:47:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 607C1C433D6;
+        Tue,  6 Sep 2022 13:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472030;
-        bh=3UcOXbWyeA5C56jtAvIiTnIveZqbtE8vO+hT19Hbj7k=;
+        s=korg; t=1662472033;
+        bh=qpDSi8Cq/D9AtkyR6e0dv7yhz5NO/64eV3IVCIZOq4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8oxHUYvCjyFEmwOpFuD+TXqtFW87dbLZP3EuKuSGOQtCkx9bC6pxrYpwRFQAGqxy
-         KfN4QnTozV1ua3PZzo+kikO75z8TjagqKAC23SVZO5b1RjESEWfd0WHJFLqf+JPkDK
-         tAIMO60b1kNWgQqbgZPXGnzF9zofU/PZfdnspxOk=
+        b=mSUmZOECasTmTBGqpqCAOvM0rXjlq+iBkr87ueDr6n4l37W9ITIMf+Qgsq0yQkITf
+         ue65WEIuvaIHQTnjvRiMqgJOmGfnqmW7x09CQgMY0vRaZ/PQ/3FNtWl+xj5pXcCdFM
+         6TefYGADgZsXAeGTLVPEbT9gAgfLAh957D8B5icQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 5.19 123/155] usb: dwc2: fix wrong order of phy_power_on and phy_init
-Date:   Tue,  6 Sep 2022 15:31:11 +0200
-Message-Id: <20220906132834.649837297@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 5.19 124/155] usb: cdns3: fix issue with rearming ISO OUT endpoint
+Date:   Tue,  6 Sep 2022 15:31:12 +0200
+Message-Id: <20220906132834.694726677@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,52 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit f9b995b49a07bd0d43b0e490f59be84415c745ae upstream.
+commit b46a6b09fa056042a302b181a1941f0056944603 upstream.
 
-Since 1599069a62c6 ("phy: core: Warn when phy_power_on is called before
-phy_init") the driver complains. In my case (Amlogic SoC) the warning
-is: phy phy-fe03e000.phy.2: phy_power_on was called before phy_init
-So change the order of the two calls. The same change has to be done
-to the order of phy_exit() and phy_power_off().
+ISO OUT endpoint is enabled during queuing first usb request
+in transfer ring and disabled when TRBERR is reported by controller.
+After TRBERR and before next transfer added to TR driver must again
+reenable endpoint but does not.
+To solve this issue during processing TRBERR event driver must
+set the flag EP_UPDATE_EP_TRBADDR in priv_ep->flags field.
 
-Fixes: 09a75e857790 ("usb: dwc2: refactor common low-level hw code to platform.c")
-Cc: stable@vger.kernel.org
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/dfcc6b40-2274-4e86-e73c-5c5e6aa3e046@gmail.com
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+cc: <stable@vger.kernel.org>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20220825062137.5766-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/platform.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/cdns3/cdns3-gadget.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -154,9 +154,9 @@ static int __dwc2_lowlevel_hw_enable(str
- 	} else if (hsotg->plat && hsotg->plat->phy_init) {
- 		ret = hsotg->plat->phy_init(pdev, hsotg->plat->phy_type);
- 	} else {
--		ret = phy_power_on(hsotg->phy);
-+		ret = phy_init(hsotg->phy);
- 		if (ret == 0)
--			ret = phy_init(hsotg->phy);
-+			ret = phy_power_on(hsotg->phy);
- 	}
- 
- 	return ret;
-@@ -188,9 +188,9 @@ static int __dwc2_lowlevel_hw_disable(st
- 	} else if (hsotg->plat && hsotg->plat->phy_exit) {
- 		ret = hsotg->plat->phy_exit(pdev, hsotg->plat->phy_type);
- 	} else {
--		ret = phy_exit(hsotg->phy);
-+		ret = phy_power_off(hsotg->phy);
- 		if (ret == 0)
--			ret = phy_power_off(hsotg->phy);
-+			ret = phy_exit(hsotg->phy);
- 	}
- 	if (ret)
- 		return ret;
+--- a/drivers/usb/cdns3/cdns3-gadget.c
++++ b/drivers/usb/cdns3/cdns3-gadget.c
+@@ -1690,6 +1690,7 @@ static int cdns3_check_ep_interrupt_proc
+ 				ep_cfg &= ~EP_CFG_ENABLE;
+ 				writel(ep_cfg, &priv_dev->regs->ep_cfg);
+ 				priv_ep->flags &= ~EP_QUIRK_ISO_OUT_EN;
++				priv_ep->flags |= EP_UPDATE_EP_TRBADDR;
+ 			}
+ 			cdns3_transfer_completed(priv_dev, priv_ep);
+ 		} else if (!(priv_ep->flags & EP_STALLED) &&
 
 
