@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D2495AE9D7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E6C75AEB25
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:57:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240757AbiIFNgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:36:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51614 "EHLO
+        id S238185AbiIFNry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:47:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240476AbiIFNfZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:35:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 477D87AC01;
-        Tue,  6 Sep 2022 06:33:55 -0700 (PDT)
+        with ESMTP id S234169AbiIFNqh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:46:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E437F261;
+        Tue,  6 Sep 2022 06:39:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80B4661546;
-        Tue,  6 Sep 2022 13:33:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C3F5C433D6;
-        Tue,  6 Sep 2022 13:33:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7944B818D0;
+        Tue,  6 Sep 2022 13:38:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11B2DC433D6;
+        Tue,  6 Sep 2022 13:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471233;
-        bh=h21uqtTbguQZMPRw+7xNEh/kdwQYQUHe/cGGEv5okQs=;
+        s=korg; t=1662471538;
+        bh=pguHKJj3QI7pJ/G3vaAqg7eUgMNyZM15MjUishRtvow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JxdIkk1bYXJ01mmn4o0sagrfRva0RqWYgRXXnvpPo9pxPw5iygYBkoPAt0PMBbtNQ
-         huUSS2T3JGGnJbqlhKjs5bbEg9QrBWURb1dWuzCiYfsqcVMmmxbALobXjNoUMd79Ad
-         kWu8pvBs4VnogxckocpGeAvgqlNVWOT/AuPOmc0g=
+        b=BvkAheBP0fSWj39q7z5lJI1xX1KOpIZMyzG7bAnJrrI3nrGLg31a7sxAfrW1T91BB
+         RIHIDIVFKivxYtXa8RBT4vYd4ADkSUnqNOk+e7KFheBTVl4Iy9W2jNUXIhPpXoSXnT
+         +/wRsAKqWxA3QlMqGVL4iOWZx6vA3GjUNL8IWrBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 42/80] hwmon: (gpio-fan) Fix array out of bounds access
-Date:   Tue,  6 Sep 2022 15:30:39 +0200
-Message-Id: <20220906132818.772365384@linuxfoundation.org>
+Subject: [PATCH 5.15 059/107] hwmon: (gpio-fan) Fix array out of bounds access
+Date:   Tue,  6 Sep 2022 15:30:40 +0200
+Message-Id: <20220906132824.335832234@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -133,7 +133,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/hwmon/gpio-fan.c b/drivers/hwmon/gpio-fan.c
-index 3ea4021f267cf..d96e435cc42b1 100644
+index befe989ca7b94..fbf3f5a4ecb67 100644
 --- a/drivers/hwmon/gpio-fan.c
 +++ b/drivers/hwmon/gpio-fan.c
 @@ -391,6 +391,9 @@ static int gpio_fan_set_cur_state(struct thermal_cooling_device *cdev,
