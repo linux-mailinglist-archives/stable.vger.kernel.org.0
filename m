@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A39C25AEEB3
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 17:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ACEE5AEBCE
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239368AbiIFP1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 11:27:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46626 "EHLO
+        id S239556AbiIFOFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:05:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239226AbiIFP0f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 11:26:35 -0400
+        with ESMTP id S241370AbiIFOEJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:04:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520C4C00D2;
-        Tue,  6 Sep 2022 07:37:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C639FE3;
+        Tue,  6 Sep 2022 06:44:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94B7B6153B;
-        Tue,  6 Sep 2022 13:43:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F4C2C433D6;
-        Tue,  6 Sep 2022 13:43:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F20761547;
+        Tue,  6 Sep 2022 13:43:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7794AC4347C;
+        Tue,  6 Sep 2022 13:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471785;
-        bh=Ym27K62WVbMA79vBCpNSbpm3d8vb7muL35dXoewCPmI=;
+        s=korg; t=1662471787;
+        bh=4249EGzH/Ah7i3H9+B9/vA/MvEtjY/oZVBLD6qjqI4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKRWDdecnJ3E12eQNE0jGs6HGfK3fMVueyvnsEbosk4d5QlUR9bAj/KpXRrRc4dH/
-         WWqD7mtjhwxucLYVWOcuiERFuMROuV3saifQpLIaPpMFOlRzefGbN5y5lTxaVSffj5
-         8zfM/QGzeSyV6oXkz1GBd6Ovou80AaG1va7OYy5k=
+        b=1PQDolIDpzELuy/IWYQG6d0i2PLyBfzFoybIyvVFaBViEkbipeIK+FxVAXJoWJOAI
+         dpn8RN1f/oxVFRdaWh+NoDUZfaO1qtznSjMKnITHnk0Tcf2UCGpb6omhnQmrKmOtlP
+         go4aUymhyk1w1IqbBSDpD23U6Lr+9Ji4mGmWmm4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org,
+        Alasdair McWilliam <alasdair.mcwilliam@outlook.com>,
+        Intrusion Shield Team <dnevil@intrusion.com>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 008/155] platform/x86: x86-android-tablets: Fix broken touchscreen on Chuwi Hi8 with Windows BIOS
-Date:   Tue,  6 Sep 2022 15:29:16 +0200
-Message-Id: <20220906132829.765398481@linuxfoundation.org>
+Subject: [PATCH 5.19 009/155] xsk: Fix corrupted packets for XDP_SHARED_UMEM
+Date:   Tue,  6 Sep 2022 15:29:17 +0200
+Message-Id: <20220906132829.812292562@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -53,68 +58,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-[ Upstream commit 2986c51540ed50ac654ffb5a772e546c02628c91 ]
+[ Upstream commit 58ca14ed98c87cfe0d1408cc65a9745d9e9b7a56 ]
 
-The x86-android-tablets handling for the Chuwi Hi8 is only necessary with
-the Android BIOS and it is causing problems with the Windows BIOS version.
+Fix an issue in XDP_SHARED_UMEM mode together with aligned mode where
+packets are corrupted for the second and any further sockets bound to
+the same umem. In other words, this does not affect the first socket
+bound to the umem. The culprit for this bug is that the initialization
+of the DMA addresses for the pre-populated xsk buffer pool entries was
+not performed for any socket but the first one bound to the umem. Only
+the linear array of DMA addresses was populated. Fix this by populating
+the DMA addresses in the xsk buffer pool for every socket bound to the
+same umem.
 
-Specifically when trying to register the already present touchscreen
-x86_acpi_irq_helper_get() calls acpi_unregister_gsi(), this breaks
-the working of the touchscreen and also leads to an oops:
-
-[   14.248946] ------------[ cut here ]------------
-[   14.248954] remove_proc_entry: removing non-empty directory 'irq/75', leaking at least 'MSSL0001:00'
-[   14.248983] WARNING: CPU: 3 PID: 440 at fs/proc/generic.c:718 remove_proc_entry
-...
-[   14.249293]  unregister_irq_proc+0xe0/0x100
-[   14.249305]  free_desc+0x29/0x70
-[   14.249312]  irq_free_descs+0x4b/0x80
-[   14.249320]  mp_unmap_irq+0x5c/0x60
-[   14.249329]  acpi_unregister_gsi_ioapic+0x2a/0x40
-[   14.249338]  x86_acpi_irq_helper_get+0x4b/0x190 [x86_android_tablets]
-[   14.249355]  x86_android_tablet_init+0x178/0xe34 [x86_android_tablets]
-
-Add an init callback for the Chuwi Hi8, which detects when the Windows BIOS
-is in use and exits with -ENODEV in that case, fixing this.
-
-Fixes: 84c2dcdd475f ("platform/x86: x86-android-tablets: Add an init() callback to struct x86_dev_info")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220810141934.140771-1-hdegoede@redhat.com
+Fixes: 94033cd8e73b8 ("xsk: Optimize for aligned case")
+Reported-by: Alasdair McWilliam <alasdair.mcwilliam@outlook.com>
+Reported-by: Intrusion Shield Team <dnevil@intrusion.com>
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Alasdair McWilliam <alasdair.mcwilliam@outlook.com>
+Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Link: https://lore.kernel.org/xdp-newbies/6205E10C-292E-4995-9D10-409649354226@outlook.com/
+Link: https://lore.kernel.org/bpf/20220812113259.531-1-magnus.karlsson@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/x86-android-tablets.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ net/xdp/xsk_buff_pool.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/platform/x86/x86-android-tablets.c b/drivers/platform/x86/x86-android-tablets.c
-index 4803759774358..4acd6fa8d43b8 100644
---- a/drivers/platform/x86/x86-android-tablets.c
-+++ b/drivers/platform/x86/x86-android-tablets.c
-@@ -663,9 +663,23 @@ static const struct x86_i2c_client_info chuwi_hi8_i2c_clients[] __initconst = {
- 	},
- };
+diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
+index f70112176b7c1..a71a8c6edf553 100644
+--- a/net/xdp/xsk_buff_pool.c
++++ b/net/xdp/xsk_buff_pool.c
+@@ -379,6 +379,16 @@ static void xp_check_dma_contiguity(struct xsk_dma_map *dma_map)
  
-+static int __init chuwi_hi8_init(void)
-+{
-+	/*
-+	 * Avoid the acpi_unregister_gsi() call in x86_acpi_irq_helper_get()
-+	 * breaking the touchscreen + logging various errors when the Windows
-+	 * BIOS is used.
-+	 */
-+	if (acpi_dev_present("MSSL0001", NULL, 1))
-+		return -ENODEV;
+ static int xp_init_dma_info(struct xsk_buff_pool *pool, struct xsk_dma_map *dma_map)
+ {
++	if (!pool->unaligned) {
++		u32 i;
 +
-+	return 0;
-+}
++		for (i = 0; i < pool->heads_cnt; i++) {
++			struct xdp_buff_xsk *xskb = &pool->heads[i];
 +
- static const struct x86_dev_info chuwi_hi8_info __initconst = {
- 	.i2c_client_info = chuwi_hi8_i2c_clients,
- 	.i2c_client_count = ARRAY_SIZE(chuwi_hi8_i2c_clients),
-+	.init = chuwi_hi8_init,
- };
++			xp_init_xskb_dma(xskb, pool, dma_map->dma_pages, xskb->orig_addr);
++		}
++	}
++
+ 	pool->dma_pages = kvcalloc(dma_map->dma_pages_cnt, sizeof(*pool->dma_pages), GFP_KERNEL);
+ 	if (!pool->dma_pages)
+ 		return -ENOMEM;
+@@ -428,12 +438,6 @@ int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
  
- #define CZC_EC_EXTRA_PORT	0x68
+ 	if (pool->unaligned)
+ 		xp_check_dma_contiguity(dma_map);
+-	else
+-		for (i = 0; i < pool->heads_cnt; i++) {
+-			struct xdp_buff_xsk *xskb = &pool->heads[i];
+-
+-			xp_init_xskb_dma(xskb, pool, dma_map->dma_pages, xskb->orig_addr);
+-		}
+ 
+ 	err = xp_init_dma_info(pool, dma_map);
+ 	if (err) {
 -- 
 2.35.1
 
