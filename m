@@ -2,151 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D885AE07F
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 09:04:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E14675AE26C
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 10:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238785AbiIFHDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 03:03:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38910 "EHLO
+        id S234130AbiIFI0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 04:26:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238790AbiIFHD1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 03:03:27 -0400
-Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AAB273325;
-        Tue,  6 Sep 2022 00:03:18 -0700 (PDT)
-X-UUID: 1263fc9d66de48c38f8c502496438d86-20220906
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=4X0g6zh3LL2gC/S+uOCH4TXJCztnz+tFKJu4PBhlAjQ=;
-        b=i4J8NQoV1WB49QjRCx8FfFEa6QF4vm9gjnHUaQeaRgMSU7DHQqGXloht43hQ0Nu6t04YF9E65YvMsw48tLUI+xhLFgU8BHAtw01v7UcYeDWL1HZTNhXrvAg5fA/cByg+J7wCuQzqs9NxIm+5gsWLmp5OFTXV+tv0ha14QxMtGMQ=;
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.10,REQID:0974d8d2-8969-4f1d-8165-edaa246053bb,OB:0,L
-        OB:0,IP:0,URL:0,TC:0,Content:-20,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Releas
-        e_Ham,ACTION:release,TS:-20
-X-CID-META: VersionHash:84eae18,CLOUDID:7da0d4d0-20bd-4e5e-ace8-00692b7ab380,C
-        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:1,EDM:-3,IP:nil,URL:0,File:nil
-        ,Bulk:nil,QS:nil,BEC:nil,COL:0
-X-UUID: 1263fc9d66de48c38f8c502496438d86-20220906
-Received: from mtkmbs11n1.mediatek.inc [(172.21.101.185)] by mailgw02.mediatek.com
-        (envelope-from <yee.lee@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1404548576; Tue, 06 Sep 2022 15:03:12 +0800
-Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
- Tue, 6 Sep 2022 15:03:11 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
- mtkmbs11n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.792.15 via Frontend Transport; Tue, 6 Sep 2022 15:03:11 +0800
-From:   <yee.lee@mediatek.com>
-To:     <linux-kernel@vger.kernel.org>
-CC:     <patrick.wang.shcn@gmail.com>, Yee Lee <yee.lee@mediatek.com>,
-        <stable@vger.kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        "Andrew Morton" <akpm@linux-foundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>
-Subject: [PATCH 5.15.y] Revert "mm: kmemleak: take a full lowmem check in kmemleak_*_phys()"
-Date:   Tue, 6 Sep 2022 15:03:06 +0800
-Message-ID: <20220906070309.18809-1-yee.lee@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        with ESMTP id S234099AbiIFI0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 04:26:08 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C923C8E9
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 01:26:03 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-322-4VmOFDB4OwqP28iks9tnLA-1; Tue, 06 Sep 2022 09:26:01 +0100
+X-MC-Unique: 4VmOFDB4OwqP28iks9tnLA-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Tue, 6 Sep
+ 2022 09:25:59 +0100
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.040; Tue, 6 Sep 2022 09:25:59 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Alexey Dobriyan' <adobriyan@gmail.com>
+CC:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
+Subject: RE: setns() affecting other threads in 5.10.132 and 6.0
+Thread-Topic: setns() affecting other threads in 5.10.132 and 6.0
+Thread-Index: AdjAZGr2bm2+BO9aR228APTLkn1hUgApqGgQAA6DpAAAIG7lAA==
+Date:   Tue, 6 Sep 2022 08:25:59 +0000
+Message-ID: <958649bb1d76442d8aa76067e0a3e0b6@AcuMS.aculab.com>
+References: <d9f7a7d26eb5489e93742e57e55ebc02@AcuMS.aculab.com>
+ <fcf51181f86e417285a101059d559382@AcuMS.aculab.com>
+ <YxYytPTFwYr7vBTo@localhost.localdomain>
+In-Reply-To: <YxYytPTFwYr7vBTo@localhost.localdomain>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY,URIBL_CSS
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yee Lee <yee.lee@mediatek.com>
-
-This reverts commit 23c2d497de21f25898fbea70aeb292ab8acc8c94.
-
-Commit 23c2d497de21 ("mm: kmemleak: take a full lowmem check in
-kmemleak_*_phys()") brought false leak alarms on some archs like arm64
-that does not init pfn boundary in early booting. The final solution
-lands on linux-6.0: commit 0c24e061196c ("mm: kmemleak: add rbtree and
-store physical address for objects allocated with PA").
-
-Revert this commit before linux-6.0. The original issue of invalid PA
-can be mitigated by additional check in devicetree.
-
-The false alarm report is as following: Kmemleak output: (Qemu/arm64)
-unreferenced object 0xffff0000c0170a00 (size 128):
-  comm "swapper/0", pid 1, jiffies 4294892404 (age 126.208s)
-  hex dump (first 32 bytes):
- 62 61 73 65 00 00 00 00 00 00 00 00 00 00 00 00  base............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<(____ptrval____)>] __kmalloc_track_caller+0x1b0/0x2e4
-    [<(____ptrval____)>] kstrdup_const+0x8c/0xc4
-    [<(____ptrval____)>] kvasprintf_const+0xbc/0xec
-    [<(____ptrval____)>] kobject_set_name_vargs+0x58/0xe4
-    [<(____ptrval____)>] kobject_add+0x84/0x100
-    [<(____ptrval____)>] __of_attach_node_sysfs+0x78/0xec
-    [<(____ptrval____)>] of_core_init+0x68/0x104
-    [<(____ptrval____)>] driver_init+0x28/0x48
-    [<(____ptrval____)>] do_basic_setup+0x14/0x28
-    [<(____ptrval____)>] kernel_init_freeable+0x110/0x178
-    [<(____ptrval____)>] kernel_init+0x20/0x1a0
-    [<(____ptrval____)>] ret_from_fork+0x10/0x20
-
-This pacth is also applicable to linux-5.17.y/linux-5.18.y/linux-5.19.y
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Yee Lee <yee.lee@mediatek.com>
----
- mm/kmemleak.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/mm/kmemleak.c b/mm/kmemleak.c
-index 859303aae180..b78861b8e013 100644
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -1125,7 +1125,7 @@ EXPORT_SYMBOL(kmemleak_no_scan);
- void __ref kmemleak_alloc_phys(phys_addr_t phys, size_t size, int min_count,
- 			       gfp_t gfp)
- {
--	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
-+	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_alloc(__va(phys), size, min_count, gfp);
- }
- EXPORT_SYMBOL(kmemleak_alloc_phys);
-@@ -1139,7 +1139,7 @@ EXPORT_SYMBOL(kmemleak_alloc_phys);
-  */
- void __ref kmemleak_free_part_phys(phys_addr_t phys, size_t size)
- {
--	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
-+	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_free_part(__va(phys), size);
- }
- EXPORT_SYMBOL(kmemleak_free_part_phys);
-@@ -1151,7 +1151,7 @@ EXPORT_SYMBOL(kmemleak_free_part_phys);
-  */
- void __ref kmemleak_not_leak_phys(phys_addr_t phys)
- {
--	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
-+	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_not_leak(__va(phys));
- }
- EXPORT_SYMBOL(kmemleak_not_leak_phys);
-@@ -1163,7 +1163,7 @@ EXPORT_SYMBOL(kmemleak_not_leak_phys);
-  */
- void __ref kmemleak_ignore_phys(phys_addr_t phys)
- {
--	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
-+	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_ignore(__va(phys));
- }
- EXPORT_SYMBOL(kmemleak_ignore_phys);
--- 
-2.18.0
+RnJvbTogQWxleGV5IERvYnJpeWFuDQo+IFNlbnQ6IDA1IFNlcHRlbWJlciAyMDIyIDE4OjMzDQo+
+IA0KPiBPbiBNb24sIFNlcCAwNSwgMjAyMiBhdCAwOTo1NDozNEFNICswMDAwLCBEYXZpZCBMYWln
+aHQgd3JvdGU6DQo+ID4gNzA1NTE5NzcwNTcwOWM1OWI4YWI3N2U2YTVjN2Q0NmQ2MWVkZDk2ZQ0K
+PiA+IEF1dGhvcjogQWxleGV5IERvYnJpeWFuIDxhZG9icml5YW5AZ21haWwuY29tPg0KPiA+ICAg
+ICBDYzogQWwgVmlybyA8dmlyb0B6ZW5pdi5saW51eC5vcmcudWs+DQo+ID4gICAgIFNpZ25lZC1v
+ZmYtYnk6IEFuZHJldyBNb3J0b24gPGFrcG1AbGludXgtZm91bmRhdGlvbi5vcmc+DQo+ID4gYzZj
+NzVkZWRhODEzDQo+ID4gMWZkZTZmMjFkOTBmDQo+ID4NCj4gPiA+IC0tLS0tT3JpZ2luYWwgTWVz
+c2FnZS0tLS0tDQo+ID4gPiBGcm9tOiBEYXZpZCBMYWlnaHQgPERhdmlkLkxhaWdodEBBQ1VMQUIu
+Q09NPg0KPiA+ID4gU2VudDogMDQgU2VwdGVtYmVyIDIwMjIgMTU6MDUNCj4gPiA+DQo+ID4gPiBT
+b21ldGltZSBhZnRlciA1LjEwLjEwNSAoNS4xMC4xMzIgYW5kIDYuMCkgdGhlcmUgaXMgYSBjaGFu
+Z2UgdGhhdA0KPiA+ID4gbWFrZXMgc2V0bnMob3BlbigiL3Byb2MvMS9ucy9uZXQiKSkgaW4gdGhl
+IG1haW4gcHJvY2VzcyBjaGFuZ2UNCj4gPiA+IHRoZSBiZWhhdmlvdXIgb2Ygb3RoZXIgcHJvY2Vz
+cyB0aHJlYWRzLg0KPiANCj4gTm90IGFnYWluLi4uDQoNClRoZSBiaXNlY3Rpb24gZ2F2ZSBhIHdo
+YWNrLWEtbW9sZSBwYXRjaCA6LSkNCg0KPiA+ID4gSSBkb24ndCBrbm93IGhvdyBtdWNoIGlzIGJy
+b2tlbiwgYnV0IHRoZSBmb2xsb3dpbmcgZmFpbHMuDQo+ID4gPg0KPiA+ID4gQ3JlYXRlIGEgbmV0
+d29yayBuYW1lc3BhY2UgKGVnICJ0ZXN0IikuDQo+ID4gPiBDcmVhdGUgYSAnYm9uZCcgaW50ZXJm
+YWNlIChlZyAidGVzdDAiKSBpbiB0aGUgbmFtZXNwYWNlLg0KPiA+ID4NCj4gPiA+IFRoZW4gL3By
+b2MvbmV0L2JvbmRpbmcvdGVzdDAgb25seSBleGlzdHMgaW5zaWRlIHRoZSBuYW1lc3BhY2UuDQo+
+ID4gPg0KPiA+ID4gSG93ZXZlciBpZiB5b3UgcnVuIGEgcHJvZ3JhbSBpbiB0aGUgInRlc3QiIG5h
+bWVzcGFjZSB0aGF0IGRvZXM6DQo+ID4gPiAtIGNyZWF0ZSBhIHRocmVhZC4NCj4gPiA+IC0gY2hh
+bmdlIHRoZSBtYWluIHRocmVhZCB0byBpbiAiaW5pdCIgbmFtZXNwYWNlLg0KPiA+ID4gLSB0cnkg
+dG8gb3BlbiAvcHJvYy9uZXQvYm9uZGluZy90ZXN0MCBpbiB0aGUgdGhyZWFkLg0KPiA+ID4gdGhl
+biB0aGUgb3BlbiBmYWlscy4NCj4gPiA+DQo+ID4gPiBJIGRvbid0IGtub3cgaG93IG11Y2ggZWxz
+ZSBpcyBhZmZlY3RlZCBhbmQgaGF2ZW4ndCB0cmllZA0KPiA+ID4gdG8gYmlzZWN0IChJIGNhbid0
+IGNyZWF0ZSBib25kcyBvbiBteSBub3JtYWwgdGVzdCBrZXJuZWwpLg0KPiA+DQo+ID4gSSd2ZSBu
+b3cgYmlzZWN0ZWQgaXQuDQo+ID4gUHJpb3IgdG8gY2hhbmdlIDcwNTUxOTc3MDU3MDljNTliOGFi
+NzdlNmE1YzdkNDZkNjFlZGQ5NmUNCj4gPiAgICAgcHJvYzogZml4IGRlbnRyeS9pbm9kZSBvdmVy
+aW5zdGFudGlhdGluZyB1bmRlciAvcHJvYy8ke3BpZH0vbmV0DQo+ID4gdGhlIHNldG5zKCkgaGFk
+IG5vIGVmZmVjdCBvZiBlaXRoZXIgdGhyZWFkLg0KPiA+IEFmdGVyd2FyZHMgYm90aCB0aHJlYWRz
+IHNlZSB0aGUgZW50cmllcyBpbiB0aGUgaW5pdCBuYW1lc3BhY2UuDQo+ID4NCj4gPiBIb3dldmVy
+IEkgdGhpbmsgdGhhdCBpbiA1LjEwLjEwNSB0aGUgc2V0bnMoKSBkaWQgYWZmZWN0DQo+ID4gdGhl
+IHRocmVhZCBpdCB3YXMgcnVuIGluLg0KPiA+IFRoYXQgbWlnaHQgYmUgdGhlIGJlaGF2aW91ciBi
+ZWZvcmUgYzZjNzVkZWRhODEzLg0KPiA+ICAgICBwcm9jOiBmaXggbG9va3VwIGluIC9wcm9jL25l
+dCBzdWJkaXJlY3RvcmllcyBhZnRlciBzZXRucygyKQ0KPiA+DQo+ID4gVGhlcmUgaXMgYWxzbyB0
+aGUgZWFybGllciAxZmRlNmYyMWQ5MGYNCj4gPiAgICAgcHJvYzogZml4IC9wcm9jL25ldC8qIGFm
+dGVyIHNldG5zKDIpDQo+ID4NCj4gPiBGcm9tIHRoZSBjb21taXQgbWVzc2FnZXMgaXQgZG9lcyBs
+b29rIGFzIHRob3VnaCBzZXRucygpIHNob3VsZA0KPiA+IGNoYW5nZSB3aGF0IGlzIHNlZW4sIGJ1
+dCBqdXN0IGZvciB0aGUgY3VycmVudCB0aHJlYWQuDQo+ID4gU28gaXQgaXMgY3VycmVudGx5IGJy
+b2tlbiAtIGFuZCBoYXMgYmVlbiBzaW5jZSA1LjE4LjAtcmM0DQo+ID4gYW5kIHdoaWNoZXZlciBz
+dGFibGUgYnJhbmNoZXMgdGhlIGNoYW5nZSB3YXMgYmFja3BvcnRlZCB0by4NCj4gPg0KPiA+IAlE
+YXZpZA0KPiA+DQo+ID4gPg0KPiA+ID4gVGhlIHRlc3QgcHJvZ3JhbSBiZWxvdyBzaG93cyB0aGUg
+cHJvYmxlbS4NCj4gPiA+IENvbXBpbGUgYW5kIHJ1biBhczoNCj4gPiA+ICMgaXAgbmV0bnMgZXhl
+YyB0ZXN0IHN0cmFjZSAtZiB0ZXN0X3Byb2cgL3Byb2MvbmV0L2JvbmRpbmcvdGVzdDANCj4gPiA+
+DQo+ID4gPiBUaGUgc2Vjb25kIG9wZW4gYnkgdGhlIGNoaWxkIHNob3VsZCBzdWNjZWVkLCBidXQg
+ZmFpbHMuDQo+ID4gPg0KPiA+ID4gSSBjYW4ndCBzZWUgYW55IGNoYW5nZXMgdG8gdGhlIGJvbmRp
+bmcgY29kZSwgc28gSSBzdXNwZWN0DQo+ID4gPiBpdCBpcyBzb21ldGhpbmcgbXVjaCBtb3JlIGZ1
+bmRhbWVudGFsLg0KPiA+ID4gSXQgbWlnaHQgb25seSBhZmZlY3QgL3Byb2MvbmV0LCBidXQgaXQg
+bWlnaHQgYWxzbyBhZmZlY3QNCj4gPiA+IHdoaWNoIG5hbWVzcGFjZSBzb2NrZXRzIGdldCBjcmVh
+dGVkIGluLg0KPiANCj4gSG93PyBzZXRucygyKSBhY3RzIG9uICJjdXJyZW50IiwgYW5kIHNvY2tl
+dHMgYXJlIGNyZWF0ZWQgZnJvbQ0KPiBjdXJyZW50LT5uc3Byb3h5LT5uZXRfbnM/DQoNCkkgd2Fz
+IHdvcnJpZWQgdGhhdCB0aGluZ3MgbWlnaHQgYmUgcmVhbGx5IGJhZGx5IGJyb2tlbi4NClRoZSBi
+aXNlY3Rpb24gaW1wbGllZCAvcHJvYy9uZXQgcmF0aGVyIHRoYW4gbmFtZXNwYWNlIHNldHVwIGl0
+c2VsZi4NCg0KPiA+ID4gSUlSQyBscyAtbCAvcHJvYy9uL3Rhc2svKi9ucyBnaXZlcyB0aGUgY29y
+cmVjdCBuYW1lc3BhY2VzLg0KPiANCj4gPiA+DQo+ID4gPiAJRGF2aWQNCj4gPiA+DQo+ID4gPg0K
+PiA+ID4gI2RlZmluZSBfR05VX1NPVVJDRQ0KPiA+ID4NCj4gPiA+ICNpbmNsdWRlIDxmY250bC5o
+Pg0KPiA+ID4gI2luY2x1ZGUgPHVuaXN0ZC5oPg0KPiA+ID4gI2luY2x1ZGUgPHBvbGwuaD4NCj4g
+PiA+ICNpbmNsdWRlIDxwdGhyZWFkLmg+DQo+ID4gPiAjaW5jbHVkZSA8c2NoZWQuaD4NCj4gPiA+
+DQo+ID4gPiAjZGVmaW5lIGRlbGF5KHNlY3MpIHBvbGwoMCwwLCAoc2VjcykgKiAxMDAwKQ0KPiA+
+ID4NCj4gPiA+IHN0YXRpYyB2b2lkICp0aHJlYWRfZm4odm9pZCAqZmlsZSkNCj4gPiA+IHsNCj4g
+PiA+ICAgICAgICAgZGVsYXkoMik7DQo+ID4gPiAgICAgICAgIG9wZW4oZmlsZSwgT19SRE9OTFkp
+Ow0KPiA+ID4NCj4gPiA+ICAgICAgICAgZGVsYXkoNSk7DQo+ID4gPiAgICAgICAgIG9wZW4oZmls
+ZSwgT19SRE9OTFkpOw0KPiA+ID4NCj4gPiA+ICAgICAgICAgcmV0dXJuIE5VTEw7DQo+ID4gPiB9
+DQo+ID4gPg0KPiA+ID4gaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQ0KPiA+ID4gew0K
+PiA+ID4gICAgICAgICBwdGhyZWFkX3QgaWQ7DQo+ID4gPg0KPiA+ID4gICAgICAgICBwdGhyZWFk
+X2NyZWF0ZSgmaWQsIE5VTEwsIHRocmVhZF9mbiwgYXJndlsxXSk7DQo+ID4gPg0KPiA+ID4gICAg
+ICAgICBkZWxheSgxKTsNCj4gPiA+ICAgICAgICAgb3Blbihhcmd2WzFdLCBPX1JET05MWSk7DQo+
+ID4gPg0KPiA+ID4gICAgICAgICBkZWxheSgyKTsNCj4gPiA+ICAgICAgICAgc2V0bnMob3Blbigi
+L3Byb2MvMS9ucy9uZXQiLCBPX1JET05MWSksIDApOw0KPiA+ID4NCj4gPiA+ICAgICAgICAgZGVs
+YXkoMSk7DQo+ID4gPiAgICAgICAgIG9wZW4oYXJndlsxXSwgT19SRE9OTFkpOw0KPiA+ID4NCj4g
+PiA+ICAgICAgICAgZGVsYXkoNCk7DQo+ID4gPg0KPiA+ID4gICAgICAgICByZXR1cm4gMDsNCj4g
+PiA+IH0NCj4gDQo+IENhbiB5b3UgdGVzdCBiZWZvcmUgdGhpcyBvbmU/IFRoaXMgaXMgd2hlcmUg
+aXQgYWxsIHN0YXJ0ZWQuDQo+IA0KPiAJY29tbWl0IDFkYTRkMzc3Zjk0M2ZlNDE5NGZmYjlmYjlj
+MjZjYzU4ZmFkNGRkMjQNCg0KVGhhdCBvbmUgcmVhbGx5IGRvZXNuJ3Qgd2FudCB0byBidWlsZCB3
+aXRoIHRoZSB0b29sY2hhaW4gSSdtIHVzaW5nLg0KZ2NjIGdlbmVyYXRlcyBhIGxvdCBvZiB3YXJu
+aW5ncyAobW9zdGx5IGFib3V0IGZ1bmN0aW9uIHBvaW50ZXINCnR5cGVzKSBhbmQgdGhlbiBvYmp0
+b29sIGZhaWxzIHRoZSBidWlsZC4NCg0KVGhlIGNoYW5nZXMgc2VlbSB0byBiZSBhYm91dCBmbHVz
+aGluZyB0aGUgZG5sYy4NCkluIG15IGNhc2UgZXZlcnl0aGluZyBpcyBwcmV0dHkgc3RhdGljLg0K
+VGhlIG5hbWVzcGFjZSBpcyBjcmVhdGVkIG9uY2UganVzdCBhZnRlciBib290Lg0KVGhlIHJlYWwg
+ZmFpbGluZyBwcm9ncmFtIGp1c3QgZG9lczoNCglpcCBuZXRucyBleGVjIG5hbWVzcGFjZSBwcm9n
+cmFtIDM8L3N5cy9jbGFzcy9uZXQNCglwcm9jZXNzOiBjbG9uZSgpDQoJcHJvY2Vzczogc2V0bnMo
+KQ0KCXRocmVhZDogb3BlbigiL3Byb2MvbmV0L2JvbmRpbmcvbm90X2luX25hbWVzcGFjZSIpDQph
+bmQgZXhwZWN0cyB0aGUgb3BlbigpIHRvIGZhaWwuDQpTbyBpdCBhY3R1YWxseSBsb29rcyBsaWtl
+IHRoZSB3cm9uZyBuYW1lc3BhY2UgaXMgYmVpbmcgdXNlZC4NCg0KSXQgaXMgaW50ZXJlc3Rpbmcg
+dGhhdCAvcHJvYy9uZXQgaXMgYWZmZWN0ZWQgYnkgc2V0bnMoKQ0Kd2hlcmVhcyB5b3UgaGF2ZSB0
+byBnbyB0aHJvdWdoIGhvb3BzIHRvIGFjY2VzcyAvc3lzL2NsYXNzL25ldC4NCldlIHBhc3MgYW4g
+b3BlbiBmZCB0byAvc3lzL2NsYXNzL25ldCBpbiB0aGUgaW5pdCBuYW1lc3BhY2UNCnRocm91Z2gg
+dG8gdGhlIHByb2dyYW0gc28gaXQgY2FuIHVzZSBvcGVuYXQoMywgLi4uKSB0bw0Kc2VlIGVudHJp
+ZXMgaW4gYm90aCBuYW1lc3BhY2VzLg0KDQpUaGUgbmFtZXNwYWNlIGV4aXN0cyB0byBzZXBhcmF0
+ZSBuZXR3b3JrIHRyYWZmaWMsIG5vdCBpc29sYXRlDQphcHBsaWNhdGlvbnMuDQoNCglEYXZpZA0K
+DQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFy
+bSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAo
+V2FsZXMpDQo=
 
