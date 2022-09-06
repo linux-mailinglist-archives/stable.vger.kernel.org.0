@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 514F35AEAD2
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F11785AEAAD
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239092AbiIFNvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:51:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41680 "EHLO
+        id S238711AbiIFNuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239930AbiIFNuE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:50:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23FCE7D1E3;
-        Tue,  6 Sep 2022 06:40:08 -0700 (PDT)
+        with ESMTP id S239348AbiIFNtX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83802127A;
+        Tue,  6 Sep 2022 06:39:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C040EB818DC;
-        Tue,  6 Sep 2022 13:39:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C446C433C1;
-        Tue,  6 Sep 2022 13:39:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A3D2B818CA;
+        Tue,  6 Sep 2022 13:39:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD4F7C433D6;
+        Tue,  6 Sep 2022 13:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471578;
-        bh=4i5sYG49tf9dNz8KHpFIUCVSBk6MKdxITrMG9BQRhAw=;
+        s=korg; t=1662471581;
+        bh=WsVM4UyNHYH8jYv/ryI8GQ8PDZJEGA2yqzyG0xZPKJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylcLrrw7sxYgP98OAmT8ACg2Z1QpDUOqe7hgNKFv+Wyd0eCJtGicj844iG2rOD94g
-         yHBvm5nJjrb0AXx4Dbt2UjLqr9uOxC32lT8tCPObTRUqcBHOX2DdYC1BF8LnN4+ian
-         21aA+4MGyd6CyWNaD74KMlpuU3sOG8JFQkaBFmCw=
+        b=Ei0HyQHbjhj/UNlqmEd9IDyEer51F4msceTNdgMX8O3EJfM+cGgRO/GJa0Y7sYhwy
+         h2qVtDksIS/sOA+lHQ4N1H3Yes03t617sPuLmIQARydvGVQs9kfvZ1UubWE7tHto4P
+         tVJPQurSs3/NAC3weJX+bHn+L5PmJkRee9esSeF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Ranquet <granquet@baylibre.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Pablo Sun <pablo.sun@mediatek.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>
-Subject: [PATCH 5.15 075/107] usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles
-Date:   Tue,  6 Sep 2022 15:30:56 +0200
-Message-Id: <20220906132824.980232602@linuxfoundation.org>
+        stable@vger.kernel.org, Utkarsh Patel <utkarsh.h.patel@intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 5.15 076/107] usb: typec: intel_pmc_mux: Add new ACPI ID for Meteor Lake IOM device
+Date:   Tue,  6 Sep 2022 15:30:57 +0200
+Message-Id: <20220906132825.031072339@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
 References: <20220906132821.713989422@linuxfoundation.org>
@@ -55,74 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Sun <pablo.sun@mediatek.com>
+From: Utkarsh Patel <utkarsh.h.patel@intel.com>
 
-commit c1e5c2f0cb8a22ec2e14af92afc7006491bebabb upstream.
+commit 1b1b672cc1d4fb3065dac79efb8901bd6244ef69 upstream.
 
-Fix incorrect pin assignment values when connecting to a monitor with
-Type-C receptacle instead of a plug.
+This adds the necessary ACPI ID for Intel Meteor Lake
+IOM devices.
 
-According to specification, an UFP_D receptacle's pin assignment
-should came from the UFP_D pin assignments field (bit 23:16), while
-an UFP_D plug's assignments are described in the DFP_D pin assignments
-(bit 15:8) during Mode Discovery.
+The callback function is_memory() is modified so that it
+also checks if the resource descriptor passed to it is a
+memory type "Address Space Resource Descriptor".
 
-For example the LG 27 UL850-W is a monitor with Type-C receptacle.
-The monitor responds to MODE DISCOVERY command with following
-DisplayPort Capability flag:
+On Intel Meteor Lake the ACPI memory resource is not
+described using the "32-bit Memory Range Descriptor" because
+the memory is outside of the 32-bit address space. The
+memory resource is described using the "Address Space
+Resource Descriptor" instead.
 
-        dp->alt->vdo=0x140045
+Intel Meteor Lake is the first platform to describe the
+memory resource for this device with Address Space Resource
+Descriptor, but it most likely will not be the last.
+Therefore the change to the is_memory() callback function
+is made generic.
 
-The existing logic only take cares of UPF_D plug case,
-and would take the bit 15:8 for this 0x140045 case.
-
-This results in an non-existing pin assignment 0x0 in
-dp_altmode_configure.
-
-To fix this problem a new set of macros are introduced
-to take plug/receptacle differences into consideration.
-
-Fixes: 0e3bb7d6894d ("usb: typec: Add driver for DisplayPort alternate mode")
+Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
 Cc: stable@vger.kernel.org
-Co-developed-by: Pablo Sun <pablo.sun@mediatek.com>
-Co-developed-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Reviewed-by: Guillaume Ranquet <granquet@baylibre.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Pablo Sun <pablo.sun@mediatek.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Link: https://lore.kernel.org/r/20220804034803.19486-1-macpaul.lin@mediatek.com
+[ heikki: Rewrote the commit message. ]
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20220816101629.69054-2-heikki.krogerus@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |    4 ++--
- include/linux/usb/typec_dp.h             |    5 +++++
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/typec/mux/intel_pmc_mux.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -88,8 +88,8 @@ static int dp_altmode_configure(struct d
- 	case DP_STATUS_CON_UFP_D:
- 	case DP_STATUS_CON_BOTH: /* NOTE: First acting as DP source */
- 		conf |= DP_CONF_UFP_U_AS_UFP_D;
--		pin_assign = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo) &
--			     DP_CAP_UFP_D_PIN_ASSIGN(dp->port->vdo);
-+		pin_assign = DP_CAP_PIN_ASSIGN_UFP_D(dp->alt->vdo) &
-+				 DP_CAP_PIN_ASSIGN_DFP_D(dp->port->vdo);
- 		break;
- 	default:
- 		break;
---- a/include/linux/usb/typec_dp.h
-+++ b/include/linux/usb/typec_dp.h
-@@ -73,6 +73,11 @@ enum {
- #define DP_CAP_USB			BIT(7)
- #define DP_CAP_DFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(15, 8)) >> 8)
- #define DP_CAP_UFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(23, 16)) >> 16)
-+/* Get pin assignment taking plug & receptacle into consideration */
-+#define DP_CAP_PIN_ASSIGN_UFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-+			DP_CAP_UFP_D_PIN_ASSIGN(_cap_) : DP_CAP_DFP_D_PIN_ASSIGN(_cap_))
-+#define DP_CAP_PIN_ASSIGN_DFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-+			DP_CAP_DFP_D_PIN_ASSIGN(_cap_) : DP_CAP_UFP_D_PIN_ASSIGN(_cap_))
+--- a/drivers/usb/typec/mux/intel_pmc_mux.c
++++ b/drivers/usb/typec/mux/intel_pmc_mux.c
+@@ -554,9 +554,11 @@ err_unregister_switch:
  
- /* DisplayPort Status Update VDO bits */
- #define DP_STATUS_CONNECTION(_status_)	((_status_) & 3)
+ static int is_memory(struct acpi_resource *res, void *data)
+ {
+-	struct resource r;
++	struct resource_win win = {};
++	struct resource *r = &win.res;
+ 
+-	return !acpi_dev_resource_memory(res, &r);
++	return !(acpi_dev_resource_memory(res, r) ||
++		 acpi_dev_resource_address_space(res, &win));
+ }
+ 
+ /* IOM ACPI IDs and IOM_PORT_STATUS_OFFSET */
+@@ -566,6 +568,9 @@ static const struct acpi_device_id iom_a
+ 
+ 	/* AlderLake */
+ 	{ "INTC1079", 0x160, },
++
++	/* Meteor Lake */
++	{ "INTC107A", 0x160, },
+ 	{}
+ };
+ 
 
 
