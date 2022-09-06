@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07C005AE6C7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9645AE6C8
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232245AbiIFLnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:43:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34798 "EHLO
+        id S232406AbiIFLnm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:43:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232203AbiIFLnj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:43:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87BBC37FB6
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:43:38 -0700 (PDT)
+        with ESMTP id S232203AbiIFLnm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:43:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 395AE33401
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:43:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B287B817C2
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B08C433D6;
-        Tue,  6 Sep 2022 11:43:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF675B81684
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:43:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63013C433D7;
+        Tue,  6 Sep 2022 11:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662464615;
-        bh=YMEifNJ25qXUO72x4PI7YOJIE6QWYVnDynpmYxfUoMk=;
+        s=korg; t=1662464618;
+        bh=9s9v0orFS6h1agJvPswPl08qthULOfshfn1gNh0oYu8=;
         h=Subject:To:Cc:From:Date:From;
-        b=BmFuvy1Pi7qBb21WGEoaO0q+1/Yuz+EZbnI/jvponP8nG356N3/Kr0fiukDTdwUtK
-         WTRWHy5kKS06kFjLF95bGRfca8df2Skjb3qDXG90Z8Svz/hqNJiSAL6YCUWnLiTQvR
-         A7O9T8rjsVC5Vqh8IiyT6LT1F/wXws1HfbhXzUds=
-Subject: FAILED: patch "[PATCH] USB: serial: ch341: fix disabled rx timer on older devices" failed to apply to 5.10-stable tree
+        b=MqUZlb52V4uO9iqVjns0IHkuRtldTjZzRsh1q3g5+scaay5c+1U5zoLZOw4JOggq4
+         3ng/eK7Ev1zumygfTLGQvCQpb1tPIXuohzP8R5sPbABvhzGIgILeHQA89op8kL8Jdu
+         L8IWqnmPIFzfFqWvCsurwuBjJYgwX8H3+npjn+Is=
+Subject: FAILED: patch "[PATCH] USB: serial: ch341: fix disabled rx timer on older devices" failed to apply to 5.15-stable tree
 To:     johan@kernel.org, jwoithe@just42.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:42:07 +0200
-Message-ID: <166246452718384@kroah.com>
+Date:   Tue, 06 Sep 2022 13:42:08 +0200
+Message-ID: <1662464528244161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
