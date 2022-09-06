@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3682F5AEAC7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C5F5AEA39
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239274AbiIFNzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:55:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57052 "EHLO
+        id S238451AbiIFNnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:43:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239967AbiIFNyT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:54:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D65580E8B;
-        Tue,  6 Sep 2022 06:41:14 -0700 (PDT)
+        with ESMTP id S233436AbiIFNlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:41:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDF77CB77;
+        Tue,  6 Sep 2022 06:37:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B7CD61557;
-        Tue,  6 Sep 2022 13:41:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D51CC433D7;
-        Tue,  6 Sep 2022 13:41:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F353F61539;
+        Tue,  6 Sep 2022 13:35:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A123C433C1;
+        Tue,  6 Sep 2022 13:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471663;
-        bh=ukZHzAK8yit5XCRC9rR2fHxaBzbUEnfYDN+GanPODBc=;
+        s=korg; t=1662471354;
+        bh=m9DIWf9ufwNNTQBYkogqjdGKTwxaeyTIk20g2hFR/Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tl/U+b3JjckLmHIJVmgyqAXb6WSD+30dWzKBmcV4G5473wioreZNb3G3r0ihMDSp7
-         0dx/DLXFnPsR6kruLt9TDkh6gblrifEIR9Uc1OWp4UqKsMDwd9GHubvB2Q7gKMWAfQ
-         BA3Z2qHGvZpTt1Z3uHGJPGYJx+wv+bMzz95PkkH4=
+        b=M7jaxSdq5vdXYBWG05j2rae0QjHvm4gNwIEw0S5RH1wFrWPDtIJ8fj2s99EY45Uj2
+         pCByG9Jm1M75VCsX+uf+1Bt73rg//mYb55yiHFasqwRLTC6uJzfw4t0asS1Rb24exX
+         HPUIPhcQvXr/CTbYAbGCg9Gi1VV5BCsUj1VITEEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 096/107] ALSA: seq: oss: Fix data-race for max_midi_devs access
+        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 80/80] USB: serial: ch341: fix disabled rx timer on older devices
 Date:   Tue,  6 Sep 2022 15:31:17 +0200
-Message-Id: <20220906132825.903040453@linuxfoundation.org>
+Message-Id: <20220906132820.452337382@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Johan Hovold <johan@kernel.org>
 
-commit 22dec134dbfa825b963f8a1807ad19b943e46a56 upstream.
+commit 41ca302a697b64a3dab4676e01d0d11bb184737d upstream.
 
-ALSA OSS sequencer refers to a global variable max_midi_devs at
-creating a new port, storing it to its own field.  Meanwhile this
-variable may be changed by other sequencer events at
-snd_seq_oss_midi_check_exit_port() in parallel, which may cause a data
-race.
+At least one older CH341 appears to have the RX timer enable bit
+inverted so that setting it disables the RX timer and prevents the FIFO
+from emptying until it is full.
 
-OTOH, this data race itself is almost harmless, as the access to the
-MIDI device is done via get_mdev() and it's protected with a refcount,
-hence its presence is guaranteed.
+Only set the RX timer enable bit for devices with version newer than
+0x27 (even though this probably affects all pre-0x30 devices).
 
-Though, it's sill better to address the data-race from the code sanity
-POV, and this patch adds the proper spinlock for the protection.
-
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAEHB2493pZRXs863w58QWnUTtv3HHfg85aYhLn5HJHCwxqtHQg@mail.gmail.com
-Link: https://lore.kernel.org/r/20220823072717.1706-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Jonathan Woithe <jwoithe@just42.net>
+Tested-by: Jonathan Woithe <jwoithe@just42.net>
+Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
+Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
+Cc: stable@vger.kernel.org      # 4.10
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/seq/oss/seq_oss_midi.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/ch341.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/sound/core/seq/oss/seq_oss_midi.c
-+++ b/sound/core/seq/oss/seq_oss_midi.c
-@@ -270,7 +270,9 @@ snd_seq_oss_midi_clear_all(void)
- void
- snd_seq_oss_midi_setup(struct seq_oss_devinfo *dp)
- {
-+	spin_lock_irq(&register_lock);
- 	dp->max_mididev = max_midi_devs;
-+	spin_unlock_irq(&register_lock);
- }
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -259,8 +259,12 @@ static int ch341_set_baudrate_lcr(struct
+ 	/*
+ 	 * CH341A buffers data until a full endpoint-size packet (32 bytes)
+ 	 * has been received unless bit 7 is set.
++	 *
++	 * At least one device with version 0x27 appears to have this bit
++	 * inverted.
+ 	 */
+-	val |= BIT(7);
++	if (priv->version > 0x27)
++		val |= BIT(7);
  
- /*
+ 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG,
+ 			      CH341_REG_DIVISOR << 8 | CH341_REG_PRESCALER,
 
 
