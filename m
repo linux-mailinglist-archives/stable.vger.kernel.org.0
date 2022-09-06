@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AE185AEC11
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360015AECE7
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240441AbiIFOKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:10:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60600 "EHLO
+        id S240830AbiIFOKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:10:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241290AbiIFOJW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:09:22 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CAC886723;
-        Tue,  6 Sep 2022 06:46:33 -0700 (PDT)
+        with ESMTP id S241413AbiIFOJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:09:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897BF86709;
+        Tue,  6 Sep 2022 06:46:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 10EE7CE178C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB52A61542;
+        Tue,  6 Sep 2022 13:45:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD3E3C433D7;
         Tue,  6 Sep 2022 13:45:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCE2AC433D6;
-        Tue,  6 Sep 2022 13:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471911;
-        bh=m4UdaHmw3PHRFCfyt+JJFIxvOz+tsoYLAGeNiWM/CuE=;
+        s=korg; t=1662471914;
+        bh=svzu77QzBr7n+Z6FfX+gYDRJpyNzc5laxHxOlpe9jpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsmcDLvK3nA3xc5SWBU6D59VkyzbonhCUqnmulbwRlwGZj0mPM8JL9F8Dh6lgVyVg
-         Wqfi/+YC4KI+hXZJsODBpv0Irrre37t8HQ5spv3qQpJsQ44gQ4E7X+IW3XNf6gSADB
-         mZ+wKpeB53uUQyFAiAbagtQe+DcA/05H2eq7aanM=
+        b=dYL6ypgLeX+mAfwc7k6s1Zvqja64WcYD42vRX8u8bxlXxUlqMX6xfV3nod1oD+576
+         yOuUar85YyGu255DwYsOn/lHD/AR6HXOfs76+8J7kS2gA4btYscXydP3TvlopNinLZ
+         SgsTJFkF/+v/3vC7dDqsqE4NMQHonARvc/GYw0L4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Enzo Matsumiya <ematsumiya@suse.de>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.19 082/155] cifs: fix small mempool leak in SMB2_negotiate()
-Date:   Tue,  6 Sep 2022 15:30:30 +0200
-Message-Id: <20220906132832.906211429@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 083/155] KVM: VMX: Heed the msr argument in msr_write_intercepted()
+Date:   Tue,  6 Sep 2022 15:30:31 +0200
+Message-Id: <20220906132832.941238062@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,75 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enzo Matsumiya <ematsumiya@suse.de>
+From: Jim Mattson <jmattson@google.com>
 
-commit 27893dfc1285f80f80f46b3b8c95f5d15d2e66d0 upstream.
+[ Upstream commit 020dac4187968535f089f83f376a72beb3451311 ]
 
-In some cases of failure (dialect mismatches) in SMB2_negotiate(), after
-the request is sent, the checks would return -EIO when they should be
-rather setting rc = -EIO and jumping to neg_exit to free the response
-buffer from mempool.
+Regardless of the 'msr' argument passed to the VMX version of
+msr_write_intercepted(), the function always checks to see if a
+specific MSR (IA32_SPEC_CTRL) is intercepted for write.  This behavior
+seems unintentional and unexpected.
 
-Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
-Cc: stable@vger.kernel.org
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Modify the function so that it checks to see if the provided 'msr'
+index is intercepted for write.
+
+Fixes: 67f4b9969c30 ("KVM: nVMX: Handle dynamic MSR intercept toggling")
+Cc: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220810213050.2655000-1-jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/x86/kvm/vmx/vmx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -964,16 +964,17 @@ SMB2_negotiate(const unsigned int xid,
- 	} else if (rc != 0)
- 		goto neg_exit;
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 0aaea87a14597..b09a50e0af29d 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -835,8 +835,7 @@ static bool msr_write_intercepted(struct vcpu_vmx *vmx, u32 msr)
+ 	if (!(exec_controls_get(vmx) & CPU_BASED_USE_MSR_BITMAPS))
+ 		return true;
  
-+	rc = -EIO;
- 	if (strcmp(server->vals->version_string,
- 		   SMB3ANY_VERSION_STRING) == 0) {
- 		if (rsp->DialectRevision == cpu_to_le16(SMB20_PROT_ID)) {
- 			cifs_server_dbg(VFS,
- 				"SMB2 dialect returned but not requested\n");
--			return -EIO;
-+			goto neg_exit;
- 		} else if (rsp->DialectRevision == cpu_to_le16(SMB21_PROT_ID)) {
- 			cifs_server_dbg(VFS,
- 				"SMB2.1 dialect returned but not requested\n");
--			return -EIO;
-+			goto neg_exit;
- 		} else if (rsp->DialectRevision == cpu_to_le16(SMB311_PROT_ID)) {
- 			/* ops set to 3.0 by default for default so update */
- 			server->ops = &smb311_operations;
-@@ -984,7 +985,7 @@ SMB2_negotiate(const unsigned int xid,
- 		if (rsp->DialectRevision == cpu_to_le16(SMB20_PROT_ID)) {
- 			cifs_server_dbg(VFS,
- 				"SMB2 dialect returned but not requested\n");
--			return -EIO;
-+			goto neg_exit;
- 		} else if (rsp->DialectRevision == cpu_to_le16(SMB21_PROT_ID)) {
- 			/* ops set to 3.0 by default for default so update */
- 			server->ops = &smb21_operations;
-@@ -998,7 +999,7 @@ SMB2_negotiate(const unsigned int xid,
- 		/* if requested single dialect ensure returned dialect matched */
- 		cifs_server_dbg(VFS, "Invalid 0x%x dialect returned: not requested\n",
- 				le16_to_cpu(rsp->DialectRevision));
--		return -EIO;
-+		goto neg_exit;
- 	}
+-	return vmx_test_msr_bitmap_write(vmx->loaded_vmcs->msr_bitmap,
+-					 MSR_IA32_SPEC_CTRL);
++	return vmx_test_msr_bitmap_write(vmx->loaded_vmcs->msr_bitmap, msr);
+ }
  
- 	cifs_dbg(FYI, "mode 0x%x\n", rsp->SecurityMode);
-@@ -1016,9 +1017,10 @@ SMB2_negotiate(const unsigned int xid,
- 	else {
- 		cifs_server_dbg(VFS, "Invalid dialect returned by server 0x%x\n",
- 				le16_to_cpu(rsp->DialectRevision));
--		rc = -EIO;
- 		goto neg_exit;
- 	}
-+
-+	rc = 0;
- 	server->dialect = le16_to_cpu(rsp->DialectRevision);
- 
- 	/*
+ unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx)
+-- 
+2.35.1
+
 
 
