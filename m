@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 925F35AECC5
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFACD5AEBF1
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239839AbiIFN6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:58:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59182 "EHLO
+        id S234438AbiIFOMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:12:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239848AbiIFN4N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:56:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B84816AB;
-        Tue,  6 Sep 2022 06:42:12 -0700 (PDT)
+        with ESMTP id S239897AbiIFOKo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:10:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F412D8709C;
+        Tue,  6 Sep 2022 06:47:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80374B818CB;
-        Tue,  6 Sep 2022 13:41:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB91DC43470;
-        Tue,  6 Sep 2022 13:41:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F46C61547;
+        Tue,  6 Sep 2022 13:47:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F1B9C433C1;
+        Tue,  6 Sep 2022 13:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471697;
-        bh=uXBXjQ+l91Ud9CKl/sEZLUYfcKqG17/+vuMcJgSkDUY=;
+        s=korg; t=1662472050;
+        bh=RxGKZIj8w9RGrU9wWujCqb97C+0o+xW40upbXiX08Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7afwuKhQF4BH/zLNjmxZhLAGBxpOIoWCbwLaWHyreW+ryUUMzXfGEv8f2yU3jhTr
-         oGx8ek9je5slZMIUIjcMOdgXqOXe9ygs6vbnJbHRLM3wSfkLj2DfvV9FkNxVoD0and
-         mttWTtG88LkvVuacZw0jjERxsKjtfWtoYIidxObU=
+        b=19vfQZam1YPMtkEsj6swZRCbXNCIPbnTMgnXR5lcrkHhXruUl1mjUm4XdJh25gCV/
+         /0RTy0ZK61dHibAZXfXdc2mhOCVL4x7nicb7LgRJwEeDU9dE39nt4ju+h+Xuuo8AeA
+         8n7WW4fc8/qBx8omuOaKfqhmecHkQJ1iCV5/kWIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Kacper=20Michaj=C5=82ow?= <kasper93@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 095/107] ALSA: hda/realtek: Add speaker AMP init for Samsung laptops with ALC298
-Date:   Tue,  6 Sep 2022 15:31:16 +0200
-Message-Id: <20220906132825.865064876@linuxfoundation.org>
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.19 129/155] s390: fix nospec table alignments
+Date:   Tue,  6 Sep 2022 15:31:17 +0200
+Message-Id: <20220906132834.903869670@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
+References: <20220906132829.417117002@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,126 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kacper Michajłow <kasper93@gmail.com>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit a2d57ebec1e15f0ac256eb8397e82b07adfaaacc upstream.
+commit c9305b6c1f52060377c72aebe3a701389e9f3172 upstream.
 
-Magic initialization sequence was extracted from Windows driver and
-cleaned up manually.
+Add proper alignment for .nospec_call_table and .nospec_return_table in
+vmlinux.
 
-Fixes internal speakers output.
+[hca@linux.ibm.com]: The problem with the missing alignment of the nospec
+tables exist since a long time, however only since commit e6ed91fd0768
+("s390/alternatives: remove padding generation code") and with
+CONFIG_RELOCATABLE=n the kernel may also crash at boot time.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=207423
-Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1851518
-Signed-off-by: Kacper Michajłow <kasper93@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220827203328.30363-1-kasper93@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The above named commit reduced the size of struct alt_instr by one byte,
+so its new size is 11 bytes. Therefore depending on the number of cpu
+alternatives the size of the __alt_instructions array maybe odd, which
+again also causes that the addresses of the nospec tables will be odd.
+
+If the address of __nospec_call_start is odd and the kernel is compiled
+With CONFIG_RELOCATABLE=n the compiler may generate code that loads the
+address of __nospec_call_start with a 'larl' instruction.
+
+This will generate incorrect code since the 'larl' instruction only works
+with even addresses. In result the members of the nospec tables will be
+accessed with an off-by-one offset, which subsequently may lead to
+addressing exceptions within __nospec_revert().
+
+Fixes: f19fbd5ed642 ("s390: introduce execute-trampolines for branches")
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Link: https://lore.kernel.org/r/8719bf1ce4a72ebdeb575200290094e9ce047bcc.1661557333.git.jpoimboe@kernel.org
+Cc: <stable@vger.kernel.org> # 4.16
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   63 +++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 56 insertions(+), 7 deletions(-)
+ arch/s390/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4684,6 +4684,48 @@ static void alc236_fixup_hp_mute_led_mic
- 	alc236_fixup_hp_micmute_led_vref(codec, fix, action);
- }
- 
-+static inline void alc298_samsung_write_coef_pack(struct hda_codec *codec,
-+						  const unsigned short coefs[2])
-+{
-+	alc_write_coef_idx(codec, 0x23, coefs[0]);
-+	alc_write_coef_idx(codec, 0x25, coefs[1]);
-+	alc_write_coef_idx(codec, 0x26, 0xb011);
-+}
-+
-+struct alc298_samsung_amp_desc {
-+	unsigned char nid;
-+	unsigned short init_seq[2][2];
-+};
-+
-+static void alc298_fixup_samsung_amp(struct hda_codec *codec,
-+				     const struct hda_fixup *fix, int action)
-+{
-+	int i, j;
-+	static const unsigned short init_seq[][2] = {
-+		{ 0x19, 0x00 }, { 0x20, 0xc0 }, { 0x22, 0x44 }, { 0x23, 0x08 },
-+		{ 0x24, 0x85 }, { 0x25, 0x41 }, { 0x35, 0x40 }, { 0x36, 0x01 },
-+		{ 0x38, 0x81 }, { 0x3a, 0x03 }, { 0x3b, 0x81 }, { 0x40, 0x3e },
-+		{ 0x41, 0x07 }, { 0x400, 0x1 }
-+	};
-+	static const struct alc298_samsung_amp_desc amps[] = {
-+		{ 0x3a, { { 0x18, 0x1 }, { 0x26, 0x0 } } },
-+		{ 0x39, { { 0x18, 0x2 }, { 0x26, 0x1 } } }
-+	};
-+
-+	if (action != HDA_FIXUP_ACT_INIT)
-+		return;
-+
-+	for (i = 0; i < ARRAY_SIZE(amps); i++) {
-+		alc_write_coef_idx(codec, 0x22, amps[i].nid);
-+
-+		for (j = 0; j < ARRAY_SIZE(amps[i].init_seq); j++)
-+			alc298_samsung_write_coef_pack(codec, amps[i].init_seq[j]);
-+
-+		for (j = 0; j < ARRAY_SIZE(init_seq); j++)
-+			alc298_samsung_write_coef_pack(codec, init_seq[j]);
-+	}
-+}
-+
- #if IS_REACHABLE(CONFIG_INPUT)
- static void gpio2_mic_hotkey_event(struct hda_codec *codec,
- 				   struct hda_jack_callback *event)
-@@ -6842,6 +6884,7 @@ enum {
- 	ALC236_FIXUP_HP_GPIO_LED,
- 	ALC236_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
-+	ALC298_FIXUP_SAMSUNG_AMP,
- 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
-@@ -8196,6 +8239,12 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc236_fixup_hp_mute_led_micmute_vref,
- 	},
-+	[ALC298_FIXUP_SAMSUNG_AMP] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc298_fixup_samsung_amp,
-+		.chained = true,
-+		.chain_id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET
-+	},
- 	[ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -8985,13 +9034,13 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x10ec, 0x1254, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
- 	SND_PCI_QUIRK(0x10f7, 0x8338, "Panasonic CF-SZ6", ALC269_FIXUP_HEADSET_MODE),
- 	SND_PCI_QUIRK(0x144d, 0xc109, "Samsung Ativ book 9 (NP900X3G)", ALC269_FIXUP_INV_DMIC),
--	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
--	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
--	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
--	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NP930XCJ-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
-+	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_AMP),
-+	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_AMP),
-+	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_AMP),
-+	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NP930XCJ-K01US)", ALC298_FIXUP_SAMSUNG_AMP),
- 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
--	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
--	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
-+	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_AMP),
-+	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_AMP),
- 	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
-@@ -9351,7 +9400,7 @@ static const struct hda_model_fixup alc2
- 	{.id = ALC299_FIXUP_PREDATOR_SPK, .name = "predator-spk"},
- 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
- 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
--	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
-+	{.id = ALC298_FIXUP_SAMSUNG_AMP, .name = "alc298-samsung-amp"},
- 	{.id = ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc256-samsung-headphone"},
- 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
- 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -131,6 +131,7 @@ SECTIONS
+ 	/*
+ 	 * Table with the patch locations to undo expolines
+ 	*/
++	. = ALIGN(4);
+ 	.nospec_call_table : {
+ 		__nospec_call_start = . ;
+ 		*(.s390_indirect*)
 
 
