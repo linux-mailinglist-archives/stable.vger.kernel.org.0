@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CBFF5AEC19
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80B55AECEA
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241514AbiIFOUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:20:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40052 "EHLO
+        id S240928AbiIFOC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:02:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242222AbiIFOT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:19:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AADBA2AE37;
-        Tue,  6 Sep 2022 06:51:22 -0700 (PDT)
+        with ESMTP id S240915AbiIFOBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:01:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE992720;
+        Tue,  6 Sep 2022 06:44:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB848B81637;
-        Tue,  6 Sep 2022 13:44:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44616C433B5;
-        Tue,  6 Sep 2022 13:44:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C6DA6154A;
+        Tue,  6 Sep 2022 13:43:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37CF5C433D6;
+        Tue,  6 Sep 2022 13:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471887;
-        bh=jdvlzF5PiHiRYG83O8c8MTkP5A5o4KJw3TjhC8W2X9A=;
+        s=korg; t=1662471793;
+        bh=8qNxysi4JFpH/cVZhgEkyhnyAzErsC9knToOeJgwz7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n3HAh4pizJ9q/KgHr8UkcDp4ctK33AU+CeoxRz25M82MjaHmJGYmW3ZliKrbQe4SL
-         wLWlmqtYKGxnP9ZgeA8Zg8QkHVD49SIHryc7CQPKrUrAuEdwF3cyyEQFfBkijVT+h/
-         D1Xt5B8IDe4TYf4HUpBOBE6Y8OPiHDBmz8SjUO6M=
+        b=2d9XwENVjIj7QqT5byz4F5H0eybsiemT/yPNeS5+fFX+lKLzUPqCCZUeTK7nN/iEx
+         +PaMcuI5JQ2brvB3OzkbRWJvBH3At0XYaj0Qu8Ie+n/c0PRXSU9fYWrG57oc5bij/K
+         b0KqWfluBdy1HEXVvv2OF6jYzb+GEa/DYlEas8lY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengping Jiang <jiangzp@google.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Casper Andersson <casper.casan@gmail.com>,
+        Steen Hegelund <Steen.Hegelund@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 032/155] Bluetooth: hci_sync: hold hdev->lock when cleanup hci_conn
-Date:   Tue,  6 Sep 2022 15:29:40 +0200
-Message-Id: <20220906132830.787518784@linuxfoundation.org>
+Subject: [PATCH 5.19 033/155] net: sparx5: fix handling uneven length packets in manual extraction
+Date:   Tue,  6 Sep 2022 15:29:41 +0200
+Message-Id: <20220906132830.825331642@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,40 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengping Jiang <jiangzp@google.com>
+From: Casper Andersson <casper.casan@gmail.com>
 
-[ Upstream commit 2da8eb834b775a9d1acea6214d3e4a78ac841e6e ]
+[ Upstream commit 7498a457ecf7ff2c4d379360aa8f24566bb1543e ]
 
-When disconnecting all devices, hci_conn_failed is used to cleanup
-hci_conn object when the hci_conn object cannot be aborted.
-The function hci_conn_failed requires the caller holds hdev->lock.
+Packets that are not of length divisible by 4 (e.g. 77, 78, 79) would
+have the checksum included up to next multiple of 4 (a 77 bytes packet
+would have 3 bytes of ethernet checksum included). The check for the
+value expects it in host (Little) endian.
 
-Fixes: 9b3628d79b46f ("Bluetooth: hci_sync: Cleanup hci_conn if it cannot be aborted")
-Signed-off-by: Zhengping Jiang <jiangzp@google.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: f3cad2611a77 ("net: sparx5: add hostmode with phylink support")
+Signed-off-by: Casper Andersson <casper.casan@gmail.com>
+Reviewed-by: Steen Hegelund <Steen.Hegelund@microchip.com>
+Link: https://lore.kernel.org/r/20220825084955.684637-1-casper.casan@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/microchip/sparx5/sparx5_packet.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 2012f23158839..3b4cee67bbd60 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -4452,9 +4452,11 @@ static int hci_abort_conn_sync(struct hci_dev *hdev, struct hci_conn *conn,
- 		/* Cleanup hci_conn object if it cannot be cancelled as it
- 		 * likelly means the controller and host stack are out of sync.
- 		 */
--		if (err)
-+		if (err) {
-+			hci_dev_lock(hdev);
- 			hci_conn_failed(conn, err);
--
-+			hci_dev_unlock(hdev);
-+		}
- 		return err;
- 	case BT_CONNECT2:
- 		return hci_reject_conn_sync(hdev, conn, reason);
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
+index 304f84aadc36b..21844beba72df 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
+@@ -113,6 +113,8 @@ static void sparx5_xtr_grp(struct sparx5 *sparx5, u8 grp, bool byte_swap)
+ 			/* This assumes STATUS_WORD_POS == 1, Status
+ 			 * just after last data
+ 			 */
++			if (!byte_swap)
++				val = ntohl((__force __be32)val);
+ 			byte_cnt -= (4 - XTR_VALID_BYTES(val));
+ 			eof_flag = true;
+ 			break;
 -- 
 2.35.1
 
