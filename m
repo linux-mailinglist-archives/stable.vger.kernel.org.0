@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B29555AEC8E
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B37A35AEC68
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239581AbiIFOFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:05:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59934 "EHLO
+        id S241144AbiIFOCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:02:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241502AbiIFOEm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:04:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347367F119;
-        Tue,  6 Sep 2022 06:45:12 -0700 (PDT)
+        with ESMTP id S240912AbiIFOBN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:01:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F08987F0A7;
+        Tue,  6 Sep 2022 06:44:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F17AD6154E;
-        Tue,  6 Sep 2022 13:44:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FAF6C433D7;
-        Tue,  6 Sep 2022 13:44:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F367B816A0;
+        Tue,  6 Sep 2022 13:44:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6BEEC433D6;
+        Tue,  6 Sep 2022 13:44:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471853;
-        bh=2ksWF3+Dh8PKAjG4HgagqD1gFfPasKEasH82ovX11Ls=;
+        s=korg; t=1662471859;
+        bh=2t5gG7chT0YaqazGsBisRir+uDym/eOwq0dvTSwEEQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xi6tyNkjKNS0U3Yfi5PklvY/e3u/AB2aflU3s3THnrbJTP21vQukB6v2+oriIm/sU
-         pUGtnXNJ5qxphJ+0TjtJuKHC1WHoP7Q0sfzEGSSbjPJ45ZRCIa6CjvdHgfoIxgocQ4
-         vm5MRbiuvVY4ECt2Kr8AZ7iSx/6RHXQWEUXNM5zQ=
+        b=FV/Wl7MxDYwCaZ4OXIchYok+2hFAxQw/V7Tc+5xNGK+qRVfu5gJpuRPj1c7JKmQK6
+         22E5RD/+/09pQQP6hrFlYEjxIY9v/dv++WIqLnR/AlxsRXJj3PJyDROWO7J8q/628L
+         61fxMN7hx3yAiTCHKHykA80LcuYW6hulzh56tN2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.19 061/155] Revert "powerpc: Remove unused FW_FEATURE_NATIVE references"
-Date:   Tue,  6 Sep 2022 15:30:09 +0200
-Message-Id: <20220906132832.010980486@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.19 062/155] powerpc: align syscall table for ppc32
+Date:   Tue,  6 Sep 2022 15:30:10 +0200
+Message-Id: <20220906132832.060951221@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -52,61 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 310d1344e3c58cc2d625aa4e52cfcb7d8a26fcbf upstream.
+commit c7acee3d2f128a38b68fb7af85dbbd91bfd0b4ad upstream.
 
-This reverts commit 79b74a68486765a4fe685ac4069bc71366c538f5.
+Christophe Leroy reported that commit 7b4537199a4a ("kbuild: link
+symbol CRCs at final link,  removing CONFIG_MODULE_REL_CRCS") broke
+mpc85xx_defconfig + CONFIG_RELOCATABLE=y.
 
-It broke booting on IBM Cell machines when the kernel is also built with
-CONFIG_PPC_PS3=y.
+    LD      vmlinux
+    SYSMAP  System.map
+    SORTTAB vmlinux
+    CHKREL  vmlinux
+  WARNING: 451 bad relocations
+  c0b312a9 R_PPC_UADDR32     .head.text-0x3ff9ed54
+  c0b312ad R_PPC_UADDR32     .head.text-0x3ffac224
+  c0b312b1 R_PPC_UADDR32     .head.text-0x3ffb09f4
+  c0b312b5 R_PPC_UADDR32     .head.text-0x3fe184dc
+  c0b312b9 R_PPC_UADDR32     .head.text-0x3fe183a8
+      ...
 
-That's because FW_FEATURE_NATIVE_ALWAYS = 0 does have an important
-effect, which is to clear the PS3 ALWAYS features from
-FW_FEATURE_ALWAYS.
+The compiler emits a bunch of R_PPC_UADDR32, which is not supported by
+arch/powerpc/kernel/reloc_32.S.
 
-Note that CONFIG_PPC_NATIVE has since been renamed
-CONFIG_PPC_HASH_MMU_NATIVE.
+The reason is there exists an unaligned symbol.
 
-Fixes: 79b74a684867 ("powerpc: Remove unused FW_FEATURE_NATIVE references")
-Cc: stable@vger.kernel.org # v5.17+
+  $ powerpc-linux-gnu-nm -n vmlinux
+    ...
+  c0b31258 d spe_aligninfo
+  c0b31298 d __func__.0
+  c0b312a9 D sys_call_table
+  c0b319b8 d __func__.0
+
+Commit 7b4537199a4a is not the root cause. Even before that, I can
+reproduce the same issue for mpc85xx_defconfig + CONFIG_RELOCATABLE=y
++ CONFIG_MODVERSIONS=n.
+
+It is just that nobody noticed because when CONFIG_MODVERSIONS is
+enabled, a __crc_* symbol inserted before sys_call_table was hiding the
+unalignment issue.
+
+Adding alignment to the syscall table for ppc32 fixes the issue.
+
+Cc: stable@vger.kernel.org
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Trim change log discussion, add Cc stable]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220823115952.1203106-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/lkml/38605f6a-a568-f884-f06f-ea4da5b214f0@csgroup.eu/
+Link: https://lore.kernel.org/r/20220820165129.1147589-1-masahiroy@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/firmware.h |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/powerpc/kernel/systbl.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/powerpc/include/asm/firmware.h
-+++ b/arch/powerpc/include/asm/firmware.h
-@@ -82,6 +82,8 @@ enum {
- 	FW_FEATURE_POWERNV_ALWAYS = 0,
- 	FW_FEATURE_PS3_POSSIBLE = FW_FEATURE_LPAR | FW_FEATURE_PS3_LV1,
- 	FW_FEATURE_PS3_ALWAYS = FW_FEATURE_LPAR | FW_FEATURE_PS3_LV1,
-+	FW_FEATURE_NATIVE_POSSIBLE = 0,
-+	FW_FEATURE_NATIVE_ALWAYS = 0,
- 	FW_FEATURE_POSSIBLE =
- #ifdef CONFIG_PPC_PSERIES
- 		FW_FEATURE_PSERIES_POSSIBLE |
-@@ -92,6 +94,9 @@ enum {
- #ifdef CONFIG_PPC_PS3
- 		FW_FEATURE_PS3_POSSIBLE |
+--- a/arch/powerpc/kernel/systbl.S
++++ b/arch/powerpc/kernel/systbl.S
+@@ -18,6 +18,7 @@
+ 	.p2align	3
+ #define __SYSCALL(nr, entry)	.8byte entry
+ #else
++	.p2align	2
+ #define __SYSCALL(nr, entry)	.long entry
  #endif
-+#ifdef CONFIG_PPC_HASH_MMU_NATIVE
-+		FW_FEATURE_NATIVE_ALWAYS |
-+#endif
- 		0,
- 	FW_FEATURE_ALWAYS =
- #ifdef CONFIG_PPC_PSERIES
-@@ -103,6 +108,9 @@ enum {
- #ifdef CONFIG_PPC_PS3
- 		FW_FEATURE_PS3_ALWAYS &
- #endif
-+#ifdef CONFIG_PPC_HASH_MMU_NATIVE
-+		FW_FEATURE_NATIVE_ALWAYS &
-+#endif
- 		FW_FEATURE_POSSIBLE,
  
- #else /* CONFIG_PPC64 */
 
 
