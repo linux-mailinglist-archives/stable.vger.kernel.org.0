@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D664F5AEACB
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87DF5AE9EB
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238481AbiIFNub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:50:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41388 "EHLO
+        id S240613AbiIFNfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:35:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238860AbiIFNss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:48:48 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 172B4DFD;
-        Tue,  6 Sep 2022 06:39:23 -0700 (PDT)
+        with ESMTP id S240617AbiIFNeg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:34:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AD2D79A50;
+        Tue,  6 Sep 2022 06:33:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B1EC3CE1784;
-        Tue,  6 Sep 2022 13:38:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F79EC433D7;
-        Tue,  6 Sep 2022 13:38:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBC16B816A0;
+        Tue,  6 Sep 2022 13:33:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E406C433D6;
+        Tue,  6 Sep 2022 13:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471506;
-        bh=i98bJPSeOuw8uj/R1OlKRdizQGOKmkgeHdQdCv/tCFo=;
+        s=korg; t=1662471203;
+        bh=KInf7nXmZCQz9nRyt3phsKM3hc7mqdIKeVR71CKLHwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SJJcv3ZQaH9g7+nax+aA4gotUnDXvab3LNZCpmICWRRKGmpP0/nDoBq684b/bXyhl
-         1mepQNbMYvBEHCK/UimMXC63uX0WPQCHFrS4h5ecpU2zYbaZIAaughLtyNqb6VRMJW
-         Y+VCbLy4+GE2KSkvPvC9FT+WZKEym15yNmhZ6Ib0=
+        b=qVrfV0Jb2VgJKc+t7juSfvDAniJcgdOW+2Wzi9yeL5UC5IQCBgAodBAI7GaxclFmc
+         NoHN0j7LigxOjCO1i0vCTdWKzCWd8a9sDX6D/Uoan5Pt6nf/HBn1rgE1RO1pk5EOMG
+         tE7XM/RBJYaaap48z9nKdHkaFweRIHqeZeHwvjhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 049/107] KVM: VMX: Heed the msr argument in msr_write_intercepted()
+Subject: [PATCH 5.10 33/80] drm/i915/reg: Fix spelling mistake "Unsupport" -> "Unsupported"
 Date:   Tue,  6 Sep 2022 15:30:30 +0200
-Message-Id: <20220906132823.919723954@linuxfoundation.org>
+Message-Id: <20220906132818.357402519@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-[ Upstream commit 020dac4187968535f089f83f376a72beb3451311 ]
+[ Upstream commit 233f56745be446b289edac2ba8184c09365c005e ]
 
-Regardless of the 'msr' argument passed to the VMX version of
-msr_write_intercepted(), the function always checks to see if a
-specific MSR (IA32_SPEC_CTRL) is intercepted for write.  This behavior
-seems unintentional and unexpected.
+There is a spelling mistake in a gvt_vgpu_err error message. Fix it.
 
-Modify the function so that it checks to see if the provided 'msr'
-index is intercepted for write.
-
-Fixes: 67f4b9969c30 ("KVM: nVMX: Handle dynamic MSR intercept toggling")
-Cc: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220810213050.2655000-1-jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 695fbc08d80f ("drm/i915/gvt: replace the gvt_err with gvt_vgpu_err")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Signed-off-by: Zhi Wang <zhi.a.wang@intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220315202449.2952845-1-colin.i.king@gmail.com
+Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gvt/handlers.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index cfb3a5c809f2e..e5584e974c774 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -831,8 +831,7 @@ static bool msr_write_intercepted(struct vcpu_vmx *vmx, u32 msr)
- 	if (!(exec_controls_get(vmx) & CPU_BASED_USE_MSR_BITMAPS))
- 		return true;
+diff --git a/drivers/gpu/drm/i915/gvt/handlers.c b/drivers/gpu/drm/i915/gvt/handlers.c
+index 0b1ea29dcffac..606e6c315fe24 100644
+--- a/drivers/gpu/drm/i915/gvt/handlers.c
++++ b/drivers/gpu/drm/i915/gvt/handlers.c
+@@ -660,7 +660,7 @@ static int update_fdi_rx_iir_status(struct intel_vgpu *vgpu,
+ 	else if (FDI_RX_IMR_TO_PIPE(offset) != INVALID_INDEX)
+ 		index = FDI_RX_IMR_TO_PIPE(offset);
+ 	else {
+-		gvt_vgpu_err("Unsupport registers %x\n", offset);
++		gvt_vgpu_err("Unsupported registers %x\n", offset);
+ 		return -EINVAL;
+ 	}
  
--	return vmx_test_msr_bitmap_write(vmx->loaded_vmcs->msr_bitmap,
--					 MSR_IA32_SPEC_CTRL);
-+	return vmx_test_msr_bitmap_write(vmx->loaded_vmcs->msr_bitmap, msr);
- }
- 
- unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx)
 -- 
 2.35.1
 
