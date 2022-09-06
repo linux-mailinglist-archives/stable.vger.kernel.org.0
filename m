@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B37A35AEC68
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2B25AEBB4
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241144AbiIFOCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:02:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43836 "EHLO
+        id S240714AbiIFOIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:08:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240912AbiIFOBN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:01:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F08987F0A7;
-        Tue,  6 Sep 2022 06:44:20 -0700 (PDT)
+        with ESMTP id S240480AbiIFOGi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:06:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C92844DB;
+        Tue,  6 Sep 2022 06:45:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F367B816A0;
-        Tue,  6 Sep 2022 13:44:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6BEEC433D6;
-        Tue,  6 Sep 2022 13:44:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C76C61512;
+        Tue,  6 Sep 2022 13:44:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DD04C433D6;
+        Tue,  6 Sep 2022 13:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471859;
-        bh=2t5gG7chT0YaqazGsBisRir+uDym/eOwq0dvTSwEEQw=;
+        s=korg; t=1662471861;
+        bh=J3u+U+WQFMotdht0bsJwo5KI5Wb/8L6B1uIHx450JDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FV/Wl7MxDYwCaZ4OXIchYok+2hFAxQw/V7Tc+5xNGK+qRVfu5gJpuRPj1c7JKmQK6
-         22E5RD/+/09pQQP6hrFlYEjxIY9v/dv++WIqLnR/AlxsRXJj3PJyDROWO7J8q/628L
-         61fxMN7hx3yAiTCHKHykA80LcuYW6hulzh56tN2E=
+        b=m3YaIGVaawPQ4jDo1UTNaAp4/IrCjTc3sJa268CB35w6q/gUD8i62btMxcJy3p53t
+         CdMW6ZNYmtcgCX8b2sD+uTDJaoz0HaW21r5q9GgBl5Lyxbj/6Gjcs9rB6w9SxX3qUQ
+         pJ0ALxW71+s5+M+NNYGc/UkzZDCpm7eES7+OF7p4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.19 062/155] powerpc: align syscall table for ppc32
-Date:   Tue,  6 Sep 2022 15:30:10 +0200
-Message-Id: <20220906132832.060951221@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Jordan Niethe <jniethe5@gmail.com>
+Subject: [PATCH 5.19 063/155] powerpc/rtas: Fix RTAS MSR[HV] handling for Cell
+Date:   Tue,  6 Sep 2022 15:30:11 +0200
+Message-Id: <20220906132832.108499157@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,70 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit c7acee3d2f128a38b68fb7af85dbbd91bfd0b4ad upstream.
+commit 91926d8b7e71aaf5f84f0cf208fc5a8b7a761050 upstream.
 
-Christophe Leroy reported that commit 7b4537199a4a ("kbuild: link
-symbol CRCs at final link,  removing CONFIG_MODULE_REL_CRCS") broke
-mpc85xx_defconfig + CONFIG_RELOCATABLE=y.
+The semi-recent changes to MSR handling when entering RTAS (firmware)
+cause crashes on IBM Cell machines. An example trace:
 
-    LD      vmlinux
-    SYSMAP  System.map
-    SORTTAB vmlinux
-    CHKREL  vmlinux
-  WARNING: 451 bad relocations
-  c0b312a9 R_PPC_UADDR32     .head.text-0x3ff9ed54
-  c0b312ad R_PPC_UADDR32     .head.text-0x3ffac224
-  c0b312b1 R_PPC_UADDR32     .head.text-0x3ffb09f4
-  c0b312b5 R_PPC_UADDR32     .head.text-0x3fe184dc
-  c0b312b9 R_PPC_UADDR32     .head.text-0x3fe183a8
-      ...
+  kernel tried to execute user page (2fff01a8) - exploit attempt? (uid: 0)
+  BUG: Unable to handle kernel instruction fetch
+  Faulting instruction address: 0x2fff01a8
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  BE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=4 NUMA Cell
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W          6.0.0-rc2-00433-gede0a8d3307a #207
+  NIP:  000000002fff01a8 LR: 0000000000032608 CTR: 0000000000000000
+  REGS: c0000000015236b0 TRAP: 0400   Tainted: G        W           (6.0.0-rc2-00433-gede0a8d3307a)
+  MSR:  0000000008001002 <ME,RI>  CR: 00000000  XER: 20000000
+  ...
+  NIP 0x2fff01a8
+  LR  0x32608
+  Call Trace:
+    0xc00000000143c5f8 (unreliable)
+    .rtas_call+0x224/0x320
+    .rtas_get_boot_time+0x70/0x150
+    .read_persistent_clock64+0x114/0x140
+    .read_persistent_wall_and_boot_offset+0x24/0x80
+    .timekeeping_init+0x40/0x29c
+    .start_kernel+0x674/0x8f0
+    start_here_common+0x1c/0x50
 
-The compiler emits a bunch of R_PPC_UADDR32, which is not supported by
-arch/powerpc/kernel/reloc_32.S.
+Unlike PAPR platforms where RTAS is only used in guests, on the IBM Cell
+machines Linux runs with MSR[HV] set but also uses RTAS, provided by
+SLOF.
 
-The reason is there exists an unaligned symbol.
+Fix it by copying the MSR[HV] bit from the MSR value we've just read
+using mfmsr into the value used for RTAS.
 
-  $ powerpc-linux-gnu-nm -n vmlinux
-    ...
-  c0b31258 d spe_aligninfo
-  c0b31298 d __func__.0
-  c0b312a9 D sys_call_table
-  c0b319b8 d __func__.0
+It seems like we could also fix it using an #ifdef CELL to set MSR[HV],
+but that doesn't work because it's possible to build a single kernel
+image that runs on both Cell native and pseries.
 
-Commit 7b4537199a4a is not the root cause. Even before that, I can
-reproduce the same issue for mpc85xx_defconfig + CONFIG_RELOCATABLE=y
-+ CONFIG_MODVERSIONS=n.
-
-It is just that nobody noticed because when CONFIG_MODVERSIONS is
-enabled, a __crc_* symbol inserted before sys_call_table was hiding the
-unalignment issue.
-
-Adding alignment to the syscall table for ppc32 fixes the issue.
-
-Cc: stable@vger.kernel.org
-Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Trim change log discussion, add Cc stable]
+Fixes: b6b1c3ce06ca ("powerpc/rtas: Keep MSR[RI] set when calling RTAS")
+Cc: stable@vger.kernel.org # v5.19+
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/lkml/38605f6a-a568-f884-f06f-ea4da5b214f0@csgroup.eu/
-Link: https://lore.kernel.org/r/20220820165129.1147589-1-masahiroy@kernel.org
+Reviewed-by: Jordan Niethe <jniethe5@gmail.com>
+Link: https://lore.kernel.org/r/20220823115952.1203106-2-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/systbl.S |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/rtas_entry.S |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/powerpc/kernel/systbl.S
-+++ b/arch/powerpc/kernel/systbl.S
-@@ -18,6 +18,7 @@
- 	.p2align	3
- #define __SYSCALL(nr, entry)	.8byte entry
- #else
-+	.p2align	2
- #define __SYSCALL(nr, entry)	.long entry
- #endif
+--- a/arch/powerpc/kernel/rtas_entry.S
++++ b/arch/powerpc/kernel/rtas_entry.S
+@@ -109,8 +109,12 @@ __enter_rtas:
+ 	 * its critical regions (as specified in PAPR+ section 7.2.1). MSR[S]
+ 	 * is not impacted by RFI_TO_KERNEL (only urfid can unset it). So if
+ 	 * MSR[S] is set, it will remain when entering RTAS.
++	 * If we're in HV mode, RTAS must also run in HV mode, so extract MSR_HV
++	 * from the saved MSR value and insert into the value RTAS will use.
+ 	 */
++	extrdi	r0, r6, 1, 63 - MSR_HV_LG
+ 	LOAD_REG_IMMEDIATE(r6, MSR_ME | MSR_RI)
++	insrdi	r6, r0, 1, 63 - MSR_HV_LG
  
+ 	li      r0,0
+ 	mtmsrd  r0,1                    /* disable RI before using SRR0/1 */
 
 
