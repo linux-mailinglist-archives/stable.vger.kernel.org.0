@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 122875AECE6
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02DA25AEBD0
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241485AbiIFOOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:14:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50420 "EHLO
+        id S240572AbiIFOKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:10:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241329AbiIFOMZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:12:25 -0400
+        with ESMTP id S241351AbiIFOJa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:09:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15121876B1;
-        Tue,  6 Sep 2022 06:47:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFFF88607C;
+        Tue,  6 Sep 2022 06:46:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69C9661555;
-        Tue,  6 Sep 2022 13:46:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76FA6C433C1;
-        Tue,  6 Sep 2022 13:46:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC9266154D;
+        Tue,  6 Sep 2022 13:44:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA87BC433D7;
+        Tue,  6 Sep 2022 13:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471979;
-        bh=gZPtUq3Oyj/etwkcxj2jiAiGJuFla+aQKtjsG3KEmD4=;
+        s=korg; t=1662471893;
+        bh=zg/sOoQpE0AjjldedRJe+dc3QpG3rVgfQcCR/ffvN9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ce3tTZfuAXbaGAXvPiGkvADfdqzN2MR5a5zSTKIscy4DBX0Kg37cTq5E6RVYMTCNU
-         +e7oBJP7RVIhWqe2gQI423XuvHZuMaXQy5IAABaENOBPUTKbbUaKvYniW+1V7Bfd91
-         c8MM9ZHsBVaCuuo6sDhi9kw8qTs3ipRsO64az8Ww=
+        b=lr69ZY8vUt6E2qGQ4WWkj6kJ49txTG3jjQLc/tIR/JbD7lT3yXuyTlPvOdxs/W2Ks
+         LmOAGHF2efbTqkmaWq4fbB4jG9hn2pKr0bo0FQtwdXpll1tGgOlUwttN7mio41shhR
+         gIp3cHykWeHkXVsTLDBOEiLNWUidyj9COe4sU7m8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Russ Weight <russell.h.weight@intel.com>
-Subject: [PATCH 5.19 075/155] firmware_loader: Fix memory leak in firmware upload
-Date:   Tue,  6 Sep 2022 15:30:23 +0200
-Message-Id: <20220906132832.591349145@linuxfoundation.org>
+        stable@vger.kernel.org, Niek Nooijens <niek.nooijens@omron.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.19 076/155] USB: serial: ftdi_sio: add Omron CS1W-CIF31 device id
+Date:   Tue,  6 Sep 2022 15:30:24 +0200
+Message-Id: <20220906132832.637660511@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -45,7 +45,7 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,89 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russ Weight <russell.h.weight@intel.com>
+From: Niek Nooijens <niek.nooijens@omron.com>
 
-commit 789bba82f63c3e81dce426ba457fc7905b30ac6e upstream.
+commit 001047ea241a9646010b2744451dfbc7289542f3 upstream.
 
-In the case of firmware-upload, an instance of struct fw_upload is
-allocated in firmware_upload_register(). This data needs to be freed
-in fw_dev_release(). Create a new fw_upload_free() function in
-sysfs_upload.c to handle the firmware-upload specific memory frees
-and incorporate the missing kfree call for the fw_upload structure.
+works perfectly with:
+modprobe ftdi_sio
+echo "0590 00b2" | tee
+/sys/module/ftdi_sio/drivers/usb-serial\:ftdi_sio/new_id > /dev/null
 
-Fixes: 97730bbb242c ("firmware_loader: Add firmware-upload support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Russ Weight <russell.h.weight@intel.com>
-Link: https://lore.kernel.org/r/20220831002518.465274-1-russell.h.weight@intel.com
+but doing this every reboot is a pain in the ass.
+
+Signed-off-by: Niek Nooijens <niek.nooijens@omron.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/firmware_loader/sysfs.c        | 7 +++----
- drivers/base/firmware_loader/sysfs.h        | 5 +++++
- drivers/base/firmware_loader/sysfs_upload.c | 9 +++++++++
- 3 files changed, 17 insertions(+), 4 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    2 ++
+ drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/base/firmware_loader/sysfs.c b/drivers/base/firmware_loader/sysfs.c
-index 77bad32c481a..5b66b3d1fa16 100644
---- a/drivers/base/firmware_loader/sysfs.c
-+++ b/drivers/base/firmware_loader/sysfs.c
-@@ -93,10 +93,9 @@ static void fw_dev_release(struct device *dev)
- {
- 	struct fw_sysfs *fw_sysfs = to_fw_sysfs(dev);
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1045,6 +1045,8 @@ static const struct usb_device_id id_tab
+ 	/* IDS GmbH devices */
+ 	{ USB_DEVICE(IDS_VID, IDS_SI31A_PID) },
+ 	{ USB_DEVICE(IDS_VID, IDS_CM31A_PID) },
++	/* Omron devices */
++	{ USB_DEVICE(OMRON_VID, OMRON_CS1W_CIF31_PID) },
+ 	/* U-Blox devices */
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -662,6 +662,12 @@
+ #define INFINEON_TRIBOARD_TC2X7_PID	0x0043 /* DAS JTAG TriBoard TC2X7 V1.0 */
  
--	if (fw_sysfs->fw_upload_priv) {
--		free_fw_priv(fw_sysfs->fw_priv);
--		kfree(fw_sysfs->fw_upload_priv);
--	}
-+	if (fw_sysfs->fw_upload_priv)
-+		fw_upload_free(fw_sysfs);
+ /*
++ * Omron corporation (https://www.omron.com)
++ */
++ #define OMRON_VID			0x0590
++ #define OMRON_CS1W_CIF31_PID		0x00b2
 +
- 	kfree(fw_sysfs);
- }
- 
-diff --git a/drivers/base/firmware_loader/sysfs.h b/drivers/base/firmware_loader/sysfs.h
-index 5d8ff1675c79..df1d5add698f 100644
---- a/drivers/base/firmware_loader/sysfs.h
-+++ b/drivers/base/firmware_loader/sysfs.h
-@@ -106,12 +106,17 @@ extern struct device_attribute dev_attr_cancel;
- extern struct device_attribute dev_attr_remaining_size;
- 
- int fw_upload_start(struct fw_sysfs *fw_sysfs);
-+void fw_upload_free(struct fw_sysfs *fw_sysfs);
- umode_t fw_upload_is_visible(struct kobject *kobj, struct attribute *attr, int n);
- #else
- static inline int fw_upload_start(struct fw_sysfs *fw_sysfs)
- {
- 	return 0;
- }
-+
-+static inline void fw_upload_free(struct fw_sysfs *fw_sysfs)
-+{
-+}
- #endif
- 
- #endif /* __FIRMWARE_SYSFS_H */
-diff --git a/drivers/base/firmware_loader/sysfs_upload.c b/drivers/base/firmware_loader/sysfs_upload.c
-index 63e15bddd80c..a0af8f5f13d8 100644
---- a/drivers/base/firmware_loader/sysfs_upload.c
-+++ b/drivers/base/firmware_loader/sysfs_upload.c
-@@ -264,6 +264,15 @@ int fw_upload_start(struct fw_sysfs *fw_sysfs)
- 	return 0;
- }
- 
-+void fw_upload_free(struct fw_sysfs *fw_sysfs)
-+{
-+	struct fw_upload_priv *fw_upload_priv = fw_sysfs->fw_upload_priv;
-+
-+	free_fw_priv(fw_sysfs->fw_priv);
-+	kfree(fw_upload_priv->fw_upload);
-+	kfree(fw_upload_priv);
-+}
-+
- /**
-  * firmware_upload_register() - register for the firmware upload sysfs API
-  * @module: kernel module of this device
--- 
-2.37.3
-
++/*
+  * Acton Research Corp.
+  */
+ #define ACTON_VID		0x0647	/* Vendor ID */
 
 
