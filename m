@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DACB05AEA0D
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1B2B5AEB0F
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240796AbiIFNhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:37:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52926 "EHLO
+        id S239578AbiIFNzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:55:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240717AbiIFNg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:36:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1C7C1160;
-        Tue,  6 Sep 2022 06:34:25 -0700 (PDT)
+        with ESMTP id S239573AbiIFNyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:54:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98118052D;
+        Tue,  6 Sep 2022 06:40:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98A016154A;
-        Tue,  6 Sep 2022 13:34:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C7CEC433D6;
-        Tue,  6 Sep 2022 13:34:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4F9F6154A;
+        Tue,  6 Sep 2022 13:40:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04CA7C433D6;
+        Tue,  6 Sep 2022 13:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471264;
-        bh=z/Oako/OHqlxEBsGpExXXPCoqeefWnC2mfT3YBb4Hms=;
+        s=korg; t=1662471642;
+        bh=YbXUbVwmPBeZ3e18p5I/sCwBu3AG/FCQQge9vtCE1jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDzvNv/Y6wHsrlV9tY0K2S//LgPBxMef7lUneIw2wygTGikVT5+qfzyufQYyzIdO2
-         75CnwyEZRaf5n8tZEa4WySrDRZfkaVeYAdFeU4TgUEAYpAHOEchUjlowhSIFxKZHiO
-         ifxBFPG4etXKfhM8pVMbeIPVvJpD6ZJIh/5aGEQM=
+        b=FsIRGVDhuoVhm38S8ZTA2pnVd39PUbEvnMr4jWQd2UEgNFpR3Sn4s1oZKP3bVX8Cp
+         WE+5D/ux8XR5ccIls0YNQq5dCcRzY/aD+iTZXSk9NEQUZiq+rQdSinQZW9E/UsZF2a
+         6kVtoNPNnl9SOZhug2lO8lIl+yIqybxuCqP4o/eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Rondreis <linhaoguo86@gmail.com>
-Subject: [PATCH 5.10 50/80] media: mceusb: Use new usb_control_msg_*() routines
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, SeongJae Park <sj@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.15 066/107] xen-blkfront: Cache feature_persistent value before advertisement
 Date:   Tue,  6 Sep 2022 15:30:47 +0200
-Message-Id: <20220906132819.106594119@linuxfoundation.org>
+Message-Id: <20220906132824.618387010@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,130 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: SeongJae Park <sj@kernel.org>
 
-commit 608e58a0f4617977178131f5f68a3fce1d3f5316 upstream.
+commit fe8f65b018effbf473f53af3538d0c1878b8b329 upstream.
 
-Automatic kernel fuzzing led to a WARN about invalid pipe direction in
-the mceusb driver:
+Xen blkfront advertises its support of the persistent grants feature
+when it first setting up and when resuming in 'talk_to_blkback()'.
+Then, blkback reads the advertised value when it connects with blkfront
+and decides if it will use the persistent grants feature or not, and
+advertises its decision to blkfront.  Blkfront reads the blkback's
+decision and it also makes the decision for the use of the feature.
 
-------------[ cut here ]------------
-usb 6-1: BOGUS control dir, pipe 80000380 doesn't match bRequestType 40
-WARNING: CPU: 0 PID: 2465 at drivers/usb/core/urb.c:410
-usb_submit_urb+0x1326/0x1820 drivers/usb/core/urb.c:410
-Modules linked in:
-CPU: 0 PID: 2465 Comm: kworker/0:2 Not tainted 5.19.0-rc4-00208-g69cb6c6556ad #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-1.13.0-1ubuntu1.1 04/01/2014
-Workqueue: usb_hub_wq hub_event
-RIP: 0010:usb_submit_urb+0x1326/0x1820 drivers/usb/core/urb.c:410
-Code: 7c 24 40 e8 ac 23 91 fd 48 8b 7c 24 40 e8 b2 70 1b ff 45 89 e8
-44 89 f1 4c 89 e2 48 89 c6 48 c7 c7 a0 30 a9 86 e8 48 07 11 02 <0f> 0b
-e9 1c f0 ff ff e8 7e 23 91 fd 0f b6 1d 63 22 83 05 31 ff 41
-RSP: 0018:ffffc900032becf0 EFLAGS: 00010282
-RAX: 0000000000000000 RBX: ffff8881100f3058 RCX: 0000000000000000
-RDX: ffffc90004961000 RSI: ffff888114c6d580 RDI: fffff52000657d90
-RBP: ffff888105ad90f0 R08: ffffffff812c3638 R09: 0000000000000000
-R10: 0000000000000005 R11: ffffed1023504ef1 R12: ffff888105ad9000
-R13: 0000000000000040 R14: 0000000080000380 R15: ffff88810ba96500
-FS: 0000000000000000(0000) GS:ffff88811a800000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffe810bda58 CR3: 000000010b720000 CR4: 0000000000350ef0
-Call Trace:
-<TASK>
-usb_start_wait_urb+0x101/0x4c0 drivers/usb/core/message.c:58
-usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
-usb_control_msg+0x31c/0x4a0 drivers/usb/core/message.c:153
-mceusb_gen1_init drivers/media/rc/mceusb.c:1431 [inline]
-mceusb_dev_probe+0x258e/0x33f0 drivers/media/rc/mceusb.c:1807
+Commit 402c43ea6b34 ("xen-blkfront: Apply 'feature_persistent' parameter
+when connect"), however, made the blkfront's read of the parameter for
+disabling the advertisement, namely 'feature_persistent', to be done
+when it negotiate, not when advertise.  Therefore blkfront advertises
+without reading the parameter.  As the field for caching the parameter
+value is zero-initialized, it always advertises as the feature is
+disabled, so that the persistent grants feature becomes always disabled.
 
-The reason for the warning is clear enough; the driver sends an
-unusual read request on endpoint 0 but does not set the USB_DIR_IN bit
-in the bRequestType field.
+This commit fixes the issue by making the blkfront does parmeter caching
+just before the advertisement.
 
-More importantly, the whole situation can be avoided and the driver
-simplified by converting it over to the relatively new
-usb_control_msg_recv() and usb_control_msg_send() routines.  That's
-what this fix does.
-
-Link: https://lore.kernel.org/all/CAB7eexLLApHJwZfMQ=X-PtRhw0BgO+5KcSMS05FNUYejJXqtSA@mail.gmail.com/
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: Rondreis <linhaoguo86@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YwkfnBFCSEVC6XZu@rowland.harvard.edu
+Fixes: 402c43ea6b34 ("xen-blkfront: Apply 'feature_persistent' parameter when connect")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: SeongJae Park <sj@kernel.org>
+Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220831165824.94815-4-sj@kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/mceusb.c |   35 ++++++++++++++---------------------
- 1 file changed, 14 insertions(+), 21 deletions(-)
+ drivers/block/xen-blkfront.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/media/rc/mceusb.c
-+++ b/drivers/media/rc/mceusb.c
-@@ -1416,42 +1416,37 @@ static void mceusb_gen1_init(struct mceu
- {
- 	int ret;
- 	struct device *dev = ir->dev;
--	char *data;
--
--	data = kzalloc(USB_CTRL_MSG_SZ, GFP_KERNEL);
--	if (!data) {
--		dev_err(dev, "%s: memory allocation failed!", __func__);
--		return;
--	}
-+	char data[USB_CTRL_MSG_SZ];
- 
- 	/*
- 	 * This is a strange one. Windows issues a set address to the device
- 	 * on the receive control pipe and expect a certain value pair back
- 	 */
--	ret = usb_control_msg(ir->usbdev, usb_rcvctrlpipe(ir->usbdev, 0),
--			      USB_REQ_SET_ADDRESS, USB_TYPE_VENDOR, 0, 0,
--			      data, USB_CTRL_MSG_SZ, 3000);
-+	ret = usb_control_msg_recv(ir->usbdev, 0, USB_REQ_SET_ADDRESS,
-+				   USB_DIR_IN | USB_TYPE_VENDOR,
-+				   0, 0, data, USB_CTRL_MSG_SZ, 3000,
-+				   GFP_KERNEL);
- 	dev_dbg(dev, "set address - ret = %d", ret);
- 	dev_dbg(dev, "set address - data[0] = %d, data[1] = %d",
- 						data[0], data[1]);
- 
- 	/* set feature: bit rate 38400 bps */
--	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
--			      USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
--			      0xc04e, 0x0000, NULL, 0, 3000);
-+	ret = usb_control_msg_send(ir->usbdev, 0,
-+				   USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
-+				   0xc04e, 0x0000, NULL, 0, 3000, GFP_KERNEL);
- 
- 	dev_dbg(dev, "set feature - ret = %d", ret);
- 
- 	/* bRequest 4: set char length to 8 bits */
--	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
--			      4, USB_TYPE_VENDOR,
--			      0x0808, 0x0000, NULL, 0, 3000);
-+	ret = usb_control_msg_send(ir->usbdev, 0,
-+				   4, USB_TYPE_VENDOR,
-+				   0x0808, 0x0000, NULL, 0, 3000, GFP_KERNEL);
- 	dev_dbg(dev, "set char length - retB = %d", ret);
- 
- 	/* bRequest 2: set handshaking to use DTR/DSR */
--	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
--			      2, USB_TYPE_VENDOR,
--			      0x0000, 0x0100, NULL, 0, 3000);
-+	ret = usb_control_msg_send(ir->usbdev, 0,
-+				   2, USB_TYPE_VENDOR,
-+				   0x0000, 0x0100, NULL, 0, 3000, GFP_KERNEL);
- 	dev_dbg(dev, "set handshake  - retC = %d", ret);
- 
- 	/* device resume */
-@@ -1459,8 +1454,6 @@ static void mceusb_gen1_init(struct mceu
- 
- 	/* get hw/sw revision? */
- 	mce_command_out(ir, GET_REVISION, sizeof(GET_REVISION));
--
--	kfree(data);
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1785,6 +1785,12 @@ abort_transaction:
+ 	return err;
  }
  
- static void mceusb_gen2_init(struct mceusb_dev *ir)
++/* Enable the persistent grants feature. */
++static bool feature_persistent = true;
++module_param(feature_persistent, bool, 0644);
++MODULE_PARM_DESC(feature_persistent,
++		"Enables the persistent grants feature");
++
+ /* Common code used when first setting up, and when resuming. */
+ static int talk_to_blkback(struct xenbus_device *dev,
+ 			   struct blkfront_info *info)
+@@ -1876,6 +1882,7 @@ again:
+ 		message = "writing protocol";
+ 		goto abort_transaction;
+ 	}
++	info->feature_persistent_parm = feature_persistent;
+ 	err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
+ 			info->feature_persistent_parm);
+ 	if (err)
+@@ -1945,12 +1952,6 @@ static int negotiate_mq(struct blkfront_
+ 	return 0;
+ }
+ 
+-/* Enable the persistent grants feature. */
+-static bool feature_persistent = true;
+-module_param(feature_persistent, bool, 0644);
+-MODULE_PARM_DESC(feature_persistent,
+-		"Enables the persistent grants feature");
+-
+ /*
+  * Entry point to this code when a new device is created.  Allocate the basic
+  * structures and the ring buffer for communication with the backend, and
+@@ -2310,7 +2311,6 @@ static void blkfront_gather_backend_feat
+ 	if (xenbus_read_unsigned(info->xbdev->otherend, "feature-discard", 0))
+ 		blkfront_setup_discard(info);
+ 
+-	info->feature_persistent_parm = feature_persistent;
+ 	if (info->feature_persistent_parm)
+ 		info->feature_persistent =
+ 			!!xenbus_read_unsigned(info->xbdev->otherend,
 
 
