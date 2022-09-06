@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9030F5AEE13
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:51:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB0595AEBE7
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240061AbiIFOvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:51:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33920 "EHLO
+        id S241458AbiIFONM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:13:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239092AbiIFOum (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:50:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11994A260C;
-        Tue,  6 Sep 2022 07:07:51 -0700 (PDT)
+        with ESMTP id S241200AbiIFOMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:12:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39915876BD;
+        Tue,  6 Sep 2022 06:47:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D04B761557;
-        Tue,  6 Sep 2022 13:46:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFD11C433C1;
-        Tue,  6 Sep 2022 13:46:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 448B7B81633;
+        Tue,  6 Sep 2022 13:46:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65F6C433C1;
+        Tue,  6 Sep 2022 13:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471974;
-        bh=qi279q5RAq2VFb7xHmWu8Mea+WWb0KcBgfWZrnBh1Dk=;
+        s=korg; t=1662471977;
+        bh=LvdH7vVr1r23YEdZutNO3OHpW6XFVLpbsu0SIYi1q5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+haFtz3lcB6WK0KOcrhER71E8rBw21m52j1j11OaZQKV3mi39FFPviUfkJJOGNbr
-         Bg5O/VVT3QX0oKJPYKfloLGFXt3AgqHstXD7WmBlmputKEclM2gTQhuE1/Zpdfbj3d
-         75kgz3pTMW6FDXor1jyPnpmXpaptyPSeRUlQzcoI=
+        b=h/IB+K8m7S8hJtdvQVVd1JOpCrsyPhUDKthcIiwS3vBYa1usd/4lKMATxajxQE6Nu
+         Zjhs5qTViGXy4W0RIgVIJcF+vn70DwO5VpS1WUp/YkpwNLzBdSvaAYGioL9QnwB9vD
+         JdVeNGFXTFtNTIl+EhX/uy/BR1csooQawVKIwveQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 5.19 073/155] misc: fastrpc: fix memory corruption on open
-Date:   Tue,  6 Sep 2022 15:30:21 +0200
-Message-Id: <20220906132832.511628952@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        kernel test robot <oliver.sang@intel.com>,
+        Matthew Gerlach <matthew.gerlach@linux.intel.com>,
+        Russ Weight <russell.h.weight@intel.com>
+Subject: [PATCH 5.19 074/155] firmware_loader: Fix use-after-free during unregister
+Date:   Tue,  6 Sep 2022 15:30:22 +0200
+Message-Id: <20220906132832.553603595@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -52,50 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Russ Weight <russell.h.weight@intel.com>
 
-commit d245f43aab2b61195d8ebb64cef7b5a08c590ab4 upstream.
+commit 8b40c38e37492b5bdf8e95b46b5cca9517a9957a upstream.
 
-The probe session-duplication overflow check incremented the session
-count also when there were no more available sessions so that memory
-beyond the fixed-size slab-allocated session array could be corrupted in
-fastrpc_session_alloc() on open().
+In the following code within firmware_upload_unregister(), the call to
+device_unregister() could result in the dev_release function freeing the
+fw_upload_priv structure before it is dereferenced for the call to
+module_put(). This bug was found by the kernel test robot using
+CONFIG_KASAN while running the firmware selftests.
 
-Fixes: f6f9279f2bf0 ("misc: fastrpc: Add Qualcomm fastrpc basic driver model")
-Cc: stable@vger.kernel.org      # 5.1
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220829080531.29681-3-johan+linaro@kernel.org
+  device_unregister(&fw_sysfs->dev);
+  module_put(fw_upload_priv->module);
+
+The problem is fixed by copying fw_upload_priv->module to a local variable
+for use when calling device_unregister().
+
+Fixes: 97730bbb242c ("firmware_loader: Add firmware-upload support")
+Cc: stable <stable@kernel.org>
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Reviewed-by: Matthew Gerlach <matthew.gerlach@linux.intel.com>
+Signed-off-by: Russ Weight <russell.h.weight@intel.com>
+Link: https://lore.kernel.org/r/20220829174557.437047-1-russell.h.weight@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/fastrpc.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/base/firmware_loader/sysfs_upload.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -1948,7 +1948,7 @@ static int fastrpc_cb_probe(struct platf
- 		spin_unlock_irqrestore(&cctx->lock, flags);
- 		return -ENOSPC;
- 	}
--	sess = &cctx->session[cctx->sesscount];
-+	sess = &cctx->session[cctx->sesscount++];
- 	sess->used = false;
- 	sess->valid = true;
- 	sess->dev = dev;
-@@ -1961,13 +1961,12 @@ static int fastrpc_cb_probe(struct platf
- 		struct fastrpc_session_ctx *dup_sess;
+--- a/drivers/base/firmware_loader/sysfs_upload.c
++++ b/drivers/base/firmware_loader/sysfs_upload.c
+@@ -377,6 +377,7 @@ void firmware_upload_unregister(struct f
+ {
+ 	struct fw_sysfs *fw_sysfs = fw_upload->priv;
+ 	struct fw_upload_priv *fw_upload_priv = fw_sysfs->fw_upload_priv;
++	struct module *module = fw_upload_priv->module;
  
- 		for (i = 1; i < sessions; i++) {
--			if (cctx->sesscount++ >= FASTRPC_MAX_SESSIONS)
-+			if (cctx->sesscount >= FASTRPC_MAX_SESSIONS)
- 				break;
--			dup_sess = &cctx->session[cctx->sesscount];
-+			dup_sess = &cctx->session[cctx->sesscount++];
- 			memcpy(dup_sess, sess, sizeof(*dup_sess));
- 		}
- 	}
--	cctx->sesscount++;
- 	spin_unlock_irqrestore(&cctx->lock, flags);
- 	rc = dma_set_mask(dev, DMA_BIT_MASK(32));
- 	if (rc) {
+ 	mutex_lock(&fw_upload_priv->lock);
+ 	if (fw_upload_priv->progress == FW_UPLOAD_PROG_IDLE) {
+@@ -392,6 +393,6 @@ void firmware_upload_unregister(struct f
+ 
+ unregister:
+ 	device_unregister(&fw_sysfs->dev);
+-	module_put(fw_upload_priv->module);
++	module_put(module);
+ }
+ EXPORT_SYMBOL_GPL(firmware_upload_unregister);
 
 
