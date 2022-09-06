@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1B9A5AEA1E
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08DDC5AEA4A
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232343AbiIFNj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:39:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38930 "EHLO
+        id S232483AbiIFNjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:39:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230056AbiIFNiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:38:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88905186CE;
-        Tue,  6 Sep 2022 06:34:53 -0700 (PDT)
+        with ESMTP id S239545AbiIFNih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:38:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C5D4760E2;
+        Tue,  6 Sep 2022 06:35:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0492DB818B8;
-        Tue,  6 Sep 2022 13:34:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DB78C433C1;
-        Tue,  6 Sep 2022 13:34:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57BBE61539;
+        Tue,  6 Sep 2022 13:34:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60532C433D6;
+        Tue,  6 Sep 2022 13:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471280;
-        bh=loIo7ma84uLhfBjM/NLHnlvdJvRHkXpuI6E7j7xEeJM=;
+        s=korg; t=1662471283;
+        bh=PtmjzioE0RxWi/++TL3Rx8G/wtAkhld+qImlPxdFUVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKO4QeDOums61Y+nfyiOh0zsq6cVHhTb13sgBrW3kEgSKu6azVKq/AhqMTOcb8D7P
-         pCWD7dK7S1MjNweu3zIvYUci9YfFtedu7BO1+zgbYndSrB5zk9BcpVFWsPru6W4FhZ
-         vO1y2j2s2ks6jyLo1qAQsWvlldo3Rjq+EPXcdWZM=
+        b=z9MRoMQmsPv6y8NGkDAlyn28Nkdk+05+QxMqfDOIzQ+N8gIsdGFZLBBzibxtojSh8
+         K+i6KzMzKbvV0lQv/583sj7i8MPRQwgQzMhgWQK143NAY5XKtsZ4bbDzuUv2MogT3F
+         N1JRDb59D2Ds9lR/hHgjxxanQ8NVELABP3Ps2tE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com,
-        stable <stable@kernel.org>,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 24/80] vt: Clear selection before changing the font
-Date:   Tue,  6 Sep 2022 15:30:21 +0200
-Message-Id: <20220906132817.941273322@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Sherry Sun <sherry.sun@nxp.com>
+Subject: [PATCH 5.10 25/80] tty: serial: lpuart: disable flow control while waiting for the transmit engine to complete
+Date:   Tue,  6 Sep 2022 15:30:22 +0200
+Message-Id: <20220906132817.980506849@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
 References: <20220906132816.936069583@linuxfoundation.org>
@@ -56,58 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-commit 566f9c9f89337792070b5a6062dff448b3e7977f upstream.
+commit d5a2e0834364377a5d5a2fff1890a0b3f0bafd1f upstream.
 
-When changing the console font with ioctl(KDFONTOP) the new font size
-can be bigger than the previous font. A previous selection may thus now
-be outside of the new screen size and thus trigger out-of-bounds
-accesses to graphics memory if the selection is removed in
-vc_do_resize().
+When the user initializes the uart port, and waits for the transmit
+engine to complete in lpuart32_set_termios(), if the UART TX fifo has
+dirty data and the UARTMODIR enable the flow control, the TX fifo may
+never be empty. So here we should disable the flow control first to make
+sure the transmit engin can complete.
 
-Prevent such out-of-memory accesses by dropping the selection before the
-various con_font_set() console handlers are called.
-
-Reported-by: syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com
+Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
 Cc: stable <stable@kernel.org>
-Tested-by: Khalid Masum <khalid.masum.92@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Link: https://lore.kernel.org/r/YuV9apZGNmGfjcor@p100
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20220821101527.10066-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -4671,9 +4671,11 @@ static int con_font_set(struct vc_data *
- 	console_lock();
- 	if (vc->vc_mode != KD_TEXT)
- 		rc = -EINVAL;
--	else if (vc->vc_sw->con_font_set)
-+	else if (vc->vc_sw->con_font_set) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_set(vc, &font, op->flags);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	kfree(font.data);
-@@ -4700,9 +4702,11 @@ static int con_font_default(struct vc_da
- 		console_unlock();
- 		return -EINVAL;
- 	}
--	if (vc->vc_sw->con_font_default)
-+	if (vc->vc_sw->con_font_default) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_default(vc, &font, s);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	if (!rc) {
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2138,6 +2138,7 @@ lpuart32_set_termios(struct uart_port *p
+ 	uart_update_timeout(port, termios->c_cflag, baud);
+ 
+ 	/* wait transmit engin complete */
++	lpuart32_write(&sport->port, 0, UARTMODIR);
+ 	lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
+ 
+ 	/* disable transmit and receive */
 
 
