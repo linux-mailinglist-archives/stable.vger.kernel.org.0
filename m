@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 638B55AEAA5
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA7CC5AE9B9
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:34:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234415AbiIFNqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:46:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53478 "EHLO
+        id S240526AbiIFNc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240565AbiIFNo3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:44:29 -0400
+        with ESMTP id S240469AbiIFNch (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442BA237C0;
-        Tue,  6 Sep 2022 06:38:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE2675FCE;
+        Tue,  6 Sep 2022 06:32:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F56C61549;
-        Tue,  6 Sep 2022 13:36:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7254AC433B5;
-        Tue,  6 Sep 2022 13:36:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3530461546;
+        Tue,  6 Sep 2022 13:32:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 427EFC433C1;
+        Tue,  6 Sep 2022 13:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471410;
-        bh=HOQxppwsdblTzEhZbD0OZpWfdnnOfaXWXauzQLL26FI=;
+        s=korg; t=1662471149;
+        bh=owkutCVtF3WgN0PkOOap7smURXQ96hR7pkmpNAVs74c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfqXFChTz7dVqxpF0yqEOGrY/DCZMMB97+dHfQY4EjWBYSalxxtOtwbOA7xCpBzxM
-         YUeGghlIBtNX3vA/5aJOxzY0zUAGhaB074WXENdv/7iHsfgK6ajAd1tVRACeUIsmgz
-         0KuoznzQ/9rHwcNd4Z1wf9AJ887a5YdbDMrV74hs=
+        b=mRAnPj66ggkHv1VYuccWeSdsy2tVjl7mI80EJsupACt4r4jnw5EBXtNZ8w6ZPbPHo
+         ipWqsctOgUu7xsjkg8156gGhGg8dq3uXUeHVhenTbIaJAQjqYYhVd5crs4NiCD51sT
+         q3lwMTqVZYgYw+gK66B939AOezVrmCh0nyKu8EdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 018/107] net: smsc911x: Stop and start PHY during suspend and resume
+Subject: [PATCH 5.10 02/80] drm/msm/dp: delete DP_RECOVERED_CLOCK_OUT_EN to fix tps4
 Date:   Tue,  6 Sep 2022 15:29:59 +0200
-Message-Id: <20220906132822.537674334@linuxfoundation.org>
+Message-Id: <20220906132817.040032328@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,59 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit 3ce9f2bef75528936c78a7053301f5725f622f3a ]
+[ Upstream commit 032d57960176ac01cc5adff5bcc5eb51317f8781 ]
 
-Commit 744d23c71af3 ("net: phy: Warn about incorrect
-mdio_bus_phy_resume() state") unveiled that the smsc911x driver was not
-properly stopping and restarting the PHY during suspend/resume. Correct
-that by indicating that the MAC is in charge of PHY PM operations and
-ensure that all MDIO bus activity is quiescent during suspend.
+Data Symbols scrambled is required for tps4 at link training 2.
+Therefore SCRAMBLING_DISABLE bit should not be set for tps4 to
+work.
 
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Fixes: fba863b81604 ("net: phy: make PHY PM ops a no-op if MAC driver manages PHY PM")
-Fixes: 2aa70f864955 ("net: smsc911x: Quieten netif during suspend")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220825023951.3220-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+RECOVERED_CLOCK_OUT_EN is for enable simple EYE test for jitter
+measurement with minimal equipment for embedded applications purpose
+and is not required to be set during normal operation. Current
+implementation always have RECOVERED_CLOCK_OUT_EN bit set which
+cause SCRAMBLING_DISABLE bit wrongly set at tps4 which prevent
+tps4 from working.
+
+This patch delete setting RECOVERED_CLOCK_OUT_EN to fix
+SCRAMBLING_DISABLE be wrongly set at tps4.
+
+Changes in v2:
+-- fix Fixes tag
+
+Changes in v3:
+-- revise commit text
+
+Changes in v4:
+-- fix commit text newline
+
+Changes in v5:
+-- fix commit text line over 75 chars
+
+Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/497194/
+Link: https://lore.kernel.org/r/1660258670-4200-1-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/smsc/smsc911x.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/smsc/smsc911x.c b/drivers/net/ethernet/smsc/smsc911x.c
-index 592e191adbf7d..63b99dd8ca51c 100644
---- a/drivers/net/ethernet/smsc/smsc911x.c
-+++ b/drivers/net/ethernet/smsc/smsc911x.c
-@@ -1037,6 +1037,8 @@ static int smsc911x_mii_probe(struct net_device *dev)
+diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+index b9ca844ce2ad0..9fac55c24214a 100644
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+@@ -1205,7 +1205,7 @@ static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
+ 	if (ret)
  		return ret;
- 	}
  
-+	/* Indicate that the MAC is responsible for managing PHY PM */
-+	phydev->mac_managed_pm = true;
- 	phy_attached_info(phydev);
+-	dp_ctrl_train_pattern_set(ctrl, pattern | DP_RECOVERED_CLOCK_OUT_EN);
++	dp_ctrl_train_pattern_set(ctrl, pattern);
  
- 	phy_set_max_speed(phydev, SPEED_100);
-@@ -2584,6 +2586,8 @@ static int smsc911x_suspend(struct device *dev)
- 	if (netif_running(ndev)) {
- 		netif_stop_queue(ndev);
- 		netif_device_detach(ndev);
-+		if (!device_may_wakeup(dev))
-+			phy_stop(ndev->phydev);
- 	}
- 
- 	/* enable wake on LAN, energy detection and the external PME
-@@ -2625,6 +2629,8 @@ static int smsc911x_resume(struct device *dev)
- 	if (netif_running(ndev)) {
- 		netif_device_attach(ndev);
- 		netif_start_queue(ndev);
-+		if (!device_may_wakeup(dev))
-+			phy_start(ndev->phydev);
- 	}
- 
- 	return 0;
+ 	for (tries = 0; tries <= maximum_retries; tries++) {
+ 		drm_dp_link_train_channel_eq_delay(ctrl->panel->dpcd);
 -- 
 2.35.1
 
