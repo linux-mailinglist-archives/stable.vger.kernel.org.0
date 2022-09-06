@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F975AEB04
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 874E35AEA41
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238710AbiIFNum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:50:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41298 "EHLO
+        id S233270AbiIFNjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:39:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239501AbiIFNtc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:32 -0400
+        with ESMTP id S240870AbiIFNiz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:38:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4CC931EE6;
-        Tue,  6 Sep 2022 06:39:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E466556D;
+        Tue,  6 Sep 2022 06:36:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 354A9B8162F;
-        Tue,  6 Sep 2022 13:39:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A6ECC433C1;
-        Tue,  6 Sep 2022 13:39:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AEDD9B81637;
+        Tue,  6 Sep 2022 13:35:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9DBFC433D7;
+        Tue,  6 Sep 2022 13:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471590;
-        bh=qpDSi8Cq/D9AtkyR6e0dv7yhz5NO/64eV3IVCIZOq4o=;
+        s=korg; t=1662471299;
+        bh=g4OSy4eiWzd4GXoIulDPPUyvFbwo6gtuf8PChh14Lrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vYTfgkKtMOmv2pu+ZwDQslASVQG+xHifa0YcsY388snTH113AmGQRZEmjyz9ZrUv2
-         kF4lBKEPO4CZZO+bblMmnhuYSdINi6Q/DNr2DoZcfPQIEUUurpArjwHOJu6kCY7w1c
-         ZYI5ORQ8SmWZ4O9mHUzPIlS8ksRhzhpyVcxKc0mY=
+        b=pBEcxPSVaOg9yNrkcRiI7mcz4PS1Z6XTXUvjxABrsRcQyeudlNR0WUcU5YtcvvCNR
+         HitfmDCwl+WEuXvhgLz3Mp0i1loa1TJ5YIV3FNZcqyu1ec+m11WMzoSBKY8jXezDmJ
+         f05oSYwU0c5wBhbR0v1F9B/Wh22/OZ2pqifveb00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Pawel Laszczak <pawell@cadence.com>
-Subject: [PATCH 5.15 079/107] usb: cdns3: fix issue with rearming ISO OUT endpoint
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Krishna Kurapati <quic_kriskura@quicinc.com>
+Subject: [PATCH 5.10 63/80] usb: gadget: mass_storage: Fix cdrom data transfers on MAC-OS
 Date:   Tue,  6 Sep 2022 15:31:00 +0200
-Message-Id: <20220906132825.147504558@linuxfoundation.org>
+Message-Id: <20220906132819.699277453@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Krishna Kurapati <quic_kriskura@quicinc.com>
 
-commit b46a6b09fa056042a302b181a1941f0056944603 upstream.
+commit 9d4dc16ec71bd6368548e9743223e449b4377fc7 upstream.
 
-ISO OUT endpoint is enabled during queuing first usb request
-in transfer ring and disabled when TRBERR is reported by controller.
-After TRBERR and before next transfer added to TR driver must again
-reenable endpoint but does not.
-To solve this issue during processing TRBERR event driver must
-set the flag EP_UPDATE_EP_TRBADDR in priv_ep->flags field.
+During cdrom emulation, the response to read_toc command must contain
+the cdrom address as the number of sectors (2048 byte sized blocks)
+represented either as an absolute value (when MSF bit is '0') or in
+terms of PMin/PSec/PFrame (when MSF bit is set to '1'). Incase of
+cdrom, the fsg_lun_open call sets the sector size to 2048 bytes.
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-cc: <stable@vger.kernel.org>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20220825062137.5766-1-pawell@cadence.com
+When MAC OS sends a read_toc request with MSF set to '1', the
+store_cdrom_address assumes that the address being provided is the
+LUN size represented in 512 byte sized blocks instead of 2048. It
+tries to modify the address further to convert it to 2048 byte sized
+blocks and store it in MSF format. This results in data transfer
+failures as the cdrom address being provided in the read_toc response
+is incorrect.
+
+Fixes: 3f565a363cee ("usb: gadget: storage: adapt logic block size to bound block devices")
+Cc: stable@vger.kernel.org
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Krishna Kurapati <quic_kriskura@quicinc.com>
+Link: https://lore.kernel.org/r/1661570110-19127-1-git-send-email-quic_kriskura@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/function/storage_common.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -1690,6 +1690,7 @@ static int cdns3_check_ep_interrupt_proc
- 				ep_cfg &= ~EP_CFG_ENABLE;
- 				writel(ep_cfg, &priv_dev->regs->ep_cfg);
- 				priv_ep->flags &= ~EP_QUIRK_ISO_OUT_EN;
-+				priv_ep->flags |= EP_UPDATE_EP_TRBADDR;
- 			}
- 			cdns3_transfer_completed(priv_dev, priv_ep);
- 		} else if (!(priv_ep->flags & EP_STALLED) &&
+--- a/drivers/usb/gadget/function/storage_common.c
++++ b/drivers/usb/gadget/function/storage_common.c
+@@ -294,8 +294,10 @@ EXPORT_SYMBOL_GPL(fsg_lun_fsync_sub);
+ void store_cdrom_address(u8 *dest, int msf, u32 addr)
+ {
+ 	if (msf) {
+-		/* Convert to Minutes-Seconds-Frames */
+-		addr >>= 2;		/* Convert to 2048-byte frames */
++		/*
++		 * Convert to Minutes-Seconds-Frames.
++		 * Sector size is already set to 2048 bytes.
++		 */
+ 		addr += 2*75;		/* Lead-in occupies 2 seconds */
+ 		dest[3] = addr % 75;	/* Frames */
+ 		addr /= 75;
 
 
