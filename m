@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4628C5AE673
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:22:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99C025AE683
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:24:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233813AbiIFLWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:22:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37758 "EHLO
+        id S239724AbiIFLXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:23:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239599AbiIFLWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:22:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6D9D4A103
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:22:29 -0700 (PDT)
+        with ESMTP id S233335AbiIFLXt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:23:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A3C72B5B
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:23:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FF9BB8172E
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:22:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4235C433C1;
-        Tue,  6 Sep 2022 11:22:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7896B81694
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:23:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59D2BC433C1;
+        Tue,  6 Sep 2022 11:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662463347;
-        bh=mn1qJBCoRPqB33fBMFLocHZOz4fpZpSUlbPsflm87Ls=;
+        s=korg; t=1662463425;
+        bh=nwQpt7RyF65OYdjtPJfEb56TXP5oGO5lMhgbeQNk9DA=;
         h=Subject:To:Cc:From:Date:From;
-        b=pRGhsU93OJg0eL6L90lJvObEsD+lRnL5CnumLNXzBWECO2W6IGcX+ZLE6I7Jh2eCN
-         feBSQqaPIQIOnqtYLPTcY0vIk1YHeQpYKdnYHeW4VAojt7jBkzS6slMpn26L4hOW1B
-         +Ug5sdKn5KUvo7sU5kjMLNWNyp1QFX/2+3CqUhI4=
-Subject: FAILED: patch "[PATCH] usb: dwc3: qcom: fix use-after-free on runtime-PM wakeup" failed to apply to 4.19-stable tree
-To:     johan+linaro@kernel.org, gregkh@linuxfoundation.org,
-        manivannan.sadhasivam@linaro.org, mka@chromium.org
+        b=bJiGJGqrgY81dRjoDU8NDwJ5PupiN7l2m992bePPsJt1jSNaBmy6qe4zDxS3C3UfU
+         J7PWvR4NnzFmRkGKVAig9AVXF0xT7O84CjSR+Y2bxJ87ViWXOI8PVPkH2nXkBJJg3n
+         4GAmlqik+QXbFcAU6I6btFbnr8lsQDSiO8trP8z4=
+Subject: FAILED: patch "[PATCH] USB: serial: ch341: fix lost character on LCR updates" failed to apply to 5.10-stable tree
+To:     johan@kernel.org, jwoithe@just42.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:22:16 +0200
-Message-ID: <16624633363415@kroah.com>
+Date:   Tue, 06 Sep 2022 13:23:40 +0200
+Message-ID: <1662463420812@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,74 +59,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a872ab303d5ddd4c965f9cd868677781a33ce35a Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan+linaro@kernel.org>
-Date: Thu, 4 Aug 2022 17:09:56 +0200
-Subject: [PATCH] usb: dwc3: qcom: fix use-after-free on runtime-PM wakeup
+From 8e83622ae7ca481c76c8fd9579877f6abae64ca2 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Wed, 31 Aug 2022 10:15:24 +0200
+Subject: [PATCH] USB: serial: ch341: fix lost character on LCR updates
 
-The Qualcomm dwc3 runtime-PM implementation checks the xhci
-platform-device pointer in the wakeup-interrupt handler to determine
-whether the controller is in host mode and if so triggers a resume.
+Disable LCR updates for pre-0x30 devices which use a different (unknown)
+protocol for line control and where the current register write causes
+the next received character to be lost.
 
-After a role switch in OTG mode the xhci platform-device would have been
-freed and the next wakeup from runtime suspend would access the freed
-memory.
+Note that updating LCR using the INIT command has no effect on these
+devices either.
 
-Note that role switching is executed from a freezable workqueue, which
-guarantees that the pointer is stable during suspend.
+Reported-by: Jonathan Woithe <jwoithe@just42.net>
+Tested-by: Jonathan Woithe <jwoithe@just42.net>
+Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
+Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
+Fixes: 55fa15b5987d ("USB: serial: ch341: fix baud rate and line-control handling")
+Cc: stable@vger.kernel.org      # 4.10
+Signed-off-by: Johan Hovold <johan@kernel.org>
 
-Also note that runtime PM has been broken since commit 2664deb09306
-("usb: dwc3: qcom: Honor wakeup enabled/disabled state"), which
-incidentally also prevents this issue from being triggered.
-
-Fixes: a4333c3a6ba9 ("usb: dwc3: Add Qualcomm DWC3 glue driver")
-Cc: stable@vger.kernel.org      # 4.18
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220804151001.23612-5-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-index e9364141661b..6884026b9fad 100644
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -298,6 +298,14 @@ static void dwc3_qcom_interconnect_exit(struct dwc3_qcom *qcom)
- 	icc_put(qcom->icc_path_apps);
- }
- 
-+/* Only usable in contexts where the role can not change. */
-+static bool dwc3_qcom_is_host(struct dwc3_qcom *qcom)
-+{
-+	struct dwc3 *dwc = platform_get_drvdata(qcom->dwc3);
+diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
+index 2798fca71261..2bcce172355b 100644
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -97,7 +97,10 @@ struct ch341_private {
+ 	u8 mcr;
+ 	u8 msr;
+ 	u8 lcr;
 +
-+	return dwc->xhci;
-+}
+ 	unsigned long quirks;
++	u8 version;
 +
- static enum usb_device_speed dwc3_qcom_read_usb2_speed(struct dwc3_qcom *qcom)
- {
- 	struct dwc3 *dwc = platform_get_drvdata(qcom->dwc3);
-@@ -460,7 +468,11 @@ static irqreturn_t qcom_dwc3_resume_irq(int irq, void *data)
- 	if (qcom->pm_suspended)
- 		return IRQ_HANDLED;
+ 	unsigned long break_end;
+ };
  
--	if (dwc->xhci)
-+	/*
-+	 * This is safe as role switching is done from a freezable workqueue
-+	 * and the wakeup interrupts are disabled as part of resume.
-+	 */
-+	if (dwc3_qcom_is_host(qcom))
- 		pm_runtime_resume(&dwc->xhci->dev);
+@@ -265,6 +268,9 @@ static int ch341_set_baudrate_lcr(struct usb_device *dev,
+ 	 * (stop bits, parity and word length). Version 0x30 and above use
+ 	 * CH341_REG_LCR only and CH341_REG_LCR2 is always set to zero.
+ 	 */
++	if (priv->version < 0x30)
++		return 0;
++
+ 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG,
+ 			      CH341_REG_LCR2 << 8 | CH341_REG_LCR, lcr);
+ 	if (r)
+@@ -308,7 +314,9 @@ static int ch341_configure(struct usb_device *dev, struct ch341_private *priv)
+ 	r = ch341_control_in(dev, CH341_REQ_READ_VERSION, 0, 0, buffer, size);
+ 	if (r)
+ 		return r;
+-	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", buffer[0]);
++
++	priv->version = buffer[0];
++	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", priv->version);
  
- 	return IRQ_HANDLED;
-diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
-index f56c30cf151e..f6f13e7f1ba1 100644
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -135,4 +135,5 @@ int dwc3_host_init(struct dwc3 *dwc)
- void dwc3_host_exit(struct dwc3 *dwc)
- {
- 	platform_device_unregister(dwc->xhci);
-+	dwc->xhci = NULL;
- }
+ 	r = ch341_control_out(dev, CH341_REQ_SERIAL_INIT, 0, 0);
+ 	if (r < 0)
 
