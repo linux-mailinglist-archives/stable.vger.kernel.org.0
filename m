@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C685AEC8A
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8985AED35
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241498AbiIFOUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:20:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37900 "EHLO
+        id S241418AbiIFOOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:14:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241966AbiIFOTI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:19:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D975AE1E;
-        Tue,  6 Sep 2022 06:50:08 -0700 (PDT)
+        with ESMTP id S241652AbiIFONr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:13:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 836A889831;
+        Tue,  6 Sep 2022 06:48:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0354CB818D0;
-        Tue,  6 Sep 2022 13:48:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D52BC433D6;
-        Tue,  6 Sep 2022 13:48:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 338A96154A;
+        Tue,  6 Sep 2022 13:48:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA16C433D6;
+        Tue,  6 Sep 2022 13:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472101;
-        bh=VQLh+a20xEIZQ+P8D/7MgSC1pEMZ2OICGNln5U9ZaTU=;
+        s=korg; t=1662472104;
+        bh=gnBJXRgbiztwJsy0RKq08YcCQNv+oG+5VthhbjC8vaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=leIKeICS4LQIoZQloqVLRbPuUcWdqp8Fgl1oxxvDcQpoWyAfwEkwoczvwAYKoGvc6
-         w3EAT7DMH4KIu11Pizb220EzUAzScDtYGc43wR1vwytVA0epb2vvxVVvDYS4crvQpA
-         1x1Z6FvX7avdBslam7CiqQGJ3AsKN+QxpC3hIB+E=
+        b=QWUr3J6QgXzwQbcp8F7htDb+HHlQvVVxBIONSkw4PhHoiV4j2tDWhms9jZisWDeXZ
+         3sheqI952dKIZLhRTrgDDEaOvblVNejsQ73Fwi57DSOJF8KxErRR3s+KQnSRtRgDQm
+         FUtN9CCJd9S7SPsI1ilf3ka4keRtUR3pZJCDbjV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Matthew Brost <matthew.brost@intel.com>,
-        John Harrison <john.c.harrison@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
+        Diego Santa Cruz <Diego.SantaCruz@spinetix.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.19 149/155] drm/i915/guc: clear stalled request after a reset
-Date:   Tue,  6 Sep 2022 15:31:37 +0200
-Message-Id: <20220906132835.711944497@linuxfoundation.org>
+Subject: [PATCH 5.19 150/155] drm/i915/glk: ECS Liva Q2 needs GLK HDMI port timing quirk
+Date:   Tue,  6 Sep 2022 15:31:38 +0200
+Message-Id: <20220906132835.742952914@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -57,54 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+From: Diego Santa Cruz <Diego.SantaCruz@spinetix.com>
 
-commit 4595a25443447b9542b2a5ee7961eb290e94b496 upstream.
+commit 919bef7a106ade2bda73681bbc2f3678198f44fc upstream.
 
-If the GuC CTs are full and we need to stall the request submission
-while waiting for space, we save the stalled request and where the stall
-occurred; when the CTs have space again we pick up the request submission
-from where we left off.
+The quirk added in upstream commit 90c3e2198777 ("drm/i915/glk: Add
+Quirk for GLK NUC HDMI port issues.") is also required on the ECS Liva
+Q2.
 
-If a full GT reset occurs, the state of all contexts is cleared and all
-non-guilty requests are unsubmitted, therefore we need to restart the
-stalled request submission from scratch. To make sure that we do so,
-clear the saved request after a reset.
+Note: Would be nicer to figure out the extra delay required for the
+retimer without quirks, however don't know how to check for that.
 
-Fixes note: the patch that introduced the bug is in 5.15, but no
-officially supported platform had GuC submission enabled by default
-in that kernel, so the backport to that particular version (and only
-that one) can potentially be skipped.
-
-Fixes: 925dc1cf58ed ("drm/i915/guc: Implement GuC submission tasklet")
-Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Cc: Matthew Brost <matthew.brost@intel.com>
-Cc: John Harrison <john.c.harrison@intel.com>
-Cc: <stable@vger.kernel.org> # v5.15+
-Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220811210812.3239621-1-daniele.ceraolospurio@intel.com
-(cherry picked from commit f922fbb0f2ad1fd3e3186f39c46673419e6d9281)
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1326
+Signed-off-by: Diego Santa Cruz <Diego.SantaCruz@spinetix.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220616124137.3184371-1-jani.nikula@intel.com
+(cherry picked from commit 08e9505fa8f9aa00072a47b6f234d89b6b27a89c)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/i915/display/intel_quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-@@ -4011,6 +4011,13 @@ static inline void guc_init_lrc_mapping(
- 	xa_destroy(&guc->context_lookup);
+--- a/drivers/gpu/drm/i915/display/intel_quirks.c
++++ b/drivers/gpu/drm/i915/display/intel_quirks.c
+@@ -191,6 +191,9 @@ static struct intel_quirk intel_quirks[]
+ 	/* ASRock ITX*/
+ 	{ 0x3185, 0x1849, 0x2212, quirk_increase_ddi_disabled_time },
+ 	{ 0x3184, 0x1849, 0x2212, quirk_increase_ddi_disabled_time },
++	/* ECS Liva Q2 */
++	{ 0x3185, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
++	{ 0x3184, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
+ };
  
- 	/*
-+	 * A reset might have occurred while we had a pending stalled request,
-+	 * so make sure we clean that up.
-+	 */
-+	guc->stalled_request = NULL;
-+	guc->submission_stall_reason = STALL_NONE;
-+
-+	/*
- 	 * Some contexts might have been pinned before we enabled GuC
- 	 * submission, so we need to add them to the GuC bookeeping.
- 	 * Also, after a reset the of the GuC we want to make sure that the
+ void intel_init_quirks(struct drm_i915_private *i915)
 
 
