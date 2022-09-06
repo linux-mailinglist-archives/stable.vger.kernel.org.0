@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96B505AEC76
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D65BF5AECC1
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240635AbiIFOIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:08:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59944 "EHLO
+        id S240944AbiIFOOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:14:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240713AbiIFOGN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:06:13 -0400
+        with ESMTP id S241327AbiIFOMZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:12:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C6785A91;
-        Tue,  6 Sep 2022 06:45:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA01C86FC2;
+        Tue,  6 Sep 2022 06:47:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 212CE61557;
-        Tue,  6 Sep 2022 13:44:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BC37C433D7;
-        Tue,  6 Sep 2022 13:44:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 338F961540;
+        Tue,  6 Sep 2022 13:46:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C5DC433C1;
+        Tue,  6 Sep 2022 13:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471867;
-        bh=17sx56KLKhxrqHmDM3TMAmXikZVYkvO5J/4XnRroi5c=;
+        s=korg; t=1662471982;
+        bh=d3KO6J4JH2Ikto3JSUb8HPcLA69we/6vu/tdj+4a8jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=balKwnhUawtGJkRg8tU0wuYspv8IT/K2ZtMdaXN4Z20/znCScMA9kMeviBUlIk7so
-         Wa6XDanSOOTxXA8nj48diVJV7rPyUsJKXib5bTdXAJVGCkMn/lP/x+4/ZYrDg34V1i
-         ebOo0QspJFL80OKQfHU9pZv79nkwj3gy5/mK48d8=
+        b=E2tcU6433+EX+tWxXC6mWvZX0aCKcANl+no2ysZUvsthgnj0XPe1zMnA52BHQRUF+
+         SprdzLyFoYaOgi1PlWS3vpCHKFSmYb4xLfhtTdfQZWeauGzx4gESjM3cINRCPsd9K0
+         1nbRVQfIGBaasW7gV2QcaeuNDHjKQVWsp6WEAhyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable <stable@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.19 065/155] musb: fix USB_MUSB_TUSB6010 dependency
-Date:   Tue,  6 Sep 2022 15:30:13 +0200
-Message-Id: <20220906132832.187312657@linuxfoundation.org>
+        Sherry Sun <sherry.sun@nxp.com>
+Subject: [PATCH 5.19 066/155] tty: serial: lpuart: disable flow control while waiting for the transmit engine to complete
+Date:   Tue,  6 Sep 2022 15:30:14 +0200
+Message-Id: <20220906132832.233182809@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -53,41 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-commit a3f2fd22743fc56dd5e3896a3fbddd276df1577f upstream.
+commit d5a2e0834364377a5d5a2fff1890a0b3f0bafd1f upstream.
 
-Turning on NOP_USB_XCEIV as builtin broke the TUSB6010 driver because
-of an older issue with the depencency.
+When the user initializes the uart port, and waits for the transmit
+engine to complete in lpuart32_set_termios(), if the UART TX fifo has
+dirty data and the UARTMODIR enable the flow control, the TX fifo may
+never be empty. So here we should disable the flow control first to make
+sure the transmit engin can complete.
 
-It is not necessary to forbid NOP_USB_XCEIV=y in combination with
-USB_MUSB_HDRC=m, but only the reverse, which causes the link failure
-from the original Kconfig change.
-
-Use the correct dependency to still allow NOP_USB_XCEIV=n or
-NOP_USB_XCEIV=y but forbid NOP_USB_XCEIV=m when USB_MUSB_HDRC=m
-to fix the multi_v7_defconfig for tusb.
-
-Fixes: ab37a7a890c1 ("ARM: multi_v7_defconfig: Make NOP_USB_XCEIV driver built-in")
-Fixes: c0442479652b ("usb: musb: Fix randconfig build issues for Kconfig options")
+Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
 Cc: stable <stable@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20220818135737.3143895-10-arnd@kernel.org
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20220821101527.10066-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/musb/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/fsl_lpuart.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/musb/Kconfig
-+++ b/drivers/usb/musb/Kconfig
-@@ -86,7 +86,7 @@ config USB_MUSB_TUSB6010
- 	tristate "TUSB6010"
- 	depends on HAS_IOMEM
- 	depends on ARCH_OMAP2PLUS || COMPILE_TEST
--	depends on NOP_USB_XCEIV = USB_MUSB_HDRC # both built-in or both modules
-+	depends on NOP_USB_XCEIV!=m || USB_MUSB_HDRC=m
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2182,6 +2182,7 @@ lpuart32_set_termios(struct uart_port *p
+ 	uart_update_timeout(port, termios->c_cflag, baud);
  
- config USB_MUSB_OMAP2PLUS
- 	tristate "OMAP2430 and onwards"
+ 	/* wait transmit engin complete */
++	lpuart32_write(&sport->port, 0, UARTMODIR);
+ 	lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
+ 
+ 	/* disable transmit and receive */
 
 
