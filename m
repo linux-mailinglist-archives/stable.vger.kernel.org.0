@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 033CA5AE807
+	by mail.lfdr.de (Postfix) with ESMTP id 9549A5AE809
 	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 14:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240120AbiIFMZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 08:25:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46788 "EHLO
+        id S240097AbiIFMZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 08:25:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240178AbiIFMYu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:24:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5853501B4;
-        Tue,  6 Sep 2022 05:21:41 -0700 (PDT)
+        with ESMTP id S239790AbiIFMYy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:24:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6E27F0A5;
+        Tue,  6 Sep 2022 05:21:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81F86614F0;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F201B818B3;
+        Tue,  6 Sep 2022 12:21:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12500C43140;
         Tue,  6 Sep 2022 12:21:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD631C433C1;
-        Tue,  6 Sep 2022 12:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662466889;
-        bh=PQWS0UART7yS+jRUH51JOWBPjnSkBvCuooSFXqUjy8M=;
+        s=k20201202; t=1662466890;
+        bh=UazPhnVpTJHRjiUmKc2QQMoFoLORH7z85kfQ7iHso9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K1EtzBcEUDpU92w9/S9s7gdjXxkdOUxTnKy6iEzlIN4tA339wI2fzQzS1YQ9YQelR
-         79WGO+u/Thh7YkFtsXNDiWcND8PJHVjZlEbldGgLJNHU39vWVT2wkfBDwI15ryJTeZ
-         MyVRBgHJcu7lup5LKLXMv9cS5baFj5J/39OWIOlGSxcxYHHb6Q1PZ63mqrjPpjY+qt
-         hafn1sa+PeTKB8LCtCUhjmzMop6aXmOGB7tNvYREelZTz54JWMG/uRwb72f+lr6x/P
-         3i0weEk4SfwgLu280RQ0fZ1wlN+67svFbzc3X3NzfYIPmR5p5cGBZ7S54k7Ms5lvSc
-         a0QzbOC2T9OwA==
+        b=FhZR3ffNhItupbQPCx9kPqPygsVPhMlg2qGnK/tDU/WUo+1TMyTbeGOO4cQBHTuGo
+         KiKZM8IU1Zf5p4HflNlMteVCXYVJSzx4NxYioQDW7EG8MfBpEQmiUo5so1JMqV91e4
+         5n7gZhO+xXUo3JSvcDXOxCsOggghEpPdSUfMq057HKIF2MzPlqF+TPFI4UHyGfPFA+
+         tpL8EFCzeIPZ4AZUFBXpP2ChS30jST3iRqTYK9NopBJwpDaWq0PJDYFpJpMTaQbDsW
+         Xz11wIETYbgnL5YRClTQiz/tEu+5Ie10prnp6gGhPR9FmAA22YVsJ//pMq7RYHvQM9
+         UNNcXMycafeEQ==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1oVXaA-00089U-Af; Tue, 06 Sep 2022 14:21:34 +0200
+        id 1oVXaA-00089W-Cq; Tue, 06 Sep 2022 14:21:34 +0200
 From:   Johan Hovold <johan@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan@kernel.org>,
         Jonathan Woithe <jwoithe@just42.net>
-Subject: [PATCH stable-5.15 1/2] USB: serial: ch341: fix lost character on LCR updates
-Date:   Tue,  6 Sep 2022 14:21:26 +0200
-Message-Id: <20220906122127.31321-2-johan@kernel.org>
+Subject: [PATCH stable-5.15 2/2] USB: serial: ch341: fix disabled rx timer on older devices
+Date:   Tue,  6 Sep 2022 14:21:27 +0200
+Message-Id: <20220906122127.31321-3-johan@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220906122127.31321-1-johan@kernel.org>
 References: <20220906122127.31321-1-johan@kernel.org>
@@ -57,64 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8e83622ae7ca481c76c8fd9579877f6abae64ca2 upstream.
+commit 41ca302a697b64a3dab4676e01d0d11bb184737d upstream.
 
-Disable LCR updates for pre-0x30 devices which use a different (unknown)
-protocol for line control and where the current register write causes
-the next received character to be lost.
+At least one older CH341 appears to have the RX timer enable bit
+inverted so that setting it disables the RX timer and prevents the FIFO
+from emptying until it is full.
 
-Note that updating LCR using the INIT command has no effect on these
-devices either.
+Only set the RX timer enable bit for devices with version newer than
+0x27 (even though this probably affects all pre-0x30 devices).
 
 Reported-by: Jonathan Woithe <jwoithe@just42.net>
 Tested-by: Jonathan Woithe <jwoithe@just42.net>
 Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
 Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
-Fixes: 55fa15b5987d ("USB: serial: ch341: fix baud rate and line-control handling")
 Cc: stable@vger.kernel.org      # 4.10
 Signed-off-by: Johan Hovold <johan@kernel.org>
-[ johan: adjust context to 5.15 ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/serial/ch341.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/usb/serial/ch341.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
-index b5a1864e9cfd..b787533aec64 100644
+index b787533aec64..752daa952abd 100644
 --- a/drivers/usb/serial/ch341.c
 +++ b/drivers/usb/serial/ch341.c
-@@ -97,7 +97,10 @@ struct ch341_private {
- 	u8 mcr;
- 	u8 msr;
- 	u8 lcr;
-+
- 	unsigned long quirks;
-+	u8 version;
-+
- 	unsigned long break_end;
- };
- 
-@@ -271,6 +274,9 @@ static int ch341_set_baudrate_lcr(struct usb_device *dev,
- 	 * (stop bits, parity and word length). Version 0x30 and above use
- 	 * CH341_REG_LCR only and CH341_REG_LCR2 is always set to zero.
+@@ -259,8 +259,12 @@ static int ch341_set_baudrate_lcr(struct usb_device *dev,
+ 	/*
+ 	 * CH341A buffers data until a full endpoint-size packet (32 bytes)
+ 	 * has been received unless bit 7 is set.
++	 *
++	 * At least one device with version 0x27 appears to have this bit
++	 * inverted.
  	 */
-+	if (priv->version < 0x30)
-+		return 0;
-+
- 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG,
- 			      CH341_REG_LCR2 << 8 | CH341_REG_LCR, lcr);
- 	if (r)
-@@ -323,7 +329,9 @@ static int ch341_configure(struct usb_device *dev, struct ch341_private *priv)
- 	r = ch341_control_in(dev, CH341_REQ_READ_VERSION, 0, 0, buffer, size);
- 	if (r < 0)
- 		goto out;
--	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", buffer[0]);
-+
-+	priv->version = buffer[0];
-+	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", priv->version);
+-	val |= BIT(7);
++	if (priv->version > 0x27)
++		val |= BIT(7);
  
- 	r = ch341_control_out(dev, CH341_REQ_SERIAL_INIT, 0, 0);
- 	if (r < 0)
+ 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG,
+ 			      CH341_REG_DIVISOR << 8 | CH341_REG_PRESCALER,
 -- 
 2.35.1
 
