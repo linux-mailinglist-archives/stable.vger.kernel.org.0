@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5AD5AECBA
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69CA15AEBF8
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240078AbiIFOIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:08:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58870 "EHLO
+        id S241580AbiIFOUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:20:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238821AbiIFOH1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:07:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E202844DA;
-        Tue,  6 Sep 2022 06:45:40 -0700 (PDT)
+        with ESMTP id S242072AbiIFOTa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:19:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6518A7E8;
+        Tue,  6 Sep 2022 06:50:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86CC861554;
-        Tue,  6 Sep 2022 13:44:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7A1C433C1;
-        Tue,  6 Sep 2022 13:44:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E795B816A0;
+        Tue,  6 Sep 2022 13:44:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67E7FC433C1;
+        Tue,  6 Sep 2022 13:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471878;
-        bh=q3OPIMRBgEIY5bMK5aztTplCEFi/FNMDMX8qk6XNKow=;
+        s=korg; t=1662471881;
+        bh=NjjLy2zMmSsNxcJdVg9s6RJm2XFnN3Y8vRp0V65QGhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDkw4Y1jsMcd+liVHeJZER3hCgQiHRrcUbCayCNgBROXDolBCaUgJaK6/XiUYUYif
-         pVovzXssQL60TqKFY4i0Xd96WtDae+SxUkCG9FpZj46IaB40SEEFFVU0maqnoenC3A
-         c9Z7tmBgHdiexUWTSGYqDsqkwnQ+9v3WJuDgvkxM=
+        b=g1I9Y0GSdZ0wg2yQiqXNLxMhGNqchVs3XJGERzcryVqQTEiuiWLgl61a0Bll18P5R
+         arVfriL48u+6BL5hq6ppWFNyUqEqirEc1y47yzVaUhb+JsS9+RO8kvnM1VxuJ5XhtD
+         BiY3fFuPmOkI/BsYSKuKyNDkSZOTel1+mJfmVdFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
+        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 039/155] net: sched: tbf: dont call qdisc_put() while holding tree lock
-Date:   Tue,  6 Sep 2022 15:29:47 +0200
-Message-Id: <20220906132831.063545548@linuxfoundation.org>
+Subject: [PATCH 5.19 040/155] net/sched: fix netdevice reference leaks in attach_default_qdiscs()
+Date:   Tue,  6 Sep 2022 15:29:48 +0200
+Message-Id: <20220906132831.109125560@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,52 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit b05972f01e7d30419987a1f221b5593668fd6448 ]
+[ Upstream commit f612466ebecb12a00d9152344ddda6f6345f04dc ]
 
-The issue is the same to commit c2999f7fb05b ("net: sched: multiq: don't
-call qdisc_put() while holding tree lock"). Qdiscs call qdisc_put() while
-holding sch tree spinlock, which results sleeping-while-atomic BUG.
+In attach_default_qdiscs(), if a dev has multiple queues and queue 0 fails
+to attach qdisc because there is no memory in attach_one_default_qdisc().
+Then dev->qdisc will be noop_qdisc by default. But the other queues may be
+able to successfully attach to default qdisc.
 
-Fixes: c266f64dbfa2 ("net: sched: protect block state with mutex")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20220826013930.340121-1-shaozhengchao@huawei.com
+In this case, the fallback to noqueue process will be triggered. If the
+original attached qdisc is not released and a new one is directly
+attached, this will cause netdevice reference leaks.
+
+The following is the bug log:
+
+veth0: default qdisc (fq_codel) fail, fallback to noqueue
+unregister_netdevice: waiting for veth0 to become free. Usage count = 32
+leaked reference.
+ qdisc_alloc+0x12e/0x210
+ qdisc_create_dflt+0x62/0x140
+ attach_one_default_qdisc.constprop.41+0x44/0x70
+ dev_activate+0x128/0x290
+ __dev_open+0x12a/0x190
+ __dev_change_flags+0x1a2/0x1f0
+ dev_change_flags+0x23/0x60
+ do_setlink+0x332/0x1150
+ __rtnl_newlink+0x52f/0x8e0
+ rtnl_newlink+0x43/0x70
+ rtnetlink_rcv_msg+0x140/0x3b0
+ netlink_rcv_skb+0x50/0x100
+ netlink_unicast+0x1bb/0x290
+ netlink_sendmsg+0x37c/0x4e0
+ sock_sendmsg+0x5f/0x70
+ ____sys_sendmsg+0x208/0x280
+
+Fix this bug by clearing any non-noop qdiscs that may have been assigned
+before trying to re-attach.
+
+Fixes: bf6dba76d278 ("net: sched: fallback to qdisc noqueue if default qdisc setup fail")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Link: https://lore.kernel.org/r/20220826090055.24424-1-wanghai38@huawei.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_tbf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sched/sch_generic.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/net/sched/sch_tbf.c b/net/sched/sch_tbf.c
-index 72102277449e1..36079fdde2cb5 100644
---- a/net/sched/sch_tbf.c
-+++ b/net/sched/sch_tbf.c
-@@ -356,6 +356,7 @@ static int tbf_change(struct Qdisc *sch, struct nlattr *opt,
- 	struct nlattr *tb[TCA_TBF_MAX + 1];
- 	struct tc_tbf_qopt *qopt;
- 	struct Qdisc *child = NULL;
-+	struct Qdisc *old = NULL;
- 	struct psched_ratecfg rate;
- 	struct psched_ratecfg peak;
- 	u64 max_size;
-@@ -447,7 +448,7 @@ static int tbf_change(struct Qdisc *sch, struct nlattr *opt,
- 	sch_tree_lock(sch);
- 	if (child) {
- 		qdisc_tree_flush_backlog(q->qdisc);
--		qdisc_put(q->qdisc);
-+		old = q->qdisc;
- 		q->qdisc = child;
- 	}
- 	q->limit = qopt->limit;
-@@ -467,6 +468,7 @@ static int tbf_change(struct Qdisc *sch, struct nlattr *opt,
- 	memcpy(&q->peak, &peak, sizeof(struct psched_ratecfg));
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index a64c3c1541118..b3596d4bd14a2 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -1125,6 +1125,21 @@ struct Qdisc *dev_graft_qdisc(struct netdev_queue *dev_queue,
+ }
+ EXPORT_SYMBOL(dev_graft_qdisc);
  
- 	sch_tree_unlock(sch);
-+	qdisc_put(old);
- 	err = 0;
++static void shutdown_scheduler_queue(struct net_device *dev,
++				     struct netdev_queue *dev_queue,
++				     void *_qdisc_default)
++{
++	struct Qdisc *qdisc = dev_queue->qdisc_sleeping;
++	struct Qdisc *qdisc_default = _qdisc_default;
++
++	if (qdisc) {
++		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
++		dev_queue->qdisc_sleeping = qdisc_default;
++
++		qdisc_put(qdisc);
++	}
++}
++
+ static void attach_one_default_qdisc(struct net_device *dev,
+ 				     struct netdev_queue *dev_queue,
+ 				     void *_unused)
+@@ -1172,6 +1187,7 @@ static void attach_default_qdiscs(struct net_device *dev)
+ 	if (qdisc == &noop_qdisc) {
+ 		netdev_warn(dev, "default qdisc (%s) fail, fallback to %s\n",
+ 			    default_qdisc_ops->id, noqueue_qdisc_ops.id);
++		netdev_for_each_tx_queue(dev, shutdown_scheduler_queue, &noop_qdisc);
+ 		dev->priv_flags |= IFF_NO_QUEUE;
+ 		netdev_for_each_tx_queue(dev, attach_one_default_qdisc, NULL);
+ 		qdisc = txq->qdisc_sleeping;
+@@ -1450,21 +1466,6 @@ void dev_init_scheduler(struct net_device *dev)
+ 	timer_setup(&dev->watchdog_timer, dev_watchdog, 0);
+ }
  
- 	tbf_offload_change(sch);
+-static void shutdown_scheduler_queue(struct net_device *dev,
+-				     struct netdev_queue *dev_queue,
+-				     void *_qdisc_default)
+-{
+-	struct Qdisc *qdisc = dev_queue->qdisc_sleeping;
+-	struct Qdisc *qdisc_default = _qdisc_default;
+-
+-	if (qdisc) {
+-		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
+-		dev_queue->qdisc_sleeping = qdisc_default;
+-
+-		qdisc_put(qdisc);
+-	}
+-}
+-
+ void dev_shutdown(struct net_device *dev)
+ {
+ 	netdev_for_each_tx_queue(dev, shutdown_scheduler_queue, &noop_qdisc);
 -- 
 2.35.1
 
