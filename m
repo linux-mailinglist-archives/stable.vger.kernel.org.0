@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4BDE5AEF66
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 17:51:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C1E5AED42
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:31:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234501AbiIFPvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 11:51:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48214 "EHLO
+        id S241966AbiIFO1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232655AbiIFPva (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 11:51:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 500615A2E3;
-        Tue,  6 Sep 2022 08:06:42 -0700 (PDT)
+        with ESMTP id S242326AbiIFOZU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:25:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422D29082A;
+        Tue,  6 Sep 2022 06:53:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39F7F6154C;
-        Tue,  6 Sep 2022 13:43:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B3BC433C1;
-        Tue,  6 Sep 2022 13:43:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 249AF61551;
+        Tue,  6 Sep 2022 13:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FDF7C433D6;
+        Tue,  6 Sep 2022 13:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471807;
-        bh=IDPBzB9uRMDnw1CUIFYiHxgWuGCQO8ZocQt23pq38U4=;
+        s=korg; t=1662471810;
+        bh=VCnY46J0wAINlRc9Ut3LDnIf3xk61iDEYzji7d64BDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hK9GkxxzGSE2m38JQmHjU/uXvN5B04iTDUfvUGhr4cjms5JAT0kQTCU75rDWMyGma
-         6XZTg1ypeOWfpdKSCUUbr/b5DUwAcJ7BtwcOZnc2mnT0HWCOUzQzSVubi4y5mpaUKp
-         1ZsT8BH2DCIIR+TLNzwwJVLrgDSqmvXO1w/hpnYE=
+        b=BXfVjPFaWLW9XsYFyChQxStXHEBJR7ZjtuAj/fkGPNQyU70YPACO2vh+j2du8rIxm
+         3ysHmZcj2xznWI7U/ZdOeSLwCHsqSEQia/gmficvTI6im1Ee7q7QstCJcm2mIRkF7j
+         WdhmQIPCwwUx/LwyHt1wWeYG6YH79rQIUggESp/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Asmaa Mnebhi <asmaa@nvidia.com>,
-        David Thompson <davthompson@nvidia.com>,
+        stable@vger.kernel.org,
+        syzbot+e696806ef96cdd2d87cd@syzkaller.appspotmail.com,
+        Tom Herbert <tom@herbertland.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 046/155] mlxbf_gige: compute MDIO period based on i1clk
-Date:   Tue,  6 Sep 2022 15:29:54 +0200
-Message-Id: <20220906132831.363213790@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+9fc084a4348493ef65d2@syzkaller.appspotmail.com
+Subject: [PATCH 5.19 047/155] kcm: fix strp_init() order and cleanup
+Date:   Tue,  6 Sep 2022 15:29:55 +0200
+Message-Id: <20220906132831.402404997@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,245 +58,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Thompson <davthompson@nvidia.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit 3a1a274e933fca73fdc960cb1f60636cd285a265 ]
+[ Upstream commit 8fc29ff3910f3af08a7c40a75d436b5720efe2bf ]
 
-This patch adds logic to compute the MDIO period based on
-the i1clk, and thereafter write the MDIO period into the YU
-MDIO config register. The i1clk resource from the ACPI table
-is used to provide addressing to YU bootrecord PLL registers.
-The values in these registers are used to compute MDIO period.
-If the i1clk resource is not present in the ACPI table, then
-the current default hardcorded value of 430Mhz is used.
-The i1clk clock value of 430MHz is only accurate for boards
-with BF2 mid bin and main bin SoCs. The BF2 high bin SoCs
-have i1clk = 500MHz, but can support a slower MDIO period.
+strp_init() is called just a few lines above this csk->sk_user_data
+check, it also initializes strp->work etc., therefore, it is
+unnecessary to call strp_done() to cancel the freshly initialized
+work.
 
-Fixes: f92e1869d74e ("Add Mellanox BlueField Gigabit Ethernet driver")
-Reviewed-by: Asmaa Mnebhi <asmaa@nvidia.com>
-Signed-off-by: David Thompson <davthompson@nvidia.com>
-Link: https://lore.kernel.org/r/20220826155916.12491-1-davthompson@nvidia.com
+And if sk_user_data is already used by KCM, psock->strp should not be
+touched, particularly strp->work state, so we need to move strp_init()
+after the csk->sk_user_data check.
+
+This also makes a lockdep warning reported by syzbot go away.
+
+Reported-and-tested-by: syzbot+9fc084a4348493ef65d2@syzkaller.appspotmail.com
+Reported-by: syzbot+e696806ef96cdd2d87cd@syzkaller.appspotmail.com
+Fixes: e5571240236c ("kcm: Check if sk_user_data already set in kcm_attach")
+Fixes: dff8baa26117 ("kcm: Call strp_stop before strp_done in kcm_attach")
+Cc: Tom Herbert <tom@herbertland.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20220827181314.193710-1-xiyou.wangcong@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlxbf_gige/mlxbf_gige.h |   4 +-
- .../mellanox/mlxbf_gige/mlxbf_gige_mdio.c     | 122 +++++++++++++++---
- .../mellanox/mlxbf_gige/mlxbf_gige_regs.h     |   2 +
- 3 files changed, 110 insertions(+), 18 deletions(-)
+ net/kcm/kcmsock.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige.h b/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige.h
-index 5fdf9b7179f55..5a1027b072155 100644
---- a/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige.h
-+++ b/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige.h
-@@ -75,6 +75,7 @@ struct mlxbf_gige {
- 	struct net_device *netdev;
- 	struct platform_device *pdev;
- 	void __iomem *mdio_io;
-+	void __iomem *clk_io;
- 	struct mii_bus *mdiobus;
- 	spinlock_t lock;      /* for packet processing indices */
- 	u16 rx_q_entries;
-@@ -137,7 +138,8 @@ enum mlxbf_gige_res {
- 	MLXBF_GIGE_RES_MDIO9,
- 	MLXBF_GIGE_RES_GPIO0,
- 	MLXBF_GIGE_RES_LLU,
--	MLXBF_GIGE_RES_PLU
-+	MLXBF_GIGE_RES_PLU,
-+	MLXBF_GIGE_RES_CLK
- };
+diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
+index 71899e5a5a111..1215c863e1c41 100644
+--- a/net/kcm/kcmsock.c
++++ b/net/kcm/kcmsock.c
+@@ -1412,12 +1412,6 @@ static int kcm_attach(struct socket *sock, struct socket *csock,
+ 	psock->sk = csk;
+ 	psock->bpf_prog = prog;
  
- /* Version of register data returned by mlxbf_gige_get_regs() */
-diff --git a/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige_mdio.c b/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige_mdio.c
-index 2e6c1b7af0964..85155cd9405c5 100644
---- a/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige_mdio.c
-+++ b/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige_mdio.c
-@@ -22,10 +22,23 @@
- #include <linux/property.h>
+-	err = strp_init(&psock->strp, csk, &cb);
+-	if (err) {
+-		kmem_cache_free(kcm_psockp, psock);
+-		goto out;
+-	}
+-
+ 	write_lock_bh(&csk->sk_callback_lock);
  
- #include "mlxbf_gige.h"
-+#include "mlxbf_gige_regs.h"
+ 	/* Check if sk_user_data is already by KCM or someone else.
+@@ -1425,13 +1419,18 @@ static int kcm_attach(struct socket *sock, struct socket *csock,
+ 	 */
+ 	if (csk->sk_user_data) {
+ 		write_unlock_bh(&csk->sk_callback_lock);
+-		strp_stop(&psock->strp);
+-		strp_done(&psock->strp);
+ 		kmem_cache_free(kcm_psockp, psock);
+ 		err = -EALREADY;
+ 		goto out;
+ 	}
  
- #define MLXBF_GIGE_MDIO_GW_OFFSET	0x0
- #define MLXBF_GIGE_MDIO_CFG_OFFSET	0x4
- 
-+#define MLXBF_GIGE_MDIO_FREQ_REFERENCE 156250000ULL
-+#define MLXBF_GIGE_MDIO_COREPLL_CONST  16384ULL
-+#define MLXBF_GIGE_MDC_CLK_NS          400
-+#define MLXBF_GIGE_MDIO_PLL_I1CLK_REG1 0x4
-+#define MLXBF_GIGE_MDIO_PLL_I1CLK_REG2 0x8
-+#define MLXBF_GIGE_MDIO_CORE_F_SHIFT   0
-+#define MLXBF_GIGE_MDIO_CORE_F_MASK    GENMASK(25, 0)
-+#define MLXBF_GIGE_MDIO_CORE_R_SHIFT   26
-+#define MLXBF_GIGE_MDIO_CORE_R_MASK    GENMASK(31, 26)
-+#define MLXBF_GIGE_MDIO_CORE_OD_SHIFT  0
-+#define MLXBF_GIGE_MDIO_CORE_OD_MASK   GENMASK(3, 0)
-+
- /* Support clause 22 */
- #define MLXBF_GIGE_MDIO_CL22_ST1	0x1
- #define MLXBF_GIGE_MDIO_CL22_WRITE	0x1
-@@ -50,27 +63,76 @@
- #define MLXBF_GIGE_MDIO_CFG_MDIO_IN_SAMP_MASK		GENMASK(23, 16)
- #define MLXBF_GIGE_MDIO_CFG_MDIO_OUT_SAMP_MASK		GENMASK(31, 24)
- 
-+#define MLXBF_GIGE_MDIO_CFG_VAL (FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO_MODE_MASK, 1) | \
-+				 FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO3_3_MASK, 1) | \
-+				 FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO_FULL_DRIVE_MASK, 1) | \
-+				 FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO_IN_SAMP_MASK, 6) | \
-+				 FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO_OUT_SAMP_MASK, 13))
-+
-+#define MLXBF_GIGE_BF2_COREPLL_ADDR 0x02800c30
-+#define MLXBF_GIGE_BF2_COREPLL_SIZE 0x0000000c
-+
-+static struct resource corepll_params[] = {
-+	[MLXBF_GIGE_VERSION_BF2] = {
-+		.start = MLXBF_GIGE_BF2_COREPLL_ADDR,
-+		.end = MLXBF_GIGE_BF2_COREPLL_ADDR + MLXBF_GIGE_BF2_COREPLL_SIZE - 1,
-+		.name = "COREPLL_RES"
-+	},
-+};
-+
-+/* Returns core clock i1clk in Hz */
-+static u64 calculate_i1clk(struct mlxbf_gige *priv)
-+{
-+	u8 core_od, core_r;
-+	u64 freq_output;
-+	u32 reg1, reg2;
-+	u32 core_f;
-+
-+	reg1 = readl(priv->clk_io + MLXBF_GIGE_MDIO_PLL_I1CLK_REG1);
-+	reg2 = readl(priv->clk_io + MLXBF_GIGE_MDIO_PLL_I1CLK_REG2);
-+
-+	core_f = (reg1 & MLXBF_GIGE_MDIO_CORE_F_MASK) >>
-+		MLXBF_GIGE_MDIO_CORE_F_SHIFT;
-+	core_r = (reg1 & MLXBF_GIGE_MDIO_CORE_R_MASK) >>
-+		MLXBF_GIGE_MDIO_CORE_R_SHIFT;
-+	core_od = (reg2 & MLXBF_GIGE_MDIO_CORE_OD_MASK) >>
-+		MLXBF_GIGE_MDIO_CORE_OD_SHIFT;
-+
-+	/* Compute PLL output frequency as follow:
-+	 *
-+	 *                                     CORE_F / 16384
-+	 * freq_output = freq_reference * ----------------------------
-+	 *                              (CORE_R + 1) * (CORE_OD + 1)
-+	 */
-+	freq_output = div_u64((MLXBF_GIGE_MDIO_FREQ_REFERENCE * core_f),
-+			      MLXBF_GIGE_MDIO_COREPLL_CONST);
-+	freq_output = div_u64(freq_output, (core_r + 1) * (core_od + 1));
-+
-+	return freq_output;
-+}
-+
- /* Formula for encoding the MDIO period. The encoded value is
-  * passed to the MDIO config register.
-  *
-- * mdc_clk = 2*(val + 1)*i1clk
-+ * mdc_clk = 2*(val + 1)*(core clock in sec)
-  *
-- * 400 ns = 2*(val + 1)*(((1/430)*1000) ns)
-+ * i1clk is in Hz:
-+ * 400 ns = 2*(val + 1)*(1/i1clk)
-  *
-- * val = (((400 * 430 / 1000) / 2) - 1)
-+ * val = (((400/10^9) / (1/i1clk) / 2) - 1)
-+ * val = (400/2 * i1clk)/10^9 - 1
-  */
--#define MLXBF_GIGE_I1CLK_MHZ		430
--#define MLXBF_GIGE_MDC_CLK_NS		400
-+static u8 mdio_period_map(struct mlxbf_gige *priv)
-+{
-+	u8 mdio_period;
-+	u64 i1clk;
- 
--#define MLXBF_GIGE_MDIO_PERIOD	(((MLXBF_GIGE_MDC_CLK_NS * MLXBF_GIGE_I1CLK_MHZ / 1000) / 2) - 1)
-+	i1clk = calculate_i1clk(priv);
- 
--#define MLXBF_GIGE_MDIO_CFG_VAL (FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO_MODE_MASK, 1) | \
--				 FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO3_3_MASK, 1) | \
--				 FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO_FULL_DRIVE_MASK, 1) | \
--				 FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDC_PERIOD_MASK, \
--					    MLXBF_GIGE_MDIO_PERIOD) | \
--				 FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO_IN_SAMP_MASK, 6) | \
--				 FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDIO_OUT_SAMP_MASK, 13))
-+	mdio_period = div_u64((MLXBF_GIGE_MDC_CLK_NS >> 1) * i1clk, 1000000000) - 1;
-+
-+	return mdio_period;
-+}
- 
- static u32 mlxbf_gige_mdio_create_cmd(u16 data, int phy_add,
- 				      int phy_reg, u32 opcode)
-@@ -124,9 +186,9 @@ static int mlxbf_gige_mdio_write(struct mii_bus *bus, int phy_add,
- 				 int phy_reg, u16 val)
- {
- 	struct mlxbf_gige *priv = bus->priv;
-+	u32 temp;
- 	u32 cmd;
- 	int ret;
--	u32 temp;
- 
- 	if (phy_reg & MII_ADDR_C45)
- 		return -EOPNOTSUPP;
-@@ -144,18 +206,44 @@ static int mlxbf_gige_mdio_write(struct mii_bus *bus, int phy_add,
- 	return ret;
- }
- 
-+static void mlxbf_gige_mdio_cfg(struct mlxbf_gige *priv)
-+{
-+	u8 mdio_period;
-+	u32 val;
-+
-+	mdio_period = mdio_period_map(priv);
-+
-+	val = MLXBF_GIGE_MDIO_CFG_VAL;
-+	val |= FIELD_PREP(MLXBF_GIGE_MDIO_CFG_MDC_PERIOD_MASK, mdio_period);
-+	writel(val, priv->mdio_io + MLXBF_GIGE_MDIO_CFG_OFFSET);
-+}
-+
- int mlxbf_gige_mdio_probe(struct platform_device *pdev, struct mlxbf_gige *priv)
- {
- 	struct device *dev = &pdev->dev;
-+	struct resource *res;
- 	int ret;
- 
- 	priv->mdio_io = devm_platform_ioremap_resource(pdev, MLXBF_GIGE_RES_MDIO9);
- 	if (IS_ERR(priv->mdio_io))
- 		return PTR_ERR(priv->mdio_io);
- 
--	/* Configure mdio parameters */
--	writel(MLXBF_GIGE_MDIO_CFG_VAL,
--	       priv->mdio_io + MLXBF_GIGE_MDIO_CFG_OFFSET);
-+	/* clk resource shared with other drivers so cannot use
-+	 * devm_platform_ioremap_resource
-+	 */
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, MLXBF_GIGE_RES_CLK);
-+	if (!res) {
-+		/* For backward compatibility with older ACPI tables, also keep
-+		 * CLK resource internal to the driver.
-+		 */
-+		res = &corepll_params[MLXBF_GIGE_VERSION_BF2];
++	err = strp_init(&psock->strp, csk, &cb);
++	if (err) {
++		write_unlock_bh(&csk->sk_callback_lock);
++		kmem_cache_free(kcm_psockp, psock);
++		goto out;
 +	}
 +
-+	priv->clk_io = devm_ioremap(dev, res->start, resource_size(res));
-+	if (IS_ERR(priv->clk_io))
-+		return PTR_ERR(priv->clk_io);
-+
-+	mlxbf_gige_mdio_cfg(priv);
- 
- 	priv->mdiobus = devm_mdiobus_alloc(dev);
- 	if (!priv->mdiobus) {
-diff --git a/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige_regs.h b/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige_regs.h
-index 5fb33c9294bf9..7be3a793984d5 100644
---- a/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige_regs.h
-+++ b/drivers/net/ethernet/mellanox/mlxbf_gige/mlxbf_gige_regs.h
-@@ -8,6 +8,8 @@
- #ifndef __MLXBF_GIGE_REGS_H__
- #define __MLXBF_GIGE_REGS_H__
- 
-+#define MLXBF_GIGE_VERSION                            0x0000
-+#define MLXBF_GIGE_VERSION_BF2                        0x0
- #define MLXBF_GIGE_STATUS                             0x0010
- #define MLXBF_GIGE_STATUS_READY                       BIT(0)
- #define MLXBF_GIGE_INT_STATUS                         0x0028
+ 	psock->save_data_ready = csk->sk_data_ready;
+ 	psock->save_write_space = csk->sk_write_space;
+ 	psock->save_state_change = csk->sk_state_change;
 -- 
 2.35.1
 
