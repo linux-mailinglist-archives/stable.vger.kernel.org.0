@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBB25AEA94
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBD595AE9C2
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238206AbiIFNuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:50:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52584 "EHLO
+        id S240531AbiIFNeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:34:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236570AbiIFNsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:48:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE5B7C308;
-        Tue,  6 Sep 2022 06:39:16 -0700 (PDT)
+        with ESMTP id S240600AbiIFNdl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:33:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B16DF78595;
+        Tue,  6 Sep 2022 06:33:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21ADE6154A;
-        Tue,  6 Sep 2022 13:39:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3115CC433D6;
-        Tue,  6 Sep 2022 13:39:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 924C261545;
+        Tue,  6 Sep 2022 13:33:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4BDC433D6;
+        Tue,  6 Sep 2022 13:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471555;
-        bh=2t5gG7chT0YaqazGsBisRir+uDym/eOwq0dvTSwEEQw=;
+        s=korg; t=1662471181;
+        bh=poKzl3Pl2LOmQJVEYr48xuIcZzoS+tJ8maoGqkhkdRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWvaCNe4Ucjj/BON3WykNR8ujSfDhd7QD/HjaL6SbmqGC5EnyQO2fuXAxMynICgWc
-         S519+bHAzH6K8qHw6srR7xfvcpvu2tbYQzhSXNfK9m35RqnD/xgSdPVh7zWNsL9Fny
-         fJ5PX23s+kH4W/2nNko1aLFqc+dWL9S/WCgS48kE=
+        b=2RpzXzxO5zStLcMGwFHYDGTJORHVTH5MGf4ZVC0sZe9sXFuYYMNfubOCPRtdKQfh5
+         l/Yf54OaBUNvz/9zeNxaggagtoEyaM7AxdEcNKcZmyMqakgFTlvkOnxl8JmIbBOovz
+         WefLRSeV7yJuA4F5RqJ0mHSDGK694g3iER3zxHeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 034/107] powerpc: align syscall table for ppc32
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 18/80] tcp: annotate data-race around challenge_timestamp
 Date:   Tue,  6 Sep 2022 15:30:15 +0200
-Message-Id: <20220906132823.236001530@linuxfoundation.org>
+Message-Id: <20220906132817.705298612@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit c7acee3d2f128a38b68fb7af85dbbd91bfd0b4ad upstream.
+[ Upstream commit 8c70521238b7863c2af607e20bcba20f974c969b ]
 
-Christophe Leroy reported that commit 7b4537199a4a ("kbuild: link
-symbol CRCs at final link,  removing CONFIG_MODULE_REL_CRCS") broke
-mpc85xx_defconfig + CONFIG_RELOCATABLE=y.
+challenge_timestamp can be read an written by concurrent threads.
 
-    LD      vmlinux
-    SYSMAP  System.map
-    SORTTAB vmlinux
-    CHKREL  vmlinux
-  WARNING: 451 bad relocations
-  c0b312a9 R_PPC_UADDR32     .head.text-0x3ff9ed54
-  c0b312ad R_PPC_UADDR32     .head.text-0x3ffac224
-  c0b312b1 R_PPC_UADDR32     .head.text-0x3ffb09f4
-  c0b312b5 R_PPC_UADDR32     .head.text-0x3fe184dc
-  c0b312b9 R_PPC_UADDR32     .head.text-0x3fe183a8
-      ...
+This was expected, but we need to annotate the race to avoid potential issues.
 
-The compiler emits a bunch of R_PPC_UADDR32, which is not supported by
-arch/powerpc/kernel/reloc_32.S.
+Following patch moves challenge_timestamp and challenge_count
+to per-netns storage to provide better isolation.
 
-The reason is there exists an unaligned symbol.
-
-  $ powerpc-linux-gnu-nm -n vmlinux
-    ...
-  c0b31258 d spe_aligninfo
-  c0b31298 d __func__.0
-  c0b312a9 D sys_call_table
-  c0b319b8 d __func__.0
-
-Commit 7b4537199a4a is not the root cause. Even before that, I can
-reproduce the same issue for mpc85xx_defconfig + CONFIG_RELOCATABLE=y
-+ CONFIG_MODVERSIONS=n.
-
-It is just that nobody noticed because when CONFIG_MODVERSIONS is
-enabled, a __crc_* symbol inserted before sys_call_table was hiding the
-unalignment issue.
-
-Adding alignment to the syscall table for ppc32 fixes the issue.
-
-Cc: stable@vger.kernel.org
-Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Trim change log discussion, add Cc stable]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/lkml/38605f6a-a568-f884-f06f-ea4da5b214f0@csgroup.eu/
-Link: https://lore.kernel.org/r/20220820165129.1147589-1-masahiroy@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 354e4aa391ed ("tcp: RFC 5961 5.2 Blind Data Injection Attack Mitigation")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/systbl.S |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_input.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/systbl.S
-+++ b/arch/powerpc/kernel/systbl.S
-@@ -18,6 +18,7 @@
- 	.p2align	3
- #define __SYSCALL(nr, entry)	.8byte entry
- #else
-+	.p2align	2
- #define __SYSCALL(nr, entry)	.long entry
- #endif
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 41b44b311e8a0..e62500d6fe0d0 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -3599,11 +3599,11 @@ static void tcp_send_challenge_ack(struct sock *sk, const struct sk_buff *skb)
  
+ 	/* Then check host-wide RFC 5961 rate limit. */
+ 	now = jiffies / HZ;
+-	if (now != challenge_timestamp) {
++	if (now != READ_ONCE(challenge_timestamp)) {
+ 		u32 ack_limit = READ_ONCE(net->ipv4.sysctl_tcp_challenge_ack_limit);
+ 		u32 half = (ack_limit + 1) >> 1;
+ 
+-		challenge_timestamp = now;
++		WRITE_ONCE(challenge_timestamp, now);
+ 		WRITE_ONCE(challenge_count, half + prandom_u32_max(ack_limit));
+ 	}
+ 	count = READ_ONCE(challenge_count);
+-- 
+2.35.1
+
 
 
