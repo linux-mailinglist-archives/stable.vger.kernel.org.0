@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17EE45AEAF1
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A31505AEA53
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239439AbiIFNzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:55:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57512 "EHLO
+        id S233054AbiIFNnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:43:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239799AbiIFNyM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:54:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B71CE7D7AF;
-        Tue,  6 Sep 2022 06:41:05 -0700 (PDT)
+        with ESMTP id S233076AbiIFNl7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:41:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2003A7E018;
+        Tue,  6 Sep 2022 06:37:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF898B818B9;
-        Tue,  6 Sep 2022 13:40:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1293BC433D7;
-        Tue,  6 Sep 2022 13:40:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E19DF61557;
+        Tue,  6 Sep 2022 13:35:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E09DFC433D6;
+        Tue,  6 Sep 2022 13:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471654;
-        bh=5DdiXXkT3lJbnaD2snmMb3RIzwQhUfw/akJEAAQfkF8=;
+        s=korg; t=1662471326;
+        bh=8x86kb3UCsPU4xUj131z4xdrX7ebEKME9z7ELKz3Ox4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESBKT51eStz3HcGdEAmWOWlcHrjSz4kAkhzuzkTQs39QaPeEmhxe4jM1KUuWN3+eF
-         q8jps6KCu+/Sld99KcQ1AAUrU6AWLny3e9wd4o70zLf8OXX2sHqOZJu4fu75t9Ouy9
-         ZwGB4uIKr5FbHRPzQcFR16t5SzPgsRwaoeEi54OQ=
+        b=so8ggoenEXM8HtWo/MJD2kILM8MFidR7xVSsmj6K3svI6ir/RwEhZaGptZ37W7y2E
+         kRyaAAQYnFrrcfVqs49F7mGR88PClKu/FdGXkza+o24yy+i9IuqMA3gkpmRAGxTUNs
+         Xzd2/Rw2XkfLQT8hZcXD7w/MwaNA4ACAsu3+4ctM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.15 070/107] xhci: Add grace period after xHC start to prevent premature runtime suspend.
+        stable@vger.kernel.org, Yonglin Tan <yonglin.tan@outlook.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 54/80] USB: serial: option: add Quectel EM060K modem
 Date:   Tue,  6 Sep 2022 15:30:51 +0200
-Message-Id: <20220906132824.764762775@linuxfoundation.org>
+Message-Id: <20220906132819.307908315@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Yonglin Tan <yonglin.tan@outlook.com>
 
-commit 33e321586e37b642ad10594b9ef25a613555cd08 upstream.
+commit f766f3abe6dbc9bf8b56a5d53c87e5a17942c154 upstream.
 
-After xHC controller is started, either in probe or resume, it can take
-a while before any of the connected usb devices are visible to the roothub
-due to link training.
+Add usb product id entry for the Quectel EM060K module.
 
-It's possible xhci driver loads, sees no acivity and suspends the host
-before the USB device is visible.
+"MBIM mode": DIAG + NMEA + AT + MODEM + MBIM + QDSS
 
-In one testcase with a hotplugged xHC controller the host finally detected
-the connected USB device and generated a wake 500ms after host initial
-start.
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  8 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=030b Rev= 5.04
+S:  Manufacturer=Quectel
+S:  Product=EM060K-GL
+S:  SerialNumber=89fb57db
+C:* #Ifs= 7 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 8 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=88(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 9 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 9 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#=12 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=70 Driver=(none)
+E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-If hosts didn't suspend the device duringe training it probablty wouldn't
-take up to 500ms to detect it, but looking at specs reveal USB3 link
-training has a couple long timeout values, such as 120ms
-RxDetectQuietTimeout, and 360ms PollingLFPSTimeout.
-
-So Add a 500ms grace period that keeps polling the roothub for 500ms after
-start, preventing runtime suspend until USB devices are detected.
-
+Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
+[ johan: mention QDSS port and sort entries ]
 Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220825150840.132216-3-mathias.nyman@linux.intel.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-hub.c |   11 +++++++++++
- drivers/usb/host/xhci.c     |    4 +++-
- drivers/usb/host/xhci.h     |    2 +-
- 3 files changed, 15 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1647,6 +1647,17 @@ int xhci_hub_status_data(struct usb_hcd
- 
- 	status = bus_state->resuming_ports;
- 
-+	/*
-+	 * SS devices are only visible to roothub after link training completes.
-+	 * Keep polling roothubs for a grace period after xHC start
-+	 */
-+	if (xhci->run_graceperiod) {
-+		if (time_before(jiffies, xhci->run_graceperiod))
-+			status = 1;
-+		else
-+			xhci->run_graceperiod = 0;
-+	}
-+
- 	mask = PORT_CSC | PORT_PEC | PORT_OCC | PORT_PLC | PORT_WRC | PORT_CEC;
- 
- 	/* For each port, did anything change?  If so, set that bit in buf. */
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -148,9 +148,11 @@ int xhci_start(struct xhci_hcd *xhci)
- 		xhci_err(xhci, "Host took too long to start, "
- 				"waited %u microseconds.\n",
- 				XHCI_MAX_HALT_USEC);
--	if (!ret)
-+	if (!ret) {
- 		/* clear state flags. Including dying, halted or removing */
- 		xhci->xhc_state = 0;
-+		xhci->run_graceperiod = jiffies + msecs_to_jiffies(500);
-+	}
- 
- 	return ret;
- }
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1830,7 +1830,7 @@ struct xhci_hcd {
- 
- 	/* Host controller watchdog timer structures */
- 	unsigned int		xhc_state;
--
-+	unsigned long		run_graceperiod;
- 	u32			command;
- 	struct s3_save		s3;
- /* Host controller is dying - not responding to commands. "I'm not dead yet!"
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -253,6 +253,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_BG96			0x0296
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ #define QUECTEL_PRODUCT_EM05G			0x030a
++#define QUECTEL_PRODUCT_EM060K			0x030b
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
+ #define QUECTEL_PRODUCT_EC200S_CN		0x6002
+@@ -1142,6 +1143,9 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0x00, 0x40) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x30) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x40) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
 
 
