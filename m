@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 528235AE9B8
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F5E85AEAAF
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240456AbiIFNdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:33:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52084 "EHLO
+        id S238408AbiIFNu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230455AbiIFNcw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2A2A76759;
-        Tue,  6 Sep 2022 06:32:38 -0700 (PDT)
+        with ESMTP id S238746AbiIFNsb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:48:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F2B41F62C;
+        Tue,  6 Sep 2022 06:39:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C71AB81636;
-        Tue,  6 Sep 2022 13:32:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 742CAC433C1;
-        Tue,  6 Sep 2022 13:32:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40B63B818CB;
+        Tue,  6 Sep 2022 13:37:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82A7FC433D6;
+        Tue,  6 Sep 2022 13:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471155;
-        bh=3CdqJeqxvqo8eTtafS5uSam9JO7Z3SKvy3LTEY0qrcs=;
+        s=korg; t=1662471423;
+        bh=wqumMZXi1LsOqk20M9uLwZVwJ/RaUHqGDItllRlXl3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3SFEaN4sjPsK6y+FGMW7MP7ZVZPdp34wcGg7bDBD7qCTeLHVFu28clMskNFefSep
-         lNcRm6PQFlM8RlDcr6c/+lSOZugttdq41nveBb+UBcK+wGL7L40bVX9iq2/Q4EC5Ir
-         sPScdZIdGhqh0HtBJ0MyATrzEl3xGmIWwkryQhsA=
+        b=ZWVvVkJUCc/L+LbChcYYZtbSTa8y9FbB++zjS9cb2XeSWlHiyn8NrFefgO0LIiF2q
+         IbXenKwuzY6e8MpQCp3M2O+d7g5Li1x0aql0zMmEKugIgShSjpYqtaa0B1EK5DGr9U
+         scPNngmB71/MSLsbppSIbS15K0KIHRFvS8JEI7F0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 04/80] drm/msm/dsi: Fix number of regulators for SDM660
-Date:   Tue,  6 Sep 2022 15:30:01 +0200
-Message-Id: <20220906132817.118524180@linuxfoundation.org>
+Subject: [PATCH 5.15 021/107] net: sched: tbf: dont call qdisc_put() while holding tree lock
+Date:   Tue,  6 Sep 2022 15:30:02 +0200
+Message-Id: <20220906132822.654023854@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit a1653a75987749ba6dba94fa2e62f0f36b387d1a ]
+[ Upstream commit b05972f01e7d30419987a1f221b5593668fd6448 ]
 
-1 regulator is listed but the number 2 is specified. This presumably
-means we try to get a regulator with no name. Fix it.
+The issue is the same to commit c2999f7fb05b ("net: sched: multiq: don't
+call qdisc_put() while holding tree lock"). Qdiscs call qdisc_put() while
+holding sch tree spinlock, which results sleeping-while-atomic BUG.
 
-Fixes: 462f7017a691 ("drm/msm/dsi: Fix DSI and DSI PHY regulator config from SDM660")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/496323/
-Link: https://lore.kernel.org/r/20220804073608.v4.2.I94b3c3e412b7c208061349f05659e126483171b1@changeid
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fixes: c266f64dbfa2 ("net: sched: protect block state with mutex")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Link: https://lore.kernel.org/r/20220826013930.340121-1-shaozhengchao@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_cfg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_tbf.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_cfg.c b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-index 6c93c215ed795..73f066ef6f406 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-@@ -156,7 +156,7 @@ static const char * const dsi_sdm660_bus_clk_names[] = {
- static const struct msm_dsi_config sdm660_dsi_cfg = {
- 	.io_offset = DSI_6G_REG_SHIFT,
- 	.reg_cfg = {
--		.num = 2,
-+		.num = 1,
- 		.regs = {
- 			{"vdda", 12560, 4 },	/* 1.2 V */
- 		},
+diff --git a/net/sched/sch_tbf.c b/net/sched/sch_tbf.c
+index 78e79029dc631..6eb17004a9e44 100644
+--- a/net/sched/sch_tbf.c
++++ b/net/sched/sch_tbf.c
+@@ -342,6 +342,7 @@ static int tbf_change(struct Qdisc *sch, struct nlattr *opt,
+ 	struct nlattr *tb[TCA_TBF_MAX + 1];
+ 	struct tc_tbf_qopt *qopt;
+ 	struct Qdisc *child = NULL;
++	struct Qdisc *old = NULL;
+ 	struct psched_ratecfg rate;
+ 	struct psched_ratecfg peak;
+ 	u64 max_size;
+@@ -433,7 +434,7 @@ static int tbf_change(struct Qdisc *sch, struct nlattr *opt,
+ 	sch_tree_lock(sch);
+ 	if (child) {
+ 		qdisc_tree_flush_backlog(q->qdisc);
+-		qdisc_put(q->qdisc);
++		old = q->qdisc;
+ 		q->qdisc = child;
+ 	}
+ 	q->limit = qopt->limit;
+@@ -453,6 +454,7 @@ static int tbf_change(struct Qdisc *sch, struct nlattr *opt,
+ 	memcpy(&q->peak, &peak, sizeof(struct psched_ratecfg));
+ 
+ 	sch_tree_unlock(sch);
++	qdisc_put(old);
+ 	err = 0;
+ 
+ 	tbf_offload_change(sch);
 -- 
 2.35.1
 
