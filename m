@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D569A5AEBBB
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B8E5AECA2
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240314AbiIFOAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:00:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43856 "EHLO
+        id S240964AbiIFOD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:03:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240980AbiIFN7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:59:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DDD17E30F;
-        Tue,  6 Sep 2022 06:43:19 -0700 (PDT)
+        with ESMTP id S241048AbiIFOCQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:02:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7AAE1123;
+        Tue,  6 Sep 2022 06:44:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B47CC61548;
-        Tue,  6 Sep 2022 13:43:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD1A4C43141;
-        Tue,  6 Sep 2022 13:43:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 884AD6154D;
+        Tue,  6 Sep 2022 13:43:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96E71C433D6;
+        Tue,  6 Sep 2022 13:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471799;
-        bh=9No5lsAw1e6KnJpCa7Pr5sdzACoA6tGPj7TyNWrBArQ=;
+        s=korg; t=1662471801;
+        bh=4dlgeQLWQkdbkwYAH0LptfHKzlPXCb/0oVluVpxLKIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7HaUVSXlsuJS+97RP/tAjBpWE+5GenhH62YQ5TnimPJCzkaC4k9xzV77HfbV48PA
-         EvMZwbZdwSNvW32O7Sp9kDiRz54oijyVQrM1KBEreGD+Tvw9bpTy+kRieh3F3LqvUT
-         YlXXy2p6j6MhpOAgRyvgtQOutsQr3iFTMQZRvTQY=
+        b=1dflrealMMM6G7OpvfdBXM8acEaMCJoA2/IridBsYuTCQKmLpcKI1MiY1XnspZB7u
+         B5BvSZ/MrmRPJX2B/6CIDhodPUHhsKKE+PP3CQM4C+j+eUDaH0o30n5clpzxhWOAV1
+         M6T4ao0vlxbA58Ddzazqxluwh0e6bYFITQd7y24s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Sun Ke <sunke32@huawei.com>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 043/155] ethernet: rocker: fix sleep in atomic context bug in neigh_timer_handler
-Date:   Tue,  6 Sep 2022 15:29:51 +0200
-Message-Id: <20220906132831.230709577@linuxfoundation.org>
+Subject: [PATCH 5.19 044/155] cachefiles: fix error return code in cachefiles_ondemand_copen()
+Date:   Tue,  6 Sep 2022 15:29:52 +0200
+Message-Id: <20220906132831.277055643@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,53 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Sun Ke <sunke32@huawei.com>
 
-[ Upstream commit c0955bf957be4bead01fae1d791476260da7325d ]
+[ Upstream commit c93ccd63b18c8d108c57b2bb0e5f3b058b9d2029 ]
 
-The function neigh_timer_handler() is a timer handler that runs in an
-atomic context. When used by rocker, neigh_timer_handler() calls
-"kzalloc(.., GFP_KERNEL)" that may sleep. As a result, the sleep in
-atomic context bug will happen. One of the processes is shown below:
+The cache_size field of copen is specified by the user daemon.
+If cache_size < 0, then the OPEN request is expected to fail,
+while copen itself shall succeed. However, returning 0 is indeed
+unexpected when cache_size is an invalid error code.
 
-ofdpa_fib4_add()
- ...
- neigh_add_timer()
+Fix this by returning error when cache_size is an invalid error code.
 
-(wait a timer)
+Changes
+=======
+v4: update the code suggested by Dan
+v3: update the commit log suggested by Jingbo.
 
-neigh_timer_handler()
- neigh_release()
-  neigh_destroy()
-   rocker_port_neigh_destroy()
-    rocker_world_port_neigh_destroy()
-     ofdpa_port_neigh_destroy()
-      ofdpa_port_ipv4_neigh()
-       kzalloc(sizeof(.., GFP_KERNEL) //may sleep
-
-This patch changes the gfp_t parameter of kzalloc() from GFP_KERNEL to
-GFP_ATOMIC in order to mitigate the bug.
-
-Fixes: 00fc0c51e35b ("rocker: Change world_ops API and implementation to be switchdev independant")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c8383054506c ("cachefiles: notify the user daemon when looking up cookie")
+Signed-off-by: Sun Ke <sunke32@huawei.com>
+Suggested-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20220818111935.1683062-1-sunke32@huawei.com/ # v2
+Link: https://lore.kernel.org/r/20220818125038.2247720-1-sunke32@huawei.com/ # v3
+Link: https://lore.kernel.org/r/20220826023515.3437469-1-sunke32@huawei.com/ # v4
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/rocker/rocker_ofdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cachefiles/ondemand.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_ofdpa.c b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-index bc70c6abd6a5b..58cf7cc54f408 100644
---- a/drivers/net/ethernet/rocker/rocker_ofdpa.c
-+++ b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-@@ -1273,7 +1273,7 @@ static int ofdpa_port_ipv4_neigh(struct ofdpa_port *ofdpa_port,
- 	bool removing;
- 	int err = 0;
+diff --git a/fs/cachefiles/ondemand.c b/fs/cachefiles/ondemand.c
+index 1fee702d55293..7e1586bd5cf34 100644
+--- a/fs/cachefiles/ondemand.c
++++ b/fs/cachefiles/ondemand.c
+@@ -158,9 +158,13 @@ int cachefiles_ondemand_copen(struct cachefiles_cache *cache, char *args)
  
--	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
-+	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
- 	if (!entry)
- 		return -ENOMEM;
+ 	/* fail OPEN request if daemon reports an error */
+ 	if (size < 0) {
+-		if (!IS_ERR_VALUE(size))
+-			size = -EINVAL;
+-		req->error = size;
++		if (!IS_ERR_VALUE(size)) {
++			req->error = -EINVAL;
++			ret = -EINVAL;
++		} else {
++			req->error = size;
++			ret = 0;
++		}
+ 		goto out;
+ 	}
  
 -- 
 2.35.1
