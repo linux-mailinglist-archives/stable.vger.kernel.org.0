@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 050405AE714
+	by mail.lfdr.de (Postfix) with ESMTP id A59665AE716
 	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 14:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232625AbiIFMAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 08:00:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57610 "EHLO
+        id S233861AbiIFMAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 08:00:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234074AbiIFMAg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:00:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8167821D
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 05:00:34 -0700 (PDT)
+        with ESMTP id S232209AbiIFMAi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:00:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5BA772ED8
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 05:00:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCDB0B81889
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 12:00:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19AC3C433C1;
-        Tue,  6 Sep 2022 12:00:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5353161325
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 12:00:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62C14C433D6;
+        Tue,  6 Sep 2022 12:00:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662465631;
-        bh=N/FN53b17JgFyLmdNU4HYFu1VXur3QXDMKn99mLfmOw=;
+        s=korg; t=1662465634;
+        bh=/0mvyIQ9K7qL4KNVFCJ7uMES3t2oM0gfn4n2yT3C/AE=;
         h=Subject:To:Cc:From:Date:From;
-        b=QZXSgdnbOj3/rBaO+ECAIM8v2Puu7gUBbZKdL76N2PfXh08cIf6DrfJiCR7+P5pOK
-         S6oHJ1o7IaDWf59/bd/rDPnq0Xfo/rkvUGPTMOGFPqHD/DRUxzxHKbpEdKpR3G7+gB
-         GXk5RfKM5CASv24WIPOVXx//o1L6yqkF/kQ8J6nQ=
-Subject: FAILED: patch "[PATCH] selinux: implement the security_uring_cmd() LSM hook" failed to apply to 5.19-stable tree
-To:     paul@paul-moore.com
+        b=tjb84V1ZVowRtGk+yusrSAH9TCY6EpXdfe2Rk0fLdSAIho6zYePPHNEne2ciIEzq0
+         TtPGi0MkfrEFDad6lNrLJ5JTM+rX9afpPNX4/F5odBMuhFguLRm+v3xswzqUNW8LSN
+         5jwIQnFu0CBLRheiM2SSKP5zbocrZpnjZ+cM4XL4=
+Subject: FAILED: patch "[PATCH] Smack: Provide read control for io_uring_cmd" failed to apply to 5.19-stable tree
+To:     casey@schaufler-ca.com, paul@paul-moore.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 14:00:14 +0200
-Message-ID: <1662465614128142@kroah.com>
+Date:   Tue, 06 Sep 2022 14:00:22 +0200
+Message-ID: <16624656226867@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -55,7 +55,7 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-f4d653dcaa4e ("selinux: implement the security_uring_cmd() LSM hook")
+dd9373402280 ("Smack: Provide read control for io_uring_cmd")
 
 thanks,
 
@@ -63,85 +63,76 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f4d653dcaa4e4056e1630423e6a8ece4869b544f Mon Sep 17 00:00:00 2001
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 10 Aug 2022 15:55:36 -0400
-Subject: [PATCH] selinux: implement the security_uring_cmd() LSM hook
+From dd9373402280cf4715fdc8fd5070f7d039e43511 Mon Sep 17 00:00:00 2001
+From: Casey Schaufler <casey@schaufler-ca.com>
+Date: Tue, 23 Aug 2022 16:46:18 -0700
+Subject: [PATCH] Smack: Provide read control for io_uring_cmd
 
-Add a SELinux access control for the iouring IORING_OP_URING_CMD
-command.  This includes the addition of a new permission in the
-existing "io_uring" object class: "cmd".  The subject of the new
-permission check is the domain of the process requesting access, the
-object is the open file which points to the device/file that is the
-target of the IORING_OP_URING_CMD operation.  A sample policy rule
-is shown below:
-
-  allow <domain> <file>:io_uring { cmd };
+Limit io_uring "cmd" options to files for which the caller has
+Smack read access. There may be cases where the cmd option may
+be closer to a write access than a read, but there is no way
+to make that determination.
 
 Cc: stable@vger.kernel.org
 Fixes: ee692a21e9bf ("fs,io_uring: add infrastructure for uring-cmd")
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 79573504783b..03bca97c8b29 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -91,6 +91,7 @@
- #include <uapi/linux/mount.h>
- #include <linux/fsnotify.h>
- #include <linux/fanotify.h>
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 001831458fa2..bffccdc494cb 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -42,6 +42,7 @@
+ #include <linux/fs_context.h>
+ #include <linux/fs_parser.h>
+ #include <linux/watch_queue.h>
 +#include <linux/io_uring.h>
+ #include "smack.h"
  
- #include "avc.h"
- #include "objsec.h"
-@@ -6987,6 +6988,28 @@ static int selinux_uring_sqpoll(void)
- 	return avc_has_perm(&selinux_state, sid, sid,
- 			    SECCLASS_IO_URING, IO_URING__SQPOLL, NULL);
+ #define TRANS_TRUE	"TRUE"
+@@ -4732,6 +4733,36 @@ static int smack_uring_sqpoll(void)
+ 	return -EPERM;
  }
-+
+ 
 +/**
-+ * selinux_uring_cmd - check if IORING_OP_URING_CMD is allowed
-+ * @ioucmd: the io_uring command structure
++ * smack_uring_cmd - check on file operations for io_uring
++ * @ioucmd: the command in question
 + *
-+ * Check to see if the current domain is allowed to execute an
-+ * IORING_OP_URING_CMD against the device/file specified in @ioucmd.
-+ *
++ * Make a best guess about whether a io_uring "command" should
++ * be allowed. Use the same logic used for determining if the
++ * file could be opened for read in the absence of better criteria.
 + */
-+static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
++static int smack_uring_cmd(struct io_uring_cmd *ioucmd)
 +{
 +	struct file *file = ioucmd->file;
-+	struct inode *inode = file_inode(file);
-+	struct inode_security_struct *isec = selinux_inode(inode);
-+	struct common_audit_data ad;
++	struct smk_audit_info ad;
++	struct task_smack *tsp;
++	struct inode *inode;
++	int rc;
 +
-+	ad.type = LSM_AUDIT_DATA_FILE;
-+	ad.u.file = file;
++	if (!file)
++		return -EINVAL;
 +
-+	return avc_has_perm(&selinux_state, current_sid(), isec->sid,
-+			    SECCLASS_IO_URING, IO_URING__CMD, &ad);
++	tsp = smack_cred(file->f_cred);
++	inode = file_inode(file);
++
++	smk_ad_init(&ad, __func__, LSM_AUDIT_DATA_PATH);
++	smk_ad_setfield_u_fs_path(&ad, file->f_path);
++	rc = smk_tskacc(tsp, smk_of_inode(inode), MAY_READ, &ad);
++	rc = smk_bu_credfile(file->f_cred, file, MAY_READ, rc);
++
++	return rc;
 +}
++
  #endif /* CONFIG_IO_URING */
  
- /*
-@@ -7231,6 +7254,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ struct lsm_blob_sizes smack_blob_sizes __lsm_ro_after_init = {
+@@ -4889,6 +4920,7 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
  #ifdef CONFIG_IO_URING
- 	LSM_HOOK_INIT(uring_override_creds, selinux_uring_override_creds),
- 	LSM_HOOK_INIT(uring_sqpoll, selinux_uring_sqpoll),
-+	LSM_HOOK_INIT(uring_cmd, selinux_uring_cmd),
+ 	LSM_HOOK_INIT(uring_override_creds, smack_uring_override_creds),
+ 	LSM_HOOK_INIT(uring_sqpoll, smack_uring_sqpoll),
++	LSM_HOOK_INIT(uring_cmd, smack_uring_cmd),
  #endif
- 
- 	/*
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index ff757ae5f253..1c2f41ff4e55 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -253,7 +253,7 @@ const struct security_class_mapping secclass_map[] = {
- 	{ "anon_inode",
- 	  { COMMON_FILE_PERMS, NULL } },
- 	{ "io_uring",
--	  { "override_creds", "sqpoll", NULL } },
-+	  { "override_creds", "sqpoll", "cmd", NULL } },
- 	{ NULL }
-   };
+ };
  
 
