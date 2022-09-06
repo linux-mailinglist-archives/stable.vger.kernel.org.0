@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82DAF5AE9EF
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A30CF5AEA78
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:55:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240731AbiIFNf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:35:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52310 "EHLO
+        id S232067AbiIFNuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239964AbiIFNfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:35:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E2327A50B;
-        Tue,  6 Sep 2022 06:33:47 -0700 (PDT)
+        with ESMTP id S238953AbiIFNsx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:48:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 606DAE29;
+        Tue,  6 Sep 2022 06:39:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3C20B81632;
-        Tue,  6 Sep 2022 13:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CAC8C433C1;
-        Tue,  6 Sep 2022 13:33:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D2B9B81636;
+        Tue,  6 Sep 2022 13:38:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 187D3C433C1;
+        Tue,  6 Sep 2022 13:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471224;
-        bh=888wiW5WJHndm8oOh56TPRqYKzVi0reC38jUgLxtCc4=;
+        s=korg; t=1662471526;
+        bh=EEkfio4F+FBhnwD246mpIC89DDxuLpXQr24hAmgWR1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDoaz+OK4kWkUprKVykfXJxURWWUqx4yTtC8SrS54g0WdZnr8sUjwOb8DIERaH39t
-         bqJ71ydR2uzGCNFWBEdDv9aR7z7rg1kvva3aVbelp5LaG9qGFQXdS20Nd0r90gDb+g
-         Kyf7i631RZd6SAI1skOAVSwNJXEwSCyhQ6vqjESY=
+        b=vPjjlNWMmhQV5ucSTzkhcG62CTDVU6bWQqWLEzlcMSc8q/S0oqAC/qy+VQZ02y5FF
+         1T81eUKe5k5vq0Iwl4eEwIXcuTUlXti6y0RZ14UEjQ2+aafadaNvxxEDh+YUBYZd8m
+         loMM6uwhQ8m9XWEt9dvv8xVvKhijx+4lAS5mY4nQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 39/80] clk: bcm: rpi: Use correct order for the parameters of devm_kcalloc()
-Date:   Tue,  6 Sep 2022 15:30:36 +0200
-Message-Id: <20220906132818.631653732@linuxfoundation.org>
+Subject: [PATCH 5.15 056/107] clk: bcm: rpi: Use correct order for the parameters of devm_kcalloc()
+Date:   Tue,  6 Sep 2022 15:30:37 +0200
+Message-Id: <20220906132824.202555298@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,7 +72,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/clk/bcm/clk-raspberrypi.c b/drivers/clk/bcm/clk-raspberrypi.c
-index 2c12bd5ac1388..ff87305cbe9d9 100644
+index fda78a2f9ac50..97612860ce0e1 100644
 --- a/drivers/clk/bcm/clk-raspberrypi.c
 +++ b/drivers/clk/bcm/clk-raspberrypi.c
 @@ -252,7 +252,7 @@ static int raspberrypi_discover_clocks(struct raspberrypi_clk *rpi,
