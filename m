@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD0A5AE9A8
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05FD85AE9BD
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240477AbiIFNcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:32:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51532 "EHLO
+        id S240509AbiIFNc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238052AbiIFNcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A42B754AC;
-        Tue,  6 Sep 2022 06:32:24 -0700 (PDT)
+        with ESMTP id S240440AbiIFNcg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E8476444;
+        Tue,  6 Sep 2022 06:32:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6A7561546;
-        Tue,  6 Sep 2022 13:32:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8222C433D6;
-        Tue,  6 Sep 2022 13:32:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B5C2B81632;
+        Tue,  6 Sep 2022 13:32:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D3BC433D6;
+        Tue,  6 Sep 2022 13:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471143;
-        bh=PIiYXnLiCDUyEahvFa6chU1F97LMMd7JzaS5JBKy+7A=;
+        s=korg; t=1662471146;
+        bh=IzjVCeaCmnUDzdomb3f6ZKlN7CYWqtCZRsxYz91lgBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyM6tV/xZHPXdFY8m1Oiqq/WJq+yDG2GwpmX8AAOlkJgRiqvS6L86SxpbOBqZPO6Y
-         EfavLn3vGUpkqwONv0wESaLA9XpbGLM/yP3Ow/9dreL3cCe5+AOVEBTRe9fG6vRWuL
-         tgSEImIhXyECRX1gWA7SAbgR92vzX5QsQWJf/RBk=
+        b=ItOz7u/EC7Rfs2gQ4jqdFHI0kLIxTLJoJwv2wChyw+uuMhr87BOiLvmvOxAFr/9ur
+         c6mAsMBWXORJyNwEZQoRl0MNhB3pZSZbOSfWWAUKajk1p6ozlowlybpxRJzBPMGbVg
+         NNegwLdVlqP0rM6KLPFirWG8JbQqT1AhHD8VMpEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 15/80] ethernet: rocker: fix sleep in atomic context bug in neigh_timer_handler
-Date:   Tue,  6 Sep 2022 15:30:12 +0200
-Message-Id: <20220906132817.574729683@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e696806ef96cdd2d87cd@syzkaller.appspotmail.com,
+        Tom Herbert <tom@herbertland.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+9fc084a4348493ef65d2@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 16/80] kcm: fix strp_init() order and cleanup
+Date:   Tue,  6 Sep 2022 15:30:13 +0200
+Message-Id: <20220906132817.615407697@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
 References: <20220906132816.936069583@linuxfoundation.org>
@@ -54,54 +58,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit c0955bf957be4bead01fae1d791476260da7325d ]
+[ Upstream commit 8fc29ff3910f3af08a7c40a75d436b5720efe2bf ]
 
-The function neigh_timer_handler() is a timer handler that runs in an
-atomic context. When used by rocker, neigh_timer_handler() calls
-"kzalloc(.., GFP_KERNEL)" that may sleep. As a result, the sleep in
-atomic context bug will happen. One of the processes is shown below:
+strp_init() is called just a few lines above this csk->sk_user_data
+check, it also initializes strp->work etc., therefore, it is
+unnecessary to call strp_done() to cancel the freshly initialized
+work.
 
-ofdpa_fib4_add()
- ...
- neigh_add_timer()
+And if sk_user_data is already used by KCM, psock->strp should not be
+touched, particularly strp->work state, so we need to move strp_init()
+after the csk->sk_user_data check.
 
-(wait a timer)
+This also makes a lockdep warning reported by syzbot go away.
 
-neigh_timer_handler()
- neigh_release()
-  neigh_destroy()
-   rocker_port_neigh_destroy()
-    rocker_world_port_neigh_destroy()
-     ofdpa_port_neigh_destroy()
-      ofdpa_port_ipv4_neigh()
-       kzalloc(sizeof(.., GFP_KERNEL) //may sleep
-
-This patch changes the gfp_t parameter of kzalloc() from GFP_KERNEL to
-GFP_ATOMIC in order to mitigate the bug.
-
-Fixes: 00fc0c51e35b ("rocker: Change world_ops API and implementation to be switchdev independant")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-and-tested-by: syzbot+9fc084a4348493ef65d2@syzkaller.appspotmail.com
+Reported-by: syzbot+e696806ef96cdd2d87cd@syzkaller.appspotmail.com
+Fixes: e5571240236c ("kcm: Check if sk_user_data already set in kcm_attach")
+Fixes: dff8baa26117 ("kcm: Call strp_stop before strp_done in kcm_attach")
+Cc: Tom Herbert <tom@herbertland.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20220827181314.193710-1-xiyou.wangcong@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/rocker/rocker_ofdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/kcm/kcmsock.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_ofdpa.c b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-index 8157666209798..e4d919de7e3fc 100644
---- a/drivers/net/ethernet/rocker/rocker_ofdpa.c
-+++ b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-@@ -1273,7 +1273,7 @@ static int ofdpa_port_ipv4_neigh(struct ofdpa_port *ofdpa_port,
- 	bool removing;
- 	int err = 0;
+diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
+index 56dad9565bc93..18469f1f707e5 100644
+--- a/net/kcm/kcmsock.c
++++ b/net/kcm/kcmsock.c
+@@ -1411,12 +1411,6 @@ static int kcm_attach(struct socket *sock, struct socket *csock,
+ 	psock->sk = csk;
+ 	psock->bpf_prog = prog;
  
--	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
-+	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
- 	if (!entry)
- 		return -ENOMEM;
+-	err = strp_init(&psock->strp, csk, &cb);
+-	if (err) {
+-		kmem_cache_free(kcm_psockp, psock);
+-		goto out;
+-	}
+-
+ 	write_lock_bh(&csk->sk_callback_lock);
  
+ 	/* Check if sk_user_data is aready by KCM or someone else.
+@@ -1424,13 +1418,18 @@ static int kcm_attach(struct socket *sock, struct socket *csock,
+ 	 */
+ 	if (csk->sk_user_data) {
+ 		write_unlock_bh(&csk->sk_callback_lock);
+-		strp_stop(&psock->strp);
+-		strp_done(&psock->strp);
+ 		kmem_cache_free(kcm_psockp, psock);
+ 		err = -EALREADY;
+ 		goto out;
+ 	}
+ 
++	err = strp_init(&psock->strp, csk, &cb);
++	if (err) {
++		write_unlock_bh(&csk->sk_callback_lock);
++		kmem_cache_free(kcm_psockp, psock);
++		goto out;
++	}
++
+ 	psock->save_data_ready = csk->sk_data_ready;
+ 	psock->save_write_space = csk->sk_write_space;
+ 	psock->save_state_change = csk->sk_state_change;
 -- 
 2.35.1
 
