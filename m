@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD385AEAB9
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E895AE9E3
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbiIFNul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:50:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43262 "EHLO
+        id S240723AbiIFNg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:36:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239473AbiIFNta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D872A948;
-        Tue,  6 Sep 2022 06:39:48 -0700 (PDT)
+        with ESMTP id S240725AbiIFNfx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:35:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B9267647A;
+        Tue,  6 Sep 2022 06:34:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18BCC61548;
-        Tue,  6 Sep 2022 13:39:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FB15C433C1;
-        Tue,  6 Sep 2022 13:39:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B06AB8162F;
+        Tue,  6 Sep 2022 13:34:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6361C433C1;
+        Tue,  6 Sep 2022 13:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471558;
-        bh=7wlCsrVRDBxNF3WWLtS5SZ44/JlKUKUftG/22O5o1qQ=;
+        s=korg; t=1662471250;
+        bh=DN65y0+/J8uvp6T4PDh7gjmmWeRoYezdsHkqbInMSDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f7vOJAzGtTlx6ffnWe4xrChrymiNdDMCDWB8Nby96TRBbCc2xHPHFFaJOcx+5jXnc
-         hNNaCVsn9FqQMZJUl6uxiGpqddO/+65VjNN3yaM9XxI8N5ZK1f5QSsjZ5hr1E98Nz+
-         4F6Ndc3YLcvQnADDZuUbHia4d3D2fsDjQ6nw7ppo=
+        b=Vr9m17lMsGtBL9Rfe6XcWTQDRqJDI+chUtJ9Xx5svjGSRgOuIMl+0HgtLMjB2+VSR
+         F8A/RSlgcxrxfHAWi/jDBHI6DBf3wG3jyUpKK5HjVyqyru89orvmXW5zCzEJ8wfLXa
+         tao8HSqEd9JiVVvnDhcB7RyYyvFJajdCCgXFmni4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com,
-        stable <stable@kernel.org>,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 035/107] vt: Clear selection before changing the font
-Date:   Tue,  6 Sep 2022 15:30:16 +0200
-Message-Id: <20220906132823.277462179@linuxfoundation.org>
+        stable@vger.kernel.org, Yacan Liu <liuyacan@corp.netease.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 20/80] net/smc: Remove redundant refcount increase
+Date:   Tue,  6 Sep 2022 15:30:17 +0200
+Message-Id: <20220906132817.801471342@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Yacan Liu <liuyacan@corp.netease.com>
 
-commit 566f9c9f89337792070b5a6062dff448b3e7977f upstream.
+[ Upstream commit a8424a9b4522a3ab9f32175ad6d848739079071f ]
 
-When changing the console font with ioctl(KDFONTOP) the new font size
-can be bigger than the previous font. A previous selection may thus now
-be outside of the new screen size and thus trigger out-of-bounds
-accesses to graphics memory if the selection is removed in
-vc_do_resize().
+For passive connections, the refcount increment has been done in
+smc_clcsock_accept()-->smc_sock_alloc().
 
-Prevent such out-of-memory accesses by dropping the selection before the
-various con_font_set() console handlers are called.
-
-Reported-by: syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com
-Cc: stable <stable@kernel.org>
-Tested-by: Khalid Masum <khalid.masum.92@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Link: https://lore.kernel.org/r/YuV9apZGNmGfjcor@p100
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in af_smc")
+Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20220830152314.838736-1-liuyacan@corp.netease.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/smc/af_smc.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -4662,9 +4662,11 @@ static int con_font_set(struct vc_data *
- 	console_lock();
- 	if (vc->vc_mode != KD_TEXT)
- 		rc = -EINVAL;
--	else if (vc->vc_sw->con_font_set)
-+	else if (vc->vc_sw->con_font_set) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_set(vc, &font, op->flags);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	kfree(font.data);
-@@ -4691,9 +4693,11 @@ static int con_font_default(struct vc_da
- 		console_unlock();
- 		return -EINVAL;
- 	}
--	if (vc->vc_sw->con_font_default)
-+	if (vc->vc_sw->con_font_default) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_default(vc, &font, s);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	if (!rc) {
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 5d7710dd95145..41cbc7c89c9d2 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1325,7 +1325,6 @@ static void smc_listen_out_connected(struct smc_sock *new_smc)
+ {
+ 	struct sock *newsmcsk = &new_smc->sk;
+ 
+-	sk_refcnt_debug_inc(newsmcsk);
+ 	if (newsmcsk->sk_state == SMC_INIT)
+ 		newsmcsk->sk_state = SMC_ACTIVE;
+ 
+-- 
+2.35.1
+
 
 
