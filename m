@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78FE95AEA3E
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B91105AEB34
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:57:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231688AbiIFNjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:39:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52986 "EHLO
+        id S233400AbiIFNov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240724AbiIFNht (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:37:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E681836D;
-        Tue,  6 Sep 2022 06:34:39 -0700 (PDT)
+        with ESMTP id S238621AbiIFNnO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:43:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E85B17E80E;
+        Tue,  6 Sep 2022 06:37:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4042861547;
-        Tue,  6 Sep 2022 13:34:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41564C433C1;
-        Tue,  6 Sep 2022 13:34:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5574F6155D;
+        Tue,  6 Sep 2022 13:37:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 549D0C433D6;
+        Tue,  6 Sep 2022 13:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471274;
-        bh=jCbiulv3+SkkRMqoeGCKxedOr2kOBhDnFPmxoCl8K/s=;
+        s=korg; t=1662471470;
+        bh=KCYVDvpvQe2eUYuOXORu4L3Gx2Nzf80om5ePm4Nj7zM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UhtfaZZHzE3Gz80yIXZHMUWCFnY0m2ezx+KvO0o7qv5zZZq+hx4TZZJv2QRwSTTDb
-         5koKpnbXXtlLKDA9FvEvovfNasaaxTqphcMfLx81YL/bMpIP10n0Kl9lW5fbiFIAhC
-         TWu8/HLfR6N0f9ZFR3BrOARQfXVRmaHnJvq+2aUw=
+        b=J/iop4yOdePOPrBHMDJlz7FuaT4AXhW7XTNm5AtK9ya6KOZ332wMUFtQ963nP9Iso
+         AC0XL0oj0VastMdOwfocI+tr32uMA7lkJvnpuhaDeYqEcDTL8jwjM1sqA35igHp4rd
+         X1RRswS8HzPjz4q4S0W4PWk9j73+NZvZiJQhLaCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Zheng Wang <hackerzheng666@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.10 22/80] staging: rtl8712: fix use after free bugs
+        stable@vger.kernel.org,
+        syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 038/107] Input: iforce - wake up after clearing IFORCE_XMIT_RUNNING flag
 Date:   Tue,  6 Sep 2022 15:30:19 +0200
-Message-Id: <20220906132817.862604792@linuxfoundation.org>
+Message-Id: <20220906132823.412622209@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +57,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit e230a4455ac3e9b112f0367d1b8e255e141afae0 upstream.
+commit 98e01215708b6d416345465c09dce2bd4868c67a upstream.
 
-_Read/Write_MACREG callbacks are NULL so the read/write_macreg_hdl()
-functions don't do anything except free the "pcmd" pointer.  It
-results in a use after free.  Delete them.
+syzbot is reporting hung task at __input_unregister_device() [1], for
+iforce_close() waiting at wait_event_interruptible() with dev->mutex held
+is blocking input_disconnect_device() from __input_unregister_device().
 
-Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
-Cc: stable <stable@kernel.org>
-Reported-by: Zheng Wang <hackerzheng666@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/Yw4ASqkYcUhUfoY2@kili
+It seems that the cause is simply that commit c2b27ef672992a20 ("Input:
+iforce - wait for command completion when closing the device") forgot to
+call wake_up() after clear_bit().
+
+Fix this problem by introducing a helper that calls clear_bit() followed
+by wake_up_all().
+
+Reported-by: syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>
+Fixes: c2b27ef672992a20 ("Input: iforce - wait for command completion when closing the device")
+Tested-by: syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>
+Suggested-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Co-developed-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Link: https://lore.kernel.org/r/887021c3-4f13-40ce-c8b9-aa6e09faa3a7@I-love.SAKURA.ne.jp
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/rtl8712_cmd.c |   36 ----------------------------------
- 1 file changed, 36 deletions(-)
+ drivers/input/joystick/iforce/iforce-serio.c |    6 +++---
+ drivers/input/joystick/iforce/iforce-usb.c   |    8 ++++----
+ drivers/input/joystick/iforce/iforce.h       |    6 ++++++
+ 3 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/drivers/staging/rtl8712/rtl8712_cmd.c
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.c
-@@ -117,34 +117,6 @@ static void r871x_internal_cmd_hdl(struc
- 	kfree(pdrvcmd->pbuf);
+--- a/drivers/input/joystick/iforce/iforce-serio.c
++++ b/drivers/input/joystick/iforce/iforce-serio.c
+@@ -39,7 +39,7 @@ static void iforce_serio_xmit(struct ifo
+ 
+ again:
+ 	if (iforce->xmit.head == iforce->xmit.tail) {
+-		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
++		iforce_clear_xmit_and_wake(iforce);
+ 		spin_unlock_irqrestore(&iforce->xmit_lock, flags);
+ 		return;
+ 	}
+@@ -64,7 +64,7 @@ again:
+ 	if (test_and_clear_bit(IFORCE_XMIT_AGAIN, iforce->xmit_flags))
+ 		goto again;
+ 
+-	clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
++	iforce_clear_xmit_and_wake(iforce);
+ 
+ 	spin_unlock_irqrestore(&iforce->xmit_lock, flags);
+ }
+@@ -169,7 +169,7 @@ static irqreturn_t iforce_serio_irq(stru
+ 			iforce_serio->cmd_response_len = iforce_serio->len;
+ 
+ 			/* Signal that command is done */
+-			wake_up(&iforce->wait);
++			wake_up_all(&iforce->wait);
+ 		} else if (likely(iforce->type)) {
+ 			iforce_process_packet(iforce, iforce_serio->id,
+ 					      iforce_serio->data_in,
+--- a/drivers/input/joystick/iforce/iforce-usb.c
++++ b/drivers/input/joystick/iforce/iforce-usb.c
+@@ -30,7 +30,7 @@ static void __iforce_usb_xmit(struct ifo
+ 	spin_lock_irqsave(&iforce->xmit_lock, flags);
+ 
+ 	if (iforce->xmit.head == iforce->xmit.tail) {
+-		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
++		iforce_clear_xmit_and_wake(iforce);
+ 		spin_unlock_irqrestore(&iforce->xmit_lock, flags);
+ 		return;
+ 	}
+@@ -58,9 +58,9 @@ static void __iforce_usb_xmit(struct ifo
+ 	XMIT_INC(iforce->xmit.tail, n);
+ 
+ 	if ( (n=usb_submit_urb(iforce_usb->out, GFP_ATOMIC)) ) {
+-		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
+ 		dev_warn(&iforce_usb->intf->dev,
+ 			 "usb_submit_urb failed %d\n", n);
++		iforce_clear_xmit_and_wake(iforce);
+ 	}
+ 
+ 	/* The IFORCE_XMIT_RUNNING bit is not cleared here. That's intended.
+@@ -175,15 +175,15 @@ static void iforce_usb_out(struct urb *u
+ 	struct iforce *iforce = &iforce_usb->iforce;
+ 
+ 	if (urb->status) {
+-		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
+ 		dev_dbg(&iforce_usb->intf->dev, "urb->status %d, exiting\n",
+ 			urb->status);
++		iforce_clear_xmit_and_wake(iforce);
+ 		return;
+ 	}
+ 
+ 	__iforce_usb_xmit(iforce);
+ 
+-	wake_up(&iforce->wait);
++	wake_up_all(&iforce->wait);
  }
  
--static u8 read_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
--{
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
--	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
--
--	/*  invoke cmd->callback function */
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
--	else
--		pcmd_callback(padapter, pcmd);
--	return H2C_SUCCESS;
--}
--
--static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
--{
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
--	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
--
--	/*  invoke cmd->callback function */
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
--	else
--		pcmd_callback(padapter, pcmd);
--	return H2C_SUCCESS;
--}
--
- static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
- {
- 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
-@@ -213,14 +185,6 @@ static struct cmd_obj *cmd_hdl_filter(st
- 	pcmd_r = NULL;
+ static int iforce_usb_probe(struct usb_interface *intf,
+--- a/drivers/input/joystick/iforce/iforce.h
++++ b/drivers/input/joystick/iforce/iforce.h
+@@ -119,6 +119,12 @@ static inline int iforce_get_id_packet(s
+ 					 response_data, response_len);
+ }
  
- 	switch (pcmd->cmdcode) {
--	case GEN_CMD_CODE(_Read_MACREG):
--		read_macreg_hdl(padapter, (u8 *)pcmd);
--		pcmd_r = pcmd;
--		break;
--	case GEN_CMD_CODE(_Write_MACREG):
--		write_macreg_hdl(padapter, (u8 *)pcmd);
--		pcmd_r = pcmd;
--		break;
- 	case GEN_CMD_CODE(_Read_BBREG):
- 		read_bbreg_hdl(padapter, (u8 *)pcmd);
- 		break;
++static inline void iforce_clear_xmit_and_wake(struct iforce *iforce)
++{
++	clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
++	wake_up_all(&iforce->wait);
++}
++
+ /* Public functions */
+ /* iforce-main.c */
+ int iforce_init_device(struct device *parent, u16 bustype,
 
 
