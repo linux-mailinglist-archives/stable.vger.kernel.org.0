@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0165AEA72
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:55:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F395AEABB
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239188AbiIFNzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45828 "EHLO
+        id S239619AbiIFNzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:55:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239826AbiIFNyM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:54:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8390680B67;
-        Tue,  6 Sep 2022 06:41:06 -0700 (PDT)
+        with ESMTP id S239082AbiIFNwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:52:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1CCE1838B;
+        Tue,  6 Sep 2022 06:40:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 068E461547;
-        Tue,  6 Sep 2022 13:35:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08D05C433D7;
-        Tue,  6 Sep 2022 13:35:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D15261545;
+        Tue,  6 Sep 2022 13:40:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E648C433D6;
+        Tue,  6 Sep 2022 13:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471329;
-        bh=K4dGkykxDeQfgG8iJRdoD0/3YR3v+GjHk/N6AhY71Gw=;
+        s=korg; t=1662471619;
+        bh=g4OSy4eiWzd4GXoIulDPPUyvFbwo6gtuf8PChh14Lrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vP0XsmiVvTracQBw4no34MPXE+Kp+Gy0UZvLoj5kbAXrW9Q0ULiKmo7xBsH6f0FM9
-         GFQBgRtEya8cglbckv6G4eCqnKnNQnoNZTD7iSkUGzpzcNB7VS9wsmRVEbJMejHGDQ
-         hs8ubtW0IcEjdI7OoduT1x7PiToGUj15TmyblZbI=
+        b=jFxTJI2y9yQ2E9dVg7pUU2ETlBi6l91sSH2E7MZJTw/2lyDKJiHOCM5Aoo8rL14BZ
+         sMB7JuO9deIp+Wz/x8NF5uzghrsk+my5F8hvV+qSWQmiJW0Ipk1uI+fdBP2yX6iUxK
+         bjTy5JyOIub4dv/YvFCqT0Ri59NLJKv4CmU6vY2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 72/80] ALSA: seq: Fix data-race at module auto-loading
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Krishna Kurapati <quic_kriskura@quicinc.com>
+Subject: [PATCH 5.15 088/107] usb: gadget: mass_storage: Fix cdrom data transfers on MAC-OS
 Date:   Tue,  6 Sep 2022 15:31:09 +0200
-Message-Id: <20220906132820.135185572@linuxfoundation.org>
+Message-Id: <20220906132825.537477342@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Krishna Kurapati <quic_kriskura@quicinc.com>
 
-commit 3e7e04b747adea36f349715d9f0998eeebf15d72 upstream.
+commit 9d4dc16ec71bd6368548e9743223e449b4377fc7 upstream.
 
-It's been reported that there is a possible data-race accessing to the
-global card_requested[] array at ALSA sequencer core, which is used
-for determining whether to call request_module() for the card or not.
-This data race itself is almost harmless, as it might end up with one
-extra request_module() call for the already loaded module at most.
-But it's still better to fix.
+During cdrom emulation, the response to read_toc command must contain
+the cdrom address as the number of sectors (2048 byte sized blocks)
+represented either as an absolute value (when MSF bit is '0') or in
+terms of PMin/PSec/PFrame (when MSF bit is set to '1'). Incase of
+cdrom, the fsg_lun_open call sets the sector size to 2048 bytes.
 
-This patch addresses the possible data race of card_requested[] and
-client_requested[] arrays by replacing them with bitmask.
-It's an atomic operation and can work without locks.
+When MAC OS sends a read_toc request with MSF set to '1', the
+store_cdrom_address assumes that the address being provided is the
+LUN size represented in 512 byte sized blocks instead of 2048. It
+tries to modify the address further to convert it to 2048 byte sized
+blocks and store it in MSF format. This results in data transfer
+failures as the cdrom address being provided in the read_toc response
+is incorrect.
 
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAEHB24_ay6YzARpA1zgCsE7=H9CSJJzux618E=Ka4h0YdKn=qA@mail.gmail.com
-Link: https://lore.kernel.org/r/20220823072717.1706-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 3f565a363cee ("usb: gadget: storage: adapt logic block size to bound block devices")
+Cc: stable@vger.kernel.org
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Krishna Kurapati <quic_kriskura@quicinc.com>
+Link: https://lore.kernel.org/r/1661570110-19127-1-git-send-email-quic_kriskura@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/seq/seq_clientmgr.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/usb/gadget/function/storage_common.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -121,13 +121,13 @@ struct snd_seq_client *snd_seq_client_us
- 	spin_unlock_irqrestore(&clients_lock, flags);
- #ifdef CONFIG_MODULES
- 	if (!in_interrupt()) {
--		static char client_requested[SNDRV_SEQ_GLOBAL_CLIENTS];
--		static char card_requested[SNDRV_CARDS];
-+		static DECLARE_BITMAP(client_requested, SNDRV_SEQ_GLOBAL_CLIENTS);
-+		static DECLARE_BITMAP(card_requested, SNDRV_CARDS);
-+
- 		if (clientid < SNDRV_SEQ_GLOBAL_CLIENTS) {
- 			int idx;
- 			
--			if (!client_requested[clientid]) {
--				client_requested[clientid] = 1;
-+			if (!test_and_set_bit(clientid, client_requested)) {
- 				for (idx = 0; idx < 15; idx++) {
- 					if (seq_client_load[idx] < 0)
- 						break;
-@@ -142,10 +142,8 @@ struct snd_seq_client *snd_seq_client_us
- 			int card = (clientid - SNDRV_SEQ_GLOBAL_CLIENTS) /
- 				SNDRV_SEQ_CLIENTS_PER_CARD;
- 			if (card < snd_ecards_limit) {
--				if (! card_requested[card]) {
--					card_requested[card] = 1;
-+				if (!test_and_set_bit(card, card_requested))
- 					snd_request_card(card);
--				}
- 				snd_seq_device_load_drivers();
- 			}
- 		}
+--- a/drivers/usb/gadget/function/storage_common.c
++++ b/drivers/usb/gadget/function/storage_common.c
+@@ -294,8 +294,10 @@ EXPORT_SYMBOL_GPL(fsg_lun_fsync_sub);
+ void store_cdrom_address(u8 *dest, int msf, u32 addr)
+ {
+ 	if (msf) {
+-		/* Convert to Minutes-Seconds-Frames */
+-		addr >>= 2;		/* Convert to 2048-byte frames */
++		/*
++		 * Convert to Minutes-Seconds-Frames.
++		 * Sector size is already set to 2048 bytes.
++		 */
+ 		addr += 2*75;		/* Lead-in occupies 2 seconds */
+ 		dest[3] = addr % 75;	/* Frames */
+ 		addr /= 75;
 
 
