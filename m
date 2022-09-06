@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA40E5AE735
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 14:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D875AE73D
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 14:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237958AbiIFMHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 08:07:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38414 "EHLO
+        id S234241AbiIFMIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 08:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237950AbiIFMHO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:07:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C77E072EEE;
-        Tue,  6 Sep 2022 05:07:09 -0700 (PDT)
+        with ESMTP id S239513AbiIFMHr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:07:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 638007963B
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 05:07:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 399EBB817C2;
-        Tue,  6 Sep 2022 12:07:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5CE5C433D7;
-        Tue,  6 Sep 2022 12:07:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662466027;
-        bh=xDToHq5NwCY7n27E7K90MiH8cQCQzp7YqE+8PvSjgOc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alkw36V4w9CuDxib9kT9NJ+3zt7Nh14WTfslB4ICMxmvBEGGBypZWIFgisQf37Dpl
-         vH663SlyfcDGoG2Vtiz1yBVRVh5pAmGn0ZeRO9dEfJAEozGMdu4RnqiYbRtl0MxWpB
-         T9NSf7pOGRc/e528CbK/1ZCNZa6sfqoyFf9NgkOOfxCgyda6OtQLKxHBQajYbVMJBT
-         UvFabFcNQ0ZlFE22qgnbGTlqUbQuN7vuah8Wy6txP5OaZUL5TdrTKfZKcU9Zaf4g/5
-         QI/92XmZnjSX8IjB00fLG+WjX1zyYX5ir74wBp5c4ShECqU6R9jnCVOh5CVmKbbvgL
-         b9GlF4cZnWaBQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1oVXMF-00050M-53; Tue, 06 Sep 2022 14:07:11 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        stable <stable@kernel.org>
-Subject: [PATCH stable-5.15 3/3] usb: dwc3: disable USB core PHY management
-Date:   Tue,  6 Sep 2022 14:07:02 +0200
-Message-Id: <20220906120702.19219-4-johan@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220906120702.19219-1-johan@kernel.org>
-References: <20220906120702.19219-1-johan@kernel.org>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A140614E1
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 12:07:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67BF8C433D6;
+        Tue,  6 Sep 2022 12:07:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1662466059;
+        bh=ZHPw8Lxedogcq5zOGm4w2yzRi0/BQV/4J9kwMtrO2u0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=y9ZoXwWDfJUsSiNBhvvhd7IkeNbKpZeFPUpkreDyPxmMQHPX3fiImox4+1LfH77DR
+         uAigTacwIFpwPRYj2HFnQEnTkTt2UsXgfmGX8s07W2l6plIF6vgmTSMWfPa0CQMkXc
+         ArhqYMFr6Z91oAy/QD/rat75CRsUQAuAx7wWqWTE=
+Date:   Tue, 6 Sep 2022 14:07:37 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     peterz@infradead.org, stable@vger.kernel.org,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: Re: FAILED: patch "[PATCH] x86/nospec: Fix i386 RSB stuffing" failed
+ to apply to 5.10-stable tree
+Message-ID: <Yxc4CeyDS2tWLXfo@kroah.com>
+References: <166176181110563@kroah.com>
+ <3e14d81d0576aed9583d07fbd14e6a502f2d4739.camel@decadent.org.uk>
+ <YxB+xgcz9QD5BK77@kroah.com>
+ <ff8d3521a32e1a425af32711856d0d8fdfa84d2b.camel@decadent.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ff8d3521a32e1a425af32711856d0d8fdfa84d2b.camel@decadent.org.uk>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -58,62 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+On Fri, Sep 02, 2022 at 04:26:57PM +0200, Ben Hutchings wrote:
+> On Thu, 2022-09-01 at 11:43 +0200, Greg KH wrote:
+> > On Mon, Aug 29, 2022 at 04:04:58PM +0200, Ben Hutchings wrote:
+> > > On Mon, 2022-08-29 at 10:30 +0200, gregkh@linuxfoundation.org wrote:
+> > > > The patch below does not apply to the 5.10-stable tree.
+> > > > If someone wants it applied there, or to any other stable or longterm
+> > > > tree, then please email the backport, including the original git commit
+> > > > id to <stable@vger.kernel.org>.
+> > > > 
+> > > 
+> > > You need commit 4e3aa9238277 "x86/nospec: Unwreck the RSB stuffing"
+> > > before this one.  I've attached the backport of that for 5.10.  I
+> > > haven't checked the older branches.
+> > 
+> > Great, thanks, this worked.  But the backport did not apply to 4.19, so
+> > I will need that in order to take this one as well.
+> 
+> I've had a look at 5.4, and it's sufficiently different from upstream
+> that I don't see how to move forward.
+> 
+> However, I also found that the PBRSB mitigation seems broken, as commit
+> fc02735b14ff "KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS"
+> was not backported (and would be hard to add).
+> 
+> So, perhaps it would be best to revert the backports of:
+> 
+> 2b1299322016 x86/speculation: Add RSB VM Exit protections
+> ba6e31af2be9 x86/speculation: Add LFENCE to RSB fill sequence
+> 
+> in stable branches older than 5.10.
 
-commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
+Why?  Is it because they do not work at all there, or are they causing
+problems?
 
-The dwc3 driver manages its PHYs itself so the USB core PHY management
-needs to be disabled.
+thanks,
 
-Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
-host: xhci-plat: add platform data support") and f768e718911e ("usb:
-host: xhci-plat: add priv quirk for skip PHY initialization") to
-propagate the setting for now.
-
-Fixes: 4e88d4c08301 ("usb: add a flag to skip PHY initialization to struct usb_hcd")
-Fixes: 178a0bce05cb ("usb: core: hcd: integrate the PHY wrapper into the HCD core")
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Cc: stable <stable@kernel.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220825131836.19769-1-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ johan: adjust context to 5.15 ]
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
----
- drivers/usb/dwc3/host.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
-index 2078e9d70292..85165a972076 100644
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -10,8 +10,13 @@
- #include <linux/acpi.h>
- #include <linux/platform_device.h>
- 
-+#include "../host/xhci-plat.h"
- #include "core.h"
- 
-+static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
-+	.quirks = XHCI_SKIP_PHY_INIT,
-+};
-+
- static int dwc3_host_get_irq(struct dwc3 *dwc)
- {
- 	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
-@@ -87,6 +92,11 @@ int dwc3_host_init(struct dwc3 *dwc)
- 		goto err;
- 	}
- 
-+	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
-+					sizeof(dwc3_xhci_plat_priv));
-+	if (ret)
-+		goto err;
-+
- 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
- 
- 	if (dwc->usb3_lpm_capable)
--- 
-2.35.1
-
+greg k-h
