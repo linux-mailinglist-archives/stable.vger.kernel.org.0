@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC6AE5AE9D8
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 553D95AEA88
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240729AbiIFNfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:35:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51878 "EHLO
+        id S238668AbiIFNuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240625AbiIFNfP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:35:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20FE37820C;
-        Tue,  6 Sep 2022 06:33:44 -0700 (PDT)
+        with ESMTP id S238792AbiIFNso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:48:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E2B22E;
+        Tue,  6 Sep 2022 06:39:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9489B8162F;
-        Tue,  6 Sep 2022 13:33:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16281C433D6;
-        Tue,  6 Sep 2022 13:33:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03F41B818CA;
+        Tue,  6 Sep 2022 13:38:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BD4CC433D6;
+        Tue,  6 Sep 2022 13:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471221;
-        bh=HHBB9KyuFX+GW7Ogc+UaflVg9kT9RKJe53j3ymPYA2k=;
+        s=korg; t=1662471520;
+        bh=dSjNc2L2zqfyB1gDmLTYy0MO4j6+DWPjfsmjJ3Fx/ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ts9Emv/8JjuCWbkBHpies4LsMY96Bwi/39MuWm/A8KZIjSXFj05CPUCNf+Mc1f40W
-         +ZntpQKDk3WZVCUwYzpvcou12iwFOCF8ovAnO3e5VvlIj0ASvY/Ki7/6Zfz9nACXbV
-         dAcdIPmRcu7eqteXayOpEL6mi5pggHO1Fz+Nsnlc=
+        b=nmK/Suy3cKKZd8m+u+u/EIRXkL9Zl2Cg1hSDTjKedAh318CkZ/8gY+dFmg8tKcPcA
+         BT6JajUK2gTL7YhdQovP9ZKfpSwZoOc5OgORtZt2rvvCi5z/ze8YV/jJPbKgtkzXLm
+         JF7udgztkJnQfUdZAIM1dgdptKHW37WsupnKFovo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/80] clk: bcm: rpi: Fix error handling of raspberrypi_fw_get_rate
+Subject: [PATCH 5.15 054/107] Input: rk805-pwrkey - fix module autoloading
 Date:   Tue,  6 Sep 2022 15:30:35 +0200
-Message-Id: <20220906132818.585072990@linuxfoundation.org>
+Message-Id: <20220906132824.128468998@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Peter Robinson <pbrobinson@gmail.com>
 
-[ Upstream commit 35f73cca1cecda0c1f8bb7d8be4ce5cd2d46ae8c ]
+[ Upstream commit 99077ad668ddd9b4823cc8ce3f3c7a3fc56f6fd9 ]
 
-The function raspberrypi_fw_get_rate (e.g. used for the recalc_rate
-hook) can fail to get the clock rate from the firmware. In this case
-we cannot return a signed error value, which would be casted to
-unsigned long. Fix this by returning 0 instead.
+Add the module alias so the rk805-pwrkey driver will
+autoload when built as a module.
 
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220625083643.4012-1-stefan.wahren@i2se.com
-Fixes: 4e85e535e6cc ("clk: bcm283x: add driver interfacing with Raspberry Pi's firmware")
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 5a35b85c2d92 ("Input: add power key driver for Rockchip RK805 PMIC")
+Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://lore.kernel.org/r/20220612225437.3628788-1-pbrobinson@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-raspberrypi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/misc/rk805-pwrkey.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/bcm/clk-raspberrypi.c b/drivers/clk/bcm/clk-raspberrypi.c
-index f89b9cfc43099..2c12bd5ac1388 100644
---- a/drivers/clk/bcm/clk-raspberrypi.c
-+++ b/drivers/clk/bcm/clk-raspberrypi.c
-@@ -139,7 +139,7 @@ static unsigned long raspberrypi_fw_get_rate(struct clk_hw *hw,
- 	ret = raspberrypi_clock_property(rpi->firmware, data,
- 					 RPI_FIRMWARE_GET_CLOCK_RATE, &val);
- 	if (ret)
--		return ret;
-+		return 0;
+diff --git a/drivers/input/misc/rk805-pwrkey.c b/drivers/input/misc/rk805-pwrkey.c
+index 3fb64dbda1a21..76873aa005b41 100644
+--- a/drivers/input/misc/rk805-pwrkey.c
++++ b/drivers/input/misc/rk805-pwrkey.c
+@@ -98,6 +98,7 @@ static struct platform_driver rk805_pwrkey_driver = {
+ };
+ module_platform_driver(rk805_pwrkey_driver);
  
- 	return val;
- }
++MODULE_ALIAS("platform:rk805-pwrkey");
+ MODULE_AUTHOR("Joseph Chen <chenjh@rock-chips.com>");
+ MODULE_DESCRIPTION("RK805 PMIC Power Key driver");
+ MODULE_LICENSE("GPL");
 -- 
 2.35.1
 
