@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9195AEBBE
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 700015AEBBD
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233270AbiIFOAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:00:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36454 "EHLO
+        id S240377AbiIFOA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:00:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240669AbiIFN6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:58:13 -0400
+        with ESMTP id S241015AbiIFN7V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:59:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC9B182D01;
-        Tue,  6 Sep 2022 06:42:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008FA83BCB;
+        Tue,  6 Sep 2022 06:43:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49FF2B8162F;
-        Tue,  6 Sep 2022 13:41:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F2BC433D7;
-        Tue,  6 Sep 2022 13:41:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3FC48B81632;
+        Tue,  6 Sep 2022 13:42:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A7BC433D6;
+        Tue,  6 Sep 2022 13:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471700;
-        bh=eRs0J5tzpn54uD4h7rQQv0l+Vqhz6Xssugk/gCLIuNg=;
+        s=korg; t=1662471733;
+        bh=noxVvwFG6quj79CmmPAnwoBVNUcGDbIVArsJYbBLnIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RNGsOHYsJ1YcNiQiHLCBOpSX7FvyOmkQcfbK3TS5rXz9WI6uUpI1612fdMeUuhNI0
-         cUlrxW0XR5CeK61Pk5gMF+wFlx5/8VGn4Fi8xUN/9BmPTd9pOdJiVDMXVrxIhncFYf
-         DTuoLAb3/wim4t9CQ82wCYG9N4f3j8X72yuJH2aA=
+        b=1wzSFTkUesv2UFxXhBJxaytZJ+qgylIiQbkP6TTMRlOlpCKkpBgbqVwAqPuqJA/j4
+         Bpvf6gleMI6GthHMIFQ5WU9P2v8Mu+9LutAzHEdacNEaJQEXJUK4Xwqnzgtw1j9p67
+         OvQ8cnRK4n1H6dej7x2UBb1yjfOeO0krVvln3zsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        sunliming <sunliming@kylinos.cn>,
         Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 001/155] drm/msm/dp: make eDP panel as the first connected connector
-Date:   Tue,  6 Sep 2022 15:29:09 +0200
-Message-Id: <20220906132829.483548687@linuxfoundation.org>
+Subject: [PATCH 5.19 002/155] drm/msm/dsi: fix the inconsistent indenting
+Date:   Tue,  6 Sep 2022 15:29:10 +0200
+Message-Id: <20220906132829.528088388@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,55 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: sunliming <sunliming@kylinos.cn>
 
-[ Upstream commit deffa2d75db7e7a9a1fe3dad4f99310bff7b6449 ]
+[ Upstream commit 2f25a1fb4ec516c5ad67afd754334b491b9f09a5 ]
 
-Some userspace presumes that the first connected connector is the main
-display, where it's supposed to display e.g. the login screen. For
-laptops, this should be the main panel.
+Fix the inconsistent indenting in function msm_dsi_dphy_timing_calc_v3().
 
-This patch call drm_helper_move_panel_connectors_to_head() after
-drm_bridge_connector_init() to make sure eDP stay at head of
-connected connector list. This fixes unexpected corruption happen
-at eDP panel if eDP is not placed at head of connected connector
-list.
+Fix the following smatch warnings:
 
-Changes in v2:
--- move drm_helper_move_panel_connectors_to_head() to
-		dpu_kms_drm_obj_init()
+drivers/gpu/drm/msm/dsi/phy/dsi_phy.c:350 msm_dsi_dphy_timing_calc_v3() warn: inconsistent indenting
 
-Changes in v4:
--- move drm_helper_move_panel_connectors_to_head() to msm_drm_init()
-
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Fixes: f1fa7ff44056 ("drm/msm/dsi: implement auto PHY timing calculator for 10nm PHY")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: sunliming <sunliming@kylinos.cn>
 Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Fixes: ef7837ff091c ("drm/msm/dp: Add DP controllers for sc7280")
-Patchwork: https://patchwork.freedesktop.org/patch/492581/
-Link: https://lore.kernel.org/r/1657135928-31195-1-git-send-email-quic_khsieh@quicinc.com
+Patchwork: https://patchwork.freedesktop.org/patch/494662/
+Link: https://lore.kernel.org/r/20220719015622.646718-1-sunliming@kylinos.cn
 Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/msm/dsi/phy/dsi_phy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index 14ab9a627d8b0..7c0314d6566af 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -424,6 +424,8 @@ static int msm_drm_init(struct device *dev, const struct drm_driver *drv)
- 		}
+diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
+index a39de3bdc7faf..56dfa2d24be1f 100644
+--- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
++++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
+@@ -347,7 +347,7 @@ int msm_dsi_dphy_timing_calc_v3(struct msm_dsi_dphy_timing *timing,
+ 	} else {
+ 		timing->shared_timings.clk_pre =
+ 			linear_inter(tmax, tmin, pcnt2, 0, false);
+-			timing->shared_timings.clk_pre_inc_by_2 = 0;
++		timing->shared_timings.clk_pre_inc_by_2 = 0;
  	}
  
-+	drm_helper_move_panel_connectors_to_head(ddev);
-+
- 	ddev->mode_config.funcs = &mode_config_funcs;
- 	ddev->mode_config.helper_private = &mode_config_helper_funcs;
- 
+ 	timing->ta_go = 3;
 -- 
 2.35.1
 
