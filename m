@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A42205AE6F7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DAE65AE6FA
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232951AbiIFLzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:55:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48650 "EHLO
+        id S234241AbiIFLzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234166AbiIFLzA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:55:00 -0400
+        with ESMTP id S234203AbiIFLzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:55:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDCC94623A
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:54:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B6405B7B8
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:55:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C851614DC
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:54:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3043DC433D6;
-        Tue,  6 Sep 2022 11:54:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3E1B614DF
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:55:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE37C433D6;
+        Tue,  6 Sep 2022 11:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662465297;
-        bh=aV6N1l796rtHE7BXSDYkttSe1hd6hmKGFxHDliUB18U=;
+        s=korg; t=1662465301;
+        bh=1tRFoYTeisADgEHLp3CgXW6VICI3ImpmTp59Sz8i6s4=;
         h=Subject:To:Cc:From:Date:From;
-        b=jQh0haWp0GxvKGrKwlQK/tHt4/NJL0xJGaqKG7IJH9qJclGG2P2zqwj5NST1ZMf8z
-         2ghs47RS7nUwrxzJKXSyCCwDnPNG+YailiaJvxY/tuB/G0I5LDUYcE3O5skYHbgVVM
-         xTE0SkuJxxf1Vtoa4oH0yL7R+C5Tmop6Se57VzjY=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: avoid call of sleeping functions from atomic" failed to apply to 5.15-stable tree
+        b=Z6uwtHfasI+z15EOrfg1TxbnF+8etrOS6jYy6yI6XmtDOIwo0h0IxEvDNBzVjauIy
+         y0zAhz4LDnwmR+9pOGurJ4GXYGcs6dZZ6hfYnk5BuyIKXL0sK9WFLgz88VYIEXFnBI
+         wvVC8jLOwC5puMqDDN0AloqsUHeqB3e46Pr2751g=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: avoid call of sleeping functions from atomic" failed to apply to 5.10-stable tree
 To:     pchelkin@ispras.ru, gregkh@linuxfoundation.org,
         khoroshilov@ispras.ru, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:54:55 +0200
-Message-ID: <166246529523267@kroah.com>
+Date:   Tue, 06 Sep 2022 13:54:56 +0200
+Message-ID: <1662465296193245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
