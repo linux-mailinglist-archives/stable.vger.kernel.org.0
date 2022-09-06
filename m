@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D8995AEA89
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EBA85AE9E7
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232511AbiIFNuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:50:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41292 "EHLO
+        id S240122AbiIFNgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:36:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239162AbiIFNtG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56F362252B;
-        Tue,  6 Sep 2022 06:39:36 -0700 (PDT)
+        with ESMTP id S240688AbiIFNfY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:35:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D79676763;
+        Tue,  6 Sep 2022 06:33:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0D3AB816A0;
-        Tue,  6 Sep 2022 13:38:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50343C433C1;
-        Tue,  6 Sep 2022 13:38:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BE7EB81632;
+        Tue,  6 Sep 2022 13:33:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F8B1C433D6;
+        Tue,  6 Sep 2022 13:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471532;
-        bh=0bxyqQBM64AsDy+Xef4h1nkISTwR6ahmBdTOJj0tLjs=;
+        s=korg; t=1662471230;
+        bh=+Jqh5LyjqHayCt+2npeAsy7djadmuUUg+FYGKewihak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6EQndbFNYnLXGLpxGUdy2BNLEo03AoB8BHmjv18ImlGOGpcYJyviGd+Q7UswMSOP
-         RgLSdy42V5Dx6360Fl11cmSEEiPV/+E8HGaRjktQzM51/WbxlKI3BKpVR1BEqvvCkx
-         xWhznjmPSvkmwcrbRG2+Ye54DeoeSTNRp/c3rEyg=
+        b=FlNuG9Dp2odIseAtzprqGJbLxqIdBzSEe7RHUWvbHjQWRoK9tX16yMExoErdCkNIX
+         7M1Z9rNCNZt8ORK+g9sKElxxJcXocMLbiVDH7Uz4XZjhlLl7TgwN6IwdHeYO54AUTJ
+         PNZKgLR2mQKBCAUNgokoJxS+qWNDZjQNJxa1BlcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         "Ivan T. Ivanov" <iivanov@suse.de>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 057/107] clk: bcm: rpi: Prevent out-of-bounds access
+Subject: [PATCH 5.10 41/80] clk: bcm: rpi: Add missing newline
 Date:   Tue,  6 Sep 2022 15:30:38 +0200
-Message-Id: <20220906132824.241960043@linuxfoundation.org>
+Message-Id: <20220906132818.723673050@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,46 +58,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit bc163555603e4ae9c817675ad80d618a4cdbfa2d ]
+[ Upstream commit 13b5cf8d6a0d4a5d289e1ed046cadc63b416db85 ]
 
-The while loop in raspberrypi_discover_clocks() relies on the assumption
-that the id of the last clock element is zero. Because this data comes
-from the Videocore firmware and it doesn't guarantuee such a behavior
-this could lead to out-of-bounds access. So fix this by providing
-a sentinel element.
+Some log messages lacks the final newline. So add them.
 
 Fixes: 93d2725affd6 ("clk: bcm: rpi: Discover the firmware clocks")
-Link: https://github.com/raspberrypi/firmware/issues/1688
-Suggested-by: Phil Elwell <phil@raspberrypi.com>
 Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220713154953.3336-2-stefan.wahren@i2se.com
+Link: https://lore.kernel.org/r/20220713154953.3336-3-stefan.wahren@i2se.com
 Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Reviewed-by: Ivan T. Ivanov <iivanov@suse.de>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-raspberrypi.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/clk/bcm/clk-raspberrypi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/clk/bcm/clk-raspberrypi.c b/drivers/clk/bcm/clk-raspberrypi.c
-index 97612860ce0e1..834bcc256e921 100644
+index 27ae08c4952e7..969227e2df215 100644
 --- a/drivers/clk/bcm/clk-raspberrypi.c
 +++ b/drivers/clk/bcm/clk-raspberrypi.c
-@@ -251,8 +251,13 @@ static int raspberrypi_discover_clocks(struct raspberrypi_clk *rpi,
- 	struct rpi_firmware_get_clocks_response *clks;
- 	int ret;
+@@ -156,7 +156,7 @@ static int raspberrypi_fw_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	ret = raspberrypi_clock_property(rpi->firmware, data,
+ 					 RPI_FIRMWARE_SET_CLOCK_RATE, &_rate);
+ 	if (ret)
+-		dev_err_ratelimited(rpi->dev, "Failed to change %s frequency: %d",
++		dev_err_ratelimited(rpi->dev, "Failed to change %s frequency: %d\n",
+ 				    clk_hw_get_name(hw), ret);
  
-+	/*
-+	 * The firmware doesn't guarantee that the last element of
-+	 * RPI_FIRMWARE_GET_CLOCKS is zeroed. So allocate an additional
-+	 * zero element as sentinel.
-+	 */
- 	clks = devm_kcalloc(rpi->dev,
--			    RPI_FIRMWARE_NUM_CLK_ID, sizeof(*clks),
-+			    RPI_FIRMWARE_NUM_CLK_ID + 1, sizeof(*clks),
- 			    GFP_KERNEL);
- 	if (!clks)
- 		return -ENOMEM;
+ 	return ret;
+@@ -208,7 +208,7 @@ static struct clk_hw *raspberrypi_clk_register(struct raspberrypi_clk *rpi,
+ 					 RPI_FIRMWARE_GET_MIN_CLOCK_RATE,
+ 					 &min_rate);
+ 	if (ret) {
+-		dev_err(rpi->dev, "Failed to get clock %d min freq: %d",
++		dev_err(rpi->dev, "Failed to get clock %d min freq: %d\n",
+ 			id, ret);
+ 		return ERR_PTR(ret);
+ 	}
 -- 
 2.35.1
 
