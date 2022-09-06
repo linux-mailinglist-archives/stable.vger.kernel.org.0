@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7B85AEACA
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD0A5AE9A8
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238431AbiIFNua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:50:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41942 "EHLO
+        id S240477AbiIFNcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:32:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239374AbiIFNt0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8424A14D0C;
-        Tue,  6 Sep 2022 06:39:45 -0700 (PDT)
+        with ESMTP id S238052AbiIFNcZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A42B754AC;
+        Tue,  6 Sep 2022 06:32:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CC81B818C2;
-        Tue,  6 Sep 2022 13:39:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 845D2C433D7;
-        Tue,  6 Sep 2022 13:39:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6A7561546;
+        Tue,  6 Sep 2022 13:32:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8222C433D6;
+        Tue,  6 Sep 2022 13:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471546;
-        bh=s0isFCL+e7hLyZIRo68D8pL8yNNfD/9FjFSUZ72xsXg=;
+        s=korg; t=1662471143;
+        bh=PIiYXnLiCDUyEahvFa6chU1F97LMMd7JzaS5JBKy+7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jFbRZjOgyk0r7fnz6vjVYUVhCa/aMRBuc3busNIxzXPprHbnq5vbopZ/dtOGGbsOY
-         giZ8iUJ+HViW0sm+nBvA7NCrLWSR95ceqq+iHF3VAHqCTtDswWmtU6GhYbJLDyvoWz
-         ZW4mPLKexcDy2VTSgVsM9Fd/Ezi5tPAQ4PwoEGQc=
+        b=RyM6tV/xZHPXdFY8m1Oiqq/WJq+yDG2GwpmX8AAOlkJgRiqvS6L86SxpbOBqZPO6Y
+         EfavLn3vGUpkqwONv0wESaLA9XpbGLM/yP3Ow/9dreL3cCe5+AOVEBTRe9fG6vRWuL
+         tgSEImIhXyECRX1gWA7SAbgR92vzX5QsQWJf/RBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Nicolas Diaz <nicolas.diaz@nxp.com>,
-        Shenwei Wang <shenwei.wang@nxp.com>
-Subject: [PATCH 5.15 031/107] serial: fsl_lpuart: RS485 RTS polariy is inverse
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 15/80] ethernet: rocker: fix sleep in atomic context bug in neigh_timer_handler
 Date:   Tue,  6 Sep 2022 15:30:12 +0200
-Message-Id: <20220906132823.118857518@linuxfoundation.org>
+Message-Id: <20220906132817.574729683@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shenwei Wang <shenwei.wang@nxp.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 846651eca073e2e02e37490a4a52752415d84781 upstream.
+[ Upstream commit c0955bf957be4bead01fae1d791476260da7325d ]
 
-The setting of RS485 RTS polarity is inverse in the current driver.
+The function neigh_timer_handler() is a timer handler that runs in an
+atomic context. When used by rocker, neigh_timer_handler() calls
+"kzalloc(.., GFP_KERNEL)" that may sleep. As a result, the sleep in
+atomic context bug will happen. One of the processes is shown below:
 
-When the property of 'rs485-rts-active-low' is enabled in the dts node,
-the RTS signal should be LOW during sending. Otherwise, if there is no
-such a property, the RTS should be HIGH during sending.
+ofdpa_fib4_add()
+ ...
+ neigh_add_timer()
 
-Fixes: 03895cf41d18 ("tty: serial: fsl_lpuart: Add support for RS-485")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Nicolas Diaz <nicolas.diaz@nxp.com>
-Signed-off-by: Shenwei Wang <shenwei.wang@nxp.com>
-Link: https://lore.kernel.org/r/20220805144529.604856-1-shenwei.wang@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+(wait a timer)
+
+neigh_timer_handler()
+ neigh_release()
+  neigh_destroy()
+   rocker_port_neigh_destroy()
+    rocker_world_port_neigh_destroy()
+     ofdpa_port_neigh_destroy()
+      ofdpa_port_ipv4_neigh()
+       kzalloc(sizeof(.., GFP_KERNEL) //may sleep
+
+This patch changes the gfp_t parameter of kzalloc() from GFP_KERNEL to
+GFP_ATOMIC in order to mitigate the bug.
+
+Fixes: 00fc0c51e35b ("rocker: Change world_ops API and implementation to be switchdev independant")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/rocker/rocker_ofdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1381,9 +1381,9 @@ static int lpuart_config_rs485(struct ua
- 		 * Note: UART is assumed to be active high.
- 		 */
- 		if (rs485->flags & SER_RS485_RTS_ON_SEND)
--			modem &= ~UARTMODEM_TXRTSPOL;
--		else if (rs485->flags & SER_RS485_RTS_AFTER_SEND)
- 			modem |= UARTMODEM_TXRTSPOL;
-+		else if (rs485->flags & SER_RS485_RTS_AFTER_SEND)
-+			modem &= ~UARTMODEM_TXRTSPOL;
- 	}
+diff --git a/drivers/net/ethernet/rocker/rocker_ofdpa.c b/drivers/net/ethernet/rocker/rocker_ofdpa.c
+index 8157666209798..e4d919de7e3fc 100644
+--- a/drivers/net/ethernet/rocker/rocker_ofdpa.c
++++ b/drivers/net/ethernet/rocker/rocker_ofdpa.c
+@@ -1273,7 +1273,7 @@ static int ofdpa_port_ipv4_neigh(struct ofdpa_port *ofdpa_port,
+ 	bool removing;
+ 	int err = 0;
  
- 	/* Store the new configuration */
+-	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
++	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
+ 	if (!entry)
+ 		return -ENOMEM;
+ 
+-- 
+2.35.1
+
 
 
