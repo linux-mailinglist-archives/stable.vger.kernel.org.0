@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6C35AEDD7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:50:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF245AEBFE
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230426AbiIFOdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:33:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52102 "EHLO
+        id S234139AbiIFOLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:11:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242160AbiIFOcr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:32:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C7197B15;
-        Tue,  6 Sep 2022 06:58:13 -0700 (PDT)
+        with ESMTP id S241566AbiIFOKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:10:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71C36870BF;
+        Tue,  6 Sep 2022 06:47:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D467E61512;
-        Tue,  6 Sep 2022 13:45:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDB2CC433C1;
-        Tue,  6 Sep 2022 13:45:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2843FB818D0;
+        Tue,  6 Sep 2022 13:45:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 841D9C433D6;
+        Tue,  6 Sep 2022 13:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471951;
-        bh=pguHKJj3QI7pJ/G3vaAqg7eUgMNyZM15MjUishRtvow=;
+        s=korg; t=1662471956;
+        bh=B/g7M6eYXSuCJAoK0UhP9agxHOqqTFv8Ur6bBGZt7kI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVqOl7jJ53JWiYWqnYunOr1VUcIuQKy+2lDS6uj2hnAL4DqdN23bwbOymvjxezM1A
-         8nCCS9nCiQ/xbfg9u+GNXQbnaZwqMQDOGOKglA/cvPqvOPosvlnmhG9Sok5vW9fWR8
-         Chkj4c/wCPOUPHRqP39z2PpTuR8SLyvsyIQZgFZo=
+        b=PlYFI9MFfA0kbGBuy9ZKsaoOJfSsPANJA0r32nrwMhUfIN9TML4sF+pE/SlHnOsPK
+         uR4j/zYhTMssEyYnCTtvs+FD/BHZsw3GbXyGDd+NXPjhvDFbivE5a2J6uqpM7NnjLC
+         R3rRGEWuAwU5+K0hxigewv+lmSa3rTIR7INRe5xI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 095/155] hwmon: (gpio-fan) Fix array out of bounds access
-Date:   Tue,  6 Sep 2022 15:30:43 +0200
-Message-Id: <20220906132833.488016727@linuxfoundation.org>
+Subject: [PATCH 5.19 096/155] gpio: pca953x: Add mutex_lock for regcache sync in PM
+Date:   Tue,  6 Sep 2022 15:30:44 +0200
+Message-Id: <20220906132833.536944372@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,98 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit f233d2be38dbbb22299192292983037f01ab363c ]
+[ Upstream commit 518e26f11af2fe4f5bebf9a0351595d508c7077f ]
 
-The driver does not check if the cooling state passed to
-gpio_fan_set_cur_state() exceeds the maximum cooling state as
-stored in fan_data->num_speeds. Since the cooling state is later
-used as an array index in set_fan_speed(), an array out of bounds
-access can occur.
-This can be exploited by setting the state of the thermal cooling device
-to arbitrary values, causing for example a kernel oops when unavailable
-memory is accessed this way.
+The regcache sync will set the cache_bypass = true, at that
+time, when there is regmap write operation, it will bypass
+the regmap cache, then the regcache sync will write back the
+value from cache to register, which is not as our expectation.
 
-Example kernel oops:
-[  807.987276] Unable to handle kernel paging request at virtual address ffffff80d0588064
-[  807.987369] Mem abort info:
-[  807.987398]   ESR = 0x96000005
-[  807.987428]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  807.987477]   SET = 0, FnV = 0
-[  807.987507]   EA = 0, S1PTW = 0
-[  807.987536]   FSC = 0x05: level 1 translation fault
-[  807.987570] Data abort info:
-[  807.987763]   ISV = 0, ISS = 0x00000005
-[  807.987801]   CM = 0, WnR = 0
-[  807.987832] swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000001165000
-[  807.987872] [ffffff80d0588064] pgd=0000000000000000, p4d=0000000000000000, pud=0000000000000000
-[  807.987961] Internal error: Oops: 96000005 [#1] PREEMPT SMP
-[  807.987992] Modules linked in: cmac algif_hash aes_arm64 algif_skcipher af_alg bnep hci_uart btbcm bluetooth ecdh_generic ecc 8021q garp stp llc snd_soc_hdmi_codec brcmfmac vc4 brcmutil cec drm_kms_helper snd_soc_core cfg80211 snd_compress bcm2835_codec(C) snd_pcm_dmaengine syscopyarea bcm2835_isp(C) bcm2835_v4l2(C) sysfillrect v4l2_mem2mem bcm2835_mmal_vchiq(C) raspberrypi_hwmon sysimgblt videobuf2_dma_contig videobuf2_vmalloc fb_sys_fops videobuf2_memops rfkill videobuf2_v4l2 videobuf2_common i2c_bcm2835 snd_bcm2835(C) videodev snd_pcm snd_timer snd mc vc_sm_cma(C) gpio_fan uio_pdrv_genirq uio drm fuse drm_panel_orientation_quirks backlight ip_tables x_tables ipv6
-[  807.988508] CPU: 0 PID: 1321 Comm: bash Tainted: G         C        5.15.56-v8+ #1575
-[  807.988548] Hardware name: Raspberry Pi 3 Model B Rev 1.2 (DT)
-[  807.988574] pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  807.988608] pc : set_fan_speed.part.5+0x34/0x80 [gpio_fan]
-[  807.988654] lr : gpio_fan_set_cur_state+0x34/0x50 [gpio_fan]
-[  807.988691] sp : ffffffc008cf3bd0
-[  807.988710] x29: ffffffc008cf3bd0 x28: ffffff80019edac0 x27: 0000000000000000
-[  807.988762] x26: 0000000000000000 x25: 0000000000000000 x24: ffffff800747c920
-[  807.988787] x23: 000000000000000a x22: ffffff800369f000 x21: 000000001999997c
-[  807.988854] x20: ffffff800369f2e8 x19: ffffff8002ae8080 x18: 0000000000000000
-[  807.988877] x17: 0000000000000000 x16: 0000000000000000 x15: 000000559e271b70
-[  807.988938] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-[  807.988960] x11: 0000000000000000 x10: ffffffc008cf3c20 x9 : ffffffcfb60c741c
-[  807.989018] x8 : 000000000000000a x7 : 00000000ffffffc9 x6 : 0000000000000009
-[  807.989040] x5 : 000000000000002a x4 : 0000000000000000 x3 : ffffff800369f2e8
-[  807.989062] x2 : 000000000000e780 x1 : 0000000000000001 x0 : ffffff80d0588060
-[  807.989084] Call trace:
-[  807.989091]  set_fan_speed.part.5+0x34/0x80 [gpio_fan]
-[  807.989113]  gpio_fan_set_cur_state+0x34/0x50 [gpio_fan]
-[  807.989199]  cur_state_store+0x84/0xd0
-[  807.989221]  dev_attr_store+0x20/0x38
-[  807.989262]  sysfs_kf_write+0x4c/0x60
-[  807.989282]  kernfs_fop_write_iter+0x130/0x1c0
-[  807.989298]  new_sync_write+0x10c/0x190
-[  807.989315]  vfs_write+0x254/0x378
-[  807.989362]  ksys_write+0x70/0xf8
-[  807.989379]  __arm64_sys_write+0x24/0x30
-[  807.989424]  invoke_syscall+0x4c/0x110
-[  807.989442]  el0_svc_common.constprop.3+0xfc/0x120
-[  807.989458]  do_el0_svc+0x2c/0x90
-[  807.989473]  el0_svc+0x24/0x60
-[  807.989544]  el0t_64_sync_handler+0x90/0xb8
-[  807.989558]  el0t_64_sync+0x1a0/0x1a4
-[  807.989579] Code: b9403801 f9402800 7100003f 8b35cc00 (b9400416)
-[  807.989627] ---[ end trace 8ded4c918658445b ]---
+Though regmap already use its internal lock to avoid such issue,
+but this driver force disable the regmap internal lock in its
+regmap config: disable_locking = true
 
-Fix this by checking the cooling state and return an error if it
-exceeds the maximum cooling state.
+To avoid this issue, use the driver's own lock to do the protect
+in system PM.
 
-Tested on a Raspberry Pi 3.
-
-Fixes: b5cf88e46bad ("(gpio-fan): Add thermal control hooks")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20220830011101.178843-1-W_Armin@gmx.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: b76574300504 ("gpio: pca953x: Restore registers after suspend/resume cycle")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/gpio-fan.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpio/gpio-pca953x.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/gpio-fan.c b/drivers/hwmon/gpio-fan.c
-index befe989ca7b94..fbf3f5a4ecb67 100644
---- a/drivers/hwmon/gpio-fan.c
-+++ b/drivers/hwmon/gpio-fan.c
-@@ -391,6 +391,9 @@ static int gpio_fan_set_cur_state(struct thermal_cooling_device *cdev,
- 	if (!fan_data)
- 		return -EINVAL;
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index ecd7d169470b0..2925f4d8cef36 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -1175,7 +1175,9 @@ static int pca953x_suspend(struct device *dev)
+ {
+ 	struct pca953x_chip *chip = dev_get_drvdata(dev);
  
-+	if (state >= fan_data->num_speed)
-+		return -EINVAL;
-+
- 	set_fan_speed(fan_data, state);
- 	return 0;
- }
++	mutex_lock(&chip->i2c_lock);
+ 	regcache_cache_only(chip->regmap, true);
++	mutex_unlock(&chip->i2c_lock);
+ 
+ 	if (atomic_read(&chip->wakeup_path))
+ 		device_set_wakeup_path(dev);
+@@ -1198,13 +1200,17 @@ static int pca953x_resume(struct device *dev)
+ 		}
+ 	}
+ 
++	mutex_lock(&chip->i2c_lock);
+ 	regcache_cache_only(chip->regmap, false);
+ 	regcache_mark_dirty(chip->regmap);
+ 	ret = pca953x_regcache_sync(dev);
+-	if (ret)
++	if (ret) {
++		mutex_unlock(&chip->i2c_lock);
+ 		return ret;
++	}
+ 
+ 	ret = regcache_sync(chip->regmap);
++	mutex_unlock(&chip->i2c_lock);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to restore register map: %d\n", ret);
+ 		return ret;
 -- 
 2.35.1
 
