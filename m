@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63BBC5AE6AC
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07C005AE6C7
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232759AbiIFLfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54850 "EHLO
+        id S232245AbiIFLnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:43:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232773AbiIFLfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:35:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB3974CF6
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:35:11 -0700 (PDT)
+        with ESMTP id S232203AbiIFLnj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:43:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87BBC37FB6
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:43:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFEC6614B6
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:35:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7876C433D6;
-        Tue,  6 Sep 2022 11:35:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B287B817C2
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:43:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B08C433D6;
+        Tue,  6 Sep 2022 11:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662464110;
-        bh=eVQoHDnm0C4crqrRXUfM/ur2btI9+JsNKAxGuwMeQ1E=;
+        s=korg; t=1662464615;
+        bh=YMEifNJ25qXUO72x4PI7YOJIE6QWYVnDynpmYxfUoMk=;
         h=Subject:To:Cc:From:Date:From;
-        b=TNsfOklNoO6zlE3Ai/UVq9QAJzcBhB2sa/sq9r2sCkK13KtSS0CDRxntCp03ctR2L
-         O+paJB754WQjXu+Fn17AXctyL68Ag/w0nF7v7Ww9PifO9wn8gWO+A7R0kLllNrWcI5
-         cZBhgrJ/MItxilHExpckPhXvU2BgZb5E0T3F1DQc=
-Subject: FAILED: patch "[PATCH] driver core: Don't probe devices after bus_type.match() probe" failed to apply to 4.9-stable tree
-To:     isaacmanjarres@google.com, gregkh@linuxfoundation.org,
-        linus.walleij@linaro.org, linux@roeck-us.net, saravanak@google.com
+        b=BmFuvy1Pi7qBb21WGEoaO0q+1/Yuz+EZbnI/jvponP8nG356N3/Kr0fiukDTdwUtK
+         WTRWHy5kKS06kFjLF95bGRfca8df2Skjb3qDXG90Z8Svz/hqNJiSAL6YCUWnLiTQvR
+         A7O9T8rjsVC5Vqh8IiyT6LT1F/wXws1HfbhXzUds=
+Subject: FAILED: patch "[PATCH] USB: serial: ch341: fix disabled rx timer on older devices" failed to apply to 5.10-stable tree
+To:     johan@kernel.org, jwoithe@just42.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:34:57 +0200
-Message-ID: <166246409784200@kroah.com>
+Date:   Tue, 06 Sep 2022 13:42:07 +0200
+Message-ID: <166246452718384@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,10 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
+
+Possible dependencies:
+
+41ca302a697b ("USB: serial: ch341: fix disabled rx timer on older devices")
 
 thanks,
 
@@ -60,67 +63,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 25e9fbf0fd38868a429feabc38abebfc6dbf6542 Mon Sep 17 00:00:00 2001
-From: "Isaac J. Manjarres" <isaacmanjarres@google.com>
-Date: Wed, 17 Aug 2022 11:40:26 -0700
-Subject: [PATCH] driver core: Don't probe devices after bus_type.match() probe
- deferral
+From 41ca302a697b64a3dab4676e01d0d11bb184737d Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Wed, 31 Aug 2022 10:15:25 +0200
+Subject: [PATCH] USB: serial: ch341: fix disabled rx timer on older devices
 
-Both __device_attach_driver() and __driver_attach() check the return
-code of the bus_type.match() function to see if the device needs to be
-added to the deferred probe list. After adding the device to the list,
-the logic attempts to bind the device to the driver anyway, as if the
-device had matched with the driver, which is not correct.
+At least one older CH341 appears to have the RX timer enable bit
+inverted so that setting it disables the RX timer and prevents the FIFO
+from emptying until it is full.
 
-If __device_attach_driver() detects that the device in question is not
-ready to match with a driver on the bus, then it doesn't make sense for
-the device to attempt to bind with the current driver or continue
-attempting to match with any of the other drivers on the bus. So, update
-the logic in __device_attach_driver() to reflect this.
+Only set the RX timer enable bit for devices with version newer than
+0x27 (even though this probably affects all pre-0x30 devices).
 
-If __driver_attach() detects that a driver tried to match with a device
-that is not ready to match yet, then the driver should not attempt to bind
-with the device. However, the driver can still attempt to match and bind
-with other devices on the bus, as drivers can be bound to multiple
-devices. So, update the logic in __driver_attach() to reflect this.
+Reported-by: Jonathan Woithe <jwoithe@just42.net>
+Tested-by: Jonathan Woithe <jwoithe@just42.net>
+Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
+Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
+Cc: stable@vger.kernel.org      # 4.10
+Signed-off-by: Johan Hovold <johan@kernel.org>
 
-Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
-Cc: stable@vger.kernel.org
-Cc: Saravana Kannan <saravanak@google.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
-Link: https://lore.kernel.org/r/20220817184026.3468620-1-isaacmanjarres@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index a8916d1bfdcb..ec69b43f926a 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -911,6 +911,11 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		dev->can_match = true;
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Device can't match with a driver right now, so don't attempt
-+		 * to match or bind with other drivers on the bus.
-+		 */
-+		return ret;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
- 		return ret;
-@@ -1150,6 +1155,11 @@ static int __driver_attach(struct device *dev, void *data)
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		dev->can_match = true;
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Driver could not match with device, but may match with
-+		 * another device on the bus.
-+		 */
-+		return 0;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
- 		return ret;
+diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
+index 2bcce172355b..af01a462cc43 100644
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -253,8 +253,12 @@ static int ch341_set_baudrate_lcr(struct usb_device *dev,
+ 	/*
+ 	 * CH341A buffers data until a full endpoint-size packet (32 bytes)
+ 	 * has been received unless bit 7 is set.
++	 *
++	 * At least one device with version 0x27 appears to have this bit
++	 * inverted.
+ 	 */
+-	val |= BIT(7);
++	if (priv->version > 0x27)
++		val |= BIT(7);
+ 
+ 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG,
+ 			      CH341_REG_DIVISOR << 8 | CH341_REG_PRESCALER,
 
