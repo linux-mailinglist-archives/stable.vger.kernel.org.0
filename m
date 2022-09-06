@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D37195AED37
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D132E5AECD6
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239836AbiIFN6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:58:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53114 "EHLO
+        id S240783AbiIFOAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:00:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240041AbiIFN4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:56:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C1782D06;
-        Tue,  6 Sep 2022 06:42:20 -0700 (PDT)
+        with ESMTP id S240938AbiIFN7I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:59:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ADB5832DB;
+        Tue,  6 Sep 2022 06:43:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69AD6B818C0;
-        Tue,  6 Sep 2022 13:42:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3FA5C433C1;
-        Tue,  6 Sep 2022 13:42:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93D6B61548;
+        Tue,  6 Sep 2022 13:42:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DEE6C433D7;
+        Tue,  6 Sep 2022 13:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471736;
-        bh=CokGPfzHoASZ6pra4lgp/IDl+kyekfeklOkeoq0Fsk4=;
+        s=korg; t=1662471739;
+        bh=VZDeB/Ki8EK3bieBo8O/ewpnaxgWI/VoASZ8LVQkFUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/lRQKsUjoztHdDQdwNHik298qkqPXNNyfyq+newBN14NDniCkoTpRrHsxWFySAER
-         tRXMx+ZMkPFMZj7rh6qkNX84nZb7gQaVh4NxFZ+GltWT8OVPDx11O2x+c8sBmHsg7I
-         KeHJHl44eiKd/MqlZBAaoKwMfvOifzd2LlDhKNUs=
+        b=GHVw00TEuqGrfSP+HEmimPeNUetdjtEFupy2lk8dRnlicQCDhRtYpo8/TBU8cNJYO
+         kVs36O+9klYPaUIrifGVDeYzTc7oj/bR0iANwbTG7d0qYZuazxYtTS/4ps/dLchx04
+         cyAhMsMyd/d51wWG89X9zBws8sVcgcQR6du4x4tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Ramalingam C <ramalingam.c@intel.com>,
+        stable@vger.kernel.org, Arun R Murthy <arun.r.murthy@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 020/155] drm/i915/ttm: fix CCS handling
-Date:   Tue,  6 Sep 2022 15:29:28 +0200
-Message-Id: <20220906132830.279675979@linuxfoundation.org>
+Subject: [PATCH 5.19 021/155] drm/i915/display: avoid warnings when registering dual panel backlight
+Date:   Tue,  6 Sep 2022 15:29:29 +0200
+Message-Id: <20220906132830.318992995@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -57,133 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Arun R Murthy <arun.r.murthy@intel.com>
 
-[ Upstream commit 8d905254162965c8e6be697d82c7dbf5d08f574d ]
+[ Upstream commit 868e8e5156a1f8d92ca83fdbac6fd52798650792 ]
 
-Crucible + recent Mesa seems to sometimes hit:
+Commit 20f85ef89d94 ("drm/i915/backlight: use unique backlight device
+names") added support for multiple backlight devices on dual panel
+systems, but did so with error handling on -EEXIST from
+backlight_device_register(). Unfortunately, that triggered a warning in
+dmesg all the way down from sysfs_add_file_mode_ns() and
+sysfs_warn_dup().
 
-GEM_BUG_ON(num_ccs_blks > NUM_CCS_BLKS_PER_XFER)
+Instead of optimistically always attempting to register with the default
+name ("intel_backlight", which we have to retain for backward
+compatibility), check if a backlight device with the name exists first,
+and, if so, use the card and connector based name.
 
-And it looks like we can also trigger this with gem_lmem_swapping, if we
-modify the test to use slightly larger object sizes.
+v2: reworked on top of the patch commit 20f85ef89d94
+("drm/i915/backlight: use unique backlight device names")
+v3: fixed the ref count leak(Jani N)
 
-Looking closer it looks like we have the following issues in
-migrate_copy():
-
-  - We are using plain integer in various places, which we can easily
-    overflow with a large object.
-
-  - We pass the entire object size (when the src is lmem) into
-    emit_pte() and then try to copy it, which doesn't work, since we
-    only have a few fixed sized windows in which to map the pages and
-    perform the copy. With an object > 8M we therefore aren't properly
-    copying the pages. And then with an object > 64M we trigger the
-    GEM_BUG_ON(num_ccs_blks > NUM_CCS_BLKS_PER_XFER).
-
-So it looks like our copy handling for any object > 8M (which is our
-CHUNK_SZ) is currently broken on DG2.
-
-Fixes: da0595ae91da ("drm/i915/migrate: Evict and restore the flatccs capable lmem obj")
-Testcase: igt@gem_lmem_swapping
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Reviewed-by: Ramalingam C<ramalingam.c@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220805132240.442747-2-matthew.auld@intel.com
-(cherry picked from commit 8676145eb2f53a9940ff70910caf0125bd8a4bc2)
+Fixes: 20f85ef89d94 ("drm/i915/backlight: use unique backlight device names")
+Signed-off-by: Arun R Murthy <arun.r.murthy@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220808035750.3111046-1-arun.r.murthy@intel.com
+(cherry picked from commit 4234ea30051200fc6016de10e4d58369e60b38f1)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_migrate.c | 44 ++++++++++++-------------
- 1 file changed, 21 insertions(+), 23 deletions(-)
+ .../gpu/drm/i915/display/intel_backlight.c    | 26 +++++++++----------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_migrate.c b/drivers/gpu/drm/i915/gt/intel_migrate.c
-index 2b10b96b17b5b..933648cc90ff9 100644
---- a/drivers/gpu/drm/i915/gt/intel_migrate.c
-+++ b/drivers/gpu/drm/i915/gt/intel_migrate.c
-@@ -638,9 +638,9 @@ static int emit_copy(struct i915_request *rq,
- 	return 0;
- }
+diff --git a/drivers/gpu/drm/i915/display/intel_backlight.c b/drivers/gpu/drm/i915/display/intel_backlight.c
+index c8e1fc53a881f..79f8a586623dc 100644
+--- a/drivers/gpu/drm/i915/display/intel_backlight.c
++++ b/drivers/gpu/drm/i915/display/intel_backlight.c
+@@ -970,26 +970,24 @@ int intel_backlight_device_register(struct intel_connector *connector)
+ 	if (!name)
+ 		return -ENOMEM;
  
--static int scatter_list_length(struct scatterlist *sg)
-+static u64 scatter_list_length(struct scatterlist *sg)
- {
--	int len = 0;
-+	u64 len = 0;
- 
- 	while (sg && sg_dma_len(sg)) {
- 		len += sg_dma_len(sg);
-@@ -650,28 +650,26 @@ static int scatter_list_length(struct scatterlist *sg)
- 	return len;
- }
- 
--static void
-+static int
- calculate_chunk_sz(struct drm_i915_private *i915, bool src_is_lmem,
--		   int *src_sz, u32 bytes_to_cpy, u32 ccs_bytes_to_cpy)
-+		   u64 bytes_to_cpy, u64 ccs_bytes_to_cpy)
- {
--	if (ccs_bytes_to_cpy) {
--		if (!src_is_lmem)
--			/*
--			 * When CHUNK_SZ is passed all the pages upto CHUNK_SZ
--			 * will be taken for the blt. in Flat-ccs supported
--			 * platform Smem obj will have more pages than required
--			 * for main meory hence limit it to the required size
--			 * for main memory
--			 */
--			*src_sz = min_t(int, bytes_to_cpy, CHUNK_SZ);
--	} else { /* ccs handling is not required */
--		*src_sz = CHUNK_SZ;
--	}
-+	if (ccs_bytes_to_cpy && !src_is_lmem)
+-	bd = backlight_device_register(name, connector->base.kdev, connector,
+-				       &intel_backlight_device_ops, &props);
+-
+-	/*
+-	 * Using the same name independent of the drm device or connector
+-	 * prevents registration of multiple backlight devices in the
+-	 * driver. However, we need to use the default name for backward
+-	 * compatibility. Use unique names for subsequent backlight devices as a
+-	 * fallback when the default name already exists.
+-	 */
+-	if (IS_ERR(bd) && PTR_ERR(bd) == -EEXIST) {
++	bd = backlight_device_get_by_name(name);
++	if (bd) {
++		put_device(&bd->dev);
 +		/*
-+		 * When CHUNK_SZ is passed all the pages upto CHUNK_SZ
-+		 * will be taken for the blt. in Flat-ccs supported
-+		 * platform Smem obj will have more pages than required
-+		 * for main meory hence limit it to the required size
-+		 * for main memory
++		 * Using the same name independent of the drm device or connector
++		 * prevents registration of multiple backlight devices in the
++		 * driver. However, we need to use the default name for backward
++		 * compatibility. Use unique names for subsequent backlight devices as a
++		 * fallback when the default name already exists.
 +		 */
-+		return min_t(u64, bytes_to_cpy, CHUNK_SZ);
-+	else
-+		return CHUNK_SZ;
- }
+ 		kfree(name);
+ 		name = kasprintf(GFP_KERNEL, "card%d-%s-backlight",
+ 				 i915->drm.primary->index, connector->base.name);
+ 		if (!name)
+ 			return -ENOMEM;
+-
+-		bd = backlight_device_register(name, connector->base.kdev, connector,
+-					       &intel_backlight_device_ops, &props);
+ 	}
++	bd = backlight_device_register(name, connector->base.kdev, connector,
++				       &intel_backlight_device_ops, &props);
  
--static void get_ccs_sg_sgt(struct sgt_dma *it, u32 bytes_to_cpy)
-+static void get_ccs_sg_sgt(struct sgt_dma *it, u64 bytes_to_cpy)
- {
--	u32 len;
-+	u64 len;
- 
- 	do {
- 		GEM_BUG_ON(!it->sg || !sg_dma_len(it->sg));
-@@ -702,12 +700,12 @@ intel_context_migrate_copy(struct intel_context *ce,
- {
- 	struct sgt_dma it_src = sg_sgt(src), it_dst = sg_sgt(dst), it_ccs;
- 	struct drm_i915_private *i915 = ce->engine->i915;
--	u32 ccs_bytes_to_cpy = 0, bytes_to_cpy;
-+	u64 ccs_bytes_to_cpy = 0, bytes_to_cpy;
- 	enum i915_cache_level ccs_cache_level;
- 	u32 src_offset, dst_offset;
- 	u8 src_access, dst_access;
- 	struct i915_request *rq;
--	int src_sz, dst_sz;
-+	u64 src_sz, dst_sz;
- 	bool ccs_is_src, overwrite_ccs;
- 	int err;
- 
-@@ -790,8 +788,8 @@ intel_context_migrate_copy(struct intel_context *ce,
- 		if (err)
- 			goto out_rq;
- 
--		calculate_chunk_sz(i915, src_is_lmem, &src_sz,
--				   bytes_to_cpy, ccs_bytes_to_cpy);
-+		src_sz = calculate_chunk_sz(i915, src_is_lmem,
-+					    bytes_to_cpy, ccs_bytes_to_cpy);
- 
- 		len = emit_pte(rq, &it_src, src_cache_level, src_is_lmem,
- 			       src_offset, src_sz);
+ 	if (IS_ERR(bd)) {
+ 		drm_err(&i915->drm,
 -- 
 2.35.1
 
