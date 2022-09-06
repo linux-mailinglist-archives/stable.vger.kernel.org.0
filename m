@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAA615AEBCD
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAA905AECFC
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240484AbiIFOAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:00:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45948 "EHLO
+        id S241010AbiIFOB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:01:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241113AbiIFN7q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:59:46 -0400
+        with ESMTP id S241249AbiIFOAN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:00:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ECAB7E02E;
-        Tue,  6 Sep 2022 06:43:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592A883BD1;
+        Tue,  6 Sep 2022 06:44:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E89F0B818C2;
-        Tue,  6 Sep 2022 13:42:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC30C433C1;
-        Tue,  6 Sep 2022 13:42:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A964FB81637;
+        Tue,  6 Sep 2022 13:43:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09AAEC433C1;
+        Tue,  6 Sep 2022 13:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471776;
-        bh=mKcncJ4QxbZn+oh3B5YoH5TxzYh9tvZ0zAyI6H0EK+w=;
+        s=korg; t=1662471779;
+        bh=QcYjLQ+nnkBM0CZ0miyTW5XZqK8nGTq82l5m2vxzAfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HaqKN/ta8sd23nfSdng5fRLbu9KHvAiGSXO5VbuZBI5ltNx0lYhztG6UoAawjKaRK
-         3O7EYDIL1jwr9McsDtcdrb6E76BGXU0COBISfhNskv7EeHg6IIoLDSO4V7uulpR6uc
-         tg92T9vcL/32450CJVn5x4KTUZfeSlnl1KZzGbAY=
+        b=mYyzzUDZ04iekndtAk9tBSszNRoRiNUsK49Xsze3RDQwWJYosah7bxeRDW9HYOYBX
+         MIMQQdZMtfNCkbnNsAZSDO3Bdw9eNHJZB5tmacbcwrIBQ78OvD1i1jRq9Da3DAXSNP
+         wubtKDN+HSZ0cp1VEILq1NtmtDgbBASuKAWtOiwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
         Abhinav Kumar <quic_abhinavk@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 005/155] drm/msm/dsi: Fix number of regulators for msm8996_dsi_cfg
-Date:   Tue,  6 Sep 2022 15:29:13 +0200
-Message-Id: <20220906132829.638715488@linuxfoundation.org>
+Subject: [PATCH 5.19 006/155] drm/msm/dsi: Fix number of regulators for SDM660
+Date:   Tue,  6 Sep 2022 15:29:14 +0200
+Message-Id: <20220906132829.671660068@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -57,16 +58,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 1e00d6ac8a3422765bae37aeac2002dfd3c0bda6 ]
+[ Upstream commit a1653a75987749ba6dba94fa2e62f0f36b387d1a ]
 
-3 regulators are listed but the number 2 is specified. Fix it.
+1 regulator is listed but the number 2 is specified. This presumably
+means we try to get a regulator with no name. Fix it.
 
-Fixes: 3a3ff88a0fc1 ("drm/msm/dsi: Add 8x96 info in dsi_cfg")
+Fixes: 462f7017a691 ("drm/msm/dsi: Fix DSI and DSI PHY regulator config from SDM660")
 Signed-off-by: Douglas Anderson <dianders@chromium.org>
 Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
 Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/496318/
-Link: https://lore.kernel.org/r/20220804073608.v4.1.I1056ee3f77f71287f333279efe4c85f88d403f65@changeid
+Patchwork: https://patchwork.freedesktop.org/patch/496323/
+Link: https://lore.kernel.org/r/20220804073608.v4.2.I94b3c3e412b7c208061349f05659e126483171b1@changeid
 Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -74,18 +77,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/msm/dsi/dsi_cfg.c b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-index 2c23324a2296b..02000a7b7a18c 100644
+index 02000a7b7a18c..72c018e26f47f 100644
 --- a/drivers/gpu/drm/msm/dsi/dsi_cfg.c
 +++ b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-@@ -109,7 +109,7 @@ static const char * const dsi_8996_bus_clk_names[] = {
- static const struct msm_dsi_config msm8996_dsi_cfg = {
+@@ -148,7 +148,7 @@ static const char * const dsi_sdm660_bus_clk_names[] = {
+ static const struct msm_dsi_config sdm660_dsi_cfg = {
  	.io_offset = DSI_6G_REG_SHIFT,
  	.reg_cfg = {
 -		.num = 2,
-+		.num = 3,
++		.num = 1,
  		.regs = {
- 			{"vdda", 18160, 1 },	/* 1.25 V */
- 			{"vcca", 17000, 32 },	/* 0.925 V */
+ 			{"vdda", 12560, 4 },	/* 1.2 V */
+ 		},
 -- 
 2.35.1
 
