@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6DAF5AEBD2
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8BA95AECA9
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:29:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241461AbiIFONO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:13:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47772 "EHLO
+        id S241330AbiIFOOr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:14:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241255AbiIFOMP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:12:15 -0400
+        with ESMTP id S241435AbiIFONC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:13:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C617B883C1;
-        Tue,  6 Sep 2022 06:47:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF8D1D30F;
+        Tue,  6 Sep 2022 06:47:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 563E261562;
-        Tue,  6 Sep 2022 13:47:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63CCAC433D6;
-        Tue,  6 Sep 2022 13:47:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25ADF60F89;
+        Tue,  6 Sep 2022 13:47:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32880C433D6;
+        Tue,  6 Sep 2022 13:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472053;
-        bh=Vng8UDcCk4seBfMkv1zHG4Ccf9Mzg8uCPneVyyniLeA=;
+        s=korg; t=1662472056;
+        bh=UzlkVzbW/FBS9IjBbS65LIgBC1gJ99a04EZ6jP5G9+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vewYOhq//zFoHbJ4Dk/kISxlvd7VTnYO+Ru0kOyp6Z1Wac2jpkfashgu4mCdYMQWw
-         98YJ7t78nSUrXsIVZTk6qLMFaM95FQZM0xK9+aYvB1h2pGEZtlJ6ZErt8NLrRkuFvu
-         xs1kZFGrvNLvM/AFX8WlF68K7kqnAE172xcgDjLQ=
+        b=Y2MId8KNppZr3lcAAlUE8y+ArwC0s8xB1cSPAxQQzxekkQTtL1vCjbVNSZRms9dsH
+         CZ/R7VRrbL9d6ucWG2r4ATyGIu1g1/eZ9+HbJnfeEU2/J1hF1CQb4wQ/HaKEbHhZEw
+         jfVY9rplU1BKxxnh3WR240zaHwpOiIXQWZoW5gFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Rondreis <linhaoguo86@gmail.com>
-Subject: [PATCH 5.19 130/155] USB: core: Prevent nested device-reset calls
-Date:   Tue,  6 Sep 2022 15:31:18 +0200
-Message-Id: <20220906132834.952631116@linuxfoundation.org>
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.19 131/155] usb: xhci-mtk: relax TT periodic bandwidth allocation
+Date:   Tue,  6 Sep 2022 15:31:19 +0200
+Message-Id: <20220906132834.998809553@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -53,130 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit 9c6d778800b921bde3bff3cff5003d1650f942d1 upstream.
+commit 8b13ea05117ffad4727b0971ed09122d5c91c4dc upstream.
 
-Automatic kernel fuzzing revealed a recursive locking violation in
-usb-storage:
+Currently uses the worst case byte budgets on FS/LS bus bandwidth,
+for example, for an isochronos IN endpoint with 192 bytes budget, it
+will consume the whole 5 uframes(188 * 5) while the actual FS bus
+budget should be just 192 bytes. It cause that many usb audio headsets
+with 3 interfaces (audio input, audio output, and HID) cannot be
+configured.
+To improve it, changes to use "approximate" best case budget for FS/LS
+bandwidth management. For the same endpoint from the above example,
+the approximate best case budget is now reduced to (188 * 2) bytes.
 
-============================================
-WARNING: possible recursive locking detected
-5.18.0 #3 Not tainted
---------------------------------------------
-kworker/1:3/1205 is trying to acquire lock:
-ffff888018638db8 (&us_interface_key[i]){+.+.}-{3:3}, at:
-usb_stor_pre_reset+0x35/0x40 drivers/usb/storage/usb.c:230
-
-but task is already holding lock:
-ffff888018638db8 (&us_interface_key[i]){+.+.}-{3:3}, at:
-usb_stor_pre_reset+0x35/0x40 drivers/usb/storage/usb.c:230
-
-...
-
-stack backtrace:
-CPU: 1 PID: 1205 Comm: kworker/1:3 Not tainted 5.18.0 #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-1.13.0-1ubuntu1.1 04/01/2014
-Workqueue: usb_hub_wq hub_event
-Call Trace:
-<TASK>
-__dump_stack lib/dump_stack.c:88 [inline]
-dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
-print_deadlock_bug kernel/locking/lockdep.c:2988 [inline]
-check_deadlock kernel/locking/lockdep.c:3031 [inline]
-validate_chain kernel/locking/lockdep.c:3816 [inline]
-__lock_acquire.cold+0x152/0x3ca kernel/locking/lockdep.c:5053
-lock_acquire kernel/locking/lockdep.c:5665 [inline]
-lock_acquire+0x1ab/0x520 kernel/locking/lockdep.c:5630
-__mutex_lock_common kernel/locking/mutex.c:603 [inline]
-__mutex_lock+0x14f/0x1610 kernel/locking/mutex.c:747
-usb_stor_pre_reset+0x35/0x40 drivers/usb/storage/usb.c:230
-usb_reset_device+0x37d/0x9a0 drivers/usb/core/hub.c:6109
-r871xu_dev_remove+0x21a/0x270 drivers/staging/rtl8712/usb_intf.c:622
-usb_unbind_interface+0x1bd/0x890 drivers/usb/core/driver.c:458
-device_remove drivers/base/dd.c:545 [inline]
-device_remove+0x11f/0x170 drivers/base/dd.c:537
-__device_release_driver drivers/base/dd.c:1222 [inline]
-device_release_driver_internal+0x1a7/0x2f0 drivers/base/dd.c:1248
-usb_driver_release_interface+0x102/0x180 drivers/usb/core/driver.c:627
-usb_forced_unbind_intf+0x4d/0xa0 drivers/usb/core/driver.c:1118
-usb_reset_device+0x39b/0x9a0 drivers/usb/core/hub.c:6114
-
-This turned out not to be an error in usb-storage but rather a nested
-device reset attempt.  That is, as the rtl8712 driver was being
-unbound from a composite device in preparation for an unrelated USB
-reset (that driver does not have pre_reset or post_reset callbacks),
-its ->remove routine called usb_reset_device() -- thus nesting one
-reset call within another.
-
-Performing a reset as part of disconnect processing is a questionable
-practice at best.  However, the bug report points out that the USB
-core does not have any protection against nested resets.  Adding a
-reset_in_progress flag and testing it will prevent such errors in the
-future.
-
-Link: https://lore.kernel.org/all/CAB7eexKUpvX-JNiLzhXBDWgfg2T9e9_0Tw4HQ6keN==voRbP0g@mail.gmail.com/
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: Rondreis <linhaoguo86@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YwkflDxvg0KWqyZK@rowland.harvard.edu
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220819080556.32215-1-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |   10 ++++++++++
- include/linux/usb.h    |    2 ++
- 2 files changed, 12 insertions(+)
+ drivers/usb/host/xhci-mtk-sch.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -6048,6 +6048,11 @@ re_enumerate:
-  * the reset is over (using their post_reset method).
-  *
-  * Return: The same as for usb_reset_and_verify_device().
-+ * However, if a reset is already in progress (for instance, if a
-+ * driver doesn't have pre_ or post_reset() callbacks, and while
-+ * being unbound or re-bound during the ongoing reset its disconnect()
-+ * or probe() routine tries to perform a second, nested reset), the
-+ * routine returns -EINPROGRESS.
-  *
-  * Note:
-  * The caller must own the device lock.  For example, it's safe to use
-@@ -6081,6 +6086,10 @@ int usb_reset_device(struct usb_device *
- 		return -EISDIR;
- 	}
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -425,7 +425,6 @@ static int check_fs_bus_bw(struct mu3h_s
  
-+	if (udev->reset_in_progress)
-+		return -EINPROGRESS;
-+	udev->reset_in_progress = 1;
-+
- 	port_dev = hub->ports[udev->portnum - 1];
+ static int check_sch_tt(struct mu3h_sch_ep_info *sch_ep, u32 offset)
+ {
+-	u32 extra_cs_count;
+ 	u32 start_ss, last_ss;
+ 	u32 start_cs, last_cs;
  
- 	/*
-@@ -6145,6 +6154,7 @@ int usb_reset_device(struct usb_device *
+@@ -461,18 +460,12 @@ static int check_sch_tt(struct mu3h_sch_
+ 		if (last_cs > 7)
+ 			return -ESCH_CS_OVERFLOW;
  
- 	usb_autosuspend_device(udev);
- 	memalloc_noio_restore(noio_flag);
-+	udev->reset_in_progress = 0;
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(usb_reset_device);
---- a/include/linux/usb.h
-+++ b/include/linux/usb.h
-@@ -575,6 +575,7 @@ struct usb3_lpm_parameters {
-  * @devaddr: device address, XHCI: assigned by HW, others: same as devnum
-  * @can_submit: URBs may be submitted
-  * @persist_enabled:  USB_PERSIST enabled for this device
-+ * @reset_in_progress: the device is being reset
-  * @have_langid: whether string_langid is valid
-  * @authorized: policy has said we can use it;
-  *	(user space) policy determines if we authorize this device to be
-@@ -661,6 +662,7 @@ struct usb_device {
+-		if (sch_ep->ep_type == ISOC_IN_EP)
+-			extra_cs_count = (last_cs == 7) ? 1 : 2;
+-		else /*  ep_type : INTR IN / INTR OUT */
+-			extra_cs_count = 1;
+-
+-		cs_count += extra_cs_count;
+ 		if (cs_count > 7)
+ 			cs_count = 7; /* HW limit */
  
- 	unsigned can_submit:1;
- 	unsigned persist_enabled:1;
-+	unsigned reset_in_progress:1;
- 	unsigned have_langid:1;
- 	unsigned authorized:1;
- 	unsigned authenticated:1;
+ 		sch_ep->cs_count = cs_count;
+-		/* one for ss, the other for idle */
+-		sch_ep->num_budget_microframes = cs_count + 2;
++		/* ss, idle are ignored */
++		sch_ep->num_budget_microframes = cs_count;
+ 
+ 		/*
+ 		 * if interval=1, maxp >752, num_budge_micoframe is larger
 
 
