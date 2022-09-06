@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F1E65AE9B5
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D7B85AEA20
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240515AbiIFNda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:33:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51618 "EHLO
+        id S233581AbiIFNmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:42:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240517AbiIFNc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:58 -0400
+        with ESMTP id S233569AbiIFNko (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:40:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2B8677E92;
-        Tue,  6 Sep 2022 06:32:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4E7BA9;
+        Tue,  6 Sep 2022 06:37:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70DD7B81636;
-        Tue,  6 Sep 2022 13:32:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC014C433D6;
-        Tue,  6 Sep 2022 13:32:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5257CB818C4;
+        Tue,  6 Sep 2022 13:37:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B46C8C433B5;
+        Tue,  6 Sep 2022 13:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471162;
-        bh=wqHPCUBxx7Rg50w87XTOL2OcwHMiKLPe+qwpIghfDmo=;
+        s=korg; t=1662471430;
+        bh=9No5lsAw1e6KnJpCa7Pr5sdzACoA6tGPj7TyNWrBArQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1REMIIakHORyUhNfjTN1zmoxsh3TgcZszyzLyiqLvyp6Q1s+zRiPr1gRWv8SdazkT
-         Ek/0iLw5h9TJ8zFBujBEkKImJj7Fj+hI4MOiDyOY6/d7xCvjruFprah6zOLJBLVNiD
-         OMcZpmU1evWFzlpWxfNW417r7wX1wvnpmRaxBcZo=
+        b=e+GePET52dZaD2yTLGG40/lSft+89mWKCqjp9Tv1GHUoV01pcnEXecUgC9jKZCzGE
+         ErJ9krChEhRJRueDcf4k0Y/miNe60D6AglDSUK90IKDwHJLxzFG6eV9HHXvGo845lg
+         GsGvhn8YSoM8wkgWgl92/YBtPJ064BQfBdexmXvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 06/80] iio: adc: mcp3911: make use of the sign bit
-Date:   Tue,  6 Sep 2022 15:30:03 +0200
-Message-Id: <20220906132817.200137615@linuxfoundation.org>
+Subject: [PATCH 5.15 023/107] ethernet: rocker: fix sleep in atomic context bug in neigh_timer_handler
+Date:   Tue,  6 Sep 2022 15:30:04 +0200
+Message-Id: <20220906132822.748284322@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,34 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 8f89e33bf040bbef66386c426198622180233178 ]
+[ Upstream commit c0955bf957be4bead01fae1d791476260da7325d ]
 
-The device supports negative values as well.
+The function neigh_timer_handler() is a timer handler that runs in an
+atomic context. When used by rocker, neigh_timer_handler() calls
+"kzalloc(.., GFP_KERNEL)" that may sleep. As a result, the sleep in
+atomic context bug will happen. One of the processes is shown below:
 
-Fixes: 3a89b289df5d ("iio: adc: add support for mcp3911")
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220722130726.7627-2-marcus.folkesson@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+ofdpa_fib4_add()
+ ...
+ neigh_add_timer()
+
+(wait a timer)
+
+neigh_timer_handler()
+ neigh_release()
+  neigh_destroy()
+   rocker_port_neigh_destroy()
+    rocker_world_port_neigh_destroy()
+     ofdpa_port_neigh_destroy()
+      ofdpa_port_ipv4_neigh()
+       kzalloc(sizeof(.., GFP_KERNEL) //may sleep
+
+This patch changes the gfp_t parameter of kzalloc() from GFP_KERNEL to
+GFP_ATOMIC in order to mitigate the bug.
+
+Fixes: 00fc0c51e35b ("rocker: Change world_ops API and implementation to be switchdev independant")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/mcp3911.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/rocker/rocker_ofdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/mcp3911.c b/drivers/iio/adc/mcp3911.c
-index e573da5397bb3..81eeb00842112 100644
---- a/drivers/iio/adc/mcp3911.c
-+++ b/drivers/iio/adc/mcp3911.c
-@@ -111,6 +111,8 @@ static int mcp3911_read_raw(struct iio_dev *indio_dev,
- 		if (ret)
- 			goto out;
+diff --git a/drivers/net/ethernet/rocker/rocker_ofdpa.c b/drivers/net/ethernet/rocker/rocker_ofdpa.c
+index bc70c6abd6a5b..58cf7cc54f408 100644
+--- a/drivers/net/ethernet/rocker/rocker_ofdpa.c
++++ b/drivers/net/ethernet/rocker/rocker_ofdpa.c
+@@ -1273,7 +1273,7 @@ static int ofdpa_port_ipv4_neigh(struct ofdpa_port *ofdpa_port,
+ 	bool removing;
+ 	int err = 0;
  
-+		*val = sign_extend32(*val, 23);
-+
- 		ret = IIO_VAL_INT;
- 		break;
+-	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
++	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
+ 	if (!entry)
+ 		return -ENOMEM;
  
 -- 
 2.35.1
