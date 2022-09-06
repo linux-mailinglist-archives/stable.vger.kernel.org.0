@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFACD5AEBF1
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6DAF5AEBD2
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234438AbiIFOMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:12:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48938 "EHLO
+        id S241461AbiIFONO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:13:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239897AbiIFOKo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:10:44 -0400
+        with ESMTP id S241255AbiIFOMP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:12:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F412D8709C;
-        Tue,  6 Sep 2022 06:47:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C617B883C1;
+        Tue,  6 Sep 2022 06:47:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F46C61547;
-        Tue,  6 Sep 2022 13:47:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F1B9C433C1;
-        Tue,  6 Sep 2022 13:47:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 563E261562;
+        Tue,  6 Sep 2022 13:47:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63CCAC433D6;
+        Tue,  6 Sep 2022 13:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472050;
-        bh=RxGKZIj8w9RGrU9wWujCqb97C+0o+xW40upbXiX08Jk=;
+        s=korg; t=1662472053;
+        bh=Vng8UDcCk4seBfMkv1zHG4Ccf9Mzg8uCPneVyyniLeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19vfQZam1YPMtkEsj6swZRCbXNCIPbnTMgnXR5lcrkHhXruUl1mjUm4XdJh25gCV/
-         /0RTy0ZK61dHibAZXfXdc2mhOCVL4x7nicb7LgRJwEeDU9dE39nt4ju+h+Xuuo8AeA
-         8n7WW4fc8/qBx8omuOaKfqhmecHkQJ1iCV5/kWIc=
+        b=vewYOhq//zFoHbJ4Dk/kISxlvd7VTnYO+Ru0kOyp6Z1Wac2jpkfashgu4mCdYMQWw
+         98YJ7t78nSUrXsIVZTk6qLMFaM95FQZM0xK9+aYvB1h2pGEZtlJ6ZErt8NLrRkuFvu
+         xs1kZFGrvNLvM/AFX8WlF68K7kqnAE172xcgDjLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.19 129/155] s390: fix nospec table alignments
-Date:   Tue,  6 Sep 2022 15:31:17 +0200
-Message-Id: <20220906132834.903869670@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Rondreis <linhaoguo86@gmail.com>
+Subject: [PATCH 5.19 130/155] USB: core: Prevent nested device-reset calls
+Date:   Tue,  6 Sep 2022 15:31:18 +0200
+Message-Id: <20220906132834.952631116@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,53 +53,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit c9305b6c1f52060377c72aebe3a701389e9f3172 upstream.
+commit 9c6d778800b921bde3bff3cff5003d1650f942d1 upstream.
 
-Add proper alignment for .nospec_call_table and .nospec_return_table in
-vmlinux.
+Automatic kernel fuzzing revealed a recursive locking violation in
+usb-storage:
 
-[hca@linux.ibm.com]: The problem with the missing alignment of the nospec
-tables exist since a long time, however only since commit e6ed91fd0768
-("s390/alternatives: remove padding generation code") and with
-CONFIG_RELOCATABLE=n the kernel may also crash at boot time.
+============================================
+WARNING: possible recursive locking detected
+5.18.0 #3 Not tainted
+--------------------------------------------
+kworker/1:3/1205 is trying to acquire lock:
+ffff888018638db8 (&us_interface_key[i]){+.+.}-{3:3}, at:
+usb_stor_pre_reset+0x35/0x40 drivers/usb/storage/usb.c:230
 
-The above named commit reduced the size of struct alt_instr by one byte,
-so its new size is 11 bytes. Therefore depending on the number of cpu
-alternatives the size of the __alt_instructions array maybe odd, which
-again also causes that the addresses of the nospec tables will be odd.
+but task is already holding lock:
+ffff888018638db8 (&us_interface_key[i]){+.+.}-{3:3}, at:
+usb_stor_pre_reset+0x35/0x40 drivers/usb/storage/usb.c:230
 
-If the address of __nospec_call_start is odd and the kernel is compiled
-With CONFIG_RELOCATABLE=n the compiler may generate code that loads the
-address of __nospec_call_start with a 'larl' instruction.
+...
 
-This will generate incorrect code since the 'larl' instruction only works
-with even addresses. In result the members of the nospec tables will be
-accessed with an off-by-one offset, which subsequently may lead to
-addressing exceptions within __nospec_revert().
+stack backtrace:
+CPU: 1 PID: 1205 Comm: kworker/1:3 Not tainted 5.18.0 #3
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.13.0-1ubuntu1.1 04/01/2014
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+print_deadlock_bug kernel/locking/lockdep.c:2988 [inline]
+check_deadlock kernel/locking/lockdep.c:3031 [inline]
+validate_chain kernel/locking/lockdep.c:3816 [inline]
+__lock_acquire.cold+0x152/0x3ca kernel/locking/lockdep.c:5053
+lock_acquire kernel/locking/lockdep.c:5665 [inline]
+lock_acquire+0x1ab/0x520 kernel/locking/lockdep.c:5630
+__mutex_lock_common kernel/locking/mutex.c:603 [inline]
+__mutex_lock+0x14f/0x1610 kernel/locking/mutex.c:747
+usb_stor_pre_reset+0x35/0x40 drivers/usb/storage/usb.c:230
+usb_reset_device+0x37d/0x9a0 drivers/usb/core/hub.c:6109
+r871xu_dev_remove+0x21a/0x270 drivers/staging/rtl8712/usb_intf.c:622
+usb_unbind_interface+0x1bd/0x890 drivers/usb/core/driver.c:458
+device_remove drivers/base/dd.c:545 [inline]
+device_remove+0x11f/0x170 drivers/base/dd.c:537
+__device_release_driver drivers/base/dd.c:1222 [inline]
+device_release_driver_internal+0x1a7/0x2f0 drivers/base/dd.c:1248
+usb_driver_release_interface+0x102/0x180 drivers/usb/core/driver.c:627
+usb_forced_unbind_intf+0x4d/0xa0 drivers/usb/core/driver.c:1118
+usb_reset_device+0x39b/0x9a0 drivers/usb/core/hub.c:6114
 
-Fixes: f19fbd5ed642 ("s390: introduce execute-trampolines for branches")
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Link: https://lore.kernel.org/r/8719bf1ce4a72ebdeb575200290094e9ce047bcc.1661557333.git.jpoimboe@kernel.org
-Cc: <stable@vger.kernel.org> # 4.16
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+This turned out not to be an error in usb-storage but rather a nested
+device reset attempt.  That is, as the rtl8712 driver was being
+unbound from a composite device in preparation for an unrelated USB
+reset (that driver does not have pre_reset or post_reset callbacks),
+its ->remove routine called usb_reset_device() -- thus nesting one
+reset call within another.
+
+Performing a reset as part of disconnect processing is a questionable
+practice at best.  However, the bug report points out that the USB
+core does not have any protection against nested resets.  Adding a
+reset_in_progress flag and testing it will prevent such errors in the
+future.
+
+Link: https://lore.kernel.org/all/CAB7eexKUpvX-JNiLzhXBDWgfg2T9e9_0Tw4HQ6keN==voRbP0g@mail.gmail.com/
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: Rondreis <linhaoguo86@gmail.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/YwkflDxvg0KWqyZK@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/vmlinux.lds.S |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/core/hub.c |   10 ++++++++++
+ include/linux/usb.h    |    2 ++
+ 2 files changed, 12 insertions(+)
 
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -131,6 +131,7 @@ SECTIONS
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -6048,6 +6048,11 @@ re_enumerate:
+  * the reset is over (using their post_reset method).
+  *
+  * Return: The same as for usb_reset_and_verify_device().
++ * However, if a reset is already in progress (for instance, if a
++ * driver doesn't have pre_ or post_reset() callbacks, and while
++ * being unbound or re-bound during the ongoing reset its disconnect()
++ * or probe() routine tries to perform a second, nested reset), the
++ * routine returns -EINPROGRESS.
+  *
+  * Note:
+  * The caller must own the device lock.  For example, it's safe to use
+@@ -6081,6 +6086,10 @@ int usb_reset_device(struct usb_device *
+ 		return -EISDIR;
+ 	}
+ 
++	if (udev->reset_in_progress)
++		return -EINPROGRESS;
++	udev->reset_in_progress = 1;
++
+ 	port_dev = hub->ports[udev->portnum - 1];
+ 
  	/*
- 	 * Table with the patch locations to undo expolines
- 	*/
-+	. = ALIGN(4);
- 	.nospec_call_table : {
- 		__nospec_call_start = . ;
- 		*(.s390_indirect*)
+@@ -6145,6 +6154,7 @@ int usb_reset_device(struct usb_device *
+ 
+ 	usb_autosuspend_device(udev);
+ 	memalloc_noio_restore(noio_flag);
++	udev->reset_in_progress = 0;
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(usb_reset_device);
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -575,6 +575,7 @@ struct usb3_lpm_parameters {
+  * @devaddr: device address, XHCI: assigned by HW, others: same as devnum
+  * @can_submit: URBs may be submitted
+  * @persist_enabled:  USB_PERSIST enabled for this device
++ * @reset_in_progress: the device is being reset
+  * @have_langid: whether string_langid is valid
+  * @authorized: policy has said we can use it;
+  *	(user space) policy determines if we authorize this device to be
+@@ -661,6 +662,7 @@ struct usb_device {
+ 
+ 	unsigned can_submit:1;
+ 	unsigned persist_enabled:1;
++	unsigned reset_in_progress:1;
+ 	unsigned have_langid:1;
+ 	unsigned authorized:1;
+ 	unsigned authenticated:1;
 
 
