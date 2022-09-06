@@ -2,75 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 795945AF39A
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 20:34:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4D9A5AF3B9
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 20:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229682AbiIFSeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 14:34:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58228 "EHLO
+        id S229437AbiIFSgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 14:36:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229526AbiIFSeD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 14:34:03 -0400
-Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40EFE81693;
-        Tue,  6 Sep 2022 11:34:03 -0700 (PDT)
-Received: by mail-qk1-x736.google.com with SMTP id w18so8826243qki.8;
-        Tue, 06 Sep 2022 11:34:03 -0700 (PDT)
+        with ESMTP id S229915AbiIFSgK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 14:36:10 -0400
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49E038034D
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:36:06 -0700 (PDT)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-345753b152fso27982187b3.7
+        for <stable@vger.kernel.org>; Tue, 06 Sep 2022 11:36:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date;
-        bh=HBmrNFoVT0my9dPEmViizbkvOCSV2Lwf9elHYX2Ncl8=;
-        b=T6MRi7a9nXz8yBRoKj5E6fYDB3uix6uhAwydZ9jBL+ukueLnRS709NvrqjHWEFgILO
-         p3lDy1xy5P8H08cnWOLz2KAxxW1QHbIP1LKEcIzKpGZIFkqq7Ww+zE50qvhXX8RhzQ4s
-         Cmyhgf8on7TYUcw9AXY7hW0mKKuz/5KwgS6lptpR1bPWyFu/xABFBBCjkgH2wQTkZGUF
-         ucHK3c2TXxm641mh8E6mVmXpB8CH6KnTU7PKOoj3F8xkIv8YjJ5l6zC5osm7uqgv7n7k
-         R2GMcHYeY341SA53vuJBVawi9iE5GH3QL99r41U+fs9XrtpxJ1qg4ZtJzHvqu3MPJGv4
-         qz2w==
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date;
+        bh=i0R53TAK8Pvv1dqj3X6sLp/mYhXJAf8bewUjnJrtogc=;
+        b=oiA1uT/TkBmmqbTWbkabtss704rsOio/xfNZfZkhOW8PVou+H8Sv8ARoqgMaM+bH2c
+         lsZWIaE+KwXDl4TaNk8A3Lp4MLSqKCjh7EspIfr2aukRK0hhUp8PA3GJp3LzzCNs6n5Y
+         25F5Ee2zOh8ZUuD3dbNEj20UEMQO9BsEqIRTqlIWk7wh6i2HATLmFT9HW8nPRNdUq3Xu
+         CkLUW2U9hBCCzIRQyFuO7a/KALCtcGG10BeaMiFp3NucRsG7fJyBBw7vg2kkjJMLuQrs
+         M5HYZcOsqT5kk6KlIzWYt8jR8UiEyF8kYKHcxNQxfCHecs7htrEolEeoYl2YKgUx589X
+         EQfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=HBmrNFoVT0my9dPEmViizbkvOCSV2Lwf9elHYX2Ncl8=;
-        b=c6e+wH2j2qndrobb08akEfiUXYhsn/I9qCKecNEG/UiG7MqT9sCtNymylCY+9OeZju
-         50RyVf3JCUb+wc5dmFfZ9ujixfWSJLUkea7hpgHigUW9UjuxMgiGS/gB496pPFirJK6f
-         MwzaDU7FijAwF37egrTwJ2bd154cBUOYsAUmaUoOxwbD82V5iYhfVZrPin87EnQRyf9A
-         CZF4gtrCq+kQPMd/yUejs8kdjHIKkhrge1dVdiwhAY+pxRGbzx1hQIlxP/E8xYuAyeYb
-         zQRFjmu6LHYpSShixGJWL3WhaJ7D+cJQHgQL/FT5PM7ZFdMuL+gImaG5eYBsShtLD0aU
-         BWDg==
-X-Gm-Message-State: ACgBeo2+89OLY9PW0/VAE5yStk/RfN2bCsnqQU39/7z9jHnEWOq37+kV
-        ZrXbygzAvtr8e9OF/cZdhAw=
-X-Google-Smtp-Source: AA6agR7ivv9zN3MUmzWRfj49mSicIthk4PT18tYTLkeL+9wUK6t777qNKj7ml0p8TMs1419hjJjEKw==
-X-Received: by 2002:a05:620a:2723:b0:6bc:5cdc:88f2 with SMTP id b35-20020a05620a272300b006bc5cdc88f2mr37470572qkp.607.1662489242338;
-        Tue, 06 Sep 2022 11:34:02 -0700 (PDT)
-Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id m23-20020ac86897000000b0034355bb11f2sm9988911qtq.10.2022.09.06.11.33.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Sep 2022 11:34:00 -0700 (PDT)
-Message-ID: <d3679191-f6e2-7195-fc9b-c210fb8fd18b@gmail.com>
-Date:   Tue, 6 Sep 2022 11:33:57 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.1
-Subject: Re: [PATCH 5.15 000/107] 5.15.66-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220906132821.713989422@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date;
+        bh=i0R53TAK8Pvv1dqj3X6sLp/mYhXJAf8bewUjnJrtogc=;
+        b=0gL2c8bM1Kc6NektXAJOZsDLaPFO3OUa5etex70sjp9oE7HA2aq+ZqSry2FporUd/h
+         04VYKYX5PsVDo/ig+ZGm2aWCoGpvLcHRHkIcYuCg6a4VHY6oUEWMhB20mdxweu8H+upw
+         acQPz5/6waKIAyOyWC+1jL8Wwzzi+B8dJFFPkPX+qp6R0Wu75zXfhVZFUpMtnfCPChfV
+         NcY06X3YIc2wWwhg1TRnEAvL2+xOvtW+bJMqst1VlzEu5+loPLOaF+CjgZCQqCHU6x1Q
+         tuwjs7hhG8q4GWzqpud3PFfSxPkbj3lis0mYVfhsSkTQ/Vrs72XODgNFG/hiEcDpg1pi
+         vn4w==
+X-Gm-Message-State: ACgBeo37shpZn/orDI03mfiiNyAkBemY16cxRfyiKKOi/dJa7u92i3/2
+        v7lSbVebLWRCnbfL/AVK4u4uLylzzSHHupxI4g==
+X-Google-Smtp-Source: AA6agR68wmtnyd+6tLLKnKjrQMkTdwVdgbm15czxZnqbkWTAuhNE9Qc+94GhH3giQsB+i4aE5T/pLqg/pkNM/mwcTw==
+X-Received: from varshat.c.googlers.com ([fda3:e722:ac3:cc00:24:72f4:c0a8:a35])
+ (user=teratipally job=sendgmr) by 2002:a5b:84a:0:b0:67c:1db1:2069 with SMTP
+ id v10-20020a5b084a000000b0067c1db12069mr35622834ybq.507.1662489365256; Tue,
+ 06 Sep 2022 11:36:05 -0700 (PDT)
+Date:   Tue,  6 Sep 2022 18:35:59 +0000
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.37.2.789.g6183377224-goog
+Message-ID: <20220906183600.1926315-1-teratipally@google.com>
+Subject: Request to cherry-pick 01ea173e103edd5ec41acec65b9261b87e123fc2 to v5.10
+From:   Varsha Teratipally <teratipally@google.com>
+To:     Amir Goldstein <amir73il@gmail.com>,
+        "Darrick J. Wong" <djwong@kernel.org>
+Cc:     linux-xfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,30 +67,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi all,
+
+Commit 01ea173e103edd5ec41acec65b9261b87e123fc2 (upstream: xfs: fix up
+non-directory creation in SGID directories) fixes an issue where in xfs
+sometimes, a local user could create files with an unitended group
+permissions as an owner and execution where a directory is SGID and belongs=
+ to a certain group and is writable by a user who is not a member of this g=
+roup and seems like a good candidate for the v5.10 stable tree given that 5=
+.10 is used in versions of debian, ubuntu.
+
+This patch applies cleanly. Let me know what you think
 
 
-On 9/6/2022 6:29 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.66 release.
-> There are 107 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 08 Sep 2022 13:27:58 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.66-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
