@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FC295AEA0E
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B295AEAF5
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233321AbiIFNjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:39:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36596 "EHLO
+        id S233201AbiIFNuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240883AbiIFNjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:39:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8397C32E;
-        Tue,  6 Sep 2022 06:36:03 -0700 (PDT)
+        with ESMTP id S239557AbiIFNte (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4A9D31DFC;
+        Tue,  6 Sep 2022 06:39:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05A246154D;
-        Tue,  6 Sep 2022 13:35:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06057C433C1;
-        Tue,  6 Sep 2022 13:35:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DCC7B816A0;
+        Tue,  6 Sep 2022 13:39:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B9A1C433C1;
+        Tue,  6 Sep 2022 13:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471302;
-        bh=B8lJ8ixrg6hdvMKNMa7eV0Jf+pWpMEyy8RjV3/RHVis=;
+        s=korg; t=1662471592;
+        bh=YM7Bw6cpN4RXY18w8OktI9pgS4kPSobcls1f2al2jmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UBKZiGz544aM8weyxFa2zQxWzRYXrFYBLPyQ3r/nlDouZepFlMLT6ZGU7sFdwBDE6
-         SLwC12fGsDJh4NMxGL33pyQUsWnJ1uu/2OABpM6qgc+f3AZsP/NCP5wBQUAxol72pb
-         jcVtvo87WWz1qzL6Fvw13j7xn+e8d1K5AvBEuZk0=
+        b=Xhx1SQS3pm2FFS8blLFVBrIPIg/DDDDigIAK8EMWZw+oJw6UfJgaSAKXro4SNjk7i
+         neGRGCM+Iv8FvtfNSu2m2M+EHbE9cKafiEOMaF6g4FtpTrDuk2Nb4gJ/AiWMlXiK0+
+         SL4UIzeJauf1v32uu3V+Lvko0svdPGwJ6NMrm4AM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "Isaac J. Manjarres" <isaacmanjarres@google.com>
-Subject: [PATCH 5.10 64/80] driver core: Dont probe devices after bus_type.match() probe deferral
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 5.15 080/107] usb: cdns3: fix incorrect handling TRB_SMM flag for ISOC transfer
 Date:   Tue,  6 Sep 2022 15:31:01 +0200
-Message-Id: <20220906132819.737567417@linuxfoundation.org>
+Message-Id: <20220906132825.186780025@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isaac J. Manjarres <isaacmanjarres@google.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 25e9fbf0fd38868a429feabc38abebfc6dbf6542 upstream.
+commit d5dcc33677d7415c5f23b3c052f9e80cbab9ea4e upstream.
 
-Both __device_attach_driver() and __driver_attach() check the return
-code of the bus_type.match() function to see if the device needs to be
-added to the deferred probe list. After adding the device to the list,
-the logic attempts to bind the device to the driver anyway, as if the
-device had matched with the driver, which is not correct.
+The TRB_SMM flag indicates that DMA has completed the TD service with
+this TRB. Usually it’s a last TRB in TD. In case of ISOC transfer for
+bInterval > 1 each ISOC transfer contains more than one TD associated
+with usb request (one TD per ITP). In such case the TRB_SMM flag will
+be set in every TD and driver will recognize the end of transfer after
+processing the first TD with TRB_SMM. In result driver stops updating
+request->actual and returns incorrect actual length.
+To fix this issue driver additionally must check TRB_CHAIN which is not
+used for isochronous transfers.
 
-If __device_attach_driver() detects that the device in question is not
-ready to match with a driver on the bus, then it doesn't make sense for
-the device to attempt to bind with the current driver or continue
-attempting to match with any of the other drivers on the bus. So, update
-the logic in __device_attach_driver() to reflect this.
-
-If __driver_attach() detects that a driver tried to match with a device
-that is not ready to match yet, then the driver should not attempt to bind
-with the device. However, the driver can still attempt to match and bind
-with other devices on the bus, as drivers can be bound to multiple
-devices. So, update the logic in __driver_attach() to reflect this.
-
-Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
-Cc: stable@vger.kernel.org
-Cc: Saravana Kannan <saravanak@google.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
-Link: https://lore.kernel.org/r/20220817184026.3468620-1-isaacmanjarres@google.com
+Fixes: 249f0a25e8be ("usb: cdns3: gadget: handle sg list use case at completion correctly")
+cc: <stable@vger.kernel.org>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20220825062207.5824-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/dd.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/usb/cdns3/cdns3-gadget.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -837,6 +837,11 @@ static int __device_attach_driver(struct
- 	} else if (ret == -EPROBE_DEFER) {
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Device can't match with a driver right now, so don't attempt
-+		 * to match or bind with other drivers on the bus.
-+		 */
-+		return ret;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
- 		return ret;
-@@ -1076,6 +1081,11 @@ static int __driver_attach(struct device
- 	} else if (ret == -EPROBE_DEFER) {
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Driver could not match with device, but may match with
-+		 * another device on the bus.
-+		 */
-+		return 0;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
- 		return ret;
+--- a/drivers/usb/cdns3/cdns3-gadget.c
++++ b/drivers/usb/cdns3/cdns3-gadget.c
+@@ -1530,7 +1530,8 @@ static void cdns3_transfer_completed(str
+ 						TRB_LEN(le32_to_cpu(trb->length));
+ 
+ 				if (priv_req->num_of_trb > 1 &&
+-					le32_to_cpu(trb->control) & TRB_SMM)
++					le32_to_cpu(trb->control) & TRB_SMM &&
++					le32_to_cpu(trb->control) & TRB_CHAIN)
+ 					transfer_end = true;
+ 
+ 				cdns3_ep_inc_deq(priv_ep);
 
 
