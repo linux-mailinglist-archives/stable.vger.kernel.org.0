@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ACEE5AEBCE
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C71C5AEC14
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239556AbiIFOFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:05:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43738 "EHLO
+        id S240835AbiIFOAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:00:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241370AbiIFOEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:04:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C639FE3;
-        Tue,  6 Sep 2022 06:44:45 -0700 (PDT)
+        with ESMTP id S239686AbiIFN5x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:57:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7585B83046;
+        Tue,  6 Sep 2022 06:42:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F20761547;
-        Tue,  6 Sep 2022 13:43:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7794AC4347C;
-        Tue,  6 Sep 2022 13:43:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E528B818CA;
+        Tue,  6 Sep 2022 13:41:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76201C433D7;
+        Tue,  6 Sep 2022 13:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471787;
-        bh=4249EGzH/Ah7i3H9+B9/vA/MvEtjY/oZVBLD6qjqI4g=;
+        s=korg; t=1662471702;
+        bh=hxGNxGe/IBltjF0KY2GcNI/skUAd06JdyNar9iRoV30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PQDolIDpzELuy/IWYQG6d0i2PLyBfzFoybIyvVFaBViEkbipeIK+FxVAXJoWJOAI
-         dpn8RN1f/oxVFRdaWh+NoDUZfaO1qtznSjMKnITHnk0Tcf2UCGpb6omhnQmrKmOtlP
-         go4aUymhyk1w1IqbBSDpD23U6Lr+9Ji4mGmWmm4E=
+        b=WwP9UWycstG3cSM7fJST+vCFKLuT31pMGD/geYNBq18d4Dol0M8Lnpd5nygG+Ua8M
+         EAzkzq7LrycVzsbUWxJcEKs/yI+FCZrKuSIpq9wr+KgGHnDzPo+/E3/JeYM+EtGv9h
+         2Jk2SvMsMPKDZc1oZfKVTmjh02255G9j3WqWP7JA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alasdair McWilliam <alasdair.mcwilliam@outlook.com>,
-        Intrusion Shield Team <dnevil@intrusion.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rob Clark <robdclark@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 009/155] xsk: Fix corrupted packets for XDP_SHARED_UMEM
-Date:   Tue,  6 Sep 2022 15:29:17 +0200
-Message-Id: <20220906132829.812292562@linuxfoundation.org>
+Subject: [PATCH 5.19 010/155] drm/msm/gpu: Drop qos request if devm_devfreq_add_device() fails
+Date:   Tue,  6 Sep 2022 15:29:18 +0200
+Message-Id: <20220906132829.861253056@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -58,68 +57,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 58ca14ed98c87cfe0d1408cc65a9745d9e9b7a56 ]
+[ Upstream commit 02b9f2636209beb843ca501d47f7fddc8792b2d7 ]
 
-Fix an issue in XDP_SHARED_UMEM mode together with aligned mode where
-packets are corrupted for the second and any further sockets bound to
-the same umem. In other words, this does not affect the first socket
-bound to the umem. The culprit for this bug is that the initialization
-of the DMA addresses for the pre-populated xsk buffer pool entries was
-not performed for any socket but the first one bound to the umem. Only
-the linear array of DMA addresses was populated. Fix this by populating
-the DMA addresses in the xsk buffer pool for every socket bound to the
-same umem.
+In the event that devm_devfreq_add_device() fails the device's qos freq
+list is left referencing df->idle_freq and df->boost_freq. Attempting to
+initialize devfreq again after a probe deferral will then cause invalid
+memory accesses in dev_pm_qos_add_request().
 
-Fixes: 94033cd8e73b8 ("xsk: Optimize for aligned case")
-Reported-by: Alasdair McWilliam <alasdair.mcwilliam@outlook.com>
-Reported-by: Intrusion Shield Team <dnevil@intrusion.com>
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Alasdair McWilliam <alasdair.mcwilliam@outlook.com>
-Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Link: https://lore.kernel.org/xdp-newbies/6205E10C-292E-4995-9D10-409649354226@outlook.com/
-Link: https://lore.kernel.org/bpf/20220812113259.531-1-magnus.karlsson@gmail.com
+Fix this by dropping the requests in the error path.
+
+Fixes: 7c0ffcd40b16 ("drm/msm/gpu: Respect PM QoS constraints")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/493001/
+Link: https://lore.kernel.org/r/20220708162632.3529864-1-bjorn.andersson@linaro.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk_buff_pool.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/msm/msm_gpu_devfreq.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
-index f70112176b7c1..a71a8c6edf553 100644
---- a/net/xdp/xsk_buff_pool.c
-+++ b/net/xdp/xsk_buff_pool.c
-@@ -379,6 +379,16 @@ static void xp_check_dma_contiguity(struct xsk_dma_map *dma_map)
+diff --git a/drivers/gpu/drm/msm/msm_gpu_devfreq.c b/drivers/gpu/drm/msm/msm_gpu_devfreq.c
+index ea94bc18e72eb..89cc93eb67557 100644
+--- a/drivers/gpu/drm/msm/msm_gpu_devfreq.c
++++ b/drivers/gpu/drm/msm/msm_gpu_devfreq.c
+@@ -213,6 +213,8 @@ void msm_devfreq_init(struct msm_gpu *gpu)
  
- static int xp_init_dma_info(struct xsk_buff_pool *pool, struct xsk_dma_map *dma_map)
- {
-+	if (!pool->unaligned) {
-+		u32 i;
-+
-+		for (i = 0; i < pool->heads_cnt; i++) {
-+			struct xdp_buff_xsk *xskb = &pool->heads[i];
-+
-+			xp_init_xskb_dma(xskb, pool, dma_map->dma_pages, xskb->orig_addr);
-+		}
-+	}
-+
- 	pool->dma_pages = kvcalloc(dma_map->dma_pages_cnt, sizeof(*pool->dma_pages), GFP_KERNEL);
- 	if (!pool->dma_pages)
- 		return -ENOMEM;
-@@ -428,12 +438,6 @@ int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
- 
- 	if (pool->unaligned)
- 		xp_check_dma_contiguity(dma_map);
--	else
--		for (i = 0; i < pool->heads_cnt; i++) {
--			struct xdp_buff_xsk *xskb = &pool->heads[i];
--
--			xp_init_xskb_dma(xskb, pool, dma_map->dma_pages, xskb->orig_addr);
--		}
- 
- 	err = xp_init_dma_info(pool, dma_map);
- 	if (err) {
+ 	if (IS_ERR(df->devfreq)) {
+ 		DRM_DEV_ERROR(&gpu->pdev->dev, "Couldn't initialize GPU devfreq\n");
++		dev_pm_qos_remove_request(&df->idle_freq);
++		dev_pm_qos_remove_request(&df->boost_freq);
+ 		df->devfreq = NULL;
+ 		return;
+ 	}
 -- 
 2.35.1
 
