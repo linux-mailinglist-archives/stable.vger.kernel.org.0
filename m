@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E3D35AECD2
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0513E5AEC23
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233245AbiIFOHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:07:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60432 "EHLO
+        id S240613AbiIFN5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:57:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239618AbiIFOFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:05:19 -0400
+        with ESMTP id S239366AbiIFNzV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:55:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6ED6844D5;
-        Tue,  6 Sep 2022 06:45:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F22B18275A;
+        Tue,  6 Sep 2022 06:42:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D675B818CB;
-        Tue,  6 Sep 2022 13:43:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C47C433C1;
-        Tue,  6 Sep 2022 13:43:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36FFDB818D2;
+        Tue,  6 Sep 2022 13:36:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D721C433D7;
+        Tue,  6 Sep 2022 13:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471819;
-        bh=jFqC3NCS7H3Pju3ftB1g7imV8vsTqyDWLuDnUeSRCrw=;
+        s=korg; t=1662471407;
+        bh=G1/pW5nqAypc18VbZempDLSB8AyzxJvNOdOaSHanI3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7yjQWuWcJU9hVC2pVkJigeHm85hL/t5YB1NS8L6F2/9nCwz6dtG94/4RHvgj6FI6
-         lv/PDtZPXeNvzg4tr5qoovhvkB+bVu1SmW5DkhDy7jP942Zl36avNjDr/pEa2uLDlI
-         lGIMMcogZnSTjVaPn64/rc94O+33woldEn51Cq6M=
+        b=Zn8I+7UgxI84SJ6PJOpy4IyIMrZP1Et8BSrZWAwV9FLpL7nSvPVSO0ExuLcERHQHq
+         rdzFUIC74h+2uzASwFzDKlRaO3WowKmolW5GmkX4k1phtgt2T9gQ+VBPO7Ja8oBbep
+         hRDTJVlUf44hr4BbZbWd6A/4AvQftTBi/iY4E2lQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Casper Andersson <casper.casan@gmail.com>,
+        Steen Hegelund <Steen.Hegelund@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 050/155] Revert "sch_cake: Return __NET_XMIT_STOLEN when consuming enqueued skb"
+Subject: [PATCH 5.15 017/107] net: sparx5: fix handling uneven length packets in manual extraction
 Date:   Tue,  6 Sep 2022 15:29:58 +0200
-Message-Id: <20220906132831.536075762@linuxfoundation.org>
+Message-Id: <20220906132822.488887029@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
-References: <20220906132829.417117002@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Casper Andersson <casper.casan@gmail.com>
 
-[ Upstream commit 0b4f688d53fdc2a731b9d9cdf0c96255bc024ea6 ]
+[ Upstream commit 7498a457ecf7ff2c4d379360aa8f24566bb1543e ]
 
-This reverts commit 90fabae8a2c225c4e4936723c38857887edde5cc.
+Packets that are not of length divisible by 4 (e.g. 77, 78, 79) would
+have the checksum included up to next multiple of 4 (a 77 bytes packet
+would have 3 bytes of ethernet checksum included). The check for the
+value expects it in host (Little) endian.
 
-Patch was applied hastily, revert and let the v2 be reviewed.
-
-Fixes: 90fabae8a2c2 ("sch_cake: Return __NET_XMIT_STOLEN when consuming enqueued skb")
-Link: https://lore.kernel.org/all/87wnao2ha3.fsf@toke.dk/
+Fixes: f3cad2611a77 ("net: sparx5: add hostmode with phylink support")
+Signed-off-by: Casper Andersson <casper.casan@gmail.com>
+Reviewed-by: Steen Hegelund <Steen.Hegelund@microchip.com>
+Link: https://lore.kernel.org/r/20220825084955.684637-1-casper.casan@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_cake.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/microchip/sparx5/sparx5_packet.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
-index a04928082e4ab..a43a58a73d096 100644
---- a/net/sched/sch_cake.c
-+++ b/net/sched/sch_cake.c
-@@ -1713,7 +1713,6 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	}
- 	idx--;
- 	flow = &b->flows[idx];
--	ret = NET_XMIT_SUCCESS;
- 
- 	/* ensure shaper state isn't stale */
- 	if (!b->tin_backlog) {
-@@ -1772,7 +1771,6 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 
- 		qdisc_tree_reduce_backlog(sch, 1-numsegs, len-slen);
- 		consume_skb(skb);
--		ret |= __NET_XMIT_STOLEN;
- 	} else {
- 		/* not splitting */
- 		cobalt_set_enqueue_time(skb, now);
-@@ -1906,7 +1904,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 		}
- 		b->drop_overlimit += dropped;
- 	}
--	return ret;
-+	return NET_XMIT_SUCCESS;
- }
- 
- static struct sk_buff *cake_dequeue_one(struct Qdisc *sch)
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
+index 148d431fcde42..c460168131c26 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
+@@ -107,6 +107,8 @@ static void sparx5_xtr_grp(struct sparx5 *sparx5, u8 grp, bool byte_swap)
+ 			/* This assumes STATUS_WORD_POS == 1, Status
+ 			 * just after last data
+ 			 */
++			if (!byte_swap)
++				val = ntohl((__force __be32)val);
+ 			byte_cnt -= (4 - XTR_VALID_BYTES(val));
+ 			eof_flag = true;
+ 			break;
 -- 
 2.35.1
 
