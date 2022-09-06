@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F11785AEAAD
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6B215AEAE8
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238711AbiIFNuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:50:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40490 "EHLO
+        id S232425AbiIFNq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:46:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239348AbiIFNtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83802127A;
-        Tue,  6 Sep 2022 06:39:44 -0700 (PDT)
+        with ESMTP id S233664AbiIFNoy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:44:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D992418B3D;
+        Tue,  6 Sep 2022 06:38:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A3D2B818CA;
-        Tue,  6 Sep 2022 13:39:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD4F7C433D6;
-        Tue,  6 Sep 2022 13:39:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 931FD6154E;
+        Tue,  6 Sep 2022 13:36:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BB0BC433D6;
+        Tue,  6 Sep 2022 13:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471581;
-        bh=WsVM4UyNHYH8jYv/ryI8GQ8PDZJEGA2yqzyG0xZPKJI=;
+        s=korg; t=1662471373;
+        bh=A2SlET5mA2JB6GyGY8Cy5ilZkG92iGR0V0gDf6pDXZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ei0HyQHbjhj/UNlqmEd9IDyEer51F4msceTNdgMX8O3EJfM+cGgRO/GJa0Y7sYhwy
-         h2qVtDksIS/sOA+lHQ4N1H3Yes03t617sPuLmIQARydvGVQs9kfvZ1UubWE7tHto4P
-         tVJPQurSs3/NAC3weJX+bHn+L5PmJkRee9esSeF8=
+        b=hrg4Z8C1kAUcRu502swNfJyDhiJfWBpGH/p3YntnQrygEJanfR4uZpuFM4rKPQmwx
+         9DrKfqTfiIiWI6qEVvheU7f1mno0boIRdAr38e/KJ7NaGlVeb7TGXuVzPlUH3ie4iT
+         SQSeCheAdUzVCKnNzG6pHFv9D7iMib3/geVvU0l4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Utkarsh Patel <utkarsh.h.patel@intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 5.15 076/107] usb: typec: intel_pmc_mux: Add new ACPI ID for Meteor Lake IOM device
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.10 60/80] s390/hugetlb: fix prepare_hugepage_range() check for 2 GB hugepages
 Date:   Tue,  6 Sep 2022 15:30:57 +0200
-Message-Id: <20220906132825.031072339@linuxfoundation.org>
+Message-Id: <20220906132819.563491929@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Utkarsh Patel <utkarsh.h.patel@intel.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit 1b1b672cc1d4fb3065dac79efb8901bd6244ef69 upstream.
+commit 7c8d42fdf1a84b1a0dd60d6528309c8ec127e87c upstream.
 
-This adds the necessary ACPI ID for Intel Meteor Lake
-IOM devices.
+The alignment check in prepare_hugepage_range() is wrong for 2 GB
+hugepages, it only checks for 1 MB hugepage alignment.
 
-The callback function is_memory() is modified so that it
-also checks if the resource descriptor passed to it is a
-memory type "Address Space Resource Descriptor".
+This can result in kernel crash in __unmap_hugepage_range() at the
+BUG_ON(start & ~huge_page_mask(h)) alignment check, for mappings
+created with MAP_FIXED at unaligned address.
 
-On Intel Meteor Lake the ACPI memory resource is not
-described using the "32-bit Memory Range Descriptor" because
-the memory is outside of the 32-bit address space. The
-memory resource is described using the "Address Space
-Resource Descriptor" instead.
+Fix this by correctly handling multiple hugepage sizes, similar to the
+generic version of prepare_hugepage_range().
 
-Intel Meteor Lake is the first platform to describe the
-memory resource for this device with Address Space Resource
-Descriptor, but it most likely will not be the last.
-Therefore the change to the is_memory() callback function
-is made generic.
-
-Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
-Cc: stable@vger.kernel.org
-[ heikki: Rewrote the commit message. ]
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20220816101629.69054-2-heikki.krogerus@linux.intel.com
+Fixes: d08de8e2d867 ("s390/mm: add support for 2GB hugepages")
+Cc: <stable@vger.kernel.org> # 4.8+
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/mux/intel_pmc_mux.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/hugetlb.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/typec/mux/intel_pmc_mux.c
-+++ b/drivers/usb/typec/mux/intel_pmc_mux.c
-@@ -554,9 +554,11 @@ err_unregister_switch:
- 
- static int is_memory(struct acpi_resource *res, void *data)
+--- a/arch/s390/include/asm/hugetlb.h
++++ b/arch/s390/include/asm/hugetlb.h
+@@ -28,9 +28,11 @@ pte_t huge_ptep_get_and_clear(struct mm_
+ static inline int prepare_hugepage_range(struct file *file,
+ 			unsigned long addr, unsigned long len)
  {
--	struct resource r;
-+	struct resource_win win = {};
-+	struct resource *r = &win.res;
- 
--	return !acpi_dev_resource_memory(res, &r);
-+	return !(acpi_dev_resource_memory(res, r) ||
-+		 acpi_dev_resource_address_space(res, &win));
- }
- 
- /* IOM ACPI IDs and IOM_PORT_STATUS_OFFSET */
-@@ -566,6 +568,9 @@ static const struct acpi_device_id iom_a
- 
- 	/* AlderLake */
- 	{ "INTC1079", 0x160, },
+-	if (len & ~HPAGE_MASK)
++	struct hstate *h = hstate_file(file);
 +
-+	/* Meteor Lake */
-+	{ "INTC107A", 0x160, },
- 	{}
- };
- 
++	if (len & ~huge_page_mask(h))
+ 		return -EINVAL;
+-	if (addr & ~HPAGE_MASK)
++	if (addr & ~huge_page_mask(h))
+ 		return -EINVAL;
+ 	return 0;
+ }
 
 
