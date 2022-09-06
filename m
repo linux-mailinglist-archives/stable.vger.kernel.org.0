@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A095AEC79
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D37195AED37
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240384AbiIFOA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:00:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43786 "EHLO
+        id S239836AbiIFN6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:58:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240970AbiIFN7O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:59:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7022832DC;
-        Tue,  6 Sep 2022 06:43:17 -0700 (PDT)
+        with ESMTP id S240041AbiIFN4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:56:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C1782D06;
+        Tue,  6 Sep 2022 06:42:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87923B818DF;
-        Tue,  6 Sep 2022 13:42:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB0EEC433D6;
-        Tue,  6 Sep 2022 13:42:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69AD6B818C0;
+        Tue,  6 Sep 2022 13:42:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3FA5C433C1;
+        Tue,  6 Sep 2022 13:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471730;
-        bh=ZBs+Pnl56LuP62f2/5Od+2i6/C2P4iDjFoXFcwde8iQ=;
+        s=korg; t=1662471736;
+        bh=CokGPfzHoASZ6pra4lgp/IDl+kyekfeklOkeoq0Fsk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyXfILC33i17tbtc6cDK6sy2SueOvyiPV1fnmaQWUeVyjpBGi2OBKkXjxX/bFCr6t
-         /tfdwSrvHiqK974cZYdn3Ou9HWBKQG+EKxHxiODTnmYHHsfzjRGPycBtRpLWqyB8N6
-         +PvPL9Rb5bmJJYCrE6sp43q27qaZdm55WlL57iN8=
+        b=N/lRQKsUjoztHdDQdwNHik298qkqPXNNyfyq+newBN14NDniCkoTpRrHsxWFySAER
+         tRXMx+ZMkPFMZj7rh6qkNX84nZb7gQaVh4NxFZ+GltWT8OVPDx11O2x+c8sBmHsg7I
+         KeHJHl44eiKd/MqlZBAaoKwMfvOifzd2LlDhKNUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Ramalingam C <ramalingam.c@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 019/155] bpf: Fix a data-race around bpf_jit_limit.
-Date:   Tue,  6 Sep 2022 15:29:27 +0200
-Message-Id: <20220906132830.235883991@linuxfoundation.org>
+Subject: [PATCH 5.19 020/155] drm/i915/ttm: fix CCS handling
+Date:   Tue,  6 Sep 2022 15:29:28 +0200
+Message-Id: <20220906132830.279675979@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,36 +57,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Matthew Auld <matthew.auld@intel.com>
 
-[ Upstream commit 0947ae1121083d363d522ff7518ee72b55bd8d29 ]
+[ Upstream commit 8d905254162965c8e6be697d82c7dbf5d08f574d ]
 
-While reading bpf_jit_limit, it can be changed concurrently via sysctl,
-WRITE_ONCE() in __do_proc_doulongvec_minmax(). The size of bpf_jit_limit
-is long, so we need to add a paired READ_ONCE() to avoid load-tearing.
+Crucible + recent Mesa seems to sometimes hit:
 
-Fixes: ede95a63b5e8 ("bpf: add bpf_jit_limit knob to restrict unpriv allocations")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220823215804.2177-1-kuniyu@amazon.com
+GEM_BUG_ON(num_ccs_blks > NUM_CCS_BLKS_PER_XFER)
+
+And it looks like we can also trigger this with gem_lmem_swapping, if we
+modify the test to use slightly larger object sizes.
+
+Looking closer it looks like we have the following issues in
+migrate_copy():
+
+  - We are using plain integer in various places, which we can easily
+    overflow with a large object.
+
+  - We pass the entire object size (when the src is lmem) into
+    emit_pte() and then try to copy it, which doesn't work, since we
+    only have a few fixed sized windows in which to map the pages and
+    perform the copy. With an object > 8M we therefore aren't properly
+    copying the pages. And then with an object > 64M we trigger the
+    GEM_BUG_ON(num_ccs_blks > NUM_CCS_BLKS_PER_XFER).
+
+So it looks like our copy handling for any object > 8M (which is our
+CHUNK_SZ) is currently broken on DG2.
+
+Fixes: da0595ae91da ("drm/i915/migrate: Evict and restore the flatccs capable lmem obj")
+Testcase: igt@gem_lmem_swapping
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Cc: Ramalingam C <ramalingam.c@intel.com>
+Reviewed-by: Ramalingam C<ramalingam.c@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220805132240.442747-2-matthew.auld@intel.com
+(cherry picked from commit 8676145eb2f53a9940ff70910caf0125bd8a4bc2)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gt/intel_migrate.c | 44 ++++++++++++-------------
+ 1 file changed, 21 insertions(+), 23 deletions(-)
 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index fb6bd57228a84..cf44ff50b1f23 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -1005,7 +1005,7 @@ pure_initcall(bpf_jit_charge_init);
+diff --git a/drivers/gpu/drm/i915/gt/intel_migrate.c b/drivers/gpu/drm/i915/gt/intel_migrate.c
+index 2b10b96b17b5b..933648cc90ff9 100644
+--- a/drivers/gpu/drm/i915/gt/intel_migrate.c
++++ b/drivers/gpu/drm/i915/gt/intel_migrate.c
+@@ -638,9 +638,9 @@ static int emit_copy(struct i915_request *rq,
+ 	return 0;
+ }
  
- int bpf_jit_charge_modmem(u32 size)
+-static int scatter_list_length(struct scatterlist *sg)
++static u64 scatter_list_length(struct scatterlist *sg)
  {
--	if (atomic_long_add_return(size, &bpf_jit_current) > bpf_jit_limit) {
-+	if (atomic_long_add_return(size, &bpf_jit_current) > READ_ONCE(bpf_jit_limit)) {
- 		if (!bpf_capable()) {
- 			atomic_long_sub(size, &bpf_jit_current);
- 			return -EPERM;
+-	int len = 0;
++	u64 len = 0;
+ 
+ 	while (sg && sg_dma_len(sg)) {
+ 		len += sg_dma_len(sg);
+@@ -650,28 +650,26 @@ static int scatter_list_length(struct scatterlist *sg)
+ 	return len;
+ }
+ 
+-static void
++static int
+ calculate_chunk_sz(struct drm_i915_private *i915, bool src_is_lmem,
+-		   int *src_sz, u32 bytes_to_cpy, u32 ccs_bytes_to_cpy)
++		   u64 bytes_to_cpy, u64 ccs_bytes_to_cpy)
+ {
+-	if (ccs_bytes_to_cpy) {
+-		if (!src_is_lmem)
+-			/*
+-			 * When CHUNK_SZ is passed all the pages upto CHUNK_SZ
+-			 * will be taken for the blt. in Flat-ccs supported
+-			 * platform Smem obj will have more pages than required
+-			 * for main meory hence limit it to the required size
+-			 * for main memory
+-			 */
+-			*src_sz = min_t(int, bytes_to_cpy, CHUNK_SZ);
+-	} else { /* ccs handling is not required */
+-		*src_sz = CHUNK_SZ;
+-	}
++	if (ccs_bytes_to_cpy && !src_is_lmem)
++		/*
++		 * When CHUNK_SZ is passed all the pages upto CHUNK_SZ
++		 * will be taken for the blt. in Flat-ccs supported
++		 * platform Smem obj will have more pages than required
++		 * for main meory hence limit it to the required size
++		 * for main memory
++		 */
++		return min_t(u64, bytes_to_cpy, CHUNK_SZ);
++	else
++		return CHUNK_SZ;
+ }
+ 
+-static void get_ccs_sg_sgt(struct sgt_dma *it, u32 bytes_to_cpy)
++static void get_ccs_sg_sgt(struct sgt_dma *it, u64 bytes_to_cpy)
+ {
+-	u32 len;
++	u64 len;
+ 
+ 	do {
+ 		GEM_BUG_ON(!it->sg || !sg_dma_len(it->sg));
+@@ -702,12 +700,12 @@ intel_context_migrate_copy(struct intel_context *ce,
+ {
+ 	struct sgt_dma it_src = sg_sgt(src), it_dst = sg_sgt(dst), it_ccs;
+ 	struct drm_i915_private *i915 = ce->engine->i915;
+-	u32 ccs_bytes_to_cpy = 0, bytes_to_cpy;
++	u64 ccs_bytes_to_cpy = 0, bytes_to_cpy;
+ 	enum i915_cache_level ccs_cache_level;
+ 	u32 src_offset, dst_offset;
+ 	u8 src_access, dst_access;
+ 	struct i915_request *rq;
+-	int src_sz, dst_sz;
++	u64 src_sz, dst_sz;
+ 	bool ccs_is_src, overwrite_ccs;
+ 	int err;
+ 
+@@ -790,8 +788,8 @@ intel_context_migrate_copy(struct intel_context *ce,
+ 		if (err)
+ 			goto out_rq;
+ 
+-		calculate_chunk_sz(i915, src_is_lmem, &src_sz,
+-				   bytes_to_cpy, ccs_bytes_to_cpy);
++		src_sz = calculate_chunk_sz(i915, src_is_lmem,
++					    bytes_to_cpy, ccs_bytes_to_cpy);
+ 
+ 		len = emit_pte(rq, &it_src, src_cache_level, src_is_lmem,
+ 			       src_offset, src_sz);
 -- 
 2.35.1
 
