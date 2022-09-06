@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB935AEC16
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 278E35AED1C
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239848AbiIFOAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:00:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58448 "EHLO
+        id S233660AbiIFN5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:57:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240509AbiIFN5y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:57:54 -0400
+        with ESMTP id S239694AbiIFNz5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:55:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B0F78BC5;
-        Tue,  6 Sep 2022 06:42:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47FA782771;
+        Tue,  6 Sep 2022 06:42:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CA6FB81636;
-        Tue,  6 Sep 2022 13:41:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F4CC433D7;
-        Tue,  6 Sep 2022 13:41:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CD9AB818C2;
+        Tue,  6 Sep 2022 13:41:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5EF1C433B5;
+        Tue,  6 Sep 2022 13:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471715;
-        bh=zkfqekhPS+p6+BJUAlqNpuJtYBlshZ7oJ2takpsDA30=;
+        s=korg; t=1662471718;
+        bh=peJCUCPW5ynryEAfWIi/9si/ifz63uPjfizjrhUdKYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQ8en1cwBCvULkCO0x553E+tRYNNHnJSNmwLyDFsEVYotjbcOzMInY/4/PZo3GU7V
-         IpOZApQegVooNcwqSkMbgJOhAtBz4UM3UWXKid6jX2WIJSUFSq/S8qeB1oqY6SN4oY
-         rJQ0jpP27DnPwut9p4iatSLcXAfDKdcEoKa7kxAs=
+        b=Tg6n4Ug0vlfADzbTAATmFZD+MevRRK7P6PIUHrdZ0OLqc8MHdrHiJ8enR8fZZdLO0
+         zdL4xhjWvvvPerdG20SbnMFJcG+XWtgVMIyNmLyvlOmngfDhmJnz7LF+5jaFbXiHj0
+         gnylEOfSWzZw0Amr4Tp0+c46qfzKNmE8RjBaMy5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YiFei Zhu <zhuyifei@google.com>,
+        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
+        Paul Chaignon <paul@isovalent.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 014/155] bpf: Restrict bpf_sys_bpf to CAP_PERFMON
-Date:   Tue,  6 Sep 2022 15:29:22 +0200
-Message-Id: <20220906132830.033423812@linuxfoundation.org>
+Subject: [PATCH 5.19 015/155] ip_tunnel: Respect tunnel keys "flow_flags" in IP tunnels
+Date:   Tue,  6 Sep 2022 15:29:23 +0200
+Message-Id: <20220906132830.066867248@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,39 +55,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YiFei Zhu <zhuyifei@google.com>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-[ Upstream commit 14b20b784f59bdd95f6f1cfb112c9818bcec4d84 ]
+[ Upstream commit 7ec9fce4b31604f8415136a4c07f7dc8ad431aec ]
 
-The verifier cannot perform sufficient validation of any pointers passed
-into bpf_attr and treats them as integers rather than pointers. The helper
-will then read from arbitrary pointers passed into it. Restrict the helper
-to CAP_PERFMON since the security model in BPF of arbitrary kernel read is
-CAP_BPF + CAP_PERFMON.
+Commit 451ef36bd229 ("ip_tunnels: Add new flow flags field to ip_tunnel_key")
+added a "flow_flags" member to struct ip_tunnel_key which was later used by
+the commit in the fixes tag to avoid dropping packets with sources that
+aren't locally configured when set in bpf_set_tunnel_key().
 
-Fixes: af2ac3e13e45 ("bpf: Prepare bpf syscall to be used from kernel and user space.")
-Signed-off-by: YiFei Zhu <zhuyifei@google.com>
+VXLAN and GENEVE were made to respect this flag, ip tunnels like IPIP and GRE
+were not.
+
+This commit fixes this omission by making ip_tunnel_init_flow() receive
+the flow flags from the tunnel key in the relevant collect_md paths.
+
+Fixes: b8fff748521c ("bpf: Set flow flag to allow any source IP in bpf_tunnel_key")
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220816205517.682470-1-zhuyifei@google.com
+Reviewed-by: Paul Chaignon <paul@isovalent.com>
+Link: https://lore.kernel.org/bpf/20220818074118.726639-1-eyal.birger@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/syscall.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c | 3 ++-
+ include/net/ip_tunnels.h                            | 4 +++-
+ net/ipv4/ip_gre.c                                   | 2 +-
+ net/ipv4/ip_tunnel.c                                | 7 ++++---
+ 4 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 82e83cfb4114a..dd0fc2a86ce17 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -5153,7 +5153,7 @@ syscall_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
+index fe663b0ab7086..68d87e61bdc05 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
+@@ -423,7 +423,8 @@ mlxsw_sp_span_gretap4_route(const struct net_device *to_dev,
+ 
+ 	parms = mlxsw_sp_ipip_netdev_parms4(to_dev);
+ 	ip_tunnel_init_flow(&fl4, parms.iph.protocol, *daddrp, *saddrp,
+-			    0, 0, dev_net(to_dev), parms.link, tun->fwmark, 0);
++			    0, 0, dev_net(to_dev), parms.link, tun->fwmark, 0,
++			    0);
+ 
+ 	rt = ip_route_output_key(tun->net, &fl4);
+ 	if (IS_ERR(rt))
+diff --git a/include/net/ip_tunnels.h b/include/net/ip_tunnels.h
+index 20f60d9da7418..cf1f22c01ed3d 100644
+--- a/include/net/ip_tunnels.h
++++ b/include/net/ip_tunnels.h
+@@ -246,7 +246,8 @@ static inline void ip_tunnel_init_flow(struct flowi4 *fl4,
+ 				       __be32 daddr, __be32 saddr,
+ 				       __be32 key, __u8 tos,
+ 				       struct net *net, int oif,
+-				       __u32 mark, __u32 tun_inner_hash)
++				       __u32 mark, __u32 tun_inner_hash,
++				       __u8 flow_flags)
  {
- 	switch (func_id) {
- 	case BPF_FUNC_sys_bpf:
--		return &bpf_sys_bpf_proto;
-+		return !perfmon_capable() ? NULL : &bpf_sys_bpf_proto;
- 	case BPF_FUNC_btf_find_by_name_kind:
- 		return &bpf_btf_find_by_name_kind_proto;
- 	case BPF_FUNC_sys_close:
+ 	memset(fl4, 0, sizeof(*fl4));
+ 
+@@ -263,6 +264,7 @@ static inline void ip_tunnel_init_flow(struct flowi4 *fl4,
+ 	fl4->fl4_gre_key = key;
+ 	fl4->flowi4_mark = mark;
+ 	fl4->flowi4_multipath_hash = tun_inner_hash;
++	fl4->flowi4_flags = flow_flags;
+ }
+ 
+ int ip_tunnel_init(struct net_device *dev);
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index 5c58e21f724e9..f866d6282b2b3 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -609,7 +609,7 @@ static int gre_fill_metadata_dst(struct net_device *dev, struct sk_buff *skb)
+ 	ip_tunnel_init_flow(&fl4, IPPROTO_GRE, key->u.ipv4.dst, key->u.ipv4.src,
+ 			    tunnel_id_to_key32(key->tun_id),
+ 			    key->tos & ~INET_ECN_MASK, dev_net(dev), 0,
+-			    skb->mark, skb_get_hash(skb));
++			    skb->mark, skb_get_hash(skb), key->flow_flags);
+ 	rt = ip_route_output_key(dev_net(dev), &fl4);
+ 	if (IS_ERR(rt))
+ 		return PTR_ERR(rt);
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index 94017a8c39945..1ad8809fc2e3b 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -295,7 +295,7 @@ static int ip_tunnel_bind_dev(struct net_device *dev)
+ 		ip_tunnel_init_flow(&fl4, iph->protocol, iph->daddr,
+ 				    iph->saddr, tunnel->parms.o_key,
+ 				    RT_TOS(iph->tos), dev_net(dev),
+-				    tunnel->parms.link, tunnel->fwmark, 0);
++				    tunnel->parms.link, tunnel->fwmark, 0, 0);
+ 		rt = ip_route_output_key(tunnel->net, &fl4);
+ 
+ 		if (!IS_ERR(rt)) {
+@@ -570,7 +570,8 @@ void ip_md_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	}
+ 	ip_tunnel_init_flow(&fl4, proto, key->u.ipv4.dst, key->u.ipv4.src,
+ 			    tunnel_id_to_key32(key->tun_id), RT_TOS(tos),
+-			    dev_net(dev), 0, skb->mark, skb_get_hash(skb));
++			    dev_net(dev), 0, skb->mark, skb_get_hash(skb),
++			    key->flow_flags);
+ 	if (tunnel->encap.type != TUNNEL_ENCAP_NONE)
+ 		goto tx_error;
+ 
+@@ -728,7 +729,7 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	ip_tunnel_init_flow(&fl4, protocol, dst, tnl_params->saddr,
+ 			    tunnel->parms.o_key, RT_TOS(tos),
+ 			    dev_net(dev), tunnel->parms.link,
+-			    tunnel->fwmark, skb_get_hash(skb));
++			    tunnel->fwmark, skb_get_hash(skb), 0);
+ 
+ 	if (ip_tunnel_encap(skb, tunnel, &protocol, &fl4) < 0)
+ 		goto tx_error;
 -- 
 2.35.1
 
