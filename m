@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DAD5AEA43
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F33C45AEB02
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233912AbiIFNlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:41:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38270 "EHLO
+        id S238984AbiIFNvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:51:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233972AbiIFNkO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:40:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D852B7DF4E;
-        Tue,  6 Sep 2022 06:37:06 -0700 (PDT)
+        with ESMTP id S239826AbiIFNuB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:50:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895192D1DF;
+        Tue,  6 Sep 2022 06:40:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1785A61554;
-        Tue,  6 Sep 2022 13:35:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20815C433D6;
-        Tue,  6 Sep 2022 13:35:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6641B81632;
+        Tue,  6 Sep 2022 13:40:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0864FC433D7;
+        Tue,  6 Sep 2022 13:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471311;
-        bh=CRt/nAFidu2/Fa+kSY83hNUBSE8UekJvMXGOpiPP4Fo=;
+        s=korg; t=1662471604;
+        bh=A2SlET5mA2JB6GyGY8Cy5ilZkG92iGR0V0gDf6pDXZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NAapCTsFpZW0XxASrtbqhrduMjEhZPWRsR/KOq82xV7KhEXuaJEtIqX8m/cavKWqQ
-         gDYwgBpylkLW7sT6shztLwyCwajjLADa94UAD9MTT/Glyl7S1+tgRUAxD0te5VmIsH
-         UqoeJlZ1capSOWuZlpNinIpKJXJUj+Si/yu5n0Kk=
+        b=fPgrDvAh8SEyaSyDKbB/q4E2ESvFcWC8EHXmqUU1RzO8v376A6CNxNfim7HG0RHbB
+         JmyGcRCxbUzelnYv32g3Bsh8xIpoe5jdMAmeRGoV0Rii+cW5FhD8c+GgVkkYdSv5q3
+         5D4TCTXeCQK/tq3FkO2zH5knTrznn0Xjn8ZMGEM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
-        Heng Qi <hengqi@linux.alibaba.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 67/80] ip: fix triggering of icmp redirect
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.15 083/107] s390/hugetlb: fix prepare_hugepage_range() check for 2 GB hugepages
 Date:   Tue,  6 Sep 2022 15:31:04 +0200
-Message-Id: <20220906132819.883154337@linuxfoundation.org>
+Message-Id: <20220906132825.332735623@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit eb55dc09b5dd040232d5de32812cc83001a23da6 upstream.
+commit 7c8d42fdf1a84b1a0dd60d6528309c8ec127e87c upstream.
 
-__mkroute_input() uses fib_validate_source() to trigger an icmp redirect.
-My understanding is that fib_validate_source() is used to know if the src
-address and the gateway address are on the same link. For that,
-fib_validate_source() returns 1 (same link) or 0 (not the same network).
-__mkroute_input() is the only user of these positive values, all other
-callers only look if the returned value is negative.
+The alignment check in prepare_hugepage_range() is wrong for 2 GB
+hugepages, it only checks for 1 MB hugepage alignment.
 
-Since the below patch, fib_validate_source() didn't return anymore 1 when
-both addresses are on the same network, because the route lookup returns
-RT_SCOPE_LINK instead of RT_SCOPE_HOST. But this is, in fact, right.
-Let's adapat the test to return 1 again when both addresses are on the same
-link.
+This can result in kernel crash in __unmap_hugepage_range() at the
+BUG_ON(start & ~huge_page_mask(h)) alignment check, for mappings
+created with MAP_FIXED at unaligned address.
 
-CC: stable@vger.kernel.org
-Fixes: 747c14307214 ("ip: fix dflt addr selection for connected nexthop")
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Reported-by: Heng Qi <hengqi@linux.alibaba.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220829100121.3821-1-nicolas.dichtel@6wind.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix this by correctly handling multiple hugepage sizes, similar to the
+generic version of prepare_hugepage_range().
+
+Fixes: d08de8e2d867 ("s390/mm: add support for 2GB hugepages")
+Cc: <stable@vger.kernel.org> # 4.8+
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_frontend.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/hugetlb.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/fib_frontend.c
-+++ b/net/ipv4/fib_frontend.c
-@@ -389,7 +389,7 @@ static int __fib_validate_source(struct
- 	dev_match = dev_match || (res.type == RTN_LOCAL &&
- 				  dev == net->loopback_dev);
- 	if (dev_match) {
--		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
-+		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
- 		return ret;
- 	}
- 	if (no_addr)
-@@ -401,7 +401,7 @@ static int __fib_validate_source(struct
- 	ret = 0;
- 	if (fib_lookup(net, &fl4, &res, FIB_LOOKUP_IGNORE_LINKSTATE) == 0) {
- 		if (res.type == RTN_UNICAST)
--			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
-+			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
- 	}
- 	return ret;
- 
+--- a/arch/s390/include/asm/hugetlb.h
++++ b/arch/s390/include/asm/hugetlb.h
+@@ -28,9 +28,11 @@ pte_t huge_ptep_get_and_clear(struct mm_
+ static inline int prepare_hugepage_range(struct file *file,
+ 			unsigned long addr, unsigned long len)
+ {
+-	if (len & ~HPAGE_MASK)
++	struct hstate *h = hstate_file(file);
++
++	if (len & ~huge_page_mask(h))
+ 		return -EINVAL;
+-	if (addr & ~HPAGE_MASK)
++	if (addr & ~huge_page_mask(h))
+ 		return -EINVAL;
+ 	return 0;
+ }
 
 
