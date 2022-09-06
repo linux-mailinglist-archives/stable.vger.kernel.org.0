@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B91105AEB34
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:57:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9A05AEA12
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233400AbiIFNov (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:44:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52570 "EHLO
+        id S233472AbiIFNjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:39:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238621AbiIFNnO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:43:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E85B17E80E;
-        Tue,  6 Sep 2022 06:37:51 -0700 (PDT)
+        with ESMTP id S240366AbiIFNiE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:38:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18CD326102;
+        Tue,  6 Sep 2022 06:34:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5574F6155D;
-        Tue,  6 Sep 2022 13:37:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 549D0C433D6;
-        Tue,  6 Sep 2022 13:37:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8F16B8162F;
+        Tue,  6 Sep 2022 13:34:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B6F9C433D7;
+        Tue,  6 Sep 2022 13:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471470;
-        bh=KCYVDvpvQe2eUYuOXORu4L3Gx2Nzf80om5ePm4Nj7zM=;
+        s=korg; t=1662471277;
+        bh=2t5gG7chT0YaqazGsBisRir+uDym/eOwq0dvTSwEEQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/iop4yOdePOPrBHMDJlz7FuaT4AXhW7XTNm5AtK9ya6KOZ332wMUFtQ963nP9Iso
-         AC0XL0oj0VastMdOwfocI+tr32uMA7lkJvnpuhaDeYqEcDTL8jwjM1sqA35igHp4rd
-         X1RRswS8HzPjz4q4S0W4PWk9j73+NZvZiJQhLaCM=
+        b=yqZoEzMb6Gm9XsquduGODkB3b9vCv5cH51+qOfSISZ83ud6LeLm4PWbyp61eklQw1
+         tKHw8Dx9rME76ZoQRZ2n/R00oFayfQg6eB3VXe6ZEjuuo4aoo4aEJueBe7mcIfHyJw
+         Obvm/bqWZQLF2HzKK/dcQ+iZ6QxNTCAc1ys2xf2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>,
-        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.15 038/107] Input: iforce - wake up after clearing IFORCE_XMIT_RUNNING flag
-Date:   Tue,  6 Sep 2022 15:30:19 +0200
-Message-Id: <20220906132823.412622209@linuxfoundation.org>
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 23/80] powerpc: align syscall table for ppc32
+Date:   Tue,  6 Sep 2022 15:30:20 +0200
+Message-Id: <20220906132817.901094635@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,121 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 98e01215708b6d416345465c09dce2bd4868c67a upstream.
+commit c7acee3d2f128a38b68fb7af85dbbd91bfd0b4ad upstream.
 
-syzbot is reporting hung task at __input_unregister_device() [1], for
-iforce_close() waiting at wait_event_interruptible() with dev->mutex held
-is blocking input_disconnect_device() from __input_unregister_device().
+Christophe Leroy reported that commit 7b4537199a4a ("kbuild: link
+symbol CRCs at final link,  removing CONFIG_MODULE_REL_CRCS") broke
+mpc85xx_defconfig + CONFIG_RELOCATABLE=y.
 
-It seems that the cause is simply that commit c2b27ef672992a20 ("Input:
-iforce - wait for command completion when closing the device") forgot to
-call wake_up() after clear_bit().
+    LD      vmlinux
+    SYSMAP  System.map
+    SORTTAB vmlinux
+    CHKREL  vmlinux
+  WARNING: 451 bad relocations
+  c0b312a9 R_PPC_UADDR32     .head.text-0x3ff9ed54
+  c0b312ad R_PPC_UADDR32     .head.text-0x3ffac224
+  c0b312b1 R_PPC_UADDR32     .head.text-0x3ffb09f4
+  c0b312b5 R_PPC_UADDR32     .head.text-0x3fe184dc
+  c0b312b9 R_PPC_UADDR32     .head.text-0x3fe183a8
+      ...
 
-Fix this problem by introducing a helper that calls clear_bit() followed
-by wake_up_all().
+The compiler emits a bunch of R_PPC_UADDR32, which is not supported by
+arch/powerpc/kernel/reloc_32.S.
 
-Reported-by: syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>
-Fixes: c2b27ef672992a20 ("Input: iforce - wait for command completion when closing the device")
-Tested-by: syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>
-Suggested-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Co-developed-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Link: https://lore.kernel.org/r/887021c3-4f13-40ce-c8b9-aa6e09faa3a7@I-love.SAKURA.ne.jp
+The reason is there exists an unaligned symbol.
+
+  $ powerpc-linux-gnu-nm -n vmlinux
+    ...
+  c0b31258 d spe_aligninfo
+  c0b31298 d __func__.0
+  c0b312a9 D sys_call_table
+  c0b319b8 d __func__.0
+
+Commit 7b4537199a4a is not the root cause. Even before that, I can
+reproduce the same issue for mpc85xx_defconfig + CONFIG_RELOCATABLE=y
++ CONFIG_MODVERSIONS=n.
+
+It is just that nobody noticed because when CONFIG_MODVERSIONS is
+enabled, a __crc_* symbol inserted before sys_call_table was hiding the
+unalignment issue.
+
+Adding alignment to the syscall table for ppc32 fixes the issue.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Trim change log discussion, add Cc stable]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/lkml/38605f6a-a568-f884-f06f-ea4da5b214f0@csgroup.eu/
+Link: https://lore.kernel.org/r/20220820165129.1147589-1-masahiroy@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/iforce/iforce-serio.c |    6 +++---
- drivers/input/joystick/iforce/iforce-usb.c   |    8 ++++----
- drivers/input/joystick/iforce/iforce.h       |    6 ++++++
- 3 files changed, 13 insertions(+), 7 deletions(-)
+ arch/powerpc/kernel/systbl.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/joystick/iforce/iforce-serio.c
-+++ b/drivers/input/joystick/iforce/iforce-serio.c
-@@ -39,7 +39,7 @@ static void iforce_serio_xmit(struct ifo
+--- a/arch/powerpc/kernel/systbl.S
++++ b/arch/powerpc/kernel/systbl.S
+@@ -18,6 +18,7 @@
+ 	.p2align	3
+ #define __SYSCALL(nr, entry)	.8byte entry
+ #else
++	.p2align	2
+ #define __SYSCALL(nr, entry)	.long entry
+ #endif
  
- again:
- 	if (iforce->xmit.head == iforce->xmit.tail) {
--		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
-+		iforce_clear_xmit_and_wake(iforce);
- 		spin_unlock_irqrestore(&iforce->xmit_lock, flags);
- 		return;
- 	}
-@@ -64,7 +64,7 @@ again:
- 	if (test_and_clear_bit(IFORCE_XMIT_AGAIN, iforce->xmit_flags))
- 		goto again;
- 
--	clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
-+	iforce_clear_xmit_and_wake(iforce);
- 
- 	spin_unlock_irqrestore(&iforce->xmit_lock, flags);
- }
-@@ -169,7 +169,7 @@ static irqreturn_t iforce_serio_irq(stru
- 			iforce_serio->cmd_response_len = iforce_serio->len;
- 
- 			/* Signal that command is done */
--			wake_up(&iforce->wait);
-+			wake_up_all(&iforce->wait);
- 		} else if (likely(iforce->type)) {
- 			iforce_process_packet(iforce, iforce_serio->id,
- 					      iforce_serio->data_in,
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -30,7 +30,7 @@ static void __iforce_usb_xmit(struct ifo
- 	spin_lock_irqsave(&iforce->xmit_lock, flags);
- 
- 	if (iforce->xmit.head == iforce->xmit.tail) {
--		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
-+		iforce_clear_xmit_and_wake(iforce);
- 		spin_unlock_irqrestore(&iforce->xmit_lock, flags);
- 		return;
- 	}
-@@ -58,9 +58,9 @@ static void __iforce_usb_xmit(struct ifo
- 	XMIT_INC(iforce->xmit.tail, n);
- 
- 	if ( (n=usb_submit_urb(iforce_usb->out, GFP_ATOMIC)) ) {
--		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
- 		dev_warn(&iforce_usb->intf->dev,
- 			 "usb_submit_urb failed %d\n", n);
-+		iforce_clear_xmit_and_wake(iforce);
- 	}
- 
- 	/* The IFORCE_XMIT_RUNNING bit is not cleared here. That's intended.
-@@ -175,15 +175,15 @@ static void iforce_usb_out(struct urb *u
- 	struct iforce *iforce = &iforce_usb->iforce;
- 
- 	if (urb->status) {
--		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
- 		dev_dbg(&iforce_usb->intf->dev, "urb->status %d, exiting\n",
- 			urb->status);
-+		iforce_clear_xmit_and_wake(iforce);
- 		return;
- 	}
- 
- 	__iforce_usb_xmit(iforce);
- 
--	wake_up(&iforce->wait);
-+	wake_up_all(&iforce->wait);
- }
- 
- static int iforce_usb_probe(struct usb_interface *intf,
---- a/drivers/input/joystick/iforce/iforce.h
-+++ b/drivers/input/joystick/iforce/iforce.h
-@@ -119,6 +119,12 @@ static inline int iforce_get_id_packet(s
- 					 response_data, response_len);
- }
- 
-+static inline void iforce_clear_xmit_and_wake(struct iforce *iforce)
-+{
-+	clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
-+	wake_up_all(&iforce->wait);
-+}
-+
- /* Public functions */
- /* iforce-main.c */
- int iforce_init_device(struct device *parent, u16 bustype,
 
 
