@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93ADE5AEC44
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8FD55AEBD5
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233200AbiIFOAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57092 "EHLO
+        id S240754AbiIFOAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:00:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240860AbiIFN6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:58:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A648305A;
-        Tue,  6 Sep 2022 06:42:46 -0700 (PDT)
+        with ESMTP id S240856AbiIFN6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:58:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12D38285B;
+        Tue,  6 Sep 2022 06:42:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C83AB818B9;
-        Tue,  6 Sep 2022 13:42:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5622C433C1;
-        Tue,  6 Sep 2022 13:42:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4016D60F89;
+        Tue,  6 Sep 2022 13:42:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 488E4C433D7;
+        Tue,  6 Sep 2022 13:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471765;
-        bh=3rQIWftn9/ylHrSmPoJcjnNSWsdJZsDmcOjAsuZnSWc=;
+        s=korg; t=1662471773;
+        bh=QwqLXj55wPRteB3A34vpnzJ86LNL8i7W/9dMEmN9lio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFQg9LnYsFXRBJs8PI4ekGi1qlBwKjz8YXLBwMEEnxvlRhToUBcDPXb+lkx/xbOy0
-         bfp0GxGcjfQLWjEtjSI/BDCQH0TKxIRY39VJCKM6zpSwCTszxlb4+ArIHLG2fIj8YP
-         DsuwTYMTu1TkHKHVHywwK8BRXg/F+kLB7Q6HXDHs=
+        b=eqk3ynvZckeiJPiP5Bpx6jlbUpKlT5K2IHccMDobTx84IoltMm1yUOOzYww6EIY1b
+         0MNH5vLeGMCfRdBX0LCIW2sdhqd8PYssF4vjpNwIVfiXJDOMORt8pnPiCBrQ44OB4J
+         KA+XvlclrFM/0zjcpaR5Q2AeVJSDo7oHvFiYyyEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Jessica Zhang <quic_jesszhan@quicinc.com>,
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 003/155] drm/msm/dpu: populate wb or intf before reset_intf_cfg
-Date:   Tue,  6 Sep 2022 15:29:11 +0200
-Message-Id: <20220906132829.567715851@linuxfoundation.org>
+Subject: [PATCH 5.19 004/155] drm/msm/dp: delete DP_RECOVERED_CLOCK_OUT_EN to fix tps4
+Date:   Tue,  6 Sep 2022 15:29:12 +0200
+Message-Id: <20220906132829.606602221@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,46 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhinav Kumar <quic_abhinavk@quicinc.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit ef3ac3ae147c6ab370875727791e9b3eaf176cea ]
+[ Upstream commit 032d57960176ac01cc5adff5bcc5eb51317f8781 ]
 
-dpu_encoder_helper_phys_cleanup() was not populating neither
-wb or intf to the intf_cfg before calling the reset_intf_cfg().
+Data Symbols scrambled is required for tps4 at link training 2.
+Therefore SCRAMBLING_DISABLE bit should not be set for tps4 to
+work.
 
-This causes the reset of the active bits of wb/intf to be
-skipped which is incorrect.
+RECOVERED_CLOCK_OUT_EN is for enable simple EYE test for jitter
+measurement with minimal equipment for embedded applications purpose
+and is not required to be set during normal operation. Current
+implementation always have RECOVERED_CLOCK_OUT_EN bit set which
+cause SCRAMBLING_DISABLE bit wrongly set at tps4 which prevent
+tps4 from working.
 
-Fix this by populating the relevant wb or intf indices correctly.
+This patch delete setting RECOVERED_CLOCK_OUT_EN to fix
+SCRAMBLING_DISABLE be wrongly set at tps4.
 
-Fixes: ae4d721ce100 ("drm/msm/dpu: add an API to reset the encoder related hw blocks")
+Changes in v2:
+-- fix Fixes tag
+
+Changes in v3:
+-- revise commit text
+
+Changes in v4:
+-- fix commit text newline
+
+Changes in v5:
+-- fix commit text line over 75 chars
+
+Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/497194/
+Link: https://lore.kernel.org/r/1660258670-4200-1-git-send-email-quic_khsieh@quicinc.com
 Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Jessica Zhang <quic_jesszhan@quicinc.com>
-Tested-by: Jessica Zhang <quic_jesszhan@quicinc.com> # Trogdor (SC8170)
-Patchwork: https://patchwork.freedesktop.org/patch/494298/
-Link: https://lore.kernel.org/r/1657912468-17254-1-git-send-email-quic_abhinavk@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-index 9b4df3084366b..d98c7f7da7c08 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-@@ -1998,6 +1998,12 @@ void dpu_encoder_helper_phys_cleanup(struct dpu_encoder_phys *phys_enc)
+diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+index 703249384e7c7..45aa06a31a9fd 100644
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+@@ -1214,7 +1214,7 @@ static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
+ 	if (ret)
+ 		return ret;
  
- 	intf_cfg.stream_sel = 0; /* Don't care value for video mode */
- 	intf_cfg.mode_3d = dpu_encoder_helper_get_3d_blend_mode(phys_enc);
-+
-+	if (phys_enc->hw_intf)
-+		intf_cfg.intf = phys_enc->hw_intf->idx;
-+	if (phys_enc->hw_wb)
-+		intf_cfg.wb = phys_enc->hw_wb->idx;
-+
- 	if (phys_enc->hw_pp->merge_3d)
- 		intf_cfg.merge_3d = phys_enc->hw_pp->merge_3d->idx;
+-	dp_ctrl_train_pattern_set(ctrl, pattern | DP_RECOVERED_CLOCK_OUT_EN);
++	dp_ctrl_train_pattern_set(ctrl, pattern);
  
+ 	for (tries = 0; tries <= maximum_retries; tries++) {
+ 		drm_dp_link_train_channel_eq_delay(ctrl->aux, ctrl->panel->dpcd);
 -- 
 2.35.1
 
