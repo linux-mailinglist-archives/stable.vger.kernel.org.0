@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C4BE5AE662
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:21:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBEBA5AE661
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:21:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238774AbiIFLVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36584 "EHLO
+        id S232791AbiIFLVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:21:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232791AbiIFLV3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:21:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 470BE32B8B
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:21:28 -0700 (PDT)
+        with ESMTP id S234087AbiIFLVa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:21:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9248932BB9
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:21:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07636B81694
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:21:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA83C433D6;
-        Tue,  6 Sep 2022 11:21:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3116C614AF
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:21:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40396C433C1;
+        Tue,  6 Sep 2022 11:21:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662463285;
-        bh=QKeq8wyejEWxxXGcIv88eWbigrEX5zLT5c4wTeWXPUE=;
+        s=korg; t=1662463288;
+        bh=1u4rW/mIe6QLvTYgFnIRxh4YF6nm7zIDAWmMZMlHBps=;
         h=Subject:To:Cc:From:Date:From;
-        b=yV9dlw8zUo9ginvSTqGpzF+ICCDJCFfq+k3jOpmLCd//tyYOEpb86ngr+WwMH8GaX
-         4przGp3h//zQdBpP4O3/5Aphr4OXFL8nfOfC+1rdnjGWUAqWMY/SPufrbOOkfH1O8f
-         c8Jb6z/RnIEKhMCdiEDaveAb0LUcqOZGAVvPK1WA=
-Subject: FAILED: patch "[PATCH] usb: dwc3: disable USB core PHY management" failed to apply to 5.10-stable tree
+        b=fZ6RFStYpsvP/745An7kdixnxjmC8MDuC68ZLdokgF+8EJltszadJAi3ug7RXc5RR
+         EEhLENk1j2ceuLDG6wCpcg8S/t2MR6uCi2UMjwT0F+r5RaYLsBsfSp3q+0Cd0iXr5B
+         F1ZEk66bFi2IEOJbygDjE3Ih3Gk2iwAfZvYHZizo=
+Subject: FAILED: patch "[PATCH] usb: dwc3: disable USB core PHY management" failed to apply to 5.4-stable tree
 To:     johan+linaro@kernel.org, gregkh@linuxfoundation.org,
         mka@chromium.org, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:21:14 +0200
-Message-ID: <166246327419781@kroah.com>
+Date:   Tue, 06 Sep 2022 13:21:15 +0200
+Message-ID: <166246327518640@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
