@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D6605AEC89
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D71C75AEC5B
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241483AbiIFOU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:20:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37188 "EHLO
+        id S241573AbiIFOUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:20:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241774AbiIFOSp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:18:45 -0400
+        with ESMTP id S241855AbiIFOSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:18:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72C325EB2;
-        Tue,  6 Sep 2022 06:49:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7887529CA3;
+        Tue,  6 Sep 2022 06:49:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D98261554;
-        Tue,  6 Sep 2022 13:48:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65715C433D7;
-        Tue,  6 Sep 2022 13:48:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3920961552;
+        Tue,  6 Sep 2022 13:49:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 469CFC4347C;
+        Tue,  6 Sep 2022 13:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472138;
-        bh=fP2ch1wSr3VNPDcYbIscPwWO18Bj7KdWa/tFLDyAr8w=;
+        s=korg; t=1662472141;
+        bh=CRt/nAFidu2/Fa+kSY83hNUBSE8UekJvMXGOpiPP4Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0uWwmCVIWFojZyUBsyfTJsv66a7kA0zWUsHRqObvCujpYGY6ELK9KeTv5p1zuIkRV
-         D2MtN2HJvKfGBr9yBliO2JMonb3yF9MR0oMuTQUZrgrgKd3b/XRnMakQI2PYwkfKog
-         v4GQEQV13sg0VoVYIZrmSswvGyunRrVRtsrT0qSA=
+        b=1QxLJn5dHe5jZRxF9/Gj9sUF754/XkvIgSQN39EBcB27rCxOI3+5b6DHc9NsI6udg
+         MgUsb1t4J0ZZkVrPdJLAZz6I2F87019DtXxc8wBB0NNfWrHtwf/aGVE549s876d9RP
+         fUVs0TX9adfSQO2UNw9l6qFVIsK7s8aO8UU0ZtjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Siddh Raman Pant <code@siddh.me>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.19 140/155] wifi: mac80211: Fix UAF in ieee80211_scan_rx()
-Date:   Tue,  6 Sep 2022 15:31:28 +0200
-Message-Id: <20220906132835.366533720@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
+        Heng Qi <hengqi@linux.alibaba.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 141/155] ip: fix triggering of icmp redirect
+Date:   Tue,  6 Sep 2022 15:31:29 +0200
+Message-Id: <20220906132835.400192625@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -56,57 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddh Raman Pant <code@siddh.me>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit 60deb9f10eec5c6a20252ed36238b55d8b614a2c upstream.
+commit eb55dc09b5dd040232d5de32812cc83001a23da6 upstream.
 
-ieee80211_scan_rx() tries to access scan_req->flags after a
-null check, but a UAF is observed when the scan is completed
-and __ieee80211_scan_completed() executes, which then calls
-cfg80211_scan_done() leading to the freeing of scan_req.
+__mkroute_input() uses fib_validate_source() to trigger an icmp redirect.
+My understanding is that fib_validate_source() is used to know if the src
+address and the gateway address are on the same link. For that,
+fib_validate_source() returns 1 (same link) or 0 (not the same network).
+__mkroute_input() is the only user of these positive values, all other
+callers only look if the returned value is negative.
 
-Since scan_req is rcu_dereference()'d, prevent the racing in
-__ieee80211_scan_completed() by ensuring that from mac80211's
-POV it is no longer accessed from an RCU read critical section
-before we call cfg80211_scan_done().
+Since the below patch, fib_validate_source() didn't return anymore 1 when
+both addresses are on the same network, because the route lookup returns
+RT_SCOPE_LINK instead of RT_SCOPE_HOST. But this is, in fact, right.
+Let's adapat the test to return 1 again when both addresses are on the same
+link.
 
-Cc: stable@vger.kernel.org
-Link: https://syzkaller.appspot.com/bug?extid=f9acff9bf08a845f225d
-Reported-by: syzbot+f9acff9bf08a845f225d@syzkaller.appspotmail.com
-Suggested-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
-Link: https://lore.kernel.org/r/20220819200340.34826-1-code@siddh.me
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+CC: stable@vger.kernel.org
+Fixes: 747c14307214 ("ip: fix dflt addr selection for connected nexthop")
+Reported-by: kernel test robot <yujie.liu@intel.com>
+Reported-by: Heng Qi <hengqi@linux.alibaba.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220829100121.3821-1-nicolas.dichtel@6wind.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/scan.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ net/ipv4/fib_frontend.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/mac80211/scan.c
-+++ b/net/mac80211/scan.c
-@@ -465,16 +465,19 @@ static void __ieee80211_scan_completed(s
- 	scan_req = rcu_dereference_protected(local->scan_req,
- 					     lockdep_is_held(&local->mtx));
- 
--	if (scan_req != local->int_scan_req) {
--		local->scan_info.aborted = aborted;
--		cfg80211_scan_done(scan_req, &local->scan_info);
--	}
- 	RCU_INIT_POINTER(local->scan_req, NULL);
- 	RCU_INIT_POINTER(local->scan_sdata, NULL);
- 
- 	local->scanning = 0;
- 	local->scan_chandef.chan = NULL;
- 
-+	synchronize_rcu();
-+
-+	if (scan_req != local->int_scan_req) {
-+		local->scan_info.aborted = aborted;
-+		cfg80211_scan_done(scan_req, &local->scan_info);
-+	}
-+
- 	/* Set power back to normal operating levels. */
- 	ieee80211_hw_config(local, 0);
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -389,7 +389,7 @@ static int __fib_validate_source(struct
+ 	dev_match = dev_match || (res.type == RTN_LOCAL &&
+ 				  dev == net->loopback_dev);
+ 	if (dev_match) {
+-		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
++		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
+ 		return ret;
+ 	}
+ 	if (no_addr)
+@@ -401,7 +401,7 @@ static int __fib_validate_source(struct
+ 	ret = 0;
+ 	if (fib_lookup(net, &fl4, &res, FIB_LOOKUP_IGNORE_LINKSTATE) == 0) {
+ 		if (res.type == RTN_UNICAST)
+-			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
++			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
+ 	}
+ 	return ret;
  
 
 
