@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 959435AED2D
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FF165AEB9E
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241293AbiIFOOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:14:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
+        id S241350AbiIFOOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:14:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241476AbiIFONS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:13:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A479388DF0;
-        Tue,  6 Sep 2022 06:48:01 -0700 (PDT)
+        with ESMTP id S241502AbiIFONb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:13:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06E2186C29;
+        Tue,  6 Sep 2022 06:48:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F6A6B81632;
-        Tue,  6 Sep 2022 13:46:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5A1EC433D7;
-        Tue,  6 Sep 2022 13:46:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 831ED61556;
+        Tue,  6 Sep 2022 13:46:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95156C433C1;
+        Tue,  6 Sep 2022 13:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472008;
-        bh=qOPfv6rN3G08Au0xWngt92uuyIDREJjHLEVh3jzqV5I=;
+        s=korg; t=1662472011;
+        bh=8x86kb3UCsPU4xUj131z4xdrX7ebEKME9z7ELKz3Ox4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CinKO5xihiFX9Ux6mrj0/yVgZmIV7JUsbUG14j3iJzDiB1pOeZQGUnaPFuR3jwjFB
-         kcTV7H1w+TE8L5mzmO5aWIkz4af4gRD1jCpCgezJEWzEIFirKQ7uf5RSPQQ1wMW4nY
-         JioVcpBGZeHMSvP7y7MjY6Zi2+7R8jtnrCnRsO+s=
+        b=YU/ZQIPjLKiFUn3uNwD5i5MjTMHf+cOVE4/wg3vmDJz/birh1lKiKrEet/4uqNdd8
+         /nOn0231dP+jIViknvT42DQmJXNHRl3ksbGebWraf8w89m21/pQqTJiak6g3gd+h3n
+         Kz8HWtsH8bN3gIqz/TRFvqzRuMABn6XK8Lnb83SM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yan Xinyu <sdlyyxy@bupt.edu.cn>,
+        stable@vger.kernel.org, Yonglin Tan <yonglin.tan@outlook.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.19 116/155] USB: serial: option: add support for OPPO R11 diag port
-Date:   Tue,  6 Sep 2022 15:31:04 +0200
-Message-Id: <20220906132834.360527795@linuxfoundation.org>
+Subject: [PATCH 5.19 117/155] USB: serial: option: add Quectel EM060K modem
+Date:   Tue,  6 Sep 2022 15:31:05 +0200
+Message-Id: <20220906132834.400645394@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -53,54 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan Xinyu <sdlyyxy@bupt.edu.cn>
+From: Yonglin Tan <yonglin.tan@outlook.com>
 
-commit 8d5fc280392735e4441b35de14f2f4860fa8d83c upstream.
+commit f766f3abe6dbc9bf8b56a5d53c87e5a17942c154 upstream.
 
-Add support for OPPO R11 USB diag serial port to option driver. This
-phone uses Qualcomm Snapdragon 660 SoC.
+Add usb product id entry for the Quectel EM060K module.
 
-usb-devices output:
-T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
+"MBIM mode": DIAG + NMEA + AT + MODEM + MBIM + QDSS
+
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  8 Spd=480  MxCh= 0
 D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=22d9 ProdID=276c Rev=04.04
-S:  Manufacturer=OPPO
-S:  Product=SDM660-MTP _SN:09C6BCA7
-S:  SerialNumber=beb2c403
-C:  #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=usbfs
+P:  Vendor=2c7c ProdID=030b Rev= 5.04
+S:  Manufacturer=Quectel
+S:  Product=EM060K-GL
+S:  SerialNumber=89fb57db
+C:* #Ifs= 7 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 8 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=88(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 9 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 9 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#=12 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=70 Driver=(none)
+E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-Signed-off-by: Yan Xinyu <sdlyyxy@bupt.edu.cn>
-Link: https://lore.kernel.org/r/20220714102037.4113889-1-sdlyyxy@bupt.edu.cn
-Link: https://lore.kernel.org/r/Yt1WfSZk03Plpnan@hovoldconsulting.com
+Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
+[ johan: mention QDSS port and sort entries ]
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -573,6 +573,10 @@ static void option_instat_callback(struc
- #define WETELECOM_PRODUCT_6802			0x6802
- #define WETELECOM_PRODUCT_WMD300		0x6803
- 
-+/* OPPO products */
-+#define OPPO_VENDOR_ID				0x22d9
-+#define OPPO_PRODUCT_R11			0x276c
-+
- 
- /* Device flags */
- 
-@@ -2155,6 +2159,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
- 	{ } /* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, option_ids);
+@@ -253,6 +253,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_BG96			0x0296
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ #define QUECTEL_PRODUCT_EM05G			0x030a
++#define QUECTEL_PRODUCT_EM060K			0x030b
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
+ #define QUECTEL_PRODUCT_EC200S_CN		0x6002
+@@ -1142,6 +1143,9 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0x00, 0x40) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x30) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x40) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
 
 
