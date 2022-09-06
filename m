@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 819CA5AE6E9
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9153E5AE6E8
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:53:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232428AbiIFLxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
+        id S232245AbiIFLxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:53:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230215AbiIFLxV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:53:21 -0400
+        with ESMTP id S230215AbiIFLxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:53:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42ED95725C
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:53:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F87E5725C
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:53:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEA8C614E0
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:53:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBB12C433D6;
-        Tue,  6 Sep 2022 11:53:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF54C614E0
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:53:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1DA2C433C1;
+        Tue,  6 Sep 2022 11:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662465199;
-        bh=1/nrbXIkau3kKKdMU7m5U2i1PjU8xvIxklMm+v6mPYY=;
+        s=korg; t=1662465196;
+        bh=PdmMRq4lBbNEUfo1CUMptVM5Xpckp7xu3uKkDeUFayQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=o7e5fNzoZTwTYB9zaOBp+QP9JNSVajyty8DwuHV2JraCF5DRUXjAvR1vev+JSKNdu
-         RJ+USsBdgxKLS1LgJokGOZQLrBoQZWaErzDkRVkzeutPsU34lesw2tT4GUosdV8lte
-         D8GuIXHf0BM8hvgzG9LRT9g0vFioBb5t6srTLS/4=
-Subject: FAILED: patch "[PATCH] drm/i915/dsi: filter invalid backlight and CABC ports" failed to apply to 5.15-stable tree
+        b=1uY3ZTdogf6OD/FqY/oLwU4h6lBrKZomwtPYHYlj0M+sJPjhk7nlt8xY44tHct7e/
+         iP1fZkKIpzDWQhV+HwteRkBPGkZUXRr8cQnCIOMuiC6ipthHcAk8xB3KsLoW7yfb3Z
+         f8jdZfulM3c3Y7MGIaNNs69VKc4W+RUkp7rP3Ab0=
+Subject: FAILED: patch "[PATCH] drm/i915/dsi: filter invalid backlight and CABC ports" failed to apply to 5.10-stable tree
 To:     jani.nikula@intel.com, rodrigo.vivi@intel.com,
         stanislav.lisovskiy@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 06 Sep 2022 13:53:07 +0200
-Message-ID: <166246518734192@kroah.com>
+Message-ID: <166246518720961@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
