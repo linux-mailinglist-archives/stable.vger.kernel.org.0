@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 700015AEBBD
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93ADE5AEC44
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240377AbiIFOA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:00:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58454 "EHLO
+        id S233200AbiIFOAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:00:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241015AbiIFN7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:59:21 -0400
+        with ESMTP id S240860AbiIFN6w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:58:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008FA83BCB;
-        Tue,  6 Sep 2022 06:43:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A648305A;
+        Tue,  6 Sep 2022 06:42:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FC48B81632;
-        Tue,  6 Sep 2022 13:42:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A7BC433D6;
-        Tue,  6 Sep 2022 13:42:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C83AB818B9;
+        Tue,  6 Sep 2022 13:42:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5622C433C1;
+        Tue,  6 Sep 2022 13:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471733;
-        bh=noxVvwFG6quj79CmmPAnwoBVNUcGDbIVArsJYbBLnIM=;
+        s=korg; t=1662471765;
+        bh=3rQIWftn9/ylHrSmPoJcjnNSWsdJZsDmcOjAsuZnSWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1wzSFTkUesv2UFxXhBJxaytZJ+qgylIiQbkP6TTMRlOlpCKkpBgbqVwAqPuqJA/j4
-         Bpvf6gleMI6GthHMIFQ5WU9P2v8Mu+9LutAzHEdacNEaJQEXJUK4Xwqnzgtw1j9p67
-         OvQ8cnRK4n1H6dej7x2UBb1yjfOeO0krVvln3zsg=
+        b=UFQg9LnYsFXRBJs8PI4ekGi1qlBwKjz8YXLBwMEEnxvlRhToUBcDPXb+lkx/xbOy0
+         bfp0GxGcjfQLWjEtjSI/BDCQH0TKxIRY39VJCKM6zpSwCTszxlb4+ArIHLG2fIj8YP
+         DsuwTYMTu1TkHKHVHywwK8BRXg/F+kLB7Q6HXDHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        sunliming <sunliming@kylinos.cn>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Jessica Zhang <quic_jesszhan@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 002/155] drm/msm/dsi: fix the inconsistent indenting
-Date:   Tue,  6 Sep 2022 15:29:10 +0200
-Message-Id: <20220906132829.528088388@linuxfoundation.org>
+Subject: [PATCH 5.19 003/155] drm/msm/dpu: populate wb or intf before reset_intf_cfg
+Date:   Tue,  6 Sep 2022 15:29:11 +0200
+Message-Id: <20220906132829.567715851@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,41 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunliming <sunliming@kylinos.cn>
+From: Abhinav Kumar <quic_abhinavk@quicinc.com>
 
-[ Upstream commit 2f25a1fb4ec516c5ad67afd754334b491b9f09a5 ]
+[ Upstream commit ef3ac3ae147c6ab370875727791e9b3eaf176cea ]
 
-Fix the inconsistent indenting in function msm_dsi_dphy_timing_calc_v3().
+dpu_encoder_helper_phys_cleanup() was not populating neither
+wb or intf to the intf_cfg before calling the reset_intf_cfg().
 
-Fix the following smatch warnings:
+This causes the reset of the active bits of wb/intf to be
+skipped which is incorrect.
 
-drivers/gpu/drm/msm/dsi/phy/dsi_phy.c:350 msm_dsi_dphy_timing_calc_v3() warn: inconsistent indenting
+Fix this by populating the relevant wb or intf indices correctly.
 
-Fixes: f1fa7ff44056 ("drm/msm/dsi: implement auto PHY timing calculator for 10nm PHY")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: sunliming <sunliming@kylinos.cn>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/494662/
-Link: https://lore.kernel.org/r/20220719015622.646718-1-sunliming@kylinos.cn
+Fixes: ae4d721ce100 ("drm/msm/dpu: add an API to reset the encoder related hw blocks")
 Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Jessica Zhang <quic_jesszhan@quicinc.com>
+Tested-by: Jessica Zhang <quic_jesszhan@quicinc.com> # Trogdor (SC8170)
+Patchwork: https://patchwork.freedesktop.org/patch/494298/
+Link: https://lore.kernel.org/r/1657912468-17254-1-git-send-email-quic_abhinavk@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/phy/dsi_phy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-index a39de3bdc7faf..56dfa2d24be1f 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-@@ -347,7 +347,7 @@ int msm_dsi_dphy_timing_calc_v3(struct msm_dsi_dphy_timing *timing,
- 	} else {
- 		timing->shared_timings.clk_pre =
- 			linear_inter(tmax, tmin, pcnt2, 0, false);
--			timing->shared_timings.clk_pre_inc_by_2 = 0;
-+		timing->shared_timings.clk_pre_inc_by_2 = 0;
- 	}
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
+index 9b4df3084366b..d98c7f7da7c08 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
+@@ -1998,6 +1998,12 @@ void dpu_encoder_helper_phys_cleanup(struct dpu_encoder_phys *phys_enc)
  
- 	timing->ta_go = 3;
+ 	intf_cfg.stream_sel = 0; /* Don't care value for video mode */
+ 	intf_cfg.mode_3d = dpu_encoder_helper_get_3d_blend_mode(phys_enc);
++
++	if (phys_enc->hw_intf)
++		intf_cfg.intf = phys_enc->hw_intf->idx;
++	if (phys_enc->hw_wb)
++		intf_cfg.wb = phys_enc->hw_wb->idx;
++
+ 	if (phys_enc->hw_pp->merge_3d)
+ 		intf_cfg.merge_3d = phys_enc->hw_pp->merge_3d->idx;
+ 
 -- 
 2.35.1
 
