@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EB55ADC08
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 01:54:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C566E5ADC24
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 02:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232634AbiIEXyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 19:54:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51378 "EHLO
+        id S232276AbiIFACd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Sep 2022 20:02:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232432AbiIEXyh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 19:54:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E54BFE00C;
-        Mon,  5 Sep 2022 16:54:29 -0700 (PDT)
+        with ESMTP id S230315AbiIFACc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 20:02:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF3FC67455;
+        Mon,  5 Sep 2022 17:02:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AB1660EBD;
-        Mon,  5 Sep 2022 23:54:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50579C433C1;
-        Mon,  5 Sep 2022 23:54:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 80C61611A0;
+        Tue,  6 Sep 2022 00:02:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90616C433D6;
+        Tue,  6 Sep 2022 00:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662422067;
-        bh=vvuMPl31A2NsTLseaVjxryl65N/xiu0DmIwNE5n8IGU=;
+        s=k20201202; t=1662422550;
+        bh=TMJ80vYAbA8KREyvuRGxIHEH4TEzdMwKMX5gDaCaSJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJqlItyapxrefZztsXaWBQvXBxOeula1KpJqHpWooIPapa8Yl61M4yjv+XNf4w9ao
-         9HyriwP9UOQ4x/j7vJb5ABM2KUia5XQe+asr1R+AwdALzHl7kkTnRIHa7QOtW5mJBX
-         Ke22+fIg7MzEdyxoz8L/0yEt6uLY6vwMePcoOW/knL65oZeHFXCTRn2QfPn3uQaWY0
-         9zKQIHWegNhYqnoWrY8p6O2ISw6danXOlq97g1KE+OuyorFtO73D7027PGY3RQ4YWa
-         oKy2Pc3rRhuAUQOjM57wf9sf2vkscIN89ZynoXeBvL4bibmSgZfSR8VHo3erWzTKxv
-         Ohl7QK97BeIvg==
+        b=kgHE5mLNRCWUku1TGU9On94pxkwpyY6dwuE30/v/4i1/aw9p6AfBvpP/57H+OGHYB
+         o6bCbE1EfvzMx9gUg3k4tzgBYmQ8dHe9IPN5s0424EjjzRggRi+94/K360gzozThZt
+         Nytgw4B8lmopSZxty0i2xuFnZeP3hXVwbbtR3slfFRJogtOZlmd5aTUZ4TS7G8977V
+         VMv3P2oGArApQ4JbY+pcmIzimq0wmQno1NJG/s1bHa+QU6rBKRIMt2NmN7UwYqcfR/
+         wzhruhloRBnzTzAohr7kw9fZxgOL7LaKi5PdQBjqxtx4wu/xy2cBn2kPGrxPYz0kZj
+         uiwdN0ttTPq8Q==
 From:   Jarkko Sakkinen <jarkko@kernel.org>
 To:     linux-sgx@vger.kernel.org
 Cc:     Haitao Huang <haitao.huang@linux.intel.com>,
         Vijay Dhanraj <vijay.dhanraj@intel.com>,
         Reinette Chatre <reinette.chatre@intel.com>,
         Dave Hansen <dave.hansen@linux.intel.com>,
+        Kai Huang <kai.huang@intel.com>,
         Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org,
         Paul Menzel <pmenzel@molgen.mpg.de>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -45,12 +46,12 @@ Cc:     Haitao Huang <haitao.huang@linux.intel.com>,
         "H. Peter Anvin" <hpa@zytor.com>,
         linux-kernel@vger.kernel.org (open list:X86 ARCHITECTURE (32-BIT AND
         64-BIT))
-Subject: [PATCH v2 1/2] x86/sgx: Do not fail on incomplete sanitization on premature stop of ksgxd
-Date:   Tue,  6 Sep 2022 02:54:14 +0300
-Message-Id: <20220905235415.9519-2-jarkko@kernel.org>
+Subject: [PATCH v3 1/2] x86/sgx: Do not fail on incomplete sanitization on premature stop of ksgxd
+Date:   Tue,  6 Sep 2022 03:02:20 +0300
+Message-Id: <20220906000221.34286-2-jarkko@kernel.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220905235415.9519-1-jarkko@kernel.org>
-References: <20220905235415.9519-1-jarkko@kernel.org>
+In-Reply-To: <20220906000221.34286-1-jarkko@kernel.org>
+References: <20220906000221.34286-1-jarkko@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -77,16 +78,16 @@ Refine __sgx_sanitize_pages() to return:
    requested to stop.
 2. The number of unsanitized pages otherwise.
 
-Use the return value as the criteria for triggering output, and tone down
-the output to pr_err() to prevent the whole system to be taken down if for
-some reason sanitization process does not complete.
-
 Link: https://lore.kernel.org/linux-sgx/20220825051827.246698-1-jarkko@kernel.org/T/#u
 Fixes: 51ab30eb2ad4 ("x86/sgx: Replace section->init_laundry_list with sgx_dirty_page_list")
 Cc: stable@vger.kernel.org # v5.13+
 Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 ---
+v9:
+- Remove left_dirty declaratio from ksgxd().
+- Update commit message.
+
 v8:
 - Discard changes that are not relevant for the stable fix. This
   does absolutely minimum to address the bug:
@@ -121,11 +122,11 @@ v2:
 - Rewrote the commit message.
 - Added the fixes tag.
 ---
- arch/x86/kernel/cpu/sgx/main.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ arch/x86/kernel/cpu/sgx/main.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
 diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
-index 515e2a5f25bb..2ec2d7b7da54 100644
+index 515e2a5f25bb..0aad028f04d4 100644
 --- a/arch/x86/kernel/cpu/sgx/main.c
 +++ b/arch/x86/kernel/cpu/sgx/main.c
 @@ -49,9 +49,13 @@ static LIST_HEAD(sgx_dirty_page_list);
@@ -167,16 +168,7 @@ index 515e2a5f25bb..2ec2d7b7da54 100644
  }
  
  static bool sgx_reclaimer_age(struct sgx_epc_page *epc_page)
-@@ -388,6 +394,8 @@ void sgx_reclaim_direct(void)
- 
- static int ksgxd(void *p)
- {
-+	unsigned long left_dirty;
-+
- 	set_freezable();
- 
- 	/*
-@@ -395,10 +403,7 @@ static int ksgxd(void *p)
+@@ -395,10 +401,7 @@ static int ksgxd(void *p)
  	 * required for SECS pages, whose child pages blocked EREMOVE.
  	 */
  	__sgx_sanitize_pages(&sgx_dirty_page_list);
