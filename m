@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 507995AE689
+	by mail.lfdr.de (Postfix) with ESMTP id DF9285AE68B
 	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239451AbiIFLYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:24:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39240 "EHLO
+        id S234098AbiIFLYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:24:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234098AbiIFLYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:24:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBE5979638
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:24:10 -0700 (PDT)
+        with ESMTP id S239482AbiIFLYM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:24:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF25972B5B
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:24:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19FCEB81694
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:24:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB5BC433C1;
-        Tue,  6 Sep 2022 11:24:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1790F60C12
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:24:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B94AC433D6;
+        Tue,  6 Sep 2022 11:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662463447;
-        bh=I0JI1lsMiTIb1vFLhn9gxkxAQD1rhaE8sTB8FEgSwUI=;
+        s=korg; t=1662463450;
+        bh=dqlpTPdjC2k00/AXv60XhzzXtjofYldO9uZt33uQbiQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=rxvqU1BSJvRt9MPeAJQo8+i1sRaSC3qZJd9Nf5EBJdHHr2Gn0qHjKkagrP7l1EukM
-         emq7eiZgG0Vy7T1/T0iTE6CMy4ZoWb4VIEZZadO0cl9Zrw6S0UZdf3xKFRuBo/i1+1
-         dME9uswjwmnFybSbbLGpB1rcZ7fv6l78ENYKXVGI=
-Subject: FAILED: patch "[PATCH] USB: serial: ch341: fix disabled rx timer on older devices" failed to apply to 4.19-stable tree
+        b=VzhkBBV+7zSxG/0CAGFDa7VnAreKDuaAllsAP++c+hXxCZszv+cR10DBA8hcme+79
+         IhX1XcC1lObNSprpwlKFiStCYWU0ZyJMFnxF+9ElKxR2dWNb9vLNORHLdnBQJDnlED
+         y/seVQ2B6hisvevBMJT0NkH+BKZ0MMz0yIof8ltI=
+Subject: FAILED: patch "[PATCH] USB: serial: ch341: fix disabled rx timer on older devices" failed to apply to 4.9-stable tree
 To:     johan@kernel.org, jwoithe@just42.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:23:57 +0200
-Message-ID: <16624634376425@kroah.com>
+Date:   Tue, 06 Sep 2022 13:23:58 +0200
+Message-ID: <1662463438166204@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
