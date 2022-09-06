@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C87DF5AE9EB
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B6455AEABC
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240613AbiIFNfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
+        id S234192AbiIFNpC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:45:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240617AbiIFNeg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:34:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AD2D79A50;
-        Tue,  6 Sep 2022 06:33:26 -0700 (PDT)
+        with ESMTP id S239969AbiIFNoV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:44:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D08F7F11E;
+        Tue,  6 Sep 2022 06:38:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBC16B816A0;
-        Tue,  6 Sep 2022 13:33:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E406C433D6;
-        Tue,  6 Sep 2022 13:33:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDFF2B816A0;
+        Tue,  6 Sep 2022 13:38:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13533C433D6;
+        Tue,  6 Sep 2022 13:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471203;
-        bh=KInf7nXmZCQz9nRyt3phsKM3hc7mqdIKeVR71CKLHwg=;
+        s=korg; t=1662471509;
+        bh=dfWzBeMn6Fpkhrj67gZ4u0h5aLtyFT6AneODOB2/uV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVrfV0Jb2VgJKc+t7juSfvDAniJcgdOW+2Wzi9yeL5UC5IQCBgAodBAI7GaxclFmc
-         NoHN0j7LigxOjCO1i0vCTdWKzCWd8a9sDX6D/Uoan5Pt6nf/HBn1rgE1RO1pk5EOMG
-         tE7XM/RBJYaaap48z9nKdHkaFweRIHqeZeHwvjhA=
+        b=eNHc+5UfP89YTxjYHDJy7wke7Sf4BMnr2gmvkL0omMBqrpah2ehNuDGoMEz/IX8/+
+         KG/dSNa+cHcNuoDad0NOoQalv/RFVbfXmlW1f73tv0O+xfK2WcoBoSsyvLgnfPsUO2
+         7kHQ02DFBGihbZfLWWvqzSObbtxZGj1ZH9VhaOxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Zhi Wang <zhi.a.wang@intel.com>,
         Zhenyu Wang <zhenyuw@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 33/80] drm/i915/reg: Fix spelling mistake "Unsupport" -> "Unsupported"
-Date:   Tue,  6 Sep 2022 15:30:30 +0200
-Message-Id: <20220906132818.357402519@linuxfoundation.org>
+Subject: [PATCH 5.15 050/107] drm/i915/reg: Fix spelling mistake "Unsupport" -> "Unsupported"
+Date:   Tue,  6 Sep 2022 15:30:31 +0200
+Message-Id: <20220906132823.960309469@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -73,10 +73,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/i915/gvt/handlers.c b/drivers/gpu/drm/i915/gvt/handlers.c
-index 0b1ea29dcffac..606e6c315fe24 100644
+index cde0a477fb497..7ed7dba42c834 100644
 --- a/drivers/gpu/drm/i915/gvt/handlers.c
 +++ b/drivers/gpu/drm/i915/gvt/handlers.c
-@@ -660,7 +660,7 @@ static int update_fdi_rx_iir_status(struct intel_vgpu *vgpu,
+@@ -909,7 +909,7 @@ static int update_fdi_rx_iir_status(struct intel_vgpu *vgpu,
  	else if (FDI_RX_IMR_TO_PIPE(offset) != INVALID_INDEX)
  		index = FDI_RX_IMR_TO_PIPE(offset);
  	else {
