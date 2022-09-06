@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22A8F5AEC75
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 099F55AEBB6
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238741AbiIFOP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:15:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47704 "EHLO
+        id S241377AbiIFOQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:16:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241898AbiIFOO1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:14:27 -0400
+        with ESMTP id S241394AbiIFOOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:14:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA117F27D;
-        Tue,  6 Sep 2022 06:49:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D7CA79A78;
+        Tue,  6 Sep 2022 06:49:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32D6DB818DC;
-        Tue,  6 Sep 2022 13:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B23FC433C1;
-        Tue,  6 Sep 2022 13:47:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B6D0B818CB;
+        Tue,  6 Sep 2022 13:47:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 713C4C433C1;
+        Tue,  6 Sep 2022 13:47:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472065;
-        bh=VnqbKOhfd0RYEZrRMPOOEmKr2pH74nhg/CzblupPxyE=;
+        s=korg; t=1662472067;
+        bh=Iuy7BZ0X0UGXwqnlqbPz/nd5nuA2OnCTcw//Ec+dP1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M58sRB7JDbCEhJfoBog0+ax3i/dxVSA9DQMmTbXdZaDYMRPrUVUc76kpnJVqmVNYO
-         Xb8R9B5G1icp9IrpQoQQOLl92SIXaF4e2snG5eswZeb2I7cDXNK7Bh6GfKiql317Sq
-         +mrUXGshr4SXhnz++MBTurkKJz+Tx+tO8qoaa7lA=
+        b=y6+002eVTqzbOn/wHKZxRNZVhz1YEDIOv1A4FQx136TQOAIP/CxmNEY2KbSN9k1KN
+         AZWfn3LzQ6YFHpIuhHNxAmGW/Uj4TNIdukOZ2ysXVeo14s3PmqWZx4ERv4goEEzaZj
+         LT2MV3TvuEPN7euVhE5p/cnj12xDAaDAtCNugPqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.19 105/155] thunderbolt: Use the actual buffer in tb_async_error()
-Date:   Tue,  6 Sep 2022 15:30:53 +0200
-Message-Id: <20220906132833.906197305@linuxfoundation.org>
+Subject: [PATCH 5.19 106/155] thunderbolt: Check router generation before connecting xHCI
+Date:   Tue,  6 Sep 2022 15:30:54 +0200
+Message-Id: <20220906132833.953858129@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,29 +55,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit eb100b8fa8e8b59eb3e5fc7a5fd4a1e3c5950f64 upstream.
+commit 93a3c0d4e8bfbb15145e5dd7da68a3de4b904aba upstream.
 
-The received notification packet is held in pkg->buffer and not in pkg
-itself. Fix this by using the correct buffer.
+Only Thunderbolt 3 routers need the xHCI connection flow. This also
+ensures the router actually has both lane adapters (1 and 3). While
+there move declaration of the boolean variables inside the block where
+they are being used.
 
-Fixes: 81a54b5e1986 ("thunderbolt: Let the connection manager handle all notifications")
+Fixes: 30a4eca69b76 ("thunderbolt: Add internal xHCI connect flows for Thunderbolt 3 devices")
 Cc: stable@vger.kernel.org
 Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/ctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thunderbolt/switch.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/thunderbolt/ctl.c
-+++ b/drivers/thunderbolt/ctl.c
-@@ -407,7 +407,7 @@ static void tb_ctl_rx_submit(struct ctl_
- 
- static int tb_async_error(const struct ctl_pkg *pkg)
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -3781,14 +3781,18 @@ int tb_switch_pcie_l1_enable(struct tb_s
+  */
+ int tb_switch_xhci_connect(struct tb_switch *sw)
  {
--	const struct cfg_error_pkg *error = (const struct cfg_error_pkg *)pkg;
-+	const struct cfg_error_pkg *error = pkg->buffer;
+-	bool usb_port1, usb_port3, xhci_port1, xhci_port3;
+ 	struct tb_port *port1, *port3;
+ 	int ret;
  
- 	if (pkg->frame.eof != TB_CFG_PKG_ERROR)
- 		return false;
++	if (sw->generation != 3)
++		return 0;
++
+ 	port1 = &sw->ports[1];
+ 	port3 = &sw->ports[3];
+ 
+ 	if (tb_switch_is_alpine_ridge(sw)) {
++		bool usb_port1, usb_port3, xhci_port1, xhci_port3;
++
+ 		usb_port1 = tb_lc_is_usb_plugged(port1);
+ 		usb_port3 = tb_lc_is_usb_plugged(port3);
+ 		xhci_port1 = tb_lc_is_xhci_connected(port1);
 
 
