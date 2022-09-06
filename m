@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 640A55AE99D
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:32:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 638B55AEAA5
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234218AbiIFNcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:32:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51330 "EHLO
+        id S234415AbiIFNqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:46:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233940AbiIFNcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:00 -0400
+        with ESMTP id S240565AbiIFNo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:44:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DA2A7549A;
-        Tue,  6 Sep 2022 06:32:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442BA237C0;
+        Tue,  6 Sep 2022 06:38:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9627461545;
-        Tue,  6 Sep 2022 13:31:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A2DEC433D6;
-        Tue,  6 Sep 2022 13:31:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F56C61549;
+        Tue,  6 Sep 2022 13:36:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7254AC433B5;
+        Tue,  6 Sep 2022 13:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471119;
-        bh=2vCxJOk8Eo6TfKehkCO3cAA4i16P8mP0Tf1MgBakdQ0=;
+        s=korg; t=1662471410;
+        bh=HOQxppwsdblTzEhZbD0OZpWfdnnOfaXWXauzQLL26FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vPyBjI+FdfsCOxZpdQ6kphov5NRtW66btMGboW7II2+5sWfMo+lb6t8y6J1J1EtJL
-         0fgt1rocGWQZ8uy5UTH+ZpZJHA5ntKmW/Tpthl7RtABbx2mwTjc3UR8kfE7K4ulrWj
-         AGJoCYPZpMvFcG90Vt0iR/8G9CpG22uAAkc1g/Vk=
+        b=vfqXFChTz7dVqxpF0yqEOGrY/DCZMMB97+dHfQY4EjWBYSalxxtOtwbOA7xCpBzxM
+         YUeGghlIBtNX3vA/5aJOxzY0zUAGhaB074WXENdv/7iHsfgK6ajAd1tVRACeUIsmgz
+         0KuoznzQ/9rHwcNd4Z1wf9AJ887a5YdbDMrV74hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        sunliming <sunliming@kylinos.cn>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 01/80] drm/msm/dsi: fix the inconsistent indenting
-Date:   Tue,  6 Sep 2022 15:29:58 +0200
-Message-Id: <20220906132817.001094509@linuxfoundation.org>
+Subject: [PATCH 5.15 018/107] net: smsc911x: Stop and start PHY during suspend and resume
+Date:   Tue,  6 Sep 2022 15:29:59 +0200
+Message-Id: <20220906132822.537674334@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,41 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunliming <sunliming@kylinos.cn>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 2f25a1fb4ec516c5ad67afd754334b491b9f09a5 ]
+[ Upstream commit 3ce9f2bef75528936c78a7053301f5725f622f3a ]
 
-Fix the inconsistent indenting in function msm_dsi_dphy_timing_calc_v3().
+Commit 744d23c71af3 ("net: phy: Warn about incorrect
+mdio_bus_phy_resume() state") unveiled that the smsc911x driver was not
+properly stopping and restarting the PHY during suspend/resume. Correct
+that by indicating that the MAC is in charge of PHY PM operations and
+ensure that all MDIO bus activity is quiescent during suspend.
 
-Fix the following smatch warnings:
-
-drivers/gpu/drm/msm/dsi/phy/dsi_phy.c:350 msm_dsi_dphy_timing_calc_v3() warn: inconsistent indenting
-
-Fixes: f1fa7ff44056 ("drm/msm/dsi: implement auto PHY timing calculator for 10nm PHY")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: sunliming <sunliming@kylinos.cn>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/494662/
-Link: https://lore.kernel.org/r/20220719015622.646718-1-sunliming@kylinos.cn
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Fixes: fba863b81604 ("net: phy: make PHY PM ops a no-op if MAC driver manages PHY PM")
+Fixes: 2aa70f864955 ("net: smsc911x: Quieten netif during suspend")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220825023951.3220-1-f.fainelli@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/phy/dsi_phy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/smsc/smsc911x.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-index e07986ab52c22..2e0be85ec3947 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-@@ -345,7 +345,7 @@ int msm_dsi_dphy_timing_calc_v3(struct msm_dsi_dphy_timing *timing,
- 	} else {
- 		timing->shared_timings.clk_pre =
- 			linear_inter(tmax, tmin, pcnt2, 0, false);
--			timing->shared_timings.clk_pre_inc_by_2 = 0;
-+		timing->shared_timings.clk_pre_inc_by_2 = 0;
+diff --git a/drivers/net/ethernet/smsc/smsc911x.c b/drivers/net/ethernet/smsc/smsc911x.c
+index 592e191adbf7d..63b99dd8ca51c 100644
+--- a/drivers/net/ethernet/smsc/smsc911x.c
++++ b/drivers/net/ethernet/smsc/smsc911x.c
+@@ -1037,6 +1037,8 @@ static int smsc911x_mii_probe(struct net_device *dev)
+ 		return ret;
  	}
  
- 	timing->ta_go = 3;
++	/* Indicate that the MAC is responsible for managing PHY PM */
++	phydev->mac_managed_pm = true;
+ 	phy_attached_info(phydev);
+ 
+ 	phy_set_max_speed(phydev, SPEED_100);
+@@ -2584,6 +2586,8 @@ static int smsc911x_suspend(struct device *dev)
+ 	if (netif_running(ndev)) {
+ 		netif_stop_queue(ndev);
+ 		netif_device_detach(ndev);
++		if (!device_may_wakeup(dev))
++			phy_stop(ndev->phydev);
+ 	}
+ 
+ 	/* enable wake on LAN, energy detection and the external PME
+@@ -2625,6 +2629,8 @@ static int smsc911x_resume(struct device *dev)
+ 	if (netif_running(ndev)) {
+ 		netif_device_attach(ndev);
+ 		netif_start_queue(ndev);
++		if (!device_may_wakeup(dev))
++			phy_start(ndev->phydev);
+ 	}
+ 
+ 	return 0;
 -- 
 2.35.1
 
