@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AE215AE66E
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2E95AE66C
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239372AbiIFLVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:21:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36864 "EHLO
+        id S239081AbiIFLWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:22:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239281AbiIFLVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:21:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704963207D
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:21:49 -0700 (PDT)
+        with ESMTP id S238831AbiIFLWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:22:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B80F4B4A1
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:21:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26C0BB815F8
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:21:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D20EC433C1;
-        Tue,  6 Sep 2022 11:21:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0F89614C5
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:21:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFAEDC433D7;
+        Tue,  6 Sep 2022 11:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662463306;
-        bh=4J15u3Jym+0s8t747BZ7SCk+1UZW2QNTPU8R/4YfFNU=;
+        s=korg; t=1662463318;
+        bh=HNrdKfTAbmO1ft7351GZpJgCdP+VbjHUC5LMa+pUEv0=;
         h=Subject:To:Cc:From:Date:From;
-        b=0oJ3745RyXzktDwKAimiPvJdj94X/D790VMpewHcahbnewRlpiAtZFey1ol8cJKHZ
-         Q0FasVzl6rxySs1ZGKsPKKfCk/1bJ4ZRmcNPbtXmSuhRncn0fyXnLrmvSZgEftopx6
-         Sx7azq5bS6uSiHmuLXl627+NYZ0CowQ8IT/Mbl/Q=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Avoid duplicate requests to enable" failed to apply to 5.4-stable tree
-To:     quic_wcheng@quicinc.com, gregkh@linuxfoundation.org,
-        stable@kernel.org
+        b=F/EJliWsqFJ7MHkiCW4ppueGrWIg1zFV50N0u/aI3uLd2jX5F0cC3PBjB9ShhysLQ
+         Azzh8Q9NxJ1BnPnPDjd4YJihu5H1qPnqdp7ZdHEii9KZWIrrQHAVyTX9q3PiCuRCkh
+         fnGa1ArXS1rOsBBy0jA2oMzutgK16Swyu1/UVHeM=
+Subject: FAILED: patch "[PATCH] usb: dwc3: fix PHY disable sequence" failed to apply to 5.15-stable tree
+To:     johan+linaro@kernel.org, ahalaney@redhat.com,
+        gregkh@linuxfoundation.org, manivannan.sadhasivam@linaro.org,
+        mka@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:21:36 +0200
-Message-ID: <166246329636182@kroah.com>
+Date:   Tue, 06 Sep 2022 13:21:55 +0200
+Message-ID: <1662463315249164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,51 +61,77 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 040f2dbd2010c43f33ad27249e6dac48456f4d99 Mon Sep 17 00:00:00 2001
-From: Wesley Cheng <quic_wcheng@quicinc.com>
-Date: Wed, 27 Jul 2022 19:06:47 -0700
-Subject: [PATCH] usb: dwc3: gadget: Avoid duplicate requests to enable
- Run/Stop
+From d2ac7bef95c9ead307801ccb6cb6dfbeb14247bf Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan+linaro@kernel.org>
+Date: Thu, 4 Aug 2022 17:09:53 +0200
+Subject: [PATCH] usb: dwc3: fix PHY disable sequence
 
-Relocate the pullups_connected check until after it is ensured that there
-are no runtime PM transitions.  If another context triggered the DWC3
-core's runtime resume, it may have already enabled the Run/Stop.  Do not
-re-run the entire pullup sequence again, as it may issue a core soft
-reset while Run/Stop is already set.
+Generic PHYs must be powered-off before they can be tore down.
 
-This patch depends on
-  commit 69e131d1ac4e ("usb: dwc3: gadget: Prevent repeat pullup()")
+Similarly, suspending legacy PHYs after having powered them off makes no
+sense.
 
-Fixes: 77adb8bdf422 ("usb: dwc3: gadget: Allow runtime suspend if UDC unbinded")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
-Link: https://lore.kernel.org/r/20220728020647.9377-1-quic_wcheng@quicinc.com
+Fix the dwc3_core_exit() (e.g. called during suspend) and open-coded
+dwc3_probe() error-path sequences that got this wrong.
+
+Note that this makes dwc3_core_exit() match the dwc3_core_init() error
+path with respect to powering off the PHYs.
+
+Fixes: 03c1fd622f72 ("usb: dwc3: core: add phy cleanup for probe error handling")
+Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
+Cc: stable@vger.kernel.org      # 4.8
+Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220804151001.23612-2-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index aeeec751c53c..eca945feeec3 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2539,9 +2539,6 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index c5c238ab3083..16d1f328775f 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -833,15 +833,16 @@ static void dwc3_core_exit(struct dwc3 *dwc)
+ {
+ 	dwc3_event_buffers_cleanup(dwc);
  
- 	is_on = !!is_on;
- 
--	if (dwc->pullups_connected == is_on)
--		return 0;
--
- 	dwc->softconnect = is_on;
- 
- 	/*
-@@ -2566,6 +2563,11 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
- 		return 0;
- 	}
- 
-+	if (dwc->pullups_connected == is_on) {
-+		pm_runtime_put(dwc->dev);
-+		return 0;
-+	}
++	usb_phy_set_suspend(dwc->usb2_phy, 1);
++	usb_phy_set_suspend(dwc->usb3_phy, 1);
++	phy_power_off(dwc->usb2_generic_phy);
++	phy_power_off(dwc->usb3_generic_phy);
 +
- 	if (!is_on) {
- 		ret = dwc3_gadget_soft_disconnect(dwc);
- 	} else {
+ 	usb_phy_shutdown(dwc->usb2_phy);
+ 	usb_phy_shutdown(dwc->usb3_phy);
+ 	phy_exit(dwc->usb2_generic_phy);
+ 	phy_exit(dwc->usb3_generic_phy);
+ 
+-	usb_phy_set_suspend(dwc->usb2_phy, 1);
+-	usb_phy_set_suspend(dwc->usb3_phy, 1);
+-	phy_power_off(dwc->usb2_generic_phy);
+-	phy_power_off(dwc->usb3_generic_phy);
+ 	dwc3_clk_disable(dwc);
+ 	reset_control_assert(dwc->reset);
+ }
+@@ -1879,16 +1880,16 @@ static int dwc3_probe(struct platform_device *pdev)
+ 	dwc3_debugfs_exit(dwc);
+ 	dwc3_event_buffers_cleanup(dwc);
+ 
+-	usb_phy_shutdown(dwc->usb2_phy);
+-	usb_phy_shutdown(dwc->usb3_phy);
+-	phy_exit(dwc->usb2_generic_phy);
+-	phy_exit(dwc->usb3_generic_phy);
+-
+ 	usb_phy_set_suspend(dwc->usb2_phy, 1);
+ 	usb_phy_set_suspend(dwc->usb3_phy, 1);
+ 	phy_power_off(dwc->usb2_generic_phy);
+ 	phy_power_off(dwc->usb3_generic_phy);
+ 
++	usb_phy_shutdown(dwc->usb2_phy);
++	usb_phy_shutdown(dwc->usb3_phy);
++	phy_exit(dwc->usb2_generic_phy);
++	phy_exit(dwc->usb3_generic_phy);
++
+ 	dwc3_ulpi_exit(dwc);
+ 
+ err4:
 
