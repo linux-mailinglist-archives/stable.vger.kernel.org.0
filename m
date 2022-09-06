@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05F405AE681
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9DC5AE682
 	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:24:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238831AbiIFLX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:23:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38886 "EHLO
+        id S238774AbiIFLYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:24:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239795AbiIFLX4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:23:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7156A75481
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:23:55 -0700 (PDT)
+        with ESMTP id S239430AbiIFLYA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:24:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E8A7538A
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:23:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9A99614C6
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:23:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4178C433D7;
-        Tue,  6 Sep 2022 11:23:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56F8BB81731
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1E11C433C1;
+        Tue,  6 Sep 2022 11:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662463434;
-        bh=oCxS1wNTE6FbJ18KOjhTkxPIQnxVXChofSJmSsAQLME=;
+        s=korg; t=1662463437;
+        bh=hD056rzCYo4l+VYKP2VleUpxfFX1DsTrUrep5xnp37o=;
         h=Subject:To:Cc:From:Date:From;
-        b=UOCugHNJlqp1+sVy/jgCzPvRG/hNSbptq6DnDpbo68Yp07Uj9pWfvjG1+p1uShFCS
-         b2ABkrt4/zyXWjd30MNDOx8OZ+ZQAbWgvOEiEKJ7dxHsW79Sp4O/VIj0c+psubkk5h
-         6aKzs5/U5GSjiKSvA9Vq6OVJ3XLqDN/hQlvWapAU=
-Subject: FAILED: patch "[PATCH] USB: serial: ch341: fix lost character on LCR updates" failed to apply to 4.19-stable tree
+        b=bWgQoe7PH3Ee0iC6Vhf6mQKuq7TP/KdYNAC1Y4ILiV/diMVxxdqcjJkAeZRKiKaaK
+         t7MkVJiJ0w05QNvKiTfpsPnDfBQaloxaP1WZQPv/zHvlAOMKcs1QF56dNHMhDSBqhn
+         W5ruhR2+0ad/jE/rYtqjH9X7cD0HPCbzFaK/PYIM=
+Subject: FAILED: patch "[PATCH] USB: serial: ch341: fix lost character on LCR updates" failed to apply to 4.9-stable tree
 To:     johan@kernel.org, jwoithe@just42.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:23:42 +0200
-Message-ID: <1662463422127119@kroah.com>
+Date:   Tue, 06 Sep 2022 13:23:43 +0200
+Message-ID: <1662463423215251@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
