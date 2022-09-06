@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5345AECC4
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87C685AEC8A
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241223AbiIFOUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:20:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40052 "EHLO
+        id S241498AbiIFOUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:20:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241514AbiIFOSU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:18:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32018193C2;
-        Tue,  6 Sep 2022 06:49:46 -0700 (PDT)
+        with ESMTP id S241966AbiIFOTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:19:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D975AE1E;
+        Tue,  6 Sep 2022 06:50:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ED4C61562;
-        Tue,  6 Sep 2022 13:48:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CBF1C433D6;
-        Tue,  6 Sep 2022 13:48:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0354CB818D0;
+        Tue,  6 Sep 2022 13:48:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D52BC433D6;
+        Tue,  6 Sep 2022 13:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472098;
-        bh=poronbKLaQ8gfUqenQsdKfMK8ky2B+jaivpBo/e1OME=;
+        s=korg; t=1662472101;
+        bh=VQLh+a20xEIZQ+P8D/7MgSC1pEMZ2OICGNln5U9ZaTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OdYwqGxxUuZ7LqFr50Mlu6avuzNwWqfsABQAHLG7sDGXATR56x1nf7gbwryuFXX8n
-         us2effpLzQq3+uhwLu/i4EcB+OYyKxZsArDeSAGTyVoYa2NVd1O4VFFM4rRutTWtW+
-         B6QoxRPmId6g9NA5dZ1y/9GAVNxl1+SAqVADG6Ek=
+        b=leIKeICS4LQIoZQloqVLRbPuUcWdqp8Fgl1oxxvDcQpoWyAfwEkwoczvwAYKoGvc6
+         w3EAT7DMH4KIu11Pizb220EzUAzScDtYGc43wR1vwytVA0epb2vvxVVvDYS4crvQpA
+         1x1Z6FvX7avdBslam7CiqQGJ3AsKN+QxpC3hIB+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        John Harrison <john.c.harrison@intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.19 148/155] drm/i915/backlight: Disable pps power hook for aux based backlight
-Date:   Tue,  6 Sep 2022 15:31:36 +0200
-Message-Id: <20220906132835.672539262@linuxfoundation.org>
+Subject: [PATCH 5.19 149/155] drm/i915/guc: clear stalled request after a reset
+Date:   Tue,  6 Sep 2022 15:31:37 +0200
+Message-Id: <20220906132835.711944497@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,63 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Högander <jouni.hogander@intel.com>
+From: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
 
-commit 51fbbe8a3f8b9dd128fa98f6ea36058dfa3f36de upstream.
+commit 4595a25443447b9542b2a5ee7961eb290e94b496 upstream.
 
-Pps power hook seems to be problematic for backlight controlled via
-aux channel. Disable it for such cases.
+If the GuC CTs are full and we need to stall the request submission
+while waiting for space, we save the stalled request and where the stall
+occurred; when the CTs have space again we pick up the request submission
+from where we left off.
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3657
-Cc: stable@vger.kernel.org
-Signed-off-by: Jouni Högander <jouni.hogander@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220822140836.534432-1-jouni.hogander@intel.com
-(cherry picked from commit 869e3bb7acb59d88c1226892136661810e8223a4)
+If a full GT reset occurs, the state of all contexts is cleared and all
+non-guilty requests are unsubmitted, therefore we need to restart the
+stalled request submission from scratch. To make sure that we do so,
+clear the saved request after a reset.
+
+Fixes note: the patch that introduced the bug is in 5.15, but no
+officially supported platform had GuC submission enabled by default
+in that kernel, so the backport to that particular version (and only
+that one) can potentially be skipped.
+
+Fixes: 925dc1cf58ed ("drm/i915/guc: Implement GuC submission tasklet")
+Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Cc: Matthew Brost <matthew.brost@intel.com>
+Cc: John Harrison <john.c.harrison@intel.com>
+Cc: <stable@vger.kernel.org> # v5.15+
+Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220811210812.3239621-1-daniele.ceraolospurio@intel.com
+(cherry picked from commit f922fbb0f2ad1fd3e3186f39c46673419e6d9281)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_backlight.c |   11 ++++++++---
- drivers/gpu/drm/i915/display/intel_dp.c        |    2 --
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/gpu/drm/i915/display/intel_backlight.c
-+++ b/drivers/gpu/drm/i915/display/intel_backlight.c
-@@ -15,6 +15,7 @@
- #include "intel_dsi_dcs_backlight.h"
- #include "intel_panel.h"
- #include "intel_pci_config.h"
-+#include "intel_pps.h"
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -4011,6 +4011,13 @@ static inline void guc_init_lrc_mapping(
+ 	xa_destroy(&guc->context_lookup);
  
- /**
-  * scale - scale values from one range to another
-@@ -1769,9 +1770,13 @@ void intel_backlight_init_funcs(struct i
- 		panel->backlight.pwm_funcs = &i9xx_pwm_funcs;
- 	}
- 
--	if (connector->base.connector_type == DRM_MODE_CONNECTOR_eDP &&
--	    intel_dp_aux_init_backlight_funcs(connector) == 0)
--		return;
-+	if (connector->base.connector_type == DRM_MODE_CONNECTOR_eDP) {
-+		if (intel_dp_aux_init_backlight_funcs(connector) == 0)
-+			return;
+ 	/*
++	 * A reset might have occurred while we had a pending stalled request,
++	 * so make sure we clean that up.
++	 */
++	guc->stalled_request = NULL;
++	guc->submission_stall_reason = STALL_NONE;
 +
-+		if (!(dev_priv->quirks & QUIRK_NO_PPS_BACKLIGHT_POWER_HOOK))
-+			connector->panel.backlight.power = intel_pps_backlight_power;
-+	}
- 
- 	/* We're using a standard PWM backlight interface */
- 	panel->backlight.funcs = &pwm_bl_funcs;
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -5248,8 +5248,6 @@ static bool intel_edp_init_connector(str
- 
- 	intel_panel_init(intel_connector);
- 
--	if (!(dev_priv->quirks & QUIRK_NO_PPS_BACKLIGHT_POWER_HOOK))
--		intel_connector->panel.backlight.power = intel_pps_backlight_power;
- 	intel_backlight_setup(intel_connector, pipe);
- 
- 	intel_edp_add_properties(intel_dp);
++	/*
+ 	 * Some contexts might have been pinned before we enabled GuC
+ 	 * submission, so we need to add them to the GuC bookeeping.
+ 	 * Also, after a reset the of the GuC we want to make sure that the
 
 
