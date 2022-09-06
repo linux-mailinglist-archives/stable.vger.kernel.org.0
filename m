@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF7C55AEBAA
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96B505AEC76
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239256AbiIFOH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:07:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58872 "EHLO
+        id S240635AbiIFOIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:08:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240183AbiIFOF3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:05:29 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295977DF48;
-        Tue,  6 Sep 2022 06:45:33 -0700 (PDT)
+        with ESMTP id S240713AbiIFOGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:06:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C6785A91;
+        Tue,  6 Sep 2022 06:45:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DB29BCE1780;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 212CE61557;
+        Tue,  6 Sep 2022 13:44:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BC37C433D7;
         Tue,  6 Sep 2022 13:44:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C2DFC433D6;
-        Tue,  6 Sep 2022 13:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471864;
-        bh=7wlCsrVRDBxNF3WWLtS5SZ44/JlKUKUftG/22O5o1qQ=;
+        s=korg; t=1662471867;
+        bh=17sx56KLKhxrqHmDM3TMAmXikZVYkvO5J/4XnRroi5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TV/mDjjlula05p8FhRZxA4sRLihzQiWzTgGKxRJh4ErEvUZv+7wB6cMR2eUhAbr1t
-         vVEdermZp9tBpMxLJKdkd0M4pMcK72ZUVy+mywserQ4L77cTjm9/OnoLvddq3iN9zS
-         H1VMUJ1PXX+1lgNKkazDb4Anx9TztQNMRRwhKWBY=
+        b=balKwnhUawtGJkRg8tU0wuYspv8IT/K2ZtMdaXN4Z20/znCScMA9kMeviBUlIk7so
+         Wa6XDanSOOTxXA8nj48diVJV7rPyUsJKXib5bTdXAJVGCkMn/lP/x+4/ZYrDg34V1i
+         ebOo0QspJFL80OKQfHU9pZv79nkwj3gy5/mK48d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com,
-        stable <stable@kernel.org>,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.19 064/155] vt: Clear selection before changing the font
-Date:   Tue,  6 Sep 2022 15:30:12 +0200
-Message-Id: <20220906132832.139490964@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.19 065/155] musb: fix USB_MUSB_TUSB6010 dependency
+Date:   Tue,  6 Sep 2022 15:30:13 +0200
+Message-Id: <20220906132832.187312657@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -56,58 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 566f9c9f89337792070b5a6062dff448b3e7977f upstream.
+commit a3f2fd22743fc56dd5e3896a3fbddd276df1577f upstream.
 
-When changing the console font with ioctl(KDFONTOP) the new font size
-can be bigger than the previous font. A previous selection may thus now
-be outside of the new screen size and thus trigger out-of-bounds
-accesses to graphics memory if the selection is removed in
-vc_do_resize().
+Turning on NOP_USB_XCEIV as builtin broke the TUSB6010 driver because
+of an older issue with the depencency.
 
-Prevent such out-of-memory accesses by dropping the selection before the
-various con_font_set() console handlers are called.
+It is not necessary to forbid NOP_USB_XCEIV=y in combination with
+USB_MUSB_HDRC=m, but only the reverse, which causes the link failure
+from the original Kconfig change.
 
-Reported-by: syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com
+Use the correct dependency to still allow NOP_USB_XCEIV=n or
+NOP_USB_XCEIV=y but forbid NOP_USB_XCEIV=m when USB_MUSB_HDRC=m
+to fix the multi_v7_defconfig for tusb.
+
+Fixes: ab37a7a890c1 ("ARM: multi_v7_defconfig: Make NOP_USB_XCEIV driver built-in")
+Fixes: c0442479652b ("usb: musb: Fix randconfig build issues for Kconfig options")
 Cc: stable <stable@kernel.org>
-Tested-by: Khalid Masum <khalid.masum.92@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Link: https://lore.kernel.org/r/YuV9apZGNmGfjcor@p100
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20220818135737.3143895-10-arnd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/usb/musb/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -4662,9 +4662,11 @@ static int con_font_set(struct vc_data *
- 	console_lock();
- 	if (vc->vc_mode != KD_TEXT)
- 		rc = -EINVAL;
--	else if (vc->vc_sw->con_font_set)
-+	else if (vc->vc_sw->con_font_set) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_set(vc, &font, op->flags);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	kfree(font.data);
-@@ -4691,9 +4693,11 @@ static int con_font_default(struct vc_da
- 		console_unlock();
- 		return -EINVAL;
- 	}
--	if (vc->vc_sw->con_font_default)
-+	if (vc->vc_sw->con_font_default) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_default(vc, &font, s);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	if (!rc) {
+--- a/drivers/usb/musb/Kconfig
++++ b/drivers/usb/musb/Kconfig
+@@ -86,7 +86,7 @@ config USB_MUSB_TUSB6010
+ 	tristate "TUSB6010"
+ 	depends on HAS_IOMEM
+ 	depends on ARCH_OMAP2PLUS || COMPILE_TEST
+-	depends on NOP_USB_XCEIV = USB_MUSB_HDRC # both built-in or both modules
++	depends on NOP_USB_XCEIV!=m || USB_MUSB_HDRC=m
+ 
+ config USB_MUSB_OMAP2PLUS
+ 	tristate "OMAP2430 and onwards"
 
 
