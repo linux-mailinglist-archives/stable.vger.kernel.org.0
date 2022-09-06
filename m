@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D54D5AE715
+	by mail.lfdr.de (Postfix) with ESMTP id 050405AE714
 	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 14:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231562AbiIFMAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 08:00:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57466 "EHLO
+        id S232625AbiIFMAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 08:00:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232209AbiIFMAd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:00:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AC0672EF4
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 05:00:29 -0700 (PDT)
+        with ESMTP id S234074AbiIFMAg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:00:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8167821D
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 05:00:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5B52614D4
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 12:00:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCA5FC433C1;
-        Tue,  6 Sep 2022 12:00:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCDB0B81889
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 12:00:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19AC3C433C1;
+        Tue,  6 Sep 2022 12:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662465628;
-        bh=i3WfYTOlS+se0/HqWBk9/V5zp9mngNJ8wqarExTVqc4=;
+        s=korg; t=1662465631;
+        bh=N/FN53b17JgFyLmdNU4HYFu1VXur3QXDMKn99mLfmOw=;
         h=Subject:To:Cc:From:Date:From;
-        b=C9de0HDnjcPRKSywXBKJVbiQlsgtrXhZkOVDGn/cNzdENByOUOCc6mlxMCCe0S4aE
-         nV9N1t0rZDSqdwpHnQ3iTptp6Uyt+xWio1rygg28jU1lkNFmIn4QNvuxTzehGDDlt/
-         KEru4SXJHs2UNjGU2OQHtMHnG5or6dTnRByOVcpA=
-Subject: FAILED: patch "[PATCH] selinux: implement the security_uring_cmd() LSM hook" failed to apply to 5.10-stable tree
+        b=QZXSgdnbOj3/rBaO+ECAIM8v2Puu7gUBbZKdL76N2PfXh08cIf6DrfJiCR7+P5pOK
+         S6oHJ1o7IaDWf59/bd/rDPnq0Xfo/rkvUGPTMOGFPqHD/DRUxzxHKbpEdKpR3G7+gB
+         GXk5RfKM5CASv24WIPOVXx//o1L6yqkF/kQ8J6nQ=
+Subject: FAILED: patch "[PATCH] selinux: implement the security_uring_cmd() LSM hook" failed to apply to 5.19-stable tree
 To:     paul@paul-moore.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 14:00:11 +0200
-Message-ID: <166246561142219@kroah.com>
+Date:   Tue, 06 Sep 2022 14:00:14 +0200
+Message-ID: <1662465614128142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,8 +56,6 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 f4d653dcaa4e ("selinux: implement the security_uring_cmd() LSM hook")
-740b03414b20 ("selinux: add support for the io_uring access controls")
-29cd6591ab6f ("selinux: teach SELinux about anonymous inodes")
 
 thanks,
 
