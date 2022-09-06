@@ -2,113 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D34B15ADF63
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 08:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D885AE07F
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 09:04:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238475AbiIFGI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 02:08:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49398 "EHLO
+        id S238785AbiIFHDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 03:03:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238390AbiIFGIs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 02:08:48 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BD0D66102
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 23:08:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662444527; x=1693980527;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=ZalxVJzAcO/EhVu0DiqqC3410ECrzJv4tvQseQGQGT4=;
-  b=F/bp4nskLx0pVje3L2V5hQRV99d8c7ys0GhwNHTixK6aR2Vz8R3M2ObE
-   VJAaD8OfRTmlyb5+CDqKKXZYvRuYT7DF4WBSs7r7GdB+Ss8dz8ckUIKkI
-   /67yvbiw1R2AtQ3/n6/dETsl1Cyt4KSQBbhGeSAUUADPtwpHMJiJqlRCC
-   yk7AW1IWKT15Kk0B+F3hBj2lMTDjYE50gWTh24fCiQD45q/f/C7D8kozw
-   TuUYNCItdUuHBy2eaMXrda8G+pdz0gudg/JjvBIcjCW+sRhJPOGt8fcp9
-   4THpC+4gis91+UcqFyGpOqbXO0TVG7t17KITpAFmA30HHVbxxFGows02E
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10461"; a="283507704"
-X-IronPort-AV: E=Sophos;i="5.93,293,1654585200"; 
-   d="scan'208";a="283507704"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2022 23:08:46 -0700
-X-IronPort-AV: E=Sophos;i="5.93,293,1654585200"; 
-   d="scan'208";a="609848731"
-Received: from jzablotn-mobl.ger.corp.intel.com (HELO ahunter-VirtualBox.home\044ger.corp.intel.com) ([10.252.57.122])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2022 23:08:45 -0700
-From:   Adrian Hunter <adrian.hunter@intel.com>
-To:     stable@vger.kernel.org
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Seunghui Lee <sh043.lee@samsung.com>
-Subject: [PATCH 5.10] mmc: core: Fix UHS-I SD 1.8V workaround branch
-Date:   Tue,  6 Sep 2022 09:08:34 +0300
-Message-Id: <20220906060834.58305-1-adrian.hunter@intel.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S238790AbiIFHD1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 03:03:27 -0400
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AAB273325;
+        Tue,  6 Sep 2022 00:03:18 -0700 (PDT)
+X-UUID: 1263fc9d66de48c38f8c502496438d86-20220906
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=4X0g6zh3LL2gC/S+uOCH4TXJCztnz+tFKJu4PBhlAjQ=;
+        b=i4J8NQoV1WB49QjRCx8FfFEa6QF4vm9gjnHUaQeaRgMSU7DHQqGXloht43hQ0Nu6t04YF9E65YvMsw48tLUI+xhLFgU8BHAtw01v7UcYeDWL1HZTNhXrvAg5fA/cByg+J7wCuQzqs9NxIm+5gsWLmp5OFTXV+tv0ha14QxMtGMQ=;
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.10,REQID:0974d8d2-8969-4f1d-8165-edaa246053bb,OB:0,L
+        OB:0,IP:0,URL:0,TC:0,Content:-20,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Releas
+        e_Ham,ACTION:release,TS:-20
+X-CID-META: VersionHash:84eae18,CLOUDID:7da0d4d0-20bd-4e5e-ace8-00692b7ab380,C
+        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:1,EDM:-3,IP:nil,URL:0,File:nil
+        ,Bulk:nil,QS:nil,BEC:nil,COL:0
+X-UUID: 1263fc9d66de48c38f8c502496438d86-20220906
+Received: from mtkmbs11n1.mediatek.inc [(172.21.101.185)] by mailgw02.mediatek.com
+        (envelope-from <yee.lee@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1404548576; Tue, 06 Sep 2022 15:03:12 +0800
+Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
+ mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
+ Tue, 6 Sep 2022 15:03:11 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
+ mtkmbs11n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.792.15 via Frontend Transport; Tue, 6 Sep 2022 15:03:11 +0800
+From:   <yee.lee@mediatek.com>
+To:     <linux-kernel@vger.kernel.org>
+CC:     <patrick.wang.shcn@gmail.com>, Yee Lee <yee.lee@mediatek.com>,
+        <stable@vger.kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Andrew Morton" <akpm@linux-foundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>
+Subject: [PATCH 5.15.y] Revert "mm: kmemleak: take a full lowmem check in kmemleak_*_phys()"
+Date:   Tue, 6 Sep 2022 15:03:06 +0800
+Message-ID: <20220906070309.18809-1-yee.lee@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-MTK:  N
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY,URIBL_CSS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 15c56208c79c340686869c31595c209d1431c5e8 upstream.
+From: Yee Lee <yee.lee@mediatek.com>
 
-When introduced, upon success, the 1.8V fixup workaround in
-mmc_sd_init_card() would branch to practically the end of the function, to
-a label named "done". Unfortunately, perhaps due to the label name, over
-time new code has been added that really should have come after "done" not
-before it. Let's fix the problem by moving the label to the correct place
-and rename it "cont".
+This reverts commit 23c2d497de21f25898fbea70aeb292ab8acc8c94.
 
-Fixes: 045d705dc1fb ("mmc: core: Enable the MMC host software queue for the SD card")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Seunghui Lee <sh043.lee@samsung.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220815073321.63382-2-adrian.hunter@intel.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-[Backport to 5.10]
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Commit 23c2d497de21 ("mm: kmemleak: take a full lowmem check in
+kmemleak_*_phys()") brought false leak alarms on some archs like arm64
+that does not init pfn boundary in early booting. The final solution
+lands on linux-6.0: commit 0c24e061196c ("mm: kmemleak: add rbtree and
+store physical address for objects allocated with PA").
+
+Revert this commit before linux-6.0. The original issue of invalid PA
+can be mitigated by additional check in devicetree.
+
+The false alarm report is as following: Kmemleak output: (Qemu/arm64)
+unreferenced object 0xffff0000c0170a00 (size 128):
+  comm "swapper/0", pid 1, jiffies 4294892404 (age 126.208s)
+  hex dump (first 32 bytes):
+ 62 61 73 65 00 00 00 00 00 00 00 00 00 00 00 00  base............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<(____ptrval____)>] __kmalloc_track_caller+0x1b0/0x2e4
+    [<(____ptrval____)>] kstrdup_const+0x8c/0xc4
+    [<(____ptrval____)>] kvasprintf_const+0xbc/0xec
+    [<(____ptrval____)>] kobject_set_name_vargs+0x58/0xe4
+    [<(____ptrval____)>] kobject_add+0x84/0x100
+    [<(____ptrval____)>] __of_attach_node_sysfs+0x78/0xec
+    [<(____ptrval____)>] of_core_init+0x68/0x104
+    [<(____ptrval____)>] driver_init+0x28/0x48
+    [<(____ptrval____)>] do_basic_setup+0x14/0x28
+    [<(____ptrval____)>] kernel_init_freeable+0x110/0x178
+    [<(____ptrval____)>] kernel_init+0x20/0x1a0
+    [<(____ptrval____)>] ret_from_fork+0x10/0x20
+
+This pacth is also applicable to linux-5.17.y/linux-5.18.y/linux-5.19.y
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Yee Lee <yee.lee@mediatek.com>
 ---
- drivers/mmc/core/sd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/kmemleak.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
-index bac343a8d569..0b09cdaaeb6c 100644
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -1107,7 +1107,7 @@ static int mmc_sd_init_card(struct mmc_host *host, u32 ocr,
- 					mmc_remove_card(card);
- 				goto retry;
- 			}
--			goto done;
-+			goto cont;
- 		}
- 	}
- 
-@@ -1143,7 +1143,7 @@ static int mmc_sd_init_card(struct mmc_host *host, u32 ocr,
- 			mmc_set_bus_width(host, MMC_BUS_WIDTH_4);
- 		}
- 	}
--
-+cont:
- 	if (host->cqe_ops && !host->cqe_enabled) {
- 		err = host->cqe_ops->cqe_enable(host, card);
- 		if (!err) {
-@@ -1161,7 +1161,7 @@ static int mmc_sd_init_card(struct mmc_host *host, u32 ocr,
- 		err = -EINVAL;
- 		goto free_card;
- 	}
--done:
-+
- 	host->card = card;
- 	return 0;
- 
+diff --git a/mm/kmemleak.c b/mm/kmemleak.c
+index 859303aae180..b78861b8e013 100644
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -1125,7 +1125,7 @@ EXPORT_SYMBOL(kmemleak_no_scan);
+ void __ref kmemleak_alloc_phys(phys_addr_t phys, size_t size, int min_count,
+ 			       gfp_t gfp)
+ {
+-	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
++	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
+ 		kmemleak_alloc(__va(phys), size, min_count, gfp);
+ }
+ EXPORT_SYMBOL(kmemleak_alloc_phys);
+@@ -1139,7 +1139,7 @@ EXPORT_SYMBOL(kmemleak_alloc_phys);
+  */
+ void __ref kmemleak_free_part_phys(phys_addr_t phys, size_t size)
+ {
+-	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
++	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
+ 		kmemleak_free_part(__va(phys), size);
+ }
+ EXPORT_SYMBOL(kmemleak_free_part_phys);
+@@ -1151,7 +1151,7 @@ EXPORT_SYMBOL(kmemleak_free_part_phys);
+  */
+ void __ref kmemleak_not_leak_phys(phys_addr_t phys)
+ {
+-	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
++	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
+ 		kmemleak_not_leak(__va(phys));
+ }
+ EXPORT_SYMBOL(kmemleak_not_leak_phys);
+@@ -1163,7 +1163,7 @@ EXPORT_SYMBOL(kmemleak_not_leak_phys);
+  */
+ void __ref kmemleak_ignore_phys(phys_addr_t phys)
+ {
+-	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
++	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
+ 		kmemleak_ignore(__va(phys));
+ }
+ EXPORT_SYMBOL(kmemleak_ignore_phys);
 -- 
-2.25.1
+2.18.0
 
