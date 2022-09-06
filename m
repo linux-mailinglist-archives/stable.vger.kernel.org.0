@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 436F35AE6FC
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01185AE713
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 14:01:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234166AbiIFLzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:55:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49692 "EHLO
+        id S232944AbiIFMAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 08:00:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234302AbiIFLzN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:55:13 -0400
+        with ESMTP id S232951AbiIFMAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:00:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B93165250
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:55:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A88642AED
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 05:00:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC6DA614E3
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:55:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA0F9C433D6;
-        Tue,  6 Sep 2022 11:55:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A8FE614DB
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 12:00:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1598EC433C1;
+        Tue,  6 Sep 2022 12:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662465311;
-        bh=1BXx2oOtgPU7dzciIOziWTMteYm/Mu7kWt5ES6mkcoA=;
+        s=korg; t=1662465622;
+        bh=NcVCjCiYN9ZLuV5g3V9SCRvSOYzksUiRPgrnriC7vVs=;
         h=Subject:To:Cc:From:Date:From;
-        b=R3fsrchgSk2TQ4axgUtZVDKVRisWbiSXIaQSEDb+0fC5FpKMFiAJeiIivG3hk+f+H
-         UCWj4hS0m7w2IstLdlERuplXEje/FzRBqCpGYTuZx4wqdPAWMyiIoS7tTOdHS+RPDH
-         hzaf1RGIyzMCEMkd/hEQLG5C4SFl7VDFM3lNcX9U=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: avoid call of sleeping functions from atomic" failed to apply to 4.14-stable tree
-To:     pchelkin@ispras.ru, gregkh@linuxfoundation.org,
-        khoroshilov@ispras.ru, stable@kernel.org
+        b=zH5qYQVL9kKiaFinipcOXIrp14oFY1G49zOLkX4p+k+aNABbAhkPh+be139xa69c6
+         r9r9YEMyPXIp7UnfSyyk4SjwBBMVHEKYNwNSs/b0sMBIXWx0IkfuEePFoyz//XaLHc
+         AFydkEPXxNK5wKT8uwewy1yjK47v6Vat+BBix6QQ=
+Subject: FAILED: patch "[PATCH] drm/i915/guc: clear stalled request after a reset" failed to apply to 5.15-stable tree
+To:     daniele.ceraolospurio@intel.com, John.C.Harrison@Intel.com,
+        john.c.harrison@intel.com, matthew.brost@intel.com,
+        rodrigo.vivi@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:55:01 +0200
-Message-ID: <166246530112494@kroah.com>
+Date:   Tue, 06 Sep 2022 13:59:36 +0200
+Message-ID: <16624655768841@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,33 +50,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-902e02ea9385 ("tty: n_gsm: avoid call of sleeping functions from atomic context")
-c9ab053e56ce ("tty: n_gsm: replace kicktimer with delayed_work")
-4bb1a53be85f ("tty: n_gsm: initialize more members at gsm_alloc_mux()")
-734966043860 ("tty: n_gsm: fix resource allocation order in gsm_activate_mux()")
-0af021678d5d ("tty: n_gsm: fix deadlock and link starvation in outgoing data path")
-32dd59f96924 ("tty: n_gsm: fix race condition in gsmld_write()")
-bec0224816d1 ("tty: n_gsm: fix non flow control frames during mux flow off")
-c568f7086c6e ("tty: n_gsm: fix missing timer to handle stalled links")
-556fc8ac0651 ("tty: n_gsm: fix wrong queuing behavior in gsm_dlci_data_output()")
-01aecd917114 ("tty: n_gsm: fix tty registration before control channel open")
-925ea0fa5277 ("tty: n_gsm: Fix packet data hex dump output")
-f4f7d6328721 ("tty: n_gsm: fix software flow control handling")
-c19ffe00fed6 ("tty: n_gsm: fix invalid use of MSC in advanced option")
-a8c5b8255f8a ("tty: n_gsm: fix broken virtual tty handling")
-48473802506d ("tty: n_gsm: fix missing update of modem controls after DLCI open")
-73029a4d7161 ("tty: n_gsm: fix reset fifo race condition")
-398867f59f95 ("tty: n_gsm: fix wrong command frame length field encoding")
-17eac6520285 ("tty: n_gsm: fix missing explicit ldisc flush")
-deefc58bafb4 ("tty: n_gsm: fix wrong DLCI release order")
-7a0e4b1733b6 ("tty: n_gsm: fix frame reception handling")
+4595a2544344 ("drm/i915/guc: clear stalled request after a reset")
 
 thanks,
 
@@ -83,309 +65,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 902e02ea9385373ce4b142576eef41c642703955 Mon Sep 17 00:00:00 2001
-From: Fedor Pchelkin <pchelkin@ispras.ru>
-Date: Mon, 29 Aug 2022 16:16:40 +0300
-Subject: [PATCH] tty: n_gsm: avoid call of sleeping functions from atomic
- context
+From 4595a25443447b9542b2a5ee7961eb290e94b496 Mon Sep 17 00:00:00 2001
+From: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Date: Thu, 11 Aug 2022 14:08:12 -0700
+Subject: [PATCH] drm/i915/guc: clear stalled request after a reset
 
-Syzkaller reports the following problem:
+If the GuC CTs are full and we need to stall the request submission
+while waiting for space, we save the stalled request and where the stall
+occurred; when the CTs have space again we pick up the request submission
+from where we left off.
 
-BUG: sleeping function called from invalid context at kernel/printk/printk.c:2347
-in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1105, name: syz-executor423
-3 locks held by syz-executor423/1105:
- #0: ffff8881468b9098 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref_wait+0x22/0x90 drivers/tty/tty_ldisc.c:266
- #1: ffff8881468b9130 (&tty->atomic_write_lock){+.+.}-{3:3}, at: tty_write_lock drivers/tty/tty_io.c:952 [inline]
- #1: ffff8881468b9130 (&tty->atomic_write_lock){+.+.}-{3:3}, at: do_tty_write drivers/tty/tty_io.c:975 [inline]
- #1: ffff8881468b9130 (&tty->atomic_write_lock){+.+.}-{3:3}, at: file_tty_write.constprop.0+0x2a8/0x8e0 drivers/tty/tty_io.c:1118
- #2: ffff88801b06c398 (&gsm->tx_lock){....}-{2:2}, at: gsmld_write+0x5e/0x150 drivers/tty/n_gsm.c:2717
-irq event stamp: 3482
-hardirqs last  enabled at (3481): [<ffffffff81d13343>] __get_reqs_available+0x143/0x2f0 fs/aio.c:946
-hardirqs last disabled at (3482): [<ffffffff87d39722>] __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:108 [inline]
-hardirqs last disabled at (3482): [<ffffffff87d39722>] _raw_spin_lock_irqsave+0x52/0x60 kernel/locking/spinlock.c:159
-softirqs last  enabled at (3408): [<ffffffff87e01002>] asm_call_irq_on_stack+0x12/0x20
-softirqs last disabled at (3401): [<ffffffff87e01002>] asm_call_irq_on_stack+0x12/0x20
-Preemption disabled at:
-[<0000000000000000>] 0x0
-CPU: 2 PID: 1105 Comm: syz-executor423 Not tainted 5.10.137-syzkaller #0
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x107/0x167 lib/dump_stack.c:118
- ___might_sleep.cold+0x1e8/0x22e kernel/sched/core.c:7304
- console_lock+0x19/0x80 kernel/printk/printk.c:2347
- do_con_write+0x113/0x1de0 drivers/tty/vt/vt.c:2909
- con_write+0x22/0xc0 drivers/tty/vt/vt.c:3296
- gsmld_write+0xd0/0x150 drivers/tty/n_gsm.c:2720
- do_tty_write drivers/tty/tty_io.c:1028 [inline]
- file_tty_write.constprop.0+0x502/0x8e0 drivers/tty/tty_io.c:1118
- call_write_iter include/linux/fs.h:1903 [inline]
- aio_write+0x355/0x7b0 fs/aio.c:1580
- __io_submit_one fs/aio.c:1952 [inline]
- io_submit_one+0xf45/0x1a90 fs/aio.c:1999
- __do_sys_io_submit fs/aio.c:2058 [inline]
- __se_sys_io_submit fs/aio.c:2028 [inline]
- __x64_sys_io_submit+0x18c/0x2f0 fs/aio.c:2028
- do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x61/0xc6
+If a full GT reset occurs, the state of all contexts is cleared and all
+non-guilty requests are unsubmitted, therefore we need to restart the
+stalled request submission from scratch. To make sure that we do so,
+clear the saved request after a reset.
 
-The problem happens in the following control flow:
+Fixes note: the patch that introduced the bug is in 5.15, but no
+officially supported platform had GuC submission enabled by default
+in that kernel, so the backport to that particular version (and only
+that one) can potentially be skipped.
 
-gsmld_write(...)
-spin_lock_irqsave(&gsm->tx_lock, flags) // taken a spinlock on TX data
- con_write(...)
-  do_con_write(...)
-   console_lock()
-    might_sleep() // -> bug
+Fixes: 925dc1cf58ed ("drm/i915/guc: Implement GuC submission tasklet")
+Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Cc: Matthew Brost <matthew.brost@intel.com>
+Cc: John Harrison <john.c.harrison@intel.com>
+Cc: <stable@vger.kernel.org> # v5.15+
+Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220811210812.3239621-1-daniele.ceraolospurio@intel.com
+(cherry picked from commit f922fbb0f2ad1fd3e3186f39c46673419e6d9281)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-As far as console_lock() might sleep it should not be called with
-spinlock held.
-
-The patch replaces tx_lock spinlock with mutex in order to avoid the
-problem.
-
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-Fixes: 32dd59f96924 ("tty: n_gsm: fix race condition in gsmld_write()")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Link: https://lore.kernel.org/r/20220829131640.69254-3-pchelkin@ispras.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index e23225aff5d9..01c112e2e214 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -248,7 +248,7 @@ struct gsm_mux {
- 	bool constipated;		/* Asked by remote to shut up */
- 	bool has_devices;		/* Devices were registered */
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+index 76916aed897a..834c707d1877 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -4026,6 +4026,13 @@ static inline void guc_init_lrc_mapping(struct intel_guc *guc)
+ 	/* make sure all descriptors are clean... */
+ 	xa_destroy(&guc->context_lookup);
  
--	spinlock_t tx_lock;
-+	struct mutex tx_mutex;
- 	unsigned int tx_bytes;		/* TX data outstanding */
- #define TX_THRESH_HI		8192
- #define TX_THRESH_LO		2048
-@@ -680,7 +680,6 @@ static int gsm_send(struct gsm_mux *gsm, int addr, int cr, int control)
- 	struct gsm_msg *msg;
- 	u8 *dp;
- 	int ocr;
--	unsigned long flags;
- 
- 	msg = gsm_data_alloc(gsm, addr, 0, control);
- 	if (!msg)
-@@ -702,10 +701,10 @@ static int gsm_send(struct gsm_mux *gsm, int addr, int cr, int control)
- 
- 	gsm_print_packet("Q->", addr, cr, control, NULL, 0);
- 
--	spin_lock_irqsave(&gsm->tx_lock, flags);
-+	mutex_lock(&gsm->tx_mutex);
- 	list_add_tail(&msg->list, &gsm->tx_ctrl_list);
- 	gsm->tx_bytes += msg->len;
--	spin_unlock_irqrestore(&gsm->tx_lock, flags);
-+	mutex_unlock(&gsm->tx_mutex);
- 	gsmld_write_trigger(gsm);
- 
- 	return 0;
-@@ -730,7 +729,7 @@ static void gsm_dlci_clear_queues(struct gsm_mux *gsm, struct gsm_dlci *dlci)
- 	spin_unlock_irqrestore(&dlci->lock, flags);
- 
- 	/* Clear data packets in MUX write queue */
--	spin_lock_irqsave(&gsm->tx_lock, flags);
-+	mutex_lock(&gsm->tx_mutex);
- 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_data_list, list) {
- 		if (msg->addr != addr)
- 			continue;
-@@ -738,7 +737,7 @@ static void gsm_dlci_clear_queues(struct gsm_mux *gsm, struct gsm_dlci *dlci)
- 		list_del(&msg->list);
- 		kfree(msg);
- 	}
--	spin_unlock_irqrestore(&gsm->tx_lock, flags);
-+	mutex_unlock(&gsm->tx_mutex);
- }
- 
- /**
-@@ -1024,10 +1023,9 @@ static void __gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
- 
- static void gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
- {
--	unsigned long flags;
--	spin_lock_irqsave(&dlci->gsm->tx_lock, flags);
-+	mutex_lock(&dlci->gsm->tx_mutex);
- 	__gsm_data_queue(dlci, msg);
--	spin_unlock_irqrestore(&dlci->gsm->tx_lock, flags);
-+	mutex_unlock(&dlci->gsm->tx_mutex);
- }
- 
- /**
-@@ -1039,7 +1037,7 @@ static void gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
-  *	is data. Keep to the MRU of the mux. This path handles the usual tty
-  *	interface which is a byte stream with optional modem data.
-  *
-- *	Caller must hold the tx_lock of the mux.
-+ *	Caller must hold the tx_mutex of the mux.
-  */
- 
- static int gsm_dlci_data_output(struct gsm_mux *gsm, struct gsm_dlci *dlci)
-@@ -1099,7 +1097,7 @@ static int gsm_dlci_data_output(struct gsm_mux *gsm, struct gsm_dlci *dlci)
-  *	is data. Keep to the MRU of the mux. This path handles framed data
-  *	queued as skbuffs to the DLCI.
-  *
-- *	Caller must hold the tx_lock of the mux.
-+ *	Caller must hold the tx_mutex of the mux.
-  */
- 
- static int gsm_dlci_data_output_framed(struct gsm_mux *gsm,
-@@ -1115,7 +1113,7 @@ static int gsm_dlci_data_output_framed(struct gsm_mux *gsm,
- 	if (dlci->adaption == 4)
- 		overhead = 1;
- 
--	/* dlci->skb is locked by tx_lock */
-+	/* dlci->skb is locked by tx_mutex */
- 	if (dlci->skb == NULL) {
- 		dlci->skb = skb_dequeue_tail(&dlci->skb_list);
- 		if (dlci->skb == NULL)
-@@ -1169,7 +1167,7 @@ static int gsm_dlci_data_output_framed(struct gsm_mux *gsm,
-  *	Push an empty frame in to the transmit queue to update the modem status
-  *	bits and to transmit an optional break.
-  *
-- *	Caller must hold the tx_lock of the mux.
-+ *	Caller must hold the tx_mutex of the mux.
-  */
- 
- static int gsm_dlci_modem_output(struct gsm_mux *gsm, struct gsm_dlci *dlci,
-@@ -1283,13 +1281,12 @@ static int gsm_dlci_data_sweep(struct gsm_mux *gsm)
- 
- static void gsm_dlci_data_kick(struct gsm_dlci *dlci)
- {
--	unsigned long flags;
- 	int sweep;
- 
- 	if (dlci->constipated)
- 		return;
- 
--	spin_lock_irqsave(&dlci->gsm->tx_lock, flags);
-+	mutex_lock(&dlci->gsm->tx_mutex);
- 	/* If we have nothing running then we need to fire up */
- 	sweep = (dlci->gsm->tx_bytes < TX_THRESH_LO);
- 	if (dlci->gsm->tx_bytes == 0) {
-@@ -1300,7 +1297,7 @@ static void gsm_dlci_data_kick(struct gsm_dlci *dlci)
- 	}
- 	if (sweep)
- 		gsm_dlci_data_sweep(dlci->gsm);
--	spin_unlock_irqrestore(&dlci->gsm->tx_lock, flags);
-+	mutex_unlock(&dlci->gsm->tx_mutex);
- }
- 
- /*
-@@ -1994,14 +1991,13 @@ static void gsm_dlci_command(struct gsm_dlci *dlci, const u8 *data, int len)
- static void gsm_kick_timeout(struct work_struct *work)
- {
- 	struct gsm_mux *gsm = container_of(work, struct gsm_mux, kick_timeout.work);
--	unsigned long flags;
- 	int sent = 0;
- 
--	spin_lock_irqsave(&gsm->tx_lock, flags);
-+	mutex_lock(&gsm->tx_mutex);
- 	/* If we have nothing running then we need to fire up */
- 	if (gsm->tx_bytes < TX_THRESH_LO)
- 		sent = gsm_dlci_data_sweep(gsm);
--	spin_unlock_irqrestore(&gsm->tx_lock, flags);
-+	mutex_unlock(&gsm->tx_mutex);
- 
- 	if (sent && debug & 4)
- 		pr_info("%s TX queue stalled\n", __func__);
-@@ -2531,6 +2527,7 @@ static void gsm_free_mux(struct gsm_mux *gsm)
- 			break;
- 		}
- 	}
-+	mutex_destroy(&gsm->tx_mutex);
- 	mutex_destroy(&gsm->mutex);
- 	kfree(gsm->txframe);
- 	kfree(gsm->buf);
-@@ -2602,6 +2599,7 @@ static struct gsm_mux *gsm_alloc_mux(void)
- 	}
- 	spin_lock_init(&gsm->lock);
- 	mutex_init(&gsm->mutex);
-+	mutex_init(&gsm->tx_mutex);
- 	kref_init(&gsm->ref);
- 	INIT_LIST_HEAD(&gsm->tx_ctrl_list);
- 	INIT_LIST_HEAD(&gsm->tx_data_list);
-@@ -2610,7 +2608,6 @@ static struct gsm_mux *gsm_alloc_mux(void)
- 	INIT_WORK(&gsm->tx_work, gsmld_write_task);
- 	init_waitqueue_head(&gsm->event);
- 	spin_lock_init(&gsm->control_lock);
--	spin_lock_init(&gsm->tx_lock);
- 
- 	gsm->t1 = T1;
- 	gsm->t2 = T2;
-@@ -2635,6 +2632,7 @@ static struct gsm_mux *gsm_alloc_mux(void)
- 	}
- 	spin_unlock(&gsm_mux_lock);
- 	if (i == MAX_MUX) {
-+		mutex_destroy(&gsm->tx_mutex);
- 		mutex_destroy(&gsm->mutex);
- 		kfree(gsm->txframe);
- 		kfree(gsm->buf);
-@@ -2790,17 +2788,16 @@ static void gsmld_write_trigger(struct gsm_mux *gsm)
- static void gsmld_write_task(struct work_struct *work)
- {
- 	struct gsm_mux *gsm = container_of(work, struct gsm_mux, tx_work);
--	unsigned long flags;
- 	int i, ret;
- 
- 	/* All outstanding control channel and control messages and one data
- 	 * frame is sent.
- 	 */
- 	ret = -ENODEV;
--	spin_lock_irqsave(&gsm->tx_lock, flags);
-+	mutex_lock(&gsm->tx_mutex);
- 	if (gsm->tty)
- 		ret = gsm_data_kick(gsm);
--	spin_unlock_irqrestore(&gsm->tx_lock, flags);
-+	mutex_unlock(&gsm->tx_mutex);
- 
- 	if (ret >= 0)
- 		for (i = 0; i < NUM_DLCI; i++)
-@@ -3008,7 +3005,6 @@ static ssize_t gsmld_write(struct tty_struct *tty, struct file *file,
- 			   const unsigned char *buf, size_t nr)
- {
- 	struct gsm_mux *gsm = tty->disc_data;
--	unsigned long flags;
- 	int space;
- 	int ret;
- 
-@@ -3016,13 +3012,13 @@ static ssize_t gsmld_write(struct tty_struct *tty, struct file *file,
- 		return -ENODEV;
- 
- 	ret = -ENOBUFS;
--	spin_lock_irqsave(&gsm->tx_lock, flags);
-+	mutex_lock(&gsm->tx_mutex);
- 	space = tty_write_room(tty);
- 	if (space >= nr)
- 		ret = tty->ops->write(tty, buf, nr);
- 	else
- 		set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
--	spin_unlock_irqrestore(&gsm->tx_lock, flags);
-+	mutex_unlock(&gsm->tx_mutex);
- 
- 	return ret;
- }
-@@ -3319,14 +3315,13 @@ static struct tty_ldisc_ops tty_ldisc_packet = {
- static void gsm_modem_upd_via_data(struct gsm_dlci *dlci, u8 brk)
- {
- 	struct gsm_mux *gsm = dlci->gsm;
--	unsigned long flags;
- 
- 	if (dlci->state != DLCI_OPEN || dlci->adaption != 2)
- 		return;
- 
--	spin_lock_irqsave(&gsm->tx_lock, flags);
-+	mutex_lock(&gsm->tx_mutex);
- 	gsm_dlci_modem_output(gsm, dlci, brk);
--	spin_unlock_irqrestore(&gsm->tx_lock, flags);
-+	mutex_unlock(&gsm->tx_mutex);
- }
- 
- /**
++	/*
++	 * A reset might have occurred while we had a pending stalled request,
++	 * so make sure we clean that up.
++	 */
++	guc->stalled_request = NULL;
++	guc->submission_stall_reason = STALL_NONE;
++
+ 	/*
+ 	 * Some contexts might have been pinned before we enabled GuC
+ 	 * submission, so we need to add them to the GuC bookeeping.
 
