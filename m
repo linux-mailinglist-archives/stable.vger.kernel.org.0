@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE85C5AEADF
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A17D5AEA32
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238721AbiIFNxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:53:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41976 "EHLO
+        id S231958AbiIFNle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:41:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238327AbiIFNvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:51:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC3A27FFBE;
-        Tue,  6 Sep 2022 06:40:20 -0700 (PDT)
+        with ESMTP id S232007AbiIFNjr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:39:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1E47C1FD;
+        Tue,  6 Sep 2022 06:36:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD148B818C2;
-        Tue,  6 Sep 2022 13:40:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BC40C43147;
-        Tue,  6 Sep 2022 13:40:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 038EC60F89;
+        Tue,  6 Sep 2022 13:35:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C5F3C433C1;
+        Tue,  6 Sep 2022 13:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471607;
-        bh=Il5LakRJFMesUvICsbmVAGgnwJqTZpeQFwLFyRduXVc=;
+        s=korg; t=1662471317;
+        bh=0g+BrGBAcEGOoFsoTPa/mAv79Cn8p/845NrwDK9nLmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNzaPOBmSKMkzNkjBrOwOegIrXRxoU/7HECvnN3BhU4ResYSgHPkQkJxLZMTU3Qow
-         wMEU0fDJZeweQnKE6WluQ9GY4r1mXbestR6mZsT7quOJPD3sqPS3iduLPPPUGwHog7
-         9f7gs70F1dHXiB9srwUbpVm5wZ54ynTXbK04bFm0=
+        b=UsaQv5ZTPWp3EW1CFf7CoOgqGvA16YuPKoAdtHDOS7TE+CHlaN6ZvLQ0pe4dVM4rv
+         zKQPWK7rR0546Nlk6Et+EP4IbeZRuMDow6/4oNoyv412sJlI3DGfYEuGEPXRyY9AMN
+         BYDYGNbZUHuI+rzTFGTHL3oa6ujxAxdl9HTtL0cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.15 084/107] s390: fix nospec table alignments
-Date:   Tue,  6 Sep 2022 15:31:05 +0200
-Message-Id: <20220906132825.365541685@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 5.10 69/80] net: mac802154: Fix a condition in the receive path
+Date:   Tue,  6 Sep 2022 15:31:06 +0200
+Message-Id: <20220906132819.990757351@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit c9305b6c1f52060377c72aebe3a701389e9f3172 upstream.
+commit f0da47118c7e93cdbbc6fb403dd729a5f2c90ee3 upstream.
 
-Add proper alignment for .nospec_call_table and .nospec_return_table in
-vmlinux.
+Upon reception, a packet must be categorized, either it's destination is
+the host, or it is another host. A packet with no destination addressing
+fields may be valid in two situations:
+- the packet has no source field: only ACKs are built like that, we
+  consider the host as the destination.
+- the packet has a valid source field: it is directed to the PAN
+  coordinator, as for know we don't have this information we consider we
+  are not the PAN coordinator.
 
-[hca@linux.ibm.com]: The problem with the missing alignment of the nospec
-tables exist since a long time, however only since commit e6ed91fd0768
-("s390/alternatives: remove padding generation code") and with
-CONFIG_RELOCATABLE=n the kernel may also crash at boot time.
+There was likely a copy/paste error made during a previous cleanup
+because the if clause is now containing exactly the same condition as in
+the switch case, which can never be true. In the past the destination
+address was used in the switch and the source address was used in the
+if, which matches what the spec says.
 
-The above named commit reduced the size of struct alt_instr by one byte,
-so its new size is 11 bytes. Therefore depending on the number of cpu
-alternatives the size of the __alt_instructions array maybe odd, which
-again also causes that the addresses of the nospec tables will be odd.
-
-If the address of __nospec_call_start is odd and the kernel is compiled
-With CONFIG_RELOCATABLE=n the compiler may generate code that loads the
-address of __nospec_call_start with a 'larl' instruction.
-
-This will generate incorrect code since the 'larl' instruction only works
-with even addresses. In result the members of the nospec tables will be
-accessed with an off-by-one offset, which subsequently may lead to
-addressing exceptions within __nospec_revert().
-
-Fixes: f19fbd5ed642 ("s390: introduce execute-trampolines for branches")
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Link: https://lore.kernel.org/r/8719bf1ce4a72ebdeb575200290094e9ce047bcc.1661557333.git.jpoimboe@kernel.org
-Cc: <stable@vger.kernel.org> # 4.16
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Fixes: ae531b9475f6 ("ieee802154: use ieee802154_addr instead of *_sa variants")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20220826142954.254853-1-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/vmlinux.lds.S |    1 +
- 1 file changed, 1 insertion(+)
+ net/mac802154/rx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -132,6 +132,7 @@ SECTIONS
- 	/*
- 	 * Table with the patch locations to undo expolines
- 	*/
-+	. = ALIGN(4);
- 	.nospec_call_table : {
- 		__nospec_call_start = . ;
- 		*(.s390_indirect*)
+--- a/net/mac802154/rx.c
++++ b/net/mac802154/rx.c
+@@ -44,7 +44,7 @@ ieee802154_subif_frame(struct ieee802154
+ 
+ 	switch (mac_cb(skb)->dest.mode) {
+ 	case IEEE802154_ADDR_NONE:
+-		if (mac_cb(skb)->dest.mode != IEEE802154_ADDR_NONE)
++		if (hdr->source.mode != IEEE802154_ADDR_NONE)
+ 			/* FIXME: check if we are PAN coordinator */
+ 			skb->pkt_type = PACKET_OTHERHOST;
+ 		else
 
 
