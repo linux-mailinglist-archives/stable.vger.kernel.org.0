@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 969A05AE696
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:29:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 618B55AE69C
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231874AbiIFL3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:29:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45532 "EHLO
+        id S232133AbiIFLaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231571AbiIFL3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:29:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777244BA77
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:29:13 -0700 (PDT)
+        with ESMTP id S232100AbiIFLaV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:30:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4470114D3A
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:30:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1408460C61
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 238D2C433D6;
-        Tue,  6 Sep 2022 11:29:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 935C0CE16FB
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:30:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CE71C433C1;
+        Tue,  6 Sep 2022 11:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662463752;
-        bh=5AsPkxDx/Gc9TSh85HtFpFESSrxr+4f6jN23uyIDdmM=;
+        s=korg; t=1662463816;
+        bh=RM75NrjzRw1tfHlQLSkJYkWhST1okJNKv99zBYtsXEQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=m8e5QY6pADWHASr5TfNj5Wl0nUQ+FUYZNgVrRN3vsSgx93tDXXg/BKbs2YwHZEqfu
-         k6UESX486msanndS0slk27UXK9ouTTOXN9zRNrdeR2WhIoavyxU8JE3ZkKwGj/Ilbb
-         6w7UkkpuAuSzp4VhjtzycB4gVWD1/HLdiPJyv4ME=
-Subject: FAILED: patch "[PATCH] KVM: s390: pci: Hook to access KVM lowlevel from VFIO" failed to apply to 5.19-stable tree
-To:     pmorel@linux.ibm.com, frankja@linux.ibm.com, lkp@intel.com,
-        mjrosato@linux.ibm.com, rdunlap@infradead.org,
-        schnelle@linux.ibm.com, stable@vger.kernel.org
+        b=IqWfIST6QEBkmBdXuA5HYtNpUu9WG1NuGyq7wBNkqdrZSb5to+C9kSMRST/acJP40
+         rl+yXyRGphpGaqsSlF4c5kfvvWplK7giSv+ElDhjmHKsU69Sh7YT95L6dyZHljNFMF
+         rnpSOPo4c7VPZD6dLMz809SsXmh2fu/+1JwMdhsg=
+Subject: FAILED: patch "[PATCH] usb: gadget: f_uac2: fix superspeed transfer" failed to apply to 5.15-stable tree
+To:     jleng@ambarella.com, gregkh@linuxfoundation.org,
+        quic_jackp@quicinc.com, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:29:09 +0200
-Message-ID: <166246374977251@kroah.com>
+Date:   Tue, 06 Sep 2022 13:30:14 +0200
+Message-ID: <1662463814122169@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,163 +60,89 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ca922fecda6caa5162409406dc3b663062d75089 Mon Sep 17 00:00:00 2001
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Fri, 19 Aug 2022 14:29:45 +0200
-Subject: [PATCH] KVM: s390: pci: Hook to access KVM lowlevel from VFIO
+From f511aef2ebe5377d4c263842f2e0c0b8e274e8e5 Mon Sep 17 00:00:00 2001
+From: Jing Leng <jleng@ambarella.com>
+Date: Wed, 20 Jul 2022 18:48:15 -0700
+Subject: [PATCH] usb: gadget: f_uac2: fix superspeed transfer
 
-We have a cross dependency between KVM and VFIO when using
-s390 vfio_pci_zdev extensions for PCI passthrough
-To be able to keep both subsystem modular we add a registering
-hook inside the S390 core code.
+On page 362 of the USB3.2 specification (
+https://usb.org/sites/default/files/usb_32_20210125.zip),
+The 'SuperSpeed Endpoint Companion Descriptor' shall only be returned
+by Enhanced SuperSpeed devices that are operating at Gen X speed.
+Each endpoint described in an interface is followed by a 'SuperSpeed
+Endpoint Companion Descriptor'.
 
-This fixes a build problem when VFIO is built-in and KVM is built
-as a module.
+If users use SuperSpeed UDC, host can't recognize the device if endpoint
+doesn't have 'SuperSpeed Endpoint Companion Descriptor' followed.
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Fixes: 09340b2fca007 ("KVM: s390: pci: add routines to start/stop interpretive execution")
-Cc: <stable@vger.kernel.org>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Link: https://lore.kernel.org/r/20220819122945.9309-1-pmorel@linux.ibm.com
-Message-Id: <20220819122945.9309-1-pmorel@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Currently in the uac2 driver code:
+1. ss_epout_desc_comp follows ss_epout_desc;
+2. ss_epin_fback_desc_comp follows ss_epin_fback_desc;
+3. ss_epin_desc_comp follows ss_epin_desc;
+4. Only ss_ep_int_desc endpoint doesn't have 'SuperSpeed Endpoint
+Companion Descriptor' followed, so we should add it.
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index f39092e0ceaa..b1e98a9ed152 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -1038,16 +1038,11 @@ static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
- #define __KVM_HAVE_ARCH_VM_FREE
- void kvm_arch_free_vm(struct kvm *kvm);
+Fixes: eaf6cbe09920 ("usb: gadget: f_uac2: add volume and mute support")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Jing Leng <jleng@ambarella.com>
+Signed-off-by: Jack Pham <quic_jackp@quicinc.com>
+Link: https://lore.kernel.org/r/20220721014815.14453-1-quic_jackp@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
+index 1905a8d8e0c9..08726e4c68a5 100644
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -291,6 +291,12 @@ static struct usb_endpoint_descriptor ss_ep_int_desc = {
+ 	.bInterval = 4,
+ };
  
--#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
--int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm);
--void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev);
--#else
--static inline int kvm_s390_pci_register_kvm(struct zpci_dev *dev,
--					    struct kvm *kvm)
--{
--	return -EPERM;
--}
--static inline void kvm_s390_pci_unregister_kvm(struct zpci_dev *dev) {}
--#endif
-+struct zpci_kvm_hook {
-+	int (*kvm_register)(void *opaque, struct kvm *kvm);
-+	void (*kvm_unregister)(void *opaque);
++static struct usb_ss_ep_comp_descriptor ss_ep_int_desc_comp = {
++	.bLength = sizeof(ss_ep_int_desc_comp),
++	.bDescriptorType = USB_DT_SS_ENDPOINT_COMP,
++	.wBytesPerInterval = cpu_to_le16(6),
 +};
 +
-+extern struct zpci_kvm_hook zpci_kvm_hook;
+ /* Audio Streaming OUT Interface - Alt0 */
+ static struct usb_interface_descriptor std_as_out_if0_desc = {
+ 	.bLength = sizeof std_as_out_if0_desc,
+@@ -604,7 +610,8 @@ static struct usb_descriptor_header *ss_audio_desc[] = {
+ 	(struct usb_descriptor_header *)&in_feature_unit_desc,
+ 	(struct usb_descriptor_header *)&io_out_ot_desc,
  
- #endif
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index 4946fb7757d6..bb8c335d17b9 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -431,8 +431,9 @@ static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
-  * available, enable them and let userspace indicate whether or not they will
-  * be used (specify SHM bit to disable).
-  */
--int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
-+static int kvm_s390_pci_register_kvm(void *opaque, struct kvm *kvm)
- {
-+	struct zpci_dev *zdev = opaque;
- 	int rc;
+-  (struct usb_descriptor_header *)&ss_ep_int_desc,
++	(struct usb_descriptor_header *)&ss_ep_int_desc,
++	(struct usb_descriptor_header *)&ss_ep_int_desc_comp,
  
- 	if (!zdev)
-@@ -510,10 +511,10 @@ int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
- 	kvm_put_kvm(kvm);
- 	return rc;
- }
--EXPORT_SYMBOL_GPL(kvm_s390_pci_register_kvm);
+ 	(struct usb_descriptor_header *)&std_as_out_if0_desc,
+ 	(struct usb_descriptor_header *)&std_as_out_if1_desc,
+@@ -800,6 +807,7 @@ static void setup_headers(struct f_uac2_opts *opts,
+ 	struct usb_ss_ep_comp_descriptor *epout_desc_comp = NULL;
+ 	struct usb_ss_ep_comp_descriptor *epin_desc_comp = NULL;
+ 	struct usb_ss_ep_comp_descriptor *epin_fback_desc_comp = NULL;
++	struct usb_ss_ep_comp_descriptor *ep_int_desc_comp = NULL;
+ 	struct usb_endpoint_descriptor *epout_desc;
+ 	struct usb_endpoint_descriptor *epin_desc;
+ 	struct usb_endpoint_descriptor *epin_fback_desc;
+@@ -827,6 +835,7 @@ static void setup_headers(struct f_uac2_opts *opts,
+ 		epin_fback_desc = &ss_epin_fback_desc;
+ 		epin_fback_desc_comp = &ss_epin_fback_desc_comp;
+ 		ep_int_desc = &ss_ep_int_desc;
++		ep_int_desc_comp = &ss_ep_int_desc_comp;
+ 	}
  
--void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev)
-+static void kvm_s390_pci_unregister_kvm(void *opaque)
- {
-+	struct zpci_dev *zdev = opaque;
- 	struct kvm *kvm;
+ 	i = 0;
+@@ -855,8 +864,11 @@ static void setup_headers(struct f_uac2_opts *opts,
+ 	if (EPOUT_EN(opts))
+ 		headers[i++] = USBDHDR(&io_out_ot_desc);
  
- 	if (!zdev)
-@@ -566,7 +567,6 @@ void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev)
+-	if (FUOUT_EN(opts) || FUIN_EN(opts))
++	if (FUOUT_EN(opts) || FUIN_EN(opts)) {
+ 		headers[i++] = USBDHDR(ep_int_desc);
++		if (ep_int_desc_comp)
++			headers[i++] = USBDHDR(ep_int_desc_comp);
++	}
  
- 	kvm_put_kvm(kvm);
- }
--EXPORT_SYMBOL_GPL(kvm_s390_pci_unregister_kvm);
- 
- void kvm_s390_pci_init_list(struct kvm *kvm)
- {
-@@ -678,6 +678,8 @@ int kvm_s390_pci_init(void)
- 
- 	spin_lock_init(&aift->gait_lock);
- 	mutex_init(&aift->aift_lock);
-+	zpci_kvm_hook.kvm_register = kvm_s390_pci_register_kvm;
-+	zpci_kvm_hook.kvm_unregister = kvm_s390_pci_unregister_kvm;
- 
- 	return 0;
- }
-@@ -685,6 +687,8 @@ int kvm_s390_pci_init(void)
- void kvm_s390_pci_exit(void)
- {
- 	mutex_destroy(&aift->aift_lock);
-+	zpci_kvm_hook.kvm_register = NULL;
-+	zpci_kvm_hook.kvm_unregister = NULL;
- 
- 	kfree(aift);
- }
-diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
-index bf557a1b789c..5ae31ca9dd44 100644
---- a/arch/s390/pci/Makefile
-+++ b/arch/s390/pci/Makefile
-@@ -5,5 +5,5 @@
- 
- obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_dma.o pci_clp.o pci_sysfs.o \
- 			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
--			   pci_bus.o
-+			   pci_bus.o pci_kvm_hook.o
- obj-$(CONFIG_PCI_IOV)	+= pci_iov.o
-diff --git a/arch/s390/pci/pci_kvm_hook.c b/arch/s390/pci/pci_kvm_hook.c
-new file mode 100644
-index 000000000000..ff34baf50a3e
---- /dev/null
-+++ b/arch/s390/pci/pci_kvm_hook.c
-@@ -0,0 +1,11 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * VFIO ZPCI devices support
-+ *
-+ * Copyright (C) IBM Corp. 2022.  All rights reserved.
-+ *	Author(s): Pierre Morel <pmorel@linux.ibm.com>
-+ */
-+#include <linux/kvm_host.h>
-+
-+struct zpci_kvm_hook zpci_kvm_hook;
-+EXPORT_SYMBOL_GPL(zpci_kvm_hook);
-diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-index e163aa9f6144..0cbdcd14f1c8 100644
---- a/drivers/vfio/pci/vfio_pci_zdev.c
-+++ b/drivers/vfio/pci/vfio_pci_zdev.c
-@@ -151,7 +151,10 @@ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
- 	if (!vdev->vdev.kvm)
- 		return 0;
- 
--	return kvm_s390_pci_register_kvm(zdev, vdev->vdev.kvm);
-+	if (zpci_kvm_hook.kvm_register)
-+		return zpci_kvm_hook.kvm_register(zdev, vdev->vdev.kvm);
-+
-+	return -ENOENT;
- }
- 
- void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
-@@ -161,5 +164,6 @@ void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
- 	if (!zdev || !vdev->vdev.kvm)
- 		return;
- 
--	kvm_s390_pci_unregister_kvm(zdev);
-+	if (zpci_kvm_hook.kvm_unregister)
-+		zpci_kvm_hook.kvm_unregister(zdev);
- }
+ 	if (EPOUT_EN(opts)) {
+ 		headers[i++] = USBDHDR(&std_as_out_if0_desc);
 
