@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E90255AEBFD
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FE685AEB7D
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:26:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239658AbiIFN5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:57:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41944 "EHLO
+        id S241529AbiIFOQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:16:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239433AbiIFNx1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:53:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94C07D1F8;
-        Tue,  6 Sep 2022 06:40:44 -0700 (PDT)
+        with ESMTP id S241194AbiIFOOw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:14:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4002D258;
+        Tue,  6 Sep 2022 06:49:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19A57B8162F;
-        Tue,  6 Sep 2022 13:40:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78A57C433B5;
-        Tue,  6 Sep 2022 13:40:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF781B818E0;
+        Tue,  6 Sep 2022 13:47:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C769C433D6;
+        Tue,  6 Sep 2022 13:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471630;
-        bh=YfcFm3eVu8wW0562HxmnYE6vq6k/cHa/5LU/tO0rNJg=;
+        s=korg; t=1662472076;
+        bh=1UMg89GVgRfbCYyUL8mLu9H04/btJVZaNEypyFBJdzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tor3iWc9s1igOaf1dBbxiNarql38WbZCq2F3c72QPMeBH6TeOoPEXIkolDu6VfQvL
-         MYoEwhcn9+xwoQk9/D5oOcDgaII3Q/mxzaPdwblnNIVBZdp0SzWhzQQmiMMaUEVMzL
-         KjyA63vC3oxyfcpgb8E+IP85+heqMjrR72+ObyaQ=
+        b=e749Hn1+Qj3SIlauVGFzQoezr8vGeohrKhY5IhMFvE1cT/qwQDdYfGt6n3X7J41ZN
+         Ta2ZE0uLDxO9m3F8SpRbzHBDJs4uNo0Gjphh44qtCo5SkHf8hIh5TL/OG6T7TIPy4v
+         gXvPbRpym2wtAI0hwdwJ4tWG/Byw/MqfATyeLlYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        SeongJae Park <sj@kernel.org>,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>
-Subject: [PATCH 5.15 065/107] xen-blkfront: Advertise feature-persistent as user requested
-Date:   Tue,  6 Sep 2022 15:30:46 +0200
-Message-Id: <20220906132824.587924590@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 099/155] powerpc/papr_scm: Ensure rc is always initialized in papr_scm_pmu_register()
+Date:   Tue,  6 Sep 2022 15:30:47 +0200
+Message-Id: <20220906132833.654568002@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
+References: <20220906132829.417117002@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sj@kernel.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 9f5e0fe5d05f7e8de7f39b2b10089834eb0ff787 upstream.
+[ Upstream commit 6cf07810e9ef8535d60160d13bf0fd05f2af38e7 ]
 
-The advertisement of the persistent grants feature (writing
-'feature-persistent' to xenbus) should mean not the decision for using
-the feature but only the availability of the feature.  However, commit
-74a852479c68 ("xen-blkfront: add a parameter for disabling of persistent
-grants") made a field of blkfront, which was a place for saving only the
-negotiation result, to be used for yet another purpose: caching of the
-'feature_persistent' parameter value.  As a result, the advertisement,
-which should follow only the parameter value, becomes inconsistent.
+Clang warns:
 
-This commit fixes the misuse of the semantic by making blkfront saves
-the parameter value in a separate place and advertises the support based
-on only the saved value.
+  arch/powerpc/platforms/pseries/papr_scm.c:492:6: warning: variable 'rc' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
+          if (!p->stat_buffer_len)
+              ^~~~~~~~~~~~~~~~~~~
+  arch/powerpc/platforms/pseries/papr_scm.c:523:64: note: uninitialized use occurs here
+          dev_info(&p->pdev->dev, "nvdimm pmu didn't register rc=%d\n", rc);
+                                                                        ^~
+  include/linux/dev_printk.h:150:67: note: expanded from macro 'dev_info'
+          dev_printk_index_wrap(_dev_info, KERN_INFO, dev, dev_fmt(fmt), ##__VA_ARGS__)
+                                                                          ^~~~~~~~~~~
+  include/linux/dev_printk.h:110:23: note: expanded from macro 'dev_printk_index_wrap'
+                  _p_func(dev, fmt, ##__VA_ARGS__);                       \
+                                      ^~~~~~~~~~~
+  arch/powerpc/platforms/pseries/papr_scm.c:492:2: note: remove the 'if' if its condition is always false
+          if (!p->stat_buffer_len)
+          ^~~~~~~~~~~~~~~~~~~~~~~~
+  arch/powerpc/platforms/pseries/papr_scm.c:484:8: note: initialize the variable 'rc' to silence this warning
+          int rc, nodeid;
+                ^
+                = 0
+  1 warning generated.
 
-Fixes: 74a852479c68 ("xen-blkfront: add a parameter for disabling of persistent grants")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Suggested-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220831165824.94815-3-sj@kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The call to papr_scm_pmu_check_events() was eliminated but a return code
+was not added to the if statement. Add the same return code from
+papr_scm_pmu_check_events() for this condition so there is no more
+warning.
+
+Fixes: 9b1ac04698a4 ("powerpc/papr_scm: Fix nvdimm event mappings")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1701
+Link: https://lore.kernel.org/r/20220830151256.1473169-1-nathan@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/xen-blkfront.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/papr_scm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -212,6 +212,9 @@ struct blkfront_info
- 	unsigned int feature_fua:1;
- 	unsigned int feature_discard:1;
- 	unsigned int feature_secdiscard:1;
-+	/* Connect-time cached feature_persistent parameter */
-+	unsigned int feature_persistent_parm:1;
-+	/* Persistent grants feature negotiation result */
- 	unsigned int feature_persistent:1;
- 	unsigned int bounce:1;
- 	unsigned int discard_granularity;
-@@ -1874,7 +1877,7 @@ again:
- 		goto abort_transaction;
+diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
+index 16bac4e0d7a21..92074a6c49d43 100644
+--- a/arch/powerpc/platforms/pseries/papr_scm.c
++++ b/arch/powerpc/platforms/pseries/papr_scm.c
+@@ -489,8 +489,10 @@ static void papr_scm_pmu_register(struct papr_scm_priv *p)
+ 		goto pmu_err_print;
  	}
- 	err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
--			info->feature_persistent);
-+			info->feature_persistent_parm);
- 	if (err)
- 		dev_warn(&dev->dev,
- 			 "writing persistent grants feature to xenbus");
-@@ -2307,7 +2310,8 @@ static void blkfront_gather_backend_feat
- 	if (xenbus_read_unsigned(info->xbdev->otherend, "feature-discard", 0))
- 		blkfront_setup_discard(info);
  
--	if (feature_persistent)
-+	info->feature_persistent_parm = feature_persistent;
-+	if (info->feature_persistent_parm)
- 		info->feature_persistent =
- 			!!xenbus_read_unsigned(info->xbdev->otherend,
- 					       "feature-persistent", 0);
+-	if (!p->stat_buffer_len)
++	if (!p->stat_buffer_len) {
++		rc = -ENOENT;
+ 		goto pmu_check_events_err;
++	}
+ 
+ 	nd_pmu->pmu.task_ctx_nr = perf_invalid_context;
+ 	nd_pmu->pmu.name = nvdimm_name(p->nvdimm);
+-- 
+2.35.1
+
 
 
