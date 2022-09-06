@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42FD25AEA13
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECD4B5AEABD
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233700AbiIFNkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:40:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39082 "EHLO
+        id S239319AbiIFNzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:55:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233717AbiIFNkG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:40:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 046897D1F8;
-        Tue,  6 Sep 2022 06:37:04 -0700 (PDT)
+        with ESMTP id S239423AbiIFNxX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:53:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7102F7C758;
+        Tue,  6 Sep 2022 06:40:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA97B61512;
-        Tue,  6 Sep 2022 13:35:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0110AC433D7;
-        Tue,  6 Sep 2022 13:35:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F121B81636;
+        Tue,  6 Sep 2022 13:40:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFA38C433D6;
+        Tue,  6 Sep 2022 13:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471332;
-        bh=m98F5jESOXA9JdUJZQ2Lpwin7wHAIedi2OSmc3PJYls=;
+        s=korg; t=1662471625;
+        bh=DXU2fytwxzmrl9SUms9dI7mpnguBF0nHu9GaaMmVIYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uL3pWTsDOcoOnEgyXe+K9k/6PynqPhnEa/WsoI2Y6Hts2hep81qoO5k7QFQNkB2mW
-         QSzel58c2GBkFr8+nHiBYgh/WckfKj34alRSCsrxxPEOEeZbc0f8gzTyDKy8xP/DMu
-         mNTGEnUxUmCHlWfWE00hP7cJJDgzp136AmS0pUZs=
+        b=mGhs60ICpohQBPmVEKll5v7Tmob690AQDf2v8p8EfTYctZGcKcSVJLl9Upr5s8uXw
+         rVqrl6WgWgKEOChzVgmfA9wxDnpej5cYN5sSKJyXmgt+ag2rrMXIUkc86WtQrh6xmW
+         qkpI+AMU8X304hfw9LkBNl8J9Zjs9a5Rt8PA9Ur4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Diego Santa Cruz <Diego.SantaCruz@spinetix.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.10 73/80] drm/i915/glk: ECS Liva Q2 needs GLK HDMI port timing quirk
-Date:   Tue,  6 Sep 2022 15:31:10 +0200
-Message-Id: <20220906132820.183793648@linuxfoundation.org>
+        syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com,
+        Siddh Raman Pant <code@siddh.me>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.15 090/107] wifi: mac80211: Dont finalize CSA in IBSS mode if state is disconnected
+Date:   Tue,  6 Sep 2022 15:31:11 +0200
+Message-Id: <20220906132825.635079131@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,41 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Diego Santa Cruz <Diego.SantaCruz@spinetix.com>
+From: Siddh Raman Pant <code@siddh.me>
 
-commit 919bef7a106ade2bda73681bbc2f3678198f44fc upstream.
+commit 15bc8966b6d3a5b9bfe4c9facfa02f2b69b1e5f0 upstream.
 
-The quirk added in upstream commit 90c3e2198777 ("drm/i915/glk: Add
-Quirk for GLK NUC HDMI port issues.") is also required on the ECS Liva
-Q2.
+When we are not connected to a channel, sending channel "switch"
+announcement doesn't make any sense.
 
-Note: Would be nicer to figure out the extra delay required for the
-retimer without quirks, however don't know how to check for that.
+The BSS list is empty in that case. This causes the for loop in
+cfg80211_get_bss() to be bypassed, so the function returns NULL
+(check line 1424 of net/wireless/scan.c), causing the WARN_ON()
+in ieee80211_ibss_csa_beacon() to get triggered (check line 500
+of net/mac80211/ibss.c), which was consequently reported on the
+syzkaller dashboard.
+
+Thus, check if we have an existing connection before generating
+the CSA beacon in ieee80211_ibss_finish_csa().
 
 Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1326
-Signed-off-by: Diego Santa Cruz <Diego.SantaCruz@spinetix.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220616124137.3184371-1-jani.nikula@intel.com
-(cherry picked from commit 08e9505fa8f9aa00072a47b6f234d89b6b27a89c)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: cd7760e62c2a ("mac80211: add support for CSA in IBSS mode")
+Link: https://syzkaller.appspot.com/bug?id=05603ef4ae8926761b678d2939a3b2ad28ab9ca6
+Reported-by: syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Tested-by: syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20220814151512.9985-1-code@siddh.me
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/mac80211/ibss.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/i915/display/intel_quirks.c
-+++ b/drivers/gpu/drm/i915/display/intel_quirks.c
-@@ -156,6 +156,9 @@ static struct intel_quirk intel_quirks[]
- 	/* ASRock ITX*/
- 	{ 0x3185, 0x1849, 0x2212, quirk_increase_ddi_disabled_time },
- 	{ 0x3184, 0x1849, 0x2212, quirk_increase_ddi_disabled_time },
-+	/* ECS Liva Q2 */
-+	{ 0x3185, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
-+	{ 0x3184, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
- };
+--- a/net/mac80211/ibss.c
++++ b/net/mac80211/ibss.c
+@@ -534,6 +534,10 @@ int ieee80211_ibss_finish_csa(struct iee
  
- void intel_init_quirks(struct drm_i915_private *i915)
+ 	sdata_assert_lock(sdata);
+ 
++	/* When not connected/joined, sending CSA doesn't make sense. */
++	if (ifibss->state != IEEE80211_IBSS_MLME_JOINED)
++		return -ENOLINK;
++
+ 	/* update cfg80211 bss information with the new channel */
+ 	if (!is_zero_ether_addr(ifibss->bssid)) {
+ 		cbss = cfg80211_get_bss(sdata->local->hw.wiphy,
 
 
