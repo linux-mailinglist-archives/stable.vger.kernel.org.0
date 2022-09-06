@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8055AECB0
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED8A5AECAA
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241550AbiIFOUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:20:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35370 "EHLO
+        id S240549AbiIFOAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:00:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241549AbiIFOR3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:17:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3704186D7;
-        Tue,  6 Sep 2022 06:49:44 -0700 (PDT)
+        with ESMTP id S240593AbiIFN5V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:57:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D4082D1C;
+        Tue,  6 Sep 2022 06:42:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37D1F6154D;
-        Tue,  6 Sep 2022 13:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 444B8C433C1;
-        Tue,  6 Sep 2022 13:48:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C923AB818B9;
+        Tue,  6 Sep 2022 13:41:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB8BC433D7;
+        Tue,  6 Sep 2022 13:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472124;
-        bh=q6abylfIumjLHTob7RyN51s3fcoyH/H8kucmnlYEx+w=;
+        s=korg; t=1662471691;
+        bh=64mhxJz/tEUOud2e6JWyA2SXsj1p7Pe8tb2x/rQJw9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HXj3lg7VReyQ0fW41ToTOnV0iMGKoROxBmcx5wG1llZcwRB5HgE0pB6Ape+KnZk1F
-         814tt3sGoZ0D7V+2cxHQwtOjkOOvF1rDZk4ULifgTAil3YGIXJPZDKOMTiiawr4UKU
-         91GH1YV55m2sgnx1nNRMYH27ncdbZcBQMtF3DxDM=
+        b=RhVOp1M8bkrRYolJN2bSxpVeUVPT6EUy+WA4n0SpeTZtXFgQInBXSmwrXgDULiXX3
+         IGe0vVlzzFWiF0mHqeiW7QysWSJigMh4D0WHEZFPkHVbdxtF8OLPA8Sd2dneQ9+tG0
+         95HXAn9yAWhwmaWTxBgt3hDJeUMrCasCLaJ8OtM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.19 135/155] USB: gadget: Fix obscure lockdep violation for udc_mutex
-Date:   Tue,  6 Sep 2022 15:31:23 +0200
-Message-Id: <20220906132835.175305634@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Halaney <ahalaney@redhat.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH 5.15 103/107] usb: dwc3: fix PHY disable sequence
+Date:   Tue,  6 Sep 2022 15:31:24 +0200
+Message-Id: <20220906132826.231202201@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
-References: <20220906132829.417117002@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,200 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 1016fc0c096c92dd0e6e0541daac7a7868169903 upstream.
+commit d2ac7bef95c9ead307801ccb6cb6dfbeb14247bf upstream.
 
-A recent commit expanding the scope of the udc_lock mutex in the
-gadget core managed to cause an obscure and slightly bizarre lockdep
-violation.  In abbreviated form:
+Generic PHYs must be powered-off before they can be tore down.
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.19.0-rc7+ #12510 Not tainted
-------------------------------------------------------
-udevadm/312 is trying to acquire lock:
-ffff80000aae1058 (udc_lock){+.+.}-{3:3}, at: usb_udc_uevent+0x54/0xe0
+Similarly, suspending legacy PHYs after having powered them off makes no
+sense.
 
-but task is already holding lock:
-ffff000002277548 (kn->active#4){++++}-{0:0}, at: kernfs_seq_start+0x34/0xe0
+Fix the dwc3_core_exit() (e.g. called during suspend) and open-coded
+dwc3_probe() error-path sequences that got this wrong.
 
-which lock already depends on the new lock.
+Note that this makes dwc3_core_exit() match the dwc3_core_init() error
+path with respect to powering off the PHYs.
 
-the existing dependency chain (in reverse order) is:
-
--> #3 (kn->active#4){++++}-{0:0}:
-        lock_acquire+0x68/0x84
-        __kernfs_remove+0x268/0x380
-        kernfs_remove_by_name_ns+0x58/0xac
-        sysfs_remove_file_ns+0x18/0x24
-        device_del+0x15c/0x440
-
--> #2 (device_links_lock){+.+.}-{3:3}:
-        lock_acquire+0x68/0x84
-        __mutex_lock+0x9c/0x430
-        mutex_lock_nested+0x38/0x64
-        device_link_remove+0x3c/0xa0
-        _regulator_put.part.0+0x168/0x190
-        regulator_put+0x3c/0x54
-        devm_regulator_release+0x14/0x20
-
--> #1 (regulator_list_mutex){+.+.}-{3:3}:
-        lock_acquire+0x68/0x84
-        __mutex_lock+0x9c/0x430
-        mutex_lock_nested+0x38/0x64
-        regulator_lock_dependent+0x54/0x284
-        regulator_enable+0x34/0x80
-        phy_power_on+0x24/0x130
-        __dwc2_lowlevel_hw_enable+0x100/0x130
-        dwc2_lowlevel_hw_enable+0x18/0x40
-        dwc2_hsotg_udc_start+0x6c/0x2f0
-        gadget_bind_driver+0x124/0x1f4
-
--> #0 (udc_lock){+.+.}-{3:3}:
-        __lock_acquire+0x1298/0x20cc
-        lock_acquire.part.0+0xe0/0x230
-        lock_acquire+0x68/0x84
-        __mutex_lock+0x9c/0x430
-        mutex_lock_nested+0x38/0x64
-        usb_udc_uevent+0x54/0xe0
-
-Evidently this was caused by the scope of udc_mutex being too large.
-The mutex is only meant to protect udc->driver along with a few other
-things.  As far as I can tell, there's no reason for the mutex to be
-held while the gadget core calls a gadget driver's ->bind or ->unbind
-routine, or while a UDC is being started or stopped.  (This accounts
-for link #1 in the chain above, where the mutex is held while the
-dwc2_hsotg_udc is started as part of driver probing.)
-
-Gadget drivers' ->disconnect callbacks are problematic.  Even though
-usb_gadget_disconnect() will now acquire the udc_mutex, there's a
-window in usb_gadget_bind_driver() between the times when the mutex is
-released and the ->bind callback is invoked.  If a disconnect occurred
-during that window, we could call the driver's ->disconnect routine
-before its ->bind routine.  To prevent this from happening, it will be
-necessary to prevent a UDC from connecting while it has no gadget
-driver.  This should be done already but it doesn't seem to be;
-currently usb_gadget_connect() has no check for this.  Such a check
-will have to be added later.
-
-Some degree of mutual exclusion is required in soft_connect_store(),
-which can dereference udc->driver at arbitrary times since it is a
-sysfs callback.  The solution here is to acquire the gadget's device
-lock rather than the udc_mutex.  Since the driver core guarantees that
-the device lock is always held during driver binding and unbinding,
-this will make the accesses in soft_connect_store() mutually exclusive
-with any changes to udc->driver.
-
-Lastly, it turns out there is one place which should hold the
-udc_mutex but currently does not: The function_show() routine needs
-protection while it dereferences udc->driver.  The missing lock and
-unlock calls are added.
-
-Link: https://lore.kernel.org/all/b2ba4245-9917-e399-94c8-03a383e7070e@samsung.com/
-Fixes: 2191c00855b0 ("USB: gadget: Fix use-after-free Read in usb_udc_uevent()")
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: stable@vger.kernel.org
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YwkfhdxA/I2nOcK7@rowland.harvard.edu
+Fixes: 03c1fd622f72 ("usb: dwc3: core: add phy cleanup for probe error handling")
+Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
+Cc: stable@vger.kernel.org      # 4.8
+Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220804151001.23612-2-johan+linaro@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[ johan: adjust context to 5.15 ]
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/core.c |   26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ drivers/usb/dwc3/core.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/gadget/udc/core.c
-+++ b/drivers/usb/gadget/udc/core.c
-@@ -736,7 +736,10 @@ int usb_gadget_disconnect(struct usb_gad
- 	ret = gadget->ops->pullup(gadget, 0);
- 	if (!ret) {
- 		gadget->connected = 0;
--		gadget->udc->driver->disconnect(gadget);
-+		mutex_lock(&udc_lock);
-+		if (gadget->udc->driver)
-+			gadget->udc->driver->disconnect(gadget);
-+		mutex_unlock(&udc_lock);
- 	}
- 
- out:
-@@ -1489,7 +1492,6 @@ static int gadget_bind_driver(struct dev
- 
- 	usb_gadget_udc_set_speed(udc, driver->max_speed);
- 
--	mutex_lock(&udc_lock);
- 	ret = driver->bind(udc->gadget, driver);
- 	if (ret)
- 		goto err_bind;
-@@ -1499,7 +1501,6 @@ static int gadget_bind_driver(struct dev
- 		goto err_start;
- 	usb_gadget_enable_async_callbacks(udc);
- 	usb_udc_connect_control(udc);
--	mutex_unlock(&udc_lock);
- 
- 	kobject_uevent(&udc->dev.kobj, KOBJ_CHANGE);
- 	return 0;
-@@ -1512,6 +1513,7 @@ static int gadget_bind_driver(struct dev
- 		dev_err(&udc->dev, "failed to start %s: %d\n",
- 			driver->function, ret);
- 
-+	mutex_lock(&udc_lock);
- 	udc->driver = NULL;
- 	driver->is_bound = false;
- 	mutex_unlock(&udc_lock);
-@@ -1529,7 +1531,6 @@ static void gadget_unbind_driver(struct
- 
- 	kobject_uevent(&udc->dev.kobj, KOBJ_CHANGE);
- 
--	mutex_lock(&udc_lock);
- 	usb_gadget_disconnect(gadget);
- 	usb_gadget_disable_async_callbacks(udc);
- 	if (gadget->irq)
-@@ -1537,6 +1538,7 @@ static void gadget_unbind_driver(struct
- 	udc->driver->unbind(gadget);
- 	usb_gadget_udc_stop(udc);
- 
-+	mutex_lock(&udc_lock);
- 	driver->is_bound = false;
- 	udc->driver = NULL;
- 	mutex_unlock(&udc_lock);
-@@ -1612,7 +1614,7 @@ static ssize_t soft_connect_store(struct
- 	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
- 	ssize_t			ret;
- 
--	mutex_lock(&udc_lock);
-+	device_lock(&udc->gadget->dev);
- 	if (!udc->driver) {
- 		dev_err(dev, "soft-connect without a gadget driver\n");
- 		ret = -EOPNOTSUPP;
-@@ -1633,7 +1635,7 @@ static ssize_t soft_connect_store(struct
- 
- 	ret = n;
- out:
--	mutex_unlock(&udc_lock);
-+	device_unlock(&udc->gadget->dev);
- 	return ret;
- }
- static DEVICE_ATTR_WO(soft_connect);
-@@ -1652,11 +1654,15 @@ static ssize_t function_show(struct devi
- 			     char *buf)
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -731,15 +731,16 @@ static void dwc3_core_exit(struct dwc3 *
  {
- 	struct usb_udc		*udc = container_of(dev, struct usb_udc, dev);
--	struct usb_gadget_driver *drv = udc->driver;
-+	struct usb_gadget_driver *drv;
-+	int			rc = 0;
+ 	dwc3_event_buffers_cleanup(dwc);
  
--	if (!drv || !drv->function)
--		return 0;
--	return scnprintf(buf, PAGE_SIZE, "%s\n", drv->function);
-+	mutex_lock(&udc_lock);
-+	drv = udc->driver;
-+	if (drv && drv->function)
-+		rc = scnprintf(buf, PAGE_SIZE, "%s\n", drv->function);
-+	mutex_unlock(&udc_lock);
-+	return rc;
++	usb_phy_set_suspend(dwc->usb2_phy, 1);
++	usb_phy_set_suspend(dwc->usb3_phy, 1);
++	phy_power_off(dwc->usb2_generic_phy);
++	phy_power_off(dwc->usb3_generic_phy);
++
+ 	usb_phy_shutdown(dwc->usb2_phy);
+ 	usb_phy_shutdown(dwc->usb3_phy);
+ 	phy_exit(dwc->usb2_generic_phy);
+ 	phy_exit(dwc->usb3_generic_phy);
+ 
+-	usb_phy_set_suspend(dwc->usb2_phy, 1);
+-	usb_phy_set_suspend(dwc->usb3_phy, 1);
+-	phy_power_off(dwc->usb2_generic_phy);
+-	phy_power_off(dwc->usb3_generic_phy);
+ 	clk_bulk_disable_unprepare(dwc->num_clks, dwc->clks);
+ 	reset_control_assert(dwc->reset);
  }
- static DEVICE_ATTR_RO(function);
+@@ -1662,16 +1663,16 @@ err5:
+ 	dwc3_debugfs_exit(dwc);
+ 	dwc3_event_buffers_cleanup(dwc);
  
+-	usb_phy_shutdown(dwc->usb2_phy);
+-	usb_phy_shutdown(dwc->usb3_phy);
+-	phy_exit(dwc->usb2_generic_phy);
+-	phy_exit(dwc->usb3_generic_phy);
+-
+ 	usb_phy_set_suspend(dwc->usb2_phy, 1);
+ 	usb_phy_set_suspend(dwc->usb3_phy, 1);
+ 	phy_power_off(dwc->usb2_generic_phy);
+ 	phy_power_off(dwc->usb3_generic_phy);
+ 
++	usb_phy_shutdown(dwc->usb2_phy);
++	usb_phy_shutdown(dwc->usb3_phy);
++	phy_exit(dwc->usb2_generic_phy);
++	phy_exit(dwc->usb3_generic_phy);
++
+ 	dwc3_ulpi_exit(dwc);
+ 
+ err4:
 
 
