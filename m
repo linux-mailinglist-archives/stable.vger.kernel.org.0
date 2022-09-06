@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0595AEBE7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 122875AECE6
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241458AbiIFONM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:13:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47704 "EHLO
+        id S241485AbiIFOOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:14:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241200AbiIFOMA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:12:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39915876BD;
-        Tue,  6 Sep 2022 06:47:40 -0700 (PDT)
+        with ESMTP id S241329AbiIFOMZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:12:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15121876B1;
+        Tue,  6 Sep 2022 06:47:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 448B7B81633;
-        Tue,  6 Sep 2022 13:46:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65F6C433C1;
-        Tue,  6 Sep 2022 13:46:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69C9661555;
+        Tue,  6 Sep 2022 13:46:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76FA6C433C1;
+        Tue,  6 Sep 2022 13:46:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471977;
-        bh=LvdH7vVr1r23YEdZutNO3OHpW6XFVLpbsu0SIYi1q5Y=;
+        s=korg; t=1662471979;
+        bh=gZPtUq3Oyj/etwkcxj2jiAiGJuFla+aQKtjsG3KEmD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/IB+K8m7S8hJtdvQVVd1JOpCrsyPhUDKthcIiwS3vBYa1usd/4lKMATxajxQE6Nu
-         Zjhs5qTViGXy4W0RIgVIJcF+vn70DwO5VpS1WUp/YkpwNLzBdSvaAYGioL9QnwB9vD
-         JdVeNGFXTFtNTIl+EhX/uy/BR1csooQawVKIwveQ=
+        b=Ce3tTZfuAXbaGAXvPiGkvADfdqzN2MR5a5zSTKIscy4DBX0Kg37cTq5E6RVYMTCNU
+         +e7oBJP7RVIhWqe2gQI423XuvHZuMaXQy5IAABaENOBPUTKbbUaKvYniW+1V7Bfd91
+         c8MM9ZHsBVaCuuo6sDhi9kw8qTs3ipRsO64az8Ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable <stable@kernel.org>,
-        kernel test robot <oliver.sang@intel.com>,
-        Matthew Gerlach <matthew.gerlach@linux.intel.com>,
         Russ Weight <russell.h.weight@intel.com>
-Subject: [PATCH 5.19 074/155] firmware_loader: Fix use-after-free during unregister
-Date:   Tue,  6 Sep 2022 15:30:22 +0200
-Message-Id: <20220906132832.553603595@linuxfoundation.org>
+Subject: [PATCH 5.19 075/155] firmware_loader: Fix memory leak in firmware upload
+Date:   Tue,  6 Sep 2022 15:30:23 +0200
+Message-Id: <20220906132832.591349145@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -57,48 +55,87 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Russ Weight <russell.h.weight@intel.com>
 
-commit 8b40c38e37492b5bdf8e95b46b5cca9517a9957a upstream.
+commit 789bba82f63c3e81dce426ba457fc7905b30ac6e upstream.
 
-In the following code within firmware_upload_unregister(), the call to
-device_unregister() could result in the dev_release function freeing the
-fw_upload_priv structure before it is dereferenced for the call to
-module_put(). This bug was found by the kernel test robot using
-CONFIG_KASAN while running the firmware selftests.
-
-  device_unregister(&fw_sysfs->dev);
-  module_put(fw_upload_priv->module);
-
-The problem is fixed by copying fw_upload_priv->module to a local variable
-for use when calling device_unregister().
+In the case of firmware-upload, an instance of struct fw_upload is
+allocated in firmware_upload_register(). This data needs to be freed
+in fw_dev_release(). Create a new fw_upload_free() function in
+sysfs_upload.c to handle the firmware-upload specific memory frees
+and incorporate the missing kfree call for the fw_upload structure.
 
 Fixes: 97730bbb242c ("firmware_loader: Add firmware-upload support")
 Cc: stable <stable@kernel.org>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Reviewed-by: Matthew Gerlach <matthew.gerlach@linux.intel.com>
 Signed-off-by: Russ Weight <russell.h.weight@intel.com>
-Link: https://lore.kernel.org/r/20220829174557.437047-1-russell.h.weight@intel.com
+Link: https://lore.kernel.org/r/20220831002518.465274-1-russell.h.weight@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/firmware_loader/sysfs_upload.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/base/firmware_loader/sysfs.c        | 7 +++----
+ drivers/base/firmware_loader/sysfs.h        | 5 +++++
+ drivers/base/firmware_loader/sysfs_upload.c | 9 +++++++++
+ 3 files changed, 17 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/base/firmware_loader/sysfs.c b/drivers/base/firmware_loader/sysfs.c
+index 77bad32c481a..5b66b3d1fa16 100644
+--- a/drivers/base/firmware_loader/sysfs.c
++++ b/drivers/base/firmware_loader/sysfs.c
+@@ -93,10 +93,9 @@ static void fw_dev_release(struct device *dev)
+ {
+ 	struct fw_sysfs *fw_sysfs = to_fw_sysfs(dev);
+ 
+-	if (fw_sysfs->fw_upload_priv) {
+-		free_fw_priv(fw_sysfs->fw_priv);
+-		kfree(fw_sysfs->fw_upload_priv);
+-	}
++	if (fw_sysfs->fw_upload_priv)
++		fw_upload_free(fw_sysfs);
++
+ 	kfree(fw_sysfs);
+ }
+ 
+diff --git a/drivers/base/firmware_loader/sysfs.h b/drivers/base/firmware_loader/sysfs.h
+index 5d8ff1675c79..df1d5add698f 100644
+--- a/drivers/base/firmware_loader/sysfs.h
++++ b/drivers/base/firmware_loader/sysfs.h
+@@ -106,12 +106,17 @@ extern struct device_attribute dev_attr_cancel;
+ extern struct device_attribute dev_attr_remaining_size;
+ 
+ int fw_upload_start(struct fw_sysfs *fw_sysfs);
++void fw_upload_free(struct fw_sysfs *fw_sysfs);
+ umode_t fw_upload_is_visible(struct kobject *kobj, struct attribute *attr, int n);
+ #else
+ static inline int fw_upload_start(struct fw_sysfs *fw_sysfs)
+ {
+ 	return 0;
+ }
++
++static inline void fw_upload_free(struct fw_sysfs *fw_sysfs)
++{
++}
+ #endif
+ 
+ #endif /* __FIRMWARE_SYSFS_H */
+diff --git a/drivers/base/firmware_loader/sysfs_upload.c b/drivers/base/firmware_loader/sysfs_upload.c
+index 63e15bddd80c..a0af8f5f13d8 100644
 --- a/drivers/base/firmware_loader/sysfs_upload.c
 +++ b/drivers/base/firmware_loader/sysfs_upload.c
-@@ -377,6 +377,7 @@ void firmware_upload_unregister(struct f
- {
- 	struct fw_sysfs *fw_sysfs = fw_upload->priv;
- 	struct fw_upload_priv *fw_upload_priv = fw_sysfs->fw_upload_priv;
-+	struct module *module = fw_upload_priv->module;
- 
- 	mutex_lock(&fw_upload_priv->lock);
- 	if (fw_upload_priv->progress == FW_UPLOAD_PROG_IDLE) {
-@@ -392,6 +393,6 @@ void firmware_upload_unregister(struct f
- 
- unregister:
- 	device_unregister(&fw_sysfs->dev);
--	module_put(fw_upload_priv->module);
-+	module_put(module);
+@@ -264,6 +264,15 @@ int fw_upload_start(struct fw_sysfs *fw_sysfs)
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(firmware_upload_unregister);
+ 
++void fw_upload_free(struct fw_sysfs *fw_sysfs)
++{
++	struct fw_upload_priv *fw_upload_priv = fw_sysfs->fw_upload_priv;
++
++	free_fw_priv(fw_sysfs->fw_priv);
++	kfree(fw_upload_priv->fw_upload);
++	kfree(fw_upload_priv);
++}
++
+ /**
+  * firmware_upload_register() - register for the firmware upload sysfs API
+  * @module: kernel module of this device
+-- 
+2.37.3
+
 
 
