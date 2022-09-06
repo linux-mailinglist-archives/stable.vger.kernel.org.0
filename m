@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CECEA5AEB2A
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60BE45AEB1E
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239280AbiIFNzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:55:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53114 "EHLO
+        id S239487AbiIFNza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:55:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239892AbiIFNyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:54:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CF2980526;
-        Tue,  6 Sep 2022 06:41:10 -0700 (PDT)
+        with ESMTP id S238805AbiIFNxb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:53:31 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89684804B7;
+        Tue,  6 Sep 2022 06:40:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95E5F61551;
-        Tue,  6 Sep 2022 13:35:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 934E3C433D6;
-        Tue,  6 Sep 2022 13:35:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 01F4ECE177D;
+        Tue,  6 Sep 2022 13:40:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F614C433D6;
+        Tue,  6 Sep 2022 13:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471342;
-        bh=4wMBIiOVRFEUQgZUCLPvtOAlNnzfJHtYdPAydFACWFM=;
+        s=korg; t=1662471633;
+        bh=CRt/nAFidu2/Fa+kSY83hNUBSE8UekJvMXGOpiPP4Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7k7JYn5caGkg9xDIgW7rUhxiRNf5mjnYC4NvXcbEaKzsLMveUdSeR757OYyt+lY6
-         TGy6jYBW5+j4p2wp9/EZr5gCc7uDDDLJQ2Y3wNUJeBOo6sS8/a3zSMvNJM5bmXNnnn
-         g9Q0a4IKx7yRh3V8U4RPaSjG9a1++JF59E+G7Bl0=
+        b=Zb8sqikqxkWaTRGEjUxkgMO5p7nFcWJk2Eult5obXZ3aL1NR3fiTYZMo5CIuSW+50
+         J5bfcyspxVkeLfwss/Xw3qa8D5jo+L4BrtHGgylPwUKKwzyk0yPCKs0/fNFqkDQ6q+
+         LW+DbG7XURvke60GXNqGEPevj1p/fPdlVIN9rZqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Halaney <ahalaney@redhat.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 5.10 76/80] usb: dwc3: fix PHY disable sequence
+        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
+        Heng Qi <hengqi@linux.alibaba.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 092/107] ip: fix triggering of icmp redirect
 Date:   Tue,  6 Sep 2022 15:31:13 +0200
-Message-Id: <20220906132820.303080833@linuxfoundation.org>
+Message-Id: <20220906132825.720445776@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit d2ac7bef95c9ead307801ccb6cb6dfbeb14247bf upstream.
+commit eb55dc09b5dd040232d5de32812cc83001a23da6 upstream.
 
-Generic PHYs must be powered-off before they can be tore down.
+__mkroute_input() uses fib_validate_source() to trigger an icmp redirect.
+My understanding is that fib_validate_source() is used to know if the src
+address and the gateway address are on the same link. For that,
+fib_validate_source() returns 1 (same link) or 0 (not the same network).
+__mkroute_input() is the only user of these positive values, all other
+callers only look if the returned value is negative.
 
-Similarly, suspending legacy PHYs after having powered them off makes no
-sense.
+Since the below patch, fib_validate_source() didn't return anymore 1 when
+both addresses are on the same network, because the route lookup returns
+RT_SCOPE_LINK instead of RT_SCOPE_HOST. But this is, in fact, right.
+Let's adapat the test to return 1 again when both addresses are on the same
+link.
 
-Fix the dwc3_core_exit() (e.g. called during suspend) and open-coded
-dwc3_probe() error-path sequences that got this wrong.
-
-Note that this makes dwc3_core_exit() match the dwc3_core_init() error
-path with respect to powering off the PHYs.
-
-Fixes: 03c1fd622f72 ("usb: dwc3: core: add phy cleanup for probe error handling")
-Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
-Cc: stable@vger.kernel.org      # 4.8
-Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220804151001.23612-2-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ johan: adjust context to 5.15 ]
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+CC: stable@vger.kernel.org
+Fixes: 747c14307214 ("ip: fix dflt addr selection for connected nexthop")
+Reported-by: kernel test robot <yujie.liu@intel.com>
+Reported-by: Heng Qi <hengqi@linux.alibaba.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220829100121.3821-1-nicolas.dichtel@6wind.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/core.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ net/ipv4/fib_frontend.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -728,15 +728,16 @@ static void dwc3_core_exit(struct dwc3 *
- {
- 	dwc3_event_buffers_cleanup(dwc);
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -389,7 +389,7 @@ static int __fib_validate_source(struct
+ 	dev_match = dev_match || (res.type == RTN_LOCAL &&
+ 				  dev == net->loopback_dev);
+ 	if (dev_match) {
+-		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
++		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
+ 		return ret;
+ 	}
+ 	if (no_addr)
+@@ -401,7 +401,7 @@ static int __fib_validate_source(struct
+ 	ret = 0;
+ 	if (fib_lookup(net, &fl4, &res, FIB_LOOKUP_IGNORE_LINKSTATE) == 0) {
+ 		if (res.type == RTN_UNICAST)
+-			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
++			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
+ 	}
+ 	return ret;
  
-+	usb_phy_set_suspend(dwc->usb2_phy, 1);
-+	usb_phy_set_suspend(dwc->usb3_phy, 1);
-+	phy_power_off(dwc->usb2_generic_phy);
-+	phy_power_off(dwc->usb3_generic_phy);
-+
- 	usb_phy_shutdown(dwc->usb2_phy);
- 	usb_phy_shutdown(dwc->usb3_phy);
- 	phy_exit(dwc->usb2_generic_phy);
- 	phy_exit(dwc->usb3_generic_phy);
- 
--	usb_phy_set_suspend(dwc->usb2_phy, 1);
--	usb_phy_set_suspend(dwc->usb3_phy, 1);
--	phy_power_off(dwc->usb2_generic_phy);
--	phy_power_off(dwc->usb3_generic_phy);
- 	clk_bulk_disable_unprepare(dwc->num_clks, dwc->clks);
- 	reset_control_assert(dwc->reset);
- }
-@@ -1606,16 +1607,16 @@ err5:
- 	dwc3_debugfs_exit(dwc);
- 	dwc3_event_buffers_cleanup(dwc);
- 
--	usb_phy_shutdown(dwc->usb2_phy);
--	usb_phy_shutdown(dwc->usb3_phy);
--	phy_exit(dwc->usb2_generic_phy);
--	phy_exit(dwc->usb3_generic_phy);
--
- 	usb_phy_set_suspend(dwc->usb2_phy, 1);
- 	usb_phy_set_suspend(dwc->usb3_phy, 1);
- 	phy_power_off(dwc->usb2_generic_phy);
- 	phy_power_off(dwc->usb3_generic_phy);
- 
-+	usb_phy_shutdown(dwc->usb2_phy);
-+	usb_phy_shutdown(dwc->usb3_phy);
-+	phy_exit(dwc->usb2_generic_phy);
-+	phy_exit(dwc->usb3_generic_phy);
-+
- 	dwc3_ulpi_exit(dwc);
- 
- err4:
 
 
