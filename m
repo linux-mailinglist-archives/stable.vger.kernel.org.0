@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C39E35AEDE3
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B55C5AEBC4
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241989AbiIFOkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:40:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48392 "EHLO
+        id S241659AbiIFOVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:21:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242142AbiIFOjn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:39:43 -0400
+        with ESMTP id S242260AbiIFOUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:20:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 749EC9BB6A;
-        Tue,  6 Sep 2022 07:01:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F37EF32D9F;
+        Tue,  6 Sep 2022 06:51:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95E7FB818D1;
-        Tue,  6 Sep 2022 13:38:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2A58C433D6;
-        Tue,  6 Sep 2022 13:38:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 870ECB818D6;
+        Tue,  6 Sep 2022 13:45:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D608CC433D6;
+        Tue,  6 Sep 2022 13:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471488;
-        bh=iZyDhdzEp9CNBVHVu2q4QPkSg91EeUUS5JjAq/g64AA=;
+        s=korg; t=1662471899;
+        bh=XLZAU+yWVD3tW1KrDP6Eg2rL0DPZXfjWp3mf4DblUoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ve8bpf9e1720PCMRCNLtPRQRBOM7UVEVtXth2Ww/9mYP3EfiyHdjJnWDKEJs7yjBC
-         Ulibrg46UBpUJVIk7ddeZujkAh7ED61IPHCXJL1M/BfEpJr/6XQAvPQaxB5Y/nYYYi
-         qx7gU8X5YLV4LJcNvXAuTibHPWX+nSJkg0kA+auc=
+        b=oa1F8DiMTdLX4bszhB8CbjBMCIQWJTLRLoyjDiwFO59KPj1nl50LFAExJt/JJelpH
+         06tvHcW8y9leR+n+yLtdbLVf9zqVqK86WVHD8hUPWpYmoQSVzY9DLupzIR1SHTuAPj
+         huB+WcMpY9V9FAX/kDq1H+bUdA5Ckns4dfAK3lQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         Seunghui Lee <sh043.lee@samsung.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 044/107] mmc: core: Fix UHS-I SD 1.8V workaround branch
-Date:   Tue,  6 Sep 2022 15:30:25 +0200
-Message-Id: <20220906132823.686079933@linuxfoundation.org>
+Subject: [PATCH 5.19 078/155] mmc: core: Fix UHS-I SD 1.8V workaround branch
+Date:   Tue,  6 Sep 2022 15:30:26 +0200
+Message-Id: <20220906132832.731829422@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
+References: <20220906132829.417117002@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -78,7 +78,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mmc/core/sd.c
 +++ b/drivers/mmc/core/sd.c
-@@ -1491,7 +1491,7 @@ retry:
+@@ -1498,7 +1498,7 @@ retry:
  					mmc_remove_card(card);
  				goto retry;
  			}
@@ -87,7 +87,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  	}
  
-@@ -1527,7 +1527,7 @@ retry:
+@@ -1534,7 +1534,7 @@ retry:
  			mmc_set_bus_width(host, MMC_BUS_WIDTH_4);
  		}
  	}
@@ -96,7 +96,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	if (!oldcard) {
  		/* Read/parse the extension registers. */
  		err = sd_read_ext_regs(card);
-@@ -1559,7 +1559,7 @@ retry:
+@@ -1566,7 +1566,7 @@ retry:
  		err = -EINVAL;
  		goto free_card;
  	}
