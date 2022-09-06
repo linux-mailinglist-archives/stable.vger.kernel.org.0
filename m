@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 650AE5AE665
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:21:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 920435AE66B
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234087AbiIFLVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:21:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36848 "EHLO
+        id S239281AbiIFLVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:21:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233251AbiIFLVq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:21:46 -0400
+        with ESMTP id S239081AbiIFLVx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:21:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6BAC3207D
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:21:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21A203207D
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:21:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83FF2B8172C
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:21:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECAABC433C1;
-        Tue,  6 Sep 2022 11:21:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC482B8172C
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:21:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C555C433C1;
+        Tue,  6 Sep 2022 11:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662463303;
-        bh=Qc+/nn0GtGsEosTzb3hF7NRlMGs2a3b68eqQ5xrmLto=;
+        s=korg; t=1662463309;
+        bh=ELpU0FpjPmWQeHe1htIbBnK9mdKesUjBjbm2zkgkdic=;
         h=Subject:To:Cc:From:Date:From;
-        b=nQMDYHW5S0sQOUaFwYvI5l8AafxbL8oV9SkrEBQAG4aN8E3VarvLcqsEzz/0fG7SZ
-         uFMQN4RRtHwtEC8wZwgQdUrCZ2JNBx8nlmphb/iyc3H8UgtNJ2Tpd02P9eAqKsfCuP
-         xK9bMJ2Ilmupl5XGiKQ25LQpxpWdXJqTL0PA3/w4=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Avoid duplicate requests to enable" failed to apply to 5.15-stable tree
+        b=Jk9xHMkjjtuYF0Imggvr7lxRdRKpGiuuN3qdoMQmijSly0eZYMJ9A8WU8zpaNKHTN
+         1IpDijHiyDIvohKMpUlCgqsLTlAJXBkvLjrmCyAOi53XAKcFWVSxYST6Xg+BS9dSX1
+         uP4eQcBqzk6C/hAPr8gmqOHkSxOKsmglQ3Psq6gk=
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Avoid duplicate requests to enable" failed to apply to 5.10-stable tree
 To:     quic_wcheng@quicinc.com, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:21:35 +0200
-Message-ID: <166246329516260@kroah.com>
+Date:   Tue, 06 Sep 2022 13:21:36 +0200
+Message-ID: <166246329686138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
