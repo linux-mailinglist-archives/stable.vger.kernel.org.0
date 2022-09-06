@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 759AD5AED8F
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49AD25AECCD
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234905AbiIFOmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:42:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
+        id S241034AbiIFOUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:20:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230078AbiIFOmc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:42:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C9E958E;
-        Tue,  6 Sep 2022 07:03:01 -0700 (PDT)
+        with ESMTP id S241679AbiIFOSl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:18:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31DCB192BA;
+        Tue,  6 Sep 2022 06:49:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1511F6154A;
-        Tue,  6 Sep 2022 13:48:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E20AC433C1;
-        Tue,  6 Sep 2022 13:48:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C04C160F89;
+        Tue,  6 Sep 2022 13:48:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C56F4C433D6;
+        Tue,  6 Sep 2022 13:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472127;
-        bh=HrbJ7LB0xXHamS47DeV+VRmMG3iAGv+eo2XVcyQXrw8=;
+        s=korg; t=1662472130;
+        bh=bOH//3r1sn7VoNf/+feYB6lm64dlFs6/NrJkt6m8cEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yXJGHH+H6ViMKuVjEwx2MHmMBQM50bRiR0SZCPcyUAP7cQzcBOB5G3yZdeKwhiDqC
-         uPyA4AJ/FHc9h076acBKubsAZqj3R3yPr2S31LhgAzxYl/Bb3Woo5Ig0BlelytIkxy
-         KEHPq3gv3EHfX+CeTFti07OyiOVHhzo2Dkt5hOaU=
+        b=qTquXGC9A7IIyXWlinWLEiFburh+3ankMPuKGV999maRfVXTIbHty5hwCpeE4oIsX
+         tDb7adnWRtC2slJgxzCoN7qVf5Bbcuc9/rrrnBzpMDouYACn4Gr1aEiJ+tqqK2nfdr
+         ZAVs+BRohGxi8TYtRFTQHFAAONJG8rQC7NIlsfgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Jason Ekstrand <jason.ekstrand@collabora.com>
-Subject: [PATCH 5.19 136/155] dma-buf/dma-resv: check if the new fence is really later
-Date:   Tue,  6 Sep 2022 15:31:24 +0200
-Message-Id: <20220906132835.222727852@linuxfoundation.org>
+        stable@vger.kernel.org, Levi Yun <ppbuk5246@gmail.com>,
+        Baoquan He <bhe@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.19 137/155] arm64/kexec: Fix missing extra range for crashkres_low.
+Date:   Tue,  6 Sep 2022 15:31:25 +0200
+Message-Id: <20220906132835.261723901@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,41 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <ckoenig.leichtzumerken@gmail.com>
+From: Levi Yun <ppbuk5246@gmail.com>
 
-commit a3f7c10a269d5b77dd5822ade822643ced3057f0 upstream.
+commit 4831be702b95047c89b3fa5728d07091e9e9f7c9 upstream.
 
-Previously when we added a fence to a dma_resv object we always
-assumed the the newer than all the existing fences.
+Like crashk_res, Calling crash_exclude_mem_range function with
+crashk_low_res area would need extra crash_mem range too.
 
-With Jason's work to add an UAPI to explicit export/import that's not
-necessary the case any more. So without this check we would allow
-userspace to force the kernel into an use after free error.
+Add one more extra cmem slot in case of crashk_low_res is used.
 
-Since the change is very small and defensive it's probably a good
-idea to backport this to stable kernels as well just in case others
-are using the dma_resv object in the same way.
-
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Jason Ekstrand <jason.ekstrand@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220810172617.140047-1-christian.koenig@amd.com
-Cc: stable@vger.kernel.org # v5.19+
+Signed-off-by: Levi Yun <ppbuk5246@gmail.com>
+Fixes: 944a45abfabc ("arm64: kdump: Reimplement crashkernel=X")
+Cc: <stable@vger.kernel.org> # 5.19.x
+Acked-by: Baoquan He <bhe@redhat.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20220831103913.12661-1-ppbuk5246@gmail.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma-buf/dma-resv.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/machine_kexec_file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma-buf/dma-resv.c
-+++ b/drivers/dma-buf/dma-resv.c
-@@ -295,7 +295,8 @@ void dma_resv_add_fence(struct dma_resv
- 		enum dma_resv_usage old_usage;
+--- a/arch/arm64/kernel/machine_kexec_file.c
++++ b/arch/arm64/kernel/machine_kexec_file.c
+@@ -47,7 +47,7 @@ static int prepare_elf_headers(void **ad
+ 	u64 i;
+ 	phys_addr_t start, end;
  
- 		dma_resv_list_entry(fobj, i, obj, &old, &old_usage);
--		if ((old->context == fence->context && old_usage >= usage) ||
-+		if ((old->context == fence->context && old_usage >= usage &&
-+		     dma_fence_is_later(fence, old)) ||
- 		    dma_fence_is_signaled(old)) {
- 			dma_resv_list_set(fobj, i, fence, usage);
- 			dma_fence_put(old);
+-	nr_ranges = 1; /* for exclusion of crashkernel region */
++	nr_ranges = 2; /* for exclusion of crashkernel region */
+ 	for_each_mem_range(i, &start, &end)
+ 		nr_ranges++;
+ 
 
 
