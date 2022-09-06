@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1585AE6E7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:53:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 819CA5AE6E9
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230307AbiIFLxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:53:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45620 "EHLO
+        id S232428AbiIFLxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230215AbiIFLxO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:53:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B8B57219
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:53:12 -0700 (PDT)
+        with ESMTP id S230215AbiIFLxV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:53:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42ED95725C
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:53:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2D4F6CE171C
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:53:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FC16C433D6;
-        Tue,  6 Sep 2022 11:53:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEA8C614E0
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:53:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBB12C433D6;
+        Tue,  6 Sep 2022 11:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662465189;
-        bh=/h7XgDuYSQtjfno+c7CIyAKOw2+5t9JWbXxOLPGRTsU=;
+        s=korg; t=1662465199;
+        bh=1/nrbXIkau3kKKdMU7m5U2i1PjU8xvIxklMm+v6mPYY=;
         h=Subject:To:Cc:From:Date:From;
-        b=MuE/Y424Y4GEdOfyTJ4tiN4VMkggZzEO8gzWGJnnLw15Hua1DjImkjVjv3vxF531X
-         Wuzq9YmgKV0kMuSvjTKSYk8dOZzO+WlplZMH2GSr6/s38X6YDfiWxtlMYSeTJLaoU4
-         uSecMk10Ead40XG3thn/8yBAxSVXWeQhYpzTTdBU=
-Subject: FAILED: patch "[PATCH] drm/i915/dsi: filter invalid backlight and CABC ports" failed to apply to 5.19-stable tree
+        b=o7e5fNzoZTwTYB9zaOBp+QP9JNSVajyty8DwuHV2JraCF5DRUXjAvR1vev+JSKNdu
+         RJ+USsBdgxKLS1LgJokGOZQLrBoQZWaErzDkRVkzeutPsU34lesw2tT4GUosdV8lte
+         D8GuIXHf0BM8hvgzG9LRT9g0vFioBb5t6srTLS/4=
+Subject: FAILED: patch "[PATCH] drm/i915/dsi: filter invalid backlight and CABC ports" failed to apply to 5.15-stable tree
 To:     jani.nikula@intel.com, rodrigo.vivi@intel.com,
         stanislav.lisovskiy@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:53:06 +0200
-Message-ID: <166246518621157@kroah.com>
+Date:   Tue, 06 Sep 2022 13:53:07 +0200
+Message-ID: <166246518734192@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -62,6 +62,20 @@ c2fdb424d322 ("drm/i915/bios: Split VBT parsing to global vs. panel specific par
 c3fbcf60bc74 ("drm/i915/bios: Split parse_driver_features() into two parts")
 75bd0d5e4ead ("drm/i915/pps: Split pps_init_delays() into distinct parts")
 822e5ae701af ("drm/i915: Extract intel_edp_fixup_vbt_bpp()")
+949665a6e237 ("drm/i915: Respect VBT seamless DRRS min refresh rate")
+790b45f1bc67 ("drm/i915/bios: Parse the seamless DRRS min refresh rate")
+901a0cad2ab8 ("drm/i915/bios: Get access to the tail end of the LFP data block")
+13367132a7ad ("drm/i915/bios: Reorder panel DTD parsing")
+5ab58d6996d7 ("drm/i915/bios: Validate the panel_name table")
+58b2e3829ec6 ("drm/i915/bios: Trust the LFP data pointers")
+514003e1421e ("drm/i915/bios: Validate LFP data table pointers")
+918f3025960f ("drm/i915/bios: Use the copy of the LFP data table always")
+e163cfb4c96d ("drm/i915/bios: Make copies of VBT data blocks")
+d58a3d699797 ("drm/i915/bios: Use the cached BDB version")
+ca2a3c9204ec ("drm/i915/bios: Extract struct lvds_lfp_data_ptr_table")
+001b6169a920 ("drm/i915: Allow static DRRS on LVDS")
+1159c8339278 ("drm/i915: Allow static DRRS on all eDP ports")
+f244cdfa72b8 ("drm/i915: Move intel_drrs_compute_config() into intel_dp.c")
 
 thanks,
 
