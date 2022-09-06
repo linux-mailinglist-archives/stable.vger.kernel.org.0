@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF145AEC62
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13EA25AEB79
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:26:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240041AbiIFOAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:00:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60668 "EHLO
+        id S239333AbiIFN5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:57:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239969AbiIFN6R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:58:17 -0400
+        with ESMTP id S239303AbiIFNzU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:55:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1968276D;
-        Tue,  6 Sep 2022 06:42:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76C8881B0D;
+        Tue,  6 Sep 2022 06:42:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9E8661552;
-        Tue,  6 Sep 2022 13:42:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9EFBC433C1;
-        Tue,  6 Sep 2022 13:42:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94FA66154D;
+        Tue,  6 Sep 2022 13:42:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2062C433C1;
+        Tue,  6 Sep 2022 13:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471721;
-        bh=RIIkQz/c58EgZy+tE5QWC90i7kLWLIbvRRANaDvQyaA=;
+        s=korg; t=1662471724;
+        bh=9NaT+Ucncp9R8d9zkaYHvrw5dKkulO1MkaoufhZdDZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N3XVFXK13PGRtmLUHMTRCl+VH5WXVjff0iejRsGAKs/VDr6qkWFU3XMx1tm0d2urX
-         ih0wZ84paitZ7mkVyfMlEvpE416MUoibbrT1R5p1voGXdS2bohiO5eDlOILfDyUj+K
-         AaOcYBjGsqvjJ5QPQPFTtRayE30MwRTDNbvVC7Lc=
+        b=hF9fi10zflu2gLcyQuSXCUdtJ2ubrXlGlQDqpNZ7QWEfQn+hq+N8m3VR0O416ueba
+         oRGLoZdnQyFu3874OQeD6HXDh56J3wLMROiv2X9MpuC6sXLHbLD7UrSRWG9EIGdRLx
+         XBKIPfFq88KqibPt+NuyO3mXjZgOQGRvhtilA9eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pu Lehui <pulehui@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 016/155] bpf, cgroup: Fix kernel BUG in purge_effective_progs
-Date:   Tue,  6 Sep 2022 15:29:24 +0200
-Message-Id: <20220906132830.102549765@linuxfoundation.org>
+Subject: [PATCH 5.19 017/155] drm/i915/gvt: Fix Comet Lake
+Date:   Tue,  6 Sep 2022 15:29:25 +0200
+Message-Id: <20220906132830.147730561@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,105 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pu Lehui <pulehui@huawei.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 7d6620f107bae6ed687ff07668e8e8f855487aa9 ]
+[ Upstream commit b75ef35bb57791a5d675699ed4a40c870d1da12f ]
 
-Syzkaller reported a triggered kernel BUG as follows:
+Prior to the commit below the GAMT_CHKN_BIT_REG address was setup for
+devices matching (D_KBL | D_CFL), where intel_gvt_get_device_type()
+returns D_CFL for either Coffee Lake or Comet Lake.  Include the missed
+platform.`
 
-  ------------[ cut here ]------------
-  kernel BUG at kernel/bpf/cgroup.c:925!
-  invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-  CPU: 1 PID: 194 Comm: detach Not tainted 5.19.0-14184-g69dac8e431af #8
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:__cgroup_bpf_detach+0x1f2/0x2a0
-  Code: 00 e8 92 60 30 00 84 c0 75 d8 4c 89 e0 31 f6 85 f6 74 19 42 f6 84
-  28 48 05 00 00 02 75 0e 48 8b 80 c0 00 00 00 48 85 c0 75 e5 <0f> 0b 48
-  8b 0c5
-  RSP: 0018:ffffc9000055bdb0 EFLAGS: 00000246
-  RAX: 0000000000000000 RBX: ffff888100ec0800 RCX: ffffc900000f1000
-  RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff888100ec4578
-  RBP: 0000000000000000 R08: ffff888100ec0800 R09: 0000000000000040
-  R10: 0000000000000000 R11: 0000000000000000 R12: ffff888100ec4000
-  R13: 000000000000000d R14: ffffc90000199000 R15: ffff888100effb00
-  FS:  00007f68213d2b80(0000) GS:ffff88813bc80000(0000)
-  knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 000055f74a0e5850 CR3: 0000000102836000 CR4: 00000000000006e0
-  Call Trace:
-   <TASK>
-   cgroup_bpf_prog_detach+0xcc/0x100
-   __sys_bpf+0x2273/0x2a00
-   __x64_sys_bpf+0x17/0x20
-   do_syscall_64+0x3b/0x90
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-  RIP: 0033:0x7f68214dbcb9
-  Code: 08 44 89 e0 5b 41 5c c3 66 0f 1f 84 00 00 00 00 00 48 89 f8 48 89
-  f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
-  f0 ff8
-  RSP: 002b:00007ffeb487db68 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
-  RAX: ffffffffffffffda RBX: 000000000000000b RCX: 00007f68214dbcb9
-  RDX: 0000000000000090 RSI: 00007ffeb487db70 RDI: 0000000000000009
-  RBP: 0000000000000003 R08: 0000000000000012 R09: 0000000b00000003
-  R10: 00007ffeb487db70 R11: 0000000000000246 R12: 00007ffeb487dc20
-  R13: 0000000000000004 R14: 0000000000000001 R15: 000055f74a1011b0
-   </TASK>
-  Modules linked in:
-  ---[ end trace 0000000000000000 ]---
-
-Repetition steps:
-
-For the following cgroup tree,
-
-  root
-   |
-  cg1
-   |
-  cg2
-
-  1. attach prog2 to cg2, and then attach prog1 to cg1, both bpf progs
-     attach type is NONE or OVERRIDE.
-  2. write 1 to /proc/thread-self/fail-nth for failslab.
-  3. detach prog1 for cg1, and then kernel BUG occur.
-
-Failslab injection will cause kmalloc fail and fall back to
-purge_effective_progs. The problem is that cg2 have attached another prog,
-so when go through cg2 layer, iteration will add pos to 1, and subsequent
-operations will be skipped by the following condition, and cg will meet
-NULL in the end.
-
-  `if (pos && !(cg->bpf.flags[atype] & BPF_F_ALLOW_MULTI))`
-
-The NULL cg means no link or prog match, this is as expected, and it's not
-a bug. So here just skip the no match situation.
-
-Fixes: 4c46091ee985 ("bpf: Fix KASAN use-after-free Read in compute_effective_progs")
-Signed-off-by: Pu Lehui <pulehui@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220813134030.1972696-1-pulehui@huawei.com
+Link: https://lore.kernel.org/all/20220808142711.02d16782.alex.williamson@redhat.com
+Fixes: e0f74ed4634d ("i915/gvt: Separate the MMIO tracking table from GVT-g")
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/166016852965.780835.10366587502693016900.stgit@omen
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/cgroup.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/intel_gvt_mmio_table.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
-index 7a394f7c205c4..34dfa45ef4f3b 100644
---- a/kernel/bpf/cgroup.c
-+++ b/kernel/bpf/cgroup.c
-@@ -762,8 +762,10 @@ static void purge_effective_progs(struct cgroup *cgrp, struct bpf_prog *prog,
- 				pos++;
- 			}
- 		}
-+
-+		/* no link or prog match, skip the cgroup of this layer */
-+		continue;
- found:
--		BUG_ON(!cg);
- 		progs = rcu_dereference_protected(
- 				desc->bpf.effective[atype],
- 				lockdep_is_held(&cgroup_mutex));
+diff --git a/drivers/gpu/drm/i915/intel_gvt_mmio_table.c b/drivers/gpu/drm/i915/intel_gvt_mmio_table.c
+index 72dac1718f3e7..6163aeaee9b98 100644
+--- a/drivers/gpu/drm/i915/intel_gvt_mmio_table.c
++++ b/drivers/gpu/drm/i915/intel_gvt_mmio_table.c
+@@ -1074,7 +1074,8 @@ static int iterate_skl_plus_mmio(struct intel_gvt_mmio_table_iter *iter)
+ 	MMIO_D(GEN8_HDC_CHICKEN1);
+ 	MMIO_D(GEN9_WM_CHICKEN3);
+ 
+-	if (IS_KABYLAKE(dev_priv) || IS_COFFEELAKE(dev_priv))
++	if (IS_KABYLAKE(dev_priv) ||
++	    IS_COFFEELAKE(dev_priv) || IS_COMETLAKE(dev_priv))
+ 		MMIO_D(GAMT_CHKN_BIT_REG);
+ 	if (!IS_BROXTON(dev_priv))
+ 		MMIO_D(GEN9_CTX_PREEMPT_REG);
 -- 
 2.35.1
 
