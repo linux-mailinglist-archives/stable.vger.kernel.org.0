@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05FD85AE9BD
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:34:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FB875AEAE7
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240509AbiIFNc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51874 "EHLO
+        id S238620AbiIFNug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240440AbiIFNcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E8476444;
-        Tue,  6 Sep 2022 06:32:30 -0700 (PDT)
+        with ESMTP id S239213AbiIFNtK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3964DF7C;
+        Tue,  6 Sep 2022 06:39:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B5C2B81632;
-        Tue,  6 Sep 2022 13:32:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D3BC433D6;
-        Tue,  6 Sep 2022 13:32:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 113C1B818D4;
+        Tue,  6 Sep 2022 13:39:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 623C4C433D6;
+        Tue,  6 Sep 2022 13:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471146;
-        bh=IzjVCeaCmnUDzdomb3f6ZKlN7CYWqtCZRsxYz91lgBw=;
+        s=korg; t=1662471549;
+        bh=jCbiulv3+SkkRMqoeGCKxedOr2kOBhDnFPmxoCl8K/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ItOz7u/EC7Rfs2gQ4jqdFHI0kLIxTLJoJwv2wChyw+uuMhr87BOiLvmvOxAFr/9ur
-         c6mAsMBWXORJyNwEZQoRl0MNhB3pZSZbOSfWWAUKajk1p6ozlowlybpxRJzBPMGbVg
-         NNegwLdVlqP0rM6KLPFirWG8JbQqT1AhHD8VMpEA=
+        b=UMjWF8AJjETt4KGZg32OlwFT6o1KmqvfzIpLNfW1lC4H/MAnmDLo2Q0lrZpeaYN+n
+         7xzI0cYWTGgNgfBxo/cTsIgnANqY8PoowlUyAHJZCQSBZIOkx0Tu4bKJmN4FC5zuxh
+         ZdVom4LOq8JUK9pDvNhjBchjuE1mRY0cxYPe6PDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e696806ef96cdd2d87cd@syzkaller.appspotmail.com,
-        Tom Herbert <tom@herbertland.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+9fc084a4348493ef65d2@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 16/80] kcm: fix strp_init() order and cleanup
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Zheng Wang <hackerzheng666@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.15 032/107] staging: rtl8712: fix use after free bugs
 Date:   Tue,  6 Sep 2022 15:30:13 +0200
-Message-Id: <20220906132817.615407697@linuxfoundation.org>
+Message-Id: <20220906132823.157986856@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,74 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 8fc29ff3910f3af08a7c40a75d436b5720efe2bf ]
+commit e230a4455ac3e9b112f0367d1b8e255e141afae0 upstream.
 
-strp_init() is called just a few lines above this csk->sk_user_data
-check, it also initializes strp->work etc., therefore, it is
-unnecessary to call strp_done() to cancel the freshly initialized
-work.
+_Read/Write_MACREG callbacks are NULL so the read/write_macreg_hdl()
+functions don't do anything except free the "pcmd" pointer.  It
+results in a use after free.  Delete them.
 
-And if sk_user_data is already used by KCM, psock->strp should not be
-touched, particularly strp->work state, so we need to move strp_init()
-after the csk->sk_user_data check.
-
-This also makes a lockdep warning reported by syzbot go away.
-
-Reported-and-tested-by: syzbot+9fc084a4348493ef65d2@syzkaller.appspotmail.com
-Reported-by: syzbot+e696806ef96cdd2d87cd@syzkaller.appspotmail.com
-Fixes: e5571240236c ("kcm: Check if sk_user_data already set in kcm_attach")
-Fixes: dff8baa26117 ("kcm: Call strp_stop before strp_done in kcm_attach")
-Cc: Tom Herbert <tom@herbertland.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/r/20220827181314.193710-1-xiyou.wangcong@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
+Cc: stable <stable@kernel.org>
+Reported-by: Zheng Wang <hackerzheng666@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/Yw4ASqkYcUhUfoY2@kili
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/kcm/kcmsock.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/staging/rtl8712/rtl8712_cmd.c |   36 ----------------------------------
+ 1 file changed, 36 deletions(-)
 
-diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
-index 56dad9565bc93..18469f1f707e5 100644
---- a/net/kcm/kcmsock.c
-+++ b/net/kcm/kcmsock.c
-@@ -1411,12 +1411,6 @@ static int kcm_attach(struct socket *sock, struct socket *csock,
- 	psock->sk = csk;
- 	psock->bpf_prog = prog;
+--- a/drivers/staging/rtl8712/rtl8712_cmd.c
++++ b/drivers/staging/rtl8712/rtl8712_cmd.c
+@@ -117,34 +117,6 @@ static void r871x_internal_cmd_hdl(struc
+ 	kfree(pdrvcmd->pbuf);
+ }
  
--	err = strp_init(&psock->strp, csk, &cb);
--	if (err) {
--		kmem_cache_free(kcm_psockp, psock);
--		goto out;
--	}
+-static u8 read_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
+-{
+-	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
+-	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
 -
- 	write_lock_bh(&csk->sk_callback_lock);
+-	/*  invoke cmd->callback function */
+-	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
+-	if (!pcmd_callback)
+-		r8712_free_cmd_obj(pcmd);
+-	else
+-		pcmd_callback(padapter, pcmd);
+-	return H2C_SUCCESS;
+-}
+-
+-static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
+-{
+-	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
+-	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+-
+-	/*  invoke cmd->callback function */
+-	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
+-	if (!pcmd_callback)
+-		r8712_free_cmd_obj(pcmd);
+-	else
+-		pcmd_callback(padapter, pcmd);
+-	return H2C_SUCCESS;
+-}
+-
+ static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
+ {
+ 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+@@ -213,14 +185,6 @@ static struct cmd_obj *cmd_hdl_filter(st
+ 	pcmd_r = NULL;
  
- 	/* Check if sk_user_data is aready by KCM or someone else.
-@@ -1424,13 +1418,18 @@ static int kcm_attach(struct socket *sock, struct socket *csock,
- 	 */
- 	if (csk->sk_user_data) {
- 		write_unlock_bh(&csk->sk_callback_lock);
--		strp_stop(&psock->strp);
--		strp_done(&psock->strp);
- 		kmem_cache_free(kcm_psockp, psock);
- 		err = -EALREADY;
- 		goto out;
- 	}
- 
-+	err = strp_init(&psock->strp, csk, &cb);
-+	if (err) {
-+		write_unlock_bh(&csk->sk_callback_lock);
-+		kmem_cache_free(kcm_psockp, psock);
-+		goto out;
-+	}
-+
- 	psock->save_data_ready = csk->sk_data_ready;
- 	psock->save_write_space = csk->sk_write_space;
- 	psock->save_state_change = csk->sk_state_change;
--- 
-2.35.1
-
+ 	switch (pcmd->cmdcode) {
+-	case GEN_CMD_CODE(_Read_MACREG):
+-		read_macreg_hdl(padapter, (u8 *)pcmd);
+-		pcmd_r = pcmd;
+-		break;
+-	case GEN_CMD_CODE(_Write_MACREG):
+-		write_macreg_hdl(padapter, (u8 *)pcmd);
+-		pcmd_r = pcmd;
+-		break;
+ 	case GEN_CMD_CODE(_Read_BBREG):
+ 		read_bbreg_hdl(padapter, (u8 *)pcmd);
+ 		break;
 
 
