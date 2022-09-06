@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2245AEB17
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 245675AE9A7
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234121AbiIFNqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:46:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53888 "EHLO
+        id S240472AbiIFNci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:32:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240678AbiIFNok (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:44:40 -0400
+        with ESMTP id S240403AbiIFNcY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 667177C18E;
-        Tue,  6 Sep 2022 06:38:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3396E75CFE;
+        Tue,  6 Sep 2022 06:32:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87CEAB818D0;
-        Tue,  6 Sep 2022 13:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2F4AC433C1;
-        Tue,  6 Sep 2022 13:38:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CB9EB818C8;
+        Tue,  6 Sep 2022 13:32:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4AB9C433C1;
+        Tue,  6 Sep 2022 13:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471529;
-        bh=PJUMWu2224yTcqapzGfGjILlUrl8e8kHPDuxPfTQDFI=;
+        s=korg; t=1662471140;
+        bh=SVXl+3ZVyf1kVA0WF+MrRfkzgl58evHurvv5a+lkTAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ziUY0+9Vmmc7I8OUx5pTaMFFR6KwptCghBwDbqeB4wPfDhcqpwGJgS5Ku9FG50Vc
-         qXL9A41a5LM8Ay8vRLOscdTi3Vo05pyMdWZMEBh+V652WhDUmmJupQTm9lG9oeHH7C
-         N0i+cm39nA+Jt0q0ZFIDfYOJDYYgYKX8LCeaW4qg=
+        b=qmjSzUeLKxS2jive4YwjNs0M60AfCWfDBjLiQp9hyMpw7l11RG3tsvmV5WmJOQFhT
+         0DtYhKmykeZ3aSGBOiULcCUxIGbSdK8X2eEHwY/mAECePaxLNRsA8F8eMFEagt14M9
+         E8O7xE5B2E34Dcmi7CPJY9oA4v98NB8lLvAv4neA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 030/107] soundwire: qcom: fix device status array range
+        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 14/80] net/sched: fix netdevice reference leaks in attach_default_qdiscs()
 Date:   Tue,  6 Sep 2022 15:30:11 +0200
-Message-Id: <20220906132823.070647658@linuxfoundation.org>
+Message-Id: <20220906132817.526541735@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 4ef3f2aff1267bfa6d5a90c42a30b927b8aa239b ]
+[ Upstream commit f612466ebecb12a00d9152344ddda6f6345f04dc ]
 
-This patch updates device status array range from 11 to 12 as we will
-be reading status from device number 0 to device number 11 inclusive.
+In attach_default_qdiscs(), if a dev has multiple queues and queue 0 fails
+to attach qdisc because there is no memory in attach_one_default_qdisc().
+Then dev->qdisc will be noop_qdisc by default. But the other queues may be
+able to successfully attach to default qdisc.
 
-Without this patch we can potentially access status array out of range
-during auto-enumeration.
+In this case, the fallback to noqueue process will be triggered. If the
+original attached qdisc is not released and a new one is directly
+attached, this will cause netdevice reference leaks.
 
-Fixes: aa1262ca6695 ("soundwire: qcom: Check device status before reading devid")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220708104747.8722-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+The following is the bug log:
+
+veth0: default qdisc (fq_codel) fail, fallback to noqueue
+unregister_netdevice: waiting for veth0 to become free. Usage count = 32
+leaked reference.
+ qdisc_alloc+0x12e/0x210
+ qdisc_create_dflt+0x62/0x140
+ attach_one_default_qdisc.constprop.41+0x44/0x70
+ dev_activate+0x128/0x290
+ __dev_open+0x12a/0x190
+ __dev_change_flags+0x1a2/0x1f0
+ dev_change_flags+0x23/0x60
+ do_setlink+0x332/0x1150
+ __rtnl_newlink+0x52f/0x8e0
+ rtnl_newlink+0x43/0x70
+ rtnetlink_rcv_msg+0x140/0x3b0
+ netlink_rcv_skb+0x50/0x100
+ netlink_unicast+0x1bb/0x290
+ netlink_sendmsg+0x37c/0x4e0
+ sock_sendmsg+0x5f/0x70
+ ____sys_sendmsg+0x208/0x280
+
+Fix this bug by clearing any non-noop qdiscs that may have been assigned
+before trying to re-attach.
+
+Fixes: bf6dba76d278 ("net: sched: fallback to qdisc noqueue if default qdisc setup fail")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Link: https://lore.kernel.org/r/20220826090055.24424-1-wanghai38@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/qcom.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/sched/sch_generic.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
-index 2adc0a75c0515..1ce6f948e9a42 100644
---- a/drivers/soundwire/qcom.c
-+++ b/drivers/soundwire/qcom.c
-@@ -148,7 +148,7 @@ struct qcom_swrm_ctrl {
- 	u8 wcmd_id;
- 	struct qcom_swrm_port_config pconfig[QCOM_SDW_MAX_PORTS];
- 	struct sdw_stream_runtime *sruntime[SWRM_MAX_DAIS];
--	enum sdw_slave_status status[SDW_MAX_DEVICES];
-+	enum sdw_slave_status status[SDW_MAX_DEVICES + 1];
- 	int (*reg_read)(struct qcom_swrm_ctrl *ctrl, int reg, u32 *val);
- 	int (*reg_write)(struct qcom_swrm_ctrl *ctrl, int reg, int val);
- 	u32 slave_status;
-@@ -391,7 +391,7 @@ static int qcom_swrm_get_alert_slave_dev_num(struct qcom_swrm_ctrl *ctrl)
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index 68f1e89430b3b..ecdd9e83f2f49 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -1057,6 +1057,21 @@ struct Qdisc *dev_graft_qdisc(struct netdev_queue *dev_queue,
+ }
+ EXPORT_SYMBOL(dev_graft_qdisc);
  
- 	ctrl->reg_read(ctrl, SWRM_MCP_SLV_STATUS, &val);
++static void shutdown_scheduler_queue(struct net_device *dev,
++				     struct netdev_queue *dev_queue,
++				     void *_qdisc_default)
++{
++	struct Qdisc *qdisc = dev_queue->qdisc_sleeping;
++	struct Qdisc *qdisc_default = _qdisc_default;
++
++	if (qdisc) {
++		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
++		dev_queue->qdisc_sleeping = qdisc_default;
++
++		qdisc_put(qdisc);
++	}
++}
++
+ static void attach_one_default_qdisc(struct net_device *dev,
+ 				     struct netdev_queue *dev_queue,
+ 				     void *_unused)
+@@ -1104,6 +1119,7 @@ static void attach_default_qdiscs(struct net_device *dev)
+ 	if (qdisc == &noop_qdisc) {
+ 		netdev_warn(dev, "default qdisc (%s) fail, fallback to %s\n",
+ 			    default_qdisc_ops->id, noqueue_qdisc_ops.id);
++		netdev_for_each_tx_queue(dev, shutdown_scheduler_queue, &noop_qdisc);
+ 		dev->priv_flags |= IFF_NO_QUEUE;
+ 		netdev_for_each_tx_queue(dev, attach_one_default_qdisc, NULL);
+ 		qdisc = txq->qdisc_sleeping;
+@@ -1357,21 +1373,6 @@ void dev_init_scheduler(struct net_device *dev)
+ 	timer_setup(&dev->watchdog_timer, dev_watchdog, 0);
+ }
  
--	for (dev_num = 0; dev_num < SDW_MAX_DEVICES; dev_num++) {
-+	for (dev_num = 0; dev_num <= SDW_MAX_DEVICES; dev_num++) {
- 		status = (val >> (dev_num * SWRM_MCP_SLV_STATUS_SZ));
- 
- 		if ((status & SWRM_MCP_SLV_STATUS_MASK) == SDW_SLAVE_ALERT) {
-@@ -411,7 +411,7 @@ static void qcom_swrm_get_device_status(struct qcom_swrm_ctrl *ctrl)
- 	ctrl->reg_read(ctrl, SWRM_MCP_SLV_STATUS, &val);
- 	ctrl->slave_status = val;
- 
--	for (i = 0; i < SDW_MAX_DEVICES; i++) {
-+	for (i = 0; i <= SDW_MAX_DEVICES; i++) {
- 		u32 s;
- 
- 		s = (val >> (i * 2));
+-static void shutdown_scheduler_queue(struct net_device *dev,
+-				     struct netdev_queue *dev_queue,
+-				     void *_qdisc_default)
+-{
+-	struct Qdisc *qdisc = dev_queue->qdisc_sleeping;
+-	struct Qdisc *qdisc_default = _qdisc_default;
+-
+-	if (qdisc) {
+-		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
+-		dev_queue->qdisc_sleeping = qdisc_default;
+-
+-		qdisc_put(qdisc);
+-	}
+-}
+-
+ void dev_shutdown(struct net_device *dev)
+ {
+ 	netdev_for_each_tx_queue(dev, shutdown_scheduler_queue, &noop_qdisc);
 -- 
 2.35.1
 
