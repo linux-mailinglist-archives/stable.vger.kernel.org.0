@@ -2,67 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1B95ADD36
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 04:17:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2D85ADECA
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 07:12:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232190AbiIFCRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Sep 2022 22:17:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55182 "EHLO
+        id S231398AbiIFFBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 01:01:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233001AbiIFCRi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Sep 2022 22:17:38 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D4566B67B
-        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 19:17:29 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id 73so9394953pga.1
-        for <stable@vger.kernel.org>; Mon, 05 Sep 2022 19:17:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=MUD2dQ0iCjuQ+facOZ0aRLY8Wd7+Y718oR3UwVIPyT4=;
-        b=zvJMoT4wUgme7TLJ5Tc8DkYeD5xGh+s0FtQ96l8ZNi40a3a+hZc5p6dxYEPHGAPI5x
-         KBJEl4NoI1CScRVyjh2/lFWJSHrlBcDyiuTJRzapCrri0MjlnJVaYRqi4z+8UZf2REJb
-         4bHx8pXnK4U4DOzIHQVPM4JXcd8ipkp9lXTEakGDjJJz3VufmviXaHl3OnYgelOa5Il5
-         HG3UTko4PZbOpi08S6ebPWLpY3Nw/DyHKk64VZhBF2NrqTqDXcVjvalllPevf724n6dB
-         WCKjfCMIpdwquaMIlN8o2mBmytDd1n7G56+LOIGQskLQ3ZBDHv1gqeMQTgpFrMWiqOeT
-         /CmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=MUD2dQ0iCjuQ+facOZ0aRLY8Wd7+Y718oR3UwVIPyT4=;
-        b=yQTc4QBhHnm2jT82iuDWN1h/xz9vk69LatRK435Z6Xx2GHsx/MEVXo046rWvUz5bFV
-         HCm56oMUoGkiIPvpldnS0P/m2CA2K88WqDgiaE8QyEWHZcmfEqmJA1O7C0+omqKDZ4Vg
-         fCw7TWQzkWSEASndt/nQiHZ4BZQh0xBstxFQPCso6BHuu50EX/fBioIjb26QIWGFJkBe
-         PgOQAOCobYqtHt/9iN7Yolfjb4U6p/ai4S4cIcosFR8dtkTks0NgR23qyjLLd4376woS
-         M1VFIsW+q3N8XiRVeTZBx6EKHYgJAnn8cxEw42m3lKaz+OyaDLLpamqFYxFBscDSvm2R
-         g5eQ==
-X-Gm-Message-State: ACgBeo0kyD3Oz0n5n29m7c8iPI1B3exFyTH7QVF7G+42dnpCkLSGghG1
-        6CPU4i+rtmE6UvZqoAYWcKdEEyQcQ0KHFu0SLso=
-X-Google-Smtp-Source: AA6agR66Att37/i9yQaGyK+IZfcWvycfP9w+QE5l23Ddh5GzhWgv6amBx/xnG04xtkWHBtrX6b0Rzg==
-X-Received: by 2002:a63:d418:0:b0:42c:8166:9069 with SMTP id a24-20020a63d418000000b0042c81669069mr30233454pgh.66.1662430648711;
-        Mon, 05 Sep 2022 19:17:28 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s128-20020a625e86000000b005364c8786b7sm8476147pfb.215.2022.09.05.19.17.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Sep 2022 19:17:28 -0700 (PDT)
-Message-ID: <6316adb8.620a0220.feaac.d373@mx.google.com>
-Date:   Mon, 05 Sep 2022 19:17:28 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230377AbiIFFBU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 01:01:20 -0400
+Received: from smtp.smtpout.orange.fr (smtp08.smtpout.orange.fr [80.12.242.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB6635F122
+        for <stable@vger.kernel.org>; Mon,  5 Sep 2022 22:01:18 -0700 (PDT)
+Received: from [192.168.1.18] ([90.11.190.129])
+        by smtp.orange.fr with ESMTPA
+        id VQi4oZE6nXFXxVQi4ovvAL; Tue, 06 Sep 2022 07:01:16 +0200
+X-ME-Helo: [192.168.1.18]
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Tue, 06 Sep 2022 07:01:16 +0200
+X-ME-IP: 90.11.190.129
+Message-ID: <11d7fc32-000f-68a2-99a0-68b0cb3bc4a0@wanadoo.fr>
+Date:   Tue, 6 Sep 2022 07:01:16 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.19.4-318-gb22688ea1c79
-Subject: stable-rc/queue/5.19 baseline: 127 runs,
- 1 regressions (v5.19.4-318-gb22688ea1c79)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: Patch "clk: bcm: rpi: Use correct order for the parameters of
+ devm_kcalloc()" has been added to the 5.15-stable tree
+Content-Language: en-US
+To:     Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>
+References: <20220906032831.1115256-1-sashal@kernel.org>
+From:   Marion & Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+In-Reply-To: <20220906032831.1115256-1-sashal@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,66 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.19 baseline: 127 runs, 1 regressions (v5.19.4-318-gb22688=
-ea1c79)
 
-Regressions Summary
--------------------
+Le 06/09/2022 à 05:28, Sasha Levin a écrit :
+> This is a note to let you know that I've just added the patch titled
+>
+>      clk: bcm: rpi: Use correct order for the parameters of devm_kcalloc()
+>
+> to the 5.15-stable tree which can be found at:
+>      http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>
+> The filename of the patch is:
+>       clk-bcm-rpi-use-correct-order-for-the-parameters-of-.patch
+> and it can be found in the queue-5.15 subdirectory.
+>
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
 
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
-g | 1          =
+Hi,
 
+I'm not sure that such a patch deserve a backport.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.19/ker=
-nel/v5.19.4-318-gb22688ea1c79/plan/baseline/
+It is correct, but it is just a clean-up that will be a no-op at runtime.
+Should it help future potential backport, why not, but otherwise, IMHO, 
+it could be dropped.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.19
-  Describe: v5.19.4-318-gb22688ea1c79
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b22688ea1c7944d952973fab17e2b40e76e544cc =
+It is also in the 5.10 backport queue.
 
+Just my 2c,
 
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
-g | 1          =
+CJ
 
 
-  Details:     https://kernelci.org/test/plan/id/6316903259d7fec7a3355645
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.4-3=
-18-gb22688ea1c79/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.4-3=
-18-gb22688ea1c79/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6316903259d7fec7a3355=
-646
-        failing since 20 days (last pass: v5.19.1-1157-g615e53e38bef5, firs=
-t fail: v5.19.1-1159-g6c70b627ef512) =
-
- =20
+> commit f731681dfb26866e5e4130d27d27e00766f7e9d1
+> Author: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+> Date:   Fri May 20 23:20:58 2022 +0200
+>
+>      clk: bcm: rpi: Use correct order for the parameters of devm_kcalloc()
+>      
+>      [ Upstream commit b7fa6242f3e035308a76284560e4f918dad9b017 ]
+>      
+>      We should have 'n', then 'size', not the opposite.
+>      This is harmless because the 2 values are just multiplied, but having
+>      the correct order silence a (unpublished yet) smatch warning.
+>      
+>      Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+>      Link: https://lore.kernel.org/r/49d726d11964ca0e3757bdb5659e3b3eaa1572b5.1653081643.git.christophe.jaillet@wanadoo.fr
+>      Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+>      Signed-off-by: Sasha Levin <sashal@kernel.org>
+>
+> diff --git a/drivers/clk/bcm/clk-raspberrypi.c b/drivers/clk/bcm/clk-raspberrypi.c
+> index fda78a2f9ac50..97612860ce0e1 100644
+> --- a/drivers/clk/bcm/clk-raspberrypi.c
+> +++ b/drivers/clk/bcm/clk-raspberrypi.c
+> @@ -252,7 +252,7 @@ static int raspberrypi_discover_clocks(struct raspberrypi_clk *rpi,
+>   	int ret;
+>   
+>   	clks = devm_kcalloc(rpi->dev,
+> -			    sizeof(*clks), RPI_FIRMWARE_NUM_CLK_ID,
+> +			    RPI_FIRMWARE_NUM_CLK_ID, sizeof(*clks),
+>   			    GFP_KERNEL);
+>   	if (!clks)
+>   		return -ENOMEM;
