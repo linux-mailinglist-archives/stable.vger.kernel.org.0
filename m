@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C32FF5AEC52
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5345AECC4
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241575AbiIFOR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:17:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40074 "EHLO
+        id S241223AbiIFOUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:20:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241321AbiIFOQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:16:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AFE9B98;
-        Tue,  6 Sep 2022 06:49:23 -0700 (PDT)
+        with ESMTP id S241514AbiIFOSU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:18:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32018193C2;
+        Tue,  6 Sep 2022 06:49:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50A4AB8162F;
-        Tue,  6 Sep 2022 13:48:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC9DC433C1;
-        Tue,  6 Sep 2022 13:48:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ED4C61562;
+        Tue,  6 Sep 2022 13:48:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CBF1C433D6;
+        Tue,  6 Sep 2022 13:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472096;
-        bh=K4dGkykxDeQfgG8iJRdoD0/3YR3v+GjHk/N6AhY71Gw=;
+        s=korg; t=1662472098;
+        bh=poronbKLaQ8gfUqenQsdKfMK8ky2B+jaivpBo/e1OME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWUBFgmqQNzix0ksB7VJbbUlRm6gjdLQYRmLVv31yXOpbIovdGWW94QKi85EefoTV
-         ltxlgcvgm3zEjzh6LtoYzDIMf/Q4ozNZJ+fCebmmwfeHYq0S4GE5pdoifBbAwxKldF
-         hmCWQcFLKbRGDMaZ1O9hMnp64rFvRa9ArWSB/izs=
+        b=OdYwqGxxUuZ7LqFr50Mlu6avuzNwWqfsABQAHLG7sDGXATR56x1nf7gbwryuFXX8n
+         us2effpLzQq3+uhwLu/i4EcB+OYyKxZsArDeSAGTyVoYa2NVd1O4VFFM4rRutTWtW+
+         B6QoxRPmId6g9NA5dZ1y/9GAVNxl1+SAqVADG6Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 147/155] ALSA: seq: Fix data-race at module auto-loading
-Date:   Tue,  6 Sep 2022 15:31:35 +0200
-Message-Id: <20220906132835.634243627@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.19 148/155] drm/i915/backlight: Disable pps power hook for aux based backlight
+Date:   Tue,  6 Sep 2022 15:31:36 +0200
+Message-Id: <20220906132835.672539262@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -53,62 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jouni Högander <jouni.hogander@intel.com>
 
-commit 3e7e04b747adea36f349715d9f0998eeebf15d72 upstream.
+commit 51fbbe8a3f8b9dd128fa98f6ea36058dfa3f36de upstream.
 
-It's been reported that there is a possible data-race accessing to the
-global card_requested[] array at ALSA sequencer core, which is used
-for determining whether to call request_module() for the card or not.
-This data race itself is almost harmless, as it might end up with one
-extra request_module() call for the already loaded module at most.
-But it's still better to fix.
+Pps power hook seems to be problematic for backlight controlled via
+aux channel. Disable it for such cases.
 
-This patch addresses the possible data race of card_requested[] and
-client_requested[] arrays by replacing them with bitmask.
-It's an atomic operation and can work without locks.
-
-Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAEHB24_ay6YzARpA1zgCsE7=H9CSJJzux618E=Ka4h0YdKn=qA@mail.gmail.com
-Link: https://lore.kernel.org/r/20220823072717.1706-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3657
+Cc: stable@vger.kernel.org
+Signed-off-by: Jouni Högander <jouni.hogander@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220822140836.534432-1-jouni.hogander@intel.com
+(cherry picked from commit 869e3bb7acb59d88c1226892136661810e8223a4)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/seq/seq_clientmgr.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/i915/display/intel_backlight.c |   11 ++++++++---
+ drivers/gpu/drm/i915/display/intel_dp.c        |    2 --
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -121,13 +121,13 @@ struct snd_seq_client *snd_seq_client_us
- 	spin_unlock_irqrestore(&clients_lock, flags);
- #ifdef CONFIG_MODULES
- 	if (!in_interrupt()) {
--		static char client_requested[SNDRV_SEQ_GLOBAL_CLIENTS];
--		static char card_requested[SNDRV_CARDS];
-+		static DECLARE_BITMAP(client_requested, SNDRV_SEQ_GLOBAL_CLIENTS);
-+		static DECLARE_BITMAP(card_requested, SNDRV_CARDS);
+--- a/drivers/gpu/drm/i915/display/intel_backlight.c
++++ b/drivers/gpu/drm/i915/display/intel_backlight.c
+@@ -15,6 +15,7 @@
+ #include "intel_dsi_dcs_backlight.h"
+ #include "intel_panel.h"
+ #include "intel_pci_config.h"
++#include "intel_pps.h"
+ 
+ /**
+  * scale - scale values from one range to another
+@@ -1769,9 +1770,13 @@ void intel_backlight_init_funcs(struct i
+ 		panel->backlight.pwm_funcs = &i9xx_pwm_funcs;
+ 	}
+ 
+-	if (connector->base.connector_type == DRM_MODE_CONNECTOR_eDP &&
+-	    intel_dp_aux_init_backlight_funcs(connector) == 0)
+-		return;
++	if (connector->base.connector_type == DRM_MODE_CONNECTOR_eDP) {
++		if (intel_dp_aux_init_backlight_funcs(connector) == 0)
++			return;
 +
- 		if (clientid < SNDRV_SEQ_GLOBAL_CLIENTS) {
- 			int idx;
- 			
--			if (!client_requested[clientid]) {
--				client_requested[clientid] = 1;
-+			if (!test_and_set_bit(clientid, client_requested)) {
- 				for (idx = 0; idx < 15; idx++) {
- 					if (seq_client_load[idx] < 0)
- 						break;
-@@ -142,10 +142,8 @@ struct snd_seq_client *snd_seq_client_us
- 			int card = (clientid - SNDRV_SEQ_GLOBAL_CLIENTS) /
- 				SNDRV_SEQ_CLIENTS_PER_CARD;
- 			if (card < snd_ecards_limit) {
--				if (! card_requested[card]) {
--					card_requested[card] = 1;
-+				if (!test_and_set_bit(card, card_requested))
- 					snd_request_card(card);
--				}
- 				snd_seq_device_load_drivers();
- 			}
- 		}
++		if (!(dev_priv->quirks & QUIRK_NO_PPS_BACKLIGHT_POWER_HOOK))
++			connector->panel.backlight.power = intel_pps_backlight_power;
++	}
+ 
+ 	/* We're using a standard PWM backlight interface */
+ 	panel->backlight.funcs = &pwm_bl_funcs;
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -5248,8 +5248,6 @@ static bool intel_edp_init_connector(str
+ 
+ 	intel_panel_init(intel_connector);
+ 
+-	if (!(dev_priv->quirks & QUIRK_NO_PPS_BACKLIGHT_POWER_HOOK))
+-		intel_connector->panel.backlight.power = intel_pps_backlight_power;
+ 	intel_backlight_setup(intel_connector, pipe);
+ 
+ 	intel_edp_add_properties(intel_dp);
 
 
