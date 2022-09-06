@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8C5F5AEA39
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4B15AEB42
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:57:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238451AbiIFNnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:43:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39524 "EHLO
+        id S240201AbiIFN4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233436AbiIFNlU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:41:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDF77CB77;
-        Tue,  6 Sep 2022 06:37:17 -0700 (PDT)
+        with ESMTP id S240723AbiIFNzN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:55:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E097781B21;
+        Tue,  6 Sep 2022 06:41:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F353F61539;
-        Tue,  6 Sep 2022 13:35:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A123C433C1;
-        Tue,  6 Sep 2022 13:35:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82A34B818D4;
+        Tue,  6 Sep 2022 13:41:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB576C433C1;
+        Tue,  6 Sep 2022 13:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471354;
-        bh=m9DIWf9ufwNNTQBYkogqjdGKTwxaeyTIk20g2hFR/Us=;
+        s=korg; t=1662471674;
+        bh=K4dGkykxDeQfgG8iJRdoD0/3YR3v+GjHk/N6AhY71Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7jaxSdq5vdXYBWG05j2rae0QjHvm4gNwIEw0S5RH1wFrWPDtIJ8fj2s99EY45Uj2
-         pCByG9Jm1M75VCsX+uf+1Bt73rg//mYb55yiHFasqwRLTC6uJzfw4t0asS1Rb24exX
-         HPUIPhcQvXr/CTbYAbGCg9Gi1VV5BCsUj1VITEEw=
+        b=Zg06TbA5WHmlIZA/4oEEvlNvYeZnOewiO1SpsmkERhSuHBR7mPUVBMggooCFL23E8
+         S8bD5ZvBGG6/lEqUZUe3GCF84LUZiiJDkI4pkSnKo7TcRRLOYWzbkKgFqBYKg1rwIE
+         LYpzIQruJ6yc+AgBWbDQOkerH3zPOVIaxJtrRnY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 80/80] USB: serial: ch341: fix disabled rx timer on older devices
-Date:   Tue,  6 Sep 2022 15:31:17 +0200
-Message-Id: <20220906132820.452337382@linuxfoundation.org>
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 097/107] ALSA: seq: Fix data-race at module auto-loading
+Date:   Tue,  6 Sep 2022 15:31:18 +0200
+Message-Id: <20220906132825.950816326@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 41ca302a697b64a3dab4676e01d0d11bb184737d upstream.
+commit 3e7e04b747adea36f349715d9f0998eeebf15d72 upstream.
 
-At least one older CH341 appears to have the RX timer enable bit
-inverted so that setting it disables the RX timer and prevents the FIFO
-from emptying until it is full.
+It's been reported that there is a possible data-race accessing to the
+global card_requested[] array at ALSA sequencer core, which is used
+for determining whether to call request_module() for the card or not.
+This data race itself is almost harmless, as it might end up with one
+extra request_module() call for the already loaded module at most.
+But it's still better to fix.
 
-Only set the RX timer enable bit for devices with version newer than
-0x27 (even though this probably affects all pre-0x30 devices).
+This patch addresses the possible data race of card_requested[] and
+client_requested[] arrays by replacing them with bitmask.
+It's an atomic operation and can work without locks.
 
-Reported-by: Jonathan Woithe <jwoithe@just42.net>
-Tested-by: Jonathan Woithe <jwoithe@just42.net>
-Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
-Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
-Cc: stable@vger.kernel.org      # 4.10
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAEHB24_ay6YzARpA1zgCsE7=H9CSJJzux618E=Ka4h0YdKn=qA@mail.gmail.com
+Link: https://lore.kernel.org/r/20220823072717.1706-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ch341.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/core/seq/seq_clientmgr.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -259,8 +259,12 @@ static int ch341_set_baudrate_lcr(struct
- 	/*
- 	 * CH341A buffers data until a full endpoint-size packet (32 bytes)
- 	 * has been received unless bit 7 is set.
-+	 *
-+	 * At least one device with version 0x27 appears to have this bit
-+	 * inverted.
- 	 */
--	val |= BIT(7);
-+	if (priv->version > 0x27)
-+		val |= BIT(7);
- 
- 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG,
- 			      CH341_REG_DIVISOR << 8 | CH341_REG_PRESCALER,
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -121,13 +121,13 @@ struct snd_seq_client *snd_seq_client_us
+ 	spin_unlock_irqrestore(&clients_lock, flags);
+ #ifdef CONFIG_MODULES
+ 	if (!in_interrupt()) {
+-		static char client_requested[SNDRV_SEQ_GLOBAL_CLIENTS];
+-		static char card_requested[SNDRV_CARDS];
++		static DECLARE_BITMAP(client_requested, SNDRV_SEQ_GLOBAL_CLIENTS);
++		static DECLARE_BITMAP(card_requested, SNDRV_CARDS);
++
+ 		if (clientid < SNDRV_SEQ_GLOBAL_CLIENTS) {
+ 			int idx;
+ 			
+-			if (!client_requested[clientid]) {
+-				client_requested[clientid] = 1;
++			if (!test_and_set_bit(clientid, client_requested)) {
+ 				for (idx = 0; idx < 15; idx++) {
+ 					if (seq_client_load[idx] < 0)
+ 						break;
+@@ -142,10 +142,8 @@ struct snd_seq_client *snd_seq_client_us
+ 			int card = (clientid - SNDRV_SEQ_GLOBAL_CLIENTS) /
+ 				SNDRV_SEQ_CLIENTS_PER_CARD;
+ 			if (card < snd_ecards_limit) {
+-				if (! card_requested[card]) {
+-					card_requested[card] = 1;
++				if (!test_and_set_bit(card, card_requested))
+ 					snd_request_card(card);
+-				}
+ 				snd_seq_device_load_drivers();
+ 			}
+ 		}
 
 
