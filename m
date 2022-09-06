@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E11E5AE9F6
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1F15AEA97
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232179AbiIFNhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:37:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51842 "EHLO
+        id S238738AbiIFNup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240528AbiIFNgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:36:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A27D47B7BC;
-        Tue,  6 Sep 2022 06:34:19 -0700 (PDT)
+        with ESMTP id S239686AbiIFNtr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 749B02A737;
+        Tue,  6 Sep 2022 06:40:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81053B81636;
-        Tue,  6 Sep 2022 13:34:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C55E3C433C1;
-        Tue,  6 Sep 2022 13:34:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4215961548;
+        Tue,  6 Sep 2022 13:39:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D949C433D6;
+        Tue,  6 Sep 2022 13:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471256;
-        bh=a0Oh2+r2ZpUsTaywTZ45wAtVLyD7WgYrX2a1zBm5naI=;
+        s=korg; t=1662471598;
+        bh=15MwJgeHSfXwo35UCPM9zI6FArWH9SUDs8GxNfRMjvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clj8/EnVWtzJaCnhNyLQJbGqfZWjtxJcs1sdiTb2SBiEkrq5C0AZcpHYAsKNAMhgs
-         64xf0EkxpYBeTyg4EuOo/fLzi3/29tC0XsIldIUEYGOJQHKXu+6lW2XSpauqYaobnO
-         JC9sfjGZ/rUo6gFYmhnQ/nfroggQMsbSKwZ5o7AE=
+        b=W4lY0clMPrQCjSVGHTXjixJbfa7KTrux3e/vRdexW6iJQONmHphKmUiXbaph/n3Gd
+         o75MUKbftcRoen/BhJzrZAFyAAimixfxr9MTNb0viS83s7vGQuf7ghRQOgZ+ju8eF4
+         g9XcPd75lx2O5Z3eMQUZbTq7WoPO0s0q2LP/KLbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         SeongJae Park <sj@kernel.org>,
         =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
         <marmarek@invisiblethingslab.com>
-Subject: [PATCH 5.10 48/80] xen-blkfront: Advertise feature-persistent as user requested
+Subject: [PATCH 5.15 064/107] xen-blkback: Advertise feature-persistent as user requested
 Date:   Tue,  6 Sep 2022 15:30:45 +0200
-Message-Id: <20220906132819.016040100@linuxfoundation.org>
+Message-Id: <20220906132824.540502433@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,64 +57,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: SeongJae Park <sj@kernel.org>
 
-commit 9f5e0fe5d05f7e8de7f39b2b10089834eb0ff787 upstream.
+commit 06ba5d2e943e97bb66e75c152e87f1d2c7027a67 upstream.
 
 The advertisement of the persistent grants feature (writing
 'feature-persistent' to xenbus) should mean not the decision for using
 the feature but only the availability of the feature.  However, commit
-74a852479c68 ("xen-blkfront: add a parameter for disabling of persistent
-grants") made a field of blkfront, which was a place for saving only the
+aac8a70db24b ("xen-blkback: add a parameter for disabling of persistent
+grants") made a field of blkback, which was a place for saving only the
 negotiation result, to be used for yet another purpose: caching of the
 'feature_persistent' parameter value.  As a result, the advertisement,
 which should follow only the parameter value, becomes inconsistent.
 
-This commit fixes the misuse of the semantic by making blkfront saves
-the parameter value in a separate place and advertises the support based
-on only the saved value.
+This commit fixes the misuse of the semantic by making blkback saves the
+parameter value in a separate place and advertises the support based on
+only the saved value.
 
-Fixes: 74a852479c68 ("xen-blkfront: add a parameter for disabling of persistent grants")
+Fixes: aac8a70db24b ("xen-blkback: add a parameter for disabling of persistent grants")
 Cc: <stable@vger.kernel.org> # 5.10.x
 Suggested-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: SeongJae Park <sj@kernel.org>
 Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
 Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220831165824.94815-3-sj@kernel.org
+Link: https://lore.kernel.org/r/20220831165824.94815-2-sj@kernel.org
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/xen-blkfront.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/block/xen-blkback/common.h |    3 +++
+ drivers/block/xen-blkback/xenbus.c |    6 ++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -211,6 +211,9 @@ struct blkfront_info
- 	unsigned int feature_fua:1;
- 	unsigned int feature_discard:1;
- 	unsigned int feature_secdiscard:1;
-+	/* Connect-time cached feature_persistent parameter */
-+	unsigned int feature_persistent_parm:1;
+--- a/drivers/block/xen-blkback/common.h
++++ b/drivers/block/xen-blkback/common.h
+@@ -226,6 +226,9 @@ struct xen_vbd {
+ 	sector_t		size;
+ 	unsigned int		flush_support:1;
+ 	unsigned int		discard_secure:1;
++	/* Connect-time cached feature_persistent parameter value */
++	unsigned int		feature_gnt_persistent_parm:1;
 +	/* Persistent grants feature negotiation result */
- 	unsigned int feature_persistent:1;
- 	unsigned int bounce:1;
- 	unsigned int discard_granularity;
-@@ -1941,7 +1944,7 @@ again:
- 		goto abort_transaction;
- 	}
- 	err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
--			info->feature_persistent);
-+			info->feature_persistent_parm);
- 	if (err)
- 		dev_warn(&dev->dev,
- 			 "writing persistent grants feature to xenbus");
-@@ -2391,7 +2394,8 @@ static void blkfront_gather_backend_feat
- 	if (xenbus_read_unsigned(info->xbdev->otherend, "feature-discard", 0))
- 		blkfront_setup_discard(info);
+ 	unsigned int		feature_gnt_persistent:1;
+ 	unsigned int		overflow_max_grants:1;
+ };
+--- a/drivers/block/xen-blkback/xenbus.c
++++ b/drivers/block/xen-blkback/xenbus.c
+@@ -910,7 +910,7 @@ again:
+ 	xen_blkbk_barrier(xbt, be, be->blkif->vbd.flush_support);
  
--	if (feature_persistent)
-+	info->feature_persistent_parm = feature_persistent;
-+	if (info->feature_persistent_parm)
- 		info->feature_persistent =
- 			!!xenbus_read_unsigned(info->xbdev->otherend,
- 					       "feature-persistent", 0);
+ 	err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
+-			be->blkif->vbd.feature_gnt_persistent);
++			be->blkif->vbd.feature_gnt_persistent_parm);
+ 	if (err) {
+ 		xenbus_dev_fatal(dev, err, "writing %s/feature-persistent",
+ 				 dev->nodename);
+@@ -1088,7 +1088,9 @@ static int connect_ring(struct backend_i
+ 		return -ENOSYS;
+ 	}
+ 
+-	blkif->vbd.feature_gnt_persistent = feature_persistent &&
++	blkif->vbd.feature_gnt_persistent_parm = feature_persistent;
++	blkif->vbd.feature_gnt_persistent =
++		blkif->vbd.feature_gnt_persistent_parm &&
+ 		xenbus_read_unsigned(dev->otherend, "feature-persistent", 0);
+ 
+ 	blkif->vbd.overflow_max_grants = 0;
 
 
