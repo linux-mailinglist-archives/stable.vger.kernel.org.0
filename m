@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 360015AECE7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD1575AEBDB
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240830AbiIFOKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:10:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34088 "EHLO
+        id S240748AbiIFOGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:06:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241413AbiIFOJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:09:41 -0400
+        with ESMTP id S241621AbiIFOFC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:05:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897BF86709;
-        Tue,  6 Sep 2022 06:46:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A4183F3A;
+        Tue,  6 Sep 2022 06:45:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB52A61542;
-        Tue,  6 Sep 2022 13:45:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD3E3C433D7;
-        Tue,  6 Sep 2022 13:45:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CFD161555;
+        Tue,  6 Sep 2022 13:45:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E6C4C433C1;
+        Tue,  6 Sep 2022 13:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471914;
-        bh=svzu77QzBr7n+Z6FfX+gYDRJpyNzc5laxHxOlpe9jpY=;
+        s=korg; t=1662471916;
+        bh=BVgdd5KVmPd4740TftEEeBD8uRSIcx8EK9LQunhv0Hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dYL6ypgLeX+mAfwc7k6s1Zvqja64WcYD42vRX8u8bxlXxUlqMX6xfV3nod1oD+576
-         yOuUar85YyGu255DwYsOn/lHD/AR6HXOfs76+8J7kS2gA4btYscXydP3TvlopNinLZ
-         SgsTJFkF/+v/3vC7dDqsqE4NMQHonARvc/GYw0L4=
+        b=oONJkgW8qVnEvAEjaC/VTV60s1MDKayMOIpA7BUov9EZKFfk8IfH9EHndU5AfuRKy
+         Q3gUXRbVQZMmSK82HzS6CkKFXaM6SgJzUQaUUt9wvUI3EmlUMXclNMPa2S4pJEZuQ3
+         B4CMHBgkwjHJEpU3LurPzj8AwocJFWiouUYanFcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Palmer Dabbelt <palmer@rivosinc.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Anup Patel <anup@brainfault.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 083/155] KVM: VMX: Heed the msr argument in msr_write_intercepted()
-Date:   Tue,  6 Sep 2022 15:30:31 +0200
-Message-Id: <20220906132832.941238062@linuxfoundation.org>
+Subject: [PATCH 5.19 084/155] riscv: kvm: move extern sbi_ext declarations to a header
+Date:   Tue,  6 Sep 2022 15:30:32 +0200
+Message-Id: <20220906132832.989324594@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,43 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 020dac4187968535f089f83f376a72beb3451311 ]
+[ Upstream commit 3e5e56c60a14776e2a49837b55b03bc193fd91f7 ]
 
-Regardless of the 'msr' argument passed to the VMX version of
-msr_write_intercepted(), the function always checks to see if a
-specific MSR (IA32_SPEC_CTRL) is intercepted for write.  This behavior
-seems unintentional and unexpected.
+Sparse complains about missing statics in the declarations of several
+variables:
+arch/riscv/kvm/vcpu_sbi_replace.c:38:37: warning: symbol 'vcpu_sbi_ext_time' was not declared. Should it be static?
+arch/riscv/kvm/vcpu_sbi_replace.c:73:37: warning: symbol 'vcpu_sbi_ext_ipi' was not declared. Should it be static?
+arch/riscv/kvm/vcpu_sbi_replace.c:126:37: warning: symbol 'vcpu_sbi_ext_rfence' was not declared. Should it be static?
+arch/riscv/kvm/vcpu_sbi_replace.c:170:37: warning: symbol 'vcpu_sbi_ext_srst' was not declared. Should it be static?
+arch/riscv/kvm/vcpu_sbi_base.c:69:37: warning: symbol 'vcpu_sbi_ext_base' was not declared. Should it be static?
+arch/riscv/kvm/vcpu_sbi_base.c:90:37: warning: symbol 'vcpu_sbi_ext_experimental' was not declared. Should it be static?
+arch/riscv/kvm/vcpu_sbi_base.c:96:37: warning: symbol 'vcpu_sbi_ext_vendor' was not declared. Should it be static?
+arch/riscv/kvm/vcpu_sbi_hsm.c:115:37: warning: symbol 'vcpu_sbi_ext_hsm' was not declared. Should it be static?
 
-Modify the function so that it checks to see if the provided 'msr'
-index is intercepted for write.
+These variables are however used in vcpu_sbi.c where they are declared
+as extern. Move them to kvm_vcpu_sbi.h which is handily already
+included by the three other files.
 
-Fixes: 67f4b9969c30 ("KVM: nVMX: Handle dynamic MSR intercept toggling")
-Cc: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220810213050.2655000-1-jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: a046c2d8578c ("RISC-V: KVM: Reorganize SBI code by moving SBI v0.1 to its own file")
+Fixes: 5f862df5585c ("RISC-V: KVM: Add v0.1 replacement SBI extensions defined in v0.2")
+Fixes: 3e1d86569c21 ("RISC-V: KVM: Add SBI HSM extension in KVM")
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Anup Patel <anup@brainfault.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/riscv/include/asm/kvm_vcpu_sbi.h | 12 ++++++++++++
+ arch/riscv/kvm/vcpu_sbi.c             | 12 +-----------
+ 2 files changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 0aaea87a14597..b09a50e0af29d 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -835,8 +835,7 @@ static bool msr_write_intercepted(struct vcpu_vmx *vmx, u32 msr)
- 	if (!(exec_controls_get(vmx) & CPU_BASED_USE_MSR_BITMAPS))
- 		return true;
+diff --git a/arch/riscv/include/asm/kvm_vcpu_sbi.h b/arch/riscv/include/asm/kvm_vcpu_sbi.h
+index 83d6d4d2b1dff..26a446a34057b 100644
+--- a/arch/riscv/include/asm/kvm_vcpu_sbi.h
++++ b/arch/riscv/include/asm/kvm_vcpu_sbi.h
+@@ -33,4 +33,16 @@ void kvm_riscv_vcpu_sbi_system_reset(struct kvm_vcpu *vcpu,
+ 				     u32 type, u64 flags);
+ const struct kvm_vcpu_sbi_extension *kvm_vcpu_sbi_find_ext(unsigned long extid);
  
--	return vmx_test_msr_bitmap_write(vmx->loaded_vmcs->msr_bitmap,
--					 MSR_IA32_SPEC_CTRL);
-+	return vmx_test_msr_bitmap_write(vmx->loaded_vmcs->msr_bitmap, msr);
++#ifdef CONFIG_RISCV_SBI_V01
++extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_v01;
++#endif
++extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_base;
++extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_time;
++extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_ipi;
++extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_rfence;
++extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_srst;
++extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_hsm;
++extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_experimental;
++extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_vendor;
++
+ #endif /* __RISCV_KVM_VCPU_SBI_H__ */
+diff --git a/arch/riscv/kvm/vcpu_sbi.c b/arch/riscv/kvm/vcpu_sbi.c
+index d45e7da3f0d32..f96991d230bfc 100644
+--- a/arch/riscv/kvm/vcpu_sbi.c
++++ b/arch/riscv/kvm/vcpu_sbi.c
+@@ -32,23 +32,13 @@ static int kvm_linux_err_map_sbi(int err)
+ 	};
  }
  
- unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx)
+-#ifdef CONFIG_RISCV_SBI_V01
+-extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_v01;
+-#else
++#ifndef CONFIG_RISCV_SBI_V01
+ static const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_v01 = {
+ 	.extid_start = -1UL,
+ 	.extid_end = -1UL,
+ 	.handler = NULL,
+ };
+ #endif
+-extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_base;
+-extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_time;
+-extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_ipi;
+-extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_rfence;
+-extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_srst;
+-extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_hsm;
+-extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_experimental;
+-extern const struct kvm_vcpu_sbi_extension vcpu_sbi_ext_vendor;
+ 
+ static const struct kvm_vcpu_sbi_extension *sbi_ext[] = {
+ 	&vcpu_sbi_ext_v01,
 -- 
 2.35.1
 
