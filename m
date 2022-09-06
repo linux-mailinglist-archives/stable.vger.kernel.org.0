@@ -2,76 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 616D85AF83C
-	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 01:07:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25EF45AF85D
+	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 01:24:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbiIFXH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 19:07:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60518 "EHLO
+        id S229569AbiIFXYS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 19:24:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbiIFXH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 19:07:26 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D407B861FC;
-        Tue,  6 Sep 2022 16:07:25 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id y136so7915827pfb.3;
-        Tue, 06 Sep 2022 16:07:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=KT/ry2p0gdOb2e9NM3GcxTZOWcGsrIJ1KYsbBHoYVUU=;
-        b=bsZIn+VU1xJjX8VmAJr3McehZHYJz1UX82le0PQVffH3eRCYdUjD57MdztvsYmIfLI
-         cpbF1jXrntvRZ9cZ/b+lQIu3/39XrvpJZ3C7WJlxhVPwDbdIrvmGJBlDgwo7NbgtJxJ4
-         ngPTPWeZYWa7C3GNbDSMA1Z+d7SBHbgXfUTfNVJAnonPcwtcWpPalcvH6dBtFib4Ze5a
-         vlnXXko1IPFOECz0HyTDyMIsyTb57f5Vhkgl2O3biqtnoppWoiIQnlVD1XrGSMkvtkUg
-         Ee05MxlTI6TTrinB/Nu6X2FrJT8yUzR8XXQMKMNCgJKGnCKVYEDjsL5jzlgcK/DTnJOE
-         lRBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=KT/ry2p0gdOb2e9NM3GcxTZOWcGsrIJ1KYsbBHoYVUU=;
-        b=45exJ8ebEgXChYFMCCWZMZqLVDK1auTz2s981juRR1CPywZrENH2lFaTYPP0xUBy9p
-         nSogoBasbwDfmanBnaJzVY1hhlYHVV0lUyCl9R3kjZGsy02KTrImm5WK10E2b3gEflJS
-         w3aV9ETbVC16ZcGqL/eb5YHvsJXluCRuPRP27iv5ReiPvjhzuf69H6jzYgoNziAqlz12
-         k4SL5av8FBWhdRCNWDwjUE95kwEZ/NdihdbGQHANAirstQSu+tN6fPEGiVx8AD/QiLO5
-         ohbw9wIoDcJEpbHnvNfq8RcZvIPxmFyRAQL/K09DEYQVXDRez88cwsOmd1GTeo49wG/7
-         gaVQ==
-X-Gm-Message-State: ACgBeo3tCcVWRna7O5Uc0g4r0Kd69nh3wuCCoSQ+NoFjUMVVUqjOdsFH
-        vp+BkSN0ew5OPz2cJv4qZ3Noi09oH+SV3eOT40Q=
-X-Google-Smtp-Source: AA6agR6BtbKLkFmHZOWx4xGIZIlcRabsKR81xGUkze3hwJQwdgxEczk1SZTnjE5T9BTfz+0psbJnTqG9YBuprHrejxo=
-X-Received: by 2002:a63:e452:0:b0:42c:60ce:8b78 with SMTP id
- i18-20020a63e452000000b0042c60ce8b78mr805208pgk.453.1662505645263; Tue, 06
- Sep 2022 16:07:25 -0700 (PDT)
-MIME-Version: 1.0
+        with ESMTP id S229502AbiIFXYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 19:24:17 -0400
+Received: from qproxy3-pub.mail.unifiedlayer.com (qproxy3-pub.mail.unifiedlayer.com [67.222.38.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C518E90C42
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 16:24:16 -0700 (PDT)
+Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
+        by qproxy3.mail.unifiedlayer.com (Postfix) with ESMTP id 84B2180296A2
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 23:24:05 +0000 (UTC)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id 53D4810044F5C
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 23:23:33 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id VhumobdjrpnCyVhunoqZrY; Tue, 06 Sep 2022 23:23:33 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=d5kwdTvE c=1 sm=1 tr=0 ts=6317d675
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=xOM3xZuef0cA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=wvHbUn0omq4WNjlXUEIA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=bEs6o4pGcU2xpqiy+dX2y0BGOLgzn3C52F1oY7nnUyE=; b=zisehDZSZ262d6DLuYMIrCNCdj
+        alT0MIcYSjNjhu/UzkDjQ1jqGO98zP5AQYAeDXIN04fz6rwoSiwyFI2LML3GUZLNMMreUSEqAC2O+
+        P1mBsVDr4/44S788QrvwSbRL+uTUtTSu0NLFMY6ljer3uAtz8U/iTBNNAbmbwXwXry6mBipD4iLRA
+        DpZgZfiMToGbffp9RwYSni4wb/sKzMzjNdB1lmSvF8oLxl4tkMvi/TAv68vIOdZYi5ioQBzuNXiK8
+        U6Z+0R3VmHvTA8A/jBKyvYQYKYh72Dm43vJFNjdz2mrj/CrXiVhSiuePRqgIOVyBMfDOinXiZNW8r
+        LxvulgCw==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:43474 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1oVhul-001DFU-OZ;
+        Tue, 06 Sep 2022 17:23:31 -0600
+Subject: Re: [PATCH 5.19 000/155] 5.19.8-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
 References: <20220906132829.417117002@linuxfoundation.org>
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
-From:   Zan Aziz <zanaziz313@gmail.com>
-Date:   Tue, 6 Sep 2022 17:07:13 -0600
-Message-ID: <CAFU3qoZBr4DTUe6rgh0pjABD29bRvUKw5JkUJzx_fVwRqgbz4A@mail.gmail.com>
-Subject: Re: [PATCH 5.19 000/155] 5.19.8-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <f637c847-ff0c-955a-f338-9a658be9a43d@w6rz.net>
+Date:   Tue, 6 Sep 2022 16:23:29 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1oVhul-001DFU-OZ
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:43474
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-3.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 6, 2022 at 8:53 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
+On 9/6/22 6:29 AM, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.19.8 release.
 > There are 155 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
@@ -81,36 +105,16 @@ On Tue, Sep 6, 2022 at 8:53 AM Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.8-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.8-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
 
-Hi Greg,
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Compiled and booted on my test system Lenovo P50s: Intel Core i7
-No emergency and critical messages in the dmesg
+Tested-by: Ron Economos <re@w6rz.net>
 
-./perf bench sched all
-# Running sched/messaging benchmark...
-# 20 sender and receiver processes per group
-# 10 groups == 400 processes run
-
-     Total time: 0.808 [sec]
-
-# Running sched/pipe benchmark...
-# Executed 1000000 pipe operations between two processes
-
-     Total time: 9.461 [sec]
-
-       9.461262 usecs/op
-         105694 ops/sec
-
-Tested-by: Zan Aziz <zanaziz313@gmail.com>
-
-Thanks
--Zan
