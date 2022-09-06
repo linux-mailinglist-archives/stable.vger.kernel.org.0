@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 874E35AEA41
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC295AEA0E
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233270AbiIFNjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:39:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38438 "EHLO
+        id S233321AbiIFNjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:39:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240870AbiIFNiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:38:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E466556D;
-        Tue,  6 Sep 2022 06:36:01 -0700 (PDT)
+        with ESMTP id S240883AbiIFNjB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:39:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8397C32E;
+        Tue,  6 Sep 2022 06:36:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AEDD9B81637;
-        Tue,  6 Sep 2022 13:35:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9DBFC433D7;
-        Tue,  6 Sep 2022 13:34:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05A246154D;
+        Tue,  6 Sep 2022 13:35:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06057C433C1;
+        Tue,  6 Sep 2022 13:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471299;
-        bh=g4OSy4eiWzd4GXoIulDPPUyvFbwo6gtuf8PChh14Lrc=;
+        s=korg; t=1662471302;
+        bh=B8lJ8ixrg6hdvMKNMa7eV0Jf+pWpMEyy8RjV3/RHVis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBEcxPSVaOg9yNrkcRiI7mcz4PS1Z6XTXUvjxABrsRcQyeudlNR0WUcU5YtcvvCNR
-         HitfmDCwl+WEuXvhgLz3Mp0i1loa1TJ5YIV3FNZcqyu1ec+m11WMzoSBKY8jXezDmJ
-         f05oSYwU0c5wBhbR0v1F9B/Wh22/OZ2pqifveb00=
+        b=UBKZiGz544aM8weyxFa2zQxWzRYXrFYBLPyQ3r/nlDouZepFlMLT6ZGU7sFdwBDE6
+         SLwC12fGsDJh4NMxGL33pyQUsWnJ1uu/2OABpM6qgc+f3AZsP/NCP5wBQUAxol72pb
+         jcVtvo87WWz1qzL6Fvw13j7xn+e8d1K5AvBEuZk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Krishna Kurapati <quic_kriskura@quicinc.com>
-Subject: [PATCH 5.10 63/80] usb: gadget: mass_storage: Fix cdrom data transfers on MAC-OS
-Date:   Tue,  6 Sep 2022 15:31:00 +0200
-Message-Id: <20220906132819.699277453@linuxfoundation.org>
+        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "Isaac J. Manjarres" <isaacmanjarres@google.com>
+Subject: [PATCH 5.10 64/80] driver core: Dont probe devices after bus_type.match() probe deferral
+Date:   Tue,  6 Sep 2022 15:31:01 +0200
+Message-Id: <20220906132819.737567417@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
 References: <20220906132816.936069583@linuxfoundation.org>
@@ -53,48 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krishna Kurapati <quic_kriskura@quicinc.com>
+From: Isaac J. Manjarres <isaacmanjarres@google.com>
 
-commit 9d4dc16ec71bd6368548e9743223e449b4377fc7 upstream.
+commit 25e9fbf0fd38868a429feabc38abebfc6dbf6542 upstream.
 
-During cdrom emulation, the response to read_toc command must contain
-the cdrom address as the number of sectors (2048 byte sized blocks)
-represented either as an absolute value (when MSF bit is '0') or in
-terms of PMin/PSec/PFrame (when MSF bit is set to '1'). Incase of
-cdrom, the fsg_lun_open call sets the sector size to 2048 bytes.
+Both __device_attach_driver() and __driver_attach() check the return
+code of the bus_type.match() function to see if the device needs to be
+added to the deferred probe list. After adding the device to the list,
+the logic attempts to bind the device to the driver anyway, as if the
+device had matched with the driver, which is not correct.
 
-When MAC OS sends a read_toc request with MSF set to '1', the
-store_cdrom_address assumes that the address being provided is the
-LUN size represented in 512 byte sized blocks instead of 2048. It
-tries to modify the address further to convert it to 2048 byte sized
-blocks and store it in MSF format. This results in data transfer
-failures as the cdrom address being provided in the read_toc response
-is incorrect.
+If __device_attach_driver() detects that the device in question is not
+ready to match with a driver on the bus, then it doesn't make sense for
+the device to attempt to bind with the current driver or continue
+attempting to match with any of the other drivers on the bus. So, update
+the logic in __device_attach_driver() to reflect this.
 
-Fixes: 3f565a363cee ("usb: gadget: storage: adapt logic block size to bound block devices")
+If __driver_attach() detects that a driver tried to match with a device
+that is not ready to match yet, then the driver should not attempt to bind
+with the device. However, the driver can still attempt to match and bind
+with other devices on the bus, as drivers can be bound to multiple
+devices. So, update the logic in __driver_attach() to reflect this.
+
+Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
 Cc: stable@vger.kernel.org
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Krishna Kurapati <quic_kriskura@quicinc.com>
-Link: https://lore.kernel.org/r/1661570110-19127-1-git-send-email-quic_kriskura@quicinc.com
+Cc: Saravana Kannan <saravanak@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+Link: https://lore.kernel.org/r/20220817184026.3468620-1-isaacmanjarres@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/storage_common.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/base/dd.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/usb/gadget/function/storage_common.c
-+++ b/drivers/usb/gadget/function/storage_common.c
-@@ -294,8 +294,10 @@ EXPORT_SYMBOL_GPL(fsg_lun_fsync_sub);
- void store_cdrom_address(u8 *dest, int msf, u32 addr)
- {
- 	if (msf) {
--		/* Convert to Minutes-Seconds-Frames */
--		addr >>= 2;		/* Convert to 2048-byte frames */
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -837,6 +837,11 @@ static int __device_attach_driver(struct
+ 	} else if (ret == -EPROBE_DEFER) {
+ 		dev_dbg(dev, "Device match requests probe deferral\n");
+ 		driver_deferred_probe_add(dev);
 +		/*
-+		 * Convert to Minutes-Seconds-Frames.
-+		 * Sector size is already set to 2048 bytes.
++		 * Device can't match with a driver right now, so don't attempt
++		 * to match or bind with other drivers on the bus.
 +		 */
- 		addr += 2*75;		/* Lead-in occupies 2 seconds */
- 		dest[3] = addr % 75;	/* Frames */
- 		addr /= 75;
++		return ret;
+ 	} else if (ret < 0) {
+ 		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
+ 		return ret;
+@@ -1076,6 +1081,11 @@ static int __driver_attach(struct device
+ 	} else if (ret == -EPROBE_DEFER) {
+ 		dev_dbg(dev, "Device match requests probe deferral\n");
+ 		driver_deferred_probe_add(dev);
++		/*
++		 * Driver could not match with device, but may match with
++		 * another device on the bus.
++		 */
++		return 0;
+ 	} else if (ret < 0) {
+ 		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
+ 		return ret;
 
 
