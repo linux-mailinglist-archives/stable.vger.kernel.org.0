@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A585AEA18
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3682F5AEAC7
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232007AbiIFNl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:41:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38988 "EHLO
+        id S239274AbiIFNzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233232AbiIFNkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:40:43 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67F7A7C51A;
-        Tue,  6 Sep 2022 06:37:17 -0700 (PDT)
+        with ESMTP id S239967AbiIFNyT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:54:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D65580E8B;
+        Tue,  6 Sep 2022 06:41:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 01A8BCE1780;
-        Tue,  6 Sep 2022 13:35:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEED1C433C1;
-        Tue,  6 Sep 2022 13:35:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B7CD61557;
+        Tue,  6 Sep 2022 13:41:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D51CC433D7;
+        Tue,  6 Sep 2022 13:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471351;
-        bh=2kANwVg4Rl6NnGBq0LzTxlY7t3U55WnFxJwykv2/8uQ=;
+        s=korg; t=1662471663;
+        bh=ukZHzAK8yit5XCRC9rR2fHxaBzbUEnfYDN+GanPODBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VH2sCZmfrhMbPNBS7GpCupuP0bHBDnYPGC7wOI4SjhoKlOtkjXwVXpnI17YvJ1i0L
-         lvcMXjQsFQlz1gEPsQ81dy5RsyccmdxNUEO19NxDqwRYPmj/VzFmG4XWkIWEcTracf
-         sKZ6g7H0lr2P4jly64wP26DnWtbyvoZnU7fSzp1g=
+        b=tl/U+b3JjckLmHIJVmgyqAXb6WSD+30dWzKBmcV4G5473wioreZNb3G3r0ihMDSp7
+         0dx/DLXFnPsR6kruLt9TDkh6gblrifEIR9Uc1OWp4UqKsMDwd9GHubvB2Q7gKMWAfQ
+         BA3Z2qHGvZpTt1Z3uHGJPGYJx+wv+bMzz95PkkH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 79/80] USB: serial: ch341: fix lost character on LCR updates
-Date:   Tue,  6 Sep 2022 15:31:16 +0200
-Message-Id: <20220906132820.408184247@linuxfoundation.org>
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 096/107] ALSA: seq: oss: Fix data-race for max_midi_devs access
+Date:   Tue,  6 Sep 2022 15:31:17 +0200
+Message-Id: <20220906132825.903040453@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 8e83622ae7ca481c76c8fd9579877f6abae64ca2 upstream.
+commit 22dec134dbfa825b963f8a1807ad19b943e46a56 upstream.
 
-Disable LCR updates for pre-0x30 devices which use a different (unknown)
-protocol for line control and where the current register write causes
-the next received character to be lost.
+ALSA OSS sequencer refers to a global variable max_midi_devs at
+creating a new port, storing it to its own field.  Meanwhile this
+variable may be changed by other sequencer events at
+snd_seq_oss_midi_check_exit_port() in parallel, which may cause a data
+race.
 
-Note that updating LCR using the INIT command has no effect on these
-devices either.
+OTOH, this data race itself is almost harmless, as the access to the
+MIDI device is done via get_mdev() and it's protected with a refcount,
+hence its presence is guaranteed.
 
-Reported-by: Jonathan Woithe <jwoithe@just42.net>
-Tested-by: Jonathan Woithe <jwoithe@just42.net>
-Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
-Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
-Fixes: 55fa15b5987d ("USB: serial: ch341: fix baud rate and line-control handling")
-Cc: stable@vger.kernel.org      # 4.10
-Signed-off-by: Johan Hovold <johan@kernel.org>
-[ johan: adjust context to 5.15 ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Though, it's sill better to address the data-race from the code sanity
+POV, and this patch adds the proper spinlock for the protection.
+
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAEHB2493pZRXs863w58QWnUTtv3HHfg85aYhLn5HJHCwxqtHQg@mail.gmail.com
+Link: https://lore.kernel.org/r/20220823072717.1706-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ch341.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ sound/core/seq/oss/seq_oss_midi.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -97,7 +97,10 @@ struct ch341_private {
- 	u8 mcr;
- 	u8 msr;
- 	u8 lcr;
-+
- 	unsigned long quirks;
-+	u8 version;
-+
- 	unsigned long break_end;
- };
+--- a/sound/core/seq/oss/seq_oss_midi.c
++++ b/sound/core/seq/oss/seq_oss_midi.c
+@@ -270,7 +270,9 @@ snd_seq_oss_midi_clear_all(void)
+ void
+ snd_seq_oss_midi_setup(struct seq_oss_devinfo *dp)
+ {
++	spin_lock_irq(&register_lock);
+ 	dp->max_mididev = max_midi_devs;
++	spin_unlock_irq(&register_lock);
+ }
  
-@@ -271,6 +274,9 @@ static int ch341_set_baudrate_lcr(struct
- 	 * (stop bits, parity and word length). Version 0x30 and above use
- 	 * CH341_REG_LCR only and CH341_REG_LCR2 is always set to zero.
- 	 */
-+	if (priv->version < 0x30)
-+		return 0;
-+
- 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG,
- 			      CH341_REG_LCR2 << 8 | CH341_REG_LCR, lcr);
- 	if (r)
-@@ -323,7 +329,9 @@ static int ch341_configure(struct usb_de
- 	r = ch341_control_in(dev, CH341_REQ_READ_VERSION, 0, 0, buffer, size);
- 	if (r < 0)
- 		goto out;
--	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", buffer[0]);
-+
-+	priv->version = buffer[0];
-+	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", priv->version);
- 
- 	r = ch341_control_out(dev, CH341_REQ_SERIAL_INIT, 0, 0);
- 	if (r < 0)
+ /*
 
 
