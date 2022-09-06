@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A0105AEA11
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC0165AEA72
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233660AbiIFNko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:40:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37534 "EHLO
+        id S239188AbiIFNzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:55:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233678AbiIFNkF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:40:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DB17C52A;
-        Tue,  6 Sep 2022 06:36:45 -0700 (PDT)
+        with ESMTP id S239826AbiIFNyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:54:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8390680B67;
+        Tue,  6 Sep 2022 06:41:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 890EAB8162F;
-        Tue,  6 Sep 2022 13:35:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0D94C433D6;
-        Tue,  6 Sep 2022 13:35:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 068E461547;
+        Tue,  6 Sep 2022 13:35:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08D05C433D7;
+        Tue,  6 Sep 2022 13:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471323;
-        bh=euG67sgDvwLXIEgTY2TWW6s7v4hP9aP7Kb+DIRT65rc=;
+        s=korg; t=1662471329;
+        bh=K4dGkykxDeQfgG8iJRdoD0/3YR3v+GjHk/N6AhY71Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJs+WIcHBJ50ADvaVaa3MflUj9O+W1uo3/+1d2kLmJ1wyF7nYfwAHEFeCDutYV6Wq
-         6JVcfeFFQ9c0VRRFPcngKu3ZkR94mMDBnl1tB4dkSWab9GHidBPzJpFWtDXfa+UNHe
-         wL06BrbY/l0iqL8qV5RsLyrIv2dGFZS2Uqt46wMc=
+        b=vP0XsmiVvTracQBw4no34MPXE+Kp+Gy0UZvLoj5kbAXrW9Q0ULiKmo7xBsH6f0FM9
+         GFQBgRtEya8cglbckv6G4eCqnKnNQnoNZTD7iSkUGzpzcNB7VS9wsmRVEbJMejHGDQ
+         hs8ubtW0IcEjdI7OoduT1x7PiToGUj15TmyblZbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 71/80] ALSA: seq: oss: Fix data-race for max_midi_devs access
-Date:   Tue,  6 Sep 2022 15:31:08 +0200
-Message-Id: <20220906132820.086643364@linuxfoundation.org>
+Subject: [PATCH 5.10 72/80] ALSA: seq: Fix data-race at module auto-loading
+Date:   Tue,  6 Sep 2022 15:31:09 +0200
+Message-Id: <20220906132820.135185572@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
 References: <20220906132816.936069583@linuxfoundation.org>
@@ -55,42 +55,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 22dec134dbfa825b963f8a1807ad19b943e46a56 upstream.
+commit 3e7e04b747adea36f349715d9f0998eeebf15d72 upstream.
 
-ALSA OSS sequencer refers to a global variable max_midi_devs at
-creating a new port, storing it to its own field.  Meanwhile this
-variable may be changed by other sequencer events at
-snd_seq_oss_midi_check_exit_port() in parallel, which may cause a data
-race.
+It's been reported that there is a possible data-race accessing to the
+global card_requested[] array at ALSA sequencer core, which is used
+for determining whether to call request_module() for the card or not.
+This data race itself is almost harmless, as it might end up with one
+extra request_module() call for the already loaded module at most.
+But it's still better to fix.
 
-OTOH, this data race itself is almost harmless, as the access to the
-MIDI device is done via get_mdev() and it's protected with a refcount,
-hence its presence is guaranteed.
-
-Though, it's sill better to address the data-race from the code sanity
-POV, and this patch adds the proper spinlock for the protection.
+This patch addresses the possible data race of card_requested[] and
+client_requested[] arrays by replacing them with bitmask.
+It's an atomic operation and can work without locks.
 
 Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAEHB2493pZRXs863w58QWnUTtv3HHfg85aYhLn5HJHCwxqtHQg@mail.gmail.com
-Link: https://lore.kernel.org/r/20220823072717.1706-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/CAEHB24_ay6YzARpA1zgCsE7=H9CSJJzux618E=Ka4h0YdKn=qA@mail.gmail.com
+Link: https://lore.kernel.org/r/20220823072717.1706-2-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/seq/oss/seq_oss_midi.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/core/seq/seq_clientmgr.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/sound/core/seq/oss/seq_oss_midi.c
-+++ b/sound/core/seq/oss/seq_oss_midi.c
-@@ -267,7 +267,9 @@ snd_seq_oss_midi_clear_all(void)
- void
- snd_seq_oss_midi_setup(struct seq_oss_devinfo *dp)
- {
-+	spin_lock_irq(&register_lock);
- 	dp->max_mididev = max_midi_devs;
-+	spin_unlock_irq(&register_lock);
- }
- 
- /*
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -121,13 +121,13 @@ struct snd_seq_client *snd_seq_client_us
+ 	spin_unlock_irqrestore(&clients_lock, flags);
+ #ifdef CONFIG_MODULES
+ 	if (!in_interrupt()) {
+-		static char client_requested[SNDRV_SEQ_GLOBAL_CLIENTS];
+-		static char card_requested[SNDRV_CARDS];
++		static DECLARE_BITMAP(client_requested, SNDRV_SEQ_GLOBAL_CLIENTS);
++		static DECLARE_BITMAP(card_requested, SNDRV_CARDS);
++
+ 		if (clientid < SNDRV_SEQ_GLOBAL_CLIENTS) {
+ 			int idx;
+ 			
+-			if (!client_requested[clientid]) {
+-				client_requested[clientid] = 1;
++			if (!test_and_set_bit(clientid, client_requested)) {
+ 				for (idx = 0; idx < 15; idx++) {
+ 					if (seq_client_load[idx] < 0)
+ 						break;
+@@ -142,10 +142,8 @@ struct snd_seq_client *snd_seq_client_us
+ 			int card = (clientid - SNDRV_SEQ_GLOBAL_CLIENTS) /
+ 				SNDRV_SEQ_CLIENTS_PER_CARD;
+ 			if (card < snd_ecards_limit) {
+-				if (! card_requested[card]) {
+-					card_requested[card] = 1;
++				if (!test_and_set_bit(card, card_requested))
+ 					snd_request_card(card);
+-				}
+ 				snd_seq_device_load_drivers();
+ 			}
+ 		}
 
 
