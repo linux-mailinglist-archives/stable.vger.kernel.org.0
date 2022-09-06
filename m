@@ -2,51 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9549A5AE809
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 14:26:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08AED5AE81B
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 14:29:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240097AbiIFMZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 08:25:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46300 "EHLO
+        id S233268AbiIFM30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 08:29:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239790AbiIFMYy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:24:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6E27F0A5;
-        Tue,  6 Sep 2022 05:21:46 -0700 (PDT)
+        with ESMTP id S240251AbiIFM2m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 08:28:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C608C77;
+        Tue,  6 Sep 2022 05:25:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F201B818B3;
-        Tue,  6 Sep 2022 12:21:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12500C43140;
-        Tue,  6 Sep 2022 12:21:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98F2261518;
+        Tue,  6 Sep 2022 12:25:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F237FC433D7;
+        Tue,  6 Sep 2022 12:25:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662466890;
-        bh=UazPhnVpTJHRjiUmKc2QQMoFoLORH7z85kfQ7iHso9w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FhZR3ffNhItupbQPCx9kPqPygsVPhMlg2qGnK/tDU/WUo+1TMyTbeGOO4cQBHTuGo
-         KiKZM8IU1Zf5p4HflNlMteVCXYVJSzx4NxYioQDW7EG8MfBpEQmiUo5so1JMqV91e4
-         5n7gZhO+xXUo3JSvcDXOxCsOggghEpPdSUfMq057HKIF2MzPlqF+TPFI4UHyGfPFA+
-         tpL8EFCzeIPZ4AZUFBXpP2ChS30jST3iRqTYK9NopBJwpDaWq0PJDYFpJpMTaQbDsW
-         Xz11wIETYbgnL5YRClTQiz/tEu+5Ie10prnp6gGhPR9FmAA22YVsJ//pMq7RYHvQM9
-         UNNcXMycafeEQ==
+        s=k20201202; t=1662467121;
+        bh=FVIz9jOcYZovbef6R7ziRzkYDGIwM247D7ae6/vYWLg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UVDCbT9WfXM6YFeFbxLTt7scCB/B1HbIkRDQXNdpzQas3y5MwiK5OJhKn1HhqVRij
+         e7ZS/k+VZxYZl9Qb639i94Q1drkjC+E+0ozdRZRmBGBQKDrSi0dwZTTyEkUo0lUmtC
+         6wby4TpKl2dXSZAB2negF5YuN4pP3bXSu8XneZME3a2Ge5gPDn4SV/nxmdBJ43tpMJ
+         1yZB5CZinBgh2yVvcjcRwqxt27FUbm3oStpXkOanMYbtK6sLu00ZsPJQDO5z+lw/gn
+         7pSFabp4FtcjwMyLmw5ekHEQmlaF77/ODt3YcqtULiUBcDKOUv9G3hcqbNOWKgwzTq
+         jVsd0NfK96Ggw==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1oVXaA-00089W-Cq; Tue, 06 Sep 2022 14:21:34 +0200
+        id 1oVXdt-0008BH-3O; Tue, 06 Sep 2022 14:25:25 +0200
+Date:   Tue, 6 Sep 2022 14:25:25 +0200
 From:   Johan Hovold <johan@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>,
-        Jonathan Woithe <jwoithe@just42.net>
-Subject: [PATCH stable-5.15 2/2] USB: serial: ch341: fix disabled rx timer on older devices
-Date:   Tue,  6 Sep 2022 14:21:27 +0200
-Message-Id: <20220906122127.31321-3-johan@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220906122127.31321-1-johan@kernel.org>
-References: <20220906122127.31321-1-johan@kernel.org>
+        Johan Hovold <johan+linaro@kernel.org>,
+        Andrew Halaney <ahalaney@redhat.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: Re: [PATCH stable-5.15 1/3] usb: dwc3: fix PHY disable sequence
+Message-ID: <Yxc8NclTP8hwmQG9@hovoldconsulting.com>
+References: <20220906120702.19219-1-johan@kernel.org>
+ <20220906120702.19219-2-johan@kernel.org>
+ <Yxc6GMzOrz1k1c2D@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yxc6GMzOrz1k1c2D@kroah.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -57,43 +61,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 41ca302a697b64a3dab4676e01d0d11bb184737d upstream.
+On Tue, Sep 06, 2022 at 02:16:24PM +0200, Greg Kroah-Hartman wrote:
+> On Tue, Sep 06, 2022 at 02:07:00PM +0200, Johan Hovold wrote:
+> > From: Johan Hovold <johan+linaro@kernel.org>
+> > 
+> > commit d2ac7bef95c9ead307801ccb6cb6dfbeb14247bf upstream.
+> > 
+> > Generic PHYs must be powered-off before they can be tore down.
+> > 
+> > Similarly, suspending legacy PHYs after having powered them off makes no
+> > sense.
+> > 
+> > Fix the dwc3_core_exit() (e.g. called during suspend) and open-coded
+> > dwc3_probe() error-path sequences that got this wrong.
+> > 
+> > Note that this makes dwc3_core_exit() match the dwc3_core_init() error
+> > path with respect to powering off the PHYs.
+> > 
+> > Fixes: 03c1fd622f72 ("usb: dwc3: core: add phy cleanup for probe error handling")
+> > Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
+> > Cc: stable@vger.kernel.org      # 4.8
+> > Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
+> > Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+> > Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> > Link: https://lore.kernel.org/r/20220804151001.23612-2-johan+linaro@kernel.org
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > [ johan: adjust context to 5.15 ]
+> > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> > ---
+> >  drivers/usb/dwc3/core.c | 19 ++++++++++---------
+> >  1 file changed, 10 insertions(+), 9 deletions(-)
+> 
+> This one did not apply to 4.9.y, 4.14.y, or 4.19.y :(
 
-At least one older CH341 appears to have the RX timer enable bit
-inverted so that setting it disables the RX timer and prevents the FIFO
-from emptying until it is full.
+Perhaps someone who cares about these old trees can do the backports.
+Should be as trivial. Can't be the patch submitters responsibility to
+maintain 8 stable trees.
 
-Only set the RX timer enable bit for devices with version newer than
-0x27 (even though this probably affects all pre-0x30 devices).
-
-Reported-by: Jonathan Woithe <jwoithe@just42.net>
-Tested-by: Jonathan Woithe <jwoithe@just42.net>
-Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
-Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
-Cc: stable@vger.kernel.org      # 4.10
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/ch341.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
-index b787533aec64..752daa952abd 100644
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -259,8 +259,12 @@ static int ch341_set_baudrate_lcr(struct usb_device *dev,
- 	/*
- 	 * CH341A buffers data until a full endpoint-size packet (32 bytes)
- 	 * has been received unless bit 7 is set.
-+	 *
-+	 * At least one device with version 0x27 appears to have this bit
-+	 * inverted.
- 	 */
--	val |= BIT(7);
-+	if (priv->version > 0x27)
-+		val |= BIT(7);
- 
- 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG,
- 			      CH341_REG_DIVISOR << 8 | CH341_REG_PRESCALER,
--- 
-2.35.1
-
+Johan
