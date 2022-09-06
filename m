@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8BA95AECA9
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:29:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C64D5AEC43
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241330AbiIFOOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:14:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47396 "EHLO
+        id S239014AbiIFOAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:00:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241435AbiIFONC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:13:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF8D1D30F;
-        Tue,  6 Sep 2022 06:47:42 -0700 (PDT)
+        with ESMTP id S238766AbiIFN4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:56:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E79F28284C;
+        Tue,  6 Sep 2022 06:42:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25ADF60F89;
-        Tue,  6 Sep 2022 13:47:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32880C433D6;
-        Tue,  6 Sep 2022 13:47:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DDEF61522;
+        Tue,  6 Sep 2022 13:41:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D4E8C433D6;
+        Tue,  6 Sep 2022 13:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472056;
-        bh=UzlkVzbW/FBS9IjBbS65LIgBC1gJ99a04EZ6jP5G9+Y=;
+        s=korg; t=1662471680;
+        bh=WWBpEBgGbLn1OtTd2WHdWdJPMCWZnYiluw2vB4+EhjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2MId8KNppZr3lcAAlUE8y+ArwC0s8xB1cSPAxQQzxekkQTtL1vCjbVNSZRms9dsH
-         CZ/R7VRrbL9d6ucWG2r4ATyGIu1g1/eZ9+HbJnfeEU2/J1hF1CQb4wQ/HaKEbHhZEw
-         jfVY9rplU1BKxxnh3WR240zaHwpOiIXQWZoW5gFo=
+        b=ZIeuk5ELm5cQvx5JR7AEqODQIKsBGdub/9HqsCyhnKB7AcNwJIR7wJAezvEAA9thD
+         opftjXG43yV1MfJ9vt+ZKWw79sUp/O66JIwHLJWYKxT0Gw+xOGkceGGqoSOeo5oWC8
+         WrEcDtCeBGLTcnBzh3S656o9MtDIdvaL81AlIlu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.19 131/155] usb: xhci-mtk: relax TT periodic bandwidth allocation
-Date:   Tue,  6 Sep 2022 15:31:19 +0200
-Message-Id: <20220906132834.998809553@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.15 099/107] drm/i915: Skip wm/ddb readout for disabled pipes
+Date:   Tue,  6 Sep 2022 15:31:20 +0200
+Message-Id: <20220906132826.037779606@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
-References: <20220906132829.417117002@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 8b13ea05117ffad4727b0971ed09122d5c91c4dc upstream.
+commit 0211c2a0ea600e25db3044daaeff4fe41c3ed6d9 upstream.
 
-Currently uses the worst case byte budgets on FS/LS bus bandwidth,
-for example, for an isochronos IN endpoint with 192 bytes budget, it
-will consume the whole 5 uframes(188 * 5) while the actual FS bus
-budget should be just 192 bytes. It cause that many usb audio headsets
-with 3 interfaces (audio input, audio output, and HID) cannot be
-configured.
-To improve it, changes to use "approximate" best case budget for FS/LS
-bandwidth management. For the same endpoint from the above example,
-the approximate best case budget is now reduced to (188 * 2) bytes.
+The stuff programmed into the wm/ddb registers of planes
+on disabled pipes doesn't matter. So during readout just
+leave our software state tracking for those zeroed.
 
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220819080556.32215-1-chunfeng.yun@mediatek.com
+This should avoid us trying too hard to clean up after
+whatever mess the VBIOS/GOP left in there. The actual
+hardware state will get cleaned up if/when we enable
+the pipe anyway.
+
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5711
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220617195948.24007-1-ville.syrjala@linux.intel.com
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+(cherry picked from commit b183db8f4783ca2efc9b47734f15aad9477a108a)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mtk-sch.c |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/i915/intel_pm.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -425,7 +425,6 @@ static int check_fs_bus_bw(struct mu3h_s
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -6638,7 +6638,10 @@ void skl_wm_get_hw_state(struct drm_i915
+ 		enum plane_id plane_id;
+ 		u8 slices;
  
- static int check_sch_tt(struct mu3h_sch_ep_info *sch_ep, u32 offset)
- {
--	u32 extra_cs_count;
- 	u32 start_ss, last_ss;
- 	u32 start_cs, last_cs;
+-		skl_pipe_wm_get_hw_state(crtc, &crtc_state->wm.skl.optimal);
++		memset(&crtc_state->wm.skl.optimal, 0,
++		       sizeof(crtc_state->wm.skl.optimal));
++		if (crtc_state->hw.active)
++			skl_pipe_wm_get_hw_state(crtc, &crtc_state->wm.skl.optimal);
+ 		crtc_state->wm.skl.raw = crtc_state->wm.skl.optimal;
  
-@@ -461,18 +460,12 @@ static int check_sch_tt(struct mu3h_sch_
- 		if (last_cs > 7)
- 			return -ESCH_CS_OVERFLOW;
+ 		memset(&dbuf_state->ddb[pipe], 0, sizeof(dbuf_state->ddb[pipe]));
+@@ -6649,6 +6652,9 @@ void skl_wm_get_hw_state(struct drm_i915
+ 			struct skl_ddb_entry *ddb_uv =
+ 				&crtc_state->wm.skl.plane_ddb_uv[plane_id];
  
--		if (sch_ep->ep_type == ISOC_IN_EP)
--			extra_cs_count = (last_cs == 7) ? 1 : 2;
--		else /*  ep_type : INTR IN / INTR OUT */
--			extra_cs_count = 1;
--
--		cs_count += extra_cs_count;
- 		if (cs_count > 7)
- 			cs_count = 7; /* HW limit */
++			if (!crtc_state->hw.active)
++				continue;
++
+ 			skl_ddb_get_hw_plane_state(dev_priv, crtc->pipe,
+ 						   plane_id, ddb_y, ddb_uv);
  
- 		sch_ep->cs_count = cs_count;
--		/* one for ss, the other for idle */
--		sch_ep->num_budget_microframes = cs_count + 2;
-+		/* ss, idle are ignored */
-+		sch_ep->num_budget_microframes = cs_count;
- 
- 		/*
- 		 * if interval=1, maxp >752, num_budge_micoframe is larger
 
 
