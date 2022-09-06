@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA2E95AE66C
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F9C25AE669
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239081AbiIFLWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:22:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36982 "EHLO
+        id S239430AbiIFLWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:22:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238831AbiIFLWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:22:00 -0400
+        with ESMTP id S239386AbiIFLWE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:22:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B80F4B4A1
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:21:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 935B963F11
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:22:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0F89614C5
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:21:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFAEDC433D7;
-        Tue,  6 Sep 2022 11:21:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24AC5614BC
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:22:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A32C433D6;
+        Tue,  6 Sep 2022 11:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662463318;
-        bh=HNrdKfTAbmO1ft7351GZpJgCdP+VbjHUC5LMa+pUEv0=;
+        s=korg; t=1662463321;
+        bh=/yyQGONlj0r3pKv8CbXqZFEktdPxdkCD6qFy+1wUzBs=;
         h=Subject:To:Cc:From:Date:From;
-        b=F/EJliWsqFJ7MHkiCW4ppueGrWIg1zFV50N0u/aI3uLd2jX5F0cC3PBjB9ShhysLQ
-         Azzh8Q9NxJ1BnPnPDjd4YJihu5H1qPnqdp7ZdHEii9KZWIrrQHAVyTX9q3PiCuRCkh
-         fnGa1ArXS1rOsBBy0jA2oMzutgK16Swyu1/UVHeM=
-Subject: FAILED: patch "[PATCH] usb: dwc3: fix PHY disable sequence" failed to apply to 5.15-stable tree
+        b=BThp0RqqiF+AelDsOpP7K08+EcJW8P4rU/jSZ460w4EnTVEzgNljtIsIdz0vN1Qbu
+         t3BxSwfEye7SBIdoAVLO9Yb4LTEAQkE6xFNz4Dex0iqets7Ln414KJSjQ+Mv2VAsQ8
+         sIljkeirv16vu9NbQX8Huwx0W16HpAyNIxXmhHJU=
+Subject: FAILED: patch "[PATCH] usb: dwc3: fix PHY disable sequence" failed to apply to 5.10-stable tree
 To:     johan+linaro@kernel.org, ahalaney@redhat.com,
         gregkh@linuxfoundation.org, manivannan.sadhasivam@linaro.org,
         mka@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:21:55 +0200
-Message-ID: <1662463315249164@kroah.com>
+Date:   Tue, 06 Sep 2022 13:21:56 +0200
+Message-ID: <1662463316171134@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
