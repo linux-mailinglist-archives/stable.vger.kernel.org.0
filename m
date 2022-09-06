@@ -2,168 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90F8A5AF2B7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 19:34:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCEA55AF2B2
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 19:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239439AbiIFRbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 13:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53094 "EHLO
+        id S239779AbiIFRe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 13:34:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233679AbiIFRat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 13:30:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6241027CD5
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 10:24:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1662485090;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=8jj5ltO1LOk0SlLaaEAJAylbk3vvryd3UX57GATziA8=;
-        b=EyN/11aCfOMZnqYSK9YxRMPL9AF80mQdtDacyTss56MGInbR9qZ1//AYAD4HKTHT9ROD8x
-        9ZyhUco5e0D/xQkV/lGN4VIFPt4edX8ulJrX9ikZJScVYm/+m/6Qv8E4gfWovI9AlVzjHv
-        gaHjEUY8jNTVdHe6EdgtUBvvIsc6INo=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-45-x_4o4RaGNtOjYIbWvCLvmQ-1; Tue, 06 Sep 2022 13:24:46 -0400
-X-MC-Unique: x_4o4RaGNtOjYIbWvCLvmQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2BDD7382ECC1;
-        Tue,  6 Sep 2022 17:24:46 +0000 (UTC)
-Received: from lorien.usersys.redhat.com (unknown [10.22.32.243])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id BF4D32166B26;
-        Tue,  6 Sep 2022 17:24:45 +0000 (UTC)
-Date:   Tue, 6 Sep 2022 13:24:44 -0400
-From:   Phil Auld <pauld@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Barry Song <21cnbao@gmail.com>,
-        Tian Tao <tiantao6@hisilicon.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        feng xiangjun <fengxj325@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] drivers/base: Fix unsigned comparison to -1 in
- CPUMAP_FILE_MAX_BYTES
-Message-ID: <YxeCXALgsIGxiSlG@lorien.usersys.redhat.com>
-References: <20220906160430.1169837-1-pauld@redhat.com>
- <Yxd9LRH+3wkM0fot@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yxd9LRH+3wkM0fot@kroah.com>
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S234029AbiIFReL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 13:34:11 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71352186
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 10:29:45 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id l12-20020a25ad4c000000b006a8e04c284dso5642994ybe.11
+        for <stable@vger.kernel.org>; Tue, 06 Sep 2022 10:29:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date;
+        bh=kiOrB5yWFxCLoNxe+9LT00TIOWI2BPkFlWeuOIoCnH0=;
+        b=D7wUnaukzGksmUg3rCY79VHdeMa6j7UOfHsOqV2yuo7aHI/jmAwDDTmEpmMGngTrZ+
+         +W8b5/x5OiSmoyAWh2YTrFFZ7AOWRgrbpa7ZZcN+IYHUj8AinkQreG4wMRJAVuiYhBs4
+         BNhbS1npw+86kYMSnnn7EdkQS951AW5evheBAx3C+YWbCMcfiZsyCaIhOshoj/MbHJgL
+         XI112cvhbsj0p9fQ8ckBAuEfMhM4erj/aEQquw/UpIJKWlUnF6txko3uxgP4iICk7i3B
+         d+RioD0OlCTPaAC1erm6uCRJ2tO2q/oZ8OBEklUWTZ7Vq4diU8FD2vLa0CyxJruG36Fa
+         h5YQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date;
+        bh=kiOrB5yWFxCLoNxe+9LT00TIOWI2BPkFlWeuOIoCnH0=;
+        b=S0gJdPFyTuH30gCjDiJotWPaRHUJ/e2cRf5KVfuSIZkG2Z3jyDklwcMAgMVVJOErBe
+         Va1iwUWQq5Dq663aQutIvbnC14nTxrv98T0So65d7YzSlSkNKCOkA3FRCS3+SFOu3twl
+         EzWBMQVI2t+eKkbW7jyeH5hkjsoVfn0nXggDNnHCt72A83euOFtQZsS40BvRfyTJjdij
+         665z6w4K9Yz9c7aEx2fX0J5DSanr2fUvSwnCrE9KFcdjYLE6bidACkPpQl0D48tP/RqW
+         /lsxdj3ll0poMF3jZQhFjDxCyKMYpnDv4UNlIiyHp7nlq061B00WK+OU8t/4qK12pq0A
+         q3cQ==
+X-Gm-Message-State: ACgBeo2MX0w9I4nGlqLDoX8JVBnBCFV9yVQxVglSuv+oz2GPki8KI1o4
+        RsXlXxK0ouRkoLQF8Ex3RVDT3p1saeMeQtkVsd65Pg==
+X-Google-Smtp-Source: AA6agR6g8n5FIE5HRy5n8m5MNBxDTfEelEAVRECD1wsrGQA7m2kQlteRDHIhgST4uqLOWlel4EKGOZ11NE16U7UFd67Z8Q==
+X-Received: from isaacmanjarres.irv.corp.google.com ([2620:15c:2d:3:96d9:b0ea:9ff9:ee9f])
+ (user=isaacmanjarres job=sendgmr) by 2002:a5b:a0f:0:b0:691:6fea:deda with
+ SMTP id k15-20020a5b0a0f000000b006916feadedamr37037278ybq.377.1662485377308;
+ Tue, 06 Sep 2022 10:29:37 -0700 (PDT)
+Date:   Tue,  6 Sep 2022 10:29:33 -0700
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.37.2.789.g6183377224-goog
+Message-ID: <20220906172933.410698-1-isaacmanjarres@google.com>
+Subject: [PATCH stable-4.19/4.14/4.9] driver core: Don't probe devices after
+ bus_type.match() probe deferral
+From:   "Isaac J. Manjarres" <isaacmanjarres@google.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     "Isaac J. Manjarres" <isaacmanjarres@google.com>,
+        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        kernel-team@android.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 06, 2022 at 07:02:37PM +0200 Greg Kroah-Hartman wrote:
-> On Tue, Sep 06, 2022 at 12:04:30PM -0400, Phil Auld wrote:
-> > As PAGE_SIZE is unsigned long, -1 > PAGE_SIZE when NR_CPUS <= 3.
-> > This leads to very large file sizes:
-> > 
-> > topology$ ls -l
-> > total 0
-> > -r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 core_cpus
-> 
-> Yeah, lots of CPUs!  :)
->
+commit 25e9fbf0fd38868a429feabc38abebfc6dbf6542 upstream.
 
-Yep, apparently things like lscpu fail with this size. 
+Both __device_attach_driver() and __driver_attach() check the return
+code of the bus_type.match() function to see if the device needs to be
+added to the deferred probe list. After adding the device to the list,
+the logic attempts to bind the device to the driver anyway, as if the
+device had matched with the driver, which is not correct.
 
+If __device_attach_driver() detects that the device in question is not
+ready to match with a driver on the bus, then it doesn't make sense for
+the device to attempt to bind with the current driver or continue
+attempting to match with any of the other drivers on the bus. So, update
+the logic in __device_attach_driver() to reflect this.
 
-> > -r--r--r-- 1 root root                 4096 Sep  5 11:59 core_cpus_list
-> > -r--r--r-- 1 root root                 4096 Sep  5 10:58 core_id
-> > -r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 core_siblings
-> > -r--r--r-- 1 root root                 4096 Sep  5 11:59 core_siblings_list
-> > -r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 die_cpus
-> > -r--r--r-- 1 root root                 4096 Sep  5 11:59 die_cpus_list
-> > -r--r--r-- 1 root root                 4096 Sep  5 11:59 die_id
-> > -r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 package_cpus
-> > -r--r--r-- 1 root root                 4096 Sep  5 11:59 package_cpus_list
-> > -r--r--r-- 1 root root                 4096 Sep  5 10:58 physical_package_id
-> > -r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 thread_siblings
-> > -r--r--r-- 1 root root                 4096 Sep  5 11:59 thread_siblings_list
-> > 
-> > Adjust the inequality to catch the case when NR_CPUS is configured
-> > to a small value.
-> > 
-> > Fixes: 7ee951acd31a ("drivers/base: fix userspace break from using bin_attributes for cpumap and cpulist")
-> > Reported-by: feng xiangjun <fengxj325@gmail.com>
-> > Signed-off-by: Phil Auld <pauld@redhat.com>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > Cc: Yury Norov <yury.norov@gmail.com>
-> > Cc: stable@vger.kernel.org
-> > Cc: feng xiangjun <fengxj325@gmail.com>
-> > ---
-> >  include/linux/cpumask.h | 5 +++--
-> >  1 file changed, 3 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-> > index bd047864c7ac..7b1349612d6d 100644
-> > --- a/include/linux/cpumask.h
-> > +++ b/include/linux/cpumask.h
-> > @@ -1127,9 +1127,10 @@ cpumap_print_list_to_buf(char *buf, const struct cpumask *mask,
-> >   * cover a worst-case of every other cpu being on one of two nodes for a
-> >   * very large NR_CPUS.
-> >   *
-> > - *  Use PAGE_SIZE as a minimum for smaller configurations.
-> > + *  Use PAGE_SIZE as a minimum for smaller configurations while avoiding
-> > + *  unsigned comparison to -1.
-> >   */
-> > -#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32 - 1) > PAGE_SIZE) \
-> > +#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32) > PAGE_SIZE + 1) \
-> >  					? (NR_CPUS * 9)/32 - 1 : PAGE_SIZE)
-> >  #define CPULIST_FILE_MAX_BYTES  (((NR_CPUS * 7)/2 > PAGE_SIZE) ? (NR_CPUS * 7)/2 : PAGE_SIZE)
-> >  
-> > -- 
-> > 2.31.1
-> > 
-> 
-> Nice catch.  What type of systems did you run this on to verify it will
-> work?
->
+If __driver_attach() detects that a driver tried to match with a device
+that is not ready to match yet, then the driver should not attempt to bind
+with the device. However, the driver can still attempt to match and bind
+with other devices on the bus, as drivers can be bound to multiple
+devices. So, update the logic in __driver_attach() to reflect this.
 
-Feng ran it on his 2 cpu laptop.  I ran it on my usual test bed (80 cpus) but
-configured both with NR_CPUS at 8192 and at 2.
+Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
+Cc: stable@vger.kernel.org
+Cc: Saravana Kannan <saravanak@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+---
+ drivers/base/dd.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-It's not really dependent on the actual system. It's a compile time config
-option.  I failed to set it small when testing the first one.
-
-The fix here is just maths :) 
-
-With NR_CPUS == 2:
-
-# ls -l /sys/devices/system/cpu/cpu0/topology/
-total 0
--r--r--r--. 1 root root 4096 Sep  6 11:40 cluster_cpus
--r--r--r--. 1 root root 4096 Sep  6 11:40 cluster_cpus_list
--r--r--r--. 1 root root 4096 Sep  6 11:40 cluster_id
--r--r--r--. 1 root root 4096 Sep  6 11:40 core_cpus
--r--r--r--. 1 root root 4096 Sep  6 11:40 core_cpus_list
--r--r--r--. 1 root root 4096 Sep  6 11:40 core_id
--r--r--r--. 1 root root 4096 Sep  6 11:29 core_siblings
--r--r--r--. 1 root root 4096 Sep  6 11:40 core_siblings_list
-...
-
-
-
-Cheers,
-Phil
-
-> thanks,
-> 
-> greg k-h
-> 
-
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 26ba7a99b7d5..63390a416b44 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -738,6 +738,11 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
+ 	} else if (ret == -EPROBE_DEFER) {
+ 		dev_dbg(dev, "Device match requests probe deferral\n");
+ 		driver_deferred_probe_add(dev);
++		/*
++		 * Device can't match with a driver right now, so don't attempt
++		 * to match or bind with other drivers on the bus.
++		 */
++		return ret;
+ 	} else if (ret < 0) {
+ 		dev_dbg(dev, "Bus failed to match device: %d", ret);
+ 		return ret;
+@@ -891,6 +896,11 @@ static int __driver_attach(struct device *dev, void *data)
+ 	} else if (ret == -EPROBE_DEFER) {
+ 		dev_dbg(dev, "Device match requests probe deferral\n");
+ 		driver_deferred_probe_add(dev);
++		/*
++		 * Driver could not match with device, but may match with
++		 * another device on the bus.
++		 */
++		return 0;
+ 	} else if (ret < 0) {
+ 		dev_dbg(dev, "Bus failed to match device: %d", ret);
+ 		return ret;
 -- 
+2.37.2.789.g6183377224-goog
 
