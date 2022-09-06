@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08BFE5AEA1B
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBB25AEA94
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233145AbiIFNjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:39:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39082 "EHLO
+        id S238206AbiIFNuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240675AbiIFNin (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:38:43 -0400
+        with ESMTP id S236570AbiIFNsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:48:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 362D076449;
-        Tue,  6 Sep 2022 06:35:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE5B7C308;
+        Tue,  6 Sep 2022 06:39:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A7C061548;
-        Tue,  6 Sep 2022 13:34:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A58C433C1;
-        Tue,  6 Sep 2022 13:34:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21ADE6154A;
+        Tue,  6 Sep 2022 13:39:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3115CC433D6;
+        Tue,  6 Sep 2022 13:39:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471289;
-        bh=V8KfkY9Z3LzwSc0dKcGeIHwZTwBbtxyXlAkRQ28XaYQ=;
+        s=korg; t=1662471555;
+        bh=2t5gG7chT0YaqazGsBisRir+uDym/eOwq0dvTSwEEQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RG7tW2yyP+YGR/1jwFnbjxhkcYQo59Q2GjA+THy1Jgh2V8+a0b5Y6CS62ugG2+kVh
-         cAl9JZL6ttAofEVALauWRT+/RqcUnGYs/dofGiakHH9neNhuaV3X5ZQMQfkTLD3wm3
-         UxyP1bRvQBIbRulvsPIY7MSqMtVYQxaCgj9dyaME=
+        b=nWvaCNe4Ucjj/BON3WykNR8ujSfDhd7QD/HjaL6SbmqGC5EnyQO2fuXAxMynICgWc
+         S519+bHAzH6K8qHw6srR7xfvcpvu2tbYQzhSXNfK9m35RqnD/xgSdPVh7zWNsL9Fny
+         fJ5PX23s+kH4W/2nNko1aLFqc+dWL9S/WCgS48kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
-Subject: [PATCH 5.10 17/80] sch_cake: Return __NET_XMIT_STOLEN when consuming enqueued skb
-Date:   Tue,  6 Sep 2022 15:30:14 +0200
-Message-Id: <20220906132817.654141837@linuxfoundation.org>
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 034/107] powerpc: align syscall table for ppc32
+Date:   Tue,  6 Sep 2022 15:30:15 +0200
+Message-Id: <20220906132823.236001530@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@toke.dk>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 90fabae8a2c225c4e4936723c38857887edde5cc ]
+commit c7acee3d2f128a38b68fb7af85dbbd91bfd0b4ad upstream.
 
-When the GSO splitting feature of sch_cake is enabled, GSO superpackets
-will be broken up and the resulting segments enqueued in place of the
-original skb. In this case, CAKE calls consume_skb() on the original skb,
-but still returns NET_XMIT_SUCCESS. This can confuse parent qdiscs into
-assuming the original skb still exists, when it really has been freed. Fix
-this by adding the __NET_XMIT_STOLEN flag to the return value in this case.
+Christophe Leroy reported that commit 7b4537199a4a ("kbuild: link
+symbol CRCs at final link,  removing CONFIG_MODULE_REL_CRCS") broke
+mpc85xx_defconfig + CONFIG_RELOCATABLE=y.
 
-Fixes: 0c850344d388 ("sch_cake: Conditionally split GSO segments")
-Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
-Link: https://lore.kernel.org/r/20220831092103.442868-1-toke@toke.dk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    LD      vmlinux
+    SYSMAP  System.map
+    SORTTAB vmlinux
+    CHKREL  vmlinux
+  WARNING: 451 bad relocations
+  c0b312a9 R_PPC_UADDR32     .head.text-0x3ff9ed54
+  c0b312ad R_PPC_UADDR32     .head.text-0x3ffac224
+  c0b312b1 R_PPC_UADDR32     .head.text-0x3ffb09f4
+  c0b312b5 R_PPC_UADDR32     .head.text-0x3fe184dc
+  c0b312b9 R_PPC_UADDR32     .head.text-0x3fe183a8
+      ...
+
+The compiler emits a bunch of R_PPC_UADDR32, which is not supported by
+arch/powerpc/kernel/reloc_32.S.
+
+The reason is there exists an unaligned symbol.
+
+  $ powerpc-linux-gnu-nm -n vmlinux
+    ...
+  c0b31258 d spe_aligninfo
+  c0b31298 d __func__.0
+  c0b312a9 D sys_call_table
+  c0b319b8 d __func__.0
+
+Commit 7b4537199a4a is not the root cause. Even before that, I can
+reproduce the same issue for mpc85xx_defconfig + CONFIG_RELOCATABLE=y
++ CONFIG_MODVERSIONS=n.
+
+It is just that nobody noticed because when CONFIG_MODVERSIONS is
+enabled, a __crc_* symbol inserted before sys_call_table was hiding the
+unalignment issue.
+
+Adding alignment to the syscall table for ppc32 fixes the issue.
+
+Cc: stable@vger.kernel.org
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Trim change log discussion, add Cc stable]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/lkml/38605f6a-a568-f884-f06f-ea4da5b214f0@csgroup.eu/
+Link: https://lore.kernel.org/r/20220820165129.1147589-1-masahiroy@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_cake.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/systbl.S |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
-index c580139fcedec..4e380534dbc92 100644
---- a/net/sched/sch_cake.c
-+++ b/net/sched/sch_cake.c
-@@ -1713,6 +1713,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 	}
- 	idx--;
- 	flow = &b->flows[idx];
-+	ret = NET_XMIT_SUCCESS;
+--- a/arch/powerpc/kernel/systbl.S
++++ b/arch/powerpc/kernel/systbl.S
+@@ -18,6 +18,7 @@
+ 	.p2align	3
+ #define __SYSCALL(nr, entry)	.8byte entry
+ #else
++	.p2align	2
+ #define __SYSCALL(nr, entry)	.long entry
+ #endif
  
- 	/* ensure shaper state isn't stale */
- 	if (!b->tin_backlog) {
-@@ -1771,6 +1772,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 
- 		qdisc_tree_reduce_backlog(sch, 1-numsegs, len-slen);
- 		consume_skb(skb);
-+		ret |= __NET_XMIT_STOLEN;
- 	} else {
- 		/* not splitting */
- 		cobalt_set_enqueue_time(skb, now);
-@@ -1904,7 +1906,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 		}
- 		b->drop_overlimit += dropped;
- 	}
--	return NET_XMIT_SUCCESS;
-+	return ret;
- }
- 
- static struct sk_buff *cake_dequeue_one(struct Qdisc *sch)
--- 
-2.35.1
-
 
 
