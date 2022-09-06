@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 618B55AE69C
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC515AE6A6
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 13:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232133AbiIFLaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 07:30:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48656 "EHLO
+        id S232671AbiIFLdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 07:33:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232100AbiIFLaV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:30:21 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4470114D3A
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:30:20 -0700 (PDT)
+        with ESMTP id S231562AbiIFLdq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 07:33:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 723FE4DB43
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 04:33:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 935C0CE16FB
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:30:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CE71C433C1;
-        Tue,  6 Sep 2022 11:30:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A693B816A4
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 11:33:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73F50C433D6;
+        Tue,  6 Sep 2022 11:33:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662463816;
-        bh=RM75NrjzRw1tfHlQLSkJYkWhST1okJNKv99zBYtsXEQ=;
+        s=korg; t=1662464022;
+        bh=ZmGSxbEszIDhJFsWcAh0QcONrr8Hnn2SBsrWYHiSOEg=;
         h=Subject:To:Cc:From:Date:From;
-        b=IqWfIST6QEBkmBdXuA5HYtNpUu9WG1NuGyq7wBNkqdrZSb5to+C9kSMRST/acJP40
-         rl+yXyRGphpGaqsSlF4c5kfvvWplK7giSv+ElDhjmHKsU69Sh7YT95L6dyZHljNFMF
-         rnpSOPo4c7VPZD6dLMz809SsXmh2fu/+1JwMdhsg=
-Subject: FAILED: patch "[PATCH] usb: gadget: f_uac2: fix superspeed transfer" failed to apply to 5.15-stable tree
-To:     jleng@ambarella.com, gregkh@linuxfoundation.org,
-        quic_jackp@quicinc.com, stable@kernel.org
+        b=nXgD/WBye5M3Jp+tLUkZfeOIGf7J0/4YhNIWT2T+/1MCJ8H7oXa5Cy4QjQmArLiro
+         iqv0i2nVUGawmhrxG/XB3/j7Mu4IqkAmhL9jHYqwPu/lcNIgcqx/bjGCgUxHOdagHK
+         VFfGSv5UHSGEET5owMvkpc+33l/r/SUvglpdMEEo=
+Subject: FAILED: patch "[PATCH] smb3: fix temporary data corruption in insert range" failed to apply to 5.15-stable tree
+To:     dhowells@redhat.com, lsahlber@redhat.com, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 06 Sep 2022 13:30:14 +0200
-Message-ID: <1662463814122169@kroah.com>
+Date:   Tue, 06 Sep 2022 13:33:27 +0200
+Message-ID: <1662464007239234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,89 +59,77 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f511aef2ebe5377d4c263842f2e0c0b8e274e8e5 Mon Sep 17 00:00:00 2001
-From: Jing Leng <jleng@ambarella.com>
-Date: Wed, 20 Jul 2022 18:48:15 -0700
-Subject: [PATCH] usb: gadget: f_uac2: fix superspeed transfer
+From 9c8b7a293f50253e694f19161c045817a938e551 Mon Sep 17 00:00:00 2001
+From: David Howells <dhowells@redhat.com>
+Date: Tue, 23 Aug 2022 14:07:55 +0100
+Subject: [PATCH] smb3: fix temporary data corruption in insert range
 
-On page 362 of the USB3.2 specification (
-https://usb.org/sites/default/files/usb_32_20210125.zip),
-The 'SuperSpeed Endpoint Companion Descriptor' shall only be returned
-by Enhanced SuperSpeed devices that are operating at Gen X speed.
-Each endpoint described in an interface is followed by a 'SuperSpeed
-Endpoint Companion Descriptor'.
+insert range doesn't discard the affected cached region
+so can risk temporarily corrupting file data.
 
-If users use SuperSpeed UDC, host can't recognize the device if endpoint
-doesn't have 'SuperSpeed Endpoint Companion Descriptor' followed.
+Also includes some minor cleanup (avoiding rereading
+inode size repeatedly unnecessarily) to make it clearer.
 
-Currently in the uac2 driver code:
-1. ss_epout_desc_comp follows ss_epout_desc;
-2. ss_epin_fback_desc_comp follows ss_epin_fback_desc;
-3. ss_epin_desc_comp follows ss_epin_desc;
-4. Only ss_ep_int_desc endpoint doesn't have 'SuperSpeed Endpoint
-Companion Descriptor' followed, so we should add it.
+Cc: stable@vger.kernel.org
+Fixes: 7fe6fe95b936 ("cifs: add FALLOC_FL_INSERT_RANGE support")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 
-Fixes: eaf6cbe09920 ("usb: gadget: f_uac2: add volume and mute support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Jing Leng <jleng@ambarella.com>
-Signed-off-by: Jack Pham <quic_jackp@quicinc.com>
-Link: https://lore.kernel.org/r/20220721014815.14453-1-quic_jackp@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
-index 1905a8d8e0c9..08726e4c68a5 100644
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -291,6 +291,12 @@ static struct usb_endpoint_descriptor ss_ep_int_desc = {
- 	.bInterval = 4,
- };
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 5b5ddc1b4638..7c941ce1e7a9 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -3722,35 +3722,43 @@ static long smb3_insert_range(struct file *file, struct cifs_tcon *tcon,
+ 	struct cifsFileInfo *cfile = file->private_data;
+ 	struct inode *inode = file_inode(file);
+ 	__le64 eof;
+-	__u64  count;
++	__u64  count, old_eof;
  
-+static struct usb_ss_ep_comp_descriptor ss_ep_int_desc_comp = {
-+	.bLength = sizeof(ss_ep_int_desc_comp),
-+	.bDescriptorType = USB_DT_SS_ENDPOINT_COMP,
-+	.wBytesPerInterval = cpu_to_le16(6),
-+};
+ 	xid = get_xid();
+ 
+-	if (off >= i_size_read(inode)) {
++	inode_lock(inode);
 +
- /* Audio Streaming OUT Interface - Alt0 */
- static struct usb_interface_descriptor std_as_out_if0_desc = {
- 	.bLength = sizeof std_as_out_if0_desc,
-@@ -604,7 +610,8 @@ static struct usb_descriptor_header *ss_audio_desc[] = {
- 	(struct usb_descriptor_header *)&in_feature_unit_desc,
- 	(struct usb_descriptor_header *)&io_out_ot_desc,
- 
--  (struct usb_descriptor_header *)&ss_ep_int_desc,
-+	(struct usb_descriptor_header *)&ss_ep_int_desc,
-+	(struct usb_descriptor_header *)&ss_ep_int_desc_comp,
- 
- 	(struct usb_descriptor_header *)&std_as_out_if0_desc,
- 	(struct usb_descriptor_header *)&std_as_out_if1_desc,
-@@ -800,6 +807,7 @@ static void setup_headers(struct f_uac2_opts *opts,
- 	struct usb_ss_ep_comp_descriptor *epout_desc_comp = NULL;
- 	struct usb_ss_ep_comp_descriptor *epin_desc_comp = NULL;
- 	struct usb_ss_ep_comp_descriptor *epin_fback_desc_comp = NULL;
-+	struct usb_ss_ep_comp_descriptor *ep_int_desc_comp = NULL;
- 	struct usb_endpoint_descriptor *epout_desc;
- 	struct usb_endpoint_descriptor *epin_desc;
- 	struct usb_endpoint_descriptor *epin_fback_desc;
-@@ -827,6 +835,7 @@ static void setup_headers(struct f_uac2_opts *opts,
- 		epin_fback_desc = &ss_epin_fback_desc;
- 		epin_fback_desc_comp = &ss_epin_fback_desc_comp;
- 		ep_int_desc = &ss_ep_int_desc;
-+		ep_int_desc_comp = &ss_ep_int_desc_comp;
++	old_eof = i_size_read(inode);
++	if (off >= old_eof) {
+ 		rc = -EINVAL;
+ 		goto out;
  	}
  
- 	i = 0;
-@@ -855,8 +864,11 @@ static void setup_headers(struct f_uac2_opts *opts,
- 	if (EPOUT_EN(opts))
- 		headers[i++] = USBDHDR(&io_out_ot_desc);
+-	count = i_size_read(inode) - off;
+-	eof = cpu_to_le64(i_size_read(inode) + len);
++	count = old_eof - off;
++	eof = cpu_to_le64(old_eof + len);
  
--	if (FUOUT_EN(opts) || FUIN_EN(opts))
-+	if (FUOUT_EN(opts) || FUIN_EN(opts)) {
- 		headers[i++] = USBDHDR(ep_int_desc);
-+		if (ep_int_desc_comp)
-+			headers[i++] = USBDHDR(ep_int_desc_comp);
-+	}
++	filemap_invalidate_lock(inode->i_mapping);
+ 	filemap_write_and_wait(inode->i_mapping);
++	truncate_pagecache_range(inode, off, old_eof);
  
- 	if (EPOUT_EN(opts)) {
- 		headers[i++] = USBDHDR(&std_as_out_if0_desc);
+ 	rc = SMB2_set_eof(xid, tcon, cfile->fid.persistent_fid,
+ 			  cfile->fid.volatile_fid, cfile->pid, &eof);
+ 	if (rc < 0)
+-		goto out;
++		goto out_2;
+ 
+ 	rc = smb2_copychunk_range(xid, cfile, cfile, off, count, off + len);
+ 	if (rc < 0)
+-		goto out;
++		goto out_2;
+ 
+-	rc = smb3_zero_range(file, tcon, off, len, 1);
++	rc = smb3_zero_data(file, tcon, off, len, xid);
+ 	if (rc < 0)
+-		goto out;
++		goto out_2;
+ 
+ 	rc = 0;
++out_2:
++	filemap_invalidate_unlock(inode->i_mapping);
+  out:
++	inode_unlock(inode);
+ 	free_xid(xid);
+ 	return rc;
+ }
 
