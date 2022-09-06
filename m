@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 278E35AED1C
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF145AEC62
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233660AbiIFN5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:57:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57482 "EHLO
+        id S240041AbiIFOAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:00:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239694AbiIFNz5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:55:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47FA782771;
-        Tue,  6 Sep 2022 06:42:08 -0700 (PDT)
+        with ESMTP id S239969AbiIFN6R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:58:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1968276D;
+        Tue,  6 Sep 2022 06:42:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CD9AB818C2;
-        Tue,  6 Sep 2022 13:41:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5EF1C433B5;
-        Tue,  6 Sep 2022 13:41:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9E8661552;
+        Tue,  6 Sep 2022 13:42:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9EFBC433C1;
+        Tue,  6 Sep 2022 13:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471718;
-        bh=peJCUCPW5ynryEAfWIi/9si/ifz63uPjfizjrhUdKYM=;
+        s=korg; t=1662471721;
+        bh=RIIkQz/c58EgZy+tE5QWC90i7kLWLIbvRRANaDvQyaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tg6n4Ug0vlfADzbTAATmFZD+MevRRK7P6PIUHrdZ0OLqc8MHdrHiJ8enR8fZZdLO0
-         zdL4xhjWvvvPerdG20SbnMFJcG+XWtgVMIyNmLyvlOmngfDhmJnz7LF+5jaFbXiHj0
-         gnylEOfSWzZw0Amr4Tp0+c46qfzKNmE8RjBaMy5w=
+        b=N3XVFXK13PGRtmLUHMTRCl+VH5WXVjff0iejRsGAKs/VDr6qkWFU3XMx1tm0d2urX
+         ih0wZ84paitZ7mkVyfMlEvpE416MUoibbrT1R5p1voGXdS2bohiO5eDlOILfDyUj+K
+         AaOcYBjGsqvjJ5QPQPFTtRayE30MwRTDNbvVC7Lc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
+        stable@vger.kernel.org, Pu Lehui <pulehui@huawei.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Paul Chaignon <paul@isovalent.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 015/155] ip_tunnel: Respect tunnel keys "flow_flags" in IP tunnels
-Date:   Tue,  6 Sep 2022 15:29:23 +0200
-Message-Id: <20220906132830.066867248@linuxfoundation.org>
+Subject: [PATCH 5.19 016/155] bpf, cgroup: Fix kernel BUG in purge_effective_progs
+Date:   Tue,  6 Sep 2022 15:29:24 +0200
+Message-Id: <20220906132830.102549765@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,115 +55,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eyal Birger <eyal.birger@gmail.com>
+From: Pu Lehui <pulehui@huawei.com>
 
-[ Upstream commit 7ec9fce4b31604f8415136a4c07f7dc8ad431aec ]
+[ Upstream commit 7d6620f107bae6ed687ff07668e8e8f855487aa9 ]
 
-Commit 451ef36bd229 ("ip_tunnels: Add new flow flags field to ip_tunnel_key")
-added a "flow_flags" member to struct ip_tunnel_key which was later used by
-the commit in the fixes tag to avoid dropping packets with sources that
-aren't locally configured when set in bpf_set_tunnel_key().
+Syzkaller reported a triggered kernel BUG as follows:
 
-VXLAN and GENEVE were made to respect this flag, ip tunnels like IPIP and GRE
-were not.
+  ------------[ cut here ]------------
+  kernel BUG at kernel/bpf/cgroup.c:925!
+  invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+  CPU: 1 PID: 194 Comm: detach Not tainted 5.19.0-14184-g69dac8e431af #8
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+  rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+  RIP: 0010:__cgroup_bpf_detach+0x1f2/0x2a0
+  Code: 00 e8 92 60 30 00 84 c0 75 d8 4c 89 e0 31 f6 85 f6 74 19 42 f6 84
+  28 48 05 00 00 02 75 0e 48 8b 80 c0 00 00 00 48 85 c0 75 e5 <0f> 0b 48
+  8b 0c5
+  RSP: 0018:ffffc9000055bdb0 EFLAGS: 00000246
+  RAX: 0000000000000000 RBX: ffff888100ec0800 RCX: ffffc900000f1000
+  RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff888100ec4578
+  RBP: 0000000000000000 R08: ffff888100ec0800 R09: 0000000000000040
+  R10: 0000000000000000 R11: 0000000000000000 R12: ffff888100ec4000
+  R13: 000000000000000d R14: ffffc90000199000 R15: ffff888100effb00
+  FS:  00007f68213d2b80(0000) GS:ffff88813bc80000(0000)
+  knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 000055f74a0e5850 CR3: 0000000102836000 CR4: 00000000000006e0
+  Call Trace:
+   <TASK>
+   cgroup_bpf_prog_detach+0xcc/0x100
+   __sys_bpf+0x2273/0x2a00
+   __x64_sys_bpf+0x17/0x20
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  RIP: 0033:0x7f68214dbcb9
+  Code: 08 44 89 e0 5b 41 5c c3 66 0f 1f 84 00 00 00 00 00 48 89 f8 48 89
+  f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
+  f0 ff8
+  RSP: 002b:00007ffeb487db68 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
+  RAX: ffffffffffffffda RBX: 000000000000000b RCX: 00007f68214dbcb9
+  RDX: 0000000000000090 RSI: 00007ffeb487db70 RDI: 0000000000000009
+  RBP: 0000000000000003 R08: 0000000000000012 R09: 0000000b00000003
+  R10: 00007ffeb487db70 R11: 0000000000000246 R12: 00007ffeb487dc20
+  R13: 0000000000000004 R14: 0000000000000001 R15: 000055f74a1011b0
+   </TASK>
+  Modules linked in:
+  ---[ end trace 0000000000000000 ]---
 
-This commit fixes this omission by making ip_tunnel_init_flow() receive
-the flow flags from the tunnel key in the relevant collect_md paths.
+Repetition steps:
 
-Fixes: b8fff748521c ("bpf: Set flow flag to allow any source IP in bpf_tunnel_key")
-Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+For the following cgroup tree,
+
+  root
+   |
+  cg1
+   |
+  cg2
+
+  1. attach prog2 to cg2, and then attach prog1 to cg1, both bpf progs
+     attach type is NONE or OVERRIDE.
+  2. write 1 to /proc/thread-self/fail-nth for failslab.
+  3. detach prog1 for cg1, and then kernel BUG occur.
+
+Failslab injection will cause kmalloc fail and fall back to
+purge_effective_progs. The problem is that cg2 have attached another prog,
+so when go through cg2 layer, iteration will add pos to 1, and subsequent
+operations will be skipped by the following condition, and cg will meet
+NULL in the end.
+
+  `if (pos && !(cg->bpf.flags[atype] & BPF_F_ALLOW_MULTI))`
+
+The NULL cg means no link or prog match, this is as expected, and it's not
+a bug. So here just skip the no match situation.
+
+Fixes: 4c46091ee985 ("bpf: Fix KASAN use-after-free Read in compute_effective_progs")
+Signed-off-by: Pu Lehui <pulehui@huawei.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Paul Chaignon <paul@isovalent.com>
-Link: https://lore.kernel.org/bpf/20220818074118.726639-1-eyal.birger@gmail.com
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220813134030.1972696-1-pulehui@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c | 3 ++-
- include/net/ip_tunnels.h                            | 4 +++-
- net/ipv4/ip_gre.c                                   | 2 +-
- net/ipv4/ip_tunnel.c                                | 7 ++++---
- 4 files changed, 10 insertions(+), 6 deletions(-)
+ kernel/bpf/cgroup.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
-index fe663b0ab7086..68d87e61bdc05 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
-@@ -423,7 +423,8 @@ mlxsw_sp_span_gretap4_route(const struct net_device *to_dev,
- 
- 	parms = mlxsw_sp_ipip_netdev_parms4(to_dev);
- 	ip_tunnel_init_flow(&fl4, parms.iph.protocol, *daddrp, *saddrp,
--			    0, 0, dev_net(to_dev), parms.link, tun->fwmark, 0);
-+			    0, 0, dev_net(to_dev), parms.link, tun->fwmark, 0,
-+			    0);
- 
- 	rt = ip_route_output_key(tun->net, &fl4);
- 	if (IS_ERR(rt))
-diff --git a/include/net/ip_tunnels.h b/include/net/ip_tunnels.h
-index 20f60d9da7418..cf1f22c01ed3d 100644
---- a/include/net/ip_tunnels.h
-+++ b/include/net/ip_tunnels.h
-@@ -246,7 +246,8 @@ static inline void ip_tunnel_init_flow(struct flowi4 *fl4,
- 				       __be32 daddr, __be32 saddr,
- 				       __be32 key, __u8 tos,
- 				       struct net *net, int oif,
--				       __u32 mark, __u32 tun_inner_hash)
-+				       __u32 mark, __u32 tun_inner_hash,
-+				       __u8 flow_flags)
- {
- 	memset(fl4, 0, sizeof(*fl4));
- 
-@@ -263,6 +264,7 @@ static inline void ip_tunnel_init_flow(struct flowi4 *fl4,
- 	fl4->fl4_gre_key = key;
- 	fl4->flowi4_mark = mark;
- 	fl4->flowi4_multipath_hash = tun_inner_hash;
-+	fl4->flowi4_flags = flow_flags;
- }
- 
- int ip_tunnel_init(struct net_device *dev);
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 5c58e21f724e9..f866d6282b2b3 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -609,7 +609,7 @@ static int gre_fill_metadata_dst(struct net_device *dev, struct sk_buff *skb)
- 	ip_tunnel_init_flow(&fl4, IPPROTO_GRE, key->u.ipv4.dst, key->u.ipv4.src,
- 			    tunnel_id_to_key32(key->tun_id),
- 			    key->tos & ~INET_ECN_MASK, dev_net(dev), 0,
--			    skb->mark, skb_get_hash(skb));
-+			    skb->mark, skb_get_hash(skb), key->flow_flags);
- 	rt = ip_route_output_key(dev_net(dev), &fl4);
- 	if (IS_ERR(rt))
- 		return PTR_ERR(rt);
-diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index 94017a8c39945..1ad8809fc2e3b 100644
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -295,7 +295,7 @@ static int ip_tunnel_bind_dev(struct net_device *dev)
- 		ip_tunnel_init_flow(&fl4, iph->protocol, iph->daddr,
- 				    iph->saddr, tunnel->parms.o_key,
- 				    RT_TOS(iph->tos), dev_net(dev),
--				    tunnel->parms.link, tunnel->fwmark, 0);
-+				    tunnel->parms.link, tunnel->fwmark, 0, 0);
- 		rt = ip_route_output_key(tunnel->net, &fl4);
- 
- 		if (!IS_ERR(rt)) {
-@@ -570,7 +570,8 @@ void ip_md_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
- 	}
- 	ip_tunnel_init_flow(&fl4, proto, key->u.ipv4.dst, key->u.ipv4.src,
- 			    tunnel_id_to_key32(key->tun_id), RT_TOS(tos),
--			    dev_net(dev), 0, skb->mark, skb_get_hash(skb));
-+			    dev_net(dev), 0, skb->mark, skb_get_hash(skb),
-+			    key->flow_flags);
- 	if (tunnel->encap.type != TUNNEL_ENCAP_NONE)
- 		goto tx_error;
- 
-@@ -728,7 +729,7 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
- 	ip_tunnel_init_flow(&fl4, protocol, dst, tnl_params->saddr,
- 			    tunnel->parms.o_key, RT_TOS(tos),
- 			    dev_net(dev), tunnel->parms.link,
--			    tunnel->fwmark, skb_get_hash(skb));
-+			    tunnel->fwmark, skb_get_hash(skb), 0);
- 
- 	if (ip_tunnel_encap(skb, tunnel, &protocol, &fl4) < 0)
- 		goto tx_error;
+diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+index 7a394f7c205c4..34dfa45ef4f3b 100644
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -762,8 +762,10 @@ static void purge_effective_progs(struct cgroup *cgrp, struct bpf_prog *prog,
+ 				pos++;
+ 			}
+ 		}
++
++		/* no link or prog match, skip the cgroup of this layer */
++		continue;
+ found:
+-		BUG_ON(!cg);
+ 		progs = rcu_dereference_protected(
+ 				desc->bpf.effective[atype],
+ 				lockdep_is_held(&cgroup_mutex));
 -- 
 2.35.1
 
