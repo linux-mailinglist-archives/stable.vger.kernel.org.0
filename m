@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED8A5AECAA
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:29:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 759AD5AED8F
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:50:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240549AbiIFOAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:00:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57294 "EHLO
+        id S234905AbiIFOmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:42:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240593AbiIFN5V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:57:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D4082D1C;
-        Tue,  6 Sep 2022 06:42:24 -0700 (PDT)
+        with ESMTP id S230078AbiIFOmc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:42:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C9E958E;
+        Tue,  6 Sep 2022 07:03:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C923AB818B9;
-        Tue,  6 Sep 2022 13:41:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB8BC433D7;
-        Tue,  6 Sep 2022 13:41:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1511F6154A;
+        Tue,  6 Sep 2022 13:48:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E20AC433C1;
+        Tue,  6 Sep 2022 13:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471691;
-        bh=64mhxJz/tEUOud2e6JWyA2SXsj1p7Pe8tb2x/rQJw9c=;
+        s=korg; t=1662472127;
+        bh=HrbJ7LB0xXHamS47DeV+VRmMG3iAGv+eo2XVcyQXrw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhVOp1M8bkrRYolJN2bSxpVeUVPT6EUy+WA4n0SpeTZtXFgQInBXSmwrXgDULiXX3
-         IGe0vVlzzFWiF0mHqeiW7QysWSJigMh4D0WHEZFPkHVbdxtF8OLPA8Sd2dneQ9+tG0
-         95HXAn9yAWhwmaWTxBgt3hDJeUMrCasCLaJ8OtM4=
+        b=yXJGHH+H6ViMKuVjEwx2MHmMBQM50bRiR0SZCPcyUAP7cQzcBOB5G3yZdeKwhiDqC
+         uPyA4AJ/FHc9h076acBKubsAZqj3R3yPr2S31LhgAzxYl/Bb3Woo5Ig0BlelytIkxy
+         KEHPq3gv3EHfX+CeTFti07OyiOVHhzo2Dkt5hOaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Halaney <ahalaney@redhat.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 5.15 103/107] usb: dwc3: fix PHY disable sequence
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Jason Ekstrand <jason.ekstrand@collabora.com>
+Subject: [PATCH 5.19 136/155] dma-buf/dma-resv: check if the new fence is really later
 Date:   Tue,  6 Sep 2022 15:31:24 +0200
-Message-Id: <20220906132826.231202201@linuxfoundation.org>
+Message-Id: <20220906132835.222727852@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
+References: <20220906132829.417117002@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Christian König <ckoenig.leichtzumerken@gmail.com>
 
-commit d2ac7bef95c9ead307801ccb6cb6dfbeb14247bf upstream.
+commit a3f7c10a269d5b77dd5822ade822643ced3057f0 upstream.
 
-Generic PHYs must be powered-off before they can be tore down.
+Previously when we added a fence to a dma_resv object we always
+assumed the the newer than all the existing fences.
 
-Similarly, suspending legacy PHYs after having powered them off makes no
-sense.
+With Jason's work to add an UAPI to explicit export/import that's not
+necessary the case any more. So without this check we would allow
+userspace to force the kernel into an use after free error.
 
-Fix the dwc3_core_exit() (e.g. called during suspend) and open-coded
-dwc3_probe() error-path sequences that got this wrong.
+Since the change is very small and defensive it's probably a good
+idea to backport this to stable kernels as well just in case others
+are using the dma_resv object in the same way.
 
-Note that this makes dwc3_core_exit() match the dwc3_core_init() error
-path with respect to powering off the PHYs.
-
-Fixes: 03c1fd622f72 ("usb: dwc3: core: add phy cleanup for probe error handling")
-Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
-Cc: stable@vger.kernel.org      # 4.8
-Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220804151001.23612-2-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ johan: adjust context to 5.15 ]
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Jason Ekstrand <jason.ekstrand@collabora.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220810172617.140047-1-christian.koenig@amd.com
+Cc: stable@vger.kernel.org # v5.19+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/core.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/dma-buf/dma-resv.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -731,15 +731,16 @@ static void dwc3_core_exit(struct dwc3 *
- {
- 	dwc3_event_buffers_cleanup(dwc);
+--- a/drivers/dma-buf/dma-resv.c
++++ b/drivers/dma-buf/dma-resv.c
+@@ -295,7 +295,8 @@ void dma_resv_add_fence(struct dma_resv
+ 		enum dma_resv_usage old_usage;
  
-+	usb_phy_set_suspend(dwc->usb2_phy, 1);
-+	usb_phy_set_suspend(dwc->usb3_phy, 1);
-+	phy_power_off(dwc->usb2_generic_phy);
-+	phy_power_off(dwc->usb3_generic_phy);
-+
- 	usb_phy_shutdown(dwc->usb2_phy);
- 	usb_phy_shutdown(dwc->usb3_phy);
- 	phy_exit(dwc->usb2_generic_phy);
- 	phy_exit(dwc->usb3_generic_phy);
- 
--	usb_phy_set_suspend(dwc->usb2_phy, 1);
--	usb_phy_set_suspend(dwc->usb3_phy, 1);
--	phy_power_off(dwc->usb2_generic_phy);
--	phy_power_off(dwc->usb3_generic_phy);
- 	clk_bulk_disable_unprepare(dwc->num_clks, dwc->clks);
- 	reset_control_assert(dwc->reset);
- }
-@@ -1662,16 +1663,16 @@ err5:
- 	dwc3_debugfs_exit(dwc);
- 	dwc3_event_buffers_cleanup(dwc);
- 
--	usb_phy_shutdown(dwc->usb2_phy);
--	usb_phy_shutdown(dwc->usb3_phy);
--	phy_exit(dwc->usb2_generic_phy);
--	phy_exit(dwc->usb3_generic_phy);
--
- 	usb_phy_set_suspend(dwc->usb2_phy, 1);
- 	usb_phy_set_suspend(dwc->usb3_phy, 1);
- 	phy_power_off(dwc->usb2_generic_phy);
- 	phy_power_off(dwc->usb3_generic_phy);
- 
-+	usb_phy_shutdown(dwc->usb2_phy);
-+	usb_phy_shutdown(dwc->usb3_phy);
-+	phy_exit(dwc->usb2_generic_phy);
-+	phy_exit(dwc->usb3_generic_phy);
-+
- 	dwc3_ulpi_exit(dwc);
- 
- err4:
+ 		dma_resv_list_entry(fobj, i, obj, &old, &old_usage);
+-		if ((old->context == fence->context && old_usage >= usage) ||
++		if ((old->context == fence->context && old_usage >= usage &&
++		     dma_fence_is_later(fence, old)) ||
+ 		    dma_fence_is_signaled(old)) {
+ 			dma_resv_list_set(fobj, i, fence, usage);
+ 			dma_fence_put(old);
 
 
