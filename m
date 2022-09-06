@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2D3A5AEA2B
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E719C5AEAD5
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233245AbiIFNmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:42:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38934 "EHLO
+        id S233482AbiIFNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233371AbiIFNkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:40:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA0A7B790;
-        Tue,  6 Sep 2022 06:37:26 -0700 (PDT)
+        with ESMTP id S239117AbiIFNtE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:49:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B5712A8C;
+        Tue,  6 Sep 2022 06:39:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF17DB816A0;
-        Tue,  6 Sep 2022 13:36:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F2C4C433D7;
-        Tue,  6 Sep 2022 13:35:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 309526153B;
+        Tue,  6 Sep 2022 13:39:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C74FC433D7;
+        Tue,  6 Sep 2022 13:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471360;
-        bh=4i5sYG49tf9dNz8KHpFIUCVSBk6MKdxITrMG9BQRhAw=;
+        s=korg; t=1662471572;
+        bh=8x86kb3UCsPU4xUj131z4xdrX7ebEKME9z7ELKz3Ox4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MlzPyB5ubxp+Gz/ZWyId053Kxi7c3nGcldE7Iq8R/sCiJcc/kUZMi9N41St//ZUx7
-         eJBcb3OW8+9VQLvymr9sHeQjZ4rOJYuyHpqhFP0vlLEJv5814Y/vNq1W2CxTtKrI4T
-         +e/Az7RXX4GD14Exw9OuZ5hobgnCl5dl4gVYQCNU=
+        b=1S0BypVs2n7jsaPW2mAAlvjig64LKzsY4UJqWBq8iv/XIh97KK8GmMq3w+Z1hn6SP
+         CfXbuOSbQynwI+sg5ynwQ0aCP/15QsecIhIKHzEMHuIZzg5B4EUz6qNbkB77Sc9bAS
+         1ZrqhD7C8/FaXh2+ZBi+9hUCnZYN6nyFO09j5BKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Ranquet <granquet@baylibre.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Pablo Sun <pablo.sun@mediatek.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>
-Subject: [PATCH 5.10 56/80] usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles
-Date:   Tue,  6 Sep 2022 15:30:53 +0200
-Message-Id: <20220906132819.395576458@linuxfoundation.org>
+        stable@vger.kernel.org, Yonglin Tan <yonglin.tan@outlook.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 073/107] USB: serial: option: add Quectel EM060K modem
+Date:   Tue,  6 Sep 2022 15:30:54 +0200
+Message-Id: <20220906132824.896826531@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Sun <pablo.sun@mediatek.com>
+From: Yonglin Tan <yonglin.tan@outlook.com>
 
-commit c1e5c2f0cb8a22ec2e14af92afc7006491bebabb upstream.
+commit f766f3abe6dbc9bf8b56a5d53c87e5a17942c154 upstream.
 
-Fix incorrect pin assignment values when connecting to a monitor with
-Type-C receptacle instead of a plug.
+Add usb product id entry for the Quectel EM060K module.
 
-According to specification, an UFP_D receptacle's pin assignment
-should came from the UFP_D pin assignments field (bit 23:16), while
-an UFP_D plug's assignments are described in the DFP_D pin assignments
-(bit 15:8) during Mode Discovery.
+"MBIM mode": DIAG + NMEA + AT + MODEM + MBIM + QDSS
 
-For example the LG 27 UL850-W is a monitor with Type-C receptacle.
-The monitor responds to MODE DISCOVERY command with following
-DisplayPort Capability flag:
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  8 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=030b Rev= 5.04
+S:  Manufacturer=Quectel
+S:  Product=EM060K-GL
+S:  SerialNumber=89fb57db
+C:* #Ifs= 7 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 8 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=88(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 9 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 9 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#=12 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=70 Driver=(none)
+E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-        dp->alt->vdo=0x140045
-
-The existing logic only take cares of UPF_D plug case,
-and would take the bit 15:8 for this 0x140045 case.
-
-This results in an non-existing pin assignment 0x0 in
-dp_altmode_configure.
-
-To fix this problem a new set of macros are introduced
-to take plug/receptacle differences into consideration.
-
-Fixes: 0e3bb7d6894d ("usb: typec: Add driver for DisplayPort alternate mode")
+Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
+[ johan: mention QDSS port and sort entries ]
 Cc: stable@vger.kernel.org
-Co-developed-by: Pablo Sun <pablo.sun@mediatek.com>
-Co-developed-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Reviewed-by: Guillaume Ranquet <granquet@baylibre.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Pablo Sun <pablo.sun@mediatek.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Link: https://lore.kernel.org/r/20220804034803.19486-1-macpaul.lin@mediatek.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |    4 ++--
- include/linux/usb/typec_dp.h             |    5 +++++
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -88,8 +88,8 @@ static int dp_altmode_configure(struct d
- 	case DP_STATUS_CON_UFP_D:
- 	case DP_STATUS_CON_BOTH: /* NOTE: First acting as DP source */
- 		conf |= DP_CONF_UFP_U_AS_UFP_D;
--		pin_assign = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo) &
--			     DP_CAP_UFP_D_PIN_ASSIGN(dp->port->vdo);
-+		pin_assign = DP_CAP_PIN_ASSIGN_UFP_D(dp->alt->vdo) &
-+				 DP_CAP_PIN_ASSIGN_DFP_D(dp->port->vdo);
- 		break;
- 	default:
- 		break;
---- a/include/linux/usb/typec_dp.h
-+++ b/include/linux/usb/typec_dp.h
-@@ -73,6 +73,11 @@ enum {
- #define DP_CAP_USB			BIT(7)
- #define DP_CAP_DFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(15, 8)) >> 8)
- #define DP_CAP_UFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(23, 16)) >> 16)
-+/* Get pin assignment taking plug & receptacle into consideration */
-+#define DP_CAP_PIN_ASSIGN_UFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-+			DP_CAP_UFP_D_PIN_ASSIGN(_cap_) : DP_CAP_DFP_D_PIN_ASSIGN(_cap_))
-+#define DP_CAP_PIN_ASSIGN_DFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-+			DP_CAP_DFP_D_PIN_ASSIGN(_cap_) : DP_CAP_UFP_D_PIN_ASSIGN(_cap_))
- 
- /* DisplayPort Status Update VDO bits */
- #define DP_STATUS_CONNECTION(_status_)	((_status_) & 3)
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -253,6 +253,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_BG96			0x0296
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ #define QUECTEL_PRODUCT_EM05G			0x030a
++#define QUECTEL_PRODUCT_EM060K			0x030b
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
+ #define QUECTEL_PRODUCT_EC200S_CN		0x6002
+@@ -1142,6 +1143,9 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0x00, 0x40) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x30) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x40) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
 
 
