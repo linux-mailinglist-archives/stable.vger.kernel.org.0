@@ -2,116 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8B855AF06B
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 18:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F5F5AF085
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 18:36:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232391AbiIFQcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 12:32:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58130 "EHLO
+        id S234483AbiIFQgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 12:36:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233381AbiIFQbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 12:31:40 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D673617A89
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 09:04:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1662480276;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=8aqTDgZ9S3xUVtZZj9N8B3wCOKXsynU6SIs7zbX6wbU=;
-        b=a/3jZdoDLMAqFaEiRY6Mrdv78swKe0o5SR8RycEtS7M7ug0OkfC0vkTlZ7rMxNusvccQog
-        ODfg3HC0a2+QvhYasSTUl4VU3tMfTn5Sjbp2qI4V6KRq/mATtYnhJmsbkinxn/j0g7U2LO
-        9WC0ZQdHGfq8OqFm9B7EnZe578WxaUw=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-526-n_kaTBntPiiocCur2-YYRw-1; Tue, 06 Sep 2022 12:04:32 -0400
-X-MC-Unique: n_kaTBntPiiocCur2-YYRw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EEC1E1C14B73;
-        Tue,  6 Sep 2022 16:04:31 +0000 (UTC)
-Received: from pauld.bos.com (dhcp-17-237.bos.redhat.com [10.18.17.237])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 35576409B3E6;
-        Tue,  6 Sep 2022 16:04:31 +0000 (UTC)
-From:   Phil Auld <pauld@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Barry Song <21cnbao@gmail.com>,
-        Tian Tao <tiantao6@hisilicon.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        feng xiangjun <fengxj325@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] drivers/base: Fix unsigned comparison to -1 in CPUMAP_FILE_MAX_BYTES
-Date:   Tue,  6 Sep 2022 12:04:30 -0400
-Message-Id: <20220906160430.1169837-1-pauld@redhat.com>
+        with ESMTP id S238932AbiIFQfN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 12:35:13 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BF952CE1A;
+        Tue,  6 Sep 2022 09:11:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1662480678;
+        bh=MkU7ECS939nWXrEZpYDk10XGNe95V/NGbaIeYfjPiAw=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
+        b=cI3fA8IyUsXgRR/0xF3ymGyngQhSTVAnGE726i0nZt6Bmini5KGfIJ328Ms+M5hl7
+         bYyL8iojG9N2KwZGBVy76iDBWXpyZp0vBf74xjUHBl3rkFuvUJiy0OWhMhS6GaVhVI
+         KWkSIRTVSZBiwR1BSbWgRm1N3s0ZuxYHVJFL4Zfw=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.34.88]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1N0X8u-1pGx622N6K-00wY7K; Tue, 06
+ Sep 2022 18:11:18 +0200
+Message-ID: <3536223b-7f9d-0360-0af1-7a506c876f4e@gmx.de>
+Date:   Tue, 6 Sep 2022 18:11:18 +0200
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+From:   Ronald Warsow <rwarsow@gmx.de>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Subject: Re: [PATCH 5.19 000/155] 5.19.8-rc1 review
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:8YBriuKNc/JO90BYZrBc7V9vDgX3F7ewFZGuJSqNaMpoKs01typ
+ 75kkwKm0bOvorXQRD0JGF7yLjyHU36FbUiBHnqJzdGM/FwPjVYZ/jRpD877N1rXXTFCdm74
+ V8XsVkhOAQlbmKM2XXvnOiHUZZ48ULLkY+X42uT0vTGz7XTJouXVvQKcX60V5fbN0u922pC
+ Kd64GrExjrImRxLfqzUfA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:CWQd+/8F9IE=:psnCuomS8LM7i8UAfkXaYW
+ losK3Zbc3u1TgVJuis/bSvZkp2qIzm9Nrm/SnfRHPGheXwc5mdSjpOkvB1FBkJIl8gPOb6XF0
+ nix2PtFq1PWYySw60OcyzEzAV4KAlg5pLr5TL5Lbg26+8zosgGFaBIHP3q7DXaR63op6Ii8sf
+ 27z2ppMjC2MOUgxUbG78RMlqsCeoY2/EiNNjVrgp5r9k+6mbvdXUeca9tsiukHjaZQVMI+IBh
+ Dpemp5eBwS3Zxk6CU8ucszdlqBA3bS9UEjEC/U2S7AI8/hiACnR6ZMSLn9+gblGiyeN4DB3KA
+ e7hIRogghzmzhPElXvfaq3FCLyeU4VYh3ZWD1aspEa/+LILWQjIg8KI56uFaVV3I788zt+GuH
+ 8cYd6bROmLqD/hDItz3vd/VpeAOJWe+MeMn+Awgx/eWAyTwaVpkSHae+47aWL9JeoeiInodbo
+ 8fhppvG1RMuRSaMn3egc3n+pt1OF7J6ZrmrFL67dedSQNC/UyyqKvIJ/yYoacKiKwiDJ5K4TX
+ zZSR/Fo68p6bjVXjr8HlYrt2kMpruI9CzYsr4jYkD5GKgk/lXMiWJLG/Ml+eFqPohz2Eqio//
+ bnLlQAB1VxXSe69EwDDeJ7BitZEOGTb/rH3JL2H25ijBewU4iwA6Zsn50ZyGAjL5C74wJdM61
+ haQK2pfZ05sjCDbdMC65+KatZpaUwW+x8psVBnDEshkK8yLqui5rtLT/kG9ewcuTWEUudsmfT
+ M5SJIOtE843/A8HWBna5UgshEEjQMT6kw/NEbobpJQ7rXOkCQFOCt/CdnAhRInwA4Oyl35i/o
+ GEg+RVCKBFswXPMsFYinpKclVJ7gvvJrIopqHIGYBXbKQ6y2O3uYj3k0uC4bvZwqbBj2NXsFG
+ gPrGJxWctJ/UvkuaiSg6IATpfH99E3o6+WKL8rANUobxXzTVoLeTz+LN/BTFAzfmndBs2n7wf
+ 5kjwbLFMoYUg1pNa0ygk9HeK0M7wknOukA9pU7rXIX5+8exp1Y3N2BFL/2/1GC9RC4YCqBFFR
+ vXdTafFaWcfdIYp6V1WkvyH5TSTDGTuGfZcpDgAIMvUwl2kb3oTexl7RmgHbptZwo6XJgDvHC
+ VCBUzdpbhWmgSNZ0jQzF/2ark2NyKWtPKMNaxvlaSa90Dppw138hMHxTOwXFHiifWIWpKaXQ6
+ f+W2E=
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As PAGE_SIZE is unsigned long, -1 > PAGE_SIZE when NR_CPUS <= 3.
-This leads to very large file sizes:
+hallo Greg
 
-topology$ ls -l
-total 0
--r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 core_cpus
--r--r--r-- 1 root root                 4096 Sep  5 11:59 core_cpus_list
--r--r--r-- 1 root root                 4096 Sep  5 10:58 core_id
--r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 core_siblings
--r--r--r-- 1 root root                 4096 Sep  5 11:59 core_siblings_list
--r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 die_cpus
--r--r--r-- 1 root root                 4096 Sep  5 11:59 die_cpus_list
--r--r--r-- 1 root root                 4096 Sep  5 11:59 die_id
--r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 package_cpus
--r--r--r-- 1 root root                 4096 Sep  5 11:59 package_cpus_list
--r--r--r-- 1 root root                 4096 Sep  5 10:58 physical_package_id
--r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 thread_siblings
--r--r--r-- 1 root root                 4096 Sep  5 11:59 thread_siblings_list
+5.19.8-rc1
 
-Adjust the inequality to catch the case when NR_CPUS is configured
-to a small value.
+compiles, boots and runs here on x86_64
+(Intel i5-11400, Fedora 36)
 
-Fixes: 7ee951acd31a ("drivers/base: fix userspace break from using bin_attributes for cpumap and cpulist")
-Reported-by: feng xiangjun <fengxj325@gmail.com>
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: stable@vger.kernel.org
-Cc: feng xiangjun <fengxj325@gmail.com>
----
- include/linux/cpumask.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Thanks
 
-diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-index bd047864c7ac..7b1349612d6d 100644
---- a/include/linux/cpumask.h
-+++ b/include/linux/cpumask.h
-@@ -1127,9 +1127,10 @@ cpumap_print_list_to_buf(char *buf, const struct cpumask *mask,
-  * cover a worst-case of every other cpu being on one of two nodes for a
-  * very large NR_CPUS.
-  *
-- *  Use PAGE_SIZE as a minimum for smaller configurations.
-+ *  Use PAGE_SIZE as a minimum for smaller configurations while avoiding
-+ *  unsigned comparison to -1.
-  */
--#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32 - 1) > PAGE_SIZE) \
-+#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32) > PAGE_SIZE + 1) \
- 					? (NR_CPUS * 9)/32 - 1 : PAGE_SIZE)
- #define CPULIST_FILE_MAX_BYTES  (((NR_CPUS * 7)/2 > PAGE_SIZE) ? (NR_CPUS * 7)/2 : PAGE_SIZE)
- 
--- 
-2.31.1
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
 
