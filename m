@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2B25AEBB4
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF7C55AEBAA
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240714AbiIFOIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:08:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33470 "EHLO
+        id S239256AbiIFOH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:07:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240480AbiIFOGi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:06:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C92844DB;
-        Tue,  6 Sep 2022 06:45:35 -0700 (PDT)
+        with ESMTP id S240183AbiIFOF3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:05:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295977DF48;
+        Tue,  6 Sep 2022 06:45:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C76C61512;
-        Tue,  6 Sep 2022 13:44:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DD04C433D6;
-        Tue,  6 Sep 2022 13:44:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DB29BCE1780;
+        Tue,  6 Sep 2022 13:44:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C2DFC433D6;
+        Tue,  6 Sep 2022 13:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471861;
-        bh=J3u+U+WQFMotdht0bsJwo5KI5Wb/8L6B1uIHx450JDM=;
+        s=korg; t=1662471864;
+        bh=7wlCsrVRDBxNF3WWLtS5SZ44/JlKUKUftG/22O5o1qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3YaIGVaawPQ4jDo1UTNaAp4/IrCjTc3sJa268CB35w6q/gUD8i62btMxcJy3p53t
-         CdMW6ZNYmtcgCX8b2sD+uTDJaoz0HaW21r5q9GgBl5Lyxbj/6Gjcs9rB6w9SxX3qUQ
-         pJ0ALxW71+s5+M+NNYGc/UkzZDCpm7eES7+OF7p4=
+        b=TV/mDjjlula05p8FhRZxA4sRLihzQiWzTgGKxRJh4ErEvUZv+7wB6cMR2eUhAbr1t
+         vVEdermZp9tBpMxLJKdkd0M4pMcK72ZUVy+mywserQ4L77cTjm9/OnoLvddq3iN9zS
+         H1VMUJ1PXX+1lgNKkazDb4Anx9TztQNMRRwhKWBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Jordan Niethe <jniethe5@gmail.com>
-Subject: [PATCH 5.19 063/155] powerpc/rtas: Fix RTAS MSR[HV] handling for Cell
-Date:   Tue,  6 Sep 2022 15:30:11 +0200
-Message-Id: <20220906132832.108499157@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com,
+        stable <stable@kernel.org>,
+        Khalid Masum <khalid.masum.92@gmail.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.19 064/155] vt: Clear selection before changing the font
+Date:   Tue,  6 Sep 2022 15:30:12 +0200
+Message-Id: <20220906132832.139490964@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -53,71 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Helge Deller <deller@gmx.de>
 
-commit 91926d8b7e71aaf5f84f0cf208fc5a8b7a761050 upstream.
+commit 566f9c9f89337792070b5a6062dff448b3e7977f upstream.
 
-The semi-recent changes to MSR handling when entering RTAS (firmware)
-cause crashes on IBM Cell machines. An example trace:
+When changing the console font with ioctl(KDFONTOP) the new font size
+can be bigger than the previous font. A previous selection may thus now
+be outside of the new screen size and thus trigger out-of-bounds
+accesses to graphics memory if the selection is removed in
+vc_do_resize().
 
-  kernel tried to execute user page (2fff01a8) - exploit attempt? (uid: 0)
-  BUG: Unable to handle kernel instruction fetch
-  Faulting instruction address: 0x2fff01a8
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  BE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=4 NUMA Cell
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W          6.0.0-rc2-00433-gede0a8d3307a #207
-  NIP:  000000002fff01a8 LR: 0000000000032608 CTR: 0000000000000000
-  REGS: c0000000015236b0 TRAP: 0400   Tainted: G        W           (6.0.0-rc2-00433-gede0a8d3307a)
-  MSR:  0000000008001002 <ME,RI>  CR: 00000000  XER: 20000000
-  ...
-  NIP 0x2fff01a8
-  LR  0x32608
-  Call Trace:
-    0xc00000000143c5f8 (unreliable)
-    .rtas_call+0x224/0x320
-    .rtas_get_boot_time+0x70/0x150
-    .read_persistent_clock64+0x114/0x140
-    .read_persistent_wall_and_boot_offset+0x24/0x80
-    .timekeeping_init+0x40/0x29c
-    .start_kernel+0x674/0x8f0
-    start_here_common+0x1c/0x50
+Prevent such out-of-memory accesses by dropping the selection before the
+various con_font_set() console handlers are called.
 
-Unlike PAPR platforms where RTAS is only used in guests, on the IBM Cell
-machines Linux runs with MSR[HV] set but also uses RTAS, provided by
-SLOF.
-
-Fix it by copying the MSR[HV] bit from the MSR value we've just read
-using mfmsr into the value used for RTAS.
-
-It seems like we could also fix it using an #ifdef CELL to set MSR[HV],
-but that doesn't work because it's possible to build a single kernel
-image that runs on both Cell native and pseries.
-
-Fixes: b6b1c3ce06ca ("powerpc/rtas: Keep MSR[RI] set when calling RTAS")
-Cc: stable@vger.kernel.org # v5.19+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Jordan Niethe <jniethe5@gmail.com>
-Link: https://lore.kernel.org/r/20220823115952.1203106-2-mpe@ellerman.id.au
+Reported-by: syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com
+Cc: stable <stable@kernel.org>
+Tested-by: Khalid Masum <khalid.masum.92@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Link: https://lore.kernel.org/r/YuV9apZGNmGfjcor@p100
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/rtas_entry.S |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/vt/vt.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/kernel/rtas_entry.S
-+++ b/arch/powerpc/kernel/rtas_entry.S
-@@ -109,8 +109,12 @@ __enter_rtas:
- 	 * its critical regions (as specified in PAPR+ section 7.2.1). MSR[S]
- 	 * is not impacted by RFI_TO_KERNEL (only urfid can unset it). So if
- 	 * MSR[S] is set, it will remain when entering RTAS.
-+	 * If we're in HV mode, RTAS must also run in HV mode, so extract MSR_HV
-+	 * from the saved MSR value and insert into the value RTAS will use.
- 	 */
-+	extrdi	r0, r6, 1, 63 - MSR_HV_LG
- 	LOAD_REG_IMMEDIATE(r6, MSR_ME | MSR_RI)
-+	insrdi	r6, r0, 1, 63 - MSR_HV_LG
- 
- 	li      r0,0
- 	mtmsrd  r0,1                    /* disable RI before using SRR0/1 */
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -4662,9 +4662,11 @@ static int con_font_set(struct vc_data *
+ 	console_lock();
+ 	if (vc->vc_mode != KD_TEXT)
+ 		rc = -EINVAL;
+-	else if (vc->vc_sw->con_font_set)
++	else if (vc->vc_sw->con_font_set) {
++		if (vc_is_sel(vc))
++			clear_selection();
+ 		rc = vc->vc_sw->con_font_set(vc, &font, op->flags);
+-	else
++	} else
+ 		rc = -ENOSYS;
+ 	console_unlock();
+ 	kfree(font.data);
+@@ -4691,9 +4693,11 @@ static int con_font_default(struct vc_da
+ 		console_unlock();
+ 		return -EINVAL;
+ 	}
+-	if (vc->vc_sw->con_font_default)
++	if (vc->vc_sw->con_font_default) {
++		if (vc_is_sel(vc))
++			clear_selection();
+ 		rc = vc->vc_sw->con_font_default(vc, &font, s);
+-	else
++	} else
+ 		rc = -ENOSYS;
+ 	console_unlock();
+ 	if (!rc) {
 
 
