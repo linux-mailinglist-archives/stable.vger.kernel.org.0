@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F005AEC27
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22A8F5AEC75
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235897AbiIFN5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:57:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57154 "EHLO
+        id S238741AbiIFOP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:15:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239176AbiIFNzS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:55:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4845982752;
-        Tue,  6 Sep 2022 06:42:04 -0700 (PDT)
+        with ESMTP id S241898AbiIFOO1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:14:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA117F27D;
+        Tue,  6 Sep 2022 06:49:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97217B818D0;
-        Tue,  6 Sep 2022 13:40:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D32C433D6;
-        Tue,  6 Sep 2022 13:40:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32D6DB818DC;
+        Tue,  6 Sep 2022 13:47:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B23FC433C1;
+        Tue,  6 Sep 2022 13:47:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471657;
-        bh=U0qsK8SxRCTrLsb8Jih3HYgPeYD34y5sNOWFiYeUkks=;
+        s=korg; t=1662472065;
+        bh=VnqbKOhfd0RYEZrRMPOOEmKr2pH74nhg/CzblupPxyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kAinJKmkxaNnpB1oHvS8nvI6Iw7R/2hah/ZTWoMOyyEusaNNoxp6rfrWnTkEBN7VD
-         8v35w+ngaka6OOyQRum7E3vSwnx7UeTLInnhq219qJ/mldKqKGCa3bKJcbpLKN89Id
-         +nmTZ5bAqTYMRJcGctaAB1iCI5I2oFPML0/3ouj8=
+        b=M58sRB7JDbCEhJfoBog0+ax3i/dxVSA9DQMmTbXdZaDYMRPrUVUc76kpnJVqmVNYO
+         Xb8R9B5G1icp9IrpQoQQOLl92SIXaF4e2snG5eswZeb2I7cDXNK7Bh6GfKiql317Sq
+         +mrUXGshr4SXhnz++MBTurkKJz+Tx+tO8qoaa7lA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.15 071/107] USB: serial: cp210x: add Decagon UCA device id
-Date:   Tue,  6 Sep 2022 15:30:52 +0200
-Message-Id: <20220906132824.810398567@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.19 105/155] thunderbolt: Use the actual buffer in tb_async_error()
+Date:   Tue,  6 Sep 2022 15:30:53 +0200
+Message-Id: <20220906132833.906197305@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
+References: <20220906132829.417117002@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,29 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit ceb4038472a4803e7046ed488b03d11551991514 upstream.
+commit eb100b8fa8e8b59eb3e5fc7a5fd4a1e3c5950f64 upstream.
 
-Add the device id for Decagon Devices USB Cable Adapter.
+The received notification packet is held in pkg->buffer and not in pkg
+itself. Fix this by using the correct buffer.
 
-Link: https://lore.kernel.org/r/trinity-819f9db2-d3e1-40e9-a669-9c245817c046-1661523546680@msvc-mesg-web108
+Fixes: 81a54b5e1986 ("thunderbolt: Let the connection manager handle all notifications")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/thunderbolt/ctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -130,6 +130,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x10C4, 0x83AA) }, /* Mark-10 Digital Force Gauge */
- 	{ USB_DEVICE(0x10C4, 0x83D8) }, /* DekTec DTA Plus VHF/UHF Booster/Attenuator */
- 	{ USB_DEVICE(0x10C4, 0x8411) }, /* Kyocera GPS Module */
-+	{ USB_DEVICE(0x10C4, 0x8414) }, /* Decagon USB Cable Adapter */
- 	{ USB_DEVICE(0x10C4, 0x8418) }, /* IRZ Automation Teleport SG-10 GSM/GPRS Modem */
- 	{ USB_DEVICE(0x10C4, 0x846E) }, /* BEI USB Sensor Interface (VCP) */
- 	{ USB_DEVICE(0x10C4, 0x8470) }, /* Juniper Networks BX Series System Console */
+--- a/drivers/thunderbolt/ctl.c
++++ b/drivers/thunderbolt/ctl.c
+@@ -407,7 +407,7 @@ static void tb_ctl_rx_submit(struct ctl_
+ 
+ static int tb_async_error(const struct ctl_pkg *pkg)
+ {
+-	const struct cfg_error_pkg *error = (const struct cfg_error_pkg *)pkg;
++	const struct cfg_error_pkg *error = pkg->buffer;
+ 
+ 	if (pkg->frame.eof != TB_CFG_PKG_ERROR)
+ 		return false;
 
 
