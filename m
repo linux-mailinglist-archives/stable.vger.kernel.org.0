@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46CD35AED46
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9030F5AEE13
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:51:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233460AbiIFO36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47504 "EHLO
+        id S240061AbiIFOvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:51:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241905AbiIFO2V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:28:21 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A6B40BC9;
-        Tue,  6 Sep 2022 06:54:52 -0700 (PDT)
+        with ESMTP id S239092AbiIFOum (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:50:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11994A260C;
+        Tue,  6 Sep 2022 07:07:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7812ECE1770;
-        Tue,  6 Sep 2022 13:37:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D4BDC433D6;
-        Tue,  6 Sep 2022 13:37:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D04B761557;
+        Tue,  6 Sep 2022 13:46:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFD11C433C1;
+        Tue,  6 Sep 2022 13:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471476;
-        bh=mobJGZFcfs84x6ygQFCoWpjPrj+Z9cYKBuqWlUjkdtg=;
+        s=korg; t=1662471974;
+        bh=qi279q5RAq2VFb7xHmWu8Mea+WWb0KcBgfWZrnBh1Dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxgdSNHY46mk8Qmr7EBeVhdbS7TpTcPR4ycI2oIz5QjBrjny/WViwjxaJqAJdhLTR
-         r6Ol1rNpMZcqmMjYbrAkqGCqx/EBWp7VLUHzgVHJNIVaek0No/IXhGW+oWY0W6r2FJ
-         lbmuDKK1m1xwHKN7HPlR+w3gC6cnwYbHZuJ4sQys=
+        b=s+haFtz3lcB6WK0KOcrhER71E8rBw21m52j1j11OaZQKV3mi39FFPviUfkJJOGNbr
+         Bg5O/VVT3QX0oKJPYKfloLGFXt3AgqHstXD7WmBlmputKEclM2gTQhuE1/Zpdfbj3d
+         75kgz3pTMW6FDXor1jyPnpmXpaptyPSeRUlQzcoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 040/107] iio: adc: mcp3911: use correct formula for AD conversion
+        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH 5.19 073/155] misc: fastrpc: fix memory corruption on open
 Date:   Tue,  6 Sep 2022 15:30:21 +0200
-Message-Id: <20220906132823.508070326@linuxfoundation.org>
+Message-Id: <20220906132832.511628952@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
+References: <20220906132829.417117002@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +52,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 9e2238e3ae40d371a1130226e0e740aa1601efa6 upstream.
+commit d245f43aab2b61195d8ebb64cef7b5a08c590ab4 upstream.
 
-The ADC conversion is actually not rail-to-rail but with a factor 1.5.
-Make use of this factor when calculating actual voltage.
+The probe session-duplication overflow check incremented the session
+count also when there were no more available sessions so that memory
+beyond the fixed-size slab-allocated session array could be corrupted in
+fastrpc_session_alloc() on open().
 
-Fixes: 3a89b289df5d ("iio: adc: add support for mcp3911")
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220722130726.7627-4-marcus.folkesson@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: f6f9279f2bf0 ("misc: fastrpc: Add Qualcomm fastrpc basic driver model")
+Cc: stable@vger.kernel.org      # 5.1
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220829080531.29681-3-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/mcp3911.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/misc/fastrpc.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/adc/mcp3911.c
-+++ b/drivers/iio/adc/mcp3911.c
-@@ -38,8 +38,8 @@
- #define MCP3911_CHANNEL(x)		(MCP3911_REG_CHANNEL0 + x * 3)
- #define MCP3911_OFFCAL(x)		(MCP3911_REG_OFFCAL_CH0 + x * 6)
- 
--/* Internal voltage reference in uV */
--#define MCP3911_INT_VREF_UV		1200000
-+/* Internal voltage reference in mV */
-+#define MCP3911_INT_VREF_MV		1200
- 
- #define MCP3911_REG_READ(reg, id)	((((reg) << 1) | ((id) << 5) | (1 << 0)) & 0xff)
- #define MCP3911_REG_WRITE(reg, id)	((((reg) << 1) | ((id) << 5) | (0 << 0)) & 0xff)
-@@ -137,11 +137,18 @@ static int mcp3911_read_raw(struct iio_d
- 
- 			*val = ret / 1000;
- 		} else {
--			*val = MCP3911_INT_VREF_UV;
-+			*val = MCP3911_INT_VREF_MV;
- 		}
- 
--		*val2 = 24;
--		ret = IIO_VAL_FRACTIONAL_LOG2;
-+		/*
-+		 * For 24bit Conversion
-+		 * Raw = ((Voltage)/(Vref) * 2^23 * Gain * 1.5
-+		 * Voltage = Raw * (Vref)/(2^23 * Gain * 1.5)
-+		 */
-+
-+		/* val2 = (2^23 * 1.5) */
-+		*val2 = 12582912;
-+		ret = IIO_VAL_FRACTIONAL;
- 		break;
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -1948,7 +1948,7 @@ static int fastrpc_cb_probe(struct platf
+ 		spin_unlock_irqrestore(&cctx->lock, flags);
+ 		return -ENOSPC;
  	}
+-	sess = &cctx->session[cctx->sesscount];
++	sess = &cctx->session[cctx->sesscount++];
+ 	sess->used = false;
+ 	sess->valid = true;
+ 	sess->dev = dev;
+@@ -1961,13 +1961,12 @@ static int fastrpc_cb_probe(struct platf
+ 		struct fastrpc_session_ctx *dup_sess;
  
+ 		for (i = 1; i < sessions; i++) {
+-			if (cctx->sesscount++ >= FASTRPC_MAX_SESSIONS)
++			if (cctx->sesscount >= FASTRPC_MAX_SESSIONS)
+ 				break;
+-			dup_sess = &cctx->session[cctx->sesscount];
++			dup_sess = &cctx->session[cctx->sesscount++];
+ 			memcpy(dup_sess, sess, sizeof(*dup_sess));
+ 		}
+ 	}
+-	cctx->sesscount++;
+ 	spin_unlock_irqrestore(&cctx->lock, flags);
+ 	rc = dma_set_mask(dev, DMA_BIT_MASK(32));
+ 	if (rc) {
 
 
