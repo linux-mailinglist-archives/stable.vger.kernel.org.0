@@ -2,149 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC405AF443
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 21:14:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3E95AF5BB
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 22:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbiIFTOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 15:14:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38996 "EHLO
+        id S231173AbiIFUVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 16:21:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229614AbiIFTOG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 15:14:06 -0400
-Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE8C3A894B;
-        Tue,  6 Sep 2022 12:14:03 -0700 (PDT)
-Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-1278a61bd57so12058215fac.7;
-        Tue, 06 Sep 2022 12:14:03 -0700 (PDT)
+        with ESMTP id S231184AbiIFUVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 16:21:00 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15311BEA1
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 13:20:17 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id 29so11590340edv.2
+        for <stable@vger.kernel.org>; Tue, 06 Sep 2022 13:20:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=yyFnJEeFnbtMtSAcAH7sHUm0rKeS0DESBmJhkjy5TGc=;
-        b=DTV87E77lD4ICvOcwvSC/ZWTxGRiuucq83iEYksb2V4d4AfVKmIiVxyCQLVDzxtyXO
-         PKbU1x+BuCmWE/UefxGg0b8YtwK1QHQQD9tCoXUzFhRMnLFi+zpjIe047V84sH2zVsKe
-         FWx4FMjzjJXdkN0LHxq8IfHqM+gnv+4Y8TEwZkbBxinjcyzjNC520XlHn6TaZ4QGG7NS
-         mvV8IVpk/cvcQIJeOHmnq7Sc9nftFoXYfXtbfMj3HYLUK0a1X/7aHOqo5jincJg1zkZg
-         h6DQFasWZ1qftqBMnKcj6PfGsDrdA5O1Lv2AKHPR+68PES/mpTT4MiYaTQdiV/OH2Wi4
-         UekA==
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date;
+        bh=xgqtpFYeImQmfiByKGLHHb3o58b4i3/JLUBGIVs0rt8=;
+        b=M3cJI7if2XWRe7fxFqlgPPKLqtHhY1f1oE0QPdTzZmwBNdO1ZwRjYHplIKZ9ox4y+k
+         6Kv1RJo2ljbEUrBrpIhd6mlAZzoluH2SxBabc48qOp8uF6xz+2/OcNLN3cj7L3BKIKe1
+         E/Nwfmo2I4qACE6BCm75BykS5tccVMIEOCJCQ+jTonZ/m/Q75W+94s6Czh7rwvDWnkxt
+         BQ8U5ZqrIQCoZBK8lbAM4thKiVpZixD3YsI/HLeLPPrGKAZZ74vvjefdqFuBuziizdJ3
+         WqRsRV36sgzLkeFxZB5qy9i/5tHm3oFqGVfNVaPUZv+f6E/fmgtDcc9hPEEd17ivZIZK
+         treQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=yyFnJEeFnbtMtSAcAH7sHUm0rKeS0DESBmJhkjy5TGc=;
-        b=qiqh0YWmMWgqcWHkD+xHS4CbA6F7g48IGLrvQQTLx3QyB/VLEYwC5liAGe+4e/THxN
-         nyPmZXFGSXDIZEVV/RKcs62VluzPUzJDEnWAOjbX/o69Rl+MK6+7grzqCkyznilO+4jC
-         TBNu9gSSB3wtLbd2WAXFX9tsEEReWnEQ+DnvUNSxxROQFsgISh5OHYnDdeLb8YgiuiPa
-         +ayor60AjYGHTa4ATVJZJ867jz0RdBxly4BQonCXSapDd8sPvm59Sg4NEy5EQ1S0bGwF
-         3C5qMpFOpxb/DeSLfQ6YjAzQveW0bvER4ak3/CnANRMmcav27Tqvw4ISFE5bu+vbfJK8
-         YYnA==
-X-Gm-Message-State: ACgBeo2JM+rDd5iO0yTifrPN70pnQlFj5en5d63uQ9cgtNd4zQyEHnwj
-        dAWm+B6fFRWagwIzOsj6uf+EV7To5Jc=
-X-Google-Smtp-Source: AA6agR7xbGZJz+r8GBQ5cCQNhGe6geu50+9kj45mDYEXGZ2g9FZs01fWU+k90FnIU309Y8wheyw+Ew==
-X-Received: by 2002:a05:6870:6317:b0:10e:631c:5e63 with SMTP id s23-20020a056870631700b0010e631c5e63mr13640198oao.262.1662491642901;
-        Tue, 06 Sep 2022 12:14:02 -0700 (PDT)
-Received: from localhost ([12.97.180.36])
-        by smtp.gmail.com with ESMTPSA id a19-20020a544e13000000b0033e8629b323sm5711600oiy.35.2022.09.06.12.14.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Sep 2022 12:14:02 -0700 (PDT)
-Date:   Tue, 6 Sep 2022 12:11:51 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Phil Auld <pauld@redhat.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Barry Song <21cnbao@gmail.com>,
-        Tian Tao <tiantao6@hisilicon.com>,
-        feng xiangjun <fengxj325@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] drivers/base: Fix unsigned comparison to -1 in
- CPUMAP_FILE_MAX_BYTES
-Message-ID: <YxebdxbVGuU655MB@yury-laptop>
-References: <20220906160430.1169837-1-pauld@redhat.com>
- <YxeM8WKek/3gp8Fl@yury-laptop>
- <YxeYJcFVEURPRQu/@lorien.usersys.redhat.com>
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=xgqtpFYeImQmfiByKGLHHb3o58b4i3/JLUBGIVs0rt8=;
+        b=obiLiJjgvblRNo4kw+Wyk2ae7hgyzQdMeZXXA/uKIe6mn74xItTDD46HxwnlHy0S8J
+         e70ipze+4L4P8CcgZZOi3qewY6kqXzwlO+pRorQYJ2e/bK9fVd+MId8QGnPlqMiEyQXA
+         z7hWLFDKTrjn6mz5+7TWfdb1nJgfaizdTVfIo8YNch7JcL7CCeKFKoKw5gc4DdVJe/mI
+         pA4ezTDjaAfp9cOzkn12rHsZ2H50TvIkG1sfFhdvGBRktD7t0hEFr2CkzM0nPjoUwl0O
+         edCJKeH2kl7fh3aBsglHlSl1cn08DCe3IWrs0YY1wa2Lh4uxiEdaaJMvEOZM7Rt8VPC7
+         F5rw==
+X-Gm-Message-State: ACgBeo18IWRSZ8tw4Qp/V9qxNvWSlbfjxJoaAxf/KD948F6PEjIzN41h
+        5LDLt49LgaQvIxPY1btDTjdxoid5hGI4oYC8FELk/nRLZ8GZCw==
+X-Google-Smtp-Source: AA6agR4SDhAUP65TRQjxYheaA176e85sRvVDxNM+sdq7QwudOZHUohQzZKoh4MA7eyv1GG+G2ekjy06D+KNQkqts2Dc=
+X-Received: by 2002:a05:6402:27cd:b0:44e:c4aa:5ff with SMTP id
+ c13-20020a05640227cd00b0044ec4aa05ffmr272878ede.193.1662495616035; Tue, 06
+ Sep 2022 13:20:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YxeYJcFVEURPRQu/@lorien.usersys.redhat.com>
+References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 7 Sep 2022 01:50:04 +0530
+Message-ID: <CA+G9fYv5twyvMr==HQ2tUs1D5thFS1Pr32ydeSsVptihq-FO_g@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/107] 5.15.66-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 06, 2022 at 02:57:41PM -0400, Phil Auld wrote:
-> On Tue, Sep 06, 2022 at 11:09:53AM -0700 Yury Norov wrote:
-> > On Tue, Sep 06, 2022 at 12:04:30PM -0400, Phil Auld wrote:
-> > > As PAGE_SIZE is unsigned long, -1 > PAGE_SIZE when NR_CPUS <= 3.
-> > > This leads to very large file sizes:
-> > > 
-> > > topology$ ls -l
-> > > total 0
-> > > -r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 core_cpus
-> > > -r--r--r-- 1 root root                 4096 Sep  5 11:59 core_cpus_list
-> > > -r--r--r-- 1 root root                 4096 Sep  5 10:58 core_id
-> > > -r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 core_siblings
-> > > -r--r--r-- 1 root root                 4096 Sep  5 11:59 core_siblings_list
-> > > -r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 die_cpus
-> > > -r--r--r-- 1 root root                 4096 Sep  5 11:59 die_cpus_list
-> > > -r--r--r-- 1 root root                 4096 Sep  5 11:59 die_id
-> > > -r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 package_cpus
-> > > -r--r--r-- 1 root root                 4096 Sep  5 11:59 package_cpus_list
-> > > -r--r--r-- 1 root root                 4096 Sep  5 10:58 physical_package_id
-> > > -r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 thread_siblings
-> > > -r--r--r-- 1 root root                 4096 Sep  5 11:59 thread_siblings_list
-> > > 
-> > > Adjust the inequality to catch the case when NR_CPUS is configured
-> > > to a small value.
-> > > 
-> > > Fixes: 7ee951acd31a ("drivers/base: fix userspace break from using bin_attributes for cpumap and cpulist")
-> > > Reported-by: feng xiangjun <fengxj325@gmail.com>
-> > > Signed-off-by: Phil Auld <pauld@redhat.com>
-> > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > > Cc: Yury Norov <yury.norov@gmail.com>
-> > > Cc: stable@vger.kernel.org
-> > > Cc: feng xiangjun <fengxj325@gmail.com>
-> > > ---
-> > >  include/linux/cpumask.h | 5 +++--
-> > >  1 file changed, 3 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-> > > index bd047864c7ac..7b1349612d6d 100644
-> > > --- a/include/linux/cpumask.h
-> > > +++ b/include/linux/cpumask.h
-> > > @@ -1127,9 +1127,10 @@ cpumap_print_list_to_buf(char *buf, const struct cpumask *mask,
-> > >   * cover a worst-case of every other cpu being on one of two nodes for a
-> > >   * very large NR_CPUS.
-> > >   *
-> > > - *  Use PAGE_SIZE as a minimum for smaller configurations.
-> > > + *  Use PAGE_SIZE as a minimum for smaller configurations while avoiding
-> > > + *  unsigned comparison to -1.
-> > >   */
-> > > -#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32 - 1) > PAGE_SIZE) \
-> > > +#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32) > PAGE_SIZE + 1) \
-> > 
-> > Maybe it would be easier to read with less braces and '>=' instead of '>'?
-> >   #define CPUMAP_FILE_MAX_BYTES \
-> >         (NR_CPUS * 9 / 32 >= PAGE_SIZE ? NR_CPUS * 9 / 32 - 1 : PAGE_SIZE)
-> > 
-> > Anyways, this is a good catch. If you think it doesn't worth an
-> > update, I can take it in bitmap-for-next as-is.
-> >
-> 
-> It would work as
->    #define CPUMAP_FILE_MAX_BYTES  (((NR_CPUS * 9)/32 > PAGE_SIZE) \
->    	   			     ? (NR_CPUS * 9)/32 - 1 : PAGE_SIZE)
-> 
-> Since 4097 > PAGE_SIZE and then you'd get PAGE_SIZE anyway. That is we could just
-> leave the 1 out of the inequality completely. 
-> 
-> If I recall at least some of the parens are needed to make the compiler happy.
-> 
-> I can resend with the above if you want.  
+On Tue, 6 Sept 2022 at 19:07, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.66 release.
+> There are 107 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 08 Sep 2022 13:27:58 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.66-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Yes, please
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 5.15.66-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: 78a6337a09dea696f5296f00bf8ae5e5283eef89
+* git describe: v5.15.63-319-g78a6337a09de
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.63-319-g78a6337a09de
+
+## No test Regressions (compared to v5.15.63-211-gad2e22e028e7)
+
+## No metric Regressions (compared to v5.15.63-211-gad2e22e028e7)
+
+## No test Fixes (compared to v5.15.63-211-gad2e22e028e7)
+
+## No metric Fixes (compared to v5.15.63-211-gad2e22e028e7)
+
+## Test result summary
+total: 74572, pass: 67375, fail: 420, skip: 6561, xfail: 216
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 333 total, 333 passed, 0 failed
+* arm64: 65 total, 63 passed, 2 failed
+* i386: 55 total, 53 passed, 2 failed
+* mips: 56 total, 56 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 63 total, 63 passed, 0 failed
+* riscv: 22 total, 22 passed, 0 failed
+* s390: 24 total, 24 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 58 total, 56 passed, 2 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
