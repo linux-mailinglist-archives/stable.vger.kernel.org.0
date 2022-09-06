@@ -2,120 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C095AF62B
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 22:35:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC7935AF64E
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 22:47:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230215AbiIFUfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 16:35:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38022 "EHLO
+        id S229804AbiIFUrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 16:47:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230166AbiIFUfw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 16:35:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3B567EFEA
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 13:35:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1662496551;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=eU/eDjhAzgwzMMuQpXibeKa7iqOSkUHAWQabX4HukB8=;
-        b=XpDLtOd8S+xqYjkmsoll6OkH8lvY+N9GEK/e7DDWaAQKyRBDT9zYQvzxpoA3JnGBjg9q9D
-        z6v8BpyxVukIimCZEEQRuL72fh/THr809lvWgTp8EVDJMHI09bu4pr8w0vm8me9dOmps9o
-        ndXqGHqaYUOPbYaurAKs5p+CHQCkVQQ=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-176-1nAapWJuOniE5PPpaNWAog-1; Tue, 06 Sep 2022 16:35:44 -0400
-X-MC-Unique: 1nAapWJuOniE5PPpaNWAog-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 663EC101A56C;
-        Tue,  6 Sep 2022 20:35:44 +0000 (UTC)
-Received: from pauld.bos.com (dhcp-17-237.bos.redhat.com [10.18.17.237])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E39862166B26;
-        Tue,  6 Sep 2022 20:35:43 +0000 (UTC)
-From:   Phil Auld <pauld@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Barry Song <21cnbao@gmail.com>,
-        Tian Tao <tiantao6@hisilicon.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        feng xiangjun <fengxj325@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH v2] drivers/base: Fix unsigned comparison to -1 in CPUMAP_FILE_MAX_BYTES
-Date:   Tue,  6 Sep 2022 16:35:42 -0400
-Message-Id: <20220906203542.1796629-1-pauld@redhat.com>
+        with ESMTP id S229693AbiIFUrO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 16:47:14 -0400
+Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EECAD915C0;
+        Tue,  6 Sep 2022 13:47:13 -0700 (PDT)
+Received: by mail-yb1-xb32.google.com with SMTP id 130so13038738ybz.9;
+        Tue, 06 Sep 2022 13:47:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=+WURMAVRZWoeEl3WfS2Wri6rYAcNRWeV/u+drCF3J74=;
+        b=Ety/usxvSDrpSlVHwhRJBA2Gy9vFEi2BJhkDv8zvEipJZz4J8fsc0PEt5E3GeUGjCs
+         rY/tNzWizv4kDArNaeIcPdoCaFqQyk1+FbzP2ZfKdqach02cd/MwU+7NbuO7ncv3tPRw
+         C+D28ruAzEfInAgr/0j2mVlP14uRWbtY+uXLRPRERQaqMOv6V8T6Mr6bQjOijtDk9hCQ
+         M8wgWl06tFlkpZJkAAqd+9yiyX0keQgduCvkLcob2Ssmir3Wb1BXhEQgkIxu8l+thW1p
+         eAKLlzzw2k3QxgV+k2zsx5QxysjSLUNtI7fL47Gg4vkvaGOs0vuXx1HQ32m7gotFejiI
+         eu/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=+WURMAVRZWoeEl3WfS2Wri6rYAcNRWeV/u+drCF3J74=;
+        b=wCNSsujl3fyDWhSKRiAVMkwffYkvpTjNJJUx47tI/Tif8AAPG0y9N8ICKkW1BPkRU2
+         5R4V0bTLzn9ygt7nzCJxfnBnEtvoxRYsPMcwITdackApfzvdyhmxplYxuGyXLZBGX8W8
+         1KrnmrXgfaJ9y99OtcPmVm7q4+1+gOg+kqtAywSu50SPB6yP2wjYc+6vI/mN/YoVmeyw
+         Q859jmNCDTfn+F3SPTSVljXChv1i8x5CEQtbTdynledYiBG3SjkqwYBbViUUfcpMPw70
+         VKFZW43yYuiJfCZoQ3J2LlEnVRk2yNLWPgP5hgD7A7/diG/cxDafaH4MvPNJcdi+m+sj
+         mrSA==
+X-Gm-Message-State: ACgBeo0p40fshInUueUZbJgWXeKprfjGE1Y/cuu/7HaRhL/pbLgdNT9Z
+        nHY0/qXa7/zz7VTLkBrnHGYMxLAjZmkXpZqCPtod99bAZOo=
+X-Google-Smtp-Source: AA6agR57DkuDbCN2s20x5pRyTYxxXbXqSv1N4hr3gpM4FZXXY/u6mn1anMqn/b6jPFE17eUhBWPbCZgjfxyJMI8F8Kw=
+X-Received: by 2002:a25:dbcb:0:b0:6a8:e19f:9938 with SMTP id
+ g194-20020a25dbcb000000b006a8e19f9938mr430485ybf.158.1662497233152; Tue, 06
+ Sep 2022 13:47:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Tue, 6 Sep 2022 21:46:37 +0100
+Message-ID: <CADVatmMTbnOm1bHWdbxVZ26QfbjyhhB+_ZRBMM53GicJczE5=Q@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/107] 5.15.66-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As PAGE_SIZE is unsigned long, -1 > PAGE_SIZE when NR_CPUS <= 3.
-This leads to very large file sizes:
+Hi Greg,
 
-topology$ ls -l
-total 0
--r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 core_cpus
--r--r--r-- 1 root root                 4096 Sep  5 11:59 core_cpus_list
--r--r--r-- 1 root root                 4096 Sep  5 10:58 core_id
--r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 core_siblings
--r--r--r-- 1 root root                 4096 Sep  5 11:59 core_siblings_list
--r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 die_cpus
--r--r--r-- 1 root root                 4096 Sep  5 11:59 die_cpus_list
--r--r--r-- 1 root root                 4096 Sep  5 11:59 die_id
--r--r--r-- 1 root root 18446744073709551615 Sep  5 11:59 package_cpus
--r--r--r-- 1 root root                 4096 Sep  5 11:59 package_cpus_list
--r--r--r-- 1 root root                 4096 Sep  5 10:58 physical_package_id
--r--r--r-- 1 root root 18446744073709551615 Sep  5 10:10 thread_siblings
--r--r--r-- 1 root root                 4096 Sep  5 11:59 thread_siblings_list
+On Tue, Sep 6, 2022 at 2:37 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.66 release.
+> There are 107 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 08 Sep 2022 13:27:58 +0000.
+> Anything received after that time might be too late.
 
-Adjust the inequality to catch the case when NR_CPUS is configured
-to a small value.
+My test pipelines are still running, but x86_64 allmodconfig failed
+with gcc-12 with the error:
 
-Fixes: 7ee951acd31a ("drivers/base: fix userspace break from using bin_attributes for cpumap and cpulist")
-Reported-by: feng xiangjun <fengxj325@gmail.com>
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: stable@vger.kernel.org
-Cc: feng xiangjun <fengxj325@gmail.com>
----
+drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c: In function
+'ipc_protocol_dl_td_process':
+drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c:406:13: error: the
+comparison will always evaluate as 'true' for the address of 'cb' will
+never be NULL [-Werror=address]
+  406 |         if (!IPC_CB(skb)) {
+      |             ^
+In file included from drivers/net/wwan/iosm/iosm_ipc_imem.h:9,
+                 from drivers/net/wwan/iosm/iosm_ipc_protocol.h:9,
+                 from drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c:6:
+./include/linux/skbuff.h:794:33: note: 'cb' declared here
+  794 |         char                    cb[48] __aligned(8);
 
-v2: Remove the +/-1 completely from the test since it will produce the
-same results, and remove some extra parentheses.
+It will need dbbc7d04c549 ("net: wwan: iosm: remove pointless null check").
 
- include/linux/cpumask.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-index bd047864c7ac..e8ad12b5b9d2 100644
---- a/include/linux/cpumask.h
-+++ b/include/linux/cpumask.h
-@@ -1127,9 +1127,10 @@ cpumap_print_list_to_buf(char *buf, const struct cpumask *mask,
-  * cover a worst-case of every other cpu being on one of two nodes for a
-  * very large NR_CPUS.
-  *
-- *  Use PAGE_SIZE as a minimum for smaller configurations.
-+ *  Use PAGE_SIZE as a minimum for smaller configurations while avoiding
-+ *  unsigned comparison to -1.
-  */
--#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32 - 1) > PAGE_SIZE) \
-+#define CPUMAP_FILE_MAX_BYTES  (((NR_CPUS * 9)/32 > PAGE_SIZE) \
- 					? (NR_CPUS * 9)/32 - 1 : PAGE_SIZE)
- #define CPULIST_FILE_MAX_BYTES  (((NR_CPUS * 7)/2 > PAGE_SIZE) ? (NR_CPUS * 7)/2 : PAGE_SIZE)
- 
 -- 
-2.31.1
-
+Regards
+Sudip
