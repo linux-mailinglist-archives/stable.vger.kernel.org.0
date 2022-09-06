@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F7D5AEAEB
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78FE95AEA3E
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232234AbiIFNow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:44:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53332 "EHLO
+        id S231688AbiIFNjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:39:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238784AbiIFNnd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:43:33 -0400
+        with ESMTP id S240724AbiIFNht (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:37:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1B38B855;
-        Tue,  6 Sep 2022 06:37:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E681836D;
+        Tue,  6 Sep 2022 06:34:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B6D561562;
-        Tue,  6 Sep 2022 13:37:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75355C433D6;
-        Tue,  6 Sep 2022 13:37:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4042861547;
+        Tue,  6 Sep 2022 13:34:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41564C433C1;
+        Tue,  6 Sep 2022 13:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471467;
-        bh=kd5gKSnZpWtc9wMFoHC7LlZrcjVhmY49Jsn1RVB/Fos=;
+        s=korg; t=1662471274;
+        bh=jCbiulv3+SkkRMqoeGCKxedOr2kOBhDnFPmxoCl8K/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDmrhkKV9Q+QjJdboSvpu1T6C3IADrDp9OupJu1OvSSJOUgqeu/bzLlBbYBIOdjBK
-         1q5uECjpFQrJ2BG1X6nrnIlF0p+/YvGl5DDFUfEXO8aNBqXjkYnQ8Upw0XyMy6amMU
-         gtgfqo/CQpVHZbiUm99Ve6n1wfaPbYewkUUMC8c8=
+        b=UhtfaZZHzE3Gz80yIXZHMUWCFnY0m2ezx+KvO0o7qv5zZZq+hx4TZZJv2QRwSTTDb
+         5koKpnbXXtlLKDA9FvEvovfNasaaxTqphcMfLx81YL/bMpIP10n0Kl9lW5fbiFIAhC
+         TWu8/HLfR6N0f9ZFR3BrOARQfXVRmaHnJvq+2aUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable <stable@kernel.org>,
-        Sherry Sun <sherry.sun@nxp.com>
-Subject: [PATCH 5.15 037/107] tty: serial: lpuart: disable flow control while waiting for the transmit engine to complete
-Date:   Tue,  6 Sep 2022 15:30:18 +0200
-Message-Id: <20220906132823.361640583@linuxfoundation.org>
+        Zheng Wang <hackerzheng666@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.10 22/80] staging: rtl8712: fix use after free bugs
+Date:   Tue,  6 Sep 2022 15:30:19 +0200
+Message-Id: <20220906132817.862604792@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit d5a2e0834364377a5d5a2fff1890a0b3f0bafd1f upstream.
+commit e230a4455ac3e9b112f0367d1b8e255e141afae0 upstream.
 
-When the user initializes the uart port, and waits for the transmit
-engine to complete in lpuart32_set_termios(), if the UART TX fifo has
-dirty data and the UARTMODIR enable the flow control, the TX fifo may
-never be empty. So here we should disable the flow control first to make
-sure the transmit engin can complete.
+_Read/Write_MACREG callbacks are NULL so the read/write_macreg_hdl()
+functions don't do anything except free the "pcmd" pointer.  It
+results in a use after free.  Delete them.
 
-Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
+Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
 Cc: stable <stable@kernel.org>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20220821101527.10066-1-sherry.sun@nxp.com
+Reported-by: Zheng Wang <hackerzheng666@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/Yw4ASqkYcUhUfoY2@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/rtl8712/rtl8712_cmd.c |   36 ----------------------------------
+ 1 file changed, 36 deletions(-)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -2203,6 +2203,7 @@ lpuart32_set_termios(struct uart_port *p
- 	uart_update_timeout(port, termios->c_cflag, baud);
+--- a/drivers/staging/rtl8712/rtl8712_cmd.c
++++ b/drivers/staging/rtl8712/rtl8712_cmd.c
+@@ -117,34 +117,6 @@ static void r871x_internal_cmd_hdl(struc
+ 	kfree(pdrvcmd->pbuf);
+ }
  
- 	/* wait transmit engin complete */
-+	lpuart32_write(&sport->port, 0, UARTMODIR);
- 	lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
+-static u8 read_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
+-{
+-	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
+-	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+-
+-	/*  invoke cmd->callback function */
+-	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
+-	if (!pcmd_callback)
+-		r8712_free_cmd_obj(pcmd);
+-	else
+-		pcmd_callback(padapter, pcmd);
+-	return H2C_SUCCESS;
+-}
+-
+-static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
+-{
+-	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
+-	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+-
+-	/*  invoke cmd->callback function */
+-	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
+-	if (!pcmd_callback)
+-		r8712_free_cmd_obj(pcmd);
+-	else
+-		pcmd_callback(padapter, pcmd);
+-	return H2C_SUCCESS;
+-}
+-
+ static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
+ {
+ 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+@@ -213,14 +185,6 @@ static struct cmd_obj *cmd_hdl_filter(st
+ 	pcmd_r = NULL;
  
- 	/* disable transmit and receive */
+ 	switch (pcmd->cmdcode) {
+-	case GEN_CMD_CODE(_Read_MACREG):
+-		read_macreg_hdl(padapter, (u8 *)pcmd);
+-		pcmd_r = pcmd;
+-		break;
+-	case GEN_CMD_CODE(_Write_MACREG):
+-		write_macreg_hdl(padapter, (u8 *)pcmd);
+-		pcmd_r = pcmd;
+-		break;
+ 	case GEN_CMD_CODE(_Read_BBREG):
+ 		read_bbreg_hdl(padapter, (u8 *)pcmd);
+ 		break;
 
 
