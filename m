@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BBC95AEC51
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E5AD5AED16
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234248AbiIFOKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:10:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60110 "EHLO
+        id S240900AbiIFOK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:10:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241216AbiIFOJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:09:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 029E586736;
-        Tue,  6 Sep 2022 06:46:18 -0700 (PDT)
+        with ESMTP id S241488AbiIFOJ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:09:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190E521F;
+        Tue,  6 Sep 2022 06:46:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AC3AB818DC;
-        Tue,  6 Sep 2022 13:45:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1C36C433D7;
-        Tue,  6 Sep 2022 13:45:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 96E0960F89;
+        Tue,  6 Sep 2022 13:45:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A80F4C433C1;
+        Tue,  6 Sep 2022 13:45:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471902;
-        bh=bc8ZpHuTodlCu0bVxjaHe4DMx1LmsJ71fdy7ZiW8vfU=;
+        s=korg; t=1662471905;
+        bh=NXCp2eaXznJ9Fd0qfjNqHDvYHzOAwG68JEvZdL3PSP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7oSn/W0OLAmrvgt0p1X043ugza2Wo4jw4m6s00sJqpaX4DgONV0YBAuJBHBehE6y
-         /U0HH6NOIIkuIaqg1c2KKbVUE0+Clte4YamTrtskGZ6EFN6yKGCHNq7LqSZfW77GZx
-         rxiPXSJg3MvT2qWEIoIyg2SwnKG2yTpa0MhY5f54=
+        b=tJJoSxnj++XFIM7d2uILAaUv3IqP2Ob2tW6DAhxkYeDMdH3By9kS8GIlxKmb5UQp1
+         4de4J4xj4KK8irwKy7slcgHpldKYdfJfPNWyLzIlZlMLJvgicIFBbt1ZYsjS+BvQCj
+         BxxdDjVfwXAp7zGQsJ61gjHxsT1ZFS45I6gE5Srs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seunghui Lee <sh043.lee@samsung.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.19 079/155] mmc: core: Fix inconsistent sd3_bus_mode at UHS-I SD voltage switch failure
-Date:   Tue,  6 Sep 2022 15:30:27 +0200
-Message-Id: <20220906132832.774658057@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>, stable <stable@kernel.org>
+Subject: [PATCH 5.19 080/155] binder: fix UAF of ref->proc caused by race condition
+Date:   Tue,  6 Sep 2022 15:30:28 +0200
+Message-Id: <20220906132832.817334545@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,96 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Carlos Llamas <cmllamas@google.com>
 
-commit 63f1560930e4e1c4f6279b8ae715c9841fe1a6d3 upstream.
+commit a0e44c64b6061dda7e00b7c458e4523e2331b739 upstream.
 
-If re-initialization results is a different signal voltage, because the
-voltage switch failed previously, but not this time (or vice versa), then
-sd3_bus_mode will be inconsistent with the card because the SD_SWITCH
-command is done only upon first initialization.
+A transaction of type BINDER_TYPE_WEAK_HANDLE can fail to increment the
+reference for a node. In this case, the target proc normally releases
+the failed reference upon close as expected. However, if the target is
+dying in parallel the call will race with binder_deferred_release(), so
+the target could have released all of its references by now leaving the
+cleanup of the new failed reference unhandled.
 
-Fix by always reading SD_SWITCH information during re-initialization, which
-also means it does not need to be re-read later for the 1.8V fixup
-workaround.
+The transaction then ends and the target proc gets released making the
+ref->proc now a dangling pointer. Later on, ref->node is closed and we
+attempt to take spin_lock(&ref->proc->inner_lock), which leads to the
+use-after-free bug reported below. Let's fix this by cleaning up the
+failed reference on the spot instead of relying on the target to do so.
 
-Note, brief testing showed SD_SWITCH took about 1.8ms to 2ms which added
-about 1% to 1.5% to the re-initialization time, so it's not particularly
-significant.
+  ==================================================================
+  BUG: KASAN: use-after-free in _raw_spin_lock+0xa8/0x150
+  Write of size 4 at addr ffff5ca207094238 by task kworker/1:0/590
 
-Reported-by: Seunghui Lee <sh043.lee@samsung.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Seunghui Lee <sh043.lee@samsung.com>
-Tested-by: Seunghui Lee <sh043.lee@samsung.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220815073321.63382-3-adrian.hunter@intel.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+  CPU: 1 PID: 590 Comm: kworker/1:0 Not tainted 5.19.0-rc8 #10
+  Hardware name: linux,dummy-virt (DT)
+  Workqueue: events binder_deferred_func
+  Call trace:
+   dump_backtrace.part.0+0x1d0/0x1e0
+   show_stack+0x18/0x70
+   dump_stack_lvl+0x68/0x84
+   print_report+0x2e4/0x61c
+   kasan_report+0xa4/0x110
+   kasan_check_range+0xfc/0x1a4
+   __kasan_check_write+0x3c/0x50
+   _raw_spin_lock+0xa8/0x150
+   binder_deferred_func+0x5e0/0x9b0
+   process_one_work+0x38c/0x5f0
+   worker_thread+0x9c/0x694
+   kthread+0x188/0x190
+   ret_from_fork+0x10/0x20
+
+Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Cc: stable <stable@kernel.org> # 4.14+
+Link: https://lore.kernel.org/r/20220801182511.3371447-1-cmllamas@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/sd.c |   42 ++++++++++++++++--------------------------
- 1 file changed, 16 insertions(+), 26 deletions(-)
+ drivers/android/binder.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -949,16 +949,17 @@ int mmc_sd_setup_card(struct mmc_host *h
- 
- 		/* Erase init depends on CSD and SSR */
- 		mmc_init_erase(card);
--
--		/*
--		 * Fetch switch information from card.
--		 */
--		err = mmc_read_switch(card);
--		if (err)
--			return err;
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index c964d7c8c384..6428f6be69e3 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -1385,6 +1385,18 @@ static int binder_inc_ref_for_node(struct binder_proc *proc,
  	}
- 
- 	/*
-+	 * Fetch switch information from card. Note, sd3_bus_mode can change if
-+	 * voltage switch outcome changes, so do this always.
-+	 */
-+	err = mmc_read_switch(card);
-+	if (err)
-+		return err;
+ 	ret = binder_inc_ref_olocked(ref, strong, target_list);
+ 	*rdata = ref->data;
++	if (ret && ref == new_ref) {
++		/*
++		 * Cleanup the failed reference here as the target
++		 * could now be dead and have already released its
++		 * references by now. Calling on the new reference
++		 * with strong=0 and a tmp_refs will not decrement
++		 * the node. The new_ref gets kfree'd below.
++		 */
++		binder_cleanup_ref_olocked(new_ref);
++		ref = NULL;
++	}
 +
-+	/*
- 	 * For SPI, enable CRC as appropriate.
- 	 * This CRC enable is located AFTER the reading of the
- 	 * card registers because some SDHC cards are not able
-@@ -1480,26 +1481,15 @@ retry:
- 	if (!v18_fixup_failed && !mmc_host_is_spi(host) && mmc_host_uhs(host) &&
- 	    mmc_sd_card_using_v18(card) &&
- 	    host->ios.signal_voltage != MMC_SIGNAL_VOLTAGE_180) {
--		/*
--		 * Re-read switch information in case it has changed since
--		 * oldcard was initialized.
--		 */
--		if (oldcard) {
--			err = mmc_read_switch(card);
--			if (err)
--				goto free_card;
--		}
--		if (mmc_sd_card_using_v18(card)) {
--			if (mmc_host_set_uhs_voltage(host) ||
--			    mmc_sd_init_uhs_card(card)) {
--				v18_fixup_failed = true;
--				mmc_power_cycle(host, ocr);
--				if (!oldcard)
--					mmc_remove_card(card);
--				goto retry;
--			}
--			goto cont;
-+		if (mmc_host_set_uhs_voltage(host) ||
-+		    mmc_sd_init_uhs_card(card)) {
-+			v18_fixup_failed = true;
-+			mmc_power_cycle(host, ocr);
-+			if (!oldcard)
-+				mmc_remove_card(card);
-+			goto retry;
- 		}
-+		goto cont;
- 	}
- 
- 	/* Initialization sequence for UHS-I cards */
+ 	binder_proc_unlock(proc);
+ 	if (new_ref && ref != new_ref)
+ 		/*
+-- 
+2.37.3
+
 
 
