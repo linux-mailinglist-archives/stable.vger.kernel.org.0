@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E63985AE99E
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:32:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C725B5AEA4C
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234270AbiIFNcO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:32:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51500 "EHLO
+        id S234139AbiIFNnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239033AbiIFNcH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C018753AC;
-        Tue,  6 Sep 2022 06:32:07 -0700 (PDT)
+        with ESMTP id S234173AbiIFNlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:41:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6C265B6;
+        Tue,  6 Sep 2022 06:37:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8D11B818C2;
-        Tue,  6 Sep 2022 13:32:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D31EAC433D6;
-        Tue,  6 Sep 2022 13:32:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92EB161522;
+        Tue,  6 Sep 2022 13:37:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FCEEC433C1;
+        Tue,  6 Sep 2022 13:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471124;
-        bh=PUGgoVZZTJScvvtPoB/2rewiBTZxS5R7xBg7g7fXaeE=;
+        s=korg; t=1662471439;
+        bh=F0eM71e91+JZcsQVtYIET15R7F56/3gtOSliUrL1LwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICsyXcfGQLnxo8x72dWh32sWRKhKL6X8F/hHLrrKexu4aXpWzvmLqRQxxAAEOKJY4
-         aa4RIzCQjjqdYWwL/Ihz32z1NP4OevgTVSRzvsCHF5X/ICuv/k54wRpBvzZPzg1Bbh
-         SQ+9zl6CRsKPzeB9Bx3WPKmVfZc+HLtJubwP7HRk=
+        b=Zu2n8syaN3hyzhbASZhBWmFS6EupNRLydhAUqISBmxGQQP5djCY/XxzZIHGQIsxKA
+         aGPSoP9ZVOZiRlHtbz5oIIIYwzSC13VL0EgRUIc6F4iJsPBYz4/9qxEE+kbRFfY+BE
+         T7RC+QEXT+EAKpXvzPpcjQ+lXN3N6qRC3sXiTXuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Jaska Uimonen <jaska.uimonen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/80] ALSA: hda: intel-nhlt: Correct the handling of fmt_config flexible array
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
+Subject: [PATCH 5.15 026/107] sch_cake: Return __NET_XMIT_STOLEN when consuming enqueued skb
 Date:   Tue,  6 Sep 2022 15:30:07 +0200
-Message-Id: <20220906132817.359003122@linuxfoundation.org>
+Message-Id: <20220906132822.891871800@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Toke Høiland-Jørgensen <toke@toke.dk>
 
-[ Upstream commit 2e6481a3f3ee6234ce577454e1d88aca55f51d47 ]
+[ Upstream commit 90fabae8a2c225c4e4936723c38857887edde5cc ]
 
-The struct nhlt_format's fmt_config is a flexible array, it must not be
-used as normal array.
-When moving to the next nhlt_fmt_cfg we need to take into account the data
-behind the ->config.caps (indicated by ->config.size).
+When the GSO splitting feature of sch_cake is enabled, GSO superpackets
+will be broken up and the resulting segments enqueued in place of the
+original skb. In this case, CAKE calls consume_skb() on the original skb,
+but still returns NET_XMIT_SUCCESS. This can confuse parent qdiscs into
+assuming the original skb still exists, when it really has been freed. Fix
+this by adding the __NET_XMIT_STOLEN flag to the return value in this case.
 
-Fixes: a864e8f159b13 ("ALSA: hda: intel-nhlt: verify config type")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Jaska Uimonen <jaska.uimonen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220823122405.18464-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 0c850344d388 ("sch_cake: Conditionally split GSO segments")
+Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
+Link: https://lore.kernel.org/r/20220831092103.442868-1-toke@toke.dk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/intel-nhlt.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/sched/sch_cake.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/hda/intel-nhlt.c b/sound/hda/intel-nhlt.c
-index 5e04fedaec49e..8714891f50b0a 100644
---- a/sound/hda/intel-nhlt.c
-+++ b/sound/hda/intel-nhlt.c
-@@ -55,16 +55,22 @@ int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt)
+diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
+index 857aaebd49f43..6944c669731c4 100644
+--- a/net/sched/sch_cake.c
++++ b/net/sched/sch_cake.c
+@@ -1713,6 +1713,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	}
+ 	idx--;
+ 	flow = &b->flows[idx];
++	ret = NET_XMIT_SUCCESS;
  
- 		/* find max number of channels based on format_configuration */
- 		if (fmt_configs->fmt_count) {
-+			struct nhlt_fmt_cfg *fmt_cfg = fmt_configs->fmt_config;
-+
- 			dev_dbg(dev, "found %d format definitions\n",
- 				fmt_configs->fmt_count);
+ 	/* ensure shaper state isn't stale */
+ 	if (!b->tin_backlog) {
+@@ -1771,6 +1772,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
  
- 			for (i = 0; i < fmt_configs->fmt_count; i++) {
- 				struct wav_fmt_ext *fmt_ext;
+ 		qdisc_tree_reduce_backlog(sch, 1-numsegs, len-slen);
+ 		consume_skb(skb);
++		ret |= __NET_XMIT_STOLEN;
+ 	} else {
+ 		/* not splitting */
+ 		cobalt_set_enqueue_time(skb, now);
+@@ -1904,7 +1906,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 		}
+ 		b->drop_overlimit += dropped;
+ 	}
+-	return NET_XMIT_SUCCESS;
++	return ret;
+ }
  
--				fmt_ext = &fmt_configs->fmt_config[i].fmt_ext;
-+				fmt_ext = &fmt_cfg->fmt_ext;
- 
- 				if (fmt_ext->fmt.channels > max_ch)
- 					max_ch = fmt_ext->fmt.channels;
-+
-+				/* Move to the next nhlt_fmt_cfg */
-+				fmt_cfg = (struct nhlt_fmt_cfg *)(fmt_cfg->config.caps +
-+								  fmt_cfg->config.size);
- 			}
- 			dev_dbg(dev, "max channels found %d\n", max_ch);
- 		} else {
+ static struct sk_buff *cake_dequeue_one(struct Qdisc *sch)
 -- 
 2.35.1
 
