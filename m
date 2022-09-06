@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D22FF5AEB7F
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A85605AEBCA
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241567AbiIFOUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35376 "EHLO
+        id S241476AbiIFOOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:14:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241676AbiIFOSl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:18:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF469646D;
-        Tue,  6 Sep 2022 06:49:44 -0700 (PDT)
+        with ESMTP id S241555AbiIFONi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:13:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71CD92657B;
+        Tue,  6 Sep 2022 06:48:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51B8F61560;
-        Tue,  6 Sep 2022 13:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B620C433D7;
-        Tue,  6 Sep 2022 13:48:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20DF560F89;
+        Tue,  6 Sep 2022 13:48:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27987C433C1;
+        Tue,  6 Sep 2022 13:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662472087;
-        bh=Rr569hUgXFWwrded8fCCRwY13H6i6sv/yyxd3lIoth8=;
+        s=korg; t=1662472090;
+        bh=T0wQx337WDqhsdbnxtj8H15H5qZmJDU4aa5SI0bAftE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDsyxdSF2anWRDu+h84LtYjYqDrZk2oEHTP+U96lWO+JX3FemdAezP4RZHU8kxy9F
-         aWqUjCO4xa63emRbheZKEFTlbQvSgLG3nTHIl2XEOKlHqn28rqkXnf0CZ9YMT3O390
-         iQZ8IWstymW21scDqu/DwNCeDSs6ziwNPcX2oo9s=
+        b=OXUI4vAx2teCYxHo9+W4IPmHwA5JMHrqGtlCb2EcrgcB526aoMW0xgGKV9SGjO1lH
+         jD+2UkeoHwzg/yoqCBo1OPuoaH0i5IfeB8wVdgVJKcnzDhu/9c7mXu9JkajK3KTo9Y
+         ataBC9wNys0dMUca2xj7O7VNy+bWJdfEq8LhMQg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 144/155] ALSA: memalloc: Revive x86-specific WC page allocations again
-Date:   Tue,  6 Sep 2022 15:31:32 +0200
-Message-Id: <20220906132835.519491211@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Kacper=20Michaj=C5=82ow?= <kasper93@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.19 145/155] ALSA: hda/realtek: Add speaker AMP init for Samsung laptops with ALC298
+Date:   Tue,  6 Sep 2022 15:31:33 +0200
+Message-Id: <20220906132835.558492780@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -52,197 +54,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kacper Michajłow <kasper93@gmail.com>
 
-commit a8d302a0b77057568350fe0123e639d02dba0745 upstream.
+commit a2d57ebec1e15f0ac256eb8397e82b07adfaaacc upstream.
 
-We dropped the x86-specific hack for WC-page allocations with a hope
-that the standard dma_alloc_wc() works nowadays.  Alas, it doesn't,
-and we need to take back some workaround again, but in a different
-form, as the previous one was broken for some platforms.
+Magic initialization sequence was extracted from Windows driver and
+cleaned up manually.
 
-This patch re-introduces the x86-specific WC-page allocations, but it
-uses rather the manual page allocations instead of
-dma_alloc_coherent().  The use of dma_alloc_coherent() was also a
-potential problem in the recent addition of the fallback allocation
-for noncontig pages, and this patch eliminates both at once.
+Fixes internal speakers output.
 
-Fixes: 9882d63bea14 ("ALSA: memalloc: Drop x86-specific hack for WC allocations")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=207423
+Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1851518
+Signed-off-by: Kacper Michajłow <kasper93@gmail.com>
 Cc: <stable@vger.kernel.org>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216363
-Link: https://lore.kernel.org/r/20220821155911.10715-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220827203328.30363-1-kasper93@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/memalloc.c |   87 ++++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 71 insertions(+), 16 deletions(-)
+ sound/pci/hda/patch_realtek.c |   63 +++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 56 insertions(+), 7 deletions(-)
 
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -20,6 +20,13 @@
- 
- static const struct snd_malloc_ops *snd_dma_get_ops(struct snd_dma_buffer *dmab);
- 
-+#ifdef CONFIG_SND_DMA_SGBUF
-+static void *do_alloc_fallback_pages(struct device *dev, size_t size,
-+				     dma_addr_t *addr, bool wc);
-+static void do_free_fallback_pages(void *p, size_t size, bool wc);
-+static void *snd_dma_sg_fallback_alloc(struct snd_dma_buffer *dmab, size_t size);
-+#endif
-+
- /* a cast to gfp flag from the dev pointer; for CONTINUOUS and VMALLOC types */
- static inline gfp_t snd_mem_get_gfp_flags(const struct snd_dma_buffer *dmab,
- 					  gfp_t default_gfp)
-@@ -269,16 +276,21 @@ EXPORT_SYMBOL(snd_sgbuf_get_chunk_size);
- /*
-  * Continuous pages allocator
-  */
--static void *snd_dma_continuous_alloc(struct snd_dma_buffer *dmab, size_t size)
-+static void *do_alloc_pages(size_t size, dma_addr_t *addr, gfp_t gfp)
- {
--	gfp_t gfp = snd_mem_get_gfp_flags(dmab, GFP_KERNEL);
- 	void *p = alloc_pages_exact(size, gfp);
- 
- 	if (p)
--		dmab->addr = page_to_phys(virt_to_page(p));
-+		*addr = page_to_phys(virt_to_page(p));
- 	return p;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4689,6 +4689,48 @@ static void alc236_fixup_hp_mute_led_mic
+ 	alc236_fixup_hp_micmute_led_vref(codec, fix, action);
  }
  
-+static void *snd_dma_continuous_alloc(struct snd_dma_buffer *dmab, size_t size)
++static inline void alc298_samsung_write_coef_pack(struct hda_codec *codec,
++						  const unsigned short coefs[2])
 +{
-+	return do_alloc_pages(size, &dmab->addr,
-+			      snd_mem_get_gfp_flags(dmab, GFP_KERNEL));
++	alc_write_coef_idx(codec, 0x23, coefs[0]);
++	alc_write_coef_idx(codec, 0x25, coefs[1]);
++	alc_write_coef_idx(codec, 0x26, 0xb011);
 +}
 +
- static void snd_dma_continuous_free(struct snd_dma_buffer *dmab)
- {
- 	free_pages_exact(dmab->area, dmab->bytes);
-@@ -455,6 +467,25 @@ static const struct snd_malloc_ops snd_d
- /*
-  * Write-combined pages
-  */
-+/* x86-specific allocations */
-+#ifdef CONFIG_SND_DMA_SGBUF
-+static void *snd_dma_wc_alloc(struct snd_dma_buffer *dmab, size_t size)
-+{
-+	return do_alloc_fallback_pages(dmab->dev.dev, size, &dmab->addr, true);
-+}
++struct alc298_samsung_amp_desc {
++	unsigned char nid;
++	unsigned short init_seq[2][2];
++};
 +
-+static void snd_dma_wc_free(struct snd_dma_buffer *dmab)
++static void alc298_fixup_samsung_amp(struct hda_codec *codec,
++				     const struct hda_fixup *fix, int action)
 +{
-+	do_free_fallback_pages(dmab->area, dmab->bytes, true);
-+}
++	int i, j;
++	static const unsigned short init_seq[][2] = {
++		{ 0x19, 0x00 }, { 0x20, 0xc0 }, { 0x22, 0x44 }, { 0x23, 0x08 },
++		{ 0x24, 0x85 }, { 0x25, 0x41 }, { 0x35, 0x40 }, { 0x36, 0x01 },
++		{ 0x38, 0x81 }, { 0x3a, 0x03 }, { 0x3b, 0x81 }, { 0x40, 0x3e },
++		{ 0x41, 0x07 }, { 0x400, 0x1 }
++	};
++	static const struct alc298_samsung_amp_desc amps[] = {
++		{ 0x3a, { { 0x18, 0x1 }, { 0x26, 0x0 } } },
++		{ 0x39, { { 0x18, 0x2 }, { 0x26, 0x1 } } }
++	};
 +
-+static int snd_dma_wc_mmap(struct snd_dma_buffer *dmab,
-+			   struct vm_area_struct *area)
-+{
-+	area->vm_page_prot = pgprot_writecombine(area->vm_page_prot);
-+	return snd_dma_continuous_mmap(dmab, area);
-+}
-+#else
- static void *snd_dma_wc_alloc(struct snd_dma_buffer *dmab, size_t size)
- {
- 	return dma_alloc_wc(dmab->dev.dev, size, &dmab->addr, DEFAULT_GFP);
-@@ -471,6 +502,7 @@ static int snd_dma_wc_mmap(struct snd_dm
- 	return dma_mmap_wc(dmab->dev.dev, area,
- 			   dmab->area, dmab->addr, dmab->bytes);
- }
-+#endif /* CONFIG_SND_DMA_SGBUF */
- 
- static const struct snd_malloc_ops snd_dma_wc_ops = {
- 	.alloc = snd_dma_wc_alloc,
-@@ -478,10 +510,6 @@ static const struct snd_malloc_ops snd_d
- 	.mmap = snd_dma_wc_mmap,
- };
- 
--#ifdef CONFIG_SND_DMA_SGBUF
--static void *snd_dma_sg_fallback_alloc(struct snd_dma_buffer *dmab, size_t size);
--#endif
--
- /*
-  * Non-contiguous pages allocator
-  */
-@@ -661,6 +689,37 @@ static const struct snd_malloc_ops snd_d
- 	.get_chunk_size = snd_dma_noncontig_get_chunk_size,
- };
- 
-+/* manual page allocations with wc setup */
-+static void *do_alloc_fallback_pages(struct device *dev, size_t size,
-+				     dma_addr_t *addr, bool wc)
-+{
-+	gfp_t gfp = GFP_KERNEL | __GFP_NORETRY | __GFP_NOWARN;
-+	void *p;
++	if (action != HDA_FIXUP_ACT_INIT)
++		return;
 +
-+ again:
-+	p = do_alloc_pages(size, addr, gfp);
-+	if (!p || (*addr + size - 1) & ~dev->coherent_dma_mask) {
-+		if (IS_ENABLED(CONFIG_ZONE_DMA32) && !(gfp & GFP_DMA32)) {
-+			gfp |= GFP_DMA32;
-+			goto again;
-+		}
-+		if (IS_ENABLED(CONFIG_ZONE_DMA) && !(gfp & GFP_DMA)) {
-+			gfp = (gfp & ~GFP_DMA32) | GFP_DMA;
-+			goto again;
-+		}
++	for (i = 0; i < ARRAY_SIZE(amps); i++) {
++		alc_write_coef_idx(codec, 0x22, amps[i].nid);
++
++		for (j = 0; j < ARRAY_SIZE(amps[i].init_seq); j++)
++			alc298_samsung_write_coef_pack(codec, amps[i].init_seq[j]);
++
++		for (j = 0; j < ARRAY_SIZE(init_seq); j++)
++			alc298_samsung_write_coef_pack(codec, init_seq[j]);
 +	}
-+	if (p && wc)
-+		set_memory_wc((unsigned long)(p), size >> PAGE_SHIFT);
-+	return p;
 +}
 +
-+static void do_free_fallback_pages(void *p, size_t size, bool wc)
-+{
-+	if (wc)
-+		set_memory_wb((unsigned long)(p), size >> PAGE_SHIFT);
-+	free_pages_exact(p, size);
-+}
-+
- /* Fallback SG-buffer allocations for x86 */
- struct snd_dma_sg_fallback {
- 	size_t count;
-@@ -671,14 +730,11 @@ struct snd_dma_sg_fallback {
- static void __snd_dma_sg_fallback_free(struct snd_dma_buffer *dmab,
- 				       struct snd_dma_sg_fallback *sgbuf)
- {
-+	bool wc = dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK;
- 	size_t i;
- 
--	if (sgbuf->count && dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK)
--		set_pages_array_wb(sgbuf->pages, sgbuf->count);
- 	for (i = 0; i < sgbuf->count && sgbuf->pages[i]; i++)
--		dma_free_coherent(dmab->dev.dev, PAGE_SIZE,
--				  page_address(sgbuf->pages[i]),
--				  sgbuf->addrs[i]);
-+		do_free_fallback_pages(page_address(sgbuf->pages[i]), PAGE_SIZE, wc);
- 	kvfree(sgbuf->pages);
- 	kvfree(sgbuf->addrs);
- 	kfree(sgbuf);
-@@ -690,6 +746,7 @@ static void *snd_dma_sg_fallback_alloc(s
- 	struct page **pages;
- 	size_t i, count;
- 	void *p;
-+	bool wc = dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK;
- 
- 	sgbuf = kzalloc(sizeof(*sgbuf), GFP_KERNEL);
- 	if (!sgbuf)
-@@ -704,15 +761,13 @@ static void *snd_dma_sg_fallback_alloc(s
- 		goto error;
- 
- 	for (i = 0; i < count; sgbuf->count++, i++) {
--		p = dma_alloc_coherent(dmab->dev.dev, PAGE_SIZE,
--				       &sgbuf->addrs[i], DEFAULT_GFP);
-+		p = do_alloc_fallback_pages(dmab->dev.dev, PAGE_SIZE,
-+					    &sgbuf->addrs[i], wc);
- 		if (!p)
- 			goto error;
- 		sgbuf->pages[i] = virt_to_page(p);
- 	}
- 
--	if (dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK)
--		set_pages_array_wc(pages, count);
- 	p = vmap(pages, count, VM_MAP, PAGE_KERNEL);
- 	if (!p)
- 		goto error;
+ #if IS_REACHABLE(CONFIG_INPUT)
+ static void gpio2_mic_hotkey_event(struct hda_codec *codec,
+ 				   struct hda_jack_callback *event)
+@@ -7000,6 +7042,7 @@ enum {
+ 	ALC236_FIXUP_HP_GPIO_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
++	ALC298_FIXUP_SAMSUNG_AMP,
+ 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+ 	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+ 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
+@@ -8365,6 +8408,12 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc236_fixup_hp_mute_led_micmute_vref,
+ 	},
++	[ALC298_FIXUP_SAMSUNG_AMP] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc298_fixup_samsung_amp,
++		.chained = true,
++		.chain_id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET
++	},
+ 	[ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -9307,13 +9356,13 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x10ec, 0x1254, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
+ 	SND_PCI_QUIRK(0x10f7, 0x8338, "Panasonic CF-SZ6", ALC269_FIXUP_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x144d, 0xc109, "Samsung Ativ book 9 (NP900X3G)", ALC269_FIXUP_INV_DMIC),
+-	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+-	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+-	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+-	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NP930XCJ-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
++	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_AMP),
++	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_AMP),
++	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_AMP),
++	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NP930XCJ-K01US)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
+-	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+-	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
++	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_AMP),
++	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
+@@ -9679,7 +9728,7 @@ static const struct hda_model_fixup alc2
+ 	{.id = ALC299_FIXUP_PREDATOR_SPK, .name = "predator-spk"},
+ 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
+ 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
+-	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
++	{.id = ALC298_FIXUP_SAMSUNG_AMP, .name = "alc298-samsung-amp"},
+ 	{.id = ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc256-samsung-headphone"},
+ 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
+ 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
 
 
