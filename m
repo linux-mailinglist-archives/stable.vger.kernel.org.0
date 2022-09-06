@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 643DD5AEB29
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B945AE9A2
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238737AbiIFNs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:48:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53240 "EHLO
+        id S234298AbiIFNc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:32:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233899AbiIFNrS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:47:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21CF576449;
-        Tue,  6 Sep 2022 06:39:08 -0700 (PDT)
+        with ESMTP id S239958AbiIFNcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:32:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE6E760CE;
+        Tue,  6 Sep 2022 06:32:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D8EB61548;
-        Tue,  6 Sep 2022 13:38:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C9E2C433C1;
-        Tue,  6 Sep 2022 13:38:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0A7DB818C4;
+        Tue,  6 Sep 2022 13:32:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22F85C433C1;
+        Tue,  6 Sep 2022 13:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471497;
-        bh=i5iLGuCPNNPPV5K4WHZK0Ueay/YGIYTFwWb6ZbYxnH8=;
+        s=korg; t=1662471136;
+        bh=wqumMZXi1LsOqk20M9uLwZVwJ/RaUHqGDItllRlXl3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCU5fz0f12S1soosy6TbYW1+zF9XoKC7JEy9u1499rlo5W7X088sS3himLceuSPly
-         KcrfjopVB2hOjxVX7Mvf7L6kAVwN0ulIG9KWyy3jDVM48+WviKSNHHETAlBEQlXfGB
-         +ORbJz1Dxkn315Dvz08bMTgBseHpwheYFIJcc/Gk=
+        b=q5kNkIk+8j29lQ6H5PmpnIkOBcVfSUg5X1Up1DrlUgm48Qs2uiya9ftsqs13zI/XG
+         q8RXZQzbi6IEjNSMyjUezag4v5N9fq0biD0yz945QDcO3LRfwuw3uWMCRC9sqa6IOf
+         0y2cAsgozTJQOkx+B9EhkrfYqtFUwk8MLhmls2Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yacan Liu <liuyacan@corp.netease.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
+        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 029/107] net/smc: Remove redundant refcount increase
+Subject: [PATCH 5.10 13/80] net: sched: tbf: dont call qdisc_put() while holding tree lock
 Date:   Tue,  6 Sep 2022 15:30:10 +0200
-Message-Id: <20220906132823.032686732@linuxfoundation.org>
+Message-Id: <20220906132817.487086640@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-References: <20220906132821.713989422@linuxfoundation.org>
+In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
+References: <20220906132816.936069583@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yacan Liu <liuyacan@corp.netease.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit a8424a9b4522a3ab9f32175ad6d848739079071f ]
+[ Upstream commit b05972f01e7d30419987a1f221b5593668fd6448 ]
 
-For passive connections, the refcount increment has been done in
-smc_clcsock_accept()-->smc_sock_alloc().
+The issue is the same to commit c2999f7fb05b ("net: sched: multiq: don't
+call qdisc_put() while holding tree lock"). Qdiscs call qdisc_put() while
+holding sch tree spinlock, which results sleeping-while-atomic BUG.
 
-Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in af_smc")
-Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220830152314.838736-1-liuyacan@corp.netease.com
+Fixes: c266f64dbfa2 ("net: sched: protect block state with mutex")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Link: https://lore.kernel.org/r/20220826013930.340121-1-shaozhengchao@huawei.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/sched/sch_tbf.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 2ddd7b34b4ce5..26f81e2e1dfba 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1490,7 +1490,6 @@ static void smc_listen_out_connected(struct smc_sock *new_smc)
- {
- 	struct sock *newsmcsk = &new_smc->sk;
+diff --git a/net/sched/sch_tbf.c b/net/sched/sch_tbf.c
+index 78e79029dc631..6eb17004a9e44 100644
+--- a/net/sched/sch_tbf.c
++++ b/net/sched/sch_tbf.c
+@@ -342,6 +342,7 @@ static int tbf_change(struct Qdisc *sch, struct nlattr *opt,
+ 	struct nlattr *tb[TCA_TBF_MAX + 1];
+ 	struct tc_tbf_qopt *qopt;
+ 	struct Qdisc *child = NULL;
++	struct Qdisc *old = NULL;
+ 	struct psched_ratecfg rate;
+ 	struct psched_ratecfg peak;
+ 	u64 max_size;
+@@ -433,7 +434,7 @@ static int tbf_change(struct Qdisc *sch, struct nlattr *opt,
+ 	sch_tree_lock(sch);
+ 	if (child) {
+ 		qdisc_tree_flush_backlog(q->qdisc);
+-		qdisc_put(q->qdisc);
++		old = q->qdisc;
+ 		q->qdisc = child;
+ 	}
+ 	q->limit = qopt->limit;
+@@ -453,6 +454,7 @@ static int tbf_change(struct Qdisc *sch, struct nlattr *opt,
+ 	memcpy(&q->peak, &peak, sizeof(struct psched_ratecfg));
  
--	sk_refcnt_debug_inc(newsmcsk);
- 	if (newsmcsk->sk_state == SMC_INIT)
- 		newsmcsk->sk_state = SMC_ACTIVE;
+ 	sch_tree_unlock(sch);
++	qdisc_put(old);
+ 	err = 0;
  
+ 	tbf_offload_change(sch);
 -- 
 2.35.1
 
