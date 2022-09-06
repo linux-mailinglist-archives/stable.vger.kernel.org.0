@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D18435AEA46
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38C625AEB06
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232132AbiIFNjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:39:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38342 "EHLO
+        id S238701AbiIFNuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:50:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233319AbiIFNiX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:38:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79AA5240B7;
-        Tue,  6 Sep 2022 06:35:14 -0700 (PDT)
+        with ESMTP id S234289AbiIFNrn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:47:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 652DA7F278;
+        Tue,  6 Sep 2022 06:39:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D803B818C0;
-        Tue,  6 Sep 2022 13:34:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74A8CC433C1;
-        Tue,  6 Sep 2022 13:34:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3F996CE1779;
+        Tue,  6 Sep 2022 13:38:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F6EEC433D6;
+        Tue,  6 Sep 2022 13:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471286;
-        bh=KCYVDvpvQe2eUYuOXORu4L3Gx2Nzf80om5ePm4Nj7zM=;
+        s=korg; t=1662471482;
+        bh=RGb7/zAtVJBSBWhhk2OQ6Qt6vTGoxALVQ1v5opqZyAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syqBCmrwnL/kIFQkaP3u0KSMCrRUUzYakkqjY+p0YJqGuHRnVohaeZ6iwDS9wxfzy
-         F+ELoEoPa4bzUrhSVSzdGSZDJF3OpqDOvqgf0DwJ4MKKETySo0+1rponfyQprWqsgX
-         rJGqvMjwmneP9Pw52UR/FxG/2KbrvJBLd8DGpYs8=
+        b=ZHrElLfP+Q80M9ylxQofME7ayW/ocw7vx5dMbHNNGL4EA8Vk1c/rE3Tit9C+I1Ka6
+         vQUiSetIIgZ/9FFCPezvU394qfgmZjtjJ5WxFcQzRhfgQ0kgzOIOH4iS3H9AUvkzLQ
+         xJYaSZlKSGQTJYTgx+pSWOvNvLS4etWjpozQn37E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>,
-        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 26/80] Input: iforce - wake up after clearing IFORCE_XMIT_RUNNING flag
+        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH 5.15 042/107] misc: fastrpc: fix memory corruption on open
 Date:   Tue,  6 Sep 2022 15:30:23 +0200
-Message-Id: <20220906132818.030426732@linuxfoundation.org>
+Message-Id: <20220906132823.598465098@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
+References: <20220906132821.713989422@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,121 +52,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 98e01215708b6d416345465c09dce2bd4868c67a upstream.
+commit d245f43aab2b61195d8ebb64cef7b5a08c590ab4 upstream.
 
-syzbot is reporting hung task at __input_unregister_device() [1], for
-iforce_close() waiting at wait_event_interruptible() with dev->mutex held
-is blocking input_disconnect_device() from __input_unregister_device().
+The probe session-duplication overflow check incremented the session
+count also when there were no more available sessions so that memory
+beyond the fixed-size slab-allocated session array could be corrupted in
+fastrpc_session_alloc() on open().
 
-It seems that the cause is simply that commit c2b27ef672992a20 ("Input:
-iforce - wait for command completion when closing the device") forgot to
-call wake_up() after clear_bit().
-
-Fix this problem by introducing a helper that calls clear_bit() followed
-by wake_up_all().
-
-Reported-by: syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>
-Fixes: c2b27ef672992a20 ("Input: iforce - wait for command completion when closing the device")
-Tested-by: syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>
-Suggested-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Co-developed-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Link: https://lore.kernel.org/r/887021c3-4f13-40ce-c8b9-aa6e09faa3a7@I-love.SAKURA.ne.jp
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: f6f9279f2bf0 ("misc: fastrpc: Add Qualcomm fastrpc basic driver model")
+Cc: stable@vger.kernel.org      # 5.1
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220829080531.29681-3-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/iforce/iforce-serio.c |    6 +++---
- drivers/input/joystick/iforce/iforce-usb.c   |    8 ++++----
- drivers/input/joystick/iforce/iforce.h       |    6 ++++++
- 3 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/misc/fastrpc.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/input/joystick/iforce/iforce-serio.c
-+++ b/drivers/input/joystick/iforce/iforce-serio.c
-@@ -39,7 +39,7 @@ static void iforce_serio_xmit(struct ifo
- 
- again:
- 	if (iforce->xmit.head == iforce->xmit.tail) {
--		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
-+		iforce_clear_xmit_and_wake(iforce);
- 		spin_unlock_irqrestore(&iforce->xmit_lock, flags);
- 		return;
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -1555,7 +1555,7 @@ static int fastrpc_cb_probe(struct platf
+ 		spin_unlock_irqrestore(&cctx->lock, flags);
+ 		return -ENOSPC;
  	}
-@@ -64,7 +64,7 @@ again:
- 	if (test_and_clear_bit(IFORCE_XMIT_AGAIN, iforce->xmit_flags))
- 		goto again;
+-	sess = &cctx->session[cctx->sesscount];
++	sess = &cctx->session[cctx->sesscount++];
+ 	sess->used = false;
+ 	sess->valid = true;
+ 	sess->dev = dev;
+@@ -1568,13 +1568,12 @@ static int fastrpc_cb_probe(struct platf
+ 		struct fastrpc_session_ctx *dup_sess;
  
--	clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
-+	iforce_clear_xmit_and_wake(iforce);
- 
- 	spin_unlock_irqrestore(&iforce->xmit_lock, flags);
- }
-@@ -169,7 +169,7 @@ static irqreturn_t iforce_serio_irq(stru
- 			iforce_serio->cmd_response_len = iforce_serio->len;
- 
- 			/* Signal that command is done */
--			wake_up(&iforce->wait);
-+			wake_up_all(&iforce->wait);
- 		} else if (likely(iforce->type)) {
- 			iforce_process_packet(iforce, iforce_serio->id,
- 					      iforce_serio->data_in,
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -30,7 +30,7 @@ static void __iforce_usb_xmit(struct ifo
- 	spin_lock_irqsave(&iforce->xmit_lock, flags);
- 
- 	if (iforce->xmit.head == iforce->xmit.tail) {
--		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
-+		iforce_clear_xmit_and_wake(iforce);
- 		spin_unlock_irqrestore(&iforce->xmit_lock, flags);
- 		return;
+ 		for (i = 1; i < sessions; i++) {
+-			if (cctx->sesscount++ >= FASTRPC_MAX_SESSIONS)
++			if (cctx->sesscount >= FASTRPC_MAX_SESSIONS)
+ 				break;
+-			dup_sess = &cctx->session[cctx->sesscount];
++			dup_sess = &cctx->session[cctx->sesscount++];
+ 			memcpy(dup_sess, sess, sizeof(*dup_sess));
+ 		}
  	}
-@@ -58,9 +58,9 @@ static void __iforce_usb_xmit(struct ifo
- 	XMIT_INC(iforce->xmit.tail, n);
- 
- 	if ( (n=usb_submit_urb(iforce_usb->out, GFP_ATOMIC)) ) {
--		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
- 		dev_warn(&iforce_usb->intf->dev,
- 			 "usb_submit_urb failed %d\n", n);
-+		iforce_clear_xmit_and_wake(iforce);
- 	}
- 
- 	/* The IFORCE_XMIT_RUNNING bit is not cleared here. That's intended.
-@@ -175,15 +175,15 @@ static void iforce_usb_out(struct urb *u
- 	struct iforce *iforce = &iforce_usb->iforce;
- 
- 	if (urb->status) {
--		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
- 		dev_dbg(&iforce_usb->intf->dev, "urb->status %d, exiting\n",
- 			urb->status);
-+		iforce_clear_xmit_and_wake(iforce);
- 		return;
- 	}
- 
- 	__iforce_usb_xmit(iforce);
- 
--	wake_up(&iforce->wait);
-+	wake_up_all(&iforce->wait);
- }
- 
- static int iforce_usb_probe(struct usb_interface *intf,
---- a/drivers/input/joystick/iforce/iforce.h
-+++ b/drivers/input/joystick/iforce/iforce.h
-@@ -119,6 +119,12 @@ static inline int iforce_get_id_packet(s
- 					 response_data, response_len);
- }
- 
-+static inline void iforce_clear_xmit_and_wake(struct iforce *iforce)
-+{
-+	clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
-+	wake_up_all(&iforce->wait);
-+}
-+
- /* Public functions */
- /* iforce-main.c */
- int iforce_init_device(struct device *parent, u16 bustype,
+-	cctx->sesscount++;
+ 	spin_unlock_irqrestore(&cctx->lock, flags);
+ 	rc = dma_set_mask(dev, DMA_BIT_MASK(32));
+ 	if (rc) {
 
 
