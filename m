@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 231BB5AECA6
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1807D5AEB97
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238821AbiIFOKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:10:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33468 "EHLO
+        id S241094AbiIFOLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:11:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241237AbiIFOJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:09:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7406D868B0;
-        Tue,  6 Sep 2022 06:46:27 -0700 (PDT)
+        with ESMTP id S241579AbiIFOKQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:10:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39D9687685;
+        Tue,  6 Sep 2022 06:47:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 833F1B818C9;
-        Tue,  6 Sep 2022 13:35:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39F1C433C1;
-        Tue,  6 Sep 2022 13:35:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D17E961552;
+        Tue,  6 Sep 2022 13:47:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC2C1C433C1;
+        Tue,  6 Sep 2022 13:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471348;
-        bh=hu6botTHiQm8Tl+D3CgsImgm+NidKmwEjsE9sSec0lo=;
+        s=korg; t=1662472045;
+        bh=A2SlET5mA2JB6GyGY8Cy5ilZkG92iGR0V0gDf6pDXZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gr26nBEbzUPcUzZaxTMIea6Z7nZ49D2TkLTGil6M4herzdiqlX8ti2xDibRDcq4px
-         iooceIze4ekHHw8lRCRlLg7tLmgC7/M9mRQz2QFn5KX1704H9MaRrXIcRUwwYD/Ikd
-         UYq6ZF8DS9FOkwGP9stfdxgyLL2EUSDw8h6ghfhM=
+        b=WhYSa2wkm7S72P63Ne6T3vyZFD93NoVnZCjtFvb1IeO9Q+7sNKQnOsm9hbpYnat2/
+         MvXiQVMBhEeZFFPt9TYvUAf/uuk3S8r95s3j0Jf1U8n/woPue+atuIKh7laAuXmH+c
+         3QisGAmDPvwtbMNH4RAZGvgyBl9SMCAaxO/z7rJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        stable <stable@kernel.org>,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 5.10 78/80] usb: dwc3: disable USB core PHY management
-Date:   Tue,  6 Sep 2022 15:31:15 +0200
-Message-Id: <20220906132820.377911816@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.19 128/155] s390/hugetlb: fix prepare_hugepage_range() check for 2 GB hugepages
+Date:   Tue,  6 Sep 2022 15:31:16 +0200
+Message-Id: <20220906132834.852956422@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-References: <20220906132816.936069583@linuxfoundation.org>
+In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
+References: <20220906132829.417117002@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
+commit 7c8d42fdf1a84b1a0dd60d6528309c8ec127e87c upstream.
 
-The dwc3 driver manages its PHYs itself so the USB core PHY management
-needs to be disabled.
+The alignment check in prepare_hugepage_range() is wrong for 2 GB
+hugepages, it only checks for 1 MB hugepage alignment.
 
-Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
-host: xhci-plat: add platform data support") and f768e718911e ("usb:
-host: xhci-plat: add priv quirk for skip PHY initialization") to
-propagate the setting for now.
+This can result in kernel crash in __unmap_hugepage_range() at the
+BUG_ON(start & ~huge_page_mask(h)) alignment check, for mappings
+created with MAP_FIXED at unaligned address.
 
-Fixes: 4e88d4c08301 ("usb: add a flag to skip PHY initialization to struct usb_hcd")
-Fixes: 178a0bce05cb ("usb: core: hcd: integrate the PHY wrapper into the HCD core")
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Cc: stable <stable@kernel.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220825131836.19769-1-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ johan: adjust context to 5.15 ]
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Fix this by correctly handling multiple hugepage sizes, similar to the
+generic version of prepare_hugepage_range().
+
+Fixes: d08de8e2d867 ("s390/mm: add support for 2GB hugepages")
+Cc: <stable@vger.kernel.org> # 4.8+
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/host.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/s390/include/asm/hugetlb.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -10,8 +10,13 @@
- #include <linux/acpi.h>
- #include <linux/platform_device.h>
- 
-+#include "../host/xhci-plat.h"
- #include "core.h"
- 
-+static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
-+	.quirks = XHCI_SKIP_PHY_INIT,
-+};
-+
- static int dwc3_host_get_irq(struct dwc3 *dwc)
+--- a/arch/s390/include/asm/hugetlb.h
++++ b/arch/s390/include/asm/hugetlb.h
+@@ -28,9 +28,11 @@ pte_t huge_ptep_get_and_clear(struct mm_
+ static inline int prepare_hugepage_range(struct file *file,
+ 			unsigned long addr, unsigned long len)
  {
- 	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
-@@ -87,6 +92,11 @@ int dwc3_host_init(struct dwc3 *dwc)
- 		goto err;
- 	}
- 
-+	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
-+					sizeof(dwc3_xhci_plat_priv));
-+	if (ret)
-+		goto err;
+-	if (len & ~HPAGE_MASK)
++	struct hstate *h = hstate_file(file);
 +
- 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
- 
- 	if (dwc->usb3_lpm_capable)
++	if (len & ~huge_page_mask(h))
+ 		return -EINVAL;
+-	if (addr & ~HPAGE_MASK)
++	if (addr & ~huge_page_mask(h))
+ 		return -EINVAL;
+ 	return 0;
+ }
 
 
