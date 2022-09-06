@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69CA15AEBF8
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 422445AECA0
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241580AbiIFOUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:20:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37572 "EHLO
+        id S240940AbiIFOLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:11:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242072AbiIFOTa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:19:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6518A7E8;
-        Tue,  6 Sep 2022 06:50:41 -0700 (PDT)
+        with ESMTP id S240628AbiIFOIB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:08:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9087F85FD8;
+        Tue,  6 Sep 2022 06:45:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E795B816A0;
-        Tue,  6 Sep 2022 13:44:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67E7FC433C1;
-        Tue,  6 Sep 2022 13:44:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 349816155D;
+        Tue,  6 Sep 2022 13:44:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DC0CC433D7;
+        Tue,  6 Sep 2022 13:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471881;
-        bh=NjjLy2zMmSsNxcJdVg9s6RJm2XFnN3Y8vRp0V65QGhY=;
+        s=korg; t=1662471884;
+        bh=wb7UPJN4NYPb1TO690B9c40Rfzbvv/Y4FMpbqVIGKyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g1I9Y0GSdZ0wg2yQiqXNLxMhGNqchVs3XJGERzcryVqQTEiuiWLgl61a0Bll18P5R
-         arVfriL48u+6BL5hq6ppWFNyUqEqirEc1y47yzVaUhb+JsS9+RO8kvnM1VxuJ5XhtD
-         BiY3fFuPmOkI/BsYSKuKyNDkSZOTel1+mJfmVdFw=
+        b=DIOnYuicbL2/li4yEM9FBnePM5m42EcL7iTTNAeBSZOrk3EGlz199ow1dyC899rtg
+         vDJSgCaVh6Gn1cMq3Wzcrfpce6OfZ0fsRbF8FERjtmm1gv7GHneUNpdsORS0XKsnuc
+         vNgZIP6ps+Au4XYi9B/gWKWgHzOz3GKvPH3g2yyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 040/155] net/sched: fix netdevice reference leaks in attach_default_qdiscs()
-Date:   Tue,  6 Sep 2022 15:29:48 +0200
-Message-Id: <20220906132831.109125560@linuxfoundation.org>
+Subject: [PATCH 5.19 041/155] net: phy: micrel: Make the GPIO to be non-exclusive
+Date:   Tue,  6 Sep 2022 15:29:49 +0200
+Message-Id: <20220906132831.142924443@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -54,109 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-[ Upstream commit f612466ebecb12a00d9152344ddda6f6345f04dc ]
+[ Upstream commit 4a4ce82212ef014d70f486a427005b2b5bab8e34 ]
 
-In attach_default_qdiscs(), if a dev has multiple queues and queue 0 fails
-to attach qdisc because there is no memory in attach_one_default_qdisc().
-Then dev->qdisc will be noop_qdisc by default. But the other queues may be
-able to successfully attach to default qdisc.
+The same GPIO line can be shared by multiple phys for the coma mode pin.
+If that is the case then, all the other phys that share the same line
+will failed to be probed because the access to the gpio line is not
+non-exclusive.
+Fix this by making access to the gpio line to be nonexclusive using flag
+GPIOD_FLAGS_BIT_NONEXCLUSIVE. This allows all the other PHYs to be
+probed.
 
-In this case, the fallback to noqueue process will be triggered. If the
-original attached qdisc is not released and a new one is directly
-attached, this will cause netdevice reference leaks.
-
-The following is the bug log:
-
-veth0: default qdisc (fq_codel) fail, fallback to noqueue
-unregister_netdevice: waiting for veth0 to become free. Usage count = 32
-leaked reference.
- qdisc_alloc+0x12e/0x210
- qdisc_create_dflt+0x62/0x140
- attach_one_default_qdisc.constprop.41+0x44/0x70
- dev_activate+0x128/0x290
- __dev_open+0x12a/0x190
- __dev_change_flags+0x1a2/0x1f0
- dev_change_flags+0x23/0x60
- do_setlink+0x332/0x1150
- __rtnl_newlink+0x52f/0x8e0
- rtnl_newlink+0x43/0x70
- rtnetlink_rcv_msg+0x140/0x3b0
- netlink_rcv_skb+0x50/0x100
- netlink_unicast+0x1bb/0x290
- netlink_sendmsg+0x37c/0x4e0
- sock_sendmsg+0x5f/0x70
- ____sys_sendmsg+0x208/0x280
-
-Fix this bug by clearing any non-noop qdiscs that may have been assigned
-before trying to re-attach.
-
-Fixes: bf6dba76d278 ("net: sched: fallback to qdisc noqueue if default qdisc setup fail")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20220826090055.24424-1-wanghai38@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 738871b09250ee ("net: phy: micrel: add coma mode GPIO")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Link: https://lore.kernel.org/r/20220830064055.2340403-1-horatiu.vultur@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_generic.c | 31 ++++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ drivers/net/phy/micrel.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index a64c3c1541118..b3596d4bd14a2 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -1125,6 +1125,21 @@ struct Qdisc *dev_graft_qdisc(struct netdev_queue *dev_queue,
- }
- EXPORT_SYMBOL(dev_graft_qdisc);
- 
-+static void shutdown_scheduler_queue(struct net_device *dev,
-+				     struct netdev_queue *dev_queue,
-+				     void *_qdisc_default)
-+{
-+	struct Qdisc *qdisc = dev_queue->qdisc_sleeping;
-+	struct Qdisc *qdisc_default = _qdisc_default;
-+
-+	if (qdisc) {
-+		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
-+		dev_queue->qdisc_sleeping = qdisc_default;
-+
-+		qdisc_put(qdisc);
-+	}
-+}
-+
- static void attach_one_default_qdisc(struct net_device *dev,
- 				     struct netdev_queue *dev_queue,
- 				     void *_unused)
-@@ -1172,6 +1187,7 @@ static void attach_default_qdiscs(struct net_device *dev)
- 	if (qdisc == &noop_qdisc) {
- 		netdev_warn(dev, "default qdisc (%s) fail, fallback to %s\n",
- 			    default_qdisc_ops->id, noqueue_qdisc_ops.id);
-+		netdev_for_each_tx_queue(dev, shutdown_scheduler_queue, &noop_qdisc);
- 		dev->priv_flags |= IFF_NO_QUEUE;
- 		netdev_for_each_tx_queue(dev, attach_one_default_qdisc, NULL);
- 		qdisc = txq->qdisc_sleeping;
-@@ -1450,21 +1466,6 @@ void dev_init_scheduler(struct net_device *dev)
- 	timer_setup(&dev->watchdog_timer, dev_watchdog, 0);
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 22139901f01c7..34483a4bd688a 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -2838,12 +2838,18 @@ static int lan8814_config_init(struct phy_device *phydev)
+ 	return 0;
  }
  
--static void shutdown_scheduler_queue(struct net_device *dev,
--				     struct netdev_queue *dev_queue,
--				     void *_qdisc_default)
--{
--	struct Qdisc *qdisc = dev_queue->qdisc_sleeping;
--	struct Qdisc *qdisc_default = _qdisc_default;
--
--	if (qdisc) {
--		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
--		dev_queue->qdisc_sleeping = qdisc_default;
--
--		qdisc_put(qdisc);
--	}
--}
--
- void dev_shutdown(struct net_device *dev)
++/* It is expected that there will not be any 'lan8814_take_coma_mode'
++ * function called in suspend. Because the GPIO line can be shared, so if one of
++ * the phys goes back in coma mode, then all the other PHYs will go, which is
++ * wrong.
++ */
+ static int lan8814_release_coma_mode(struct phy_device *phydev)
  {
- 	netdev_for_each_tx_queue(dev, shutdown_scheduler_queue, &noop_qdisc);
+ 	struct gpio_desc *gpiod;
+ 
+ 	gpiod = devm_gpiod_get_optional(&phydev->mdio.dev, "coma-mode",
+-					GPIOD_OUT_HIGH_OPEN_DRAIN);
++					GPIOD_OUT_HIGH_OPEN_DRAIN |
++					GPIOD_FLAGS_BIT_NONEXCLUSIVE);
+ 	if (IS_ERR(gpiod))
+ 		return PTR_ERR(gpiod);
+ 
 -- 
 2.35.1
 
