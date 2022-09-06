@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A759F5AF00A
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 18:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 231DC5AF00B
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 18:13:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233884AbiIFQNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 12:13:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54284 "EHLO
+        id S234950AbiIFQNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 12:13:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234388AbiIFQMt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 12:12:49 -0400
-Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3EDEA18B
-        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 08:39:35 -0700 (PDT)
-Received: from pps.filterd (m0250810.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 286BJQjU019175;
-        Tue, 6 Sep 2022 08:39:17 -0700
+        with ESMTP id S234859AbiIFQMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 12:12:51 -0400
+Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F5243C8DC
+        for <stable@vger.kernel.org>; Tue,  6 Sep 2022 08:39:36 -0700 (PDT)
+Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 286CWrgk004050;
+        Tue, 6 Sep 2022 15:39:19 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=PPS06212021;
- bh=gPLyUboCM7KgVhhyd5HeVzNjaBK5LtJVJeK6FkxU/sY=;
- b=Q1W/q3J5bxn3wb+WQLnyT82NklZqH2EjqWUzUitqf2qpwlb02aw9TL8AbLoQ9qWzoa0n
- RXxgTtzl+XVy0OTwUyGN9xnXR3sFLCf3oA1bPKmb5gBNu+KJgOGWlMRyDuNQ00IrOF0N
- lGMzC3ih7QfGx78V+fL58gWccLqLrM/pS59DkXYqJlS/IlAbbOG576v9hzgy5Mm/xYOu
- pcaZeiGSLJuuERdKnkwzD+VPaYF3ZwzzQBWyoY6b2ZvT1pNbeqWyZbqns0v9M0Zh35oW
- NEh8bRWKGG6glGVsvfFrZgRQdbVmflKAf/YANlQ4qxjMZZ+tTpkWq8jPZkoDFL9mEH3K uw== 
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2040.outbound.protection.outlook.com [104.47.66.40])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3jc272tkrp-1
+ bh=ebIt9gJ8Or6vtSD+kdtSzNBdShfJxfDTaUBseYXp+0o=;
+ b=ptbCJrOoivu8akBnPJLdyiclGH3GHOxjOIE2hYS6j8LUOHuVByRI+Ifvf5rkPEBqih/Q
+ UL5ntL56xM0Xg8XEaIJAyMXgkbwH3sVdGJ0mp1qi+Pr0g2EOimbr1MdioRF9MVBfTeYt
+ HfosyOx3nU37ZvI3V7Z4vh8oNM5DPR7yK1eI/VaGAUHC9B+Rv1eF0ElEnDz9WEdRejOE
+ kdy2Ug10KzOtJgXHZEENpGyMR6Qd7LEuDjq2CMcwPlD8VpsxCyaCr4908SXdGbKnNWmZ
+ Crcjlhcpa0V10iBBuH5jXi1IcmObuQcN4Lkr1oKc4RdciA18vt+jCTOXfkSj451/9WAt Qg== 
+Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2108.outbound.protection.outlook.com [104.47.55.108])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3jbvxdtr4k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Sep 2022 08:39:17 -0700
+        Tue, 06 Sep 2022 15:39:18 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cbn5tB2mwRp6c3eZWFQiiIx2n5RKN9SXEzLuEvQXX4jwX8znc8VuKS9KXsntv/OlqzycGedbIKfKZ2Bl7gEpNNAfo8LjeP4ws4ydQ17grWo1GWAUO6fiVio9AxWeQjJ239iJoqPnEM1vTclDQAROIjpaHVit1AzzqcbRV0wRCBlzI4BwTpFksiTP3gG6I1+QjdIXlSojpFrilU60zmFf39rU623lA/IpMd84yodalYWeZYzic6aaFax1FxpncwWrG7pAZincySVpWTTCU8/DJkpYdjVG+uRkW9z2oHPU1uTCb2ifrSZD0/jXBCoSg/J4SBoA32Xk8XTa0n1onx+Hdg==
+ b=Wh2/khmy5h31t9qbDScTCj0c/L7a6Nm66kiPhZlr68I6fL3eiYYixHrjdmU+MwuxNAW8oiCmxT5yjt2ojeGYPkRBQRmGFdvAGNUSNrPW4emaD50ypFUKW1s1TUVLNbZJihTlKhbwOD/KatYx+RV8rF0mf3UmH/B87QcxhEdKZ0aobHEOzkQqhwYyFA83rRcndOpg+U+5lvDwIi1+wxHCLALUxJ/+ypcUv3t/zhkOUnceWTO+kCe0wfb2UY51xXZSByZp37hcNooQ5FV3tssBD+hPQVPA1fSR9JV1S4KUBBRzC0ITLwC/7a8kt7QuN16vvc9+n1jY7FCUKybgQqHuSQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gPLyUboCM7KgVhhyd5HeVzNjaBK5LtJVJeK6FkxU/sY=;
- b=Mlov2JBwUP7jLmF2hNaZqfWBSy/PtmqjbRuEsF+VhSUsUmHhPnnIAGUJwyJaWcg20pfrgr0Ptp7EzKJk5QXKxZHhCyabbYR7DaKWLIiceQ1MMlfxQQCUNgu9LLCNXJwwMRDKvtdN+3+/dP++wtHBSafJqV9YgZncu+5MpVPmspLu/q0/DlE0dbx5YI5g5V7D3yotpCIkxytGpoI7d+2Wmrpl7NcVJxCp4gU1yJb/9Uw5U1NuGItsvY+uwqloFSAP4xHddCUjWZlKVKfAsjUsk+xav9RUiI5z90lsdJfKAOrFNwYSGXYp6VQha2YiQ8fTDC+ZlhLJwpRPc52rS07OnA==
+ bh=ebIt9gJ8Or6vtSD+kdtSzNBdShfJxfDTaUBseYXp+0o=;
+ b=OxnRqmFhY7EDiV0nBTInJKqO7+/aEqTwhDeeE5rOySACXktsLC4XTlZ5nYPTB6KrKijLn8CjBwW2P25AB2xKL62qOIajm1dVa0dlF6V/YLpOJ2s5GoyhRSjlWEQCZTarWaWk9SUqikdtmrcUrsDmMAWXzO3WHqBPl12jFCJGMWlrMLa+xTwm+2E7/O/QfWpJG5Q1siNjrNLV1G2GfSYMggykxFR8Eunip1hMppXq9yxt23tLjHHmY7l+QMcT+kYhtBjIghWg2wSvcA+st0nwl+p2tHSyDqGX48EZ4ntYyGpnQidixr8g4RQp7GA22BZBYD6G5mr8XRWnaf9jp8zDwg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -44,19 +44,19 @@ Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
  by MWHPR1101MB2095.namprd11.prod.outlook.com (2603:10b6:301:5b::18) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.15; Tue, 6 Sep
- 2022 15:39:15 +0000
+ 2022 15:39:17 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::b4a9:c48a:51c2:d3fd]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::b4a9:c48a:51c2:d3fd%4]) with mapi id 15.20.5588.018; Tue, 6 Sep 2022
- 15:39:15 +0000
+ 15:39:16 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
-Cc:     Stanislav Fomichev <sdf@google.com>,
+Cc:     Maxim Mikityanskiy <maximmi@nvidia.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 2/3] selftests/bpf: Fix test_align verifier log patterns
-Date:   Tue,  6 Sep 2022 18:38:54 +0300
-Message-Id: <20220906153855.2515437-3-ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 3/3] bpf: Fix the off-by-two error in range markings
+Date:   Tue,  6 Sep 2022 18:38:55 +0300
+Message-Id: <20220906153855.2515437-4-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220906153855.2515437-1-ovidiu.panait@windriver.com>
 References: <20220906153855.2515437-1-ovidiu.panait@windriver.com>
@@ -67,63 +67,63 @@ X-ClientProxiedBy: VI1PR08CA0125.eurprd08.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 18266839-d912-41fd-968a-08da901df449
+X-MS-Office365-Filtering-Correlation-Id: 6786f064-24d5-4b62-bc73-08da901df52e
 X-MS-TrafficTypeDiagnostic: MWHPR1101MB2095:EE_
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: JYSOJ1dgiKovd4el/hcOhpylLx1UO/smrFT2VusBWJS87KJ4zVjqByrT4QsqIHL3Q/D2B7B8uN7aP+tltf4tg4Tj/acGgIpvcUNUUhJqn3Ch15x+N7o6gRxxkiBR4iTaGfJ1Q6ZnuFb28V/IFs2DcYrK/XH/fwU3vc9do2jHXIJirwjxsUdNPTeW9pmlRmhRfZ1NZy/wx5xXMKNfZAxvZN9dmf9DpFOr4s9HOqi8QoD6EXQO5Ef9VZSxgLedkEWr1mYp/wJ50NEbZDgyBajU2WSfd4rDgV9kjX9OPqYeRpMs3q4erk1Yzunu8UNcKiN1GNDWIY6Set0STpy1Qmkk5P3PLW/yU/bFtE8iZTn2/n4aJJkCWwpXIeHuyq8YjoZM3/crBaWN/QxRzBoIS5vSav1t2Vuc8VIzeOe0NJeZi8pSx8nfUN9drI7FtF7wARi3RapY2t2cQfMJoc70FrZi00yM/b0p+yUo56ePsapRUFq/Wwg4LbrOf9QYinTcQrfr1y1aZyxEOna3RkiIdkYrvMVSDKGNJfCoSvPUBfNpGnS2Dz0177GxjH/eLFzkPh+ep6aj8qvAK6/PtXyIJTu7P9yzFRLzRZwF4ZWz0xQM2f5qSVCWgXk1p1r10lpOZ+fvnBs5wGHcxcvMda7PDOWFvL6seztV35Kc/k3svvCladhN7dM/m/r/PAvCZjaPO2/GjgjtwDTYE1Ozd8gM2FgZsyDVune31B6yBPzGFAZ9F9bNEsGxm41MoHqGzyCpTPaylQN/FsEmpO6VfAWXkwNpP3AuXkVILbLxFHMLF1ywAvE=
+X-Microsoft-Antispam-Message-Info: ZnoXO3pkN6mn125MhaFBKLNtNaM/OK72O3TnVPBpNczOZndueM2jLvblfA6U0DJbB1EZ6eAWTvpbYCA3F4+W0pqk28m296T4wbl2rlVj3eWyRJzL/5SEHbsDk4ho9MbN8kRZVLhdalTk8FqFB5Kxx3f19vFu8FvMv6hXAfqw5w3BBsB01SiDd8qGd8Vk6n21tVXhzoCySYLXrMcVJL6Pm44V9rYthckVo08qyOuGePaoohVxZ3j5Cd0Q9aKxMs8ZHMNZjyQluZvs7h/ZY1iIlJauNIr41x1o2Z3+f0/GB0XUS+z8avNPQMP4ue2NA3xvkJFr+PnlkzJ/ZfP/iQ3Pu6V8TluITURQ3cSxMdRyuRu01rxRRXiikQZjubJphNf5QlUpYbe+T7fiqQOVcVGbMj4tLW3jNXjGStsAUcqSnKG9sO+bVyOF+8aCgvghkfLvmuUp+H8B0aygASA64/q979TPL/4FaLI8crE0xokoGXswtaSGdAOAfcZ+GIEpZ2fcNqxJvNEA2OGhacY4d/556Yi6RwrJoEaeCMsyoqz7EhxkzEK15WdhZu2L6K0PHCYtpo4G0uIhAYi6deFV4dGIukA9j2EyZGGQHPPDZ/LuZcFLWiBmEDLrTQgrJEqzEGD6YRiZW9N0pxgrFxnVNSHo1mvWPsZOOEQBenVNCJ2+ibifAZG1JtrwGm5qmC+KioZ0j19vPXqgfDPJXu4z/j/Spaht+Y67RuTd98kkQm4Sty6dhQ0TqYqZUMPlDjKeXl+YQmFPWOsKbVIdDAsbVFx7pEmUBS8I25wJWQ9Zqv2XcIw=
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(376002)(39850400004)(366004)(346002)(136003)(396003)(6666004)(38100700002)(107886003)(5660300002)(41300700001)(6512007)(52116002)(38350700002)(6486002)(83380400001)(966005)(26005)(186003)(6506007)(2616005)(478600001)(1076003)(316002)(66476007)(66946007)(86362001)(44832011)(36756003)(8936002)(8676002)(2906002)(4326008)(54906003)(66556008)(6916009);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?bla28ocgvJDdGU85s62quHyEu+NObGv7AhY8aFsaEi66ItSDZaL+P+akZBEG?=
- =?us-ascii?Q?pPhZdTd5+XOtkUDYLF8+sdZrB2y5FVyYeq0mUQi/GfU6ZW8+W2i0a1sCZsgM?=
- =?us-ascii?Q?OsEInr60nxC0VYJqf7r5hjZHNw5ArOtGWv61NWJjDc0MyviQ87fyUwR4tKxn?=
- =?us-ascii?Q?qjFKXNyXTqwUT2V47fYOzO4kkoZb63yHZ2UtH9WweXSgWH8eEhjVWg1czMEg?=
- =?us-ascii?Q?9K1DBVoQ/ch2WQOZmHPzbVv4qq+XgfJuuChBetBwy7HelPIJQMXQ6N0USswL?=
- =?us-ascii?Q?ZgimmshqXuDAuiuRoYdEPUn9WQExk6h4AbDRMlGJSzAekQ4DaQrSulPhHTXw?=
- =?us-ascii?Q?CYvMIQxwaoE+DKdSlUcK1ZNaqie2MXYBmANAKH/0Gyy40bbtS///ckoMFZ7J?=
- =?us-ascii?Q?/GWRrlXYxPNI12VG4OIRKDpiy16uVgJCAO6UQc+iDw7dHeX8cZDxPsvwox0c?=
- =?us-ascii?Q?ViirJCl7CEIvxH+y/I/FEzbzcDjnPxARx1jqYzIRJ4goUEYa0OZ1eA1LfEVS?=
- =?us-ascii?Q?tpI1HEEWIUR8TUhPcLJyxD8US2uCknDslzZj7KkEzofDkMrp5hqnlhNK+8E/?=
- =?us-ascii?Q?BU7/0hOEd1e6YrMcnINMuelrYsv5SAs4K+9l9xKNyT73cIQzWkWeCl3OsJmf?=
- =?us-ascii?Q?6nhYnmZLmMrcG5YMQkWA9qPyMSQbIDahTiSCXlgxVXePxqO9D6Z0g3hx23Tl?=
- =?us-ascii?Q?pz2QtXlLUqiymDj7V6q1m2h3YsbJzFpk+immFJXneCpWjIgGaUohueIIme+R?=
- =?us-ascii?Q?7+pXARPk4GgTXFIugyImF1srcF3/AxdMRKSZDsLdsQ9zsXjdJpk7umjEBTek?=
- =?us-ascii?Q?rSNfxMsAqRVdZt0fv5QRPBS23zUUQz2oUvq3cHQhtOYq+WWrRluYfFjYuUtn?=
- =?us-ascii?Q?PMpaKmJYh8whLRvl9v+ZsbfWJPrFY7deSS2AH2bD3kf93j55oUEW2qiL9ux+?=
- =?us-ascii?Q?dPmHW/W0mJiuEEofIxk/Jv+2AtqtRFa//tKbnz2CJMRfRluMji1cpSY36IfE?=
- =?us-ascii?Q?mIsYIdR/YYiD9OmTuopp3vIyRnTaXTlo5yRzllT2j7JzcxGP11fvkL6Bauqy?=
- =?us-ascii?Q?ApsDqT1N9s4dVibvN0L7MTDvDK2cHXHAGbdhmHaZ0pG/5fTBB9JOIVeMFwOy?=
- =?us-ascii?Q?5gs5urMM+uYZAQypVTDxhvZ10mVNiUy6q6Fb8nQIwsdntKyvEeiSABxjmlm8?=
- =?us-ascii?Q?daGBncd3qNFeoiB4MW3ba2oHihEkddON7DDRtNkLFfsdgOg6tuTyBM166/p6?=
- =?us-ascii?Q?wMswAqjTTStL+/sbWr/GTRZwi5h2TLszVwVBO4FVcN7vPghRAvUCwlaqlnqX?=
- =?us-ascii?Q?PhYElwiuI2aOauFoEMXWj7zNBxfM2JUBfF1di72ob1BFxEEhLr8TAkl0BOSm?=
- =?us-ascii?Q?pi9g3bWkGc6M50AZnIZdXF7oZwjIdq62U9wJqtK6JkhEEjWyiK0GQaRp/0Xn?=
- =?us-ascii?Q?jqM4L0XT4LpmGofE3B2BmtyPTXRz4x0sT5J99ALqX/7Z2ccBI0tJl0Jn3+oB?=
- =?us-ascii?Q?fWbGg2jKIQEn1UTec5WhUKVk1JD4fOBMk2JFUWLE23iWcvNhwVfJM7kcavFk?=
- =?us-ascii?Q?2JbUl//ONT/i4CrxkgjyLONmOWn7WLqGQnPkKMnAIRQQeKjG7DCQZgMmfewO?=
- =?us-ascii?Q?Uw=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?HeMcQGtCfjLL9QRH6LcCiueOx/AAw1GshaJntOFirBoaSLUZtaMD+rCew1p1?=
+ =?us-ascii?Q?oaJdElYRMSh7QJzS2YbApmgpIG4gjoEVUrilnGVcePSMSdeIxuBtpTS049hI?=
+ =?us-ascii?Q?YXVSnnwXtxRr7WswaWAwu8uFRQjNM0JoLqK9RiOzVzfJHzcCFuUoS72ht4Gm?=
+ =?us-ascii?Q?PyPzSrfvQkriHbDSlF7zZhSGExXkuxiuG5HLTR6RCXahvIDSexbeCSFB0AyW?=
+ =?us-ascii?Q?Av/l/D+TEfc77voNYBNAdlYL42lzW4x5xoZ+JB3j69aNd35BGHiA1CQ3cC/Q?=
+ =?us-ascii?Q?x1/dTP9nv7E/j7y/Hu3GFHCt9HUvruRfGZGxudseto3+Z5gZNqcmqVlbBgco?=
+ =?us-ascii?Q?PL0H7JTf8avyoJrqcyul23GcinurzaxzPdXWv6QcSVgRuP4pHyGBO/PkNDak?=
+ =?us-ascii?Q?vzqNaryKIY19X+0ISENJ2F53emcHPnn8lDi1bddMbY9BCaxci5oF6kptL3Qy?=
+ =?us-ascii?Q?M5QIWw5XYR4a/kiDa01Wf2R6xPBa5+0fJzcDvq04nhwuq69ofnhOM7yNEFXD?=
+ =?us-ascii?Q?odaWBPxBlgZO6Ni+9BonvD/Ye1KbxSCg4n4ey+W02HF39NCkp9SF2yiU8rvW?=
+ =?us-ascii?Q?Mt1lT56DaD3dKGbLe+aWc9ks/80eGdTqfUHL5OdLmTy4TMsZ25slIEx0n4p5?=
+ =?us-ascii?Q?mfFBNOioTlyy9pvC2dCj84Kiv/rUnszg18nHbHUZGyOCwKe9cQlY+NVjEOzx?=
+ =?us-ascii?Q?qoaNiydjdfiHfN7OCFh2oLjOCR0n8Wx7aYLeP72PPV1I/jgT5LU2wf/VVWil?=
+ =?us-ascii?Q?8S9JrcOtcfH755lsGRgzRME12S69po2k5u3rFj8GxFcE7B2EXneyq0hNYa4d?=
+ =?us-ascii?Q?AqEqsNn0mJ8aKSpFwunAuuz1GbO5BDVO/jN4wS2d7US81SIcWj1crRWBPkIs?=
+ =?us-ascii?Q?dCt5P1t5f9u37bSu+Vm9PINK8pZFag+1QZhctFvIUApEDQGXjFppTEVypImr?=
+ =?us-ascii?Q?v5/O/RxtHtolaOlKqG1G0x7dZB86cbBStmarpgu78hU+6sfugauopC7eM+6e?=
+ =?us-ascii?Q?lXRVC+Nv2PQbr5e2sXhxDcdFf3nIcXz521X4OV9OSbFl9NddqhwM84eNaC7l?=
+ =?us-ascii?Q?4+Vca3eCDBUHu2C8JJ3vf/DUa1M0yleU7Zz9ybZDGfl7zN+qx29XoCQhmkrM?=
+ =?us-ascii?Q?dNRUzu2PldVBsz1Hh1H+X8xWKR1DKhbgOqKPaVtBOq4470PwTM4KxyXGYQVp?=
+ =?us-ascii?Q?q2svAL8vpxNiNjdsuvi7orwIalL/oDtBQYjvMnyJEQxz9+14Xs7MhNRonaVm?=
+ =?us-ascii?Q?T+87Y40ybhZwfXWOoAs/SZhbYZVZER88K41uKsK9ZNHt9ljkniu/WbAkBJoy?=
+ =?us-ascii?Q?iWU9IRHixNBwam0UVhMlJ3TJ4BliW6NOvxMQHZKxAD/zBEa1Xlr19CCcxRQ8?=
+ =?us-ascii?Q?wGXizEViBDRf0TPDvWCjrLSBtZ54ZdRRRvtppdxlbjS45kwPGG3uvHgdZyTH?=
+ =?us-ascii?Q?ex0lpDmHXebMA/i/WtiQE4E0Vhne85ZFDbUB9piJZPL4J4AXo27+q/pqJ96e?=
+ =?us-ascii?Q?zFLKh5d7WaS0MjTMgt7q40K33M+luzk2MQqwczdxc/T1dQ/W5A+511aKRVD4?=
+ =?us-ascii?Q?C8gSt7KJIjGU99wXF4f+2o0ES2NV5sDzWbQhL8z3S4XnUEVeN2DWQdahXRpe?=
+ =?us-ascii?Q?Ig=3D=3D?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 18266839-d912-41fd-968a-08da901df449
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6786f064-24d5-4b62-bc73-08da901df52e
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Sep 2022 15:39:15.5604
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Sep 2022 15:39:16.9528
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /41MdnMmvDDwMxtwGM2fAGtk0hquqPSEsmzQPmyxkDvAbJUnnjpy5Pzv4iCT348/MhKtvN89Z2/ytoljsFBOt0SLfEg8pKZLjjDMT1Vxfzo=
+X-MS-Exchange-CrossTenant-UserPrincipalName: bbZexxcwCiGk5yCt30fg85dHqTlsd1WnZVzULpAb3HF6fioc1REm2vgTwbJNba6onpbkXwhoJykBMIuhqVQbcU1eOYlLbsfgRwTPvJbrtCA=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR1101MB2095
-X-Proofpoint-GUID: YlnjzM6AOtl0UY5ppAWGl3TgH0DTkVsB
-X-Proofpoint-ORIG-GUID: YlnjzM6AOtl0UY5ppAWGl3TgH0DTkVsB
+X-Proofpoint-GUID: 5PwWarRuwQGCcWb7e_1ohVx7kxP__tBH
+X-Proofpoint-ORIG-GUID: 5PwWarRuwQGCcWb7e_1ohVx7kxP__tBH
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-06_09,2022-09-06_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 adultscore=0 spamscore=0 clxscore=1015 impostorscore=0
- mlxscore=0 lowpriorityscore=0 bulkscore=0 mlxlogscore=999 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2209060074
+ definitions=2022-09-06_08,2022-09-06_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
+ bulkscore=0 malwarescore=0 impostorscore=0 lowpriorityscore=0
+ priorityscore=1501 phishscore=0 suspectscore=0 clxscore=1015 adultscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209060073
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -134,119 +134,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislav Fomichev <sdf@google.com>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-commit 5366d2269139ba8eb6a906d73a0819947e3e4e0a upstream.
+commit 2fa7d94afc1afbb4d702760c058dc2d7ed30f226 upstream.
 
-Commit 294f2fc6da27 ("bpf: Verifer, adjust_scalar_min_max_vals to always
-call update_reg_bounds()") changed the way verifier logs some of its state,
-adjust the test_align accordingly. Where possible, I tried to not copy-paste
-the entire log line and resorted to dropping the last closing brace instead.
+The first commit cited below attempts to fix the off-by-one error that
+appeared in some comparisons with an open range. Due to this error,
+arithmetically equivalent pieces of code could get different verdicts
+from the verifier, for example (pseudocode):
 
-Fixes: 294f2fc6da27 ("bpf: Verifer, adjust_scalar_min_max_vals to always call update_reg_bounds()")
-Signed-off-by: Stanislav Fomichev <sdf@google.com>
+  // 1. Passes the verifier:
+  if (data + 8 > data_end)
+      return early
+  read *(u64 *)data, i.e. [data; data+7]
+
+  // 2. Rejected by the verifier (should still pass):
+  if (data + 7 >= data_end)
+      return early
+  read *(u64 *)data, i.e. [data; data+7]
+
+The attempted fix, however, shifts the range by one in a wrong
+direction, so the bug not only remains, but also such piece of code
+starts failing in the verifier:
+
+  // 3. Rejected by the verifier, but the check is stricter than in #1.
+  if (data + 8 >= data_end)
+      return early
+  read *(u64 *)data, i.e. [data; data+7]
+
+The change performed by that fix converted an off-by-one bug into
+off-by-two. The second commit cited below added the BPF selftests
+written to ensure than code chunks like #3 are rejected, however,
+they should be accepted.
+
+This commit fixes the off-by-two error by adjusting new_range in the
+right direction and fixes the tests by changing the range into the
+one that should actually fail.
+
+Fixes: fb2a311a31d3 ("bpf: fix off by one for range markings with L{T, E} patterns")
+Fixes: b37242c773b2 ("bpf: add test cases to bpf selftests to cover all access tests")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20200515194904.229296-1-sdf@google.com
-[OP: adjust for 4.14 selftests, apply only the relevant diffs]
+Link: https://lore.kernel.org/bpf/20211130181607.593149-1-maximmi@nvidia.com
+[OP: only cherry-pick selftest changes applicable to 4.14]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
- tools/testing/selftests/bpf/test_align.c | 27 ++++++++++++------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ tools/testing/selftests/bpf/test_verifier.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/test_align.c b/tools/testing/selftests/bpf/test_align.c
-index 5d530c90779e..6004ae268a80 100644
---- a/tools/testing/selftests/bpf/test_align.c
-+++ b/tools/testing/selftests/bpf/test_align.c
-@@ -363,15 +363,15 @@ static struct bpf_align_test tests[] = {
- 			 * is still (4n), fixed offset is not changed.
- 			 * Also, we create a new reg->id.
- 			 */
--			{29, "R5=pkt(id=4,off=18,r=0,umax_value=2040,var_off=(0x0; 0x7fc))"},
-+			{29, "R5=pkt(id=4,off=18,r=0,umax_value=2040,var_off=(0x0; 0x7fc)"},
- 			/* At the time the word size load is performed from R5,
- 			 * its total fixed offset is NET_IP_ALIGN + reg->off (18)
- 			 * which is 20.  Then the variable offset is (4n), so
- 			 * the total offset is 4-byte aligned and meets the
- 			 * load's requirements.
- 			 */
--			{33, "R4=pkt(id=4,off=22,r=22,umax_value=2040,var_off=(0x0; 0x7fc))"},
--			{33, "R5=pkt(id=4,off=18,r=22,umax_value=2040,var_off=(0x0; 0x7fc))"},
-+			{33, "R4=pkt(id=4,off=22,r=22,umax_value=2040,var_off=(0x0; 0x7fc)"},
-+			{33, "R5=pkt(id=4,off=18,r=22,umax_value=2040,var_off=(0x0; 0x7fc)"},
+diff --git a/tools/testing/selftests/bpf/test_verifier.c b/tools/testing/selftests/bpf/test_verifier.c
+index 0846345fe1e5..f7757f7f6d2b 100644
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -7438,10 +7438,10 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data_end)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JGT, BPF_REG_3, BPF_REG_1, 1),
+ 			BPF_JMP_IMM(BPF_JA, 0, 0, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
  		},
- 	},
- 	{
-@@ -414,15 +414,15 @@ static struct bpf_align_test tests[] = {
- 			/* Adding 14 makes R6 be (4n+2) */
- 			{9, "R6=inv(id=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc))"},
- 			/* Packet pointer has (4n+2) offset */
--			{11, "R5=pkt(id=1,off=0,r=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc))"},
--			{13, "R4=pkt(id=1,off=4,r=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc))"},
-+			{11, "R5=pkt(id=1,off=0,r=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc)"},
-+			{13, "R4=pkt(id=1,off=4,r=0,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc)"},
- 			/* At the time the word size load is performed from R5,
- 			 * its total fixed offset is NET_IP_ALIGN + reg->off (0)
- 			 * which is 2.  Then the variable offset is (4n+2), so
- 			 * the total offset is 4-byte aligned and meets the
- 			 * load's requirements.
- 			 */
--			{15, "R5=pkt(id=1,off=0,r=4,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc))"},
-+			{15, "R5=pkt(id=1,off=0,r=4,umin_value=14,umax_value=1034,var_off=(0x2; 0x7fc)"},
- 			/* Newly read value in R6 was shifted left by 2, so has
- 			 * known alignment of 4.
- 			 */
-@@ -430,15 +430,15 @@ static struct bpf_align_test tests[] = {
- 			/* Added (4n) to packet pointer's (4n+2) var_off, giving
- 			 * another (4n+2).
- 			 */
--			{19, "R5=pkt(id=2,off=0,r=0,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc))"},
--			{21, "R4=pkt(id=2,off=4,r=0,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc))"},
-+			{19, "R5=pkt(id=2,off=0,r=0,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc)"},
-+			{21, "R4=pkt(id=2,off=4,r=0,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc)"},
- 			/* At the time the word size load is performed from R5,
- 			 * its total fixed offset is NET_IP_ALIGN + reg->off (0)
- 			 * which is 2.  Then the variable offset is (4n+2), so
- 			 * the total offset is 4-byte aligned and meets the
- 			 * load's requirements.
- 			 */
--			{23, "R5=pkt(id=2,off=0,r=4,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc))"},
-+			{23, "R5=pkt(id=2,off=0,r=4,umin_value=14,umax_value=2054,var_off=(0x2; 0xffc)"},
+@@ -7494,10 +7494,10 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data_end)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JLT, BPF_REG_1, BPF_REG_3, 1),
+ 			BPF_JMP_IMM(BPF_JA, 0, 0, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
  		},
- 	},
- 	{
-@@ -473,11 +473,11 @@ static struct bpf_align_test tests[] = {
- 		.matches = {
- 			{4, "R5=pkt_end(id=0,off=0,imm=0)"},
- 			/* (ptr - ptr) << 2 == unknown, (4n) */
--			{6, "R5=inv(id=0,smax_value=9223372036854775804,umax_value=18446744073709551612,var_off=(0x0; 0xfffffffffffffffc))"},
-+			{6, "R5=inv(id=0,smax_value=9223372036854775804,umax_value=18446744073709551612,var_off=(0x0; 0xfffffffffffffffc)"},
- 			/* (4n) + 14 == (4n+2).  We blow our bounds, because
- 			 * the add could overflow.
- 			 */
--			{7, "R5=inv(id=0,var_off=(0x2; 0xfffffffffffffffc))"},
-+			{7, "R5=inv(id=0,smin_value=-9223372036854775806,smax_value=9223372036854775806,umin_value=2,umax_value=18446744073709551614,var_off=(0x2; 0xfffffffffffffffc)"},
- 			/* Checked s>=0 */
- 			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
- 			/* packet pointer + nonnegative (4n+2) */
-@@ -532,7 +532,7 @@ static struct bpf_align_test tests[] = {
- 			/* New unknown value in R7 is (4n) */
- 			{11, "R7=inv(id=0,umax_value=1020,var_off=(0x0; 0x3fc))"},
- 			/* Subtracting it from R6 blows our unsigned bounds */
--			{12, "R6=inv(id=0,smin_value=-1006,smax_value=1034,var_off=(0x2; 0xfffffffffffffffc))"},
-+			{12, "R6=inv(id=0,smin_value=-1006,smax_value=1034,umin_value=2,umax_value=18446744073709551614,var_off=(0x2; 0xfffffffffffffffc)"},
- 			/* Checked s>= 0 */
- 			{14, "R6=inv(id=0,umin_value=2,umax_value=1034,var_off=(0x2; 0x7fc))"},
- 			/* At the time the word size load is performed from R5,
-@@ -541,7 +541,8 @@ static struct bpf_align_test tests[] = {
- 			 * the total offset is 4-byte aligned and meets the
- 			 * load's requirements.
- 			 */
--			{20, "R5=pkt(id=1,off=0,r=4,umin_value=2,umax_value=1034,var_off=(0x2; 0x7fc))"},
-+			{20, "R5=pkt(id=1,off=0,r=4,umin_value=2,umax_value=1034,var_off=(0x2; 0x7fc)"},
-+
+@@ -7603,9 +7603,9 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data_end)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JGE, BPF_REG_1, BPF_REG_3, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
  		},
- 	},
- 	{
+@@ -7770,9 +7770,9 @@ static struct bpf_test tests[] = {
+ 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
+ 				    offsetof(struct xdp_md, data_end)),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_2),
+-			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 8),
++			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 6),
+ 			BPF_JMP_REG(BPF_JLE, BPF_REG_3, BPF_REG_1, 1),
+-			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -8),
++			BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_1, -6),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_EXIT_INSN(),
+ 		},
 -- 
 2.37.2
 
