@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6BB75AE9F7
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DACB05AEA0D
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 15:43:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240657AbiIFNh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 09:37:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52446 "EHLO
+        id S240796AbiIFNhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 09:37:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240658AbiIFNg1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:36:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C013A8;
-        Tue,  6 Sep 2022 06:34:23 -0700 (PDT)
+        with ESMTP id S240717AbiIFNg4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 09:36:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1C7C1160;
+        Tue,  6 Sep 2022 06:34:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9105B8162F;
-        Tue,  6 Sep 2022 13:34:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F7CDC433C1;
-        Tue,  6 Sep 2022 13:34:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98A016154A;
+        Tue,  6 Sep 2022 13:34:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C7CEC433D6;
+        Tue,  6 Sep 2022 13:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471259;
-        bh=VY3oNhA7IZj58Y+dGVC/lEo2kbWgI1BhCbuVBbof5wI=;
+        s=korg; t=1662471264;
+        bh=z/Oako/OHqlxEBsGpExXXPCoqeefWnC2mfT3YBb4Hms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIXWKGa9xskNJUdp8OwyNt0m8DjwyZqWpDd7oC82QUWWIPzPUZDGS+hw4c6J4roOp
-         HEsBE4cEDI25ZpaIHvDIdd1t+EviObkjwQgDBd9KgcUFO3AUWsvBeATxBzOnRknnsP
-         9CsgqShP/Ni/DzB2Zx/eK1VVV8o6AzTS1qJ7uwMk=
+        b=BDzvNv/Y6wHsrlV9tY0K2S//LgPBxMef7lUneIw2wygTGikVT5+qfzyufQYyzIdO2
+         75CnwyEZRaf5n8tZEa4WySrDRZfkaVeYAdFeU4TgUEAYpAHOEchUjlowhSIFxKZHiO
+         ifxBFPG4etXKfhM8pVMbeIPVvJpD6ZJIh/5aGEQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.10 49/80] thunderbolt: Use the actual buffer in tb_async_error()
-Date:   Tue,  6 Sep 2022 15:30:46 +0200
-Message-Id: <20220906132819.055658212@linuxfoundation.org>
+        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Rondreis <linhaoguo86@gmail.com>
+Subject: [PATCH 5.10 50/80] media: mceusb: Use new usb_control_msg_*() routines
+Date:   Tue,  6 Sep 2022 15:30:47 +0200
+Message-Id: <20220906132819.106594119@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
 References: <20220906132816.936069583@linuxfoundation.org>
@@ -53,31 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit eb100b8fa8e8b59eb3e5fc7a5fd4a1e3c5950f64 upstream.
+commit 608e58a0f4617977178131f5f68a3fce1d3f5316 upstream.
 
-The received notification packet is held in pkg->buffer and not in pkg
-itself. Fix this by using the correct buffer.
+Automatic kernel fuzzing led to a WARN about invalid pipe direction in
+the mceusb driver:
 
-Fixes: 81a54b5e1986 ("thunderbolt: Let the connection manager handle all notifications")
+------------[ cut here ]------------
+usb 6-1: BOGUS control dir, pipe 80000380 doesn't match bRequestType 40
+WARNING: CPU: 0 PID: 2465 at drivers/usb/core/urb.c:410
+usb_submit_urb+0x1326/0x1820 drivers/usb/core/urb.c:410
+Modules linked in:
+CPU: 0 PID: 2465 Comm: kworker/0:2 Not tainted 5.19.0-rc4-00208-g69cb6c6556ad #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.13.0-1ubuntu1.1 04/01/2014
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:usb_submit_urb+0x1326/0x1820 drivers/usb/core/urb.c:410
+Code: 7c 24 40 e8 ac 23 91 fd 48 8b 7c 24 40 e8 b2 70 1b ff 45 89 e8
+44 89 f1 4c 89 e2 48 89 c6 48 c7 c7 a0 30 a9 86 e8 48 07 11 02 <0f> 0b
+e9 1c f0 ff ff e8 7e 23 91 fd 0f b6 1d 63 22 83 05 31 ff 41
+RSP: 0018:ffffc900032becf0 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: ffff8881100f3058 RCX: 0000000000000000
+RDX: ffffc90004961000 RSI: ffff888114c6d580 RDI: fffff52000657d90
+RBP: ffff888105ad90f0 R08: ffffffff812c3638 R09: 0000000000000000
+R10: 0000000000000005 R11: ffffed1023504ef1 R12: ffff888105ad9000
+R13: 0000000000000040 R14: 0000000080000380 R15: ffff88810ba96500
+FS: 0000000000000000(0000) GS:ffff88811a800000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffe810bda58 CR3: 000000010b720000 CR4: 0000000000350ef0
+Call Trace:
+<TASK>
+usb_start_wait_urb+0x101/0x4c0 drivers/usb/core/message.c:58
+usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+usb_control_msg+0x31c/0x4a0 drivers/usb/core/message.c:153
+mceusb_gen1_init drivers/media/rc/mceusb.c:1431 [inline]
+mceusb_dev_probe+0x258e/0x33f0 drivers/media/rc/mceusb.c:1807
+
+The reason for the warning is clear enough; the driver sends an
+unusual read request on endpoint 0 but does not set the USB_DIR_IN bit
+in the bRequestType field.
+
+More importantly, the whole situation can be avoided and the driver
+simplified by converting it over to the relatively new
+usb_control_msg_recv() and usb_control_msg_send() routines.  That's
+what this fix does.
+
+Link: https://lore.kernel.org/all/CAB7eexLLApHJwZfMQ=X-PtRhw0BgO+5KcSMS05FNUYejJXqtSA@mail.gmail.com/
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reported-and-tested-by: Rondreis <linhaoguo86@gmail.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/YwkfnBFCSEVC6XZu@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/ctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/rc/mceusb.c |   35 ++++++++++++++---------------------
+ 1 file changed, 14 insertions(+), 21 deletions(-)
 
---- a/drivers/thunderbolt/ctl.c
-+++ b/drivers/thunderbolt/ctl.c
-@@ -396,7 +396,7 @@ static void tb_ctl_rx_submit(struct ctl_
- 
- static int tb_async_error(const struct ctl_pkg *pkg)
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1416,42 +1416,37 @@ static void mceusb_gen1_init(struct mceu
  {
--	const struct cfg_error_pkg *error = (const struct cfg_error_pkg *)pkg;
-+	const struct cfg_error_pkg *error = pkg->buffer;
+ 	int ret;
+ 	struct device *dev = ir->dev;
+-	char *data;
+-
+-	data = kzalloc(USB_CTRL_MSG_SZ, GFP_KERNEL);
+-	if (!data) {
+-		dev_err(dev, "%s: memory allocation failed!", __func__);
+-		return;
+-	}
++	char data[USB_CTRL_MSG_SZ];
  
- 	if (pkg->frame.eof != TB_CFG_PKG_ERROR)
- 		return false;
+ 	/*
+ 	 * This is a strange one. Windows issues a set address to the device
+ 	 * on the receive control pipe and expect a certain value pair back
+ 	 */
+-	ret = usb_control_msg(ir->usbdev, usb_rcvctrlpipe(ir->usbdev, 0),
+-			      USB_REQ_SET_ADDRESS, USB_TYPE_VENDOR, 0, 0,
+-			      data, USB_CTRL_MSG_SZ, 3000);
++	ret = usb_control_msg_recv(ir->usbdev, 0, USB_REQ_SET_ADDRESS,
++				   USB_DIR_IN | USB_TYPE_VENDOR,
++				   0, 0, data, USB_CTRL_MSG_SZ, 3000,
++				   GFP_KERNEL);
+ 	dev_dbg(dev, "set address - ret = %d", ret);
+ 	dev_dbg(dev, "set address - data[0] = %d, data[1] = %d",
+ 						data[0], data[1]);
+ 
+ 	/* set feature: bit rate 38400 bps */
+-	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+-			      USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
+-			      0xc04e, 0x0000, NULL, 0, 3000);
++	ret = usb_control_msg_send(ir->usbdev, 0,
++				   USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
++				   0xc04e, 0x0000, NULL, 0, 3000, GFP_KERNEL);
+ 
+ 	dev_dbg(dev, "set feature - ret = %d", ret);
+ 
+ 	/* bRequest 4: set char length to 8 bits */
+-	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+-			      4, USB_TYPE_VENDOR,
+-			      0x0808, 0x0000, NULL, 0, 3000);
++	ret = usb_control_msg_send(ir->usbdev, 0,
++				   4, USB_TYPE_VENDOR,
++				   0x0808, 0x0000, NULL, 0, 3000, GFP_KERNEL);
+ 	dev_dbg(dev, "set char length - retB = %d", ret);
+ 
+ 	/* bRequest 2: set handshaking to use DTR/DSR */
+-	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+-			      2, USB_TYPE_VENDOR,
+-			      0x0000, 0x0100, NULL, 0, 3000);
++	ret = usb_control_msg_send(ir->usbdev, 0,
++				   2, USB_TYPE_VENDOR,
++				   0x0000, 0x0100, NULL, 0, 3000, GFP_KERNEL);
+ 	dev_dbg(dev, "set handshake  - retC = %d", ret);
+ 
+ 	/* device resume */
+@@ -1459,8 +1454,6 @@ static void mceusb_gen1_init(struct mceu
+ 
+ 	/* get hw/sw revision? */
+ 	mce_command_out(ir, GET_REVISION, sizeof(GET_REVISION));
+-
+-	kfree(data);
+ }
+ 
+ static void mceusb_gen2_init(struct mceusb_dev *ir)
 
 
