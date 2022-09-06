@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F3CB5AEB85
-	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B29555AEC8E
+	for <lists+stable@lfdr.de>; Tue,  6 Sep 2022 16:28:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240504AbiIFOHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Sep 2022 10:07:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34090 "EHLO
+        id S239581AbiIFOFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Sep 2022 10:05:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239690AbiIFOFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:05:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2D6844D9;
-        Tue,  6 Sep 2022 06:45:22 -0700 (PDT)
+        with ESMTP id S241502AbiIFOEm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Sep 2022 10:04:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347367F119;
+        Tue,  6 Sep 2022 06:45:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3055561548;
-        Tue,  6 Sep 2022 13:44:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BD99C433C1;
-        Tue,  6 Sep 2022 13:44:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F17AD6154E;
+        Tue,  6 Sep 2022 13:44:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FAF6C433D7;
+        Tue,  6 Sep 2022 13:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662471850;
-        bh=Yj0X9/HsJ33Z2JHLa1IFoJue2frjFFeDIRW2hdU90AI=;
+        s=korg; t=1662471853;
+        bh=2ksWF3+Dh8PKAjG4HgagqD1gFfPasKEasH82ovX11Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DchqQhpJxPkFdueWbDGHXtV5MG07sN5VPUkJXvfNnuiq1uPVMUJskuYqdUUuSMvOM
-         UDnwT/sZwNkbZpUAGyd6arhVJM0UmAsUqQpcevS7Q2b7G1fnZzx8zcIhI+HF9dTr90
-         jPeO5Qy4H0AooDwo3NGAadvKt6gn2UYQtGevqX6Y=
+        b=xi6tyNkjKNS0U3Yfi5PklvY/e3u/AB2aflU3s3THnrbJTP21vQukB6v2+oriIm/sU
+         pUGtnXNJ5qxphJ+0TjtJuKHC1WHoP7Q0sfzEGSSbjPJ45ZRCIa6CjvdHgfoIxgocQ4
+         vm5MRbiuvVY4ECt2Kr8AZ7iSx/6RHXQWEUXNM5zQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Grzegorz Szymaszek <gszymaszek@short.pl>,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Larry Finger <Larry.Finger@lwfinger.net>
-Subject: [PATCH 5.19 060/155] staging: r8188eu: add firmware dependency
-Date:   Tue,  6 Sep 2022 15:30:08 +0200
-Message-Id: <20220906132831.962756227@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.19 061/155] Revert "powerpc: Remove unused FW_FEATURE_NATIVE references"
+Date:   Tue,  6 Sep 2022 15:30:09 +0200
+Message-Id: <20220906132832.010980486@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
 References: <20220906132829.417117002@linuxfoundation.org>
@@ -55,48 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grzegorz Szymaszek <gszymaszek@short.pl>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit b2fa9e13bbf101c662c4cd974608242a0db98cfc upstream.
+commit 310d1344e3c58cc2d625aa4e52cfcb7d8a26fcbf upstream.
 
-The old rtl8188eu module, removed in commit 55dfa29b43d2 ("staging:
-rtl8188eu: remove rtl8188eu driver from staging dir") (Linux kernel
-v5.15-rc1), required (through a MODULE_FIRMWARE call()) the
-rtlwifi/rtl8188eufw.bin firmware file, which the new r8188eu driver no
-longer requires.
+This reverts commit 79b74a68486765a4fe685ac4069bc71366c538f5.
 
-I have tested a few RTL8188EUS-based Wi-Fi cards and, while supported by
-both drivers, they do not work when using the new one and the firmware
-wasn't manually loaded. According to Larry Finger, the module
-maintainer, all such cards need the firmware and the driver should
-depend on it (see the linked mails).
+It broke booting on IBM Cell machines when the kernel is also built with
+CONFIG_PPC_PS3=y.
 
-Add a proper MODULE_FIRMWARE() call, like it was done in the old driver.
+That's because FW_FEATURE_NATIVE_ALWAYS = 0 does have an important
+effect, which is to clear the PS3 ALWAYS features from
+FW_FEATURE_ALWAYS.
 
-Thanks to Greg Kroah-Hartman and Larry Finger for quick responses to my
-questions.
+Note that CONFIG_PPC_NATIVE has since been renamed
+CONFIG_PPC_HASH_MMU_NATIVE.
 
-Cc: stable <stable@kernel.org>
-Link: https://answers.launchpad.net/ubuntu/+source/linux-meta-hwe-5.15/+question/702611
-Link: https://lore.kernel.org/lkml/YukkBu3TNODO3or9@nx64de-df6d00/
-Signed-off-by: Grzegorz Szymaszek <gszymaszek@short.pl>
-Link: https://lore.kernel.org/r/YulcdKfhA8dPQ78s@nx64de-df6d00
-Acked-by: Phillip Potter <phil@philpotter.co.uk>
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Fixes: 79b74a684867 ("powerpc: Remove unused FW_FEATURE_NATIVE references")
+Cc: stable@vger.kernel.org # v5.17+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220823115952.1203106-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/r8188eu/os_dep/os_intfs.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/firmware.h |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/staging/r8188eu/os_dep/os_intfs.c
-+++ b/drivers/staging/r8188eu/os_dep/os_intfs.c
-@@ -18,6 +18,7 @@ MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("Realtek Wireless Lan Driver");
- MODULE_AUTHOR("Realtek Semiconductor Corp.");
- MODULE_VERSION(DRIVERVERSION);
-+MODULE_FIRMWARE("rtlwifi/rtl8188eufw.bin");
+--- a/arch/powerpc/include/asm/firmware.h
++++ b/arch/powerpc/include/asm/firmware.h
+@@ -82,6 +82,8 @@ enum {
+ 	FW_FEATURE_POWERNV_ALWAYS = 0,
+ 	FW_FEATURE_PS3_POSSIBLE = FW_FEATURE_LPAR | FW_FEATURE_PS3_LV1,
+ 	FW_FEATURE_PS3_ALWAYS = FW_FEATURE_LPAR | FW_FEATURE_PS3_LV1,
++	FW_FEATURE_NATIVE_POSSIBLE = 0,
++	FW_FEATURE_NATIVE_ALWAYS = 0,
+ 	FW_FEATURE_POSSIBLE =
+ #ifdef CONFIG_PPC_PSERIES
+ 		FW_FEATURE_PSERIES_POSSIBLE |
+@@ -92,6 +94,9 @@ enum {
+ #ifdef CONFIG_PPC_PS3
+ 		FW_FEATURE_PS3_POSSIBLE |
+ #endif
++#ifdef CONFIG_PPC_HASH_MMU_NATIVE
++		FW_FEATURE_NATIVE_ALWAYS |
++#endif
+ 		0,
+ 	FW_FEATURE_ALWAYS =
+ #ifdef CONFIG_PPC_PSERIES
+@@ -103,6 +108,9 @@ enum {
+ #ifdef CONFIG_PPC_PS3
+ 		FW_FEATURE_PS3_ALWAYS &
+ #endif
++#ifdef CONFIG_PPC_HASH_MMU_NATIVE
++		FW_FEATURE_NATIVE_ALWAYS &
++#endif
+ 		FW_FEATURE_POSSIBLE,
  
- #define CONFIG_BR_EXT_BRNAME "br0"
- #define RTW_NOTCH_FILTER 0 /* 0:Disable, 1:Enable, */
+ #else /* CONFIG_PPC64 */
 
 
