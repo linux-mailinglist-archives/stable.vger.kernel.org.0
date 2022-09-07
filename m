@@ -2,69 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB3275AFD07
-	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 09:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF335AFDB5
+	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 09:40:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230140AbiIGHCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Sep 2022 03:02:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42772 "EHLO
+        id S229954AbiIGHkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Sep 2022 03:40:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230144AbiIGHCr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 03:02:47 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F11AA1D30;
-        Wed,  7 Sep 2022 00:02:23 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id u9so28257713ejy.5;
-        Wed, 07 Sep 2022 00:02:23 -0700 (PDT)
+        with ESMTP id S229961AbiIGHkf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 03:40:35 -0400
+Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com [IPv6:2607:f8b0:4864:20::935])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B6737170D;
+        Wed,  7 Sep 2022 00:40:29 -0700 (PDT)
+Received: by mail-ua1-x935.google.com with SMTP id a14so1365419uat.13;
+        Wed, 07 Sep 2022 00:40:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:from:to:cc:subject:date;
-        bh=T8KpmZhgTa61csuwYkLX3CwUr/M04U7//pbWLlukU+4=;
-        b=hGL+QvsGIw6dMyIzaH8CUOyJOXy4CL55iDwJgIMriwnwcrW0ouH5uYWSh/VwZkw+rS
-         U0FOk/avlEHXr4lcwnku21t9hvI601CCqkMc4RkG0pHHzdVbLfWnYBXy6/gTii6fTaW7
-         DKQ6DN57k2ocY3L7I1DCoSj0PJp6ROgUMiWXCrSueD5H3bw/9Z8EqoaprzyFroYjodrn
-         FCM8sCBO1t9CACJV3PtP41tz6wTRz91z5vSsYlLt/DHjeNy/Su1dZBlGFheqSP2hXsAQ
-         cQ3HxQ65b+3OF9DLZpa9WK0B5jIEQhOiCmayoiVAinIzjw1YM6jIa/uTbwCSiXHWTjSm
-         aRLg==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=g16GP4bu/uD+DaOwHMIh0qkgrJd01UuDeeB5lzoFaA8=;
+        b=GSCoAphAr6zgl1lLnGHCFub+qo42vZu2x/vkUi0a0iz/aLgnsLIqgYqCfKnYGZnH6k
+         Ajpn/CzERT+iCu00abzYiZhCH/UAWRsyc5ApzZ8Pcj0tZlwnr3+KML68i5vHRc1gggEh
+         5FTqP/Gz2RJF3SDpfVj6cT8vznWCY017f8SLiNQYoQjElpXUaaHZD3QnrXAEq5YUMxDz
+         DB3zx9jaAJgDrJTAJ7bolO3h6uYVe+hH68W5aAcrzvhkWU1LkLK2eebBwYEasB7ch50X
+         8iNBinlN8Yz24VH2fecPfLg2rtM9A5U9ZxMkpbMyPlfjaINOOpjfYey6j4G4lkiI7ibc
+         NxiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=T8KpmZhgTa61csuwYkLX3CwUr/M04U7//pbWLlukU+4=;
-        b=LzoRDKAfMD4lNQY4JoJxxUzNhOxbL4iluGmZiDKbPw1JJjrXaeblysbJH79rNbUE/k
-         O8Vpl4xZQP8vTZLhhR9awMMkxEDfcRYRsjh6/P1CSHL1zgnDGkn868zTU5gmIvb21Nxj
-         i2PJ7Fv6vpJBKCdxX4wD8y63NuzXGPKGJFGFQmG9zRGyst0shK5OPPAFCcjASDLfapUV
-         efgzevq1jGzByc15N2J7R9Sdp5VFUOhR+XU8ES+cqf29Nzml4V65foFn8GOGOrIDq+jl
-         l7RJq2deD9sNTPUOd89OMc4vdM+SSU3I3uwNq399jHlUZtbUFzCKiygHaRmhgd3iXNIk
-         q1dw==
-X-Gm-Message-State: ACgBeo2u21i3jQoH/0EEiR83hfensirSS1bhLcFS0CnEQlxOEQP73TVu
-        +kGG8gL8X9k0kI0KZmcMHn8=
-X-Google-Smtp-Source: AA6agR72IqW+IK5d0DEwIIiw/EZnnuumPFsECyR7SCyROaa3mbHVFDt7fODBPpf9kQ95GogpfH1Ing==
-X-Received: by 2002:a17:906:9c82:b0:6df:c5f0:d456 with SMTP id fj2-20020a1709069c8200b006dfc5f0d456mr1377738ejc.287.1662534141434;
-        Wed, 07 Sep 2022 00:02:21 -0700 (PDT)
-Received: from krava ([193.85.244.190])
-        by smtp.gmail.com with ESMTPSA id f18-20020a17090631d200b007336c3f05bdsm7956191ejf.178.2022.09.07.00.02.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Sep 2022 00:02:21 -0700 (PDT)
-From:   Jiri Olsa <olsajiri@gmail.com>
-X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
-Date:   Wed, 7 Sep 2022 09:02:19 +0200
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andrii Nakryiko <andrii@kernel.org>
-Subject: Re: [PATCH 5.15 101/107] kbuild: Unify options for BTF generation
- for vmlinux and modules
-Message-ID: <YxhB+3j6m6FHIanN@krava>
-References: <20220906132821.713989422@linuxfoundation.org>
- <20220906132826.130642856@linuxfoundation.org>
- <291d739c-752f-ead3-1974-a136b986afb7@gmail.com>
- <YxguwCpBEKAJJDU6@kroah.com>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=g16GP4bu/uD+DaOwHMIh0qkgrJd01UuDeeB5lzoFaA8=;
+        b=HhUVKFxIuR59eApHjgmm/7tmVjqxQsvY7803SuRw9szpq4kC8stckzdW+IaPcsfTfc
+         Tz8UILHWxXe98v2RMN4QwGe8UAvgXX5FGyACiI8hosD5h+YPoiIaOk0s7/MGZbFzqvjs
+         yx6XZO15ulnhPbWOc9MIAaDMtqdkMoG2hnA3h/9wLuU4/6WGd4cnW6NYrFcbiB90yRVX
+         YwRxbADhg1odwHRv7UEpp//MYk9HUo90tuh1H6rxiRtFE5jJcOFLQM38sgWJLbNzNkEA
+         9sjdgyZS0e29B2C/sPmgc3jhNm2AEXcYKqJW/LbGUGssL4g68B/yRH/XUjuUEIiKFTX2
+         xDOw==
+X-Gm-Message-State: ACgBeo2P/sYLcBimqBLYybxydC6ybD3iAfcSF4a82shw6Iv9TxPp8Btz
+        Jl5U3VE/Af5YgrTunxhgf0yXjNBWWs9B/Q6TuUXumY8YgqI=
+X-Google-Smtp-Source: AA6agR7FesrkI+O6VNx9t6d6xVMKYrNLE3Qq8629sdBX8PoUqJ2NjcBPDgh1z5Be2ENgbsZxZYTXfSB6lo6i4a0yA0Y=
+X-Received: by 2002:ab0:3b89:0:b0:39f:6dee:d6b with SMTP id
+ p9-20020ab03b89000000b0039f6dee0d6bmr711667uaw.102.1662536428048; Wed, 07 Sep
+ 2022 00:40:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YxguwCpBEKAJJDU6@kroah.com>
+References: <20220906183600.1926315-1-teratipally@google.com> <20220906183600.1926315-2-teratipally@google.com>
+In-Reply-To: <20220906183600.1926315-2-teratipally@google.com>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Wed, 7 Sep 2022 10:40:16 +0300
+Message-ID: <CAOQ4uxi_Q8aXUg+FM0Q9__t=KqJSVqOgkS8j8kNC3MQfniZLWA@mail.gmail.com>
+Subject: Re: [PATCH] xfs: fix up non-directory creation in SGID directories
+To:     Varsha Teratipally <teratipally@google.com>
+Cc:     "Darrick J. Wong" <djwong@kernel.org>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Dave Chinner <david@fromorbit.com>,
+        Yang Xu <xuyang2018.jy@fujitsu.com>
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -75,60 +69,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 07, 2022 at 07:40:16AM +0200, Greg Kroah-Hartman wrote:
-> On Tue, Sep 06, 2022 at 11:45:00AM -0700, Florian Fainelli wrote:
-> > 
-> > 
-> > On 9/6/2022 6:31 AM, Greg Kroah-Hartman wrote:
-> > > From: Jiri Olsa <jolsa@redhat.com>
-> > > 
-> > > commit e27f05147bff21408c1b8410ad8e90cd286e7952 upstream.
-> > > 
-> > > Using new PAHOLE_FLAGS variable to pass extra arguments to
-> > > pahole for both vmlinux and modules BTF data generation.
-> > > 
-> > > Adding new scripts/pahole-flags.sh script that detect and
-> > > prints pahole options.
-> > > 
-> > > [ fixed issues found by kernel test robot ]
-> > > 
-> > > Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-> > > Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-> > > Acked-by: Andrii Nakryiko <andrii@kernel.org>
-> > > Link: https://lore.kernel.org/bpf/20211029125729.70002-1-jolsa@kernel.org
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > ---
-> > >   Makefile                  |    3 +++
-> > >   scripts/Makefile.modfinal |    2 +-
-> > >   scripts/link-vmlinux.sh   |   11 +----------
-> > >   scripts/pahole-flags.sh   |   20 ++++++++++++++++++++
-> > >   4 files changed, 25 insertions(+), 11 deletions(-)
-> > >   create mode 100755 scripts/pahole-flags.sh
-> > 
-> > My linux-stable-rc/linux-5.15.y checkout shows that scripts/pahole-flags.sh
-> > does not have an executable permission and commit
-> > 128e3cc0beffc92154d9af6bd8c107f46e830000 ("kbuild: Unify options for BTF
-> > generation for vmlinux and modules") does have:
-> > 
-> > diff --git a/scripts/pahole-flags.sh b/scripts/pahole-flags.sh
-> > new file mode 100644
-> > index 000000000000..e6093adf4c06
-> > 
-> > whereas your email does have the proper 100755 permission set on the file,
-> > any idea what happened here?
-> 
-> Yeah, quilt does not like dealing with file permissions at all :(
-> 
-> We have over time, not required executable permissions on kernel files
-> because of this issue.  Is it required here?  If so, I'll try to
-> remember to fix it up "by hand".
+On Tue, Sep 6, 2022 at 9:36 PM Varsha Teratipally
+<teratipally@google.com> wrote:
+>
+> From: Christoph Hellwig <hch@lst.de>
+>
+> XFS always inherits the SGID bit if it is set on the parent inode, while
+> the generic inode_init_owner does not do this in a few cases where it can
+> create a possible security problem, see commit 0fa3ecd87848
+> ("Fix up non-directory creation in SGID directories") for details.
+>
+> Switch XFS to use the generic helper for the normal path to fix this,
+> just keeping the simple field inheritance open coded for the case of the
+> non-sgid case with the bsdgrpid mount option.
+>
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+> Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+> ---
 
-yes, pahole-flags.sh needs to have +x
+Hi Varsha,
 
-thanks,
-jirka
+For future reference, when posting an xfs patch for stable,
+please follow these guidelines:
 
-> 
-> thanks,
-> 
-> greg k-h
+1. Post it to xfs list for review BEFORE posting to stable
+2. LKML is not a relevant list
+3. Tag the patch with the target kernel [PATCH 5.10]
+4. Include the upstream commit id
+5. Add some description (after --- line) about how you tested
+
+Regarding this specific patch for 5.10, I had already tested and posted it
+for review back in June [1].
+
+Dave Chinner commented then that he was concerned about other
+security issues discovered later on related to the generic implementation
+of SGID stripping.
+At the time, the generic upstream fixes and tests were still WIP.
+
+Christoph Hellwig, the author of the original patch replied to Dave's
+concern:
+
+"To me backporting it seems good and useful, as it fixes a relatively
+big problem.  The remaining issues seem minor compared to that."
+
+Christiain Brauner who has been reviewing the generic upstream
+also agreed that:
+
+"Imho, backporting this patch is useful. It fixes a basic issue."
+
+So this specific fix patch from the v5.12 release, which is not
+relevant for 5.15.y has my blessing to go to 5.10.y.
+
+Regardless, the last bits of the upstream work on the generic
+implementation by Yang Xu have landed in v6.0-rc1 [2] and the
+respective fstests have just recently landed in fstests v2022.09.04.
+
+I already have all the patches backported to 5.10 [3] and will start
+testing them in the following weeks, but now I also depend on Leah
+to test them for 5.15.y before I can post to 5.10.y and that may take
+a while...
+
+Thanks,
+Amir.
+
+[1] https://lore.kernel.org/linux-xfs/CAOQ4uxg4=m9zEFbDAKXx7CP7HYiMwtsYSJvq076oKpy-OhK1uw@mail.gmail.com/
+[2] https://lore.kernel.org/linux-fsdevel/20220809103957.1851931-1-brauner@kernel.org/
+[3] https://github.com/amir73il/linux/commits/xfs-5.10.y-sgid-fixes
