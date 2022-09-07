@@ -2,203 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C46E5AFE72
-	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 10:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E02515AFEA9
+	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 10:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230164AbiIGIDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Sep 2022 04:03:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49092 "EHLO
+        id S230256AbiIGINb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Sep 2022 04:13:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230311AbiIGIDV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 04:03:21 -0400
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76802AA35F;
-        Wed,  7 Sep 2022 01:03:12 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.18.147.229])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4MMvk82kTkz9xHvd;
-        Wed,  7 Sep 2022 15:57:36 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwBnEJQZUBhjW0srAA--.12213S2;
-        Wed, 07 Sep 2022 09:02:48 +0100 (CET)
-Message-ID: <02309cfbc1ce47f7de6be8addc2caa315b1fee1b.camel@huaweicloud.com>
-Subject: Re: [PATCH 1/7] bpf: Add missing fd modes check for map iterators
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc:     Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        bpf <bpf@vger.kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>,
-        "open list:CONTROL GROUP (CGROUP)" <cgroups@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Hou Tao <houtao1@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        stable <stable@vger.kernel.org>, fengc@google.com,
-        linux-security-module@vger.kernel.org
-Date:   Wed, 07 Sep 2022 10:02:30 +0200
-In-Reply-To: <CAADnVQ+o8zyi_Z+XqCQynmvj04AtEtF9AoOTSeyUx9dvKTXOqg@mail.gmail.com>
-References: <20220906170301.256206-1-roberto.sassu@huaweicloud.com>
-         <20220906170301.256206-2-roberto.sassu@huaweicloud.com>
-         <CAADnVQ+o8zyi_Z+XqCQynmvj04AtEtF9AoOTSeyUx9dvKTXOqg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S230112AbiIGINa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 04:13:30 -0400
+Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64AC3AA347
+        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 01:13:26 -0700 (PDT)
+Received: from alt-proxy28.mail.unifiedlayer.com (unknown [74.220.216.123])
+        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id 66CF2802BD69
+        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 08:13:25 +0000 (UTC)
+Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
+        by progateway1.mail.pro1.eigbox.com (Postfix) with ESMTP id 910501003FCF9
+        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 08:13:09 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id VqBIoYxmbCokGVqBJoXE2v; Wed, 07 Sep 2022 08:13:09 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=c8Nu/Txl c=1 sm=1 tr=0 ts=63185295
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=xOM3xZuef0cA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=20KFwNOVAAAA:8
+ a=VwQbUJbxAAAA:8 a=ag1SF4gXAAAA:8 a=VkIJ4bYSlH-4ozLDUtgA:9
+ a=QEXdDO2ut3YA:10:nop_charset_2 a=AjGcO6oz07-iQ99wixmX:22
+ a=Yupwre4RP9_Eg_Bd0iYG:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=4A2rtVgDrZ2UAOz6av2oGnGqktMAjZu+FGdqVMPZNZA=; b=AKnIV45ZuZrQC2HvY7AvkOVz8b
+        AApYo48dmJNuIvQpDgzt+wmtDaJEXk0I/q2y76KiqzxwyQPj5aVBcmnaDDFgmqMhrxbSmwuB3STA+
+        xFziOW3z9eH3GKMYGk+RkgAJaKRm4z/794yo1iAnOTR2kh7gkbFM5OVJWQFyUVy9Aa/15MJT0rRez
+        sX0ESO1ClI/Fup5YlMdXo+HnesT/WgLdcTPLvke0AIB6E1iapn0+OcZ4GzyrDG4/Z3VGuPSUsgcc+
+        jkUBXbWLXZktP49OBHMYjcomoKneVPm+hO8kipwWKEyRzybEJ0Q6YpwXSfaFee34g51Yzawi1CCd7
+        /dflb/yw==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:43504 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1oVqBI-0046de-Jn;
+        Wed, 07 Sep 2022 02:13:08 -0600
+Subject: Re: [PATCH 5.15 101/107] kbuild: Unify options for BTF generation for
+ vmlinux and modules
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jiri Olsa <jolsa@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>
+References: <20220906132821.713989422@linuxfoundation.org>
+ <20220906132826.130642856@linuxfoundation.org>
+ <291d739c-752f-ead3-1974-a136b986afb7@gmail.com> <YxguwCpBEKAJJDU6@kroah.com>
+In-Reply-To: <YxguwCpBEKAJJDU6@kroah.com>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <06ea51d3-6f7f-c5c7-0b77-0d4b31ef9a52@w6rz.net>
+Date:   Wed, 7 Sep 2022 01:13:06 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwBnEJQZUBhjW0srAA--.12213S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxAF1rCrW8ZF45GF4xKry8Krg_yoWrCFyDpr
-        W3t3W2k3Z2yF1xCrn2qan7WFyfAFW3Kw47Xrn8JryxC3s8Wrn2kr4Y93W3uF9ruF17tr1a
-        qr4qv3s3A3WDAaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6r1S6rWUM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UAkuxUUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAIBF1jj4KycgACs8
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1oVqBI-0046de-Jn
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:43504
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 4
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2022-09-06 at 11:21 -0700, Alexei Starovoitov wrote:
-> On Tue, Sep 6, 2022 at 10:04 AM Roberto Sassu
-> <roberto.sassu@huaweicloud.com> wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > 
-> > Commit 6e71b04a82248 ("bpf: Add file mode configuration into bpf
-> > maps")
-> > added the BPF_F_RDONLY and BPF_F_WRONLY flags, to let user space
-> > specify
-> > whether it will just read or modify a map.
-> > 
-> > Map access control is done in two steps. First, when user space
-> > wants to
-> > obtain a map fd, it provides to the kernel the eBPF-defined flags,
-> > which
-> > are converted into open flags and passed to the security_bpf_map()
-> > security
-> > hook for evaluation by LSMs.
-> > 
-> > Second, if user space successfully obtained an fd, it passes that
-> > fd to the
-> > kernel when it requests a map operation (e.g. lookup or update).
-> > The kernel
-> > first checks if the fd has the modes required to perform the
-> > requested
-> > operation and, if yes, continues the execution and returns the
-> > result to
-> > user space.
-> > 
-> > While the fd modes check was added for map_*_elem() functions, it
-> > is
-> > currently missing for map iterators, added more recently with
-> > commit
-> > a5cbe05a6673 ("bpf: Implement bpf iterator for map elements"). A
-> > map
-> > iterator executes a chosen eBPF program for each key/value pair of
-> > a map
-> > and allows that program to read and/or modify them.
-> > 
-> > Whether a map iterator allows only read or also write depends on
-> > whether
-> > the MEM_RDONLY flag in the ctx_arg_info member of the bpf_iter_reg
-> > structure is set. Also, write needs to be supported at verifier
-> > level (for
-> > example, it is currently not supported for sock maps).
-> > 
-> > Since map iterators obtain a map from a user space fd with
-> > bpf_map_get_with_uref(), add the new req_modes parameter to that
-> > function,
-> > so that map iterators can provide the required fd modes to access a
-> > map. If
-> > the user space fd doesn't include the required modes,
-> > bpf_map_get_with_uref() returns with an error, and the map iterator
-> > will
-> > not be created.
-> > 
-> > If a map iterator marks both the key and value as read-only, it
-> > calls
-> > bpf_map_get_with_uref() with FMODE_CAN_READ as value for req_modes.
-> > If it
-> > also allows write access to either the key or the value, it calls
-> > that
-> > function with FMODE_CAN_READ | FMODE_CAN_WRITE as value for
-> > req_modes,
-> > regardless of whether or not the write is supported by the verifier
-> > (the
-> > write is intentionally allowed).
-> > 
-> > bpf_fd_probe_obj() does not require any fd mode, as the fd is only
-> > used for
-> > the purpose of finding the eBPF object type, for pinning the object
-> > to the
-> > bpffs filesystem.
-> > 
-> > Finally, it is worth to mention that the fd modes check was not
-> > added for
-> > the cgroup iterator, although it registers an attach_target method
-> > like the
-> > other iterators. The reason is that the fd is not the only way for
-> > user
-> > space to reference a cgroup object (also by ID and by path). For
-> > the
-> > protection to be effective, all reference methods need to be
-> > evaluated
-> > consistently. This work is deferred to a separate patch.
-> 
-> I think the current behavior is fine.
-> File permissions don't apply at iterator level or prog level.
+On 9/6/22 10:40 PM, Greg Kroah-Hartman wrote:
+> On Tue, Sep 06, 2022 at 11:45:00AM -0700, Florian Fainelli wrote:
+>>
+>> On 9/6/2022 6:31 AM, Greg Kroah-Hartman wrote:
+>>> From: Jiri Olsa <jolsa@redhat.com>
+>>>
+>>> commit e27f05147bff21408c1b8410ad8e90cd286e7952 upstream.
+>>>
+>>> Using new PAHOLE_FLAGS variable to pass extra arguments to
+>>> pahole for both vmlinux and modules BTF data generation.
+>>>
+>>> Adding new scripts/pahole-flags.sh script that detect and
+>>> prints pahole options.
+>>>
+>>> [ fixed issues found by kernel test robot ]
+>>>
+>>> Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+>>> Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+>>> Acked-by: Andrii Nakryiko <andrii@kernel.org>
+>>> Link: https://lore.kernel.org/bpf/20211029125729.70002-1-jolsa@kernel.org
+>>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>> ---
+>>>    Makefile                  |    3 +++
+>>>    scripts/Makefile.modfinal |    2 +-
+>>>    scripts/link-vmlinux.sh   |   11 +----------
+>>>    scripts/pahole-flags.sh   |   20 ++++++++++++++++++++
+>>>    4 files changed, 25 insertions(+), 11 deletions(-)
+>>>    create mode 100755 scripts/pahole-flags.sh
+>> My linux-stable-rc/linux-5.15.y checkout shows that scripts/pahole-flags.sh
+>> does not have an executable permission and commit
+>> 128e3cc0beffc92154d9af6bd8c107f46e830000 ("kbuild: Unify options for BTF
+>> generation for vmlinux and modules") does have:
+>>
+>> diff --git a/scripts/pahole-flags.sh b/scripts/pahole-flags.sh
+>> new file mode 100644
+>> index 000000000000..e6093adf4c06
+>>
+>> whereas your email does have the proper 100755 permission set on the file,
+>> any idea what happened here?
+> Yeah, quilt does not like dealing with file permissions at all :(
+>
+> We have over time, not required executable permissions on kernel files
+> because of this issue.  Is it required here?  If so, I'll try to
+> remember to fix it up "by hand".
+>
+> thanks,
+>
+> greg k-h
 
-+ Chenbo, linux-security-module
+I'm seeing this on my RISC-V build also. The error message (repeated 
+many times) is:
 
-Well, if you write a security module to prevent writes on a map, and
-user space is able to do it anyway with an iterator, what is the
-purpose of the security module then?
+/bin/sh: 1: ./scripts/pahole-flags.sh: Permission denied
 
-> fmode_can_read/write are for syscall commands only.
-> To be fair we've added them to lookup/delete commands
-> and it was more of a pain to maintain and no confirmed good use.
-
-I think a good use would be requesting the right permission for the
-type of operation that needs to be performed, e.g. read-only permission
-when you have a read-like operation like a lookup or dump.
-
-By always requesting read-write permission, for all operations,
-security modules won't be able to distinguish which operation has to be
-denied to satisfy the policy.
-
-One example of that is that, when there is a security module preventing
-writes on maps (will be that uncommon?), bpftool is not able to show
-the full list of maps because it asks for read-write permission for
-getting the map info.
-
-Freezing the map is not a solution, if you want to allow certain
-subjects to continuously update the protected map at run-time.
-
-Roberto
+So the script isn't running.
 
