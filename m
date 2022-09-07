@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 546DF5B09DB
+	by mail.lfdr.de (Postfix) with ESMTP id CA5E75B09DC
 	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 18:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbiIGQPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Sep 2022 12:15:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60828 "EHLO
+        id S229687AbiIGQPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Sep 2022 12:15:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbiIGQPb (ORCPT
+        with ESMTP id S229953AbiIGQPb (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 12:15:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C79557D7AB;
-        Wed,  7 Sep 2022 09:15:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0829B8000D;
+        Wed,  7 Sep 2022 09:15:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EB94619D6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52BB5619DA;
         Wed,  7 Sep 2022 16:15:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8FCEC433D6;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0FF9C433D7;
         Wed,  7 Sep 2022 16:15:29 +0000 (UTC)
 Received: from rostedt by gandalf.local.home with local (Exim 4.96)
         (envelope-from <rostedt@goodmis.org>)
-        id 1oVxik-00CsWc-0r;
+        id 1oVxik-00CsXA-1S;
         Wed, 07 Sep 2022 12:16:10 -0400
-Message-ID: <20220907161610.101586629@goodmis.org>
+Message-ID: <20220907161610.282974054@goodmis.org>
 User-Agent: quilt/0.66
-Date:   Wed, 07 Sep 2022 12:15:16 -0400
+Date:   Wed, 07 Sep 2022 12:15:17 -0400
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Yipeng Zou <zouyipeng@huawei.com>
-Subject: [for-linus][PATCH 5/7] tracing: hold caller_addr to hardirq_{enable,disable}_ip
+        stable@vger.kernel.org,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
+Subject: [for-linus][PATCH 6/7] tracing: Fix to check event_mutex is held while accessing trigger
+ list
 References: <20220907161511.694486342@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yipeng Zou <zouyipeng@huawei.com>
+From: "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
 
-Currently, The arguments passing to lockdep_hardirqs_{on,off} was fixed
-in CALLER_ADDR0.
-The function trace_hardirqs_on_caller should have been intended to use
-caller_addr to represent the address that caller wants to be traced.
+Since the check_user_trigger() is called outside of RCU
+read lock, this list_for_each_entry_rcu() caused a suspicious
+RCU usage warning.
 
-For example, lockdep log in riscv showing the last {enabled,disabled} at
-__trace_hardirqs_{on,off} all the time(if called by):
-[   57.853175] hardirqs last  enabled at (2519): __trace_hardirqs_on+0xc/0x14
-[   57.853848] hardirqs last disabled at (2520): __trace_hardirqs_off+0xc/0x14
+ # echo hist:keys=pid > events/sched/sched_stat_runtime/trigger
+ # cat events/sched/sched_stat_runtime/trigger
+[   43.167032]
+[   43.167418] =============================
+[   43.167992] WARNING: suspicious RCU usage
+[   43.168567] 5.19.0-rc5-00029-g19ebe4651abf #59 Not tainted
+[   43.169283] -----------------------------
+[   43.169863] kernel/trace/trace_events_trigger.c:145 RCU-list traversed in non-reader section!!
+...
 
-After use trace_hardirqs_xx_caller, we can get more effective information:
-[   53.781428] hardirqs last  enabled at (2595): restore_all+0xe/0x66
-[   53.782185] hardirqs last disabled at (2596): ret_from_exception+0xa/0x10
+However, this file->triggers list is safe when it is accessed
+under event_mutex is held.
+To fix this warning, adds a lockdep_is_held check to the
+list_for_each_entry_rcu().
 
-Link: https://lkml.kernel.org/r/20220901104515.135162-2-zouyipeng@huawei.com
+Link: https://lkml.kernel.org/r/166226474977.223837.1992182913048377113.stgit@devnote2
 
 Cc: stable@vger.kernel.org
-Fixes: c3bc8fd637a96 ("tracing: Centralize preemptirq tracepoints and unify their usage")
-Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
+Fixes: 7491e2c44278 ("tracing: Add a probe that attaches to trace events")
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 ---
- kernel/trace/trace_preemptirq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/trace_events_trigger.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_preemptirq.c b/kernel/trace/trace_preemptirq.c
-index 95b58bd757ce..1e130da1b742 100644
---- a/kernel/trace/trace_preemptirq.c
-+++ b/kernel/trace/trace_preemptirq.c
-@@ -95,14 +95,14 @@ __visible void trace_hardirqs_on_caller(unsigned long caller_addr)
- 	}
- 
- 	lockdep_hardirqs_on_prepare();
--	lockdep_hardirqs_on(CALLER_ADDR0);
-+	lockdep_hardirqs_on(caller_addr);
- }
- EXPORT_SYMBOL(trace_hardirqs_on_caller);
- NOKPROBE_SYMBOL(trace_hardirqs_on_caller);
- 
- __visible void trace_hardirqs_off_caller(unsigned long caller_addr)
+diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
+index cb866c3141af..918730d74932 100644
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -142,7 +142,8 @@ static bool check_user_trigger(struct trace_event_file *file)
  {
--	lockdep_hardirqs_off(CALLER_ADDR0);
-+	lockdep_hardirqs_off(caller_addr);
+ 	struct event_trigger_data *data;
  
- 	if (!this_cpu_read(tracing_irq_cpu)) {
- 		this_cpu_write(tracing_irq_cpu, 1);
+-	list_for_each_entry_rcu(data, &file->triggers, list) {
++	list_for_each_entry_rcu(data, &file->triggers, list,
++				lockdep_is_held(&event_mutex)) {
+ 		if (data->flags & EVENT_TRIGGER_FL_PROBE)
+ 			continue;
+ 		return true;
 -- 
 2.35.1
