@@ -2,114 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81DCC5B00B9
-	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 11:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2103D5B00C2
+	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 11:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229926AbiIGJkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Sep 2022 05:40:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51606 "EHLO
+        id S229793AbiIGJlk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Sep 2022 05:41:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230049AbiIGJko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 05:40:44 -0400
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39D79B3B24;
-        Wed,  7 Sep 2022 02:40:33 -0700 (PDT)
-Received: by mail-wm1-x335.google.com with SMTP id bd26-20020a05600c1f1a00b003a5e82a6474so9136493wmb.4;
-        Wed, 07 Sep 2022 02:40:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=+5dWEHCEhAzvKEwx8UCLDoNfDDl2EJg7AkXrffzSWRU=;
-        b=B8Ka3JY2W7Zvs993XHxhifuM4SVVET56zL6ffLAvcccWcgTtwRGyJ5Wj7dHdv6ei7b
-         1x8UoyCllAo4mUP9fmGh6cy9c/jjz4cQuP+zTQLCmw8RVOliJfQn85aJQ/MYJnfk/s5v
-         05wRJgbYoycegDpxH891AH3hymyKebFtJ0uRJYVYKS/y999zh4wgAXYKnNQp06TwmpBI
-         +Bjj6dqegtZWm9WV4hffUBeKhMbCNsbkVdYCSf5jh/NnCnkIOEMqwhBE5kpC1NAYuVPN
-         kXw8kbUm8N1sMKi1CHMbrWh4hPq400OjzHtBVF0vmsrvCLgr4zX2e8Hr4AMquaTNVDm2
-         H3VQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=+5dWEHCEhAzvKEwx8UCLDoNfDDl2EJg7AkXrffzSWRU=;
-        b=jHmSzzmoEH6gHMz2phDxliUKPVpXmvXH5So2x3MkEJYjau/622GljmPOL0UX82RLQf
-         TONATuQOdt6o1cNP0VlnvaQaZ+T/wwr3kBBs+q19nUmG9gFL1ldC1+r5+9UPpjAqIkSg
-         6Is/vs/2QejHCO8o5nvULQPE+/EReTnDqj0qmwfG/MVaf6HAKw4MCNL7YgGrqAxQlv/g
-         KWNJhZdkkcFG9LhJLxfGW5xf+Jx+sOz5M5Ht1y/QLo18dRF7lkvE2w14iCKbj9lPGRyj
-         3HUrrl95PtLVdEtsxgCXaO7WLU6x08wrOcB3+Y/weas0RMkHEkDzaMltAape7JFUGofv
-         6CWA==
-X-Gm-Message-State: ACgBeo3e59inFgZCnrTIbox7IBlZ9BDk5Mpk99CeqUwZi61sRY7OlhGi
-        PMiofhnopTsEpJYroPtvnI4=
-X-Google-Smtp-Source: AA6agR4IaFstfbUn+A9wnc7yvFVTesUGE6tAx1uY2QNWS/fco+iCWe0GHBtFUKhy2hhIqioQxG2hIQ==
-X-Received: by 2002:a05:600c:3502:b0:3a6:edc:39f8 with SMTP id h2-20020a05600c350200b003a60edc39f8mr1473274wmq.200.1662543632347;
-        Wed, 07 Sep 2022 02:40:32 -0700 (PDT)
-Received: from debian ([167.98.27.226])
-        by smtp.gmail.com with ESMTPSA id t8-20020a5d42c8000000b00228daaa84aesm6068465wrr.25.2022.09.07.02.40.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Sep 2022 02:40:32 -0700 (PDT)
-Date:   Wed, 7 Sep 2022 10:40:30 +0100
-From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 5.15 000/107] 5.15.66-rc1 review
-Message-ID: <YxhnDip9k6TfRCCc@debian>
-References: <20220906132821.713989422@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220906132821.713989422@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229889AbiIGJlk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 05:41:40 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3A6816AC;
+        Wed,  7 Sep 2022 02:41:35 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 5E3CA20244;
+        Wed,  7 Sep 2022 09:41:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1662543694; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ze00JS9YGRsmAOsgdNY0pIe743MLOM0ULC1uIhk+gSI=;
+        b=pdv/adkqMdjWaF2y66ATUsR60vbM0O7UPXb51iHgb0pEVrf2UvXNh2FnzLyBfipQ/7kGYo
+        4+nN5w1A8fFBp5LhtY2fDYqTFJPASxc7vdDUIuDH9ZOcJLBO/yrlNdKmXgqDz6vy5c8b06
+        DYke03vLgwuchnkpTR9hkqh0pmQJrxg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1662543694;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ze00JS9YGRsmAOsgdNY0pIe743MLOM0ULC1uIhk+gSI=;
+        b=tfRWsEJswRREbJ4G7TnFuakduyK92hysTRuQg0+KaImRZDoFb9k3Qum09HGJppbgLLictf
+        Hh1c6TT5AnnyJwCA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4A08813486;
+        Wed,  7 Sep 2022 09:41:34 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 1TesEU5nGGMwNQAAMHmgww
+        (envelope-from <tiwai@suse.de>); Wed, 07 Sep 2022 09:41:34 +0000
+Date:   Wed, 07 Sep 2022 11:41:33 +0200
+Message-ID: <878rmvmshe.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     alsa-devel@alsa-project.org, LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?ISO-8859-4?Q?Nikl=E0vs_Ko=B6es=F1ikovs?= 
+        <89q1r14hd@relay.firefox.com>, Wim Taymans <wtaymans@redhat.com>
+Subject: Re: [PATCH] ALSA: usb-audio: Don't refcount multiple accesses on the single clock
+In-Reply-To: <YxhkVmiMlKghq+nY@zx2c4.com>
+References: <20220905101403.1435037-1-Jason@zx2c4.com>
+        <87sfl6jbb3.wl-tiwai@suse.de>
+        <CAHmME9oUtVgwtUY5afG5Yed1j6OVKwvLH=keCp63gDSOQRgDSA@mail.gmail.com>
+        <87czc7ehqp.wl-tiwai@suse.de>
+        <YxhkVmiMlKghq+nY@zx2c4.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Tue, Sep 06, 2022 at 03:29:41PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.66 release.
-> There are 107 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, 07 Sep 2022 11:28:54 +0200,
+Jason A. Donenfeld wrote:
 > 
-> Responses should be made by Thu, 08 Sep 2022 13:27:58 +0000.
-> Anything received after that time might be too late.
+> On Wed, Sep 07, 2022 at 10:00:46AM +0200, Takashi Iwai wrote:
+> > On Mon, 05 Sep 2022 14:16:39 +0200,
+> > Jason A. Donenfeld wrote:
+> > > 
+> > > On Mon, Sep 5, 2022 at 1:44 PM Takashi Iwai <tiwai@suse.de> wrote:
+> > > > When you load snd-usb-audio with dyndbg=+p option, does it show the
+> > > > new error message "Mismatched sample rate xxx"?
+> > > 
+> > > No.
+> > 
+> > What about the patch below?
+> > 
+> > 
+> > Takashi
+> > 
+> > -- 8< --
+> > --- a/sound/usb/endpoint.c
+> > +++ b/sound/usb/endpoint.c
+> > @@ -925,6 +925,8 @@ void snd_usb_endpoint_close(struct snd_usb_audio *chip,
+> >  		endpoint_set_interface(chip, ep, false);
+> >  
+> >  	if (!--ep->opened) {
+> > +		if (ep->clock_ref && !atomic_read(&ep->clock_ref->locked))
+> > +			ep->clock_ref->rate = 0;
+> >  		ep->iface = 0;
+> >  		ep->altsetting = 0;
+> >  		ep->cur_audiofmt = NULL;
+> 
+> I think this works.
 
-Build test (gcc version 11.3.1 20220819):
-mips: 62 configs -> no failure
-arm: 99 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-csky allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
+OK, thanks.
 
-Note:
-Except x86_64, all the other arch I built were ok with gcc-12.
+If this patch fixes, the problem is that the behavior of the
+applications that do only PCM prepare without actually starting, then
+closes.  This left the last set rate unexpectedly.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
-mips: Booted on ci20 board. No regression. [3]
+I'm going to write up the proper patch.
 
-[1]. https://openqa.qa.codethink.co.uk/tests/1780
-[2]. https://openqa.qa.codethink.co.uk/tests/1785
-[3]. https://openqa.qa.codethink.co.uk/tests/1787
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
+Takashi
