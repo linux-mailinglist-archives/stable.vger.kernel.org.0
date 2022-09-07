@@ -2,62 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 898955B0231
-	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 12:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D5C5B02D8
+	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 13:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229607AbiIGK5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Sep 2022 06:57:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52806 "EHLO
+        id S229768AbiIGLZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Sep 2022 07:25:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229759AbiIGK5I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 06:57:08 -0400
-Received: from mail.savoirfairelinux.com (mail.savoirfairelinux.com [208.88.110.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 224F192F59
-        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 03:57:06 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.savoirfairelinux.com (Postfix) with ESMTP id E357E9C0AF3;
-        Wed,  7 Sep 2022 06:47:01 -0400 (EDT)
-Received: from mail.savoirfairelinux.com ([127.0.0.1])
-        by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id Do4jpbiVdNGh; Wed,  7 Sep 2022 06:47:01 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.savoirfairelinux.com (Postfix) with ESMTP id 68E5E9C098F;
-        Wed,  7 Sep 2022 06:47:01 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.savoirfairelinux.com 68E5E9C098F
+        with ESMTP id S229643AbiIGLZ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 07:25:58 -0400
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34281B1B8B
+        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 04:25:57 -0700 (PDT)
+Received: by mail-yb1-xb35.google.com with SMTP id y82so12911024yby.6
+        for <stable@vger.kernel.org>; Wed, 07 Sep 2022 04:25:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=savoirfairelinux.com; s=DFC430D2-D198-11EC-948E-34200CB392D2;
-        t=1662547621; bh=lcNbKrWv0ucAJs0GcqlwiQvtZ95TxwJFdjgkvv1MZKo=;
-        h=From:To:Date:Message-Id:MIME-Version;
-        b=yk0E6PNVsaOShiIBKZSDr5gQF1S/UNIoISowp745tcBiAHMc62sUc4U7Cztj+AnM7
-         m6xg5C9Y4kG85R4E/KoiQSQcaru9kzYBFeXNHb9fJgrxWMWyMZ2OdKMnJrReonbvna
-         OLEonmvWu//4Q8WZk3hhXg/5sCgOgEkjBSU8of5WgNDPFa9JGR4l00mUupeJ6JT52d
-         dzWiVeWTgmwpXI5ySodtqAOPtWFtay8B2Nusklv3gt5Cih9rJPtO894s2aQxhcmCH1
-         U9I9N66nKMPbIePInjFW8EhrdE9uF/O6/dYYkuLJfqovLaL5e5Y1CcKbRH4HqJM8Q0
-         FTlRBzRmvhffA==
-X-Virus-Scanned: amavisd-new at mail.savoirfairelinux.com
-Received: from mail.savoirfairelinux.com ([127.0.0.1])
-        by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id toslLghwvC-6; Wed,  7 Sep 2022 06:47:01 -0400 (EDT)
-Received: from sfl-deribaucourt.rennes.sfl (abordeaux-655-1-154-138.w92-162.abo.wanadoo.fr [92.162.199.138])
-        by mail.savoirfairelinux.com (Postfix) with ESMTPSA id 941ED9C0A1E;
-        Wed,  7 Sep 2022 06:47:00 -0400 (EDT)
-From:   Enguerrand de Ribaucourt 
-        <enguerrand.de-ribaucourt@savoirfairelinux.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, andrew@lunn.ch,
-        Enguerrand de Ribaucourt 
-        <enguerrand.de-ribaucourt@savoirfairelinux.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH v3 2/2] net: dp83822: disable rx error interrupt
-Date:   Wed,  7 Sep 2022 12:45:59 +0200
-Message-Id: <20220907104558.256807-3-enguerrand.de-ribaucourt@savoirfairelinux.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220907104558.256807-1-enguerrand.de-ribaucourt@savoirfairelinux.com>
-References: <20220907104558.256807-1-enguerrand.de-ribaucourt@savoirfairelinux.com>
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:from:to:cc:subject:date;
+        bh=/H0kvXuqpLTNXyZ4voqeN4/vJFyaNe+UD9dEREkOFH4=;
+        b=jLIqUeHorcb4rUvQ9nHXRLa+sQOHmLKb4EsWGjdBdELU4kc4m0gu6LXomN8bkcD6WH
+         Z97oI/ZX4CTfX3Bffv9L24u1sOEDU6tv7sRCugyUijSKlaDIyZp4EbNGrxF8KtuZAeSl
+         csYgA5vRpOmIxjpETcIkMFnAMNsvwEpm6EhQEOJGDAddAMvj+G5huwMTujrhV606112b
+         i+16wG4YpEf5TVYpZH8qMOy1xcw8mFW9A/3lAln022tTFHJ22rtL6wop99MKvgkTPnQL
+         ospJyRm7gBrvzsxAlhCDW+AIXdhGfcSDuhwhszJk1nbW5K2uHLDd+NUg6pFN7XRT8hvZ
+         JCTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=/H0kvXuqpLTNXyZ4voqeN4/vJFyaNe+UD9dEREkOFH4=;
+        b=z/PunlWAlml12MAgxmTtmxxEkhwcbQT9TmsWlh2qCX1fz5yzuyGT/wUO4wKXGMqqat
+         KV+EB3sLZsBC+a5kbDC6IiJOt+KqZMy22Pe8BIH4KewZN0n3+zbbdCTYWS4tprHqnz5I
+         pkfG4N0hBcNOsEW49j3YvoR97c63OGOkNRFB+g76XnI1bpvRAy8PiwIZg0xqBOuxf4rm
+         QajtcxYPDljIjpr1q+I0dMe7tu/Eqk9HSA3qnDHgO3jBK2AlcXDYLG7af8sZK1DRoXhg
+         QOznEOxWEhhdzsNRR4iieezY+qoPu6qPYCYGRI54lyNgvW+hJjUpi1zbUQxwzxiQ3YtK
+         5vuA==
+X-Gm-Message-State: ACgBeo1GDqT98MeWgSlBmh/ENyIGRbKnIEdBCOurlCc898oEbOYETH3n
+        S2goRV7HRb1WGvNNKzhkXSacwLg+cSCK/sf077k=
+X-Google-Smtp-Source: AA6agR4PgnXFvODt22yAf+6skubGtXagw2Zb9Icl8FzTYEyY2f74ubyTTIFpLJIdcTygWdbAqV2lXN+L6UYdFGE90ss=
+X-Received: by 2002:a05:6902:120f:b0:668:2228:9627 with SMTP id
+ s15-20020a056902120f00b0066822289627mr2665353ybu.134.1662549955977; Wed, 07
+ Sep 2022 04:25:55 -0700 (PDT)
 MIME-Version: 1.0
+Sender: janemumbi301@gmail.com
+Received: by 2002:a05:7010:102:b0:2ef:f52a:46a2 with HTTP; Wed, 7 Sep 2022
+ 04:25:55 -0700 (PDT)
+From:   sandraortegamera <sandraortegamera140@gmail.com>
+Date:   Wed, 7 Sep 2022 04:25:55 -0700
+X-Google-Sender-Auth: S8EvMIQvuXmTYNnzgmeRc9fR81E
+Message-ID: <CAAcTUKvhsprFzac2qCzc8hBorM13EZO0gaJ_SPwJfz1zruaqoA@mail.gmail.com>
+Subject: schnelles kreditangebot.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -65,39 +66,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Some RX errors, notably when disconnecting the cable, increase the RCSR
-register. Once half full (0x7fff), an interrupt flood is generated. I
-measured ~3k/s interrupts even after the RX errors transfer was
-stopped.
-
-Since we don't read and clear the RCSR register, we should disable this
-interrupt.
-
-Fixes: 87461f7a58ab ("net: phy: DP83822 initial driver submission")
-Signed-off-by: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirf=
-airelinux.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[backport of 5.10 commit 0e597e2affb90d6ea48df6890d882924acf71e19]
----
- drivers/net/phy/dp83822.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/net/phy/dp83822.c b/drivers/net/phy/dp83822.c
-index cc1522550f2c..da3983352dd4 100644
---- a/drivers/net/phy/dp83822.c
-+++ b/drivers/net/phy/dp83822.c
-@@ -197,8 +197,7 @@ static int dp83822_config_intr(struct phy_device *phy=
-dev)
- 		if (misr_status < 0)
- 			return misr_status;
-=20
--		misr_status |=3D (DP83822_RX_ERR_HF_INT_EN |
--				DP83822_ANEG_COMPLETE_INT_EN |
-+		misr_status |=3D (DP83822_ANEG_COMPLETE_INT_EN |
- 				DP83822_DUP_MODE_CHANGE_INT_EN |
- 				DP83822_SPEED_CHANGED_INT_EN |
- 				DP83822_LINK_STAT_INT_EN |
 --=20
-2.25.1
 
+Hallo, brauchst du einen Kredit? Wir vergeben schnell und zuverl=C3=A4ssig
+zinsg=C3=BCnstige Kredite, antworten Sie f=C3=BCr weitere Informationen
