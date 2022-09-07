@@ -2,71 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D5C5B02D8
-	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 13:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A975B02EB
+	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 13:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229768AbiIGLZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Sep 2022 07:25:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55418 "EHLO
+        id S229836AbiIGLbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Sep 2022 07:31:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229643AbiIGLZ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 07:25:58 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34281B1B8B
-        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 04:25:57 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id y82so12911024yby.6
-        for <stable@vger.kernel.org>; Wed, 07 Sep 2022 04:25:57 -0700 (PDT)
+        with ESMTP id S229744AbiIGLbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 07:31:11 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02887B0283;
+        Wed,  7 Sep 2022 04:31:11 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id y82so12928648yby.6;
+        Wed, 07 Sep 2022 04:31:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date;
-        bh=/H0kvXuqpLTNXyZ4voqeN4/vJFyaNe+UD9dEREkOFH4=;
-        b=jLIqUeHorcb4rUvQ9nHXRLa+sQOHmLKb4EsWGjdBdELU4kc4m0gu6LXomN8bkcD6WH
-         Z97oI/ZX4CTfX3Bffv9L24u1sOEDU6tv7sRCugyUijSKlaDIyZp4EbNGrxF8KtuZAeSl
-         csYgA5vRpOmIxjpETcIkMFnAMNsvwEpm6EhQEOJGDAddAMvj+G5huwMTujrhV606112b
-         i+16wG4YpEf5TVYpZH8qMOy1xcw8mFW9A/3lAln022tTFHJ22rtL6wop99MKvgkTPnQL
-         ospJyRm7gBrvzsxAlhCDW+AIXdhGfcSDuhwhszJk1nbW5K2uHLDd+NUg6pFN7XRT8hvZ
-         JCTg==
+        bh=htQQOB82V/42KTcLd0mWmEHX6IR774JdlYtTcKgQ5uY=;
+        b=J0hpqdXnf3ogu5jaZnQRInPEzYpKWw1bSpC3Fak9LMh0NOkMVK8yKh/D15/hBBbWls
+         rqUsCXdMRhyzCMzIx4/hnJAcGNU14dFgoDGgefZgnI9LmYthGPxnRHxP8SwpkBx2WWMc
+         APnS+XRSCbS1+z1crEqmKL7k7mQapnAg61SMc2NmRdEQc7K1oSU+vgtI/Vjy9T6KXHFU
+         UwV51QN9LhqArah47LUrNdHlpHDbqL5GiPqlW2F8/m5Jd3liEd0fR8lr5FFeOw12XBTA
+         T4zfPpc3w6QIaT/WkxMAFXHTxfzCf0uk8QJkD4CaYzGKjEQKOOWVAHhc4TVuuYOBZ0jj
+         a0ag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=/H0kvXuqpLTNXyZ4voqeN4/vJFyaNe+UD9dEREkOFH4=;
-        b=z/PunlWAlml12MAgxmTtmxxEkhwcbQT9TmsWlh2qCX1fz5yzuyGT/wUO4wKXGMqqat
-         KV+EB3sLZsBC+a5kbDC6IiJOt+KqZMy22Pe8BIH4KewZN0n3+zbbdCTYWS4tprHqnz5I
-         pkfG4N0hBcNOsEW49j3YvoR97c63OGOkNRFB+g76XnI1bpvRAy8PiwIZg0xqBOuxf4rm
-         QajtcxYPDljIjpr1q+I0dMe7tu/Eqk9HSA3qnDHgO3jBK2AlcXDYLG7af8sZK1DRoXhg
-         QOznEOxWEhhdzsNRR4iieezY+qoPu6qPYCYGRI54lyNgvW+hJjUpi1zbUQxwzxiQ3YtK
-         5vuA==
-X-Gm-Message-State: ACgBeo1GDqT98MeWgSlBmh/ENyIGRbKnIEdBCOurlCc898oEbOYETH3n
-        S2goRV7HRb1WGvNNKzhkXSacwLg+cSCK/sf077k=
-X-Google-Smtp-Source: AA6agR4PgnXFvODt22yAf+6skubGtXagw2Zb9Icl8FzTYEyY2f74ubyTTIFpLJIdcTygWdbAqV2lXN+L6UYdFGE90ss=
-X-Received: by 2002:a05:6902:120f:b0:668:2228:9627 with SMTP id
- s15-20020a056902120f00b0066822289627mr2665353ybu.134.1662549955977; Wed, 07
- Sep 2022 04:25:55 -0700 (PDT)
+        bh=htQQOB82V/42KTcLd0mWmEHX6IR774JdlYtTcKgQ5uY=;
+        b=TFzkhEnxuyWYqACHewBljcuGLSuz19+MeSXXRn3mbl3sJDV/sEIpQeKFwVh3SLrc52
+         ROjZaVzUw3iWOy+k4bQgJa+6w2A9/CayLGBF5iZsfDCUsOUpBRJB41ihX1asWNhQZUly
+         /r7X5CfS1vwFNl6XLmX1rM7KGX18WC+vRBB4p+g66+GsjoWIv/emYFNjcagPTBFl7V0w
+         XnkEzRB1p7qO7fN9uQZNyqmGNDqUVgHRjDD1eGLZT4bjCBImpggIwW4xtvy+SKElQPP0
+         QaIBqDdoW/PL6vPdo476sTWTARjXXMU1n4syoA0tlBxRZHtzWWJeRFufAzEsFtKhaXmj
+         3dUg==
+X-Gm-Message-State: ACgBeo1BKtc+WSHk8N9NHzY3fr1bGtL7KxujDqO+t3JOuI3yYzL3KnnI
+        caZUNZaVz74uzmmKkfDp16IP9OzEVXLvAqryRDc=
+X-Google-Smtp-Source: AA6agR71H+G6qVXzMIzOGHX5QXC/V9UhqXsgcDMknFubEQ5fmf1ViE8QltDfcI3uiFsMdrym6KaPtNAbOoHe2iN1Hi8=
+X-Received: by 2002:a25:3b46:0:b0:69c:a60e:2e57 with SMTP id
+ i67-20020a253b46000000b0069ca60e2e57mr2192680yba.364.1662550270206; Wed, 07
+ Sep 2022 04:31:10 -0700 (PDT)
 MIME-Version: 1.0
-Sender: janemumbi301@gmail.com
-Received: by 2002:a05:7010:102:b0:2ef:f52a:46a2 with HTTP; Wed, 7 Sep 2022
- 04:25:55 -0700 (PDT)
-From:   sandraortegamera <sandraortegamera140@gmail.com>
-Date:   Wed, 7 Sep 2022 04:25:55 -0700
-X-Google-Sender-Auth: S8EvMIQvuXmTYNnzgmeRc9fR81E
-Message-ID: <CAAcTUKvhsprFzac2qCzc8hBorM13EZO0gaJ_SPwJfz1zruaqoA@mail.gmail.com>
-Subject: schnelles kreditangebot.
-To:     undisclosed-recipients:;
+References: <20220906132821.713989422@linuxfoundation.org> <YxhnDip9k6TfRCCc@debian>
+In-Reply-To: <YxhnDip9k6TfRCCc@debian>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Wed, 7 Sep 2022 12:30:34 +0100
+Message-ID: <CADVatmN3hoxBB-knoTO6BGb=1fstiOPwakCu3tXHbV21bHR8Pw@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/107] 5.15.66-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
+On Wed, Sep 7, 2022 at 10:40 AM Sudip Mukherjee (Codethink)
+<sudipm.mukherjee@gmail.com> wrote:
+>
+> Hi Greg,
+>
+> On Tue, Sep 06, 2022 at 03:29:41PM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.15.66 release.
+> > There are 107 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Thu, 08 Sep 2022 13:27:58 +0000.
+> > Anything received after that time might be too late.
+>
+> Build test (gcc version 11.3.1 20220819):
 
-Hallo, brauchst du einen Kredit? Wir vergeben schnell und zuverl=C3=A4ssig
-zinsg=C3=BCnstige Kredite, antworten Sie f=C3=BCr weitere Informationen
+Missed reporting that the build is full of "/bin/sh: 1:
+./scripts/pahole-flags.sh: Permission denied".
+On checking it turns out, the execute permission is not set in the
+v5.15.y branch, but its set in v5.19.y branch.
+
+On v5.19.y:
+$ ls -l scripts/pahole-flags.sh
+-rwxr-xr-x 1 sudip sudip 585 Sep  6 18:03 scripts/pahole-flags.sh
+
+on v5.15.y:
+$ ls -l scripts/pahole-flags.sh
+-rw-r--r-- 1 sudip sudip 627 Sep  7 12:27 scripts/pahole-flags.sh
+
+
+-- 
+Regards
+Sudip
