@@ -2,113 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F21545B06D0
-	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 16:32:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D9F75B0735
+	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 16:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230295AbiIGOcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Sep 2022 10:32:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47000 "EHLO
+        id S229464AbiIGOle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Sep 2022 10:41:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230298AbiIGOb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 10:31:57 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE5479EEA
-        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 07:31:54 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id lz22so9963400ejb.3
-        for <stable@vger.kernel.org>; Wed, 07 Sep 2022 07:31:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date;
-        bh=UTPjlhWN0j/3cl0uibj9IdU3K9tIHCNTd74bAPWV+BQ=;
-        b=hlX5LG70Pfi5xUfXCm2C7WvkXcJVP5UakJZVNodPOy7vNkSXQuxkM6JMnL0NkwpmEx
-         GApIDchppryVktOBo5G41BqVss7NVeWmLRXcOx2bAZqQ+LAYFz8ePbLc684sFXT4Nmqj
-         OcoPmJYuvMlwncvSBL0BFnkvuWLyKibj/n8A5QS+qmy30Nhg7xyf0NkI/q67juR/h0tY
-         bD/nOML45bK21IZjrLP4cVfkyGYdsdvh6OJ7KPKPWGwDpi4WDdxiFiQ5bptV3cHn11YY
-         R2/ccByiK1oIAZVOw3mE9dymIO7CzllUwLBF2JbmBffIhO2NpTaaNqhGzBB+XMxejIE1
-         VDsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=UTPjlhWN0j/3cl0uibj9IdU3K9tIHCNTd74bAPWV+BQ=;
-        b=wCrBTp6Jxyi4ZA0S/z6KDqWyERskozNekVP+12PBBtE440FMDTdtGzQvy1VRW0vbd9
-         +8h+FwL/0gVc4KeMPix3VfggHGbWVNu5S9Rbk2tfEZkUsCX/exjGXj+M5r+cLHYSUxO6
-         lAvxU1oQNqxQvread9cv/vvSU4is4HA/0PC0kaHNxk2Vh5D7oMpXoYMo+DY+j10Wzbej
-         o8ydkW6OyDs+aoFzGdsFh3rAvONRNmeWod333zurYbFoB531z9oFOTSOWtcovSv903iL
-         qFiEmLyNQilmrcCgwZMz30ImbKnEkgtuQSqKZjmIXt/ni55EfGfnrVGvOBcD5zbba9K0
-         W0EA==
-X-Gm-Message-State: ACgBeo1Ls4CEBeuEjcHfVMA17+/sMGDaC3K/wrlnEagWnQXsfthHZlQO
-        BJq68DkLZ5j5zga1gH1TnAL+mQUIgRrMm7ggew0=
-X-Google-Smtp-Source: AA6agR4pyZsB+xbbjgKGlrl2+RDjPAQ7wWCMdSGS3qWC1Sv629AIX++hkd3miN/bJlP1/yRRoX5bdHKo53e2l2Vr/Xc=
-X-Received: by 2002:a17:906:38f:b0:742:1f68:7058 with SMTP id
- b15-20020a170906038f00b007421f687058mr2510502eja.743.1662561112231; Wed, 07
- Sep 2022 07:31:52 -0700 (PDT)
+        with ESMTP id S229643AbiIGOlF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 10:41:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C4D5A151
+        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 07:41:03 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74FE9B81D1C
+        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 14:41:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C535CC433D6;
+        Wed,  7 Sep 2022 14:41:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1662561661;
+        bh=9gClJztoqkOzFXETn/AUsn+XhQfDVapaCHdB6AsY82E=;
+        h=Subject:To:From:Date:From;
+        b=rKRro2jvidOvJDdoKijUH67WgNFZK1094bXOctWKiI+gi/fczVLylgS9nojA9Jx/X
+         vg1TILe5gVRyJ8cdtl3uEKhE3HuxaeeadLbRF0aTyXx2+OwLYQ4xOABhDf8h7EOrBH
+         2QF3FppEAose6uuy9MIOAZIvUiEKFFVkTp3H7PiM=
+Subject: patch "serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting" added to tty-linus
+To:     ilpo.jarvinen@linux.intel.com, andy.shevchenko@gmail.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 07 Sep 2022 16:40:50 +0200
+Message-ID: <1662561650142187@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a54:3fc4:0:0:0:0:0 with HTTP; Wed, 7 Sep 2022 07:31:51 -0700 (PDT)
-Reply-To: lumar.casey@outlook.com
-From:   LUMAR CASEY <miriankushrat@gmail.com>
-Date:   Wed, 7 Sep 2022 16:31:51 +0200
-Message-ID: <CAO4StN23CjT73+kAZo3jW6NA7B_rVMGFz9vZYzq4Gs86AZgN6A@mail.gmail.com>
-Subject: ATTENTION/PROPOSAL
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=6.8 required=5.0 tests=ADVANCE_FEE_4_NEW_MONEY,
-        BAYES_50,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM,UNDISC_MONEY,UPPERCASE_75_100 autolearn=no
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:643 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5014]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [miriankushrat[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  0.0 UPPERCASE_75_100 message body is 75-100% uppercase
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  3.1 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-        *  2.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
-        *      email?
-        *  0.2 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-        *  0.0 ADVANCE_FEE_4_NEW_MONEY Advance Fee fraud and lots of money
-X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ATTENTION
 
-BUSINESS PARTNER,
+This is a note to let you know that I've just added the patch titled
 
-I AM LUMAR CASEY WORKING WITH AN INSURANCE FINANCIAL INSTITUTE, WITH
-MY POSITION AND PRIVILEGES I WAS ABLE TO SOURCE OUT AN OVER DUE
-PAYMENT OF 12.8 MILLION POUNDS THAT IS NOW SECURED WITH A SHIPPING
-DIPLOMATIC OUTLET.
+    serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting
 
-I AM SEEKING YOUR PARTNERSHIP TO RECEIVE THIS CONSIGNMENT AS AS MY
-PARTNER TO INVEST THIS FUND INTO A PROSPEROUS INVESTMENT VENTURE IN
-YOUR COUNTRY.
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
 
-I AWAIT YOUR REPLY TO ENABLE US PROCEED WITH THIS BUSINESS PARTNERSHIP TOGETHER.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-REGARDS,
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-LUMAR CASEY
+If you have any questions about this process, please let me know.
+
+
+From 754f68044c7dd6c52534ba3e0f664830285c4b15 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Thu, 1 Sep 2022 17:39:33 +0300
+Subject: serial: tegra: Use uart_xmit_advance(), fixes icount.tx accounting
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+DMA complete & stop paths did not correctly account Tx'ed characters
+into icount.tx. Using uart_xmit_advance() fixes the problem.
+
+Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
+Cc: <stable@vger.kernel.org> # serial: Create uart_xmit_advance()
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220901143934.8850-3-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/serial-tegra.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
+index ad4f3567ff90..a5748e41483b 100644
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -525,7 +525,7 @@ static void tegra_uart_tx_dma_complete(void *args)
+ 	count = tup->tx_bytes_requested - state.residue;
+ 	async_tx_ack(tup->tx_dma_desc);
+ 	spin_lock_irqsave(&tup->uport.lock, flags);
+-	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
++	uart_xmit_advance(&tup->uport, count);
+ 	tup->tx_in_progress = 0;
+ 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
+ 		uart_write_wakeup(&tup->uport);
+@@ -613,7 +613,6 @@ static unsigned int tegra_uart_tx_empty(struct uart_port *u)
+ static void tegra_uart_stop_tx(struct uart_port *u)
+ {
+ 	struct tegra_uart_port *tup = to_tegra_uport(u);
+-	struct circ_buf *xmit = &tup->uport.state->xmit;
+ 	struct dma_tx_state state;
+ 	unsigned int count;
+ 
+@@ -624,7 +623,7 @@ static void tegra_uart_stop_tx(struct uart_port *u)
+ 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
+ 	count = tup->tx_bytes_requested - state.residue;
+ 	async_tx_ack(tup->tx_dma_desc);
+-	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
++	uart_xmit_advance(&tup->uport, count);
+ 	tup->tx_in_progress = 0;
+ }
+ 
+-- 
+2.37.3
+
+
