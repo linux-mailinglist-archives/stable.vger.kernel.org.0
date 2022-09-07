@@ -2,97 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C6FC5AFDDD
-	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 09:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E13115AFE57
+	for <lists+stable@lfdr.de>; Wed,  7 Sep 2022 10:01:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230014AbiIGHqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Sep 2022 03:46:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40326 "EHLO
+        id S230256AbiIGIBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Sep 2022 04:01:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229939AbiIGHqc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 03:46:32 -0400
-Received: from mail-vs1-xe31.google.com (mail-vs1-xe31.google.com [IPv6:2607:f8b0:4864:20::e31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF1569E8B5;
-        Wed,  7 Sep 2022 00:46:31 -0700 (PDT)
-Received: by mail-vs1-xe31.google.com with SMTP id n125so14051557vsc.5;
-        Wed, 07 Sep 2022 00:46:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date;
-        bh=70UlwKdvq7GCSl1IbEvE1dyc4cQjRqwl7FIkEoDrwBc=;
-        b=gxENM3C5F/mywTCZjPzfG6V5EIvSHxSCqhJc0UIsQZrs0XWrlJVrw0WQrNZRioOOiP
-         wDLaRWt5myCkFnsgPQFpDQgUDPTWODeEW50CByj0vbbs+rcipZ9tN3NQ1BAPsDSJnjyO
-         2opDHjziA3CpiB0JiYyVfKsQ6dmaCK4/bzXbWTtwUL2TqY0M9xyxbqabDHlATL1EffBO
-         EPXQFtZjcdQ2bo9cp5iVPmyADfCdH/8LNrBKek3LdfQqHcOFheLwo5f5pm/up29C3XzE
-         PJ39NymUSNHGnCzJzDqmFnGjbEsP5kbUGXmO4GmZttcwC6R5SBAyzungYgtwYYA6t/gb
-         kGxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=70UlwKdvq7GCSl1IbEvE1dyc4cQjRqwl7FIkEoDrwBc=;
-        b=G63ye3JtXHcR+vPJEx6uRc0m7vINjUY10XRaFtgc6s6bq92GnmaLj3itnplsKZpL/c
-         iqJrhYNT42KvRjXop86d18ApaL9y6vgwhmkTRO680k/CaK+awduM6PQ7TYhzSlZLW96L
-         Sn8956FLnieoIu4Z3Rc49DmtLas/mreTOlP/pHWC60jkf+ndl24JY/glTgeG5XtouEn0
-         b4D5uXHVYI9AemLWDvC82yUEt0K3h/UrKH08YUqDO2zkj0sS7DCRLxXfKlDqQqU0OxNt
-         XvSDamWVbCAN/ES+F4NTJlzW2O1IbGGYv90WIXr0xgGSSr76JkE3kx7EO+NO2Vy4L4p1
-         9nIw==
-X-Gm-Message-State: ACgBeo2yIC5PAYQmcjN00Av2izvc8Zhk2BNihWhFisBxxNFr2bz9paP0
-        BYxCg5F0gL80T6dvvrJq1Fmm7RIR7/1vU3+slN3vAhsZJkQ=
-X-Google-Smtp-Source: AA6agR6yyYcaIk9n4JzQ9dl81gPkNJ+UBU3hY4U/5E+5LQpAjGggTmyFyfJHh9AjJUl7m++VA/jK35zZbvb2BAc2kz4=
-X-Received: by 2002:a67:d00f:0:b0:397:f237:98f3 with SMTP id
- r15-20020a67d00f000000b00397f23798f3mr613990vsi.71.1662536790612; Wed, 07 Sep
- 2022 00:46:30 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220906183600.1926315-1-teratipally@google.com>
-In-Reply-To: <20220906183600.1926315-1-teratipally@google.com>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Wed, 7 Sep 2022 10:46:19 +0300
-Message-ID: <CAOQ4uxiNqxx1jK9k2-3yuvVTRwc09__5XMu7MdX75K1FGp5Dhg@mail.gmail.com>
-Subject: Re: Request to cherry-pick 01ea173e103edd5ec41acec65b9261b87e123fc2
- to v5.10
-To:     Varsha Teratipally <teratipally@google.com>
-Cc:     "Darrick J. Wong" <djwong@kernel.org>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S230131AbiIGIAt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Sep 2022 04:00:49 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22AE832ED4;
+        Wed,  7 Sep 2022 01:00:48 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id B8BB61F897;
+        Wed,  7 Sep 2022 08:00:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1662537646; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=MTS0xkpOCWUUwhJ2Fb/pObZ9XY5ZZUSzn2pLirlZ190=;
+        b=L2usALx8nlG2n7FXPK6l8HHte8IfBqWbOU+7ruF+DFWa5w5WR7Gw7Zh9YCf4jxfUVLEdRx
+        ss4YIQlCt78Fl4VQC/WBU1IQrzm2xArVLncGeYuZUTiv7CnFhJZ0rOGmy565N5PnYV3SGP
+        Yd6z2pNzvoE4EvqsP4vHLDr8WcDWQZw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1662537646;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=MTS0xkpOCWUUwhJ2Fb/pObZ9XY5ZZUSzn2pLirlZ190=;
+        b=mHn7DM52lTy5mR8njdQ2Muu5243mMdz5cfQimepAQG7RawghOa5f3FT1wPn4vu8hmR4YP+
+        1P2830mzNLk0UyCA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9290813A66;
+        Wed,  7 Sep 2022 08:00:46 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id tTLqIq5PGGO6CQAAMHmgww
+        (envelope-from <tiwai@suse.de>); Wed, 07 Sep 2022 08:00:46 +0000
+Date:   Wed, 07 Sep 2022 10:00:46 +0200
+Message-ID: <87czc7ehqp.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     alsa-devel@alsa-project.org, LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?ISO-8859-4?Q?Nikl=E0vs_Ko=B6es=F1ikovs?= 
+        <89q1r14hd@relay.firefox.com>, Wim Taymans <wtaymans@redhat.com>
+Subject: Re: [PATCH] ALSA: usb-audio: Don't refcount multiple accesses on the single clock
+In-Reply-To: <CAHmME9oUtVgwtUY5afG5Yed1j6OVKwvLH=keCp63gDSOQRgDSA@mail.gmail.com>
+References: <20220905101403.1435037-1-Jason@zx2c4.com>
+        <87sfl6jbb3.wl-tiwai@suse.de>
+        <CAHmME9oUtVgwtUY5afG5Yed1j6OVKwvLH=keCp63gDSOQRgDSA@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 6, 2022 at 9:36 PM Varsha Teratipally
-<teratipally@google.com> wrote:
->
-> Hi all,
->
-> Commit 01ea173e103edd5ec41acec65b9261b87e123fc2 (upstream: xfs: fix up
-> non-directory creation in SGID directories) fixes an issue where in xfs
-> sometimes, a local user could create files with an unitended group
-> permissions as an owner and execution where a directory is SGID and belon=
-gs to a certain group and is writable by a user who is not a member of this=
- group and seems like a good candidate for the v5.10 stable tree given that=
- 5.10 is used in versions of debian, ubuntu.
->
-> This patch applies cleanly. Let me know what you think
->
+On Mon, 05 Sep 2022 14:16:39 +0200,
+Jason A. Donenfeld wrote:
+> 
+> On Mon, Sep 5, 2022 at 1:44 PM Takashi Iwai <tiwai@suse.de> wrote:
+> > When you load snd-usb-audio with dyndbg=+p option, does it show the
+> > new error message "Mismatched sample rate xxx"?
+> 
+> No.
 
-Since you already posted the patch, I wrote what I think on the post:
+What about the patch below?
 
-https://lore.kernel.org/linux-xfs/CAOQ4uxi_Q8aXUg+FM0Q9__t=3DKqJSVqOgkS8j8k=
-NC3MQfniZLWA@mail.gmail.com/
 
-Bottom line - I think that the patch should be applied to 5.10.y
-without further delay.
+Takashi
 
-Thanks,
-Amir.
+-- 8< --
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -925,6 +925,8 @@ void snd_usb_endpoint_close(struct snd_usb_audio *chip,
+ 		endpoint_set_interface(chip, ep, false);
+ 
+ 	if (!--ep->opened) {
++		if (ep->clock_ref && !atomic_read(&ep->clock_ref->locked))
++			ep->clock_ref->rate = 0;
+ 		ep->iface = 0;
+ 		ep->altsetting = 0;
+ 		ep->cur_audiofmt = NULL;
