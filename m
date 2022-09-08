@@ -2,81 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D05785B2650
+	by mail.lfdr.de (Postfix) with ESMTP id 5A76F5B264F
 	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 20:56:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232269AbiIHS4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231826AbiIHS4I (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 8 Sep 2022 14:56:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47162 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230486AbiIHS4G (ORCPT
+        with ESMTP id S230338AbiIHS4G (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 14:56:06 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E31DD9E85
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 11:55:52 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id dv25so10908725ejb.12
-        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 11:55:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=M4098SyJRltzpG7MyAZxLPDr5I5WzKWKipfDdEc1IBg=;
-        b=qY9xVnlLM/l4t54GLlyE8W0HR7sO/sIi2riue9ZM+uirfZflztdQktnoZERgL5s8NZ
-         ACsjc99R5X55LMf1d5LFheKe08uI/qFk60W91n5LfieX2WiyrsbaBZcItJGMur3lb48J
-         MWzsWGZT1LDgq/jjygMFbCSAaAyvvoHGIoSnNV4m6wwGq6fVLsDEGTdD+indpPpH0GQT
-         hoxGr8x72WkxjB0S4ZCJe5gUfwXcDS61ipTF004Nu+4xmM/a+YbBoxabQ4hVmo2VbjLW
-         der2wWyhiVkFz0wonM+hfr8SYueQPl2Em/A5dOVxak43IntCNBpowrKv1tMCGMbscbY6
-         UzGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=M4098SyJRltzpG7MyAZxLPDr5I5WzKWKipfDdEc1IBg=;
-        b=xOZFugYbvAWOmQqw746SmDIPq24sx9ZOJbeK62qlEFMs+d9QvumajL11W8Kpbqnbvu
-         NFg4bcjgzyzdN1ILCtg2F5/156t9pRuJywrJ+hRfarKybv8YppXcMs3Km85gOtuekfND
-         EUeD8pRveKA9u1/AzRzCyIM9cmrD2CNz2yTKS3HHS52+mionpXgvgAfJHL+H87gK5aIu
-         SRwKbUanx9VhmZ4DiRsMib3eiUDSj1mMTEd4Vgr882hy14dUMz0QlEjDmuS0shD3WZAj
-         WmLAYY7tp8vXIJ6tMhwoqPLJWMlqJVv8SjDJqlNWpS+CYbdYYlzNpdINoPUhEbrlMpuh
-         I6Sg==
-X-Gm-Message-State: ACgBeo3ysQefQgtTtrwPjUpAE+fya9pTVbUofFkPDzfQ8xddaXXTr/Aa
-        TNpO7g0HKeGE2NFZGJoL56tqKN7BD8I9gWPhcUbqcA==
-X-Google-Smtp-Source: AA6agR6k5/pgiNgK4VKq2XiLPLalc0PBHjQ/Co4GgNh/K5+cVUaPM73Le7bYBJcBnyp3LtykYdayarpSKiUIwSksaVU=
-X-Received: by 2002:a17:907:b04:b0:758:2d05:7aaf with SMTP id
- h4-20020a1709070b0400b007582d057aafmr7119692ejl.33.1662663350763; Thu, 08 Sep
- 2022 11:55:50 -0700 (PDT)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5584FE127B;
+        Thu,  8 Sep 2022 11:55:56 -0700 (PDT)
+Received: from [IPV6:2405:201:10:389d:42df:ae4c:c047:294c] (unknown [IPv6:2405:201:10:389d:42df:ae4c:c047:294c])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: shreeya)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 3CB6E6601FA5;
+        Thu,  8 Sep 2022 19:55:53 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1662663354;
+        bh=/0YQxiGiLijwA+CaDfO6VApaf51Pu3uEzYBqsFWNDnw=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=cxIwTkGycIMA7GAM3ra/IVSHuLzHqPCwvCz7XjjXY6zvp16dd3wajqf1TochqyAPX
+         IFOX0Ot8316hrizIr9QDyLkgbLvrac/DTVEygCgfZhU2D+BEHEBiZo2AfYSxSFtpbZ
+         1c2btO2k8i92Rby9J2O9MwcHjfbWIL8Ixtx6Lek11OCW/CuvUqXy03xzOGiMlcGzKm
+         vBH7yV5mSvXMBR1RfqGJwhiGJVm5xyQM2SBEbQzX3IhMiay5/Zy/GSmWypHN47THqp
+         BDyjozTp5CZdil53SJxvbiJn8DG+28tlRpvQXlcEAl7W1nwOtVo7qUgJtfoexpgD9/
+         0UIebZIEFTMzg==
+Message-ID: <03401e6f-f660-9313-61dc-a930675c82ec@collabora.com>
+Date:   Fri, 9 Sep 2022 00:25:49 +0530
 MIME-Version: 1.0
-References: <20220906172933.410698-1-isaacmanjarres@google.com> <YxnX9TsxuSi9L9GD@kroah.com>
-In-Reply-To: <YxnX9TsxuSi9L9GD@kroah.com>
-From:   Isaac Manjarres <isaacmanjarres@google.com>
-Date:   Thu, 8 Sep 2022 11:55:39 -0700
-Message-ID: <CABfwK102o1ycjHnGtR_bt3SZpuHtT=ynLJuWQwBUDqR2Ysg-eg@mail.gmail.com>
-Subject: Re: [PATCH stable-4.19/4.14/4.9] driver core: Don't probe devices
- after bus_type.match() probe deferral
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Ulf Hansson <ulf.hansson@linaro.org>, stable@vger.kernel.org,
-        Saravana Kannan <saravanak@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        kernel-team@android.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v2] iio: light: tsl2583: Fix module unloading
+Content-Language: en-US
+To:     Jonathan Cameron <jic23@kernel.org>
+Cc:     lars@metafoo.de, krisman@collabora.com,
+        dmitry.osipenko@collabora.com, kernel@collabora.com,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20220826122352.288438-1-shreeya.patel@collabora.com>
+ <20220828173327.7949ad73@jic23-huawei>
+From:   Shreeya Patel <shreeya.patel@collabora.com>
+In-Reply-To: <20220828173327.7949ad73@jic23-huawei>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Applied to 4.19.y, but did not apply to 4.14.y or 4.9.y :(
 
-Thanks for following up on this. I'll make backports for 4.9 and 4.14
-separately.
+On 28/08/22 22:03, Jonathan Cameron wrote:
+> On Fri, 26 Aug 2022 17:53:52 +0530
+> Shreeya Patel <shreeya.patel@collabora.com> wrote:
+>
+>> tsl2583 uses devm_iio_device_register() function and
+>> calling iio_device_unregister() in remove breaks the
+>> module unloading.
+>> Fix this by using iio_device_register() instead of
+>> devm_iio_device_register() function in probe.
+> Not sure why you are wrapping at 55 chars. I rewrapped this whilst applying.
+>
+> Reworded it a little too as I was touching it anyway.
+>
+> Applied to the fixes-togreg branch of iio.git.
 
---Isaac
+Hi Jonathan,
+
+I was wondering if this got picked by you. I don't see it in 
+fixes-togreg that's why wanted to just confirm if you aren't looking for 
+some extra changes in this.
+
+
+Thanks
+Shreeya Patel
+
+>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 371894f5d1a0 ("iio: tsl2583: add runtime power management support")
+> I took a look at this patch and it introduces the issue I just pointed
+> out in replying to your v1 by dropping the
+> /* Make sure the chip is on */
+> Which was correct even with runtime pm because it covered the case of
+> runtime_pm being disabled.   We probably need to bring that back as well,
+> perhaps as part of a cleanup patch taking this fully devm_
+>
+> This driver has another issue for working if runtime PM isn't built into
+> the kernel which is that it checks the return of pm_runtime_put_autosuspend()
+> which calls
+>
+> static inline int __pm_runtime_suspend(struct device *dev, int rpmflags)
+> {
+> 	return -ENOSYS;
+> }
+>
+> I've been meaning to do an audit for drivers that have this problem for
+> a while, but not yet gotten to it.
+>
+> An ideal IIO driver needs to work correctly whether or not CONFIG_PM is
+> enabled.
+>
+> Jonathan
+>
+>
+>> Signed-off-by: Shreeya Patel <shreeya.patel@collabora.com>
+>> ---
+>> Changes in v2
+>>    - Use iio_device_register() instead of devm_iio_device_register()
+>>    - Add fixes and stable tags
+>>
+>>   drivers/iio/light/tsl2583.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/iio/light/tsl2583.c b/drivers/iio/light/tsl2583.c
+>> index 82662dab87c0..94d75ec687c3 100644
+>> --- a/drivers/iio/light/tsl2583.c
+>> +++ b/drivers/iio/light/tsl2583.c
+>> @@ -858,7 +858,7 @@ static int tsl2583_probe(struct i2c_client *clientp,
+>>   					 TSL2583_POWER_OFF_DELAY_MS);
+>>   	pm_runtime_use_autosuspend(&clientp->dev);
+>>   
+>> -	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
+>> +	ret = iio_device_register(indio_dev);
+>>   	if (ret) {
+>>   		dev_err(&clientp->dev, "%s: iio registration failed\n",
+>>   			__func__);
+>
