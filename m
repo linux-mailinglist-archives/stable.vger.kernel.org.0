@@ -2,137 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 411A35B2736
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 21:57:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A655B27CC
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 22:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229514AbiIHT5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 15:57:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43058 "EHLO
+        id S229480AbiIHUhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 16:37:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229509AbiIHT5K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 15:57:10 -0400
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16532EC746
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 12:57:07 -0700 (PDT)
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com [209.85.210.198])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id E772B3F473
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 19:57:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1662667025;
-        bh=IjQUSsBxUbXPPJNFF22vbeme4Du9WUP3ITpWdiHo7LQ=;
-        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=YaxURXPPOdwXFg5WS/yErfPg7MT3f3QxJG48+YXqJsD9CBfFc96LIBo4bUibWCfbv
-         QpNN1FpXFYo1vJcrpgkjhbeJcd12mhoQp+EVGsN9F5DVF5Oi+Qpiwg46mJfnicx4KX
-         eCyHZzqILqXkzQX18G57QqRoeseW9FUxqN46aVKbzvhdF7OH6HsH5pLmr5QnBtZbSw
-         +5k2+oITQ4mooaDEzSpEMjFHxcPLbIn2MR8zq+wMmpd2tihmbeqSAsI61xnyDb18kR
-         /EqerSPMsf89VAVtMTnys7SzpLrA3Lcn/GOgiCfIUWoOFfTCSFrx8PkBNilDrzQfpJ
-         Q6dC5Fk4PDLrw==
-Received: by mail-pf1-f198.google.com with SMTP id dc10-20020a056a0035ca00b0053870674be9so9811773pfb.12
-        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 12:57:05 -0700 (PDT)
+        with ESMTP id S229437AbiIHUhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 16:37:06 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 138B51023DA
+        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 13:37:06 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id u9-20020a17090a1f0900b001fde6477464so3422684pja.4
+        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 13:37:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc:subject:date;
+        bh=qvaOK6j3PxKP4j5xD7XFiriqToq7K2JMUEKsHJLivrk=;
+        b=T2teUqFLVeDwCASHIvmjVIwy4w8gW86XzEKRn7knzqWutN5vv40KvjKNzMJcsjuKnn
+         uG58WnKi1GsbZtaHYEXckXjNUO0jnPziBtPifmAIF5ZDJwYKZghgRo42b5WbL7xXVjuq
+         nFYYjuWMJLqkc3LutWmBtwQ2vqPJzhNkq7smU6VcE2VafaRn60gOMP+sRSZDuSVA0Agw
+         h9+Q9DuH0H5pZfeUqKn/JU4O9XwGen4895cAqYiSK/Bw6uEwLZ4uG0TVAdxxLdEuhrOc
+         RrRM6gJ3WNknGQZtUhEziVqPwpd0SBLiSQsaRtjZDvFj9WvfNcAeiYPz/fzr6ACSUK7Y
+         hofA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=IjQUSsBxUbXPPJNFF22vbeme4Du9WUP3ITpWdiHo7LQ=;
-        b=7xQuyATb8PqHfcWTt4lGSYTRRvGZxqpKVxnYAMiPQSuztz9JMdl7r1QY7XS9znbH6Z
-         E8bP1eWVUxcxCBLljqEm9ZLhltR7/hvQ/HHHZSJ/or3zatnsy/qDAcJwgYf01Bmj0iSI
-         H1V6U393P2IYbbJQwxH+Z1RKk0yxe2x58iJb+HscSthU+B/8veRW+L1k5/8T5+co29ka
-         gRiKeVHiXjLwCuSOPCy2I3Ej+TEjN5Pf9YWh/4ICekEMAqY00YSwBhzapJL7GNcmAI1Y
-         HBh2fl1ho2xDPvLLfFYACykUs3RmrlZHm6Cx9ekByyq/3LE+AW3yVPQ9Ok2XagETbytn
-         WHkQ==
-X-Gm-Message-State: ACgBeo340Ox7jtHRUXYGHed5rgz4wdYANqQ9x1w+D9aYJnxLCc9xfau+
-        OEtfFgpoC1PQ/AlVhrqJEFo+XIKnljX97YPhZbRZBhojaMyfbEjqt8tPb6g5ce4J9FFSYJdJC6g
-        F9p0GYyJmFo7MhT6toEThJZ5FC8jThDRCeg==
-X-Received: by 2002:a05:6a00:240f:b0:52e:f99d:1157 with SMTP id z15-20020a056a00240f00b0052ef99d1157mr10582684pfh.70.1662667024592;
-        Thu, 08 Sep 2022 12:57:04 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7YTQwu3f3HJ09pUt9QA8K0CNoK2ivN2WNkdRX8POovQL8ka4MifEcHDoLIR+Cswp5vSmWV2Q==
-X-Received: by 2002:a05:6a00:240f:b0:52e:f99d:1157 with SMTP id z15-20020a056a00240f00b0052ef99d1157mr10582672pfh.70.1662667024360;
-        Thu, 08 Sep 2022 12:57:04 -0700 (PDT)
-Received: from luke-ubuntu.buildd (cpe-75-80-146-43.san.res.rr.com. [75.80.146.43])
-        by smtp.gmail.com with ESMTPSA id f9-20020a170902684900b00172f6726d8esm14863255pln.277.2022.09.08.12.57.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Sep 2022 12:57:03 -0700 (PDT)
-From:   Luke Nowakowski-Krijger <luke.nowakowskikrijger@canonical.com>
-To:     kernel-team@lists.ubuntu.com, nicolas.dichtel@6wind.com
-Cc:     stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
-        Heng Qi <hengqi@linux.alibaba.com>,
-        David Ahern <dsahern@kernel.org>
-Subject: [SRU][F][J][PATCH 2/3] ip: fix triggering of 'icmp redirect'
-Date:   Thu,  8 Sep 2022 12:56:21 -0700
-Message-Id: <564805b92b9972181e66419e69bbcfb5359e3a5f.1662666093.git.luke.nowakowskikrijger@canonical.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1662666093.git.luke.nowakowskikrijger@canonical.com>
-References: <cover.1662666093.git.luke.nowakowskikrijger@canonical.com>
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=qvaOK6j3PxKP4j5xD7XFiriqToq7K2JMUEKsHJLivrk=;
+        b=oftrBs5DRCQJSVxgX7Bs4vC5PgOLUV3//6qC5P+XGbWqT0BJXgASkvQNMlO3z9W6Jq
+         /mE+VX077ft5EVpb/gHNi+nyPW2XFhI/RC25AqLSOBuAQQQ2Kz86UZbMlQt8AGgvtmVc
+         /I2oEvUbstmUK8T5uiYs/13tTGbN8VDvdbmWRxExxiWPbkd/+RlrCe1GgnOgWwW+j7tu
+         ZxBzT5Zo7BChg1jWh88hEpdhhZ9IoJMVsFj2m7SM3wIrBffrZvkTTAWLXkvmCs5PHYnm
+         M0/Ql17+TYq/ftMWYcff4XLmqdfQOuGt063/ziJh1I1Xfon2n6kpS62akZ00VXe/oT7V
+         acWA==
+X-Gm-Message-State: ACgBeo3IBM7zd8zbfFUjP8F00sGf29sDYW3O8dI4PGliBhd+a8iaZTcl
+        /h25yFcWjUyzrSNG89BYR8Cv8nYn8Ro23tjWXME=
+X-Google-Smtp-Source: AA6agR66H23IZkOtbeX/en5zH+CGaUWf7MFl+cUyI+0vx8hmvH19SSQyKP6SljCubjlm2Tyq9vMcb27beYEKd3Erbog=
+X-Received: by 2002:a17:90a:4402:b0:1fd:c07d:a815 with SMTP id
+ s2-20020a17090a440200b001fdc07da815mr5769698pjg.188.1662669425407; Thu, 08
+ Sep 2022 13:37:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Received: by 2002:a05:7300:7492:b0:77:9efc:8484 with HTTP; Thu, 8 Sep 2022
+ 13:37:04 -0700 (PDT)
+Reply-To: mariaelisabeth84697@gmail.com
+From:   Maria Elisabeth <samueledim2019@gmail.com>
+Date:   Thu, 8 Sep 2022 13:37:04 -0700
+Message-ID: <CAMM+MpBD6QedrAPV9PTO5Lm98o5UAEbjrZH4FXEeMU2nqc1OeA@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=7.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM,UNDISC_MONEY autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:1044 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5600]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [mariaelisabeth84697[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [samueledim2019[at]gmail.com]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [samueledim2019[at]gmail.com]
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  3.1 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+        *  2.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
+        *      email?
+        *  0.1 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-
-BugLink: https://bugs.launchpad.net/bugs/1988809
-
-__mkroute_input() uses fib_validate_source() to trigger an icmp redirect.
-My understanding is that fib_validate_source() is used to know if the src
-address and the gateway address are on the same link. For that,
-fib_validate_source() returns 1 (same link) or 0 (not the same network).
-__mkroute_input() is the only user of these positive values, all other
-callers only look if the returned value is negative.
-
-Since the below patch, fib_validate_source() didn't return anymore 1 when
-both addresses are on the same network, because the route lookup returns
-RT_SCOPE_LINK instead of RT_SCOPE_HOST. But this is, in fact, right.
-Let's adapat the test to return 1 again when both addresses are on the same
-link.
-
-CC: stable@vger.kernel.org
-Fixes: 747c14307214 ("ip: fix dflt addr selection for connected nexthop")
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Reported-by: Heng Qi <hengqi@linux.alibaba.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220829100121.3821-1-nicolas.dichtel@6wind.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-(cherry-picked from commit eb55dc09b5dd040232d5de32812cc83001a23da6)
-Signed-off-by: Luke Nowakowski-Krijger <luke.nowakowskikrijger@canonical.com>
----
- net/ipv4/fib_frontend.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
-index ef3e7a3e3a29e..d38c8ca93ba09 100644
---- a/net/ipv4/fib_frontend.c
-+++ b/net/ipv4/fib_frontend.c
-@@ -399,7 +399,7 @@ static int __fib_validate_source(struct sk_buff *skb, __be32 src, __be32 dst,
- 	dev_match = dev_match || (res.type == RTN_LOCAL &&
- 				  dev == net->loopback_dev);
- 	if (dev_match) {
--		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
-+		ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
- 		return ret;
- 	}
- 	if (no_addr)
-@@ -411,7 +411,7 @@ static int __fib_validate_source(struct sk_buff *skb, __be32 src, __be32 dst,
- 	ret = 0;
- 	if (fib_lookup(net, &fl4, &res, FIB_LOOKUP_IGNORE_LINKSTATE) == 0) {
- 		if (res.type == RTN_UNICAST)
--			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_HOST;
-+			ret = FIB_RES_NHC(res)->nhc_scope >= RT_SCOPE_LINK;
- 	}
- 	return ret;
- 
--- 
-2.34.1
-
+--=20
+Hallo, guten Tag, ich bin Frau Maria Elisabeth Schaeffler, die Spende
+von 1.500.000,00 Euro an Sie steht noch sehr gut zur Verf=C3=BCgung, was
+ist das Problem?Kontaktieren Sie mich, wenn Sie verwirrt sind.
