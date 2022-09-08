@@ -2,113 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF465B1C1D
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 14:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EBD95B1C36
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 14:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230523AbiIHMCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 08:02:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35158 "EHLO
+        id S229480AbiIHMIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 08:08:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229783AbiIHMCy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 08:02:54 -0400
-Received: from mail-vs1-xe2d.google.com (mail-vs1-xe2d.google.com [IPv6:2607:f8b0:4864:20::e2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2773EE22A0;
-        Thu,  8 Sep 2022 05:02:54 -0700 (PDT)
-Received: by mail-vs1-xe2d.google.com with SMTP id k2so18011720vsk.8;
-        Thu, 08 Sep 2022 05:02:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=xi5m4kuXSzW6uAVBEY65Gx2o6AdM2yTJsU+e7ILFdyc=;
-        b=Kmm+qOcwZ8LjykJGCSYH8I8JyBCWYjzGsKsHBes4xvSVp/pwhKb3A0xCfqYEYR5AtE
-         wsAalcICsXl78BnHxzbp17nWCNc2YADIn8yl1ASyQ1Oxt4jEYrhfmq042gsWthYeZCfA
-         G7IXpQKDcca2LTnxsqNJAFOzg/DKX2ZCHHavtppj1DX/My3mXhYTSw/ySKpzrY8d80b0
-         9XumtZr7P69vCWMlnZ/N3QJOMnzDLSLPxwbAKGAAAfouIXFwwENjC/h0UgwVf2VPBttw
-         6V7AGsLpNcPVq5ZrQb5tjpwlpUKyfoFEpLH8TWPKLzxb+lKFnMJlGmwWN3r55LSsCX/Z
-         H3Ww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=xi5m4kuXSzW6uAVBEY65Gx2o6AdM2yTJsU+e7ILFdyc=;
-        b=txn9VjrZHJ8iLNUo3iRqcdtQwoWd/Sp/131MrcjaPc6jBMZPTp3eMaOeyye2pXAPwR
-         GQK/dKJd/P7xAoePvb9aa8s1glWWxFI2v1vgplRtNCkRd1V1mXlgiPrklBT8y52ekQmy
-         6DeUfj1nMshMxwCIiH6qP2nFqcaXYdN8awofZ8ZLA8yhqu2eQe5xNkKlQqO0iI5EhkzV
-         +lkCUzO8DNtONDYP1OzO44g3vuNc3ftqBWLWPwt7OqXyjzWcVZm3RexQzY1//C3kDIV6
-         RDzfI6ghnGqvSEKcpO533tSHBEepnI1Wi3fPN1syePd6cjuCBF/QCVdWNVkIh9KAt851
-         cqXQ==
-X-Gm-Message-State: ACgBeo2AXjhb/ZxGynBcw677UQQK7e5HfHU1ZDcQF0tqt/fF0mamApko
-        23SqMsjm6W4VCGRc/juWxVPJPDxkjjk4SWqorQYVDh5fKE4=
-X-Google-Smtp-Source: AA6agR76ErLg1eTPNdrHJXuY6MrtGgP7pJS7JIIgvViR7rqK9FWxjMpdUJXqkFre7efSaFKBZh3d4vl5T20iO0vmAiU=
-X-Received: by 2002:a67:a649:0:b0:390:88c5:6a91 with SMTP id
- r9-20020a67a649000000b0039088c56a91mr2913266vsh.3.1662638573123; Thu, 08 Sep
- 2022 05:02:53 -0700 (PDT)
+        with ESMTP id S231553AbiIHMIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 08:08:34 -0400
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56533F5C6F;
+        Thu,  8 Sep 2022 05:08:33 -0700 (PDT)
+Received: from [192.168.1.111] (91-158-154-79.elisa-laajakaista.fi [91.158.154.79])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 90137888;
+        Thu,  8 Sep 2022 14:08:29 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1662638910;
+        bh=CkG/MazVFplR8mYzQrftiKr7OKNvPkPqMPac0VAkq94=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=CGVdRO08SxMJyaJrSafYnAPBd6fMzPWt3e8RmFAVovNvy3bPJdtkmMtWaS9k1/MjT
+         egVDt55JlacdzaulDZdS6pWpDvWtx4UPEFPb9dsu0+LAa49L+J1kCk8piv9Hg1oXEL
+         tyUR45KODpQH9CfRTxOMvELUS90U8SAm3o5QtjLs=
+Message-ID: <c0ad65c5-818d-da5c-178a-dfaf685f8d24@ideasonboard.com>
+Date:   Thu, 8 Sep 2022 15:08:27 +0300
 MIME-Version: 1.0
-References: <20220906183600.1926315-1-teratipally@google.com>
- <20220906183600.1926315-2-teratipally@google.com> <YxnWi5YcuY6Rbodt@kroah.com>
-In-Reply-To: <YxnWi5YcuY6Rbodt@kroah.com>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Thu, 8 Sep 2022 15:02:41 +0300
-Message-ID: <CAOQ4uxi4UH2pDEe1c6Mn52Qh1GABv2axuQqN=D6QHc7rKwQ2zQ@mail.gmail.com>
-Subject: Re: [PATCH] xfs: fix up non-directory creation in SGID directories
-To:     Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Varsha Teratipally <teratipally@google.com>
-Cc:     linux-xfs <linux-xfs@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH] ipu3-imgu: Fix NULL pointer dereference in
+ imgu_subdev_set_selection()
+Content-Language: en-US
+To:     Maximilian Luz <luzmaximilian@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc:     Bingbu Cao <bingbu.cao@intel.com>,
+        Tianshu Qiu <tian.shu.qiu@intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        linux-media@vger.kernel.org, linux-staging@lists.linux.dev,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20220907224409.3187482-1-luzmaximilian@gmail.com>
+From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+In-Reply-To: <20220907224409.3187482-1-luzmaximilian@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 8, 2022 at 2:48 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Sep 06, 2022 at 06:36:00PM +0000, Varsha Teratipally wrote:
-> > From: Christoph Hellwig <hch@lst.de>
-> >
-> > XFS always inherits the SGID bit if it is set on the parent inode, while
-> > the generic inode_init_owner does not do this in a few cases where it can
-> > create a possible security problem, see commit 0fa3ecd87848
-> > ("Fix up non-directory creation in SGID directories") for details.
-> >
-> > Switch XFS to use the generic helper for the normal path to fix this,
-> > just keeping the simple field inheritance open coded for the case of the
-> > non-sgid case with the bsdgrpid mount option.
-> >
-> > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> > Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-> > Signed-off-by: Darrick J. Wong <djwong@kernel.org>
->
-> Why did you not sign off on this if you are forwarding it on?
->
-> Also, what is the git id of this commit in Linus's tree (we need that
-> hint...)
->
-> Please fix both up and resend and get the ack of the stable xfs
-> developers on it as well.
->
+On 08/09/2022 01:44, Maximilian Luz wrote:
+> Calling v4l2_subdev_get_try_crop() and v4l2_subdev_get_try_compose()
+> with a subdev state of NULL leads to a NULL pointer dereference. This
+> can currently happen in imgu_subdev_set_selection() when the state
+> passed in is NULL, as this method first gets pointers to both the "try"
+> and "active" states and only then decides which to use.
+> 
+> The same issue has been addressed for imgu_subdev_get_selection() with
+> commit 30d03a0de650 ("ipu3-imgu: Fix NULL pointer dereference in active
+> selection access"). However the issue still persists in
+> imgu_subdev_set_selection().
+> 
+> Therefore, apply a similar fix as done in the aforementioned commit to
+> imgu_subdev_set_selection(). To keep things a bit cleaner, introduce
+> helper functions for "crop" and "compose" access and use them in both
+> imgu_subdev_set_selection() and imgu_subdev_get_selection().
+> 
+> Fixes: 0d346d2a6f54 ("media: v4l2-subdev: add subdev-wide state struct")
+> Cc: stable@vger.kernel.org # for v5.14 and later
+> Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+> ---
+>   drivers/staging/media/ipu3/ipu3-v4l2.c | 57 +++++++++++++++-----------
+>   1 file changed, 34 insertions(+), 23 deletions(-)
+> 
+> diff --git a/drivers/staging/media/ipu3/ipu3-v4l2.c b/drivers/staging/media/ipu3/ipu3-v4l2.c
+> index ce13e746c15f..e530767e80a5 100644
+> --- a/drivers/staging/media/ipu3/ipu3-v4l2.c
+> +++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
+> @@ -188,6 +188,28 @@ static int imgu_subdev_set_fmt(struct v4l2_subdev *sd,
+>   	return 0;
+>   }
+>   
+> +static struct v4l2_rect *
+> +imgu_subdev_get_crop(struct imgu_v4l2_subdev *sd,
+> +		     struct v4l2_subdev_state *sd_state, unsigned int pad,
+> +		     enum v4l2_subdev_format_whence which)
+> +{
+> +	if (which == V4L2_SUBDEV_FORMAT_TRY)
+> +		return v4l2_subdev_get_try_crop(&sd->subdev, sd_state, pad);
+> +	else
+> +		return &sd->rect.eff;
+> +}
+> +
+> +static struct v4l2_rect *
+> +imgu_subdev_get_compose(struct imgu_v4l2_subdev *sd,
+> +			struct v4l2_subdev_state *sd_state, unsigned int pad,
+> +			enum v4l2_subdev_format_whence which)
+> +{
+> +	if (which == V4L2_SUBDEV_FORMAT_TRY)
+> +		return v4l2_subdev_get_try_compose(&sd->subdev, sd_state, pad);
+> +	else
+> +		return &sd->rect.bds;
+> +}
 
-Varsha,
 
-FWIW, I re-tested the patch on top of v5.10.141,
-so when re-posting [PATCH 5.10] you may add:
+If I understand right, these functions are only called with pad 0 
+(IMGU_NODE_IN). I would drop the pad argument here and use IMGU_NODE_IN. 
+Otherwise it gives a false idea that other pads could be used with these 
+functions, and that would fail for the V4L2_SUBDEV_FORMAT_ACTIVE case.
 
-Tested-by: Amir Goldstein <amir73il@gmail.com>
+However, that's not a big issue. With or without the change:
 
-Darrick or Christoph,
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 
-Can you please ACK this patch?
-
-Thanks,
-Amir.
+  Tomi
