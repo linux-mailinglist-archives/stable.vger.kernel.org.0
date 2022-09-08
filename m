@@ -2,99 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6825C5B1321
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 06:04:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1290E5B1462
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 08:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229437AbiIHEE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 00:04:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33780 "EHLO
+        id S229747AbiIHGF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 02:05:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiIHEEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 00:04:55 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C2C86566C
-        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 21:04:51 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id y127so16664397pfy.5
-        for <stable@vger.kernel.org>; Wed, 07 Sep 2022 21:04:51 -0700 (PDT)
+        with ESMTP id S230150AbiIHGFz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 02:05:55 -0400
+Received: from mail-yw1-x112a.google.com (mail-yw1-x112a.google.com [IPv6:2607:f8b0:4864:20::112a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1EB97333F
+        for <stable@vger.kernel.org>; Wed,  7 Sep 2022 23:05:54 -0700 (PDT)
+Received: by mail-yw1-x112a.google.com with SMTP id 00721157ae682-346cd4c3d7aso61938027b3.8
+        for <stable@vger.kernel.org>; Wed, 07 Sep 2022 23:05:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=nY+Znyng41bnPyZXUkBANMf4fhVi6WarlKK2by8W9mo=;
-        b=KVQhlJ8fTjPd6rgo2edKBdGvHdrPWvesGjwz9IF+dqXQ7X4kWVBS2A31SSl+OZfPDE
-         8iOmdDbWG42uBB1mEkYi6t/7VOPIjc0DmBmWh6eLIjZGfGGXEjLMjFG3lHzm3t6lAXxF
-         2Ayi0+YCv5yesMr5ZcCvx61lboE2LR6gOdymE=
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=lJYRFzwH4JLePemhbCSx0zq48/URDmByv8p7ogaW1eM=;
+        b=dxgOW659IivH6ld+oycZtkdr3gYSMaf5uDZRsDYUvQ185actGdsTWmmMsrrWLgybri
+         AkY83nwjwwlVNWRdb6P3iQ1jcISGCuuCYVVz8tORRQuLq3P7H30d8+3dUx8chekDvaUX
+         1q/Lv+J0p7TDE5qNJqtLPLTyPlKRaaQ2XoOkT0bbM1dsym6ePdy8yT6jrpVR/ad6kBJI
+         lQIwyjMS1rQb8G2PPW+xSuI8oH532YZCPnArrFpBAV8ZBgin2MSD2kyMxHGMUd9c/+vt
+         iUraNSxXT2Mckc/uF3lJbsywOxUJB3MFM2DelphAU4bEt9wrs7twwgyEglRDr4Be+N4K
+         bAHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=nY+Znyng41bnPyZXUkBANMf4fhVi6WarlKK2by8W9mo=;
-        b=1vEqtbOZ21dClWpgpWJTr40RfPK2A3h3zLaw+Gy2s3wwzfATukriJyV3icFVkC6r7U
-         R9tsttmL/7i1+ejCv9dd4/Si4p08+PP8PcaEttTmIdYJnb3+b9oiSzJd44Kjdx1Fc9bm
-         meoTtFM/hdqGU1BnS8KuUk6AJCAtLzFHcl2suNhs56o/V40AOXz8KE3ZLb+uRrfOzOPG
-         lg2yPQFlyaKCRrvaqExCTHee6Yw7VIjvVBp9xYhURYgrxB4OEDHKGOXU/4667J+302Pu
-         rxp/F6o744Ihq+mCPSypN+WJpm1js7q5iL9yRc5VN3ODa43gsgwI3QcrwEFTr04Pnqpa
-         ol0w==
-X-Gm-Message-State: ACgBeo0K2d70pvbkiPPZ5awxO7zxlJYYpzdEOIafoUgTJO9tgJ1NItBL
-        vBKXg8d49SYuzFs6LnEJGmsDkg==
-X-Google-Smtp-Source: AA6agR5S/YjfiXbj3fgVVLbAfSxVlk/CmtsUrEw4Rse3hWtApQgVYXUzB1Tv1N0vKPTRPrvuvwxdbg==
-X-Received: by 2002:a63:2355:0:b0:434:3049:12ed with SMTP id u21-20020a632355000000b00434304912edmr6375058pgm.537.1662609890845;
-        Wed, 07 Sep 2022 21:04:50 -0700 (PDT)
-Received: from 9c4a42ebaaae ([203.220.223.63])
-        by smtp.gmail.com with ESMTPSA id z11-20020aa79e4b000000b00537f30237e9sm13498499pfq.157.2022.09.07.21.04.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Sep 2022 21:04:50 -0700 (PDT)
-Date:   Thu, 8 Sep 2022 04:04:42 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.10 00/80] 5.10.142-rc1 review
-Message-ID: <20220908040442.GA8@9c4a42ebaaae>
-References: <20220906132816.936069583@linuxfoundation.org>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=lJYRFzwH4JLePemhbCSx0zq48/URDmByv8p7ogaW1eM=;
+        b=dx6HZDbZi+wwSlmBiCphli4K3lw+EA2WOf2PG7Z99CPjn/rQAR1e/q7fvmCt/7LFKd
+         YaMRX7nF45+k82WnSN4ZGKXFIICRVSyXY177HEI/NAjk+5JVEHwYNERU8KhJBn8T484L
+         kNxZOEQ3H26orixrS8yP2fE2QA/IUvoI8h70PDAA7FcXtim+/Auylbu/KJEZX77PumaM
+         T7FErLJ1lHsrQ1frUwWv6ZP4nsmR1lrJPuPlcC5ZHOk0BMmsQwXUk+RjMoieWG0mh9Qt
+         oACrF366n7jKTJJxnlpXrybzWBnbxbj5JV+K3ohWTZD+KlMrmZKhz8fE7mJqADKNkgIx
+         fB/g==
+X-Gm-Message-State: ACgBeo3GvniDN3dj/9h5YhWR56AsF5DtLzBH1hZEEvPr9YkVC530WVDh
+        ASd/YJtrVmk9CqhR5Nwc3vkZooKKjVKesECFFBpDRg==
+X-Google-Smtp-Source: AA6agR7fk9QsTUWXLvr/tdr0+4a/qUd4BukcHMTp6u6ZV71YqzuR6ZHkzBSwnnqHEGFvGdP6PzzI7Orsef6bMbxf/8M=
+X-Received: by 2002:a81:bb41:0:b0:328:fd1b:5713 with SMTP id
+ a1-20020a81bb41000000b00328fd1b5713mr6423586ywl.238.1662617153642; Wed, 07
+ Sep 2022 23:05:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220906132816.936069583@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220907173903.2268161-1-elver@google.com>
+In-Reply-To: <20220907173903.2268161-1-elver@google.com>
+From:   Marco Elver <elver@google.com>
+Date:   Thu, 8 Sep 2022 08:05:17 +0200
+Message-ID: <CANpmjNMH4_H75Z_aQ63C52TDma7PnjWWjmyv+MtXt2W522UAQQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] kcsan: Instrument memcpy/memset/memmove with newer Clang
+To:     elver@google.com, "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Boqun Feng <boqun.feng@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        llvm@lists.linux.dev, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 06, 2022 at 03:29:57PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.142 release.
-> There are 80 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 08 Sep 2022 13:27:58 +0000.
-> Anything received after that time might be too late.
+On Wed, 7 Sept 2022 at 19:39, Marco Elver <elver@google.com> wrote:
+>
+> With Clang version 16+, -fsanitize=thread will turn
+> memcpy/memset/memmove calls in instrumented functions into
+> __tsan_memcpy/__tsan_memset/__tsan_memmove calls respectively.
+>
+> Add these functions to the core KCSAN runtime, so that we (a) catch data
+> races with mem* functions, and (b) won't run into linker errors with
+> such newer compilers.
+>
+> Cc: stable@vger.kernel.org # v5.10+
+> Signed-off-by: Marco Elver <elver@google.com>
+> ---
+>  kernel/kcsan/core.c | 27 +++++++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+>
+> diff --git a/kernel/kcsan/core.c b/kernel/kcsan/core.c
+> index fe12dfe254ec..66ef48aa86e0 100644
+> --- a/kernel/kcsan/core.c
+> +++ b/kernel/kcsan/core.c
+> @@ -18,6 +18,7 @@
+>  #include <linux/percpu.h>
+>  #include <linux/preempt.h>
+>  #include <linux/sched.h>
+> +#include <linux/string.h>
+>  #include <linux/uaccess.h>
+>
+>  #include "encoding.h"
+> @@ -1308,3 +1309,29 @@ noinline void __tsan_atomic_signal_fence(int memorder)
+>         }
+>  }
+>  EXPORT_SYMBOL(__tsan_atomic_signal_fence);
+> +
+> +void *__tsan_memset(void *s, int c, size_t count);
+> +noinline void *__tsan_memset(void *s, int c, size_t count)
+> +{
+> +       check_access(s, count, KCSAN_ACCESS_WRITE, _RET_IP_);
+> +       return __memset(s, c, count);
+> +}
+> +EXPORT_SYMBOL(__tsan_memset);
+> +
+> +void *__tsan_memmove(void *dst, const void *src, size_t len);
+> +noinline void *__tsan_memmove(void *dst, const void *src, size_t len)
+> +{
+> +       check_access(dst, len, KCSAN_ACCESS_WRITE, _RET_IP_);
+> +       check_access(src, len, 0, _RET_IP_);
+> +       return __memmove(dst, src, len);
+> +}
+> +EXPORT_SYMBOL(__tsan_memmove);
+> +
+> +void *__tsan_memcpy(void *dst, const void *src, size_t len);
+> +noinline void *__tsan_memcpy(void *dst, const void *src, size_t len)
+> +{
+> +       check_access(dst, len, KCSAN_ACCESS_WRITE, _RET_IP_);
+> +       check_access(src, len, 0, _RET_IP_);
+> +       return __memcpy(dst, src, len);
+> +}
+> +EXPORT_SYMBOL(__tsan_memcpy);
 
-Hi Greg,
+I missed that s390 doesn't have arch memcpy variants, so this fails:
 
-5.10.142-rc1 tested.
+>> kernel/kcsan/core.c:1316:16: error: implicit declaration of function '__memset'; did you mean '__memset64'? [-Werror=implicit-function-declaration]
 
-Run tested on:
-- Intel Skylake x86_64 (nuc6 i5-6260U)
+I'll send a v2 where __tsan_mem* is aliased to generic versions if the
+arch doesn't have mem*() functions.
 
-In addition - build tested for:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- Allwinner H6
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
 
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
+
+
+> --
+> 2.37.2.789.g6183377224-goog
+>
