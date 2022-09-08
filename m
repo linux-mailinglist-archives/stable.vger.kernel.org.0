@@ -2,169 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29DD45B238E
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 18:25:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C958C5B2418
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 19:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230339AbiIHQZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 12:25:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34484 "EHLO
+        id S229576AbiIHRAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 13:00:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230090AbiIHQZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 12:25:55 -0400
-Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4028C03C
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 09:25:53 -0700 (PDT)
-Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-12ab0eaa366so6332002fac.13
-        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 09:25:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=1+fbCb5TCHjW5euJ2pWSZOa7Ws6PUwS1tRSP+1OpkX4=;
-        b=UBIIZrFGPJ9F18thH76FI9/5P45Ell7h7XuYAZzI2nDWts6fC37pFjHb9PjW0Ek+iV
-         0VrSK+Ebbc8wPivVKbFWTdc6GYmvHVQUkBY0qcHhN6gdI6Dkyq5Fctn8FiqSmgyn+X3Q
-         9Qal9YnSa5GDS6TVqT0Sh4XCvAew3MO64cHmjrkXE4Jg+6Ht65NWKRXTz6iQZX7/X8LC
-         KpAJuXHgym9IkKVSOSIvuFoFqeXrgCfo4WNx9Ot3/X2v08g5in7gQ+lJHxRq9U3p6c/9
-         LFAevt6L97zrlTza3iNTJQb0JUmz/CPH8JFZ+h0L2k8NDtD68GlwoQc6FvG0tKasNzNd
-         Rjag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=1+fbCb5TCHjW5euJ2pWSZOa7Ws6PUwS1tRSP+1OpkX4=;
-        b=GksqRo1QLrTPhjV+78kBypzZv3SOYi/maEcEb9G7dXVNeu5OeYULkgBK5RUKpdofKJ
-         Yvo0p7ryGmFeInoDJTylsLqYiPNHMhanyb6axPoq5TRYEU8D+CiHA0YfsQioiFRtFuzD
-         FzcVC4RNlFHsmbC0O/hcQf2WS82yx+W5Lx/Pcc2DhkcunGc68qBW0Oscwj4s9cdsGNcs
-         XZPXpyavT7R80BEu814lgCc5kAurnq4ttS1iaA89hD2N6QlVQUc7E44rDTfkKjFtQ168
-         Vv/5fakJphZ1HZisRgemvZVmi9V+vNeSGMWMwATaAaNPlkBfmudhBtTGGnl1mE/jnj62
-         l2zA==
-X-Gm-Message-State: ACgBeo3g2M1IkU+04I95SQ2HKYA2EpuwX54vzJbrg8fVxNJmvJwLGQVG
-        QY2JOzgpyT7Nn0MEoJ22TMn8hbPO2HQUOIRQzJQ=
-X-Google-Smtp-Source: AA6agR4in1MMwSHxv7PzToj4IGrDaMK/BKC/4s/odCgpu3GtNArfdkAOWo7qheaYtpk+c5zo4VCqXEe9iPRSsNe0F4Q=
-X-Received: by 2002:a05:6870:738d:b0:125:1b5:420f with SMTP id
- z13-20020a056870738d00b0012501b5420fmr2421511oam.96.1662654352991; Thu, 08
- Sep 2022 09:25:52 -0700 (PDT)
+        with ESMTP id S229504AbiIHRAP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 13:00:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0FBC9E2F7
+        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 10:00:13 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 554F261D3F
+        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 17:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DFE2C433D6;
+        Thu,  8 Sep 2022 17:00:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1662656412;
+        bh=VZwvVMUvBUxb5nVwcg47iqCfg0t5mBalXcht4CGBacU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=BJ3ZfDUzOtzgIDb8p81h7o+i6oKiqbXbbHYr4NH33X2lvhpOxHMKg+OMk0ZqMD2rj
+         A6hpnj7z0HGYpe6Ufkrg5z5ewKviBCqQahKpXRskvUIv0Vm7Q76AeTBitpugvmuUbv
+         Nbvl1CLyW+GVU4YBZ+mrcroEvF75iDrS56AvjJpo=
+Subject: FAILED: patch "[PATCH] efi: libstub: Disable struct randomization" failed to apply to 5.4-stable tree
+To:     ardb@kernel.org, daniel.marth@inso.tuwien.ac.at,
+        keescook@chromium.org, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 08 Sep 2022 19:00:29 +0200
+Message-ID: <1662656429211196@kroah.com>
 MIME-Version: 1.0
-References: <20220908032344.1682187-1-lijo.lazar@amd.com> <20220908161152.GA200598@bhelgaas>
-In-Reply-To: <20220908161152.GA200598@bhelgaas>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Thu, 8 Sep 2022 12:25:41 -0400
-Message-ID: <CADnq5_O-apd-22NRT3VGcAeEQeimuywSsMynCAxTNDUbqfVxRQ@mail.gmail.com>
-Subject: Re: [PATCH] drm/amdgpu: Don't enable LTR if not supported
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Lijo Lazar <lijo.lazar@amd.com>, stable@vger.kernel.org,
-        wielkiegie@gmail.com, amd-gfx@lists.freedesktop.org,
-        Alexander.Deucher@amd.com, Evan Quan <evan.quan@amd.com>,
-        Hawking.Zhang@amd.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 8, 2022 at 12:12 PM Bjorn Helgaas <helgaas@kernel.org> wrote:
->
-> [+cc Evan, author of 62f8f5c3bfc2 ("drm/amdgpu: enable ASPM support
-> for PCIE 7.4.0/7.6.0")]
->
-> On Thu, Sep 08, 2022 at 08:53:44AM +0530, Lijo Lazar wrote:
-> > As per PCIE Base Spec r4.0 Section 6.18
-> > 'Software must not enable LTR in an Endpoint unless the Root Complex
-> > and all intermediate Switches indicate support for LTR.'
-> >
-> > This fixes the Unsupported Request error reported through AER during
-> > ASPM enablement.
-> >
-> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=216455
-> >
-> > The error was unnoticed before and got visible because of the commit
-> > referenced below. This doesn't fix anything in the commit below, rather
-> > fixes the issue in amdgpu exposed by the commit. The reference is only
-> > to associate this commit with below one so that both go together.
-> >
-> > Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
-> >
-> > Reported-by: Gustaw Smolarczyk <wielkiegie@gmail.com>
-> > Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c | 9 ++++++++-
-> >  drivers/gpu/drm/amd/amdgpu/nbio_v6_1.c | 9 ++++++++-
-> >  drivers/gpu/drm/amd/amdgpu/nbio_v7_4.c | 9 ++++++++-
->
-> nbio_v4_3_program_ltr() checks pdev->ltr_path itself instead of doing
-> it in *_program_aspm().  It'd be nice to use the same approach for all
-> versions.
->
-> I really don't like the fact that amdgpu does all this ASPM fiddling
-> in the driver in the first place.  ASPM should be configured by the
-> PCI core, not by each individual driver.  ASPM has all sorts of
-> requirements that relate to upstream devices, which I think amdgpu
-> ignores, but the core pays attention to.
->
-> Do you know why the driver configures ASPM itself?  If the PCI core is
-> doing something wrong (and I'm sure it is, ASPM support is kind of a
-> mess), I'd much prefer to fix up the core where *all* drivers can
-> benefit from it.
 
-This is the programming sequence we get from our hardware team and it
-is used on both windows and Linux.  As far as I understand it windows
-doesn't handle this in the core, it's up to the individual drivers to
-enable it.  I'm not familiar with how this should be enabled
-generically, but at least for our hardware, it seems to have some
-variation compared to what is done in the PCI core due to stability,
-etc. It seems to me that this may need asic specific implementations
-for a lot of hardware depending on the required programming sequences.
-E.g., various asics may need hardware workaround for bugs or platform
-issues, etc.  I can ask for more details from our hardware team.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Alex
+Possible dependencies:
 
->
-> > diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
-> > index b465baa26762..aa761ff3a5fa 100644
-> > --- a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
-> > +++ b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
-> > @@ -380,6 +380,7 @@ static void nbio_v2_3_enable_aspm(struct amdgpu_device *adev,
-> >               WREG32_PCIE(smnPCIE_LC_CNTL, data);
-> >  }
-> >
-> > +#ifdef CONFIG_PCIEASPM
-> >  static void nbio_v2_3_program_ltr(struct amdgpu_device *adev)
-> >  {
-> >       uint32_t def, data;
-> > @@ -401,9 +402,11 @@ static void nbio_v2_3_program_ltr(struct amdgpu_device *adev)
-> >       if (def != data)
-> >               WREG32_PCIE(smnBIF_CFG_DEV0_EPF0_DEVICE_CNTL2, data);
-> >  }
-> > +#endif
-> >
-> >  static void nbio_v2_3_program_aspm(struct amdgpu_device *adev)
-> >  {
-> > +#ifdef CONFIG_PCIEASPM
-> >       uint32_t def, data;
-> >
-> >       def = data = RREG32_PCIE(smnPCIE_LC_CNTL);
-> > @@ -459,7 +462,10 @@ static void nbio_v2_3_program_aspm(struct amdgpu_device *adev)
-> >       if (def != data)
-> >               WREG32_PCIE(smnPCIE_LC_CNTL6, data);
-> >
-> > -     nbio_v2_3_program_ltr(adev);
-> > +     /* Don't bother about LTR if LTR is not enabled
-> > +      * in the path */
-> > +     if (adev->pdev->ltr_path)
-> > +             nbio_v2_3_program_ltr(adev);
-> >
-> >       def = data = RREG32_SOC15(NBIO, 0, mmRCC_BIF_STRAP3);
-> >       data |= 0x5DE0 << RCC_BIF_STRAP3__STRAP_VLINK_ASPM_IDLE_TIMER__SHIFT;
-> > @@ -483,6 +489,7 @@ static void nbio_v2_3_program_aspm(struct amdgpu_device *adev)
-> >       data &= ~PCIE_LC_CNTL3__LC_DSC_DONT_ENTER_L23_AFTER_PME_ACK_MASK;
-> >       if (def != data)
-> >               WREG32_PCIE(smnPCIE_LC_CNTL3, data);
-> > +#endif
-> >  }
+1a3887924a7e ("efi: libstub: Disable struct randomization")
+cc49c71d2abe ("efi/libstub: Disable Shadow Call Stack")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 1a3887924a7e6edd331be76da7bf4c1e8eab4b1e Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Mon, 22 Aug 2022 19:20:33 +0200
+Subject: [PATCH] efi: libstub: Disable struct randomization
+
+The EFI stub is a wrapper around the core kernel that makes it look like
+a EFI compatible PE/COFF application to the EFI firmware. EFI
+applications run on top of the EFI runtime, which is heavily based on
+so-called protocols, which are struct types consisting [mostly] of
+function pointer members that are instantiated and recorded in a
+protocol database.
+
+These structs look like the ideal randomization candidates to the
+randstruct plugin (as they only carry function pointers), but of course,
+these protocols are contracts between the firmware that exposes them,
+and the EFI applications (including our stubbed kernel) that invoke
+them. This means that struct randomization for EFI protocols is not a
+great idea, and given that the stub shares very little data with the
+core kernel that is represented as a randomizable struct, we're better
+off just disabling it completely here.
+
+Cc: <stable@vger.kernel.org> # v4.14+
+Reported-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
+Tested-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index d0537573501e..2c67f71f2375 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -37,6 +37,13 @@ KBUILD_CFLAGS			:= $(cflags-y) -Os -DDISABLE_BRANCH_PROFILING \
+ 				   $(call cc-option,-fno-addrsig) \
+ 				   -D__DISABLE_EXPORTS
+ 
++#
++# struct randomization only makes sense for Linux internal types, which the EFI
++# stub code never touches, so let's turn off struct randomization for the stub
++# altogether
++#
++KBUILD_CFLAGS := $(filter-out $(RANDSTRUCT_CFLAGS), $(KBUILD_CFLAGS))
++
+ # remove SCS flags from all objects in this directory
+ KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
+ # disable LTO
+
