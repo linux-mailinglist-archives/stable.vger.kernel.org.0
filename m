@@ -2,133 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E675B2431
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 19:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18BEB5B2433
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 19:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230337AbiIHREm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 13:04:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50242 "EHLO
+        id S230178AbiIHRGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 13:06:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231582AbiIHREl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 13:04:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84A4D1EC5A
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 10:04:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC35161DA2
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 17:04:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C67DBC433C1;
-        Thu,  8 Sep 2022 17:04:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662656678;
-        bh=XJORt/r4FNjmyPtJzMGfz5llKoTUlz9d+XUoGVAAFQo=;
-        h=Subject:To:Cc:From:Date:From;
-        b=07AuG+l8W+O8JuPCrOTa97kZgSZEz7FMXLP2wyb8mYgBlqpIJis6Kcg34YN7ASJyQ
-         1y/I15yr8fNuwAzHNbXUmf9ummQyZZLvnoJUlslRwSveCN6QYuASN51w560bMn9KKB
-         /JoXbsTcE1xJeL24TxNMGf1HQOEaa68Pqo8GhPac=
-Subject: FAILED: patch "[PATCH] ext4: fix super block checksum incorrect after mount" failed to apply to 4.9-stable tree
-To:     yebin10@huawei.com, jack@suse.cz, ritesh.list@gmail.com,
-        tytso@mit.edu
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 08 Sep 2022 19:04:36 +0200
-Message-ID: <166265667626132@kroah.com>
+        with ESMTP id S230416AbiIHRGR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 13:06:17 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32FBAEB865
+        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 10:06:15 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id y136so13620156pfb.3
+        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 10:06:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date;
+        bh=io04qv8/MvX1WDcguYko51sc5ZhKwDsInNX4hhMS7ko=;
+        b=LbXD70g+HBIIXk35sAYFyHw5Acq/uru0LBPSkR1Qtq+wmj1/zn0cOlOC1Bt2UeW++0
+         9dUQy0Npasp5Lu8ZwtBEIYaPHbQHB2mTkVbaLQDChASACJ35AjGPMZihoa+9dR3gHdSG
+         KhSaIXHt6C2q/xuvEsZyr3llwehhk9grwUQRLpVMmb3Uwp3XEpXZMKSCasa+3JakoNNO
+         VyHuIz37aiEey/KN+t786YQ/YIyrYz3mHa/T9iKbUbWZCWDXKLfuqud1hPIaKhsG7O4b
+         zX/TsR542BCLDzh/mRLQ3Yy5qWr7Yb8KGO3IW3BXvhCacrHRj//m5s5aWUk9cnsho/ev
+         Ri2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=io04qv8/MvX1WDcguYko51sc5ZhKwDsInNX4hhMS7ko=;
+        b=P06vj2RN+gFTMabLkgDZ1Nvrb9/BrQAeFYRqW1Nq8c1oUQVdtzThaBkO7R4qN6by4F
+         yA3uCPSHKEd7/7s2CWqmj4lUQ19j8/PZs24VSjmRSlMbX/seuA5pry2hTlmK3Wo3kSEM
+         rRtpdm+HfPcVJf94dRJQxWjvgrXLU++ObBe0pXZh61O1UWPyrP1hNMMIO/YAoZctNICm
+         BaYa8EwrmEcgOfwKjeQfA0f5kpDbrrc2UBdCXh9gOriET8JG0vI1r8NaLW1XMwj9avoZ
+         GbccYDupwvCNBxp1b5o5dJ6kBw3Q9g+ge90OP9ED2LsP4rJFJ/HnmOsuYUMBGrHA3mnc
+         3C/A==
+X-Gm-Message-State: ACgBeo2LBVqE7EH4YpWRbdMsHVBWvt+a7II0emq511aqiAF/1hv5ebc2
+        0C0rqcTtSs8CAUq/ni5m+bzUe56s4QFZifhf9Fw=
+X-Google-Smtp-Source: AA6agR6S2BdSS0fHsb7l7BZlYylnmSbu9Xun5Or3nwd6QwQjUAqXgU4oSKM3GE1i9/4CmD10b1WKlw==
+X-Received: by 2002:a63:f91f:0:b0:434:aa68:977d with SMTP id h31-20020a63f91f000000b00434aa68977dmr8282442pgi.333.1662656774325;
+        Thu, 08 Sep 2022 10:06:14 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g11-20020a17090a300b00b002005c3d4d4fsm1992051pjb.19.2022.09.08.10.06.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Sep 2022 10:06:13 -0700 (PDT)
+Message-ID: <631a2105.170a0220.6a01c.34f1@mx.google.com>
+Date:   Thu, 08 Sep 2022 10:06:13 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.67
+Subject: stable/linux-5.15.y baseline: 202 runs, 1 regressions (v5.15.67)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-5.15.y baseline: 202 runs, 1 regressions (v5.15.67)
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-Possible dependencies:
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-9b6641dd95a0 ("ext4: fix super block checksum incorrect after mount")
 
-thanks,
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
+/v5.15.67/plan/baseline/
 
-greg k-h
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.15.y
+  Describe: v5.15.67
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      e1ad7a011591d4a508a08e180ae0471224fcc17c =
 
------------------- original commit in Linus's tree ------------------
 
-From 9b6641dd95a0c441b277dd72ba22fed8d61f76ad Mon Sep 17 00:00:00 2001
-From: Ye Bin <yebin10@huawei.com>
-Date: Wed, 25 May 2022 09:29:04 +0800
-Subject: [PATCH] ext4: fix super block checksum incorrect after mount
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-We got issue as follows:
-[home]# mount  /dev/sda  test
-EXT4-fs (sda): warning: mounting fs with errors, running e2fsck is recommended
-[home]# dmesg
-EXT4-fs (sda): warning: mounting fs with errors, running e2fsck is recommended
-EXT4-fs (sda): Errors on filesystem, clearing orphan list.
-EXT4-fs (sda): recovery complete
-EXT4-fs (sda): mounted filesystem with ordered data mode. Quota mode: none.
-[home]# debugfs /dev/sda
-debugfs 1.46.5 (30-Dec-2021)
-Checksum errors in superblock!  Retrying...
+Test Regressions
+---------------- =
 
-Reason is ext4_orphan_cleanup will reset ‘s_last_orphan’ but not update
-super block checksum.
 
-To solve above issue, defer update super block checksum after
-ext4_orphan_cleanup.
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Cc: stable@kernel.org
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220525012904.1604737-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index b2ecae8adbfc..13d562d11235 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5302,14 +5302,6 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
- 		err = percpu_counter_init(&sbi->s_freeinodes_counter, freei,
- 					  GFP_KERNEL);
- 	}
--	/*
--	 * Update the checksum after updating free space/inode
--	 * counters.  Otherwise the superblock can have an incorrect
--	 * checksum in the buffer cache until it is written out and
--	 * e2fsprogs programs trying to open a file system immediately
--	 * after it is mounted can fail.
--	 */
--	ext4_superblock_csum_set(sb);
- 	if (!err)
- 		err = percpu_counter_init(&sbi->s_dirs_counter,
- 					  ext4_count_dirs(sb), GFP_KERNEL);
-@@ -5367,6 +5359,14 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
- 	EXT4_SB(sb)->s_mount_state |= EXT4_ORPHAN_FS;
- 	ext4_orphan_cleanup(sb, es);
- 	EXT4_SB(sb)->s_mount_state &= ~EXT4_ORPHAN_FS;
-+	/*
-+	 * Update the checksum after updating free space/inode counters and
-+	 * ext4_orphan_cleanup. Otherwise the superblock can have an incorrect
-+	 * checksum in the buffer cache until it is written out and
-+	 * e2fsprogs programs trying to open a file system immediately
-+	 * after it is mounted can fail.
-+	 */
-+	ext4_superblock_csum_set(sb);
- 	if (needs_recovery) {
- 		ext4_msg(sb, KERN_INFO, "recovery complete");
- 		err = ext4_mark_recovery_complete(sb, es);
 
+  Details:     https://kernelci.org/test/plan/id/6319eb47e9a7110d0a355663
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.67/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.67/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6319eb47e9a7110d0a355689
+        failing since 183 days (last pass: v5.15.25, first fail: v5.15.27)
+
+    2022-09-08T13:16:32.000084  <8>[   32.512578] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-09-08T13:16:33.024820  /lava-7213154/1/../bin/lava-test-case   =
+
+ =20
