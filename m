@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE3F45B2430
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 19:04:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41E675B2431
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 19:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229869AbiIHREh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 13:04:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50076 "EHLO
+        id S230337AbiIHREm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 13:04:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231341AbiIHREh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 13:04:37 -0400
+        with ESMTP id S231582AbiIHREl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 13:04:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A461C10B
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 10:04:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84A4D1EC5A
+        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 10:04:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E3E961DA6
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 17:04:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78E0C433D7;
-        Thu,  8 Sep 2022 17:04:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC35161DA2
+        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 17:04:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C67DBC433C1;
+        Thu,  8 Sep 2022 17:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662656674;
-        bh=qIWKEAbrfRabEE8aBeOyIKCD3Fxin1/DXpstAnXkfMQ=;
+        s=korg; t=1662656678;
+        bh=XJORt/r4FNjmyPtJzMGfz5llKoTUlz9d+XUoGVAAFQo=;
         h=Subject:To:Cc:From:Date:From;
-        b=BxjIfg5jjtQb7+H6Mx7IvD5y19uSiwXH434N5HxqhkwN9/MqC1/Avc4PvIvWfUyjy
-         hIUDW61+bWFDpKiPiIx7kWluPd3w0mMyEmD0zTBZJaxQpsObV0YPzoruW/ZywAHJZk
-         NOrLOiKO545QeJOy6KpI7Fh7z/ZWqDef1kVHtUGA=
-Subject: FAILED: patch "[PATCH] ext4: fix super block checksum incorrect after mount" failed to apply to 4.14-stable tree
+        b=07AuG+l8W+O8JuPCrOTa97kZgSZEz7FMXLP2wyb8mYgBlqpIJis6Kcg34YN7ASJyQ
+         1y/I15yr8fNuwAzHNbXUmf9ummQyZZLvnoJUlslRwSveCN6QYuASN51w560bMn9KKB
+         /JoXbsTcE1xJeL24TxNMGf1HQOEaa68Pqo8GhPac=
+Subject: FAILED: patch "[PATCH] ext4: fix super block checksum incorrect after mount" failed to apply to 4.9-stable tree
 To:     yebin10@huawei.com, jack@suse.cz, ritesh.list@gmail.com,
         tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 08 Sep 2022 19:04:34 +0200
-Message-ID: <166265667454158@kroah.com>
+Date:   Thu, 08 Sep 2022 19:04:36 +0200
+Message-ID: <166265667626132@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
