@@ -2,94 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1EE85B1470
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 08:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C835B1534
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 08:55:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229899AbiIHGLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 02:11:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52412 "EHLO
+        id S230011AbiIHGzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 02:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230245AbiIHGLo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 02:11:44 -0400
-Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7AFB2DA3;
-        Wed,  7 Sep 2022 23:11:34 -0700 (PDT)
-Received: by mail-ed1-f46.google.com with SMTP id e18so22769296edj.3;
-        Wed, 07 Sep 2022 23:11:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=dtLo+6b6tvUN1+LUDynEVVO3E1g7B3qjho0q3cn31jY=;
-        b=WEt9iAbdnAKq6lKhTrJzkuhXFhq0NYS2ULt0XVvrznXvUwntQIBeYpZcl0G39OYcUr
-         fY4scKRzipNQj/nrhJsWBedxnbNW/CjdrRW5NAsvqqwIDvp2yqdsJBERDmpdftT1YWLz
-         urOepMCRtCNwKBwK/s6JE9RRCjuqvFZtLQHQIMokmKH1hP7+u5U+iMCrytth/f0WGtLa
-         G3v6o6h/HFIVz3nTvXI7zrWgfy+LUqc8B9O28h6oVbmYoZrbwvP0NB6CNzP2J7HsNyHg
-         dq4eyIkj7kA9cfa+7KX6QkcLsZ3xuZ6R6vGSEANHk0II2OG8AYAeS3xIkVCho4JW3Bxb
-         9I0Q==
-X-Gm-Message-State: ACgBeo3N7oBfWm2uhqy/vY1HpdAE3IUtfJrY40MQ6PULagQ/V2ix4q4J
-        I1/qhIsXCShEMO0Apv5zWngGYqhRuBU=
-X-Google-Smtp-Source: AA6agR5bDVKr6cRwiGnL1sOT1VKCx8uVDLNhLhT3P3jt7FG2Srell/AnCnzFhlAlAwh37ZhH01/RdA==
-X-Received: by 2002:a05:6402:538a:b0:43a:298e:bc2b with SMTP id ew10-20020a056402538a00b0043a298ebc2bmr5660239edb.125.1662617493031;
-        Wed, 07 Sep 2022 23:11:33 -0700 (PDT)
-Received: from ?IPV6:2a0b:e7c0:0:107::49? ([2a0b:e7c0:0:107::49])
-        by smtp.gmail.com with ESMTPSA id g15-20020a170906394f00b00734bfab4d59sm795966eje.170.2022.09.07.23.11.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Sep 2022 23:11:32 -0700 (PDT)
-Message-ID: <5d274f95-ddd2-9283-534a-6036c14541cd@kernel.org>
-Date:   Thu, 8 Sep 2022 08:11:31 +0200
+        with ESMTP id S230521AbiIHGzA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 02:55:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F4B2F3BE;
+        Wed,  7 Sep 2022 23:54:57 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27AEAB81FCC;
+        Thu,  8 Sep 2022 06:54:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 135D6C433C1;
+        Thu,  8 Sep 2022 06:54:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662620093;
+        bh=tQX5iNi/oq5CwLdFj3lYOobrVtX8RWhm1gXhhk3Oexc=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=G4+K5h0mN+XqIBciUBOHEQ8hoWGdZG47cd1JlUWrCsCif+ZNhE1KODKxYfsxRdi3E
+         MRZn6HapBYAg0UA5cGPdYjN2Ez49pKL3oTWgsNfTbPXh7QP7IOSew8xHPE9Lzk0EYL
+         taWHXlbEjxqgoXlV8+BenbnwAm331XFx3FkrwOL5vU2D3Z3sL7uZJ/fFwDuzXJ/H+4
+         jO50MmkRYCHbIRnvrtcsJdF8A0X35ZFCFdmt+rgAB4gz/z3FqHK9a4ylu3kMUyXHIm
+         /O3R59N+QURiWKG+N0x/O92ZXxyYnAt8S7U0gMgl5cLVDZdpdKg+lh2ADQo47QOYlo
+         hxoePjZ5XRblQ==
+From:   Kalle Valo <kvalo@kernel.org>
+To:     Felix Fietkau <nbd@nbd.name>
+Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 6.0] mt76: fix 5 GHz connection regression on mt76x0/mt76x2
+References: <20220907095228.82072-1-nbd@nbd.name>
+Date:   Thu, 08 Sep 2022 09:54:49 +0300
+In-Reply-To: <20220907095228.82072-1-nbd@nbd.name> (Felix Fietkau's message of
+        "Wed, 7 Sep 2022 11:52:28 +0200")
+Message-ID: <87zgfabbk6.fsf@kernel.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Subject: Re: [PATCH 5.19 000/155] 5.19.8-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220906132829.417117002@linuxfoundation.org>
-From:   Jiri Slaby <jirislaby@kernel.org>
-In-Reply-To: <20220906132829.417117002@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.6 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06. 09. 22, 15:29, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.19.8 release.
-> There are 155 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 08 Sep 2022 13:27:58 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.8-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
-> and the diffstat can be found below.
+Felix Fietkau <nbd@nbd.name> writes:
 
-openSUSE configs¹⁾ all green.
+> Some users have reported being unable to connect to MT76x0 APs running mt76
+> after a commit enabling the VHT extneded NSS BW feature.
+> Fix this regression by ensuring that this feature only gets enabled on drivers
+> that support it
+>
+> Cc: stable@vger.kernel.org
+> Fixes: d9fcfc1424aa ("mt76: enable the VHT extended NSS BW feature")
+> Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
-Tested-by: Jiri Slaby <jirislaby@kernel.org>
-
-¹⁾ armv6hl armv7hl arm64 i386 ppc64 ppc64le riscv64 s390x x86_64
+I assigned this to me on patchwork and I'll queue this to v6.0.
 
 -- 
--- 
-js
-suse labs
+https://patchwork.kernel.org/project/linux-wireless/list/
 
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
