@@ -2,135 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18BEB5B2433
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 19:06:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D6435B2434
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 19:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230178AbiIHRGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 13:06:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54128 "EHLO
+        id S231589AbiIHRGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 13:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230416AbiIHRGR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 13:06:17 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32FBAEB865
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 10:06:15 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id y136so13620156pfb.3
-        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 10:06:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=io04qv8/MvX1WDcguYko51sc5ZhKwDsInNX4hhMS7ko=;
-        b=LbXD70g+HBIIXk35sAYFyHw5Acq/uru0LBPSkR1Qtq+wmj1/zn0cOlOC1Bt2UeW++0
-         9dUQy0Npasp5Lu8ZwtBEIYaPHbQHB2mTkVbaLQDChASACJ35AjGPMZihoa+9dR3gHdSG
-         KhSaIXHt6C2q/xuvEsZyr3llwehhk9grwUQRLpVMmb3Uwp3XEpXZMKSCasa+3JakoNNO
-         VyHuIz37aiEey/KN+t786YQ/YIyrYz3mHa/T9iKbUbWZCWDXKLfuqud1hPIaKhsG7O4b
-         zX/TsR542BCLDzh/mRLQ3Yy5qWr7Yb8KGO3IW3BXvhCacrHRj//m5s5aWUk9cnsho/ev
-         Ri2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=io04qv8/MvX1WDcguYko51sc5ZhKwDsInNX4hhMS7ko=;
-        b=P06vj2RN+gFTMabLkgDZ1Nvrb9/BrQAeFYRqW1Nq8c1oUQVdtzThaBkO7R4qN6by4F
-         yA3uCPSHKEd7/7s2CWqmj4lUQ19j8/PZs24VSjmRSlMbX/seuA5pry2hTlmK3Wo3kSEM
-         rRtpdm+HfPcVJf94dRJQxWjvgrXLU++ObBe0pXZh61O1UWPyrP1hNMMIO/YAoZctNICm
-         BaYa8EwrmEcgOfwKjeQfA0f5kpDbrrc2UBdCXh9gOriET8JG0vI1r8NaLW1XMwj9avoZ
-         GbccYDupwvCNBxp1b5o5dJ6kBw3Q9g+ge90OP9ED2LsP4rJFJ/HnmOsuYUMBGrHA3mnc
-         3C/A==
-X-Gm-Message-State: ACgBeo2LBVqE7EH4YpWRbdMsHVBWvt+a7II0emq511aqiAF/1hv5ebc2
-        0C0rqcTtSs8CAUq/ni5m+bzUe56s4QFZifhf9Fw=
-X-Google-Smtp-Source: AA6agR6S2BdSS0fHsb7l7BZlYylnmSbu9Xun5Or3nwd6QwQjUAqXgU4oSKM3GE1i9/4CmD10b1WKlw==
-X-Received: by 2002:a63:f91f:0:b0:434:aa68:977d with SMTP id h31-20020a63f91f000000b00434aa68977dmr8282442pgi.333.1662656774325;
-        Thu, 08 Sep 2022 10:06:14 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g11-20020a17090a300b00b002005c3d4d4fsm1992051pjb.19.2022.09.08.10.06.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Sep 2022 10:06:13 -0700 (PDT)
-Message-ID: <631a2105.170a0220.6a01c.34f1@mx.google.com>
-Date:   Thu, 08 Sep 2022 10:06:13 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230416AbiIHRGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 13:06:21 -0400
+Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9614EB855;
+        Thu,  8 Sep 2022 10:06:20 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 48A7332001FF;
+        Thu,  8 Sep 2022 13:06:16 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Thu, 08 Sep 2022 13:06:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-transfer-encoding:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to; s=fm2; t=1662656775; x=
+        1662743175; bh=FXL3pPyjuWI1jDNyeLfUhP7R3Uv2eUsXrNGlSxUOfEg=; b=f
+        +DrZheqsx4aGENRJNHVffoTTBX1YCoh7ayZB1OhXDzlJc3MVqnbO3lbU5r1qjTsr
+        W2r+5FNb2woedZnpXlp9pmlj29RxJoWsZ+tbBjCEFifw5MUo7SUzgjqHYyBYktY+
+        ULft9Ph4CLexPW5lhFDO4K2V0oLDFQk8AO1ZjGniUQjqxINviF0o3LO2+1lFW9dK
+        omIOTVHFL2+MnjdKJ+PXh67Pzyy/eD3V6/IOE3kxiCwnweI5Cl9ZJf0jQEG7jmrF
+        quXOzscwoEzQeKNiyEE1CmlkmjtQscVWSjBcoUp8b2RdF5eGPvhTnyj0mIHpBY1J
+        86yhvHPuKj5KtZHxAw4fQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:date:date:feedback-id:feedback-id:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1662656775; x=
+        1662743175; bh=FXL3pPyjuWI1jDNyeLfUhP7R3Uv2eUsXrNGlSxUOfEg=; b=m
+        EN28rDXL4pwoJPe94OUjke2E42tHKWN5+j639VBlQ4oFDwvFa1ztDu3OJ9NMS6Lr
+        EuazSLBUoes4llUQf/XfOQtMZx39xTZ/gJ/5LNZOSrPrjPXqesOhc4ro02MymffP
+        2tsUPvwGT0R4po0BxfL7PKbB063/cyjYXErkC8pHb59Di4LrsLmqbqtXVjsV4N8z
+        aFj7pOsMDieczYNZideeGfGH/cQaF6B2Gi2D7erhz0i9bf2c1C6rhf6RW9eFRN4b
+        7ygnI7NqOvDOj7VG2/vIKUidcDXsHF4xhegd2fSX98b9drxsUGef9po/grUf/Qf8
+        Qwn1QuAtBTtdLpWB4hjXA==
+X-ME-Sender: <xms:ByEaY7FzMubpfojgQTqMsy7c0NG-N4mWVjSA1Hs-XyVlcjeFfKv1ZQ>
+    <xme:ByEaY4VkjsQTMHPX_LKWlZwQkimoFIYr5lNCyx-wdLgY_q4jdmsrCGIhIFWnp_E9g
+    x8GlMeKD6OB0w>
+X-ME-Received: <xmr:ByEaY9Ki7Jaki5IBy1lMXNUQVyjzx1_aZoAHnv-Nbc1uQo4OL6qBNdRn3yQj>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfedtfedghedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggugfgjsehtkeertddttdejnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpefgke
+    ffieefieevkeelteejvdetvddtledugfdvhfetjeejieduledtfefffedvieenucevlhhu
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    grhhdrtghomh
+X-ME-Proxy: <xmx:ByEaY5FrhVe6DDr9ovMVmXkHVhm3aiwJ9-G7Ut870moqkTe0cjvPtQ>
+    <xmx:ByEaYxXXYka9kpKWASVHUojdUxxKppV_HV40wnlNQJ_zko_WNphiFw>
+    <xmx:ByEaY0MOlcOmbwpL7tYu5bxN-HXq-jG4DyVUiPwNWxdrw6qM5VfCmQ>
+    <xmx:ByEaY4ObPXSe5sPP2O8TRhrkN0EOjG8yYJQIrf8ZHMX-YT5xHLogFg>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 8 Sep 2022 13:06:14 -0400 (EDT)
+Date:   Thu, 8 Sep 2022 19:06:36 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Yee Lee =?utf-8?B?KOadjuW7uuiqvCk=?= <Yee.Lee@mediatek.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "patrick.wang.shcn@gmail.com" <patrick.wang.shcn@gmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>
+Subject: Re: [PATCH 5.15.y] Revert "mm: kmemleak: take a full lowmem check in
+ kmemleak_*_phys()"
+Message-ID: <YxohHANX6omfC27d@kroah.com>
+References: <20220906070309.18809-1-yee.lee@mediatek.com>
+ <Yxc4U/8zzfkHHv+W@kroah.com>
+ <SI2PR03MB57538512401A213D21B7882C90419@SI2PR03MB5753.apcprd03.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.15.y
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.67
-Subject: stable/linux-5.15.y baseline: 202 runs, 1 regressions (v5.15.67)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <SI2PR03MB57538512401A213D21B7882C90419@SI2PR03MB5753.apcprd03.prod.outlook.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.15.y baseline: 202 runs, 1 regressions (v5.15.67)
+On Wed, Sep 07, 2022 at 08:37:56AM +0000, Yee Lee (李建誼) wrote:
+> The commit ids are listed.
+> 
+> Linus tree:    23c2d497de21f25898fbea70aeb292ab8acc8c94
+> Linux-5.19.y:  23c2d497de21f25898fbea70aeb292ab8acc8c94
+> Linux-5.18.y:  23c2d497de21f25898fbea70aeb292ab8acc8c94
+> 
+> (backported)
+> Linux-5.17.y:  0d2e07c04c7f7d83c75c56da3e2f970c5653ade0
+> Linux-5.15.y:  70ea5e7b38c30b60821e432abde6f3c359224139
+> Linux-5.10.y:  06c348fde545ec90e25de3e5bc4b814bff70ae9f
+> Linux-5.4.y:   534d0aebe164fe9afff2a58fb1d5fb458d8a036b
+> Linux-4.19.y:  7f4f020286e0bd4aaf40512c80c63a5e5bd629bc
+> Linux-4.14.y:  07f108f15fd75a9bff704eed718cc12f91b080dc
+> Linux-4.9.y:   96eb48099a7e740768d215a989b26e0af7381371
 
-Regressions Summary
--------------------
+Thanks, now queued up everywhere.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
-/v5.15.67/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.15.y
-  Describe: v5.15.67
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      e1ad7a011591d4a508a08e180ae0471224fcc17c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6319eb47e9a7110d0a355663
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.67/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.67/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6319eb47e9a7110d0a355689
-        failing since 183 days (last pass: v5.15.25, first fail: v5.15.27)
-
-    2022-09-08T13:16:32.000084  <8>[   32.512578] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-09-08T13:16:33.024820  /lava-7213154/1/../bin/lava-test-case   =
-
- =20
+greg k-h
