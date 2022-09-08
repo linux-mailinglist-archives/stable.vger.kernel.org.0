@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C71175B2654
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 20:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 832E75B2661
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 21:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232441AbiIHS4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 14:56:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48118 "EHLO
+        id S231299AbiIHTBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 15:01:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232362AbiIHS4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 14:56:33 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57CC3103011
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 11:56:32 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id i194-20020a253bcb000000b00676d86fc5d7so14140587yba.9
-        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 11:56:32 -0700 (PDT)
+        with ESMTP id S230486AbiIHTBt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 15:01:49 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781FC1EC76
+        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 12:01:48 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id k14-20020a25e80e000000b006aa1160dfe3so6366685ybd.5
+        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 12:01:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
          :date;
-        bh=DfW7Ir9+WQmyTVzhm1gHklyle9zrgzIRVd1ekvZC7CA=;
-        b=YZlecdlO47qUQNaOMtSKNTiIPStKS1fKX3wZJZpjcUQYeva7WWrJe+56JQfveBLrNn
-         tYsFb1Fv+9yYbFW1rgsXDxQ1uz/Z1k77RSLkHWxQ7k3lSEA4JCjtYinax4CuioLFqz99
-         2DeqE/AfmKVWrEMIgL9n59oamLmbJDLN1v5C1s6SQynu/SB75BwVt5FqGG9F4g3CLmCu
-         UfgTbQUeQMzSvBQHLSvf1j1LamHNZ6koiF2MsJBvu+tDMsa7bUZ1+p/9vdb332cepz8t
-         c40f5CQElmp4osWWN2p0uVU67uSwlvFcogFJTBfCNeZqceILZnWMXwNAkzDyz/YfdDEu
-         piSg==
+        bh=O4urUyfiGdJyv28nhxclK5Fziywl5uchRNtfEllatqY=;
+        b=nSFkuydpP6YjOzhEIc52xjkDtVbdI4kmXCtAq7yCXZcp2do/KumEGdDZoKPE05z/2v
+         u2JGZXLhy9MP6gJaMfq37X/cpicPVL108yZsw/2OQimSjod/5s90g6SGxsQXNzaMpDsM
+         XZXQwTZGSZ9ap2lVOT9shKtEm9K3z+roK/T7gS3mgdV+tUkx7vHn3u2UQK7LD58dcasi
+         fQmNob4SRoltwHmggg/TYlGLnGLYyQJIZv40AoY1E1qcmQlEvvfyWt0OJcLWQlA7jyvn
+         XuDA2zH5naXk9ff1EqXLin3O5w0WOEB9KW2kAvefe+5yKU9ilBRYWzQdpZ0h/R1/zI8G
+         F7pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
          :from:to:cc:subject:date;
-        bh=DfW7Ir9+WQmyTVzhm1gHklyle9zrgzIRVd1ekvZC7CA=;
-        b=3w0IQp+1E1cR/l4+GuYoqxXCaVnF4YeYUPmXd+1zHI8Uxb/Oy/i4F/OBlFJd7PE6tj
-         puJdCceN7AQCXKS6yf9/8m8e5j69qSaUsh9QR+r4fDj9/D79TKJpt1pFLRdL9AKqQZ3u
-         08Yc63HtyPBRDhgOpXruiflwNsq9GbLjT4EbKjUZ2ZP82w+GO3aCVSbxQtuzlAN9LGiD
-         01XdThE5WTvlJPQocf1LRliJfqNaLl9QE3RhIeXqr1oNcNFNkYltz00KBHULurcXRSWX
-         n9BJrTgD7EIZC9gN1u0EvZ1t6Gas1j9n/creJpryGtfDoSHcxQyO58fKqedzzm+FWm01
-         4WCQ==
-X-Gm-Message-State: ACgBeo3mj+7zJxl8PwTeJOVHBDgjxkyPeFKmrpNzcJ6OHnwEO6dco4je
-        JHgVyPrvLBteYX4pdL5Wzm7zOy59OAslgP2gyVA9cA==
-X-Google-Smtp-Source: AA6agR6gzaLqzOpRYQHI54Aj1+Zbxlvro56PlSplt5RM04nM9tJebeNTZSm/cZtRkkVVUCysFlG0cVUY+wd7xmBLHYjk6w==
+        bh=O4urUyfiGdJyv28nhxclK5Fziywl5uchRNtfEllatqY=;
+        b=MhF7KKp4Mha4Yy87vLmYvKMcu1X5Wiz8Z+qyrPndMZBUm3kPfJaCxJbUIMqbu9mpis
+         Uqdumq3zmiGhSAUWfSnU/6TPTQUdGtTRAzCR3UQpIPx+D9csW/EO7Rh+kUjgKoa4/+td
+         g/pnqeTF2efOuPbdA23Jh+NMXURediSmN4RclwmzDzDEMRzqSr0utuKH/70ybXNaCHx6
+         SVd5b1QD5gackG0i0W+0UOwYoRcERjnJxrwCw2ZUEYcvxeJdwz2kQcrZCUj1c6pqHz/T
+         Uov6mQP50XrWHNPNC78hMLND0toCFdz0fvqQ9nPbbSksvPghxu3bSC45rkRGZoLmXvET
+         5DAg==
+X-Gm-Message-State: ACgBeo08r4NtoEluiTnimGipKlI9l+T/ijU0uHTfkp87YZPIqMGQqXGj
+        1Bya3QivKB18nxx43Pbob5+VLmoY5urAmUc0YRUKeg==
+X-Google-Smtp-Source: AA6agR6JH4K8ooFy1jWJhKaWW5HBwtz+s+XUeEzFymUz9jxqV82W2wLacKVesqwgLDXnGzEUy2gwHQpImnz/GH8Uz/KkUQ==
 X-Received: from isaacmanjarres.irv.corp.google.com ([2620:15c:2d:3:66bd:4175:b3a6:1479])
- (user=isaacmanjarres job=sendgmr) by 2002:a81:7cd7:0:b0:345:221c:5671 with
- SMTP id x206-20020a817cd7000000b00345221c5671mr8824096ywc.297.1662663391626;
- Thu, 08 Sep 2022 11:56:31 -0700 (PDT)
-Date:   Thu,  8 Sep 2022 11:56:25 -0700
+ (user=isaacmanjarres job=sendgmr) by 2002:a5b:9c4:0:b0:691:7745:afb5 with
+ SMTP id y4-20020a5b09c4000000b006917745afb5mr8412716ybq.57.1662663707790;
+ Thu, 08 Sep 2022 12:01:47 -0700 (PDT)
+Date:   Thu,  8 Sep 2022 12:01:43 -0700
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.37.2.789.g6183377224-goog
-Message-ID: <20220908185625.3729874-1-isaacmanjarres@google.com>
-Subject: [PATCH stable-4.9] driver core: Don't probe devices after
+Message-ID: <20220908190144.3731136-1-isaacmanjarres@google.com>
+Subject: [PATCH stable-4.14] driver core: Don't probe devices after
  bus_type.match() probe deferral
 From:   "Isaac J. Manjarres" <isaacmanjarres@google.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J. Wysocki" <rafael@kernel.org>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>
+        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
 Cc:     "Isaac J. Manjarres" <isaacmanjarres@google.com>,
         stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
         Guenter Roeck <linux@roeck-us.net>,
@@ -107,10 +107,10 @@ Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
  1 file changed, 10 insertions(+)
 
 diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index ff59a1851cb4..faaa0440b294 100644
+index fc27fab62f50..a7bcbb99e820 100644
 --- a/drivers/base/dd.c
 +++ b/drivers/base/dd.c
-@@ -590,6 +590,11 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
+@@ -632,6 +632,11 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
  	} else if (ret == -EPROBE_DEFER) {
  		dev_dbg(dev, "Device match requests probe deferral\n");
  		driver_deferred_probe_add(dev);
@@ -122,7 +122,7 @@ index ff59a1851cb4..faaa0440b294 100644
  	} else if (ret < 0) {
  		dev_dbg(dev, "Bus failed to match device: %d", ret);
  		return ret;
-@@ -732,6 +737,11 @@ static int __driver_attach(struct device *dev, void *data)
+@@ -774,6 +779,11 @@ static int __driver_attach(struct device *dev, void *data)
  	} else if (ret == -EPROBE_DEFER) {
  		dev_dbg(dev, "Device match requests probe deferral\n");
  		driver_deferred_probe_add(dev);
