@@ -2,239 +2,227 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E195B1FB5
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 15:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC1E25B1FEE
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 16:00:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229907AbiIHNzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 09:55:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56006 "EHLO
+        id S232458AbiIHOAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 10:00:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229620AbiIHNzV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 09:55:21 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 861327333F
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 06:55:19 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id g4so2831845pgc.0
-        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 06:55:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date;
-        bh=occhOK1+wIf8TQRxjhGzEFkZSqra7uC8JHrJgco2GD4=;
-        b=dv/PMmQM02dtfw0Q+VYJaZNwXTXdDmOBZbKPCskPbZ6AQYEZgxoK8NSk72Ggsq34q4
-         1GpNI+61glVvFW4NGfc3bEBRGRntu7KA8B/3Hi2n+gI/UtPBAe3HWYSqm81IUuO5Ufm5
-         eRM+vBUyM38udADK3Rh4bo+C+DksiqBsiDqMmXGytF5q3dVJ8g5evCShwIoFN+Fp/7qj
-         1aa3x64ITZ5pTuwFaar/s3KNm4GIEg+em4CreiU/AFtmEfKkcpa/b2mg3uh1+/+RZWY9
-         svzsjsiyVnIF9MXK4Mih0Ey6OriD4JOFLc1DTUhquDywTDdM5DIqI4Dnje9MmcLQw0dd
-         J5XA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=occhOK1+wIf8TQRxjhGzEFkZSqra7uC8JHrJgco2GD4=;
-        b=ORvJzu/nnCI/k8K1q6apETnQfa0414va044bm3maoNEqhVtw32T0Z+NRj/1FNyqDDq
-         wjCsFuiB6vWqAVblKBFIU6cSJmNBYBVAREx4dXS3h3Fg6yhrmg7YnvNMc0hKLdg3rUNL
-         jb9pT+NI2WJlCs/dnfJK7Uevywf3xKxJf+6hVz02EAF3K/klwyt0Xi8NmmTg872IhNFX
-         0ADvn8nEcc6ehcCkZJuQnYELdNfdC+ErQ79V2Q04JvWUe6rW6CkREV9hb3guDuWjONp4
-         6fAMUPB7zaF1ucodWG3Eg9YBIKacTyq+nLumtXnBzqWwFtbtSB5IYOxaJkxRbfwCZUNG
-         QP4Q==
-X-Gm-Message-State: ACgBeo2oJuqfJw1YmS7WIy76p5ii+FwPlw7F3CXpmNLYnhDDLgaRUarP
-        LfzFjVuB3keLAT+NGi5vLQ9j8sXymSpmFaAzDls=
-X-Google-Smtp-Source: AA6agR5MUzR8QGs2c/UmaTDIU5zSfkvqtUim3xLbvkj5eMWzW5BAsk8uj4SGsxj908hkiH7Zt0rbcw==
-X-Received: by 2002:aa7:8e05:0:b0:536:5dda:e634 with SMTP id c5-20020aa78e05000000b005365ddae634mr9012380pfr.35.1662645318731;
-        Thu, 08 Sep 2022 06:55:18 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m14-20020a170902bb8e00b0017519b86996sm14404351pls.218.2022.09.08.06.55.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Sep 2022 06:55:18 -0700 (PDT)
-Message-ID: <6319f446.170a0220.d9013.6ba4@mx.google.com>
-Date:   Thu, 08 Sep 2022 06:55:18 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232349AbiIHOAI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 10:00:08 -0400
+Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B93F5BA;
+        Thu,  8 Sep 2022 06:59:34 -0700 (PDT)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4MNgcW0HfGz9y62N;
+        Thu,  8 Sep 2022 21:55:23 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwDn3pIh9RljLSYwAA--.49581S2;
+        Thu, 08 Sep 2022 14:59:10 +0100 (CET)
+Message-ID: <8d7a713e500b5e3fce93e4c5c7b8841eb6dd28e4.camel@huaweicloud.com>
+Subject: Re: [PATCH 1/7] bpf: Add missing fd modes check for map iterators
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        bpf <bpf@vger.kernel.org>,
+        Network Development <netdev@vger.kernel.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>,
+        "open list:CONTROL GROUP (CGROUP)" <cgroups@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Hou Tao <houtao1@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable <stable@vger.kernel.org>, Chenbo Feng <fengc@google.com>,
+        LSM List <linux-security-module@vger.kernel.org>
+Date:   Thu, 08 Sep 2022 15:58:53 +0200
+In-Reply-To: <CAADnVQ+cEM5Sb7d9yPA72Mp2zimx7VZ5Si3SPVdAZgsdFGpP1Q@mail.gmail.com>
+References: <20220906170301.256206-1-roberto.sassu@huaweicloud.com>
+         <20220906170301.256206-2-roberto.sassu@huaweicloud.com>
+         <CAADnVQ+o8zyi_Z+XqCQynmvj04AtEtF9AoOTSeyUx9dvKTXOqg@mail.gmail.com>
+         <02309cfbc1ce47f7de6be8addc2caa315b1fee1b.camel@huaweicloud.com>
+         <CAADnVQ+cEM5Sb7d9yPA72Mp2zimx7VZ5Si3SPVdAZgsdFGpP1Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.19.4-389-gf2d8facb7bd4
-Subject: stable-rc/queue/5.19 baseline: 126 runs,
- 4 regressions (v5.19.4-389-gf2d8facb7bd4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwDn3pIh9RljLSYwAA--.49581S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxWr4rJw17tF18ZF47Xr15twb_yoWrAFy3pF
+        Z3tryxtr1kZFW7Za9Y9F48WFWFy3srAasrAF1DJryUAFWkXr1vkr1xta1fXasIyFyrX3WS
+        y3yYk348Xa4UXaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6r1S6rWUM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UAkuxUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAJBF1jj37gqQAAsJ
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.19 baseline: 126 runs, 4 regressions (v5.19.4-389-gf2d8fa=
-cb7bd4)
+On Wed, 2022-09-07 at 09:02 -0700, Alexei Starovoitov wrote:
+> 
 
-Regressions Summary
--------------------
+[...]
 
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-10   | defconfig      =
-     | 1          =
+> > Well, if you write a security module to prevent writes on a map,
+> > and
+> > user space is able to do it anyway with an iterator, what is the
+> > purpose of the security module then?
+> 
+> sounds like a broken "security module" and nothing else.
 
-imx6ul-pico-hobbit   | arm   | lab-pengutronix | gcc-10   | imx_v6_v7_defco=
-nfig | 1          =
+Ok, if a custom security module does not convince you, let me make a
+small example with SELinux.
 
-rk3399-roc-pc        | arm64 | lab-clabbe      | gcc-10   | defconfig      =
-     | 2          =
+I created a small map iterator that sets every value of a map to 5:
 
+SEC("iter/bpf_map_elem")
+int write_bpf_hash_map(struct bpf_iter__bpf_map_elem *ctx)
+{
+	u32 *key = ctx->key;
+	u8 *val = ctx->value;
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.19/ker=
-nel/v5.19.4-389-gf2d8facb7bd4/plan/baseline/
+	if (key == NULL || val == NULL)
+		return 0;
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.19
-  Describe: v5.19.4-389-gf2d8facb7bd4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f2d8facb7bd40ac9a6c7b8b62efc8fbe35913c99 =
+	*val = 5;
+	return 0;
+}
 
+I create and pin a map:
 
+# bpftool map create /sys/fs/bpf/map type array key 4 value 1 entries 1
+name test
 
-Test Regressions
----------------- =
+Initially, the content of the map looks like:
 
+# bpftool map dump pinned /sys/fs/bpf/map 
+key: 00 00 00 00  value: 00
+Found 1 element
 
+I then created a new SELinux type bpftool_test_t, which has only read
+permission on maps:
 
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-10   | defconfig      =
-     | 1          =
+# sesearch -A -s bpftool_test_t -t unconfined_t -c bpf
+allow bpftool_test_t unconfined_t:bpf map_read;
 
+So, what I expect is that this type is not able to write to the map.
 
-  Details:     https://kernelci.org/test/plan/id/6319bfb608460c1848355642
+Indeed, the current bpftool is not able to do it:
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.4-3=
-89-gf2d8facb7bd4/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleas=
-hed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.4-3=
-89-gf2d8facb7bd4/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleas=
-hed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/riscv/rootfs.cpio.gz =
+# strace -f -etrace=bpf runcon -t bpftool_test_t bpftool iter pin
+writer.o /sys/fs/bpf/iter map pinned /sys/fs/bpf/map
+bpf(BPF_OBJ_GET, {pathname="/sys/fs/bpf/map", bpf_fd=0, file_flags=0},
+144) = -1 EACCES (Permission denied)
+Error: bpf obj get (/sys/fs/bpf): Permission denied
 
+This happens because the current bpftool requests to access the map
+with read-write permission, and SELinux denies it:
 
-
-  * baseline.login: https://kernelci.org/test/case/id/6319bfb608460c1848355=
-643
-        new failure (last pass: v5.19.4-318-gb22688ea1c79) =
-
- =
+# cat /var/log/audit/audit.log|audit2allow
 
 
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-imx6ul-pico-hobbit   | arm   | lab-pengutronix | gcc-10   | imx_v6_v7_defco=
-nfig | 1          =
+#============= bpftool_test_t ==============
+allow bpftool_test_t unconfined_t:bpf map_write;
 
 
-  Details:     https://kernelci.org/test/plan/id/6319d161cb340a3455355685
+The command failed, and the content of the map is still:
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.4-3=
-89-gf2d8facb7bd4/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.4-3=
-89-gf2d8facb7bd4/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
+# bpftool map dump pinned /sys/fs/bpf/map 
+key: 00 00 00 00  value: 00
+Found 1 element
 
 
+Now, what I will do is to use a slightly modified version of bpftool
+which requests read-only access to the map instead:
 
-  * baseline.login: https://kernelci.org/test/case/id/6319d161cb340a3455355=
-686
-        failing since 22 days (last pass: v5.19.1-1157-g615e53e38bef5, firs=
-t fail: v5.19.1-1159-g6c70b627ef512) =
+# strace -f -etrace=bpf runcon -t bpftool_test_t ./bpftool iter pin
+writer.o /sys/fs/bpf/iter map pinned /sys/fs/bpf/map
+bpf(BPF_OBJ_GET, {pathname="/sys/fs/bpf/map", bpf_fd=0,
+file_flags=BPF_F_RDONLY}, 16) = 3
+libbpf: elf: skipping unrecognized data section(5) .eh_frame
+libbpf: elf: skipping relo section(6) .rel.eh_frame for section(5)
+.eh_frame
 
- =
+...
 
+bpf(BPF_LINK_CREATE, {link_create={prog_fd=4, target_fd=0,
+attach_type=BPF_TRACE_ITER, flags=0}, ...}, 48) = 5
+bpf(BPF_OBJ_PIN, {pathname="/sys/fs/bpf/iter", bpf_fd=5, file_flags=0},
+16) = 0
 
+That worked, because SELinux grants read-only permission to
+bpftool_test_t. However, the map iterator does not check how the fd was
+obtained, and thus allows the iterator to be created.
 
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-rk3399-roc-pc        | arm64 | lab-clabbe      | gcc-10   | defconfig      =
-     | 2          =
+At this point, we have write access, despite not having the right to do
+it:
 
+# cat /sys/fs/bpf/iter
+# bpftool map dump pinned /sys/fs/bpf/map 
+key: 00 00 00 00  value: 05
+Found 1 element
 
-  Details:     https://kernelci.org/test/plan/id/6319c236c14789dc11355650
-
-  Results:     4 PASS, 2 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.4-3=
-89-gf2d8facb7bd4/arm64/defconfig/gcc-10/lab-clabbe/baseline-rk3399-roc-pc.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.4-3=
-89-gf2d8facb7bd4/arm64/defconfig/gcc-10/lab-clabbe/baseline-rk3399-roc-pc.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
+The iterator updated the map value.
 
 
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/6319c236c14789d=
-c11355654
-        new failure (last pass: v5.19.4-233-g65485bdafd38)
-        11 lines
+The patch I'm proposing checks how the map fd was obtained, and if its
+modes are compatible with the operations an attached program is allowed
+to do. If the fd does not have the required modes, eBPF denies the
+creation of the map iterator.
 
-    2022-09-08T10:21:35.726508  kern  :alert : Unable to handle kernel NULL=
- pointer dereference at virtual address 0000000000000078
-    2022-09-08T10:21:35.728011  kern  :alert : Mem abort info:
-    2022-09-08T10:21:35.728369  kern  :alert :   ESR =3D 0x0000000096000004
-    2022-09-08T10:21:35.729570  kern  :alert :   EC =3D 0x25: DABT (current=
- EL), IL =3D 32 bits
-    2022-09-08T10:21:35.731074  kern  :alert :   SET =3D 0, FnV =3D 0
-    2022-09-08T10:21:35.731513  kern  :alert :   EA =3D 0, S1PTW =3D 0
-    2022-09-08T10:21:35.732599  kern  :alert :   FSC =3D 0x04: level 0 tran=
-slation fault
-    2022-09-08T10:21:35.734464  kern  :alert : Data abort info:
-    2022-09-08T10:21:35.735006  kern  :alert :   ISV =3D 0, ISS =3D 0x00000=
-004
-    2022-09-08T10:21:35.735764  kern  :alert :   CM =3D 0, WnR =3D 0 =
+After patching the kernel, I try to run the modified bpftool again:
 
-    ... (2 line(s) more)  =
+# strace -f -etrace=bpf runcon -t bpftool_test_t ./bpftool iter pin
+writer.o /sys/fs/bpf/iter map pinned /sys/fs/bpf/map
+bpf(BPF_OBJ_GET, {pathname="/sys/fs/bpf/map", bpf_fd=0,
+file_flags=BPF_F_RDONLY}, 16) = 3
+libbpf: elf: skipping unrecognized data section(5) .eh_frame
+libbpf: elf: skipping relo section(6) .rel.eh_frame for section(5)
+.eh_frame
 
+...
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6319c236c14789d=
-c11355655
-        new failure (last pass: v5.19.4-233-g65485bdafd38)
-        2 lines
+bpf(BPF_LINK_CREATE, {link_create={prog_fd=4, target_fd=0,
+attach_type=BPF_TRACE_ITER, flags=0}, ...}, 48) = -1 EPERM (Operation
+not permitted)
+libbpf: prog 'write_bpf_hash_map': failed to attach to iterator:
+Operation not permitted
+Error: attach_iter failed for program write_bpf_hash_map
 
-    2022-09-08T10:21:35.746089  kern  :emerg : Internal error: Oops: 960000=
-04 [#1] PREEMPT SMP
-    2022-09-08T10:21:35.747420  kern  :emerg : Code: f940a6c0 f9402023 9103=
-7015 295be001 (f9403c77) =
+The map iterator cannot be created and the map is not updated:
 
-    2022-09-08T10:21:35.752818  <8>[   25.519888] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>
-    2022-09-08T10:21:35.753282  + set +x   =
+# bpftool map dump pinned /sys/fs/bpf/map 
+key: 00 00 00 00  value: 00
+Found 1 element
 
- =20
+Roberto
+
