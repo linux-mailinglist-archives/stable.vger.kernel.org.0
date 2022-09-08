@@ -2,105 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6A655B27CC
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 22:37:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76BDF5B27DF
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 22:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229480AbiIHUhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 16:37:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55732 "EHLO
+        id S229624AbiIHUsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 16:48:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbiIHUhG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 16:37:06 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 138B51023DA
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 13:37:06 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id u9-20020a17090a1f0900b001fde6477464so3422684pja.4
-        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 13:37:06 -0700 (PDT)
+        with ESMTP id S229480AbiIHUsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 16:48:25 -0400
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2980DE9025;
+        Thu,  8 Sep 2022 13:48:22 -0700 (PDT)
+Received: by mail-lj1-x234.google.com with SMTP id bx38so21362772ljb.10;
+        Thu, 08 Sep 2022 13:48:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:from:to:cc:subject:date;
-        bh=qvaOK6j3PxKP4j5xD7XFiriqToq7K2JMUEKsHJLivrk=;
-        b=T2teUqFLVeDwCASHIvmjVIwy4w8gW86XzEKRn7knzqWutN5vv40KvjKNzMJcsjuKnn
-         uG58WnKi1GsbZtaHYEXckXjNUO0jnPziBtPifmAIF5ZDJwYKZghgRo42b5WbL7xXVjuq
-         nFYYjuWMJLqkc3LutWmBtwQ2vqPJzhNkq7smU6VcE2VafaRn60gOMP+sRSZDuSVA0Agw
-         h9+Q9DuH0H5pZfeUqKn/JU4O9XwGen4895cAqYiSK/Bw6uEwLZ4uG0TVAdxxLdEuhrOc
-         RrRM6gJ3WNknGQZtUhEziVqPwpd0SBLiSQsaRtjZDvFj9WvfNcAeiYPz/fzr6ACSUK7Y
-         hofA==
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=mFw2h/Ri2/bIxA8fteahahsAIbUWAOrFqK6aSuy87lQ=;
+        b=n4rTTgToDl5DYCN6bLMJk0mgVYr1H7F22SRmYfIXkncpwutmjQwkXquSwkiZ3/wm7s
+         gUbtPS7wlm41dsTuTnEETgFcy4EvmKnpSuMRM3ze5bj0cFYqyfuhjNs+ZOuFl0vRFmgr
+         qArFsOc776Cbz5fTPdvRY+m5/F3jszfugzhZ5KLt4OcsIiFp+xQEu7231d4qmi3B5BVP
+         mJqBMXZVux97mKIJUGrdokPkHREH5mwyejadgSbugbgeEzBpXQbR2PhLk53odyUZF5+N
+         iEoErCCdjdCfnYes3+OOPGODYZ5Tix6XxnsSeSsWJaVM5TaEZIGZRJMaco8EcHMtw/xT
+         8SIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=qvaOK6j3PxKP4j5xD7XFiriqToq7K2JMUEKsHJLivrk=;
-        b=oftrBs5DRCQJSVxgX7Bs4vC5PgOLUV3//6qC5P+XGbWqT0BJXgASkvQNMlO3z9W6Jq
-         /mE+VX077ft5EVpb/gHNi+nyPW2XFhI/RC25AqLSOBuAQQQ2Kz86UZbMlQt8AGgvtmVc
-         /I2oEvUbstmUK8T5uiYs/13tTGbN8VDvdbmWRxExxiWPbkd/+RlrCe1GgnOgWwW+j7tu
-         ZxBzT5Zo7BChg1jWh88hEpdhhZ9IoJMVsFj2m7SM3wIrBffrZvkTTAWLXkvmCs5PHYnm
-         M0/Ql17+TYq/ftMWYcff4XLmqdfQOuGt063/ziJh1I1Xfon2n6kpS62akZ00VXe/oT7V
-         acWA==
-X-Gm-Message-State: ACgBeo3IBM7zd8zbfFUjP8F00sGf29sDYW3O8dI4PGliBhd+a8iaZTcl
-        /h25yFcWjUyzrSNG89BYR8Cv8nYn8Ro23tjWXME=
-X-Google-Smtp-Source: AA6agR66H23IZkOtbeX/en5zH+CGaUWf7MFl+cUyI+0vx8hmvH19SSQyKP6SljCubjlm2Tyq9vMcb27beYEKd3Erbog=
-X-Received: by 2002:a17:90a:4402:b0:1fd:c07d:a815 with SMTP id
- s2-20020a17090a440200b001fdc07da815mr5769698pjg.188.1662669425407; Thu, 08
- Sep 2022 13:37:05 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=mFw2h/Ri2/bIxA8fteahahsAIbUWAOrFqK6aSuy87lQ=;
+        b=jdVROuLNMaDGYlKJbUmzdgPrE/xr4KYFDuThWSSJS5ghU3q9bUrKZK9sLY8HF58O3B
+         a0DUEtk4TsDcKrQVSnBVxCUNvyQCcM3CNOAbayMkjeQfCFPFWYFxVB7S0zPKsPTwe0Qp
+         uN48/vALZqxcY7ZfF/uT36/2AZ4BkBFfnLuUaUiFqDFaSdPzdaiYIxv6ml+HtwKw7QzV
+         j9+cnscNaT7NmUKWoWbsK3hNX7yDmRkMtLz+eDtmnRO69Ig309Xp0Ti+yPE1dVUx6Jn+
+         E7q0Lo2uPOJD6Xwpb8wCqLwREx4kZSaevYzE57C7z1mOxK9Uz22O+HYPIU9+9Knrvj/P
+         46pw==
+X-Gm-Message-State: ACgBeo31ZNiqrpFHTl0EUTmvESp+vgtqVi3VN7blnT0NvMcvWhE/SUZO
+        rK0Cbp+rcCoNGpKAKYN8KcA=
+X-Google-Smtp-Source: AA6agR4qNb7yw9CwK8YVXamz9lVNOsxk5VoeFFCF2eZ9wQ+TxW8Wyg3YU7Z5hBSVSNMplKLVy/A5uw==
+X-Received: by 2002:a2e:3002:0:b0:26a:b199:46df with SMTP id w2-20020a2e3002000000b0026ab19946dfmr2805220ljw.304.1662670100391;
+        Thu, 08 Sep 2022 13:48:20 -0700 (PDT)
+Received: from saproj-Latitude-5501.yandex.net ([2a02:6b8:0:40c:3f3a:cd4:e3fd:6ec6])
+        by smtp.gmail.com with ESMTPSA id g1-20020a0565123b8100b00494767f1a4fsm3180725lfv.21.2022.09.08.13.48.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Sep 2022 13:48:20 -0700 (PDT)
+From:   Sergei Antonov <saproj@gmail.com>
+To:     linux-mm@kvack.org, akpm@linux-foundation.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sergei Antonov <saproj@gmail.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Subject: [PATCH] mm: bring back update_mmu_cache() to finish_fault()
+Date:   Thu,  8 Sep 2022 23:48:09 +0300
+Message-Id: <20220908204809.2012451-1-saproj@gmail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Received: by 2002:a05:7300:7492:b0:77:9efc:8484 with HTTP; Thu, 8 Sep 2022
- 13:37:04 -0700 (PDT)
-Reply-To: mariaelisabeth84697@gmail.com
-From:   Maria Elisabeth <samueledim2019@gmail.com>
-Date:   Thu, 8 Sep 2022 13:37:04 -0700
-Message-ID: <CAMM+MpBD6QedrAPV9PTO5Lm98o5UAEbjrZH4FXEeMU2nqc1OeA@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=7.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM,UNDISC_MONEY autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:1044 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5600]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [mariaelisabeth84697[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [samueledim2019[at]gmail.com]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [samueledim2019[at]gmail.com]
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.1 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-        *  2.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
-        *      email?
-        *  0.1 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *******
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Hallo, guten Tag, ich bin Frau Maria Elisabeth Schaeffler, die Spende
-von 1.500.000,00 Euro an Sie steht noch sehr gut zur Verf=C3=BCgung, was
-ist das Problem?Kontaktieren Sie mich, wenn Sie verwirrt sind.
+Running this test program on ARMv4 a few times (sometimes just once)
+reproduces the bug.
+
+int main()
+{
+        unsigned i;
+        char paragon[SIZE];
+        void* ptr;
+
+        memset(paragon, 0xAA, SIZE);
+        ptr = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
+                   MAP_ANON | MAP_SHARED, -1, 0);
+        if (ptr == MAP_FAILED) return 1;
+        printf("ptr = %p\n", ptr);
+        for (i=0;i<10000;i++){
+                memset(ptr, 0xAA, SIZE);
+                if (memcmp(ptr, paragon, SIZE)) {
+                        printf("Unexpected bytes on iteration %u!!!\n", i);
+                        break;
+                }
+        }
+        munmap(ptr, SIZE);
+}
+
+In the "ptr" buffer there appear runs of zero bytes which are aligned
+by 16 and their lengths are multiple of 16.
+
+Linux v5.11 does not have the bug, "git bisect" finds the first bad commit:
+f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
+
+Before the commit update_mmu_cache() was called during a call to
+filemap_map_pages() as well as finish_fault(). After the commit
+finish_fault() lacks it.
+
+Bring back update_mmu_cache() to finish_fault() to fix the bug.
+Also call update_mmu_tlb() only when returning VM_FAULT_NOPAGE to more
+closely reproduce the code of alloc_set_pte() function that existed before
+the commit.
+
+On many platforms update_mmu_cache() is nop:
+ x86, see arch/x86/include/asm/pgtable
+ ARMv6+, see arch/arm/include/asm/tlbflush.h
+So, it seems, few users ran into this bug.
+
+Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
+Signed-off-by: Sergei Antonov <saproj@gmail.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+---
+ mm/memory.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/mm/memory.c b/mm/memory.c
+index 4ba73f5aa8bb..a78814413ac0 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4386,14 +4386,20 @@ vm_fault_t finish_fault(struct vm_fault *vmf)
+ 
+ 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
+ 				      vmf->address, &vmf->ptl);
+-	ret = 0;
++
+ 	/* Re-check under ptl */
+-	if (likely(!vmf_pte_changed(vmf)))
++	if (likely(!vmf_pte_changed(vmf))) {
+ 		do_set_pte(vmf, page, vmf->address);
+-	else
++
++		/* no need to invalidate: a not-present page won't be cached */
++		update_mmu_cache(vma, vmf->address, vmf->pte);
++
++		ret = 0;
++	} else {
++		update_mmu_tlb(vma, vmf->address, vmf->pte);
+ 		ret = VM_FAULT_NOPAGE;
++	}
+ 
+-	update_mmu_tlb(vma, vmf->address, vmf->pte);
+ 	pte_unmap_unlock(vmf->pte, vmf->ptl);
+ 	return ret;
+ }
+-- 
+2.34.1
+
