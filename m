@@ -2,46 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 001495B1BEB
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 13:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B9F85B1BF3
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 13:54:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229799AbiIHLww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 07:52:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45374 "EHLO
+        id S230523AbiIHLyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 07:54:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229620AbiIHLwv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 07:52:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15E8127552
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 04:52:50 -0700 (PDT)
+        with ESMTP id S230138AbiIHLyQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 07:54:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42ED312757C;
+        Thu,  8 Sep 2022 04:54:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66EB3B820D3
-        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 11:52:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A408C433D6;
-        Thu,  8 Sep 2022 11:52:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7507C61CC6;
+        Thu,  8 Sep 2022 11:54:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 461CDC433D6;
+        Thu,  8 Sep 2022 11:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662637968;
-        bh=x+F0rEo6xO5POmYrW0rKGz2BB067TvOmeZfLDmASst4=;
+        s=korg; t=1662638047;
+        bh=iiEBvciCeys3gtNspnepmP6eJ/Mf/38J0dP2ivXXIYs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dvsPWaCF2tlc9qywa7ykyqMlSUjQf0KAuNG2czpY0Z4H8papfjWoHOLhRjkeVJhh0
-         FFOeyU7eS9ix94XQDL+WbgfoH6R7nTGRDCucixUIlW3cbUYMiqBVHzkYxYRqMWd9QQ
-         Kn87cpy92u5IG8MTEmE3iiXnn0Wj+9CiNYbuVaAI=
-Date:   Thu, 8 Sep 2022 13:53:01 +0200
+        b=QkYJAQhfBqVVCCn2E/HHX1LfiMNrg2bdNDa1T3LLxknRjXXBNoHpF6xw2vnmnGHmC
+         LQhZjrI5a5xuZa2zerlbjXq+ybuaf2VUZnfTWgdDEpMVRzs4L8d37/lKCsZK9XNFEK
+         L669PiyLaLj5tssCZ+Hkmz/3sJg537xJIAOLoSWE=
+Date:   Thu, 8 Sep 2022 13:54:29 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Fedor Pchelkin <pchelkin@ispras.ru>
-Cc:     stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        lvc-project@linuxtesting.org, Jiri Slaby <jirislaby@kernel.org>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Subject: Re: [PATCH 5.10 0/2] tty: n_gsm: fix lock handling problems in
- gsmld_write()
-Message-ID: <YxnXncgEmXtRfevx@kroah.com>
-References: <20220906182212.25261-1-pchelkin@ispras.ru>
+To:     "Isaac J. Manjarres" <isaacmanjarres@google.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Ulf Hansson <ulf.hansson@linaro.org>, stable@vger.kernel.org,
+        Saravana Kannan <saravanak@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        kernel-team@android.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH stable-4.19/4.14/4.9] driver core: Don't probe devices
+ after bus_type.match() probe deferral
+Message-ID: <YxnX9TsxuSi9L9GD@kroah.com>
+References: <20220906172933.410698-1-isaacmanjarres@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220906182212.25261-1-pchelkin@ispras.ru>
+In-Reply-To: <20220906172933.410698-1-isaacmanjarres@google.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -52,11 +58,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 06, 2022 at 09:22:10PM +0300, Fedor Pchelkin wrote:
-> The lock handling problems in gsmld_write(), reported by Syzkaller, have
-> been fixed by the following patches which can be cleanly applied to the
-> 5.10 branch.
+On Tue, Sep 06, 2022 at 10:29:33AM -0700, Isaac J. Manjarres wrote:
+> commit 25e9fbf0fd38868a429feabc38abebfc6dbf6542 upstream.
+> 
+> Both __device_attach_driver() and __driver_attach() check the return
+> code of the bus_type.match() function to see if the device needs to be
+> added to the deferred probe list. After adding the device to the list,
+> the logic attempts to bind the device to the driver anyway, as if the
+> device had matched with the driver, which is not correct.
+> 
+> If __device_attach_driver() detects that the device in question is not
+> ready to match with a driver on the bus, then it doesn't make sense for
+> the device to attempt to bind with the current driver or continue
+> attempting to match with any of the other drivers on the bus. So, update
+> the logic in __device_attach_driver() to reflect this.
+> 
+> If __driver_attach() detects that a driver tried to match with a device
+> that is not ready to match yet, then the driver should not attempt to bind
+> with the device. However, the driver can still attempt to match and bind
+> with other devices on the bus, as drivers can be bound to multiple
+> devices. So, update the logic in __driver_attach() to reflect this.
+> 
+> Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
+> Cc: stable@vger.kernel.org
+> Cc: Saravana Kannan <saravanak@google.com>
+> Reported-by: Guenter Roeck <linux@roeck-us.net>
+> Tested-by: Guenter Roeck <linux@roeck-us.net>
+> Tested-by: Linus Walleij <linus.walleij@linaro.org>
+> Reviewed-by: Saravana Kannan <saravanak@google.com>
+> Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+> ---
+>  drivers/base/dd.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
 
-All now queued up, thanks.
-
-greg k-h
+Applied to 4.19.y, but did not apply to 4.14.y or 4.9.y :(
