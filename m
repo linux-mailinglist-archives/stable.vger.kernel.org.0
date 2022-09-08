@@ -2,137 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A76F5B264F
-	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 20:56:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C71175B2654
+	for <lists+stable@lfdr.de>; Thu,  8 Sep 2022 20:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231826AbiIHS4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Sep 2022 14:56:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47300 "EHLO
+        id S232441AbiIHS4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Sep 2022 14:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230338AbiIHS4G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 14:56:06 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5584FE127B;
-        Thu,  8 Sep 2022 11:55:56 -0700 (PDT)
-Received: from [IPV6:2405:201:10:389d:42df:ae4c:c047:294c] (unknown [IPv6:2405:201:10:389d:42df:ae4c:c047:294c])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: shreeya)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 3CB6E6601FA5;
-        Thu,  8 Sep 2022 19:55:53 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1662663354;
-        bh=/0YQxiGiLijwA+CaDfO6VApaf51Pu3uEzYBqsFWNDnw=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=cxIwTkGycIMA7GAM3ra/IVSHuLzHqPCwvCz7XjjXY6zvp16dd3wajqf1TochqyAPX
-         IFOX0Ot8316hrizIr9QDyLkgbLvrac/DTVEygCgfZhU2D+BEHEBiZo2AfYSxSFtpbZ
-         1c2btO2k8i92Rby9J2O9MwcHjfbWIL8Ixtx6Lek11OCW/CuvUqXy03xzOGiMlcGzKm
-         vBH7yV5mSvXMBR1RfqGJwhiGJVm5xyQM2SBEbQzX3IhMiay5/Zy/GSmWypHN47THqp
-         BDyjozTp5CZdil53SJxvbiJn8DG+28tlRpvQXlcEAl7W1nwOtVo7qUgJtfoexpgD9/
-         0UIebZIEFTMzg==
-Message-ID: <03401e6f-f660-9313-61dc-a930675c82ec@collabora.com>
-Date:   Fri, 9 Sep 2022 00:25:49 +0530
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH v2] iio: light: tsl2583: Fix module unloading
-Content-Language: en-US
-To:     Jonathan Cameron <jic23@kernel.org>
-Cc:     lars@metafoo.de, krisman@collabora.com,
-        dmitry.osipenko@collabora.com, kernel@collabora.com,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20220826122352.288438-1-shreeya.patel@collabora.com>
- <20220828173327.7949ad73@jic23-huawei>
-From:   Shreeya Patel <shreeya.patel@collabora.com>
-In-Reply-To: <20220828173327.7949ad73@jic23-huawei>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S232362AbiIHS4d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Sep 2022 14:56:33 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57CC3103011
+        for <stable@vger.kernel.org>; Thu,  8 Sep 2022 11:56:32 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id i194-20020a253bcb000000b00676d86fc5d7so14140587yba.9
+        for <stable@vger.kernel.org>; Thu, 08 Sep 2022 11:56:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date;
+        bh=DfW7Ir9+WQmyTVzhm1gHklyle9zrgzIRVd1ekvZC7CA=;
+        b=YZlecdlO47qUQNaOMtSKNTiIPStKS1fKX3wZJZpjcUQYeva7WWrJe+56JQfveBLrNn
+         tYsFb1Fv+9yYbFW1rgsXDxQ1uz/Z1k77RSLkHWxQ7k3lSEA4JCjtYinax4CuioLFqz99
+         2DeqE/AfmKVWrEMIgL9n59oamLmbJDLN1v5C1s6SQynu/SB75BwVt5FqGG9F4g3CLmCu
+         UfgTbQUeQMzSvBQHLSvf1j1LamHNZ6koiF2MsJBvu+tDMsa7bUZ1+p/9vdb332cepz8t
+         c40f5CQElmp4osWWN2p0uVU67uSwlvFcogFJTBfCNeZqceILZnWMXwNAkzDyz/YfdDEu
+         piSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date;
+        bh=DfW7Ir9+WQmyTVzhm1gHklyle9zrgzIRVd1ekvZC7CA=;
+        b=3w0IQp+1E1cR/l4+GuYoqxXCaVnF4YeYUPmXd+1zHI8Uxb/Oy/i4F/OBlFJd7PE6tj
+         puJdCceN7AQCXKS6yf9/8m8e5j69qSaUsh9QR+r4fDj9/D79TKJpt1pFLRdL9AKqQZ3u
+         08Yc63HtyPBRDhgOpXruiflwNsq9GbLjT4EbKjUZ2ZP82w+GO3aCVSbxQtuzlAN9LGiD
+         01XdThE5WTvlJPQocf1LRliJfqNaLl9QE3RhIeXqr1oNcNFNkYltz00KBHULurcXRSWX
+         n9BJrTgD7EIZC9gN1u0EvZ1t6Gas1j9n/creJpryGtfDoSHcxQyO58fKqedzzm+FWm01
+         4WCQ==
+X-Gm-Message-State: ACgBeo3mj+7zJxl8PwTeJOVHBDgjxkyPeFKmrpNzcJ6OHnwEO6dco4je
+        JHgVyPrvLBteYX4pdL5Wzm7zOy59OAslgP2gyVA9cA==
+X-Google-Smtp-Source: AA6agR6gzaLqzOpRYQHI54Aj1+Zbxlvro56PlSplt5RM04nM9tJebeNTZSm/cZtRkkVVUCysFlG0cVUY+wd7xmBLHYjk6w==
+X-Received: from isaacmanjarres.irv.corp.google.com ([2620:15c:2d:3:66bd:4175:b3a6:1479])
+ (user=isaacmanjarres job=sendgmr) by 2002:a81:7cd7:0:b0:345:221c:5671 with
+ SMTP id x206-20020a817cd7000000b00345221c5671mr8824096ywc.297.1662663391626;
+ Thu, 08 Sep 2022 11:56:31 -0700 (PDT)
+Date:   Thu,  8 Sep 2022 11:56:25 -0700
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.37.2.789.g6183377224-goog
+Message-ID: <20220908185625.3729874-1-isaacmanjarres@google.com>
+Subject: [PATCH stable-4.9] driver core: Don't probe devices after
+ bus_type.match() probe deferral
+From:   "Isaac J. Manjarres" <isaacmanjarres@google.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>
+Cc:     "Isaac J. Manjarres" <isaacmanjarres@google.com>,
+        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        kernel-team@android.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 25e9fbf0fd38868a429feabc38abebfc6dbf6542 upstream.
 
-On 28/08/22 22:03, Jonathan Cameron wrote:
-> On Fri, 26 Aug 2022 17:53:52 +0530
-> Shreeya Patel <shreeya.patel@collabora.com> wrote:
->
->> tsl2583 uses devm_iio_device_register() function and
->> calling iio_device_unregister() in remove breaks the
->> module unloading.
->> Fix this by using iio_device_register() instead of
->> devm_iio_device_register() function in probe.
-> Not sure why you are wrapping at 55 chars. I rewrapped this whilst applying.
->
-> Reworded it a little too as I was touching it anyway.
->
-> Applied to the fixes-togreg branch of iio.git.
+Both __device_attach_driver() and __driver_attach() check the return
+code of the bus_type.match() function to see if the device needs to be
+added to the deferred probe list. After adding the device to the list,
+the logic attempts to bind the device to the driver anyway, as if the
+device had matched with the driver, which is not correct.
 
-Hi Jonathan,
+If __device_attach_driver() detects that the device in question is not
+ready to match with a driver on the bus, then it doesn't make sense for
+the device to attempt to bind with the current driver or continue
+attempting to match with any of the other drivers on the bus. So, update
+the logic in __device_attach_driver() to reflect this.
 
-I was wondering if this got picked by you. I don't see it in 
-fixes-togreg that's why wanted to just confirm if you aren't looking for 
-some extra changes in this.
+If __driver_attach() detects that a driver tried to match with a device
+that is not ready to match yet, then the driver should not attempt to bind
+with the device. However, the driver can still attempt to match and bind
+with other devices on the bus, as drivers can be bound to multiple
+devices. So, update the logic in __driver_attach() to reflect this.
 
+Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
+Cc: stable@vger.kernel.org
+Cc: Saravana Kannan <saravanak@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+---
+ drivers/base/dd.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Thanks
-Shreeya Patel
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index ff59a1851cb4..faaa0440b294 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -590,6 +590,11 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
+ 	} else if (ret == -EPROBE_DEFER) {
+ 		dev_dbg(dev, "Device match requests probe deferral\n");
+ 		driver_deferred_probe_add(dev);
++		/*
++		 * Device can't match with a driver right now, so don't attempt
++		 * to match or bind with other drivers on the bus.
++		 */
++		return ret;
+ 	} else if (ret < 0) {
+ 		dev_dbg(dev, "Bus failed to match device: %d", ret);
+ 		return ret;
+@@ -732,6 +737,11 @@ static int __driver_attach(struct device *dev, void *data)
+ 	} else if (ret == -EPROBE_DEFER) {
+ 		dev_dbg(dev, "Device match requests probe deferral\n");
+ 		driver_deferred_probe_add(dev);
++		/*
++		 * Driver could not match with device, but may match with
++		 * another device on the bus.
++		 */
++		return 0;
+ 	} else if (ret < 0) {
+ 		dev_dbg(dev, "Bus failed to match device: %d", ret);
+ 		return ret;
+-- 
+2.37.2.789.g6183377224-goog
 
->
->> Cc: stable@vger.kernel.org
->> Fixes: 371894f5d1a0 ("iio: tsl2583: add runtime power management support")
-> I took a look at this patch and it introduces the issue I just pointed
-> out in replying to your v1 by dropping the
-> /* Make sure the chip is on */
-> Which was correct even with runtime pm because it covered the case of
-> runtime_pm being disabled.   We probably need to bring that back as well,
-> perhaps as part of a cleanup patch taking this fully devm_
->
-> This driver has another issue for working if runtime PM isn't built into
-> the kernel which is that it checks the return of pm_runtime_put_autosuspend()
-> which calls
->
-> static inline int __pm_runtime_suspend(struct device *dev, int rpmflags)
-> {
-> 	return -ENOSYS;
-> }
->
-> I've been meaning to do an audit for drivers that have this problem for
-> a while, but not yet gotten to it.
->
-> An ideal IIO driver needs to work correctly whether or not CONFIG_PM is
-> enabled.
->
-> Jonathan
->
->
->> Signed-off-by: Shreeya Patel <shreeya.patel@collabora.com>
->> ---
->> Changes in v2
->>    - Use iio_device_register() instead of devm_iio_device_register()
->>    - Add fixes and stable tags
->>
->>   drivers/iio/light/tsl2583.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/iio/light/tsl2583.c b/drivers/iio/light/tsl2583.c
->> index 82662dab87c0..94d75ec687c3 100644
->> --- a/drivers/iio/light/tsl2583.c
->> +++ b/drivers/iio/light/tsl2583.c
->> @@ -858,7 +858,7 @@ static int tsl2583_probe(struct i2c_client *clientp,
->>   					 TSL2583_POWER_OFF_DELAY_MS);
->>   	pm_runtime_use_autosuspend(&clientp->dev);
->>   
->> -	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
->> +	ret = iio_device_register(indio_dev);
->>   	if (ret) {
->>   		dev_err(&clientp->dev, "%s: iio registration failed\n",
->>   			__func__);
->
