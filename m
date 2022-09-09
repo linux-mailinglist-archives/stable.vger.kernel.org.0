@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6415B3EDA
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F6195B3EDB
+	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:32:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbiIISce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 14:32:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53292 "EHLO
+        id S230143AbiIIScf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 14:32:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229679AbiIIScd (ORCPT
+        with ESMTP id S230024AbiIIScd (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:32:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC42FA699
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:32:32 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C1BA112B05
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:32:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B26B2B82629
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01ACBC433D7;
-        Fri,  9 Sep 2022 18:32:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D51C620A4
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:32:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF239C433D6;
+        Fri,  9 Sep 2022 18:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662748349;
-        bh=1du/eiP1FgTCJPLOqyNjuU04A+SheWYXqFwnwdZCnbE=;
+        s=korg; t=1662748352;
+        bh=SKXi0FY8ejzVekH8u0ak8IruVk6ugtd2o6RX3kZVE+s=;
         h=Subject:To:Cc:From:Date:From;
-        b=0oJ8FfFH5mXv2sD44lSBgihA1bGyY58bZBHK4dLgXPXA9os5HUgl+hLk36891eJiw
-         bGnJBzXP58Ld4ho1Bln7Uo1T/4Z00Ugbd6JiwlN0peGgKM6C0fHK7hzJSM73ble9/1
-         3xr6aomL/dIrIV3VMsir74xnH8gqVMlnXO6MVkf4=
-Subject: FAILED: patch "[PATCH] vfio/type1: Unpin zero pages" failed to apply to 5.4-stable tree
+        b=t1YqNo6MQUHgJVW0BxMhySmu9Df0rexQOUWpfCbkM5p0nVPocEMpP4M5xnfggEwn4
+         IMovYW1IHtJl5EEMGPbO3+0BRr39rAU+x3XNjzFrNfdvUBkRETqgYXzkKL/DJPh8CS
+         4vP2kbv0EHMbLtawH748OGsGJpJwkejbiSzUB6xQ=
+Subject: FAILED: patch "[PATCH] vfio/type1: Unpin zero pages" failed to apply to 4.19-stable tree
 To:     alex.williamson@redhat.com, david@redhat.com, lpivarc@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 09 Sep 2022 20:32:23 +0200
-Message-ID: <16627483437961@kroah.com>
+Date:   Fri, 09 Sep 2022 20:32:24 +0200
+Message-ID: <1662748344242253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
