@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55AB65B3ECB
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D37F5B3ED1
+	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230354AbiIIS1A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 14:27:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44254 "EHLO
+        id S229493AbiIISbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 14:31:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229580AbiIIS07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:26:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E841117489
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:26:59 -0700 (PDT)
+        with ESMTP id S229774AbiIISbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:31:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0E8D120
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:31:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2FB9B82613
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:26:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40CE8C433C1;
-        Fri,  9 Sep 2022 18:26:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D73CA6200E
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:31:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7FB4C433C1;
+        Fri,  9 Sep 2022 18:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662748016;
-        bh=WVMx0W2o/QpZY+oDoc/DUFWbmGZQ12I15EboMsaaXeg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vMqdWP6CaTQJeclCELZR7M5ml05isMuEd3xBUBFmQXtQo5jxYppmO177wUWzlRfgX
-         fFq/mOiNIuUY4u/Zu/Aiq0miJG0IXZnJUO4mrDnIEGsPePh8ZVGB8Yk47jhy7uEQt9
-         MuEw3vx0L+WDYuypabgzfMvCSqbSslcgdCEeUTV8=
-Date:   Fri, 9 Sep 2022 20:26:54 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Rishabh Bhatnagar <risbhat@amazon.com>
-Cc:     stable@vger.kernel.org, surajjs@amazon.com, mbacco@amazon.com
-Subject: Re: [PATCH 0/9] KVM backports to 5.10
-Message-ID: <YxuFbryl3wqVMOjY@kroah.com>
-References: <20220909181351.23983-1-risbhat@amazon.com>
+        s=korg; t=1662748264;
+        bh=uJ7DD5tl9RkJqmTCjt8mDuO6W08e+t4x0XvpdbgU+ek=;
+        h=Subject:To:Cc:From:Date:From;
+        b=V/wx3a92VXynWzulYr/VrMp/zmZwnqbUlDiSuT57lBAZQHT47SK8pR9McIdWAGphw
+         aebnjmgtKZht17twAhzPVSTxsIvh9Hz5qfUDsN494ot24Mp+yx4gXk+i+1uShBhHOD
+         Fs6W4Zy1/9O/whfeozLeNzZYPdY5vFLXnBaoE7o0=
+Subject: FAILED: patch "[PATCH] tracefs: Only clobber mode/uid/gid on remount if asked" failed to apply to 5.15-stable tree
+To:     briannorris@chromium.org, rostedt@goodmis.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 09 Sep 2022 20:31:01 +0200
+Message-ID: <166274826116451@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220909181351.23983-1-risbhat@amazon.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -49,20 +47,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 09, 2022 at 06:13:42PM +0000, Rishabh Bhatnagar wrote:
-> This patch series backports a few VM preemption_status, steal_time and
-> PV TLB flushing fixes to 5.10 stable kernel.
-> 
-> Most of the changes backport cleanly except i had to work around a few
-> becauseof missing support/APIs in 5.10 kernel. I have captured those in
-> the changelog as well in the individual patches.
 
-Any reason you didn't cc: the KVM maintainer on this patch series?  All
-stable backports of KVM code require their review before they can be
-accepted.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Please fix up and resend.
+Possible dependencies:
+
+47311db8e8f3 ("tracefs: Only clobber mode/uid/gid on remount if asked")
+851e99ebeec3 ("tracefs: Set the group ownership in apply_options() not parse_options()")
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 47311db8e8f33011d90dee76b39c8886120cdda4 Mon Sep 17 00:00:00 2001
+From: Brian Norris <briannorris@chromium.org>
+Date: Fri, 26 Aug 2022 17:44:17 -0700
+Subject: [PATCH] tracefs: Only clobber mode/uid/gid on remount if asked
+
+Users may have explicitly configured their tracefs permissions; we
+shouldn't overwrite those just because a second mount appeared.
+
+Only clobber if the options were provided at mount time.
+
+Note: the previous behavior was especially surprising in the presence of
+automounted /sys/kernel/debug/tracing/.
+
+Existing behavior:
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwx------
+
+  ## Unexpected: the automount changed mode for other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwx------
+
+New behavior (after this change):
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwxr-xr-x
+
+  ## Expected: the automount does not change other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
+
+Cc: stable@vger.kernel.org
+Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+
+diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+index 81d26abf486f..da85b3979195 100644
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -141,6 +141,8 @@ struct tracefs_mount_opts {
+ 	kuid_t uid;
+ 	kgid_t gid;
+ 	umode_t mode;
++	/* Opt_* bitfield. */
++	unsigned int opts;
+ };
+ 
+ enum {
+@@ -241,6 +243,7 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
+ 	kgid_t gid;
+ 	char *p;
+ 
++	opts->opts = 0;
+ 	opts->mode = TRACEFS_DEFAULT_MODE;
+ 
+ 	while ((p = strsep(&data, ",")) != NULL) {
+@@ -275,24 +278,36 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
+ 		 * but traditionally tracefs has ignored all mount options
+ 		 */
+ 		}
++
++		opts->opts |= BIT(token);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int tracefs_apply_options(struct super_block *sb)
++static int tracefs_apply_options(struct super_block *sb, bool remount)
+ {
+ 	struct tracefs_fs_info *fsi = sb->s_fs_info;
+ 	struct inode *inode = d_inode(sb->s_root);
+ 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
+ 
+-	inode->i_mode &= ~S_IALLUGO;
+-	inode->i_mode |= opts->mode;
++	/*
++	 * On remount, only reset mode/uid/gid if they were provided as mount
++	 * options.
++	 */
++
++	if (!remount || opts->opts & BIT(Opt_mode)) {
++		inode->i_mode &= ~S_IALLUGO;
++		inode->i_mode |= opts->mode;
++	}
+ 
+-	inode->i_uid = opts->uid;
++	if (!remount || opts->opts & BIT(Opt_uid))
++		inode->i_uid = opts->uid;
+ 
+-	/* Set all the group ids to the mount option */
+-	set_gid(sb->s_root, opts->gid);
++	if (!remount || opts->opts & BIT(Opt_gid)) {
++		/* Set all the group ids to the mount option */
++		set_gid(sb->s_root, opts->gid);
++	}
+ 
+ 	return 0;
+ }
+@@ -307,7 +322,7 @@ static int tracefs_remount(struct super_block *sb, int *flags, char *data)
+ 	if (err)
+ 		goto fail;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, true);
+ 
+ fail:
+ 	return err;
+@@ -359,7 +374,7 @@ static int trace_fill_super(struct super_block *sb, void *data, int silent)
+ 
+ 	sb->s_op = &tracefs_super_operations;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, false);
+ 
+ 	return 0;
+ 
+
