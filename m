@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D37F5B3ED1
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:31:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 910D95B3ED2
+	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229493AbiIISbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 14:31:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51962 "EHLO
+        id S229774AbiIISbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 14:31:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229774AbiIISbH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:31:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0E8D120
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:31:05 -0700 (PDT)
+        with ESMTP id S229622AbiIISbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:31:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4403124609
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:31:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D73CA6200E
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:31:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7FB4C433C1;
-        Fri,  9 Sep 2022 18:31:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 163C66200E
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:31:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 298ACC433D6;
+        Fri,  9 Sep 2022 18:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662748264;
-        bh=uJ7DD5tl9RkJqmTCjt8mDuO6W08e+t4x0XvpdbgU+ek=;
+        s=korg; t=1662748273;
+        bh=Yn+6LE8Jka+Z4JDrUdv4NXACgUejpNLDcdvp1KM6s+Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=V/wx3a92VXynWzulYr/VrMp/zmZwnqbUlDiSuT57lBAZQHT47SK8pR9McIdWAGphw
-         aebnjmgtKZht17twAhzPVSTxsIvh9Hz5qfUDsN494ot24Mp+yx4gXk+i+1uShBhHOD
-         Fs6W4Zy1/9O/whfeozLeNzZYPdY5vFLXnBaoE7o0=
-Subject: FAILED: patch "[PATCH] tracefs: Only clobber mode/uid/gid on remount if asked" failed to apply to 5.15-stable tree
+        b=MJZNzgak7ToSfQVtSdl2Ia3/zI9nbdlqPtF/B5Z1Z1uIz3ju4bYX4Hp2+MNZXbaa8
+         VCqJx1IR8JUCEwRv212T+gFfF+L/yjMypgZliUAtrZTqa1n7hdQWAwQfPrW0ofX5HI
+         /IJ1dEpE3UEkeOrlYBpuzTfhSVvyjJDcFyI34Awg=
+Subject: FAILED: patch "[PATCH] tracefs: Only clobber mode/uid/gid on remount if asked" failed to apply to 5.10-stable tree
 To:     briannorris@chromium.org, rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 09 Sep 2022 20:31:01 +0200
-Message-ID: <166274826116451@kroah.com>
+Date:   Fri, 09 Sep 2022 20:31:02 +0200
+Message-ID: <1662748262160129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
