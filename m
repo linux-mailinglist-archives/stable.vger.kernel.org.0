@@ -2,168 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8C45B4043
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 21:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 007D95B40A4
+	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 22:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231787AbiIIT4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 15:56:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52370 "EHLO
+        id S231866AbiIIU2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 16:28:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231810AbiIITzw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 15:55:52 -0400
+        with ESMTP id S231759AbiIIU2H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 16:28:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712C6F3BD2
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 12:55:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA32128C0E;
+        Fri,  9 Sep 2022 13:26:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A52D1B82628
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 19:55:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33E1EC433C1;
-        Fri,  9 Sep 2022 19:55:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662753345;
-        bh=KMgedXlIXbQ75nEAN7Xt8YHn1LF5kcWjC6xSs+xcx8k=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=OVegD8hdC13AAJMu8fof3s42PoWb1yHd/xu6eQf9MeQAOYDDKOfyqAX45vyABcuue
-         s4l5OF0fViOlIP0gDIqFYgan+98sL74x5NZnIpPca6cWWIXLslAaEYwOw7icc4W8bx
-         QxkscX+zucLUNVKEcgOO6vbYMvJVFExK4NzHszVydrP4vK9dFpDNLXvNyFA08uCypv
-         H6LnvpQgS9Gzwf5fEZLrKuLYjBa5dQSTLFZCc+3EUvWeQcnwMrjzE/l0Jyu5fRU0B6
-         7eQ6dzVfwcTPMkrTryWZbl1MBvdqCVMLfvgIdyo/L5cINegoyFkFaymaOg82gSJ0e8
-         tvX+ezj3YFhvg==
-Date:   Fri, 9 Sep 2022 14:55:43 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     "Lazar, Lijo" <lijo.lazar@amd.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
-        "wielkiegie@gmail.com" <wielkiegie@gmail.com>,
-        "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
-        Alex Deucher <alexdeucher@gmail.com>,
-        "Quan, Evan" <Evan.Quan@amd.com>,
-        "Zhang, Hawking" <Hawking.Zhang@amd.com>
-Subject: Re: [PATCH] drm/amdgpu: Don't enable LTR if not supported
-Message-ID: <20220909195543.GA310962@bhelgaas>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a7b2f76a-772d-78d9-a1f8-68c32477f21f@amd.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6BD3B8261D;
+        Fri,  9 Sep 2022 20:26:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CCC1C433C1;
+        Fri,  9 Sep 2022 20:26:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1662755209;
+        bh=Q4su0ZuO4kXSL1ZZStcaaMZSAIC+ec0q2gIAB1m9DTs=;
+        h=Date:To:From:Subject:From;
+        b=mNrGCEDP/GaIOvnZCpDZmMqY4yMARhRC2zPKlChqTa25YUbL+HmiCZ2ZX7bu12tM3
+         ozWdisCF4E+UL0W/67XGOx4cVfswLTXAQ3y5fsUjaz04O0nfM/xix4GuKlFZFGPusk
+         dGiXjBd6ppNgSwdeKOFjIPRX06P9iOkNUGDhsnDY=
+Date:   Fri, 09 Sep 2022 13:26:48 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        nathan@kernel.org, liushixin2@huawei.com, konrad.wilk@oracle.com,
+        hch@lst.de, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + frontswap-dont-call-init-if-no-ops-are-registered.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220909202649.6CCC1C433C1@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 09, 2022 at 01:11:54PM +0530, Lazar, Lijo wrote:
-> 
-> 
-> On 9/8/2022 11:27 PM, Bjorn Helgaas wrote:
-> > On Thu, Sep 08, 2022 at 04:42:38PM +0000, Lazar, Lijo wrote:
-> > > I am not sure if ASPM settings can be generalized by PCIE core.
-> > > Performance vs Power savings when ASPM is enabled will require some
-> > > additional tuning and that will be device specific.
-> > 
-> > Can you elaborate on this?  In the universe of drivers, very few do
-> > their own ASPM configuration, and it's usually to work around hardware
-> > defects, e.g., L1 doesn't work on some e1000e devices, L0s doesn't
-> > work on some iwlwifi devices, etc.
-> > 
-> > The core does know how to configure all the ASPM features defined in
-> > the PCIe spec, e.g., L0s, L1, L1.1, L1.2, and LTR.
-> > 
-> > > In some of the other ASICs, this programming is done in VBIOS/SBIOS
-> > > firmware. Having it in driver provides the advantage of additional
-> > > tuning without forcing a VBIOS upgrade.
-> > 
-> > I think it's clearly the intent of the PCIe spec that ASPM
-> > configuration be done by generic code.  Here are some things that
-> > require a system-level view, not just an individual device view:
-> > 
-> >    - L0s, L1, and L1 Substates cannot be enabled unless both ends
-> >      support it (PCIe r6.0, secs 5.4.1.4, 7.5.3.7, 5.5.4).
-> > 
-> >    - Devices advertise the "Acceptable Latency" they can accept for
-> >      transitions from L0s or L1 to L0, and the actual latency depends
-> >      on the "Exit Latencies" of all the devices in the path to the Root
-> >      Port (sec 5.4.1.3.2).
-> > 
-> >    - LTR (required by L1.2) cannot be enabled unless it is already
-> >      enabled in all upstream devices (sec 6.18).  This patch relies on
-> >      "ltr_path", which works now but relies on the PCI core never
-> >      reconfiguring the upstream path.
-> > 
-> > There might be amdgpu-specific features the driver needs to set up,
-> > but if drivers fiddle with architected features like LTR behind the
-> > PCI core's back, things are likely to break.
-> > 
-> 
-> The programming is mostly related to entry conditions and spec leaves it to
-> implementation.
-> 
-> From r4.0 spec -
-> "
-> This specification does not dictate when a component with an Upstream Port
-> must initiate a transition to the L1 state. The interoperable mechanisms for
-> transitioning into and out of L1 are defined within this specification;
-> however, the specific ASPM policy governing when to transition into L1 is
-> left to the implementer.
-> ...
-> Another approach would be for the Downstream device to initiate a transition
-> to the L1 state once the Link has been idle in L0 for a set amount of time.
-> "
-> 
-> Some of the programming like below relates to timings for entry.
-> 
->         def = data = RREG32_SOC15(NBIO, 0, regRCC_STRAP0_RCC_BIF_STRAP3);
->         data |= 0x5DE0 <<
-> RCC_BIF_STRAP3__STRAP_VLINK_ASPM_IDLE_TIMER__SHIFT;
->         data |= 0x0010 <<
-> RCC_BIF_STRAP3__STRAP_VLINK_PM_L1_ENTRY_TIMER__SHIFT;
->         if (def != data)
->                 WREG32_SOC15(NBIO, 0, regRCC_STRAP0_RCC_BIF_STRAP3, data);
-> 
-> Similarly for LTR, as it provides a dynamic mechanism to report tolerance
-> while in L1 substates, the tolerance timings can be tuned through registers
-> though there is a threshold.
 
-I don't object to the driver programming device-specific things,
-although there might be issues if it does that after the core has
-already configured and enabled ASPM -- the driver might need to
-temporarily disable ASPM while it updates parameters, then re-enable
-it.
+The patch titled
+     Subject: frontswap: don't call ->init if no ops are registered
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     frontswap-dont-call-init-if-no-ops-are-registered.patch
 
-I *do* object to the driver programming PCIe-generic things that the
-PCI core thinks it owns.  It's especially annoying if the driver uses
-device-specific #defines and access methods for generic PCIe things
-because then we can't even find potential conflicts.
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/frontswap-dont-call-init-if-no-ops-are-registered.patch
 
-> > > From: Alex Deucher <alexdeucher@gmail.com>
-> > > On Thu, Sep 8, 2022 at 12:12 PM Bjorn Helgaas <helgaas@kernel.org> wrote:
-> > 
-> > > > Do you know why the driver configures ASPM itself?  If the PCI core is
-> > > > doing something wrong (and I'm sure it is, ASPM support is kind of a
-> > > > mess), I'd much prefer to fix up the core where *all* drivers can
-> > > > benefit from it.
-> > > 
-> > > This is the programming sequence we get from our hardware team and it
-> > > is used on both windows and Linux.  As far as I understand it windows
-> > > doesn't handle this in the core, it's up to the individual drivers to
-> > > enable it.  I'm not familiar with how this should be enabled
-> > > generically, but at least for our hardware, it seems to have some
-> > > variation compared to what is done in the PCI core due to stability,
-> > > etc. It seems to me that this may need asic specific implementations
-> > > for a lot of hardware depending on the required programming sequences.
-> > > E.g., various asics may need hardware workaround for bugs or platform
-> > > issues, etc.  I can ask for more details from our hardware team.
-> > 
-> > If the PCI core has stability issues, I want to fix them.  This
-> > hardware may have its own stability issues, and I would ideally like
-> > to have drivers use interfaces like pci_disable_link_state() to avoid
-> > broken things.  Maybe we need new interfaces for more subtle kinds of
-> > breakage.
-> > 
-> > Bjorn
-> > 
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Christoph Hellwig <hch@lst.de>
+Subject: frontswap: don't call ->init if no ops are registered
+Date: Fri, 9 Sep 2022 15:08:29 +0200
+
+If no frontswap module (i.e.  zswap) was registered, frontswap_ops will be
+NULL.  In such situation, swapon crashes with the following stack trace:
+
+  Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
+  Mem abort info:
+    ESR = 0x0000000096000004
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+    FSC = 0x04: level 0 translation fault
+  Data abort info:
+    ISV = 0, ISS = 0x00000004
+    CM = 0, WnR = 0
+  user pgtable: 4k pages, 48-bit VAs, pgdp=00000020a4fab000
+  [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+  Internal error: Oops: 96000004 [#1] SMP
+  Modules linked in: zram fsl_dpaa2_eth pcs_lynx phylink ahci_qoriq crct10dif_ce ghash_ce sbsa_gwdt fsl_mc_dpio nvme lm90 nvme_core at803x xhci_plat_hcd rtc_fsl_ftm_alarm xgmac_mdio ahci_platform i2c_imx ip6_tables ip_tables fuse
+  Unloaded tainted modules: cppc_cpufreq():1
+  CPU: 10 PID: 761 Comm: swapon Not tainted 6.0.0-rc2-00454-g22100432cf14 #1
+  Hardware name: SolidRun Ltd. SolidRun CEX7 Platform, BIOS EDK II Jun 21 2022
+  pstate: 00400005 (nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+  pc : frontswap_init+0x38/0x60
+  lr : __do_sys_swapon+0x8a8/0x9f4
+  sp : ffff80000969bcf0
+  x29: ffff80000969bcf0 x28: ffff37bee0d8fc00 x27: ffff80000a7f5000
+  x26: fffffcdefb971e80 x25: ffffaba797453b90 x24: 0000000000000064
+  x23: ffff37c1f209d1a8 x22: ffff37bee880e000 x21: ffffaba797748560
+  x20: ffff37bee0d8fce4 x19: ffffaba797748488 x18: 0000000000000014
+  x17: 0000000030ec029a x16: ffffaba795a479b0 x15: 0000000000000000
+  x14: 0000000000000000 x13: 0000000000000030 x12: 0000000000000001
+  x11: ffff37c63c0aba18 x10: 0000000000000000 x9 : ffffaba7956b8c88
+  x8 : ffff80000969bcd0 x7 : 0000000000000000 x6 : 0000000000000000
+  x5 : 0000000000000001 x4 : 0000000000000000 x3 : ffffaba79730f000
+  x2 : ffff37bee0d8fc00 x1 : 0000000000000000 x0 : 0000000000000000
+  Call trace:
+  frontswap_init+0x38/0x60
+  __do_sys_swapon+0x8a8/0x9f4
+  __arm64_sys_swapon+0x28/0x3c
+  invoke_syscall+0x78/0x100
+  el0_svc_common.constprop.0+0xd4/0xf4
+  do_el0_svc+0x38/0x4c
+  el0_svc+0x34/0x10c
+  el0t_64_sync_handler+0x11c/0x150
+  el0t_64_sync+0x190/0x194
+  Code: d000e283 910003fd f9006c41 f946d461 (f9400021)
+  ---[ end trace 0000000000000000 ]---
+
+Link: https://lkml.kernel.org/r/20220909130829.3262926-1-hch@lst.de
+Fixes: 1da0d94a3ec8 ("frontswap: remove support for multiple ops")
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/frontswap.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/mm/frontswap.c~frontswap-dont-call-init-if-no-ops-are-registered
++++ a/mm/frontswap.c
+@@ -125,6 +125,9 @@ void frontswap_init(unsigned type, unsig
+ 	 * p->frontswap set to something valid to work properly.
+ 	 */
+ 	frontswap_map_set(sis, map);
++
++	if (!frontswap_enabled())
++		return;
+ 	frontswap_ops->init(type);
+ }
+ 
+_
+
+Patches currently in -mm which might be from hch@lst.de are
+
+frontswap-dont-call-init-if-no-ops-are-registered.patch
+mm-remove-the-end_write_func-argument-to-__swap_writepage.patch
+
