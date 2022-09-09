@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D385B3ED3
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:31:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 866D25B3ED4
+	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:31:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbiIISbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 14:31:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52374 "EHLO
+        id S229478AbiIISbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 14:31:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229622AbiIISbS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:31:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B0C2D5710
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:31:17 -0700 (PDT)
+        with ESMTP id S229510AbiIISba (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:31:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 303B4AE9E5
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:31:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB8F56200E
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:31:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 029B3C433D6;
-        Fri,  9 Sep 2022 18:31:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D62E9B8261B
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:31:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FF05C433C1;
+        Fri,  9 Sep 2022 18:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662748276;
-        bh=BOS3RmG6e5uGXhCMSm/UTZo+OglkJaaJy8Cqhp9aGkE=;
+        s=korg; t=1662748286;
+        bh=rJPo2ViO2XPv7760vNmx0x734OLpSCs8MycDR4jDb2o=;
         h=Subject:To:Cc:From:Date:From;
-        b=BjNJOx3TjX6rwXXRatf8hr88e+Gy+Ak4uq7DaE4sZBFHvAj/wqfSvMxuj3HWB5kQw
-         v7ThRbIcIkZzVHc5Tud12jJq0ykRnMtGVMaL+/1ucpG00fmTQyAzJ4tENE9a4X2w7d
-         gUeD0ONbuDa/TQVhCCHYMs0I8TQoMdyj5pluaNqU=
-Subject: FAILED: patch "[PATCH] tracefs: Only clobber mode/uid/gid on remount if asked" failed to apply to 5.4-stable tree
-To:     briannorris@chromium.org, rostedt@goodmis.org
+        b=kD8m/1HSjjuCy8LQ4TkexrSGhJgm3ZH+EHiacHFpPewFZU0sB0+civzUuZHNvMIjn
+         H45IbW9qZON2gWPpG/w7z3Im6BtGPvfQDcK36wZHNoqr4PZ+/5POlG1s8Rj576GIV2
+         +qhB6f55ZUNjjDkutGWM6F5L6KmXcnEop9b2d+gs=
+Subject: FAILED: patch "[PATCH] tracing: hold caller_addr to hardirq_{enable,disable}_ip" failed to apply to 5.15-stable tree
+To:     zouyipeng@huawei.com, rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 09 Sep 2022 20:31:03 +0200
-Message-ID: <1662748263146180@kroah.com>
+Date:   Fri, 09 Sep 2022 20:31:23 +0200
+Message-ID: <1662748283119130@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,15 +48,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-47311db8e8f3 ("tracefs: Only clobber mode/uid/gid on remount if asked")
-851e99ebeec3 ("tracefs: Set the group ownership in apply_options() not parse_options()")
+54c3931957f6 ("tracing: hold caller_addr to hardirq_{enable,disable}_ip")
+8b023accc8df ("lockdep: Fix -Wunused-parameter for _THIS_IP_")
+ef9989afda73 ("kvm: add guest_state_{enter,exit}_irqoff()")
+ed922739c919 ("KVM: Use interval tree to do fast hva lookup in memslots")
+26b8345abc75 ("KVM: Resolve memslot ID via a hash table instead of via a static array")
+1e8617d37fc3 ("KVM: Move WARN on invalid memslot index to update_memslots()")
+4e4d30cb9b87 ("KVM: Resync only arch fields when slots_arch_lock gets reacquired")
+c5b077549136 ("KVM: Convert the kvm->vcpus array to a xarray")
+27592ae8dbe4 ("KVM: Move wiping of the kvm->vcpus array to common code")
+bda44d844758 ("KVM: Ensure local memslot copies operate on up-to-date arch-specific data")
+99cdc6c18c2d ("RISC-V: Add initial skeletal KVM support")
 
 thanks,
 
@@ -64,136 +73,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 47311db8e8f33011d90dee76b39c8886120cdda4 Mon Sep 17 00:00:00 2001
-From: Brian Norris <briannorris@chromium.org>
-Date: Fri, 26 Aug 2022 17:44:17 -0700
-Subject: [PATCH] tracefs: Only clobber mode/uid/gid on remount if asked
+From 54c3931957f6a6194d5972eccc36d052964b2abe Mon Sep 17 00:00:00 2001
+From: Yipeng Zou <zouyipeng@huawei.com>
+Date: Thu, 1 Sep 2022 18:45:14 +0800
+Subject: [PATCH] tracing: hold caller_addr to hardirq_{enable,disable}_ip
 
-Users may have explicitly configured their tracefs permissions; we
-shouldn't overwrite those just because a second mount appeared.
+Currently, The arguments passing to lockdep_hardirqs_{on,off} was fixed
+in CALLER_ADDR0.
+The function trace_hardirqs_on_caller should have been intended to use
+caller_addr to represent the address that caller wants to be traced.
 
-Only clobber if the options were provided at mount time.
+For example, lockdep log in riscv showing the last {enabled,disabled} at
+__trace_hardirqs_{on,off} all the time(if called by):
+[   57.853175] hardirqs last  enabled at (2519): __trace_hardirqs_on+0xc/0x14
+[   57.853848] hardirqs last disabled at (2520): __trace_hardirqs_off+0xc/0x14
 
-Note: the previous behavior was especially surprising in the presence of
-automounted /sys/kernel/debug/tracing/.
+After use trace_hardirqs_xx_caller, we can get more effective information:
+[   53.781428] hardirqs last  enabled at (2595): restore_all+0xe/0x66
+[   53.782185] hardirqs last disabled at (2596): ret_from_exception+0xa/0x10
 
-Existing behavior:
-
-  ## Pre-existing status: tracefs is 0755.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
-
-  ## (Re)trigger the automount.
-  # umount /sys/kernel/debug/tracing
-  # stat -c '%A' /sys/kernel/debug/tracing/.
-  drwx------
-
-  ## Unexpected: the automount changed mode for other mount instances.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwx------
-
-New behavior (after this change):
-
-  ## Pre-existing status: tracefs is 0755.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
-
-  ## (Re)trigger the automount.
-  # umount /sys/kernel/debug/tracing
-  # stat -c '%A' /sys/kernel/debug/tracing/.
-  drwxr-xr-x
-
-  ## Expected: the automount does not change other mount instances.
-  # stat -c '%A' /sys/kernel/tracing/
-  drwxr-xr-x
-
-Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
+Link: https://lkml.kernel.org/r/20220901104515.135162-2-zouyipeng@huawei.com
 
 Cc: stable@vger.kernel.org
-Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
+Fixes: c3bc8fd637a96 ("tracing: Centralize preemptirq tracepoints and unify their usage")
+Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
-index 81d26abf486f..da85b3979195 100644
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -141,6 +141,8 @@ struct tracefs_mount_opts {
- 	kuid_t uid;
- 	kgid_t gid;
- 	umode_t mode;
-+	/* Opt_* bitfield. */
-+	unsigned int opts;
- };
- 
- enum {
-@@ -241,6 +243,7 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
- 	kgid_t gid;
- 	char *p;
- 
-+	opts->opts = 0;
- 	opts->mode = TRACEFS_DEFAULT_MODE;
- 
- 	while ((p = strsep(&data, ",")) != NULL) {
-@@ -275,24 +278,36 @@ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
- 		 * but traditionally tracefs has ignored all mount options
- 		 */
- 		}
-+
-+		opts->opts |= BIT(token);
+diff --git a/kernel/trace/trace_preemptirq.c b/kernel/trace/trace_preemptirq.c
+index 95b58bd757ce..1e130da1b742 100644
+--- a/kernel/trace/trace_preemptirq.c
++++ b/kernel/trace/trace_preemptirq.c
+@@ -95,14 +95,14 @@ __visible void trace_hardirqs_on_caller(unsigned long caller_addr)
  	}
  
- 	return 0;
+ 	lockdep_hardirqs_on_prepare();
+-	lockdep_hardirqs_on(CALLER_ADDR0);
++	lockdep_hardirqs_on(caller_addr);
  }
+ EXPORT_SYMBOL(trace_hardirqs_on_caller);
+ NOKPROBE_SYMBOL(trace_hardirqs_on_caller);
  
--static int tracefs_apply_options(struct super_block *sb)
-+static int tracefs_apply_options(struct super_block *sb, bool remount)
+ __visible void trace_hardirqs_off_caller(unsigned long caller_addr)
  {
- 	struct tracefs_fs_info *fsi = sb->s_fs_info;
- 	struct inode *inode = d_inode(sb->s_root);
- 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
+-	lockdep_hardirqs_off(CALLER_ADDR0);
++	lockdep_hardirqs_off(caller_addr);
  
--	inode->i_mode &= ~S_IALLUGO;
--	inode->i_mode |= opts->mode;
-+	/*
-+	 * On remount, only reset mode/uid/gid if they were provided as mount
-+	 * options.
-+	 */
-+
-+	if (!remount || opts->opts & BIT(Opt_mode)) {
-+		inode->i_mode &= ~S_IALLUGO;
-+		inode->i_mode |= opts->mode;
-+	}
- 
--	inode->i_uid = opts->uid;
-+	if (!remount || opts->opts & BIT(Opt_uid))
-+		inode->i_uid = opts->uid;
- 
--	/* Set all the group ids to the mount option */
--	set_gid(sb->s_root, opts->gid);
-+	if (!remount || opts->opts & BIT(Opt_gid)) {
-+		/* Set all the group ids to the mount option */
-+		set_gid(sb->s_root, opts->gid);
-+	}
- 
- 	return 0;
- }
-@@ -307,7 +322,7 @@ static int tracefs_remount(struct super_block *sb, int *flags, char *data)
- 	if (err)
- 		goto fail;
- 
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, true);
- 
- fail:
- 	return err;
-@@ -359,7 +374,7 @@ static int trace_fill_super(struct super_block *sb, void *data, int silent)
- 
- 	sb->s_op = &tracefs_super_operations;
- 
--	tracefs_apply_options(sb);
-+	tracefs_apply_options(sb, false);
- 
- 	return 0;
- 
+ 	if (!this_cpu_read(tracing_irq_cpu)) {
+ 		this_cpu_write(tracing_irq_cpu, 1);
 
