@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 007D95B40A4
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 22:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 834DE5B418E
+	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 23:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231866AbiIIU2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 16:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
+        id S230181AbiIIVlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 17:41:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231759AbiIIU2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 16:28:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA32128C0E;
-        Fri,  9 Sep 2022 13:26:52 -0700 (PDT)
+        with ESMTP id S229728AbiIIVlS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 17:41:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D08133A18;
+        Fri,  9 Sep 2022 14:41:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6BD3B8261D;
-        Fri,  9 Sep 2022 20:26:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CCC1C433C1;
-        Fri,  9 Sep 2022 20:26:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85CAF620F0;
+        Fri,  9 Sep 2022 21:41:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCEB2C433D7;
+        Fri,  9 Sep 2022 21:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1662755209;
-        bh=Q4su0ZuO4kXSL1ZZStcaaMZSAIC+ec0q2gIAB1m9DTs=;
+        s=korg; t=1662759677;
+        bh=Loma5kjli1hRx5nh9T5jYPU7tWkgTs9wosoJfDY4NCM=;
         h=Date:To:From:Subject:From;
-        b=mNrGCEDP/GaIOvnZCpDZmMqY4yMARhRC2zPKlChqTa25YUbL+HmiCZ2ZX7bu12tM3
-         ozWdisCF4E+UL0W/67XGOx4cVfswLTXAQ3y5fsUjaz04O0nfM/xix4GuKlFZFGPusk
-         dGiXjBd6ppNgSwdeKOFjIPRX06P9iOkNUGDhsnDY=
-Date:   Fri, 09 Sep 2022 13:26:48 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        nathan@kernel.org, liushixin2@huawei.com, konrad.wilk@oracle.com,
-        hch@lst.de, akpm@linux-foundation.org
+        b=iG9iUqFJ6RqWxhsVLC2hW31y21CIG/WHkcO7Bt+2qevE1opFq5PTx2HKnkiMFUxmL
+         pX/6wC5igWDc/1gXY69g4Vi6kTn3HNXbWlygO+VzduXJRDBZkgEggeirqqMNZDsnoP
+         PKhqTjUyFoaYkKtiwFj0iYuOCUyT/h6C+uXuUtgg=
+Date:   Fri, 09 Sep 2022 14:41:16 -0700
+To:     mm-commits@vger.kernel.org, will@kernel.org,
+        stable@vger.kernel.org, kirill.shutemov@linux.intel.com,
+        saproj@gmail.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + frontswap-dont-call-init-if-no-ops-are-registered.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220909202649.6CCC1C433C1@smtp.kernel.org>
+Subject: + mm-bring-back-update_mmu_cache-to-finish_fault.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220909214116.DCEB2C433D7@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -47,12 +47,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: frontswap: don't call ->init if no ops are registered
+     Subject: mm: bring back update_mmu_cache() to finish_fault()
 has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     frontswap-dont-call-init-if-no-ops-are-registered.patch
+     mm-bring-back-update_mmu_cache-to-finish_fault.patch
 
 This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/frontswap-dont-call-init-if-no-ops-are-registered.patch
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-bring-back-update_mmu_cache-to-finish_fault.patch
 
 This patch will later appear in the mm-hotfixes-unstable branch at
     git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
@@ -70,85 +70,96 @@ branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 and is updated there every 2-3 working days
 
 ------------------------------------------------------
-From: Christoph Hellwig <hch@lst.de>
-Subject: frontswap: don't call ->init if no ops are registered
-Date: Fri, 9 Sep 2022 15:08:29 +0200
+From: Sergei Antonov <saproj@gmail.com>
+Subject: mm: bring back update_mmu_cache() to finish_fault()
+Date: Thu, 8 Sep 2022 23:48:09 +0300
 
-If no frontswap module (i.e.  zswap) was registered, frontswap_ops will be
-NULL.  In such situation, swapon crashes with the following stack trace:
+Running this test program on ARMv4 a few times (sometimes just once)
+reproduces the bug.
 
-  Unable to handle kernel access to user memory outside uaccess routines at virtual address 0000000000000000
-  Mem abort info:
-    ESR = 0x0000000096000004
-    EC = 0x25: DABT (current EL), IL = 32 bits
-    SET = 0, FnV = 0
-    EA = 0, S1PTW = 0
-    FSC = 0x04: level 0 translation fault
-  Data abort info:
-    ISV = 0, ISS = 0x00000004
-    CM = 0, WnR = 0
-  user pgtable: 4k pages, 48-bit VAs, pgdp=00000020a4fab000
-  [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
-  Internal error: Oops: 96000004 [#1] SMP
-  Modules linked in: zram fsl_dpaa2_eth pcs_lynx phylink ahci_qoriq crct10dif_ce ghash_ce sbsa_gwdt fsl_mc_dpio nvme lm90 nvme_core at803x xhci_plat_hcd rtc_fsl_ftm_alarm xgmac_mdio ahci_platform i2c_imx ip6_tables ip_tables fuse
-  Unloaded tainted modules: cppc_cpufreq():1
-  CPU: 10 PID: 761 Comm: swapon Not tainted 6.0.0-rc2-00454-g22100432cf14 #1
-  Hardware name: SolidRun Ltd. SolidRun CEX7 Platform, BIOS EDK II Jun 21 2022
-  pstate: 00400005 (nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-  pc : frontswap_init+0x38/0x60
-  lr : __do_sys_swapon+0x8a8/0x9f4
-  sp : ffff80000969bcf0
-  x29: ffff80000969bcf0 x28: ffff37bee0d8fc00 x27: ffff80000a7f5000
-  x26: fffffcdefb971e80 x25: ffffaba797453b90 x24: 0000000000000064
-  x23: ffff37c1f209d1a8 x22: ffff37bee880e000 x21: ffffaba797748560
-  x20: ffff37bee0d8fce4 x19: ffffaba797748488 x18: 0000000000000014
-  x17: 0000000030ec029a x16: ffffaba795a479b0 x15: 0000000000000000
-  x14: 0000000000000000 x13: 0000000000000030 x12: 0000000000000001
-  x11: ffff37c63c0aba18 x10: 0000000000000000 x9 : ffffaba7956b8c88
-  x8 : ffff80000969bcd0 x7 : 0000000000000000 x6 : 0000000000000000
-  x5 : 0000000000000001 x4 : 0000000000000000 x3 : ffffaba79730f000
-  x2 : ffff37bee0d8fc00 x1 : 0000000000000000 x0 : 0000000000000000
-  Call trace:
-  frontswap_init+0x38/0x60
-  __do_sys_swapon+0x8a8/0x9f4
-  __arm64_sys_swapon+0x28/0x3c
-  invoke_syscall+0x78/0x100
-  el0_svc_common.constprop.0+0xd4/0xf4
-  do_el0_svc+0x38/0x4c
-  el0_svc+0x34/0x10c
-  el0t_64_sync_handler+0x11c/0x150
-  el0t_64_sync+0x190/0x194
-  Code: d000e283 910003fd f9006c41 f946d461 (f9400021)
-  ---[ end trace 0000000000000000 ]---
+int main()
+{
+        unsigned i;
+        char paragon[SIZE];
+        void* ptr;
 
-Link: https://lkml.kernel.org/r/20220909130829.3262926-1-hch@lst.de
-Fixes: 1da0d94a3ec8 ("frontswap: remove support for multiple ops")
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+        memset(paragon, 0xAA, SIZE);
+        ptr = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
+                   MAP_ANON | MAP_SHARED, -1, 0);
+        if (ptr == MAP_FAILED) return 1;
+        printf("ptr = %p\n", ptr);
+        for (i=0;i<10000;i++){
+                memset(ptr, 0xAA, SIZE);
+                if (memcmp(ptr, paragon, SIZE)) {
+                        printf("Unexpected bytes on iteration %u!!!\n", i);
+                        break;
+                }
+        }
+        munmap(ptr, SIZE);
+}
+
+In the "ptr" buffer there appear runs of zero bytes which are aligned
+by 16 and their lengths are multiple of 16.
+
+Linux v5.11 does not have the bug, "git bisect" finds the first bad commit:
+f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
+
+Before the commit update_mmu_cache() was called during a call to
+filemap_map_pages() as well as finish_fault(). After the commit
+finish_fault() lacks it.
+
+Bring back update_mmu_cache() to finish_fault() to fix the bug.
+Also call update_mmu_tlb() only when returning VM_FAULT_NOPAGE to more
+closely reproduce the code of alloc_set_pte() function that existed before
+the commit.
+
+On many platforms update_mmu_cache() is nop:
+ x86, see arch/x86/include/asm/pgtable
+ ARMv6+, see arch/arm/include/asm/tlbflush.h
+So, it seems, few users ran into this bug.
+
+Link: https://lkml.kernel.org/r/20220908204809.2012451-1-saproj@gmail.com
+Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
+Signed-off-by: Sergei Antonov <saproj@gmail.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Will Deacon <will@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/frontswap.c |    3 +++
- 1 file changed, 3 insertions(+)
+ mm/memory.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/mm/frontswap.c~frontswap-dont-call-init-if-no-ops-are-registered
-+++ a/mm/frontswap.c
-@@ -125,6 +125,9 @@ void frontswap_init(unsigned type, unsig
- 	 * p->frontswap set to something valid to work properly.
- 	 */
- 	frontswap_map_set(sis, map);
-+
-+	if (!frontswap_enabled())
-+		return;
- 	frontswap_ops->init(type);
- }
+--- a/mm/memory.c~mm-bring-back-update_mmu_cache-to-finish_fault
++++ a/mm/memory.c
+@@ -4386,14 +4386,20 @@ vm_fault_t finish_fault(struct vm_fault
  
+ 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
+ 				      vmf->address, &vmf->ptl);
+-	ret = 0;
++
+ 	/* Re-check under ptl */
+-	if (likely(!vmf_pte_changed(vmf)))
++	if (likely(!vmf_pte_changed(vmf))) {
+ 		do_set_pte(vmf, page, vmf->address);
+-	else
++
++		/* no need to invalidate: a not-present page won't be cached */
++		update_mmu_cache(vma, vmf->address, vmf->pte);
++
++		ret = 0;
++	} else {
++		update_mmu_tlb(vma, vmf->address, vmf->pte);
+ 		ret = VM_FAULT_NOPAGE;
++	}
+ 
+-	update_mmu_tlb(vma, vmf->address, vmf->pte);
+ 	pte_unmap_unlock(vmf->pte, vmf->ptl);
+ 	return ret;
+ }
 _
 
-Patches currently in -mm which might be from hch@lst.de are
+Patches currently in -mm which might be from saproj@gmail.com are
 
-frontswap-dont-call-init-if-no-ops-are-registered.patch
-mm-remove-the-end_write_func-argument-to-__swap_writepage.patch
+mm-bring-back-update_mmu_cache-to-finish_fault.patch
 
