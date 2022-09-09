@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0335B3C0B
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 17:34:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CB1F5B3C08
+	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 17:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231719AbiIIPdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 11:33:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40958 "EHLO
+        id S231942AbiIIPdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 11:33:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232355AbiIIPdD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 11:33:03 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078A42DAA8;
-        Fri,  9 Sep 2022 08:32:45 -0700 (PDT)
-Date:   Fri, 09 Sep 2022 15:31:17 -0000
+        with ESMTP id S232375AbiIIPdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 11:33:05 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26428103065;
+        Fri,  9 Sep 2022 08:32:47 -0700 (PDT)
+Date:   Fri, 09 Sep 2022 15:31:18 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1662737478;
+        s=2020; t=1662737479;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=q8puwUi/3Qg2xUa9DdkAjRyjCefCro43pK6avKxOsik=;
-        b=Tlgj+ITW4P6GBeHjLyqDzTGGrUxITX97hVHzZGnGPUc211H52Cz0Fl3wMBliduJhClLC9Z
-        KC/Np7o5XPgH5qrqCxH3jNDOsoa6eeLOZxIzpwPRRCOwd4IFC/3dBkLKI4jzChVSe47lt9
-        OvJ/J5ffufUbdzw2Sj3MyghFLd5RxG89iBT20qAfVe+fqp1zWjK5bCAWJiOg0bd5EPY0nk
-        isOdvYPquauLWIxylIMSFRgQ2flzYRtKUroOWszwYUlrRdX38DgJ55iUC7uaZ4r16nAbQo
-        o5DH7/7xyLv/XQDHcKQozGaVivaKNi6q/8n3NJyDNOvaCGu9MZ8RnlsgFd2Yyg==
+        bh=k9FDm3Ib1dQyrhUGRzp0xqUKNj7z1QvqPgHlgBP29rA=;
+        b=m6HD0wjw6zgEALpojXyv9ZtWUmLrkdKSVJMz6a01Nafm+QRfheuaTqWRy+vkO9fJT63JRx
+        DbtWzJtV3fU/uz74hy2Qx24qQuAVfd4+y7RF2tCDHyuqiIOQffscoMNawQT0iqCKPb2Y6i
+        YyxwNKy/gVTPcjWIP+W3AVJMzu4c88lrlnl7R19mFgEC98WD9zp3GbhBRDvlaRAmg62mOM
+        AekcC2ejHvj5vT7RUGB2bgwdMI99H6bXt83TEPCYISiAtGWXv3RicEHNq4JYWg/acjFatO
+        O+n7PapzTI4HUyZlzfYrbEshpV5CTvf4YSdAmwqCeMKdZk5/NgTHfGM8L1wMpg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1662737478;
+        s=2020e; t=1662737479;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=q8puwUi/3Qg2xUa9DdkAjRyjCefCro43pK6avKxOsik=;
-        b=8BQN1iTwvaKPP0IUHBX1GVmJrowPIIA0nrGRbKbaVbFqVONHyqrlwtJczy5gouRBAkQ6G7
-        KjyPI8MiitjkZdBg==
-From:   "tip-bot2 for Haitao Huang" <tip-bot2@linutronix.de>
+        bh=k9FDm3Ib1dQyrhUGRzp0xqUKNj7z1QvqPgHlgBP29rA=;
+        b=th3aBRkJ0iv8aqqv8loZwL69ruUc9pIBypLX7ODyccQJgdQG3E+EG4XgZc6sjUkVKlLxxh
+        JkD+ZFtbATANxCAg==
+From:   "tip-bot2 for Jarkko Sakkinen" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/sgx: Handle VA page allocation failure for EAUG on PF.
-Cc:     Haitao Huang <haitao.huang@linux.intel.com>,
+Subject: [tip: x86/urgent] x86/sgx: Do not fail on incomplete sanitization on
+ premature stop of ksgxd
+Cc:     Paul Menzel <pmenzel@molgen.mpg.de>,
         Jarkko Sakkinen <jarkko@kernel.org>,
         Dave Hansen <dave.hansen@linux.intel.com>,
         Reinette Chatre <reinette.chatre@intel.com>,
-        Vijay Dhanraj <vijay.dhanraj@intel.com>,
         stable@vger.kernel.org, x86@kernel.org,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20220906000221.34286-3-jarkko@kernel.org>
-References: <20220906000221.34286-3-jarkko@kernel.org>
+In-Reply-To: <20220906000221.34286-2-jarkko@kernel.org>
+References: <20220906000221.34286-2-jarkko@kernel.org>
 MIME-Version: 1.0
-Message-ID: <166273747726.401.7413581964147438392.tip-bot2@tip-bot2>
+Message-ID: <166273747840.401.14241387909242643974.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -70,46 +70,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     81fa6fd13b5c43601fba8486f2385dbd7c1935e2
-Gitweb:        https://git.kernel.org/tip/81fa6fd13b5c43601fba8486f2385dbd7c1935e2
-Author:        Haitao Huang <haitao.huang@linux.intel.com>
-AuthorDate:    Tue, 06 Sep 2022 03:02:21 +03:00
+Commit-ID:     133e049a3f8c91b175029fb6a59b6039d5e79cba
+Gitweb:        https://git.kernel.org/tip/133e049a3f8c91b175029fb6a59b6039d5e79cba
+Author:        Jarkko Sakkinen <jarkko@kernel.org>
+AuthorDate:    Tue, 06 Sep 2022 03:02:20 +03:00
 Committer:     Dave Hansen <dave.hansen@linux.intel.com>
-CommitterDate: Thu, 08 Sep 2022 13:28:31 -07:00
+CommitterDate: Thu, 08 Sep 2022 13:27:44 -07:00
 
-x86/sgx: Handle VA page allocation failure for EAUG on PF.
+x86/sgx: Do not fail on incomplete sanitization on premature stop of ksgxd
 
-VM_FAULT_NOPAGE is expected behaviour for -EBUSY failure path, when
-augmenting a page, as this means that the reclaimer thread has been
-triggered, and the intention is just to round-trip in ring-3, and
-retry with a new page fault.
+Unsanitized pages trigger WARN_ON() unconditionally, which can panic the
+whole computer, if /proc/sys/kernel/panic_on_warn is set.
 
-Fixes: 5a90d2c3f5ef ("x86/sgx: Support adding of pages to an initialized enclave")
-Signed-off-by: Haitao Huang <haitao.huang@linux.intel.com>
+In sgx_init(), if misc_register() fails or misc_register() succeeds but
+neither sgx_drv_init() nor sgx_vepc_init() succeeds, then ksgxd will be
+prematurely stopped. This may leave unsanitized pages, which will result a
+false warning.
+
+Refine __sgx_sanitize_pages() to return:
+
+1. Zero when the sanitization process is complete or ksgxd has been
+   requested to stop.
+2. The number of unsanitized pages otherwise.
+
+Fixes: 51ab30eb2ad4 ("x86/sgx: Replace section->init_laundry_list with sgx_dirty_page_list")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
 Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Tested-by: Vijay Dhanraj <vijay.dhanraj@intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20220906000221.34286-3-jarkko@kernel.org
+Link: https://lore.kernel.org/linux-sgx/20220825051827.246698-1-jarkko@kernel.org/T/#u
+Link: https://lkml.kernel.org/r/20220906000221.34286-2-jarkko@kernel.org
 ---
- arch/x86/kernel/cpu/sgx/encl.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/sgx/main.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
-index 24c1bb8..8bdeae2 100644
---- a/arch/x86/kernel/cpu/sgx/encl.c
-+++ b/arch/x86/kernel/cpu/sgx/encl.c
-@@ -344,8 +344,11 @@ static vm_fault_t sgx_encl_eaug_page(struct vm_area_struct *vma,
+diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
+index 515e2a5..0aad028 100644
+--- a/arch/x86/kernel/cpu/sgx/main.c
++++ b/arch/x86/kernel/cpu/sgx/main.c
+@@ -49,9 +49,13 @@ static LIST_HEAD(sgx_dirty_page_list);
+  * Reset post-kexec EPC pages to the uninitialized state. The pages are removed
+  * from the input list, and made available for the page allocator. SECS pages
+  * prepending their children in the input list are left intact.
++ *
++ * Return 0 when sanitization was successful or kthread was stopped, and the
++ * number of unsanitized pages otherwise.
+  */
+-static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
++static unsigned long __sgx_sanitize_pages(struct list_head *dirty_page_list)
+ {
++	unsigned long left_dirty = 0;
+ 	struct sgx_epc_page *page;
+ 	LIST_HEAD(dirty);
+ 	int ret;
+@@ -59,7 +63,7 @@ static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
+ 	/* dirty_page_list is thread-local, no need for a lock: */
+ 	while (!list_empty(dirty_page_list)) {
+ 		if (kthread_should_stop())
+-			return;
++			return 0;
+ 
+ 		page = list_first_entry(dirty_page_list, struct sgx_epc_page, list);
+ 
+@@ -92,12 +96,14 @@ static void __sgx_sanitize_pages(struct list_head *dirty_page_list)
+ 		} else {
+ 			/* The page is not yet clean - move to the dirty list. */
+ 			list_move_tail(&page->list, &dirty);
++			left_dirty++;
+ 		}
+ 
+ 		cond_resched();
  	}
  
- 	va_page = sgx_encl_grow(encl, false);
--	if (IS_ERR(va_page))
-+	if (IS_ERR(va_page)) {
-+		if (PTR_ERR(va_page) == -EBUSY)
-+			vmret = VM_FAULT_NOPAGE;
- 		goto err_out_epc;
-+	}
+ 	list_splice(&dirty, dirty_page_list);
++	return left_dirty;
+ }
  
- 	if (va_page)
- 		list_add(&va_page->list, &encl->va_pages);
+ static bool sgx_reclaimer_age(struct sgx_epc_page *epc_page)
+@@ -395,10 +401,7 @@ static int ksgxd(void *p)
+ 	 * required for SECS pages, whose child pages blocked EREMOVE.
+ 	 */
+ 	__sgx_sanitize_pages(&sgx_dirty_page_list);
+-	__sgx_sanitize_pages(&sgx_dirty_page_list);
+-
+-	/* sanity check: */
+-	WARN_ON(!list_empty(&sgx_dirty_page_list));
++	WARN_ON(__sgx_sanitize_pages(&sgx_dirty_page_list));
+ 
+ 	while (!kthread_should_stop()) {
+ 		if (try_to_freeze())
