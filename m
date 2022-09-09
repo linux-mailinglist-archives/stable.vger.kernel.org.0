@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC3065B3ED8
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360265B3ED9
+	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:32:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229964AbiIISbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 14:31:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52668 "EHLO
+        id S230207AbiIISc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 14:32:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229679AbiIISbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:31:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22DA0AE9E5
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:31:43 -0700 (PDT)
+        with ESMTP id S230150AbiIISc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:32:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EA35128969
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:32:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDB24B8261F
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:31:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F44C433D6;
-        Fri,  9 Sep 2022 18:31:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E0EB620B3
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 18:32:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C2B1C433C1;
+        Fri,  9 Sep 2022 18:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662748300;
-        bh=nGl+Tu9Doips6ANukyVDjinEOx+JCElU1BUnSAph8ks=;
+        s=korg; t=1662748345;
+        bh=11VHjxNF/yRY0Gd/HjVKomzvCN7mHSCTneZ64og4qco=;
         h=Subject:To:Cc:From:Date:From;
-        b=PykQ0IwhvnkqsnaMTtDRoHzLgfp/7xmHidp+hrdHQZ64vuOitpKPOeXu6PmNNTYVM
-         0oVgZCuHOdqiTuc1QuHDl6GHhC50yWsraqhcfHQpVPb8qJKGEocM0Obg+n0thnDJM7
-         17vbhD1m1G2F2VucEq2aoLu3RP164FNwqcXErTEw=
-Subject: FAILED: patch "[PATCH] tracing: hold caller_addr to hardirq_{enable,disable}_ip" failed to apply to 4.19-stable tree
-To:     zouyipeng@huawei.com, rostedt@goodmis.org
+        b=0RTfCWxg/Ug/+0N66pyIunH9LLIKapfXy88nLlUOy0XjenFXKyJbG/JX4bZBLA+Yr
+         zSij2vvxSd5x16J+rqAEFw8iaRHLGKjCrp+LfO3YIFTg3a8HRZRSNcZJBo3j/DovqG
+         JqUltE/9/QViO1fC3bx5ZrE/6D0y1kx13E+i82hE=
+Subject: FAILED: patch "[PATCH] vfio/type1: Unpin zero pages" failed to apply to 5.10-stable tree
+To:     alex.williamson@redhat.com, david@redhat.com, lpivarc@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 09 Sep 2022 20:31:26 +0200
-Message-ID: <166274828611661@kroah.com>
+Date:   Fri, 09 Sep 2022 20:32:22 +0200
+Message-ID: <1662748342197146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,25 +48,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-54c3931957f6 ("tracing: hold caller_addr to hardirq_{enable,disable}_ip")
-8b023accc8df ("lockdep: Fix -Wunused-parameter for _THIS_IP_")
-ef9989afda73 ("kvm: add guest_state_{enter,exit}_irqoff()")
-ed922739c919 ("KVM: Use interval tree to do fast hva lookup in memslots")
-26b8345abc75 ("KVM: Resolve memslot ID via a hash table instead of via a static array")
-1e8617d37fc3 ("KVM: Move WARN on invalid memslot index to update_memslots()")
-4e4d30cb9b87 ("KVM: Resync only arch fields when slots_arch_lock gets reacquired")
-c5b077549136 ("KVM: Convert the kvm->vcpus array to a xarray")
-27592ae8dbe4 ("KVM: Move wiping of the kvm->vcpus array to common code")
-bda44d844758 ("KVM: Ensure local memslot copies operate on up-to-date arch-specific data")
-99cdc6c18c2d ("RISC-V: Add initial skeletal KVM support")
-192ad3c27a48 ("Merge tag 'for-linus' of git://git.kernel.org/pub/scm/virt/kvm/kvm")
+873aefb376bb ("vfio/type1: Unpin zero pages")
+4b6c33b32296 ("vfio/type1: Prepare for batched pinning with struct vfio_batch")
+be16c1fd99f4 ("vfio/type1: Change success value of vaddr_get_pfn()")
 
 thanks,
 
@@ -74,51 +65,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 54c3931957f6a6194d5972eccc36d052964b2abe Mon Sep 17 00:00:00 2001
-From: Yipeng Zou <zouyipeng@huawei.com>
-Date: Thu, 1 Sep 2022 18:45:14 +0800
-Subject: [PATCH] tracing: hold caller_addr to hardirq_{enable,disable}_ip
+From 873aefb376bbc0ed1dd2381ea1d6ec88106fdbd4 Mon Sep 17 00:00:00 2001
+From: Alex Williamson <alex.williamson@redhat.com>
+Date: Mon, 29 Aug 2022 21:05:40 -0600
+Subject: [PATCH] vfio/type1: Unpin zero pages
 
-Currently, The arguments passing to lockdep_hardirqs_{on,off} was fixed
-in CALLER_ADDR0.
-The function trace_hardirqs_on_caller should have been intended to use
-caller_addr to represent the address that caller wants to be traced.
+There's currently a reference count leak on the zero page.  We increment
+the reference via pin_user_pages_remote(), but the page is later handled
+as an invalid/reserved page, therefore it's not accounted against the
+user and not unpinned by our put_pfn().
 
-For example, lockdep log in riscv showing the last {enabled,disabled} at
-__trace_hardirqs_{on,off} all the time(if called by):
-[   57.853175] hardirqs last  enabled at (2519): __trace_hardirqs_on+0xc/0x14
-[   57.853848] hardirqs last disabled at (2520): __trace_hardirqs_off+0xc/0x14
+Introducing special zero page handling in put_pfn() would resolve the
+leak, but without accounting of the zero page, a single user could
+still create enough mappings to generate a reference count overflow.
 
-After use trace_hardirqs_xx_caller, we can get more effective information:
-[   53.781428] hardirqs last  enabled at (2595): restore_all+0xe/0x66
-[   53.782185] hardirqs last disabled at (2596): ret_from_exception+0xa/0x10
-
-Link: https://lkml.kernel.org/r/20220901104515.135162-2-zouyipeng@huawei.com
+The zero page is always resident, so for our purposes there's no reason
+to keep it pinned.  Therefore, add a loop to walk pages returned from
+pin_user_pages_remote() and unpin any zero pages.
 
 Cc: stable@vger.kernel.org
-Fixes: c3bc8fd637a96 ("tracing: Centralize preemptirq tracepoints and unify their usage")
-Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reported-by: Luboslav Pivarc <lpivarc@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/166182871735.3518559.8884121293045337358.stgit@omen
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 
-diff --git a/kernel/trace/trace_preemptirq.c b/kernel/trace/trace_preemptirq.c
-index 95b58bd757ce..1e130da1b742 100644
---- a/kernel/trace/trace_preemptirq.c
-+++ b/kernel/trace/trace_preemptirq.c
-@@ -95,14 +95,14 @@ __visible void trace_hardirqs_on_caller(unsigned long caller_addr)
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index db516c90a977..8706482665d1 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -558,6 +558,18 @@ static int vaddr_get_pfns(struct mm_struct *mm, unsigned long vaddr,
+ 	ret = pin_user_pages_remote(mm, vaddr, npages, flags | FOLL_LONGTERM,
+ 				    pages, NULL, NULL);
+ 	if (ret > 0) {
++		int i;
++
++		/*
++		 * The zero page is always resident, we don't need to pin it
++		 * and it falls into our invalid/reserved test so we don't
++		 * unpin in put_pfn().  Unpin all zero pages in the batch here.
++		 */
++		for (i = 0 ; i < ret; i++) {
++			if (unlikely(is_zero_pfn(page_to_pfn(pages[i]))))
++				unpin_user_page(pages[i]);
++		}
++
+ 		*pfn = page_to_pfn(pages[0]);
+ 		goto done;
  	}
- 
- 	lockdep_hardirqs_on_prepare();
--	lockdep_hardirqs_on(CALLER_ADDR0);
-+	lockdep_hardirqs_on(caller_addr);
- }
- EXPORT_SYMBOL(trace_hardirqs_on_caller);
- NOKPROBE_SYMBOL(trace_hardirqs_on_caller);
- 
- __visible void trace_hardirqs_off_caller(unsigned long caller_addr)
- {
--	lockdep_hardirqs_off(CALLER_ADDR0);
-+	lockdep_hardirqs_off(caller_addr);
- 
- 	if (!this_cpu_read(tracing_irq_cpu)) {
- 		this_cpu_write(tracing_irq_cpu, 1);
 
