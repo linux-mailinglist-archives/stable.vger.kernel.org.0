@@ -2,98 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4CED5B3F01
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:48:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 035E75B3F1E
+	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 20:56:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229546AbiIISsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 14:48:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50698 "EHLO
+        id S229755AbiIIS4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 14:56:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbiIISsO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:48:14 -0400
-Received: from dispatch1-us1.ppe-hosted.com (dispatch1-us1.ppe-hosted.com [148.163.129.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06CF7F0A7;
-        Fri,  9 Sep 2022 11:48:12 -0700 (PDT)
-X-Virus-Scanned: Proofpoint Essentials engine
-Received: from mx1-us1.ppe-hosted.com (unknown [10.7.64.31])
-        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTPS id 4CEFC1C0087;
-        Fri,  9 Sep 2022 18:48:11 +0000 (UTC)
-Received: from mail3.candelatech.com (mail2.candelatech.com [208.74.158.173])
-        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 3276D600077;
-        Fri,  9 Sep 2022 18:48:10 +0000 (UTC)
-Received: from [192.168.100.195] (50-251-239-81-static.hfc.comcastbusiness.net [50.251.239.81])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail3.candelatech.com (Postfix) with ESMTPSA id 4C9DD13C2B0;
-        Fri,  9 Sep 2022 11:48:09 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail3.candelatech.com 4C9DD13C2B0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=candelatech.com;
-        s=default; t=1662749289;
-        bh=OxEUMDoySFKOhq0UBTVO7cZL3nEq0r+AmeukrDSmFU8=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=jVKmEoZWvxt500qv4Qf+/OwLytJDXGCoAhJUbZ0HJ4idoSiFxgfA+Rq7cIuV7qHw9
-         48QxFrrYhK/ec+idHm/32urIFVAtDapJ1LQPxXQnZ10/K3fgTw7TZ1/erU5iLXNsLU
-         1wN1cjnMX2Db2IqR1u26qfSq2LYZy775f2wysx+g=
-Subject: Re: [PATCH AUTOSEL 5.4 06/16] wifi: mac80211: do not wake queues on a
- vif that is being stopped
-To:     Johannes Berg <johannes@sipsolutions.net>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>,
-        =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgensen?= <toke@kernel.org>,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-References: <20220720011730.1025099-1-sashal@kernel.org>
- <20220720011730.1025099-6-sashal@kernel.org>
- <b43cfde3-7f33-9153-42ca-9e1ecf409d2a@candelatech.com>
- <ff30252059ae6a7a74c135f9fa9525d379f9e74a.camel@sipsolutions.net>
-From:   Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-Message-ID: <aafaf5f1-c8a1-2a13-2201-b83f65c77942@candelatech.com>
-Date:   Fri, 9 Sep 2022 11:48:08 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        with ESMTP id S229712AbiIIS4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 14:56:30 -0400
+Received: from smtp-fw-2101.amazon.com (smtp-fw-2101.amazon.com [72.21.196.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 703E2E5802
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 11:56:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1662749789; x=1694285789;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=VYPA6cGsb4+XWUm/MN8zZd1AoiZRsGSYoBSNYXma07g=;
+  b=bgVl3s7SuhOkzc76AuOZWnb3Czs44Dmi08e/SZLOpZ6DNHQEVNgfSaNn
+   4X9MilcI1F8AtKT2srUvKUsa3rMvopP5YW6Y6issWJgH7gMaq9ooN2Z9b
+   EaZIIILFshwAxTqQfEi+Y3ZJtx1RP24Go9f3ubUQtCpr5bTrT7Ypyn0+A
+   M=;
+X-IronPort-AV: E=Sophos;i="5.93,303,1654560000"; 
+   d="scan'208";a="239563926"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-iad-1a-4ba5c7da.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-2101.iad2.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2022 18:56:28 +0000
+Received: from EX13MTAUWC001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1a-4ba5c7da.us-east-1.amazon.com (Postfix) with ESMTPS id 4A6AB98289;
+        Fri,  9 Sep 2022 18:56:26 +0000 (UTC)
+Received: from EX19D012UWC003.ant.amazon.com (10.13.138.175) by
+ EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.38; Fri, 9 Sep 2022 18:56:21 +0000
+Received: from EX13MTAUEA001.ant.amazon.com (10.43.61.82) by
+ EX19D012UWC003.ant.amazon.com (10.13.138.175) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.1118.12; Fri, 9 Sep 2022 18:56:21 +0000
+Received: from dev-dsk-risbhat-2b-8bdc64cd.us-west-2.amazon.com
+ (10.189.73.169) by mail-relay.amazon.com (10.43.61.243) with Microsoft SMTP
+ Server id 15.0.1497.38 via Frontend Transport; Fri, 9 Sep 2022 18:56:20 +0000
+Received: by dev-dsk-risbhat-2b-8bdc64cd.us-west-2.amazon.com (Postfix, from userid 22673075)
+        id 88B8058D2; Fri,  9 Sep 2022 18:56:19 +0000 (UTC)
+From:   Rishabh Bhatnagar <risbhat@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     <gregkh@linuxfoundation.org>, <surajjs@amazon.com>,
+        <mbacco@amazon.com>, <bp@alien8.de>, <mingo@redhat.com>,
+        <tglx@linutronix.de>, <pbonzini@redhat.com>, <seanjc@google.com>,
+        <vkuznets@redhat.com>, <wanpengli@tencent.com>,
+        <jmattson@google.com>, <joro@8bytes.org>,
+        "Rishabh Bhatnagar" <risbhat@amazon.com>
+Subject: [PATCH 0/9] KVM backports to 5.10
+Date:   Fri, 9 Sep 2022 18:55:48 +0000
+Message-ID: <20220909185557.21255-1-risbhat@amazon.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-In-Reply-To: <ff30252059ae6a7a74c135f9fa9525d379f9e74a.camel@sipsolutions.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-MDID: 1662749291-c0RrVeYq27PU
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/19/22 10:50 PM, Johannes Berg wrote:
-> On Tue, 2022-07-19 at 18:58 -0700, Ben Greear wrote:
->> I think this one had a regression and needs another init-lock-early patch to keep from causing
->> problems?
->>
-> 
-> Yes, for now we should drop it from all stable trees. We'll re-assess
-> the situation later if it's needed there or not, I guess.
-> 
-> johannes
-> 
+This patch series backports a few VM preemption_status, steal_time and
+PV TLB flushing fixes to 5.10 stable kernel.
 
-I think there is a second problem with this patch:
+Most of the changes backport cleanly except i had to work around a few
+becauseof missing support/APIs in 5.10 kernel. I have captured those in
+the changelog as well in the individual patches.
 
-If I create multiple station vdevs (on mtk7916 radio, not sure that matters much or not),
-and admin up a few of them, but leave remainder down, then the queues on the originally-down-vdevs
-are never started and so tx-path-hang on those stations.
+Changelog
+- Use mark_page_dirty_in_slot api without kvm argument (KVM: x86: Fix
+  recording of guest steal time / preempted status)
+- Avoid checking for xen_msr and SEV-ES conditions (KVM: x86:
+  do not set st->preempted when going back to user space)
+- Use VCPU_STAT macro to expose preemption_reported and
+  preemption_other fields (KVM: x86: do not report a vCPU as preempted
+  outside instruction boundaries)
 
-I am not sure the best way to fix this.
+David Woodhouse (2):
+  KVM: x86: Fix recording of guest steal time / preempted status
+  KVM: Fix steal time asm constraints
 
-Thanks,
-Ben
+Lai Jiangshan (1):
+  KVM: x86: Ensure PV TLB flush tracepoint reflects KVM behavior
+
+Paolo Bonzini (5):
+  KVM: x86: do not set st->preempted when going back to user space
+  KVM: x86: do not report a vCPU as preempted outside instruction
+    boundaries
+  KVM: x86: revalidate steal time cache if MSR value changes
+  KVM: x86: do not report preemption if the steal time cache is stale
+  KVM: x86: move guest_pv_has out of user_access section
+
+Sean Christopherson (1):
+  KVM: x86: Remove obsolete disabling of page faults in
+    kvm_arch_vcpu_put()
+
+ arch/x86/include/asm/kvm_host.h |   5 +-
+ arch/x86/kvm/svm/svm.c          |   2 +
+ arch/x86/kvm/vmx/vmx.c          |   1 +
+ arch/x86/kvm/x86.c              | 164 ++++++++++++++++++++++----------
+ 4 files changed, 122 insertions(+), 50 deletions(-)
 
 -- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+2.37.1
 
