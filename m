@@ -2,164 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 834DE5B418E
-	for <lists+stable@lfdr.de>; Fri,  9 Sep 2022 23:41:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3A365B42B0
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 00:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230181AbiIIVlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Sep 2022 17:41:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35312 "EHLO
+        id S231365AbiIIW5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Sep 2022 18:57:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229728AbiIIVlS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 17:41:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D08133A18;
-        Fri,  9 Sep 2022 14:41:17 -0700 (PDT)
+        with ESMTP id S231342AbiIIW5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Sep 2022 18:57:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C463010B007;
+        Fri,  9 Sep 2022 15:57:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85CAF620F0;
-        Fri,  9 Sep 2022 21:41:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCEB2C433D7;
-        Fri,  9 Sep 2022 21:41:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1662759677;
-        bh=Loma5kjli1hRx5nh9T5jYPU7tWkgTs9wosoJfDY4NCM=;
-        h=Date:To:From:Subject:From;
-        b=iG9iUqFJ6RqWxhsVLC2hW31y21CIG/WHkcO7Bt+2qevE1opFq5PTx2HKnkiMFUxmL
-         pX/6wC5igWDc/1gXY69g4Vi6kTn3HNXbWlygO+VzduXJRDBZkgEggeirqqMNZDsnoP
-         PKhqTjUyFoaYkKtiwFj0iYuOCUyT/h6C+uXuUtgg=
-Date:   Fri, 09 Sep 2022 14:41:16 -0700
-To:     mm-commits@vger.kernel.org, will@kernel.org,
-        stable@vger.kernel.org, kirill.shutemov@linux.intel.com,
-        saproj@gmail.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-bring-back-update_mmu_cache-to-finish_fault.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220909214116.DCEB2C433D7@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AED1B82320;
+        Fri,  9 Sep 2022 22:57:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E43EC433D7;
+        Fri,  9 Sep 2022 22:57:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662764223;
+        bh=ZCVhj1+wfjOMA0Had6ciscyEFKnluS+v1H1EBTpafiY=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=fNossQnLiG/J6rtZTmNxIyHMbCYbg2ohdsHBi0Arvjcr20QuWwu7fRY7Y1QQXFzYe
+         plOFby9dAQIehBeHZ0WZvkujKtVKVN8Ep5h4Wp7iLnsc9z09N1dPzTDvCoDTUeXwQL
+         ytYMNyVUXaFyIX2tt5D8LJdbP5zG4RGSb72JGVG++XiBjQ436VZs7PhWdgYcW95Rwq
+         7BTwwdr4kMrLDwkeABEq85kKOikMPzObp01DIYqrlke+sKFpnF2eyCE6Zocgv0Beb3
+         5RfiV989cBKK/Y50AQKavpGuzz56KSg63yzQFS5pVtPG3epSyD2sUc8lzVM1uuw9Cv
+         sSoHuXCiave5A==
+From:   Mark Brown <broonie@kernel.org>
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Bjorn Andersson <andersson@kernel.org>,
+        linux-arm-msm@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Andy Gross <agross@kernel.org>
+In-Reply-To: <20220909112529.239143-1-linus.walleij@linaro.org>
+References: <20220909112529.239143-1-linus.walleij@linaro.org>
+Subject: Re: [PATCH] regulator: qcom_rpm: Fix circular deferral regression
+Message-Id: <166276422182.339577.316696992835624011.b4-ty@kernel.org>
+Date:   Fri, 09 Sep 2022 23:57:01 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.10.0-dev-fc921
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 9 Sep 2022 13:25:29 +0200, Linus Walleij wrote:
+> On recent kernels, the PM8058 L16 (or any other PM8058 LDO-regulator)
+> does not come up if they are supplied by an SMPS-regulator. This
+> is not very strange since the regulators are registered in a long
+> array and the L-regulators are registered before the S-regulators,
+> and if an L-regulator defers, it will never get around to registering
+> the S-regulator that it needs.
+> 
+> [...]
 
-The patch titled
-     Subject: mm: bring back update_mmu_cache() to finish_fault()
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-bring-back-update_mmu_cache-to-finish_fault.patch
+Applied to
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-bring-back-update_mmu_cache-to-finish_fault.patch
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-next
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+Thanks!
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+[1/1] regulator: qcom_rpm: Fix circular deferral regression
+      commit: 8478ed5844588703a1a4c96a004b1525fbdbdd5e
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-------------------------------------------------------
-From: Sergei Antonov <saproj@gmail.com>
-Subject: mm: bring back update_mmu_cache() to finish_fault()
-Date: Thu, 8 Sep 2022 23:48:09 +0300
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
-Running this test program on ARMv4 a few times (sometimes just once)
-reproduces the bug.
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
-int main()
-{
-        unsigned i;
-        char paragon[SIZE];
-        void* ptr;
-
-        memset(paragon, 0xAA, SIZE);
-        ptr = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
-                   MAP_ANON | MAP_SHARED, -1, 0);
-        if (ptr == MAP_FAILED) return 1;
-        printf("ptr = %p\n", ptr);
-        for (i=0;i<10000;i++){
-                memset(ptr, 0xAA, SIZE);
-                if (memcmp(ptr, paragon, SIZE)) {
-                        printf("Unexpected bytes on iteration %u!!!\n", i);
-                        break;
-                }
-        }
-        munmap(ptr, SIZE);
-}
-
-In the "ptr" buffer there appear runs of zero bytes which are aligned
-by 16 and their lengths are multiple of 16.
-
-Linux v5.11 does not have the bug, "git bisect" finds the first bad commit:
-f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
-
-Before the commit update_mmu_cache() was called during a call to
-filemap_map_pages() as well as finish_fault(). After the commit
-finish_fault() lacks it.
-
-Bring back update_mmu_cache() to finish_fault() to fix the bug.
-Also call update_mmu_tlb() only when returning VM_FAULT_NOPAGE to more
-closely reproduce the code of alloc_set_pte() function that existed before
-the commit.
-
-On many platforms update_mmu_cache() is nop:
- x86, see arch/x86/include/asm/pgtable
- ARMv6+, see arch/arm/include/asm/tlbflush.h
-So, it seems, few users ran into this bug.
-
-Link: https://lkml.kernel.org/r/20220908204809.2012451-1-saproj@gmail.com
-Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memory.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
-
---- a/mm/memory.c~mm-bring-back-update_mmu_cache-to-finish_fault
-+++ a/mm/memory.c
-@@ -4386,14 +4386,20 @@ vm_fault_t finish_fault(struct vm_fault
- 
- 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
- 				      vmf->address, &vmf->ptl);
--	ret = 0;
-+
- 	/* Re-check under ptl */
--	if (likely(!vmf_pte_changed(vmf)))
-+	if (likely(!vmf_pte_changed(vmf))) {
- 		do_set_pte(vmf, page, vmf->address);
--	else
-+
-+		/* no need to invalidate: a not-present page won't be cached */
-+		update_mmu_cache(vma, vmf->address, vmf->pte);
-+
-+		ret = 0;
-+	} else {
-+		update_mmu_tlb(vma, vmf->address, vmf->pte);
- 		ret = VM_FAULT_NOPAGE;
-+	}
- 
--	update_mmu_tlb(vma, vmf->address, vmf->pte);
- 	pte_unmap_unlock(vmf->pte, vmf->ptl);
- 	return ret;
- }
-_
-
-Patches currently in -mm which might be from saproj@gmail.com are
-
-mm-bring-back-update_mmu_cache-to-finish_fault.patch
-
+Thanks,
+Mark
