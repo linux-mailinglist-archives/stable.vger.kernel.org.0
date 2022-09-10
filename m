@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B8185B497C
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:20:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814275B4991
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:21:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbiIJVUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:20:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57490 "EHLO
+        id S230200AbiIJVVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:21:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230070AbiIJVTh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:19:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A104BD1B;
-        Sat, 10 Sep 2022 14:18:01 -0700 (PDT)
+        with ESMTP id S230221AbiIJVUM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:20:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67C574F66C;
+        Sat, 10 Sep 2022 14:18:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A58DF60C5F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEE9E60EB6;
+        Sat, 10 Sep 2022 21:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F295C43142;
         Sat, 10 Sep 2022 21:17:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB803C43141;
-        Sat, 10 Sep 2022 21:17:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844678;
-        bh=TNpz5TSPLIITY9+EhMX9wDc1LMTj+4DwgPahXg/iDtk=;
+        s=k20201202; t=1662844679;
+        bh=vmKrB7uWruve/xUlBF9Cg4D2v9bGJBJGykfyeN0wSKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uOio4aSo2mcc2ez6ecBpkjg8ymF8MNA92+zkOo0A9gDGr64Ccu0XuR8D04IX7lcuY
-         A0H3884wDKhWYP2RYKFP+6NQt8gPtL8diGVM5C8mo1u9H2x1DPgu8E2Jva576sw10T
-         SWKNSv6Qidl2wQYWYzNhDZbuoJofrQO4Zq+Sm4ggQXPmd7dZN8+KUjNdN0GujqEHoA
-         /1lT9dXYuIqWKUcGmzIXuhlY7CA6FTtX+vmVssgXfXbiRjaAdKwUvZMpRczHWbzuhw
-         uJcmvyPAT6tSScQUL5h9cFXl3S21O+nBQjQPByfWEOkZ2uv5NhBjX1W20Une8x5P1z
-         B6nGf5b90Ipsw==
+        b=IHn2ALugHJzaQQUWMVLERmDRhey91UF33hFkheQQ5sNxSW/Dmt5yK8pBrs1PBoMIu
+         JlomFxYYs2Yeqi7IRLoIZLD3tYvlyTMfrZ9j4e/6VXLsNyyfJ1GubH3mnTHIluqJou
+         R0N5g9CnGEAmT/ZiD/fIH53OZheTCCVAslu9maaBhjOt3+5zaW8SmbNVboBAwOKzOB
+         hXQbiG8lUfe7hHpP5Dh7kJ7aOC9uKJ/ierhU4KzQAxgxJHnbXDfTMaz/J3llBlaRAF
+         DgPX8pKg+6Jo4W1zbxYTDDqsN1eaA57tUo05C+Ryo9Ym8fkEeZv1jMVVHo2tI2QhdN
+         AcpnYrqwd6qIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
-        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
-        airlied@linux.ie, daniel@ffwll.ch, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 03/21] drm/msm/rd: Fix FIFO-full deadlock
-Date:   Sat, 10 Sep 2022 17:17:34 -0400
-Message-Id: <20220910211752.70291-3-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 04/21] hwmon: (pmbus) Use dev_err_probe() to filter -EPROBE_DEFER error messages
+Date:   Sat, 10 Sep 2022 17:17:35 -0400
+Message-Id: <20220910211752.70291-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211752.70291-1-sashal@kernel.org>
 References: <20220910211752.70291-1-sashal@kernel.org>
@@ -58,37 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 174974d8463b77c2b4065e98513adb204e64de7d ]
+[ Upstream commit 09e52d17b72d3a4bf6951a90ccd8c97fae04e5cf ]
 
-If the previous thing cat'ing $debugfs/rd left the FIFO full, then
-subsequent open could deadlock in rd_write() (because open is blocked,
-not giving a chance for read() to consume any data in the FIFO).  Also
-it is generally a good idea to clear out old data from the FIFO.
+devm_regulator_register() can return -EPROBE_DEFER, so better use
+dev_err_probe() instead of dev_err(), it is less verbose in such a case.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/496706/
-Link: https://lore.kernel.org/r/20220807160901.2353471-2-robdclark@gmail.com
+It is also more informative, which can't hurt.
+
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/3adf1cea6e32e54c0f71f4604b4e98d992beaa71.1660741419.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_rd.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hwmon/pmbus/pmbus_core.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
-index b55398a34fa48..e3f0dd4a36792 100644
---- a/drivers/gpu/drm/msm/msm_rd.c
-+++ b/drivers/gpu/drm/msm/msm_rd.c
-@@ -191,6 +191,9 @@ static int rd_open(struct inode *inode, struct file *file)
- 	file->private_data = rd;
- 	rd->open = true;
+diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
+index 63b616ce3a6e9..6d5b228032cad 100644
+--- a/drivers/hwmon/pmbus/pmbus_core.c
++++ b/drivers/hwmon/pmbus/pmbus_core.c
+@@ -2463,11 +2463,10 @@ static int pmbus_regulator_register(struct pmbus_data *data)
  
-+	/* Reset fifo to clear any previously unread data: */
-+	rd->fifo.head = rd->fifo.tail = 0;
-+
- 	/* the parsing tools need to know gpu-id to know which
- 	 * register database to load.
- 	 */
+ 		rdev = devm_regulator_register(dev, &info->reg_desc[i],
+ 					       &config);
+-		if (IS_ERR(rdev)) {
+-			dev_err(dev, "Failed to register %s regulator\n",
+-				info->reg_desc[i].name);
+-			return PTR_ERR(rdev);
+-		}
++		if (IS_ERR(rdev))
++			return dev_err_probe(dev, PTR_ERR(rdev),
++					     "Failed to register %s regulator\n",
++					     info->reg_desc[i].name);
+ 	}
+ 
+ 	return 0;
 -- 
 2.35.1
 
