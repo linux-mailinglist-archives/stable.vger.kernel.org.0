@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1E4E5B4468
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 08:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 018815B446C
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 08:28:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229529AbiIJG1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 02:27:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36496 "EHLO
+        id S229657AbiIJG2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 02:28:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229601AbiIJG1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 02:27:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E09A29E2F0
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 23:27:46 -0700 (PDT)
+        with ESMTP id S229702AbiIJG2q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 02:28:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A899E0E6
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 23:28:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EAFBB80686
-        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 06:27:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9A4BC433D6;
-        Sat, 10 Sep 2022 06:27:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CD6B60C1F
+        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 06:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E268C433C1;
+        Sat, 10 Sep 2022 06:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662791264;
-        bh=k25kHEbhNqWdODRoOmO4+Auy+nkvHlqvSYASGBbO60s=;
+        s=korg; t=1662791324;
+        bh=frgEyfgcQb16CCCTht6GW9N6dIlxv0xAPbHLeVjTaLY=;
         h=Subject:To:Cc:From:Date:From;
-        b=krzAGA/WNu5sIqR0eDmqNRWYV7lWmJs5C/Ph4AJ/LfsFOSuJu9xz4Ly3A9KakLrKG
-         cP/ovwO23tO5+BSm8zAp/XppXTTTS3ZxjqLIOltzxz7/LN1ho0OU6RBHfv4NIKqHz5
-         OcLIUOPfLa5N9ehqESBu1djawZT2da1zYVpJZqzM=
-Subject: FAILED: patch "[PATCH] nvmet: fix a use-after-free" failed to apply to 4.9-stable tree
-To:     bvanassche@acm.org, hch@lst.de
+        b=QhFmisq5Et8TxpfWC6TiRk6BUuY38Xqby07krqos4Gzf6ZBt5I8YI/WNbIrnnZArK
+         P/m46DxUyM8aF6NWDMRRvjJB/Nghx+9+FPX55cpi2bDF1BA9REvQoUGWVVspgEjJmf
+         alrI1GUd69XO0AIXEbHFas7SiR1qpSKmz5tXNlI0=
+Subject: FAILED: patch "[PATCH] io_uring/rw: fix short rw error handling" failed to apply to 5.19-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk, beldzhang@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Sep 2022 08:27:56 +0200
-Message-ID: <166279127665246@kroah.com>
+Date:   Sat, 10 Sep 2022 08:29:06 +0200
+Message-ID: <166279134639196@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,25 +48,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-6a02a61e81c2 ("nvmet: fix a use-after-free")
-a5448fdc469d ("nvmet: introduce target-side trace")
-76574f37bf4c ("nvmet: add interface to update error-log page")
-872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
-cb019da3dabf ("nvmet: use unlikely for req status check")
-e6a622fd6d66 ("nvmet: support fabrics sq flow control")
-55eb942eda2c ("nvmet: add buffered I/O support for file backed ns")
-d5eff33ee6f8 ("nvmet: add simple file backed ns support")
-618cff4285dc ("nvmet: remove duplicate NULL initialization for req->ns")
-e929f06d9eaa ("nvmet: constify struct nvmet_fabrics_ops")
-4c6526858810 ("nvmet: don't return "any" ip address in discovery log page")
-423b4487fb23 ("nvmet: release a ns reference in nvmet_req_uninit if needed")
+4d9cb92ca41d ("io_uring/rw: fix short rw error handling")
+f2ccb5aed7bc ("io_uring: make io_kiocb_to_cmd() typesafe")
+14b146b688ad ("io_uring: notification completion optimisation")
+6a9ce66f4d08 ("io_uring/net: make page accounting more consistent")
+2e32ba5607ee ("io_uring/net: checks errors of zc mem accounting")
+3ff1a0d395c0 ("io_uring: enable managed frags with register buffers")
+492dddb4f6e3 ("io_uring: add zc notification flush requests")
+4379d5f15b3f ("io_uring: rename IORING_OP_FILES_UPDATE")
+63809137ebb5 ("io_uring: flush notifiers after sendzc")
+10c7d33ecd51 ("io_uring: sendzc with fixed buffers")
+e29e3bd4b968 ("io_uring: account locked pages for non-fixed zc")
+06a5464be84e ("io_uring: wire send zc request type")
+bc24d6bd32df ("io_uring: add notification slot registration")
+68ef5578efc8 ("io_uring: add rsrc referencing for notifiers")
+e58d498e81ba ("io_uring: complete notifiers in tw")
+eb4a299b2f95 ("io_uring: cache struct io_notif")
+eb42cebb2cf2 ("io_uring: add zc notification infrastructure")
+e70cb60893ca ("io_uring: export io_put_task()")
+72c531f8ef30 ("net: copy from user before calling __get_compat_msghdr")
+7fa875b8e53c ("net: copy from user before calling __copy_msghdr")
 
 thanks,
 
@@ -74,61 +82,101 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6a02a61e81c231cc5c680c5dbf8665275147ac52 Mon Sep 17 00:00:00 2001
-From: Bart Van Assche <bvanassche@acm.org>
-Date: Fri, 12 Aug 2022 14:03:17 -0700
-Subject: [PATCH] nvmet: fix a use-after-free
+From 4d9cb92ca41dd8e905a4569ceba4716c2f39c75a Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Fri, 9 Sep 2022 12:11:49 +0100
+Subject: [PATCH] io_uring/rw: fix short rw error handling
 
-Fix the following use-after-free complaint triggered by blktests nvme/004:
+We have a couple of problems, first reports of unexpected link breakage
+for reads when cqe->res indicates that the IO was done in full. The
+reason here is partial IO with retries.
 
-BUG: KASAN: user-memory-access in blk_mq_complete_request_remote+0xac/0x350
-Read of size 4 at addr 0000607bd1835943 by task kworker/13:1/460
-Workqueue: nvmet-wq nvme_loop_execute_work [nvme_loop]
-Call Trace:
- show_stack+0x52/0x58
- dump_stack_lvl+0x49/0x5e
- print_report.cold+0x36/0x1e2
- kasan_report+0xb9/0xf0
- __asan_load4+0x6b/0x80
- blk_mq_complete_request_remote+0xac/0x350
- nvme_loop_queue_response+0x1df/0x275 [nvme_loop]
- __nvmet_req_complete+0x132/0x4f0 [nvmet]
- nvmet_req_complete+0x15/0x40 [nvmet]
- nvmet_execute_io_connect+0x18a/0x1f0 [nvmet]
- nvme_loop_execute_work+0x20/0x30 [nvme_loop]
- process_one_work+0x56e/0xa70
- worker_thread+0x2d1/0x640
- kthread+0x183/0x1c0
- ret_from_fork+0x1f/0x30
+TL;DR; we compare the result in __io_complete_rw_common() against
+req->cqe.res, but req->cqe.res doesn't store the full length but rather
+the length left to be done. So, when we pass the full corrected result
+via kiocb_done() -> __io_complete_rw_common(), it fails.
+
+The second problem is that we don't try to correct res in
+io_complete_rw(), which, for instance, might be a problem for O_DIRECT
+but when a prefix of data was cached in the page cache. We also
+definitely don't want to pass a corrected result into io_rw_done().
+
+The fix here is to leave __io_complete_rw_common() alone, always pass
+not corrected result into it and fix it up as the last step just before
+actually finishing the I/O.
 
 Cc: stable@vger.kernel.org
-Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://github.com/axboe/liburing/issues/643
+Reported-by: Beld Zhang <beldzhang@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index a1345790005f..7f4083cf953a 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -735,6 +735,8 @@ static void nvmet_set_error(struct nvmet_req *req, u16 status)
- 
- static void __nvmet_req_complete(struct nvmet_req *req, u16 status)
- {
-+	struct nvmet_ns *ns = req->ns;
-+
- 	if (!req->sq->sqhd_disabled)
- 		nvmet_update_sq_head(req);
- 	req->cqe->sq_id = cpu_to_le16(req->sq->qid);
-@@ -745,9 +747,9 @@ static void __nvmet_req_complete(struct nvmet_req *req, u16 status)
- 
- 	trace_nvmet_req_complete(req);
- 
--	if (req->ns)
--		nvmet_put_namespace(req->ns);
- 	req->ops->queue_response(req);
-+	if (ns)
-+		nvmet_put_namespace(ns);
+diff --git a/io_uring/rw.c b/io_uring/rw.c
+index 1babd77da79c..1e18a44adcf5 100644
+--- a/io_uring/rw.c
++++ b/io_uring/rw.c
+@@ -206,6 +206,20 @@ static bool __io_complete_rw_common(struct io_kiocb *req, long res)
+ 	return false;
  }
  
- void nvmet_req_complete(struct nvmet_req *req, u16 status)
++static inline unsigned io_fixup_rw_res(struct io_kiocb *req, unsigned res)
++{
++	struct io_async_rw *io = req->async_data;
++
++	/* add previously done IO, if any */
++	if (req_has_async_data(req) && io->bytes_done > 0) {
++		if (res < 0)
++			res = io->bytes_done;
++		else
++			res += io->bytes_done;
++	}
++	return res;
++}
++
+ static void io_complete_rw(struct kiocb *kiocb, long res)
+ {
+ 	struct io_rw *rw = container_of(kiocb, struct io_rw, kiocb);
+@@ -213,7 +227,7 @@ static void io_complete_rw(struct kiocb *kiocb, long res)
+ 
+ 	if (__io_complete_rw_common(req, res))
+ 		return;
+-	io_req_set_res(req, res, 0);
++	io_req_set_res(req, io_fixup_rw_res(req, res), 0);
+ 	req->io_task_work.func = io_req_task_complete;
+ 	io_req_task_work_add(req);
+ }
+@@ -240,22 +254,14 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res)
+ static int kiocb_done(struct io_kiocb *req, ssize_t ret,
+ 		       unsigned int issue_flags)
+ {
+-	struct io_async_rw *io = req->async_data;
+ 	struct io_rw *rw = io_kiocb_to_cmd(req, struct io_rw);
+-
+-	/* add previously done IO, if any */
+-	if (req_has_async_data(req) && io->bytes_done > 0) {
+-		if (ret < 0)
+-			ret = io->bytes_done;
+-		else
+-			ret += io->bytes_done;
+-	}
++	unsigned final_ret = io_fixup_rw_res(req, ret);
+ 
+ 	if (req->flags & REQ_F_CUR_POS)
+ 		req->file->f_pos = rw->kiocb.ki_pos;
+ 	if (ret >= 0 && (rw->kiocb.ki_complete == io_complete_rw)) {
+ 		if (!__io_complete_rw_common(req, ret)) {
+-			io_req_set_res(req, req->cqe.res,
++			io_req_set_res(req, final_ret,
+ 				       io_put_kbuf(req, issue_flags));
+ 			return IOU_OK;
+ 		}
+@@ -268,7 +274,7 @@ static int kiocb_done(struct io_kiocb *req, ssize_t ret,
+ 		if (io_resubmit_prep(req))
+ 			io_req_task_queue_reissue(req);
+ 		else
+-			io_req_task_queue_fail(req, ret);
++			io_req_task_queue_fail(req, final_ret);
+ 	}
+ 	return IOU_ISSUE_SKIP_COMPLETE;
+ }
 
