@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E645B4903
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:16:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C905B4908
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:16:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229651AbiIJVQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:16:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56162 "EHLO
+        id S229785AbiIJVQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:16:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229702AbiIJVQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:16:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE0614BA5E;
-        Sat, 10 Sep 2022 14:16:33 -0700 (PDT)
+        with ESMTP id S229695AbiIJVQj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:16:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7584BA53;
+        Sat, 10 Sep 2022 14:16:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C0D460E1F;
-        Sat, 10 Sep 2022 21:16:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C20C433C1;
-        Sat, 10 Sep 2022 21:16:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5164960DD4;
+        Sat, 10 Sep 2022 21:16:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BCF4C433D6;
+        Sat, 10 Sep 2022 21:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844592;
-        bh=6VDrutTSKYpfo8OvPexOAvG7ppZOmpluXEPcI1IaG2M=;
+        s=k20201202; t=1662844596;
+        bh=hTXg7u7di5Z06XG9BCn6oG8/0a79m4ePnTp0VKoo82Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E2ozGcrbx5BTwSIOpk96LeEeoj3rSBMJ5uGgDq71RJe2p1v+SPcHixf1pcL3Tbqho
-         FabwNitlXZ3oFtPhB6RoXjOYorD3A9jBU+b1ftaHNYhHIZ90CDCTbODJk29p1V/wT4
-         J5QFCFfCehdhJEp9oAJDOvuSPjsxiBvGdi/9UkOtqjFbtavEKvHjh+w8JDLLV14v1u
-         7kky1AhYMbvnkgfl4LQeltB0257DCbDTjhDwJwZRdsUGrVbIHHdRavLXTRlv/Egb5W
-         v79XKFRL1TQ/MrjLqyJRf5785EMujK5VqlGx4H4rsO1cKQo9OMtdyilGzoqPLPxF44
-         GFBDcGR3uv35Q==
+        b=SQTI6BXqR/LoN4pWy4bQ9w9jDG43Vv0NXUT7ROpmCKorj6hHY8nmqi+lFTaCBsxoV
+         vgviXVeFjy7SA8N6/GFQ7+lMwemBUB9mYleaahrj6IvhCb1AmgqLcOgzmKMgEPnNFP
+         5V+02gv6GWrsayDffdpZIRHJUE2su8xricoYRrYn/15AcdIb94qBqzdW3IVg+qZB2p
+         ttBiZrTGDpoF5KEWiM6DYKyUJ4SlPD+quXpq0W1EF45PuIhP5jrnO9uA+Fh8k0LY8u
+         sg4Wx91LU+axYBAwI47I45a1on4VjiIzhFlFBDAxjNLnMGYVqvWcKkQ7vCCkws2wUR
+         oTdz0+ge10fmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Junaid Shahid <junaids@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, seanjc@google.com,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 06/38] kvm: x86: mmu: Always flush TLBs when enabling dirty logging
-Date:   Sat, 10 Sep 2022 17:15:51 -0400
-Message-Id: <20220910211623.69825-6-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        hns@goldelico.com, linux-iio@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 07/38] dt-bindings: iio: gyroscope: bosch,bmg160: correct number of pins
+Date:   Sat, 10 Sep 2022 17:15:52 -0400
+Message-Id: <20220910211623.69825-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
@@ -58,222 +59,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junaid Shahid <junaids@google.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit b64d740ea7ddc929d97b28de4c0665f7d5db9e2a ]
+[ Upstream commit 767470209cedbe2cc72ba38d77c9f096d2c7694c ]
 
-When A/D bits are not available, KVM uses a software access tracking
-mechanism, which involves making the SPTEs inaccessible. However,
-the clear_young() MMU notifier does not flush TLBs. So it is possible
-that there may still be stale, potentially writable, TLB entries.
-This is usually fine, but can be problematic when enabling dirty
-logging, because it currently only does a TLB flush if any SPTEs were
-modified. But if all SPTEs are in access-tracked state, then there
-won't be a TLB flush, which means that the guest could still possibly
-write to memory and not have it reflected in the dirty bitmap.
+BMG160 has two interrupt pins to which interrupts can be freely mapped.
+Correct the schema to express such case and fix warnings like:
 
-So just unconditionally flush the TLBs when enabling dirty logging.
-As an alternative, KVM could explicitly check the MMU-Writable bit when
-write-protecting SPTEs to decide if a flush is needed (instead of
-checking the Writable bit), but given that a flush almost always happens
-anyway, so just making it unconditional seems simpler.
+  qcom/msm8916-alcatel-idol347.dtb: gyroscope@68: interrupts: [[97, 1], [98, 1]] is too long
 
-Signed-off-by: Junaid Shahid <junaids@google.com>
-Message-Id: <20220810224939.2611160-1-junaids@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+However the basic issue still persists - the interrupts should come in a
+defined order.
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220805075503.16983-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu/mmu.c  | 45 +++++++----------------------------------
- arch/x86/kvm/mmu/spte.h | 14 +++++++++----
- arch/x86/kvm/x86.c      | 44 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 61 insertions(+), 42 deletions(-)
+ .../devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml         | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 356226c7ebbdc..aa1ba803659cd 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5907,47 +5907,18 @@ void kvm_mmu_slot_remove_write_access(struct kvm *kvm,
- 				      const struct kvm_memory_slot *memslot,
- 				      int start_level)
- {
--	bool flush = false;
--
- 	if (kvm_memslots_have_rmaps(kvm)) {
- 		write_lock(&kvm->mmu_lock);
--		flush = slot_handle_level(kvm, memslot, slot_rmap_write_protect,
--					  start_level, KVM_MAX_HUGEPAGE_LEVEL,
--					  false);
-+		slot_handle_level(kvm, memslot, slot_rmap_write_protect,
-+				  start_level, KVM_MAX_HUGEPAGE_LEVEL, false);
- 		write_unlock(&kvm->mmu_lock);
- 	}
+diff --git a/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml b/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
+index b6bbc312a7cf7..1414ba9977c16 100644
+--- a/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
++++ b/Documentation/devicetree/bindings/iio/gyroscope/bosch,bmg160.yaml
+@@ -24,8 +24,10 @@ properties:
  
- 	if (is_tdp_mmu_enabled(kvm)) {
- 		read_lock(&kvm->mmu_lock);
--		flush |= kvm_tdp_mmu_wrprot_slot(kvm, memslot, start_level);
-+		kvm_tdp_mmu_wrprot_slot(kvm, memslot, start_level);
- 		read_unlock(&kvm->mmu_lock);
- 	}
--
--	/*
--	 * Flush TLBs if any SPTEs had to be write-protected to ensure that
--	 * guest writes are reflected in the dirty bitmap before the memslot
--	 * update completes, i.e. before enabling dirty logging is visible to
--	 * userspace.
--	 *
--	 * Perform the TLB flush outside the mmu_lock to reduce the amount of
--	 * time the lock is held. However, this does mean that another CPU can
--	 * now grab mmu_lock and encounter a write-protected SPTE while CPUs
--	 * still have a writable mapping for the associated GFN in their TLB.
--	 *
--	 * This is safe but requires KVM to be careful when making decisions
--	 * based on the write-protection status of an SPTE. Specifically, KVM
--	 * also write-protects SPTEs to monitor changes to guest page tables
--	 * during shadow paging, and must guarantee no CPUs can write to those
--	 * page before the lock is dropped. As mentioned in the previous
--	 * paragraph, a write-protected SPTE is no guarantee that CPU cannot
--	 * perform writes. So to determine if a TLB flush is truly required, KVM
--	 * will clear a separate software-only bit (MMU-writable) and skip the
--	 * flush if-and-only-if this bit was already clear.
--	 *
--	 * See is_writable_pte() for more details.
--	 */
--	if (flush)
--		kvm_arch_flush_remote_tlbs_memslot(kvm, memslot);
- }
+   interrupts:
+     minItems: 1
++    maxItems: 2
+     description:
+       Should be configured with type IRQ_TYPE_EDGE_RISING.
++      If two interrupts are provided, expected order is INT1 and INT2.
  
- /* Must be called with the mmu_lock held in write-mode. */
-@@ -6070,32 +6041,30 @@ void kvm_arch_flush_remote_tlbs_memslot(struct kvm *kvm,
- void kvm_mmu_slot_leaf_clear_dirty(struct kvm *kvm,
- 				   const struct kvm_memory_slot *memslot)
- {
--	bool flush = false;
--
- 	if (kvm_memslots_have_rmaps(kvm)) {
- 		write_lock(&kvm->mmu_lock);
- 		/*
- 		 * Clear dirty bits only on 4k SPTEs since the legacy MMU only
- 		 * support dirty logging at a 4k granularity.
- 		 */
--		flush = slot_handle_level_4k(kvm, memslot, __rmap_clear_dirty, false);
-+		slot_handle_level_4k(kvm, memslot, __rmap_clear_dirty, false);
- 		write_unlock(&kvm->mmu_lock);
- 	}
- 
- 	if (is_tdp_mmu_enabled(kvm)) {
- 		read_lock(&kvm->mmu_lock);
--		flush |= kvm_tdp_mmu_clear_dirty_slot(kvm, memslot);
-+		kvm_tdp_mmu_clear_dirty_slot(kvm, memslot);
- 		read_unlock(&kvm->mmu_lock);
- 	}
- 
- 	/*
-+	 * The caller will flush the TLBs after this function returns.
-+	 *
- 	 * It's also safe to flush TLBs out of mmu lock here as currently this
- 	 * function is only used for dirty logging, in which case flushing TLB
- 	 * out of mmu lock also guarantees no dirty pages will be lost in
- 	 * dirty_bitmap.
- 	 */
--	if (flush)
--		kvm_arch_flush_remote_tlbs_memslot(kvm, memslot);
- }
- 
- void kvm_mmu_zap_all(struct kvm *kvm)
-diff --git a/arch/x86/kvm/mmu/spte.h b/arch/x86/kvm/mmu/spte.h
-index f80dbb628df57..e09bdcf1e47c5 100644
---- a/arch/x86/kvm/mmu/spte.h
-+++ b/arch/x86/kvm/mmu/spte.h
-@@ -326,7 +326,7 @@ static __always_inline bool is_rsvd_spte(struct rsvd_bits_validate *rsvd_check,
- }
- 
- /*
-- * An shadow-present leaf SPTE may be non-writable for 3 possible reasons:
-+ * A shadow-present leaf SPTE may be non-writable for 4 possible reasons:
-  *
-  *  1. To intercept writes for dirty logging. KVM write-protects huge pages
-  *     so that they can be split be split down into the dirty logging
-@@ -344,8 +344,13 @@ static __always_inline bool is_rsvd_spte(struct rsvd_bits_validate *rsvd_check,
-  *     read-only memslot or guest memory backed by a read-only VMA. Writes to
-  *     such pages are disallowed entirely.
-  *
-- * To keep track of why a given SPTE is write-protected, KVM uses 2
-- * software-only bits in the SPTE:
-+ *  4. To emulate the Accessed bit for SPTEs without A/D bits.  Note, in this
-+ *     case, the SPTE is access-protected, not just write-protected!
-+ *
-+ * For cases #1 and #4, KVM can safely make such SPTEs writable without taking
-+ * mmu_lock as capturing the Accessed/Dirty state doesn't require taking it.
-+ * To differentiate #1 and #4 from #2 and #3, KVM uses two software-only bits
-+ * in the SPTE:
-  *
-  *  shadow_mmu_writable_mask, aka MMU-writable -
-  *    Cleared on SPTEs that KVM is currently write-protecting for shadow paging
-@@ -374,7 +379,8 @@ static __always_inline bool is_rsvd_spte(struct rsvd_bits_validate *rsvd_check,
-  * shadow page tables between vCPUs. Write-protecting an SPTE for dirty logging
-  * (which does not clear the MMU-writable bit), does not flush TLBs before
-  * dropping the lock, as it only needs to synchronize guest writes with the
-- * dirty bitmap.
-+ * dirty bitmap. Similarly, making the SPTE inaccessible (and non-writable) for
-+ * access-tracking via the clear_young() MMU notifier also does not flush TLBs.
-  *
-  * So, there is the problem: clearing the MMU-writable bit can encounter a
-  * write-protected SPTE while CPUs still have writable mappings for that SPTE
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index bc411d19dac08..e2c3561edb3e7 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -12248,6 +12248,50 @@ static void kvm_mmu_slot_apply_flags(struct kvm *kvm,
- 		} else {
- 			kvm_mmu_slot_remove_write_access(kvm, new, PG_LEVEL_4K);
- 		}
-+
-+		/*
-+		 * Unconditionally flush the TLBs after enabling dirty logging.
-+		 * A flush is almost always going to be necessary (see below),
-+		 * and unconditionally flushing allows the helpers to omit
-+		 * the subtly complex checks when removing write access.
-+		 *
-+		 * Do the flush outside of mmu_lock to reduce the amount of
-+		 * time mmu_lock is held.  Flushing after dropping mmu_lock is
-+		 * safe as KVM only needs to guarantee the slot is fully
-+		 * write-protected before returning to userspace, i.e. before
-+		 * userspace can consume the dirty status.
-+		 *
-+		 * Flushing outside of mmu_lock requires KVM to be careful when
-+		 * making decisions based on writable status of an SPTE, e.g. a
-+		 * !writable SPTE doesn't guarantee a CPU can't perform writes.
-+		 *
-+		 * Specifically, KVM also write-protects guest page tables to
-+		 * monitor changes when using shadow paging, and must guarantee
-+		 * no CPUs can write to those page before mmu_lock is dropped.
-+		 * Because CPUs may have stale TLB entries at this point, a
-+		 * !writable SPTE doesn't guarantee CPUs can't perform writes.
-+		 *
-+		 * KVM also allows making SPTES writable outside of mmu_lock,
-+		 * e.g. to allow dirty logging without taking mmu_lock.
-+		 *
-+		 * To handle these scenarios, KVM uses a separate software-only
-+		 * bit (MMU-writable) to track if a SPTE is !writable due to
-+		 * a guest page table being write-protected (KVM clears the
-+		 * MMU-writable flag when write-protecting for shadow paging).
-+		 *
-+		 * The use of MMU-writable is also the primary motivation for
-+		 * the unconditional flush.  Because KVM must guarantee that a
-+		 * CPU doesn't contain stale, writable TLB entries for a
-+		 * !MMU-writable SPTE, KVM must flush if it encounters any
-+		 * MMU-writable SPTE regardless of whether the actual hardware
-+		 * writable bit was set.  I.e. KVM is almost guaranteed to need
-+		 * to flush, while unconditionally flushing allows the "remove
-+		 * write access" helpers to ignore MMU-writable entirely.
-+		 *
-+		 * See is_writable_pte() for more details (the case involving
-+		 * access-tracked SPTEs is particularly relevant).
-+		 */
-+		kvm_arch_flush_remote_tlbs_memslot(kvm, new);
- 	}
- }
- 
+ required:
+   - compatible
 -- 
 2.35.1
 
