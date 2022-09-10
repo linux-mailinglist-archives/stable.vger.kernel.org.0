@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCEB75B49D3
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:24:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88DDA5B49CE
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:24:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230162AbiIJVYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:24:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
+        id S230026AbiIJVYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:24:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230499AbiIJVXQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:23:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D274D4D6;
-        Sat, 10 Sep 2022 14:19:03 -0700 (PDT)
+        with ESMTP id S230443AbiIJVXM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:23:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C71C151A00;
+        Sat, 10 Sep 2022 14:19:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0F6FECE0AE7;
-        Sat, 10 Sep 2022 21:18:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F4F4C433B5;
-        Sat, 10 Sep 2022 21:18:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AABF60B4D;
+        Sat, 10 Sep 2022 21:18:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9AAEC433D6;
+        Sat, 10 Sep 2022 21:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844727;
-        bh=LiI4v9vBPc7mLT6eREo4zXLAyk3E8pYsOLWHLK96i/o=;
+        s=k20201202; t=1662844731;
+        bh=de0UWzH2KUXwSSVq/hNoyyVgaNRZRqOmYE7O8y8s+Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOhOsxOulejJDqM236xJ8q3mgReh1kfWR/6fHr8jWNDPzblNNsrXWoMFi4ddHRVqr
-         k+tvVIriFqfnF5f+C1+zPR2caU7qNW6hkVmBW8lbU15Hnizz8+/1sbt6f/dlQgmD5H
-         +Uo3L48eaQ8Gn84fwmnD8So2BSpd+BlOCUjC7+RwbgnTtSCxE6CmQtoEgTkcX/E62V
-         li2JpnUXcucqyYV4luzL9IHXLEjybKbv3z/Sif0YQwh+XY1zol88LnvXn6bAYFbp//
-         I4VJj72Z1DOAp6Cgh08GlCl3db9u253IRWPtXD0R/8GS68UsCX6u/qk+Q4qgpFD8Xg
-         nJsvbElolPCsA==
+        b=BfJbLAsKgAZ/7k0qpZW1C6dIkQL2EbBCX36HZhMNdOVMTYzTa0BFms+4IshAbSdra
+         b8OMbKmvB82ysHIlP1t+vlVCMFTvJ0Nxeuv+FxkCihEldMn7iL4/z6uUM/o0Ezb2nS
+         PhPMpQ2KEA9AFpGP5YJUxuxCeIMeT2E/2BYQ93L1BEGoKpNQnX/i3rU+BjlEGvjf/M
+         /moY89RLl/qC4ZT4W8CP/P1Vdy/aULrV8nj3PoOjVR09ukF/8GI2YqWbSdI7uc5d9H
+         KKa6x154vz03Y4M2T9K6ZiWFBwtlAoQ7A1cDFFjPk2t6W1YI/Tgxvtu0au1yWMo7yL
+         zNphPVyjwIEmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Qiong <liqiong@nfschina.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>, varkabhadram@gmail.com,
-        alex.aring@gmail.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-wpan@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 08/14] ieee802154: cc2520: add rc code in cc2520_tx()
-Date:   Sat, 10 Sep 2022 17:18:26 -0400
-Message-Id: <20220910211832.70579-8-sashal@kernel.org>
+Cc:     Greg Tulli <greg.iforce@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, corbet@lwn.net,
+        linux-input@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 09/14] Input: iforce - add support for Boeder Force Feedback Wheel
+Date:   Sat, 10 Sep 2022 17:18:27 -0400
+Message-Id: <20220910211832.70579-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211832.70579-1-sashal@kernel.org>
 References: <20220910211832.70579-1-sashal@kernel.org>
@@ -59,33 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Qiong <liqiong@nfschina.com>
+From: Greg Tulli <greg.iforce@gmail.com>
 
-[ Upstream commit ffd7bdddaab193c38416fd5dd416d065517d266e ]
+[ Upstream commit 9c9c71168f7979f3798b61c65b4530fbfbcf19d1 ]
 
-The rc code is 0 at the error path "status & CC2520_STATUS_TX_UNDERFLOW".
-Assign rc code with '-EINVAL' at this error path to fix it.
+Add a new iforce_device entry to support the Boeder Force Feedback Wheel
+device.
 
-Signed-off-by: Li Qiong <liqiong@nfschina.com>
-Link: https://lore.kernel.org/r/20220829071259.18330-1-liqiong@nfschina.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Greg Tulli <greg.iforce@gmail.com>
+Link: https://lore.kernel.org/r/3256420-c8ac-31b-8499-3c488a9880fd@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/cc2520.c | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/input/joydev/joystick.rst     | 1 +
+ drivers/input/joystick/iforce/iforce-main.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/net/ieee802154/cc2520.c b/drivers/net/ieee802154/cc2520.c
-index 89c046b204e0c..4517517215f2b 100644
---- a/drivers/net/ieee802154/cc2520.c
-+++ b/drivers/net/ieee802154/cc2520.c
-@@ -504,6 +504,7 @@ cc2520_tx(struct ieee802154_hw *hw, struct sk_buff *skb)
- 		goto err_tx;
- 
- 	if (status & CC2520_STATUS_TX_UNDERFLOW) {
-+		rc = -EINVAL;
- 		dev_err(&priv->spi->dev, "cc2520 tx underflow exception\n");
- 		goto err_tx;
- 	}
+diff --git a/Documentation/input/joydev/joystick.rst b/Documentation/input/joydev/joystick.rst
+index 9746fd76cc581..f38c330c028e5 100644
+--- a/Documentation/input/joydev/joystick.rst
++++ b/Documentation/input/joydev/joystick.rst
+@@ -517,6 +517,7 @@ All I-Force devices are supported by the iforce module. This includes:
+ * AVB Mag Turbo Force
+ * AVB Top Shot Pegasus
+ * AVB Top Shot Force Feedback Racing Wheel
++* Boeder Force Feedback Wheel
+ * Logitech WingMan Force
+ * Logitech WingMan Force Wheel
+ * Guillemot Race Leader Force Feedback
+diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
+index b2a68bc9f0b4d..b86de1312512b 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -50,6 +50,7 @@ static struct iforce_device iforce_device[] = {
+ 	{ 0x046d, 0xc291, "Logitech WingMan Formula Force",		btn_wheel, abs_wheel, ff_iforce },
+ 	{ 0x05ef, 0x020a, "AVB Top Shot Pegasus",			btn_joystick_avb, abs_avb_pegasus, ff_iforce },
+ 	{ 0x05ef, 0x8884, "AVB Mag Turbo Force",			btn_wheel, abs_wheel, ff_iforce },
++	{ 0x05ef, 0x8886, "Boeder Force Feedback Wheel",		btn_wheel, abs_wheel, ff_iforce },
+ 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforce },
 -- 
 2.35.1
 
