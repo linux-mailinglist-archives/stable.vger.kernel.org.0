@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E345B49E6
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD975B4A45
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:34:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230483AbiIJVYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:24:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44524 "EHLO
+        id S229903AbiIJVeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:34:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230527AbiIJVXf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:23:35 -0400
+        with ESMTP id S231371AbiIJVdg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:33:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C191ADA8;
-        Sat, 10 Sep 2022 14:19:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09D0D543EC;
+        Sat, 10 Sep 2022 14:28:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A043360EDF;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E937860EEE;
+        Sat, 10 Sep 2022 21:19:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D1CEC4347C;
         Sat, 10 Sep 2022 21:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC5D5C433B5;
-        Sat, 10 Sep 2022 21:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844781;
-        bh=2HvLPQ0g5T8ddpdD+yRBeKrwMCuKVLDYV2jEiR1DsAI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=YXQqYqGRDryFvWh/hN8EqVQu7L+i+6Gw5yn03L3g9zLaMkAh9L6JimF50h/GmezBs
-         0iQOCIAyDjKzSYWCQqTeKUkBMJm5DkGfkVNs0TeztYSFWyVbDgaJhIoMDlGJXsy2jL
-         uH1pgJ7JFK3av9oRkndZtq0eO6laMM95Z9fzJPBMtpAXRTQrbd2vewZGwYBotASzSy
-         ZoGUiibgnfkbsUkr7PODnKJjwW+5hbnn1/UM6i7OGrqc+uZVIxWduveGacCijnfgXl
-         XsEFi4PsPeH8Yg5/0mfx6jaS63M5Ffo+cIew9bXtDig4xjXPa6gtZkw3Sd/qwiyIae
-         KDpFZhWBoWrLw==
+        s=k20201202; t=1662844782;
+        bh=jaexKV/ISln6aKv9PrpU0ZKA7HGBT+BGvGa+IiQ2i6g=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=AGFuKT5mkWOR5E9UFeod5vUprGAEMOoPFfAnqM0agmeiQN1dr7dl8+EswcZtFnjJr
+         7uzK8w7/0G2x71QMS3lrhJmZ/dqVeyIYfwp7udxlKH92YroqtnRqFMjaTJrKOEknzW
+         IXSMLXqP40GStNk1DyVZGG8OSSTwAdGcCCclDWS/fuE7nlXySfKqyOn754Luet1mEo
+         Mh5kUZC1oSbBggEsWoIPp7O6uMtg4K/bt3pCv42f3avqVYOO11fcP+AmAKvLyyNSYO
+         gXKPgr33DibayuQN12x3J9EpPkCbo6CLeI0Sd3+5nKPKh6iqCwpYtUqGZZqgGkFWY1
+         9lXug6yYR29XQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
-        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
-        airlied@linux.ie, daniel@ffwll.ch, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 1/5] drm/msm/rd: Fix FIFO-full deadlock
-Date:   Sat, 10 Sep 2022 17:19:33 -0400
-Message-Id: <20220910211938.70997-1-sashal@kernel.org>
+Cc:     Jason Wang <wangborong@cdjrlc.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>,
+        srinivas.pandruvada@linux.intel.com, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 2/5] HID: ishtp-hid-clientHID: ishtp-hid-client: Fix comment typo
+Date:   Sat, 10 Sep 2022 17:19:34 -0400
+Message-Id: <20220910211938.70997-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220910211938.70997-1-sashal@kernel.org>
+References: <20220910211938.70997-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,37 +57,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Jason Wang <wangborong@cdjrlc.com>
 
-[ Upstream commit 174974d8463b77c2b4065e98513adb204e64de7d ]
+[ Upstream commit 94553f8a218540d676efbf3f7827ed493d1057cf ]
 
-If the previous thing cat'ing $debugfs/rd left the FIFO full, then
-subsequent open could deadlock in rd_write() (because open is blocked,
-not giving a chance for read() to consume any data in the FIFO).  Also
-it is generally a good idea to clear out old data from the FIFO.
+The double `like' is duplicated in the comment, remove one.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/496706/
-Link: https://lore.kernel.org/r/20220807160901.2353471-2-robdclark@gmail.com
+Signed-off-by: Jason Wang <wangborong@cdjrlc.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_rd.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/intel-ish-hid/ishtp-hid.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
-index bdce1c9434c6c..54891cbf4f50f 100644
---- a/drivers/gpu/drm/msm/msm_rd.c
-+++ b/drivers/gpu/drm/msm/msm_rd.c
-@@ -193,6 +193,9 @@ static int rd_open(struct inode *inode, struct file *file)
- 	file->private_data = rd;
- 	rd->open = true;
- 
-+	/* Reset fifo to clear any previously unread data: */
-+	rd->fifo.head = rd->fifo.tail = 0;
-+
- 	/* the parsing tools need to know gpu-id to know which
- 	 * register database to load.
- 	 */
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
+index f5c7eb79b7b53..fa16983007f60 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.h
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
+@@ -118,7 +118,7 @@ struct report_list {
+  * @multi_packet_cnt:	Count of fragmented packet count
+  *
+  * This structure is used to store completion flags and per client data like
+- * like report description, number of HID devices etc.
++ * report description, number of HID devices etc.
+  */
+ struct ishtp_cl_data {
+ 	/* completion flags */
 -- 
 2.35.1
 
