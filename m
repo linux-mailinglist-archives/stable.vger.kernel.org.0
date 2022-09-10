@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD2985B49E5
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C4015B4A3C
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230291AbiIJVYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:24:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37182 "EHLO
+        id S230331AbiIJVb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:31:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230380AbiIJVX0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:23:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61CEB4BD13;
-        Sat, 10 Sep 2022 14:19:17 -0700 (PDT)
+        with ESMTP id S231317AbiIJVbl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:31:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE0B7578A1;
+        Sat, 10 Sep 2022 14:25:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37472B80915;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A03FA60EC3;
         Sat, 10 Sep 2022 21:18:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A335C43140;
-        Sat, 10 Sep 2022 21:18:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF9EC43470;
+        Sat, 10 Sep 2022 21:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844736;
-        bh=c15g6TlQSNLnuj/POUbCskQOM/kc1isI+563BYNg+DY=;
+        s=k20201202; t=1662844738;
+        bh=BNqis8zEoyO3GPe0joWPNzLokGPfL/P4HVQzS+hWMrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hr9pSG1uBqaKJ/Z7aMf3yCSrp8xUA6yWmOA1Hju/ghcbv4xBpChDgSLauqsvKmNCr
-         Yz5z6HQk/VS4YLARQD7yYQ7+xpQqD1rx+G+aPgFq9vVkgCt3XGUh312UANEcXy9vk6
-         12n3qb3qq/CpLkZtQB04xoed4g4ehI5PO1gaHFGf8phGC4EeOO3VvZM4oK4A48wDY+
-         le+uMIvUZNKs/BmNmnMCh6x2cVsmn/JMxhN5PZ3y0MRHvoDxEFpCtKFHYnnkjh7g/t
-         deS8jNACv4EJRCJukZG75qNbgW6yESYdAmF/MHIzX+LeEW0nF0KrDItyNGRIu+wZja
-         LTsXf+a2u4y/A==
+        b=a9ElXPvwz3+K9g66T2Yb5+KFxDdKsDTW+1olK9aIISgUshgX5QW4IEYia31DSQsAv
+         nIrw1gQLzpdp+NpTqRepBJVSSDvEbWzot4VVA0ynuKOpow9LvkYUhCz2qffAGHz3IG
+         QhATifB9XdRL7hPXx7FWsuONbbgpUWMDtTBCNeb1y4bxMyjUodfzyyfkPByyi/6RP5
+         vVbgoq3g1QSf67OAxIx8N17xfghwdbv48/A2jc2VszLU+DEIZxKRi9OrI3HfG+iX2D
+         C9Rvi0fc19pgm2CSkbpt7Dnzx6MF0zhAQvFlZGBGfiBPo2aqtwF9b44H+M5YgQtVEo
+         fPMaWEj55dZaw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengming Gui <Jack.Gui@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        Likun.Gao@amd.com, john.clements@amd.com, candice.li@amd.com,
-        guchun.chen@amd.com, tao.zhou1@amd.com, Bokun.Zhang@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 11/14] drm/amd/amdgpu: skip ucode loading if ucode_size == 0
-Date:   Sat, 10 Sep 2022 17:18:29 -0400
-Message-Id: <20220910211832.70579-11-sashal@kernel.org>
+Cc:     Yu Zhe <yuzhe@nfschina.com>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, mark.rutland@arm.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 12/14] perf/arm_pmu_platform: fix tests for platform_get_irq() failure
+Date:   Sat, 10 Sep 2022 17:18:30 -0400
+Message-Id: <20220910211832.70579-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211832.70579-1-sashal@kernel.org>
 References: <20220910211832.70579-1-sashal@kernel.org>
@@ -61,33 +56,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Gui <Jack.Gui@amd.com>
+From: Yu Zhe <yuzhe@nfschina.com>
 
-[ Upstream commit 39c84b8e929dbd4f63be7e04bf1a2bcd92b44177 ]
+[ Upstream commit 6bb0d64c100091e131cd16710b62fda3319cd0af ]
 
-Restrict the ucode loading check to avoid frontdoor loading error.
+The platform_get_irq() returns negative error codes.  It can't actually
+return zero.
 
-Signed-off-by: Chengming Gui <Jack.Gui@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Yu Zhe <yuzhe@nfschina.com>
+Link: https://lore.kernel.org/r/20220825011844.8536-1-yuzhe@nfschina.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 2 +-
+ drivers/perf/arm_pmu_platform.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index 2f47f81a74a57..f3a806df7648d 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -1921,7 +1921,7 @@ static int psp_load_smu_fw(struct psp_context *psp)
- static bool fw_load_skip_check(struct psp_context *psp,
- 			       struct amdgpu_firmware_info *ucode)
- {
--	if (!ucode->fw)
-+	if (!ucode->fw || !ucode->ucode_size)
- 		return true;
+diff --git a/drivers/perf/arm_pmu_platform.c b/drivers/perf/arm_pmu_platform.c
+index ef9676418c9f4..2e1f3680d8466 100644
+--- a/drivers/perf/arm_pmu_platform.c
++++ b/drivers/perf/arm_pmu_platform.c
+@@ -117,7 +117,7 @@ static int pmu_parse_irqs(struct arm_pmu *pmu)
  
- 	if (ucode->ucode_id == AMDGPU_UCODE_ID_SMC &&
+ 	if (num_irqs == 1) {
+ 		int irq = platform_get_irq(pdev, 0);
+-		if (irq && irq_is_percpu_devid(irq))
++		if ((irq > 0) && irq_is_percpu_devid(irq))
+ 			return pmu_parse_percpu_irq(pmu, irq);
+ 	}
+ 
 -- 
 2.35.1
 
