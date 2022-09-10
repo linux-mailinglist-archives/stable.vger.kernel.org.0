@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 501DA5B4A03
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FAD25B4A37
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231226AbiIJVZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44686 "EHLO
+        id S229945AbiIJVb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:31:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231430AbiIJVYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:24:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8C44E615;
-        Sat, 10 Sep 2022 14:20:41 -0700 (PDT)
+        with ESMTP id S229997AbiIJVbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:31:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC945727C;
+        Sat, 10 Sep 2022 14:25:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A9C5B80943;
-        Sat, 10 Sep 2022 21:19:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76B64C4347C;
-        Sat, 10 Sep 2022 21:18:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E99860E86;
+        Sat, 10 Sep 2022 21:19:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5DFAC43140;
+        Sat, 10 Sep 2022 21:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844739;
-        bh=r3AOt/UinTmkKytVgah9WWipiOgfRN/VZBI8HsmGJPg=;
+        s=k20201202; t=1662844740;
+        bh=m0CCmXn+DRNmptGEaAfo1O1jNqKFsxS0zWNvH9+boSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNCBFaTPEy/IK8IJf5daa8NpGgwFrunJPaMYvbF7eHpk0r0MNLK0gZWCu3cyJoPaE
-         cufjxU1Wb6J5Gw7hfzNNbJigcis5S9qDXDsJewK1SzeLlbGmOw7IzgDg8RT5xuCjxW
-         w+7bp50rwdBwHJxNbOn5lumxJbg0bEzYyHzdubDQSKjpmA28YIxCon/fpJCeLmaBj9
-         3npPF1E3yTnQq5SA2SSrUHRQjjEIJetUTadLdQMLBYYm0f9WSHhYHFsfZERZyDsAIc
-         pFHbaC+UjoUP6WZSLGPAKuwH28Vbut5QftfQmPyEsIjHjzsmh0Mv0cRJ4d5rYzW0vG
-         ph5mX3HupOTBw==
+        b=ew+rl11en3lMuV+LU3AvbUtfLC5e7/r5IVmBtXfOPfSMO9E1+dSJxXB8WSBsZoZZP
+         xwOvNE21t4nbSNKVU/469Bd803x6kXt0JpUBP0xOQ0c3J4IL1O5uLbqMGYitQsnNPv
+         CisM3gMuRX1ZuZAmB1HKp28kbkDU9ZlBQXiDyR942rEC/ScqgAdfo19IaOvkh254wi
+         qU06QVc/bRKmbfr8vsK2StQnl2oL6JjmwgSzbWPL7ZrwPZnQNPXYCIgHkJDKpRvVvf
+         1oYDSVa1aAQUWAFT3bDCI0TWXb/JCsD3mA83DLXZtPrwsdiJo8jiSZ0PzdOs80y3c9
+         tWUbttOP9+AXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jlee@suse.com,
-        markgross@kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 13/14] platform/x86: acer-wmi: Acer Aspire One AOD270/Packard Bell Dot keymap fixes
-Date:   Sat, 10 Sep 2022 17:18:31 -0400
-Message-Id: <20220910211832.70579-13-sashal@kernel.org>
+Cc:     Hu Xiaoying <huxiaoying@kylinos.cn>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        usb-storage@lists.one-eyed-alien.net
+Subject: [PATCH AUTOSEL 5.10 14/14] usb: storage: Add ASUS <0x0b05:0x1932> to IGNORE_UAS
+Date:   Sat, 10 Sep 2022 17:18:32 -0400
+Message-Id: <20220910211832.70579-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211832.70579-1-sashal@kernel.org>
 References: <20220910211832.70579-1-sashal@kernel.org>
@@ -56,56 +59,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Hu Xiaoying <huxiaoying@kylinos.cn>
 
-[ Upstream commit c3b82d26bc85f5fc2fef5ec8cce17c89633a55a8 ]
+[ Upstream commit c61feaee68b9735be06f162bc046c7f1959efb0c ]
 
-2 keymap fixes for the Acer Aspire One AOD270 and the same hardware
-rebranded as Packard Bell Dot SC:
+USB external storage device(0x0b05:1932), use gnome-disk-utility tools
+to test usb write  < 30MB/s.
+if does not to load module of uas for this device, can increase the
+write speed from 20MB/s to >40MB/s.
 
-1. The F2 key is marked with a big '?' symbol on the Packard Bell Dot SC,
-this sends WMID_HOTKEY_EVENTs with a scancode of 0x27 add a mapping
-for this.
-
-2. Scancode 0x61 is KEY_SWITCHVIDEOMODE. Usually this is a duplicate
-input event with the "Video Bus" input device events. But on these devices
-the "Video Bus" does not send events for this key. Map 0x61 to KEY_UNKNOWN
-instead of using KE_IGNORE so that udev/hwdb can override it on these devs.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220829163544.5288-1-hdegoede@redhat.com
+Suggested-by: Matthias Kaehlcke <mka@chromium.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Hu Xiaoying <huxiaoying@kylinos.cn>
+Link: https://lore.kernel.org/r/20220901045737.3438046-1-huxiaoying@kylinos.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/acer-wmi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/usb/storage/unusual_uas.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 80983f9dfcd55..8e696262215fc 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -93,6 +93,7 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
- 	{KE_KEY, 0x22, {KEY_PROG2} },    /* Arcade */
- 	{KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
- 	{KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_Key */
-+	{KE_KEY, 0x27, {KEY_HELP} },
- 	{KE_KEY, 0x29, {KEY_PROG3} },    /* P_Key for TM8372 */
- 	{KE_IGNORE, 0x41, {KEY_MUTE} },
- 	{KE_IGNORE, 0x42, {KEY_PREVIOUSSONG} },
-@@ -106,7 +107,13 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
- 	{KE_IGNORE, 0x48, {KEY_VOLUMEUP} },
- 	{KE_IGNORE, 0x49, {KEY_VOLUMEDOWN} },
- 	{KE_IGNORE, 0x4a, {KEY_VOLUMEDOWN} },
--	{KE_IGNORE, 0x61, {KEY_SWITCHVIDEOMODE} },
-+	/*
-+	 * 0x61 is KEY_SWITCHVIDEOMODE. Usually this is a duplicate input event
-+	 * with the "Video Bus" input device events. But sometimes it is not
-+	 * a dup. Map it to KEY_UNKNOWN instead of using KE_IGNORE so that
-+	 * udev/hwdb can override it on systems where it is not a dup.
-+	 */
-+	{KE_KEY, 0x61, {KEY_UNKNOWN} },
- 	{KE_IGNORE, 0x62, {KEY_BRIGHTNESSUP} },
- 	{KE_IGNORE, 0x63, {KEY_BRIGHTNESSDOWN} },
- 	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
+diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
+index 4051c8cd0cd8a..23ab3b048d9be 100644
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -62,6 +62,13 @@ UNUSUAL_DEV(0x0984, 0x0301, 0x0128, 0x0128,
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_IGNORE_UAS),
+ 
++/* Reported-by: Tom Hu <huxiaoying@kylinos.cn> */
++UNUSUAL_DEV(0x0b05, 0x1932, 0x0000, 0x9999,
++		"ASUS",
++		"External HDD",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_IGNORE_UAS),
++
+ /* Reported-by: David Webb <djw@noc.ac.uk> */
+ UNUSUAL_DEV(0x0bc2, 0x331a, 0x0000, 0x9999,
+ 		"Seagate",
 -- 
 2.35.1
 
