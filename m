@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C66455B4466
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 08:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 296395B4469
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 08:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbiIJG1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 02:27:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36214 "EHLO
+        id S229643AbiIJG1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 02:27:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229550AbiIJG1e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 02:27:34 -0400
+        with ESMTP id S229729AbiIJG1s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 02:27:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52CAB9FA89
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 23:27:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 377579DB77
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 23:27:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83A8760B8B
-        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 06:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B262C433D6;
-        Sat, 10 Sep 2022 06:27:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CAAAF60C66
+        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 06:27:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBB1C433C1;
+        Sat, 10 Sep 2022 06:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662791251;
-        bh=gxtdp9uNUy2owwSfhdkSzW+I57102p61S+yqpbR1fJQ=;
+        s=korg; t=1662791261;
+        bh=7VTXKRLddc21bso/RLPr1EbJ2MVUPeithwMX76jiqKk=;
         h=Subject:To:Cc:From:Date:From;
-        b=NTZeBQq8EuwurOjabGb48+B46jqThF3n82E8KO0A4Z2J5E3r4tLoUWfv7SHfEXXTV
-         fqbUj4p4rbbBmrEoc3uzcCGHtdphMUCopC4b7EhnvEZmM5NwxYw6X7r3c0R9pON6o2
-         1PRYl/AH604GZgSvo2S6qp6u8WST1ZNFSty7xcQw=
-Subject: FAILED: patch "[PATCH] nvmet: fix a use-after-free" failed to apply to 4.19-stable tree
+        b=yztawc5cmf5o8FYi2pMPrZzqgwo0zgrFXIzAzYoXa0ZfFs445yufimJmjB73kpyOS
+         Ugu5UjLQxuOMIElltAm21sB3+vUiNXw5U6nyIMkhkwZ9pOQLWI69tLj3sckiRGJHmA
+         xW192bzu59gBsXRx42vyKaK1Ja6yfnAzRlKZAOcs=
+Subject: FAILED: patch "[PATCH] nvmet: fix a use-after-free" failed to apply to 4.14-stable tree
 To:     bvanassche@acm.org, hch@lst.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Sep 2022 08:27:54 +0200
-Message-ID: <166279127434184@kroah.com>
+Date:   Sat, 10 Sep 2022 08:27:55 +0200
+Message-ID: <1662791275149178@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,6 +61,13 @@ a5448fdc469d ("nvmet: introduce target-side trace")
 872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
 cb019da3dabf ("nvmet: use unlikely for req status check")
 e6a622fd6d66 ("nvmet: support fabrics sq flow control")
+55eb942eda2c ("nvmet: add buffered I/O support for file backed ns")
+d5eff33ee6f8 ("nvmet: add simple file backed ns support")
+618cff4285dc ("nvmet: remove duplicate NULL initialization for req->ns")
+e929f06d9eaa ("nvmet: constify struct nvmet_fabrics_ops")
+4c6526858810 ("nvmet: don't return "any" ip address in discovery log page")
+423b4487fb23 ("nvmet: release a ns reference in nvmet_req_uninit if needed")
+e2c5923c349c ("Merge branch 'for-4.15/block' of git://git.kernel.dk/linux-block")
 
 thanks,
 
