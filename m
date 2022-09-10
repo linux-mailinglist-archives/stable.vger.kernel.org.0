@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1135A5B499F
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:21:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 103255B49BA
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:22:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230272AbiIJVVh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:21:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57264 "EHLO
+        id S230454AbiIJVWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:22:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229946AbiIJVUq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:20:46 -0400
+        with ESMTP id S230394AbiIJVVs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:21:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 678034F66A;
-        Sat, 10 Sep 2022 14:18:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 991B74D83C;
+        Sat, 10 Sep 2022 14:18:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F059660EDF;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD05D60E65;
+        Sat, 10 Sep 2022 21:18:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB70DC433B5;
         Sat, 10 Sep 2022 21:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82953C433D7;
-        Sat, 10 Sep 2022 21:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844692;
-        bh=LN1FJ9KUMVbqSmpk7gmtJNMJOzEp5mEdl757t1pGIng=;
+        s=k20201202; t=1662844694;
+        bh=WHRxAVYJvNf+tsOM+bZFl4O0EEI09kuycwNQUMZe5iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5ghFHLVknD3pnw4Ath9L69G4F5a71h/l0ghdn8NGC7miwvSqftTVZrjWrEG9mTG1
-         tTAmXz1IqAjaZ5Ee0K8/q9AU8rFPYDTqCt891fScyaTlc2s0yr4i3WQHw9klKAKc7D
-         5bIbJYS4M8TSsJcrjb2KHrvmTWQWBVFuKUG0mGkEEkDf/+Y3ijJBVEfDaFxEJDYtmm
-         RlKXrrUPw9T9s5Q8K38M7SttPjgswKsmsbhT/uOrLojonK1qRgyqoY9hkndOY/6EHm
-         P6QksKkOZA/t1mjgaAFsqe4mu5qyXkkd5S1rm8wrQuQ9zv407Vqw9JPdPAJRf79Hsm
-         duj/8IdQ0dP9w==
+        b=KVBXT2+F/XfqLoAQettTuZ3QUeP/nSbJNQBE0RG255SRaK2oMoOqNbRsIRMmXPreV
+         pZxrP48K+OwTqVs0ElZm7XrA41Z3f0MbvmRe0BDOXRfOFjImFFu8sSInq1la46tkaO
+         VmLjKF57QbZiSblBTt08HS8yPpZccE7nVqe3RoIPbo+3j2Duaudv5ZB0pXNNAC3REr
+         42gChG/AGSSwsm/SfrXTr0QXTHNeftKY/LaNtz3oDiO8oIOxgR4LuN/r3m4+5xmXex
+         xSuaASiIE3vSM2lQD55h77Ytmj54AEpUFmcrtOjLMLTb2TvybQvZ0F0TMIYm5DMddV
+         w9779X8v89enA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steev Klimaszewski <steev@kali.org>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 11/21] HID: add Lenovo Yoga C630 battery quirk
-Date:   Sat, 10 Sep 2022 17:17:42 -0400
-Message-Id: <20220910211752.70291-11-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, siva.kallam@broadcom.com,
+        prashant@broadcom.com, mchan@broadcom.com, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 12/21] tg3: Disable tg3 device on system reboot to avoid triggering AER
+Date:   Sat, 10 Sep 2022 17:17:43 -0400
+Message-Id: <20220910211752.70291-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211752.70291-1-sashal@kernel.org>
 References: <20220910211752.70291-1-sashal@kernel.org>
@@ -56,50 +60,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steev Klimaszewski <steev@kali.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 3a47fa7b14c7d9613909a844aba27f99d3c58634 ]
+[ Upstream commit 2ca1c94ce0b65a2ce7512b718f3d8a0fe6224bca ]
 
-Similar to the Surface Go devices, the Elantech touchscreen/digitizer in
-the Lenovo Yoga C630 mistakenly reports the battery of the stylus, and
-always reports an empty battery.
+Commit d60cd06331a3 ("PM: ACPI: reboot: Use S5 for reboot") caused a
+reboot hang on one Dell servers so the commit was reverted.
 
-Apply the HID_BATTERY_QUIRK_IGNORE quirk to ignore this battery and
-prevent the erroneous low battery warnings.
+Someone managed to collect the AER log and it's caused by MSI:
+[ 148.762067] ACPI: Preparing to enter system sleep state S5
+[ 148.794638] {1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 5
+[ 148.803731] {1}[Hardware Error]: event severity: recoverable
+[ 148.810191] {1}[Hardware Error]: Error 0, type: fatal
+[ 148.816088] {1}[Hardware Error]: section_type: PCIe error
+[ 148.822391] {1}[Hardware Error]: port_type: 0, PCIe end point
+[ 148.829026] {1}[Hardware Error]: version: 3.0
+[ 148.834266] {1}[Hardware Error]: command: 0x0006, status: 0x0010
+[ 148.841140] {1}[Hardware Error]: device_id: 0000:04:00.0
+[ 148.847309] {1}[Hardware Error]: slot: 0
+[ 148.852077] {1}[Hardware Error]: secondary_bus: 0x00
+[ 148.857876] {1}[Hardware Error]: vendor_id: 0x14e4, device_id: 0x165f
+[ 148.865145] {1}[Hardware Error]: class_code: 020000
+[ 148.870845] {1}[Hardware Error]: aer_uncor_status: 0x00100000, aer_uncor_mask: 0x00010000
+[ 148.879842] {1}[Hardware Error]: aer_uncor_severity: 0x000ef030
+[ 148.886575] {1}[Hardware Error]: TLP Header: 40000001 0000030f 90028090 00000000
+[ 148.894823] tg3 0000:04:00.0: AER: aer_status: 0x00100000, aer_mask: 0x00010000
+[ 148.902795] tg3 0000:04:00.0: AER: [20] UnsupReq (First)
+[ 148.910234] tg3 0000:04:00.0: AER: aer_layer=Transaction Layer, aer_agent=Requester ID
+[ 148.918806] tg3 0000:04:00.0: AER: aer_uncor_severity: 0x000ef030
+[ 148.925558] tg3 0000:04:00.0: AER: TLP Header: 40000001 0000030f 90028090 00000000
 
-Signed-off-by: Steev Klimaszewski <steev@kali.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+The MSI is probably raised by incoming packets, so power down the device
+and disable bus mastering to stop the traffic, as user confirmed this
+approach works.
+
+In addition to that, be extra safe and cancel reset task if it's running.
+
+Cc: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/all/b8db79e6857c41dab4ef08bdf826ea7c47e3bafc.1615947283.git.josef@toxicpanda.com/
+BugLink: https://bugs.launchpad.net/bugs/1917471
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Link: https://lore.kernel.org/r/20220826002530.1153296-1-kai.heng.feng@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/net/ethernet/broadcom/tg3.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ceaa36fc429ef..cb2b48d6915ee 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -399,6 +399,7 @@
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
- #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
- #define I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN	0x2A1C
-+#define I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN	0x279F
+diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+index 5e0e0e70d8014..8aab07419263e 100644
+--- a/drivers/net/ethernet/broadcom/tg3.c
++++ b/drivers/net/ethernet/broadcom/tg3.c
+@@ -18078,16 +18078,20 @@ static void tg3_shutdown(struct pci_dev *pdev)
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct tg3 *tp = netdev_priv(dev);
  
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 125043a28a35c..f197aed6444a5 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -335,6 +335,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
++	tg3_reset_task_cancel(tp);
++
+ 	rtnl_lock();
++
+ 	netif_device_detach(dev);
  
+ 	if (netif_running(dev))
+ 		dev_close(dev);
+ 
+-	if (system_state == SYSTEM_POWER_OFF)
+-		tg3_power_down(tp);
++	tg3_power_down(tp);
+ 
+ 	rtnl_unlock();
++
++	pci_disable_device(pdev);
+ }
+ 
+ /**
 -- 
 2.35.1
 
