@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19F935B4922
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D7E5B4928
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:17:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbiIJVRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:17:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56282 "EHLO
+        id S229925AbiIJVRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:17:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229809AbiIJVRK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:17:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18CD04D14F;
-        Sat, 10 Sep 2022 14:16:48 -0700 (PDT)
+        with ESMTP id S229918AbiIJVRM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:17:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C557A36DD0;
+        Sat, 10 Sep 2022 14:16:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D42AA60DF0;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D06D9B8093B;
+        Sat, 10 Sep 2022 21:16:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7DA2C43470;
         Sat, 10 Sep 2022 21:16:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 285E1C4347C;
-        Sat, 10 Sep 2022 21:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844607;
-        bh=a7TFOgTGplUjVrxVCUYkBfqXu+cTKnaF+lMxMUV0be4=;
+        s=k20201202; t=1662844608;
+        bh=A1g0Ic9PM5dTsnBfy4geYgcgyJ4UvSzheMVF6DJzDP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6maoNf0zAk3hvEHtp6YBTliaEs6frkGoaMuL4EV2FKl1o6N3BoTx9L3Fsjn8LtsZ
-         TFurWK0ACjyI8/g54oW0Ob8FQQYUYYBhUElnejVeHj3QHhg8iUUSIAJag99eIcE+Zn
-         9Tneq1MSlgcN0G6ccY411g1F/EHX1HT4KMHtNJG6E0iCX17cw2idYb9h1Y5XEQ5Kf2
-         QgjCEd/WuMpzYgHr/2UfBugzojpp5F+QdN3H8BRW7ShmCRZ39yScxzEAJHU4pHrPHS
-         KZGSxa9xQQjbu7R4p6cl/OhjLU1zHiKmFccqWXa8sfDQFiI5OOlan/FG81snIttUVw
-         s83Qxnnj3yQfg==
+        b=Ngc2URd6IzfHOAvRM+urkUTIwsw6p3lcyCzlbYA0tub8mVAgij2zLfMJsF/ESmrmy
+         YTQ4b7lrE7AJO8b5Dne02AnpBoIjbDMooLUHCs9zD3+I2BWDQB9Die0jAJ/1eMhoYH
+         DgdDXc866tP1fveyFsKOovtXqXe2JowaP2sHYf0cqwyQZoMI1fmBfYVbViDRkcJuS6
+         2pXibNp5F+9EpZ31Htn0h7JVVd6iNC6c5hzjdRPPxvdFV72TAUTrnKxga5mNVXBrmj
+         iLDpHUCET+vfSPo3k40RtnR0Y9BieF5u7ch5aNzonxBEI5ztyjFTUxDesGnt/JJeqB
+         /mI8tUFgwDqtg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Akihiko Odaki <akihiko.odaki@gmail.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        basavaraj.natikar@amd.com, jikos@kernel.org,
+Cc:     Steev Klimaszewski <steev@kali.org>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
         benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 13/38] HID: AMD_SFH: Add a DMI quirk entry for Chromebooks
-Date:   Sat, 10 Sep 2022 17:15:58 -0400
-Message-Id: <20220910211623.69825-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 14/38] HID: add Lenovo Yoga C630 battery quirk
+Date:   Sat, 10 Sep 2022 17:15:59 -0400
+Message-Id: <20220910211623.69825-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
@@ -59,60 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akihiko Odaki <akihiko.odaki@gmail.com>
+From: Steev Klimaszewski <steev@kali.org>
 
-[ Upstream commit adada3f4930ac084740ea340bd8e94028eba4f22 ]
+[ Upstream commit 3a47fa7b14c7d9613909a844aba27f99d3c58634 ]
 
-Google Chromebooks use Chrome OS Embedded Controller Sensor Hub instead
-of Sensor Hub Fusion and leaves MP2 uninitialized, which disables all
-functionalities, even including the registers necessary for feature
-detections.
+Similar to the Surface Go devices, the Elantech touchscreen/digitizer in
+the Lenovo Yoga C630 mistakenly reports the battery of the stylus, and
+always reports an empty battery.
 
-The behavior was observed with Lenovo ThinkPad C13 Yoga.
+Apply the HID_BATTERY_QUIRK_IGNORE quirk to ignore this battery and
+prevent the erroneous low battery warnings.
 
-Signed-off-by: Akihiko Odaki <akihiko.odaki@gmail.com>
-Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
-Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Steev Klimaszewski <steev@kali.org>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index 1441787a154a8..9b97dc0695e3a 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -285,11 +285,29 @@ static int amd_sfh_irq_init(struct amd_mp2_dev *privdata)
- 	return 0;
- }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9c4e92a9c6460..f7e4a0d06fb85 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -414,6 +414,7 @@
+ #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
+ #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
+ #define I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN	0x2A1C
++#define I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN	0x279F
  
-+static const struct dmi_system_id dmi_nodevs[] = {
-+	{
-+		/*
-+		 * Google Chromebooks use Chrome OS Embedded Controller Sensor
-+		 * Hub instead of Sensor Hub Fusion and leaves MP2
-+		 * uninitialized, which disables all functionalities, even
-+		 * including the registers necessary for feature detections.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
-+		},
-+	},
-+	{ }
-+};
-+
- static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- {
- 	struct amd_mp2_dev *privdata;
- 	int rc;
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 48c1c02c69f4e..17a453bb09a2d 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -383,6 +383,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{}
+ };
  
-+	if (dmi_first_match(dmi_nodevs))
-+		return -ENODEV;
-+
- 	privdata = devm_kzalloc(&pdev->dev, sizeof(*privdata), GFP_KERNEL);
- 	if (!privdata)
- 		return -ENOMEM;
 -- 
 2.35.1
 
