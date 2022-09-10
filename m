@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 633805B495E
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:19:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50C6C5B4972
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:20:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229768AbiIJVTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:19:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56336 "EHLO
+        id S230108AbiIJVUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:20:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230088AbiIJVSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:18:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA0D84BD0E;
-        Sat, 10 Sep 2022 14:17:29 -0700 (PDT)
+        with ESMTP id S230174AbiIJVTQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:19:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C1254DF3F;
+        Sat, 10 Sep 2022 14:17:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 845FB60E65;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4BC860EB6;
+        Sat, 10 Sep 2022 21:17:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E1CEC4347C;
         Sat, 10 Sep 2022 21:17:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18003C433D7;
-        Sat, 10 Sep 2022 21:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844644;
-        bh=k/IRruyCkZWhZI+atk2d7eT+R5sJKTlp9ZUCQcg/64c=;
+        s=k20201202; t=1662844645;
+        bh=h2JJsDOxp0+rL1U/L7fiyquP3/111TM89S4s473Qksc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T42lwsKWVgIEf3yVp6cCWjGLowj1CxEqw3PUoSu3s/utYi+QWwUDz+d2vo5Nf3M+b
-         meCf/giYeCHDmzMbWv81dksXd3+Z6yn9B2MpgAVS2nF7OJH0ZJy7DnHqR8tVUtjGbv
-         M0abV7UU8Hzy0FM1WXr+2A/Krdmd8ox6qNnMrT015FYPOP5hTH53KbUXMod0a4E+7B
-         RFL1v/k4/3+TqsgiTo00qBFs2pRicefJnvWEols6bawuuwVSQqRcav73ouVOltcdf0
-         TKFU75TpPowev+v8OBpVuMfAyIWzrMv2eG4wA+7Kl6aWz6AIMif+o+sDVDRrlolPgP
-         DJZNixtrfh4pg==
+        b=GvnKpRoJU/PmU3qnKm5gGVgoo/bFGa8CQcWXmBioeT0zrzLwOKBg3MEGrAiCZshaE
+         SiPQKlhta6Asfe1PG+dQt0G6BsVTxdZDFUlq5iFc0bYJGyIwCsZeDTtKO5uLDfR1Kf
+         mKVpJV/OyZ1zex4CiRjLgrlMEhkv6qyegZgQHy3FyF30SbryX+5Fb9isuxDTnT5ZaE
+         qUQJHRskS5AH/tdqLiW0jrJn/RybUGESitYsuhH1yPUb+B1+zO0ton/fl4VSTv1CiN
+         Sy1uWBuvnsmaEwU4yH2ZRahJapALA0HpYfskBFa5yPTqpzB98g/NA6kes2hJ5CVaDR
+         WCPx4qwHQWQlA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shyamin Ayesh <me@shyamin.com>, Keith Busch <kbusch@kernel.org>,
+Cc:     Maurizio Lombardi <mlombard@redhat.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
         Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
-        sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.19 26/38] nvme-pci: add NVME_QUIRK_BOGUS_NID for Lexar NM610
-Date:   Sat, 10 Sep 2022 17:16:11 -0400
-Message-Id: <20220910211623.69825-26-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 27/38] nvmet-tcp: fix unhandled tcp states in nvmet_tcp_state_change()
+Date:   Sat, 10 Sep 2022 17:16:12 -0400
+Message-Id: <20220910211623.69825-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
@@ -57,36 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyamin Ayesh <me@shyamin.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 200dccd07df21b504a2168960059f0a971bf415d ]
+[ Upstream commit 478814a5584197fa1fb18377653626e3416e7cd6 ]
 
-Lexar NM610 reports bogus eui64 values that appear to be the same across
-all drives. Quirk them out so they are not marked as "non globally unique"
-duplicates.
+TCP_FIN_WAIT2 and TCP_LAST_ACK were not handled, the connection is closing
+so we can ignore them and avoid printing the "unhandled state"
+warning message.
 
-Signed-off-by: Shyamin Ayesh <me@shyamin.com>
-[patch formatting]
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+[ 1298.852386] nvmet_tcp: queue 2 unhandled state 5
+[ 1298.879112] nvmet_tcp: queue 7 unhandled state 5
+[ 1298.884253] nvmet_tcp: queue 8 unhandled state 5
+[ 1298.889475] nvmet_tcp: queue 9 unhandled state 5
+
+v2: Do not call nvmet_tcp_schedule_release_queue(), just ignore
+the fin_wait2 and last_ack states.
+
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nvme/target/tcp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 73d9fcba3b1c0..9f6614f7dbeb1 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3517,6 +3517,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
- 	{ PCI_DEVICE(0xc0a9, 0x540a),   /* Crucial P2 */
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
-+	{ PCI_DEVICE(0x1d97, 0x2263), /* Lexar NM610 */
-+		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
- 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index dc3b4dc8fe08b..a3694a32f6d52 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -1506,6 +1506,9 @@ static void nvmet_tcp_state_change(struct sock *sk)
+ 		goto done;
+ 
+ 	switch (sk->sk_state) {
++	case TCP_FIN_WAIT2:
++	case TCP_LAST_ACK:
++		break;
+ 	case TCP_FIN_WAIT1:
+ 	case TCP_CLOSE_WAIT:
+ 	case TCP_CLOSE:
 -- 
 2.35.1
 
