@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F33785B48FD
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:16:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 211A55B4909
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229705AbiIJVQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:16:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56098 "EHLO
+        id S229676AbiIJVQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:16:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229691AbiIJVQb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:16:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 224CD47B88;
-        Sat, 10 Sep 2022 14:16:31 -0700 (PDT)
+        with ESMTP id S229527AbiIJVQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:16:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A2A4BA55;
+        Sat, 10 Sep 2022 14:16:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A030960DD4;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1F845CE0ADC;
+        Sat, 10 Sep 2022 21:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74A3AC43470;
         Sat, 10 Sep 2022 21:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B4C4C433C1;
-        Sat, 10 Sep 2022 21:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844590;
-        bh=fisER/uHOHzxDeiiE0kTtSX09vFJQsYiGGMe5WNMp9A=;
+        s=k20201202; t=1662844591;
+        bh=TEg6ARWhMYcT0ex9y+chGkYhGquiKD2maBKxPOGkBGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t+BgYHf9JLhfWcZxi/6MgfiBQXtdH6Gscupc/OEQXMl5fwbAO3Gxo/n33cqh1Dme/
-         zbQPS0hMRcGh18gs+TkozD7W/CCi9U+TtKGyNlm+9W5/8Ns2KevxAzoOAg0lrGHL2Y
-         7ZpVQ456oLXwu7lTYA/5To+ICGSpjtM5HTa6J1EoYdoaBRmNW96d8rN/yZDanqROlM
-         LW06vwsIvWpmPnZu5Dql3cJinBho1uG10mbiYhHgE2WwvNFUn7hUmB0X3UhTGmtKiI
-         O8lMg5ngGMlCSKKPQE0SNqT7ONZa/IHMSUJEXlWo7J6CNYM/yGrDg5GS3Nm+PXzFoH
-         HFTC0+CT8pBeA==
+        b=W3y0GPoyaaFDfBbsKWtSL5fKOow4r52YQHZIRA1K3Odsru+WGWyPeKieTdJIuTRec
+         NALKRysa5Hl+hDp7rYz437kSii73WmXBM6dIatP+Lsp/VUlCUVjD1fS0ZClUA2LX0N
+         l9IO8GxmCQ2sHeLHDbMVK78OUf0Tq0qo/T3W6lUbf0W5DzaSDfna50wfDLV7K1P8ug
+         fmC3l8e9kDyl10q+p2tTTBm5NEABZO5PJvtsSYWUuPF0DPyMPBlVrJUl3ANB/RSWeU
+         MtqauNjMKWw+wNxh+D6Ty8VCcx+45qNJnreZkuWmWenOGY9zLupFa4f+47KAbpTGTA
+         U0rVf5V6J9Edg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Iwona Winiarska <iwona.winiarska@intel.com>,
-        Jianglei Nie <niejianglei2021@163.com>,
-        Sasha Levin <sashal@kernel.org>, openbmc@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.19 04/38] peci: cpu: Fix use-after-free in adev_release()
-Date:   Sat, 10 Sep 2022 17:15:49 -0400
-Message-Id: <20220910211623.69825-4-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 05/38] hwmon: (pmbus) Use dev_err_probe() to filter -EPROBE_DEFER error messages
+Date:   Sat, 10 Sep 2022 17:15:50 -0400
+Message-Id: <20220910211623.69825-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
@@ -56,48 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iwona Winiarska <iwona.winiarska@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 1c11289b34ab67ed080bbe0f1855c4938362d9cf ]
+[ Upstream commit 09e52d17b72d3a4bf6951a90ccd8c97fae04e5cf ]
 
-When auxiliary_device_add() returns an error, auxiliary_device_uninit()
-is called, which causes refcount for device to be decremented and
-.release callback will be triggered.
+devm_regulator_register() can return -EPROBE_DEFER, so better use
+dev_err_probe() instead of dev_err(), it is less verbose in such a case.
 
-Because adev_release() re-calls auxiliary_device_uninit(), it will cause
-use-after-free:
-[ 1269.455172] WARNING: CPU: 0 PID: 14267 at lib/refcount.c:28 refcount_warn_saturate+0x110/0x15
-[ 1269.464007] refcount_t: underflow; use-after-free.
+It is also more informative, which can't hurt.
 
-Reported-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
-Link: https://lore.kernel.org/r/20220705101501.298395-1-iwona.winiarska@intel.com
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/3adf1cea6e32e54c0f71f4604b4e98d992beaa71.1660741419.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/peci/cpu.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/hwmon/pmbus/pmbus_core.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/peci/cpu.c b/drivers/peci/cpu.c
-index 68eb61c65d345..de4a7b3e5966e 100644
---- a/drivers/peci/cpu.c
-+++ b/drivers/peci/cpu.c
-@@ -188,8 +188,6 @@ static void adev_release(struct device *dev)
- {
- 	struct auxiliary_device *adev = to_auxiliary_dev(dev);
+diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
+index 02912022853d8..e81609bf47021 100644
+--- a/drivers/hwmon/pmbus/pmbus_core.c
++++ b/drivers/hwmon/pmbus/pmbus_core.c
+@@ -2730,11 +2730,10 @@ static int pmbus_regulator_register(struct pmbus_data *data)
  
--	auxiliary_device_uninit(adev);
--
- 	kfree(adev->name);
- 	kfree(adev);
- }
-@@ -234,6 +232,7 @@ static void unregister_adev(void *_adev)
- 	struct auxiliary_device *adev = _adev;
+ 		rdev = devm_regulator_register(dev, &info->reg_desc[i],
+ 					       &config);
+-		if (IS_ERR(rdev)) {
+-			dev_err(dev, "Failed to register %s regulator\n",
+-				info->reg_desc[i].name);
+-			return PTR_ERR(rdev);
+-		}
++		if (IS_ERR(rdev))
++			return dev_err_probe(dev, PTR_ERR(rdev),
++					     "Failed to register %s regulator\n",
++					     info->reg_desc[i].name);
+ 	}
  
- 	auxiliary_device_delete(adev);
-+	auxiliary_device_uninit(adev);
- }
- 
- static int devm_adev_add(struct device *dev, int idx)
+ 	return 0;
 -- 
 2.35.1
 
