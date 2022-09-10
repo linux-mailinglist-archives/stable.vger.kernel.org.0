@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F885B4769
+	by mail.lfdr.de (Postfix) with ESMTP id 42C075B4768
 	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 17:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbiIJP7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 11:59:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40134 "EHLO
+        id S229561AbiIJP7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 11:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbiIJP7I (ORCPT
+        with ESMTP id S229550AbiIJP7I (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 11:59:08 -0400
-Received: from GBR01-CWL-obe.outbound.protection.outlook.com (mail-cwlgbr01hn2246.outbound.protection.outlook.com [52.100.178.246])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4DBF402EB
+Received: from GBR01-CWL-obe.outbound.protection.outlook.com (mail-cwlgbr01on2126.outbound.protection.outlook.com [40.107.11.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8618B402D1
         for <stable@vger.kernel.org>; Sat, 10 Sep 2022 08:59:06 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=B+IzSGsvGXYRG5FWlhN5QLiYAu7lQYoeYDxsJZb7qWpvgy19d65V4jj+0XExsTsHSVbttMV/+cQ5E25RY/+V+n5VN1P73STPQAH+Uc8k2J0IzfTfmLQ/8AWH008oABYVgLSGxD3oJztArzbFw4BeIiWNvhC1Qv5aeNVq5Cby/CqQowBZkWOdUhZowADBhrsPXnc7McYW89itQqCl3NP0lpY+8M7QnqOEEaN+UVe8k4hwdBFbeVPck1WH5mf+ZQU9jbWz63nJ6hxHur282WxtZCrkJRzkOg+77lzAdIKUP721ZBCKIlQ9zI8QQQW3TpUuRHlzMfKlVLPCgCizBASW6w==
+ b=WlvlVuA9VyclvYsWYrihUmXbIjofQESqdWUvIrdRSV9yfOM5895sYiUP5vSANAWOXaHrDRL+LRM2V2+Fd66pgLq+2XbrATERBaCIT6udZ5zAaX04h0rr93CrIlrbNNLqlBlCVSUF8gg4EB270ex7rZJQydESnDq3OGXireJ20yOkGylrAKYEjK1nz9gPf5xjkDyxbS/7DaqdtCq4IOa6WZqOq5CavnaZhQUMkRWdyRy7ax5d6MBYjuXvgNd3lxOXRJP8D2sNWNj7G1NqHsiuFMA5L5k5q7t7qTOx6zTsh8SA2H2/up6hyU7/hyMr2cwiaB1U2mwgOXzVwHjvUm5wdg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=th6RZcxCuR6Al8nV254zAcBRyn8bJ4DuGbMWIqqPL2w=;
- b=oYHIip4hpVO4SvA+dCFgkLP/NkIZOFt5HJukSuAdJFM5SlrsDVdIYn1Pv9DzxThtqKeP6SgfU4Cwx81D+Jg+Ec/PdhKLzJvwxqd7j0fHzt1kvqk/6LP2fw0ajNV7Hov/z0cON3ARc7orL1tuEPWuWFozQ2VdJpO+AkZ++ag8e8qhW94M/l7k/7ScfhsHUtOCXe+lDaSWl2SZC+6a19z/zcj6DRKiB5tKk67TizUXVSPIxKkVKUsIYRaGjQ+7T3nAZZTsGUnqWVnAxjlx4Y8sjjdDsYGItdO4PtZ7H5jAt+44UK1IJo2Kd2O7nlC5mQ2mAOk1Hzq0qyzkVWFVTRX5kQ==
+ bh=yQR2LTEtHvl4/e2tquW2mogfyx8XwEwEkXLLMMr7x2s=;
+ b=WRWYSO5Zsddhi9qUA/sG6cr2gdRaiejmcuJ0DxueIVJ+B5nwbDeaZ+HIczwI9UrY9AUbpdY25oXRErP1iuGF58DW8eWMMxm/vPkOKYlOGL3SW0Rm1jkvqzHmUkDLjVzAVxiCwYxh8NnxwFjtTvlAd/h9f6J9DEZw3oBj6GiovkVQ2x3wlw2FgekMKLmjnKYdeTBY+asEvgSuw9UoOOziX5cFfNNCs363CL39SeE7mvFQnvZTo+W006If6rL84zVsoR74K+mSv45rDP5PVgjR+F6UUNbYmRffB+V4Lb75cDd3bNmkaf3xD0y/eZVeEsnTZsr80j70yChntF5RolxUYA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=bywater.xyz; dmarc=pass action=none header.from=bywater.xyz;
  dkim=pass header.d=bywater.xyz; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bywater.xyz;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=th6RZcxCuR6Al8nV254zAcBRyn8bJ4DuGbMWIqqPL2w=;
- b=YwAFJm0tNNGbl3lCwuGqqzv/9VV0VTMFoY67HQcabaFDxzcyyJLnSlqPDCLXhbmYRft4pn09Xlh9PyRtUQkCAjJr0IgILKMzcxdl485p+/OqMY1jpEJna99g55+3TL9ps6FmoUNT7PIkoUYLdf09tdEiYifeoHPO68EKN485x1tod/F0Uky1CNZer21L8OD0MoAASF70TekQbnXs6CzNUCG9JoSFCxnpqY7oZqHb2ZKMmEN9bepB98yAAaj9O6a4EC+hnj1L9BlQK2mA/WVaG3Fwn2NWLMyQp+Ns1KTcjqCbubOpPHTbl3E8eDIcgzZZ8TCaBq7R4U1OHuPIov4LRA==
+ bh=yQR2LTEtHvl4/e2tquW2mogfyx8XwEwEkXLLMMr7x2s=;
+ b=k4kKSsgp40ofLdWTdqU5Dax/UIJL0t3DGIH8zd6NpYmncSGgqgDIQLFp1usHHBmSGeKyX37vnnII2DQyDRATBWPaVLgWMwVMnReiED7hLhDzGjfl2VFydBCWH15a9wwqZ4AgCK4GecC8U6yLyPfMOXqGcrbH/ruUHaCyrhX47u25jh6tJsDTJpjLC3G2VYtAMDxG8dIqC7izkygYclaeVUdHBm8DxI+E1mmwCA1AAFRB3TJvfu/aL7kzz7nqSizRpCGDBq7ws6fOV0nD1ZqzHyMINiGR7P987nKqD9vrxFTQLHBBEY4IiCjMCiN3Fra/00x0sBXkC8y5r65+3epGxA==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=bywater.xyz;
 Received: from LO4P123MB4995.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:1f2::7)
  by LO4P123MB6466.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:29a::11) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.12; Sat, 10 Sep
- 2022 15:59:03 +0000
+ 2022 15:59:04 +0000
 Received: from LO4P123MB4995.GBRP123.PROD.OUTLOOK.COM
  ([fe80::e11b:26a4:86c2:f2f5]) by LO4P123MB4995.GBRP123.PROD.OUTLOOK.COM
  ([fe80::e11b:26a4:86c2:f2f5%8]) with mapi id 15.20.5612.022; Sat, 10 Sep 2022
- 15:59:03 +0000
+ 15:59:04 +0000
 From:   joseph@bywater.xyz
 To:     joseph@intrigued.uk
-Cc:     SeongJae Park <sj@kernel.org>, stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>
-Subject: [PATCH 03/50] xen-blkfront: Cache feature_persistent value before advertisement
-Date:   Sat, 10 Sep 2022 16:58:06 +0100
-Message-Id: <20220910155853.78392-3-joseph@bywater.xyz>
+Cc:     =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
+        Paul Moore <paul@paul-moore.com>,
+        =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack3000@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 05/50] landlock: Fix file reparenting without explicit LANDLOCK_ACCESS_FS_REFER
+Date:   Sat, 10 Sep 2022 16:58:08 +0100
+Message-Id: <20220910155853.78392-5-joseph@bywater.xyz>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220910155853.78392-1-joseph@bywater.xyz>
 References: <20220910155853.78392-1-joseph@bywater.xyz>
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3498; i=joseph@bywater.xyz; h=from:subject; bh=JSJMNmqYzB5i9CH6Ni+8L1naPeTWi+hE7GkRxsBm59s=; b=owEBbQGS/pANAwAKAXxHkY8fXCH/AcsmYgBjHLQDrU5dcaTr2tO8GUqbqADYviRWKNEwuIzTseHj ps+LY0+JATMEAAEKAB0WIQRiG5oO6weufXC5rRB8R5GPH1wh/wUCYxy0AwAKCRB8R5GPH1wh/x9uB/ 4ytmDcGes5jkbx05N//3fLkLUhmGabuWUqNuKq1jwPvUhtsAjsVRBU2I6WDDb8v6jxTMNoMlbbSW53 Aa+NYFuCuhb2KlWPB25F3Ne44lpSWuDmKy4dg3upd0cZnpdzN/q6CCTLL3BnSErtHX7/NLohfHX/B5 UjHCnQXuB2TNlBl3inIozG+k05CPAAzER+XaGFQZfpvN7ZFZOfMNHGQ6vNp35+E2WHFoQDcN607mw3 tUUS+dOL3p82bMnNWLKtS/r2b2L5w+/Uj7WMVsqS4lP8vo0URwdWhkaKWjyCR30oP8J3P+RiF2T1NQ tiGeOQ9CisTCfrEHKA6cTbN6H4avRi
+X-Developer-Signature: v=1; a=openpgp-sha256; l=15510; i=joseph@bywater.xyz; h=from:subject; bh=kgvaq4IVEHbobuY1Psxg5hFTvSA/qRQ7oRx8EjVXA30=; b=owEBbQGS/pANAwAKAXxHkY8fXCH/AcsmYgBjHLQETfL3lXuaTKbUnDrzGvEUlD3nGWgaq0S2y91a wdFdyD+JATMEAAEKAB0WIQRiG5oO6weufXC5rRB8R5GPH1wh/wUCYxy0BAAKCRB8R5GPH1wh/3N0B/ 9IYc5jSN7Z0pu3TS1+opOPfjG2dbagT729zHMMCM3n0J4AM4OrYHXUzklsiapF6VKs1wMRY73SSoKz WU1ByLkRud6WXgM1r8NPjuxPU0QgDafeQUVhsg4fQ1/ht+aVRBGUSl6rPLgGHAYr9r3IPtIeNdG/OH XBsd41SpNVO9tErelJMs06L/YA6OoASwfMhv74TUcR3IRl9gz4hoCjh7zR21pjKCuRK8MCl7nHf84u kV+cBNAoa9Z58bbnct0NA0f2+6k5y4zucXTtTawy3Co79TumfYKt0/a5y0Z26+z3dmppxTCVJ08P1h /HyBftoBqYdy1o9RnVyfWBY8sXtg2i
 X-Developer-Key: i=joseph@bywater.xyz; a=openpgp; fpr=621B9A0EEB07AE7D70B9AD107C47918F1F5C21FF
 Content-Transfer-Encoding: 8bit
 X-ClientProxiedBy: LO4P123CA0093.GBRP123.PROD.OUTLOOK.COM
@@ -61,178 +62,473 @@ X-ClientProxiedBy: LO4P123CA0093.GBRP123.PROD.OUTLOOK.COM
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: LO4P123MB4995:EE_|LO4P123MB6466:EE_
-X-MS-Office365-Filtering-Correlation-Id: d50286ac-2a8e-47c0-2011-08da93456246
+X-MS-Office365-Filtering-Correlation-Id: d2af8a02-161e-407e-3298-08da93456290
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: =?utf-8?B?aW14bXRiL1FTYXRpMXZ3QXJhQmxVMUdCbklJdU5iUG1zTFVob2FMNzhBMWEz?=
- =?utf-8?B?bTZ3ZHRITVUvMVluV3psZ0VxUFEvcFEzb0FoUUc5Y2dRK0lEakl6N0dsUmVM?=
- =?utf-8?B?citIMnIzOWgxeUpOSm5CNVZTQ2RWdmxzWDZ1WWRtOTRpemFuWnp6c0pZMGh2?=
- =?utf-8?B?TU1MYWxzMlJwY2lBUEhuRkxKd3FNaUJ6UTgyMmE2SCtDc096bVBySEw3d0xl?=
- =?utf-8?B?L3RraS9OV0JVTTF4ajd4Ym1md1AybVFlcFNScjVua3pyU3RpNWN6K3FzRmJD?=
- =?utf-8?B?RC91bmoxa0JBYnppQ1JrQzhuU3paMktvMXpGOTBSZDN6SDJhWnJ1cEN6UWo5?=
- =?utf-8?B?VFJGRGdoWHUyMm11aEZYV1VGSnA4MWRHbTFyNWs4SzZhcWVLR2RGNkNHUlNK?=
- =?utf-8?B?QzEzUzVKVlRFaWlNcGV4azNabjQ5Znk1RFd3ak5MclVnNVJZZmxEVmFzVUJE?=
- =?utf-8?B?YkhTTXZXZ2gxbzRYY3NMdTFTRWtGMit1cWV1RGJaYWd1ck50Z1RxTUFmTFc5?=
- =?utf-8?B?cDFnb3lmSFZkNGpJUnh1eis3MnFIbjdIRnV2TnRVRmRRSEFoNkVXU3IyYzZC?=
- =?utf-8?B?RzFpTldsOGorWHd1SE5VRHpYaUp4U1Aza2l3bVNzVmNxdkZTR21heUl1d1A0?=
- =?utf-8?B?UmRFa1dCcklOOE9QeElGRWVuKzhTMXhJQmVJd25BbHBmV0kwTVNqL2NKMjhq?=
- =?utf-8?B?MmxGWEdkVkhnNVJKWWFhRmo5L1dTL0VXTFJQY0MvUDBmNTg1NGN2dzI4cVVv?=
- =?utf-8?B?ZXpLazNEZWdUN1UvKy9WOXJyb2hTanI2TDJKcjZ1Y0tGc2k5a2FKcEdWYlk2?=
- =?utf-8?B?ckdDZ2xMQjRGeUlMbzBGdis1M3NleTZuVU1IQVllUUlKcC8yaExnQWJnd2F5?=
- =?utf-8?B?SDBWZDBzN2ZQbHhUcUNoNnVaZWlUbnFYRzdEMXdLUUI5SThPL0JGZkUrOC90?=
- =?utf-8?B?VElOdStEWEsyamgvMDEzSHl6a2plUW5EV2xMOFZINDk4YWYxZDFkWGxFaHpK?=
- =?utf-8?B?SWtsc3kwRTJrYjlPbU94WGpOZCswVUh6WU5QdDhvbEpObHdTZkhkaHNBaVhv?=
- =?utf-8?B?NDVzWTZqeDVqYVg3Qm5IUG1TWmM4ekVNclpzUE5lUEF0UE1CVU1vZGVlSjI2?=
- =?utf-8?B?SHEwTURJUHgwajN2ZkVwU2RBaXF3OTRsK1hmRmtIY082VWlMdXNKVDJvemFQ?=
- =?utf-8?B?UFRoY2RBQ0JHa0lUeXZUQXMzS2lac3c5YTJJVndzZnJzNEI0RW5pOGpBUGhF?=
- =?utf-8?B?RGNWdmtsVStMZkZpaVVyRUZQcVREaWVlbFF2c0lGeng3M0VHRnZMKytDOHVo?=
- =?utf-8?B?eFlFZVFvMWp3Qk5FNTVNbmJxQUtOVmlQS3RGV3ltRnRqQ1NCSkRmZGZtRDBx?=
- =?utf-8?B?N1FGQ2p4KzRkZ0gvcDdySDhYUUsvcVpFblBnbUhjUDRvOTR3VDZwdGlqSEdm?=
- =?utf-8?B?VVhKUzdaNnJRcG5LWHpPb3d2VWh2YnFLR2NzTGpzd1VsbXBZbDR1a05nbGRT?=
- =?utf-8?B?V1E5SVpxdmE5emRJaFhGZ3cwMWVWNXo1UGY2cHRyajQ2Q3l3STdkOHBMR0pq?=
- =?utf-8?B?eDh3NGx2ZzRKN05tbzhlbGN2Q1hRUlVKSEVFKzFUSUNSNXNhbEdsd1d5WFh5?=
- =?utf-8?B?WjVXMVE1dWZWdHZ1RHU5U3BGOHkzMEE9PQ==?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:5;SRV:;IPV:NLI;SFV:SPM;H:LO4P123MB4995.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:OSPM;SFS:(13230016)(136003)(366004)(346002)(396003)(39830400003)(376002)(83380400001)(66574015)(54906003)(966005)(316002)(6486002)(478600001)(36756003)(2616005)(2906002)(6512007)(9686003)(1076003)(6506007)(186003)(52116002)(86362001)(38100700002)(8676002)(4326008)(5660300002)(66946007)(66556008)(66476007)(8936002)(41300700001)(34206002)(4720100020)(309714004);DIR:OUT;SFP:1501;
+X-Microsoft-Antispam-Message-Info: datxsL3GiSHZJy4TsCiNqtpcGz7ogB3cZz6KeMpZ8A2mJlb+0oXP9+GxSWi7Dq1LeLlPQHcG3hLM4ahyC299nHmNz4+BWn5ZjX0YpQn5d3xlCANhHm21530xZkJCukkoxkZQbbOrNBJa9iXAqy6tgLpOJr1gYi6ZkfCndalttUt4txko/+khY/eDdGc3n4MBM4+gdfYWbT+QN7SaA8HmupTx4KKNahDwaN+xRQ/USnUFwG+3zP5esrgsFONwDW3sEE+EGxXtCkss6WGQ3SeT4VvYWoriEPl4Sa+kelhfLsgbptbBivymmUS3eEfNevP84ebh7DpPM1aKxp21Sdd4JYE2ffT47x7sOWpy5o8s+HLO+CCpsutQg652V3vnh5bGNI23WRNPt/lfY0GCfz+Acu2Ql73oIaxtM3t+l2Kkz9psmWdKJQln0596yh/5AH5nJ7SdEQ0x10GLzybM2Pj0TP9Rk/Yz1PmKowa092F7ZXBrGZk2s3P5CrvmDpAPLco3oj6oAQ0nnQH70FVCNsv4zhe1Vv79F3TnLclvc39C4ZhaW+E5pA/m4krv1DeMOfAPGRpkd6Y82iMgTyMFAL98q5TNVh2cwuoIubBDjkTzI+rknIYh5IXgX/8z7MlhdN8a8Gh6yPSGrMRVXkiAalAtJv8BTLYuF+19Z4PStmleoVupONoGxdJIPSKHmTnsqefGUxFGP30OgFsypJ5SDk4L3ZS5L9FJimW2s+Ck95vVJHSgQFrX70r/43k9PkVc21jIEIGFIsN/YyVEzPbxZg4uRG1baWT8+2zdcDeAHEKAJXs=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LO4P123MB4995.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230016)(136003)(366004)(346002)(396003)(39830400003)(376002)(83380400001)(30864003)(66574015)(54906003)(966005)(316002)(6486002)(478600001)(36756003)(2616005)(2906002)(6512007)(9686003)(1076003)(6506007)(186003)(52116002)(86362001)(38100700002)(8676002)(4326008)(45080400002)(5660300002)(66946007)(66556008)(66476007)(8936002)(41300700001)(34206002)(4720100020);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?OTFrelJrYUt6MFdJVUFmQkNnc1RZenlJN2xzK1NmbXVHMlI0anRQMnE3cElT?=
- =?utf-8?B?a2ZLa3cwaGFqZzVINW1jMC9wdUR6SzVIKytXRTJPWlB3d3JTVmxZZk1XbU9G?=
- =?utf-8?B?ZFE0bmlsS1lMY3BSeWQzejU2N2U1MmdXbitKWEdrUlB0ZXEvbE1BQkFMa2hC?=
- =?utf-8?B?ZVVSOGw4alVWR1dXdnNZMHdwKytUMnpOS3Jod0FVV3dlNkhibEQrWXJITCtE?=
- =?utf-8?B?UnJYQ3pLOEVTRFk0Vk42QWNNbzBoOG10d093UkJBbGU0N3k1UWU5SGZqcmRS?=
- =?utf-8?B?ZUN1V1RCRVJmOFhWKzVxRzZvd29rUHVnUUZ6T1ZkNzNwTThjSEY2cTNadUND?=
- =?utf-8?B?U1RuenJGWkZhajdDQ1c5ZHp5WW92NG4rRFdyYSt5bkMyL1FlVi9Hbk9Ia2Y4?=
- =?utf-8?B?Yi9LQUc0UEZXUFlPc2pZdXZjbWMwK2x6bzlNb1grTnVubklFS0M3cVdXZ1d3?=
- =?utf-8?B?bnkrVFQ5d0kzSEFkMTQvc3EvVk5tRlZTd1FSNTd4ck0xOVJxSWtmcFlnMDdZ?=
- =?utf-8?B?Y3hkNzRPZGROK2NNS3d4cUQ0Y29Pd08zbTNKWi9yTkE4ckNyNyt1ZGZJbzhx?=
- =?utf-8?B?M1haTHV6NUN0ZzVUVjZNbHMzUVhUeW1payswUVZqSFlTUHcxYVpYdmh3T3l1?=
- =?utf-8?B?RENRMVpLWEhrWkR6Yk9mQWo0cUx5TWNYL2JmcnVxYTk4MlhPMExmN0xtZWY0?=
- =?utf-8?B?RVlxM1c4djd3RU9WcURRTHNTQmFWS2JpOHB6RGI3N0wxeWNCQTk4T3FiRU01?=
- =?utf-8?B?TzFtN1QzUEJJWWhmY3R4ZkVjTVc2MzdCQlc0STN3S1BFZWhTRVZEbWNSV00r?=
- =?utf-8?B?cm9HOW5rWTErdVpKVmZZcWR6VStETTBJV3BQTXZvdHJxMGJiM2RoejdxL2d0?=
- =?utf-8?B?TmVZdHlKWkk0dVRzYlFjaDB3ZTdTZ0hjc1pTZmN4MWw5OE1xdVZKZUc2UHRk?=
- =?utf-8?B?Sjl5M2M5WnJTWVBTV0s1dzQ2NWNpQXJla1pkSmJyalB4TkJhL2REKzVLamJi?=
- =?utf-8?B?RmEyVnhBaDhXS0NOc3Z3d3cvOEFtNTFVcitPUTBoTkVyd2RGbUpHUHFCYWRp?=
- =?utf-8?B?MHlBU3ZNcnM4NG52MXNMaVEydHc5YmFIMXZ6UDhFK0tHZloxdlRSVTBZUXhx?=
- =?utf-8?B?Yk1yaGF0Z2hnNk9yd0g1aGNkRFpTZDNpbkFHMnNWNnN6RGIzcW55cEFsNWpV?=
- =?utf-8?B?QnhLQUlpNUtMaVNGM3A1NFcydi9JZ0VYWlNpbXV0UE5Qd0xjamFPMCtMNmsx?=
- =?utf-8?B?dVQ3Uk1waXhKNjROeUpkUVNLVURSOWM0N1BraEdSeFYxem1QZmRMeHUyTEts?=
- =?utf-8?B?SlNscHhabUFEVFhodDZIQTh0VTF6TC8zT1ZGQWd0Uk4xcEN6SXMzZVNMM1RM?=
- =?utf-8?B?Y0R6R09xNHpWbng2b2UzbGlQTmVZNlMydlpKNTZ1MC9MR3JDUjVhb1VxdXMy?=
- =?utf-8?B?VVpaV1ZtM1EyT0w5eWYvcno0YUFxa3VqMlBpNGhmVWJZN0U4ZXNMODg3SEpD?=
- =?utf-8?B?WjhxM3ZZZU1xYlZ2bE5VV1V5TkRlZGxNVmRBeXhTSWtRVzhieTB5TXNVQldr?=
- =?utf-8?B?T3VpL0dFUWpuK1BLMFdWS1NRMG1QclZoRlRSa0xPSDRhZm9ocUY1eHZkUXJO?=
- =?utf-8?B?Y3JwNXFUcW13UE55MS9FMHl6VUkvVWdqUFExd3pNTExOVXhBVGhjb3d5ZHNL?=
- =?utf-8?B?QmtkTWlWNkUwdEQwbWd1ZzV1U21vUTdmRGttU1JFeW9jdWxZaXJNelBydXR3?=
- =?utf-8?B?QlZydnp3dnlKRFlvR1JVVzRtZjZKM0cxTkF6em9aNkpzeFhkWkhUUVB1U3pD?=
- =?utf-8?B?ejN6YjZXdk9DUTMweDZXM0c2RzRHMGpnQmtUeHVhYk1JUU1kdTBQa25NYk1w?=
- =?utf-8?B?RW5NOVcxYlBIVTJkRVpQTXRERkNmL2hSV1BWWE1FZDlqYk90OEQvaE5sTUpw?=
- =?utf-8?B?cndjdk5wQ0gzTXEzaHQ0dlZWM0VDL1BRTGVQLzllbTVxRGRDM09OYU96Z3dz?=
- =?utf-8?B?OFJQQ1BEdTJTNFhlSEZMbUFTWU44eFFMck0rbmNGTnU1N2JRM3NTdXB1TC9Q?=
- =?utf-8?B?TGhOODZwV2NvRitTMU1WTU1ZUml3QTE4REFhaEZHVGdjdG13SnZFd1RDdXFN?=
- =?utf-8?B?TW5Qc3M2YkZvSDIrcEw1djBET3ZnV01VQWUybXd2YkdxMUZ3ZFBRenR2UTg1?=
- =?utf-8?Q?FQmtFoZHHzDKkgLlw/SsBZXD6cyP7F+TeKn6jjQI0Ps0?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VndiczZ0TTJTMmgxSENRS1ozRFVVS0EzaUZnSEQ4TjBHampmQ1ByUkhzNkFQ?=
+ =?utf-8?B?N3ZvUE4yV0tYU1V6N0dmeWJtWWYrY2I2K1hBYlhGU21jUWgyZ0pVekdnZ1Ny?=
+ =?utf-8?B?eDIvT1BNQ2dNUzYvTjRiRTNYR1VBQVlqclN4UFgwZDZYMzlrNGd4VGpwRFMy?=
+ =?utf-8?B?WWtEc2Rwak1la2cwVHV5MGE2b01aNUlSNSt5QnEvcjRaRnhMcFVaYzhhb0dJ?=
+ =?utf-8?B?RTI4OThpcVlRaWV1aDBsREdQd2IrcE1vamlxclFVUG1vaXJsTlZIRFZBZFF4?=
+ =?utf-8?B?S3BZaGpaMEpOKzVYUlRzNUNPY1J4Y3BWdW5DTEdSMVkxeHdqUFJwZC9veDBZ?=
+ =?utf-8?B?cUVrRzNlcmRJM2ZwNFlubXBRd3VmdkV4YVIyakhsMHJjQXZVRjV5L1NNSXBo?=
+ =?utf-8?B?Vkt5ZUxETXlHellDVmZOZDFtMFRTTGVRREJ4cE5YcUhGYXVEQ2FSUE5mMW1M?=
+ =?utf-8?B?ZzRPbFJONlozRFlLYWlHSU1oSEFXVnQ3bnJyQ1h0N2F0dld4Z2xvdG1SczZT?=
+ =?utf-8?B?bnVFUTMxTzc1a0kvUWNFNmJXNFFta2M5QmlMeG5Yb3dhTDY1cXhFUnkrRyty?=
+ =?utf-8?B?bTlXWE1qRDRPWWxHK05aMHdNWlB2TFFmeXQ3M3JpNzdGZlZ3THpYQ0UzRmdu?=
+ =?utf-8?B?YmdFb0Y2dEg0ZEp6THUwMmF0RkRHbHFDbWJtdFovQjR5MEprTGVxSk5IYi8w?=
+ =?utf-8?B?bGtheXlLSWpNeFVKYmFFRmhkWnNRb3lucVBEVk1FQXRJMWRmWjFpa1hMbGo5?=
+ =?utf-8?B?Y1ZQbW4veXpSNmlSaFBEM2F5MXVuSWRxSm9qSjJCY0wrdFFXUndGcWlvMUNy?=
+ =?utf-8?B?REpqYTRvQlZiQ201dmIvV3RHNlkvOEI2aW90UHY3NW81TGsxUldVMlFNOCtT?=
+ =?utf-8?B?SUtVYmkzSWZWN2RYb042cWloMTZzSmVmbEFoUVdsWS9ibFc3Q2NzeTdGRllx?=
+ =?utf-8?B?blNjc29ULzFEZVpRcGtVYWdJYUdMc2FtSmF1MDhmc1k0bytZc1RmclJxdkZx?=
+ =?utf-8?B?RXRDUExkQTU5a3BuM1pmRVNuSUt0akFuVitCWFBmK2wyRFEvOS9Da04yOVMr?=
+ =?utf-8?B?SHVDbXh3cWxoV2F3d3Q0c3dRNkgrSXpRbUtudEZqTFVxRWhFRFdVZDR0d3NP?=
+ =?utf-8?B?R3FHWEZSS3J5NTVranhBdnphV284M2xzMGc5MGhJUDlQSGE3VXNRTkEvZ2Mw?=
+ =?utf-8?B?Vm1jZ21lT0dNTVhzQlVwclBWOGg4Zk9heVV3Y21GbThPL0hRUDBmYVhLS0Y1?=
+ =?utf-8?B?dUg3MFNhd1VSaWN6TmtYU28wVGZhS0QxYlZSWS8wTzJMcXRmbVU2ekxzRE1S?=
+ =?utf-8?B?STUrdHl3QnFuNDlQSGRET21vTnlMeG4zOEpla1MzV1I0M1hjMDF4SmIxUDgw?=
+ =?utf-8?B?ZW1haWF2NnhLZ3BwUnFSV3luSlQxblVYK2owdUtKdzlvd3A0dmlFZGc2QlI0?=
+ =?utf-8?B?MGo4VExZWWFObllsM1lsTnlERGJZNXI0ZUdGRGJsTUM0OGtNR29JNGRqV05q?=
+ =?utf-8?B?NU9JOVdnWHZ1b2pIYldDS3lFT2dOdXlJN01YU3FyaSsvWU5TN3FtWllkc1lY?=
+ =?utf-8?B?Qk80MWpSTHYrVGpzRTB2eVFValZFM1I5V1owTU9aUVUyUUkzeS9TL3VBbERl?=
+ =?utf-8?B?ZDNaRXlCK1lWbXl6YVA1U1d0bnA3OTlLM0N2U2dqZDVSQTBUV1AxSXhNb2J1?=
+ =?utf-8?B?dG91b213TC83RWs5ZW1kNkJSOXZtRlBiMFhXS3ZEL090UHJjSEZzQllWdmw2?=
+ =?utf-8?B?OXdrWmpwaUE5eWhKUXovdzAyRkpFdlF6akdnRGo4eXp0T3UvdVRvQlJPQWhq?=
+ =?utf-8?B?NmNYRXU5RXNDVzJHQWtIMnEyQlpuTEt3OGlmZzZIbSt0b1FJVjNXMXBpYnU2?=
+ =?utf-8?B?VTFXL0llbVd0N1dyb1NJU01XT1RWOTEremtmNzNEWWdsRExQQVI5QjFpbCt6?=
+ =?utf-8?B?a2dobTJZVzlSSkZHaU0zT29vdzVjZmVwNWQ5MU5YTDVHNTE3dkhFbXh6cHAx?=
+ =?utf-8?B?T0dWTWw1K0dFQjRjWVdzcEpKTW13RUJBQzIzdmM5eXIvM1lqL0c3RW5JQVli?=
+ =?utf-8?B?QmVDT3IzazhrY2l6eXYrNnVYZTNleG96cWZwQW43WEJzS2pLUzl1U3JiS1BD?=
+ =?utf-8?B?YitaY1BvMWdBc2k4T0twR251UFpiSHI4eXdlcXJDUENPWERsd3I2UXZjaVda?=
+ =?utf-8?Q?La3U1yUbWM9mQXV5i/KF5Dk4wAqv78P2KqIU3LKBgvwN?=
 X-OriginatorOrg: bywater.xyz
-X-MS-Exchange-CrossTenant-Network-Message-Id: d50286ac-2a8e-47c0-2011-08da93456246
+X-MS-Exchange-CrossTenant-Network-Message-Id: d2af8a02-161e-407e-3298-08da93456290
 X-MS-Exchange-CrossTenant-AuthSource: LO4P123MB4995.GBRP123.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2022 15:59:03.7761
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2022 15:59:04.3240
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 42dcc6dd-439a-483c-99c4-86bd4e2f0f10
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ZFGHfkWLV8sYA0yLVlmHe57dgaXAi/5Bi7yFnid3AvgqoVEluftlMb5BswYaCdLjSuTGyYIFDOFsk0mTMrTZ4g==
+X-MS-Exchange-CrossTenant-UserPrincipalName: wWXlx7JnqD7wLsWfEO+e5Vx61vMQzt1akIxrRcIuoRqaLeT5o8IGBD3hnjNy4/ww1XRlMYGZuyM+Og7Yc0vs7w==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO4P123MB6466
-X-Spam-Status: No, score=2.5 required=5.0 tests=AXB_X_FF_SEZ_S,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FROM_SUSPICIOUS_NTLD,PDS_OTHER_BAD_TLD,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: **
+X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FROM_SUSPICIOUS_NTLD,
+        PDS_OTHER_BAD_TLD,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sj@kernel.org>
+From: Mickaël Salaün <mic@digikod.net>
 
-Xen blkfront advertises its support of the persistent grants feature
-when it first setting up and when resuming in 'talk_to_blkback()'.
-Then, blkback reads the advertised value when it connects with blkfront
-and decides if it will use the persistent grants feature or not, and
-advertises its decision to blkfront.  Blkfront reads the blkback's
-decision and it also makes the decision for the use of the feature.
+This change fixes a mis-handling of the LANDLOCK_ACCESS_FS_REFER right
+when multiple rulesets/domains are stacked. The expected behaviour was
+that an additional ruleset can only restrict the set of permitted
+operations, but in this particular case, it was potentially possible to
+re-gain the LANDLOCK_ACCESS_FS_REFER right.
 
-Commit 402c43ea6b34 ("xen-blkfront: Apply 'feature_persistent' parameter
-when connect"), however, made the blkfront's read of the parameter for
-disabling the advertisement, namely 'feature_persistent', to be done
-when it negotiate, not when advertise.  Therefore blkfront advertises
-without reading the parameter.  As the field for caching the parameter
-value is zero-initialized, it always advertises as the feature is
-disabled, so that the persistent grants feature becomes always disabled.
+With the introduction of LANDLOCK_ACCESS_FS_REFER, we added the first
+globally denied-by-default access right.  Indeed, this lifted an initial
+Landlock limitation to rename and link files, which was initially always
+denied when the source or the destination were different directories.
 
-This commit fixes the issue by making the blkfront does parmeter caching
-just before the advertisement.
+This led to an inconsistent backward compatibility behavior which was
+only taken into account if no domain layer were using the new
+LANDLOCK_ACCESS_FS_REFER right. However, when restricting a thread with
+a new ruleset handling LANDLOCK_ACCESS_FS_REFER, all inherited parent
+rulesets/layers not explicitly handling LANDLOCK_ACCESS_FS_REFER would
+behave as if they were handling this access right and with all their
+rules allowing it. This means that renaming and linking files could
+became allowed by these parent layers, but all the other required
+accesses must also be granted: all layers must allow file removal or
+creation, and renaming and linking operations cannot lead to privilege
+escalation according to the Landlock policy.  See detailed explanation
+in commit b91c3e4ea756 ("landlock: Add support for file reparenting with
+LANDLOCK_ACCESS_FS_REFER").
 
-Fixes: 402c43ea6b34 ("xen-blkfront: Apply 'feature_persistent' parameter when connect")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220831165824.94815-4-sj@kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
+To say it another way, this bug may lift the renaming and linking
+limitations of the initial Landlock version, and a same ruleset can
+enforce different restrictions depending on previous or next enforced
+ruleset (i.e. inconsistent behavior). The LANDLOCK_ACCESS_FS_REFER right
+cannot give access to data not already allowed, but this doesn't follow
+the contract of the first Landlock ABI. This fix puts back the
+limitation for sandboxes that didn't opt-in for this additional right.
+
+For instance, if a first ruleset allows LANDLOCK_ACCESS_FS_MAKE_REG on
+/dst and LANDLOCK_ACCESS_FS_REMOVE_FILE on /src, renaming /src/file to
+/dst/file is denied. However, without this fix, stacking a new ruleset
+which allows LANDLOCK_ACCESS_FS_REFER on / would now permit the
+sandboxed thread to rename /src/file to /dst/file .
+
+This change fixes the (absolute) rule access rights, which now always
+forbid LANDLOCK_ACCESS_FS_REFER except when it is explicitly allowed
+when creating a rule.
+
+Making all domain handle LANDLOCK_ACCESS_FS_REFER was an initial
+approach but there is two downsides:
+* it makes the code more complex because we still want to check that a
+  rule allowing LANDLOCK_ACCESS_FS_REFER is legitimate according to the
+  ruleset's handled access rights (i.e. ABI v1 != ABI v2);
+* it would not allow to identify if the user created a ruleset
+  explicitly handling LANDLOCK_ACCESS_FS_REFER or not, which will be an
+  issue to audit Landlock.
+
+Instead, this change adds an ACCESS_INITIALLY_DENIED list of
+denied-by-default rights, which (only) contains
+LANDLOCK_ACCESS_FS_REFER.  All domains are treated as if they are also
+handling this list, but without modifying their fs_access_masks field.
+
+A side effect is that the errno code returned by rename(2) or link(2)
+*may* be changed from EXDEV to EACCES according to the enforced
+restrictions.  Indeed, we now have the mechanic to identify if an access
+is denied because of a required right (e.g. LANDLOCK_ACCESS_FS_MAKE_REG,
+LANDLOCK_ACCESS_FS_REMOVE_FILE) or if it is denied because of missing
+LANDLOCK_ACCESS_FS_REFER rights.  This may result in different errno
+codes than for the initial Landlock version, but this approach is more
+consistent and better for rename/link compatibility reasons, and it
+wasn't possible before (hence no backport to ABI v1).  The
+layout1.rename_file test reflects this change.
+
+Add 4 layout1.refer_denied_by_default* test suites to check that the
+behavior of a ruleset not handling LANDLOCK_ACCESS_FS_REFER (ABI v1) is
+unchanged even if another layer handles LANDLOCK_ACCESS_FS_REFER (i.e.
+ABI v1 precedence).  Make sure rule's absolute access rights are correct
+by testing with and without a matching path.  Add test_rename() and
+test_exchange() helpers.
+
+Extend layout1.inval tests to check that a denied-by-default access
+right is not necessarily part of a domain's handled access rights.
+
+Test coverage for security/landlock is 95.3% of 599 lines according to
+gcc/gcov-11.
+
+Fixes: b91c3e4ea756 ("landlock: Add support for file reparenting with LANDLOCK_ACCESS_FS_REFER")
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Reviewed-by: Günther Noack <gnoack3000@gmail.com>
+Link: https://lore.kernel.org/r/20220831203840.1370732-1-mic@digikod.net
+Cc: stable@vger.kernel.org
+[mic: Constify and slightly simplify test helpers]
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 ---
- drivers/block/xen-blkfront.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ security/landlock/fs.c                     |  48 ++++---
+ tools/testing/selftests/landlock/fs_test.c | 155 +++++++++++++++++++--
+ 2 files changed, 170 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
-index 276b2ee2a155..1f85750f981e 100644
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -1759,6 +1759,12 @@ static int write_per_ring_nodes(struct xenbus_transaction xbt,
- 	return err;
- }
+diff --git a/security/landlock/fs.c b/security/landlock/fs.c
+index ec5a6247cd3e..a9dbd99d9ee7 100644
+--- a/security/landlock/fs.c
++++ b/security/landlock/fs.c
+@@ -149,6 +149,16 @@ static struct landlock_object *get_inode_object(struct inode *const inode)
+ 	LANDLOCK_ACCESS_FS_READ_FILE)
+ /* clang-format on */
  
-+/* Enable the persistent grants feature. */
-+static bool feature_persistent = true;
-+module_param(feature_persistent, bool, 0644);
-+MODULE_PARM_DESC(feature_persistent,
-+		"Enables the persistent grants feature");
++/*
++ * All access rights that are denied by default whether they are handled or not
++ * by a ruleset/layer.  This must be ORed with all ruleset->fs_access_masks[]
++ * entries when we need to get the absolute handled access masks.
++ */
++/* clang-format off */
++#define ACCESS_INITIALLY_DENIED ( \
++	LANDLOCK_ACCESS_FS_REFER)
++/* clang-format on */
 +
- /* Common code used when first setting up, and when resuming. */
- static int talk_to_blkback(struct xenbus_device *dev,
- 			   struct blkfront_info *info)
-@@ -1850,6 +1856,7 @@ static int talk_to_blkback(struct xenbus_device *dev,
- 		message = "writing protocol";
- 		goto abort_transaction;
- 	}
-+	info->feature_persistent_parm = feature_persistent;
- 	err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
- 			info->feature_persistent_parm);
- 	if (err)
-@@ -1919,12 +1926,6 @@ static int negotiate_mq(struct blkfront_info *info)
- 	return 0;
+ /*
+  * @path: Should have been checked by get_path_from_fd().
+  */
+@@ -167,7 +177,9 @@ int landlock_append_fs_rule(struct landlock_ruleset *const ruleset,
+ 		return -EINVAL;
+ 
+ 	/* Transforms relative access rights to absolute ones. */
+-	access_rights |= LANDLOCK_MASK_ACCESS_FS & ~ruleset->fs_access_masks[0];
++	access_rights |=
++		LANDLOCK_MASK_ACCESS_FS &
++		~(ruleset->fs_access_masks[0] | ACCESS_INITIALLY_DENIED);
+ 	object = get_inode_object(d_backing_inode(path->dentry));
+ 	if (IS_ERR(object))
+ 		return PTR_ERR(object);
+@@ -277,23 +289,12 @@ static inline bool is_nouser_or_private(const struct dentry *dentry)
+ static inline access_mask_t
+ get_handled_accesses(const struct landlock_ruleset *const domain)
+ {
+-	access_mask_t access_dom = 0;
+-	unsigned long access_bit;
+-
+-	for (access_bit = 0; access_bit < LANDLOCK_NUM_ACCESS_FS;
+-	     access_bit++) {
+-		size_t layer_level;
++	access_mask_t access_dom = ACCESS_INITIALLY_DENIED;
++	size_t layer_level;
+ 
+-		for (layer_level = 0; layer_level < domain->num_layers;
+-		     layer_level++) {
+-			if (domain->fs_access_masks[layer_level] &
+-			    BIT_ULL(access_bit)) {
+-				access_dom |= BIT_ULL(access_bit);
+-				break;
+-			}
+-		}
+-	}
+-	return access_dom;
++	for (layer_level = 0; layer_level < domain->num_layers; layer_level++)
++		access_dom |= domain->fs_access_masks[layer_level];
++	return access_dom & LANDLOCK_MASK_ACCESS_FS;
  }
  
--/* Enable the persistent grants feature. */
--static bool feature_persistent = true;
--module_param(feature_persistent, bool, 0644);
--MODULE_PARM_DESC(feature_persistent,
--		"Enables the persistent grants feature");
--
- /*
-  * Entry point to this code when a new device is created.  Allocate the basic
-  * structures and the ring buffer for communication with the backend, and
-@@ -2284,7 +2285,6 @@ static void blkfront_gather_backend_features(struct blkfront_info *info)
- 	if (xenbus_read_unsigned(info->xbdev->otherend, "feature-discard", 0))
- 		blkfront_setup_discard(info);
+ static inline access_mask_t
+@@ -316,8 +317,13 @@ init_layer_masks(const struct landlock_ruleset *const domain,
  
--	info->feature_persistent_parm = feature_persistent;
- 	if (info->feature_persistent_parm)
- 		info->feature_persistent =
- 			!!xenbus_read_unsigned(info->xbdev->otherend,
+ 		for_each_set_bit(access_bit, &access_req,
+ 				 ARRAY_SIZE(*layer_masks)) {
+-			if (domain->fs_access_masks[layer_level] &
+-			    BIT_ULL(access_bit)) {
++			/*
++			 * Artificially handles all initially denied by default
++			 * access rights.
++			 */
++			if (BIT_ULL(access_bit) &
++			    (domain->fs_access_masks[layer_level] |
++			     ACCESS_INITIALLY_DENIED)) {
+ 				(*layer_masks)[access_bit] |=
+ 					BIT_ULL(layer_level);
+ 				handled_accesses |= BIT_ULL(access_bit);
+@@ -857,10 +863,6 @@ static int current_check_refer_path(struct dentry *const old_dentry,
+ 					      NULL, NULL);
+ 	}
+ 
+-	/* Backward compatibility: no reparenting support. */
+-	if (!(get_handled_accesses(dom) & LANDLOCK_ACCESS_FS_REFER))
+-		return -EXDEV;
+-
+ 	access_request_parent1 |= LANDLOCK_ACCESS_FS_REFER;
+ 	access_request_parent2 |= LANDLOCK_ACCESS_FS_REFER;
+ 
+diff --git a/tools/testing/selftests/landlock/fs_test.c b/tools/testing/selftests/landlock/fs_test.c
+index 21a2ce8fa739..45de42a027c5 100644
+--- a/tools/testing/selftests/landlock/fs_test.c
++++ b/tools/testing/selftests/landlock/fs_test.c
+@@ -4,7 +4,7 @@
+  *
+  * Copyright © 2017-2020 Mickaël Salaün <mic@digikod.net>
+  * Copyright © 2020 ANSSI
+- * Copyright © 2020-2021 Microsoft Corporation
++ * Copyright © 2020-2022 Microsoft Corporation
+  */
+ 
+ #define _GNU_SOURCE
+@@ -371,6 +371,13 @@ TEST_F_FORK(layout1, inval)
+ 	ASSERT_EQ(EINVAL, errno);
+ 	path_beneath.allowed_access &= ~LANDLOCK_ACCESS_FS_EXECUTE;
+ 
++	/* Tests with denied-by-default access right. */
++	path_beneath.allowed_access |= LANDLOCK_ACCESS_FS_REFER;
++	ASSERT_EQ(-1, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
++					&path_beneath, 0));
++	ASSERT_EQ(EINVAL, errno);
++	path_beneath.allowed_access &= ~LANDLOCK_ACCESS_FS_REFER;
++
+ 	/* Test with unknown (64-bits) value. */
+ 	path_beneath.allowed_access |= (1ULL << 60);
+ 	ASSERT_EQ(-1, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
+@@ -1826,6 +1833,20 @@ TEST_F_FORK(layout1, link)
+ 	ASSERT_EQ(0, link(file1_s1d3, file2_s1d3));
+ }
+ 
++static int test_rename(const char *const oldpath, const char *const newpath)
++{
++	if (rename(oldpath, newpath))
++		return errno;
++	return 0;
++}
++
++static int test_exchange(const char *const oldpath, const char *const newpath)
++{
++	if (renameat2(AT_FDCWD, oldpath, AT_FDCWD, newpath, RENAME_EXCHANGE))
++		return errno;
++	return 0;
++}
++
+ TEST_F_FORK(layout1, rename_file)
+ {
+ 	const struct rule rules[] = {
+@@ -1867,10 +1888,10 @@ TEST_F_FORK(layout1, rename_file)
+ 	 * to a different directory (which allows file removal).
+ 	 */
+ 	ASSERT_EQ(-1, rename(file1_s2d1, file1_s1d3));
+-	ASSERT_EQ(EXDEV, errno);
++	ASSERT_EQ(EACCES, errno);
+ 	ASSERT_EQ(-1, renameat2(AT_FDCWD, file1_s2d1, AT_FDCWD, file1_s1d3,
+ 				RENAME_EXCHANGE));
+-	ASSERT_EQ(EXDEV, errno);
++	ASSERT_EQ(EACCES, errno);
+ 	ASSERT_EQ(-1, renameat2(AT_FDCWD, dir_s2d2, AT_FDCWD, file1_s1d3,
+ 				RENAME_EXCHANGE));
+ 	ASSERT_EQ(EXDEV, errno);
+@@ -1894,7 +1915,7 @@ TEST_F_FORK(layout1, rename_file)
+ 	ASSERT_EQ(EXDEV, errno);
+ 	ASSERT_EQ(0, unlink(file1_s1d3));
+ 	ASSERT_EQ(-1, rename(file1_s2d1, file1_s1d3));
+-	ASSERT_EQ(EXDEV, errno);
++	ASSERT_EQ(EACCES, errno);
+ 
+ 	/* Exchanges and renames files with same parent. */
+ 	ASSERT_EQ(0, renameat2(AT_FDCWD, file2_s2d3, AT_FDCWD, file1_s2d3,
+@@ -2014,6 +2035,115 @@ TEST_F_FORK(layout1, reparent_refer)
+ 	ASSERT_EQ(0, rename(dir_s1d3, dir_s2d3));
+ }
+ 
++/* Checks renames beneath dir_s1d1. */
++static void refer_denied_by_default(struct __test_metadata *const _metadata,
++				    const struct rule layer1[],
++				    const int layer1_err,
++				    const struct rule layer2[])
++{
++	int ruleset_fd;
++
++	ASSERT_EQ(0, unlink(file1_s1d2));
++
++	ruleset_fd = create_ruleset(_metadata, layer1[0].access, layer1);
++	ASSERT_LE(0, ruleset_fd);
++	enforce_ruleset(_metadata, ruleset_fd);
++	ASSERT_EQ(0, close(ruleset_fd));
++
++	/*
++	 * If the first layer handles LANDLOCK_ACCESS_FS_REFER (according to
++	 * layer1_err), then it allows some different-parent renames and links.
++	 */
++	ASSERT_EQ(layer1_err, test_rename(file1_s1d1, file1_s1d2));
++	if (layer1_err == 0)
++		ASSERT_EQ(layer1_err, test_rename(file1_s1d2, file1_s1d1));
++	ASSERT_EQ(layer1_err, test_exchange(file2_s1d1, file2_s1d2));
++	ASSERT_EQ(layer1_err, test_exchange(file2_s1d2, file2_s1d1));
++
++	ruleset_fd = create_ruleset(_metadata, layer2[0].access, layer2);
++	ASSERT_LE(0, ruleset_fd);
++	enforce_ruleset(_metadata, ruleset_fd);
++	ASSERT_EQ(0, close(ruleset_fd));
++
++	/*
++	 * Now, either the first or the second layer does not handle
++	 * LANDLOCK_ACCESS_FS_REFER, which means that any different-parent
++	 * renames and links are denied, thus making the layer handling
++	 * LANDLOCK_ACCESS_FS_REFER null and void.
++	 */
++	ASSERT_EQ(EXDEV, test_rename(file1_s1d1, file1_s1d2));
++	ASSERT_EQ(EXDEV, test_exchange(file2_s1d1, file2_s1d2));
++	ASSERT_EQ(EXDEV, test_exchange(file2_s1d2, file2_s1d1));
++}
++
++const struct rule layer_dir_s1d1_refer[] = {
++	{
++		.path = dir_s1d1,
++		.access = LANDLOCK_ACCESS_FS_REFER,
++	},
++	{},
++};
++
++const struct rule layer_dir_s1d1_execute[] = {
++	{
++		/* Matches a parent directory. */
++		.path = dir_s1d1,
++		.access = LANDLOCK_ACCESS_FS_EXECUTE,
++	},
++	{},
++};
++
++const struct rule layer_dir_s2d1_execute[] = {
++	{
++		/* Does not match a parent directory. */
++		.path = dir_s2d1,
++		.access = LANDLOCK_ACCESS_FS_EXECUTE,
++	},
++	{},
++};
++
++/*
++ * Tests precedence over renames: denied by default for different parent
++ * directories, *with* a rule matching a parent directory, but not directly
++ * denying access (with MAKE_REG nor REMOVE).
++ */
++TEST_F_FORK(layout1, refer_denied_by_default1)
++{
++	refer_denied_by_default(_metadata, layer_dir_s1d1_refer, 0,
++				layer_dir_s1d1_execute);
++}
++
++/*
++ * Same test but this time turning around the ABI version order: the first
++ * layer does not handle LANDLOCK_ACCESS_FS_REFER.
++ */
++TEST_F_FORK(layout1, refer_denied_by_default2)
++{
++	refer_denied_by_default(_metadata, layer_dir_s1d1_execute, EXDEV,
++				layer_dir_s1d1_refer);
++}
++
++/*
++ * Tests precedence over renames: denied by default for different parent
++ * directories, *without* a rule matching a parent directory, but not directly
++ * denying access (with MAKE_REG nor REMOVE).
++ */
++TEST_F_FORK(layout1, refer_denied_by_default3)
++{
++	refer_denied_by_default(_metadata, layer_dir_s1d1_refer, 0,
++				layer_dir_s2d1_execute);
++}
++
++/*
++ * Same test but this time turning around the ABI version order: the first
++ * layer does not handle LANDLOCK_ACCESS_FS_REFER.
++ */
++TEST_F_FORK(layout1, refer_denied_by_default4)
++{
++	refer_denied_by_default(_metadata, layer_dir_s2d1_execute, EXDEV,
++				layer_dir_s1d1_refer);
++}
++
+ TEST_F_FORK(layout1, reparent_link)
+ {
+ 	const struct rule layer1[] = {
+@@ -2336,11 +2466,12 @@ TEST_F_FORK(layout1, reparent_exdev_layers_rename1)
+ 	ASSERT_EQ(EXDEV, errno);
+ 
+ 	/*
+-	 * However, moving the file2_s1d3 file below dir_s2d3 is allowed
+-	 * because it cannot inherit MAKE_REG nor MAKE_DIR rights (which are
+-	 * dedicated to directories).
++	 * Moving the file2_s1d3 file below dir_s2d3 is denied because the
++	 * second layer does not handle REFER, which is always denied by
++	 * default.
+ 	 */
+-	ASSERT_EQ(0, rename(file2_s1d3, file1_s2d3));
++	ASSERT_EQ(-1, rename(file2_s1d3, file1_s2d3));
++	ASSERT_EQ(EXDEV, errno);
+ }
+ 
+ TEST_F_FORK(layout1, reparent_exdev_layers_rename2)
+@@ -2373,8 +2504,12 @@ TEST_F_FORK(layout1, reparent_exdev_layers_rename2)
+ 	ASSERT_EQ(EACCES, errno);
+ 	ASSERT_EQ(-1, rename(file1_s1d1, file1_s2d3));
+ 	ASSERT_EQ(EXDEV, errno);
+-	/* Modify layout! */
+-	ASSERT_EQ(0, rename(file2_s1d2, file1_s2d3));
++	/*
++	 * Modifying the layout is now denied because the second layer does not
++	 * handle REFER, which is always denied by default.
++	 */
++	ASSERT_EQ(-1, rename(file2_s1d2, file1_s2d3));
++	ASSERT_EQ(EXDEV, errno);
+ 
+ 	/* Without REFER source, EACCES wins over EXDEV. */
+ 	ASSERT_EQ(-1, rename(dir_s1d1, file1_s2d2));
 -- 
 2.34.1
 
