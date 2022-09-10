@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE955B4470
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 08:29:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C83C5B4471
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 08:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229732AbiIJG3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 02:29:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38598 "EHLO
+        id S229437AbiIJG37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 02:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229748AbiIJG3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 02:29:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C11A9FE8
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 23:29:33 -0700 (PDT)
+        with ESMTP id S229853AbiIJG36 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 02:29:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66330205EB
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 23:29:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B00B60BED
-        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 06:29:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7035C433C1;
-        Sat, 10 Sep 2022 06:29:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D975AB806A0
+        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 06:29:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EA3AC433C1;
+        Sat, 10 Sep 2022 06:29:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662791372;
-        bh=ZsO15zVycPJPJpBtLzyhY9Js6Z2FhQG+YNKavQ9D+H0=;
+        s=korg; t=1662791393;
+        bh=5bvmowi707Oz6z9mNO0O0b62qzLJtz1TJ74DVm/Ma+w=;
         h=Subject:To:Cc:From:Date:From;
-        b=V/KLEO7WqNhQNAGx+Ysko8FUVNJqjIJyot+OVM3wRSoKBWZ7KtaDiOy1I75LsizFJ
-         y3JeUpZ3nmZ9WF8D2F88+1HEPGRWWHZDS2tBMAY5VtOXCRgmPkoI13Mjpp0NERx/Co
-         zd67d19euu3FXo0akSqgDkeD/SI2MokP9JNJw4dQ=
-Subject: FAILED: patch "[PATCH] drm/i915/slpc: Let's fix the PCODE min freq table setup for" failed to apply to 5.15-stable tree
-To:     rodrigo.vivi@intel.com, ashutosh.dixit@intel.com,
-        stable@vger.kernel.org, sushma.venkatesh.reddy@intel.com
+        b=bRhjC+perS9niBSb+sn6szGTfuCcbIVVqBFBlYMSSkXXPoXx1k2XYn8/Sjb5HhQCN
+         Lo+/ZMFdU9tyPZV1eCsZ1vB+k3MG0M27Wy0dT9rzraApYu0ST971YkY5Ws6ZvQLRYO
+         fzlL2JeLHqtJVDpYK82DCzCqwb9T81NjdiEq9Zb4=
+Subject: FAILED: patch "[PATCH] drm/edid: Handle EDID 1.4 range descriptor h/vfreq offsets" failed to apply to 5.19-stable tree
+To:     ville.syrjala@linux.intel.com, jani.nikula@intel.com,
+        manasi.d.navare@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Sep 2022 08:29:54 +0200
-Message-ID: <166279139419416@kroah.com>
+Date:   Sat, 10 Sep 2022 08:30:15 +0200
+Message-ID: <166279141592191@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -49,33 +49,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-e1cab970574c ("drm/i915/slpc: Let's fix the PCODE min freq table setup for SLPC")
-4dd4375bc4ff ("drm/i915: split out intel_pcode.[ch] to separate file")
-1eecf31e3c96 ("drm/i915: split out vlv sideband to a separate file")
-5f5ada0bae45 ("drm/i915: De-wrapper bxt_ddi_phy_set_signal_levels()")
-193299ad9d85 ("drm/i915: Nuke useless .set_signal_levels() wrappers")
-e722ab8b6968 ("drm/i915: Generalize .set_signal_levels()")
-5bafd85dd770 ("drm/i915: Introduce has_buf_trans_select()")
-f820693bc238 ("drm/i915: Introduce has_iboost()")
-80e77e30a212 ("drm/i915/dpll: move dpll modeset asserts to intel_dpll.c")
-aa0813b1ba31 ("drm/i915/pps: move pps (panel) modeset asserts to intel_pps.c")
-e04a911f4366 ("drm/i915/fdi: move fdi modeset asserts to intel_fdi.c")
-e505d76404b1 ("drm/i915: s/ddi_translations/trans/")
-4360a2b54fd7 ("drm/i915/display: add intel_fdi_link_train wrapper.")
-8c66081b0b32 ("drm/i915: s/pipe/transcoder/ when dealing with PIPECONF/TRANSCONF")
-a338847abc8e ("drm/i915: Call {vlv,chv}_prepare_pll() from {vlv,chv}_enable_pll()")
-510e890e8222 ("drm/i915: Remove the 'reg' local variable")
-8a3b3df39757 ("drm/i915: Clean up variable names in old dpll functions")
-6205372b4b6d ("drm/i915: Clean dpll calling convention")
-24951b5813c1 ("drm/i915: Constify struct dpll all over")
-b294425e9091 ("drm/i915: Extract ilk_update_pll_dividers()")
+c7943bb324e5 ("drm/edid: Handle EDID 1.4 range descriptor h/vfreq offsets")
+45aa2336fa6d ("drm/edid: convert drm_for_each_detailed_block() to drm_edid")
+2c54f87cf2fb ("drm/edid: convert get_monitor_name() to drm_edid")
+874d98eed71a ("drm/edid: convert mode_in_range() and drm_monitor_supports_rb() to drm_edid")
+67d87fac86dd ("drm/edid: convert drm_mode_std() and children to drm_edid")
+7428bfbdb7c4 ("drm/edid: convert drm_cvt_modes_for_range() to drm_edid")
+a77f7c89e62c ("drm/edid: convert drm_gtf_modes_for_range() to drm_edid")
+084c7a7c7a0a ("drm/edid: convert drm_dmt_modes_for_range() to drm_edid")
+dd0f4470a849 ("drm/edid: convert struct detailed_mode_closure to drm_edid")
+40f71f5b2392 ("drm/edid: convert drm_edid_connector_update() to drm_edid fully")
+a2f9790dcffe ("drm/edid: propagate drm_edid to drm_edid_to_eld()")
+e42192b4c345 ("drm/edid: keep propagating drm_edid to display info")
+ab1747ccf052 ("drm/edid: convert drm_for_each_detailed_block() to edid iter")
+6ff1c19f5f28 ("drm/edid: sunset drm_find_cea_extension()")
+58304630b830 ("drm/edid: skip CTA extension scan in drm_edid_to_eld() just for CTA rev")
+8db73897698c ("drm/edid: detect color formats and CTA revision in all CTA extensions")
+37852141965d ("drm/edid: convert drm_edid_to_eld() to use cea db iter")
+dfc031259656 ("drm/edid: convert drm_parse_cea_ext() to use cea db iter")
+537d9ed2f6c1 ("drm/edid: convert add_cea_modes() to use cea db iter")
+9d72b7e2d2ce ("drm/edid: clean up CTA data block tag definitions")
 
 thanks,
 
@@ -83,171 +83,135 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e1cab970574c001d83e59ca8388c474a57a1afb6 Mon Sep 17 00:00:00 2001
-From: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Date: Wed, 31 Aug 2022 17:45:38 -0400
-Subject: [PATCH] drm/i915/slpc: Let's fix the PCODE min freq table setup for
- SLPC
+From c7943bb324e503baeeba3df2bc5ca8a377111bfa Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Sat, 27 Aug 2022 00:34:51 +0300
+Subject: [PATCH] drm/edid: Handle EDID 1.4 range descriptor h/vfreq offsets
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-We need to inform PCODE of a desired ring frequencies so PCODE update
-the memory frequencies to us. rps->min_freq and rps->max_freq are the
-frequencies used in that request. However they were unset when SLPC was
-enabled and PCODE never updated the memory freq.
+EDID 1.4 introduced some extra flags in the range
+descriptor to support min/max h/vfreq >= 255. Consult them
+to correctly parse the vfreq limits.
 
-v2 (as Suggested by Ashutosh): if SLPC is in use, let's pick the right
-   frequencies from the get_ia_constants instead of the fake init of
-   rps' min and max.
+Note that some combinations of the flags are documented
+as "reserved" (as are some other values in the descriptor)
+but explicitly checking for those doesn't seem particularly
+worthwile since we end up with bogus results whether we
+decode them or not.
 
-v3: don't forget the max <= min return
+v2: Increase the storage to u16 to make it work (Jani)
+    Note the "reserved" values situation (Jani)
+v3: Document the EDID version number in the defines
+    Drop some bogus (u8) casts
 
-v4: Move all the freq conversion to intel_rps.c. And the max <= min
-    check to where it belongs.
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6519
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/6484
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220826213501.31490-2-ville.syrjala@linux.intel.com
+Reviewed-by: Manasi Navare <manasi.d.navare@intel.com>
 
-v5: (Ashutosh) Fix old comment s/50 HZ/50 MHz and add a doc explaining
-    the "raw format"
-
-Fixes: 7ba79a671568 ("drm/i915/guc/slpc: Gate Host RPS when SLPC is enabled")
-Cc: <stable@vger.kernel.org> # v5.15+
-Cc: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Tested-by: Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Reviewed-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220831214538.143950-1-rodrigo.vivi@intel.com
-(cherry picked from commit 018a7bdbb090b9155a6509a0d1a684db4afaa5b1)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/gt/intel_llc.c b/drivers/gpu/drm/i915/gt/intel_llc.c
-index 14fe65812e42..1d19c073ba2e 100644
---- a/drivers/gpu/drm/i915/gt/intel_llc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_llc.c
-@@ -12,6 +12,7 @@
- #include "intel_llc.h"
- #include "intel_mchbar_regs.h"
- #include "intel_pcode.h"
-+#include "intel_rps.h"
+diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
+index 493922069c90..01ee3febb813 100644
+--- a/drivers/gpu/drm/drm_debugfs.c
++++ b/drivers/gpu/drm/drm_debugfs.c
+@@ -377,8 +377,8 @@ static int vrr_range_show(struct seq_file *m, void *data)
+ 	if (connector->status != connector_status_connected)
+ 		return -ENODEV;
  
- struct ia_constants {
- 	unsigned int min_gpu_freq;
-@@ -55,9 +56,6 @@ static bool get_ia_constants(struct intel_llc *llc,
- 	if (!HAS_LLC(i915) || IS_DGFX(i915))
- 		return false;
+-	seq_printf(m, "Min: %u\n", (u8)connector->display_info.monitor_range.min_vfreq);
+-	seq_printf(m, "Max: %u\n", (u8)connector->display_info.monitor_range.max_vfreq);
++	seq_printf(m, "Min: %u\n", connector->display_info.monitor_range.min_vfreq);
++	seq_printf(m, "Max: %u\n", connector->display_info.monitor_range.max_vfreq);
  
--	if (rps->max_freq <= rps->min_freq)
--		return false;
--
- 	consts->max_ia_freq = cpu_max_MHz();
- 
- 	consts->min_ring_freq =
-@@ -65,13 +63,8 @@ static bool get_ia_constants(struct intel_llc *llc,
- 	/* convert DDR frequency from units of 266.6MHz to bandwidth */
- 	consts->min_ring_freq = mult_frac(consts->min_ring_freq, 8, 3);
- 
--	consts->min_gpu_freq = rps->min_freq;
--	consts->max_gpu_freq = rps->max_freq;
--	if (GRAPHICS_VER(i915) >= 9) {
--		/* Convert GT frequency to 50 HZ units */
--		consts->min_gpu_freq /= GEN9_FREQ_SCALER;
--		consts->max_gpu_freq /= GEN9_FREQ_SCALER;
--	}
-+	consts->min_gpu_freq = intel_rps_get_min_raw_freq(rps);
-+	consts->max_gpu_freq = intel_rps_get_max_raw_freq(rps);
- 
- 	return true;
+ 	return 0;
  }
-@@ -130,6 +123,12 @@ static void gen6_update_ring_freq(struct intel_llc *llc)
- 	if (!get_ia_constants(llc, &consts))
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index bbc25e3b7220..eaa819381281 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -5971,12 +5971,14 @@ static void drm_parse_cea_ext(struct drm_connector *connector,
+ }
+ 
+ static
+-void get_monitor_range(const struct detailed_timing *timing,
+-		       void *info_monitor_range)
++void get_monitor_range(const struct detailed_timing *timing, void *c)
+ {
+-	struct drm_monitor_range_info *monitor_range = info_monitor_range;
++	struct detailed_mode_closure *closure = c;
++	struct drm_display_info *info = &closure->connector->display_info;
++	struct drm_monitor_range_info *monitor_range = &info->monitor_range;
+ 	const struct detailed_non_pixel *data = &timing->data.other_data;
+ 	const struct detailed_data_monitor_range *range = &data->data.range;
++	const struct edid *edid = closure->drm_edid->edid;
+ 
+ 	if (!is_display_descriptor(timing, EDID_DETAIL_MONITOR_RANGE))
+ 		return;
+@@ -5992,18 +5994,28 @@ void get_monitor_range(const struct detailed_timing *timing,
+ 
+ 	monitor_range->min_vfreq = range->min_vfreq;
+ 	monitor_range->max_vfreq = range->max_vfreq;
++
++	if (edid->revision >= 4) {
++		if (data->pad2 & DRM_EDID_RANGE_OFFSET_MIN_VFREQ)
++			monitor_range->min_vfreq += 255;
++		if (data->pad2 & DRM_EDID_RANGE_OFFSET_MAX_VFREQ)
++			monitor_range->max_vfreq += 255;
++	}
+ }
+ 
+ static void drm_get_monitor_range(struct drm_connector *connector,
+ 				  const struct drm_edid *drm_edid)
+ {
+-	struct drm_display_info *info = &connector->display_info;
++	const struct drm_display_info *info = &connector->display_info;
++	struct detailed_mode_closure closure = {
++		.connector = connector,
++		.drm_edid = drm_edid,
++	};
+ 
+ 	if (!version_greater(drm_edid, 1, 1))
  		return;
  
-+	/*
-+	 * Although this is unlikely on any platform during initialization,
-+	 * let's ensure we don't get accidentally into infinite loop
-+	 */
-+	if (consts.max_gpu_freq <= consts.min_gpu_freq)
-+		return;
- 	/*
- 	 * For each potential GPU frequency, load a ring frequency we'd like
- 	 * to use for memory access.  We do this by specifying the IA frequency
-diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
-index fb3f57ee450b..7bb967034679 100644
---- a/drivers/gpu/drm/i915/gt/intel_rps.c
-+++ b/drivers/gpu/drm/i915/gt/intel_rps.c
-@@ -2126,6 +2126,31 @@ u32 intel_rps_get_max_frequency(struct intel_rps *rps)
- 		return intel_gpu_freq(rps, rps->max_freq_softlimit);
- }
+-	drm_for_each_detailed_block(drm_edid, get_monitor_range,
+-				    &info->monitor_range);
++	drm_for_each_detailed_block(drm_edid, get_monitor_range, &closure);
  
-+/**
-+ * intel_rps_get_max_raw_freq - returns the max frequency in some raw format.
-+ * @rps: the intel_rps structure
-+ *
-+ * Returns the max frequency in a raw format. In newer platforms raw is in
-+ * units of 50 MHz.
-+ */
-+u32 intel_rps_get_max_raw_freq(struct intel_rps *rps)
-+{
-+	struct intel_guc_slpc *slpc = rps_to_slpc(rps);
-+	u32 freq;
-+
-+	if (rps_uses_slpc(rps)) {
-+		return DIV_ROUND_CLOSEST(slpc->rp0_freq,
-+					 GT_FREQUENCY_MULTIPLIER);
-+	} else {
-+		freq = rps->max_freq;
-+		if (GRAPHICS_VER(rps_to_i915(rps)) >= 9) {
-+			/* Convert GT frequency to 50 MHz units */
-+			freq /= GEN9_FREQ_SCALER;
-+		}
-+		return freq;
-+	}
-+}
-+
- u32 intel_rps_get_rp0_frequency(struct intel_rps *rps)
- {
- 	struct intel_guc_slpc *slpc = rps_to_slpc(rps);
-@@ -2214,6 +2239,31 @@ u32 intel_rps_get_min_frequency(struct intel_rps *rps)
- 		return intel_gpu_freq(rps, rps->min_freq_softlimit);
- }
+ 	DRM_DEBUG_KMS("Supported Monitor Refresh rate range is %d Hz - %d Hz\n",
+ 		      info->monitor_range.min_vfreq,
+diff --git a/include/drm/drm_connector.h b/include/drm/drm_connector.h
+index a1705d6b3fba..7df7876b2ad5 100644
+--- a/include/drm/drm_connector.h
++++ b/include/drm/drm_connector.h
+@@ -319,8 +319,8 @@ enum drm_panel_orientation {
+  *             EDID's detailed monitor range
+  */
+ struct drm_monitor_range_info {
+-	u8 min_vfreq;
+-	u8 max_vfreq;
++	u16 min_vfreq;
++	u16 max_vfreq;
+ };
  
-+/**
-+ * intel_rps_get_min_raw_freq - returns the min frequency in some raw format.
-+ * @rps: the intel_rps structure
-+ *
-+ * Returns the min frequency in a raw format. In newer platforms raw is in
-+ * units of 50 MHz.
-+ */
-+u32 intel_rps_get_min_raw_freq(struct intel_rps *rps)
-+{
-+	struct intel_guc_slpc *slpc = rps_to_slpc(rps);
-+	u32 freq;
+ /**
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index 2181977ae683..1ed61e2b30a4 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -92,6 +92,11 @@ struct detailed_data_string {
+ 	u8 str[13];
+ } __attribute__((packed));
+ 
++#define DRM_EDID_RANGE_OFFSET_MIN_VFREQ (1 << 0) /* 1.4 */
++#define DRM_EDID_RANGE_OFFSET_MAX_VFREQ (1 << 1) /* 1.4 */
++#define DRM_EDID_RANGE_OFFSET_MIN_HFREQ (1 << 2) /* 1.4 */
++#define DRM_EDID_RANGE_OFFSET_MAX_HFREQ (1 << 3) /* 1.4 */
 +
-+	if (rps_uses_slpc(rps)) {
-+		return DIV_ROUND_CLOSEST(slpc->min_freq,
-+					 GT_FREQUENCY_MULTIPLIER);
-+	} else {
-+		freq = rps->min_freq;
-+		if (GRAPHICS_VER(rps_to_i915(rps)) >= 9) {
-+			/* Convert GT frequency to 50 MHz units */
-+			freq /= GEN9_FREQ_SCALER;
-+		}
-+		return freq;
-+	}
-+}
-+
- static int set_min_freq(struct intel_rps *rps, u32 val)
- {
- 	int ret = 0;
-diff --git a/drivers/gpu/drm/i915/gt/intel_rps.h b/drivers/gpu/drm/i915/gt/intel_rps.h
-index 1e8d56491308..4509dfdc52e0 100644
---- a/drivers/gpu/drm/i915/gt/intel_rps.h
-+++ b/drivers/gpu/drm/i915/gt/intel_rps.h
-@@ -37,8 +37,10 @@ u32 intel_rps_get_cagf(struct intel_rps *rps, u32 rpstat1);
- u32 intel_rps_read_actual_frequency(struct intel_rps *rps);
- u32 intel_rps_get_requested_frequency(struct intel_rps *rps);
- u32 intel_rps_get_min_frequency(struct intel_rps *rps);
-+u32 intel_rps_get_min_raw_freq(struct intel_rps *rps);
- int intel_rps_set_min_frequency(struct intel_rps *rps, u32 val);
- u32 intel_rps_get_max_frequency(struct intel_rps *rps);
-+u32 intel_rps_get_max_raw_freq(struct intel_rps *rps);
- int intel_rps_set_max_frequency(struct intel_rps *rps, u32 val);
- u32 intel_rps_get_rp0_frequency(struct intel_rps *rps);
- u32 intel_rps_get_rp1_frequency(struct intel_rps *rps);
+ #define DRM_EDID_DEFAULT_GTF_SUPPORT_FLAG   0x00
+ #define DRM_EDID_RANGE_LIMITS_ONLY_FLAG     0x01
+ #define DRM_EDID_SECONDARY_GTF_SUPPORT_FLAG 0x02
 
