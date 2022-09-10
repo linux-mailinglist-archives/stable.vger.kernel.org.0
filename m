@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E43555B48FF
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:16:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F33785B48FD
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbiIJVQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229705AbiIJVQe (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 10 Sep 2022 17:16:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56124 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229622AbiIJVQc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:16:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F5564BA50;
+        with ESMTP id S229691AbiIJVQb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:16:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 224CD47B88;
         Sat, 10 Sep 2022 14:16:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AD79B8085B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A030960DD4;
         Sat, 10 Sep 2022 21:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC4D8C433D7;
-        Sat, 10 Sep 2022 21:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B4C4C433C1;
+        Sat, 10 Sep 2022 21:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844589;
-        bh=/Z5VauDP6NZb5Qbbk5QtyDSUJrRx1CVHUG5+Lgr4zrw=;
+        s=k20201202; t=1662844590;
+        bh=fisER/uHOHzxDeiiE0kTtSX09vFJQsYiGGMe5WNMp9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nw0v9aomqumUWn5giZ68z91Qmodd/XRCiDBLIvtHgCaxY8W/8SiiycTOM4/EbyoHo
-         47NyUSeUjTz2IoLP4QQiiM+P0s1JpkFaSo3yUc0euX7ovG6JExOpcL3dzN4vNomJGD
-         CfrT2OJQH0x5Q25F+d/6w/0Oa4iFE7LkgX63pL4hF3u7q640vc0rbA+EzxgnBQUryK
-         8+vRNsX9aW7xEyKR6hcQ5Y6fslp32vG+h+eKI44Ma6O840ICsWZ8gfDJOohUSp79gD
-         vKaZkErFiQmI5UQPz/hKPCs79AyzhM/E9g9XE3h2OohS1tJTWm/U8MqgheH1Qc4hUk
-         ahHn8NkwvbTcQ==
+        b=t+BgYHf9JLhfWcZxi/6MgfiBQXtdH6Gscupc/OEQXMl5fwbAO3Gxo/n33cqh1Dme/
+         zbQPS0hMRcGh18gs+TkozD7W/CCi9U+TtKGyNlm+9W5/8Ns2KevxAzoOAg0lrGHL2Y
+         7ZpVQ456oLXwu7lTYA/5To+ICGSpjtM5HTa6J1EoYdoaBRmNW96d8rN/yZDanqROlM
+         LW06vwsIvWpmPnZu5Dql3cJinBho1uG10mbiYhHgE2WwvNFUn7hUmB0X3UhTGmtKiI
+         O8lMg5ngGMlCSKKPQE0SNqT7ONZa/IHMSUJEXlWo7J6CNYM/yGrDg5GS3Nm+PXzFoH
+         HFTC0+CT8pBeA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
-        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
-        airlied@linux.ie, daniel@ffwll.ch, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 03/38] drm/msm/rd: Fix FIFO-full deadlock
-Date:   Sat, 10 Sep 2022 17:15:48 -0400
-Message-Id: <20220910211623.69825-3-sashal@kernel.org>
+Cc:     Iwona Winiarska <iwona.winiarska@intel.com>,
+        Jianglei Nie <niejianglei2021@163.com>,
+        Sasha Levin <sashal@kernel.org>, openbmc@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.19 04/38] peci: cpu: Fix use-after-free in adev_release()
+Date:   Sat, 10 Sep 2022 17:15:49 -0400
+Message-Id: <20220910211623.69825-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
@@ -58,37 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Iwona Winiarska <iwona.winiarska@intel.com>
 
-[ Upstream commit 174974d8463b77c2b4065e98513adb204e64de7d ]
+[ Upstream commit 1c11289b34ab67ed080bbe0f1855c4938362d9cf ]
 
-If the previous thing cat'ing $debugfs/rd left the FIFO full, then
-subsequent open could deadlock in rd_write() (because open is blocked,
-not giving a chance for read() to consume any data in the FIFO).  Also
-it is generally a good idea to clear out old data from the FIFO.
+When auxiliary_device_add() returns an error, auxiliary_device_uninit()
+is called, which causes refcount for device to be decremented and
+.release callback will be triggered.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/496706/
-Link: https://lore.kernel.org/r/20220807160901.2353471-2-robdclark@gmail.com
+Because adev_release() re-calls auxiliary_device_uninit(), it will cause
+use-after-free:
+[ 1269.455172] WARNING: CPU: 0 PID: 14267 at lib/refcount.c:28 refcount_warn_saturate+0x110/0x15
+[ 1269.464007] refcount_t: underflow; use-after-free.
+
+Reported-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
+Link: https://lore.kernel.org/r/20220705101501.298395-1-iwona.winiarska@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_rd.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/peci/cpu.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
-index a92ffde53f0b3..db2f847c8535f 100644
---- a/drivers/gpu/drm/msm/msm_rd.c
-+++ b/drivers/gpu/drm/msm/msm_rd.c
-@@ -196,6 +196,9 @@ static int rd_open(struct inode *inode, struct file *file)
- 	file->private_data = rd;
- 	rd->open = true;
+diff --git a/drivers/peci/cpu.c b/drivers/peci/cpu.c
+index 68eb61c65d345..de4a7b3e5966e 100644
+--- a/drivers/peci/cpu.c
++++ b/drivers/peci/cpu.c
+@@ -188,8 +188,6 @@ static void adev_release(struct device *dev)
+ {
+ 	struct auxiliary_device *adev = to_auxiliary_dev(dev);
  
-+	/* Reset fifo to clear any previously unread data: */
-+	rd->fifo.head = rd->fifo.tail = 0;
-+
- 	/* the parsing tools need to know gpu-id to know which
- 	 * register database to load.
- 	 *
+-	auxiliary_device_uninit(adev);
+-
+ 	kfree(adev->name);
+ 	kfree(adev);
+ }
+@@ -234,6 +232,7 @@ static void unregister_adev(void *_adev)
+ 	struct auxiliary_device *adev = _adev;
+ 
+ 	auxiliary_device_delete(adev);
++	auxiliary_device_uninit(adev);
+ }
+ 
+ static int devm_adev_add(struct device *dev, int idx)
 -- 
 2.35.1
 
