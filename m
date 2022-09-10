@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3AA65B49A7
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D335B49A2
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:21:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230385AbiIJVVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:21:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56320 "EHLO
+        id S230378AbiIJVVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:21:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230287AbiIJVUv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:20:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DEA74E62B;
-        Sat, 10 Sep 2022 14:18:22 -0700 (PDT)
+        with ESMTP id S230273AbiIJVUq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:20:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8AAD4CA0D;
+        Sat, 10 Sep 2022 14:18:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EC8960C5F;
-        Sat, 10 Sep 2022 21:18:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EA53C43140;
-        Sat, 10 Sep 2022 21:18:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 590A3B8085B;
+        Sat, 10 Sep 2022 21:18:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94DBC4347C;
+        Sat, 10 Sep 2022 21:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844689;
-        bh=hMxM1YEIO7UInQ24yBlGre3/fNP2hbA+v0IGhcgNjAk=;
+        s=k20201202; t=1662844691;
+        bh=MqlhOirwU7HWGAhYi9FwAyCybehYeuwawWUc6oubdpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3yRNDbdBej7WcCJlZuorr8l/DK3YmioRQwYh6mWeQ9vAeK2Hcj+A2WFgp099J8lA
-         lwyOBLk37/JahHwh1mA2XFtAZNjVdWk+jE0x8KNTr1ngjxVHFc6vj3AZQq4+LzUP0e
-         u0kWGcuhsHfn9R5wH9HzM4Ae2HoZImff53LFjsts0QH8gblNZtiVljbo4D6AISKASV
-         Xos6yp1KVf1LPD5H5pQWlKdpvdr6b87dQpeOW0/kPG/6skG4HCiEyubvitps5D23Mz
-         LqV6oEyRvMXd6TphnUt7TRrl9+4JrpZANJ/Cg+Vyi4eJzNRe8tGzR7za9qomXCyP3S
-         YsJJuVy6HNt6g==
+        b=rxIKdUaP/zlJ/Eho+S3z/DjLf/zE9KoNitt3qnoToDbfaQL+052c6rMgCaC9ihZMe
+         zStxjaOizcrCF+SMoQtdriLTjrLRl7aNqGnJpOEodKDN+lI8RFXxKNCINxci8rFEBr
+         PbXbUb9p7Lh5RZHWl3xbQefLtJRxrdCmvmmX+Q/00oC5gMtIIoSBjI3bzVYeUhjE0b
+         YVZ5KTmx+TA9zjMe57mOkiQQ6hiqQEoAbVEFTtRHP0cJ4pqWzhW7nDGF2QKdsFTsIN
+         TKevmfywpKsbW5rqYOl0Fpgib2rUVSjMIMt0m3AXZ6/Z49SVmWBFfFwQizKj3LgTUu
+         acdI/SG17ZaSA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Michael=20H=C3=BCbner?= <michaelh.95@t-online.de>,
+Cc:     Akihiko Odaki <akihiko.odaki@gmail.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
-        linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 09/21] HID: thrustmaster: Add sparco wheel and fix array length
-Date:   Sat, 10 Sep 2022 17:17:40 -0400
-Message-Id: <20220910211752.70291-9-sashal@kernel.org>
+        basavaraj.natikar@amd.com, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 10/21] HID: AMD_SFH: Add a DMI quirk entry for Chromebooks
+Date:   Sat, 10 Sep 2022 17:17:41 -0400
+Message-Id: <20220910211752.70291-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211752.70291-1-sashal@kernel.org>
 References: <20220910211752.70291-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,40 +59,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hübner <michaelh.95@t-online.de>
+From: Akihiko Odaki <akihiko.odaki@gmail.com>
 
-[ Upstream commit d9a17651f3749e69890db57ca66e677dfee70829 ]
+[ Upstream commit adada3f4930ac084740ea340bd8e94028eba4f22 ]
 
-Add device id for the Sparco R383 Mod wheel.
+Google Chromebooks use Chrome OS Embedded Controller Sensor Hub instead
+of Sensor Hub Fusion and leaves MP2 uninitialized, which disables all
+functionalities, even including the registers necessary for feature
+detections.
 
-Fix wheel info array length to match actual wheel count present in the array.
+The behavior was observed with Lenovo ThinkPad C13 Yoga.
 
-Signed-off-by: Michael Hübner <michaelh.95@t-online.de>
+Signed-off-by: Akihiko Odaki <akihiko.odaki@gmail.com>
+Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
+Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-thrustmaster.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/hid/hid-thrustmaster.c b/drivers/hid/hid-thrustmaster.c
-index a28c3e5756506..2221bc26e611a 100644
---- a/drivers/hid/hid-thrustmaster.c
-+++ b/drivers/hid/hid-thrustmaster.c
-@@ -67,12 +67,13 @@ static const struct tm_wheel_info tm_wheels_infos[] = {
- 	{0x0200, 0x0005, "Thrustmaster T300RS (Missing Attachment)"},
- 	{0x0206, 0x0005, "Thrustmaster T300RS"},
- 	{0x0209, 0x0005, "Thrustmaster T300RS (Open Wheel Attachment)"},
-+	{0x020a, 0x0005, "Thrustmaster T300RS (Sparco R383 Mod)"},
- 	{0x0204, 0x0005, "Thrustmaster T300 Ferrari Alcantara Edition"},
- 	{0x0002, 0x0002, "Thrustmaster T500RS"}
- 	//{0x0407, 0x0001, "Thrustmaster TMX"}
- };
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 13a4db42cd7a7..f17f061aeb792 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -281,11 +281,29 @@ static int amd_sfh_irq_init(struct amd_mp2_dev *privdata)
+ 	return 0;
+ }
  
--static const uint8_t tm_wheels_infos_length = 4;
-+static const uint8_t tm_wheels_infos_length = 7;
++static const struct dmi_system_id dmi_nodevs[] = {
++	{
++		/*
++		 * Google Chromebooks use Chrome OS Embedded Controller Sensor
++		 * Hub instead of Sensor Hub Fusion and leaves MP2
++		 * uninitialized, which disables all functionalities, even
++		 * including the registers necessary for feature detections.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
++		},
++	},
++	{ }
++};
++
+ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ {
+ 	struct amd_mp2_dev *privdata;
+ 	int rc;
  
- /*
-  * This structs contains (in little endian) the response data
++	if (dmi_first_match(dmi_nodevs))
++		return -ENODEV;
++
+ 	privdata = devm_kzalloc(&pdev->dev, sizeof(*privdata), GFP_KERNEL);
+ 	if (!privdata)
+ 		return -ENOMEM;
 -- 
 2.35.1
 
