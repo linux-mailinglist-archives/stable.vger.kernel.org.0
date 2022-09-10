@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 474EA5B499D
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE7855B4980
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:20:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230262AbiIJVVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:21:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57870 "EHLO
+        id S230259AbiIJVUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:20:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230266AbiIJVUd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:20:33 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D6E4C635;
-        Sat, 10 Sep 2022 14:18:11 -0700 (PDT)
+        with ESMTP id S230158AbiIJVTz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:19:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BA1D4BD29;
+        Sat, 10 Sep 2022 14:17:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 917DECE0AE3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2280D60E1F;
         Sat, 10 Sep 2022 21:17:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68EF7C433D7;
-        Sat, 10 Sep 2022 21:17:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B5AC43470;
+        Sat, 10 Sep 2022 21:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844675;
-        bh=FTyZm82ma7c7kIDojvTdLUTSDMwwa3K7yYhHENatSfA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hHRXHHqCJnTtnKw6Q+1RbPq6mb+8Q9cu3LRSWJgQTzNcUdFcTYe5Av77alCgwLR8n
-         bThq9GpcVAYh3anj7VsW7fXfgzq7+OGVJSaMGdaz0vzo6Kxz6GFfOfRDx1fAoxR9YC
-         FkeIyziBdE854Bn903ojAPgstSUuDEX32sEg9DT0LL79XLviH5z7Bhsiu4z4olZI65
-         B1EMrJX6oAoVlVcGF/1thCDLV2PAMOMaCgcjA7Ta3ZWAUoEJ5uFc3k5C+T4hCnK+EB
-         CZF1oNCslH16l3fxTF9I+xnvRNeg4fw68h18Ne6+nd4GSjruuAWBLHYrRHFi7xShiX
-         H5/uxlqDcZ91w==
+        s=k20201202; t=1662844676;
+        bh=Dd+UuuvNPyzWXKk0/gNoM/1icn7LMspg1PySp2oJaq8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=s+idS5xdUS2jVnSI4xAqUktKrGa8AYOsV3Z0dNJT9V0NM9WpakjXIKt/qE6E23Ivo
+         +oT+B4eqBSJldspGD5fcqQcRxP7rHCSrMPplwOZkUP8wnUc/DsGuqg8AJa7arEo5MG
+         NGDbAYWj/DKBKORtc8PRHuenpPN/hzpERubK6v13hq8qnR7BztscGe7QA+cztMlKTv
+         EpwG8+8JIu6Rkxy1Sos5cmxxwlZy6mC6t8Aq3uHtYET61I6KHEhgPCyyuADyKzFaFQ
+         v5++YYmfIcoIh9lq0JLhAdZqj+PaQzr2OWHQiUB1oj7UBR/ta4COvcoX8LClxn0s6K
+         tazRM2STLjSLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ondrej Jirman <megi@xff.cz>, Jarrah Gosbell <kernel@undef.tools>,
+Cc:     Maximilian Luz <luzmaximilian@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, hadess@hadess.net,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 01/21] Input: goodix - add support for GT1158
-Date:   Sat, 10 Sep 2022 17:17:32 -0400
-Message-Id: <20220910211752.70291-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 02/21] platform/surface: aggregator_registry: Add support for Surface Laptop Go 2
+Date:   Sat, 10 Sep 2022 17:17:33 -0400
+Message-Id: <20220910211752.70291-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220910211752.70291-1-sashal@kernel.org>
+References: <20220910211752.70291-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,35 +57,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Jirman <megi@xff.cz>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit 425fe4709c76e35f93f4c0e50240f0b61b2a2e54 ]
+[ Upstream commit 84b8e403435c8fb94b872309673764a447961e00 ]
 
-This controller is used by PinePhone and PinePhone Pro. Support for
-the PinePhone Pro will be added in a later patch set.
+The Surface Laptop Go 2 seems to have the same SAM client devices as the
+Surface Laptop Go 1, so re-use its node group.
 
-Signed-off-by: Ondrej Jirman <megi@xff.cz>
-Signed-off-by: Jarrah Gosbell <kernel@undef.tools>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220809091200.290492-1-kernel@undef.tools
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Link: https://lore.kernel.org/r/20220810140133.99087-1-luzmaximilian@gmail.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/goodix.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/surface/surface_aggregator_registry.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 3667f7e51fde4..54ea593897466 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -94,6 +94,7 @@ static const struct goodix_chip_data gt9x_chip_data = {
+diff --git a/drivers/platform/surface/surface_aggregator_registry.c b/drivers/platform/surface/surface_aggregator_registry.c
+index 1679811eff502..5c0451c56ea83 100644
+--- a/drivers/platform/surface/surface_aggregator_registry.c
++++ b/drivers/platform/surface/surface_aggregator_registry.c
+@@ -558,6 +558,9 @@ static const struct acpi_device_id ssam_platform_hub_match[] = {
+ 	/* Surface Laptop Go 1 */
+ 	{ "MSHW0118", (unsigned long)ssam_node_group_slg1 },
  
- static const struct goodix_chip_id goodix_chip_ids[] = {
- 	{ .id = "1151", .data = &gt1x_chip_data },
-+	{ .id = "1158", .data = &gt1x_chip_data },
- 	{ .id = "5663", .data = &gt1x_chip_data },
- 	{ .id = "5688", .data = &gt1x_chip_data },
- 	{ .id = "917S", .data = &gt1x_chip_data },
++	/* Surface Laptop Go 2 */
++	{ "MSHW0290", (unsigned long)ssam_node_group_slg1 },
++
+ 	/* Surface Laptop Studio */
+ 	{ "MSHW0123", (unsigned long)ssam_node_group_sls },
+ 
 -- 
 2.35.1
 
