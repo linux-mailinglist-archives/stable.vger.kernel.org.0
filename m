@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D7E5B4928
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:17:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B92B5B492F
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:17:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229925AbiIJVRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:17:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56820 "EHLO
+        id S230011AbiIJVR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:17:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229918AbiIJVRM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:17:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C557A36DD0;
-        Sat, 10 Sep 2022 14:16:51 -0700 (PDT)
+        with ESMTP id S229969AbiIJVRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:17:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97E14D24F;
+        Sat, 10 Sep 2022 14:16:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D06D9B8093B;
-        Sat, 10 Sep 2022 21:16:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7DA2C43470;
-        Sat, 10 Sep 2022 21:16:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 803FB60EC3;
+        Sat, 10 Sep 2022 21:16:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14F36C43144;
+        Sat, 10 Sep 2022 21:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844608;
-        bh=A1g0Ic9PM5dTsnBfy4geYgcgyJ4UvSzheMVF6DJzDP0=;
+        s=k20201202; t=1662844609;
+        bh=d4IziVWHQFC54c13xgvwcvVa0eZNhNga1Dz57NDT6nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ngc2URd6IzfHOAvRM+urkUTIwsw6p3lcyCzlbYA0tub8mVAgij2zLfMJsF/ESmrmy
-         YTQ4b7lrE7AJO8b5Dne02AnpBoIjbDMooLUHCs9zD3+I2BWDQB9Die0jAJ/1eMhoYH
-         DgdDXc866tP1fveyFsKOovtXqXe2JowaP2sHYf0cqwyQZoMI1fmBfYVbViDRkcJuS6
-         2pXibNp5F+9EpZ31Htn0h7JVVd6iNC6c5hzjdRPPxvdFV72TAUTrnKxga5mNVXBrmj
-         iLDpHUCET+vfSPo3k40RtnR0Y9BieF5u7ch5aNzonxBEI5ztyjFTUxDesGnt/JJeqB
-         /mI8tUFgwDqtg==
+        b=hbamwEhqUjhCKjgr84bB35QSR8/12FK38zZOJ+p33N7nZyf4GdPM77i57F90NDJid
+         iMIK79F4rijOK5U38otgwq485oJi3kE8s6lAZOSEwnH3uwWzJZZZttWruypbwnYnPZ
+         ZmNyM66b0aD+Xv/GSel/b76og3pP8BZNZ0LY7jtLhdukCC4nWheAVGSZiTMLqSRWJj
+         LJtLO+z6N6LQkiDXyQYn8Zu7BPcGPWn7MAeM8hyiKjk3d47YkHu/OjUKHZJHCTSmPx
+         JIhxLM+VF9W79vHc6AT6sEFszo3l+MMXcQ7D9XWpR1IOxzvNdt6AkV3OVCjyG9tZxF
+         Pdrh2f1tK7Bkw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steev Klimaszewski <steev@kali.org>, Jiri Kosina <jkosina@suse.cz>,
+Cc:     Aditya Garg <gargaditya08@live.com>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
         benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 14/38] HID: add Lenovo Yoga C630 battery quirk
-Date:   Sat, 10 Sep 2022 17:15:59 -0400
-Message-Id: <20220910211623.69825-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 15/38] HID: Add Apple Touchbar on T2 Macs in hid_have_special_driver list
+Date:   Sat, 10 Sep 2022 17:16:00 -0400
+Message-Id: <20220910211623.69825-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
@@ -56,50 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steev Klimaszewski <steev@kali.org>
+From: Aditya Garg <gargaditya08@live.com>
 
-[ Upstream commit 3a47fa7b14c7d9613909a844aba27f99d3c58634 ]
+[ Upstream commit 750ec977288d96e9a11424e3507ede097af732c4 ]
 
-Similar to the Surface Go devices, the Elantech touchscreen/digitizer in
-the Lenovo Yoga C630 mistakenly reports the battery of the stylus, and
-always reports an empty battery.
+The touchbar on Apple T2 Macs has 2 modes, one that shows the function
+keys and other that shows the media controls. The user can use the fn
+key on his keyboard to switch between the 2 modes.
 
-Apply the HID_BATTERY_QUIRK_IGNORE quirk to ignore this battery and
-prevent the erroneous low battery warnings.
+On Linux, if people were using an external keyboard or mouse, the
+touchbar failed to change modes on pressing the fn key with the following
+in dmesg :-
 
-Signed-off-by: Steev Klimaszewski <steev@kali.org>
+[   10.661445] apple-ib-als 0003:05AC:8262.0001: : USB HID v1.01 Device [Apple Inc. Ambient Light Sensor] on usb-bce-vhci-3/input0
+[   11.830992] apple-ib-touchbar 0003:05AC:8302.0007: input: USB HID v1.01 Keyboard [Apple Inc. Touch Bar Display] on usb-bce-vhci-6/input0
+[   12.139407] apple-ib-touchbar 0003:05AC:8102.0008: : USB HID v1.01 Device [Apple Inc. Touch Bar Backlight] on usb-bce-vhci-7/input0
+[   12.211824] apple-ib-touchbar 0003:05AC:8102.0009: : USB HID v1.01 Device [Apple Inc. Touch Bar Backlight] on usb-bce-vhci-7/input1
+[   14.219759] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 2 (-110)
+[   24.395670] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 2 (-110)
+[   34.635791] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 2 (-110)
+[  269.579233] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 1 (-110)
+
+Add the USB IDs of the touchbar found in T2 Macs to HID have special
+driver list to fix the issue.
+
+Signed-off-by: Aditya Garg <gargaditya08@live.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/hid/hid-ids.h    | 2 ++
+ drivers/hid/hid-quirks.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9c4e92a9c6460..f7e4a0d06fb85 100644
+index f7e4a0d06fb85..bc550e884f37b 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -414,6 +414,7 @@
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
- #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
- #define I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN	0x2A1C
-+#define I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN	0x279F
+@@ -185,6 +185,8 @@
+ #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021   0x029c
+ #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021   0x029a
+ #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021   0x029f
++#define USB_DEVICE_ID_APPLE_TOUCHBAR_BACKLIGHT 0x8102
++#define USB_DEVICE_ID_APPLE_TOUCHBAR_DISPLAY 0x8302
  
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 48c1c02c69f4e..17a453bb09a2d 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -383,6 +383,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_LENOVO_YOGA_C630_TOUCHSCREEN),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
- 
+ #define USB_VENDOR_ID_ASUS		0x0486
+ #define USB_DEVICE_ID_ASUS_T91MT	0x0185
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index dc67717d2dabc..70f602c64fd13 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -314,6 +314,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_TOUCHBAR_BACKLIGHT) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_TOUCHBAR_DISPLAY) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_APPLEIR)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) },
 -- 
 2.35.1
 
