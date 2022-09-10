@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F445B4953
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 633805B495E
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:19:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbiIJVS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56828 "EHLO
+        id S229768AbiIJVTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:19:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230073AbiIJVSK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:18:10 -0400
+        with ESMTP id S230088AbiIJVSR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:18:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 417254DB53;
-        Sat, 10 Sep 2022 14:17:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA0D84BD0E;
+        Sat, 10 Sep 2022 14:17:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4449060E1F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 845FB60E65;
+        Sat, 10 Sep 2022 21:17:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18003C433D7;
         Sat, 10 Sep 2022 21:17:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6FDC4347C;
-        Sat, 10 Sep 2022 21:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844642;
-        bh=lKWIFsFMln7pe1vmo5/zv2VQOb0rZrQ3m5h6WbdOT+o=;
+        s=k20201202; t=1662844644;
+        bh=k/IRruyCkZWhZI+atk2d7eT+R5sJKTlp9ZUCQcg/64c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pu4hU4ANPeTOXsyhoUFVfe075qHTWhXf+GVa94v7pxjDv5OmXTkv5Phn0zqJHL51D
-         oL0kDU0jkpSdHzXUp5srfOc074QKYVi7n6jyrVlFPzpuMoNOezmO/VyYnmE//j9y8S
-         En3/AQ1d+HPqYJ0cXt7RrxhdoXECjTRfayAJqYT9eL3CoxK1hg0HZoMu6HADdiBnAE
-         0VIWEcZIkiuNPwYUwntsuHvK0r8ac18laDu/YO+rmPzKiU/Pt6oUodHwaJWD+E1Egf
-         zAKEZZ1q7aXws/NC+SfDnmfsG+67hE4/iw6RnhniNDCREsSxafbqLm5UHhrAuiFgF7
-         /ApLPWZWsLUyw==
+        b=T42lwsKWVgIEf3yVp6cCWjGLowj1CxEqw3PUoSu3s/utYi+QWwUDz+d2vo5Nf3M+b
+         meCf/giYeCHDmzMbWv81dksXd3+Z6yn9B2MpgAVS2nF7OJH0ZJy7DnHqR8tVUtjGbv
+         M0abV7UU8Hzy0FM1WXr+2A/Krdmd8ox6qNnMrT015FYPOP5hTH53KbUXMod0a4E+7B
+         RFL1v/k4/3+TqsgiTo00qBFs2pRicefJnvWEols6bawuuwVSQqRcav73ouVOltcdf0
+         TKFU75TpPowev+v8OBpVuMfAyIWzrMv2eG4wA+7Kl6aWz6AIMif+o+sDVDRrlolPgP
+         DJZNixtrfh4pg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Quan <evan.quan@amd.com>, Kenneth Feng <kenneth.feng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        KevinYang.Wang@amd.com, Hawking.Zhang@amd.com, Jack.Gui@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 25/38] drm/amd/pm: use vbios carried pptable for all SMU13.0.7 SKUs
-Date:   Sat, 10 Sep 2022 17:16:10 -0400
-Message-Id: <20220910211623.69825-25-sashal@kernel.org>
+Cc:     Shyamin Ayesh <me@shyamin.com>, Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
+        sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 26/38] nvme-pci: add NVME_QUIRK_BOGUS_NID for Lexar NM610
+Date:   Sat, 10 Sep 2022 17:16:11 -0400
+Message-Id: <20220910211623.69825-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
@@ -59,78 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Shyamin Ayesh <me@shyamin.com>
 
-[ Upstream commit b023053592646b1da9477b0b598f2cdd5d3f89d8 ]
+[ Upstream commit 200dccd07df21b504a2168960059f0a971bf415d ]
 
-For those SMU13.0.7 unsecure SKUs, the vbios carried pptable is ready to go.
-Use that one instead of hardcoded softpptable.
+Lexar NM610 reports bogus eui64 values that appear to be the same across
+all drives. Quirk them out so they are not marked as "non globally unique"
+duplicates.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Shyamin Ayesh <me@shyamin.com>
+[patch formatting]
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c  | 35 ++++++++++++-------
- 1 file changed, 22 insertions(+), 13 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-index 4e1861fb2c6a4..ef811ba1c5a7d 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-@@ -382,11 +382,27 @@ static int smu_v13_0_7_append_powerplay_table(struct smu_context *smu)
- 	return 0;
- }
- 
-+static int smu_v13_0_7_get_pptable_from_pmfw(struct smu_context *smu,
-+					     void **table,
-+					     uint32_t *size)
-+{
-+	struct smu_table_context *smu_table = &smu->smu_table;
-+	void *combo_pptable = smu_table->combo_pptable;
-+	int ret = 0;
-+
-+	ret = smu_cmn_get_combo_pptable(smu);
-+	if (ret)
-+		return ret;
-+
-+	*table = combo_pptable;
-+	*size = sizeof(struct smu_13_0_7_powerplay_table);
-+
-+	return 0;
-+}
- 
- static int smu_v13_0_7_setup_pptable(struct smu_context *smu)
- {
- 	struct smu_table_context *smu_table = &smu->smu_table;
--	void *combo_pptable = smu_table->combo_pptable;
- 	struct amdgpu_device *adev = smu->adev;
- 	int ret = 0;
- 
-@@ -395,18 +411,11 @@ static int smu_v13_0_7_setup_pptable(struct smu_context *smu)
- 	 * be used directly by driver. To get the raw pptable, we need to
- 	 * rely on the combo pptable(and its revelant SMU message).
- 	 */
--	if (adev->scpm_enabled) {
--		ret = smu_cmn_get_combo_pptable(smu);
--		if (ret)
--			return ret;
--
--		smu->smu_table.power_play_table = combo_pptable;
--		smu->smu_table.power_play_table_size = sizeof(struct smu_13_0_7_powerplay_table);
--	} else {
--		ret = smu_v13_0_setup_pptable(smu);
--		if (ret)
--			return ret;
--	}
-+	ret = smu_v13_0_7_get_pptable_from_pmfw(smu,
-+						&smu_table->power_play_table,
-+						&smu_table->power_play_table_size);
-+	if (ret)
-+		return ret;
- 
- 	ret = smu_v13_0_7_store_powerplay_table(smu);
- 	if (ret)
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 73d9fcba3b1c0..9f6614f7dbeb1 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3517,6 +3517,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(0xc0a9, 0x540a),   /* Crucial P2 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
++	{ PCI_DEVICE(0x1d97, 0x2263), /* Lexar NM610 */
++		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
+ 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
 -- 
 2.35.1
 
