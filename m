@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FAD25B4A37
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:31:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 891235B4A10
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229945AbiIJVb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:31:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33562 "EHLO
+        id S229969AbiIJV0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:26:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229997AbiIJVbI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:31:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC945727C;
-        Sat, 10 Sep 2022 14:25:26 -0700 (PDT)
+        with ESMTP id S229920AbiIJVYW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:24:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B40B050720;
+        Sat, 10 Sep 2022 14:20:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E99860E86;
-        Sat, 10 Sep 2022 21:19:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5DFAC43140;
-        Sat, 10 Sep 2022 21:18:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6173BB80950;
+        Sat, 10 Sep 2022 21:19:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE493C43145;
+        Sat, 10 Sep 2022 21:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844740;
-        bh=m0CCmXn+DRNmptGEaAfo1O1jNqKFsxS0zWNvH9+boSk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ew+rl11en3lMuV+LU3AvbUtfLC5e7/r5IVmBtXfOPfSMO9E1+dSJxXB8WSBsZoZZP
-         xwOvNE21t4nbSNKVU/469Bd803x6kXt0JpUBP0xOQ0c3J4IL1O5uLbqMGYitQsnNPv
-         CisM3gMuRX1ZuZAmB1HKp28kbkDU9ZlBQXiDyR942rEC/ScqgAdfo19IaOvkh254wi
-         qU06QVc/bRKmbfr8vsK2StQnl2oL6JjmwgSzbWPL7ZrwPZnQNPXYCIgHkJDKpRvVvf
-         1oYDSVa1aAQUWAFT3bDCI0TWXb/JCsD3mA83DLXZtPrwsdiJo8jiSZ0PzdOs80y3c9
-         tWUbttOP9+AXQ==
+        s=k20201202; t=1662844744;
+        bh=SX8ctfDoXZyy93CaTDmVcLfuc2fkCYRrEUR7A5GxBqk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BVx/xF9yeoZ6aDZ5MkMfPRpLyBLQEjwMnU7Bwh0jQtqFddPG0zlnb9zMY6j2+patJ
+         1Arvuvf6J2Z72FWLLwfWqIxkQngFGNkiaKMxGXX8dqM8hqCCLbm+UJW7SRlq1Bimo2
+         NNGOa3c/B29Z/Umt14F0orrmMAl/AwVwbNf9S9q/jpesmAfVZzhv6TAguS8eFmSumV
+         5r7wVT0OXxedu4PigyeBwGmm/uG40YUWg1nwpWIEAafUKUmP3mn6Rqk2uGgrBUJFRC
+         SpDZvcCaizWJ8QAX1bZp2XHRz+QOM2v1/UU3sFkDCyp9hBX+EWMopbUcx0bWB6QAoJ
+         P00oeUA5+vyLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hu Xiaoying <huxiaoying@kylinos.cn>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        usb-storage@lists.one-eyed-alien.net
-Subject: [PATCH AUTOSEL 5.10 14/14] usb: storage: Add ASUS <0x0b05:0x1932> to IGNORE_UAS
-Date:   Sat, 10 Sep 2022 17:18:32 -0400
-Message-Id: <20220910211832.70579-14-sashal@kernel.org>
+Cc:     Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
+        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
+        airlied@linux.ie, daniel@ffwll.ch, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 01/10] drm/msm/rd: Fix FIFO-full deadlock
+Date:   Sat, 10 Sep 2022 17:18:52 -0400
+Message-Id: <20220910211901.70760-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220910211832.70579-1-sashal@kernel.org>
-References: <20220910211832.70579-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,43 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hu Xiaoying <huxiaoying@kylinos.cn>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit c61feaee68b9735be06f162bc046c7f1959efb0c ]
+[ Upstream commit 174974d8463b77c2b4065e98513adb204e64de7d ]
 
-USB external storage device(0x0b05:1932), use gnome-disk-utility tools
-to test usb write  < 30MB/s.
-if does not to load module of uas for this device, can increase the
-write speed from 20MB/s to >40MB/s.
+If the previous thing cat'ing $debugfs/rd left the FIFO full, then
+subsequent open could deadlock in rd_write() (because open is blocked,
+not giving a chance for read() to consume any data in the FIFO).  Also
+it is generally a good idea to clear out old data from the FIFO.
 
-Suggested-by: Matthias Kaehlcke <mka@chromium.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Hu Xiaoying <huxiaoying@kylinos.cn>
-Link: https://lore.kernel.org/r/20220901045737.3438046-1-huxiaoying@kylinos.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/496706/
+Link: https://lore.kernel.org/r/20220807160901.2353471-2-robdclark@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/msm/msm_rd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index 4051c8cd0cd8a..23ab3b048d9be 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -62,6 +62,13 @@ UNUSUAL_DEV(0x0984, 0x0301, 0x0128, 0x0128,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_IGNORE_UAS),
+diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
+index c7832a951039f..a6b024b06b363 100644
+--- a/drivers/gpu/drm/msm/msm_rd.c
++++ b/drivers/gpu/drm/msm/msm_rd.c
+@@ -191,6 +191,9 @@ static int rd_open(struct inode *inode, struct file *file)
+ 	file->private_data = rd;
+ 	rd->open = true;
  
-+/* Reported-by: Tom Hu <huxiaoying@kylinos.cn> */
-+UNUSUAL_DEV(0x0b05, 0x1932, 0x0000, 0x9999,
-+		"ASUS",
-+		"External HDD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
++	/* Reset fifo to clear any previously unread data: */
++	rd->fifo.head = rd->fifo.tail = 0;
 +
- /* Reported-by: David Webb <djw@noc.ac.uk> */
- UNUSUAL_DEV(0x0bc2, 0x331a, 0x0000, 0x9999,
- 		"Seagate",
+ 	/* the parsing tools need to know gpu-id to know which
+ 	 * register database to load.
+ 	 */
 -- 
 2.35.1
 
