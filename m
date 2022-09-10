@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B92B5B492F
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:17:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 397F15B4931
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:18:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230011AbiIJVR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:17:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57224 "EHLO
+        id S229622AbiIJVR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:17:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229969AbiIJVRY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:17:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97E14D24F;
-        Sat, 10 Sep 2022 14:16:52 -0700 (PDT)
+        with ESMTP id S229869AbiIJVRa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:17:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 299284D4EB;
+        Sat, 10 Sep 2022 14:17:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 803FB60EC3;
-        Sat, 10 Sep 2022 21:16:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14F36C43144;
-        Sat, 10 Sep 2022 21:16:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5BB94CE0AE3;
+        Sat, 10 Sep 2022 21:16:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7E6DC433C1;
+        Sat, 10 Sep 2022 21:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844609;
-        bh=d4IziVWHQFC54c13xgvwcvVa0eZNhNga1Dz57NDT6nY=;
+        s=k20201202; t=1662844614;
+        bh=3zFCLOpoXLNmEwxV/ZHWHkmv39j1hbijtbmUtvjCD3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbamwEhqUjhCKjgr84bB35QSR8/12FK38zZOJ+p33N7nZyf4GdPM77i57F90NDJid
-         iMIK79F4rijOK5U38otgwq485oJi3kE8s6lAZOSEwnH3uwWzJZZZttWruypbwnYnPZ
-         ZmNyM66b0aD+Xv/GSel/b76og3pP8BZNZ0LY7jtLhdukCC4nWheAVGSZiTMLqSRWJj
-         LJtLO+z6N6LQkiDXyQYn8Zu7BPcGPWn7MAeM8hyiKjk3d47YkHu/OjUKHZJHCTSmPx
-         JIhxLM+VF9W79vHc6AT6sEFszo3l+MMXcQ7D9XWpR1IOxzvNdt6AkV3OVCjyG9tZxF
-         Pdrh2f1tK7Bkw==
+        b=U6LFCvetzqXKvDqC/pSP8TV97tqW1us3OlX9qG8eY6B+ZKvaJ5yhBczEAU0SEOPbk
+         5R4AuRvYlveaxU7Jzt0cqCSPbji+OCvYA/H6/kX+mHpMfsf+dUcrCrZGHluV4dIh9E
+         oJLf92glAhYq3nmsH+dLuC1mBM6cWrtHTueDZsXKv3fBeyzXcUZ3OgReqksHiL5Ue4
+         m6IELC6uI/o7On/hHORwLJV63fowwORoT4GYiMpq4zF/cW2F8hOCW3dnYnhGKLuSa/
+         qdJb0KjlN1nkWIhw/xp05jI/cBt0qpSnjXOehVFFnLR5SewtVXAtxlj59qihV4NGlz
+         HzC0kwFlqELXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aditya Garg <gargaditya08@live.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 15/38] HID: Add Apple Touchbar on T2 Macs in hid_have_special_driver list
-Date:   Sat, 10 Sep 2022 17:16:00 -0400
-Message-Id: <20220910211623.69825-15-sashal@kernel.org>
+Cc:     Even Xu <even.xu@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux@weissschuh.net, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 16/38] HID: intel-ish-hid: ipc: Add Meteor Lake PCI device ID
+Date:   Sat, 10 Sep 2022 17:16:01 -0400
+Message-Id: <20220910211623.69825-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
@@ -56,64 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Even Xu <even.xu@intel.com>
 
-[ Upstream commit 750ec977288d96e9a11424e3507ede097af732c4 ]
+[ Upstream commit 467249a7dff68451868ca79696aef69764193a8a ]
 
-The touchbar on Apple T2 Macs has 2 modes, one that shows the function
-keys and other that shows the media controls. The user can use the fn
-key on his keyboard to switch between the 2 modes.
+Add device ID of Meteor Lake P into ishtp support list.
 
-On Linux, if people were using an external keyboard or mouse, the
-touchbar failed to change modes on pressing the fn key with the following
-in dmesg :-
-
-[   10.661445] apple-ib-als 0003:05AC:8262.0001: : USB HID v1.01 Device [Apple Inc. Ambient Light Sensor] on usb-bce-vhci-3/input0
-[   11.830992] apple-ib-touchbar 0003:05AC:8302.0007: input: USB HID v1.01 Keyboard [Apple Inc. Touch Bar Display] on usb-bce-vhci-6/input0
-[   12.139407] apple-ib-touchbar 0003:05AC:8102.0008: : USB HID v1.01 Device [Apple Inc. Touch Bar Backlight] on usb-bce-vhci-7/input0
-[   12.211824] apple-ib-touchbar 0003:05AC:8102.0009: : USB HID v1.01 Device [Apple Inc. Touch Bar Backlight] on usb-bce-vhci-7/input1
-[   14.219759] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 2 (-110)
-[   24.395670] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 2 (-110)
-[   34.635791] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 2 (-110)
-[  269.579233] apple-ib-touchbar 0003:05AC:8302.0007: tb: Failed to set touch bar mode to 1 (-110)
-
-Add the USB IDs of the touchbar found in T2 Macs to HID have special
-driver list to fix the issue.
-
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
+Signed-off-by: Even Xu <even.xu@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 2 ++
- drivers/hid/hid-quirks.c | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/hid/intel-ish-hid/ipc/hw-ish.h  | 1 +
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index f7e4a0d06fb85..bc550e884f37b 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -185,6 +185,8 @@
- #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021   0x029c
- #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021   0x029a
- #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021   0x029f
-+#define USB_DEVICE_ID_APPLE_TOUCHBAR_BACKLIGHT 0x8102
-+#define USB_DEVICE_ID_APPLE_TOUCHBAR_DISPLAY 0x8302
+diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+index e600dbf04dfc6..fc108f19a64c3 100644
+--- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
++++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+@@ -32,6 +32,7 @@
+ #define ADL_P_DEVICE_ID		0x51FC
+ #define ADL_N_DEVICE_ID		0x54FC
+ #define RPL_S_DEVICE_ID		0x7A78
++#define MTL_P_DEVICE_ID		0x7E45
  
- #define USB_VENDOR_ID_ASUS		0x0486
- #define USB_DEVICE_ID_ASUS_T91MT	0x0185
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index dc67717d2dabc..70f602c64fd13 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -314,6 +314,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_TOUCHBAR_BACKLIGHT) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_TOUCHBAR_DISPLAY) },
- #endif
- #if IS_ENABLED(CONFIG_HID_APPLEIR)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) },
+ #define	REVISION_ID_CHT_A0	0x6
+ #define	REVISION_ID_CHT_Ax_SI	0x0
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index 2c67ec17bec6f..7120b30ac51d0 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -43,6 +43,7 @@ static const struct pci_device_id ish_pci_tbl[] = {
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ADL_P_DEVICE_ID)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ADL_N_DEVICE_ID)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, RPL_S_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MTL_P_DEVICE_ID)},
+ 	{0, }
+ };
+ MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
 -- 
 2.35.1
 
