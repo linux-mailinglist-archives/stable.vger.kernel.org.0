@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 125D55B49AB
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 190595B49B4
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230397AbiIJVV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:21:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37182 "EHLO
+        id S230427AbiIJVWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:22:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230303AbiIJVVK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:21:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA274F698;
-        Sat, 10 Sep 2022 14:18:19 -0700 (PDT)
+        with ESMTP id S229947AbiIJVVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:21:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B1244D170;
+        Sat, 10 Sep 2022 14:18:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFDC7B8093B;
-        Sat, 10 Sep 2022 21:18:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1350C433D7;
-        Sat, 10 Sep 2022 21:18:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C160E60E86;
+        Sat, 10 Sep 2022 21:18:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F263DC433B5;
+        Sat, 10 Sep 2022 21:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844695;
-        bh=bUQW0Wp4SnI8PrxP3zvxYr7GetJzUvK5EMTjMqSKClw=;
+        s=k20201202; t=1662844697;
+        bh=LiI4v9vBPc7mLT6eREo4zXLAyk3E8pYsOLWHLK96i/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJvTvMD6Ex57y7RsviEdyXmNLAirU4jAKED8ijnIGentOhZ5Jf+HXpYifOrt5lXAK
-         zcu7p4mVQLlUJ1kmRr39C9Rzm73UMqeWaw0GnK/h14e7AZBb3qCEH4OuECxM5OJx49
-         vz3DCKMruCASQ5hJRvrDyI6P4z7YqsEc5IKBLDabr+wKuDcCCCG2LViOgmf/rTTwr3
-         4sdZSOzYrb2rGp8HQsQsb74q6FIhBBYveGtXd09TdTUKXjBeB/lF2w1O+NUj7xpReS
-         +/Nu71nU19jzawGO2MGcRAuuP7KbiGZ0b/vFo+f9snqKHtUTm9i577xm/ImvvNecVf
-         bzRhJkOIyP95w==
+        b=IoPjhHHBgDKQv+O7iiVxbQ/YWZFv05Z4tFwxfrnCvVAlSoDC1nWy29jSMs6Y+Q008
+         a+tYRC2+XmeEQeOIKfK49hCfCFJi0tgHZyiVmeChHYHptWFdIa0eb7XIg8Pco5nabi
+         2w7R2dTgScNKH0GMFeudzY/YZp7pg1f1mAHhg6PAozCa0VBhYm+11G3MmwZtNoHxGX
+         SrOix6hzlujYdXShXubUhae6JtMb46G/VkLP7uUHqv/xpQ+0E4kOUQbPZXqvlL7bJt
+         +q0nRrvTKzHoTgMKm+C96BWUQ/g11Wuhze2c0f8cEPRUCjWWsFXhmsSu3Un6m3SdR3
+         iT3vgvXHPRWtg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>, bamv2005@gmail.com,
-        linus.walleij@linaro.org, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 13/21] gpio: mockup: remove gpio debugfs when remove device
-Date:   Sat, 10 Sep 2022 17:17:44 -0400
-Message-Id: <20220910211752.70291-13-sashal@kernel.org>
+Cc:     Li Qiong <liqiong@nfschina.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>, varkabhadram@gmail.com,
+        alex.aring@gmail.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 14/21] ieee802154: cc2520: add rc code in cc2520_tx()
+Date:   Sat, 10 Sep 2022 17:17:45 -0400
+Message-Id: <20220910211752.70291-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211752.70291-1-sashal@kernel.org>
 References: <20220910211752.70291-1-sashal@kernel.org>
@@ -57,48 +59,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Li Qiong <liqiong@nfschina.com>
 
-[ Upstream commit 303e6da99429510b1e4edf833afe90ac8542e747 ]
+[ Upstream commit ffd7bdddaab193c38416fd5dd416d065517d266e ]
 
-GPIO mockup debugfs is created in gpio_mockup_probe() but
-forgot to remove when remove device. This patch add a devm
-managed callback for removing them.
+The rc code is 0 at the error path "status & CC2520_STATUS_TX_UNDERFLOW".
+Assign rc code with '-EINVAL' at this error path to fix it.
 
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Li Qiong <liqiong@nfschina.com>
+Link: https://lore.kernel.org/r/20220829071259.18330-1-liqiong@nfschina.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mockup.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ieee802154/cc2520.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpio/gpio-mockup.c b/drivers/gpio/gpio-mockup.c
-index d26bff29157b5..369a832d96203 100644
---- a/drivers/gpio/gpio-mockup.c
-+++ b/drivers/gpio/gpio-mockup.c
-@@ -373,6 +373,13 @@ static void gpio_mockup_debugfs_setup(struct device *dev,
+diff --git a/drivers/net/ieee802154/cc2520.c b/drivers/net/ieee802154/cc2520.c
+index 89c046b204e0c..4517517215f2b 100644
+--- a/drivers/net/ieee802154/cc2520.c
++++ b/drivers/net/ieee802154/cc2520.c
+@@ -504,6 +504,7 @@ cc2520_tx(struct ieee802154_hw *hw, struct sk_buff *skb)
+ 		goto err_tx;
+ 
+ 	if (status & CC2520_STATUS_TX_UNDERFLOW) {
++		rc = -EINVAL;
+ 		dev_err(&priv->spi->dev, "cc2520 tx underflow exception\n");
+ 		goto err_tx;
  	}
- }
- 
-+static void gpio_mockup_debugfs_cleanup(void *data)
-+{
-+	struct gpio_mockup_chip *chip = data;
-+
-+	debugfs_remove_recursive(chip->dbg_dir);
-+}
-+
- static void gpio_mockup_dispose_mappings(void *data)
- {
- 	struct gpio_mockup_chip *chip = data;
-@@ -455,7 +462,7 @@ static int gpio_mockup_probe(struct platform_device *pdev)
- 
- 	gpio_mockup_debugfs_setup(dev, chip);
- 
--	return 0;
-+	return devm_add_action_or_reset(dev, gpio_mockup_debugfs_cleanup, chip);
- }
- 
- static const struct of_device_id gpio_mockup_of_match[] = {
 -- 
 2.35.1
 
