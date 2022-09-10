@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DA2B5B44A3
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 08:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFF005B44A7
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 08:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230512AbiIJGdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 02:33:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46204 "EHLO
+        id S230336AbiIJGda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 02:33:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230501AbiIJGcp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 02:32:45 -0400
+        with ESMTP id S231236AbiIJGcz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 02:32:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D859B0B34
-        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 23:32:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871CCAF483
+        for <stable@vger.kernel.org>; Fri,  9 Sep 2022 23:32:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BE22B8049B
-        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 06:32:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93F44C433C1;
-        Sat, 10 Sep 2022 06:32:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AE6DB80682
+        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 06:32:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39594C433D6;
+        Sat, 10 Sep 2022 06:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662791548;
-        bh=4T2mwm/IYSh7EgqMWARSdN5enoM+4zjw6AGJd3UFoQs=;
+        s=korg; t=1662791557;
+        bh=4yFSDVUA70YXzl+zHJCNGpcj1Nuu+iPKxYKmXAZ8Z6o=;
         h=Subject:To:Cc:From:Date:From;
-        b=0HLf2awgNU83CLPM4OW88jdzJ5zkBxeY5RV5DHZCnVf791odGKwhmVmXA28aXcoXL
-         qdqNqD2bmPhJeqWJDv2+G0sR5MqlexRZmuS4+R71/7Sja0IL80FhWndWN+6RnFtnWU
-         91+z44zY0KCZmDq5hxXqKj9jddtKVFAJy8t0wYm4=
-Subject: FAILED: patch "[PATCH] scsi: core: Fix a use-after-free" failed to apply to 5.19-stable tree
+        b=JR8dQJ/gfhVFsHX2bv1OcrcHv1YH7Zd8eEURCeIadYV5BJl6DxrYSAC7wc6xHcPlk
+         6NgTs50ET/6tpEwP01MTrnKgOWMKPwczdyqNHlFNaQ6MGjJTy+z1/3TRFSnhW6ak8Y
+         lrn538irnrVC/OyiXEE0luVQjBhyfXg+3kXBu0ao=
+Subject: FAILED: patch "[PATCH] scsi: core: Fix a use-after-free" failed to apply to 5.15-stable tree
 To:     bvanassche@acm.org, hare@suse.de, hch@lst.de,
         john.garry@huawei.com, lizhijian@fujitsu.com,
         martin.petersen@oracle.com, michael.christie@oracle.com,
         ming.lei@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 10 Sep 2022 08:32:50 +0200
-Message-ID: <16627915704382@kroah.com>
+Date:   Sat, 10 Sep 2022 08:32:51 +0200
+Message-ID: <166279157139198@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -64,6 +64,8 @@ Possible dependencies:
 1f90307e5f0d ("block: remove QUEUE_FLAG_DEAD")
 e8b58ef09e84 ("mtip32xx: fix device removal")
 ec5263f422a3 ("mtip32xx: remove the device_status debugfs file")
+50e34d78815e ("block: disable the elevator int del_gendisk")
+78c6499c9209 ("Merge tag 'for-5.19/drivers-2022-06-02' of git://git.kernel.dk/linux-block")
 
 thanks,
 
