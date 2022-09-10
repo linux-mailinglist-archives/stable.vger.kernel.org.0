@@ -2,68 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDE955B4885
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 21:55:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EC265B48F8
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:16:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229534AbiIJTzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 15:55:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38704 "EHLO
+        id S229567AbiIJVQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:16:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbiIJTzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 15:55:50 -0400
-Received: from mail-oa1-x44.google.com (mail-oa1-x44.google.com [IPv6:2001:4860:4864:20::44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79D352251B
-        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 12:55:49 -0700 (PDT)
-Received: by mail-oa1-x44.google.com with SMTP id 586e51a60fabf-1278624b7c4so12791728fac.5
-        for <stable@vger.kernel.org>; Sat, 10 Sep 2022 12:55:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date;
-        bh=675CvuSp++zNLeIUZybBsP51nvc83dY+2bSGb3FYErQ=;
-        b=B1GMwlatSiHCQeNwJwEiq4jRMW26X2UP2Zsyn7EvdGyohXs5P6AYapqAgVPuA8koaR
-         mHoAkWqBZIS22oJ6aKWUgXiwbrURC1butTUxMeoLvS8A8PHXWK3W6WfUrr7CzbjqiFDh
-         Uo1c/r6FbXhtlkmVeWNo6rKKMRuFIpcAD7f2p5sx5S71eNNYPc2+iTdiDOwuNrAaiPpL
-         O3W1GvojzT30CVotZJuO8IcUYVB1FVJJ0a+MIiXfakyyNBDPrNoYbti0TPWfVQz0X8FF
-         n1q7xn7wI+P4EUnVISS1ZVGuSrNtWS6Al6+wqmSMvz6sROAKgD7li526ztSE7pcgEn5O
-         JZrw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=675CvuSp++zNLeIUZybBsP51nvc83dY+2bSGb3FYErQ=;
-        b=tCEhCM+ftKbHYrRWKcAP3Is9nUAR8jmFKjlieIqFOdZ4svT5HcChGy3SpGxyk9euDg
-         NpCsDUsQWMwPtFL6gtKTQwAQFmLEktyT6PBoQyFdWLJ9HHPHFCWnQqFsrZJ8BovyArKc
-         gN96o4uwk62n57COfM93ATeymg5zSbYfGWQ0o7hXHQA7f8FdGBD0s8VeUbw+JVBlqTGi
-         +dFWGWO12bvyCSoX0Lv1m/qcGjHkeF8N+RSURq4QJL6muWh7/2f6H4rSZXp8SNQuVXAv
-         BGgTZfC/tzOP5k+zw1LyW0fBV3PpOeDqAP2XLxleGxAok6oUFfw75glpWWeU+Qm5+kIl
-         aHGw==
-X-Gm-Message-State: ACgBeo01HHG6pJI8liDxXlyxu7DL94axzsaCaKsBzfrx5OzR2pYbXPHH
-        xn+eRkbUHzmR+jzkb1G3GV4R64u7JxdZAdk59ow=
-X-Google-Smtp-Source: AA6agR7T+9Uelq4X8bUChUUBQYETEXfkotgpV1U8UTuJtvQHgiMGd3KVpn7GXzKSBSCMbGTZWsUFwutgJaaekNTpTr8=
-X-Received: by 2002:a05:6808:1447:b0:344:f11a:4415 with SMTP id
- x7-20020a056808144700b00344f11a4415mr6150496oiv.51.1662839748660; Sat, 10 Sep
- 2022 12:55:48 -0700 (PDT)
+        with ESMTP id S229488AbiIJVQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:16:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E593B47B88;
+        Sat, 10 Sep 2022 14:16:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90EDEB8091F;
+        Sat, 10 Sep 2022 21:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57097C433D6;
+        Sat, 10 Sep 2022 21:16:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662844586;
+        bh=Yhh4HinMSFzDEq0UIYyxqbae+osLFMVeT3vElBCYf0Q=;
+        h=From:To:Cc:Subject:Date:From;
+        b=LGtwPdBXx/Lxt4bTocuLKhQUdUzhz1UjQBeMtCRJ+sTZT8yOSgmNwNiX7a7Q7nb7j
+         olOvDkffQGxKkLTM02343hxCrGDiaCIFVLtNAIVPk8utKZ6aAh8P/1XR1VNGtsbYb2
+         Nmnha+DbrVjSdTCyWxnZrxHdi9pml841xliDJfgHdJiOhws3PmtmjyjuOvDGk8KdV2
+         8ykPlbhYoBEJpwtFZjBjbVK4qSwEQifLYZg8qvI+V7mSzTMZKSAwNSi3Pw8lqdnFzo
+         hWvdfpSInYqpY5pfZPhlLQw51vb71YUMiDg4andwQItF4is5+jkH7qhL1M3NMFN+yF
+         11cSz2AUC54OA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Ondrej Jirman <megi@xff.cz>, Jarrah Gosbell <kernel@undef.tools>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, hadess@hadess.net,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 01/38] Input: goodix - add support for GT1158
+Date:   Sat, 10 Sep 2022 17:15:46 -0400
+Message-Id: <20220910211623.69825-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Received: by 2002:a05:6841:132a:b0:e78:416a:a164 with HTTP; Sat, 10 Sep 2022
- 12:55:48 -0700 (PDT)
-Reply-To: wen305147@gmail.com
-From:   Tony Wen <infotonyw@gmail.com>
-Date:   Sun, 11 Sep 2022 03:55:48 +0800
-Message-ID: <CAGsB4p-VS9K=Kg3LH7+-kvWfORGBQ4VhGu26qXHv9fg-+-ZmsA@mail.gmail.com>
-Subject: work
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: ****
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Can you work with me?
+From: Ondrej Jirman <megi@xff.cz>
+
+[ Upstream commit 425fe4709c76e35f93f4c0e50240f0b61b2a2e54 ]
+
+This controller is used by PinePhone and PinePhone Pro. Support for
+the PinePhone Pro will be added in a later patch set.
+
+Signed-off-by: Ondrej Jirman <megi@xff.cz>
+Signed-off-by: Jarrah Gosbell <kernel@undef.tools>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220809091200.290492-1-kernel@undef.tools
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/input/touchscreen/goodix.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index aa45a9fee6a01..06d4fcafb7666 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -95,6 +95,7 @@ static const struct goodix_chip_data gt9x_chip_data = {
+ 
+ static const struct goodix_chip_id goodix_chip_ids[] = {
+ 	{ .id = "1151", .data = &gt1x_chip_data },
++	{ .id = "1158", .data = &gt1x_chip_data },
+ 	{ .id = "5663", .data = &gt1x_chip_data },
+ 	{ .id = "5688", .data = &gt1x_chip_data },
+ 	{ .id = "917S", .data = &gt1x_chip_data },
+-- 
+2.35.1
+
