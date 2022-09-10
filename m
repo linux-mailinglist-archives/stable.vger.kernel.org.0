@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 512295B4985
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDA4D5B4967
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230090AbiIJVUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:20:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56802 "EHLO
+        id S229673AbiIJVTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:19:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230211AbiIJVUB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:20:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A1544D240;
-        Sat, 10 Sep 2022 14:18:01 -0700 (PDT)
+        with ESMTP id S229881AbiIJVS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:18:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A480D4DF1F;
+        Sat, 10 Sep 2022 14:17:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0AAB8B8093B;
-        Sat, 10 Sep 2022 21:17:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE740C43470;
-        Sat, 10 Sep 2022 21:17:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D7E2B80943;
+        Sat, 10 Sep 2022 21:17:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E75C433B5;
+        Sat, 10 Sep 2022 21:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844655;
-        bh=KcahzQve60dgc9Si8zjPq61t02Py46Nn/o4fttZwpdo=;
+        s=k20201202; t=1662844657;
+        bh=g1K/tsCZeF3hfaAJ8DuIWNbrtY7uwq/dhFvhIaqT3/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jH8zmPTqtCAvypY9l930S5NqFqCB1M8Xh24Jm+VpZn181KAsNjOh0/pb3zi4ja8k/
-         Hu41qs2S84VTpLwIIrQYNxR9OuI6fKclEgzRRGsI2SnYXWhawMBkF7crwm/gH/nGuM
-         rw4Qy1X16v0KFD1AaH8aWe5LVFNV9yZGvgXafbESoG7zrf7bM2is8gUAUrmUhixAsk
-         owE0SVFba/zB2z6JunLiuPaHe/UTrNnE9w99JQVOOuIrMW1fjpqTrx2amzUGH3uWHP
-         WwG0no2WAULEWoKEe8LJh7F8VvEaaHX6Yp8lOnmT2Ma/AB+moZXw1ssjv67Ulla4C2
-         etZeKgVLrNKEA==
+        b=LLxgpPyOabUMCkTKT/iXfD+hIq8+nlXvu1t8eowwOCWUrEnRNlmcMs4wh8MaP2skh
+         17GJT4wkd94m6LhjcaSWHzJTMvcAKk4sTv4zMSxQIegRfcVxND6qrgiVGFnk6v1DMU
+         SSiVo6znfKm535ct4D5uw+RPnWCtwBfV5JxVfTrlx8j8D1USOU1LbNo6JQdybh+obM
+         7sZJlpAJ9nxCAjv4jkvGYSUxRIZzJIYobPKCX3yTlg20HWmCmI1ADaBmHjQ+KOgSGr
+         qMFH9P22xMXVSMgQHkR1VGK9ArrYyRjRZdtUBBZ6ie6AIWI6aIWlsijmotf4EN4I9m
+         8nF4RpWfijkAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan+linaro@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        srinivas.kandagatla@linaro.org, amahesh@qti.qualcomm.com,
-        linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 33/38] misc: fastrpc: increase maximum session count
-Date:   Sat, 10 Sep 2022 17:16:18 -0400
-Message-Id: <20220910211623.69825-33-sashal@kernel.org>
+Cc:     "Luke D. Jones" <luke@ljones.dev>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, corentin.chary@gmail.com,
+        markgross@kernel.org, acpi4asus-user@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 34/38] platform/x86: asus-wmi: Increase FAN_CURVE_BUF_LEN to 32
+Date:   Sat, 10 Sep 2022 17:16:19 -0400
+Message-Id: <20220910211623.69825-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
@@ -58,34 +58,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: "Luke D. Jones" <luke@ljones.dev>
 
-[ Upstream commit 689a2d9f9332a27b1379ef230396e944f949a72b ]
+[ Upstream commit 5542dfc582f4a925f67bbfaf8f62ca83506032ae ]
 
-The SC8280XP platform uses 14 sessions for the compute DSP so increment
-the maximum session count.
+Fix for TUF laptops returning with an -ENOSPC on calling
+asus_wmi_evaluate_method_buf() when fetching default curves. The TUF method
+requires at least 32 bytes space.
 
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220829080531.29681-4-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This also moves and changes the pr_debug() in fan_curve_check_present() to
+pr_warn() in fan_curve_get_factory_default() so that there is at least some
+indication in logs of why it fails.
+
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
+Link: https://lore.kernel.org/r/20220828074638.5473-1-luke@ljones.dev
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/asus-wmi.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
-index 93ebd174d8487..08032a207c1c0 100644
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -25,7 +25,7 @@
- #define SDSP_DOMAIN_ID (2)
- #define CDSP_DOMAIN_ID (3)
- #define FASTRPC_DEV_MAX		4 /* adsp, mdsp, slpi, cdsp*/
--#define FASTRPC_MAX_SESSIONS	13 /*12 compute, 1 cpz*/
-+#define FASTRPC_MAX_SESSIONS	14
- #define FASTRPC_MAX_VMIDS	16
- #define FASTRPC_ALIGN		128
- #define FASTRPC_MAX_FDLIST	16
+diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
+index 62ce198a34631..a0f31624aee97 100644
+--- a/drivers/platform/x86/asus-wmi.c
++++ b/drivers/platform/x86/asus-wmi.c
+@@ -107,7 +107,7 @@ module_param(fnlock_default, bool, 0444);
+ #define WMI_EVENT_MASK			0xFFFF
+ 
+ #define FAN_CURVE_POINTS		8
+-#define FAN_CURVE_BUF_LEN		(FAN_CURVE_POINTS * 2)
++#define FAN_CURVE_BUF_LEN		32
+ #define FAN_CURVE_DEV_CPU		0x00
+ #define FAN_CURVE_DEV_GPU		0x01
+ /* Mask to determine if setting temperature or percentage */
+@@ -2208,8 +2208,10 @@ static int fan_curve_get_factory_default(struct asus_wmi *asus, u32 fan_dev)
+ 	curves = &asus->custom_fan_curves[fan_idx];
+ 	err = asus_wmi_evaluate_method_buf(asus->dsts_id, fan_dev, mode, buf,
+ 					   FAN_CURVE_BUF_LEN);
+-	if (err)
++	if (err) {
++		pr_warn("%s (0x%08x) failed: %d\n", __func__, fan_dev, err);
+ 		return err;
++	}
+ 
+ 	fan_curve_copy_from_buf(curves, buf);
+ 	curves->device_id = fan_dev;
+@@ -2227,9 +2229,6 @@ static int fan_curve_check_present(struct asus_wmi *asus, bool *available,
+ 
+ 	err = fan_curve_get_factory_default(asus, fan_dev);
+ 	if (err) {
+-		pr_debug("fan_curve_get_factory_default(0x%08x) failed: %d\n",
+-			 fan_dev, err);
+-		/* Don't cause probe to fail on devices without fan-curves */
+ 		return 0;
+ 	}
+ 
 -- 
 2.35.1
 
