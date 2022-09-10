@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E32D25B49E0
-	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B605B49C2
+	for <lists+stable@lfdr.de>; Sat, 10 Sep 2022 23:22:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230446AbiIJVYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Sep 2022 17:24:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44476 "EHLO
+        id S230341AbiIJVWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Sep 2022 17:22:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230522AbiIJVXf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:23:35 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2EFB9593;
-        Sat, 10 Sep 2022 14:19:36 -0700 (PDT)
+        with ESMTP id S230240AbiIJVWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Sep 2022 17:22:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6839A50066;
+        Sat, 10 Sep 2022 14:18:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3AF09CE0AF1;
+        by ams.source.kernel.org (Postfix) with ESMTPS id C724AB80949;
         Sat, 10 Sep 2022 21:18:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67DDDC433D7;
-        Sat, 10 Sep 2022 21:18:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A0D7C4347C;
+        Sat, 10 Sep 2022 21:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844718;
-        bh=R4IQiGoPF8Cgcu2LQQvPc9f/JuwxAP5+AAxE3FbmNaw=;
+        s=k20201202; t=1662844719;
+        bh=5W1NvthT7Gk6j/4+GOkbynLdXPLwKUVSKJmdvZ0KROw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I08/xC5in6ZS+z02DqnNJSPJTzEM9Gkjo4TIyE/8xH39SJ17htNlfGUANXJM3yEvU
-         GZo0iWTFG7eJ1+aQVCUcBb8oR1QUuECpoHR9Jileitv/VDcrGHZLV31g41xIEOz3t+
-         pndjvtNjG4tBZM1AeA4hD9koB3D17aXgwynHiIp8QpNA5rjpqyG03RjkrGF/lPip1r
-         VtUIGdSgfG0u09UEdt7FfuFj2lrouGVbMn9zhgBZj3AJ7uHZFQ5ru+aFCqISA7ee/h
-         oelY4PWcPiN8smKHP+XTZ0anJzTqZBtF3tzxVXsagJnbaML8FKWRtqCfXnkvSi69d3
-         mt38FX0weNaDQ==
+        b=q3x8lMVFudTy70W/8nyD+AjaazjVuaZSANecOBErJ9dGfk2oSGVnIlowgF/Fv5tFo
+         5azwin/pfScdnjFe7ZiObcO2c9TvL/WOkz/WZqW7TtreEXfBju73hEYnOB7mbUJWxc
+         iStuOABR9rZHF9eAXMETWAdCGICOLDswbCym5S9F0s7UjY+omuhocbGuhKSP6uXw9m
+         7c5lV5JxRDNfeSA1041FBHo8Mc+9PGzcNDU96Gc+A9jw9PDcwG2VVdzHdLUbJyeukf
+         uJPGpBdc4rOvKw20cx8i49ZpXwbyy1VTAooDb69iFyYorjJd8OmOH/K9VfGjr4P7xL
+         5W7Ywx1GlNLCA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/14] hwmon: (pmbus) Use dev_err_probe() to filter -EPROBE_DEFER error messages
-Date:   Sat, 10 Sep 2022 17:18:21 -0400
-Message-Id: <20220910211832.70579-3-sashal@kernel.org>
+Cc:     Jason Wang <wangborong@cdjrlc.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>,
+        srinivas.pandruvada@linux.intel.com, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 04/14] HID: ishtp-hid-clientHID: ishtp-hid-client: Fix comment typo
+Date:   Sat, 10 Sep 2022 17:18:22 -0400
+Message-Id: <20220910211832.70579-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211832.70579-1-sashal@kernel.org>
 References: <20220910211832.70579-1-sashal@kernel.org>
@@ -57,43 +57,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jason Wang <wangborong@cdjrlc.com>
 
-[ Upstream commit 09e52d17b72d3a4bf6951a90ccd8c97fae04e5cf ]
+[ Upstream commit 94553f8a218540d676efbf3f7827ed493d1057cf ]
 
-devm_regulator_register() can return -EPROBE_DEFER, so better use
-dev_err_probe() instead of dev_err(), it is less verbose in such a case.
+The double `like' is duplicated in the comment, remove one.
 
-It is also more informative, which can't hurt.
-
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/3adf1cea6e32e54c0f71f4604b4e98d992beaa71.1660741419.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jason Wang <wangborong@cdjrlc.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/pmbus_core.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp-hid.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
-index 117e3ce9c76ad..6d8ace96b0a73 100644
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -2322,11 +2322,10 @@ static int pmbus_regulator_register(struct pmbus_data *data)
- 
- 		rdev = devm_regulator_register(dev, &info->reg_desc[i],
- 					       &config);
--		if (IS_ERR(rdev)) {
--			dev_err(dev, "Failed to register %s regulator\n",
--				info->reg_desc[i].name);
--			return PTR_ERR(rdev);
--		}
-+		if (IS_ERR(rdev))
-+			return dev_err_probe(dev, PTR_ERR(rdev),
-+					     "Failed to register %s regulator\n",
-+					     info->reg_desc[i].name);
- 	}
- 
- 	return 0;
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
+index 5ffd0da3cf1fa..65af0ebef79f6 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.h
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
+@@ -110,7 +110,7 @@ struct report_list {
+  * @multi_packet_cnt:	Count of fragmented packet count
+  *
+  * This structure is used to store completion flags and per client data like
+- * like report description, number of HID devices etc.
++ * report description, number of HID devices etc.
+  */
+ struct ishtp_cl_data {
+ 	/* completion flags */
 -- 
 2.35.1
 
