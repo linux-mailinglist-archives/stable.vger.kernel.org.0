@@ -2,75 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF5C5B51B8
-	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 01:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A30975B51C1
+	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 01:03:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229533AbiIKXBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Sep 2022 19:01:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46670 "EHLO
+        id S229521AbiIKXDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Sep 2022 19:03:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229459AbiIKXBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Sep 2022 19:01:04 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFC6A22BC3;
-        Sun, 11 Sep 2022 16:01:01 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 9E5F41F983;
-        Sun, 11 Sep 2022 23:00:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1662937259; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6GyFucV8IpoFY7ympxLT3VA1hGgSyrlaYbBgNDtngws=;
-        b=AapnVKz9c6auorp4kIOp+Di5TmReoXni7sRNu0PSMenZJjKKcJaR5+mOTSAY2lqRZzH5Yw
-        iCj+9I1nZFGzdnwJZkn5+wNNKhaQ4MN6adAhTgaWpQ72ese3u1Z45kAFn0y3M286vQyqbb
-        KfsKILXMAFrPnJUi7VsaUurDbjjFXHM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1662937259;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6GyFucV8IpoFY7ympxLT3VA1hGgSyrlaYbBgNDtngws=;
-        b=drju+b++gNLD/clfcCSu/WZXKkgAPKWSEVYI0oc3rTF6Zbb2Ix33AW1MPpGdvG6k9CUK4p
-        KfviLz7Unw5tibCQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 27A3F133E6;
-        Sun, 11 Sep 2022 23:00:56 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 7DwFM6hoHmPhDgAAMHmgww
-        (envelope-from <neilb@suse.de>); Sun, 11 Sep 2022 23:00:56 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S229446AbiIKXDP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Sep 2022 19:03:15 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7759422BDD
+        for <stable@vger.kernel.org>; Sun, 11 Sep 2022 16:03:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1662937394; x=1694473394;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=CyvqSIqedvSv/6SYgC4uLqX60tKlkiL5yOMZV8wNwKo=;
+  b=CeeWoBE537z0ID/UvKP2+gFrqckJU57gW8Y3EPiyrT76eKJ8mgy1R2kB
+   cvhWeQktA1CUtKmp+L1qVHaAspu17qE4SQzCAgDDe+SPiDY15RRK1OZev
+   scZU2dBfaH+TovPuwVRPlZKtsfbguk5XGjOhtT0HVXlBhkttIdSZekQc6
+   ltajDwIXrGi+RT0U48vfyzxGeJ3U94vr+NziyFvncqsom5ujd5Jvx/A5X
+   65CABdy1TWJmQMi9WRGv14AvRoblWWGHuDpnXjeNA2AUJ2szlzZ4g24v0
+   XR3Utq99gfz6lpxmhn5ReWWf6sY/cxttndPlkTl7y5lfsUy97tqapw5zJ
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10467"; a="284777614"
+X-IronPort-AV: E=Sophos;i="5.93,308,1654585200"; 
+   d="scan'208";a="284777614"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Sep 2022 16:03:14 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,308,1654585200"; 
+   d="scan'208";a="704979314"
+Received: from lkp-server02.sh.intel.com (HELO 4011df4f4fd3) ([10.239.97.151])
+  by FMSMGA003.fm.intel.com with ESMTP; 11 Sep 2022 16:03:13 -0700
+Received: from kbuild by 4011df4f4fd3 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1oXVyq-0001wG-1U;
+        Sun, 11 Sep 2022 23:03:12 +0000
+Date:   Mon, 12 Sep 2022 07:03:09 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     NeilBrown <neilb@suse.de>
+Cc:     stable@vger.kernel.org, kbuild-all@lists.01.org
+Subject: Re: [PATCH - stable] SUNRPC: use _bh spinlocking on ->transport_lock
+Message-ID: <Yx5pLWZjWvCiOf+W@facefcfb2e4a>
 MIME-Version: 1.0
-From:   "NeilBrown" <neilb@suse.de>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     "Eugeniu Rosca" <erosca@de.adit-jv.com>,
-        "Trond Myklebust" <trondmy@hammerspace.com>,
-        "mrodin@de.adit-jv.com" <mrodin@de.adit-jv.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "roscaeugeniu@gmail.com" <roscaeugeniu@gmail.com>
-Subject: [PATCH - stable] SUNRPC: use _bh spinlocking on ->transport_lock
-In-reply-to: <Yx107owrRwmIc7pX@kroah.com>
-References: <20220418121210.689577360@linuxfoundation.org>,
- <20220418121211.327937970@linuxfoundation.org>,
- <20220907142548.GA9975@lxhi-065>,
- <166259870333.30452.4204968221881228505@noble.neil.brown.name>,
- <f575eeb3000330d9194c6256ad6063bc58f996c7.camel@hammerspace.com>,
- <20220908120931.GA3480@lxhi-065>, <Yx107owrRwmIc7pX@kroah.com>
-Date:   Mon, 12 Sep 2022 09:00:52 +1000
-Message-id: <166293725263.30452.1720462103844620549@noble.neil.brown.name>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <166293725263.30452.1720462103844620549@noble.neil.brown.name>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,40 +61,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-Prior to Linux 5.3, ->transport_lock in sunrpc required the _bh style
-spinlocks (when not called from a bottom-half handler).
+Thanks for your patch.
 
-When upstream 3848e96edf4788f772d83990022fa7023a233d83 was backported to
-stable kernels, the spin_lock/unlock calls should have been changed to
-the _bh version, but this wasn't noted in the patch and didn't happen.
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
 
-So convert these lock/unlock calls to the _bh versions.
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [PATCH - stable] SUNRPC: use _bh spinlocking on ->transport_lock
+Link: https://lore.kernel.org/stable/166293725263.30452.1720462103844620549%40noble.neil.brown.name
 
-This patch is required for any stable kernel prior to 5.3 to which the
-above mentioned patch was backported.  Namely 4.9.y, 4.14.y, 4.19.y.
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
-Signed-off-by: NeilBrown <neilb@suse.de>
----
- net/sunrpc/xprt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index d05fa7c36d00..b1abf4848bbc 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1550,9 +1550,9 @@ static void xprt_destroy(struct rpc_xprt *xprt)
- 	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
- 	 * can only run *before* del_time_sync(), never after.
- 	 */
--	spin_lock(&xprt->transport_lock);
-+	spin_lock_bh(&xprt->transport_lock);
- 	del_timer_sync(&xprt->timer);
--	spin_unlock(&xprt->transport_lock);
-+	spin_unlock_bh(&xprt->transport_lock);
- 
- 	/*
- 	 * Destroy sockets etc from the system workqueue so they can
 -- 
-2.37.1
+0-DAY CI Kernel Test Service
+https://01.org/lkp
+
+
 
