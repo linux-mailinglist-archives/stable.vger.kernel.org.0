@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 724BE5B51DD
+	by mail.lfdr.de (Postfix) with ESMTP id BBF3E5B51DE
 	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 01:23:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229533AbiIKXXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229561AbiIKXXD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 11 Sep 2022 19:23:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38030 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229561AbiIKXXB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Sep 2022 19:23:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A6B224F29;
-        Sun, 11 Sep 2022 16:23:00 -0700 (PDT)
+        with ESMTP id S229565AbiIKXXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Sep 2022 19:23:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7B8924F24;
+        Sun, 11 Sep 2022 16:23:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F550B80B22;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81A0EB80B96;
+        Sun, 11 Sep 2022 23:23:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2123BC433B5;
         Sun, 11 Sep 2022 23:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEDC7C433D6;
-        Sun, 11 Sep 2022 23:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1662938577;
-        bh=08MwKDKhjgeC6rWdyTTFKSNLn1HOsbStCnISdQ+RXpc=;
+        s=korg; t=1662938579;
+        bh=cBn8yLNwn0yNHtCR+8f2e9PQJCTtK93aodgS00DFBs4=;
         h=Date:To:From:Subject:From;
-        b=L3FqSq0MWI0C9sDSSOMVWklHYHN8wBmkgjAQVV1MuKRd3cjFQRsDm7STgCJ8lgp4b
-         rM7jPVmM8n9xIWgdzAEYNBbzAR4JbTAktnLHqF98uX4jFeU2I8BVqUhf+3zFYnEbEs
-         5/6RqfZ2u8gpUurn9c5dIL2Rn9leI+qtdq3A7svU=
-Date:   Sun, 11 Sep 2022 16:22:56 -0700
+        b=JWdreuq7B+p7epah3Jj1u29p2uLLPiwGWwcO3CgUZVUvXOzJVC4gyVjvHr+daQwtx
+         CTGiwr58moPLVYy5qJZ6pvZ3pSXsm0FrNbf1MkxDLeP5K38bJJoyKUOb9lhEpnztyB
+         ccijhptlaBQ6X0B5f2jGxbwAbZNGWkL+pNh/xgxs=
+Date:   Sun, 11 Sep 2022 16:22:58 -0700
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        anton@tuxera.com, chenxiaosong2@huawei.com,
-        akpm@linux-foundation.org
+        quic_pdaly@quicinc.com, mhocko@suse.com, david@redhat.com,
+        mgorman@techsingularity.net, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] ntfs-fix-bug_on-in-ntfs_lookup_inode_by_name.patch removed from -mm tree
-Message-Id: <20220911232257.BEDC7C433D6@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] mm-page_alloc-fix-race-condition-between-build_all_zonelists-and-page-allocation.patch removed from -mm tree
+Message-Id: <20220911232259.2123BC433B5@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -47,92 +47,190 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
+     Subject: mm/page_alloc: fix race condition between build_all_zonelists and page allocation
 has been removed from the -mm tree.  Its filename was
-     ntfs-fix-bug_on-in-ntfs_lookup_inode_by_name.patch
+     mm-page_alloc-fix-race-condition-between-build_all_zonelists-and-page-allocation.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
-Subject: ntfs: fix BUG_ON in ntfs_lookup_inode_by_name()
-Date: Tue, 9 Aug 2022 14:47:30 +0800
+From: Mel Gorman <mgorman@techsingularity.net>
+Subject: mm/page_alloc: fix race condition between build_all_zonelists and page allocation
+Date: Wed, 24 Aug 2022 12:14:50 +0100
 
-Syzkaller reported BUG_ON as follows:
+Patrick Daly reported the following problem;
 
-------------[ cut here ]------------
-kernel BUG at fs/ntfs/dir.c:86!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
-CPU: 3 PID: 758 Comm: a.out Not tainted 5.19.0-next-20220808 #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-RIP: 0010:ntfs_lookup_inode_by_name+0xd11/0x2d10
-Code: ff e9 b9 01 00 00 e8 1e fe d6 fe 48 8b 7d 98 49 8d 5d 07 e8 91 85 29 ff 48 c7 45 98 00 00 00 00 e9 5a fb ff ff e8 ff fd d6 fe <0f> 0b e8 f8 fd d6 fe 0f 0b e8 f1 fd d6 fe 48 8b b5 50 ff ff ff 4c
-RSP: 0018:ffff888079607978 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 0000000000008000 RCX: 0000000000000000
-RDX: ffff88807cf10000 RSI: ffffffff82a4a081 RDI: 0000000000000003
-RBP: ffff888079607a70 R08: 0000000000000001 R09: ffff88807a6d01d7
-R10: ffffed100f4da03a R11: 0000000000000000 R12: ffff88800f0fb110
-R13: ffff88800f0ee000 R14: ffff88800f0fb000 R15: 0000000000000001
-FS:  00007f33b63c7540(0000) GS:ffff888108580000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f33b635c090 CR3: 000000000f39e005 CR4: 0000000000770ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- <TASK>
- load_system_files+0x1f7f/0x3620
- ntfs_fill_super+0xa01/0x1be0
- mount_bdev+0x36a/0x440
- ntfs_mount+0x3a/0x50
- legacy_get_tree+0xfb/0x210
- vfs_get_tree+0x8f/0x2f0
- do_new_mount+0x30a/0x760
- path_mount+0x4de/0x1880
- __x64_sys_mount+0x2b3/0x340
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f33b62ff9ea
-Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffd0c471aa8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f33b62ff9ea
-RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffd0c471be0
-RBP: 00007ffd0c471c60 R08: 00007ffd0c471ae0 R09: 00007ffd0c471c24
-R10: 0000000000000000 R11: 0000000000000202 R12: 000055bac5afc160
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
+	NODE_DATA(nid)->node_zonelists[ZONELIST_FALLBACK] - before offline operation
+	[0] - ZONE_MOVABLE
+	[1] - ZONE_NORMAL
+	[2] - NULL
 
-Fix this by adding sanity check on extended system files' directory inode
-to ensure that it is directory, just like ntfs_extend_init() when mounting
-ntfs3.
+	For a GFP_KERNEL allocation, alloc_pages_slowpath() will save the
+	offset of ZONE_NORMAL in ac->preferred_zoneref. If a concurrent
+	memory_offline operation removes the last page from ZONE_MOVABLE,
+	build_all_zonelists() & build_zonerefs_node() will update
+	node_zonelists as shown below. Only populated zones are added.
 
-Link: https://lkml.kernel.org/r/20220809064730.2316892-1-chenxiaosong2@huawei.com
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
+	NODE_DATA(nid)->node_zonelists[ZONELIST_FALLBACK] - after offline operation
+	[0] - ZONE_NORMAL
+	[1] - NULL
+	[2] - NULL
+
+The race is simple -- page allocation could be in progress when a memory
+hot-remove operation triggers a zonelist rebuild that removes zones.  The
+allocation request will still have a valid ac->preferred_zoneref that is
+now pointing to NULL and triggers an OOM kill.
+
+This problem probably always existed but may be slightly easier to trigger
+due to 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones
+with pages managed by the buddy allocator") which distinguishes between
+zones that are completely unpopulated versus zones that have valid pages
+not managed by the buddy allocator (e.g.  reserved, memblock, ballooning
+etc).  Memory hotplug had multiple stages with timing considerations
+around managed/present page updates, the zonelist rebuild and the zone
+span updates.  As David Hildenbrand puts it
+
+	memory offlining adjusts managed+present pages of the zone
+	essentially in one go. If after the adjustments, the zone is no
+	longer populated (present==0), we rebuild the zone lists.
+
+	Once that's done, we try shrinking the zone (start+spanned
+	pages) -- which results in zone_start_pfn == 0 if there are no
+	more pages. That happens *after* rebuilding the zonelists via
+	remove_pfn_range_from_zone().
+
+The only requirement to fix the race is that a page allocation request
+identifies when a zonelist rebuild has happened since the allocation
+request started and no page has yet been allocated.  Use a seqlock_t to
+track zonelist updates with a lockless read-side of the zonelist and
+protecting the rebuild and update of the counter with a spinlock.
+
+[akpm@linux-foundation.org: make zonelist_update_seq static]
+Link: https://lkml.kernel.org/r/20220824110900.vh674ltxmzb3proq@techsingularity.net
+Fixes: 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones with pages managed by the buddy allocator")
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Reported-by: Patrick Daly <quic_pdaly@quicinc.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: <stable@vger.kernel.org>	[4.9+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/ntfs/super.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/page_alloc.c |   53 +++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 43 insertions(+), 10 deletions(-)
 
---- a/fs/ntfs/super.c~ntfs-fix-bug_on-in-ntfs_lookup_inode_by_name
-+++ a/fs/ntfs/super.c
-@@ -2092,7 +2092,8 @@ get_ctx_vol_failed:
- 	// TODO: Initialize security.
- 	/* Get the extended system files' directory inode. */
- 	vol->extend_ino = ntfs_iget(sb, FILE_Extend);
--	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino)) {
-+	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino) ||
-+	    !S_ISDIR(vol->extend_ino->i_mode)) {
- 		if (!IS_ERR(vol->extend_ino))
- 			iput(vol->extend_ino);
- 		ntfs_error(sb, "Failed to load $Extend.");
+--- a/mm/page_alloc.c~mm-page_alloc-fix-race-condition-between-build_all_zonelists-and-page-allocation
++++ a/mm/page_alloc.c
+@@ -4708,6 +4708,30 @@ void fs_reclaim_release(gfp_t gfp_mask)
+ EXPORT_SYMBOL_GPL(fs_reclaim_release);
+ #endif
+ 
++/*
++ * Zonelists may change due to hotplug during allocation. Detect when zonelists
++ * have been rebuilt so allocation retries. Reader side does not lock and
++ * retries the allocation if zonelist changes. Writer side is protected by the
++ * embedded spin_lock.
++ */
++static DEFINE_SEQLOCK(zonelist_update_seq);
++
++static unsigned int zonelist_iter_begin(void)
++{
++	if (IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
++		return read_seqbegin(&zonelist_update_seq);
++
++	return 0;
++}
++
++static unsigned int check_retry_zonelist(unsigned int seq)
++{
++	if (IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
++		return read_seqretry(&zonelist_update_seq, seq);
++
++	return seq;
++}
++
+ /* Perform direct synchronous page reclaim */
+ static unsigned long
+ __perform_reclaim(gfp_t gfp_mask, unsigned int order,
+@@ -5001,6 +5025,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, u
+ 	int compaction_retries;
+ 	int no_progress_loops;
+ 	unsigned int cpuset_mems_cookie;
++	unsigned int zonelist_iter_cookie;
+ 	int reserve_flags;
+ 
+ 	/*
+@@ -5011,11 +5036,12 @@ __alloc_pages_slowpath(gfp_t gfp_mask, u
+ 				(__GFP_ATOMIC|__GFP_DIRECT_RECLAIM)))
+ 		gfp_mask &= ~__GFP_ATOMIC;
+ 
+-retry_cpuset:
++restart:
+ 	compaction_retries = 0;
+ 	no_progress_loops = 0;
+ 	compact_priority = DEF_COMPACT_PRIORITY;
+ 	cpuset_mems_cookie = read_mems_allowed_begin();
++	zonelist_iter_cookie = zonelist_iter_begin();
+ 
+ 	/*
+ 	 * The fast path uses conservative alloc_flags to succeed only until
+@@ -5187,9 +5213,13 @@ retry:
+ 		goto retry;
+ 
+ 
+-	/* Deal with possible cpuset update races before we start OOM killing */
+-	if (check_retry_cpuset(cpuset_mems_cookie, ac))
+-		goto retry_cpuset;
++	/*
++	 * Deal with possible cpuset update races or zonelist updates to avoid
++	 * a unnecessary OOM kill.
++	 */
++	if (check_retry_cpuset(cpuset_mems_cookie, ac) ||
++	    check_retry_zonelist(zonelist_iter_cookie))
++		goto restart;
+ 
+ 	/* Reclaim has failed us, start killing things */
+ 	page = __alloc_pages_may_oom(gfp_mask, order, ac, &did_some_progress);
+@@ -5209,9 +5239,13 @@ retry:
+ 	}
+ 
+ nopage:
+-	/* Deal with possible cpuset update races before we fail */
+-	if (check_retry_cpuset(cpuset_mems_cookie, ac))
+-		goto retry_cpuset;
++	/*
++	 * Deal with possible cpuset update races or zonelist updates to avoid
++	 * a unnecessary OOM kill.
++	 */
++	if (check_retry_cpuset(cpuset_mems_cookie, ac) ||
++	    check_retry_zonelist(zonelist_iter_cookie))
++		goto restart;
+ 
+ 	/*
+ 	 * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
+@@ -6514,9 +6548,8 @@ static void __build_all_zonelists(void *
+ 	int nid;
+ 	int __maybe_unused cpu;
+ 	pg_data_t *self = data;
+-	static DEFINE_SPINLOCK(lock);
+ 
+-	spin_lock(&lock);
++	write_seqlock(&zonelist_update_seq);
+ 
+ #ifdef CONFIG_NUMA
+ 	memset(node_load, 0, sizeof(node_load));
+@@ -6553,7 +6586,7 @@ static void __build_all_zonelists(void *
+ #endif
+ 	}
+ 
+-	spin_unlock(&lock);
++	write_sequnlock(&zonelist_update_seq);
+ }
+ 
+ static noinline void __init
 _
 
-Patches currently in -mm which might be from chenxiaosong2@huawei.com are
+Patches currently in -mm which might be from mgorman@techsingularity.net are
 
 
