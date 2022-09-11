@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF3E5B51DE
-	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 01:23:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F795B51DF
+	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 01:23:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbiIKXXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Sep 2022 19:23:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38036 "EHLO
+        id S229575AbiIKXXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Sep 2022 19:23:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229565AbiIKXXD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Sep 2022 19:23:03 -0400
+        with ESMTP id S229593AbiIKXXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Sep 2022 19:23:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7B8924F24;
-        Sun, 11 Sep 2022 16:23:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC6C252B9;
+        Sun, 11 Sep 2022 16:23:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81A0EB80B96;
-        Sun, 11 Sep 2022 23:23:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2123BC433B5;
-        Sun, 11 Sep 2022 23:22:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC1E2B80B94;
+        Sun, 11 Sep 2022 23:23:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AD5AC433D7;
+        Sun, 11 Sep 2022 23:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1662938579;
-        bh=cBn8yLNwn0yNHtCR+8f2e9PQJCTtK93aodgS00DFBs4=;
+        s=korg; t=1662938587;
+        bh=BEOAADO3g1s4sJyuu//w0CxzVqEvfXHYzk5JTnaunxw=;
         h=Date:To:From:Subject:From;
-        b=JWdreuq7B+p7epah3Jj1u29p2uLLPiwGWwcO3CgUZVUvXOzJVC4gyVjvHr+daQwtx
-         CTGiwr58moPLVYy5qJZ6pvZ3pSXsm0FrNbf1MkxDLeP5K38bJJoyKUOb9lhEpnztyB
-         ccijhptlaBQ6X0B5f2jGxbwAbZNGWkL+pNh/xgxs=
-Date:   Sun, 11 Sep 2022 16:22:58 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        quic_pdaly@quicinc.com, mhocko@suse.com, david@redhat.com,
-        mgorman@techsingularity.net, akpm@linux-foundation.org
+        b=GvKL1SfFQIrAa6x54V02Hbf0YG5Cb8ma+hy3rMcfZ2Ovlxb5SGfthxbaSx8K8v6BJ
+         XespXSKEUepXJRgGyr/3Xe6lCo8W+hsaNq7p7tY9oeAPhmxcNJlVpG7UhvbFIP0SUM
+         DoUnBUTaGMreB7Jo8MPzlFTqzaxAJZFGZh0dJwIE=
+Date:   Sun, 11 Sep 2022 16:23:06 -0700
+To:     mm-commits@vger.kernel.org, ying.huang@intel.com,
+        willy@infradead.org, stable@vger.kernel.org, rcampbell@nvidia.com,
+        peterx@redhat.com, paulus@ozlabs.org, nadav.amit@gmail.com,
+        lyude@redhat.com, logang@deltatee.com, kherbst@redhat.com,
+        jhubbard@nvidia.com, jgg@nvidia.com, huang.ying.caritas@gmail.com,
+        Felix.Kuehling@amd.com, david@redhat.com, bskeggs@redhat.com,
+        alex.sierra@amd.com, apopple@nvidia.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-page_alloc-fix-race-condition-between-build_all_zonelists-and-page-allocation.patch removed from -mm tree
-Message-Id: <20220911232259.2123BC433B5@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] mm-migrate_devicec-flush-tlb-while-holding-ptl.patch removed from -mm tree
+Message-Id: <20220911232307.5AD5AC433D7@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -47,190 +51,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/page_alloc: fix race condition between build_all_zonelists and page allocation
+     Subject: mm/migrate_device.c: flush TLB while holding PTL
 has been removed from the -mm tree.  Its filename was
-     mm-page_alloc-fix-race-condition-between-build_all_zonelists-and-page-allocation.patch
+     mm-migrate_devicec-flush-tlb-while-holding-ptl.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Mel Gorman <mgorman@techsingularity.net>
-Subject: mm/page_alloc: fix race condition between build_all_zonelists and page allocation
-Date: Wed, 24 Aug 2022 12:14:50 +0100
+From: Alistair Popple <apopple@nvidia.com>
+Subject: mm/migrate_device.c: flush TLB while holding PTL
+Date: Fri, 2 Sep 2022 10:35:51 +1000
 
-Patrick Daly reported the following problem;
+When clearing a PTE the TLB should be flushed whilst still holding the PTL
+to avoid a potential race with madvise/munmap/etc.  For example consider
+the following sequence:
 
-	NODE_DATA(nid)->node_zonelists[ZONELIST_FALLBACK] - before offline operation
-	[0] - ZONE_MOVABLE
-	[1] - ZONE_NORMAL
-	[2] - NULL
+  CPU0                          CPU1
+  ----                          ----
 
-	For a GFP_KERNEL allocation, alloc_pages_slowpath() will save the
-	offset of ZONE_NORMAL in ac->preferred_zoneref. If a concurrent
-	memory_offline operation removes the last page from ZONE_MOVABLE,
-	build_all_zonelists() & build_zonerefs_node() will update
-	node_zonelists as shown below. Only populated zones are added.
+  migrate_vma_collect_pmd()
+  pte_unmap_unlock()
+                                madvise(MADV_DONTNEED)
+                                -> zap_pte_range()
+                                pte_offset_map_lock()
+                                [ PTE not present, TLB not flushed ]
+                                pte_unmap_unlock()
+                                [ page is still accessible via stale TLB ]
+  flush_tlb_range()
 
-	NODE_DATA(nid)->node_zonelists[ZONELIST_FALLBACK] - after offline operation
-	[0] - ZONE_NORMAL
-	[1] - NULL
-	[2] - NULL
+In this case the page may still be accessed via the stale TLB entry after
+madvise returns.  Fix this by flushing the TLB while holding the PTL.
 
-The race is simple -- page allocation could be in progress when a memory
-hot-remove operation triggers a zonelist rebuild that removes zones.  The
-allocation request will still have a valid ac->preferred_zoneref that is
-now pointing to NULL and triggers an OOM kill.
-
-This problem probably always existed but may be slightly easier to trigger
-due to 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones
-with pages managed by the buddy allocator") which distinguishes between
-zones that are completely unpopulated versus zones that have valid pages
-not managed by the buddy allocator (e.g.  reserved, memblock, ballooning
-etc).  Memory hotplug had multiple stages with timing considerations
-around managed/present page updates, the zonelist rebuild and the zone
-span updates.  As David Hildenbrand puts it
-
-	memory offlining adjusts managed+present pages of the zone
-	essentially in one go. If after the adjustments, the zone is no
-	longer populated (present==0), we rebuild the zone lists.
-
-	Once that's done, we try shrinking the zone (start+spanned
-	pages) -- which results in zone_start_pfn == 0 if there are no
-	more pages. That happens *after* rebuilding the zonelists via
-	remove_pfn_range_from_zone().
-
-The only requirement to fix the race is that a page allocation request
-identifies when a zonelist rebuild has happened since the allocation
-request started and no page has yet been allocated.  Use a seqlock_t to
-track zonelist updates with a lockless read-side of the zonelist and
-protecting the rebuild and update of the counter with a spinlock.
-
-[akpm@linux-foundation.org: make zonelist_update_seq static]
-Link: https://lkml.kernel.org/r/20220824110900.vh674ltxmzb3proq@techsingularity.net
-Fixes: 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones with pages managed by the buddy allocator")
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Reported-by: Patrick Daly <quic_pdaly@quicinc.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>	[4.9+]
+Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
+Link: https://lkml.kernel.org/r/9f801e9d8d830408f2ca27821f606e09aa856899.1662078528.git-series.apopple@nvidia.com
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Reported-by: Nadav Amit <nadav.amit@gmail.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Cc: Alex Sierra <alex.sierra@amd.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: huang ying <huang.ying.caritas@gmail.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Paul Mackerras <paulus@ozlabs.org>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/page_alloc.c |   53 +++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 43 insertions(+), 10 deletions(-)
+ mm/migrate_device.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/mm/page_alloc.c~mm-page_alloc-fix-race-condition-between-build_all_zonelists-and-page-allocation
-+++ a/mm/page_alloc.c
-@@ -4708,6 +4708,30 @@ void fs_reclaim_release(gfp_t gfp_mask)
- EXPORT_SYMBOL_GPL(fs_reclaim_release);
- #endif
- 
-+/*
-+ * Zonelists may change due to hotplug during allocation. Detect when zonelists
-+ * have been rebuilt so allocation retries. Reader side does not lock and
-+ * retries the allocation if zonelist changes. Writer side is protected by the
-+ * embedded spin_lock.
-+ */
-+static DEFINE_SEQLOCK(zonelist_update_seq);
-+
-+static unsigned int zonelist_iter_begin(void)
-+{
-+	if (IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
-+		return read_seqbegin(&zonelist_update_seq);
-+
-+	return 0;
-+}
-+
-+static unsigned int check_retry_zonelist(unsigned int seq)
-+{
-+	if (IS_ENABLED(CONFIG_MEMORY_HOTREMOVE))
-+		return read_seqretry(&zonelist_update_seq, seq);
-+
-+	return seq;
-+}
-+
- /* Perform direct synchronous page reclaim */
- static unsigned long
- __perform_reclaim(gfp_t gfp_mask, unsigned int order,
-@@ -5001,6 +5025,7 @@ __alloc_pages_slowpath(gfp_t gfp_mask, u
- 	int compaction_retries;
- 	int no_progress_loops;
- 	unsigned int cpuset_mems_cookie;
-+	unsigned int zonelist_iter_cookie;
- 	int reserve_flags;
- 
- 	/*
-@@ -5011,11 +5036,12 @@ __alloc_pages_slowpath(gfp_t gfp_mask, u
- 				(__GFP_ATOMIC|__GFP_DIRECT_RECLAIM)))
- 		gfp_mask &= ~__GFP_ATOMIC;
- 
--retry_cpuset:
-+restart:
- 	compaction_retries = 0;
- 	no_progress_loops = 0;
- 	compact_priority = DEF_COMPACT_PRIORITY;
- 	cpuset_mems_cookie = read_mems_allowed_begin();
-+	zonelist_iter_cookie = zonelist_iter_begin();
- 
- 	/*
- 	 * The fast path uses conservative alloc_flags to succeed only until
-@@ -5187,9 +5213,13 @@ retry:
- 		goto retry;
- 
- 
--	/* Deal with possible cpuset update races before we start OOM killing */
--	if (check_retry_cpuset(cpuset_mems_cookie, ac))
--		goto retry_cpuset;
-+	/*
-+	 * Deal with possible cpuset update races or zonelist updates to avoid
-+	 * a unnecessary OOM kill.
-+	 */
-+	if (check_retry_cpuset(cpuset_mems_cookie, ac) ||
-+	    check_retry_zonelist(zonelist_iter_cookie))
-+		goto restart;
- 
- 	/* Reclaim has failed us, start killing things */
- 	page = __alloc_pages_may_oom(gfp_mask, order, ac, &did_some_progress);
-@@ -5209,9 +5239,13 @@ retry:
+--- a/mm/migrate_device.c~mm-migrate_devicec-flush-tlb-while-holding-ptl
++++ a/mm/migrate_device.c
+@@ -254,13 +254,14 @@ next:
+ 		migrate->dst[migrate->npages] = 0;
+ 		migrate->src[migrate->npages++] = mpfn;
  	}
+-	arch_leave_lazy_mmu_mode();
+-	pte_unmap_unlock(ptep - 1, ptl);
  
- nopage:
--	/* Deal with possible cpuset update races before we fail */
--	if (check_retry_cpuset(cpuset_mems_cookie, ac))
--		goto retry_cpuset;
-+	/*
-+	 * Deal with possible cpuset update races or zonelist updates to avoid
-+	 * a unnecessary OOM kill.
-+	 */
-+	if (check_retry_cpuset(cpuset_mems_cookie, ac) ||
-+	    check_retry_zonelist(zonelist_iter_cookie))
-+		goto restart;
+ 	/* Only flush the TLB if we actually modified any entries */
+ 	if (unmapped)
+ 		flush_tlb_range(walk->vma, start, end);
  
- 	/*
- 	 * Make sure that __GFP_NOFAIL request doesn't leak out and make sure
-@@ -6514,9 +6548,8 @@ static void __build_all_zonelists(void *
- 	int nid;
- 	int __maybe_unused cpu;
- 	pg_data_t *self = data;
--	static DEFINE_SPINLOCK(lock);
- 
--	spin_lock(&lock);
-+	write_seqlock(&zonelist_update_seq);
- 
- #ifdef CONFIG_NUMA
- 	memset(node_load, 0, sizeof(node_load));
-@@ -6553,7 +6586,7 @@ static void __build_all_zonelists(void *
- #endif
- 	}
- 
--	spin_unlock(&lock);
-+	write_sequnlock(&zonelist_update_seq);
++	arch_leave_lazy_mmu_mode();
++	pte_unmap_unlock(ptep - 1, ptl);
++
+ 	return 0;
  }
  
- static noinline void __init
 _
 
-Patches currently in -mm which might be from mgorman@techsingularity.net are
+Patches currently in -mm which might be from apopple@nvidia.com are
 
+mm-gupc-simplify-and-fix-check_and_migrate_movable_pages-return-codes.patch
+selftests-hmm-tests-add-test-for-dirty-bits.patch
+mm-gupc-dont-pass-gup_flags-to-check_and_migrate_movable_pages.patch
+mm-gupc-refactor-check_and_migrate_movable_pages.patch
+mm-migrate_devicec-fix-a-misleading-and-out-dated-comment.patch
 
