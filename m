@@ -2,165 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECBEB5B5EF8
-	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 19:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 877065B5F9F
+	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 19:53:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229878AbiILRMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Sep 2022 13:12:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42038 "EHLO
+        id S229456AbiILRxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Sep 2022 13:53:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230061AbiILRMa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 13:12:30 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F2EA3ED44;
-        Mon, 12 Sep 2022 10:12:25 -0700 (PDT)
-Received: from mercury (unknown [185.122.133.20])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: sre)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 02EBD6601DA4;
-        Mon, 12 Sep 2022 18:12:23 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1663002743;
-        bh=u/Atv23PoM1M00Cd+vSduc6NhPeHPLYi8E24tTfRl3s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dt3hfvjtdPagBbd1n3+g0gomk79w6z6kZUertM+8DwyF/ymkcjOlNqfaQ3UU+1mPr
-         L4iSEyN7O647cmmH3U7WEtKj50hvsbk7/0bhfvn6pqsQQ2GFNu9aHNR2DWlGYNOAAq
-         V937XXgjwsbm/N75QS/8KIYFWegEXNstSkbCia9JnXvlFrRIE/hkW0ODTz254xzgya
-         epZh/MZ6+48/7sowV4f2S+MweCKe+T5tK31PL9mCT1CiSTMbtgpvwagyeIiSL/2Qnn
-         l1AHvZcU1JhN6hoPdjk7o07xS1BgAe3G0CjT2i8gvv/4BCrIoB6hkNwQ0GIHS2SS6P
-         B2oUGHqmnTruw==
-Received: by mercury (Postfix, from userid 1000)
-        id 822A4106084A; Mon, 12 Sep 2022 19:12:18 +0200 (CEST)
-Date:   Mon, 12 Sep 2022 19:12:18 +0200
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     Mark Pearson <mpearson@lenovo.com>, linux-pm@vger.kernel.org,
-        stable@vger.kernel.org, "Rafael J . Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH RESEND] power: supply: avoid nullptr deref in
- __power_supply_is_system_supplied
-Message-ID: <20220912171218.kmbi3slsqoh3l3a2@mercury.elektranox.org>
-References: <CAJZ5v0js78b3qZXoxgXEwG7g0a7n_ALnEYjjzBGaQW7q4_ceCA@mail.gmail.com>
- <20220905172428.105564-1-Jason@zx2c4.com>
- <20220911123346.a7xbzdlbb7r5p6ih@mercury.elektranox.org>
- <Yx8N0hGNcbVPnJxW@zx2c4.com>
- <CAHmME9popsZskH5xR0sX2Prhd_R78Dc9mEO3BKy6qcvaok1MXQ@mail.gmail.com>
- <CAHmME9qUirnDQCxLvcQPTVYjSXEgGZcTnYTfRRVkVUwziFTywQ@mail.gmail.com>
+        with ESMTP id S229781AbiILRwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 13:52:49 -0400
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 022DD402C2
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 10:52:48 -0700 (PDT)
+Received: by mail-lf1-x131.google.com with SMTP id f9so15395679lfr.3
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 10:52:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=XI0KQ8q7PFkFGP0DABWmIIcFsiDPrqSNCN4sbyFUatc=;
+        b=zfaxxC5hscfj2i6FJ63hXlCZ02ftU84yLDoSWWK3pMIfqcAOk0lfJ8g9V9MQ57cc7S
+         LXhqgILB3CTzBl6YbJaGZBhQeLi5CupsiCKLmsTZXJMNHkIVz+tE65jLGZjhxr3UzhEr
+         LJ12NAzoLkt+3OKVwzPYos7aPoY9tCl31cGYy/V19u0/onROlQwINcPQQMHq1Otg9Jqy
+         iGvuG0p+QNbs0qpXSJ0kFbWVNJ6Me5XFsxTPakWVFntoyXESNNCYBqGwuddC4grJoBgx
+         6JP9y6CqhmdoubaNUVL70rb9wVzVfpI0gvLECNIR1KYNr1iZNz8HK9QDrFh6Fkbv2WWz
+         8hMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=XI0KQ8q7PFkFGP0DABWmIIcFsiDPrqSNCN4sbyFUatc=;
+        b=XHfmTKiZQB51dGeue8a8Gcy/LS1DOVkO9+yXshxDTaTtXmiiYiTqyUF6P4WaIB5PPR
+         bfFFJC/MEsvjIpc5zd5qGPSxuYMFY/ACWFFFeyCZyQAYreut1as/455ofU/vEWCTSvil
+         PRhbXCoJrNQqALmZ7Lqqr5k1t/AsGRGyYAJDQSYcTJepCafDNNAN5pDjs4L+irbUns5s
+         MvP0i7jWA7uS4Il4sO12Dd1hS5UyVGKJUb5sVOj0A8pe04TWoxZXJQlwed9dnvTp8wdv
+         JdSliVRAFWFCaaCsWsWUm8+Dh1a93J6cTEX/ohHGUMqqTNk1oOK7KhWAbXba0stzz02y
+         s77Q==
+X-Gm-Message-State: ACgBeo3knDUFyQeIcJi7jOWF3VYq0ZycPQX43TDsVIZl7nj2TG0wGBJB
+        jY86CNFfejJeOVyzMIqQRswXqA==
+X-Google-Smtp-Source: AA6agR58ddpzRviculgzcBsEBBSueupQl4jo1hgZZERI2CZncjlF8Iz+Ts2+bJzkmZw/T9tGQdi85w==
+X-Received: by 2002:a05:6512:6d5:b0:494:990f:a820 with SMTP id u21-20020a05651206d500b00494990fa820mr9906341lff.536.1663005166350;
+        Mon, 12 Sep 2022 10:52:46 -0700 (PDT)
+Received: from [192.168.1.211] ([37.153.55.125])
+        by smtp.gmail.com with ESMTPSA id q24-20020a2eb4b8000000b0026acd11cd51sm1216736ljm.59.2022.09.12.10.52.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 12 Sep 2022 10:52:45 -0700 (PDT)
+Message-ID: <518564a8-5206-80cc-8306-50296de43abf@linaro.org>
+Date:   Mon, 12 Sep 2022 20:52:44 +0300
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="yb6ws2ziljsoffyz"
-Content-Disposition: inline
-In-Reply-To: <CAHmME9qUirnDQCxLvcQPTVYjSXEgGZcTnYTfRRVkVUwziFTywQ@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+Subject: Re: [PATCH 1/7] drm/msm: fix use-after-free on probe deferral
+To:     Johan Hovold <johan+linaro@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Rob Clark <robdclark@gmail.com>
+Cc:     Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>, Sean Paul <sean@poorly.run>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+        freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20220912154046.12900-1-johan+linaro@kernel.org>
+ <20220912154046.12900-2-johan+linaro@kernel.org>
+Content-Language: en-GB
+From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+In-Reply-To: <20220912154046.12900-2-johan+linaro@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 12/09/2022 18:40, Johan Hovold wrote:
+> The bridge counter was never reset when tearing down the DRM device so
+> that stale pointers to deallocated structures would be accessed on the
+> next tear down (e.g. after a second late bind deferral).
+> 
+> Given enough bridges and a few probe deferrals this could currently also
+> lead to data beyond the bridge array being corrupted.
+> 
+> Fixes: d28ea556267c ("drm/msm: properly add and remove internal bridges")
+> Cc: stable@vger.kernel.org      # 5.19
 
---yb6ws2ziljsoffyz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: a3376e3ec81c ("drm/msm: convert to drm_bridge")
+Cc: stable@vger.kernel.org # 3.12
 
-Hi,
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-On Mon, Sep 12, 2022 at 11:56:43AM +0100, Jason A. Donenfeld wrote:
-> AFAIK, I'm just using the normal ACPI one. Really nothing fancy.
-> Thinkpad X1 Extreme Gen 4.
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> ---
+>   drivers/gpu/drm/msm/msm_drv.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+> index 391d86b54ded..d254fe2507ec 100644
+> --- a/drivers/gpu/drm/msm/msm_drv.c
+> +++ b/drivers/gpu/drm/msm/msm_drv.c
+> @@ -241,6 +241,7 @@ static int msm_drm_uninit(struct device *dev)
+>   
+>   	for (i = 0; i < priv->num_bridges; i++)
+>   		drm_bridge_remove(priv->bridges[i]);
+> +	priv->num_bridges = 0;
+>   
+>   	pm_runtime_get_sync(dev);
+>   	msm_irq_uninstall(ddev);
 
-All ACPI drivers setup get_property method in their power-supply
-devices.
+-- 
+With best wishes
+Dmitry
 
-> Maybe get_property was being set and unset during some kind of
-> initialization/deinitialization that was happening in response to some
-> other event? Not sure, except that I managed to trigger it twice before
-> patching my kernel so my laptop would keep working.
-
-The function is not intended to be changed during the lifetime of
-the device and AFAIK no mainline drivers does this.
-
-> On Mon, Sep 12, 2022 at 11:48 AM Jason A. Donenfeld <Jason@zx2c4.com> wro=
-te:
-> > On Mon, Sep 12, 2022 at 11:45 AM Jason A. Donenfeld <Jason@zx2c4.com> w=
-rote:
-> > > My machine went through three changes I know about between the thresh=
-old
-> > > of "not crashing" and "crashing":
-> > > - Upgraded to 5.19 and then 6.0-rc1.
-> > > - I used my laptop on batteries for a prolonged period of time for the
-> > >   first time in a while.
-> > > - I updated KDE, whose power management UI elements may or may not ma=
-ke
-> > >   frequent calls to this subsystem to update some visual representati=
-on.
-> >
-> > - Updated my BIOS.
->=20
-> GASP! The plot thickens.
->=20
-> It appears that the BIOS update I applied has been removed from
-> https://pcsupport.lenovo.com/fr/en/downloads/ds551052-bios-update-utility=
--bootable-cd-for-windows-10-64-bit-and-linux-thinkpad-p1-gen-4-x1-extreme-g=
-en-4
-> and now it only shows the 1.16 version. I updated from 1.16 to 1.18.
->=20
-> The missing release notes are still online if you futz with the URL:
-> https://download.lenovo.com/pccbbs/mobiles/n40ur14w.txt
-> https://download.lenovo.com/pccbbs/mobiles/n40ur15w.txt
->=20
-> One of the items for 1.17 says:
-> > - (Fix) Fixed an issue where it took a long time to update the battery =
-FW.
->=20
-> So maybe something was happening here...
->=20
-> I'm CC'ing Mark from Lenovo to see if he has any insight as to why
-> this BIOS update was pulled.
->=20
-> Maybe the battery was appearing and disappearing rapidly.
->
-> If that's correct, then it'd indicate that this bandaid patch is
-> *wrong* and what actually is needed is some kind of reference
-> counting or RCU around that sysfs interface (and maybe others).
-
-Device create/remove is the only time that is supposed to touch
-the get_property callback. So I suppose a race condition in that
-path would be a sensible root cause. Considering systems usually
-registers the device once and keeps it until shutdown would also
-explain why this has not been noticed earlier.
-
-The function you modified is only called by
-power_supply_is_system_supplied(), which is an in-kernel function to
-figure out if the system is running on battery.
-
-Can you trigger this easy enough to figure out a few more details
-about the state of the problematic device?
-
--- Sebastian
-
---yb6ws2ziljsoffyz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmMfaG4ACgkQ2O7X88g7
-+ppUtQ/+LsX7V9m1P3dq/WGaMIWyH33JXo/CKrWypbCrKOSM72f8D5fVV4GT6y7H
-hUPvLWbof4GWVz0cLZyskEDk6XmoOn2HSsmVR8zcNPrw36egbJS+Ig0CTwtxY8Ci
-s8rPYUttxgDohoWnX7lJxQA9uT+VWqW6IsblGH+rGN5PUEaR2FBtXXORrRADntiP
-1w5BBPBTcqxdDobWysqjsBKcXzDiomN0UazbNKdkO7pYjbe6qVSiLcL22LQEX7SI
-DDO+1wPPzK2WKhA1+kU80eUIuGroFAuJrPdpKUO1wmPGZ6FYEUUz1tDD3WEVsSbb
-WIoCg6jclA7AAW0vZeHY7fSsEHtIAiyVSWexC8TLEna2XWLu6KOrRmBoH2+Sn22I
-Ln7xMCIbVOpUd8CRv3oUfakIgsxuaLVtVx0Ju5fNbtb+Cr23oI2dVeNfaeA+X8bH
-t57bl3IG2aETNfaS8Zu15rT/9LjIFsCruAmk7lbKCfPXqlVXRPq+ko9HOpLSzzmk
-i/abWU7v1uN3eYVgVXBVuaxBC6kDG5DOKRgyUVFrelsPqPQKj+tTdLW86Etx37u6
-nIqRSNO6AeazM5bYaMw19WuwdIazQDHsi0EVX9OCHeLN25rVExkqr65E1NDQ7pzt
-IWl77RH38jhx8Rk07UuRuCodNTfIRQ2L1uOmz4N8rfV50fH86JM=
-=qjfi
------END PGP SIGNATURE-----
-
---yb6ws2ziljsoffyz--
