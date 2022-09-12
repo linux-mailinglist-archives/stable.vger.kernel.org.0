@@ -2,63 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 680915B57DB
-	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 12:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5995B57F4
+	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 12:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229577AbiILKHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Sep 2022 06:07:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45010 "EHLO
+        id S229701AbiILKND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Sep 2022 06:13:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229589AbiILKHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 06:07:12 -0400
-Received: from mail.savoirfairelinux.com (mail.savoirfairelinux.com [208.88.110.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD031A83F
-        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 03:07:09 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.savoirfairelinux.com (Postfix) with ESMTP id 48CFA9C0B3D;
-        Mon, 12 Sep 2022 06:07:09 -0400 (EDT)
-Received: from mail.savoirfairelinux.com ([127.0.0.1])
-        by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 7HNV0LUGL52m; Mon, 12 Sep 2022 06:07:08 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.savoirfairelinux.com (Postfix) with ESMTP id B99019C0B54;
-        Mon, 12 Sep 2022 06:07:08 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.savoirfairelinux.com B99019C0B54
+        with ESMTP id S229762AbiILKNC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 06:13:02 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A2722B0B
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 03:13:01 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id fs14so7520010pjb.5
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 03:13:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=savoirfairelinux.com; s=DFC430D2-D198-11EC-948E-34200CB392D2;
-        t=1662977228; bh=7+PQXFa+jB0SELVEkY4HCTGYBD9F0G+TtFgUltZtnro=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=X7KPXzdDCFs3rkJwJh1NxN2xD52cjNgQy2mmSyoheBnojyC9noj8TXVqpglj0uPyM
-         d0Rfq8M2FT4hOQbv0KCOLHuo+KzT3o2Cii17Vyn63ofZkRCEQ23smF3cOO7NkzZNQw
-         em12jkjeDbCziUTaQF3fxr31aGM0BNMXuIHe8AdO688k3e7Wpif1wGmTc36FYkinDO
-         RvZpsByCjVpVG142nQKq624dbYnMEt7sPIQb5fq3pmiyZx90Z9vQp6A9nA9MPY/IHO
-         GevzsDNP59JlO8EcEuH9ilhwsHaOYGniKl/KIeUnS89XAXTH/aIJNujr17MUMpQFPh
-         64wX9GR2K2Yhw==
-X-Virus-Scanned: amavisd-new at mail.savoirfairelinux.com
-Received: from mail.savoirfairelinux.com ([127.0.0.1])
-        by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id NXUxuGPM1k8A; Mon, 12 Sep 2022 06:07:08 -0400 (EDT)
-Received: from mail.savoirfairelinux.com (mail.savoirfairelinux.com [192.168.48.237])
-        by mail.savoirfairelinux.com (Postfix) with ESMTP id 988D09C0B3D;
-        Mon, 12 Sep 2022 06:07:08 -0400 (EDT)
-Date:   Mon, 12 Sep 2022 06:07:08 -0400 (EDT)
-From:   Enguerrand de Ribaucourt 
-        <enguerrand.de-ribaucourt@savoirfairelinux.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Jakub Kicinski <kuba@kernel.org>
-Message-ID: <1223536756.162378.1662977228581.JavaMail.zimbra@savoirfairelinux.com>
-In-Reply-To: <Yxohrg//utRPoJYc@kroah.com>
-References: <20220907104558.256807-1-enguerrand.de-ribaucourt@savoirfairelinux.com> <20220907104558.256807-3-enguerrand.de-ribaucourt@savoirfairelinux.com> <Yxohrg//utRPoJYc@kroah.com>
-Subject: Re: [PATCH v3 2/2] net: dp83822: disable rx error interrupt
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date;
+        bh=X0rZ/caq4AK/byV874ODRbcAO5Q95Kbk0h1n7PDeakc=;
+        b=ceIOrX8KNqV17nFnUPBK1duoZFW6mlg+2IhprOCT/++Kn9shJ4Se6HWMIFR56te9vH
+         01Lrbp+cbavj0jAk6cssZ1k2QQFPwWJpwMqiiiVP7qPzwwg7lAYvaYOSnBTFqYAE4nHp
+         2uBpxagNsXpynRbAQhTpUmGHnqPeYUTgkZzv1nwrugWLVrZLNcs6ZQdT04zTq4BC9D5M
+         bNQskRpcLjutUWbxo0Fuubrcp3F0LRsuVPMBL8997IxqiM2NUXjMGtCxvV6i3IAj2Ylq
+         gFEUGkJ1VgezQP99lbtjOMrZPOvp1MF7v8SwDck4yrQHst66ZSpFMEBFiJ58krGXrsJT
+         Uaeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=X0rZ/caq4AK/byV874ODRbcAO5Q95Kbk0h1n7PDeakc=;
+        b=W34XhOC2Pky88WiFpdf7qV4xmgAQzo1FpqwTZEGkOPUDoGl8ONmKY0VMq5tZhjaLLv
+         zusndHIivwR46sQ3boRIHMoIj4v36UJSHXlqzBAzAZMLO2krupDN61RiamHTWvbY4vox
+         nWG2Nnp/8g5sICa3qgzF8TC64oLbzSvVPSkWSB+goCycph0ECxxEraTC1/glmfIL0gKo
+         ehLI23b8MmdRi3xwDxBAzwtCw715x+unhzW+fWw7Bu74fGist2jJ3hKnauvkHTMub9FR
+         IQ1KsK0I/2Ml8X9E0sb/mlSQXHBrJCucvvRhEgYdoB/qF93RmId4kikQRWD8zDd6UIUF
+         5N9Q==
+X-Gm-Message-State: ACgBeo3lAUxu1XCTUZxKV+LV/8NdqFjXb5mJ033tA8+G1VanYUDWcSNT
+        4nzBx7O1/A/3P4qQls0C+eLJekJu0omwWdSTxUA=
+X-Google-Smtp-Source: AA6agR5Cya3ehh2aOlgRCZfF7w94MAhxk7Kpz7zlDwfKebYKmJTEmwCBpEycfTnhAU553+6cS1veoQ==
+X-Received: by 2002:a17:903:291:b0:172:ba83:71a8 with SMTP id j17-20020a170903029100b00172ba8371a8mr26745816plr.65.1662977581374;
+        Mon, 12 Sep 2022 03:13:01 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b1-20020a170902d50100b0017550eaa3eesm5603800plg.71.2022.09.12.03.13.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Sep 2022 03:13:01 -0700 (PDT)
+Message-ID: <631f062d.170a0220.51657.8b6b@mx.google.com>
+Date:   Mon, 12 Sep 2022 03:13:01 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: Zimbra 8.8.15_GA_4372 (ZimbraWebClient - FF104 (Linux)/8.8.15_GA_4372)
-Thread-Topic: dp83822: disable rx error interrupt
-Thread-Index: k1Z6aLzBthNiyT+dg9thOyrXJHbuPQ==
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.327
+Subject: stable-rc/linux-4.9.y baseline: 40 runs, 1 regressions (v4.9.327)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -66,39 +69,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: "Greg KH" <gregkh@linuxfoundation.org>
-> To: "Enguerrand de Ribaucourt" <enguerrand.de-ribaucourt@savoirfairelinux.com>
-> Cc: stable@vger.kernel.org, "Andrew Lunn" <andrew@lunn.ch>, "Jakub Kicinski" <kuba@kernel.org>
-> Sent: Thursday, September 8, 2022 7:09:02 PM
-> Subject: Re: [PATCH v3 2/2] net: dp83822: disable rx error interrupt
+stable-rc/linux-4.9.y baseline: 40 runs, 1 regressions (v4.9.327)
 
-> On Wed, Sep 07, 2022 at 12:45:59PM +0200, Enguerrand de Ribaucourt wrote:
-> > Some RX errors, notably when disconnecting the cable, increase the RCSR
-> > register. Once half full (0x7fff), an interrupt flood is generated. I
-> > measured ~3k/s interrupts even after the RX errors transfer was
-> > stopped.
+Regressions Summary
+-------------------
 
-> > Since we don't read and clear the RCSR register, we should disable this
-> > interrupt.
+platform      | arch | lab         | compiler | defconfig         | regress=
+ions
+--------------+------+-------------+----------+-------------------+--------=
+----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | at91_dt_defconfig | 1      =
+    =
 
-> > Fixes: 87461f7a58ab ("net: phy: DP83822 initial driver submission")
->> Signed-off-by: Enguerrand de Ribaucourt
-> > <enguerrand.de-ribaucourt@savoirfairelinux.com>
-> > Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-> > Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> > [backport of 5.10 commit 0e597e2affb90d6ea48df6890d882924acf71e19]
-> > ---
-> > drivers/net/phy/dp83822.c | 3 +--
-> > 1 file changed, 1 insertion(+), 2 deletions(-)
 
-> Does not apply to 5.4.y or 4.19.y :(
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.327/plan/baseline/
 
-I could apply the patch with no problems on those versions. I also could cherry-pick
-the commit on the branch queue/5.4 from stable/linux-stable-rc.git without conflicts.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.327
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      66dd212d9c3b996c5978ffdbf8075e6ad52016bc =
 
-I can't reproduce the issue you seem to be facing when applying those patches. Would you
-mind helping me finding what's wrong with the patch on those branches?
 
-Thanks,
 
-Enguerrand de Ribaucourt
+Test Regressions
+---------------- =
+
+
+
+platform      | arch | lab         | compiler | defconfig         | regress=
+ions
+--------------+------+-------------+----------+-------------------+--------=
+----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | at91_dt_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/6319de939be0ec1f52355642
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: at91_dt_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.327=
+/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.327=
+/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6319de939be0ec1f52355=
+643
+        new failure (last pass: v4.9.326-32-g24fc65df6e8a8) =
+
+ =20
