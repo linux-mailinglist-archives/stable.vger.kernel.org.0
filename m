@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA765B5C4B
-	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 16:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB285B5C4C
+	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 16:35:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229607AbiILOff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Sep 2022 10:35:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43662 "EHLO
+        id S230060AbiILOfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Sep 2022 10:35:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230019AbiILOfe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 10:35:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA592ED75
-        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 07:35:33 -0700 (PDT)
+        with ESMTP id S230047AbiILOfg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 10:35:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9B132ED6B
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 07:35:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1FFAB80B21
-        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 14:35:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03ECAC433C1;
-        Mon, 12 Sep 2022 14:35:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A19956121B
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 14:35:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7BFBC433D6;
+        Mon, 12 Sep 2022 14:35:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662993330;
-        bh=8ufYCAvUmPnDtwzGITwcT9drbKrWiAYptl+BN9RgTv0=;
+        s=korg; t=1662993333;
+        bh=iEvK7EyPXkn69o8ntNKgHtJIs706nXbiF76JxSy72FU=;
         h=Subject:To:Cc:From:Date:From;
-        b=dLJ8eiA01bKrm2P0OvNJlMdHWETrhB3goGyP0kk5qKJKlTDPBQ2G1OnxP1ByM+4c5
-         g6uCG5p6OnIxfyU+ptOVeJU/a4tAqAMtsobkjVS7ymo8MYmzVmtksJaDoY72e/2jPK
-         +BRgXeDSlPL/6A+AART/gYBAPXxKduO1O5G2zTo4=
-Subject: FAILED: patch "[PATCH] iommu/vt-d: Fix kdump kernels boot failure with scalable mode" failed to apply to 5.19-stable tree
+        b=yrUd4m1ktwxevMTc2g+jTuhnjmPcmZlOm/iX5w/lcO7rUVF1gmSGOvf1NoGaUcVYb
+         puBs4AyclPPTLMpfGks/X0J8qzGUs7t6uh1PcT8JdX1AhkM5rvyMKhcwOS1cPM363p
+         FZ2YYhemUNPfpA4n7+kPIy5x922Gsj7fkpDlpp/w=
+Subject: FAILED: patch "[PATCH] iommu/vt-d: Fix kdump kernels boot failure with scalable mode" failed to apply to 5.15-stable tree
 To:     baolu.lu@linux.intel.com, jroedel@suse.de, jsnitsel@redhat.com,
         wen.jin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 12 Sep 2022 16:35:54 +0200
-Message-ID: <16629933542429@kroah.com>
+Date:   Mon, 12 Sep 2022 16:35:55 +0200
+Message-ID: <166299335585245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,6 +63,14 @@ ffd5869d9353 ("iommu/vt-d: Replace spin_lock_irqsave() with spin_lock()")
 8ac0b64b9735 ("iommu/vt-d: Use pci_get_domain_bus_and_slot() in pgtable_walk()")
 983ebe57b3af ("iommu/vt-d: debugfs: Remove device_domain_lock usage")
 f9903555dd05 ("iommu/vt-d: Remove unnecessary exported symbol")
+4140d77a0221 ("iommu/vt-d: Fix RID2PASID setup/teardown failure")
+fc0051cb9590 ("iommu/vt-d: Check domain force_snooping against attached devices")
+bac4e778d67a ("iommu/vt-d: Fold dmar_insert_one_dev_info() into its caller")
+e19c3992b9f8 ("iommu/vt-d: Change return type of dmar_insert_one_dev_info()")
+cd901e9284c7 ("iommu/vt-d: Remove unneeded validity check on dev")
+71cfafda9c9b ("vfio: Move the Intel no-snoop control off of IOMMU_CACHE")
+6043257b1de0 ("iommu: Introduce the domain op enforce_cache_coherency()")
+e17c6debd4b2 ("Merge branches 'arm/mediatek', 'arm/msm', 'arm/renesas', 'arm/rockchip', 'arm/smmu', 'x86/vt-d' and 'x86/amd' into next")
 
 thanks,
 
