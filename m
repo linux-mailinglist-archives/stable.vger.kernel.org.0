@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5BD55B5BA7
-	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 15:52:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDFD85B5C48
+	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 16:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229498AbiILNwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Sep 2022 09:52:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43942 "EHLO
+        id S229461AbiILOeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Sep 2022 10:34:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiILNwv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 09:52:51 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A8A473122D;
-        Mon, 12 Sep 2022 06:52:46 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D272B113E;
-        Mon, 12 Sep 2022 06:52:52 -0700 (PDT)
-Received: from e108754-lin.cambridge.arm.com (unknown [10.1.195.34])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 5F28B3F73B;
-        Mon, 12 Sep 2022 06:52:45 -0700 (PDT)
-From:   Ionela Voinescu <ionela.voinescu@arm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        James Morse <james.morse@arm.com>, stable@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Ionela Voinescu <ionela.voinescu@arm.com>
-Subject: [PATCH stable-5.10] arm64: errata: add detection for AMEVCNTR01 incrementing incorrectly
-Date:   Mon, 12 Sep 2022 14:52:26 +0100
-Message-Id: <20220912135226.31027-1-ionela.voinescu@arm.com>
-X-Mailer: git-send-email 2.29.2.dirty
+        with ESMTP id S230150AbiILOet (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 10:34:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F620BE0D
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 07:34:48 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2DE5B80CAA
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 14:34:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25A93C433D6;
+        Mon, 12 Sep 2022 14:34:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1662993285;
+        bh=5zQFluWRz/IQqXI8c1ueRD9CzzCEMHl16SI7AxwzNV8=;
+        h=Subject:To:Cc:From:Date:From;
+        b=DT8wOpjX9YsmKLX6RqTH1/kI3eZewbC6CqZJq+owqsckFCdgqpJmw+2/3d9QPrSLu
+         GId3YDHQ6IzPIzrmb3A7Uor2EbymttJQ8oNzYlE9NWThQJzY+71+XDRX9xyh3zIjj+
+         c4zVhbsc1j07U3eYFYpBSwXhtLcq164cvCSVwMS0=
+Subject: FAILED: patch "[PATCH] arm64/bti: Disable in kernel BTI when cross section thunks" failed to apply to 5.10-stable tree
+To:     broonie@kernel.org, scott@os.amperecomputing.com,
+        stable@vger.kernel.org, will@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 12 Sep 2022 16:35:09 +0200
+Message-ID: <166299330913126@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -42,145 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit e89d120c4b720e232cc6a94f0fcbd59c15d41489 upstream.
 
-The AMU counter AMEVCNTR01 (constant counter) should increment at the same
-rate as the system counter. On affected Cortex-A510 cores, AMEVCNTR01
-increments incorrectly giving a significantly higher output value. This
-results in inaccurate task scheduler utilization tracking.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Work around this problem by keeping the reference values of affected
-counters to 0. This results in disabling the single user of this
-counter: Frequency Invariance Engine (FIE).
-This effect is the same to firmware disabling affected counters, in
-which case 0 will be returned when reading the disabled counters.
+Possible dependencies:
 
-Therefore, AMU counters will not be used for frequency invariance for
-affected CPUs and CPUs in the same cpufreq policy. AMUs can still be used
-for frequency invariance for unaffected CPUs in the system.
+c0a454b9044f ("arm64/bti: Disable in kernel BTI when cross section thunks are broken")
+8cdd23c23c3d ("arm64: Restrict ARM64_BTI_KERNEL to clang 12.0.0 and newer")
 
-The above is achieved through adding a new erratum: ARM64_ERRATUM_2457168.
+thanks,
 
-Signed-off-by: Ionela Voinescu <ionela.voinescu@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Link: https://lore.kernel.org/r/20220819103050.24211-1-ionela.voinescu@arm.com
----
+greg k-h
 
-Hi,
+------------------ original commit in Linus's tree ------------------
 
-This is a backport to stable 5.10.142 of the upstream commit
-e89d120c4b72  arm64: errata: add detection for AMEVCNTR01 incrementing incorrectly
+From c0a454b9044fdc99486853aa424e5b3be2107078 Mon Sep 17 00:00:00 2001
+From: Mark Brown <broonie@kernel.org>
+Date: Mon, 5 Sep 2022 15:22:55 +0100
+Subject: [PATCH] arm64/bti: Disable in kernel BTI when cross section thunks
+ are broken
 
-This is sent separately as there were conflicts that needed resolving
-when applying the mainline patch. Compared to the upstream version this
-no longer handles the FFH usecase, as FFH support is not present in 5.10.
-Therefore the commit message and Kconfig description are modified to
-only describe the effect on FIE caused by this erratum.
+GCC does not insert a `bti c` instruction at the beginning of a function
+when it believes that all callers reach the function through a direct
+branch[1]. Unfortunately the logic it uses to determine this is not
+sufficiently robust, for example not taking account of functions being
+placed in different sections which may be loaded separately, so we may
+still see thunks being generated to these functions. If that happens,
+the first instruction in the callee function will result in a Branch
+Target Exception due to the missing landing pad.
 
-Thanks,
-Ionela.
+While this has currently only been observed in the case of modules
+having their main code loaded sufficiently far from their init section
+to require thunks it could potentially happen for other cases so the
+safest thing is to disable BTI for the kernel when building with an
+affected toolchain.
 
- Documentation/arm64/silicon-errata.rst |  2 ++
- arch/arm64/Kconfig                     | 18 ++++++++++++++++++
- arch/arm64/include/asm/cpucaps.h       |  3 ++-
- arch/arm64/kernel/cpu_errata.c         |  9 +++++++++
- arch/arm64/kernel/cpufeature.c         |  5 ++++-
- 5 files changed, 35 insertions(+), 2 deletions(-)
+[1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106671
 
-diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
-index f01eed0ee23a..22a07c208fee 100644
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -92,6 +92,8 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A77      | #1508412        | ARM64_ERRATUM_1508412       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| ARM            | Cortex-A510     | #2457168        | ARM64_ERRATUM_2457168       |
-++----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Neoverse-N1     | #1188873,1418040| ARM64_ERRATUM_1418040       |
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Neoverse-N1     | #1349291        | N/A                         |
+Reported-by: D Scott Phillips <scott@os.amperecomputing.com>
+[Bits of the commit message are lifted from his report & workaround]
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220905142255.591990-1-broonie@kernel.org
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Will Deacon <will@kernel.org>
+
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 7c7906e9dafd..1116a8d092c0 100644
+index 9fb9fff08c94..1ce7685ad5de 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -657,6 +657,24 @@ config ARM64_ERRATUM_1508412
- 
- 	  If unsure, say Y.
- 
-+config ARM64_ERRATUM_2457168
-+	bool "Cortex-A510: 2457168: workaround for AMEVCNTR01 incrementing incorrectly"
-+	depends on ARM64_AMU_EXTN
-+	default y
-+	help
-+	  This option adds the workaround for ARM Cortex-A510 erratum 2457168.
-+
-+	  The AMU counter AMEVCNTR01 (constant counter) should increment at the same rate
-+	  as the system counter. On affected Cortex-A510 cores AMEVCNTR01 increments
-+	  incorrectly giving a significantly higher output value.
-+
-+	  Work around this problem by keeping the reference values of affected counters
-+	  to 0 thus signaling an error case. This effect is the same to firmware disabling
-+	  affected counters, in which case 0 will be returned when reading the disabled
-+	  counters.
-+
-+	  If unsure, say Y.
-+
- config CAVIUM_ERRATUM_22375
- 	bool "Cavium erratum 22375, 24313"
- 	default y
-diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
-index f42fd0a2e81c..53030d3c03a2 100644
---- a/arch/arm64/include/asm/cpucaps.h
-+++ b/arch/arm64/include/asm/cpucaps.h
-@@ -67,7 +67,8 @@
- #define ARM64_MTE				57
- #define ARM64_WORKAROUND_1508412		58
- #define ARM64_SPECTRE_BHB			59
-+#define ARM64_WORKAROUND_2457168		60
- 
--#define ARM64_NCAPS				60
-+#define ARM64_NCAPS				61
- 
- #endif /* __ASM_CPUCAPS_H */
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index 78263dadd00d..aaacca6fd52f 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -545,6 +545,15 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 				  0, 0,
- 				  1, 0),
- 	},
-+#endif
-+#ifdef CONFIG_ARM64_ERRATUM_2457168
-+	{
-+		.desc = "ARM erratum 2457168",
-+		.capability = ARM64_WORKAROUND_2457168,
-+		.type = ARM64_CPUCAP_WEAK_LOCAL_CPU_FEATURE,
-+		/* Cortex-A510 r0p0-r1p1 */
-+		CAP_MIDR_RANGE(MIDR_CORTEX_A510, 0, 0, 1, 1)
-+	},
- #endif
- 	{
- 	}
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 4087e2d1f39e..e72c90b82656 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1559,7 +1559,10 @@ static void cpu_amu_enable(struct arm64_cpu_capabilities const *cap)
- 		pr_info("detected CPU%d: Activity Monitors Unit (AMU)\n",
- 			smp_processor_id());
- 		cpumask_set_cpu(smp_processor_id(), &amu_cpus);
--		init_cpu_freq_invariance_counters();
-+
-+		/* 0 reference values signal broken/disabled counters */
-+		if (!this_cpu_has_cap(ARM64_WORKAROUND_2457168))
-+			init_cpu_freq_invariance_counters();
- 	}
- }
- 
--- 
-2.25.1
+@@ -1887,6 +1887,8 @@ config ARM64_BTI_KERNEL
+ 	depends on CC_HAS_BRANCH_PROT_PAC_RET_BTI
+ 	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94697
+ 	depends on !CC_IS_GCC || GCC_VERSION >= 100100
++	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106671
++	depends on !CC_IS_GCC
+ 	# https://github.com/llvm/llvm-project/commit/a88c722e687e6780dcd6a58718350dc76fcc4cc9
+ 	depends on !CC_IS_CLANG || CLANG_VERSION >= 120000
+ 	depends on (!FUNCTION_GRAPH_TRACER || DYNAMIC_FTRACE_WITH_REGS)
 
