@@ -2,52 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06EA75B6145
-	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 20:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD6FC5B614B
+	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 20:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229992AbiILSs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Sep 2022 14:48:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35874 "EHLO
+        id S229650AbiILSvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Sep 2022 14:51:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229715AbiILSs2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 14:48:28 -0400
-Received: from mail.kmu-office.ch (mail.kmu-office.ch [IPv6:2a02:418:6a02::a2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC8E220BE4;
-        Mon, 12 Sep 2022 11:48:26 -0700 (PDT)
-Received: from webmail.kmu-office.ch (unknown [IPv6:2a02:418:6a02::a3])
-        by mail.kmu-office.ch (Postfix) with ESMTPSA id 4A3DB5C1C72;
-        Mon, 12 Sep 2022 20:48:24 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=agner.ch; s=dkim;
-        t=1663008504;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=v0+jlOHGoUYVB2p7DAI0aVwZbtklz5aXsFhcNoBGj/E=;
-        b=BgMpsHskTk00HIp1l2Os6znDblqR8c/hnKz8TWC2zQ73d8Us/F9qV8J+4LCmqUh1H5H+lp
-        suZ/fMlznj4wRN/WaMa5rr+jxBUxgMoHNVQHdzHrN45HXu5VSZx/dsr6SvK8Wikh7wqzuI
-        Ib5/An1AuSPEDy8t4rOCTBYoAo2qg8U=
+        with ESMTP id S229459AbiILSvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 14:51:22 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D13A615A05
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 11:51:20 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id g4so9145320pgc.0
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 11:51:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date;
+        bh=xK5gsMo48LBo/gJZ+C7FIC1jtiTb5p575xoKdHlW3OE=;
+        b=KYyr9wbVXle7ipnq93hZNZ2eOI0R2mop4jejrt2AenwKQOQhDAk8b6hmh8maDQXCzg
+         01hTgvnz5eVGzPSZvldLngfHc0Xd28LsdAqAYAf696l7TitTfFnwrTTn8Tok6Y5IXdq6
+         WonqgseRx+PurjuTFpbT8I0L4fCpFlm0WrfNpzCabZnqmOJrkX8tiV9OrBUmhasRU458
+         9S5WuV7tmnSjFnTn9X3f6NnB2OsfbHMhCv4EXUcWtZYsl+B1fzoHbM3D/Z4TwtnS+RAT
+         48pKdBgD7UaJgs7uDVIzUSDx6rLPPSvON3yfQJvgOnfZayNCMOcDFPD/tie9Sy3Wb16F
+         ffPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date;
+        bh=xK5gsMo48LBo/gJZ+C7FIC1jtiTb5p575xoKdHlW3OE=;
+        b=ixEylILLoZmdZlH+h/KUZAN535kYVOcdC/wnGT5nbNuDAtQTvGTQtjxjuNvWRj8Jj/
+         vkto1PuOmiFuKKFIgONJyHMTDzCVN9BKQ5kM8EEHM3p3NagbyAz/KtxRO5y35AhtkxRf
+         ofGoTMtTTKFWZssQGQQPPIR/ApolZk1NLmQYn3GkRr3ppgK6CoVyC8J5iFqgE2qHP8Yh
+         +wjqjlI7YVtAL5aQiDxo/kiOmjRxHLPPLjjcdfag7Gw+guom9P0LmaUqb3RwHzVhHSRV
+         wNZCAlsGRzn7j95gm7su325HE+1C+Ip9zpNNfeUJl7Up6VDhcIv/FiN8yokFr+iWA3Tq
+         6G8Q==
+X-Gm-Message-State: ACgBeo3xONh2De7+uY5+fV90S/ZLhEaG0GBIfR51rVuJ/Do7b1wIcXIv
+        HohTZ+5/nBEoyX6nbhTwP9EFcNSgGBsdgY1qqYQ=
+X-Google-Smtp-Source: AA6agR4vs/PoXSloIXnbfAYRgDXVyPakX9F7pQ9gvHOg/ksbCDhLxRzqApWL4yZfQm/TLsbiKdlc8Q==
+X-Received: by 2002:a65:5941:0:b0:41d:a203:c043 with SMTP id g1-20020a655941000000b0041da203c043mr24123925pgu.483.1663008680124;
+        Mon, 12 Sep 2022 11:51:20 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l12-20020a170903244c00b001743be790b4sm6338413pls.215.2022.09.12.11.51.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Sep 2022 11:51:19 -0700 (PDT)
+Message-ID: <631f7fa7.170a0220.d2cb4.b00f@mx.google.com>
+Date:   Mon, 12 Sep 2022 11:51:19 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Date:   Mon, 12 Sep 2022 20:48:24 +0200
-From:   Stefan Agner <stefan@agner.ch>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.15 247/779] drm/meson: encoder_hdmi: switch to bridge
- DRM_BRIDGE_ATTACH_NO_CONNECTOR
-In-Reply-To: <892a917454bd0bbfe8a4d34a5170fe50@agner.ch>
-References: <20220815180337.130757997@linuxfoundation.org>
- <20220815180347.894058731@linuxfoundation.org>
- <892a917454bd0bbfe8a4d34a5170fe50@agner.ch>
-Message-ID: <685b64f60375b69c5c790286f1386be3@agner.ch>
-X-Sender: stefan@agner.ch
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.19
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.19.8-186-g25c29f8a1cae5
+Subject: stable-rc/queue/5.19 baseline: 132 runs,
+ 3 regressions (v5.19.8-186-g25c29f8a1cae5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,251 +70,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-09-12 18:08, Stefan Agner wrote:
-> On 2022-08-15 19:58, Greg Kroah-Hartman wrote:
->> From: Neil Armstrong <narmstrong@baylibre.com>
->>
->> [ Upstream commit 0af5e0b41110e2da872030395231ab19c45be931 ]
->>
->> This implements the necessary change to no more use the embedded
->> connector in dw-hdmi and use the dedicated bridge connector driver
->> by passing DRM_BRIDGE_ATTACH_NO_CONNECTOR to the bridge attach call.
->>
->> The necessary connector properties are added to handle the same
->> functionalities as the embedded dw-hdmi connector, i.e. the HDR
->> metadata, the CEC notifier & other flags.
->>
->> The dw-hdmi output_port is set to 1 in order to look for a connector
->> next bridge in order to get DRM_BRIDGE_ATTACH_NO_CONNECTOR working.
-> 
-> HDMI on ODROID-N2+ was working with v5.15.60, and stopped working with
-> v5.15.61. Reverting this commit (and two dependent refcount leak) to be
-> the culprit. Reverting just the refcount leaks is not enough to get HDMI
-> working, so I assume it is this commit.
-> 
-> I haven't investigated much beyond that, maybe its simple a case of a
-> missing kernel configuration? DRM_DISPLAY_CONNECTOR is compiled, and the
-> module display_connector is loaded, so that part seemed to have worked.
-> 
-> Any ideas welcome.
-> 
-> FWIW, I track the issue in the HAOS tracker at
-> https://github.com/home-assistant/operating-system/issues/2120.
+stable-rc/queue/5.19 baseline: 132 runs, 3 regressions (v5.19.8-186-g25c29f=
+8a1cae5)
 
-It seems that backporting commit 7cd70656d128 ("drm/bridge:
-display-connector: implement bus fmts callbacks") fixes the problem
-without reverting this commit.
+Regressions Summary
+-------------------
 
-@Greg, can we backport this commit as well?
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+hifive-unleashed-a00         | riscv | lab-baylibre  | gcc-10   | defconfig=
+                  | 1          =
 
---
-Stefan
+imx7d-sdb                    | arm   | lab-nxp       | gcc-10   | imx_v6_v7=
+_defconfig        | 1          =
 
-> 
-> --
-> Stefan
-> 
->>
->> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
->> Acked-by: Sam Ravnborg <sam@ravnborg.org>
->> Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
->> Link:
->> https://patchwork.freedesktop.org/patch/msgid/20211020123947.2585572-5-narmstrong@baylibre.com
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  drivers/gpu/drm/meson/Kconfig              |  2 +
->>  drivers/gpu/drm/meson/meson_dw_hdmi.c      |  1 +
->>  drivers/gpu/drm/meson/meson_encoder_hdmi.c | 81 +++++++++++++++++++++-
->>  3 files changed, 82 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/meson/Kconfig b/drivers/gpu/drm/meson/Kconfig
->> index 9f9281dd49f8..a4e1ed96e5e8 100644
->> --- a/drivers/gpu/drm/meson/Kconfig
->> +++ b/drivers/gpu/drm/meson/Kconfig
->> @@ -6,9 +6,11 @@ config DRM_MESON
->>  	select DRM_KMS_HELPER
->>  	select DRM_KMS_CMA_HELPER
->>  	select DRM_GEM_CMA_HELPER
->> +	select DRM_DISPLAY_CONNECTOR
->>  	select VIDEOMODE_HELPERS
->>  	select REGMAP_MMIO
->>  	select MESON_CANVAS
->> +	select CEC_CORE if CEC_NOTIFIER
->>
->>  config DRM_MESON_DW_HDMI
->>  	tristate "HDMI Synopsys Controller support for Amlogic Meson Display"
->> diff --git a/drivers/gpu/drm/meson/meson_dw_hdmi.c
->> b/drivers/gpu/drm/meson/meson_dw_hdmi.c
->> index fb540a503efe..5cd2b2ebbbd3 100644
->> --- a/drivers/gpu/drm/meson/meson_dw_hdmi.c
->> +++ b/drivers/gpu/drm/meson/meson_dw_hdmi.c
->> @@ -803,6 +803,7 @@ static int meson_dw_hdmi_bind(struct device *dev,
->> struct device *master,
->>  	dw_plat_data->input_bus_encoding = V4L2_YCBCR_ENC_709;
->>  	dw_plat_data->ycbcr_420_allowed = true;
->>  	dw_plat_data->disable_cec = true;
->> +	dw_plat_data->output_port = 1;
->>
->>  	if (dw_hdmi_is_compatible(meson_dw_hdmi, "amlogic,meson-gxl-dw-hdmi") ||
->>  	    dw_hdmi_is_compatible(meson_dw_hdmi, "amlogic,meson-gxm-dw-hdmi") ||
->> diff --git a/drivers/gpu/drm/meson/meson_encoder_hdmi.c
->> b/drivers/gpu/drm/meson/meson_encoder_hdmi.c
->> index db332fa4cd54..5e306de6f485 100644
->> --- a/drivers/gpu/drm/meson/meson_encoder_hdmi.c
->> +++ b/drivers/gpu/drm/meson/meson_encoder_hdmi.c
->> @@ -14,8 +14,11 @@
->>  #include <linux/regulator/consumer.h>
->>  #include <linux/reset.h>
->>
->> +#include <media/cec-notifier.h>
->> +
->>  #include <drm/drm_atomic_helper.h>
->>  #include <drm/drm_bridge.h>
->> +#include <drm/drm_bridge_connector.h>
->>  #include <drm/drm_device.h>
->>  #include <drm/drm_edid.h>
->>  #include <drm/drm_probe_helper.h>
->> @@ -34,8 +37,10 @@ struct meson_encoder_hdmi {
->>  	struct drm_encoder encoder;
->>  	struct drm_bridge bridge;
->>  	struct drm_bridge *next_bridge;
->> +	struct drm_connector *connector;
->>  	struct meson_drm *priv;
->>  	unsigned long output_bus_fmt;
->> +	struct cec_notifier *cec_notifier;
->>  };
->>
->>  #define bridge_to_meson_encoder_hdmi(x) \
->> @@ -50,6 +55,14 @@ static int meson_encoder_hdmi_attach(struct
->> drm_bridge *bridge,
->>  				 &encoder_hdmi->bridge, flags);
->>  }
->>
->> +static void meson_encoder_hdmi_detach(struct drm_bridge *bridge)
->> +{
->> +	struct meson_encoder_hdmi *encoder_hdmi =
->> bridge_to_meson_encoder_hdmi(bridge);
->> +
->> +	cec_notifier_conn_unregister(encoder_hdmi->cec_notifier);
->> +	encoder_hdmi->cec_notifier = NULL;
->> +}
->> +
->>  static void meson_encoder_hdmi_set_vclk(struct meson_encoder_hdmi
->> *encoder_hdmi,
->>  					const struct drm_display_mode *mode)
->>  {
->> @@ -298,9 +311,30 @@ static int meson_encoder_hdmi_atomic_check(struct
->> drm_bridge *bridge,
->>  	return 0;
->>  }
->>
->> +static void meson_encoder_hdmi_hpd_notify(struct drm_bridge *bridge,
->> +					  enum drm_connector_status status)
->> +{
->> +	struct meson_encoder_hdmi *encoder_hdmi =
->> bridge_to_meson_encoder_hdmi(bridge);
->> +	struct edid *edid;
->> +
->> +	if (!encoder_hdmi->cec_notifier)
->> +		return;
->> +
->> +	if (status == connector_status_connected) {
->> +		edid = drm_bridge_get_edid(encoder_hdmi->next_bridge,
->> encoder_hdmi->connector);
->> +		if (!edid)
->> +			return;
->> +
->> +		cec_notifier_set_phys_addr_from_edid(encoder_hdmi->cec_notifier, edid);
->> +	} else
->> +		cec_notifier_phys_addr_invalidate(encoder_hdmi->cec_notifier);
->> +}
->> +
->>  static const struct drm_bridge_funcs meson_encoder_hdmi_bridge_funcs = {
->>  	.attach = meson_encoder_hdmi_attach,
->> +	.detach = meson_encoder_hdmi_detach,
->>  	.mode_valid = meson_encoder_hdmi_mode_valid,
->> +	.hpd_notify = meson_encoder_hdmi_hpd_notify,
->>  	.atomic_enable = meson_encoder_hdmi_atomic_enable,
->>  	.atomic_disable = meson_encoder_hdmi_atomic_disable,
->>  	.atomic_get_input_bus_fmts = meson_encoder_hdmi_get_inp_bus_fmts,
->> @@ -313,6 +347,7 @@ static const struct drm_bridge_funcs
->> meson_encoder_hdmi_bridge_funcs = {
->>  int meson_encoder_hdmi_init(struct meson_drm *priv)
->>  {
->>  	struct meson_encoder_hdmi *meson_encoder_hdmi;
->> +	struct platform_device *pdev;
->>  	struct device_node *remote;
->>  	int ret;
->>
->> @@ -337,6 +372,7 @@ int meson_encoder_hdmi_init(struct meson_drm *priv)
->>  	meson_encoder_hdmi->bridge.funcs = &meson_encoder_hdmi_bridge_funcs;
->>  	meson_encoder_hdmi->bridge.of_node = priv->dev->of_node;
->>  	meson_encoder_hdmi->bridge.type = DRM_MODE_CONNECTOR_HDMIA;
->> +	meson_encoder_hdmi->bridge.interlace_allowed = true;
->>
->>  	drm_bridge_add(&meson_encoder_hdmi->bridge);
->>
->> @@ -353,17 +389,58 @@ int meson_encoder_hdmi_init(struct meson_drm *priv)
->>  	meson_encoder_hdmi->encoder.possible_crtcs = BIT(0);
->>
->>  	/* Attach HDMI Encoder Bridge to Encoder */
->> -	ret = drm_bridge_attach(&meson_encoder_hdmi->encoder,
->> &meson_encoder_hdmi->bridge, NULL, 0);
->> +	ret = drm_bridge_attach(&meson_encoder_hdmi->encoder,
->> &meson_encoder_hdmi->bridge, NULL,
->> +				DRM_BRIDGE_ATTACH_NO_CONNECTOR);
->>  	if (ret) {
->>  		dev_err(priv->dev, "Failed to attach bridge: %d\n", ret);
->>  		return ret;
->>  	}
->>
->> +	/* Initialize & attach Bridge Connector */
->> +	meson_encoder_hdmi->connector = drm_bridge_connector_init(priv->drm,
->> +							&meson_encoder_hdmi->encoder);
->> +	if (IS_ERR(meson_encoder_hdmi->connector)) {
->> +		dev_err(priv->dev, "Unable to create HDMI bridge connector\n");
->> +		return PTR_ERR(meson_encoder_hdmi->connector);
->> +	}
->> +	drm_connector_attach_encoder(meson_encoder_hdmi->connector,
->> +				     &meson_encoder_hdmi->encoder);
->> +
->>  	/*
->>  	 * We should have now in place:
->> -	 * encoder->[hdmi encoder bridge]->[dw-hdmi bridge]->[dw-hdmi connector]
->> +	 * encoder->[hdmi encoder bridge]->[dw-hdmi bridge]->[display
->> connector bridge]->[display connector]
->>  	 */
->>
->> +	/*
->> +	 * drm_connector_attach_max_bpc_property() requires the
->> +	 * connector to have a state.
->> +	 */
->> +	drm_atomic_helper_connector_reset(meson_encoder_hdmi->connector);
->> +
->> +	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL) ||
->> +	    meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXM) ||
->> +	    meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
->> +		drm_connector_attach_hdr_output_metadata_property(meson_encoder_hdmi->connector);
->> +
->> +	drm_connector_attach_max_bpc_property(meson_encoder_hdmi->connector, 8, 8);
->> +
->> +	/* Handle this here until handled by drm_bridge_connector_init() */
->> +	meson_encoder_hdmi->connector->ycbcr_420_allowed = true;
->> +
->> +	pdev = of_find_device_by_node(remote);
->> +	if (pdev) {
->> +		struct cec_connector_info conn_info;
->> +		struct cec_notifier *notifier;
->> +
->> +		cec_fill_conn_info_from_drm(&conn_info, meson_encoder_hdmi->connector);
->> +
->> +		notifier = cec_notifier_conn_register(&pdev->dev, NULL, &conn_info);
->> +		if (!notifier)
->> +			return -ENOMEM;
->> +
->> +		meson_encoder_hdmi->cec_notifier = notifier;
->> +	}
->> +
->>  	dev_dbg(priv->dev, "HDMI encoder initialized\n");
->>
->>  	return 0;
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.19/ker=
+nel/v5.19.8-186-g25c29f8a1cae5/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.19
+  Describe: v5.19.8-186-g25c29f8a1cae5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      25c29f8a1cae5cae859f939b1b7193b764d209d6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+hifive-unleashed-a00         | riscv | lab-baylibre  | gcc-10   | defconfig=
+                  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/631f4cd4a1825474353556b1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
+86-g25c29f8a1cae5/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
+shed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
+86-g25c29f8a1cae5/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
+shed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/631f4cd4a182547435355=
+6b2
+        new failure (last pass: v5.19.8-181-gaa55d426b3c1) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+imx7d-sdb                    | arm   | lab-nxp       | gcc-10   | imx_v6_v7=
+_defconfig        | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/631f4ad3818110c356355680
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
+86-g25c29f8a1cae5/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7d-sdb=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
+86-g25c29f8a1cae5/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7d-sdb=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/631f4ad3818110c356355=
+681
+        new failure (last pass: v5.19.4-389-gf2d8facb7bd4) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/631f4c0583bcff1b1a35569f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
+86-g25c29f8a1cae5/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-mt8183-kukui-jacuzzi-juniper-sku16.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.19/v5.19.8-1=
+86-g25c29f8a1cae5/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-mt8183-kukui-jacuzzi-juniper-sku16.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/631f4c0583bcff1b1a355=
+6a0
+        new failure (last pass: v5.19.4-389-gf2d8facb7bd4) =
+
+ =20
