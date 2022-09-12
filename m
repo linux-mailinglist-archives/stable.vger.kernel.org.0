@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDFD85B5C48
-	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 16:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA765B5C4B
+	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 16:35:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbiILOeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Sep 2022 10:34:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41148 "EHLO
+        id S229607AbiILOff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Sep 2022 10:35:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230150AbiILOet (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 10:34:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F620BE0D
-        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 07:34:48 -0700 (PDT)
+        with ESMTP id S230019AbiILOfe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 10:35:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA592ED75
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 07:35:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2DE5B80CAA
-        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 14:34:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25A93C433D6;
-        Mon, 12 Sep 2022 14:34:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1FFAB80B21
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 14:35:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03ECAC433C1;
+        Mon, 12 Sep 2022 14:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662993285;
-        bh=5zQFluWRz/IQqXI8c1ueRD9CzzCEMHl16SI7AxwzNV8=;
+        s=korg; t=1662993330;
+        bh=8ufYCAvUmPnDtwzGITwcT9drbKrWiAYptl+BN9RgTv0=;
         h=Subject:To:Cc:From:Date:From;
-        b=DT8wOpjX9YsmKLX6RqTH1/kI3eZewbC6CqZJq+owqsckFCdgqpJmw+2/3d9QPrSLu
-         GId3YDHQ6IzPIzrmb3A7Uor2EbymttJQ8oNzYlE9NWThQJzY+71+XDRX9xyh3zIjj+
-         c4zVhbsc1j07U3eYFYpBSwXhtLcq164cvCSVwMS0=
-Subject: FAILED: patch "[PATCH] arm64/bti: Disable in kernel BTI when cross section thunks" failed to apply to 5.10-stable tree
-To:     broonie@kernel.org, scott@os.amperecomputing.com,
-        stable@vger.kernel.org, will@kernel.org
+        b=dLJ8eiA01bKrm2P0OvNJlMdHWETrhB3goGyP0kk5qKJKlTDPBQ2G1OnxP1ByM+4c5
+         g6uCG5p6OnIxfyU+ptOVeJU/a4tAqAMtsobkjVS7ymo8MYmzVmtksJaDoY72e/2jPK
+         +BRgXeDSlPL/6A+AART/gYBAPXxKduO1O5G2zTo4=
+Subject: FAILED: patch "[PATCH] iommu/vt-d: Fix kdump kernels boot failure with scalable mode" failed to apply to 5.19-stable tree
+To:     baolu.lu@linux.intel.com, jroedel@suse.de, jsnitsel@redhat.com,
+        wen.jin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 12 Sep 2022 16:35:09 +0200
-Message-ID: <166299330913126@kroah.com>
+Date:   Mon, 12 Sep 2022 16:35:54 +0200
+Message-ID: <16629933542429@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,15 +49,20 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-c0a454b9044f ("arm64/bti: Disable in kernel BTI when cross section thunks are broken")
-8cdd23c23c3d ("arm64: Restrict ARM64_BTI_KERNEL to clang 12.0.0 and newer")
+0c5f6c0d8201 ("iommu/vt-d: Fix kdump kernels boot failure with scalable mode")
+bdb46d175872 ("iommu/vt-d: Remove global g_iommus array")
+79d82ce4027f ("iommu/vt-d: Check device list of domain in domain free path")
+ffd5869d9353 ("iommu/vt-d: Replace spin_lock_irqsave() with spin_lock()")
+8ac0b64b9735 ("iommu/vt-d: Use pci_get_domain_bus_and_slot() in pgtable_walk()")
+983ebe57b3af ("iommu/vt-d: debugfs: Remove device_domain_lock usage")
+f9903555dd05 ("iommu/vt-d: Remove unnecessary exported symbol")
 
 thanks,
 
@@ -65,47 +70,262 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c0a454b9044fdc99486853aa424e5b3be2107078 Mon Sep 17 00:00:00 2001
-From: Mark Brown <broonie@kernel.org>
-Date: Mon, 5 Sep 2022 15:22:55 +0100
-Subject: [PATCH] arm64/bti: Disable in kernel BTI when cross section thunks
- are broken
+From 0c5f6c0d8201a809a6585b07b6263e9db2c874a3 Mon Sep 17 00:00:00 2001
+From: Lu Baolu <baolu.lu@linux.intel.com>
+Date: Tue, 23 Aug 2022 14:15:54 +0800
+Subject: [PATCH] iommu/vt-d: Fix kdump kernels boot failure with scalable mode
 
-GCC does not insert a `bti c` instruction at the beginning of a function
-when it believes that all callers reach the function through a direct
-branch[1]. Unfortunately the logic it uses to determine this is not
-sufficiently robust, for example not taking account of functions being
-placed in different sections which may be loaded separately, so we may
-still see thunks being generated to these functions. If that happens,
-the first instruction in the callee function will result in a Branch
-Target Exception due to the missing landing pad.
+The translation table copying code for kdump kernels is currently based
+on the extended root/context entry formats of ECS mode defined in older
+VT-d v2.5, and doesn't handle the scalable mode formats. This causes
+the kexec capture kernel boot failure with DMAR faults if the IOMMU was
+enabled in scalable mode by the previous kernel.
 
-While this has currently only been observed in the case of modules
-having their main code loaded sufficiently far from their init section
-to require thunks it could potentially happen for other cases so the
-safest thing is to disable BTI for the kernel when building with an
-affected toolchain.
+The ECS mode has already been deprecated by the VT-d spec since v3.0 and
+Intel IOMMU driver doesn't support this mode as there's no real hardware
+implementation. Hence this converts ECS checking in copying table code
+into scalable mode.
 
-[1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106671
+The existing copying code consumes a bit in the context entry as a mark
+of copied entry. It needs to work for the old format as well as for the
+extended context entries. As it's hard to find such a common bit for both
+legacy and scalable mode context entries. This replaces it with a per-
+IOMMU bitmap.
 
-Reported-by: D Scott Phillips <scott@os.amperecomputing.com>
-[Bits of the commit message are lifted from his report & workaround]
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220905142255.591990-1-broonie@kernel.org
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 7373a8cc38197 ("iommu/vt-d: Setup context and enable RID2PASID support")
+Cc: stable@vger.kernel.org
+Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Tested-by: Wen Jin <wen.jin@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20220817011035.3250131-1-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 9fb9fff08c94..1ce7685ad5de 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -1887,6 +1887,8 @@ config ARM64_BTI_KERNEL
- 	depends on CC_HAS_BRANCH_PROT_PAC_RET_BTI
- 	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94697
- 	depends on !CC_IS_GCC || GCC_VERSION >= 100100
-+	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106671
-+	depends on !CC_IS_GCC
- 	# https://github.com/llvm/llvm-project/commit/a88c722e687e6780dcd6a58718350dc76fcc4cc9
- 	depends on !CC_IS_CLANG || CLANG_VERSION >= 120000
- 	depends on (!FUNCTION_GRAPH_TRACER || DYNAMIC_FTRACE_WITH_REGS)
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index 7cca030a508e..b9d058c27568 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -163,38 +163,6 @@ static phys_addr_t root_entry_uctp(struct root_entry *re)
+ 	return re->hi & VTD_PAGE_MASK;
+ }
+ 
+-static inline void context_clear_pasid_enable(struct context_entry *context)
+-{
+-	context->lo &= ~(1ULL << 11);
+-}
+-
+-static inline bool context_pasid_enabled(struct context_entry *context)
+-{
+-	return !!(context->lo & (1ULL << 11));
+-}
+-
+-static inline void context_set_copied(struct context_entry *context)
+-{
+-	context->hi |= (1ull << 3);
+-}
+-
+-static inline bool context_copied(struct context_entry *context)
+-{
+-	return !!(context->hi & (1ULL << 3));
+-}
+-
+-static inline bool __context_present(struct context_entry *context)
+-{
+-	return (context->lo & 1);
+-}
+-
+-bool context_present(struct context_entry *context)
+-{
+-	return context_pasid_enabled(context) ?
+-	     __context_present(context) :
+-	     __context_present(context) && !context_copied(context);
+-}
+-
+ static inline void context_set_present(struct context_entry *context)
+ {
+ 	context->lo |= 1;
+@@ -242,6 +210,26 @@ static inline void context_clear_entry(struct context_entry *context)
+ 	context->hi = 0;
+ }
+ 
++static inline bool context_copied(struct intel_iommu *iommu, u8 bus, u8 devfn)
++{
++	if (!iommu->copied_tables)
++		return false;
++
++	return test_bit(((long)bus << 8) | devfn, iommu->copied_tables);
++}
++
++static inline void
++set_context_copied(struct intel_iommu *iommu, u8 bus, u8 devfn)
++{
++	set_bit(((long)bus << 8) | devfn, iommu->copied_tables);
++}
++
++static inline void
++clear_context_copied(struct intel_iommu *iommu, u8 bus, u8 devfn)
++{
++	clear_bit(((long)bus << 8) | devfn, iommu->copied_tables);
++}
++
+ /*
+  * This domain is a statically identity mapping domain.
+  *	1. This domain creats a static 1:1 mapping to all usable memory.
+@@ -578,6 +566,13 @@ struct context_entry *iommu_context_addr(struct intel_iommu *iommu, u8 bus,
+ 	struct context_entry *context;
+ 	u64 *entry;
+ 
++	/*
++	 * Except that the caller requested to allocate a new entry,
++	 * returning a copied context entry makes no sense.
++	 */
++	if (!alloc && context_copied(iommu, bus, devfn))
++		return NULL;
++
+ 	entry = &root->lo;
+ 	if (sm_supported(iommu)) {
+ 		if (devfn >= 0x80) {
+@@ -1688,6 +1683,11 @@ static void free_dmar_iommu(struct intel_iommu *iommu)
+ 		iommu->domain_ids = NULL;
+ 	}
+ 
++	if (iommu->copied_tables) {
++		bitmap_free(iommu->copied_tables);
++		iommu->copied_tables = NULL;
++	}
++
+ 	/* free context mapping */
+ 	free_context_table(iommu);
+ 
+@@ -1913,7 +1913,7 @@ static int domain_context_mapping_one(struct dmar_domain *domain,
+ 		goto out_unlock;
+ 
+ 	ret = 0;
+-	if (context_present(context))
++	if (context_present(context) && !context_copied(iommu, bus, devfn))
+ 		goto out_unlock;
+ 
+ 	/*
+@@ -1925,7 +1925,7 @@ static int domain_context_mapping_one(struct dmar_domain *domain,
+ 	 * in-flight DMA will exist, and we don't need to worry anymore
+ 	 * hereafter.
+ 	 */
+-	if (context_copied(context)) {
++	if (context_copied(iommu, bus, devfn)) {
+ 		u16 did_old = context_domain_id(context);
+ 
+ 		if (did_old < cap_ndoms(iommu->cap)) {
+@@ -1936,6 +1936,8 @@ static int domain_context_mapping_one(struct dmar_domain *domain,
+ 			iommu->flush.flush_iotlb(iommu, did_old, 0, 0,
+ 						 DMA_TLB_DSI_FLUSH);
+ 		}
++
++		clear_context_copied(iommu, bus, devfn);
+ 	}
+ 
+ 	context_clear_entry(context);
+@@ -2684,32 +2686,14 @@ static int copy_context_table(struct intel_iommu *iommu,
+ 		/* Now copy the context entry */
+ 		memcpy(&ce, old_ce + idx, sizeof(ce));
+ 
+-		if (!__context_present(&ce))
++		if (!context_present(&ce))
+ 			continue;
+ 
+ 		did = context_domain_id(&ce);
+ 		if (did >= 0 && did < cap_ndoms(iommu->cap))
+ 			set_bit(did, iommu->domain_ids);
+ 
+-		/*
+-		 * We need a marker for copied context entries. This
+-		 * marker needs to work for the old format as well as
+-		 * for extended context entries.
+-		 *
+-		 * Bit 67 of the context entry is used. In the old
+-		 * format this bit is available to software, in the
+-		 * extended format it is the PGE bit, but PGE is ignored
+-		 * by HW if PASIDs are disabled (and thus still
+-		 * available).
+-		 *
+-		 * So disable PASIDs first and then mark the entry
+-		 * copied. This means that we don't copy PASID
+-		 * translations from the old kernel, but this is fine as
+-		 * faults there are not fatal.
+-		 */
+-		context_clear_pasid_enable(&ce);
+-		context_set_copied(&ce);
+-
++		set_context_copied(iommu, bus, devfn);
+ 		new_ce[idx] = ce;
+ 	}
+ 
+@@ -2735,8 +2719,8 @@ static int copy_translation_tables(struct intel_iommu *iommu)
+ 	bool new_ext, ext;
+ 
+ 	rtaddr_reg = dmar_readq(iommu->reg + DMAR_RTADDR_REG);
+-	ext        = !!(rtaddr_reg & DMA_RTADDR_RTT);
+-	new_ext    = !!ecap_ecs(iommu->ecap);
++	ext        = !!(rtaddr_reg & DMA_RTADDR_SMT);
++	new_ext    = !!sm_supported(iommu);
+ 
+ 	/*
+ 	 * The RTT bit can only be changed when translation is disabled,
+@@ -2747,6 +2731,10 @@ static int copy_translation_tables(struct intel_iommu *iommu)
+ 	if (new_ext != ext)
+ 		return -EINVAL;
+ 
++	iommu->copied_tables = bitmap_zalloc(BIT_ULL(16), GFP_KERNEL);
++	if (!iommu->copied_tables)
++		return -ENOMEM;
++
+ 	old_rt_phys = rtaddr_reg & VTD_PAGE_MASK;
+ 	if (!old_rt_phys)
+ 		return -EINVAL;
+diff --git a/drivers/iommu/intel/iommu.h b/drivers/iommu/intel/iommu.h
+index fae45bbb0c7f..74b0e19e23ee 100644
+--- a/drivers/iommu/intel/iommu.h
++++ b/drivers/iommu/intel/iommu.h
+@@ -197,7 +197,6 @@
+ #define ecap_dis(e)		(((e) >> 27) & 0x1)
+ #define ecap_nest(e)		(((e) >> 26) & 0x1)
+ #define ecap_mts(e)		(((e) >> 25) & 0x1)
+-#define ecap_ecs(e)		(((e) >> 24) & 0x1)
+ #define ecap_iotlb_offset(e) 	((((e) >> 8) & 0x3ff) * 16)
+ #define ecap_max_iotlb_offset(e) (ecap_iotlb_offset(e) + 16)
+ #define ecap_coherent(e)	((e) & 0x1)
+@@ -265,7 +264,6 @@
+ #define DMA_GSTS_CFIS (((u32)1) << 23)
+ 
+ /* DMA_RTADDR_REG */
+-#define DMA_RTADDR_RTT (((u64)1) << 11)
+ #define DMA_RTADDR_SMT (((u64)1) << 10)
+ 
+ /* CCMD_REG */
+@@ -579,6 +577,7 @@ struct intel_iommu {
+ 
+ #ifdef CONFIG_INTEL_IOMMU
+ 	unsigned long 	*domain_ids; /* bitmap of domains */
++	unsigned long	*copied_tables; /* bitmap of copied tables */
+ 	spinlock_t	lock; /* protect context, domain ids */
+ 	struct root_entry *root_entry; /* virtual address */
+ 
+@@ -701,6 +700,11 @@ static inline int nr_pte_to_next_page(struct dma_pte *pte)
+ 		(struct dma_pte *)ALIGN((unsigned long)pte, VTD_PAGE_SIZE) - pte;
+ }
+ 
++static inline bool context_present(struct context_entry *context)
++{
++	return (context->lo & 1);
++}
++
+ extern struct dmar_drhd_unit * dmar_find_matched_drhd_unit(struct pci_dev *dev);
+ 
+ extern int dmar_enable_qi(struct intel_iommu *iommu);
+@@ -784,7 +788,6 @@ static inline void intel_iommu_debugfs_init(void) {}
+ #endif /* CONFIG_INTEL_IOMMU_DEBUGFS */
+ 
+ extern const struct attribute_group *intel_iommu_groups[];
+-bool context_present(struct context_entry *context);
+ struct context_entry *iommu_context_addr(struct intel_iommu *iommu, u8 bus,
+ 					 u8 devfn, int alloc);
+ 
 
