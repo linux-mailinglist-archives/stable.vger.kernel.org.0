@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF42F5B55CD
-	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 10:19:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 068315B5620
+	for <lists+stable@lfdr.de>; Mon, 12 Sep 2022 10:27:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229679AbiILITL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Sep 2022 04:19:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52098 "EHLO
+        id S230318AbiILI1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Sep 2022 04:27:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229592AbiILITL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 04:19:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325B925EBA
-        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 01:19:10 -0700 (PDT)
+        with ESMTP id S230148AbiILI1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Sep 2022 04:27:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31E6E12AE7
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 01:26:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B01836112B
-        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 08:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 977A4C433C1;
-        Mon, 12 Sep 2022 08:19:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22EE7B80C99
+        for <stable@vger.kernel.org>; Mon, 12 Sep 2022 08:24:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4876CC433C1;
+        Mon, 12 Sep 2022 08:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662970749;
-        bh=WMWw0rSg4VzsphXVBm6bExgjpcxPtQVGu+A5wrCvPEo=;
+        s=k20201202; t=1662971082;
+        bh=Hh4UYmtcbgxd1OFr0Szu1wGbr7SYQ1Zf/Tr/RVWUCGU=;
         h=From:To:Cc:Subject:Date:From;
-        b=q3j9Nnp/5dlsElmbIDpJB0UZCQRZyx6cCkuHK2manfDXCkXOHXNtNJ2+iSyUJPMEn
-         HWOjwdZ5ZBK4n8zo0o6Iw6rSwl/Wqzn7ywcwA86uv2D9HNoGd6XAwQZ/C4G8ITQmt1
-         AetYGdQa0ZR97fakeO6y50n4ZYfIMwCx2bk7WeLYkzjeJYFXxmyqS5cwkRifnGymmc
-         VsS7HwSIrk0BnwOKGHK6QEXAheKB424UsuhpZZGF4qKejYE2OnmPO15wDSJacTPjIO
-         kFRfaUAzIXCxPkWkEpmYfihAHFRw7am0geLCoOZjXcVBbIGwX9ebISCvcPjHEI7zX4
-         6G81WGImceKlg==
+        b=Xz2GaZCKpIJJqRXkhUJDGe1iUYkqQICmiecnADEXEORT5A7JAkAIodYDIG2q4OUoU
+         xth6UxSc3RRWfb0dd2hTWUW+gSdqL6wzUlJeKdIcCSo9038Fq39SuSt081LFnqv2r2
+         RK56zi9rn9P5qZTgWQcCFRnNLSGAAEO04u9zMvEHztDHAeXo78yu8VjOSNSknUCums
+         6gJtDHZ2fHraYkt5YYAyXP8sOqSjJwxXmyaySt8JO4f2V47zkTxF8YVxQulStXKOr8
+         X3m6ub+zm+sWfukFb4OUOvwFfm7skVg2SDGhBon72Ddf7NDk0LxTLbMtnmIG34v4aV
+         go6NBI1USZsNQ==
 From:   Jisheng Zhang <jszhang@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
@@ -38,9 +38,9 @@ Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
         Adrian Hunter <adrian.hunter@intel.com>,
         Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
         Namhyung Kim <namhyung@kernel.org>
-Subject: [PATCH] perf machine: Use path__join() to compose a path instead of snprintf(dir, '/', filename)
-Date:   Mon, 12 Sep 2022 16:09:49 +0800
-Message-Id: <20220912080949.3947-1-jszhang@kernel.org>
+Subject: [PATCH linux-5.15.y v2] perf machine: Use path__join() to compose a path instead of snprintf(dir, '/', filename)
+Date:   Mon, 12 Sep 2022 16:15:22 +0800
+Message-Id: <20220912081522.4067-1-jszhang@kernel.org>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,6 +56,8 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 From: Arnaldo Carvalho de Melo <acme@redhat.com>
+
+commit 9d5f0c36438eeae7566ca383b2b673179e3cc613 upstream.
 
 Its more intention revealing, and if we're interested in the odd cases
 where this may end up truncating we can do debug checks at one
@@ -89,6 +91,12 @@ Acked-by: Ian Rogers <irogers@google.com>
 Link: Link: https://lore.kernel.org/r/YebZKjwgfdOz0lAs@kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
+
+Since v1:
+ - add commit id in upstream.
+ - add linux-5.15.y, maybe we also need this for other long term stable
+   tree.
+
  tools/perf/util/machine.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
