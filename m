@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 577E25B7249
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034575B7137
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232971AbiIMOuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:50:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46894 "EHLO
+        id S232683AbiIMOmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:42:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232492AbiIMOra (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:47:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CACC213FA4;
-        Tue, 13 Sep 2022 07:24:45 -0700 (PDT)
+        with ESMTP id S231739AbiIMOlr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:41:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED5EE6CD1A;
+        Tue, 13 Sep 2022 07:22:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6530B80FAF;
-        Tue, 13 Sep 2022 14:23:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 301E0C433D6;
-        Tue, 13 Sep 2022 14:23:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C17E614C6;
+        Tue, 13 Sep 2022 14:15:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 432D9C433B5;
+        Tue, 13 Sep 2022 14:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078982;
-        bh=KF9Q6V5/2B3EEiSElY1fDQT4aPIUCka+ZzrUpzWsB40=;
+        s=korg; t=1663078529;
+        bh=mvcvsS+1zUqKJfTckT+CrHwvuKVgXAfDZbdDBQhLJmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nuGo0+xSdUbmMt+6A9Zc3H5GfQeAhv1FKCcYgHhTmnBU/BgsMOU5bZnOMO0x4lEEe
-         ihpsrFFiViAet/3QVwIIZR1xkK/78++O60JAo3ilK39BpfoqpWKNAXGXrSAUoiZHyX
-         FQJwgCr4sF2i4rpj+Z1fNddir9UihJ1RLv+7iYXw=
+        b=2ApvKk5aDj4v9NM6lVKC+RHI0/Y99wu60ienHXcJH4srXgEkobLnZJ54Mkj/bAbV/
+         sV5OOQrigteyuG6aWk9HyQ3GBUFPa06MFVhKoFqA5wxFNGoG1XiiuUs+89UMh66jaq
+         /JCmF7+1lRTmv7cw+pz+ndzFMIbkGjD2w6VSDzKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Eliav Farber <farbere@amazon.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 37/79] ARM: dts: imx6qdl-kontron-samx6i: remove duplicated node
+Subject: [PATCH 5.19 176/192] hwmon: (mr75203) fix multi-channel voltage reading
 Date:   Tue, 13 Sep 2022 16:04:42 +0200
-Message-Id: <20220913140352.084415433@linuxfoundation.org>
+Message-Id: <20220913140418.812679885@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Eliav Farber <farbere@amazon.com>
 
-[ Upstream commit 204f67d86f55dd4fa757ed04757d7273f71a169c ]
+[ Upstream commit 91a9e063cdcfca8fe642b078d6fae4ce49187975 ]
 
-The regulator node 'regulator-3p3v-s0' was dupplicated. Remove it to
-clean the DTS.
+Fix voltage allocation and reading to support all channels in all VMs.
+Prior to this change allocation and reading were done only for the first
+channel in each VM.
+This change counts the total number of channels for allocation, and takes
+into account the channel offset when reading the sample data register.
 
-Fixes: 2a51f9dae13d ("ARM: dts: imx6qdl-kontron-samx6i: Add iMX6-based Kontron SMARC-sAMX6i module")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 9d823351a337 ("hwmon: Add hardware monitoring driver for Moortec MR75203 PVT controller")
+Signed-off-by: Eliav Farber <farbere@amazon.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220908152449.35457-6-farbere@amazon.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/hwmon/mr75203.c | 29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-index 92f9977d14822..e9a4115124eb0 100644
---- a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-@@ -51,16 +51,6 @@
- 		vin-supply = <&reg_3p3v_s5>;
- 	};
+diff --git a/drivers/hwmon/mr75203.c b/drivers/hwmon/mr75203.c
+index 6d3b3c499ed83..812ae40e7d74d 100644
+--- a/drivers/hwmon/mr75203.c
++++ b/drivers/hwmon/mr75203.c
+@@ -68,8 +68,9 @@
  
--	reg_3p3v_s0: regulator-3p3v-s0 {
--		compatible = "regulator-fixed";
--		regulator-name = "V_3V3_S0";
--		regulator-min-microvolt = <3300000>;
--		regulator-max-microvolt = <3300000>;
--		regulator-always-on;
--		regulator-boot-on;
--		vin-supply = <&reg_3p3v_s5>;
--	};
--
- 	reg_3p3v_s5: regulator-3p3v-s5 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "V_3V3_S5";
+ /* VM Individual Macro Register */
+ #define VM_COM_REG_SIZE	0x200
+-#define VM_SDIF_DONE(n)	(VM_COM_REG_SIZE + 0x34 + 0x200 * (n))
+-#define VM_SDIF_DATA(n)	(VM_COM_REG_SIZE + 0x40 + 0x200 * (n))
++#define VM_SDIF_DONE(vm)	(VM_COM_REG_SIZE + 0x34 + 0x200 * (vm))
++#define VM_SDIF_DATA(vm, ch)	\
++	(VM_COM_REG_SIZE + 0x40 + 0x200 * (vm) + 0x4 * (ch))
+ 
+ /* SDA Slave Register */
+ #define IP_CTRL			0x00
+@@ -115,6 +116,7 @@ struct pvt_device {
+ 	u32			t_num;
+ 	u32			p_num;
+ 	u32			v_num;
++	u32			c_num;
+ 	u32			ip_freq;
+ 	u8			*vm_idx;
+ };
+@@ -178,14 +180,15 @@ static int pvt_read_in(struct device *dev, u32 attr, int channel, long *val)
+ {
+ 	struct pvt_device *pvt = dev_get_drvdata(dev);
+ 	struct regmap *v_map = pvt->v_map;
++	u8 vm_idx, ch_idx;
+ 	u32 n, stat;
+-	u8 vm_idx;
+ 	int ret;
+ 
+-	if (channel >= pvt->v_num)
++	if (channel >= pvt->v_num * pvt->c_num)
+ 		return -EINVAL;
+ 
+-	vm_idx = pvt->vm_idx[channel];
++	vm_idx = pvt->vm_idx[channel / pvt->c_num];
++	ch_idx = channel % pvt->c_num;
+ 
+ 	switch (attr) {
+ 	case hwmon_in_input:
+@@ -196,7 +199,7 @@ static int pvt_read_in(struct device *dev, u32 attr, int channel, long *val)
+ 		if (ret)
+ 			return ret;
+ 
+-		ret = regmap_read(v_map, VM_SDIF_DATA(vm_idx), &n);
++		ret = regmap_read(v_map, VM_SDIF_DATA(vm_idx, ch_idx), &n);
+ 		if(ret < 0)
+ 			return ret;
+ 
+@@ -499,8 +502,8 @@ static int pvt_reset_control_deassert(struct device *dev, struct pvt_device *pvt
+ 
+ static int mr75203_probe(struct platform_device *pdev)
+ {
++	u32 ts_num, vm_num, pd_num, ch_num, val, index, i;
+ 	const struct hwmon_channel_info **pvt_info;
+-	u32 ts_num, vm_num, pd_num, val, index, i;
+ 	struct device *dev = &pdev->dev;
+ 	u32 *temp_config, *in_config;
+ 	struct device *hwmon_dev;
+@@ -541,9 +544,11 @@ static int mr75203_probe(struct platform_device *pdev)
+ 	ts_num = (val & TS_NUM_MSK) >> TS_NUM_SFT;
+ 	pd_num = (val & PD_NUM_MSK) >> PD_NUM_SFT;
+ 	vm_num = (val & VM_NUM_MSK) >> VM_NUM_SFT;
++	ch_num = (val & CH_NUM_MSK) >> CH_NUM_SFT;
+ 	pvt->t_num = ts_num;
+ 	pvt->p_num = pd_num;
+ 	pvt->v_num = vm_num;
++	pvt->c_num = ch_num;
+ 	val = 0;
+ 	if (ts_num)
+ 		val++;
+@@ -580,7 +585,7 @@ static int mr75203_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (vm_num) {
+-		u32 num = vm_num;
++		u32 total_ch;
+ 
+ 		ret = pvt_get_regmap(pdev, "vm", pvt);
+ 		if (ret)
+@@ -604,20 +609,20 @@ static int mr75203_probe(struct platform_device *pdev)
+ 			for (i = 0; i < vm_num; i++)
+ 				if (pvt->vm_idx[i] >= vm_num ||
+ 				    pvt->vm_idx[i] == 0xff) {
+-					num = i;
+ 					pvt->v_num = i;
+ 					vm_num = i;
+ 					break;
+ 				}
+ 		}
+ 
+-		in_config = devm_kcalloc(dev, num + 1,
++		total_ch = ch_num * vm_num;
++		in_config = devm_kcalloc(dev, total_ch + 1,
+ 					 sizeof(*in_config), GFP_KERNEL);
+ 		if (!in_config)
+ 			return -ENOMEM;
+ 
+-		memset32(in_config, HWMON_I_INPUT, num);
+-		in_config[num] = 0;
++		memset32(in_config, HWMON_I_INPUT, total_ch);
++		in_config[total_ch] = 0;
+ 		pvt_in.config = in_config;
+ 
+ 		pvt_info[index++] = &pvt_in;
 -- 
 2.35.1
 
