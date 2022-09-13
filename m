@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8B55B6FBF
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9DB15B6FD8
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233058AbiIMORN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:17:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37852 "EHLO
+        id S233206AbiIMOS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:18:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232939AbiIMOQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:16:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9ECE61D8E;
-        Tue, 13 Sep 2022 07:11:56 -0700 (PDT)
+        with ESMTP id S233170AbiIMOSA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:18:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77C145283D;
+        Tue, 13 Sep 2022 07:12:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8125D614AA;
-        Tue, 13 Sep 2022 14:10:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96901C4314B;
-        Tue, 13 Sep 2022 14:10:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6B6DB80F79;
+        Tue, 13 Sep 2022 14:12:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37295C433D6;
+        Tue, 13 Sep 2022 14:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078256;
-        bh=OBabBYJ6fOMEur8zVPE4iCVPx0aVHpWDj9qJX3/B9p0=;
+        s=korg; t=1663078356;
+        bh=smf9clxUBrt+BqRmltrJACPKKXWHX0g4TEEJ58QDm8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDlKA70A/UhDIKrvougnHx0r6J2gHW7l+E99U9xeWBZwiVgcf0wSPiQJDWWPMkkRT
-         rrAOvNQBXY0ZbsLBZLbciohEfOlcdvkFAW7uDmwxAZgGDdN7Q28uNTjhzzi98CK7p4
-         7rVRTpTIvYOyNiV7hooVmnNse5vByhZI0iUwtEmc=
+        b=bxlqDRrNSj5OopQNWoglHr3ntI9jseRv91S17uspeZwpTXfIEvDsya2Pxk+O98ZJ1
+         ENeGTsD8+aIz2n0mWC9i7oQ9gEw63dHj14w8umkT9XvW0QqC3IQlh/S0ZJt3MQBIdS
+         vC8lDS3AEvb6own1nhZRL+cP9w2JDFaVRdRwcq0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
-        Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 070/192] regmap: spi: Reserve space for register address/padding
-Date:   Tue, 13 Sep 2022 16:02:56 +0200
-Message-Id: <20220913140413.454468260@linuxfoundation.org>
+Subject: [PATCH 5.19 071/192] arm64: dts: imx8mp-venice-gw74xx: fix sai2 pin settings
+Date:   Tue, 13 Sep 2022 16:02:57 +0200
+Message-Id: <20220913140413.503594454@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -56,59 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit f5723cfc01932c7a8d5c78dbf7e067e537c91439 ]
+[ Upstream commit 706dd9d30d3bda4e31d423af004c22d48e89fbc9 ]
 
-Currently the max_raw_read and max_raw_write limits in regmap_spi struct
-do not take into account the additional size of the transmitted register
-address and padding.  This may result in exceeding the maximum permitted
-SPI message size, which could cause undefined behaviour, e.g. data
-corruption.
+The pad settings are missed, add them
 
-Fix regmap_get_spi_bus() to properly adjust the above mentioned limits
-by reserving space for the register address/padding as set in the regmap
-configuration.
-
-Fixes: f231ff38b7b2 ("regmap: spi: Set regmap max raw r/w from max_transfer_size")
-
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-Reviewed-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220818104851.429479-1-cristian.ciocaltea@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 7899eb6cb15d ("arm64: dts: imx: Add i.MX8M Plus Gateworks gw7400 dts support")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regmap-spi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap-spi.c b/drivers/base/regmap/regmap-spi.c
-index 719323bc6c7f1..37ab23a9d0345 100644
---- a/drivers/base/regmap/regmap-spi.c
-+++ b/drivers/base/regmap/regmap-spi.c
-@@ -113,6 +113,7 @@ static const struct regmap_bus *regmap_get_spi_bus(struct spi_device *spi,
- 						   const struct regmap_config *config)
- {
- 	size_t max_size = spi_max_transfer_size(spi);
-+	size_t max_msg_size, reg_reserve_size;
- 	struct regmap_bus *bus;
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts b/arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts
+index 521215520a0f4..6630ec561dc25 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mp-venice-gw74xx.dts
+@@ -770,10 +770,10 @@
  
- 	if (max_size != SIZE_MAX) {
-@@ -120,9 +121,16 @@ static const struct regmap_bus *regmap_get_spi_bus(struct spi_device *spi,
- 		if (!bus)
- 			return ERR_PTR(-ENOMEM);
- 
-+		max_msg_size = spi_max_message_size(spi);
-+		reg_reserve_size = config->reg_bits / BITS_PER_BYTE
-+				 + config->pad_bits / BITS_PER_BYTE;
-+		if (max_size + reg_reserve_size > max_msg_size)
-+			max_size -= reg_reserve_size;
-+
- 		bus->free_on_exit = true;
- 		bus->max_raw_read = max_size;
- 		bus->max_raw_write = max_size;
-+
- 		return bus;
- 	}
+ 	pinctrl_sai2: sai2grp {
+ 		fsl,pins = <
+-			MX8MP_IOMUXC_SAI2_TXFS__AUDIOMIX_SAI2_TX_SYNC
+-			MX8MP_IOMUXC_SAI2_TXD0__AUDIOMIX_SAI2_TX_DATA00
+-			MX8MP_IOMUXC_SAI2_TXC__AUDIOMIX_SAI2_TX_BCLK
+-			MX8MP_IOMUXC_SAI2_MCLK__AUDIOMIX_SAI2_MCLK
++			MX8MP_IOMUXC_SAI2_TXFS__AUDIOMIX_SAI2_TX_SYNC	0xd6
++			MX8MP_IOMUXC_SAI2_TXD0__AUDIOMIX_SAI2_TX_DATA00	0xd6
++			MX8MP_IOMUXC_SAI2_TXC__AUDIOMIX_SAI2_TX_BCLK	0xd6
++			MX8MP_IOMUXC_SAI2_MCLK__AUDIOMIX_SAI2_MCLK	0xd6
+ 		>;
+ 	};
  
 -- 
 2.35.1
