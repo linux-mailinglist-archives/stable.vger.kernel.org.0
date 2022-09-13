@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26C855B763B
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:18:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 565F45B770A
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232252AbiIMQSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 12:18:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59676 "EHLO
+        id S232240AbiIMRAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 13:00:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232363AbiIMQR4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:17:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F9978218;
-        Tue, 13 Sep 2022 08:13:27 -0700 (PDT)
+        with ESMTP id S232238AbiIMQ7w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:59:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FB688C014;
+        Tue, 13 Sep 2022 08:51:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A471614D3;
-        Tue, 13 Sep 2022 14:36:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E296C433C1;
-        Tue, 13 Sep 2022 14:36:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DB27B80FED;
+        Tue, 13 Sep 2022 14:34:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8577EC433C1;
+        Tue, 13 Sep 2022 14:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079778;
-        bh=qrPdVakPiVxnhLPaPvRPEDfXlnH+En01EAUaYp/+zrs=;
+        s=korg; t=1663079695;
+        bh=CalIawEmvBT6oJKZ5FkEZ4qq1hGCQEB6V9ztbQ59/Gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NNzSuwIQJw5JaTlU+C9C0lHrx2/He8/byMc4A0IfwERbKuwo3e2Y+WBtcewdbTgYF
-         ifqxFjMbYoU7FCqwbJe9Vqbb0kW/O2VMNjBPm6VTn8OaXop7oeFfX4XjO6xkfdc9KF
-         66haQIGhtD+Kc+j2zOPgaP3jVr6VTSeQCMMzIkUA=
+        b=BPzCYiYc5BNjTcpgvGvKD08lelvzKm3wJ9xIMAYoOGP1se21UcMkOJbE/dMA2Vl1N
+         Jztdg/zho3eBlJQvcYvgLTYxyvS4q3f4RAYjt5Fp6ek5ZG9Jfn2CsqrjXdkjEIJE1S
+         mg3LRhvBp8raqEqL5wBl1Fp7LHaFyIs3NsYa1qns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 10/42] USB: serial: cp210x: add Decagon UCA device id
-Date:   Tue, 13 Sep 2022 16:07:41 +0200
-Message-Id: <20220913140342.791971764@linuxfoundation.org>
+        stable@vger.kernel.org, Li Qiong <liqiong@nfschina.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 40/61] parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()
+Date:   Tue, 13 Sep 2022 16:07:42 +0200
+Message-Id: <20220913140348.475657349@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-References: <20220913140342.228397194@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,29 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Li Qiong <liqiong@nfschina.com>
 
-commit ceb4038472a4803e7046ed488b03d11551991514 upstream.
+[ Upstream commit d46c742f827fa2326ab1f4faa1cccadb56912341 ]
 
-Add the device id for Decagon Devices USB Cable Adapter.
+As the possible failure of the kmalloc(), it should be better
+to fix this error path, check and return '-ENOMEM' error code.
 
-Link: https://lore.kernel.org/r/trinity-819f9db2-d3e1-40e9-a669-9c245817c046-1661523546680@msvc-mesg-web108
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Li Qiong <liqiong@nfschina.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/parisc/ccio-dma.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -128,6 +128,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x10C4, 0x83AA) }, /* Mark-10 Digital Force Gauge */
- 	{ USB_DEVICE(0x10C4, 0x83D8) }, /* DekTec DTA Plus VHF/UHF Booster/Attenuator */
- 	{ USB_DEVICE(0x10C4, 0x8411) }, /* Kyocera GPS Module */
-+	{ USB_DEVICE(0x10C4, 0x8414) }, /* Decagon USB Cable Adapter */
- 	{ USB_DEVICE(0x10C4, 0x8418) }, /* IRZ Automation Teleport SG-10 GSM/GPRS Modem */
- 	{ USB_DEVICE(0x10C4, 0x846E) }, /* BEI USB Sensor Interface (VCP) */
- 	{ USB_DEVICE(0x10C4, 0x8470) }, /* Juniper Networks BX Series System Console */
+diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
+index 224a364097672..cc23b30337c16 100644
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -1416,15 +1416,17 @@ ccio_init_resource(struct resource *res, char *name, void __iomem *ioaddr)
+ 	}
+ }
+ 
+-static void __init ccio_init_resources(struct ioc *ioc)
++static int __init ccio_init_resources(struct ioc *ioc)
+ {
+ 	struct resource *res = ioc->mmio_region;
+ 	char *name = kmalloc(14, GFP_KERNEL);
+-
++	if (unlikely(!name))
++		return -ENOMEM;
+ 	snprintf(name, 14, "GSC Bus [%d/]", ioc->hw_path);
+ 
+ 	ccio_init_resource(res, name, &ioc->ioc_regs->io_io_low);
+ 	ccio_init_resource(res + 1, name, &ioc->ioc_regs->io_io_low_hv);
++	return 0;
+ }
+ 
+ static int new_ioc_area(struct resource *res, unsigned long size,
+@@ -1578,7 +1580,10 @@ static int __init ccio_probe(struct parisc_device *dev)
+ 		return -ENOMEM;
+ 	}
+ 	ccio_ioc_init(ioc);
+-	ccio_init_resources(ioc);
++	if (ccio_init_resources(ioc)) {
++		kfree(ioc);
++		return -ENOMEM;
++	}
+ 	hppa_dma_ops = &ccio_ops;
+ 	dev->dev.platform_data = kzalloc(sizeof(struct pci_hba_data), GFP_KERNEL);
+ 
+-- 
+2.35.1
+
 
 
