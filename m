@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A56E55B740B
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4A05B7332
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235674AbiIMPO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:14:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42466 "EHLO
+        id S234751AbiIMPEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:04:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235898AbiIMPOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:14:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B1111C10;
-        Tue, 13 Sep 2022 07:33:49 -0700 (PDT)
+        with ESMTP id S235216AbiIMPDg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:03:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C792E18B23;
+        Tue, 13 Sep 2022 07:29:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DBC2614D8;
-        Tue, 13 Sep 2022 14:33:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7692FC433C1;
-        Tue, 13 Sep 2022 14:33:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04636B80EFA;
+        Tue, 13 Sep 2022 14:29:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FB39C433D7;
+        Tue, 13 Sep 2022 14:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079623;
-        bh=GcjtwSEugB1O2z4YUmCKyKLq83SW/UG+NvZNEfKsXmI=;
+        s=korg; t=1663079359;
+        bh=7N89YF3yRCbyHevIRTxZTJbDEO4CLJ4IHngDKQTtGIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J0BmLaf8RuJOkxr3UAltXH6IStqzVSKXNOjP8NUnqCBn7XiBFKfA479uow69MU7p+
-         YdZjSbzQ6pwkFQ1FWo8BneRWqZdz6TD2icP40rwfXGL9MKW9ub55HkgCpZ30Za3am8
-         c3XuLn6qNsuI+AxwP1+2eGENM0Va046NHheKIz1E=
+        b=Mk/s//13nRBBZucrUq2RDxDSVEzhh9Qgir9J9YAU+EEPtqJP8NxupRi6uheduB7pM
+         6YlBS8fnFD5PqtFgz8uj816sZW8iIaULTYRyL4eOQYvTxXEp6YTo9gCDicpbowQ0dv
+         6U0FZOmZD1pn1ODrNDXP7NSDmXPUeE51OYU1/T5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com,
-        stable <stable@kernel.org>,
-        Khalid Masum <khalid.masum.92@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 11/61] vt: Clear selection before changing the font
-Date:   Tue, 13 Sep 2022 16:07:13 +0200
-Message-Id: <20220913140347.056052738@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
+        Chris Mi <cmi@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 103/108] RDMA/mlx5: Set local port to one when accessing counters
+Date:   Tue, 13 Sep 2022 16:07:14 +0200
+Message-Id: <20220913140358.045441051@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Chris Mi <cmi@nvidia.com>
 
-commit 566f9c9f89337792070b5a6062dff448b3e7977f upstream.
+[ Upstream commit 74b30b3ad5cec95d2647e796d10137438a098bc1 ]
 
-When changing the console font with ioctl(KDFONTOP) the new font size
-can be bigger than the previous font. A previous selection may thus now
-be outside of the new screen size and thus trigger out-of-bounds
-accesses to graphics memory if the selection is removed in
-vc_do_resize().
+When accessing Ports Performance Counters Register (PPCNT),
+local port must be one if it is Function-Per-Port HCA that
+HCA_CAP.num_ports is 1.
 
-Prevent such out-of-memory accesses by dropping the selection before the
-various con_font_set() console handlers are called.
+The offending patch can change the local port to other values
+when accessing PPCNT after enabling switchdev mode. The following
+syndrome will be printed:
 
-Reported-by: syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com
-Cc: stable <stable@kernel.org>
-Tested-by: Khalid Masum <khalid.masum.92@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Link: https://lore.kernel.org/r/YuV9apZGNmGfjcor@p100
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ # cat /sys/class/infiniband/rdmap4s0f0/ports/2/counters/*
+ # dmesg
+ mlx5_core 0000:04:00.0: mlx5_cmd_check:756:(pid 12450): ACCESS_REG(0x805) op_mod(0x1) failed, status bad parameter(0x3), syndrome (0x1e5585)
+
+Fix it by setting local port to one for Function-Per-Port HCA.
+
+Fixes: 210b1f78076f ("IB/mlx5: When not in dual port RoCE mode, use provided port as native")
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Signed-off-by: Chris Mi <cmi@nvidia.com>
+Link: https://lore.kernel.org/r/6c5086c295c76211169e58dbd610fb0402360bab.1661763459.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/mlx5/mad.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -4175,9 +4175,11 @@ static int con_font_set(struct vc_data *
- 	console_lock();
- 	if (vc->vc_mode != KD_TEXT)
- 		rc = -EINVAL;
--	else if (vc->vc_sw->con_font_set)
-+	else if (vc->vc_sw->con_font_set) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_set(vc, &font, op->flags);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	kfree(font.data);
-@@ -4204,9 +4206,11 @@ static int con_font_default(struct vc_da
- 		console_unlock();
- 		return -EINVAL;
+diff --git a/drivers/infiniband/hw/mlx5/mad.c b/drivers/infiniband/hw/mlx5/mad.c
+index 348c1df69cdc6..3897a3ce02ad0 100644
+--- a/drivers/infiniband/hw/mlx5/mad.c
++++ b/drivers/infiniband/hw/mlx5/mad.c
+@@ -219,6 +219,12 @@ static int process_pma_cmd(struct mlx5_ib_dev *dev, u8 port_num,
+ 		mdev = dev->mdev;
+ 		mdev_port_num = 1;
  	}
--	if (vc->vc_sw->con_font_default)
-+	if (vc->vc_sw->con_font_default) {
-+		if (vc_is_sel(vc))
-+			clear_selection();
- 		rc = vc->vc_sw->con_font_default(vc, &font, s);
--	else
-+	} else
- 		rc = -ENOSYS;
- 	console_unlock();
- 	if (!rc) {
++	if (MLX5_CAP_GEN(dev->mdev, num_ports) == 1) {
++		/* set local port to one for Function-Per-Port HCA. */
++		mdev = dev->mdev;
++		mdev_port_num = 1;
++	}
++
+ 	/* Declaring support of extended counters */
+ 	if (in_mad->mad_hdr.attr_id == IB_PMA_CLASS_PORT_INFO) {
+ 		struct ib_class_port_info cpi = {};
+-- 
+2.35.1
+
 
 
