@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 754DB5B704B
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE9EA5B713E
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233483AbiIMOYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:24:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41496 "EHLO
+        id S233464AbiIMOmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:42:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233719AbiIMOYG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:24:06 -0400
+        with ESMTP id S230192AbiIMOly (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:41:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEFDC61B07;
-        Tue, 13 Sep 2022 07:15:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CEDE6DF91;
+        Tue, 13 Sep 2022 07:22:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9F4D6149A;
-        Tue, 13 Sep 2022 14:15:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2BFBC433C1;
-        Tue, 13 Sep 2022 14:15:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F162614AE;
+        Tue, 13 Sep 2022 14:22:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B798C433D6;
+        Tue, 13 Sep 2022 14:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078557;
-        bh=Pz2rluRqj1HiTRIs4B7o1dyuQnjEC7qQ85azr/jT+7E=;
+        s=korg; t=1663078945;
+        bh=GAAakixd9QHCOAzXIK28uqAuuAGFTRr34Ymi7tr2on4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJj5gQlzKz/1QYHKMeGkEtlO/ol20Vts9KAXeL81k62Uu0BSEJ9ND0/Yoo+QMcyS7
-         s8McNRJU4fUxsGOPLN50inQoGmpv2Hdiq+gHiCtEzBoTE9sIQe4XUOELoxagTJNs/J
-         pfVi07LA5PaRoY/07IpgqwN5Hq1z1xCx7d53ZzF8=
+        b=FX3GFR9Dh4fXll+OOShZhgKLwq6MXaQ8qnR6+Owd1uubjpRgTw3Ol1orA/ZW2xKyx
+         9u+nm4vv4HR86fm/hfGWR7KWdlipdCtZNP62bpjoc5uy8iYQjZqmuRN/Y/4KsDn+qg
+         cbo9aO8sC/QAr9A5ykV4b+H8jcYB+KFuKx5DOZgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.19 160/192] selinux: implement the security_uring_cmd() LSM hook
+        stable@vger.kernel.org, Li Zhong <floridsleeves@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 21/79] net/core/skbuff: Check the return value of skb_copy_bits()
 Date:   Tue, 13 Sep 2022 16:04:26 +0200
-Message-Id: <20220913140418.001867651@linuxfoundation.org>
+Message-Id: <20220913140351.321635587@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,86 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: lily <floridsleeves@gmail.com>
 
-commit f4d653dcaa4e4056e1630423e6a8ece4869b544f upstream.
+[ Upstream commit c624c58e08b15105662b9ab9be23d14a6b945a49 ]
 
-Add a SELinux access control for the iouring IORING_OP_URING_CMD
-command.  This includes the addition of a new permission in the
-existing "io_uring" object class: "cmd".  The subject of the new
-permission check is the domain of the process requesting access, the
-object is the open file which points to the device/file that is the
-target of the IORING_OP_URING_CMD operation.  A sample policy rule
-is shown below:
+skb_copy_bits() could fail, which requires a check on the return
+value.
 
-  allow <domain> <file>:io_uring { cmd };
-
-Cc: stable@vger.kernel.org
-Fixes: ee692a21e9bf ("fs,io_uring: add infrastructure for uring-cmd")
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Li Zhong <floridsleeves@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c            |   24 ++++++++++++++++++++++++
- security/selinux/include/classmap.h |    2 +-
- 2 files changed, 25 insertions(+), 1 deletion(-)
+ net/core/skbuff.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -91,6 +91,7 @@
- #include <uapi/linux/mount.h>
- #include <linux/fsnotify.h>
- #include <linux/fanotify.h>
-+#include <linux/io_uring.h>
- 
- #include "avc.h"
- #include "objsec.h"
-@@ -6990,6 +6991,28 @@ static int selinux_uring_sqpoll(void)
- 	return avc_has_perm(&selinux_state, sid, sid,
- 			    SECCLASS_IO_URING, IO_URING__SQPOLL, NULL);
- }
-+
-+/**
-+ * selinux_uring_cmd - check if IORING_OP_URING_CMD is allowed
-+ * @ioucmd: the io_uring command structure
-+ *
-+ * Check to see if the current domain is allowed to execute an
-+ * IORING_OP_URING_CMD against the device/file specified in @ioucmd.
-+ *
-+ */
-+static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
-+{
-+	struct file *file = ioucmd->file;
-+	struct inode *inode = file_inode(file);
-+	struct inode_security_struct *isec = selinux_inode(inode);
-+	struct common_audit_data ad;
-+
-+	ad.type = LSM_AUDIT_DATA_FILE;
-+	ad.u.file = file;
-+
-+	return avc_has_perm(&selinux_state, current_sid(), isec->sid,
-+			    SECCLASS_IO_URING, IO_URING__CMD, &ad);
-+}
- #endif /* CONFIG_IO_URING */
- 
- /*
-@@ -7234,6 +7257,7 @@ static struct security_hook_list selinux
- #ifdef CONFIG_IO_URING
- 	LSM_HOOK_INIT(uring_override_creds, selinux_uring_override_creds),
- 	LSM_HOOK_INIT(uring_sqpoll, selinux_uring_sqpoll),
-+	LSM_HOOK_INIT(uring_cmd, selinux_uring_cmd),
- #endif
- 
- 	/*
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -253,7 +253,7 @@ const struct security_class_mapping secc
- 	{ "anon_inode",
- 	  { COMMON_FILE_PERMS, NULL } },
- 	{ "io_uring",
--	  { "override_creds", "sqpoll", NULL } },
-+	  { "override_creds", "sqpoll", "cmd", NULL } },
- 	{ NULL }
-   };
- 
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 635cabcf8794f..7bdcdad58dc86 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3986,9 +3986,8 @@ struct sk_buff *skb_segment(struct sk_buff *head_skb,
+ 				SKB_GSO_CB(nskb)->csum_start =
+ 					skb_headroom(nskb) + doffset;
+ 			} else {
+-				skb_copy_bits(head_skb, offset,
+-					      skb_put(nskb, len),
+-					      len);
++				if (skb_copy_bits(head_skb, offset, skb_put(nskb, len), len))
++					goto err;
+ 			}
+ 			continue;
+ 		}
+-- 
+2.35.1
+
 
 
