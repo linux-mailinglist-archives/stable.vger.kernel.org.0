@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 332C25B7480
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 478255B7306
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236078AbiIMPVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:21:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41900 "EHLO
+        id S231726AbiIMPEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:04:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235782AbiIMPTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:19:22 -0400
+        with ESMTP id S235030AbiIMPCO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:02:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33E337AC37;
-        Tue, 13 Sep 2022 07:36:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A07BC0;
+        Tue, 13 Sep 2022 07:29:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DA43B80F9D;
-        Tue, 13 Sep 2022 14:34:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A263FC433C1;
-        Tue, 13 Sep 2022 14:34:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F857B80F6F;
+        Tue, 13 Sep 2022 14:29:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16850C433C1;
+        Tue, 13 Sep 2022 14:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079661;
-        bh=fl+1UOIJlFEE2wyNt2W4lBZHymVKH/kugNQe66C4Z6U=;
+        s=korg; t=1663079344;
+        bh=XZ7QZ5fLq/vpZtWqyZMpef7Tz7QP4R97XcrSYVDojN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qw0qJYEyS/kEYm8morrU2ImrdBBQJeOI4dcoigJHY3AIN3ysKukEg0QjJG+V+WWb3
-         Z3eHrYpAyNAcOb5CQ/hVg/LKQwM+WiqR4k8GkYpvp+B23I1v9D/XgXJcx4f31e5gID
-         Ss+9f+m4hKSKyOS4xEv1ZpN7rNZ8lvbHFNl4L3hM=
+        b=sQUMqmEjjX2eJ/M/i+YrmEvtcr1jhQ3AlEKUM4vbdsrpVsGpQxqSoallziT1iGIyU
+         k+LDNACaezqEkDfBxcs7wY0Dc6mxtQY5FP3vL7i2uj7q7dxPpLeDColvGblK8ZOH9h
+         Vt5YW+3wZGkrK3ODfzeL7ngJC6QTTHkpQwSdi7+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/61] ethernet: rocker: fix sleep in atomic context bug in neigh_timer_handler
+        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
+Subject: [PATCH 5.4 098/108] sch_sfb: Dont assume the skb is still around after enqueueing to child
 Date:   Tue, 13 Sep 2022 16:07:09 +0200
-Message-Id: <20220913140346.835357179@linuxfoundation.org>
+Message-Id: <20220913140357.832371776@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Toke Høiland-Jørgensen <toke@toke.dk>
 
-[ Upstream commit c0955bf957be4bead01fae1d791476260da7325d ]
+[ Upstream commit 9efd23297cca530bb35e1848665805d3fcdd7889 ]
 
-The function neigh_timer_handler() is a timer handler that runs in an
-atomic context. When used by rocker, neigh_timer_handler() calls
-"kzalloc(.., GFP_KERNEL)" that may sleep. As a result, the sleep in
-atomic context bug will happen. One of the processes is shown below:
+The sch_sfb enqueue() routine assumes the skb is still alive after it has
+been enqueued into a child qdisc, using the data in the skb cb field in the
+increment_qlen() routine after enqueue. However, the skb may in fact have
+been freed, causing a use-after-free in this case. In particular, this
+happens if sch_cake is used as a child of sfb, and the GSO splitting mode
+of CAKE is enabled (in which case the skb will be split into segments and
+the original skb freed).
 
-ofdpa_fib4_add()
- ...
- neigh_add_timer()
+Fix this by copying the sfb cb data to the stack before enqueueing the skb,
+and using this stack copy in increment_qlen() instead of the skb pointer
+itself.
 
-(wait a timer)
-
-neigh_timer_handler()
- neigh_release()
-  neigh_destroy()
-   rocker_port_neigh_destroy()
-    rocker_world_port_neigh_destroy()
-     ofdpa_port_neigh_destroy()
-      ofdpa_port_ipv4_neigh()
-       kzalloc(sizeof(.., GFP_KERNEL) //may sleep
-
-This patch changes the gfp_t parameter of kzalloc() from GFP_KERNEL to
-GFP_ATOMIC in order to mitigate the bug.
-
-Fixes: 00fc0c51e35b ("rocker: Change world_ops API and implementation to be switchdev independant")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
+Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
+Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/rocker/rocker_ofdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_sfb.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_ofdpa.c b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-index 0653b70723a34..5dad40257e12e 100644
---- a/drivers/net/ethernet/rocker/rocker_ofdpa.c
-+++ b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-@@ -1277,7 +1277,7 @@ static int ofdpa_port_ipv4_neigh(struct ofdpa_port *ofdpa_port,
- 	bool removing;
- 	int err = 0;
+diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
+index 4074c50ac3d73..085fe06da2a68 100644
+--- a/net/sched/sch_sfb.c
++++ b/net/sched/sch_sfb.c
+@@ -135,15 +135,15 @@ static void increment_one_qlen(u32 sfbhash, u32 slot, struct sfb_sched_data *q)
+ 	}
+ }
  
--	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
-+	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
- 	if (!entry)
- 		return -ENOMEM;
+-static void increment_qlen(const struct sk_buff *skb, struct sfb_sched_data *q)
++static void increment_qlen(const struct sfb_skb_cb *cb, struct sfb_sched_data *q)
+ {
+ 	u32 sfbhash;
  
+-	sfbhash = sfb_hash(skb, 0);
++	sfbhash = cb->hashes[0];
+ 	if (sfbhash)
+ 		increment_one_qlen(sfbhash, 0, q);
+ 
+-	sfbhash = sfb_hash(skb, 1);
++	sfbhash = cb->hashes[1];
+ 	if (sfbhash)
+ 		increment_one_qlen(sfbhash, 1, q);
+ }
+@@ -283,6 +283,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	struct sfb_sched_data *q = qdisc_priv(sch);
+ 	struct Qdisc *child = q->qdisc;
+ 	struct tcf_proto *fl;
++	struct sfb_skb_cb cb;
+ 	int i;
+ 	u32 p_min = ~0;
+ 	u32 minqlen = ~0;
+@@ -399,11 +400,12 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	}
+ 
+ enqueue:
++	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
+ 	ret = qdisc_enqueue(skb, child, to_free);
+ 	if (likely(ret == NET_XMIT_SUCCESS)) {
+ 		qdisc_qstats_backlog_inc(sch, skb);
+ 		sch->q.qlen++;
+-		increment_qlen(skb, q);
++		increment_qlen(&cb, q);
+ 	} else if (net_xmit_drop_count(ret)) {
+ 		q->stats.childdrop++;
+ 		qdisc_qstats_drop(sch);
 -- 
 2.35.1
 
