@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5AC65B78DA
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFC2E5B76E8
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:56:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229995AbiIMRwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 13:52:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56424 "EHLO
+        id S232108AbiIMQzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 12:55:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233581AbiIMRwe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:52:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A444BD1F;
-        Tue, 13 Sep 2022 09:51:55 -0700 (PDT)
+        with ESMTP id S231175AbiIMQyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:54:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EF904E632;
+        Tue, 13 Sep 2022 08:47:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF1C9614AF;
-        Tue, 13 Sep 2022 14:14:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C44C433C1;
-        Tue, 13 Sep 2022 14:14:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A41B2614D5;
+        Tue, 13 Sep 2022 14:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA1F9C433D7;
+        Tue, 13 Sep 2022 14:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078479;
-        bh=4oZ5FV3SpXOnsRCvFeQWFDTKkVKem96ATvOhCxEitUE=;
+        s=korg; t=1663078943;
+        bh=HXfZo6doQzz9VapJaBP8Fx6rQF3F4A3r+CJnHaVGpWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QbsguFJTgKoWgQDLJMwpxmhrALtbNrYLwXLlRo6zHxBhKSjfA4b/GBa62pD4rsFZM
-         MXWDZqbBFZzCJxgl7yvRop6NULH2hIKRNlDfgVjy1ZseqDcEemnF/3CjQgbpCzlVik
-         bm59lBwuB3MPgpX+s99TAjUuCFgxabk5WT4KCHe4=
+        b=mpm+0I9LexFUGOg+rKxT2X4r2+PKoXP7F10aqO7mN0StGb1mpLCWzgvIKGkELG/R6
+         o/N2ISG05PMKi+l0O9Wf1uCQKnl3nbs95UwCaQlrVFhmjglwYiZidXTMm3fwNNiFKn
+         5G9ntBg2WqtvwJrxaE1IqmV5Sx0Lwiq8E/6692KA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 155/192] perf record: Fix synthesis failure warnings
-Date:   Tue, 13 Sep 2022 16:04:21 +0200
-Message-Id: <20220913140417.747857041@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 20/79] arm64/signal: Raise limit on stack frames
+Date:   Tue, 13 Sep 2022 16:04:25 +0200
+Message-Id: <20220913140351.279129063@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,77 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit faf59ec8c3c3708c64ff76b50e6f757c6b4a1054 ]
+[ Upstream commit 7ddcaf78e93c9282b4d92184f511b4d5bee75355 ]
 
-Some calls to synthesis functions set err < 0 but only warn about the
-failure and continue.  However they do not set err back to zero, relying
-on subsequent code to do that.
+The signal code has a limit of 64K on the size of a stack frame that it
+will generate, if this limit is exceeded then a process will be killed if
+it receives a signal. Unfortunately with the advent of SME this limit is
+too small - the maximum possible size of the ZA register alone is 64K. This
+is not an issue for practical systems at present but is easily seen using
+virtual platforms.
 
-That changed with the introduction of option --synth. When --synth=no
-subsequent functions that set err back to zero are not called.
+Raise the limit to 256K, this is substantially more than could be used by
+any current architecture extension.
 
-Fix by setting err = 0 in those cases.
-
-Example:
-
- Before:
-
-   $ perf record --no-bpf-event --synth=all -o /tmp/huh uname
-   Couldn't synthesize bpf events.
-   Linux
-   [ perf record: Woken up 1 times to write data ]
-   [ perf record: Captured and wrote 0.014 MB /tmp/huh (7 samples) ]
-   $ perf record --no-bpf-event --synth=no -o /tmp/huh uname
-   Couldn't synthesize bpf events.
-
- After:
-
-   $ perf record --no-bpf-event --synth=no -o /tmp/huh uname
-   Couldn't synthesize bpf events.
-   Linux
-   [ perf record: Woken up 1 times to write data ]
-   [ perf record: Captured and wrote 0.014 MB /tmp/huh (7 samples) ]
-
-Fixes: 41b740b6e8a994e5 ("perf record: Add --synth option")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/r/20220907162458.72817-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20220817182324.638214-2-broonie@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-record.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/signal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-record.c b/tools/perf/builtin-record.c
-index 9a71f0330137e..68c878b4e5e4c 100644
---- a/tools/perf/builtin-record.c
-+++ b/tools/perf/builtin-record.c
-@@ -1892,14 +1892,18 @@ static int record__synthesize(struct record *rec, bool tail)
+diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
+index 0dab5679a97d5..c42089ce089f7 100644
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -91,7 +91,7 @@ static size_t sigframe_size(struct rt_sigframe_user_layout const *user)
+  * not taken into account.  This limit is not a guarantee and is
+  * NOT ABI.
+  */
+-#define SIGFRAME_MAXSZ SZ_64K
++#define SIGFRAME_MAXSZ SZ_256K
  
- 	err = perf_event__synthesize_bpf_events(session, process_synthesized_event,
- 						machine, opts);
--	if (err < 0)
-+	if (err < 0) {
- 		pr_warning("Couldn't synthesize bpf events.\n");
-+		err = 0;
-+	}
- 
- 	if (rec->opts.synth & PERF_SYNTH_CGROUP) {
- 		err = perf_event__synthesize_cgroups(tool, process_synthesized_event,
- 						     machine);
--		if (err < 0)
-+		if (err < 0) {
- 			pr_warning("Couldn't synthesize cgroup events.\n");
-+			err = 0;
-+		}
- 	}
- 
- 	if (rec->opts.nr_threads_synthesize > 1) {
+ static int __sigframe_alloc(struct rt_sigframe_user_layout *user,
+ 			    unsigned long *offset, size_t size, bool extend)
 -- 
 2.35.1
 
