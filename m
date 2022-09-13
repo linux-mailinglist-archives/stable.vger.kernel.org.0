@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C18B5B70E5
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:34:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E02015B7014
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232831AbiIMOd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:33:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55980 "EHLO
+        id S233227AbiIMOUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:20:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234039AbiIMOct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:32:49 -0400
+        with ESMTP id S233539AbiIMOTR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69BF236DE0;
-        Tue, 13 Sep 2022 07:19:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4525642E5;
+        Tue, 13 Sep 2022 07:14:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9AC5BB80FA7;
-        Tue, 13 Sep 2022 14:19:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2581C433C1;
-        Tue, 13 Sep 2022 14:19:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3294B80F88;
+        Tue, 13 Sep 2022 14:13:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A606C433D7;
+        Tue, 13 Sep 2022 14:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078756;
-        bh=30co+0g9tvrzIWB1JDTXNeJSJcGGRVr+u4DdiwaS87I=;
+        s=korg; t=1663078433;
+        bh=aLUZ1hEZnAI8ceOEToEshW6gOFYq93xZhPWURA1wL3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITkbsersK/bbNtbaPomM5ZvNpZ0jcvKRKW8q2wubpuKoxFO+gXiQWjfGXzJUgyyOS
-         rEpwB20+pcOeQi7XAIMmRGUgJTUvJkvike+IeoaekYjJTGNVGYJRHu0rOo8ckMZLkp
-         THbFfJHGXDAJhWDsdJmpHP9Vt9knRr80Po48wAbw=
+        b=UAG17PQPgVDrWe33zbRYI951D2SYGASyDX8TERnMIjnfZw9pew6hC3KL0x8Z4DznI
+         VD8hGJQ2uXBQ1tBDF6ohH74QLWbwSVqwpQVxHd4FrPagKsagGN5oaoLd11JYENeHih
+         bG5lmFmPVjnAYtSRANwQWeTZjV231WIgjgi56n1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 045/121] NFS: Fix another fsync() issue after a server reboot
+Subject: [PATCH 5.19 130/192] IB/core: Fix a nested dead lock as part of ODP flow
 Date:   Tue, 13 Sep 2022 16:03:56 +0200
-Message-Id: <20220913140359.301552710@linuxfoundation.org>
+Message-Id: <20220913140416.485776187@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,123 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yishai Hadas <yishaih@nvidia.com>
 
-[ Upstream commit 67f4b5dc49913abcdb5cc736e73674e2f352f81d ]
+[ Upstream commit 85eaeb5058f0f04dffb124c97c86b4f18db0b833 ]
 
-Currently, when the writeback code detects a server reboot, it redirties
-any pages that were not committed to disk, and it sets the flag
-NFS_CONTEXT_RESEND_WRITES in the nfs_open_context of the file descriptor
-that dirtied the file. While this allows the file descriptor in question
-to redrive its own writes, it violates the fsync() requirement that we
-should be synchronising all writes to disk.
-While the problem is infrequent, we do see corner cases where an
-untimely server reboot causes the fsync() call to abandon its attempt to
-sync data to disk and causing data corruption issues due to missed error
-conditions or similar.
+Fix a nested dead lock as part of ODP flow by using mmput_async().
 
-In order to tighted up the client's ability to deal with this situation
-without introducing livelocks, add a counter that records the number of
-times pages are redirtied due to a server reboot-like condition, and use
-that in fsync() to redrive the sync to disk.
+>From the below call trace [1] can see that calling mmput() once we have
+the umem_odp->umem_mutex locked as required by
+ib_umem_odp_map_dma_and_lock() might trigger in the same task the
+exit_mmap()->__mmu_notifier_release()->mlx5_ib_invalidate_range() which
+may dead lock when trying to lock the same mutex.
 
-Fixes: 2197e9b06c22 ("NFS: Fix up fsync() when the server rebooted")
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Moving to use mmput_async() will solve the problem as the above
+exit_mmap() flow will be called in other task and will be executed once
+the lock will be available.
+
+[1]
+[64843.077665] task:kworker/u133:2  state:D stack:    0 pid:80906 ppid:
+2 flags:0x00004000
+[64843.077672] Workqueue: mlx5_ib_page_fault mlx5_ib_eqe_pf_action [mlx5_ib]
+[64843.077719] Call Trace:
+[64843.077722]  <TASK>
+[64843.077724]  __schedule+0x23d/0x590
+[64843.077729]  schedule+0x4e/0xb0
+[64843.077735]  schedule_preempt_disabled+0xe/0x10
+[64843.077740]  __mutex_lock.constprop.0+0x263/0x490
+[64843.077747]  __mutex_lock_slowpath+0x13/0x20
+[64843.077752]  mutex_lock+0x34/0x40
+[64843.077758]  mlx5_ib_invalidate_range+0x48/0x270 [mlx5_ib]
+[64843.077808]  __mmu_notifier_release+0x1a4/0x200
+[64843.077816]  exit_mmap+0x1bc/0x200
+[64843.077822]  ? walk_page_range+0x9c/0x120
+[64843.077828]  ? __cond_resched+0x1a/0x50
+[64843.077833]  ? mutex_lock+0x13/0x40
+[64843.077839]  ? uprobe_clear_state+0xac/0x120
+[64843.077860]  mmput+0x5f/0x140
+[64843.077867]  ib_umem_odp_map_dma_and_lock+0x21b/0x580 [ib_core]
+[64843.077931]  pagefault_real_mr+0x9a/0x140 [mlx5_ib]
+[64843.077962]  pagefault_mr+0xb4/0x550 [mlx5_ib]
+[64843.077992]  pagefault_single_data_segment.constprop.0+0x2ac/0x560
+[mlx5_ib]
+[64843.078022]  mlx5_ib_eqe_pf_action+0x528/0x780 [mlx5_ib]
+[64843.078051]  process_one_work+0x22b/0x3d0
+[64843.078059]  worker_thread+0x53/0x410
+[64843.078065]  ? process_one_work+0x3d0/0x3d0
+[64843.078073]  kthread+0x12a/0x150
+[64843.078079]  ? set_kthread_struct+0x50/0x50
+[64843.078085]  ret_from_fork+0x22/0x30
+[64843.078093]  </TASK>
+
+Fixes: 36f30e486dce ("IB/core: Improve ODP to use hmm_range_fault()")
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+Link: https://lore.kernel.org/r/74d93541ea533ef7daec6f126deb1072500aeb16.1661251841.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/file.c          | 15 ++++++---------
- fs/nfs/inode.c         |  1 +
- fs/nfs/write.c         |  6 ++++--
- include/linux/nfs_fs.h |  1 +
- 4 files changed, 12 insertions(+), 11 deletions(-)
+ drivers/infiniband/core/umem_odp.c | 2 +-
+ kernel/fork.c                      | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index a8693cc50c7ca..ad5114e480097 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -223,8 +223,10 @@ nfs_file_fsync_commit(struct file *file, int datasync)
- int
- nfs_file_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- {
--	struct nfs_open_context *ctx = nfs_file_open_context(file);
- 	struct inode *inode = file_inode(file);
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+	long save_nredirtied = atomic_long_read(&nfsi->redirtied_pages);
-+	long nredirtied;
- 	int ret;
+diff --git a/drivers/infiniband/core/umem_odp.c b/drivers/infiniband/core/umem_odp.c
+index 186ed8859920c..d39e16c211e8a 100644
+--- a/drivers/infiniband/core/umem_odp.c
++++ b/drivers/infiniband/core/umem_odp.c
+@@ -462,7 +462,7 @@ int ib_umem_odp_map_dma_and_lock(struct ib_umem_odp *umem_odp, u64 user_virt,
+ 		mutex_unlock(&umem_odp->umem_mutex);
  
- 	trace_nfs_fsync_enter(inode);
-@@ -239,15 +241,10 @@ nfs_file_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- 		ret = pnfs_sync_inode(inode, !!datasync);
- 		if (ret != 0)
- 			break;
--		if (!test_and_clear_bit(NFS_CONTEXT_RESEND_WRITES, &ctx->flags))
-+		nredirtied = atomic_long_read(&nfsi->redirtied_pages);
-+		if (nredirtied == save_nredirtied)
- 			break;
--		/*
--		 * If nfs_file_fsync_commit detected a server reboot, then
--		 * resend all dirty pages that might have been covered by
--		 * the NFS_CONTEXT_RESEND_WRITES flag
--		 */
--		start = 0;
--		end = LLONG_MAX;
-+		save_nredirtied = nredirtied;
+ out_put_mm:
+-	mmput(owning_mm);
++	mmput_async(owning_mm);
+ out_put_task:
+ 	if (owning_process)
+ 		put_task_struct(owning_process);
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 9d44f2d46c696..d587c85f35b1e 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1225,6 +1225,7 @@ void mmput_async(struct mm_struct *mm)
+ 		schedule_work(&mm->async_put_work);
  	}
- 
- 	trace_nfs_fsync_exit(inode, ret);
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index dc057ab6b30d1..e4524635a129a 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -434,6 +434,7 @@ nfs_ilookup(struct super_block *sb, struct nfs_fattr *fattr, struct nfs_fh *fh)
- static void nfs_inode_init_regular(struct nfs_inode *nfsi)
- {
- 	atomic_long_set(&nfsi->nrequests, 0);
-+	atomic_long_set(&nfsi->redirtied_pages, 0);
- 	INIT_LIST_HEAD(&nfsi->commit_info.list);
- 	atomic_long_set(&nfsi->commit_info.ncommit, 0);
- 	atomic_set(&nfsi->commit_info.rpcs_out, 0);
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index cdb29fd235492..be70874bc3292 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -1394,10 +1394,12 @@ static void nfs_initiate_write(struct nfs_pgio_header *hdr,
-  */
- static void nfs_redirty_request(struct nfs_page *req)
- {
-+	struct nfs_inode *nfsi = NFS_I(page_file_mapping(req->wb_page)->host);
-+
- 	/* Bump the transmission count */
- 	req->wb_nio++;
- 	nfs_mark_request_dirty(req);
--	set_bit(NFS_CONTEXT_RESEND_WRITES, &nfs_req_openctx(req)->flags);
-+	atomic_long_inc(&nfsi->redirtied_pages);
- 	nfs_end_page_writeback(req);
- 	nfs_release_request(req);
  }
-@@ -1870,7 +1872,7 @@ static void nfs_commit_release_pages(struct nfs_commit_data *data)
- 		/* We have a mismatch. Write the page again */
- 		dprintk_cont(" mismatch\n");
- 		nfs_mark_request_dirty(req);
--		set_bit(NFS_CONTEXT_RESEND_WRITES, &nfs_req_openctx(req)->flags);
-+		atomic_long_inc(&NFS_I(data->inode)->redirtied_pages);
- 	next:
- 		nfs_unlock_and_release_request(req);
- 		/* Latency breaker */
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index d0855352cd6fc..71467d661fb66 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -180,6 +180,7 @@ struct nfs_inode {
- 		/* Regular file */
- 		struct {
- 			atomic_long_t	nrequests;
-+			atomic_long_t	redirtied_pages;
- 			struct nfs_mds_commit_info commit_info;
- 			struct mutex	commit_mutex;
- 		};
++EXPORT_SYMBOL_GPL(mmput_async);
+ #endif
+ 
+ /**
 -- 
 2.35.1
 
