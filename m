@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 448AA5B72E2
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C37A65B7391
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234767AbiIMO7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:59:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52864 "EHLO
+        id S235515AbiIMPL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:11:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235116AbiIMO7P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0922060C2;
-        Tue, 13 Sep 2022 07:28:56 -0700 (PDT)
+        with ESMTP id S235537AbiIMPKX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:10:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824B477EBE;
+        Tue, 13 Sep 2022 07:32:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7080614B7;
-        Tue, 13 Sep 2022 14:28:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6612C433C1;
-        Tue, 13 Sep 2022 14:28:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F785614D9;
+        Tue, 13 Sep 2022 14:31:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99971C433D6;
+        Tue, 13 Sep 2022 14:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079336;
-        bh=1jS7lZ4MEjDQmopBnisfmndMJSQPPn+ToR1lJO8xBUA=;
+        s=korg; t=1663079496;
+        bh=57IC6E6AX7usppRwB0rZ/Wdn5wt79iBpTKmZzSEOBwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rq2ykc9zBab9JtHXHIrVkcKAnPjiSa5qA2JdpHr2XjRCNY//Dzu/7sbysdZDPrZr+
-         QzvzP+fhui9oF715uwuTtDefdTBjpneUvJoeftEAKKqg4S2yahGGQF8aw9ocQKgJN7
-         0amXPLqXRg9AJEcUcTccxnLPjbi0bzMhtto7B1GM=
+        b=GrhttD+ujXMO/0HjDr6Fh3dHyG1UGQlYhNPV0RYhCvl8w/OBai9WlcM2nbr7trlDd
+         R6EY2clj4ccs+iDEjR7OKX4QoBoxFpOfLvy3DfG0+9G4ENYQL8w3UQqUqU5+yIcbn+
+         Tj7q1Q/vnbfYTw/i2DGjsag4t1uz5jgS2aOc0J64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Leadbeater <dgl@dgl.cx>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Candice Li <candice.li@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/108] netfilter: nf_conntrack_irc: Fix forged IP logic
-Date:   Tue, 13 Sep 2022 16:07:06 +0200
-Message-Id: <20220913140357.701345854@linuxfoundation.org>
+Subject: [PATCH 4.19 49/79] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
+Date:   Tue, 13 Sep 2022 16:07:07 +0200
+Message-Id: <20220913140351.265139694@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Leadbeater <dgl@dgl.cx>
+From: Candice Li <candice.li@amd.com>
 
-[ Upstream commit 0efe125cfb99e6773a7434f3463f7c2fa28f3a43 ]
+[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
 
-Ensure the match happens in the right direction, previously the
-destination used was the server, not the NAT host, as the comment
-shows the code intended.
+No need to set up rb when no gfx rings.
 
-Additionally nf_nat_irc uses port 0 as a signal and there's no valid way
-it can appear in a DCC message, so consider port 0 also forged.
-
-Fixes: 869f37d8e48f ("[NETFILTER]: nf_conntrack/nf_nat: add IRC helper port")
-Signed-off-by: David Leadbeater <dgl@dgl.cx>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Candice Li <candice.li@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_irc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
-index e40988a2f22fb..26245419ef4a9 100644
---- a/net/netfilter/nf_conntrack_irc.c
-+++ b/net/netfilter/nf_conntrack_irc.c
-@@ -185,8 +185,9 @@ static int help(struct sk_buff *skb, unsigned int protoff,
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index d8ae6a23e6133..d36bea68a67e1 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -1771,7 +1771,8 @@ static void gfx_v9_0_gpu_init(struct amdgpu_device *adev)
  
- 			/* dcc_ip can be the internal OR external (NAT'ed) IP */
- 			tuple = &ct->tuplehash[dir].tuple;
--			if (tuple->src.u3.ip != dcc_ip &&
--			    tuple->dst.u3.ip != dcc_ip) {
-+			if ((tuple->src.u3.ip != dcc_ip &&
-+			     ct->tuplehash[!dir].tuple.dst.u3.ip != dcc_ip) ||
-+			    dcc_port == 0) {
- 				net_warn_ratelimited("Forged DCC command from %pI4: %pI4:%u\n",
- 						     &tuple->src.u3.ip,
- 						     &dcc_ip, dcc_port);
+ 	gfx_v9_0_tiling_mode_table_init(adev);
+ 
+-	gfx_v9_0_setup_rb(adev);
++	if (adev->gfx.num_gfx_rings)
++		gfx_v9_0_setup_rb(adev);
+ 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
+ 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
+ 
 -- 
 2.35.1
 
