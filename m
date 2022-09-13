@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 276085B706B
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF5C15B7183
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233628AbiIMO0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:26:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39770 "EHLO
+        id S232924AbiIMOnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:43:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233645AbiIMOZR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:25:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E2F58B4F;
-        Tue, 13 Sep 2022 07:16:29 -0700 (PDT)
+        with ESMTP id S230129AbiIMOmK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627BC52DDA;
+        Tue, 13 Sep 2022 07:22:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92183B80EFC;
-        Tue, 13 Sep 2022 14:15:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFEFBC433D6;
-        Tue, 13 Sep 2022 14:15:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EFDFB80E22;
+        Tue, 13 Sep 2022 14:22:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F39C433D7;
+        Tue, 13 Sep 2022 14:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078504;
-        bh=HS2roA9G01cpdQH+6ACcYZ8syFpKwUpCdVOO2iIMwL8=;
+        s=korg; t=1663078938;
+        bh=fPid+q0GoEnpfhUVAoMELTMnsoxydhxBhddicCiYKQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITZ5JNTUjwe0+CzrN/88hd9GFJLXnvoKVwkUKfITWa3sR+s6xm4eBY18mDljy4d0u
-         J2NsVGljufioonctU4m7ObGt0XYj4xMTjkHEd7ZhOodZiPtEfSbKS2ZaQJjQzoBp8l
-         E99pIzAyLvNZYsqb4oUrlervvx0+yhL2ccrYaoSI=
+        b=wvNaLRHU0b8ut+e+E0/ECtaKYEPZL7BYhw3JKy9wjZ86bUh4Dk6fbVNc7/3fev4XV
+         aEmyylU53Vl7EEYdsiS7vY3Kc0JUNWCTULnpwWIkfS2KMYxkI6vAFt1fE7elLRpUMM
+         YCssvMt25PJfWTg1epasAqj8lrQbB7Z0tafxtUi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.19 158/192] ASoC: mchp-spdiftx: Fix clang -Wbitfield-constant-conversion
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Bruno Goncalves <bgoncalv@redhat.com>
+Subject: [PATCH 5.10 19/79] arm64: cacheinfo: Fix incorrect assignment of signed error value to unsigned fw_level
 Date:   Tue, 13 Sep 2022 16:04:24 +0200
-Message-Id: <20220913140417.902031066@linuxfoundation.org>
+Message-Id: <20220913140351.230431132@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-commit 5c5c2baad2b55cc0a4b190266889959642298f79 upstream.
+[ Upstream commit e75d18cecbb3805895d8ed64da4f78575ec96043 ]
 
-A recent change in clang strengthened its -Wbitfield-constant-conversion
-to warn when 1 is assigned to a 1-bit signed integer bitfield, as it can
-only be 0 or -1, not 1:
+Though acpi_find_last_cache_level() always returned signed value and the
+document states it will return any errors caused by lack of a PPTT table,
+it never returned negative values before.
 
-  sound/soc/atmel/mchp-spdiftx.c:505:20: error: implicit truncation from 'int' to bit-field changes value from 1 to -1 [-Werror,-Wbitfield-constant-conversion]
-          dev->gclk_enabled = 1;
-                            ^ ~
-  1 error generated.
+Commit 0c80f9e165f8 ("ACPI: PPTT: Leave the table mapped for the runtime usage")
+however changed it by returning -ENOENT if no PPTT was found. The value
+returned from acpi_find_last_cache_level() is then assigned to unsigned
+fw_level.
 
-The actual value of the field is never checked, just that it is not
-zero, so there is not a real bug here. However, it is simple enough to
-silence the warning by making the bitfield unsigned, which matches the
-mchp-spdifrx driver.
+It will result in the number of cache leaves calculated incorrectly as
+a huge value which will then cause the following warning from __alloc_pages
+as the order would be great than MAX_ORDER because of incorrect and huge
+cache leaves value.
 
-Fixes: 06ca24e98e6b ("ASoC: mchp-spdiftx: add driver for S/PDIF TX Controller")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1686
-Link: https://github.com/llvm/llvm-project/commit/82afc9b169a67e8b8a1862fb9c41a2cd974d6691
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20220810010809.2024482-1-nathan@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  |  WARNING: CPU: 0 PID: 1 at mm/page_alloc.c:5407 __alloc_pages+0x74/0x314
+  |  Modules linked in:
+  |  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-10393-g7c2a8d3ac4c0 #73
+  |  pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+  |  pc : __alloc_pages+0x74/0x314
+  |  lr : alloc_pages+0xe8/0x318
+  |  Call trace:
+  |   __alloc_pages+0x74/0x314
+  |   alloc_pages+0xe8/0x318
+  |   kmalloc_order_trace+0x68/0x1dc
+  |   __kmalloc+0x240/0x338
+  |   detect_cache_attributes+0xe0/0x56c
+  |   update_siblings_masks+0x38/0x284
+  |   store_cpu_topology+0x78/0x84
+  |   smp_prepare_cpus+0x48/0x134
+  |   kernel_init_freeable+0xc4/0x14c
+  |   kernel_init+0x2c/0x1b4
+  |   ret_from_fork+0x10/0x20
+
+Fix the same by changing fw_level to be signed integer and return the
+error from init_cache_level() early in case of error.
+
+Reported-and-Tested-by: Bruno Goncalves <bgoncalv@redhat.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Link: https://lore.kernel.org/r/20220808084640.3165368-1-sudeep.holla@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/mchp-spdiftx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/cacheinfo.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/sound/soc/atmel/mchp-spdiftx.c
-+++ b/sound/soc/atmel/mchp-spdiftx.c
-@@ -196,7 +196,7 @@ struct mchp_spdiftx_dev {
- 	struct clk				*pclk;
- 	struct clk				*gclk;
- 	unsigned int				fmt;
--	int					gclk_enabled:1;
-+	unsigned int				gclk_enabled:1;
- };
+diff --git a/arch/arm64/kernel/cacheinfo.c b/arch/arm64/kernel/cacheinfo.c
+index 587543c6c51cb..97c42be71338a 100644
+--- a/arch/arm64/kernel/cacheinfo.c
++++ b/arch/arm64/kernel/cacheinfo.c
+@@ -45,7 +45,8 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
  
- static inline int mchp_spdiftx_is_running(struct mchp_spdiftx_dev *dev)
+ int init_cache_level(unsigned int cpu)
+ {
+-	unsigned int ctype, level, leaves, fw_level;
++	unsigned int ctype, level, leaves;
++	int fw_level;
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+ 
+ 	for (level = 1, leaves = 0; level <= MAX_CACHE_LEVEL; level++) {
+@@ -63,6 +64,9 @@ int init_cache_level(unsigned int cpu)
+ 	else
+ 		fw_level = acpi_find_last_cache_level(cpu);
+ 
++	if (fw_level < 0)
++		return fw_level;
++
+ 	if (level < fw_level) {
+ 		/*
+ 		 * some external caches not specified in CLIDR_EL1
+-- 
+2.35.1
+
 
 
