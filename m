@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2EA05B6F32
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7096E5B6F2A
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232666AbiIMOJc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:09:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54538 "EHLO
+        id S232463AbiIMOJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:09:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232519AbiIMOIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:08:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C27219001;
-        Tue, 13 Sep 2022 07:08:30 -0700 (PDT)
+        with ESMTP id S232400AbiIMOIv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:08:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6473F5926E;
+        Tue, 13 Sep 2022 07:08:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1F9A614AA;
-        Tue, 13 Sep 2022 14:08:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9500EC433D6;
-        Tue, 13 Sep 2022 14:08:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5440A6149A;
+        Tue, 13 Sep 2022 14:08:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62CFCC433D6;
+        Tue, 13 Sep 2022 14:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078108;
-        bh=wgRZma+e4X5kCGxfMKh1BxeU5ur5lm00SFY+zuuMEMI=;
+        s=korg; t=1663078110;
+        bh=4q8krE1FsncwNTfSC0uky0pPAGgOhmkWebSZonlFBbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EW+AQM07IF1ZDkQq5W8bZzq4MbxVWntch72bW/wIDRwoViLKy4VGKkigbWfWVv7du
-         KoaMCYligCwkgwGdTF+8AWmKTu/trbxu7iwbREIOEdiAtHb6ijUhd1yWM5giZMg4mE
-         Y7rDjo/8JJgePWVgQIq5i+vy62iogs8fXMhdTcyo=
+        b=KZoUyRxdUmBD8Ym+GfHVMnYX/+K+YJfCH8TxL2z79U/7ZhDdMpjrBifh+aOvbcAhf
+         N7xFtJSS9/dTG0ZIJ+igg79URI9JIIU1HgNlWKDErjU1uHkzH3bc+zoD1VHh3teBAE
+         1yT5Ey37iSFis7QRVvlpcPA3BcHt0ntOx1b87B5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.19 005/192] net: mvpp2: debugfs: fix memory leak when using debugfs_lookup()
-Date:   Tue, 13 Sep 2022 16:01:51 +0200
-Message-Id: <20220913140410.277221532@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Fengwei Yin <fengwei.yin@intel.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.19 006/192] fs: only do a memory barrier for the first set_buffer_uptodate()
+Date:   Tue, 13 Sep 2022 16:01:52 +0200
+Message-Id: <20220913140410.318879112@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -58,45 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit fe2c9c61f668cde28dac2b188028c5299cedcc1e upstream.
+commit 2f79cdfe58c13949bbbb65ba5926abfe9561d0ec upstream.
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  Fix this up to be much
-simpler logic and only create the root debugfs directory once when the
-driver is first accessed.  That resolves the memory leak and makes
-things more obvious as to what the intent is.
+Commit d4252071b97d ("add barriers to buffer_uptodate and
+set_buffer_uptodate") added proper memory barriers to the buffer head
+BH_Uptodate bit, so that anybody who tests a buffer for being up-to-date
+will be guaranteed to actually see initialized state.
 
-Cc: Marcin Wojtas <mw@semihalf.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org
-Cc: stable <stable@kernel.org>
-Fixes: 21da57a23125 ("net: mvpp2: add a debugfs interface for the Header Parser")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+However, that commit didn't _just_ add the memory barrier, it also ended
+up dropping the "was it already set" logic that the BUFFER_FNS() macro
+had.
+
+That's conceptually the right thing for a generic "this is a memory
+barrier" operation, but in the case of the buffer contents, we really
+only care about the memory barrier for the _first_ time we set the bit,
+in that the only memory ordering protection we need is to avoid anybody
+seeing uninitialized memory contents.
+
+Any other access ordering wouldn't be about the BH_Uptodate bit anyway,
+and would require some other proper lock (typically BH_Lock or the folio
+lock).  A reader that races with somebody invalidating the buffer head
+isn't an issue wrt the memory ordering, it's a serialization issue.
+
+Now, you'd think that the buffer head operations don't matter in this
+day and age (and I certainly thought so), but apparently some loads
+still end up being heavy users of buffer heads.  In particular, the
+kernel test robot reported that not having this bit access optimization
+in place caused a noticeable direct IO performance regression on ext4:
+
+  fxmark.ssd_ext4_no_jnl_DWTL_54_directio.works/sec -26.5% regression
+
+although you presumably need a fast disk and a lot of cores to actually
+notice.
+
+Link: https://lore.kernel.org/all/Yw8L7HTZ%2FdE2%2Fo9C@xsang-OptiPlex-9020/
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Tested-by: Fengwei Yin <fengwei.yin@intel.com>
+Cc: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/buffer_head.h |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_debugfs.c
-@@ -700,10 +700,10 @@ void mvpp2_dbgfs_cleanup(struct mvpp2 *p
- 
- void mvpp2_dbgfs_init(struct mvpp2 *priv, const char *name)
+--- a/include/linux/buffer_head.h
++++ b/include/linux/buffer_head.h
+@@ -137,6 +137,17 @@ BUFFER_FNS(Defer_Completion, defer_compl
+ static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
  {
--	struct dentry *mvpp2_dir, *mvpp2_root;
-+	static struct dentry *mvpp2_root;
-+	struct dentry *mvpp2_dir;
- 	int ret, i;
- 
--	mvpp2_root = debugfs_lookup(MVPP2_DRIVER_NAME, NULL);
- 	if (!mvpp2_root)
- 		mvpp2_root = debugfs_create_dir(MVPP2_DRIVER_NAME, NULL);
- 
+ 	/*
++	 * If somebody else already set this uptodate, they will
++	 * have done the memory barrier, and a reader will thus
++	 * see *some* valid buffer state.
++	 *
++	 * Any other serialization (with IO errors or whatever that
++	 * might clear the bit) has to come from other state (eg BH_Lock).
++	 */
++	if (test_bit(BH_Uptodate, &bh->b_state))
++		return;
++
++	/*
+ 	 * make it consistent with folio_mark_uptodate
+ 	 * pairs with smp_load_acquire in buffer_uptodate
+ 	 */
 
 
