@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9CCA5B7108
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF21C5B7372
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234342AbiIMOh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41934 "EHLO
+        id S235170AbiIMPJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:09:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234225AbiIMOfx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:53 -0400
+        with ESMTP id S235695AbiIMPJE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:09:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C96EB6B170;
-        Tue, 13 Sep 2022 07:20:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0189177540;
+        Tue, 13 Sep 2022 07:31:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF390B80F91;
-        Tue, 13 Sep 2022 14:14:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52477C43142;
-        Tue, 13 Sep 2022 14:14:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 892A9B80F02;
+        Tue, 13 Sep 2022 14:14:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D44C43140;
+        Tue, 13 Sep 2022 14:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078453;
-        bh=2iP1ajy/DfmeSCb4A/fRzKwzhqN7GXpgVDnj7ALZso0=;
+        s=korg; t=1663078456;
+        bh=QVfWmvO8kgJgY3aFKPNUlaDBsJjL74N0VE5S1zVPeLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H3Dzn7rQN4tnkHV7W8gn+UdMZffc4tNmD9kaJ47Lh67XpWzzyixgKIECM1p7dfCgJ
-         tFLPfDRbfAX62sf8dlKz6lD+W5/G+B+vWdZOJHQN1WrXkYvdw/6HBanA4ApdolvfgE
-         HIQa6NBDAQJjduZetzTuClEdupcXmCmkty/xnM+w=
+        b=0cF641/0JrR0tBOhZjLJEo81VerzzD7LrJtCgr/DRUpuMOcHSlf7Lp/B9SWFkc3xA
+         SAcgL+EeAgRfrXmeLClkxnrHAc26twRG42yECiGrBJstrGZvslafi7mlbO4TZ1znmV
+         hdwn9ogNj7hqvMYTtALk6qsNecB918xWw3cFvPxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 146/192] net: ethernet: mtk_eth_soc: fix typo in __mtk_foe_entry_clear
-Date:   Tue, 13 Sep 2022 16:04:12 +0200
-Message-Id: <20220913140417.294217295@linuxfoundation.org>
+Subject: [PATCH 5.19 147/192] net: ethernet: mtk_eth_soc: check max allowed hash in mtk_ppe_check_skb
+Date:   Tue, 13 Sep 2022 16:04:13 +0200
+Message-Id: <20220913140417.345778357@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -56,31 +56,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 0e80707d94e4c88f9879bdafcbaceb13432ec1f4 ]
+[ Upstream commit f27b405ef43319a3ceefc2123245201a63ed4e00 ]
 
-Set ib1 state to MTK_FOE_STATE_UNBIND in __mtk_foe_entry_clear routine.
+Even if max hash configured in hw in mtk_ppe_hash_entry is
+MTK_PPE_ENTRIES - 1, check theoretical OOB accesses in
+mtk_ppe_check_skb routine
 
-Fixes: 33fc42de33278 ("net: ethernet: mtk_eth_soc: support creating mac address based offload entries")
+Fixes: c4f033d9e03e9 ("net: ethernet: mtk_eth_soc: rework hardware flow table management")
 Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_ppe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mediatek/mtk_ppe.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_ppe.c b/drivers/net/ethernet/mediatek/mtk_ppe.c
-index dab8f3f771f84..cfe804bc8d205 100644
---- a/drivers/net/ethernet/mediatek/mtk_ppe.c
-+++ b/drivers/net/ethernet/mediatek/mtk_ppe.c
-@@ -412,7 +412,7 @@ __mtk_foe_entry_clear(struct mtk_ppe *ppe, struct mtk_flow_entry *entry)
- 	if (entry->hash != 0xffff) {
- 		ppe->foe_table[entry->hash].ib1 &= ~MTK_FOE_IB1_STATE;
- 		ppe->foe_table[entry->hash].ib1 |= FIELD_PREP(MTK_FOE_IB1_STATE,
--							      MTK_FOE_STATE_BIND);
-+							      MTK_FOE_STATE_UNBIND);
- 		dma_wmb();
- 	}
- 	entry->hash = 0xffff;
+diff --git a/drivers/net/ethernet/mediatek/mtk_ppe.h b/drivers/net/ethernet/mediatek/mtk_ppe.h
+index 1f5cf1c9a9475..69ffce04d6306 100644
+--- a/drivers/net/ethernet/mediatek/mtk_ppe.h
++++ b/drivers/net/ethernet/mediatek/mtk_ppe.h
+@@ -293,6 +293,9 @@ mtk_ppe_check_skb(struct mtk_ppe *ppe, struct sk_buff *skb, u16 hash)
+ 	if (!ppe)
+ 		return;
+ 
++	if (hash > MTK_PPE_HASH_MASK)
++		return;
++
+ 	now = (u16)jiffies;
+ 	diff = now - ppe->foe_check_time[hash];
+ 	if (diff < HZ / 10)
 -- 
 2.35.1
 
