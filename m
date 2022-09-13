@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 160265B7179
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33F755B73EE
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231164AbiIMOli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:41:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59572 "EHLO
+        id S235557AbiIMPO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230150AbiIMOkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:40:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C85E6D9E3;
-        Tue, 13 Sep 2022 07:21:55 -0700 (PDT)
+        with ESMTP id S235551AbiIMPMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:12:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DA43642ED;
+        Tue, 13 Sep 2022 07:32:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38EAA614AE;
-        Tue, 13 Sep 2022 14:20:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49D2DC433C1;
-        Tue, 13 Sep 2022 14:20:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECDF4614AD;
+        Tue, 13 Sep 2022 14:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1838CC433D6;
+        Tue, 13 Sep 2022 14:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078842;
-        bh=tZ63s44RQjryfuCe0CUUP58SoCsvCG597kk38pNZ/W4=;
+        s=korg; t=1663078582;
+        bh=JdyY+3rs1YcamYFY6HEViqccXIHq0b/i1cdsWROpoBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wb48VH/FJ58+DR1JSNqNgtz8Gk4lApCCZCs1Kzcyf4p6CCBWMm73aDiSprY3a4zEc
-         wgTjqKo3p3c6CxpiYnOtxTUU5bOEC+4GMZB3v5q+Od7+1k9iuI8RCuvy44zBuxLYaW
-         +xjYJJ+ilke7PjPxmPPuY1tmTicBmnjxzq6S6Vhc=
+        b=tTCDZUiznssSRVZ5t5z46Nm+HIlqdV9mRulm7S2UI8i/Uhea6Yg/DJQA5WXeUC/PR
+         za0enx5H3UFHI31hh7QrIHOR15eeZuDrq4nzXu9biDi78XYNpuBdTFpf+68C+XqQ47
+         usWZODV8z7HXohDgqAaQwyawbpQruGV2Dls5v/Dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/121] kbuild: disable header exports for UML in a straightforward way
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.19 189/192] iommu/virtio: Fix interaction with VFIO
 Date:   Tue, 13 Sep 2022 16:04:55 +0200
-Message-Id: <20220913140401.818922514@linuxfoundation.org>
+Message-Id: <20220913140419.484866059@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-[ Upstream commit 1b620d539ccc18a1aca1613d9ff078115a7891a1 ]
+commit 91c98fe7941499e4127cdc359c30841b873dd43a upstream.
 
-Previously 'make ARCH=um headers' stopped because of missing
-arch/um/include/uapi/asm/Kbuild.
+Commit e8ae0e140c05 ("vfio: Require that devices support DMA cache
+coherence") requires IOMMU drivers to advertise
+IOMMU_CAP_CACHE_COHERENCY, in order to be used by VFIO. Since VFIO does
+not provide to userspace the ability to maintain coherency through cache
+invalidations, it requires hardware coherency. Advertise the capability
+in order to restore VFIO support.
 
-The error is not shown since commit ed102bf2afed ("um: Fix W=1
-missing-include-dirs warnings") added arch/um/include/uapi/asm/Kbuild.
+The meaning of IOMMU_CAP_CACHE_COHERENCY also changed from "IOMMU can
+enforce cache coherent DMA transactions" to "IOMMU_CACHE is supported".
+While virtio-iommu cannot enforce coherency (of PCIe no-snoop
+transactions), it does support IOMMU_CACHE.
 
-Hard-code the unsupported architecture, so it works like before.
+We can distinguish different cases of non-coherent DMA:
 
-Fixes: ed102bf2afed ("um: Fix W=1 missing-include-dirs warnings")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Acked-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+(1) When accesses from a hardware endpoint are not coherent. The host
+    would describe such a device using firmware methods ('dma-coherent'
+    in device-tree, '_CCA' in ACPI), since they are also needed without
+    a vIOMMU. In this case mappings are created without IOMMU_CACHE.
+    virtio-iommu doesn't need any additional support. It sends the same
+    requests as for coherent devices.
+
+(2) When the physical IOMMU supports non-cacheable mappings. Supporting
+    those would require a new feature in virtio-iommu, new PROBE request
+    property and MAP flags. Device drivers would use a new API to
+    discover this since it depends on the architecture and the physical
+    IOMMU.
+
+(3) When the hardware supports PCIe no-snoop. It is possible for
+    assigned PCIe devices to issue no-snoop transactions, and the
+    virtio-iommu specification is lacking any mention of this.
+
+    Arm platforms don't necessarily support no-snoop, and those that do
+    cannot enforce coherency of no-snoop transactions. Device drivers
+    must be careful about assuming that no-snoop transactions won't end
+    up cached; see commit e02f5c1bb228 ("drm: disable uncached DMA
+    optimization for ARM and arm64"). On x86 platforms, the host may or
+    may not enforce coherency of no-snoop transactions with the physical
+    IOMMU. But according to the above commit, on x86 a driver which
+    assumes that no-snoop DMA is compatible with uncached CPU mappings
+    will also work if the host enforces coherency.
+
+    Although these issues are not specific to virtio-iommu, it could be
+    used to facilitate discovery and configuration of no-snoop. This
+    would require a new feature bit, PROBE property and ATTACH/MAP
+    flags.
+
+Cc: stable@vger.kernel.org
+Fixes: e8ae0e140c05 ("vfio: Require that devices support DMA cache coherence")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/20220825154622.86759-1-jean-philippe@linaro.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/iommu/virtio-iommu.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/Makefile b/Makefile
-index eca45b7be9c1e..32253ea989217 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1332,8 +1332,7 @@ hdr-inst := -f $(srctree)/scripts/Makefile.headersinst obj
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 08eeafc9529f..80151176ba12 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -1006,7 +1006,18 @@ static int viommu_of_xlate(struct device *dev, struct of_phandle_args *args)
+ 	return iommu_fwspec_add_ids(dev, args->args, 1);
+ }
  
- PHONY += headers
- headers: $(version_h) scripts_unifdef uapi-asm-generic archheaders archscripts
--	$(if $(wildcard $(srctree)/arch/$(SRCARCH)/include/uapi/asm/Kbuild),, \
--	  $(error Headers not exportable for the $(SRCARCH) architecture))
-+	$(if $(filter um, $(SRCARCH)), $(error Headers not exportable for UML))
- 	$(Q)$(MAKE) $(hdr-inst)=include/uapi
- 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi
- 
++static bool viommu_capable(enum iommu_cap cap)
++{
++	switch (cap) {
++	case IOMMU_CAP_CACHE_COHERENCY:
++		return true;
++	default:
++		return false;
++	}
++}
++
+ static struct iommu_ops viommu_ops = {
++	.capable		= viommu_capable,
+ 	.domain_alloc		= viommu_domain_alloc,
+ 	.probe_device		= viommu_probe_device,
+ 	.probe_finalize		= viommu_probe_finalize,
 -- 
-2.35.1
+2.37.3
 
 
 
