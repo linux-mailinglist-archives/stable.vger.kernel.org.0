@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7EDA5B718D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 160265B7179
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbiIMOoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:44:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40530 "EHLO
+        id S231164AbiIMOli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:41:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234565AbiIMOn7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C496EF38;
-        Tue, 13 Sep 2022 07:23:37 -0700 (PDT)
+        with ESMTP id S230150AbiIMOkr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:40:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C85E6D9E3;
+        Tue, 13 Sep 2022 07:21:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE504B80E22;
-        Tue, 13 Sep 2022 14:23:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 482FEC433D6;
-        Tue, 13 Sep 2022 14:23:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38EAA614AE;
+        Tue, 13 Sep 2022 14:20:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49D2DC433C1;
+        Tue, 13 Sep 2022 14:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079015;
-        bh=UI+gRuv3zcDmPY0ND7q4jXM2pRFR+veYZDyYtkFqn/Y=;
+        s=korg; t=1663078842;
+        bh=tZ63s44RQjryfuCe0CUUP58SoCsvCG597kk38pNZ/W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pxk4xNudGlRlt5SiVD98GT4DrmEki2HvSHEsDc9j0K/SAvjt5m3P1tbHnQtwzKlCx
-         bszeNT07iJERqyDdXpg7HbyUDtEj9uQXvaDgA/m5PaLnsiFR79c4Uk/lu5E/Ryyv9M
-         SNNTpdodmkEoXoe466uRLApNQmKe39iI5sOZwDG8=
+        b=wb48VH/FJ58+DR1JSNqNgtz8Gk4lApCCZCs1Kzcyf4p6CCBWMm73aDiSprY3a4zEc
+         wgTjqKo3p3c6CxpiYnOtxTUU5bOEC+4GMZB3v5q+Od7+1k9iuI8RCuvy44zBuxLYaW
+         +xjYJJ+ilke7PjPxmPPuY1tmTicBmnjxzq6S6Vhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5fcdbfab6d6744c57418@syzkaller.appspotmail.com,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 49/79] netfilter: nf_tables: clean up hook list when offload flags check fails
-Date:   Tue, 13 Sep 2022 16:04:54 +0200
-Message-Id: <20220913140352.621056306@linuxfoundation.org>
+Subject: [PATCH 5.15 104/121] kbuild: disable header exports for UML in a straightforward way
+Date:   Tue, 13 Sep 2022 16:04:55 +0200
+Message-Id: <20220913140401.818922514@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 77972a36ecc4db7fc7c68f0e80714263c5f03f65 ]
+[ Upstream commit 1b620d539ccc18a1aca1613d9ff078115a7891a1 ]
 
-splice back the hook list so nft_chain_release_hook() has a chance to
-release the hooks.
+Previously 'make ARCH=um headers' stopped because of missing
+arch/um/include/uapi/asm/Kbuild.
 
-BUG: memory leak
-unreferenced object 0xffff88810180b100 (size 96):
-  comm "syz-executor133", pid 3619, jiffies 4294945714 (age 12.690s)
-  hex dump (first 32 bytes):
-    28 64 23 02 81 88 ff ff 28 64 23 02 81 88 ff ff  (d#.....(d#.....
-    90 a8 aa 83 ff ff ff ff 00 00 b5 0f 81 88 ff ff  ................
-  backtrace:
-    [<ffffffff83a8c59b>] kmalloc include/linux/slab.h:600 [inline]
-    [<ffffffff83a8c59b>] nft_netdev_hook_alloc+0x3b/0xc0 net/netfilter/nf_tables_api.c:1901
-    [<ffffffff83a9239a>] nft_chain_parse_netdev net/netfilter/nf_tables_api.c:1998 [inline]
-    [<ffffffff83a9239a>] nft_chain_parse_hook+0x33a/0x530 net/netfilter/nf_tables_api.c:2073
-    [<ffffffff83a9b14b>] nf_tables_addchain.constprop.0+0x10b/0x950 net/netfilter/nf_tables_api.c:2218
-    [<ffffffff83a9c41b>] nf_tables_newchain+0xa8b/0xc60 net/netfilter/nf_tables_api.c:2593
-    [<ffffffff83a3d6a6>] nfnetlink_rcv_batch+0xa46/0xd20 net/netfilter/nfnetlink.c:517
-    [<ffffffff83a3db79>] nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:638 [inline]
-    [<ffffffff83a3db79>] nfnetlink_rcv+0x1f9/0x220 net/netfilter/nfnetlink.c:656
-    [<ffffffff83a13b17>] netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
-    [<ffffffff83a13b17>] netlink_unicast+0x397/0x4c0 net/netlink/af_netlink.c:1345
-    [<ffffffff83a13fd6>] netlink_sendmsg+0x396/0x710 net/netlink/af_netlink.c:1921
-    [<ffffffff83865ab6>] sock_sendmsg_nosec net/socket.c:714 [inline]
-    [<ffffffff83865ab6>] sock_sendmsg+0x56/0x80 net/socket.c:734
-    [<ffffffff8386601c>] ____sys_sendmsg+0x36c/0x390 net/socket.c:2482
-    [<ffffffff8386a918>] ___sys_sendmsg+0xa8/0x110 net/socket.c:2536
-    [<ffffffff8386aaa8>] __sys_sendmsg+0x88/0x100 net/socket.c:2565
-    [<ffffffff845e5955>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff845e5955>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff84800087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+The error is not shown since commit ed102bf2afed ("um: Fix W=1
+missing-include-dirs warnings") added arch/um/include/uapi/asm/Kbuild.
 
-Fixes: d54725cd11a5 ("netfilter: nf_tables: support for multiple devices per netdev hook")
-Reported-by: syzbot+5fcdbfab6d6744c57418@syzkaller.appspotmail.com
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Hard-code the unsupported architecture, so it works like before.
+
+Fixes: ed102bf2afed ("um: Fix W=1 missing-include-dirs warnings")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Acked-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 1b039476e4d6a..b8e7e1c5c08a8 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -1971,8 +1971,10 @@ static int nft_basechain_init(struct nft_base_chain *basechain, u8 family,
- 	chain->flags |= NFT_CHAIN_BASE | flags;
- 	basechain->policy = NF_ACCEPT;
- 	if (chain->flags & NFT_CHAIN_HW_OFFLOAD &&
--	    !nft_chain_offload_support(basechain))
-+	    !nft_chain_offload_support(basechain)) {
-+		list_splice_init(&basechain->hook_list, &hook->list);
- 		return -EOPNOTSUPP;
-+	}
+diff --git a/Makefile b/Makefile
+index eca45b7be9c1e..32253ea989217 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1332,8 +1332,7 @@ hdr-inst := -f $(srctree)/scripts/Makefile.headersinst obj
  
- 	flow_block_init(&basechain->flow_block);
+ PHONY += headers
+ headers: $(version_h) scripts_unifdef uapi-asm-generic archheaders archscripts
+-	$(if $(wildcard $(srctree)/arch/$(SRCARCH)/include/uapi/asm/Kbuild),, \
+-	  $(error Headers not exportable for the $(SRCARCH) architecture))
++	$(if $(filter um, $(SRCARCH)), $(error Headers not exportable for UML))
+ 	$(Q)$(MAKE) $(hdr-inst)=include/uapi
+ 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi
  
 -- 
 2.35.1
