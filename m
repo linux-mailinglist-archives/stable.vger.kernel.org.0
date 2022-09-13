@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2CEE5B7494
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B83C05B7545
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236065AbiIMPYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:24:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53588 "EHLO
+        id S229803AbiIMPj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:39:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236325AbiIMPYO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:24:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D213D7C1A5;
-        Tue, 13 Sep 2022 07:37:30 -0700 (PDT)
+        with ESMTP id S236751AbiIMPiz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:38:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C061D312;
+        Tue, 13 Sep 2022 07:44:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DDCFB80FEE;
-        Tue, 13 Sep 2022 14:35:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03C3EC433C1;
-        Tue, 13 Sep 2022 14:35:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 301ED614E8;
+        Tue, 13 Sep 2022 14:32:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A84C433D6;
+        Tue, 13 Sep 2022 14:32:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079724;
-        bh=tWzG590uEIEitmjFsZ094gdzV7rD+8143d/TW415kbs=;
+        s=korg; t=1663079566;
+        bh=tX03YbG5xQzb4/Y3x2p/k5J6xQjGknZ9Qh7bB8dvKcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clKaaefwZGti/IaaGN79yQgF0IIHCj2vDjyzLAeZyKwjqX3Gak+uiEcFka8tasEce
-         z/IpjUzLVXGdapAlLfDbBddqBSrqZoRjFwAipPez13oVoh8CQnD9ZEsUggqhi2hgV9
-         yL0yFuz/yMNtigFhHN2ghjMvcz1j/oG5EJgUVwZA=
+        b=inyzrq5z1xoGVXK/ketVINcy5lTh+6DmimwNH+S1Xf0+UQDcldb5mdeXdhuSuYzw5
+         2wQbWkk/wCUStxWJ77UGW2lD3oZHTNY4dph/muZ36PvGfuCdneaixwKHdscsDI5h+6
+         HQFg8OvLRM9kK1GZ1AF7BaMOjNMiKwc8f5fwYqLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thierry GUIBERT <thierry.guibert@croix-rouge.fr>,
-        stable <stable@kernel.org>
-Subject: [PATCH 4.14 24/61] USB: cdc-acm: Add Icom PMR F3400 support (0c26:0020)
-Date:   Tue, 13 Sep 2022 16:07:26 +0200
-Message-Id: <20220913140347.714231441@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Leong <wmliang.tw@gmail.com>,
+        David Lebrun <dlebrun@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 69/79] ipv6: sr: fix out-of-bounds read when setting HMAC data.
+Date:   Tue, 13 Sep 2022 16:07:27 +0200
+Message-Id: <20220913140352.232989050@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,113 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
+From: David Lebrun <dlebrun@google.com>
 
-commit a10bc71729b236fe36de0d8e4d35c959fd8dec3a upstream.
+[ Upstream commit 84a53580c5d2138c7361c7c3eea5b31827e63b35 ]
 
-Supports for ICOM F3400 and ICOM F4400 PMR radios in CDC-ACM driver
-enabling the AT serial port.
-The Vendor Id is 0x0C26
-The Product ID is 0x0020
+The SRv6 layer allows defining HMAC data that can later be used to sign IPv6
+Segment Routing Headers. This configuration is realised via netlink through
+four attributes: SEG6_ATTR_HMACKEYID, SEG6_ATTR_SECRET, SEG6_ATTR_SECRETLEN and
+SEG6_ATTR_ALGID. Because the SECRETLEN attribute is decoupled from the actual
+length of the SECRET attribute, it is possible to provide invalid combinations
+(e.g., secret = "", secretlen = 64). This case is not checked in the code and
+with an appropriately crafted netlink message, an out-of-bounds read of up
+to 64 bytes (max secret length) can occur past the skb end pointer and into
+skb_shared_info:
 
-Output of lsusb :
-Bus 001 Device 009: ID 0c26:0020 Prolific Technology Inc. ICOM Radio
-Couldn't open device, some information will be missing
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            2 Communications
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0        64
-  idVendor           0x0c26 Prolific Technology Inc.
-  idProduct          0x0020
-  bcdDevice            0.00
-  iManufacturer           1 ICOM Inc.
-  iProduct                2 ICOM Radio
-  iSerial                 3 *obfuscated*
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0030
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          0
-    bmAttributes         0xc0
-      Self Powered
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      2 Abstract (modem)
-      bInterfaceProtocol      1 AT-commands (v.25ter)
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval              12
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
+Breakpoint 1, seg6_genl_sethmac (skb=<optimized out>, info=<optimized out>) at net/ipv6/seg6.c:208
+208		memcpy(hinfo->secret, secret, slen);
+(gdb) bt
+ #0  seg6_genl_sethmac (skb=<optimized out>, info=<optimized out>) at net/ipv6/seg6.c:208
+ #1  0xffffffff81e012e9 in genl_family_rcv_msg_doit (skb=skb@entry=0xffff88800b1f9f00, nlh=nlh@entry=0xffff88800b1b7600,
+    extack=extack@entry=0xffffc90000ba7af0, ops=ops@entry=0xffffc90000ba7a80, hdrlen=4, net=0xffffffff84237580 <init_net>, family=<optimized out>,
+    family=<optimized out>) at net/netlink/genetlink.c:731
+ #2  0xffffffff81e01435 in genl_family_rcv_msg (extack=0xffffc90000ba7af0, nlh=0xffff88800b1b7600, skb=0xffff88800b1f9f00,
+    family=0xffffffff82fef6c0 <seg6_genl_family>) at net/netlink/genetlink.c:775
+ #3  genl_rcv_msg (skb=0xffff88800b1f9f00, nlh=0xffff88800b1b7600, extack=0xffffc90000ba7af0) at net/netlink/genetlink.c:792
+ #4  0xffffffff81dfffc3 in netlink_rcv_skb (skb=skb@entry=0xffff88800b1f9f00, cb=cb@entry=0xffffffff81e01350 <genl_rcv_msg>)
+    at net/netlink/af_netlink.c:2501
+ #5  0xffffffff81e00919 in genl_rcv (skb=0xffff88800b1f9f00) at net/netlink/genetlink.c:803
+ #6  0xffffffff81dff6ae in netlink_unicast_kernel (ssk=0xffff888010eec800, skb=0xffff88800b1f9f00, sk=0xffff888004aed000)
+    at net/netlink/af_netlink.c:1319
+ #7  netlink_unicast (ssk=ssk@entry=0xffff888010eec800, skb=skb@entry=0xffff88800b1f9f00, portid=portid@entry=0, nonblock=<optimized out>)
+    at net/netlink/af_netlink.c:1345
+ #8  0xffffffff81dff9a4 in netlink_sendmsg (sock=<optimized out>, msg=0xffffc90000ba7e48, len=<optimized out>) at net/netlink/af_netlink.c:1921
+...
+(gdb) p/x ((struct sk_buff *)0xffff88800b1f9f00)->head + ((struct sk_buff *)0xffff88800b1f9f00)->end
+$1 = 0xffff88800b1b76c0
+(gdb) p/x secret
+$2 = 0xffff88800b1b76c0
+(gdb) p slen
+$3 = 64 '@'
 
-Signed-off-by: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220819081702.84118-1-thierry.guibert@croix-rouge.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The OOB data can then be read back from userspace by dumping HMAC state. This
+commit fixes this by ensuring SECRETLEN cannot exceed the actual length of
+SECRET.
+
+Reported-by: Lucas Leong <wmliang.tw@gmail.com>
+Tested: verified that EINVAL is correctly returned when secretlen > len(secret)
+Fixes: 4f4853dc1c9c1 ("ipv6: sr: implement API to control SR HMAC structure")
+Signed-off-by: David Lebrun <dlebrun@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv6/seg6.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1894,6 +1894,9 @@ static const struct usb_device_id acm_id
- 	{ USB_DEVICE(0x09d8, 0x0320), /* Elatec GmbH TWN3 */
- 	.driver_info = NO_UNION_NORMAL, /* has misplaced union descriptor */
- 	},
-+	{ USB_DEVICE(0x0c26, 0x0020), /* Icom ICF3400 Serie */
-+	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
-+	},
- 	{ USB_DEVICE(0x0ca6, 0xa050), /* Castles VEGA3000 */
- 	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
- 	},
+diff --git a/net/ipv6/seg6.c b/net/ipv6/seg6.c
+index 9b2f272ca1649..89d55770ac74b 100644
+--- a/net/ipv6/seg6.c
++++ b/net/ipv6/seg6.c
+@@ -130,6 +130,11 @@ static int seg6_genl_sethmac(struct sk_buff *skb, struct genl_info *info)
+ 		goto out_unlock;
+ 	}
+ 
++	if (slen > nla_len(info->attrs[SEG6_ATTR_SECRET])) {
++		err = -EINVAL;
++		goto out_unlock;
++	}
++
+ 	if (hinfo) {
+ 		err = seg6_hmac_info_del(net, hmackeyid);
+ 		if (err)
+-- 
+2.35.1
+
 
 
