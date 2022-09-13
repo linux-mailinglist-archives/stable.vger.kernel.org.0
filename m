@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C205B6F6E
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8826D5B6F7F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232452AbiIMOL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:11:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51290 "EHLO
+        id S232837AbiIMOLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:11:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232745AbiIMOKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:10:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5465D111;
-        Tue, 13 Sep 2022 07:09:25 -0700 (PDT)
+        with ESMTP id S232754AbiIMOKR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:10:17 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D85A265E;
+        Tue, 13 Sep 2022 07:09:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57A8D614AD;
-        Tue, 13 Sep 2022 14:09:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5959BC433D7;
-        Tue, 13 Sep 2022 14:09:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DBD83CE1271;
+        Tue, 13 Sep 2022 14:09:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E50B6C433B5;
+        Tue, 13 Sep 2022 14:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078164;
-        bh=W7RwtjbRO7cSQgAvXH9sdYPxfIDfe7vMn9FkQLu6MFM=;
+        s=korg; t=1663078167;
+        bh=mvwsHrLNf7H9ACenmnm4IYVA2zqJfnuZXGMlcGru+I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvJrvSxQRe93SrD9rHQVSte75lVZqLTk7Xz4PSESV49xZFJySsjui60geHhjEdSRS
-         F3vyGRojnKajNp0s7gMU7aNkV6Xg/tGAzyyS6/5uyqysUDxHptbTVANWkOpWeLkbQW
-         5JI2wqFwZp2eRcjaq5lN5V4Gr2GKmpK6gUpd7j5g=
+        b=UrwFtcPQUNM404Z53HTAnoZ5lSfJlQkyv0wLn7wTEin5x+J5TAILKi3ryvTjIGu9O
+         gQHq9DdIOPw5nSSb9BvgSs1hnVZLY3mJYHR35VFiFU1PhxKr9ThIlEAiNp5WDj5nHJ
+         UShOm45d5lg3y6YC0nJb1HTGVgCKE699/amuprFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>,
+        stable@vger.kernel.org,
+        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 036/192] ALSA: emu10k1: Fix out of bounds access in snd_emu10k1_pcm_channel_alloc()
-Date:   Tue, 13 Sep 2022 16:02:22 +0200
-Message-Id: <20220913140411.715557226@linuxfoundation.org>
+Subject: [PATCH 5.19 037/192] ALSA: hda: Once again fix regression of page allocations with IOMMU
+Date:   Tue, 13 Sep 2022 16:02:23 +0200
+Message-Id: <20220913140411.766265237@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -53,66 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tasos Sahanidis <tasos@tasossah.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d29f59051d3a07b81281b2df2b8c9dfe4716067f upstream.
+commit 37137ec26c2c03039d8064c00f6eae176841ee0d upstream.
 
-The voice allocator sometimes begins allocating from near the end of the
-array and then wraps around, however snd_emu10k1_pcm_channel_alloc()
-accesses the newly allocated voices as if it never wrapped around.
+The last fix for trying to recover the regression on AMD platforms,
+unfortunately, leaded to yet another regression: it turned out that
+IOMMUs don't like the usage of raw page allocations.
 
-This results in out of bounds access if the first voice has a high enough
-index so that first_voice + requested_voice_count > NUM_G (64).
-The more voices are requested, the more likely it is for this to occur.
+This is yet another attempt for addressing the log saga; at this time,
+we re-use the existing buffer allocation mechanism with SG-pages
+although we require only single pages.  The SG buffer allocation
+itself was confirmed to work for stream buffers, so it's relatively
+easy to adapt for other places.
 
-This was initially discovered using PipeWire, however it can be reproduced
-by calling aplay multiple times with 16 channels:
-aplay -r 48000 -D plughw:CARD=Live,DEV=3 -c 16 /dev/zero
+The only problem is: although the HD-audio code is accessing the
+address directly via dmab->address field, SG-pages don't set up it.
+For the ease of adaption, we now set up the dmab->addr field from the
+address of the first page as default, so that it can run with the
+HD-audio driver code as-is without the excessive call of
+snd_sgbuf_get_addr() multiple times; that's the only change in the
+memalloc helper side.  The rest is nothing but a flip of the dma_type
+field in the HD-audio side.
 
-UBSAN: array-index-out-of-bounds in sound/pci/emu10k1/emupcm.c:127:40
-index 65 is out of range for type 'snd_emu10k1_voice [64]'
-CPU: 1 PID: 31977 Comm: aplay Tainted: G        W IOE      6.0.0-rc2-emu10k1+ #7
-Hardware name: ASUSTEK COMPUTER INC P5W DH Deluxe/P5W DH Deluxe, BIOS 3002    07/22/2010
-Call Trace:
-<TASK>
-dump_stack_lvl+0x49/0x63
-dump_stack+0x10/0x16
-ubsan_epilogue+0x9/0x3f
-__ubsan_handle_out_of_bounds.cold+0x44/0x49
-snd_emu10k1_playback_hw_params+0x3bc/0x420 [snd_emu10k1]
-snd_pcm_hw_params+0x29f/0x600 [snd_pcm]
-snd_pcm_common_ioctl+0x188/0x1410 [snd_pcm]
-? exit_to_user_mode_prepare+0x35/0x170
-? do_syscall_64+0x69/0x90
-? syscall_exit_to_user_mode+0x26/0x50
-? do_syscall_64+0x69/0x90
-? exit_to_user_mode_prepare+0x35/0x170
-snd_pcm_ioctl+0x27/0x40 [snd_pcm]
-__x64_sys_ioctl+0x95/0xd0
-do_syscall_64+0x5c/0x90
-? do_syscall_64+0x69/0x90
-? do_syscall_64+0x69/0x90
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Fixes: a8d302a0b770 ("ALSA: memalloc: Revive x86-specific WC page allocations again")
+Reported-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Tested-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/3707dcab-320a-62ff-63c0-73fc201ef756@tasossah.com
+Link: https://lore.kernel.org/r/CABXGCsO+kB2t5QyHY-rUe76npr1m0-5JOtt8g8SiHUo34ur7Ww@mail.gmail.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216112
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216363
+Link: https://lore.kernel.org/r/20220906090319.23358-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/emu10k1/emupcm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/memalloc.c     |    9 +++++++--
+ sound/pci/hda/hda_intel.c |    2 +-
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
---- a/sound/pci/emu10k1/emupcm.c
-+++ b/sound/pci/emu10k1/emupcm.c
-@@ -124,7 +124,7 @@ static int snd_emu10k1_pcm_channel_alloc
- 	epcm->voices[0]->epcm = epcm;
- 	if (voices > 1) {
- 		for (i = 1; i < voices; i++) {
--			epcm->voices[i] = &epcm->emu->voices[epcm->voices[0]->number + i];
-+			epcm->voices[i] = &epcm->emu->voices[(epcm->voices[0]->number + i) % NUM_G];
- 			epcm->voices[i]->epcm = epcm;
- 		}
- 	}
+--- a/sound/core/memalloc.c
++++ b/sound/core/memalloc.c
+@@ -535,10 +535,13 @@ static void *snd_dma_noncontig_alloc(str
+ 	dmab->dev.need_sync = dma_need_sync(dmab->dev.dev,
+ 					    sg_dma_address(sgt->sgl));
+ 	p = dma_vmap_noncontiguous(dmab->dev.dev, size, sgt);
+-	if (p)
++	if (p) {
+ 		dmab->private_data = sgt;
+-	else
++		/* store the first page address for convenience */
++		dmab->addr = snd_sgbuf_get_addr(dmab, 0);
++	} else {
+ 		dma_free_noncontiguous(dmab->dev.dev, size, sgt, dmab->dev.dir);
++	}
+ 	return p;
+ }
+ 
+@@ -772,6 +775,8 @@ static void *snd_dma_sg_fallback_alloc(s
+ 	if (!p)
+ 		goto error;
+ 	dmab->private_data = sgbuf;
++	/* store the first page address for convenience */
++	dmab->addr = snd_sgbuf_get_addr(dmab, 0);
+ 	return p;
+ 
+  error:
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1817,7 +1817,7 @@ static int azx_create(struct snd_card *c
+ 
+ 	/* use the non-cached pages in non-snoop mode */
+ 	if (!azx_snoop(chip))
+-		azx_bus(chip)->dma_type = SNDRV_DMA_TYPE_DEV_WC;
++		azx_bus(chip)->dma_type = SNDRV_DMA_TYPE_DEV_WC_SG;
+ 
+ 	if (chip->driver_type == AZX_DRIVER_NVIDIA) {
+ 		dev_dbg(chip->card->dev, "Enable delay in RIRB handling\n");
 
 
