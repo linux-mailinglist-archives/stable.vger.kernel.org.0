@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB87B5B7409
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DF9E5B74BD
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235660AbiIMPOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:14:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50450 "EHLO
+        id S236161AbiIMP3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:29:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235853AbiIMPOA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:14:00 -0400
+        with ESMTP id S236515AbiIMP26 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:28:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46C14786F5;
-        Tue, 13 Sep 2022 07:33:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3926915A32;
+        Tue, 13 Sep 2022 07:39:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92834614A8;
-        Tue, 13 Sep 2022 14:32:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEED3C433C1;
-        Tue, 13 Sep 2022 14:32:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B631614CC;
+        Tue, 13 Sep 2022 14:29:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18A7AC433C1;
+        Tue, 13 Sep 2022 14:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079554;
-        bh=P5KZ4SEKenppi05pZNL2xcmJ5xEzMJ2gickfOv9JeA8=;
+        s=korg; t=1663079354;
+        bh=PDblyY3uJAnHL6jUhz0UAnUwHzXsWXAJQ/kKMtgqiJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJksnpUiCizS3zQZ00qjdBUcEHQYtbkhDh/UezrFi+9+3b+IzKc5YZfhfc7I3B1zJ
-         4LcrdIQm3QCFil6oWQ3AZ0YPV/hhRCbrWIUkLdxtqRVTjLNNnrwUTaSgtUhc90LXx3
-         824z/d0g8xDbPxU4O4fyU8SGeSocYk5wAD3GX2Yo=
+        b=W7iNekNeFN0gHyad4Q1tDZjalqpnI928JRiu06rnNRXwtD0K3XwYe/Z5kUzvcxJeN
+         N7OCOByUp68fIZDG+P2rnNTqJR7b0mHsDb2b9ZHrRkg4UswiGpxmkqgUPsKv2TXe3r
+         9sJwbjYUAHYW9S13vFvntigRlzUNFqgdsnc3RGjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 36/79] USB: serial: option: add support for Cinterion MV32-WA/WB RmNet mode
-Date:   Tue, 13 Sep 2022 16:06:54 +0200
-Message-Id: <20220913140350.650422492@linuxfoundation.org>
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 084/108] scsi: lpfc: Add missing destroy_workqueue() in error path
+Date:   Tue, 13 Sep 2022 16:06:55 +0200
+Message-Id: <20220913140357.234308336@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 8ffe20d08f2c95d702c453020d03a4c568a988f0 upstream.
+commit da6d507f5ff328f346b3c50e19e19993027b8ffd upstream.
 
-We added PIDs for MV32-WA/WB MBIM mode before, now we need to add
-support for RmNet mode.
+Add the missing destroy_workqueue() before return from
+lpfc_sli4_driver_resource_setup() in the error path.
 
-Test evidence as below:
-T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=03 Dev#=  3 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00f3 Rev=05.04
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00F3 USB Mobile Broadband
-S:  SerialNumber=d7b4be8d
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=03 Dev#= 10 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00f4 Rev=05.04
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00F4 USB Mobile Broadband
-S:  SerialNumber=d095087d
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-[ johan: sort entries ]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20220823044237.285643-1-yangyingliang@huawei.com
+Fixes: 3cee98db2610 ("scsi: lpfc: Fix crash on driver unload in wq free")
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/lpfc/lpfc_init.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -439,6 +439,8 @@ static void option_instat_callback(struc
- #define CINTERION_PRODUCT_MV31_2_RMNET		0x00b9
- #define CINTERION_PRODUCT_MV32_WA		0x00f1
- #define CINTERION_PRODUCT_MV32_WB		0x00f2
-+#define CINTERION_PRODUCT_MV32_WA_RMNET		0x00f3
-+#define CINTERION_PRODUCT_MV32_WB_RMNET		0x00f4
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -6537,7 +6537,7 @@ lpfc_sli4_driver_resource_setup(struct l
+ 	/* Allocate device driver memory */
+ 	rc = lpfc_mem_alloc(phba, SGL_ALIGN_SZ);
+ 	if (rc)
+-		return -ENOMEM;
++		goto out_destroy_workqueue;
  
- /* Olivetti products */
- #define OLIVETTI_VENDOR_ID			0x0b3c
-@@ -2001,8 +2003,12 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(0)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
- 	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA_RMNET, 0xff),
-+	  .driver_info = RSVD(0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
- 	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB_RMNET, 0xff),
-+	  .driver_info = RSVD(0) },
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD100),
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD120),
+ 	/* IF Type 2 ports get initialized now. */
+ 	if (bf_get(lpfc_sli_intf_if_type, &phba->sli4_hba.sli_intf) >=
+@@ -6911,6 +6911,9 @@ out_free_bsmbx:
+ 	lpfc_destroy_bootstrap_mbox(phba);
+ out_free_mem:
+ 	lpfc_mem_free(phba);
++out_destroy_workqueue:
++	destroy_workqueue(phba->wq);
++	phba->wq = NULL;
+ 	return rc;
+ }
+ 
 
 
