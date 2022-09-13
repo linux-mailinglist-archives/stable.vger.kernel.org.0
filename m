@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E38C95B7466
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7688A5B74A8
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234171AbiIMPYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:24:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
+        id S236149AbiIMP3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:29:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235906AbiIMPXP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E483A7C76C;
-        Tue, 13 Sep 2022 07:37:29 -0700 (PDT)
+        with ESMTP id S236405AbiIMP2Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:28:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B75917E02A;
+        Tue, 13 Sep 2022 07:39:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75C4461497;
-        Tue, 13 Sep 2022 14:37:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 800E7C433D6;
-        Tue, 13 Sep 2022 14:37:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1923B80FA3;
+        Tue, 13 Sep 2022 14:37:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00FDCC433D7;
+        Tue, 13 Sep 2022 14:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079837;
-        bh=UdEWgUayR1c1F44NFCT/U/oo6sgvgxYMIIsL8AFPoV4=;
+        s=korg; t=1663079840;
+        bh=7ZrUN5zfnkKmXyFUuuhSFt6n4LXxlZEioAODx00t/9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fUMFYhyn4iwqshgYfmcVFa9/urkQoHIGPnvV+je3OPXQGm4HEMUos+QEc88HW+iew
-         RdN8KpBE3wUhAiqBWYZW/bIR9tz0z9TFLmfRfuUpaA4HUIKjvua8yNfna02KEqrouG
-         J+vboYAA3sb+A+O+mc0fJJH462HyuGvfYU8zqoSk=
+        b=A7feDNdoQYnqbI0UJkhkDFFy5GzOczs0j5/i6CSfpHTSYWTEefM13gVskCO5V66WX
+         I8nuCFMSqChe8l8/nErlSVZ1VI2kWW/OzKxJdyS9OYw2cv7RVk8z9p2DIPkvAohmOt
+         L/nzp76jeaXo7eFpWmj9x/QBMYMCf32czQbbefpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "Isaac J. Manjarres" <isaacmanjarres@google.com>
-Subject: [PATCH 4.9 33/42] driver core: Dont probe devices after bus_type.match() probe deferral
-Date:   Tue, 13 Sep 2022 16:08:04 +0200
-Message-Id: <20220913140344.041278326@linuxfoundation.org>
+        stable@vger.kernel.org, Harsh Modi <harshmodi@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 34/42] netfilter: br_netfilter: Drop dst references before setting.
+Date:   Tue, 13 Sep 2022 16:08:05 +0200
+Message-Id: <20220913140344.087722465@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
 References: <20220913140342.228397194@linuxfoundation.org>
@@ -55,67 +55,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isaac J. Manjarres <isaacmanjarres@google.com>
+From: Harsh Modi <harshmodi@google.com>
 
-commit 25e9fbf0fd38868a429feabc38abebfc6dbf6542 upstream.
+[ Upstream commit d047283a7034140ea5da759a494fd2274affdd46 ]
 
-Both __device_attach_driver() and __driver_attach() check the return
-code of the bus_type.match() function to see if the device needs to be
-added to the deferred probe list. After adding the device to the list,
-the logic attempts to bind the device to the driver anyway, as if the
-device had matched with the driver, which is not correct.
+The IPv6 path already drops dst in the daddr changed case, but the IPv4
+path does not. This change makes the two code paths consistent.
 
-If __device_attach_driver() detects that the device in question is not
-ready to match with a driver on the bus, then it doesn't make sense for
-the device to attempt to bind with the current driver or continue
-attempting to match with any of the other drivers on the bus. So, update
-the logic in __device_attach_driver() to reflect this.
+Further, it is possible that there is already a metadata_dst allocated from
+ingress that might already be attached to skbuff->dst while following
+the bridge path. If it is not released before setting a new
+metadata_dst, it will be leaked. This is similar to what is done in
+bpf_set_tunnel_key() or ip6_route_input().
 
-If __driver_attach() detects that a driver tried to match with a device
-that is not ready to match yet, then the driver should not attempt to bind
-with the device. However, the driver can still attempt to match and bind
-with other devices on the bus, as drivers can be bound to multiple
-devices. So, update the logic in __driver_attach() to reflect this.
+It is important to note that the memory being leaked is not the dst
+being set in the bridge code, but rather memory allocated from some
+other code path that is not being freed correctly before the skb dst is
+overwritten.
 
-Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
-Cc: stable@vger.kernel.org
-Cc: Saravana Kannan <saravanak@google.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
-Link: https://lore.kernel.org/r/20220817184026.3468620-1-isaacmanjarres@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+An example of the leakage fixed by this commit found using kmemleak:
+
+unreferenced object 0xffff888010112b00 (size 256):
+  comm "softirq", pid 0, jiffies 4294762496 (age 32.012s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 80 16 f1 83 ff ff ff ff  ................
+    e1 4e f6 82 ff ff ff ff 00 00 00 00 00 00 00 00  .N..............
+  backtrace:
+    [<00000000d79567ea>] metadata_dst_alloc+0x1b/0xe0
+    [<00000000be113e13>] udp_tun_rx_dst+0x174/0x1f0
+    [<00000000a36848f4>] geneve_udp_encap_recv+0x350/0x7b0
+    [<00000000d4afb476>] udp_queue_rcv_one_skb+0x380/0x560
+    [<00000000ac064aea>] udp_unicast_rcv_skb+0x75/0x90
+    [<000000009a8ee8c5>] ip_protocol_deliver_rcu+0xd8/0x230
+    [<00000000ef4980bb>] ip_local_deliver_finish+0x7a/0xa0
+    [<00000000d7533c8c>] __netif_receive_skb_one_core+0x89/0xa0
+    [<00000000a879497d>] process_backlog+0x93/0x190
+    [<00000000e41ade9f>] __napi_poll+0x28/0x170
+    [<00000000b4c0906b>] net_rx_action+0x14f/0x2a0
+    [<00000000b20dd5d4>] __do_softirq+0xf4/0x305
+    [<000000003a7d7e15>] __irq_exit_rcu+0xc3/0x140
+    [<00000000968d39a2>] sysvec_apic_timer_interrupt+0x9e/0xc0
+    [<000000009e920794>] asm_sysvec_apic_timer_interrupt+0x16/0x20
+    [<000000008942add0>] native_safe_halt+0x13/0x20
+
+Florian Westphal says: "Original code was likely fine because nothing
+ever did set a skb->dst entry earlier than bridge in those days."
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Harsh Modi <harshmodi@google.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/bridge/br_netfilter_hooks.c | 2 ++
+ net/bridge/br_netfilter_ipv6.c  | 1 +
+ 2 files changed, 3 insertions(+)
 
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -590,6 +590,11 @@ static int __device_attach_driver(struct
- 	} else if (ret == -EPROBE_DEFER) {
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Device can't match with a driver right now, so don't attempt
-+		 * to match or bind with other drivers on the bus.
-+		 */
-+		return ret;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d", ret);
- 		return ret;
-@@ -732,6 +737,11 @@ static int __driver_attach(struct device
- 	} else if (ret == -EPROBE_DEFER) {
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Driver could not match with device, but may match with
-+		 * another device on the bus.
-+		 */
-+		return 0;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d", ret);
- 		return ret;
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 11d4d18012fed..560a36c68be20 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -382,6 +382,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 				/* - Bridged-and-DNAT'ed traffic doesn't
+ 				 *   require ip_forwarding. */
+ 				if (rt->dst.dev == dev) {
++					skb_dst_drop(skb);
+ 					skb_dst_set(skb, &rt->dst);
+ 					goto bridged_dnat;
+ 				}
+@@ -411,6 +412,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 			kfree_skb(skb);
+ 			return 0;
+ 		}
++		skb_dst_drop(skb);
+ 		skb_dst_set_noref(skb, &rt->dst);
+ 	}
+ 
+diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
+index 8c08dd07419f6..54dcead37dfd0 100644
+--- a/net/bridge/br_netfilter_ipv6.c
++++ b/net/bridge/br_netfilter_ipv6.c
+@@ -201,6 +201,7 @@ static int br_nf_pre_routing_finish_ipv6(struct net *net, struct sock *sk, struc
+ 			kfree_skb(skb);
+ 			return 0;
+ 		}
++		skb_dst_drop(skb);
+ 		skb_dst_set_noref(skb, &rt->dst);
+ 	}
+ 
+-- 
+2.35.1
+
 
 
