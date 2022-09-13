@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EE45B731D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EAF85B7394
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234567AbiIMO6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:58:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53904 "EHLO
+        id S235333AbiIMPIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:08:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234751AbiIMO4Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:56:16 -0400
+        with ESMTP id S235275AbiIMPGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:06:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F1173318;
-        Tue, 13 Sep 2022 07:27:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5633E7538E;
+        Tue, 13 Sep 2022 07:30:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DC08614AA;
-        Tue, 13 Sep 2022 14:27:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7997C433D6;
-        Tue, 13 Sep 2022 14:27:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF79261414;
+        Tue, 13 Sep 2022 14:30:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0414DC433D6;
+        Tue, 13 Sep 2022 14:30:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079270;
-        bh=J6bY75iJ1h9Z6yJ8vIVGtMGTgX8TS40R6GyThvgxfUU=;
+        s=korg; t=1663079431;
+        bh=7mreMoNMe2y+I+bp3VFWad5be6urVBI6OeKSwayGzSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=knPfcQ0qF9aXocJoEEFzqIjUSjbZsAblO034c0+862fnPBvz8TX5wUIJOmNIvB7zY
-         SK57zSTHmGIRrI3y1W03vtr7UguVDjZu4vidasPxdo1cHKrVBTj/8lfWPE5f2Iu6X9
-         OLcUwpDQ/rs5YwNsrrzGgjlIVwjjQwmXwZikZOUE=
+        b=VQYaoe+SB1g8Mpqi8ej28t7eh8NXpeKfB+GvBxpKYURLJRrA41SabZ4ZLcnEsF5fr
+         CPfIbFdwsyELsFobEy4PELOFXsQkWep1v3PgnMYgzN5+CZ/jcPKbP33Jxc52dXodrz
+         xQLtiekB/pMy84B7+/Te/mdPIEDsoeJ+ltcxVSP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Candice Li <candice.li@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/108] drm/amdgpu: Check num_gfx_rings for gfx v9_0 rb setup.
-Date:   Tue, 13 Sep 2022 16:06:40 +0200
-Message-Id: <20220913140356.583163802@linuxfoundation.org>
+        stable@vger.kernel.org, Niek Nooijens <niek.nooijens@omron.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 23/79] USB: serial: ftdi_sio: add Omron CS1W-CIF31 device id
+Date:   Tue, 13 Sep 2022 16:06:41 +0200
+Message-Id: <20220913140350.027454959@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Candice Li <candice.li@amd.com>
+From: Niek Nooijens <niek.nooijens@omron.com>
 
-[ Upstream commit c351938350ab9b5e978dede2c321da43de7eb70c ]
+commit 001047ea241a9646010b2744451dfbc7289542f3 upstream.
 
-No need to set up rb when no gfx rings.
+works perfectly with:
+modprobe ftdi_sio
+echo "0590 00b2" | tee
+/sys/module/ftdi_sio/drivers/usb-serial\:ftdi_sio/new_id > /dev/null
 
-Signed-off-by: Candice Li <candice.li@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+but doing this every reboot is a pain in the ass.
+
+Signed-off-by: Niek Nooijens <niek.nooijens@omron.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/ftdi_sio.c     |    2 ++
+ drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-index 5906a8951a6c6..685a2df01d096 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -2472,7 +2472,8 @@ static void gfx_v9_0_constants_init(struct amdgpu_device *adev)
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1035,6 +1035,8 @@ static const struct usb_device_id id_tab
+ 	/* IDS GmbH devices */
+ 	{ USB_DEVICE(IDS_VID, IDS_SI31A_PID) },
+ 	{ USB_DEVICE(IDS_VID, IDS_CM31A_PID) },
++	/* Omron devices */
++	{ USB_DEVICE(OMRON_VID, OMRON_CS1W_CIF31_PID) },
+ 	/* U-Blox devices */
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -662,6 +662,12 @@
+ #define INFINEON_TRIBOARD_TC2X7_PID	0x0043 /* DAS JTAG TriBoard TC2X7 V1.0 */
  
- 	gfx_v9_0_tiling_mode_table_init(adev);
- 
--	gfx_v9_0_setup_rb(adev);
-+	if (adev->gfx.num_gfx_rings)
-+		gfx_v9_0_setup_rb(adev);
- 	gfx_v9_0_get_cu_info(adev, &adev->gfx.cu_info);
- 	adev->gfx.config.db_debug2 = RREG32_SOC15(GC, 0, mmDB_DEBUG2);
- 
--- 
-2.35.1
-
+ /*
++ * Omron corporation (https://www.omron.com)
++ */
++ #define OMRON_VID			0x0590
++ #define OMRON_CS1W_CIF31_PID		0x00b2
++
++/*
+  * Acton Research Corp.
+  */
+ #define ACTON_VID		0x0647	/* Vendor ID */
 
 
