@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9E245B721F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66EC35B7166
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231449AbiIMOtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:49:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47014 "EHLO
+        id S231466AbiIMOlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:41:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234444AbiIMOsl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:48:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA76165A3;
-        Tue, 13 Sep 2022 07:25:10 -0700 (PDT)
+        with ESMTP id S230273AbiIMOlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:41:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F126D548;
+        Tue, 13 Sep 2022 07:21:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02C3BB80F1A;
-        Tue, 13 Sep 2022 14:23:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E46DC433C1;
-        Tue, 13 Sep 2022 14:23:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8746BB80E22;
+        Tue, 13 Sep 2022 14:20:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF0E5C433C1;
+        Tue, 13 Sep 2022 14:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079022;
-        bh=LME2R6+LL8pgq5QfrvjxXGwzpNd8Zg0JxYGJD2SCv/c=;
+        s=korg; t=1663078848;
+        bh=1YAUVoJiaBM2z0aMDJb9X1mdQ/VLtl3bWK1JdV6kSm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7AkJezsSCRCzmu9WiIsCKpc4eoms67sGBm3N4PsGx1zLqEC119zX2R1y4oz3pycE
-         8+gtDkwNqqmJ30wLl+1lct+2Wvo3ZSX7LyXzdqZottH19oh3PRzLm3EAHHH6aen0r0
-         Q+aLEu44OgGgz5KjoLE32A5gqIdqusV0NhnoHrIc=
+        b=f39p8ooJ3kIjZqx5GDdT6RLmDQOoWSHqrk+2O1C0vMiFnvCDTaRsxvSLDUawhRn++
+         PnELaDZAY6LvqYJ0PO7uIsgWIa6HAWOvJUVXs/BSp2eMyZhYnwKu9BcS1peRlf/k81
+         rnzRNfVy0U0cKwOAfYkGDbuUVMIh3PC6qZ/hwgAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Jan Sokolowski <jan.sokolowski@intel.com>,
+        Bharathi Sreenivas <bharathi.sreenivas@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 52/79] ALSA: usb-audio: Register card again for iface over delayed_register option
+Subject: [PATCH 5.15 106/121] i40e: Fix ADQ rate limiting for PF
 Date:   Tue, 13 Sep 2022 16:04:57 +0200
-Message-Id: <20220913140352.753179190@linuxfoundation.org>
+Message-Id: <20220913140401.901940819@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
 
-[ Upstream commit 2027f114686e0f3f1f39971964dfc618637c88c2 ]
+[ Upstream commit 45bb006d3c924b1201ed43c87a96b437662dcaa8 ]
 
-When the delayed registration is specified via either delayed_register
-option or the quirk, we delay the invocation of snd_card_register()
-until the given interface.  But if a wrong value has been set there
-and there are more interfaces over the given interface number,
-snd_card_register() call would be missing for those interfaces.
+Fix HW rate limiting for ADQ.
+Fallback to kernel queue selection for ADQ, as it is network stack
+that decides which queue to use for transmit with ADQ configured.
+Reset PF after creation of VMDq2 VSIs required for ADQ, as to
+reprogram TX queue contexts in i40e_configure_tx_ring.
+Without this patch PF would limit TX rate only according to TC0.
 
-This patch catches up those missing calls by fixing the comparison of
-the interface number.  Now the call is skipped only if the processed
-interface is less than the given interface, instead of the exact
-match.
-
-Fixes: b70038ef4fea ("ALSA: usb-audio: Add delayed_register option")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216082
-Link: https://lore.kernel.org/r/20220831125901.4660-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: a9ce82f744dc ("i40e: Enable 'channel' mode in mqprio for TC configs")
+Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
+Tested-by: Bharathi Sreenivas <bharathi.sreenivas@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.c   | 2 +-
- sound/usb/quirks.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 3 +++
+ drivers/net/ethernet/intel/i40e/i40e_txrx.c | 3 ++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index a3e06a71cf356..6b172db58a310 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -667,7 +667,7 @@ static bool check_delayed_register_option(struct snd_usb_audio *chip, int iface)
- 		if (delayed_register[i] &&
- 		    sscanf(delayed_register[i], "%x:%x", &id, &inum) == 2 &&
- 		    id == chip->usb_id)
--			return inum != iface;
-+			return iface < inum;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index f373072dd3b30..ce6eea7a60027 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -6517,6 +6517,9 @@ static int i40e_configure_queue_channels(struct i40e_vsi *vsi)
+ 			vsi->tc_seid_map[i] = ch->seid;
+ 		}
  	}
++
++	/* reset to reconfigure TX queue contexts */
++	i40e_do_reset(vsi->back, I40E_PF_RESET_FLAG, true);
+ 	return ret;
  
- 	return false;
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 6333a2ecb848a..41f5d8242478f 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1911,7 +1911,7 @@ bool snd_usb_registration_quirk(struct snd_usb_audio *chip, int iface)
+ err_free:
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+index d3a4a33977ee8..326fd25d055f8 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+@@ -3651,7 +3651,8 @@ u16 i40e_lan_select_queue(struct net_device *netdev,
+ 	u8 prio;
  
- 	for (q = registration_quirks; q->usb_id; q++)
- 		if (chip->usb_id == q->usb_id)
--			return iface != q->interface;
-+			return iface < q->interface;
+ 	/* is DCB enabled at all? */
+-	if (vsi->tc_config.numtc == 1)
++	if (vsi->tc_config.numtc == 1 ||
++	    i40e_is_tc_mqprio_enabled(vsi->back))
+ 		return netdev_pick_tx(netdev, skb, sb_dev);
  
- 	/* Register as normal */
- 	return false;
+ 	prio = skb->priority;
 -- 
 2.35.1
 
