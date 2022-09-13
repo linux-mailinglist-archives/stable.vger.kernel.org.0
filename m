@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBF235B7188
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2E195B711B
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231134AbiIMOn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:43:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59626 "EHLO
+        id S234360AbiIMOhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:37:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229754AbiIMOm1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:27 -0400
+        with ESMTP id S234124AbiIMOf4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF7BA186F8;
-        Tue, 13 Sep 2022 07:22:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 783826B174;
+        Tue, 13 Sep 2022 07:20:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B37B461497;
-        Tue, 13 Sep 2022 14:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C28DAC433D6;
-        Tue, 13 Sep 2022 14:22:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 230DB614D1;
+        Tue, 13 Sep 2022 14:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F418C433D6;
+        Tue, 13 Sep 2022 14:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078925;
-        bh=4KRIZt60OYvPDJXSjhi2ESW3KUFxGrgOB5pvP03ikz4=;
+        s=korg; t=1663078819;
+        bh=UVbNgyawPUd19OQM4zz3cG21i4z1W30kYpsOwTPZdg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uhp0384gcfK39TKcsgPEu4j5fOdmTAD9jD6PJf7OFHM2+O3GbwE5mf192Nt7zt5y5
-         3Cgco3xUxNuJ6tw94r3n01iXkQUVMW9HFngaKVcYr71VCwAJm/BgYAyz1eIoOLZmCU
-         SuS2FPKJxRzFggLtw6NUsv09VYoK1qeV6UCHgwss=
+        b=N2yICOMYfCUmCNUSBNGXgiisDNbFXvtuii189xs6zrCy8c6CJ+uubDVWA8F7Xcoim
+         N0Z2l43BJjNigvGZL3peRe0Cr/dVQndQ9P44o2PezjbDpSb5Pi6Gixp8MtdBvHA5kY
+         Nzb5JRPybNN9+0jg/7umpN64W8VBCKhRxi6uyIvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YiPeng Chai <YiPeng.Chai@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        syzbot+5fcdbfab6d6744c57418@syzkaller.appspotmail.com,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 14/79] drm/amdgpu: Move psp_xgmi_terminate call from amdgpu_xgmi_remove_device to psp_hw_fini
+Subject: [PATCH 5.15 068/121] netfilter: nf_tables: clean up hook list when offload flags check fails
 Date:   Tue, 13 Sep 2022 16:04:19 +0200
-Message-Id: <20220913140350.982863374@linuxfoundation.org>
+Message-Id: <20220913140400.287305787@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YiPeng Chai <YiPeng.Chai@amd.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 9d705d7741ae70764f3d6d87e67fad3b5c30ffd0 ]
+[ Upstream commit 77972a36ecc4db7fc7c68f0e80714263c5f03f65 ]
 
-V1:
-The amdgpu_xgmi_remove_device function will send unload command
-to psp through psp ring to terminate xgmi, but psp ring has been
-destroyed in psp_hw_fini.
+splice back the hook list so nft_chain_release_hook() has a chance to
+release the hooks.
 
-V2:
-1. Change the commit title.
-2. Restore amdgpu_xgmi_remove_device to its original calling location.
-   Move psp_xgmi_terminate call from amdgpu_xgmi_remove_device to
-   psp_hw_fini.
+BUG: memory leak
+unreferenced object 0xffff88810180b100 (size 96):
+  comm "syz-executor133", pid 3619, jiffies 4294945714 (age 12.690s)
+  hex dump (first 32 bytes):
+    28 64 23 02 81 88 ff ff 28 64 23 02 81 88 ff ff  (d#.....(d#.....
+    90 a8 aa 83 ff ff ff ff 00 00 b5 0f 81 88 ff ff  ................
+  backtrace:
+    [<ffffffff83a8c59b>] kmalloc include/linux/slab.h:600 [inline]
+    [<ffffffff83a8c59b>] nft_netdev_hook_alloc+0x3b/0xc0 net/netfilter/nf_tables_api.c:1901
+    [<ffffffff83a9239a>] nft_chain_parse_netdev net/netfilter/nf_tables_api.c:1998 [inline]
+    [<ffffffff83a9239a>] nft_chain_parse_hook+0x33a/0x530 net/netfilter/nf_tables_api.c:2073
+    [<ffffffff83a9b14b>] nf_tables_addchain.constprop.0+0x10b/0x950 net/netfilter/nf_tables_api.c:2218
+    [<ffffffff83a9c41b>] nf_tables_newchain+0xa8b/0xc60 net/netfilter/nf_tables_api.c:2593
+    [<ffffffff83a3d6a6>] nfnetlink_rcv_batch+0xa46/0xd20 net/netfilter/nfnetlink.c:517
+    [<ffffffff83a3db79>] nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:638 [inline]
+    [<ffffffff83a3db79>] nfnetlink_rcv+0x1f9/0x220 net/netfilter/nfnetlink.c:656
+    [<ffffffff83a13b17>] netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+    [<ffffffff83a13b17>] netlink_unicast+0x397/0x4c0 net/netlink/af_netlink.c:1345
+    [<ffffffff83a13fd6>] netlink_sendmsg+0x396/0x710 net/netlink/af_netlink.c:1921
+    [<ffffffff83865ab6>] sock_sendmsg_nosec net/socket.c:714 [inline]
+    [<ffffffff83865ab6>] sock_sendmsg+0x56/0x80 net/socket.c:734
+    [<ffffffff8386601c>] ____sys_sendmsg+0x36c/0x390 net/socket.c:2482
+    [<ffffffff8386a918>] ___sys_sendmsg+0xa8/0x110 net/socket.c:2536
+    [<ffffffff8386aaa8>] __sys_sendmsg+0x88/0x100 net/socket.c:2565
+    [<ffffffff845e5955>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845e5955>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff84800087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Signed-off-by: YiPeng Chai <YiPeng.Chai@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: d54725cd11a5 ("netfilter: nf_tables: support for multiple devices per netdev hook")
+Reported-by: syzbot+5fcdbfab6d6744c57418@syzkaller.appspotmail.com
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c  | 3 +++
- drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c | 2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index 2f47f81a74a57..ae84d3b582aa5 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -2146,6 +2146,9 @@ static int psp_hw_fini(void *handle)
- 		psp_rap_terminate(psp);
- 		psp_dtm_terminate(psp);
- 		psp_hdcp_terminate(psp);
-+
-+		if (adev->gmc.xgmi.num_physical_nodes > 1)
-+			psp_xgmi_terminate(psp);
- 	}
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index d8ca55d6be409..d35d09df83fee 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2072,8 +2072,10 @@ static int nft_basechain_init(struct nft_base_chain *basechain, u8 family,
+ 	chain->flags |= NFT_CHAIN_BASE | flags;
+ 	basechain->policy = NF_ACCEPT;
+ 	if (chain->flags & NFT_CHAIN_HW_OFFLOAD &&
+-	    !nft_chain_offload_support(basechain))
++	    !nft_chain_offload_support(basechain)) {
++		list_splice_init(&basechain->hook_list, &hook->list);
+ 		return -EOPNOTSUPP;
++	}
  
- 	psp_asd_unload(psp);
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
-index 042c85fc528bb..def0b7092438f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
-@@ -622,7 +622,7 @@ int amdgpu_xgmi_remove_device(struct amdgpu_device *adev)
- 		amdgpu_put_xgmi_hive(hive);
- 	}
+ 	flow_block_init(&basechain->flow_block);
  
--	return psp_xgmi_terminate(&adev->psp);
-+	return 0;
- }
- 
- int amdgpu_xgmi_ras_late_init(struct amdgpu_device *adev)
 -- 
 2.35.1
 
