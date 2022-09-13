@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E6F35B7133
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBF235B7188
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232098AbiIMOm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:42:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37700 "EHLO
+        id S231134AbiIMOn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:43:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232568AbiIMOmF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D08136E2C0;
-        Tue, 13 Sep 2022 07:22:28 -0700 (PDT)
+        with ESMTP id S229754AbiIMOm1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF7BA186F8;
+        Tue, 13 Sep 2022 07:22:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 008B0614CE;
-        Tue, 13 Sep 2022 14:22:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05454C433D7;
-        Tue, 13 Sep 2022 14:22:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B37B461497;
+        Tue, 13 Sep 2022 14:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C28DAC433D6;
+        Tue, 13 Sep 2022 14:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078922;
-        bh=Wt1k6YYO7A7x5sNg2MQY+ULG/lmKJp3pfkgomSxsC9c=;
+        s=korg; t=1663078925;
+        bh=4KRIZt60OYvPDJXSjhi2ESW3KUFxGrgOB5pvP03ikz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEEzYzor5yloS75NFKa2vwfnlOJCKOa+1pXF4LX1A47QbWL1RPcWX2qE5CilOjOWg
-         DQVygdrIjMYO88fk9lK0fq/ukSCD7GbDNobrQKLBVbNxujO/5FaH+pcYOIkimJm1r/
-         RAPnKVMT1r72s1GQQV5yh57IyjVR9/0O7LXz0a00=
+        b=Uhp0384gcfK39TKcsgPEu4j5fOdmTAD9jD6PJf7OFHM2+O3GbwE5mf192Nt7zt5y5
+         3Cgco3xUxNuJ6tw94r3n01iXkQUVMW9HFngaKVcYr71VCwAJm/BgYAyz1eIoOLZmCU
+         SuS2FPKJxRzFggLtw6NUsv09VYoK1qeV6UCHgwss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffy Chen <jeffy.chen@rock-chips.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org, YiPeng Chai <YiPeng.Chai@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 13/79] drm/gem: Fix GEM handle release errors
-Date:   Tue, 13 Sep 2022 16:04:18 +0200
-Message-Id: <20220913140350.931273909@linuxfoundation.org>
+Subject: [PATCH 5.10 14/79] drm/amdgpu: Move psp_xgmi_terminate call from amdgpu_xgmi_remove_device to psp_hw_fini
+Date:   Tue, 13 Sep 2022 16:04:19 +0200
+Message-Id: <20220913140350.982863374@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
 References: <20220913140350.291927556@linuxfoundation.org>
@@ -54,132 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
+From: YiPeng Chai <YiPeng.Chai@amd.com>
 
-[ Upstream commit ea2aa97ca37a9044ade001aef71dbc06318e8d44 ]
+[ Upstream commit 9d705d7741ae70764f3d6d87e67fad3b5c30ffd0 ]
 
-Currently we are assuming a one to one mapping between dmabuf and
-GEM handle when releasing GEM handles.
+V1:
+The amdgpu_xgmi_remove_device function will send unload command
+to psp through psp ring to terminate xgmi, but psp ring has been
+destroyed in psp_hw_fini.
 
-But that is not always true, since we would create extra handles for the
-GEM obj in cases like gem_open() and getfb{,2}().
+V2:
+1. Change the commit title.
+2. Restore amdgpu_xgmi_remove_device to its original calling location.
+   Move psp_xgmi_terminate call from amdgpu_xgmi_remove_device to
+   psp_hw_fini.
 
-A similar issue was reported at:
-https://lore.kernel.org/all/20211105083308.392156-1-jay.xu@rock-chips.com/
-
-Another problem is that the imported dmabuf might not always have
-gem_obj->dma_buf set, which would cause leaks in
-drm_gem_remove_prime_handles().
-
-Let's fix these for now by using handle to find the exact map to remove.
-
-Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220819072834.17888-1-jeffy.chen@rock-chips.com
+Signed-off-by: YiPeng Chai <YiPeng.Chai@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_gem.c      | 17 +----------------
- drivers/gpu/drm/drm_internal.h |  4 ++--
- drivers/gpu/drm/drm_prime.c    | 20 ++++++++++++--------
- 3 files changed, 15 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c  | 3 +++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
-index 5979af230eda0..8b30e8d83fbcf 100644
---- a/drivers/gpu/drm/drm_gem.c
-+++ b/drivers/gpu/drm/drm_gem.c
-@@ -166,21 +166,6 @@ void drm_gem_private_object_init(struct drm_device *dev,
- }
- EXPORT_SYMBOL(drm_gem_private_object_init);
- 
--static void
--drm_gem_remove_prime_handles(struct drm_gem_object *obj, struct drm_file *filp)
--{
--	/*
--	 * Note: obj->dma_buf can't disappear as long as we still hold a
--	 * handle reference in obj->handle_count.
--	 */
--	mutex_lock(&filp->prime.lock);
--	if (obj->dma_buf) {
--		drm_prime_remove_buf_handle_locked(&filp->prime,
--						   obj->dma_buf);
--	}
--	mutex_unlock(&filp->prime.lock);
--}
--
- /**
-  * drm_gem_object_handle_free - release resources bound to userspace handles
-  * @obj: GEM object to clean up.
-@@ -254,7 +239,7 @@ drm_gem_object_release_handle(int id, void *ptr, void *data)
- 	else if (dev->driver->gem_close_object)
- 		dev->driver->gem_close_object(obj, file_priv);
- 
--	drm_gem_remove_prime_handles(obj, file_priv);
-+	drm_prime_remove_buf_handle(&file_priv->prime, id);
- 	drm_vma_node_revoke(&obj->vma_node, file_priv);
- 
- 	drm_gem_object_handle_put_unlocked(obj);
-diff --git a/drivers/gpu/drm/drm_internal.h b/drivers/gpu/drm/drm_internal.h
-index b65865c630b0a..f80e0f28087d1 100644
---- a/drivers/gpu/drm/drm_internal.h
-+++ b/drivers/gpu/drm/drm_internal.h
-@@ -86,8 +86,8 @@ int drm_prime_fd_to_handle_ioctl(struct drm_device *dev, void *data,
- 
- void drm_prime_init_file_private(struct drm_prime_file_private *prime_fpriv);
- void drm_prime_destroy_file_private(struct drm_prime_file_private *prime_fpriv);
--void drm_prime_remove_buf_handle_locked(struct drm_prime_file_private *prime_fpriv,
--					struct dma_buf *dma_buf);
-+void drm_prime_remove_buf_handle(struct drm_prime_file_private *prime_fpriv,
-+				 uint32_t handle);
- 
- /* drm_drv.c */
- struct drm_minor *drm_minor_acquire(unsigned int minor_id);
-diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
-index 9f955f2010c25..825499ea3ff59 100644
---- a/drivers/gpu/drm/drm_prime.c
-+++ b/drivers/gpu/drm/drm_prime.c
-@@ -187,29 +187,33 @@ static int drm_prime_lookup_buf_handle(struct drm_prime_file_private *prime_fpri
- 	return -ENOENT;
- }
- 
--void drm_prime_remove_buf_handle_locked(struct drm_prime_file_private *prime_fpriv,
--					struct dma_buf *dma_buf)
-+void drm_prime_remove_buf_handle(struct drm_prime_file_private *prime_fpriv,
-+				 uint32_t handle)
- {
- 	struct rb_node *rb;
- 
--	rb = prime_fpriv->dmabufs.rb_node;
-+	mutex_lock(&prime_fpriv->lock);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index 2f47f81a74a57..ae84d3b582aa5 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -2146,6 +2146,9 @@ static int psp_hw_fini(void *handle)
+ 		psp_rap_terminate(psp);
+ 		psp_dtm_terminate(psp);
+ 		psp_hdcp_terminate(psp);
 +
-+	rb = prime_fpriv->handles.rb_node;
- 	while (rb) {
- 		struct drm_prime_member *member;
- 
--		member = rb_entry(rb, struct drm_prime_member, dmabuf_rb);
--		if (member->dma_buf == dma_buf) {
-+		member = rb_entry(rb, struct drm_prime_member, handle_rb);
-+		if (member->handle == handle) {
- 			rb_erase(&member->handle_rb, &prime_fpriv->handles);
- 			rb_erase(&member->dmabuf_rb, &prime_fpriv->dmabufs);
- 
--			dma_buf_put(dma_buf);
-+			dma_buf_put(member->dma_buf);
- 			kfree(member);
--			return;
--		} else if (member->dma_buf < dma_buf) {
-+			break;
-+		} else if (member->handle < handle) {
- 			rb = rb->rb_right;
- 		} else {
- 			rb = rb->rb_left;
- 		}
++		if (adev->gmc.xgmi.num_physical_nodes > 1)
++			psp_xgmi_terminate(psp);
  	}
-+
-+	mutex_unlock(&prime_fpriv->lock);
+ 
+ 	psp_asd_unload(psp);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+index 042c85fc528bb..def0b7092438f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+@@ -622,7 +622,7 @@ int amdgpu_xgmi_remove_device(struct amdgpu_device *adev)
+ 		amdgpu_put_xgmi_hive(hive);
+ 	}
+ 
+-	return psp_xgmi_terminate(&adev->psp);
++	return 0;
  }
  
- void drm_prime_init_file_private(struct drm_prime_file_private *prime_fpriv)
+ int amdgpu_xgmi_ras_late_init(struct amdgpu_device *adev)
 -- 
 2.35.1
 
