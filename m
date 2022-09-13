@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 587F95B71B4
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9CCA5B7108
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230336AbiIMOov (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:44:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59048 "EHLO
+        id S234342AbiIMOh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:37:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230273AbiIMOmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:33 -0400
+        with ESMTP id S234225AbiIMOfx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AF076E2EC;
-        Tue, 13 Sep 2022 07:22:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C96EB6B170;
+        Tue, 13 Sep 2022 07:20:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4010B80F3B;
-        Tue, 13 Sep 2022 14:22:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FA74C433C1;
-        Tue, 13 Sep 2022 14:22:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF390B80F91;
+        Tue, 13 Sep 2022 14:14:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52477C43142;
+        Tue, 13 Sep 2022 14:14:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078965;
-        bh=31O2RnmTrqwLreTHa69wpotWavAZzHJ+YCcgLoU3qiM=;
+        s=korg; t=1663078453;
+        bh=2iP1ajy/DfmeSCb4A/fRzKwzhqN7GXpgVDnj7ALZso0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d3CCZxHcP4QSXbyz3tatWrNCg68rDRJutSVGf6MZyekKyKhY6/MwPfGQW2UmM1WIp
-         Vl60OtlPYl0/KAGUtlGuEY7gSD90DfCA9HHRp/cZ+Jfid5ctl30fLDWQ3LAb1OShIv
-         VvVSyB/rSzzldZNaHY8TNjQ1Bnopdqh+o8hAiObY=
+        b=H3Dzn7rQN4tnkHV7W8gn+UdMZffc4tNmD9kaJ47Lh67XpWzzyixgKIECM1p7dfCgJ
+         tFLPfDRbfAX62sf8dlKz6lD+W5/G+B+vWdZOJHQN1WrXkYvdw/6HBanA4ApdolvfgE
+         HIQa6NBDAQJjduZetzTuClEdupcXmCmkty/xnM+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.10 07/79] wifi: iwlegacy: 4965: corrected fix for potential off-by-one overflow in il4965_rs_fill_link_cmd()
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 146/192] net: ethernet: mtk_eth_soc: fix typo in __mtk_foe_entry_clear
 Date:   Tue, 13 Sep 2022 16:04:12 +0200
-Message-Id: <20220913140350.649369248@linuxfoundation.org>
+Message-Id: <20220913140417.294217295@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislaw Gruszka <stf_xl@wp.pl>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 6d0ef7241553f3553a0a2764c69b07892705924c upstream.
+[ Upstream commit 0e80707d94e4c88f9879bdafcbaceb13432ec1f4 ]
 
-This reverts commit a8eb8e6f7159c7c20c0ddac428bde3d110890aa7 as
-it can cause invalid link quality command sent to the firmware
-and address the off-by-one issue by fixing condition of while loop.
+Set ib1 state to MTK_FOE_STATE_UNBIND in __mtk_foe_entry_clear routine.
 
-Cc: stable@vger.kernel.org
-Fixes: a8eb8e6f7159 ("wifi: iwlegacy: 4965: fix potential off-by-one overflow in il4965_rs_fill_link_cmd()")
-Signed-off-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220815073737.GA999388@wp.pl
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 33fc42de33278 ("net: ethernet: mtk_eth_soc: support creating mac address based offload entries")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlegacy/4965-rs.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_ppe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/intel/iwlegacy/4965-rs.c
-+++ b/drivers/net/wireless/intel/iwlegacy/4965-rs.c
-@@ -2403,7 +2403,7 @@ il4965_rs_fill_link_cmd(struct il_priv *
- 		/* Repeat initial/next rate.
- 		 * For legacy IL_NUMBER_TRY == 1, this loop will not execute.
- 		 * For HT IL_HT_NUMBER_TRY == 3, this executes twice. */
--		while (repeat_rate > 0) {
-+		while (repeat_rate > 0 && idx < (LINK_QUAL_MAX_RETRY_NUM - 1)) {
- 			if (is_legacy(tbl_type.lq_type)) {
- 				if (ant_toggle_cnt < NUM_TRY_BEFORE_ANT_TOGGLE)
- 					ant_toggle_cnt++;
-@@ -2422,8 +2422,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
- 			    cpu_to_le32(new_rate);
- 			repeat_rate--;
- 			idx++;
--			if (idx >= LINK_QUAL_MAX_RETRY_NUM)
--				goto out;
- 		}
- 
- 		il4965_rs_get_tbl_info_from_mcs(new_rate, lq_sta->band,
-@@ -2468,7 +2466,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
- 		repeat_rate--;
+diff --git a/drivers/net/ethernet/mediatek/mtk_ppe.c b/drivers/net/ethernet/mediatek/mtk_ppe.c
+index dab8f3f771f84..cfe804bc8d205 100644
+--- a/drivers/net/ethernet/mediatek/mtk_ppe.c
++++ b/drivers/net/ethernet/mediatek/mtk_ppe.c
+@@ -412,7 +412,7 @@ __mtk_foe_entry_clear(struct mtk_ppe *ppe, struct mtk_flow_entry *entry)
+ 	if (entry->hash != 0xffff) {
+ 		ppe->foe_table[entry->hash].ib1 &= ~MTK_FOE_IB1_STATE;
+ 		ppe->foe_table[entry->hash].ib1 |= FIELD_PREP(MTK_FOE_IB1_STATE,
+-							      MTK_FOE_STATE_BIND);
++							      MTK_FOE_STATE_UNBIND);
+ 		dma_wmb();
  	}
- 
--out:
- 	lq_cmd->agg_params.agg_frame_cnt_limit = LINK_QUAL_AGG_FRAME_LIMIT_DEF;
- 	lq_cmd->agg_params.agg_dis_start_th = LINK_QUAL_AGG_DISABLE_START_DEF;
- 
+ 	entry->hash = 0xffff;
+-- 
+2.35.1
+
 
 
