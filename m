@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D97C5B7457
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D68365B744C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233765AbiIMPXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:23:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
+        id S235917AbiIMPW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:22:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236006AbiIMPWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:31 -0400
+        with ESMTP id S235950AbiIMPWT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A9097B2AE;
-        Tue, 13 Sep 2022 07:36:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61267B78B;
+        Tue, 13 Sep 2022 07:36:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E953614D6;
-        Tue, 13 Sep 2022 14:34:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88569C433D6;
-        Tue, 13 Sep 2022 14:34:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15426614E0;
+        Tue, 13 Sep 2022 14:34:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2185EC433C1;
+        Tue, 13 Sep 2022 14:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079680;
-        bh=wKgCJp3zP3NbNOdKEk+ETPqBa8zJh+si08wG0lof3t0=;
+        s=korg; t=1663079683;
+        bh=rV+n4kd+7BD+xatHr5rme8y5xnzaeFBry0keN3r8Rlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHKYbCJRTSbEDdz7qOIo0Qiy/VcdGxjlaYwmEibEsGWMq84zW12qucN3gwb12jBQj
-         AXDhg/ZXidLJLDaozoQdj1ppYphHJB0YCxYNdgm8CI2X5qX8hmchlaPo1WK6ig/ibL
-         UmwgE4+UnaN3VGudtHDVAG35uIIssbmC08xkaevs=
+        b=z5jgMslu3EH8ymxaAZWvaZZYdElf/C/s5kAiNpwr+jS+2GIAnn1gZ9G/bb6q+tNDb
+         98wbn3xjyEaSzJwudjnUkapGrDNT7YylHIO/0AS4/slpe9Y8Eh1nrlnM8pHhULLmv/
+         Pkrxijs5r4Z7at03bAzyGGZkogdbkio40celAgI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.14 34/61] efi: capsule-loader: Fix use-after-free in efi_capsule_write
-Date:   Tue, 13 Sep 2022 16:07:36 +0200
-Message-Id: <20220913140348.194658717@linuxfoundation.org>
+        stable@vger.kernel.org, Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.14 35/61] wifi: iwlegacy: 4965: corrected fix for potential off-by-one overflow in il4965_rs_fill_link_cmd()
+Date:   Tue, 13 Sep 2022 16:07:37 +0200
+Message-Id: <20220913140348.244519936@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
 References: <20220913140346.422813036@linuxfoundation.org>
@@ -53,82 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <imv4bel@gmail.com>
+From: Stanislaw Gruszka <stf_xl@wp.pl>
 
-commit 9cb636b5f6a8cc6d1b50809ec8f8d33ae0c84c95 upstream.
+commit 6d0ef7241553f3553a0a2764c69b07892705924c upstream.
 
-A race condition may occur if the user calls close() on another thread
-during a write() operation on the device node of the efi capsule.
+This reverts commit a8eb8e6f7159c7c20c0ddac428bde3d110890aa7 as
+it can cause invalid link quality command sent to the firmware
+and address the off-by-one issue by fixing condition of while loop.
 
-This is a race condition that occurs between the efi_capsule_write() and
-efi_capsule_flush() functions of efi_capsule_fops, which ultimately
-results in UAF.
-
-So, the page freeing process is modified to be done in
-efi_capsule_release() instead of efi_capsule_flush().
-
-Cc: <stable@vger.kernel.org> # v4.9+
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
-Link: https://lore.kernel.org/all/20220907102920.GA88602@ubuntu/
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: a8eb8e6f7159 ("wifi: iwlegacy: 4965: fix potential off-by-one overflow in il4965_rs_fill_link_cmd()")
+Signed-off-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220815073737.GA999388@wp.pl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/capsule-loader.c |   31 +++++++------------------------
- 1 file changed, 7 insertions(+), 24 deletions(-)
+ drivers/net/wireless/intel/iwlegacy/4965-rs.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/firmware/efi/capsule-loader.c
-+++ b/drivers/firmware/efi/capsule-loader.c
-@@ -238,29 +238,6 @@ failed:
- }
+--- a/drivers/net/wireless/intel/iwlegacy/4965-rs.c
++++ b/drivers/net/wireless/intel/iwlegacy/4965-rs.c
+@@ -2424,7 +2424,7 @@ il4965_rs_fill_link_cmd(struct il_priv *
+ 		/* Repeat initial/next rate.
+ 		 * For legacy IL_NUMBER_TRY == 1, this loop will not execute.
+ 		 * For HT IL_HT_NUMBER_TRY == 3, this executes twice. */
+-		while (repeat_rate > 0) {
++		while (repeat_rate > 0 && idx < (LINK_QUAL_MAX_RETRY_NUM - 1)) {
+ 			if (is_legacy(tbl_type.lq_type)) {
+ 				if (ant_toggle_cnt < NUM_TRY_BEFORE_ANT_TOGGLE)
+ 					ant_toggle_cnt++;
+@@ -2443,8 +2443,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
+ 			    cpu_to_le32(new_rate);
+ 			repeat_rate--;
+ 			idx++;
+-			if (idx >= LINK_QUAL_MAX_RETRY_NUM)
+-				goto out;
+ 		}
  
- /**
-- * efi_capsule_flush - called by file close or file flush
-- * @file: file pointer
-- * @id: not used
-- *
-- *	If a capsule is being partially uploaded then calling this function
-- *	will be treated as upload termination and will free those completed
-- *	buffer pages and -ECANCELED will be returned.
-- **/
--static int efi_capsule_flush(struct file *file, fl_owner_t id)
--{
--	int ret = 0;
--	struct capsule_info *cap_info = file->private_data;
--
--	if (cap_info->index > 0) {
--		pr_err("capsule upload not complete\n");
--		efi_free_all_buff_pages(cap_info);
--		ret = -ECANCELED;
--	}
--
--	return ret;
--}
--
--/**
-  * efi_capsule_release - called by file close
-  * @inode: not used
-  * @file: file pointer
-@@ -272,6 +249,13 @@ static int efi_capsule_release(struct in
- {
- 	struct capsule_info *cap_info = file->private_data;
+ 		il4965_rs_get_tbl_info_from_mcs(new_rate, lq_sta->band,
+@@ -2489,7 +2487,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
+ 		repeat_rate--;
+ 	}
  
-+	if (cap_info->index > 0 &&
-+	    (cap_info->header.headersize == 0 ||
-+	     cap_info->count < cap_info->total_size)) {
-+		pr_err("capsule upload not complete\n");
-+		efi_free_all_buff_pages(cap_info);
-+	}
-+
- 	kfree(cap_info->pages);
- 	kfree(cap_info->phys);
- 	kfree(file->private_data);
-@@ -319,7 +303,6 @@ static const struct file_operations efi_
- 	.owner = THIS_MODULE,
- 	.open = efi_capsule_open,
- 	.write = efi_capsule_write,
--	.flush = efi_capsule_flush,
- 	.release = efi_capsule_release,
- 	.llseek = no_llseek,
- };
+-out:
+ 	lq_cmd->agg_params.agg_frame_cnt_limit = LINK_QUAL_AGG_FRAME_LIMIT_DEF;
+ 	lq_cmd->agg_params.agg_dis_start_th = LINK_QUAL_AGG_DISABLE_START_DEF;
+ 
 
 
