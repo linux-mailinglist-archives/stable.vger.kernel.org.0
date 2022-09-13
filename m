@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F0C5B752E
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 172E45B748B
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231656AbiIMPdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:33:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44660 "EHLO
+        id S233841AbiIMPYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:24:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233990AbiIMPcK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:32:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91B5F7F118;
-        Tue, 13 Sep 2022 07:40:43 -0700 (PDT)
+        with ESMTP id S236044AbiIMPXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:23:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C6697C74F;
+        Tue, 13 Sep 2022 07:37:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0142EB80F1A;
-        Tue, 13 Sep 2022 14:33:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 575FFC433D6;
-        Tue, 13 Sep 2022 14:33:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D95BB614A3;
+        Tue, 13 Sep 2022 14:36:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0DBFC433D6;
+        Tue, 13 Sep 2022 14:36:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079587;
-        bh=reUpS03sK+iOiluB79gKV2t+j7afT4DYT/IaDQx99M4=;
+        s=korg; t=1663079817;
+        bh=AQoDADaLPKvNoQ0TH0wMcQHRuHBQaajr4jYWAN6BNKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qfzVSm8ObK5D7Y47ziVTNV9v7qgN0xr4MRZTThplWPF182mTfD7CYEvggqrTvKh9v
-         ZJUenPFB1qD/dYUcZA0sgwT85RRlMcws0hrNRk6tT9Kkil7jNLUBVhJmqSobT4kYMa
-         bGrLglAME3x4QbpfkdUr7cTKnTYGaMUUv+zFknXc=
+        b=1d0bkPvjE2YjukTE10guc1zs17mdJgCj0FgfN4VhVkRXSKoSyd7bb3pGv1UJ7Olwv
+         4GiFGLq20WX7Jn++8zclW3fcQwZpRHricRmmsy48AuWxnoQNyBFSgqKVPEYXaUXgJ1
+         /cIxdHJ4/aN0LQqIUJY7mClY6UdNajTMDNAub2/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Subject: [PATCH 4.19 77/79] x86/nospec: Fix i386 RSB stuffing
-Date:   Tue, 13 Sep 2022 16:07:35 +0200
-Message-Id: <20220913140352.600717282@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Zheng Wang <hackerzheng666@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.9 05/42] staging: rtl8712: fix use after free bugs
+Date:   Tue, 13 Sep 2022 16:07:36 +0200
+Message-Id: <20220913140342.516250467@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-From: Peter Zijlstra <peterz@infradead.org>
+commit e230a4455ac3e9b112f0367d1b8e255e141afae0 upstream.
 
-commit 332924973725e8cdcc783c175f68cf7e162cb9e5 upstream.
+_Read/Write_MACREG callbacks are NULL so the read/write_macreg_hdl()
+functions don't do anything except free the "pcmd" pointer.  It
+results in a use after free.  Delete them.
 
-Turns out that i386 doesn't unconditionally have LFENCE, as such the
-loop in __FILL_RETURN_BUFFER isn't actually speculation safe on such
-chips.
-
-Fixes: ba6e31af2be9 ("x86/speculation: Add LFENCE to RSB fill sequence")
-Reported-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/Yv9tj9vbQ9nNlXoY@worktop.programming.kicks-ass.net
-[bwh: Backported to 4.19/5.4:
- - __FILL_RETURN_BUFFER takes an sp parameter
- - Open-code __FILL_RETURN_SLOT]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
+Cc: stable <stable@kernel.org>
+Reported-by: Zheng Wang <hackerzheng666@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/Yw4ASqkYcUhUfoY2@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/nospec-branch.h |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/staging/rtl8712/rtl8712_cmd.c |   36 ----------------------------------
+ 1 file changed, 36 deletions(-)
 
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -35,6 +35,7 @@
-  * the optimal version — two calls, each with their own speculation
-  * trap should their return address end up getting used, in a loop.
-  */
-+#ifdef CONFIG_X86_64
- #define __FILL_RETURN_BUFFER(reg, nr, sp)	\
- 	mov	$(nr/2), reg;			\
- 771:						\
-@@ -55,6 +56,19 @@
- 	add	$(BITS_PER_LONG/8) * nr, sp;	\
- 	/* barrier for jnz misprediction */	\
- 	lfence;
-+#else
-+/*
-+ * i386 doesn't unconditionally have LFENCE, as such it can't
-+ * do a loop.
-+ */
-+#define __FILL_RETURN_BUFFER(reg, nr, sp)	\
-+	.rept nr;				\
-+	call	772f;				\
-+	int3;					\
-+772:;						\
-+	.endr;					\
-+	add	$(BITS_PER_LONG/8) * nr, sp;
-+#endif
+--- a/drivers/staging/rtl8712/rtl8712_cmd.c
++++ b/drivers/staging/rtl8712/rtl8712_cmd.c
+@@ -128,34 +128,6 @@ static void r871x_internal_cmd_hdl(struc
+ 	kfree(pdrvcmd->pbuf);
+ }
  
- /* Sequence to mitigate PBRSB on eIBRS CPUs */
- #define __ISSUE_UNBALANCED_RET_GUARD(sp)	\
+-static u8 read_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
+-{
+-	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
+-	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+-
+-	/*  invoke cmd->callback function */
+-	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
+-	if (!pcmd_callback)
+-		r8712_free_cmd_obj(pcmd);
+-	else
+-		pcmd_callback(padapter, pcmd);
+-	return H2C_SUCCESS;
+-}
+-
+-static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
+-{
+-	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
+-	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+-
+-	/*  invoke cmd->callback function */
+-	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
+-	if (!pcmd_callback)
+-		r8712_free_cmd_obj(pcmd);
+-	else
+-		pcmd_callback(padapter, pcmd);
+-	return H2C_SUCCESS;
+-}
+-
+ static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
+ {
+ 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
+@@ -224,14 +196,6 @@ static struct cmd_obj *cmd_hdl_filter(st
+ 	pcmd_r = NULL;
+ 
+ 	switch (pcmd->cmdcode) {
+-	case GEN_CMD_CODE(_Read_MACREG):
+-		read_macreg_hdl(padapter, (u8 *)pcmd);
+-		pcmd_r = pcmd;
+-		break;
+-	case GEN_CMD_CODE(_Write_MACREG):
+-		write_macreg_hdl(padapter, (u8 *)pcmd);
+-		pcmd_r = pcmd;
+-		break;
+ 	case GEN_CMD_CODE(_Read_BBREG):
+ 		read_bbreg_hdl(padapter, (u8 *)pcmd);
+ 		break;
 
 
