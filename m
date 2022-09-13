@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 278DF5B7061
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E806E5B716B
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233661AbiIMOZd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:25:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40564 "EHLO
+        id S234280AbiIMOgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:36:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233690AbiIMOX5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:23:57 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1AE066118;
-        Tue, 13 Sep 2022 07:15:54 -0700 (PDT)
+        with ESMTP id S234186AbiIMOfU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6837B5FAFD;
+        Tue, 13 Sep 2022 07:20:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 247D8CE1277;
-        Tue, 13 Sep 2022 14:14:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42D38C433C1;
-        Tue, 13 Sep 2022 14:13:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 664F3614D0;
+        Tue, 13 Sep 2022 14:18:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BD27C433D6;
+        Tue, 13 Sep 2022 14:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078438;
-        bh=YwyCy934OPQqHZ4UCWk+IgjuY/Cytd2eRVYocFrcypg=;
+        s=korg; t=1663078715;
+        bh=adIkxnPNNsY0WAl+jf8NAEX/g5zbCxTcqa0hLkWCnso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfurDzdZCOB7kuTb+pylAVAYfVxM0jWAnjIljC8l3N+YbEw+MYYTnXyFci8h0zlwp
-         PFeyzdbgW4zS6YUl8aZ/3Ffa6vPB0ES3U5VBwnV0yNc03dDICqjHm99HO46pIsSM2Q
-         53D3oUsBNNU759pvysLTkLZ60SaRZtUYdHprZX6I=
+        b=vxWIxstyhsieYvYv/Owviu+8uFjwc93rILjd+l0/0LlqxV9EJsBiBXanyo4pKDROP
+         olxnRBkyFDx7Yw2n3vBf7AoTxlFWhKq1npexcoEBIz7jDgacEMWeWgiGVfM/zwqRdB
+         mr6GzqJE7y6q2+5B+VdM4hYhek2nedx1mejW0wjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sindhu-Devale <sindhu.devale@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        kernel test robot <lkp@intel.com>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 140/192] RDMA/irdma: Report the correct max cqes from query device
+Subject: [PATCH 5.15 055/121] tee: fix compiler warning in tee_shm_register()
 Date:   Tue, 13 Sep 2022 16:04:06 +0200
-Message-Id: <20220913140416.993301600@linuxfoundation.org>
+Message-Id: <20220913140359.720184906@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sindhu-Devale <sindhu.devale@intel.com>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-[ Upstream commit 12faad5e5cf2372af2d51f348b697b5edf838daf ]
+[ Upstream commit eccd7439709810127563e7e3e49b8b44c7b2791d ]
 
-Report the correct max cqes available to an application taking
-into account a reserved entry to detect overflow.
+Include <linux/uaccess.h> to avoid the warning:
+   drivers/tee/tee_shm.c: In function 'tee_shm_register':
+>> drivers/tee/tee_shm.c:242:14: error: implicit declaration of function 'access_ok' [-Werror=implicit-function-declaration]
+     242 |         if (!access_ok((void __user *)addr, length))
+         |              ^~~~~~~~~
+   cc1: some warnings being treated as errors
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
-Signed-off-by: Sindhu-Devale <sindhu.devale@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Link: https://lore.kernel.org/r/20220906223244.1119-2-shiraz.saleem@intel.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: 573ae4f13f63 ("tee: add overflow check in register_shm_helper()")
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/verbs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tee/tee_shm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
-index 227a799385d1d..4835702871677 100644
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -39,7 +39,7 @@ static int irdma_query_device(struct ib_device *ibdev,
- 	props->max_send_sge = hw_attrs->uk_attrs.max_hw_wq_frags;
- 	props->max_recv_sge = hw_attrs->uk_attrs.max_hw_wq_frags;
- 	props->max_cq = rf->max_cq - rf->used_cqs;
--	props->max_cqe = rf->max_cqe;
-+	props->max_cqe = rf->max_cqe - 1;
- 	props->max_mr = rf->max_mr - rf->used_mrs;
- 	props->max_mw = props->max_mr;
- 	props->max_pd = rf->max_pd - rf->used_pds;
+diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
+index 6e662fb131d55..bd96ebb82c8ec 100644
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -9,6 +9,7 @@
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/tee_drv.h>
++#include <linux/uaccess.h>
+ #include <linux/uio.h>
+ #include "tee_private.h"
+ 
 -- 
 2.35.1
 
