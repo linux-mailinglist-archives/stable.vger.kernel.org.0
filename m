@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF8BB5B704C
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2951E5B717C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:44:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233508AbiIMOYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:24:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39084 "EHLO
+        id S234370AbiIMOhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:37:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233745AbiIMOYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:24:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F7166A65;
-        Tue, 13 Sep 2022 07:16:01 -0700 (PDT)
+        with ESMTP id S232755AbiIMOgQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:36:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38EB261D69;
+        Tue, 13 Sep 2022 07:20:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D8C7614CB;
-        Tue, 13 Sep 2022 14:14:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F52AC433D7;
-        Tue, 13 Sep 2022 14:14:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6CB3DB80FA1;
+        Tue, 13 Sep 2022 14:20:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7CFCC433C1;
+        Tue, 13 Sep 2022 14:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078471;
-        bh=sQhboYEXUV6NaHCi0b8UA+XJONRWpkquPv65uDiSKwQ=;
+        s=korg; t=1663078817;
+        bh=XfoVHhO2KwoVqCnflZpVxrBPhafIjjfzPTnfE+4PjpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=072L4vkNsd2mLgdq7mux4PqUenz7ETxtd4wahYxgu8IGcMC6AXmsQR04NXDUD1c4h
-         ZeWkj2Yx/8xnQenkBcLFHXOa7OaiBcimxTZRIAYooPAVhUOTujKH/XGUS2N6EGRCQh
-         wTCJ4eXk6G0hmMTKKy71NKJA09Gf1CUgtjFf57u8=
+        b=RqO/hmYETvcoKUGLh9xGiKQpDbxkglmyKnzd+tcUNROc4yqYuNr45qB5iYijmaauQ
+         D1JPAjb9vvvxSKJp7VKivsPgJ9zTNjIq/YJZOmw6NAY/WCUfA8Ov8TBkWHwIA2To2k
+         2atuk8Ge9oUTyWw7SlutB+x//EWBVefvL6j4xhwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Tom=C3=A1=C5=A1=20Trnka?= <trnka@scm.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Harsh Modi <harshmodi@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 152/192] libperf evlist: Fix per-thread mmaps for multi-threaded targets
+Subject: [PATCH 5.15 067/121] netfilter: br_netfilter: Drop dst references before setting.
 Date:   Tue, 13 Sep 2022 16:04:18 +0200
-Message-Id: <20220913140417.598141711@linuxfoundation.org>
+Message-Id: <20220913140400.244398540@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,214 +55,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Harsh Modi <harshmodi@google.com>
 
-[ Upstream commit 7864d8f7c088aad988c44c631f1ceed9179cf2cf ]
+[ Upstream commit d047283a7034140ea5da759a494fd2274affdd46 ]
 
-The offending commit removed mmap_per_thread(), which did not consider
-the different set-output rules for per-thread mmaps i.e. in the per-thread
-case set-output is used for file descriptors of the same thread not the
-same cpu.
+The IPv6 path already drops dst in the daddr changed case, but the IPv4
+path does not. This change makes the two code paths consistent.
 
-This was not immediately noticed because it only happens with
-multi-threaded targets and we do not have a test for that yet.
+Further, it is possible that there is already a metadata_dst allocated from
+ingress that might already be attached to skbuff->dst while following
+the bridge path. If it is not released before setting a new
+metadata_dst, it will be leaked. This is similar to what is done in
+bpf_set_tunnel_key() or ip6_route_input().
 
-Reinstate mmap_per_thread() expanding it to cover also system-wide per-cpu
-events i.e. to continue to allow the mixing of per-thread and per-cpu
-mmaps.
+It is important to note that the memory being leaked is not the dst
+being set in the bridge code, but rather memory allocated from some
+other code path that is not being freed correctly before the skb dst is
+overwritten.
 
-Debug messages (with -vv) show the file descriptors that are opened with
-sys_perf_event_open. New debug messages are added (needs -vvv) that show
-also which file descriptors are mmapped and which are redirected with
-set-output.
+An example of the leakage fixed by this commit found using kmemleak:
 
-In the per-cpu case (cpu != -1) file descriptors for the same CPU are
-set-output to the first file descriptor for that CPU.
+unreferenced object 0xffff888010112b00 (size 256):
+  comm "softirq", pid 0, jiffies 4294762496 (age 32.012s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 80 16 f1 83 ff ff ff ff  ................
+    e1 4e f6 82 ff ff ff ff 00 00 00 00 00 00 00 00  .N..............
+  backtrace:
+    [<00000000d79567ea>] metadata_dst_alloc+0x1b/0xe0
+    [<00000000be113e13>] udp_tun_rx_dst+0x174/0x1f0
+    [<00000000a36848f4>] geneve_udp_encap_recv+0x350/0x7b0
+    [<00000000d4afb476>] udp_queue_rcv_one_skb+0x380/0x560
+    [<00000000ac064aea>] udp_unicast_rcv_skb+0x75/0x90
+    [<000000009a8ee8c5>] ip_protocol_deliver_rcu+0xd8/0x230
+    [<00000000ef4980bb>] ip_local_deliver_finish+0x7a/0xa0
+    [<00000000d7533c8c>] __netif_receive_skb_one_core+0x89/0xa0
+    [<00000000a879497d>] process_backlog+0x93/0x190
+    [<00000000e41ade9f>] __napi_poll+0x28/0x170
+    [<00000000b4c0906b>] net_rx_action+0x14f/0x2a0
+    [<00000000b20dd5d4>] __do_softirq+0xf4/0x305
+    [<000000003a7d7e15>] __irq_exit_rcu+0xc3/0x140
+    [<00000000968d39a2>] sysvec_apic_timer_interrupt+0x9e/0xc0
+    [<000000009e920794>] asm_sysvec_apic_timer_interrupt+0x16/0x20
+    [<000000008942add0>] native_safe_halt+0x13/0x20
 
-In the per-thread case (cpu == -1) file descriptors for the same thread are
-set-output to the first file descriptor for that thread.
+Florian Westphal says: "Original code was likely fine because nothing
+ever did set a skb->dst entry earlier than bridge in those days."
 
-Example (process 17489 has 2 threads):
-
- Before (but with new debug prints):
-
-   $ perf record --no-bpf-event -vvv --per-thread -p 17489
-   <SNIP>
-   sys_perf_event_open: pid 17489  cpu -1  group_fd -1  flags 0x8 = 5
-   sys_perf_event_open: pid 17490  cpu -1  group_fd -1  flags 0x8 = 6
-   <SNIP>
-   libperf: idx 0: mmapping fd 5
-   libperf: idx 0: set output fd 6 -> 5
-   failed to mmap with 22 (Invalid argument)
-
- After:
-
-   $ perf record --no-bpf-event -vvv --per-thread -p 17489
-   <SNIP>
-   sys_perf_event_open: pid 17489  cpu -1  group_fd -1  flags 0x8 = 5
-   sys_perf_event_open: pid 17490  cpu -1  group_fd -1  flags 0x8 = 6
-   <SNIP>
-   libperf: mmap_per_thread: nr cpu values (may include -1) 1 nr threads 2
-   libperf: idx 0: mmapping fd 5
-   libperf: idx 1: mmapping fd 6
-   <SNIP>
-   [ perf record: Woken up 2 times to write data ]
-   [ perf record: Captured and wrote 0.018 MB perf.data (15 samples) ]
-
-Per-cpu example (process 20341 has 2 threads, same as above):
-
-   $ perf record --no-bpf-event -vvv -p 20341
-   <SNIP>
-   sys_perf_event_open: pid 20341  cpu 0  group_fd -1  flags 0x8 = 5
-   sys_perf_event_open: pid 20342  cpu 0  group_fd -1  flags 0x8 = 6
-   sys_perf_event_open: pid 20341  cpu 1  group_fd -1  flags 0x8 = 7
-   sys_perf_event_open: pid 20342  cpu 1  group_fd -1  flags 0x8 = 8
-   sys_perf_event_open: pid 20341  cpu 2  group_fd -1  flags 0x8 = 9
-   sys_perf_event_open: pid 20342  cpu 2  group_fd -1  flags 0x8 = 10
-   sys_perf_event_open: pid 20341  cpu 3  group_fd -1  flags 0x8 = 11
-   sys_perf_event_open: pid 20342  cpu 3  group_fd -1  flags 0x8 = 12
-   sys_perf_event_open: pid 20341  cpu 4  group_fd -1  flags 0x8 = 13
-   sys_perf_event_open: pid 20342  cpu 4  group_fd -1  flags 0x8 = 14
-   sys_perf_event_open: pid 20341  cpu 5  group_fd -1  flags 0x8 = 15
-   sys_perf_event_open: pid 20342  cpu 5  group_fd -1  flags 0x8 = 16
-   sys_perf_event_open: pid 20341  cpu 6  group_fd -1  flags 0x8 = 17
-   sys_perf_event_open: pid 20342  cpu 6  group_fd -1  flags 0x8 = 18
-   sys_perf_event_open: pid 20341  cpu 7  group_fd -1  flags 0x8 = 19
-   sys_perf_event_open: pid 20342  cpu 7  group_fd -1  flags 0x8 = 20
-   <SNIP>
-   libperf: mmap_per_cpu: nr cpu values 8 nr threads 2
-   libperf: idx 0: mmapping fd 5
-   libperf: idx 0: set output fd 6 -> 5
-   libperf: idx 1: mmapping fd 7
-   libperf: idx 1: set output fd 8 -> 7
-   libperf: idx 2: mmapping fd 9
-   libperf: idx 2: set output fd 10 -> 9
-   libperf: idx 3: mmapping fd 11
-   libperf: idx 3: set output fd 12 -> 11
-   libperf: idx 4: mmapping fd 13
-   libperf: idx 4: set output fd 14 -> 13
-   libperf: idx 5: mmapping fd 15
-   libperf: idx 5: set output fd 16 -> 15
-   libperf: idx 6: mmapping fd 17
-   libperf: idx 6: set output fd 18 -> 17
-   libperf: idx 7: mmapping fd 19
-   libperf: idx 7: set output fd 20 -> 19
-   <SNIP>
-   [ perf record: Woken up 7 times to write data ]
-   [ perf record: Captured and wrote 0.020 MB perf.data (17 samples) ]
-
-Fixes: ae4f8ae16a078964 ("libperf evlist: Allow mixing per-thread and per-cpu mmaps")
-Reported-by: Tomáš Trnka <trnka@scm.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=216441
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220905114209.8389-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Harsh Modi <harshmodi@google.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/perf/evlist.c | 50 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ net/bridge/br_netfilter_hooks.c | 2 ++
+ net/bridge/br_netfilter_ipv6.c  | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/tools/lib/perf/evlist.c b/tools/lib/perf/evlist.c
-index e6c98a6e3908e..6b1bafe267a42 100644
---- a/tools/lib/perf/evlist.c
-+++ b/tools/lib/perf/evlist.c
-@@ -486,6 +486,7 @@ mmap_per_evsel(struct perf_evlist *evlist, struct perf_evlist_mmap_ops *ops,
- 			if (ops->idx)
- 				ops->idx(evlist, evsel, mp, idx);
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 10a2c7bca7199..a718204c4bfdd 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -384,6 +384,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 				/* - Bridged-and-DNAT'ed traffic doesn't
+ 				 *   require ip_forwarding. */
+ 				if (rt->dst.dev == dev) {
++					skb_dst_drop(skb);
+ 					skb_dst_set(skb, &rt->dst);
+ 					goto bridged_dnat;
+ 				}
+@@ -413,6 +414,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 			kfree_skb(skb);
+ 			return 0;
+ 		}
++		skb_dst_drop(skb);
+ 		skb_dst_set_noref(skb, &rt->dst);
+ 	}
  
-+			pr_debug("idx %d: mmapping fd %d\n", idx, *output);
- 			if (ops->mmap(map, mp, *output, evlist_cpu) < 0)
- 				return -1;
- 
-@@ -494,6 +495,7 @@ mmap_per_evsel(struct perf_evlist *evlist, struct perf_evlist_mmap_ops *ops,
- 			if (!idx)
- 				perf_evlist__set_mmap_first(evlist, map, overwrite);
- 		} else {
-+			pr_debug("idx %d: set output fd %d -> %d\n", idx, fd, *output);
- 			if (ioctl(fd, PERF_EVENT_IOC_SET_OUTPUT, *output) != 0)
- 				return -1;
- 
-@@ -519,6 +521,48 @@ mmap_per_evsel(struct perf_evlist *evlist, struct perf_evlist_mmap_ops *ops,
- 	return 0;
- }
- 
-+static int
-+mmap_per_thread(struct perf_evlist *evlist, struct perf_evlist_mmap_ops *ops,
-+		struct perf_mmap_param *mp)
-+{
-+	int nr_threads = perf_thread_map__nr(evlist->threads);
-+	int nr_cpus    = perf_cpu_map__nr(evlist->all_cpus);
-+	int cpu, thread, idx = 0;
-+	int nr_mmaps = 0;
-+
-+	pr_debug("%s: nr cpu values (may include -1) %d nr threads %d\n",
-+		 __func__, nr_cpus, nr_threads);
-+
-+	/* per-thread mmaps */
-+	for (thread = 0; thread < nr_threads; thread++, idx++) {
-+		int output = -1;
-+		int output_overwrite = -1;
-+
-+		if (mmap_per_evsel(evlist, ops, idx, mp, 0, thread, &output,
-+				   &output_overwrite, &nr_mmaps))
-+			goto out_unmap;
-+	}
-+
-+	/* system-wide mmaps i.e. per-cpu */
-+	for (cpu = 1; cpu < nr_cpus; cpu++, idx++) {
-+		int output = -1;
-+		int output_overwrite = -1;
-+
-+		if (mmap_per_evsel(evlist, ops, idx, mp, cpu, 0, &output,
-+				   &output_overwrite, &nr_mmaps))
-+			goto out_unmap;
-+	}
-+
-+	if (nr_mmaps != evlist->nr_mmaps)
-+		pr_err("Miscounted nr_mmaps %d vs %d\n", nr_mmaps, evlist->nr_mmaps);
-+
-+	return 0;
-+
-+out_unmap:
-+	perf_evlist__munmap(evlist);
-+	return -1;
-+}
-+
- static int
- mmap_per_cpu(struct perf_evlist *evlist, struct perf_evlist_mmap_ops *ops,
- 	     struct perf_mmap_param *mp)
-@@ -528,6 +572,8 @@ mmap_per_cpu(struct perf_evlist *evlist, struct perf_evlist_mmap_ops *ops,
- 	int nr_mmaps = 0;
- 	int cpu, thread;
- 
-+	pr_debug("%s: nr cpu values %d nr threads %d\n", __func__, nr_cpus, nr_threads);
-+
- 	for (cpu = 0; cpu < nr_cpus; cpu++) {
- 		int output = -1;
- 		int output_overwrite = -1;
-@@ -569,6 +615,7 @@ int perf_evlist__mmap_ops(struct perf_evlist *evlist,
- 			  struct perf_evlist_mmap_ops *ops,
- 			  struct perf_mmap_param *mp)
- {
-+	const struct perf_cpu_map *cpus = evlist->all_cpus;
- 	struct perf_evsel *evsel;
- 
- 	if (!ops || !ops->get || !ops->mmap)
-@@ -588,6 +635,9 @@ int perf_evlist__mmap_ops(struct perf_evlist *evlist,
- 	if (evlist->pollfd.entries == NULL && perf_evlist__alloc_pollfd(evlist) < 0)
- 		return -ENOMEM;
- 
-+	if (perf_cpu_map__empty(cpus))
-+		return mmap_per_thread(evlist, ops, mp);
-+
- 	return mmap_per_cpu(evlist, ops, mp);
- }
+diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
+index e4e0c836c3f51..6b07f30675bb0 100644
+--- a/net/bridge/br_netfilter_ipv6.c
++++ b/net/bridge/br_netfilter_ipv6.c
+@@ -197,6 +197,7 @@ static int br_nf_pre_routing_finish_ipv6(struct net *net, struct sock *sk, struc
+ 			kfree_skb(skb);
+ 			return 0;
+ 		}
++		skb_dst_drop(skb);
+ 		skb_dst_set_noref(skb, &rt->dst);
+ 	}
  
 -- 
 2.35.1
