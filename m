@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C4705B713A
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B86FD5B703D
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234324AbiIMOjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:39:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41934 "EHLO
+        id S232830AbiIMOYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:24:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234339AbiIMOh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:37:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C608A6B8F1;
-        Tue, 13 Sep 2022 07:20:32 -0700 (PDT)
+        with ESMTP id S233514AbiIMOXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:23:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 165EF61B1F;
+        Tue, 13 Sep 2022 07:15:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91CDB614D5;
-        Tue, 13 Sep 2022 14:20:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A161C433D6;
-        Tue, 13 Sep 2022 14:20:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F632B80F9C;
+        Tue, 13 Sep 2022 14:15:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0823DC433D6;
+        Tue, 13 Sep 2022 14:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078802;
-        bh=1+F6PgY2/+sVO0lv3naVynzM8gOaXgIPLfy9D+Pq0mc=;
+        s=korg; t=1663078519;
+        bh=yljb55CwYjB2SsSXdpHl1sJ2giu6mj+JKJbpLxtk6Ws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xlyw0TV4I9yXXGhxRriU3hmFywVotTMA4wsf7S0+Xl2KBRYMXosotSKlDPdt3uubd
-         cNNDlvaR4saxQfsYwvTGL7+Axapc7+rjM1kU1lW135x6SQs26d3QSmEPtaEOUHjC4M
-         xoDb+2dlCgTqAV5UvfiaCkHrELbigLY26greIHLQ=
+        b=QDEAoJRuBCMSLtZ+lnAEV79tWqQqT4oCL7ItV0b5EUl4NVnxye6w4rvPgCAn4drFu
+         lHNlFB3w0vLBRC3lo5km3ioU4BthtoPNytF0MNOkxs1grE9PVJT0xZLkKQ1UqB+AhZ
+         EqQfK/NT78v/gpEwsbHRoFPOtC45E9dhHQrXuOQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Leong <wmliang.tw@gmail.com>,
-        David Lebrun <dlebrun@google.com>,
+        stable@vger.kernel.org, Xiaoliang Yang <xiaoliang.yang_1@nxp.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 087/121] ipv6: sr: fix out-of-bounds read when setting HMAC data.
+Subject: [PATCH 5.19 172/192] net: dsa: felix: tc-taprio intervals smaller than MTU should send at least one packet
 Date:   Tue, 13 Sep 2022 16:04:38 +0200
-Message-Id: <20220913140401.105749657@linuxfoundation.org>
+Message-Id: <20220913140418.603893905@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +55,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Lebrun <dlebrun@google.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 84a53580c5d2138c7361c7c3eea5b31827e63b35 ]
+[ Upstream commit 11afdc6526de0e0368c05da632a8c0d29fc60bb8 ]
 
-The SRv6 layer allows defining HMAC data that can later be used to sign IPv6
-Segment Routing Headers. This configuration is realised via netlink through
-four attributes: SEG6_ATTR_HMACKEYID, SEG6_ATTR_SECRET, SEG6_ATTR_SECRETLEN and
-SEG6_ATTR_ALGID. Because the SECRETLEN attribute is decoupled from the actual
-length of the SECRET attribute, it is possible to provide invalid combinations
-(e.g., secret = "", secretlen = 64). This case is not checked in the code and
-with an appropriately crafted netlink message, an out-of-bounds read of up
-to 64 bytes (max secret length) can occur past the skb end pointer and into
-skb_shared_info:
+The blamed commit broke tc-taprio schedules such as this one:
 
-Breakpoint 1, seg6_genl_sethmac (skb=<optimized out>, info=<optimized out>) at net/ipv6/seg6.c:208
-208		memcpy(hinfo->secret, secret, slen);
-(gdb) bt
- #0  seg6_genl_sethmac (skb=<optimized out>, info=<optimized out>) at net/ipv6/seg6.c:208
- #1  0xffffffff81e012e9 in genl_family_rcv_msg_doit (skb=skb@entry=0xffff88800b1f9f00, nlh=nlh@entry=0xffff88800b1b7600,
-    extack=extack@entry=0xffffc90000ba7af0, ops=ops@entry=0xffffc90000ba7a80, hdrlen=4, net=0xffffffff84237580 <init_net>, family=<optimized out>,
-    family=<optimized out>) at net/netlink/genetlink.c:731
- #2  0xffffffff81e01435 in genl_family_rcv_msg (extack=0xffffc90000ba7af0, nlh=0xffff88800b1b7600, skb=0xffff88800b1f9f00,
-    family=0xffffffff82fef6c0 <seg6_genl_family>) at net/netlink/genetlink.c:775
- #3  genl_rcv_msg (skb=0xffff88800b1f9f00, nlh=0xffff88800b1b7600, extack=0xffffc90000ba7af0) at net/netlink/genetlink.c:792
- #4  0xffffffff81dfffc3 in netlink_rcv_skb (skb=skb@entry=0xffff88800b1f9f00, cb=cb@entry=0xffffffff81e01350 <genl_rcv_msg>)
-    at net/netlink/af_netlink.c:2501
- #5  0xffffffff81e00919 in genl_rcv (skb=0xffff88800b1f9f00) at net/netlink/genetlink.c:803
- #6  0xffffffff81dff6ae in netlink_unicast_kernel (ssk=0xffff888010eec800, skb=0xffff88800b1f9f00, sk=0xffff888004aed000)
-    at net/netlink/af_netlink.c:1319
- #7  netlink_unicast (ssk=ssk@entry=0xffff888010eec800, skb=skb@entry=0xffff88800b1f9f00, portid=portid@entry=0, nonblock=<optimized out>)
-    at net/netlink/af_netlink.c:1345
- #8  0xffffffff81dff9a4 in netlink_sendmsg (sock=<optimized out>, msg=0xffffc90000ba7e48, len=<optimized out>) at net/netlink/af_netlink.c:1921
-...
-(gdb) p/x ((struct sk_buff *)0xffff88800b1f9f00)->head + ((struct sk_buff *)0xffff88800b1f9f00)->end
-$1 = 0xffff88800b1b76c0
-(gdb) p/x secret
-$2 = 0xffff88800b1b76c0
-(gdb) p slen
-$3 = 64 '@'
+tc qdisc replace dev $swp1 root taprio \
+        num_tc 8 \
+        map 0 1 2 3 4 5 6 7 \
+        queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 \
+        base-time 0 \
+        sched-entry S 0x7f 990000 \
+        sched-entry S 0x80  10000 \
+        flags 0x2
 
-The OOB data can then be read back from userspace by dumping HMAC state. This
-commit fixes this by ensuring SECRETLEN cannot exceed the actual length of
-SECRET.
+because the gate entry for TC 7 (S 0x80 10000 ns) now has a static guard
+band added earlier than its 'gate close' event, such that packet
+overruns won't occur in the worst case of the largest packet possible.
 
-Reported-by: Lucas Leong <wmliang.tw@gmail.com>
-Tested: verified that EINVAL is correctly returned when secretlen > len(secret)
-Fixes: 4f4853dc1c9c1 ("ipv6: sr: implement API to control SR HMAC structure")
-Signed-off-by: David Lebrun <dlebrun@google.com>
+Since guard bands are statically determined based on the per-tc
+QSYS_QMAXSDU_CFG_* with a fallback on the port-based QSYS_PORT_MAX_SDU,
+we need to discuss what happens with TC 7 depending on kernel version,
+since the driver, prior to commit 55a515b1f5a9 ("net: dsa: felix: drop
+oversized frames with tc-taprio instead of hanging the port"), did not
+touch QSYS_QMAXSDU_CFG_*, and therefore relied on QSYS_PORT_MAX_SDU.
+
+1 (before vsc9959_tas_guard_bands_update): QSYS_PORT_MAX_SDU defaults to
+  1518, and at gigabit this introduces a static guard band (independent
+  of packet sizes) of 12144 ns, plus QSYS::HSCH_MISC_CFG.FRM_ADJ (bit
+  time of 20 octets => 160 ns). But this is larger than the time window
+  itself, of 10000 ns. So, the queue system never considers a frame with
+  TC 7 as eligible for transmission, since the gate practically never
+  opens, and these frames are forever stuck in the TX queues and hang
+  the port.
+
+2 (after vsc9959_tas_guard_bands_update): Under the sole goal of
+  enabling oversized frame dropping, we make an effort to set
+  QSYS_QMAXSDU_CFG_7 to 1230 bytes. But QSYS_QMAXSDU_CFG_7 plays
+  one more role, which we did not take into account: per-tc static guard
+  band, expressed in L2 byte time (auto-adjusted for FCS and L1 overhead).
+  There is a discrepancy between what the driver thinks (that there is
+  no guard band, and 100% of min_gate_len[tc] is available for egress
+  scheduling) and what the hardware actually does (crops the equivalent
+  of QSYS_QMAXSDU_CFG_7 ns out of min_gate_len[tc]). In practice, this
+  means that the hardware thinks it has exactly 0 ns for scheduling tc 7.
+
+In both cases, even minimum sized Ethernet frames are stuck on egress
+rather than being considered for scheduling on TC 7, even if they would
+fit given a proper configuration. Considering the current situation,
+with vsc9959_tas_guard_bands_update(), frames between 60 octets and 1230
+octets in size are not eligible for oversized dropping (because they are
+smaller than QSYS_QMAXSDU_CFG_7), but won't be considered as eligible
+for scheduling either, because the min_gate_len[7] (10000 ns) minus the
+guard band determined by QSYS_QMAXSDU_CFG_7 (1230 octets * 8 ns per
+octet == 9840 ns) minus the guard band auto-added for L1 overhead by
+QSYS::HSCH_MISC_CFG.FRM_ADJ (20 octets * 8 ns per octet == 160 octets)
+leaves 0 ns for scheduling in the queue system proper.
+
+Investigating the hardware behavior, it becomes apparent that the queue
+system needs precisely 33 ns of 'gate open' time in order to consider a
+frame as eligible for scheduling to a tc. So the solution to this
+problem is to amend vsc9959_tas_guard_bands_update(), by giving the
+per-tc guard bands less space by exactly 33 ns, just enough for one
+frame to be scheduled in that interval. This allows the queue system to
+make forward progress for that port-tc, and prevents it from hanging.
+
+Fixes: 297c4de6f780 ("net: dsa: felix: re-enable TAS guard band mode")
+Reported-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/seg6.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/dsa/ocelot/felix_vsc9959.c | 35 +++++++++++++++++++++++---
+ 1 file changed, 31 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv6/seg6.c b/net/ipv6/seg6.c
-index fa6b64c95d3ae..0c7c6fc16c3c3 100644
---- a/net/ipv6/seg6.c
-+++ b/net/ipv6/seg6.c
-@@ -191,6 +191,11 @@ static int seg6_genl_sethmac(struct sk_buff *skb, struct genl_info *info)
- 		goto out_unlock;
- 	}
+diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
+index 4cce71243080e..517bc3922ee24 100644
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -22,6 +22,7 @@
+ #define VSC9959_NUM_PORTS		6
  
-+	if (slen > nla_len(info->attrs[SEG6_ATTR_SECRET])) {
-+		err = -EINVAL;
-+		goto out_unlock;
-+	}
+ #define VSC9959_TAS_GCL_ENTRY_MAX	63
++#define VSC9959_TAS_MIN_GATE_LEN_NS	33
+ #define VSC9959_VCAP_POLICER_BASE	63
+ #define VSC9959_VCAP_POLICER_MAX	383
+ #define VSC9959_SWITCH_PCI_BAR		4
+@@ -1411,6 +1412,23 @@ static void vsc9959_mdio_bus_free(struct ocelot *ocelot)
+ 	mdiobus_free(felix->imdio);
+ }
+ 
++/* The switch considers any frame (regardless of size) as eligible for
++ * transmission if the traffic class gate is open for at least 33 ns.
++ * Overruns are prevented by cropping an interval at the end of the gate time
++ * slot for which egress scheduling is blocked, but we need to still keep 33 ns
++ * available for one packet to be transmitted, otherwise the port tc will hang.
++ * This function returns the size of a gate interval that remains available for
++ * setting the guard band, after reserving the space for one egress frame.
++ */
++static u64 vsc9959_tas_remaining_gate_len_ps(u64 gate_len_ns)
++{
++	/* Gate always open */
++	if (gate_len_ns == U64_MAX)
++		return U64_MAX;
 +
- 	if (hinfo) {
- 		err = seg6_hmac_info_del(net, hmackeyid);
- 		if (err)
++	return (gate_len_ns - VSC9959_TAS_MIN_GATE_LEN_NS) * PSEC_PER_NSEC;
++}
++
+ /* Extract shortest continuous gate open intervals in ns for each traffic class
+  * of a cyclic tc-taprio schedule. If a gate is always open, the duration is
+  * considered U64_MAX. If the gate is always closed, it is considered 0.
+@@ -1590,10 +1608,13 @@ static void vsc9959_tas_guard_bands_update(struct ocelot *ocelot, int port)
+ 	mutex_lock(&ocelot->fwd_domain_lock);
+ 
+ 	for (tc = 0; tc < OCELOT_NUM_TC; tc++) {
++		u64 remaining_gate_len_ps;
+ 		u32 max_sdu;
+ 
+-		if (min_gate_len[tc] == U64_MAX /* Gate always open */ ||
+-		    min_gate_len[tc] * PSEC_PER_NSEC > needed_bit_time_ps) {
++		remaining_gate_len_ps =
++			vsc9959_tas_remaining_gate_len_ps(min_gate_len[tc]);
++
++		if (remaining_gate_len_ps > needed_bit_time_ps) {
+ 			/* Setting QMAXSDU_CFG to 0 disables oversized frame
+ 			 * dropping.
+ 			 */
+@@ -1606,9 +1627,15 @@ static void vsc9959_tas_guard_bands_update(struct ocelot *ocelot, int port)
+ 			/* If traffic class doesn't support a full MTU sized
+ 			 * frame, make sure to enable oversize frame dropping
+ 			 * for frames larger than the smallest that would fit.
++			 *
++			 * However, the exact same register, QSYS_QMAXSDU_CFG_*,
++			 * controls not only oversized frame dropping, but also
++			 * per-tc static guard band lengths, so it reduces the
++			 * useful gate interval length. Therefore, be careful
++			 * to calculate a guard band (and therefore max_sdu)
++			 * that still leaves 33 ns available in the time slot.
+ 			 */
+-			max_sdu = div_u64(min_gate_len[tc] * PSEC_PER_NSEC,
+-					  picos_per_byte);
++			max_sdu = div_u64(remaining_gate_len_ps, picos_per_byte);
+ 			/* A TC gate may be completely closed, which is a
+ 			 * special case where all packets are oversized.
+ 			 * Any limit smaller than 64 octets accomplishes this
 -- 
 2.35.1
 
