@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7CE25B7437
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCEEE5B754B
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231583AbiIMPTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:19:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57620 "EHLO
+        id S232187AbiIMPje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:39:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236114AbiIMPTI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:19:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E879796A0;
-        Tue, 13 Sep 2022 07:35:45 -0700 (PDT)
+        with ESMTP id S236753AbiIMPiz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:38:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82EF71AF2D;
+        Tue, 13 Sep 2022 07:44:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 689F1614BF;
-        Tue, 13 Sep 2022 14:34:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82591C433D6;
-        Tue, 13 Sep 2022 14:34:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8079E614B4;
+        Tue, 13 Sep 2022 14:31:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F9AAC433D6;
+        Tue, 13 Sep 2022 14:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079653;
-        bh=ugfdGp3JBSQjReIJgLxbE+2mLWsveMB2VlQK38ZTsLI=;
+        s=korg; t=1663079491;
+        bh=2jMSUEghuLlu/1D6x2idR7tJj/F/ZgljozPqFgP5Eq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSn6BgQEryL9BgAHjeEIfbBU8UCxEnjkDszY1u/9qO0H//mPwNMIJVxgv5qX/3OU+
-         TcGOOO4FEUdiuw9anOuYWnHA4Wq6mIgyA07X0w/2HVJnoCp8EZYizl0Ea1OzOcBp6J
-         nrP7OqdWAQFW8gqA1Nn3pMm7zHQ7+PBgnzLVDJtk=
+        b=HieWeZp0RAec1A4LZa3ab0HdyiWN8yKznt6K3fM/SijUvxGzV1NzILBkqyfo8XTF/
+         qOClnQgBebCDkW1h9IC87J0HvyOmVwBWMp/1z6KyNQu/+mD6sSQZpgRpZJhTblH5TA
+         fv12aIzGjQag+h6pSRMUbTF4EraYlxCLpaCVdObM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/61] drm/msm/dsi: Fix number of regulators for msm8996_dsi_cfg
+        stable@vger.kernel.org, Abhishek Shah <abhishek.shah@columbia.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 48/79] ALSA: seq: Fix data-race at module auto-loading
 Date:   Tue, 13 Sep 2022 16:07:06 +0200
-Message-Id: <20220913140346.683132965@linuxfoundation.org>
+Message-Id: <20220913140351.223767914@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 1e00d6ac8a3422765bae37aeac2002dfd3c0bda6 ]
+commit 3e7e04b747adea36f349715d9f0998eeebf15d72 upstream.
 
-3 regulators are listed but the number 2 is specified. Fix it.
+It's been reported that there is a possible data-race accessing to the
+global card_requested[] array at ALSA sequencer core, which is used
+for determining whether to call request_module() for the card or not.
+This data race itself is almost harmless, as it might end up with one
+extra request_module() call for the already loaded module at most.
+But it's still better to fix.
 
-Fixes: 3a3ff88a0fc1 ("drm/msm/dsi: Add 8x96 info in dsi_cfg")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/496318/
-Link: https://lore.kernel.org/r/20220804073608.v4.1.I1056ee3f77f71287f333279efe4c85f88d403f65@changeid
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch addresses the possible data race of card_requested[] and
+client_requested[] arrays by replacing them with bitmask.
+It's an atomic operation and can work without locks.
+
+Reported-by: Abhishek Shah <abhishek.shah@columbia.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAEHB24_ay6YzARpA1zgCsE7=H9CSJJzux618E=Ka4h0YdKn=qA@mail.gmail.com
+Link: https://lore.kernel.org/r/20220823072717.1706-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_cfg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/seq/seq_clientmgr.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_cfg.c b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-index a5d75c9b3a737..2b8c39a1f7484 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-@@ -105,7 +105,7 @@ static const char * const dsi_8996_bus_clk_names[] = {
- static const struct msm_dsi_config msm8996_dsi_cfg = {
- 	.io_offset = DSI_6G_REG_SHIFT,
- 	.reg_cfg = {
--		.num = 2,
-+		.num = 3,
- 		.regs = {
- 			{"vdda", 18160, 1 },	/* 1.25 V */
- 			{"vcca", 17000, 32 },	/* 0.925 V */
--- 
-2.35.1
-
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -136,13 +136,13 @@ struct snd_seq_client *snd_seq_client_us
+ 	spin_unlock_irqrestore(&clients_lock, flags);
+ #ifdef CONFIG_MODULES
+ 	if (!in_interrupt()) {
+-		static char client_requested[SNDRV_SEQ_GLOBAL_CLIENTS];
+-		static char card_requested[SNDRV_CARDS];
++		static DECLARE_BITMAP(client_requested, SNDRV_SEQ_GLOBAL_CLIENTS);
++		static DECLARE_BITMAP(card_requested, SNDRV_CARDS);
++
+ 		if (clientid < SNDRV_SEQ_GLOBAL_CLIENTS) {
+ 			int idx;
+ 			
+-			if (!client_requested[clientid]) {
+-				client_requested[clientid] = 1;
++			if (!test_and_set_bit(clientid, client_requested)) {
+ 				for (idx = 0; idx < 15; idx++) {
+ 					if (seq_client_load[idx] < 0)
+ 						break;
+@@ -157,10 +157,8 @@ struct snd_seq_client *snd_seq_client_us
+ 			int card = (clientid - SNDRV_SEQ_GLOBAL_CLIENTS) /
+ 				SNDRV_SEQ_CLIENTS_PER_CARD;
+ 			if (card < snd_ecards_limit) {
+-				if (! card_requested[card]) {
+-					card_requested[card] = 1;
++				if (!test_and_set_bit(card, card_requested))
+ 					snd_request_card(card);
+-				}
+ 				snd_seq_device_load_drivers();
+ 			}
+ 		}
 
 
