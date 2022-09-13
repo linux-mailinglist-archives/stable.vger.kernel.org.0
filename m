@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58E585B6F8D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8DD35B6F5F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232842AbiIMOLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50670 "EHLO
+        id S232867AbiIMOLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:11:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232755AbiIMOKR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:10:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E54B2ACF;
-        Tue, 13 Sep 2022 07:09:33 -0700 (PDT)
+        with ESMTP id S232806AbiIMOLH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:11:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4316BFA;
+        Tue, 13 Sep 2022 07:09:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0BF06CE1273;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2819FB80EF7;
+        Tue, 13 Sep 2022 14:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A3AC433D6;
         Tue, 13 Sep 2022 14:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85CCFC433C1;
-        Tue, 13 Sep 2022 14:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078169;
-        bh=t1P3kWJlr3FRz90YArACEMVnqBprOqufRoCxhUOe9P0=;
+        s=korg; t=1663078172;
+        bh=2T/MDFlyW/MHBu9xV/s70eNZ8VqsOJgKDVIfWLfStLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKKkZBBIO2N+G6uPa760TJXR3CNuN6e4mcUXbTEhvOYib2IkswUMPgpv9NwVliEPI
-         Y5JBxZOmZwOSc6MLI2lwLDsInC2rH+mOwioYk7ryX9JPPvviZSbHFCOT8FllEIekcS
-         dQGyfmnM7gmm44uGqVqYzozZj363GZ5arbWavXz4=
+        b=f/Q5SEoG73yZP9653RRYzGV1htMfGyUy5fgdexTOiH2rp8XV4x222s3CzleCMpgiB
+         P8wd0BlGobWfa1mHPY2X+IDnhnf76g0h7+gVEjHrZBdE/A+4MwGSgT7gNrgfFIFIG8
+         BCyPGWayBR6+DfIVRr1uptBEiR8cX0U2M6Mmq6kQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pattara Teerapong <pteerapong@chromium.org>,
+        stable@vger.kernel.org, chihhao chen <chihhao.chen@mediatek.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 038/192] ALSA: aloop: Fix random zeros in capture data when using jiffies timer
-Date:   Tue, 13 Sep 2022 16:02:24 +0200
-Message-Id: <20220913140411.816990294@linuxfoundation.org>
+Subject: [PATCH 5.19 039/192] ALSA: usb-audio: Split endpoint setups for hw_params and prepare
+Date:   Tue, 13 Sep 2022 16:02:25 +0200
+Message-Id: <20220913140411.867312087@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -54,49 +53,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pattara Teerapong <pteerapong@chromium.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 3e48940abee88b8dbbeeaf8a07e7b2b6be1271b3 upstream.
+commit ff878b408a03bef5d610b7e2302702e16a53636e upstream.
 
-In loopback_jiffies_timer_pos_update(), we are getting jiffies twice.
-First time for playback, second time for capture. Jiffies can be updated
-between these two calls and if the capture jiffies is larger, extra zeros
-will be filled in the capture buffer.
+One of the former changes for the endpoint management was the more
+consistent setup of endpoints at hw_params.
+snd_usb_endpoint_configure() is a single function that does the full
+setup, and it's called from both PCM hw_params and prepare callbacks.
+Although the EP setup at the prepare phase is usually skipped (by
+checking need_setup flag), it may be still effective in some cases
+like suspend/resume that requires the interface setup again.
 
-Change to get jiffies once and use it for both playback and capture.
+As it's a full and single setup, the invocation of
+snd_usb_endpoint_configure() includes not only the USB interface setup
+but also the buffer release and allocation.  OTOH, doing the buffer
+release and re-allocation at PCM prepare phase is rather superfluous,
+and better to be done only in the hw_params phase.
 
-Signed-off-by: Pattara Teerapong <pteerapong@chromium.org>
+For those optimizations, this patch splits the endpoint setup to two
+phases: snd_usb_endpoint_set_params() and snd_usb_endpoint_prepare(),
+to be called from hw_params and from prepare, respectively.
+
+Note that this patch changes the driver operation slightly,
+effectively moving the USB interface setup again to PCM prepare stage
+instead of hw_params stage, while the buffer allocation and such
+initializations are still done at hw_params stage.
+
+And, the change of the USB interface setup timing (moving to prepare)
+gave an interesting "fix", too: it was reported that the recent
+kernels caused silent output at the beginning on playbacks on some
+devices on Android, and this change casually fixed the regression.
+It seems that those devices are picky about the sample rate change (or
+the interface change?), and don't follow the too immediate rate
+changes.
+
+Meanwhile, Android operates the PCM in the following order:
+- open, then hw_params with the possibly highest sample rate
+- close without prepare
+- re-open, hw_params with the normal sample rate
+- prepare, and start streaming
+This procedure ended up the hw_params twice with different rates, and
+because the recent kernel did set up the sample rate twice one and
+after, it screwed up the device.  OTOH, the earlier kernels didn't set
+up the USB interface at hw_params, hence this problem didn't appear.
+
+Now, with this patch, the USB interface setup is again back to the
+prepare phase, and it works around the problem automagically.
+Although we should address the sample rate problem in a more solid
+way in future, let's keep things working as before for now.
+
+Fixes: bf6313a0ff76 ("ALSA: usb-audio: Refactor endpoint management")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220901144036.4049060-1-pteerapong@chromium.org
+Reported-by: chihhao chen <chihhao.chen@mediatek.com>
+Link: https://lore.kernel.org/r/87e6d6ae69d68dc588ac9acc8c0f24d6188375c3.camel@mediatek.com
+Link: https://lore.kernel.org/r/20220901124136.4984-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/drivers/aloop.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/usb/endpoint.c |   23 +++++++++--------------
+ sound/usb/endpoint.h |    6 ++++--
+ sound/usb/pcm.c      |   14 ++++++++++----
+ 3 files changed, 23 insertions(+), 20 deletions(-)
 
---- a/sound/drivers/aloop.c
-+++ b/sound/drivers/aloop.c
-@@ -605,17 +605,18 @@ static unsigned int loopback_jiffies_tim
- 			cable->streams[SNDRV_PCM_STREAM_PLAYBACK];
- 	struct loopback_pcm *dpcm_capt =
- 			cable->streams[SNDRV_PCM_STREAM_CAPTURE];
--	unsigned long delta_play = 0, delta_capt = 0;
-+	unsigned long delta_play = 0, delta_capt = 0, cur_jiffies;
- 	unsigned int running, count1, count2;
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -758,7 +758,8 @@ bool snd_usb_endpoint_compatible(struct
+  * The endpoint needs to be closed via snd_usb_endpoint_close() later.
+  *
+  * Note that this function doesn't configure the endpoint.  The substream
+- * needs to set it up later via snd_usb_endpoint_configure().
++ * needs to set it up later via snd_usb_endpoint_set_params() and
++ * snd_usb_endpoint_prepare().
+  */
+ struct snd_usb_endpoint *
+ snd_usb_endpoint_open(struct snd_usb_audio *chip,
+@@ -1290,12 +1291,13 @@ out_of_memory:
+ /*
+  * snd_usb_endpoint_set_params: configure an snd_usb_endpoint
+  *
++ * It's called either from hw_params callback.
+  * Determine the number of URBs to be used on this endpoint.
+  * An endpoint must be configured before it can be started.
+  * An endpoint that is already running can not be reconfigured.
+  */
+-static int snd_usb_endpoint_set_params(struct snd_usb_audio *chip,
+-				       struct snd_usb_endpoint *ep)
++int snd_usb_endpoint_set_params(struct snd_usb_audio *chip,
++				struct snd_usb_endpoint *ep)
+ {
+ 	const struct audioformat *fmt = ep->cur_audiofmt;
+ 	int err;
+@@ -1378,18 +1380,18 @@ static int init_sample_rate(struct snd_u
+ }
  
-+	cur_jiffies = jiffies;
- 	running = cable->running ^ cable->pause;
- 	if (running & (1 << SNDRV_PCM_STREAM_PLAYBACK)) {
--		delta_play = jiffies - dpcm_play->last_jiffies;
-+		delta_play = cur_jiffies - dpcm_play->last_jiffies;
- 		dpcm_play->last_jiffies += delta_play;
+ /*
+- * snd_usb_endpoint_configure: Configure the endpoint
++ * snd_usb_endpoint_prepare: Prepare the endpoint
+  *
+  * This function sets up the EP to be fully usable state.
+- * It's called either from hw_params or prepare callback.
++ * It's called either from prepare callback.
+  * The function checks need_setup flag, and performs nothing unless needed,
+  * so it's safe to call this multiple times.
+  *
+  * This returns zero if unchanged, 1 if the configuration has changed,
+  * or a negative error code.
+  */
+-int snd_usb_endpoint_configure(struct snd_usb_audio *chip,
+-			       struct snd_usb_endpoint *ep)
++int snd_usb_endpoint_prepare(struct snd_usb_audio *chip,
++			     struct snd_usb_endpoint *ep)
+ {
+ 	bool iface_first;
+ 	int err = 0;
+@@ -1410,9 +1412,6 @@ int snd_usb_endpoint_configure(struct sn
+ 			if (err < 0)
+ 				goto unlock;
+ 		}
+-		err = snd_usb_endpoint_set_params(chip, ep);
+-		if (err < 0)
+-			goto unlock;
+ 		goto done;
  	}
  
- 	if (running & (1 << SNDRV_PCM_STREAM_CAPTURE)) {
--		delta_capt = jiffies - dpcm_capt->last_jiffies;
-+		delta_capt = cur_jiffies - dpcm_capt->last_jiffies;
- 		dpcm_capt->last_jiffies += delta_capt;
- 	}
+@@ -1440,10 +1439,6 @@ int snd_usb_endpoint_configure(struct sn
+ 	if (err < 0)
+ 		goto unlock;
  
+-	err = snd_usb_endpoint_set_params(chip, ep);
+-	if (err < 0)
+-		goto unlock;
+-
+ 	err = snd_usb_select_mode_quirk(chip, ep->cur_audiofmt);
+ 	if (err < 0)
+ 		goto unlock;
+--- a/sound/usb/endpoint.h
++++ b/sound/usb/endpoint.h
+@@ -17,8 +17,10 @@ snd_usb_endpoint_open(struct snd_usb_aud
+ 		      bool is_sync_ep);
+ void snd_usb_endpoint_close(struct snd_usb_audio *chip,
+ 			    struct snd_usb_endpoint *ep);
+-int snd_usb_endpoint_configure(struct snd_usb_audio *chip,
+-			       struct snd_usb_endpoint *ep);
++int snd_usb_endpoint_set_params(struct snd_usb_audio *chip,
++				struct snd_usb_endpoint *ep);
++int snd_usb_endpoint_prepare(struct snd_usb_audio *chip,
++			     struct snd_usb_endpoint *ep);
+ int snd_usb_endpoint_get_clock_rate(struct snd_usb_audio *chip, int clock);
+ 
+ bool snd_usb_endpoint_compatible(struct snd_usb_audio *chip,
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -443,17 +443,17 @@ static int configure_endpoints(struct sn
+ 		if (stop_endpoints(subs, false))
+ 			sync_pending_stops(subs);
+ 		if (subs->sync_endpoint) {
+-			err = snd_usb_endpoint_configure(chip, subs->sync_endpoint);
++			err = snd_usb_endpoint_prepare(chip, subs->sync_endpoint);
+ 			if (err < 0)
+ 				return err;
+ 		}
+-		err = snd_usb_endpoint_configure(chip, subs->data_endpoint);
++		err = snd_usb_endpoint_prepare(chip, subs->data_endpoint);
+ 		if (err < 0)
+ 			return err;
+ 		snd_usb_set_format_quirk(subs, subs->cur_audiofmt);
+ 	} else {
+ 		if (subs->sync_endpoint) {
+-			err = snd_usb_endpoint_configure(chip, subs->sync_endpoint);
++			err = snd_usb_endpoint_prepare(chip, subs->sync_endpoint);
+ 			if (err < 0)
+ 				return err;
+ 		}
+@@ -551,7 +551,13 @@ static int snd_usb_hw_params(struct snd_
+ 	subs->cur_audiofmt = fmt;
+ 	mutex_unlock(&chip->mutex);
+ 
+-	ret = configure_endpoints(chip, subs);
++	if (subs->sync_endpoint) {
++		ret = snd_usb_endpoint_set_params(chip, subs->sync_endpoint);
++		if (ret < 0)
++			goto unlock;
++	}
++
++	ret = snd_usb_endpoint_set_params(chip, subs->data_endpoint);
+ 
+  unlock:
+ 	if (ret < 0)
 
 
