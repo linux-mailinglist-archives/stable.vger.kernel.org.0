@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 300025B77A0
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C8C95B77AC
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232305AbiIMRSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 13:18:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33816 "EHLO
+        id S230262AbiIMRSt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 13:18:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232498AbiIMRSC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:18:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8BAB61B23;
+        with ESMTP id S232784AbiIMRRr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:17:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DE577551;
         Tue, 13 Sep 2022 09:05:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19DA4B80F01;
-        Tue, 13 Sep 2022 14:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A2B8C433D6;
-        Tue, 13 Sep 2022 14:26:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6601B80F3B;
+        Tue, 13 Sep 2022 14:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E80CEC433D6;
+        Tue, 13 Sep 2022 14:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079183;
-        bh=U+JwBjgfYmuZ0p1z+6AlwPV01tDHsvRf9R8kEBtYvK8=;
+        s=korg; t=1663079251;
+        bh=g4OSy4eiWzd4GXoIulDPPUyvFbwo6gtuf8PChh14Lrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aFH1LknLIQ6gAncMTvKSlWMZGqkGOHuA8UIn7ym13FR5eA2iVc2W8vpWNm2ZNME/E
-         6rbA9jSm7xbfAuZEv0xxcKAEcyBu2ZK3ca/iMTa8xEq4tyrfmGvCvfh5QxhFIQcKze
-         RWJ5hko5Z4zEgP714WNx8p4qpQhNtAikVUzjlFgQ=
+        b=zu3jQXXf7gKNdrpyrxabJgkq1optx+1R07RhSi6WTokuTsOq+wdn4GtOZtQx0mmPX
+         0EaRdf5KliYQ7B1KzZW3Lzarw1B0mKxM8mWXUUKlQ3BTbLt1qfmi+gmHV88A5dx6CX
+         /NR9f+JF0GDts3cv8vAkSc/smOOWQS+4z2yNaSdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>, Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 036/108] clk: core: Fix runtime PM sequence in clk_core_unprepare()
-Date:   Tue, 13 Sep 2022 16:06:07 +0200
-Message-Id: <20220913140355.200481383@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Krishna Kurapati <quic_kriskura@quicinc.com>
+Subject: [PATCH 5.4 054/108] usb: gadget: mass_storage: Fix cdrom data transfers on MAC-OS
+Date:   Tue, 13 Sep 2022 16:06:25 +0200
+Message-Id: <20220913140355.953102576@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -45,57 +43,58 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Krishna Kurapati <quic_kriskura@quicinc.com>
 
-[ Upstream commit 4b592061f7b3971c70e8b72fc42aaead47c24701 ]
+commit 9d4dc16ec71bd6368548e9743223e449b4377fc7 upstream.
 
-In the original commit 9a34b45397e5 ("clk: Add support for runtime PM"),
-the commit message mentioned that pm_runtime_put_sync() would be done
-at the end of clk_core_unprepare(). This mirrors the operations in
-clk_core_prepare() in the opposite order.
+During cdrom emulation, the response to read_toc command must contain
+the cdrom address as the number of sectors (2048 byte sized blocks)
+represented either as an absolute value (when MSF bit is '0') or in
+terms of PMin/PSec/PFrame (when MSF bit is set to '1'). Incase of
+cdrom, the fsg_lun_open call sets the sector size to 2048 bytes.
 
-However, the actual code that was added wasn't in the order the commit
-message described. Move clk_pm_runtime_put() to the end of
-clk_core_unprepare() so that it is in the correct order.
+When MAC OS sends a read_toc request with MSF set to '1', the
+store_cdrom_address assumes that the address being provided is the
+LUN size represented in 512 byte sized blocks instead of 2048. It
+tries to modify the address further to convert it to 2048 byte sized
+blocks and store it in MSF format. This results in data transfer
+failures as the cdrom address being provided in the read_toc response
+is incorrect.
 
-Fixes: 9a34b45397e5 ("clk: Add support for runtime PM")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Link: https://lore.kernel.org/r/20220822081424.1310926-3-wenst@chromium.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3f565a363cee ("usb: gadget: storage: adapt logic block size to bound block devices")
+Cc: stable@vger.kernel.org
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Krishna Kurapati <quic_kriskura@quicinc.com>
+Link: https://lore.kernel.org/r/1661570110-19127-1-git-send-email-quic_kriskura@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/clk.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/gadget/function/storage_common.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 13332f89e034b..c002f83adf573 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -852,10 +852,9 @@ static void clk_core_unprepare(struct clk_core *core)
- 	if (core->ops->unprepare)
- 		core->ops->unprepare(core->hw);
- 
--	clk_pm_runtime_put(core);
--
- 	trace_clk_unprepare_complete(core);
- 	clk_core_unprepare(core->parent);
-+	clk_pm_runtime_put(core);
- }
- 
- static void clk_core_unprepare_lock(struct clk_core *core)
--- 
-2.35.1
-
+--- a/drivers/usb/gadget/function/storage_common.c
++++ b/drivers/usb/gadget/function/storage_common.c
+@@ -294,8 +294,10 @@ EXPORT_SYMBOL_GPL(fsg_lun_fsync_sub);
+ void store_cdrom_address(u8 *dest, int msf, u32 addr)
+ {
+ 	if (msf) {
+-		/* Convert to Minutes-Seconds-Frames */
+-		addr >>= 2;		/* Convert to 2048-byte frames */
++		/*
++		 * Convert to Minutes-Seconds-Frames.
++		 * Sector size is already set to 2048 bytes.
++		 */
+ 		addr += 2*75;		/* Lead-in occupies 2 seconds */
+ 		dest[3] = addr % 75;	/* Frames */
+ 		addr /= 75;
 
 
