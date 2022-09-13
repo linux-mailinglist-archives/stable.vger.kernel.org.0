@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 565F45B770A
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:00:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 832BD5B766E
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:26:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232240AbiIMRAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 13:00:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57778 "EHLO
+        id S232057AbiIMQ0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 12:26:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232238AbiIMQ7w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:59:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FB688C014;
-        Tue, 13 Sep 2022 08:51:22 -0700 (PDT)
+        with ESMTP id S230089AbiIMQZh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:25:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A4EAA3FD;
+        Tue, 13 Sep 2022 08:20:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DB27B80FED;
-        Tue, 13 Sep 2022 14:34:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8577EC433C1;
-        Tue, 13 Sep 2022 14:34:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6524614EC;
+        Tue, 13 Sep 2022 14:36:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBCB2C433D7;
+        Tue, 13 Sep 2022 14:36:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079695;
-        bh=CalIawEmvBT6oJKZ5FkEZ4qq1hGCQEB6V9ztbQ59/Gk=;
+        s=korg; t=1663079807;
+        bh=JYuxi9O3FdJnifusqhvtJkC+4XphOyrht8mntGp0LCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BPzCYiYc5BNjTcpgvGvKD08lelvzKm3wJ9xIMAYoOGP1se21UcMkOJbE/dMA2Vl1N
-         Jztdg/zho3eBlJQvcYvgLTYxyvS4q3f4RAYjt5Fp6ek5ZG9Jfn2CsqrjXdkjEIJE1S
-         mg3LRhvBp8raqEqL5wBl1Fp7LHaFyIs3NsYa1qns=
+        b=lNHxiGUxe2YxoN7gLRFklohgWuvT6FRkelY+fYchztdB+vpOnRkLWuI466/Spl/vr
+         mppfY22RZZWkZgO2xmQzRXQvBYtYDTrurheLnmJOj2PNwSM02fts6YX2ca9fYMf5EI
+         uSQeEGgJH5gN40KHGzY0R5EUTCe0UN1CtZntu/6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Qiong <liqiong@nfschina.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/61] parisc: ccio-dma: Handle kmalloc failure in ccio_init_resources()
-Date:   Tue, 13 Sep 2022 16:07:42 +0200
-Message-Id: <20220913140348.475657349@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.9 20/42] net: mac802154: Fix a condition in the receive path
+Date:   Tue, 13 Sep 2022 16:07:51 +0200
+Message-Id: <20220913140343.292944929@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Qiong <liqiong@nfschina.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit d46c742f827fa2326ab1f4faa1cccadb56912341 ]
+commit f0da47118c7e93cdbbc6fb403dd729a5f2c90ee3 upstream.
 
-As the possible failure of the kmalloc(), it should be better
-to fix this error path, check and return '-ENOMEM' error code.
+Upon reception, a packet must be categorized, either it's destination is
+the host, or it is another host. A packet with no destination addressing
+fields may be valid in two situations:
+- the packet has no source field: only ACKs are built like that, we
+  consider the host as the destination.
+- the packet has a valid source field: it is directed to the PAN
+  coordinator, as for know we don't have this information we consider we
+  are not the PAN coordinator.
 
-Signed-off-by: Li Qiong <liqiong@nfschina.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+There was likely a copy/paste error made during a previous cleanup
+because the if clause is now containing exactly the same condition as in
+the switch case, which can never be true. In the past the destination
+address was used in the switch and the source address was used in the
+if, which matches what the spec says.
+
+Cc: stable@vger.kernel.org
+Fixes: ae531b9475f6 ("ieee802154: use ieee802154_addr instead of *_sa variants")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20220826142954.254853-1-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/ccio-dma.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ net/mac802154/rx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
-index 224a364097672..cc23b30337c16 100644
---- a/drivers/parisc/ccio-dma.c
-+++ b/drivers/parisc/ccio-dma.c
-@@ -1416,15 +1416,17 @@ ccio_init_resource(struct resource *res, char *name, void __iomem *ioaddr)
- 	}
- }
+--- a/net/mac802154/rx.c
++++ b/net/mac802154/rx.c
+@@ -52,7 +52,7 @@ ieee802154_subif_frame(struct ieee802154
  
--static void __init ccio_init_resources(struct ioc *ioc)
-+static int __init ccio_init_resources(struct ioc *ioc)
- {
- 	struct resource *res = ioc->mmio_region;
- 	char *name = kmalloc(14, GFP_KERNEL);
--
-+	if (unlikely(!name))
-+		return -ENOMEM;
- 	snprintf(name, 14, "GSC Bus [%d/]", ioc->hw_path);
- 
- 	ccio_init_resource(res, name, &ioc->ioc_regs->io_io_low);
- 	ccio_init_resource(res + 1, name, &ioc->ioc_regs->io_io_low_hv);
-+	return 0;
- }
- 
- static int new_ioc_area(struct resource *res, unsigned long size,
-@@ -1578,7 +1580,10 @@ static int __init ccio_probe(struct parisc_device *dev)
- 		return -ENOMEM;
- 	}
- 	ccio_ioc_init(ioc);
--	ccio_init_resources(ioc);
-+	if (ccio_init_resources(ioc)) {
-+		kfree(ioc);
-+		return -ENOMEM;
-+	}
- 	hppa_dma_ops = &ccio_ops;
- 	dev->dev.platform_data = kzalloc(sizeof(struct pci_hba_data), GFP_KERNEL);
- 
--- 
-2.35.1
-
+ 	switch (mac_cb(skb)->dest.mode) {
+ 	case IEEE802154_ADDR_NONE:
+-		if (mac_cb(skb)->dest.mode != IEEE802154_ADDR_NONE)
++		if (hdr->source.mode != IEEE802154_ADDR_NONE)
+ 			/* FIXME: check if we are PAN coordinator */
+ 			skb->pkt_type = PACKET_OTHERHOST;
+ 		else
 
 
