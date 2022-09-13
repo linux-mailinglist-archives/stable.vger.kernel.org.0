@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E14FC5B70E0
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A535B72FF
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233674AbiIMOdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:33:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55842 "EHLO
+        id S234926AbiIMPCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:02:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234007AbiIMOck (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:32:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB4B3A486;
-        Tue, 13 Sep 2022 07:19:18 -0700 (PDT)
+        with ESMTP id S234958AbiIMPAA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:00:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FF9D69F56;
+        Tue, 13 Sep 2022 07:29:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45D9DB80F3B;
-        Tue, 13 Sep 2022 14:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ADD6C433D7;
-        Tue, 13 Sep 2022 14:19:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98736614B5;
+        Tue, 13 Sep 2022 14:13:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A742DC433D6;
+        Tue, 13 Sep 2022 14:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078748;
-        bh=BrsrdON7KovxOojInyEqPaghbcoHurwYXeZgZyEoYmI=;
+        s=korg; t=1663078407;
+        bh=xsaZeYkrc/Uzf4+/7S3gCET26HKaDj3+mqIwnpMZcVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hq+HBe07zzGqDy1D655Jln049uNtjttRvdJrisX6Ww0GNCxfjhgBa3vnImvt50Zvn
-         oDeVGeUfYA/aCL8sQbe8OClYPkiHKT05UmHm4FftbTJTSjjqTsCwPWj6TrATjHr6Db
-         OGZ6JpL1CTafndGQ9wQ5VUdMvO3qQfXVqKzGGZmA=
+        b=PipuNaXazSdiWqW8ialypaoXCIUUCXzd6FCQuvHJZcLl8dB9g5GaZOSZHTKalxbgb
+         mZ5Y/bSh5SpW+zFMMewQSx/reJNVpLvmBUhu5b70qWlrJH9fPL90Jc31ZH10xlCmQt
+         Orz9VsDFui33sxcx+jC4W9aYgGUqNDwotTVsFpuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 042/121] scsi: lpfc: Add missing destroy_workqueue() in error path
+        stable@vger.kernel.org, LiLiang <liali@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 127/192] bonding: use unspecified address if no available link local address
 Date:   Tue, 13 Sep 2022 16:03:53 +0200
-Message-Id: <20220913140359.174786600@linuxfoundation.org>
+Message-Id: <20220913140416.331082954@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit da6d507f5ff328f346b3c50e19e19993027b8ffd upstream.
+[ Upstream commit b7f14132bf58256e841774ae07d3ffb7a841c2bc ]
 
-Add the missing destroy_workqueue() before return from
-lpfc_sli4_driver_resource_setup() in the error path.
+When ns_ip6_target was set, the ipv6_dev_get_saddr() will be called to get
+available source address and send IPv6 neighbor solicit message.
 
-Link: https://lore.kernel.org/r/20220823044237.285643-1-yangyingliang@huawei.com
-Fixes: 3cee98db2610 ("scsi: lpfc: Fix crash on driver unload in wq free")
-Reviewed-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If the target is global address, ipv6_dev_get_saddr() will get any
+available src address. But if the target is link local address,
+ipv6_dev_get_saddr() will only get available address from our interface,
+i.e. the corresponding bond interface.
+
+But before bond interface up, all the address is tentative, while
+ipv6_dev_get_saddr() will ignore tentative address. This makes we can't
+find available link local src address, then bond_ns_send() will not be
+called and no NS message was sent. Finally bond interface will keep in
+down state.
+
+Fix this by sending NS with unspecified address if there is no available
+source address.
+
+Reported-by: LiLiang <liali@redhat.com>
+Fixes: 5e1eeef69c0f ("bonding: NS target should accept link local address")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_init.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/bonding/bond_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -7893,7 +7893,7 @@ lpfc_sli4_driver_resource_setup(struct l
- 	/* Allocate device driver memory */
- 	rc = lpfc_mem_alloc(phba, SGL_ALIGN_SZ);
- 	if (rc)
--		return -ENOMEM;
-+		goto out_destroy_workqueue;
- 
- 	/* IF Type 2 ports get initialized now. */
- 	if (bf_get(lpfc_sli_intf_if_type, &phba->sli4_hba.sli_intf) >=
-@@ -8309,6 +8309,9 @@ out_free_bsmbx:
- 	lpfc_destroy_bootstrap_mbox(phba);
- out_free_mem:
- 	lpfc_mem_free(phba);
-+out_destroy_workqueue:
-+	destroy_workqueue(phba->wq);
-+	phba->wq = NULL;
- 	return rc;
- }
- 
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 6ba4c83fe5fc0..0cf8c3a125d2e 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3134,6 +3134,9 @@ static void bond_ns_send_all(struct bonding *bond, struct slave *slave)
+ found:
+ 		if (!ipv6_dev_get_saddr(dev_net(dst->dev), dst->dev, &targets[i], 0, &saddr))
+ 			bond_ns_send(slave, &targets[i], &saddr, tags);
++		else
++			bond_ns_send(slave, &targets[i], &in6addr_any, tags);
++
+ 		dst_release(dst);
+ 		kfree(tags);
+ 	}
+-- 
+2.35.1
+
 
 
