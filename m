@@ -2,66 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B31CF5B6A03
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 10:58:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE065B6AF1
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 11:40:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231508AbiIMI62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 04:58:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37124 "EHLO
+        id S231753AbiIMJkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 05:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231470AbiIMI6Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 04:58:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180435B059;
-        Tue, 13 Sep 2022 01:58:23 -0700 (PDT)
+        with ESMTP id S231739AbiIMJkZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 05:40:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EADB5AC70
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 02:40:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF52261362;
-        Tue, 13 Sep 2022 08:58:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADBD7C43145;
-        Tue, 13 Sep 2022 08:58:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A12FEB80DFE
+        for <stable@vger.kernel.org>; Tue, 13 Sep 2022 09:40:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96028C433D6;
+        Tue, 13 Sep 2022 09:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663059499;
-        bh=UOddsd9fTwruKPtHK4PQdX3Aj2bOzBz9H6gKzdOs90A=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XJGNN3RMN9Dthdp6C6tKrReVytqgtCRPdimn0nDLv08FKn1FtYzyF4rip8KK0lNNh
-         F0HELeNhruuzY5er2ZM4mCviLpuFSG46ji9GB2djjc4jZRx3D76J/aPxvxAJxr+D96
-         hGCXEjg06cs4lfKFOidzMfndytS3ze+L2SYjr8TC5OHs71Mpqzhu+su+IxPbFBbBTR
-         cSXq4cfllLOgIK40eZsetHhX8rAszju747dARUyWHrOQ5Y6vNlTLspZZeNur0wLC1D
-         /t9YLhZ5iWpO1AeK6/GZduHdKeuxZmq+T2zY2xcMCOgDj0F2Ee8Q4M6kdjKpBI+Jg2
-         fiC2v/V2INWJg==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan+linaro@kernel.org>)
-        id 1oY1kI-0002HG-Vn; Tue, 13 Sep 2022 10:58:19 +0200
-From:   Johan Hovold <johan+linaro@kernel.org>
-To:     Douglas Anderson <dianders@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>
-Cc:     Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Robert Foss <robert.foss@linaro.org>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>, Sean Paul <sean@poorly.run>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Steev Klimaszewski <steev@kali.org>,
-        dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
-        freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2 08/10] drm/msm/hdmi: fix IRQ lifetime
-Date:   Tue, 13 Sep 2022 10:53:18 +0200
-Message-Id: <20220913085320.8577-9-johan+linaro@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220913085320.8577-1-johan+linaro@kernel.org>
-References: <20220913085320.8577-1-johan+linaro@kernel.org>
+        s=k20201202; t=1663062020;
+        bh=S5297AxOJ/cGdOJl65TCvsOot0UAQTfb+PHlKU7tsnU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bRbZzgPme81/rIOg/ZnQDvjgNsMwG1Gum5zQCCfReapH+96ugjgTPTePrEoB3JIv1
+         BeRtLUSI82QKEwUkOwML1CCBKZ/bVDaes7nPvoNhWGrLXOmiyNktUp1Plu7ixGur0L
+         NTKAvgz6snmxKbq2cfgas7uNrd0Qf7lE1mnLP1Ahwc5TLY367zfaLwKhD0XH/UGsTy
+         6MpabUikag0gSwKWq1KAocJdFpudF+ZSZk51PzH1R71HOVoHaCM6qBOQaKF8dGnaEd
+         tYgM2bs4s7sHkiYbJPmbI8qdVtvf+Wzo0bbW/CHQlZN+t6Wh3PdnNYaSF3rI9HRB7L
+         2P05vsnM5ksfg==
+Date:   Tue, 13 Sep 2022 02:40:17 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Conor Dooley <mail@conchuod.ie>
+Cc:     atishp@atishpatra.org, ajones@ventanamicro.com,
+        anup@brainfault.org, conor.dooley@microchip.com, heiko@sntech.de,
+        jrtc27@jrtc27.com, linux-riscv@lists.infradead.org, lkp@intel.com,
+        mchitale@ventanamicro.com, palmer@rivosinc.com,
+        stable@vger.kernel.org, Atish Patra <atishp@rivosinc.com>
+Subject: Re: [PATCH v4] RISC-V: Clean up the Zicbom block size probing
+Message-ID: <YyBQASDHnbEd6aMq@dev-arch.thelio-3990X>
+References: <20220912224800.998121-1-mail@conchuod.ie>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220912224800.998121-1-mail@conchuod.ie>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -72,38 +56,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Device-managed resources allocated post component bind must be tied to
-the lifetime of the aggregate DRM device or they will not necessarily be
-released when binding of the aggregate device is deferred.
+On Mon, Sep 12, 2022 at 11:48:01PM +0100, Conor Dooley wrote:
+> From: Palmer Dabbelt <palmer@rivosinc.com>
+> 
+> This fixes two issues: I truncated the warning's hart ID when porting to
+> the 64-bit hart ID code, and the original code's warning handling could
+> fire on an uninitialized hart ID.
+> 
+> The biggest change here is that riscv_cbom_block_size is no longer
+> initialized, as IMO the default isn't sane: there's nothing in the ISA
+> that mandates any specific cache block size, so falling back to one will
+> just silently produce the wrong answer on some systems.  This also
+> changes the probing order so the cache block size is known before
+> enabling Zicbom support.
+> 
+> CC: stable@vger.kernel.org
+> CC: Andrew Jones <ajones@ventanamicro.com>
+> CC: Heiko Stuebner <heiko@sntech.de>
+> CC: Atish Patra <atishp@rivosinc.com>
+> Fixes: 3aefb2ee5bdd ("riscv: implement Zicbom-based CMO instructions + the t-head variant")
+> Fixes: 1631ba1259d6 ("riscv: Add support for non-coherent devices using zicbom extension")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Reported-by: Conor Dooley <conor.dooley@microchip.com>
+> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+> [Conor: fixed the redefinition errors]
+> Tested-by: Conor Dooley <conor.dooley@microchip.com>
+> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 
-This is specifically true for the HDMI IRQ, which will otherwise remain
-requested so that the next bind attempt fails when requesting the IRQ a
-second time.
+Build-tested-by: Nathan Chancellor <nathan@kernel.org>
 
-Fix this by tying the device-managed lifetime of the HDMI IRQ to the DRM
-device so that it is released when bind fails.
+Thanks a lot for continuing to chase this!
 
-Fixes: 067fef372c73 ("drm/msm/hdmi: refactor bind/init")
-Cc: stable@vger.kernel.org      # 3.19
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
----
- drivers/gpu/drm/msm/hdmi/hdmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
-index a0ed6aa8e4e1..f28fb21e3891 100644
---- a/drivers/gpu/drm/msm/hdmi/hdmi.c
-+++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
-@@ -344,7 +344,7 @@ int msm_hdmi_modeset_init(struct hdmi *hdmi,
- 		goto fail;
- 	}
- 
--	ret = devm_request_irq(&pdev->dev, hdmi->irq,
-+	ret = devm_request_irq(dev->dev, hdmi->irq,
- 			msm_hdmi_irq, IRQF_TRIGGER_HIGH,
- 			"hdmi_isr", hdmi);
- 	if (ret < 0) {
--- 
-2.35.1
-
+> ---
+> Hey Palmer,
+> w/ LPC etc I figure it's highly unlikely you'd have this respun
+> in time to have it applied this week. I dropped all the tested
+> and reviewed -by tags since this patch has been changed a fair
+> bit back and forth since the tags were left. Checked it on my
+> D1 to make sure nothing blew up.. if this could make this weeks
+> rc, that'd be great so that the clang allmodconfig builds are
+> working again.
+> Conor.
+> ---
+>  arch/riscv/errata/thead/errata.c    |  1 +
+>  arch/riscv/include/asm/cacheflush.h |  1 +
+>  arch/riscv/kernel/setup.c           |  2 +-
+>  arch/riscv/mm/dma-noncoherent.c     | 23 +++++++++++++----------
+>  4 files changed, 16 insertions(+), 11 deletions(-)
+> 
+> diff --git a/arch/riscv/errata/thead/errata.c b/arch/riscv/errata/thead/errata.c
+> index 202c83f677b2..96648c176f37 100644
+> --- a/arch/riscv/errata/thead/errata.c
+> +++ b/arch/riscv/errata/thead/errata.c
+> @@ -37,6 +37,7 @@ static bool errata_probe_cmo(unsigned int stage,
+>  	if (stage == RISCV_ALTERNATIVES_EARLY_BOOT)
+>  		return false;
+>  
+> +	riscv_cbom_block_size = L1_CACHE_BYTES;
+>  	riscv_noncoherent_supported();
+>  	return true;
+>  #else
+> diff --git a/arch/riscv/include/asm/cacheflush.h b/arch/riscv/include/asm/cacheflush.h
+> index a60acaecfeda..a89c005b4bbf 100644
+> --- a/arch/riscv/include/asm/cacheflush.h
+> +++ b/arch/riscv/include/asm/cacheflush.h
+> @@ -43,6 +43,7 @@ void flush_icache_mm(struct mm_struct *mm, bool local);
+>  #endif /* CONFIG_SMP */
+>  
+>  #ifdef CONFIG_RISCV_ISA_ZICBOM
+> +extern unsigned int riscv_cbom_block_size;
+>  void riscv_init_cbom_blocksize(void);
+>  #else
+>  static inline void riscv_init_cbom_blocksize(void) { }
+> diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+> index 95ef6e2bf45c..2dfc463b86bb 100644
+> --- a/arch/riscv/kernel/setup.c
+> +++ b/arch/riscv/kernel/setup.c
+> @@ -296,8 +296,8 @@ void __init setup_arch(char **cmdline_p)
+>  	setup_smp();
+>  #endif
+>  
+> -	riscv_fill_hwcap();
+>  	riscv_init_cbom_blocksize();
+> +	riscv_fill_hwcap();
+>  	apply_boot_alternatives();
+>  }
+>  
+> diff --git a/arch/riscv/mm/dma-noncoherent.c b/arch/riscv/mm/dma-noncoherent.c
+> index cd2225304c82..e3f9bdf47c5f 100644
+> --- a/arch/riscv/mm/dma-noncoherent.c
+> +++ b/arch/riscv/mm/dma-noncoherent.c
+> @@ -12,7 +12,7 @@
+>  #include <linux/of_device.h>
+>  #include <asm/cacheflush.h>
+>  
+> -static unsigned int riscv_cbom_block_size = L1_CACHE_BYTES;
+> +unsigned int riscv_cbom_block_size;
+>  static bool noncoherent_supported;
+>  
+>  void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> @@ -79,38 +79,41 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+>  void riscv_init_cbom_blocksize(void)
+>  {
+>  	struct device_node *node;
+> +	unsigned long cbom_hartid;
+> +	u32 val, probed_block_size;
+>  	int ret;
+> -	u32 val;
+>  
+> +	probed_block_size = 0;
+>  	for_each_of_cpu_node(node) {
+>  		unsigned long hartid;
+> -		int cbom_hartid;
+>  
+>  		ret = riscv_of_processor_hartid(node, &hartid);
+>  		if (ret)
+>  			continue;
+>  
+> -		if (hartid < 0)
+> -			continue;
+> -
+>  		/* set block-size for cbom extension if available */
+>  		ret = of_property_read_u32(node, "riscv,cbom-block-size", &val);
+>  		if (ret)
+>  			continue;
+>  
+> -		if (!riscv_cbom_block_size) {
+> -			riscv_cbom_block_size = val;
+> +		if (!probed_block_size) {
+> +			probed_block_size = val;
+>  			cbom_hartid = hartid;
+>  		} else {
+> -			if (riscv_cbom_block_size != val)
+> -				pr_warn("cbom-block-size mismatched between harts %d and %lu\n",
+> +			if (probed_block_size != val)
+> +				pr_warn("cbom-block-size mismatched between harts %lu and %lu\n",
+>  					cbom_hartid, hartid);
+>  		}
+>  	}
+> +
+> +	if (probed_block_size)
+> +		riscv_cbom_block_size = probed_block_size;
+>  }
+>  #endif
+>  
+>  void riscv_noncoherent_supported(void)
+>  {
+> +	WARN(!riscv_cbom_block_size,
+> +	     "Non-coherent DMA support enabled without a block size\n");
+>  	noncoherent_supported = true;
+>  }
+> -- 
+> 2.37.1
+> 
