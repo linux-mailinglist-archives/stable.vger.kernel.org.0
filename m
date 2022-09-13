@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 967755B738D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B88335B7376
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235355AbiIMPGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:06:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55538 "EHLO
+        id S235317AbiIMPGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:06:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234874AbiIMPEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D4465802;
-        Tue, 13 Sep 2022 07:30:33 -0700 (PDT)
+        with ESMTP id S235471AbiIMPEf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EBBA74DCF;
+        Tue, 13 Sep 2022 07:30:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07DEEB80F99;
-        Tue, 13 Sep 2022 14:27:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AEBDC433C1;
-        Tue, 13 Sep 2022 14:27:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AF13614E8;
+        Tue, 13 Sep 2022 14:30:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DDC1C433C1;
+        Tue, 13 Sep 2022 14:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079256;
-        bh=Fl2Giew66XqwbEuil+L3lWo7xPrcCZo3t0Rz+/OmeNs=;
+        s=korg; t=1663079416;
+        bh=zFhS6/exjr48cT/0kwF6TaWpwzaS/3ugMhrpIQzLnLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JQg9iZAwtSqVpesbmp016ZnFda6g92gKWDrMyk3DfIm7FadT67CIL0jm5RIgGXH5u
-         Eue/URfyMdNqyal9TSEK6aSX/4PxrVvr88YM234mrIGxNsfh+BFVjVPMxtIvn4PAY0
-         8aEez6jXmVf6CortbDyQWbPl+hSW6aCnJP3jBcdE=
+        b=xvlogJ5qmYywE302RZS3sH1pTORmNA2UMpqyjVAKZ7EO9IXmvfrSDpW2VaFqbGOA6
+         2SfnuMMg5r8S7sUwfYob1ux7Z/mkiteXH3TzY7wUn6pUvjNEXdOV9MoomFcQOEPB4m
+         Tupr7etohgoBqdj3oCrnGEjYI0YPol7v0KUkwpOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        stable <stable@kernel.org>,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 5.4 064/108] usb: dwc3: disable USB core PHY management
-Date:   Tue, 13 Sep 2022 16:06:35 +0200
-Message-Id: <20220913140356.370574658@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 18/79] Revert "sch_cake: Return __NET_XMIT_STOLEN when consuming enqueued skb"
+Date:   Tue, 13 Sep 2022 16:06:36 +0200
+Message-Id: <20220913140349.753256086@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
+[ Upstream commit 0b4f688d53fdc2a731b9d9cdf0c96255bc024ea6 ]
 
-The dwc3 driver manages its PHYs itself so the USB core PHY management
-needs to be disabled.
+This reverts commit 90fabae8a2c225c4e4936723c38857887edde5cc.
 
-Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
-host: xhci-plat: add platform data support") and f768e718911e ("usb:
-host: xhci-plat: add priv quirk for skip PHY initialization") to
-propagate the setting for now.
+Patch was applied hastily, revert and let the v2 be reviewed.
 
-Fixes: 4e88d4c08301 ("usb: add a flag to skip PHY initialization to struct usb_hcd")
-Fixes: 178a0bce05cb ("usb: core: hcd: integrate the PHY wrapper into the HCD core")
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Cc: stable <stable@kernel.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220825131836.19769-1-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[ johan: adjust context to 5.15 ]
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 90fabae8a2c2 ("sch_cake: Return __NET_XMIT_STOLEN when consuming enqueued skb")
+Link: https://lore.kernel.org/all/87wnao2ha3.fsf@toke.dk/
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/host.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/sched/sch_cake.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -9,8 +9,13 @@
- 
- #include <linux/platform_device.h>
- 
-+#include "../host/xhci-plat.h"
- #include "core.h"
- 
-+static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
-+	.quirks = XHCI_SKIP_PHY_INIT,
-+};
-+
- static int dwc3_host_get_irq(struct dwc3 *dwc)
- {
- 	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
-@@ -85,6 +90,11 @@ int dwc3_host_init(struct dwc3 *dwc)
- 		goto err;
+diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
+index c0a6947545280..18c207b85d513 100644
+--- a/net/sched/sch_cake.c
++++ b/net/sched/sch_cake.c
+@@ -1666,7 +1666,6 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
  	}
+ 	idx--;
+ 	flow = &b->flows[idx];
+-	ret = NET_XMIT_SUCCESS;
  
-+	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
-+					sizeof(dwc3_xhci_plat_priv));
-+	if (ret)
-+		goto err;
-+
- 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
+ 	/* ensure shaper state isn't stale */
+ 	if (!b->tin_backlog) {
+@@ -1727,7 +1726,6 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
  
- 	if (dwc->usb3_lpm_capable)
+ 		qdisc_tree_reduce_backlog(sch, 1-numsegs, len-slen);
+ 		consume_skb(skb);
+-		ret |= __NET_XMIT_STOLEN;
+ 	} else {
+ 		/* not splitting */
+ 		cobalt_set_enqueue_time(skb, now);
+@@ -1851,7 +1849,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 		}
+ 		b->drop_overlimit += dropped;
+ 	}
+-	return ret;
++	return NET_XMIT_SUCCESS;
+ }
+ 
+ static struct sk_buff *cake_dequeue_one(struct Qdisc *sch)
+-- 
+2.35.1
+
 
 
