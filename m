@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E60B5B6F8F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A0F5B6FD6
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232885AbiIMOMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:12:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
+        id S233079AbiIMOSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:18:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232741AbiIMOL0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:11:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E764CA1A2;
-        Tue, 13 Sep 2022 07:09:40 -0700 (PDT)
+        with ESMTP id S232939AbiIMOR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:17:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E141275E1;
+        Tue, 13 Sep 2022 07:12:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EED0614AD;
-        Tue, 13 Sep 2022 14:09:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79F86C433D6;
-        Tue, 13 Sep 2022 14:09:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0288DCE126A;
+        Tue, 13 Sep 2022 14:11:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02534C433C1;
+        Tue, 13 Sep 2022 14:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078178;
-        bh=iC7ywnmF/4koE46Zrizjhd5jBBotTGF7L5RV0yUCHUw=;
+        s=korg; t=1663078278;
+        bh=s1/ZCp8gVewybkMOSq1CpY6XS87wnG57FxBySIRht4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=17RE7GTHXr4sSQBymXakCqPv4DBtaAKicXc9aCKMjvS+CsNhAKs+QGATYMG0laKWl
-         ZgaMTCRJxhEjOKxnABbTVytljqjXVPnO0SL5WowzVA/XPZ1/CddGGVTXK7LgAdHDfL
-         3fVhj+s9m+9LD8wySBexWs4MmkjsptmE2PX+5t00=
+        b=ueBf82Mw7aIxb7j6vXxStcXhgosgzhuDEZrq443+dAAVWdON7hmqtkX5ZbnBYnBq3
+         KqhwHNQctmkaQrSnVOfb0Howhn4EzHLGe+IHnOGEa4OS4cKFrzCnlcIHVFGojTfmkJ
+         XqZv+JJfT7d0AmVLnQ4iEtYoqF13/lBp5GbLY/DA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongxiang Ke <kdx.glider@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.19 041/192] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
-Date:   Tue, 13 Sep 2022 16:02:27 +0200
-Message-Id: <20220913140411.967646852@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.19 042/192] tracefs: Only clobber mode/uid/gid on remount if asked
+Date:   Tue, 13 Sep 2022 16:02:28 +0200
+Message-Id: <20220913140412.017270415@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -53,34 +53,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongxiang Ke <kdx.glider@gmail.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf upstream.
+commit 47311db8e8f33011d90dee76b39c8886120cdda4 upstream.
 
-There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
-the number of it's interfaces less than 4, an out-of-bounds read bug occurs
-when parsing the interface descriptor for this device.
+Users may have explicitly configured their tracefs permissions; we
+shouldn't overwrite those just because a second mount appeared.
 
-Fix this by checking the number of interfaces.
+Only clobber if the options were provided at mount time.
 
-Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
-Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Note: the previous behavior was especially surprising in the presence of
+automounted /sys/kernel/debug/tracing/.
+
+Existing behavior:
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwx------
+
+  ## Unexpected: the automount changed mode for other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwx------
+
+New behavior (after this change):
+
+  ## Pre-existing status: tracefs is 0755.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+  ## (Re)trigger the automount.
+  # umount /sys/kernel/debug/tracing
+  # stat -c '%A' /sys/kernel/debug/tracing/.
+  drwxr-xr-x
+
+  ## Expected: the automount does not change other mount instances.
+  # stat -c '%A' /sys/kernel/tracing/
+  drwxr-xr-x
+
+Link: https://lkml.kernel.org/r/20220826174353.2.Iab6e5ea57963d6deca5311b27fb7226790d44406@changeid
+
+Cc: stable@vger.kernel.org
+Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/stream.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/tracefs/inode.c |   31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -1105,7 +1105,7 @@ static int __snd_usb_parse_audio_interfa
- 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
- 	 * one misses syncpipe, and does not produce any sound.
- 	 */
--	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
-+	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
- 		num = 4;
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -141,6 +141,8 @@ struct tracefs_mount_opts {
+ 	kuid_t uid;
+ 	kgid_t gid;
+ 	umode_t mode;
++	/* Opt_* bitfield. */
++	unsigned int opts;
+ };
  
- 	for (i = 0; i < num; i++) {
+ enum {
+@@ -241,6 +243,7 @@ static int tracefs_parse_options(char *d
+ 	kgid_t gid;
+ 	char *p;
+ 
++	opts->opts = 0;
+ 	opts->mode = TRACEFS_DEFAULT_MODE;
+ 
+ 	while ((p = strsep(&data, ",")) != NULL) {
+@@ -275,24 +278,36 @@ static int tracefs_parse_options(char *d
+ 		 * but traditionally tracefs has ignored all mount options
+ 		 */
+ 		}
++
++		opts->opts |= BIT(token);
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int tracefs_apply_options(struct super_block *sb)
++static int tracefs_apply_options(struct super_block *sb, bool remount)
+ {
+ 	struct tracefs_fs_info *fsi = sb->s_fs_info;
+ 	struct inode *inode = d_inode(sb->s_root);
+ 	struct tracefs_mount_opts *opts = &fsi->mount_opts;
+ 
+-	inode->i_mode &= ~S_IALLUGO;
+-	inode->i_mode |= opts->mode;
++	/*
++	 * On remount, only reset mode/uid/gid if they were provided as mount
++	 * options.
++	 */
++
++	if (!remount || opts->opts & BIT(Opt_mode)) {
++		inode->i_mode &= ~S_IALLUGO;
++		inode->i_mode |= opts->mode;
++	}
+ 
+-	inode->i_uid = opts->uid;
++	if (!remount || opts->opts & BIT(Opt_uid))
++		inode->i_uid = opts->uid;
+ 
+-	/* Set all the group ids to the mount option */
+-	set_gid(sb->s_root, opts->gid);
++	if (!remount || opts->opts & BIT(Opt_gid)) {
++		/* Set all the group ids to the mount option */
++		set_gid(sb->s_root, opts->gid);
++	}
+ 
+ 	return 0;
+ }
+@@ -307,7 +322,7 @@ static int tracefs_remount(struct super_
+ 	if (err)
+ 		goto fail;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, true);
+ 
+ fail:
+ 	return err;
+@@ -359,7 +374,7 @@ static int trace_fill_super(struct super
+ 
+ 	sb->s_op = &tracefs_super_operations;
+ 
+-	tracefs_apply_options(sb);
++	tracefs_apply_options(sb, false);
+ 
+ 	return 0;
+ 
 
 
