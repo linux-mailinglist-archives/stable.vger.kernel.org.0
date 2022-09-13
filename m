@@ -2,175 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F215B738C
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A24DA5B72DC
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235620AbiIMPMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50540 "EHLO
+        id S234897AbiIMO75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:59:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235295AbiIMPLU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:11:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B785878219;
-        Tue, 13 Sep 2022 07:32:21 -0700 (PDT)
+        with ESMTP id S234947AbiIMO5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:57:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11BD173914;
+        Tue, 13 Sep 2022 07:28:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17F68614D0;
-        Tue, 13 Sep 2022 14:30:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31E7FC433D6;
-        Tue, 13 Sep 2022 14:30:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1257D614E1;
+        Tue, 13 Sep 2022 14:28:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28742C433D7;
+        Tue, 13 Sep 2022 14:28:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079438;
-        bh=0ZEUTEcxjqvEWn9z7YBSmi0n2DUPV8TRQltQwOP9TYE=;
+        s=korg; t=1663079282;
+        bh=fPid+q0GoEnpfhUVAoMELTMnsoxydhxBhddicCiYKQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dA2qPHa/fUTd5CyNSWaT2BIcfJUKufV0wwBxRUI7+cEEJnsi8GrUswBv6VnxstLfo
-         KHUSs6Ohgax6/QFwFMJYgFNYpRlQI87utSLWFHKieUgQAdMASSPtTjisWmVsnLXOLb
-         WzOmyVG6qtpV0PzFRzfOslFr8XC1T9cNIxr6dBtE=
+        b=lFK1SZcdjCeN+SYl99NhAeAyq1tK4wtIofM86WIl3zI0Fg/vJ3g0WJM+QRFAJdIcy
+         dm0xwkoxg3TpF4lGYv9uK4NUJrPZ2aw5uTXbKUe78M6TB6bMQeYSxQ77pzv6Kr/63v
+         mr0D+SjxV8TZOBRpROeZ2DJ3afArSjrmvqkN1VQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>, Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/79] clk: core: Honor CLK_OPS_PARENT_ENABLE for clk gate ops
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Bruno Goncalves <bgoncalv@redhat.com>
+Subject: [PATCH 5.4 073/108] arm64: cacheinfo: Fix incorrect assignment of signed error value to unsigned fw_level
 Date:   Tue, 13 Sep 2022 16:06:44 +0200
-Message-Id: <20220913140350.166493861@linuxfoundation.org>
+Message-Id: <20220913140356.761938054@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 35b0fac808b95eea1212f8860baf6ad25b88b087 ]
+[ Upstream commit e75d18cecbb3805895d8ed64da4f78575ec96043 ]
 
-In the previous commits that added CLK_OPS_PARENT_ENABLE, support for
-this flag was only added to rate change operations (rate setting and
-reparent) and disabling unused subtree. It was not added to the
-clock gate related operations. Any hardware driver that needs it for
-these operations will either see bogus results, or worse, hang.
+Though acpi_find_last_cache_level() always returned signed value and the
+document states it will return any errors caused by lack of a PPTT table,
+it never returned negative values before.
 
-This has been seen on MT8192 and MT8195, where the imp_ii2_* clk
-drivers set this, but dumping debugfs clk_summary would cause it
-to hang.
+Commit 0c80f9e165f8 ("ACPI: PPTT: Leave the table mapped for the runtime usage")
+however changed it by returning -ENOENT if no PPTT was found. The value
+returned from acpi_find_last_cache_level() is then assigned to unsigned
+fw_level.
 
-Fixes: fc8726a2c021 ("clk: core: support clocks which requires parents enable (part 2)")
-Fixes: a4b3518d146f ("clk: core: support clocks which requires parents enable (part 1)")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Link: https://lore.kernel.org/r/20220822081424.1310926-2-wenst@chromium.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+It will result in the number of cache leaves calculated incorrectly as
+a huge value which will then cause the following warning from __alloc_pages
+as the order would be great than MAX_ORDER because of incorrect and huge
+cache leaves value.
+
+  |  WARNING: CPU: 0 PID: 1 at mm/page_alloc.c:5407 __alloc_pages+0x74/0x314
+  |  Modules linked in:
+  |  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-10393-g7c2a8d3ac4c0 #73
+  |  pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+  |  pc : __alloc_pages+0x74/0x314
+  |  lr : alloc_pages+0xe8/0x318
+  |  Call trace:
+  |   __alloc_pages+0x74/0x314
+  |   alloc_pages+0xe8/0x318
+  |   kmalloc_order_trace+0x68/0x1dc
+  |   __kmalloc+0x240/0x338
+  |   detect_cache_attributes+0xe0/0x56c
+  |   update_siblings_masks+0x38/0x284
+  |   store_cpu_topology+0x78/0x84
+  |   smp_prepare_cpus+0x48/0x134
+  |   kernel_init_freeable+0xc4/0x14c
+  |   kernel_init+0x2c/0x1b4
+  |   ret_from_fork+0x10/0x20
+
+Fix the same by changing fw_level to be signed integer and return the
+error from init_cache_level() early in case of error.
+
+Reported-and-Tested-by: Bruno Goncalves <bgoncalv@redhat.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Link: https://lore.kernel.org/r/20220808084640.3165368-1-sudeep.holla@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ arch/arm64/kernel/cacheinfo.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 32606d1094fe4..4021c7c10c8d9 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -196,6 +196,9 @@ static bool clk_core_rate_is_protected(struct clk_core *core)
- 	return core->protect_count;
- }
+diff --git a/arch/arm64/kernel/cacheinfo.c b/arch/arm64/kernel/cacheinfo.c
+index 587543c6c51cb..97c42be71338a 100644
+--- a/arch/arm64/kernel/cacheinfo.c
++++ b/arch/arm64/kernel/cacheinfo.c
+@@ -45,7 +45,8 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
  
-+static int clk_core_prepare_enable(struct clk_core *core);
-+static void clk_core_disable_unprepare(struct clk_core *core);
-+
- static bool clk_core_is_prepared(struct clk_core *core)
+ int init_cache_level(unsigned int cpu)
  {
- 	bool ret = false;
-@@ -208,7 +211,11 @@ static bool clk_core_is_prepared(struct clk_core *core)
- 		return core->prepare_count;
+-	unsigned int ctype, level, leaves, fw_level;
++	unsigned int ctype, level, leaves;
++	int fw_level;
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
  
- 	if (!clk_pm_runtime_get(core)) {
-+		if (core->flags & CLK_OPS_PARENT_ENABLE)
-+			clk_core_prepare_enable(core->parent);
- 		ret = core->ops->is_prepared(core->hw);
-+		if (core->flags & CLK_OPS_PARENT_ENABLE)
-+			clk_core_disable_unprepare(core->parent);
- 		clk_pm_runtime_put(core);
- 	}
+ 	for (level = 1, leaves = 0; level <= MAX_CACHE_LEVEL; level++) {
+@@ -63,6 +64,9 @@ int init_cache_level(unsigned int cpu)
+ 	else
+ 		fw_level = acpi_find_last_cache_level(cpu);
  
-@@ -244,7 +251,13 @@ static bool clk_core_is_enabled(struct clk_core *core)
- 		}
- 	}
- 
-+	if (core->flags & CLK_OPS_PARENT_ENABLE)
-+		clk_core_prepare_enable(core->parent);
++	if (fw_level < 0)
++		return fw_level;
 +
- 	ret = core->ops->is_enabled(core->hw);
-+
-+	if (core->flags & CLK_OPS_PARENT_ENABLE)
-+		clk_core_disable_unprepare(core->parent);
- done:
- 	if (core->dev)
- 		pm_runtime_put(core->dev);
-@@ -704,6 +717,9 @@ int clk_rate_exclusive_get(struct clk *clk)
- }
- EXPORT_SYMBOL_GPL(clk_rate_exclusive_get);
- 
-+static int clk_core_enable_lock(struct clk_core *core);
-+static void clk_core_disable_lock(struct clk_core *core);
-+
- static void clk_core_unprepare(struct clk_core *core)
- {
- 	lockdep_assert_held(&prepare_lock);
-@@ -727,6 +743,9 @@ static void clk_core_unprepare(struct clk_core *core)
- 
- 	WARN(core->enable_count > 0, "Unpreparing enabled %s\n", core->name);
- 
-+	if (core->flags & CLK_OPS_PARENT_ENABLE)
-+		clk_core_enable_lock(core->parent);
-+
- 	trace_clk_unprepare(core);
- 
- 	if (core->ops->unprepare)
-@@ -735,6 +754,9 @@ static void clk_core_unprepare(struct clk_core *core)
- 	clk_pm_runtime_put(core);
- 
- 	trace_clk_unprepare_complete(core);
-+
-+	if (core->flags & CLK_OPS_PARENT_ENABLE)
-+		clk_core_disable_lock(core->parent);
- 	clk_core_unprepare(core->parent);
- }
- 
-@@ -783,6 +805,9 @@ static int clk_core_prepare(struct clk_core *core)
- 		if (ret)
- 			goto runtime_put;
- 
-+		if (core->flags & CLK_OPS_PARENT_ENABLE)
-+			clk_core_enable_lock(core->parent);
-+
- 		trace_clk_prepare(core);
- 
- 		if (core->ops->prepare)
-@@ -790,6 +815,9 @@ static int clk_core_prepare(struct clk_core *core)
- 
- 		trace_clk_prepare_complete(core);
- 
-+		if (core->flags & CLK_OPS_PARENT_ENABLE)
-+			clk_core_disable_lock(core->parent);
-+
- 		if (ret)
- 			goto unprepare;
- 	}
+ 	if (level < fw_level) {
+ 		/*
+ 		 * some external caches not specified in CLIDR_EL1
 -- 
 2.35.1
 
