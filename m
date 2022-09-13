@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A84DA5B7564
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DE6B5B73E0
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236707AbiIMPlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:41:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51184 "EHLO
+        id S235796AbiIMPRk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:17:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236697AbiIMPkl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:40:41 -0400
+        with ESMTP id S235705AbiIMPQn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:16:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 333828284E;
-        Tue, 13 Sep 2022 07:45:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C145D1A3BB;
+        Tue, 13 Sep 2022 07:34:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18E84614ED;
-        Tue, 13 Sep 2022 14:31:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CBDAC433D6;
-        Tue, 13 Sep 2022 14:31:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71D8B614E5;
+        Tue, 13 Sep 2022 14:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 864ADC433B5;
+        Tue, 13 Sep 2022 14:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079494;
-        bh=fI2yfiNqV2oq5W4XyxDiisIz2YmEE/wdZyR8M0aqJwU=;
+        s=korg; t=1663079543;
+        bh=CuFPnUVGuG9hBco8DptOgD2OQllpbhmCOy7iqqU/xjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yynort38fYMPA+dACnaHN5HNwUsVEj8WO4hmYKQbUcAM5oU+h1Jtp6j7fI+UzyNNH
-         qb16XpxXCazG0AOJTTfw0DGDYhiLf3iREuyQncdw99F+i8xsXBzgMUvrswkyaByyDz
-         RAJXzZyvmO0qSZKBgP8Ct5eD/2Kq138Ydr30Z5iI=
+        b=mg86VHa4PMxj1/YBxuMCtp7KY4ooDJoyrdvU6sm7So1XmMgZqkDbNZdLr3O7vWbPP
+         PgKc2xJ58Fj9FNxuGDj5yz7wDA4TUAlyEjS5HcJ0caEFIwld+yTSwUpg9PZWI7SVaL
+         2PQVWmFzmxuP1cXZTfZtGl74bwck3p79tXgtwQ24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 4.19 31/79] thunderbolt: Use the actual buffer in tb_async_error()
-Date:   Tue, 13 Sep 2022 16:06:49 +0200
-Message-Id: <20220913140350.401482524@linuxfoundation.org>
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 32/79] xhci: Add grace period after xHC start to prevent premature runtime suspend.
+Date:   Tue, 13 Sep 2022 16:06:50 +0200
+Message-Id: <20220913140350.455005240@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
 References: <20220913140348.835121645@linuxfoundation.org>
@@ -53,31 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit eb100b8fa8e8b59eb3e5fc7a5fd4a1e3c5950f64 upstream.
+commit 33e321586e37b642ad10594b9ef25a613555cd08 upstream.
 
-The received notification packet is held in pkg->buffer and not in pkg
-itself. Fix this by using the correct buffer.
+After xHC controller is started, either in probe or resume, it can take
+a while before any of the connected usb devices are visible to the roothub
+due to link training.
 
-Fixes: 81a54b5e1986 ("thunderbolt: Let the connection manager handle all notifications")
+It's possible xhci driver loads, sees no acivity and suspends the host
+before the USB device is visible.
+
+In one testcase with a hotplugged xHC controller the host finally detected
+the connected USB device and generated a wake 500ms after host initial
+start.
+
+If hosts didn't suspend the device duringe training it probablty wouldn't
+take up to 500ms to detect it, but looking at specs reveal USB3 link
+training has a couple long timeout values, such as 120ms
+RxDetectQuietTimeout, and 360ms PollingLFPSTimeout.
+
+So Add a 500ms grace period that keeps polling the roothub for 500ms after
+start, preventing runtime suspend until USB devices are detected.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220825150840.132216-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/ctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-hub.c |   11 +++++++++++
+ drivers/usb/host/xhci.c     |    4 +++-
+ drivers/usb/host/xhci.h     |    2 +-
+ 3 files changed, 15 insertions(+), 2 deletions(-)
 
---- a/drivers/thunderbolt/ctl.c
-+++ b/drivers/thunderbolt/ctl.c
-@@ -387,7 +387,7 @@ static void tb_ctl_rx_submit(struct ctl_
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1464,6 +1464,17 @@ int xhci_hub_status_data(struct usb_hcd
  
- static int tb_async_error(const struct ctl_pkg *pkg)
- {
--	const struct cfg_error_pkg *error = (const struct cfg_error_pkg *)pkg;
-+	const struct cfg_error_pkg *error = pkg->buffer;
+ 	status = bus_state->resuming_ports;
  
- 	if (pkg->frame.eof != TB_CFG_PKG_ERROR)
- 		return false;
++	/*
++	 * SS devices are only visible to roothub after link training completes.
++	 * Keep polling roothubs for a grace period after xHC start
++	 */
++	if (xhci->run_graceperiod) {
++		if (time_before(jiffies, xhci->run_graceperiod))
++			status = 1;
++		else
++			xhci->run_graceperiod = 0;
++	}
++
+ 	mask = PORT_CSC | PORT_PEC | PORT_OCC | PORT_PLC | PORT_WRC | PORT_CEC;
+ 
+ 	/* For each port, did anything change?  If so, set that bit in buf. */
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -149,9 +149,11 @@ int xhci_start(struct xhci_hcd *xhci)
+ 		xhci_err(xhci, "Host took too long to start, "
+ 				"waited %u microseconds.\n",
+ 				XHCI_MAX_HALT_USEC);
+-	if (!ret)
++	if (!ret) {
+ 		/* clear state flags. Including dying, halted or removing */
+ 		xhci->xhc_state = 0;
++		xhci->run_graceperiod = jiffies + msecs_to_jiffies(500);
++	}
+ 
+ 	return ret;
+ }
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1811,7 +1811,7 @@ struct xhci_hcd {
+ 
+ 	/* Host controller watchdog timer structures */
+ 	unsigned int		xhc_state;
+-
++	unsigned long		run_graceperiod;
+ 	u32			command;
+ 	struct s3_save		s3;
+ /* Host controller is dying - not responding to commands. "I'm not dead yet!"
 
 
