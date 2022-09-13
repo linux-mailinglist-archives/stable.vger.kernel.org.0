@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A295B71C6
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF925B7242
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231383AbiIMOoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:44:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59078 "EHLO
+        id S232617AbiIMOuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234093AbiIMOmh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:42:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A306E2F7;
-        Tue, 13 Sep 2022 07:22:48 -0700 (PDT)
+        with ESMTP id S234273AbiIMOsi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:48:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D4F53FA3F;
+        Tue, 13 Sep 2022 07:25:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4AA9B80F97;
-        Tue, 13 Sep 2022 14:21:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FABAC433D6;
-        Tue, 13 Sep 2022 14:21:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B75BA614B4;
+        Tue, 13 Sep 2022 14:25:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD11BC433D6;
+        Tue, 13 Sep 2022 14:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078873;
-        bh=0YoYNZ0VzzkVc9M9CtrMPhjFUH1yFxIrDxWCU2srcY0=;
+        s=korg; t=1663079106;
+        bh=GMkAOvpeS2Q4DXNwpdWazj8uVwJMqhidTuecDSVaYYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zt9nHRP5kPrpovQ+NEahDy7DtyPopjqrkuDgzvN471sALbvaNyY9o44Ymmo6etmzm
-         3lSfjODAiWkka+UtP11Zq2AGkgyhCr6JBmYSVuU/yeYLy9HI9uzFjF/CFUl6icaqAk
-         aDgSgVrIjUX2e8BqfbG/kDVl8X6ONMm9onVK3A7s=
+        b=mYqJUxN0g6hD+5HtSCZqz+eGIKzBThq+wP7BuTSJtbuttqaaaKNN4XH9ZwOWECv44
+         gU3ZfEUlFDkMOVwD2RmJbMMLSl8DUqLD5oFSToE+PXsj7nL6MjUh2XTol8CxW/KRMc
+         UpNfCS0p2Oy7BRyo/uyz5rIXMtiDgkik3eg/gTAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/121] Revert "arm64: kasan: Revert "arm64: mte: reset the page tag in page->flags""
+        stable@vger.kernel.org, linux-rdma@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 61/79] RDMA/siw: Pass a pointer to virt_to_page()
 Date:   Tue, 13 Sep 2022 16:05:06 +0200
-Message-Id: <20220913140402.301848843@linuxfoundation.org>
+Message-Id: <20220913140353.160139198@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,105 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit add4bc9281e8704e5ab15616b429576c84f453a2.
+From: Linus Walleij <linus.walleij@linaro.org>
 
-On Mon, Sep 12, 2022 at 10:52:45AM +0100, Catalin Marinas wrote:
->I missed this (holidays) and it looks like it's in stable already. On
->its own it will likely break kasan_hw if used together with user-space
->MTE as this change relies on two previous commits:
->
->70c248aca9e7 ("mm: kasan: Skip unpoisoning of user pages")
->6d05141a3930 ("mm: kasan: Skip page unpoisoning only if __GFP_SKIP_KASAN_UNPOISON")
->
->The reason I did not cc stable is that there are other dependencies in
->this area. The potential issues without the above commits were rather
->theoretical, so take these patches rather as clean-ups/refactoring than
->fixes.
+[ Upstream commit 0d1b756acf60da5004c1e20ca4462f0c257bf6e1 ]
 
+Functions that work on a pointer to virtual memory such as
+virt_to_pfn() and users of that function such as
+virt_to_page() are supposed to pass a pointer to virtual
+memory, ideally a (void *) or other pointer. However since
+many architectures implement virt_to_pfn() as a macro,
+this function becomes polymorphic and accepts both a
+(unsigned long) and a (void *).
+
+If we instead implement a proper virt_to_pfn(void *addr)
+function the following happens (occurred on arch/arm):
+
+drivers/infiniband/sw/siw/siw_qp_tx.c:32:23: warning: incompatible
+  integer to pointer conversion passing 'dma_addr_t' (aka 'unsigned int')
+  to parameter of type 'const void *' [-Wint-conversion]
+drivers/infiniband/sw/siw/siw_qp_tx.c:32:37: warning: passing argument
+  1 of 'virt_to_pfn' makes pointer from integer without a cast
+  [-Wint-conversion]
+drivers/infiniband/sw/siw/siw_qp_tx.c:538:36: warning: incompatible
+  integer to pointer conversion passing 'unsigned long long'
+  to parameter of type 'const void *' [-Wint-conversion]
+
+Fix this with an explicit cast. In one case where the SIW
+SGE uses an unaligned u64 we need a double cast modifying the
+virtual address (va) to a platform-specific uintptr_t before
+casting to a (void *).
+
+Fixes: b9be6f18cf9e ("rdma/siw: transmit path")
+Cc: linux-rdma@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220902215918.603761-1-linus.walleij@linaro.org
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/hibernate.c | 5 +++++
- arch/arm64/kernel/mte.c       | 9 +++++++++
- arch/arm64/mm/copypage.c      | 9 +++++++++
- arch/arm64/mm/mteswap.c       | 9 +++++++++
- 4 files changed, 32 insertions(+)
+ drivers/infiniband/sw/siw/siw_qp_tx.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kernel/hibernate.c b/arch/arm64/kernel/hibernate.c
-index db93ce2b0113b..46a0b4d6e2519 100644
---- a/arch/arm64/kernel/hibernate.c
-+++ b/arch/arm64/kernel/hibernate.c
-@@ -326,6 +326,11 @@ static void swsusp_mte_restore_tags(void)
- 		unsigned long pfn = xa_state.xa_index;
- 		struct page *page = pfn_to_online_page(pfn);
+diff --git a/drivers/infiniband/sw/siw/siw_qp_tx.c b/drivers/infiniband/sw/siw/siw_qp_tx.c
+index 7989c4043db4e..3c3ae5ef29428 100644
+--- a/drivers/infiniband/sw/siw/siw_qp_tx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_tx.c
+@@ -29,7 +29,7 @@ static struct page *siw_get_pblpage(struct siw_mem *mem, u64 addr, int *idx)
+ 	dma_addr_t paddr = siw_pbl_get_buffer(pbl, offset, NULL, idx);
  
-+		/*
-+		 * It is not required to invoke page_kasan_tag_reset(page)
-+		 * at this point since the tags stored in page->flags are
-+		 * already restored.
-+		 */
- 		mte_restore_page_tags(page_address(page), tags);
+ 	if (paddr)
+-		return virt_to_page(paddr);
++		return virt_to_page((void *)paddr);
  
- 		mte_free_tag_storage(tags);
-diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-index 10207e3e5ae20..7c1c82c8115cc 100644
---- a/arch/arm64/kernel/mte.c
-+++ b/arch/arm64/kernel/mte.c
-@@ -44,6 +44,15 @@ static void mte_sync_page_tags(struct page *page, pte_t old_pte,
- 	if (!pte_is_tagged)
- 		return;
- 
-+	page_kasan_tag_reset(page);
-+	/*
-+	 * We need smp_wmb() in between setting the flags and clearing the
-+	 * tags because if another thread reads page->flags and builds a
-+	 * tagged address out of it, there is an actual dependency to the
-+	 * memory access, but on the current thread we do not guarantee that
-+	 * the new page->flags are visible before the tags were updated.
-+	 */
-+	smp_wmb();
- 	mte_clear_page_tags(page_address(page));
+ 	return NULL;
  }
+@@ -523,13 +523,23 @@ static int siw_tx_hdt(struct siw_iwarp_tx *c_tx, struct socket *s)
+ 					kunmap(p);
+ 				}
+ 			} else {
+-				u64 va = sge->laddr + sge_off;
++				/*
++				 * Cast to an uintptr_t to preserve all 64 bits
++				 * in sge->laddr.
++				 */
++				uintptr_t va = (uintptr_t)(sge->laddr + sge_off);
  
-diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
-index 24913271e898c..0dea80bf6de46 100644
---- a/arch/arm64/mm/copypage.c
-+++ b/arch/arm64/mm/copypage.c
-@@ -23,6 +23,15 @@ void copy_highpage(struct page *to, struct page *from)
+-				page_array[seg] = virt_to_page(va & PAGE_MASK);
++				/*
++				 * virt_to_page() takes a (void *) pointer
++				 * so cast to a (void *) meaning it will be 64
++				 * bits on a 64 bit platform and 32 bits on a
++				 * 32 bit platform.
++				 */
++				page_array[seg] = virt_to_page((void *)(va & PAGE_MASK));
+ 				if (do_crc)
+ 					crypto_shash_update(
+ 						c_tx->mpa_crc_hd,
+-						(void *)(uintptr_t)va,
++						(void *)va,
+ 						plen);
+ 			}
  
- 	if (system_supports_mte() && test_bit(PG_mte_tagged, &from->flags)) {
- 		set_bit(PG_mte_tagged, &to->flags);
-+		page_kasan_tag_reset(to);
-+		/*
-+		 * We need smp_wmb() in between setting the flags and clearing the
-+		 * tags because if another thread reads page->flags and builds a
-+		 * tagged address out of it, there is an actual dependency to the
-+		 * memory access, but on the current thread we do not guarantee that
-+		 * the new page->flags are visible before the tags were updated.
-+		 */
-+		smp_wmb();
- 		mte_copy_page_tags(kto, kfrom);
- 	}
- }
-diff --git a/arch/arm64/mm/mteswap.c b/arch/arm64/mm/mteswap.c
-index c52c1847079c1..7c4ef56265ee1 100644
---- a/arch/arm64/mm/mteswap.c
-+++ b/arch/arm64/mm/mteswap.c
-@@ -53,6 +53,15 @@ bool mte_restore_tags(swp_entry_t entry, struct page *page)
- 	if (!tags)
- 		return false;
- 
-+	page_kasan_tag_reset(page);
-+	/*
-+	 * We need smp_wmb() in between setting the flags and clearing the
-+	 * tags because if another thread reads page->flags and builds a
-+	 * tagged address out of it, there is an actual dependency to the
-+	 * memory access, but on the current thread we do not guarantee that
-+	 * the new page->flags are visible before the tags were updated.
-+	 */
-+	smp_wmb();
- 	mte_restore_page_tags(page_address(page), tags);
- 
- 	return true;
 -- 
 2.35.1
 
