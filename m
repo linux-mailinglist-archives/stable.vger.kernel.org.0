@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF0CA5B73B4
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 891545B7330
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235252AbiIMPJg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:09:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36034 "EHLO
+        id S234242AbiIMPEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:04:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235542AbiIMPIl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:08:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EFC6760C2;
-        Tue, 13 Sep 2022 07:31:10 -0700 (PDT)
+        with ESMTP id S235215AbiIMPDg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:03:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48E851FCC8;
+        Tue, 13 Sep 2022 07:29:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45F7BB80F9E;
-        Tue, 13 Sep 2022 14:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7855C433C1;
-        Tue, 13 Sep 2022 14:31:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05477B80F9E;
+        Tue, 13 Sep 2022 14:29:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EAE4C433C1;
+        Tue, 13 Sep 2022 14:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079469;
-        bh=w2kk4NEtj+ED2jZgG2s7kSx8JqH+LVEsFUnQoHNqwWY=;
+        s=korg; t=1663079376;
+        bh=SfvzTJ4WeoBbw9Hfggp0tFaceFbe8jFTh3KgrszErTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q6Vt86ZKX/j2zQ43vkJwRC8IZCpZ2GANhFvw+C47iZ0mHw2R42OWuJDkJKVgtCO64
-         Mkwn1cyd6zuy/JySvHv6RYy318XxZcQTwFD0un6FX12D+DhkOAdBm3BWWOD8ZTMrXc
-         ovnTpAkhm+3erx/JjfXhG1sRBuFt4l7cM89vtvy4=
+        b=HfLWBkYmLhPhZBuKNDNWts1FH10GqmVMittQ3PbwaeFRvbiEZmIFItzcK8xq5gb5S
+         /WT3weELJqfQYd6VErDx7K29aMpoxdxArPpQiP+LQoFnuRX6HhTdTiDclkL5w2UAt2
+         eVHXN6fT3GxJ450iSqjvRE9dGy4qFri4pG3HCEms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thierry GUIBERT <thierry.guibert@croix-rouge.fr>,
-        stable <stable@kernel.org>
-Subject: [PATCH 4.19 39/79] USB: cdc-acm: Add Icom PMR F3400 support (0c26:0020)
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Christian Brauner <brauner@kernel.org>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 086/108] cgroup: Elide write-locking threadgroup_rwsem when updating csses on an empty subtree
 Date:   Tue, 13 Sep 2022 16:06:57 +0200
-Message-Id: <20220913140350.794307293@linuxfoundation.org>
+Message-Id: <20220913140357.317124315@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,113 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
+From: Tejun Heo <tj@kernel.org>
 
-commit a10bc71729b236fe36de0d8e4d35c959fd8dec3a upstream.
+[ Upstream commit 671c11f0619e5ccb380bcf0f062f69ba95fc974a ]
 
-Supports for ICOM F3400 and ICOM F4400 PMR radios in CDC-ACM driver
-enabling the AT serial port.
-The Vendor Id is 0x0C26
-The Product ID is 0x0020
+cgroup_update_dfl_csses() write-lock the threadgroup_rwsem as updating the
+csses can trigger process migrations. However, if the subtree doesn't
+contain any tasks, there aren't gonna be any cgroup migrations. This
+condition can be trivially detected by testing whether
+mgctx.preloaded_src_csets is empty. Elide write-locking threadgroup_rwsem if
+the subtree is empty.
 
-Output of lsusb :
-Bus 001 Device 009: ID 0c26:0020 Prolific Technology Inc. ICOM Radio
-Couldn't open device, some information will be missing
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            2 Communications
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0        64
-  idVendor           0x0c26 Prolific Technology Inc.
-  idProduct          0x0020
-  bcdDevice            0.00
-  iManufacturer           1 ICOM Inc.
-  iProduct                2 ICOM Radio
-  iSerial                 3 *obfuscated*
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0030
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          0
-    bmAttributes         0xc0
-      Self Powered
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      2 Abstract (modem)
-      bInterfaceProtocol      1 AT-commands (v.25ter)
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval              12
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
+After this optimization, the usage pattern of creating a cgroup, enabling
+the necessary controllers, and then seeding it with CLONE_INTO_CGROUP and
+then removing the cgroup after it becomes empty doesn't need to write-lock
+threadgroup_rwsem at all.
 
-Signed-off-by: Thierry GUIBERT <thierry.guibert@croix-rouge.fr>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220819081702.84118-1-thierry.guibert@croix-rouge.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/cgroup/cgroup.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1883,6 +1883,9 @@ static const struct usb_device_id acm_id
- 	{ USB_DEVICE(0x09d8, 0x0320), /* Elatec GmbH TWN3 */
- 	.driver_info = NO_UNION_NORMAL, /* has misplaced union descriptor */
- 	},
-+	{ USB_DEVICE(0x0c26, 0x0020), /* Icom ICF3400 Serie */
-+	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
-+	},
- 	{ USB_DEVICE(0x0ca6, 0xa050), /* Castles VEGA3000 */
- 	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
- 	},
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index bc9ee9a18c1e8..c2af09b4bca62 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -2985,12 +2985,11 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
+ 	struct cgroup_subsys_state *d_css;
+ 	struct cgroup *dsct;
+ 	struct css_set *src_cset;
++	bool has_tasks;
+ 	int ret;
+ 
+ 	lockdep_assert_held(&cgroup_mutex);
+ 
+-	percpu_down_write(&cgroup_threadgroup_rwsem);
+-
+ 	/* look up all csses currently attached to @cgrp's subtree */
+ 	spin_lock_irq(&css_set_lock);
+ 	cgroup_for_each_live_descendant_pre(dsct, d_css, cgrp) {
+@@ -3001,6 +3000,16 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
+ 	}
+ 	spin_unlock_irq(&css_set_lock);
+ 
++	/*
++	 * We need to write-lock threadgroup_rwsem while migrating tasks.
++	 * However, if there are no source csets for @cgrp, changing its
++	 * controllers isn't gonna produce any task migrations and the
++	 * write-locking can be skipped safely.
++	 */
++	has_tasks = !list_empty(&mgctx.preloaded_src_csets);
++	if (has_tasks)
++		percpu_down_write(&cgroup_threadgroup_rwsem);
++
+ 	/* NULL dst indicates self on default hierarchy */
+ 	ret = cgroup_migrate_prepare_dst(&mgctx);
+ 	if (ret)
+@@ -3020,7 +3029,8 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
+ 	ret = cgroup_migrate_execute(&mgctx);
+ out_finish:
+ 	cgroup_migrate_finish(&mgctx);
+-	percpu_up_write(&cgroup_threadgroup_rwsem);
++	if (has_tasks)
++		percpu_up_write(&cgroup_threadgroup_rwsem);
+ 	return ret;
+ }
+ 
+-- 
+2.35.1
+
 
 
