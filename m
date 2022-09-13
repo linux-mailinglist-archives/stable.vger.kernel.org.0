@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1B6C5B78DD
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:52:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BA835B774A
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:06:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233551AbiIMRwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 13:52:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56490 "EHLO
+        id S232347AbiIMRGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 13:06:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233588AbiIMRwe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:52:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A6E5AA03;
-        Tue, 13 Sep 2022 09:51:55 -0700 (PDT)
+        with ESMTP id S232367AbiIMRGB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:06:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ECA383F37;
+        Tue, 13 Sep 2022 08:55:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D4D7614C5;
-        Tue, 13 Sep 2022 14:33:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AB01C433D6;
-        Tue, 13 Sep 2022 14:33:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4FE5B80F93;
+        Tue, 13 Sep 2022 14:33:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C47C433B5;
+        Tue, 13 Sep 2022 14:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079613;
-        bh=k9WCsg3F8LwS5mT0NnuRtzGO5Gc6EwZAzisR2SzGoaA=;
+        s=korg; t=1663079579;
+        bh=HwcKgcx3YUW4O5fZ2Dy56K8an7bFPB5SAM8Cc7hYdjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FUatB5yl4s1tvPLvS/ziAAvo957JZ7BlB56a8AGxxUZD/pU5irD5ZfCs0Y2J5FvXZ
-         asiGO0UylWGQgdYxfiFT3OsT0+XAlXy5dlEyKz+UzWJreiyksbQf1EJXp1KUqatBPP
-         YpVj6DlTJ7wcyk0SkahVXEzqIBoXQ/t4yy0B3uZc=
+        b=JycDiVG3WxZgYxXeB8FI3lh/mBbcrIkej/L1cQ9DOVYTHw4lgT9xRyZp+rRWZpkit
+         cU9f3Wk8215O6D1+EC9gCACSzuJMeogxTi3lBm6yrUp5U94Zk9tCvo3jgwdrMFnV8w
+         tgpm4TvyLu14tg2skmk7Vz0D5tPr1Me3a/60kDLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
-        Helena Anna Dubel <helena.anna.dubel@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 68/79] i40e: Fix kernel crash during module removal
-Date:   Tue, 13 Sep 2022 16:07:26 +0200
-Message-Id: <20220913140352.179891540@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 74/79] USB: serial: ch341: fix lost character on LCR updates
+Date:   Tue, 13 Sep 2022 16:07:32 +0200
+Message-Id: <20220913140352.462146395@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
 References: <20220913140348.835121645@linuxfoundation.org>
@@ -55,106 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Vecera <ivecera@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit fb8396aeda5872369a8ed6d2301e2c86e303c520 ]
+commit 8e83622ae7ca481c76c8fd9579877f6abae64ca2 upstream.
 
-The driver incorrectly frees client instance and subsequent
-i40e module removal leads to kernel crash.
+Disable LCR updates for pre-0x30 devices which use a different (unknown)
+protocol for line control and where the current register write causes
+the next received character to be lost.
 
-Reproducer:
-1. Do ethtool offline test followed immediately by another one
-host# ethtool -t eth0 offline; ethtool -t eth0 offline
-2. Remove recursively irdma module that also removes i40e module
-host# modprobe -r irdma
+Note that updating LCR using the INIT command has no effect on these
+devices either.
 
-Result:
-[ 8675.035651] i40e 0000:3d:00.0 eno1: offline testing starting
-[ 8675.193774] i40e 0000:3d:00.0 eno1: testing finished
-[ 8675.201316] i40e 0000:3d:00.0 eno1: offline testing starting
-[ 8675.358921] i40e 0000:3d:00.0 eno1: testing finished
-[ 8675.496921] i40e 0000:3d:00.0: IRDMA hardware initialization FAILED init_state=2 status=-110
-[ 8686.188955] i40e 0000:3d:00.1: i40e_ptp_stop: removed PHC on eno2
-[ 8686.943890] i40e 0000:3d:00.1: Deleted LAN device PF1 bus=0x3d dev=0x00 func=0x01
-[ 8686.952669] i40e 0000:3d:00.0: i40e_ptp_stop: removed PHC on eno1
-[ 8687.761787] BUG: kernel NULL pointer dereference, address: 0000000000000030
-[ 8687.768755] #PF: supervisor read access in kernel mode
-[ 8687.773895] #PF: error_code(0x0000) - not-present page
-[ 8687.779034] PGD 0 P4D 0
-[ 8687.781575] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[ 8687.785935] CPU: 51 PID: 172891 Comm: rmmod Kdump: loaded Tainted: G        W I        5.19.0+ #2
-[ 8687.794800] Hardware name: Intel Corporation S2600WFD/S2600WFD, BIOS SE5C620.86B.0X.02.0001.051420190324 05/14/2019
-[ 8687.805222] RIP: 0010:i40e_lan_del_device+0x13/0xb0 [i40e]
-[ 8687.810719] Code: d4 84 c0 0f 84 b8 25 01 00 e9 9c 25 01 00 41 bc f4 ff ff ff eb 91 90 0f 1f 44 00 00 41 54 55 53 48 8b 87 58 08 00 00 48 89 fb <48> 8b 68 30 48 89 ef e8 21 8a 0f d5 48 89 ef e8 a9 78 0f d5 48 8b
-[ 8687.829462] RSP: 0018:ffffa604072efce0 EFLAGS: 00010202
-[ 8687.834689] RAX: 0000000000000000 RBX: ffff8f43833b2000 RCX: 0000000000000000
-[ 8687.841821] RDX: 0000000000000000 RSI: ffff8f4b0545b298 RDI: ffff8f43833b2000
-[ 8687.848955] RBP: ffff8f43833b2000 R08: 0000000000000001 R09: 0000000000000000
-[ 8687.856086] R10: 0000000000000000 R11: 000ffffffffff000 R12: ffff8f43833b2ef0
-[ 8687.863218] R13: ffff8f43833b2ef0 R14: ffff915103966000 R15: ffff8f43833b2008
-[ 8687.870342] FS:  00007f79501c3740(0000) GS:ffff8f4adffc0000(0000) knlGS:0000000000000000
-[ 8687.878427] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 8687.884174] CR2: 0000000000000030 CR3: 000000014276e004 CR4: 00000000007706e0
-[ 8687.891306] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 8687.898441] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 8687.905572] PKRU: 55555554
-[ 8687.908286] Call Trace:
-[ 8687.910737]  <TASK>
-[ 8687.912843]  i40e_remove+0x2c0/0x330 [i40e]
-[ 8687.917040]  pci_device_remove+0x33/0xa0
-[ 8687.920962]  device_release_driver_internal+0x1aa/0x230
-[ 8687.926188]  driver_detach+0x44/0x90
-[ 8687.929770]  bus_remove_driver+0x55/0xe0
-[ 8687.933693]  pci_unregister_driver+0x2a/0xb0
-[ 8687.937967]  i40e_exit_module+0xc/0xf48 [i40e]
-
-Two offline tests cause IRDMA driver failure (ETIMEDOUT) and this
-failure is indicated back to i40e_client_subtask() that calls
-i40e_client_del_instance() to free client instance referenced
-by pf->cinst and sets this pointer to NULL. During the module
-removal i40e_remove() calls i40e_lan_del_device() that dereferences
-pf->cinst that is NULL -> crash.
-Do not remove client instance when client open callbacks fails and
-just clear __I40E_CLIENT_INSTANCE_OPENED bit. The driver also needs
-to take care about this situation (when netdev is up and client
-is NOT opened) in i40e_notify_client_of_netdev_close() and
-calls client close callback only when __I40E_CLIENT_INSTANCE_OPENED
-is set.
-
-Fixes: 0ef2d5afb12d ("i40e: KISS the client interface")
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Tested-by: Helena Anna Dubel <helena.anna.dubel@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Jonathan Woithe <jwoithe@just42.net>
+Tested-by: Jonathan Woithe <jwoithe@just42.net>
+Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
+Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
+Fixes: 55fa15b5987d ("USB: serial: ch341: fix baud rate and line-control handling")
+Cc: stable@vger.kernel.org      # 4.10
+Signed-off-by: Johan Hovold <johan@kernel.org>
+[ johan: adjust context to 4.19 ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_client.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/serial/ch341.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_client.c b/drivers/net/ethernet/intel/i40e/i40e_client.c
-index c1832a8487140..2fa4becdaee92 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_client.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_client.c
-@@ -178,6 +178,10 @@ void i40e_notify_client_of_netdev_close(struct i40e_vsi *vsi, bool reset)
- 			"Cannot locate client instance close routine\n");
- 		return;
- 	}
-+	if (!test_bit(__I40E_CLIENT_INSTANCE_OPENED, &cdev->state)) {
-+		dev_dbg(&pf->pdev->dev, "Client is not open, abort close\n");
-+		return;
-+	}
- 	cdev->client->ops->close(&cdev->lan_info, cdev->client, reset);
- 	clear_bit(__I40E_CLIENT_INSTANCE_OPENED, &cdev->state);
- 	i40e_client_release_qvlist(&cdev->lan_info);
-@@ -376,7 +380,6 @@ void i40e_client_subtask(struct i40e_pf *pf)
- 				/* Remove failed client instance */
- 				clear_bit(__I40E_CLIENT_INSTANCE_OPENED,
- 					  &cdev->state);
--				i40e_client_del_instance(pf);
- 				return;
- 			}
- 		}
--- 
-2.35.1
-
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -96,6 +96,8 @@ struct ch341_private {
+ 	u8 mcr;
+ 	u8 msr;
+ 	u8 lcr;
++
++	u8 version;
+ };
+ 
+ static void ch341_set_termios(struct tty_struct *tty,
+@@ -181,6 +183,9 @@ static int ch341_set_baudrate_lcr(struct
+ 	if (r)
+ 		return r;
+ 
++	if (priv->version < 0x30)
++		return 0;
++
+ 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG, 0x2518, lcr);
+ 	if (r)
+ 		return r;
+@@ -232,7 +237,9 @@ static int ch341_configure(struct usb_de
+ 	r = ch341_control_in(dev, CH341_REQ_READ_VERSION, 0, 0, buffer, size);
+ 	if (r < 0)
+ 		goto out;
+-	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", buffer[0]);
++
++	priv->version = buffer[0];
++	dev_dbg(&dev->dev, "Chip version: 0x%02x\n", priv->version);
+ 
+ 	r = ch341_control_out(dev, CH341_REQ_SERIAL_INIT, 0, 0);
+ 	if (r < 0)
 
 
