@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A6E5B705E
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:32:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5835B6FD2
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233831AbiIMO3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:29:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55946 "EHLO
+        id S233183AbiIMOSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:18:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234002AbiIMO25 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:28:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 097A2D117;
-        Tue, 13 Sep 2022 07:18:12 -0700 (PDT)
+        with ESMTP id S232904AbiIMORi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:17:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F414063F1D;
+        Tue, 13 Sep 2022 07:12:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85A4C614C2;
-        Tue, 13 Sep 2022 14:16:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91C6AC433C1;
-        Tue, 13 Sep 2022 14:16:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D756B80EFA;
+        Tue, 13 Sep 2022 14:11:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDD38C433D6;
+        Tue, 13 Sep 2022 14:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078597;
-        bh=0DGqUM5pxCHewn584S/WfwD7sPV8shohKdVeMsl6Ipc=;
+        s=korg; t=1663078299;
+        bh=tcQGAlsMS42fJDbMOL0mTFdnfPj1GbHx0JCHlF7kxBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxhBr/IIZ/1YFy9JJQfybVvvdXMmViTzshdEDa4v2Z0FqnmKQ/ILhMGIFVeWBHJfV
-         RLRAIzrTyf2XDjEp28I5yzdS82GC7NdBTMyp6pj75ht2y6I6IIoXpOz59FQNcV0DyA
-         RnsSI3p9rCp53oBSVxwILKxrFi0q2khE9SAPhfu8=
+        b=mVuJc6FiRrsXRlIa5SOEwq0Oy6yDN24YU/bvBcN2JTpz99RPQxwF2GI/5Xgku2xda
+         qjRnArd4cs528QR/hWi1sN4wyz11fclBZsVMidMl6SnX7QdtTABAj3b29xI2vXYKgW
+         CT3OBvKrX1DoUlPmecMVeH86cUUI6Zf9mqyvYK+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daniel Marth <daniel.marth@inso.tuwien.ac.at>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.15 002/121] efi: libstub: Disable struct randomization
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        kernel test robot <lkp@intel.com>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 087/192] tee: fix compiler warning in tee_shm_register()
 Date:   Tue, 13 Sep 2022 16:03:13 +0200
-Message-Id: <20220913140357.429444190@linuxfoundation.org>
+Message-Id: <20220913140414.298293427@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-commit 1a3887924a7e6edd331be76da7bf4c1e8eab4b1e upstream.
+[ Upstream commit eccd7439709810127563e7e3e49b8b44c7b2791d ]
 
-The EFI stub is a wrapper around the core kernel that makes it look like
-a EFI compatible PE/COFF application to the EFI firmware. EFI
-applications run on top of the EFI runtime, which is heavily based on
-so-called protocols, which are struct types consisting [mostly] of
-function pointer members that are instantiated and recorded in a
-protocol database.
+Include <linux/uaccess.h> to avoid the warning:
+   drivers/tee/tee_shm.c: In function 'tee_shm_register':
+>> drivers/tee/tee_shm.c:242:14: error: implicit declaration of function 'access_ok' [-Werror=implicit-function-declaration]
+     242 |         if (!access_ok((void __user *)addr, length))
+         |              ^~~~~~~~~
+   cc1: some warnings being treated as errors
 
-These structs look like the ideal randomization candidates to the
-randstruct plugin (as they only carry function pointers), but of course,
-these protocols are contracts between the firmware that exposes them,
-and the EFI applications (including our stubbed kernel) that invoke
-them. This means that struct randomization for EFI protocols is not a
-great idea, and given that the stub shares very little data with the
-core kernel that is represented as a randomizable struct, we're better
-off just disabling it completely here.
-
-Cc: <stable@vger.kernel.org> # v4.14+
-Reported-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
-Tested-by: Daniel Marth <daniel.marth@inso.tuwien.ac.at>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 573ae4f13f63 ("tee: add overflow check in register_shm_helper()")
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/Makefile |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/tee/tee_shm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/firmware/efi/libstub/Makefile
-+++ b/drivers/firmware/efi/libstub/Makefile
-@@ -37,6 +37,13 @@ KBUILD_CFLAGS			:= $(cflags-y) -Os -DDIS
- 				   $(call cc-option,-fno-addrsig) \
- 				   -D__DISABLE_EXPORTS
+diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
+index 1175f3a46859f..27295bda3e0bd 100644
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -9,6 +9,7 @@
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/tee_drv.h>
++#include <linux/uaccess.h>
+ #include <linux/uio.h>
+ #include "tee_private.h"
  
-+#
-+# struct randomization only makes sense for Linux internal types, which the EFI
-+# stub code never touches, so let's turn off struct randomization for the stub
-+# altogether
-+#
-+KBUILD_CFLAGS := $(filter-out $(RANDSTRUCT_CFLAGS), $(KBUILD_CFLAGS))
-+
- # remove SCS flags from all objects in this directory
- KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
- # disable LTO
+-- 
+2.35.1
+
 
 
