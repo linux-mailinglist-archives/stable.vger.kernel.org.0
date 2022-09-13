@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2D935B73F1
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D9265B732C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235617AbiIMPOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:14:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50104 "EHLO
+        id S232620AbiIMPEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:04:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235692AbiIMPNc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD649786F9;
-        Tue, 13 Sep 2022 07:33:17 -0700 (PDT)
+        with ESMTP id S235162AbiIMPDM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:03:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 817531173;
+        Tue, 13 Sep 2022 07:29:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1852A614D6;
-        Tue, 13 Sep 2022 14:32:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30053C433D6;
-        Tue, 13 Sep 2022 14:32:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7585EB80F88;
+        Tue, 13 Sep 2022 14:29:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8563C433D7;
+        Tue, 13 Sep 2022 14:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079556;
-        bh=ywg4X3ww0hbVDWBYpXvULTqy1piXGikF37PiF8yD7tc=;
+        s=korg; t=1663079374;
+        bh=IUkKRcrfYCoOFZXpQ3KroPqEK3VxgOEsoEhGsD600ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HM3Ird5/PL17B3781Fb2abu1ZXHS2G15GvY6Aw1qUm9guwpsFhVsZhXxJKihhfhTG
-         pPAZh0wRYjPViN937gxRDD9nsCDt25YYbNEXfzb+xxauHtMjl/K4IRCKk3C18D8Y4M
-         pveRenHi7QHfSy9RmxrNTKEIdZuVeLPtv5qnWEkU=
+        b=GSYLWhMDpXuz9YCVh3G1Anw6UBCIH/4Qko15xlTvX376UVgag1DfVlp9yccDsLxDB
+         czk8tSO3AMyP4Hb9TkuVJ6PT/7vrbVdhZaubOVsqiuGDw5U2gMLw+Ej9VUVnowG9bd
+         N6/NPyve8fE4auGbEWSwDBMSscOc/3T5gVRUYX0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Ranquet <granquet@baylibre.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Pablo Sun <pablo.sun@mediatek.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>
-Subject: [PATCH 4.19 37/79] usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles
-Date:   Tue, 13 Sep 2022 16:06:55 +0200
-Message-Id: <20220913140350.703108730@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 085/108] cgroup: Optimize single thread migration
+Date:   Tue, 13 Sep 2022 16:06:56 +0200
+Message-Id: <20220913140357.276352057@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +54,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Sun <pablo.sun@mediatek.com>
+From: Michal Koutný <mkoutny@suse.com>
 
-commit c1e5c2f0cb8a22ec2e14af92afc7006491bebabb upstream.
+[ Upstream commit 9a3284fad42f66bb43629c6716709ff791aaa457 ]
 
-Fix incorrect pin assignment values when connecting to a monitor with
-Type-C receptacle instead of a plug.
+There are reports of users who use thread migrations between cgroups and
+they report performance drop after d59cfc09c32a ("sched, cgroup: replace
+signal_struct->group_rwsem with a global percpu_rwsem"). The effect is
+pronounced on machines with more CPUs.
 
-According to specification, an UFP_D receptacle's pin assignment
-should came from the UFP_D pin assignments field (bit 23:16), while
-an UFP_D plug's assignments are described in the DFP_D pin assignments
-(bit 15:8) during Mode Discovery.
+The migration is affected by forking noise happening in the background,
+after the mentioned commit a migrating thread must wait for all
+(forking) processes on the system, not only of its threadgroup.
 
-For example the LG 27 UL850-W is a monitor with Type-C receptacle.
-The monitor responds to MODE DISCOVERY command with following
-DisplayPort Capability flag:
+There are several places that need to synchronize with migration:
+	a) do_exit,
+	b) de_thread,
+	c) copy_process,
+	d) cgroup_update_dfl_csses,
+	e) parallel migration (cgroup_{proc,thread}s_write).
 
-        dp->alt->vdo=0x140045
+In the case of self-migrating thread, we relax the synchronization on
+cgroup_threadgroup_rwsem to avoid the cost of waiting. d) and e) are
+excluded with cgroup_mutex, c) does not matter in case of single thread
+migration and the executing thread cannot exec(2) or exit(2) while it is
+writing into cgroup.threads. In case of do_exit because of signal
+delivery, we either exit before the migration or finish the migration
+(of not yet PF_EXITING thread) and die afterwards.
 
-The existing logic only take cares of UPF_D plug case,
-and would take the bit 15:8 for this 0x140045 case.
+This patch handles only the case of self-migration by writing "0" into
+cgroup.threads. For simplicity, we always take cgroup_threadgroup_rwsem
+with numeric PIDs.
 
-This results in an non-existing pin assignment 0x0 in
-dp_altmode_configure.
+This change improves migration dependent workload performance similar
+to per-signal_struct state.
 
-To fix this problem a new set of macros are introduced
-to take plug/receptacle differences into consideration.
-
-Fixes: 0e3bb7d6894d ("usb: typec: Add driver for DisplayPort alternate mode")
-Cc: stable@vger.kernel.org
-Co-developed-by: Pablo Sun <pablo.sun@mediatek.com>
-Co-developed-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Reviewed-by: Guillaume Ranquet <granquet@baylibre.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Pablo Sun <pablo.sun@mediatek.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Link: https://lore.kernel.org/r/20220804034803.19486-1-macpaul.lin@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |    4 ++--
- include/linux/usb/typec_dp.h             |    5 +++++
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ kernel/cgroup/cgroup-internal.h |  5 +++--
+ kernel/cgroup/cgroup-v1.c       |  5 +++--
+ kernel/cgroup/cgroup.c          | 39 +++++++++++++++++++++++++--------
+ 3 files changed, 36 insertions(+), 13 deletions(-)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -91,8 +91,8 @@ static int dp_altmode_configure(struct d
- 	case DP_STATUS_CON_UFP_D:
- 	case DP_STATUS_CON_BOTH: /* NOTE: First acting as DP source */
- 		conf |= DP_CONF_UFP_U_AS_UFP_D;
--		pin_assign = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo) &
--			     DP_CAP_UFP_D_PIN_ASSIGN(dp->port->vdo);
-+		pin_assign = DP_CAP_PIN_ASSIGN_UFP_D(dp->alt->vdo) &
-+				 DP_CAP_PIN_ASSIGN_DFP_D(dp->port->vdo);
- 		break;
- 	default:
- 		break;
---- a/include/linux/usb/typec_dp.h
-+++ b/include/linux/usb/typec_dp.h
-@@ -68,6 +68,11 @@ enum {
- #define DP_CAP_USB			BIT(7)
- #define DP_CAP_DFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(15, 8)) >> 8)
- #define DP_CAP_UFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(23, 16)) >> 16)
-+/* Get pin assignment taking plug & receptacle into consideration */
-+#define DP_CAP_PIN_ASSIGN_UFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-+			DP_CAP_UFP_D_PIN_ASSIGN(_cap_) : DP_CAP_DFP_D_PIN_ASSIGN(_cap_))
-+#define DP_CAP_PIN_ASSIGN_DFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-+			DP_CAP_DFP_D_PIN_ASSIGN(_cap_) : DP_CAP_UFP_D_PIN_ASSIGN(_cap_))
+diff --git a/kernel/cgroup/cgroup-internal.h b/kernel/cgroup/cgroup-internal.h
+index 236f290224aae..8dfb2526b3aa2 100644
+--- a/kernel/cgroup/cgroup-internal.h
++++ b/kernel/cgroup/cgroup-internal.h
+@@ -250,9 +250,10 @@ int cgroup_migrate(struct task_struct *leader, bool threadgroup,
  
- /* DisplayPort Status Update VDO bits */
- #define DP_STATUS_CONNECTION(_status_)	((_status_) & 3)
+ int cgroup_attach_task(struct cgroup *dst_cgrp, struct task_struct *leader,
+ 		       bool threadgroup);
+-struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup)
++struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
++					     bool *locked)
+ 	__acquires(&cgroup_threadgroup_rwsem);
+-void cgroup_procs_write_finish(struct task_struct *task)
++void cgroup_procs_write_finish(struct task_struct *task, bool locked)
+ 	__releases(&cgroup_threadgroup_rwsem);
+ 
+ void cgroup_lock_and_drain_offline(struct cgroup *cgrp);
+diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
+index 117d70098cd49..aa7577b189e92 100644
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -498,12 +498,13 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
+ 	struct task_struct *task;
+ 	const struct cred *cred, *tcred;
+ 	ssize_t ret;
++	bool locked;
+ 
+ 	cgrp = cgroup_kn_lock_live(of->kn, false);
+ 	if (!cgrp)
+ 		return -ENODEV;
+ 
+-	task = cgroup_procs_write_start(buf, threadgroup);
++	task = cgroup_procs_write_start(buf, threadgroup, &locked);
+ 	ret = PTR_ERR_OR_ZERO(task);
+ 	if (ret)
+ 		goto out_unlock;
+@@ -526,7 +527,7 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
+ 	ret = cgroup_attach_task(cgrp, task, threadgroup);
+ 
+ out_finish:
+-	cgroup_procs_write_finish(task);
++	cgroup_procs_write_finish(task, locked);
+ out_unlock:
+ 	cgroup_kn_unlock(of->kn);
+ 
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 23f0db2900e4b..bc9ee9a18c1e8 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -2856,7 +2856,8 @@ int cgroup_attach_task(struct cgroup *dst_cgrp, struct task_struct *leader,
+ 	return ret;
+ }
+ 
+-struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup)
++struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
++					     bool *locked)
+ 	__acquires(&cgroup_threadgroup_rwsem)
+ {
+ 	struct task_struct *tsk;
+@@ -2865,7 +2866,21 @@ struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup)
+ 	if (kstrtoint(strstrip(buf), 0, &pid) || pid < 0)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	percpu_down_write(&cgroup_threadgroup_rwsem);
++	/*
++	 * If we migrate a single thread, we don't care about threadgroup
++	 * stability. If the thread is `current`, it won't exit(2) under our
++	 * hands or change PID through exec(2). We exclude
++	 * cgroup_update_dfl_csses and other cgroup_{proc,thread}s_write
++	 * callers by cgroup_mutex.
++	 * Therefore, we can skip the global lock.
++	 */
++	lockdep_assert_held(&cgroup_mutex);
++	if (pid || threadgroup) {
++		percpu_down_write(&cgroup_threadgroup_rwsem);
++		*locked = true;
++	} else {
++		*locked = false;
++	}
+ 
+ 	rcu_read_lock();
+ 	if (pid) {
+@@ -2896,13 +2911,16 @@ struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup)
+ 	goto out_unlock_rcu;
+ 
+ out_unlock_threadgroup:
+-	percpu_up_write(&cgroup_threadgroup_rwsem);
++	if (*locked) {
++		percpu_up_write(&cgroup_threadgroup_rwsem);
++		*locked = false;
++	}
+ out_unlock_rcu:
+ 	rcu_read_unlock();
+ 	return tsk;
+ }
+ 
+-void cgroup_procs_write_finish(struct task_struct *task)
++void cgroup_procs_write_finish(struct task_struct *task, bool locked)
+ 	__releases(&cgroup_threadgroup_rwsem)
+ {
+ 	struct cgroup_subsys *ss;
+@@ -2911,7 +2929,8 @@ void cgroup_procs_write_finish(struct task_struct *task)
+ 	/* release reference from cgroup_procs_write_start() */
+ 	put_task_struct(task);
+ 
+-	percpu_up_write(&cgroup_threadgroup_rwsem);
++	if (locked)
++		percpu_up_write(&cgroup_threadgroup_rwsem);
+ 	for_each_subsys(ss, ssid)
+ 		if (ss->post_attach)
+ 			ss->post_attach();
+@@ -4830,12 +4849,13 @@ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+ 	ssize_t ret;
++	bool locked;
+ 
+ 	dst_cgrp = cgroup_kn_lock_live(of->kn, false);
+ 	if (!dst_cgrp)
+ 		return -ENODEV;
+ 
+-	task = cgroup_procs_write_start(buf, true);
++	task = cgroup_procs_write_start(buf, true, &locked);
+ 	ret = PTR_ERR_OR_ZERO(task);
+ 	if (ret)
+ 		goto out_unlock;
+@@ -4861,7 +4881,7 @@ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ 	ret = cgroup_attach_task(dst_cgrp, task, true);
+ 
+ out_finish:
+-	cgroup_procs_write_finish(task);
++	cgroup_procs_write_finish(task, locked);
+ out_unlock:
+ 	cgroup_kn_unlock(of->kn);
+ 
+@@ -4881,6 +4901,7 @@ static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+ 	ssize_t ret;
++	bool locked;
+ 
+ 	buf = strstrip(buf);
+ 
+@@ -4888,7 +4909,7 @@ static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
+ 	if (!dst_cgrp)
+ 		return -ENODEV;
+ 
+-	task = cgroup_procs_write_start(buf, false);
++	task = cgroup_procs_write_start(buf, false, &locked);
+ 	ret = PTR_ERR_OR_ZERO(task);
+ 	if (ret)
+ 		goto out_unlock;
+@@ -4919,7 +4940,7 @@ static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
+ 	ret = cgroup_attach_task(dst_cgrp, task, false);
+ 
+ out_finish:
+-	cgroup_procs_write_finish(task);
++	cgroup_procs_write_finish(task, locked);
+ out_unlock:
+ 	cgroup_kn_unlock(of->kn);
+ 
+-- 
+2.35.1
+
 
 
