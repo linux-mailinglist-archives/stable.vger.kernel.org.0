@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 957A95B7051
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4AA55B72F8
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233574AbiIMOY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:24:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39114 "EHLO
+        id S234801AbiIMO7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:59:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233751AbiIMOYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:24:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 638AE66A66;
-        Tue, 13 Sep 2022 07:16:02 -0700 (PDT)
+        with ESMTP id S234829AbiIMO47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:56:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4101A73319;
+        Tue, 13 Sep 2022 07:27:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CCA2B80F3B;
-        Tue, 13 Sep 2022 14:14:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B18BC433D6;
-        Tue, 13 Sep 2022 14:14:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D1ED614D2;
+        Tue, 13 Sep 2022 14:20:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57632C433C1;
+        Tue, 13 Sep 2022 14:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078476;
-        bh=UtIJbytG0mJZ2HqgrwpX0rhPym5byhxOw6m/gl22j0o=;
+        s=korg; t=1663078824;
+        bh=B+tXHmShi2K/eDzM41fWdvTpBinpQU1npj0mHyqDyUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwLJxgPTiovzQalAPBKJECsstgNqgGaVA2O58N5DziwBxb/vHbzQdTf/6+ERIZsVK
-         r2obLq5/19kDvrnqAJ4EXj3E1bkqMGURYc0phs1dZ3Yxqyz6CoCWLwS7NW4JpSfi+L
-         YFvix/JhZ30eqy3RHDtq3GKZkRduvT3D2AZn/kYU=
+        b=IkpkthNktIMzHRyslD1/mA6henKO2uFwjGJtgQ7MwTGSQGZaME4hmfNXnOtXv+A7n
+         xTT4rk0J5tKkdF959J9AHRtP9bbDhpa1CA3XXzE/9qwCclfDROO7DHaBvLmITRZ3jx
+         Rvkc3CMcyQfgX3HFXzJX3qNvY5eKC/syc6Ff6qSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 154/192] perf script: Fix Cannot print iregs field for hybrid systems
-Date:   Tue, 13 Sep 2022 16:04:20 +0200
-Message-Id: <20220913140417.698603721@linuxfoundation.org>
+Subject: [PATCH 5.15 070/121] RDMA/srp: Set scmnd->result only when scmnd is not NULL
+Date:   Tue, 13 Sep 2022 16:04:21 +0200
+Message-Id: <20220913140400.374728274@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,76 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+From: yangx.jy@fujitsu.com <yangx.jy@fujitsu.com>
 
-[ Upstream commit 82b2425fad2dd47204b3da589b679220f8aacc0e ]
+[ Upstream commit 12f35199a2c0551187edbf8eb01379f0598659fa ]
 
-Commit b91e5492f9d7ca89 ("perf record: Add a dummy event on hybrid
-systems to collect metadata records") adds a dummy event on hybrid
-systems to fix the symbol "unknown" issue when the workload is created
-in a P-core but runs on an E-core. The added dummy event will cause
-"perf script -F iregs" to fail. Dummy events do not have "iregs"
-attribute set, so when we do evsel__check_attr, the "iregs" attribute
-check will fail, so the issue happened.
+This change fixes the following kernel NULL pointer dereference
+which is reproduced by blktests srp/007 occasionally.
 
-The following commit [1] has fixed a similar issue by skipping the attr
-check for the dummy event because it does not have any samples anyway. It
-works okay for the normal mode, but the issue still happened when running
-the test in the pipe mode. In the pipe mode, it calls process_attr() which
-still checks the attr for the dummy event. This commit fixed the issue by
-skipping the attr check for the dummy event in the API evsel__check_attr,
-Otherwise, we have to patch everywhere when evsel__check_attr() is called.
+BUG: kernel NULL pointer dereference, address: 0000000000000170
+PGD 0 P4D 0
+Oops: 0002 [#1] PREEMPT SMP NOPTI
+CPU: 0 PID: 9 Comm: kworker/0:1H Kdump: loaded Not tainted 6.0.0-rc1+ #37
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.15.0-29-g6a62e0cb0dfe-prebuilt.qemu.org 04/01/2014
+Workqueue:  0x0 (kblockd)
+RIP: 0010:srp_recv_done+0x176/0x500 [ib_srp]
+Code: 00 4d 85 ff 0f 84 52 02 00 00 48 c7 82 80 02 00 00 00 00 00 00 4c 89 df 4c 89 14 24 e8 53 d3 4a f6 4c 8b 14 24 41 0f b6 42 13 <41> 89 87 70 01 00 00 41 0f b6 52 12 f6 c2 02 74 44 41 8b 42 1c b9
+RSP: 0018:ffffaef7c0003e28 EFLAGS: 00000282
+RAX: 0000000000000000 RBX: ffff9bc9486dea60 RCX: 0000000000000000
+RDX: 0000000000000102 RSI: ffffffffb76bbd0e RDI: 00000000ffffffff
+RBP: ffff9bc980099a00 R08: 0000000000000001 R09: 0000000000000001
+R10: ffff9bca53ef0000 R11: ffff9bc980099a10 R12: ffff9bc956e14000
+R13: ffff9bc9836b9cb0 R14: ffff9bc9557b4480 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff9bc97ec00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000170 CR3: 0000000007e04000 CR4: 00000000000006f0
+Call Trace:
+ <IRQ>
+ __ib_process_cq+0xb7/0x280 [ib_core]
+ ib_poll_handler+0x2b/0x130 [ib_core]
+ irq_poll_softirq+0x93/0x150
+ __do_softirq+0xee/0x4b8
+ irq_exit_rcu+0xf7/0x130
+ sysvec_apic_timer_interrupt+0x8e/0xc0
+ </IRQ>
 
-Before:
-
-  #./perf record -o - --intr-regs=di,r8,dx,cx -e br_inst_retired.near_call:p -c 1000 --per-thread true 2>/dev/null|./perf script -F iregs |head -5
-  Samples for 'dummy:HG' event do not have IREGS attribute set. Cannot print 'iregs' field.
-  0x120 [0x90]: failed to process type: 64
-  #
-
-After:
-
-  # ./perf record -o - --intr-regs=di,r8,dx,cx -e br_inst_retired.near_call:p -c 1000 --per-thread true 2>/dev/null|./perf script -F iregs |head -5
-  ABI:2    CX:0x55b8efa87000    DX:0x55b8efa7e000    DI:0xffffba5e625efbb0    R8:0xffff90e51f8ae100
-  ABI:2    CX:0x7f1dae1e4000    DX:0xd0    DI:0xffff90e18c675ac0    R8:0x71
-  ABI:2    CX:0xcc0    DX:0x1    DI:0xffff90e199880240    R8:0x0
-  ABI:2    CX:0xffff90e180dd7500    DX:0xffff90e180dd7500    DI:0xffff90e180043500    R8:0x1
-  ABI:2    CX:0x50    DX:0xffff90e18c583bd0    DI:0xffff90e1998803c0    R8:0x58
-  #
-
-[1]https://lore.kernel.org/lkml/20220831124041.219925-1-jolsa@kernel.org/
-
-Fixes: b91e5492f9d7ca89 ("perf record: Add a dummy event on hybrid systems to collect metadata records")
-Suggested-by: Namhyung Kim <namhyung@kernel.org>
-Signed-off-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220908070030.3455164-1-zhengjun.xing@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: ad215aaea4f9 ("RDMA/srp: Make struct scsi_cmnd and struct srp_request adjacent")
+Link: https://lore.kernel.org/r/20220831081626.18712-1-yangx.jy@fujitsu.com
+Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
+Acked-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-script.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/ulp/srp/ib_srp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
-index c689054002cca..26a572c160d6f 100644
---- a/tools/perf/builtin-script.c
-+++ b/tools/perf/builtin-script.c
-@@ -441,6 +441,9 @@ static int evsel__check_attr(struct evsel *evsel, struct perf_session *session)
- 	struct perf_event_attr *attr = &evsel->core.attr;
- 	bool allow_user_set;
- 
-+	if (evsel__is_dummy_event(evsel))
-+		return 0;
-+
- 	if (perf_header__has_feat(&session->header, HEADER_STAT))
- 		return 0;
- 
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
+index 5d416ec228717..473b3a08cf96d 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -1955,7 +1955,8 @@ static void srp_process_rsp(struct srp_rdma_ch *ch, struct srp_rsp *rsp)
+ 		if (scmnd) {
+ 			req = scsi_cmd_priv(scmnd);
+ 			scmnd = srp_claim_req(ch, req, NULL, scmnd);
+-		} else {
++		}
++		if (!scmnd) {
+ 			shost_printk(KERN_ERR, target->scsi_host,
+ 				     "Null scmnd for RSP w/tag %#016llx received on ch %td / QP %#x\n",
+ 				     rsp->tag, ch - target->ch, ch->qp->qp_num);
 -- 
 2.35.1
 
