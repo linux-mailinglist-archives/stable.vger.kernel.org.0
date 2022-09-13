@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C2DB5B7506
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2A495B72C8
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236538AbiIMPcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:32:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45384 "EHLO
+        id S234797AbiIMO7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:59:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232242AbiIMPbu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:31:50 -0400
+        with ESMTP id S235029AbiIMO7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 729AB7E80D;
-        Tue, 13 Sep 2022 07:40:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9132167C9C;
+        Tue, 13 Sep 2022 07:28:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7310BB80F03;
-        Tue, 13 Sep 2022 14:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC31CC433D6;
-        Tue, 13 Sep 2022 14:26:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9DA2B80F88;
+        Tue, 13 Sep 2022 14:26:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 532BDC433C1;
+        Tue, 13 Sep 2022 14:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079164;
-        bh=Ir6xP5RljXZWlqFSh5Ec+G4wO4Kw9CDLZq4owOGGAYg=;
+        s=korg; t=1663079166;
+        bh=EFg77Zk7VjDOWa/Am6J/rdn5ZkLyfeYxpOIeiC8k36k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOBJPHXZjazCb+61w6cI/RgEy1wR1Mzasi4a8M7ayma8PiRN/5SrnBc1noCbkqDK7
-         w9Dhe3RKZ7BRp6Z/eZMdrwUcKXb989cgb35Czg5zcgzMegvAPii+ExIAfhAWNvDJzq
-         wRNa+NwgiWJBW210RORiuNVkLKgc9mZQ8vTEOq0I=
+        b=DzXyAN/0zZjFztdP0jxJqrnuhRK/3IaaUQ27tp6XklPMRSVR8LJrz8ibu2z87AjyR
+         8kfg/k+PUOO7MyT0O8cnU54cybQJWDkK3a9etUcOASWFeoE2Yjbg41IMUcq1SkMT05
+         ragJOZSe4Fn1SLDnFAWiTBD+avjVnF4WqYypq7bY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Enguerrand de Ribaucourt 
-        <enguerrand.de-ribaucourt@savoirfairelinux.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 006/108] net: dp83822: disable false carrier interrupt
-Date:   Tue, 13 Sep 2022 16:05:37 +0200
-Message-Id: <20220913140353.827815251@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        sunliming <sunliming@kylinos.cn>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 007/108] drm/msm/dsi: fix the inconsistent indenting
+Date:   Tue, 13 Sep 2022 16:05:38 +0200
+Message-Id: <20220913140353.868627400@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -55,41 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirfairelinux.com>
+From: sunliming <sunliming@kylinos.cn>
 
-commit c96614eeab663646f57f67aa591e015abd8bd0ba upstream.
+[ Upstream commit 2f25a1fb4ec516c5ad67afd754334b491b9f09a5 ]
 
-When unplugging an Ethernet cable, false carrier events were produced by
-the PHY at a very high rate. Once the false carrier counter full, an
-interrupt was triggered every few clock cycles until the cable was
-replugged. This resulted in approximately 10k/s interrupts.
+Fix the inconsistent indenting in function msm_dsi_dphy_timing_calc_v3().
 
-Since the false carrier counter (FCSCR) is never used, we can safely
-disable this interrupt.
+Fix the following smatch warnings:
 
-In addition to improving performance, this also solved MDIO read
-timeouts I was randomly encountering with an i.MX8 fec MAC because of
-the interrupt flood. The interrupt count and MDIO timeout fix were
-tested on a v5.4.110 kernel.
+drivers/gpu/drm/msm/dsi/phy/dsi_phy.c:350 msm_dsi_dphy_timing_calc_v3() warn: inconsistent indenting
 
-Fixes: 87461f7a58ab ("net: phy: DP83822 initial driver submission")
-Signed-off-by: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirfairelinux.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f1fa7ff44056 ("drm/msm/dsi: implement auto PHY timing calculator for 10nm PHY")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: sunliming <sunliming@kylinos.cn>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/494662/
+Link: https://lore.kernel.org/r/20220719015622.646718-1-sunliming@kylinos.cn
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83822.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/msm/dsi/phy/dsi_phy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/phy/dp83822.c
-+++ b/drivers/net/phy/dp83822.c
-@@ -198,7 +198,6 @@ static int dp83822_config_intr(struct ph
- 			return misr_status;
+diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
+index 60d50643d0b5c..08a95c3a94444 100644
+--- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
++++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
+@@ -347,7 +347,7 @@ int msm_dsi_dphy_timing_calc_v3(struct msm_dsi_dphy_timing *timing,
+ 	} else {
+ 		timing->shared_timings.clk_pre =
+ 			linear_inter(tmax, tmin, pcnt2, 0, false);
+-			timing->shared_timings.clk_pre_inc_by_2 = 0;
++		timing->shared_timings.clk_pre_inc_by_2 = 0;
+ 	}
  
- 		misr_status |= (DP83822_RX_ERR_HF_INT_EN |
--				DP83822_FALSE_CARRIER_HF_INT_EN |
- 				DP83822_ANEG_COMPLETE_INT_EN |
- 				DP83822_DUP_MODE_CHANGE_INT_EN |
- 				DP83822_SPEED_CHANGED_INT_EN |
+ 	timing->ta_go = 3;
+-- 
+2.35.1
+
 
 
