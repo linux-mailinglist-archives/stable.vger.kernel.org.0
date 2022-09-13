@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 493425B7524
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E73625B7582
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbiIMPcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43150 "EHLO
+        id S232621AbiIMPp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:45:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236610AbiIMPbZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:31:25 -0400
+        with ESMTP id S234634AbiIMPpO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:45:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617787DF71;
-        Tue, 13 Sep 2022 07:40:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A547A8688F;
+        Tue, 13 Sep 2022 07:48:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE86E614AE;
-        Tue, 13 Sep 2022 14:38:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1471C43143;
-        Tue, 13 Sep 2022 14:38:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D77E614D0;
+        Tue, 13 Sep 2022 14:35:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60720C433C1;
+        Tue, 13 Sep 2022 14:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079883;
-        bh=sZQYElcGS/DOQWicjtPM/97X2vpvcYwfPlGU+gxOP9w=;
+        s=korg; t=1663079747;
+        bh=vhBPoo9+TLK9+hQbWq1b8y3SJghTY07Qom1m3j2Diu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e13lwEDcR6QS1to75aAob5WPqUSFs323ZQXgv/QgGWNvv1rKlbGUCmlsPMQY52pJv
-         d8gjpjf6pC9JsHb0Lhrc7M8X4ZofUvCdnbm4l9g2431Oq4W/edUqsoyDulv+B4VFmo
-         tzqZ34SXxeTsuMrQA+Zfwu3Lz2ZJjewdvk0oXYuU=
+        b=Z+FltSt8Utehy9wpZbmKy+qVKwelQL4Dk06HWXLvl3gTgBDmNywLGP2RFJok0oWRK
+         EmJfLE/IVh8+lrxUOiPWNh81NNpNOkuRt78t5O/3cxtseHMtkvkxnY1tI3oudw19WQ
+         g0v+Qlda1p/WjvRXqGJReCyGEIV0/2xlQFM6RLNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongxiang Ke <kdx.glider@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 31/42] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
+        stable@vger.kernel.org, Yang Ling <gnaygnil@gmail.com>,
+        Keguang Zhang <keguang.zhang@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 60/61] MIPS: loongson32: ls1c: Fix hang during startup
 Date:   Tue, 13 Sep 2022 16:08:02 +0200
-Message-Id: <20220913140343.923046119@linuxfoundation.org>
+Message-Id: <20220913140349.452979631@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
-References: <20220913140342.228397194@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongxiang Ke <kdx.glider@gmail.com>
+From: Yang Ling <gnaygnil@gmail.com>
 
-commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf upstream.
+[ Upstream commit 35508d2424097f9b6a1a17aac94f702767035616 ]
 
-There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
-the number of it's interfaces less than 4, an out-of-bounds read bug occurs
-when parsing the interface descriptor for this device.
+The RTCCTRL reg of LS1C is obselete.
+Writing this reg will cause system hang.
 
-Fix this by checking the number of interfaces.
-
-Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
-Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 60219c563c9b6 ("MIPS: Add RTC support for Loongson1C board")
+Signed-off-by: Yang Ling <gnaygnil@gmail.com>
+Tested-by: Keguang Zhang <keguang.zhang@gmail.com>
+Acked-by: Keguang Zhang <keguang.zhang@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/stream.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/loongson32/ls1c/board.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -502,7 +502,7 @@ int snd_usb_parse_audio_interface(struct
- 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
- 	 * one misses syncpipe, and does not produce any sound.
- 	 */
--	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
-+	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
- 		num = 4;
+diff --git a/arch/mips/loongson32/ls1c/board.c b/arch/mips/loongson32/ls1c/board.c
+index eb2d913c694fd..2d9675a6782c3 100644
+--- a/arch/mips/loongson32/ls1c/board.c
++++ b/arch/mips/loongson32/ls1c/board.c
+@@ -19,7 +19,6 @@ static struct platform_device *ls1c_platform_devices[] __initdata = {
+ static int __init ls1c_platform_init(void)
+ {
+ 	ls1x_serial_set_uartclk(&ls1x_uart_pdev);
+-	ls1x_rtc_set_extclk(&ls1x_rtc_pdev);
  
- 	for (i = 0; i < num; i++) {
+ 	return platform_add_devices(ls1c_platform_devices,
+ 				   ARRAY_SIZE(ls1c_platform_devices));
+-- 
+2.35.1
+
 
 
