@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D9F5B74FB
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:31:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 493425B7524
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236348AbiIMP1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:27:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56274 "EHLO
+        id S231761AbiIMPcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:32:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236344AbiIMP0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:26:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5041A7D7B2;
-        Tue, 13 Sep 2022 07:38:30 -0700 (PDT)
+        with ESMTP id S236610AbiIMPbZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:31:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617787DF71;
+        Tue, 13 Sep 2022 07:40:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AC71B80FBD;
-        Tue, 13 Sep 2022 14:36:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B2AC433D6;
-        Tue, 13 Sep 2022 14:36:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE86E614AE;
+        Tue, 13 Sep 2022 14:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1471C43143;
+        Tue, 13 Sep 2022 14:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079770;
-        bh=/TwwsSZbhnBs+zIYOt3WyFteOAs2G6YYtTmToocFnig=;
+        s=korg; t=1663079883;
+        bh=sZQYElcGS/DOQWicjtPM/97X2vpvcYwfPlGU+gxOP9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cYyQRtrMruymrG5kohaKjlXtsCnMdFVhwjare7Q57JUf4wA0Sn+ADqNb2zwM7JzUI
-         iq0unDdlQ8VytS9xvajx2Dl2IlbeTOrl11WRppXXiRqgDkxbOczJxH9LNQXA1YS+Bb
-         yN4QqRrxOZ64cNJS2yNSB57Ogok9b6UdinyXoTDo=
+        b=e13lwEDcR6QS1to75aAob5WPqUSFs323ZQXgv/QgGWNvv1rKlbGUCmlsPMQY52pJv
+         d8gjpjf6pC9JsHb0Lhrc7M8X4ZofUvCdnbm4l9g2431Oq4W/edUqsoyDulv+B4VFmo
+         tzqZ34SXxeTsuMrQA+Zfwu3Lz2ZJjewdvk0oXYuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 59/61] USB: serial: ch341: fix disabled rx timer on older devices
-Date:   Tue, 13 Sep 2022 16:08:01 +0200
-Message-Id: <20220913140349.407381238@linuxfoundation.org>
+        stable@vger.kernel.org, Dongxiang Ke <kdx.glider@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 31/42] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
+Date:   Tue, 13 Sep 2022 16:08:02 +0200
+Message-Id: <20220913140343.923046119@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140342.228397194@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dongxiang Ke <kdx.glider@gmail.com>
 
-commit 41ca302a697b64a3dab4676e01d0d11bb184737d upstream.
+commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf upstream.
 
-At least one older CH341 appears to have the RX timer enable bit
-inverted so that setting it disables the RX timer and prevents the FIFO
-from emptying until it is full.
+There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
+the number of it's interfaces less than 4, an out-of-bounds read bug occurs
+when parsing the interface descriptor for this device.
 
-Only set the RX timer enable bit for devices with version newer than
-0x27 (even though this probably affects all pre-0x30 devices).
+Fix this by checking the number of interfaces.
 
-Reported-by: Jonathan Woithe <jwoithe@just42.net>
-Tested-by: Jonathan Woithe <jwoithe@just42.net>
-Link: https://lore.kernel.org/r/Ys1iPTfiZRWj2gXs@marvin.atrad.com.au
-Fixes: 4e46c410e050 ("USB: serial: ch341: reinitialize chip on reconfiguration")
-Cc: stable@vger.kernel.org      # 4.10
-Signed-off-by: Johan Hovold <johan@kernel.org>
-[ johan: backport to 5.4 ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
+Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ch341.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/usb/stream.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -179,8 +179,12 @@ static int ch341_set_baudrate_lcr(struct
- 	/*
- 	 * CH341A buffers data until a full endpoint-size packet (32 bytes)
- 	 * has been received unless bit 7 is set.
-+	 *
-+	 * At least one device with version 0x27 appears to have this bit
-+	 * inverted.
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -502,7 +502,7 @@ int snd_usb_parse_audio_interface(struct
+ 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
+ 	 * one misses syncpipe, and does not produce any sound.
  	 */
--	a |= BIT(7);
-+	if (priv->version > 0x27)
-+		a |= BIT(7);
+-	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
++	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
+ 		num = 4;
  
- 	r = ch341_control_out(dev, CH341_REQ_WRITE_REG, 0x1312, a);
- 	if (r)
+ 	for (i = 0; i < num; i++) {
 
 
