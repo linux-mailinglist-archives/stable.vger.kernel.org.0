@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 774C05B6FA3
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 949F35B7223
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233043AbiIMORb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:17:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50788 "EHLO
+        id S231831AbiIMOt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:49:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233098AbiIMOQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:16:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D9D62AA1;
-        Tue, 13 Sep 2022 07:12:17 -0700 (PDT)
+        with ESMTP id S234566AbiIMOtA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311B76FA25;
+        Tue, 13 Sep 2022 07:25:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93B8E614A9;
-        Tue, 13 Sep 2022 14:11:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7B39C433C1;
-        Tue, 13 Sep 2022 14:11:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9839BB80F92;
+        Tue, 13 Sep 2022 14:16:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF0CC433D6;
+        Tue, 13 Sep 2022 14:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078294;
-        bh=9qR2vE0TaAtvgYNE2U/OAFbyfMPmGyvXGok/KtnlwBo=;
+        s=korg; t=1663078595;
+        bh=Myr/K1diHuAlbtpy15kf7/p4zZiJit0fn5QkUHtEsmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2t4v/VEyOdUKCOylSGjuzBTz+GwLNFSFMERcKeSWYYwGd5YmRWYN3ZfbOZWg96dS
-         i71CYAenWb4BhRqvuO6rz/+ix4S6dlQg8zxECtGngltEK+gkzshXLFXiQCbZQUq2nz
-         QIKg7ouVwVKPRmCJy6HsMkAh6aPa7Ha9sQPW3f0k=
+        b=aOJw9OSM9buA7Gs7jFiQFFxcK+13QnZX8eYsnFjq12HmeANANwp1oo7MI3ekbvZhb
+         X4jfb3G4Z3ggWwypfgVX33lk/Xbf5xJoQ0n1AfQlV5MmdNWieDxtdf2Xfv9VyrR1ML
+         s+41T00RxoHcAnRxRg/6nUIfxpk4S1GjO510RnN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 085/192] ASoC: SOF: Kconfig: Make IPC_FLOOD_TEST depend on SND_SOC_SOF
-Date:   Tue, 13 Sep 2022 16:03:11 +0200
-Message-Id: <20220913140414.197967085@linuxfoundation.org>
+        stable@vger.kernel.org, M Chetan Kumar <m.chetan.kumar@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.15 001/121] net: wwan: iosm: remove pointless null check
+Date:   Tue, 13 Sep 2022 16:03:12 +0200
+Message-Id: <20220913140357.388181954@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,38 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 3942499fba11de048c3ac1390b808e9e6ae88de5 ]
+commit dbbc7d04c549a43ad343c69e17b27a57e2102041 upstream.
 
-Make sure that the IPC_FLOOD client can not be built in when SND_SOC_SOF is
-built as module.
+GCC 12 warns:
 
-Fixes: 6e9548cdb30e5 ("ASoC: SOF: Convert the generic IPC flood test into SOF client")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220823121554.4255-2-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c: In function ‘ipc_protocol_dl_td_process’:
+drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c:406:13: warning: the comparison will always evaluate as ‘true’ for the address of ‘cb’ will never be NULL [-Waddress]
+  406 |         if (!IPC_CB(skb)) {
+      |             ^
+
+Indeed the check seems entirely pointless. Hopefully the other
+validation checks will catch if the cb is bad, but it can't be
+NULL.
+
+Reviewed-by: M Chetan Kumar <m.chetan.kumar@intel.com>
+Link: https://lore.kernel.org/r/20220519004342.2109832-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c |   10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/sound/soc/sof/Kconfig b/sound/soc/sof/Kconfig
-index 4542868cd730f..96c40542446db 100644
---- a/sound/soc/sof/Kconfig
-+++ b/sound/soc/sof/Kconfig
-@@ -196,6 +196,7 @@ config SND_SOC_SOF_DEBUG_ENABLE_FIRMWARE_TRACE
+--- a/drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c
++++ b/drivers/net/wwan/iosm/iosm_ipc_protocol_ops.c
+@@ -372,8 +372,6 @@ bool ipc_protocol_dl_td_prepare(struct i
+ struct sk_buff *ipc_protocol_dl_td_process(struct iosm_protocol *ipc_protocol,
+ 					   struct ipc_pipe *pipe)
+ {
+-	u32 tail =
+-		le32_to_cpu(ipc_protocol->p_ap_shm->tail_array[pipe->pipe_nr]);
+ 	struct ipc_protocol_td *p_td;
+ 	struct sk_buff *skb;
  
- config SND_SOC_SOF_DEBUG_IPC_FLOOD_TEST
- 	tristate "SOF enable IPC flood test"
-+	depends on SND_SOC_SOF
- 	select SND_SOC_SOF_CLIENT
- 	help
- 	  This option enables a separate client device for IPC flood test
--- 
-2.35.1
-
+@@ -401,14 +399,6 @@ struct sk_buff *ipc_protocol_dl_td_proce
+ 		ipc_pcie_kfree_skb(ipc_protocol->pcie, skb);
+ 		skb = NULL;
+ 		goto ret;
+-	}
+-
+-	if (!IPC_CB(skb)) {
+-		dev_err(ipc_protocol->dev, "pipe# %d, tail: %d skb_cb is NULL",
+-			pipe->pipe_nr, tail);
+-		ipc_pcie_kfree_skb(ipc_protocol->pcie, skb);
+-		skb = NULL;
+-		goto ret;
+ 	}
+ 
+ 	if (p_td->buffer.address != IPC_CB(skb)->mapping) {
 
 
