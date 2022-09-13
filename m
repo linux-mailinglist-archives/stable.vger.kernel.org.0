@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81F8B5B7559
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:42:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEB9C5B72E3
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236685AbiIMPlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:41:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51174 "EHLO
+        id S234947AbiIMO77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:59:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234230AbiIMPkl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:40:41 -0400
+        with ESMTP id S235184AbiIMO7Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31ED082849;
-        Tue, 13 Sep 2022 07:45:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6245162AA1;
+        Tue, 13 Sep 2022 07:28:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DCE4B80E22;
-        Tue, 13 Sep 2022 14:30:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05ACDC433D6;
-        Tue, 13 Sep 2022 14:30:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59C8EB80F9B;
+        Tue, 13 Sep 2022 14:28:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0E06C433D6;
+        Tue, 13 Sep 2022 14:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079458;
-        bh=yzjzRzpXVTVGDh0KFDX8Y1sN50cPYyuPFLTk1ZirTPo=;
+        s=korg; t=1663079280;
+        bh=wTT+y7OxndejrNZVsBuIMLnHzd38Ef9JL6Sq4tH05kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8LMZXoIaJ/HmsFZzEoI4Gx5EQEHlex4IkvcyfxuA18APFYt4CmrBLcyIXzMkgalV
-         43lJnsv4CIA274AFqSxIRgaclpR4K7rlFlA2YDTd++EdUeL8ZyHmLTEbV/bdbhtoWv
-         pJSPXB/Ns3UU2etfMJE04faYteELFH2VF7qw4XhA=
+        b=IFiLjXcYLS+OmNLqHyMhrcuXSIC9OPTCbmrhl8XILEdLKHpDUBEcltjxrYUvBCdbt
+         4853RsTG3zpjO8629gpR/MDmUKS0ukktDKfjqFn0JIvL5AHNvszFvexybf1q38ZJ95
+         hFYu3MhH3gTbUdYAaCxs9UvZryeXHSfiQYO1NPK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        sunliming <sunliming@kylinos.cn>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/79] drm/msm/dsi: fix the inconsistent indenting
+        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "Isaac J. Manjarres" <isaacmanjarres@google.com>
+Subject: [PATCH 5.4 055/108] driver core: Dont probe devices after bus_type.match() probe deferral
 Date:   Tue, 13 Sep 2022 16:06:26 +0200
-Message-Id: <20220913140349.257116582@linuxfoundation.org>
+Message-Id: <20220913140355.994585527@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sunliming <sunliming@kylinos.cn>
+From: Isaac J. Manjarres <isaacmanjarres@google.com>
 
-[ Upstream commit 2f25a1fb4ec516c5ad67afd754334b491b9f09a5 ]
+commit 25e9fbf0fd38868a429feabc38abebfc6dbf6542 upstream.
 
-Fix the inconsistent indenting in function msm_dsi_dphy_timing_calc_v3().
+Both __device_attach_driver() and __driver_attach() check the return
+code of the bus_type.match() function to see if the device needs to be
+added to the deferred probe list. After adding the device to the list,
+the logic attempts to bind the device to the driver anyway, as if the
+device had matched with the driver, which is not correct.
 
-Fix the following smatch warnings:
+If __device_attach_driver() detects that the device in question is not
+ready to match with a driver on the bus, then it doesn't make sense for
+the device to attempt to bind with the current driver or continue
+attempting to match with any of the other drivers on the bus. So, update
+the logic in __device_attach_driver() to reflect this.
 
-drivers/gpu/drm/msm/dsi/phy/dsi_phy.c:350 msm_dsi_dphy_timing_calc_v3() warn: inconsistent indenting
+If __driver_attach() detects that a driver tried to match with a device
+that is not ready to match yet, then the driver should not attempt to bind
+with the device. However, the driver can still attempt to match and bind
+with other devices on the bus, as drivers can be bound to multiple
+devices. So, update the logic in __driver_attach() to reflect this.
 
-Fixes: f1fa7ff44056 ("drm/msm/dsi: implement auto PHY timing calculator for 10nm PHY")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: sunliming <sunliming@kylinos.cn>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/494662/
-Link: https://lore.kernel.org/r/20220719015622.646718-1-sunliming@kylinos.cn
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
+Cc: stable@vger.kernel.org
+Cc: Saravana Kannan <saravanak@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+Link: https://lore.kernel.org/r/20220817184026.3468620-1-isaacmanjarres@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dsi/phy/dsi_phy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/dd.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-index f01e245cd0eee..bed0cd72e3ebd 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
-@@ -355,7 +355,7 @@ int msm_dsi_dphy_timing_calc_v3(struct msm_dsi_dphy_timing *timing,
- 	} else {
- 		timing->shared_timings.clk_pre =
- 			linear_inter(tmax, tmin, pcnt2, 0, false);
--			timing->shared_timings.clk_pre_inc_by_2 = 0;
-+		timing->shared_timings.clk_pre_inc_by_2 = 0;
- 	}
- 
- 	timing->ta_go = 3;
--- 
-2.35.1
-
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -818,6 +818,11 @@ static int __device_attach_driver(struct
+ 	} else if (ret == -EPROBE_DEFER) {
+ 		dev_dbg(dev, "Device match requests probe deferral\n");
+ 		driver_deferred_probe_add(dev);
++		/*
++		 * Device can't match with a driver right now, so don't attempt
++		 * to match or bind with other drivers on the bus.
++		 */
++		return ret;
+ 	} else if (ret < 0) {
+ 		dev_dbg(dev, "Bus failed to match device: %d", ret);
+ 		return ret;
+@@ -1057,6 +1062,11 @@ static int __driver_attach(struct device
+ 	} else if (ret == -EPROBE_DEFER) {
+ 		dev_dbg(dev, "Device match requests probe deferral\n");
+ 		driver_deferred_probe_add(dev);
++		/*
++		 * Driver could not match with device, but may match with
++		 * another device on the bus.
++		 */
++		return 0;
+ 	} else if (ret < 0) {
+ 		dev_dbg(dev, "Bus failed to match device: %d", ret);
+ 		return ret;
 
 
