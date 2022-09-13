@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E07F5B7007
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9B965B723E
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233288AbiIMOUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:20:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52458 "EHLO
+        id S231515AbiIMOtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:49:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233685AbiIMOTm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27268DEDF;
-        Tue, 13 Sep 2022 07:14:32 -0700 (PDT)
+        with ESMTP id S234582AbiIMOtH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:49:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01ABA70E55;
+        Tue, 13 Sep 2022 07:25:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AC4F614C1;
-        Tue, 13 Sep 2022 14:12:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4588EC43140;
-        Tue, 13 Sep 2022 14:12:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E7FCB80F9C;
+        Tue, 13 Sep 2022 14:17:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D48C433D7;
+        Tue, 13 Sep 2022 14:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078366;
-        bh=UerA8/O15XJcRsS8zRHWNxG9/WoeSjEnoJAUSy+EY9w=;
+        s=korg; t=1663078646;
+        bh=W7RwtjbRO7cSQgAvXH9sdYPxfIDfe7vMn9FkQLu6MFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vquDGNGkOMPH59lz3rijScRbwGFn0NOForv1bGyJ0K3yStCml6i0+DALCsgEiX3Cr
-         FlNeERmodV36yAzhjCqwCoHD9Hzbq4FPmrbBmSXGDA5RXgzIVCcKGicLM+eaK/jcOT
-         J1Ns+3l2wzxNLYMC34+1KtHDsqN1Xpo3X3QNaO2I=
+        b=H2L6jtI75byopSbnVAVJloCrTTo25xxkNFZAi/D86DYbRjPMrurQbjeHRjw3QOx5G
+         jZ+kwm5n9CWFg/84aDNEO+73v76j1LynsRU8DLthY4hdPtYUKxF9RGn707YD3iphL3
+         6q0t4tw2ybE2GtPwFtj0stMnkb/ovjYDpLSdS3XY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffrey E Altman <jaltman@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 112/192] afs: Use the operation issue time instead of the reply time for callbacks
-Date:   Tue, 13 Sep 2022 16:03:38 +0200
-Message-Id: <20220913140415.554897747@linuxfoundation.org>
+        stable@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 028/121] ALSA: emu10k1: Fix out of bounds access in snd_emu10k1_pcm_channel_alloc()
+Date:   Tue, 13 Sep 2022 16:03:39 +0200
+Message-Id: <20220913140358.556630518@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,124 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-[ Upstream commit 7903192c4b4a82d792cb0dc5e2779a2efe60d45b ]
+commit d29f59051d3a07b81281b2df2b8c9dfe4716067f upstream.
 
-rxrpc and kafs between them try to use the receive timestamp on the first
-data packet (ie. the one with sequence number 1) as a base from which to
-calculate the time at which callback promise and lock expiration occurs.
+The voice allocator sometimes begins allocating from near the end of the
+array and then wraps around, however snd_emu10k1_pcm_channel_alloc()
+accesses the newly allocated voices as if it never wrapped around.
 
-However, we don't know how long it took for the server to send us the reply
-from it having completed the basic part of the operation - it might then,
-for instance, have to send a bunch of a callback breaks, depending on the
-particular operation.
+This results in out of bounds access if the first voice has a high enough
+index so that first_voice + requested_voice_count > NUM_G (64).
+The more voices are requested, the more likely it is for this to occur.
 
-Fix this by using the time at which the operation is issued on the client
-as a base instead.  That should never be longer than the server's idea of
-the expiry time.
+This was initially discovered using PipeWire, however it can be reproduced
+by calling aplay multiple times with 16 channels:
+aplay -r 48000 -D plughw:CARD=Live,DEV=3 -c 16 /dev/zero
 
-Fixes: 781070551c26 ("afs: Fix calculation of callback expiry time")
-Fixes: 2070a3e44962 ("rxrpc: Allow the reply time to be obtained on a client call")
-Suggested-by: Jeffrey E Altman <jaltman@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+UBSAN: array-index-out-of-bounds in sound/pci/emu10k1/emupcm.c:127:40
+index 65 is out of range for type 'snd_emu10k1_voice [64]'
+CPU: 1 PID: 31977 Comm: aplay Tainted: G        W IOE      6.0.0-rc2-emu10k1+ #7
+Hardware name: ASUSTEK COMPUTER INC P5W DH Deluxe/P5W DH Deluxe, BIOS 3002    07/22/2010
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x63
+dump_stack+0x10/0x16
+ubsan_epilogue+0x9/0x3f
+__ubsan_handle_out_of_bounds.cold+0x44/0x49
+snd_emu10k1_playback_hw_params+0x3bc/0x420 [snd_emu10k1]
+snd_pcm_hw_params+0x29f/0x600 [snd_pcm]
+snd_pcm_common_ioctl+0x188/0x1410 [snd_pcm]
+? exit_to_user_mode_prepare+0x35/0x170
+? do_syscall_64+0x69/0x90
+? syscall_exit_to_user_mode+0x26/0x50
+? do_syscall_64+0x69/0x90
+? exit_to_user_mode_prepare+0x35/0x170
+snd_pcm_ioctl+0x27/0x40 [snd_pcm]
+__x64_sys_ioctl+0x95/0xd0
+do_syscall_64+0x5c/0x90
+? do_syscall_64+0x69/0x90
+? do_syscall_64+0x69/0x90
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/3707dcab-320a-62ff-63c0-73fc201ef756@tasossah.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/flock.c     | 2 +-
- fs/afs/fsclient.c  | 2 +-
- fs/afs/internal.h  | 3 +--
- fs/afs/rxrpc.c     | 7 +------
- fs/afs/yfsclient.c | 3 +--
- 5 files changed, 5 insertions(+), 12 deletions(-)
+ sound/pci/emu10k1/emupcm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/afs/flock.c b/fs/afs/flock.c
-index c4210a3964d8b..bbcc5afd15760 100644
---- a/fs/afs/flock.c
-+++ b/fs/afs/flock.c
-@@ -76,7 +76,7 @@ void afs_lock_op_done(struct afs_call *call)
- 	if (call->error == 0) {
- 		spin_lock(&vnode->lock);
- 		trace_afs_flock_ev(vnode, NULL, afs_flock_timestamp, 0);
--		vnode->locked_at = call->reply_time;
-+		vnode->locked_at = call->issue_time;
- 		afs_schedule_lock_extension(vnode);
- 		spin_unlock(&vnode->lock);
- 	}
-diff --git a/fs/afs/fsclient.c b/fs/afs/fsclient.c
-index 4943413d9c5f7..7d37f63ef0f09 100644
---- a/fs/afs/fsclient.c
-+++ b/fs/afs/fsclient.c
-@@ -131,7 +131,7 @@ static void xdr_decode_AFSFetchStatus(const __be32 **_bp,
- 
- static time64_t xdr_decode_expiry(struct afs_call *call, u32 expiry)
- {
--	return ktime_divns(call->reply_time, NSEC_PER_SEC) + expiry;
-+	return ktime_divns(call->issue_time, NSEC_PER_SEC) + expiry;
- }
- 
- static void xdr_decode_AFSCallBack(const __be32 **_bp,
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index a6f25d9e75b52..28bdd0387e5ea 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -137,7 +137,6 @@ struct afs_call {
- 	bool			need_attention;	/* T if RxRPC poked us */
- 	bool			async;		/* T if asynchronous */
- 	bool			upgrade;	/* T to request service upgrade */
--	bool			have_reply_time; /* T if have got reply_time */
- 	bool			intr;		/* T if interruptible */
- 	bool			unmarshalling_error; /* T if an unmarshalling error occurred */
- 	u16			service_id;	/* Actual service ID (after upgrade) */
-@@ -151,7 +150,7 @@ struct afs_call {
- 		} __attribute__((packed));
- 		__be64		tmp64;
- 	};
--	ktime_t			reply_time;	/* Time of first reply packet */
-+	ktime_t			issue_time;	/* Time of issue of operation */
- };
- 
- struct afs_call_type {
-diff --git a/fs/afs/rxrpc.c b/fs/afs/rxrpc.c
-index a5434f3e57c68..e3de7fea36435 100644
---- a/fs/afs/rxrpc.c
-+++ b/fs/afs/rxrpc.c
-@@ -347,6 +347,7 @@ void afs_make_call(struct afs_addr_cursor *ac, struct afs_call *call, gfp_t gfp)
- 	if (call->max_lifespan)
- 		rxrpc_kernel_set_max_life(call->net->socket, rxcall,
- 					  call->max_lifespan);
-+	call->issue_time = ktime_get_real();
- 
- 	/* send the request */
- 	iov[0].iov_base	= call->request;
-@@ -497,12 +498,6 @@ static void afs_deliver_to_call(struct afs_call *call)
- 			return;
+--- a/sound/pci/emu10k1/emupcm.c
++++ b/sound/pci/emu10k1/emupcm.c
+@@ -124,7 +124,7 @@ static int snd_emu10k1_pcm_channel_alloc
+ 	epcm->voices[0]->epcm = epcm;
+ 	if (voices > 1) {
+ 		for (i = 1; i < voices; i++) {
+-			epcm->voices[i] = &epcm->emu->voices[epcm->voices[0]->number + i];
++			epcm->voices[i] = &epcm->emu->voices[(epcm->voices[0]->number + i) % NUM_G];
+ 			epcm->voices[i]->epcm = epcm;
  		}
- 
--		if (!call->have_reply_time &&
--		    rxrpc_kernel_get_reply_time(call->net->socket,
--						call->rxcall,
--						&call->reply_time))
--			call->have_reply_time = true;
--
- 		ret = call->type->deliver(call);
- 		state = READ_ONCE(call->state);
- 		if (ret == 0 && call->unmarshalling_error)
-diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
-index fdc7d675b4b0c..11571cca86c19 100644
---- a/fs/afs/yfsclient.c
-+++ b/fs/afs/yfsclient.c
-@@ -232,8 +232,7 @@ static void xdr_decode_YFSCallBack(const __be32 **_bp,
- 	struct afs_callback *cb = &scb->callback;
- 	ktime_t cb_expiry;
- 
--	cb_expiry = call->reply_time;
--	cb_expiry = ktime_add(cb_expiry, xdr_to_u64(x->expiration_time) * 100);
-+	cb_expiry = ktime_add(call->issue_time, xdr_to_u64(x->expiration_time) * 100);
- 	cb->expires_at	= ktime_divns(cb_expiry, NSEC_PER_SEC);
- 	scb->have_cb	= true;
- 	*_bp += xdr_size(x);
--- 
-2.35.1
-
+ 	}
 
 
