@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49BFD5B6FEB
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D01D75B700B
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233170AbiIMOUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:20:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44570 "EHLO
+        id S233156AbiIMOUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:20:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233363AbiIMOSv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:18:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1DAA5E65F;
-        Tue, 13 Sep 2022 07:13:32 -0700 (PDT)
+        with ESMTP id S233300AbiIMOSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:18:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12316647C9;
+        Tue, 13 Sep 2022 07:13:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB907614B0;
-        Tue, 13 Sep 2022 14:12:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C03C43141;
-        Tue, 13 Sep 2022 14:12:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DAF9614AA;
+        Tue, 13 Sep 2022 14:12:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E5FC433D6;
+        Tue, 13 Sep 2022 14:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078327;
-        bh=qcGCLlxipgxnD4S81lIQustGzJ34flUL6TAVGT84gaM=;
+        s=korg; t=1663078330;
+        bh=W0IUbpfa6isdMD/ApcmvRRHVl5lwzEVmULFwTukoxn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gd74AnXyTCjuE15BEqhIkQVzXy5/gHdV1ObdRI6gwNLs/x9Z434mltMGuO3zndxqS
-         7lafVF5D2tcnJqHj0gHW7ZjJ57apdk/jUklC3PN78oPu6xWScF4xYAFIccaGnaQ6+w
-         Cw5081hsBzTPT6inSruiYxJRcMPIjUthwRCk8tCg=
+        b=b4b08iiBhe65vLTlLmUoSawM+yWcJKB/xlOKKRSpsIa7gKrx9sqbrYpJCAFEuw6+L
+         JVTM9AIIN4ThLJ8DuWs/zaVGkSQBf9qVAHMees5gxgiFRRqdrttyqGGXR5sNMztQz7
+         1xWnUddFt0db1buzYi3aGsfz+CZ0rIKT5vW/jHBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Frederic Schumacher <frederic.schumacher@microchip.com>,
         Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Cristian Birsan <cristian.birsan@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 096/192] ARM: at91: pm: fix self-refresh for sama7g5
-Date:   Tue, 13 Sep 2022 16:03:22 +0200
-Message-Id: <20220913140414.749501170@linuxfoundation.org>
+Subject: [PATCH 5.19 097/192] ARM: at91: pm: fix DDR recalibration when resuming from backup and self-refresh
+Date:   Tue, 13 Sep 2022 16:03:23 +0200
+Message-Id: <20220913140414.800469982@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -58,85 +57,99 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit a02875c4cbd6f3d2f33d70cc158a19ef02d4b84f ]
+[ Upstream commit 7a94b83a7dc551607b6c4400df29151e6a951f07 ]
 
-It has been discovered that on some parts, from time to time, self-refresh
-procedure doesn't work as expected. Debugging and investigating it proved
-that disabling AC DLL introduce glitches in RAM controllers which
-leads to unexpected behavior. This is confirmed as a hardware bug. DLL
-bypass disables 3 DLLs: 2 DX DLLs and AC DLL. Thus, keep only DX DLLs
-disabled. This introduce 6mA extra current consumption on VDDCORE when
-switching to any ULP mode or standby mode but the self-refresh procedure
-still works.
+On SAMA7G5, when resuming from backup and self-refresh, the bootloader
+performs DDR PHY recalibration by restoring the value of ZQ0SR0 (stored
+in RAM by Linux before going to backup and self-refresh). It has been
+discovered that the current procedure doesn't work for all possible values
+that might go to ZQ0SR0 due to hardware bug. The workaround to this is to
+avoid storing some values in ZQ0SR0. Thus Linux will read the ZQ0SR0
+register and cache its value in RAM after processing it (using
+modified_gray_code array). The bootloader will restore the processed value.
 
-Fixes: f0bbf17958e8 ("ARM: at91: pm: add self-refresh support for sama7g5")
+Fixes: d2d4716d8384 ("ARM: at91: pm: save ddr phy calibration data to securam")
 Suggested-by: Frederic Schumacher <frederic.schumacher@microchip.com>
 Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Tested-by: Cristian Birsan <cristian.birsan@microchip.com>
-Link: https://lore.kernel.org/r/20220826083927.3107272-3-claudiu.beznea@microchip.com
+Link: https://lore.kernel.org/r/20220826083927.3107272-4-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-at91/pm_suspend.S | 24 +++++++++++++++++-------
- include/soc/at91/sama7-ddr.h    |  4 ++++
- 2 files changed, 21 insertions(+), 7 deletions(-)
+ arch/arm/mach-at91/pm.c      | 36 ++++++++++++++++++++++++++++++++----
+ include/soc/at91/sama7-ddr.h |  4 ++++
+ 2 files changed, 36 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/mach-at91/pm_suspend.S b/arch/arm/mach-at91/pm_suspend.S
-index abe4ced33edaf..ffed4d9490428 100644
---- a/arch/arm/mach-at91/pm_suspend.S
-+++ b/arch/arm/mach-at91/pm_suspend.S
-@@ -172,9 +172,15 @@ sr_ena_2:
- 	/* Put DDR PHY's DLL in bypass mode for non-backup modes. */
- 	cmp	r7, #AT91_PM_BACKUP
- 	beq	sr_ena_3
--	ldr	tmp1, [r3, #DDR3PHY_PIR]
--	orr	tmp1, tmp1, #DDR3PHY_PIR_DLLBYP
--	str	tmp1, [r3, #DDR3PHY_PIR]
-+
-+	/* Disable DX DLLs. */
-+	ldr	tmp1, [r3, #DDR3PHY_DX0DLLCR]
-+	orr	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
-+	str	tmp1, [r3, #DDR3PHY_DX0DLLCR]
-+
-+	ldr	tmp1, [r3, #DDR3PHY_DX1DLLCR]
-+	orr	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
-+	str	tmp1, [r3, #DDR3PHY_DX1DLLCR]
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index df6d673e83d56..f4501dea98b04 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -541,9 +541,41 @@ extern u32 at91_pm_suspend_in_sram_sz;
  
- sr_ena_3:
- 	/* Power down DDR PHY data receivers. */
-@@ -221,10 +227,14 @@ sr_ena_3:
- 	bic	tmp1, tmp1, #DDR3PHY_DSGCR_ODTPDD_ODT0
- 	str	tmp1, [r3, #DDR3PHY_DSGCR]
+ static int at91_suspend_finish(unsigned long val)
+ {
++	unsigned char modified_gray_code[] = {
++		0x00, 0x01, 0x02, 0x03, 0x06, 0x07, 0x04, 0x05, 0x0c, 0x0d,
++		0x0e, 0x0f, 0x0a, 0x0b, 0x08, 0x09, 0x18, 0x19, 0x1a, 0x1b,
++		0x1e, 0x1f, 0x1c, 0x1d, 0x14, 0x15, 0x16, 0x17, 0x12, 0x13,
++		0x10, 0x11,
++	};
++	unsigned int tmp, index;
+ 	int i;
  
--	/* Take DDR PHY's DLL out of bypass mode. */
--	ldr	tmp1, [r3, #DDR3PHY_PIR]
--	bic	tmp1, tmp1, #DDR3PHY_PIR_DLLBYP
--	str	tmp1, [r3, #DDR3PHY_PIR]
-+	/* Enable DX DLLs. */
-+	ldr	tmp1, [r3, #DDR3PHY_DX0DLLCR]
-+	bic	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
-+	str	tmp1, [r3, #DDR3PHY_DX0DLLCR]
+ 	if (soc_pm.data.mode == AT91_PM_BACKUP && soc_pm.data.ramc_phy) {
++		/*
++		 * Bootloader will perform DDR recalibration and will try to
++		 * restore the ZQ0SR0 with the value saved here. But the
++		 * calibration is buggy and restoring some values from ZQ0SR0
++		 * is forbidden and risky thus we need to provide processed
++		 * values for these (modified gray code values).
++		 */
++		tmp = readl(soc_pm.data.ramc_phy + DDR3PHY_ZQ0SR0);
 +
-+	ldr	tmp1, [r3, #DDR3PHY_DX1DLLCR]
-+	bic	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
-+	str	tmp1, [r3, #DDR3PHY_DX1DLLCR]
++		/* Store pull-down output impedance select. */
++		index = (tmp >> DDR3PHY_ZQ0SR0_PDO_OFF) & 0x1f;
++		soc_pm.bu->ddr_phy_calibration[0] = modified_gray_code[index];
++
++		/* Store pull-up output impedance select. */
++		index = (tmp >> DDR3PHY_ZQ0SR0_PUO_OFF) & 0x1f;
++		soc_pm.bu->ddr_phy_calibration[0] |= modified_gray_code[index];
++
++		/* Store pull-down on-die termination impedance select. */
++		index = (tmp >> DDR3PHY_ZQ0SR0_PDODT_OFF) & 0x1f;
++		soc_pm.bu->ddr_phy_calibration[0] |= modified_gray_code[index];
++
++		/* Store pull-up on-die termination impedance select. */
++		index = (tmp >> DDR3PHY_ZQ0SRO_PUODT_OFF) & 0x1f;
++		soc_pm.bu->ddr_phy_calibration[0] |= modified_gray_code[index];
++
+ 		/*
+ 		 * The 1st 8 words of memory might get corrupted in the process
+ 		 * of DDR PHY recalibration; it is saved here in securam and it
+@@ -1066,10 +1098,6 @@ static int __init at91_pm_backup_init(void)
+ 		of_scan_flat_dt(at91_pm_backup_scan_memcs, &located);
+ 		if (!located)
+ 			goto securam_fail;
+-
+-		/* DDR3PHY_ZQ0SR0 */
+-		soc_pm.bu->ddr_phy_calibration[0] = readl(soc_pm.data.ramc_phy +
+-							  0x188);
+ 	}
  
- 	/* Enable quasi-dynamic programming. */
- 	mov	tmp1, #0
+ 	return 0;
 diff --git a/include/soc/at91/sama7-ddr.h b/include/soc/at91/sama7-ddr.h
-index 9e17247474fa9..2706bc48c0764 100644
+index 2706bc48c0764..6ce3bd22f6c69 100644
 --- a/include/soc/at91/sama7-ddr.h
 +++ b/include/soc/at91/sama7-ddr.h
-@@ -39,6 +39,10 @@
+@@ -38,6 +38,10 @@
+ #define		DDR3PHY_DSGCR_ODTPDD_ODT0	(1 << 20)	/* ODT[0] Power Down Driver */
  
  #define DDR3PHY_ZQ0SR0				(0x188)		/* ZQ status register 0 */
++#define DDR3PHY_ZQ0SR0_PDO_OFF			(0)		/* Pull-down output impedance select offset */
++#define DDR3PHY_ZQ0SR0_PUO_OFF			(5)		/* Pull-up output impedance select offset */
++#define DDR3PHY_ZQ0SR0_PDODT_OFF		(10)		/* Pull-down on-die termination impedance select offset */
++#define DDR3PHY_ZQ0SRO_PUODT_OFF		(15)		/* Pull-up on-die termination impedance select offset */
  
-+#define	DDR3PHY_DX0DLLCR			(0x1CC)		/* DDR3PHY DATX8 DLL Control Register */
-+#define	DDR3PHY_DX1DLLCR			(0x20C)		/* DDR3PHY DATX8 DLL Control Register */
-+#define		DDR3PHY_DXDLLCR_DLLDIS		(1 << 31)	/* DLL Disable */
-+
- /* UDDRC */
- #define UDDRC_STAT				(0x04)		/* UDDRC Operating Mode Status Register */
- #define		UDDRC_STAT_SELFREF_TYPE_DIS	(0x0 << 4)	/* SDRAM is not in Self-refresh */
+ #define	DDR3PHY_DX0DLLCR			(0x1CC)		/* DDR3PHY DATX8 DLL Control Register */
+ #define	DDR3PHY_DX1DLLCR			(0x20C)		/* DDR3PHY DATX8 DLL Control Register */
 -- 
 2.35.1
 
