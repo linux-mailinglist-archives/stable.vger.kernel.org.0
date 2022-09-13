@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2355B721E
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A16D25B720C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231372AbiIMOo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:44:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59708 "EHLO
+        id S232490AbiIMOsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:48:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234279AbiIMOnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999DA6EF02;
-        Tue, 13 Sep 2022 07:23:05 -0700 (PDT)
+        with ESMTP id S233171AbiIMOr1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:47:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED9D1261A;
+        Tue, 13 Sep 2022 07:24:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6178BB80F91;
-        Tue, 13 Sep 2022 14:21:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C04ABC433D6;
-        Tue, 13 Sep 2022 14:21:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2BC0614C1;
+        Tue, 13 Sep 2022 14:23:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 076CCC433C1;
+        Tue, 13 Sep 2022 14:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078901;
-        bh=tK8jLGZFxiUqU/KoBQfv11nDAqZn1XjBbRjfZ2PNCcY=;
+        s=korg; t=1663079010;
+        bh=wO9RjbU6KDzFYVnAQsZULHB+i/4zxZ8hL2n3irCY6s0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1FkeZyUlFFHEDVqY9a3P1W289lOLh0dCW48vtSvDSnGaWUbdafS6Qa/J4xbQoblZn
-         cZVweBI/Xy8qAMHMhRocHIAaNVu9uAI+1OlvgZBnpt5WKJ8kKwmqxWd0DnrP5mcS0I
-         iZ52XZCsFSLykmOVwRc9V36qEm0YPkrxa6qt5Xu4=
+        b=LE+oYfQ4W5GLdCcR/0TnFa+RI36IRp8k0mY++I3G9rkrunZJpig7NvlSMPG5MuQ7q
+         Mn4u7boV5qByeQdPlsGuhwjWz3xEle0LkOplYnpZpdtoLItJwq7R72TVy1WiChvs/Z
+         HFkss29D4JzBSq2b8+L8bO3qCgRXW9xK8m1IVwo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandru Gagniuc <mr.nuke.me@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.15 100/121] hwmon: (tps23861) fix byte order in resistance register
-Date:   Tue, 13 Sep 2022 16:04:51 +0200
-Message-Id: <20220913140401.652217945@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 47/79] ARM: dts: at91: sama5d2_icp: dont keep vdd_other enabled all the time
+Date:   Tue, 13 Sep 2022 16:04:52 +0200
+Message-Id: <20220913140352.537379319@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit 1f05f65bddd6958d25b133f886da49c1d4bff3fa upstream.
+[ Upstream commit 3d074b750d2b4c91962f10ea1df1c289ce0d3ce8 ]
 
-The tps23861 registers are little-endian, and regmap_read_bulk() does
-not do byte order conversion. On BE machines, the bytes were swapped,
-and the interpretation of the resistance value was incorrect.
+VDD_OTHER is not connected to any on board consumer thus it is not
+needed to keep it enabled all the time.
 
-To make it work on both big and little-endian machines, use
-le16_to_cpu() to convert the resitance register to host byte order.
-
-Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
-Fixes: fff7b8ab22554 ("hwmon: add Texas Instruments TPS23861 driver")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220905142806.110598-1-mr.nuke.me@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 68a95ef72cef ("ARM: dts: at91: sama5d2-icp: add SAMA5D2-ICP")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220826083927.3107272-9-claudiu.beznea@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/tps23861.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/at91-sama5d2_icp.dts | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/hwmon/tps23861.c
-+++ b/drivers/hwmon/tps23861.c
-@@ -489,18 +489,20 @@ static char *tps23861_port_poe_plus_stat
+diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+index 9fbcd107d1afb..00b9e88ff5451 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+@@ -256,7 +256,6 @@
+ 					regulator-max-microvolt = <1850000>;
+ 					regulator-initial-mode = <2>;
+ 					regulator-allowed-modes = <2>, <4>;
+-					regulator-always-on;
  
- static int tps23861_port_resistance(struct tps23861_data *data, int port)
- {
--	u16 regval;
-+	unsigned int raw_val;
-+	__le16 regval;
- 
- 	regmap_bulk_read(data->regmap,
- 			 PORT_1_RESISTANCE_LSB + PORT_N_RESISTANCE_LSB_OFFSET * (port - 1),
- 			 &regval,
- 			 2);
- 
--	switch (FIELD_GET(PORT_RESISTANCE_RSN_MASK, regval)) {
-+	raw_val = le16_to_cpu(regval);
-+	switch (FIELD_GET(PORT_RESISTANCE_RSN_MASK, raw_val)) {
- 	case PORT_RESISTANCE_RSN_OTHER:
--		return (FIELD_GET(PORT_RESISTANCE_MASK, regval) * RESISTANCE_LSB) / 10000;
-+		return (FIELD_GET(PORT_RESISTANCE_MASK, raw_val) * RESISTANCE_LSB) / 10000;
- 	case PORT_RESISTANCE_RSN_LOW:
--		return (FIELD_GET(PORT_RESISTANCE_MASK, regval) * RESISTANCE_LSB_LOW) / 10000;
-+		return (FIELD_GET(PORT_RESISTANCE_MASK, raw_val) * RESISTANCE_LSB_LOW) / 10000;
- 	case PORT_RESISTANCE_RSN_SHORT:
- 	case PORT_RESISTANCE_RSN_OPEN:
- 	default:
+ 					regulator-state-standby {
+ 						regulator-on-in-suspend;
+-- 
+2.35.1
+
 
 
