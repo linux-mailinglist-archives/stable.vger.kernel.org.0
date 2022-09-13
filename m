@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DCBC5B6881
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 09:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C32075B688F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 09:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231161AbiIMHSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 03:18:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48454 "EHLO
+        id S230254AbiIMHUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 03:20:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231174AbiIMHS0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 03:18:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B08B4BD30;
-        Tue, 13 Sep 2022 00:18:22 -0700 (PDT)
+        with ESMTP id S230124AbiIMHUo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 03:20:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3413B962;
+        Tue, 13 Sep 2022 00:20:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EF8AB80DC2;
-        Tue, 13 Sep 2022 07:18:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B9A0C433B5;
-        Tue, 13 Sep 2022 07:18:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90DC861336;
+        Tue, 13 Sep 2022 07:20:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E09D6C433C1;
+        Tue, 13 Sep 2022 07:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663053499;
-        bh=FC9a9cUyZ6tKHf4RlLIdqtcJUM8pTZqYprxyD5qXv7Q=;
+        s=k20201202; t=1663053642;
+        bh=8E4O++2S6FWEnxjwuILlmwZ5txcSLR8D7sk53WBMDXQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=S3A9nfZgG47jTHHLHmXmbPEuZC2AludnQHnTqUXcqG150oeHp4MzYpHZ5QEnaEe+J
-         hOMFjatPLS5ji11A3qfoG1B5R7Mh6j4u2oHbpctM5uFWbijuq8ECMmmsDzUBwCEvol
-         zppyt6HorKW/b5mwvMgdzcIkGK90dajcR97tB/oxo/AF21knSWrJToJ12WRTN0DQy/
-         BnMGbc+AdwBBmBQLJFLVFRYO6WpA/ihe1nSbBbJIvdjykxVoKcI7rXQDGd66XXWEES
-         4fXU9zP4Ez9pI4X1G0hr4ejXDyMBZP4cMZjoo+OTrLAqSbfAnb5x1U1UjxLuACw3YB
-         a2f9UKGgifaGQ==
+        b=DbfN+Zsij52xBRMio9UjMnddcvrW6l9KE1bas+PuyClOTdyacgCwG7an4RMBeFzgq
+         ZkmufTzGX5eXiWuUaeu60mAi6OuZ/eofEFLww/gnvV28K02ZOqeVzU1jDiJpgZ+kBR
+         e4HsovoyZhSSU7WfsnpwNEsRFJ7OS+J9NTRwS1lbBnN8a+QkUCKdK+uqAN5pmLwPbL
+         RahtWxI+J/aAuBwYRPhi449p37AjDnVGuSGY2ZtO2qDn8fW4E9HxEOJLwPc6qg9vZJ
+         1n/dpiaPWA9L2Qy6akJJFp424t4k9GnNptI+XZHTxWnqTc7YsFCa71oldb5vsEgiQ5
+         29EgLxVTHYqIA==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1oY0BV-0000lx-1z; Tue, 13 Sep 2022 09:18:17 +0200
-Date:   Tue, 13 Sep 2022 09:18:17 +0200
+        id 1oY0Do-0000nJ-Jh; Tue, 13 Sep 2022 09:20:40 +0200
+Date:   Tue, 13 Sep 2022 09:20:40 +0200
 From:   Johan Hovold <johan@kernel.org>
-To:     Doug Anderson <dianders@chromium.org>
+To:     Steev Klimaszewski <steev@kali.org>
 Cc:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Johan Hovold <johan+linaro@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Rob Clark <robdclark@gmail.com>,
         Andrzej Hajda <andrzej.hajda@intel.com>,
         Neil Armstrong <neil.armstrong@linaro.org>,
@@ -51,21 +52,20 @@ Cc:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Stephen Boyd <swboyd@chromium.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        freedreno <freedreno@lists.freedesktop.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "# 4.0+" <stable@vger.kernel.org>
+        dri-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+        freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
 Subject: Re: [PATCH 4/7] drm/msm/dp: fix aux-bus EP lifetime
-Message-ID: <YyAuuTlDoLAntrO6@hovoldconsulting.com>
+Message-ID: <YyAvSKTBGdVIjaHW@hovoldconsulting.com>
 References: <20220912154046.12900-1-johan+linaro@kernel.org>
  <20220912154046.12900-5-johan+linaro@kernel.org>
  <e60f0053-3801-bf33-5841-69f16215fa00@linaro.org>
- <CAD=FV=U8_bjPm3NEOWqzehrx0xFV4U771nTuhhOiM9gKDVCo5g@mail.gmail.com>
+ <69526798-93df-a4f9-c385-c9bf490cc709@kali.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAD=FV=U8_bjPm3NEOWqzehrx0xFV4U771nTuhhOiM9gKDVCo5g@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <69526798-93df-a4f9-c385-c9bf490cc709@kali.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -76,63 +76,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 13, 2022 at 07:35:15AM +0100, Doug Anderson wrote:
-> Hi,
+On Mon, Sep 12, 2022 at 04:55:58PM -0500, Steev Klimaszewski wrote:
 > 
-> On Mon, Sep 12, 2022 at 7:10 PM Dmitry Baryshkov
-> <dmitry.baryshkov@linaro.org> wrote:
-> >
+> On 9/12/22 1:10 PM, Dmitry Baryshkov wrote:
 > > On 12/09/2022 18:40, Johan Hovold wrote:
-> > > Device-managed resources allocated post component bind must be tied to
-> > > the lifetime of the aggregate DRM device or they will not necessarily be
-> > > released when binding of the aggregate device is deferred.
-> > >
-> > > This can lead resource leaks or failure to bind the aggregate device
-> > > when binding is later retried and a second attempt to allocate the
-> > > resources is made.
-> > >
-> > > For the DP aux-bus, an attempt to populate the bus a second time will
-> > > simply fail ("DP AUX EP device already populated").
-> > >
-> > > Fix this by amending the DP aux interface and tying the lifetime of the
-> > > EP device to the DRM device rather than DP controller platform device.
+> >> Device-managed resources allocated post component bind must be tied to
+> >> the lifetime of the aggregate DRM device or they will not necessarily be
+> >> released when binding of the aggregate device is deferred.
+> >>
+> >> This can lead resource leaks or failure to bind the aggregate device
+> >> when binding is later retried and a second attempt to allocate the
+> >> resources is made.
+> >>
+> >> For the DP aux-bus, an attempt to populate the bus a second time will
+> >> simply fail ("DP AUX EP device already populated").
+> >>
+> >> Fix this by amending the DP aux interface and tying the lifetime of the
+> >> EP device to the DRM device rather than DP controller platform device.
 > >
 > > Doug, could you please take a look?
 > >
-> > For me this is another reminder/pressure point that we should populate
+> > For me this is another reminder/pressure point that we should populate 
 > > the AUX BUS from the probe(), before binding the components together.
+> >
+> >>
+> >> Fixes: c3bf8e21b38a ("drm/msm/dp: Add eDP support via aux_bus")
+> >> Cc: stable@vger.kernel.org      # 5.19
+> >> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> >> ---
+> >>   drivers/gpu/drm/bridge/parade-ps8640.c   | 2 +-
+> >>   drivers/gpu/drm/display/drm_dp_aux_bus.c | 5 +++--
+> >>   drivers/gpu/drm/msm/dp/dp_display.c      | 3 ++-
+> >>   include/drm/display/drm_dp_aux_bus.h     | 6 +++---
+> >>   4 files changed, 9 insertions(+), 7 deletions(-)
+
+> This breaks builds which have ti-sn65dsi86 included:
 > 
-> Aside from the kernel robot complaints, I'm not necessarily convinced.
-> I think we know that the AUX DP stuff in MSM-DP is fragile right now
-> and Qualcomm has promised to clean it up. This really feels like a
-> band-aid and is really a sign that we're populating the AUX DP bus in
-> the wrong place in Qualcomm's code. As you said, if we moved this to
-> probe(), which is the plan in the promised cleanup, then it wouldn't
-> be a problem.
-
-Right, but that appears to be non-trivial judging from the discussions
-you had back when the offending patch was merged:
-
-	https://lore.kernel.org/lkml/CAD=FV=X+QvjwoT2zGP82KW4kD0oMUY6ZgCizSikNX_Uj8dNDqA@mail.gmail.com/t/#u
-
-> As far as I know Qualcomm has queued this cleanup behind their current
-> PSR work (though it's never been clear why both can't be worked on at
-> the same time) and the PSR work was stalled because they couldn't
-> figure out what caused the glitching I reported. It's still on my nag
-> list that I bring up with them every week...
+> drivers/gpu/drm/bridge/ti-sn65dsi86.c:628:50: error: passing argument 1 
+> of 'devm_of_dp_aux_populate_ep_devices' from incompatible argument type.
 > 
-> In any case, if a band-aid is urgent, maybe you could just call
-> of_dp_aux_populate_bus() directly in Qualcomm code and you could add
-> your own devm_add_action_or_reset() on the DRM device.
+> As well,
+> 
+> drivers/gpu/drm/bridge/ti-sn65dsi86.c:628:15: error: too few arguments 
+> to function 'devm_of_dp_aux_populate_ep_devices'
 
-Yeah, that's probably better. I apparently missed a bunch of users of
-devm_of_dp_aux_populate_ep_devices() after searching for
-devm_of_dp_aux_populate_bus() instead. Judging from a quick glance all
-of these populate the bus at probe, so Qualcomm indeed appears to be
-the odd bird here.
-
-But the bug is real, in mainline and needs to be fixed, so rolling a
-custom devm action indeed should to be the right thing to do here (if
-only to have a smaller fix).
+Thanks for reporting this. I messed up and apparently only grepped for
+devm_of_dp_aux_populate_bus() and not the
+devm_of_dp_aux_populate_ep_devices() wrapper when searching for users.
 
 Johan
