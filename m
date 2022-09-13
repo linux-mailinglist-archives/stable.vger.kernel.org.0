@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D68365B744C
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 988A25B73FE
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235917AbiIMPW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:22:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45144 "EHLO
+        id S235667AbiIMPO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:14:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235950AbiIMPWT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:19 -0400
+        with ESMTP id S235892AbiIMPOG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:14:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61267B78B;
-        Tue, 13 Sep 2022 07:36:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 034B45C9D8;
+        Tue, 13 Sep 2022 07:33:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15426614E0;
-        Tue, 13 Sep 2022 14:34:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2185EC433C1;
-        Tue, 13 Sep 2022 14:34:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E8C7614F6;
+        Tue, 13 Sep 2022 14:33:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34043C433C1;
+        Tue, 13 Sep 2022 14:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079683;
-        bh=rV+n4kd+7BD+xatHr5rme8y5xnzaeFBry0keN3r8Rlo=;
+        s=korg; t=1663079595;
+        bh=VNkiXlupSnUv/zFQJS9XA2oRdoEVAlkzh7X/DSkhBZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5jgMslu3EH8ymxaAZWvaZZYdElf/C/s5kAiNpwr+jS+2GIAnn1gZ9G/bb6q+tNDb
-         98wbn3xjyEaSzJwudjnUkapGrDNT7YylHIO/0AS4/slpe9Y8Eh1nrlnM8pHhULLmv/
-         Pkrxijs5r4Z7at03bAzyGGZkogdbkio40celAgI0=
+        b=M5PYit+6t/80U6/FCiVgULOJ5nMvT7QssOxikvoBA3qcfJj3jCmJ8Sa9h9L8ZNpm5
+         UwA65welr4zU1jOQ/lSIbVide8WMHjPQf/GS3mxPJqj4tCdljGcoFV5ZP1vniA3cTF
+         fnwnWrDjEka2l4Tvb6mHczYLlgx628Q6qdCvB/r8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.14 35/61] wifi: iwlegacy: 4965: corrected fix for potential off-by-one overflow in il4965_rs_fill_link_cmd()
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH 4.19 79/79] SUNRPC: use _bh spinlocking on ->transport_lock
 Date:   Tue, 13 Sep 2022 16:07:37 +0200
-Message-Id: <20220913140348.244519936@linuxfoundation.org>
+Message-Id: <20220913140352.684003075@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislaw Gruszka <stf_xl@wp.pl>
+From: "NeilBrown" <neilb@suse.de>
 
-commit 6d0ef7241553f3553a0a2764c69b07892705924c upstream.
+Prior to Linux 5.3, ->transport_lock in sunrpc required the _bh style
+spinlocks (when not called from a bottom-half handler).
 
-This reverts commit a8eb8e6f7159c7c20c0ddac428bde3d110890aa7 as
-it can cause invalid link quality command sent to the firmware
-and address the off-by-one issue by fixing condition of while loop.
+When upstream 3848e96edf4788f772d83990022fa7023a233d83 was backported to
+stable kernels, the spin_lock/unlock calls should have been changed to
+the _bh version, but this wasn't noted in the patch and didn't happen.
 
-Cc: stable@vger.kernel.org
-Fixes: a8eb8e6f7159 ("wifi: iwlegacy: 4965: fix potential off-by-one overflow in il4965_rs_fill_link_cmd()")
-Signed-off-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220815073737.GA999388@wp.pl
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So convert these lock/unlock calls to the _bh versions.
+
+This patch is required for any stable kernel prior to 5.3 to which the
+above mentioned patch was backported.  Namely 4.9.y, 4.14.y, 4.19.y.
+
+Signed-off-by: NeilBrown <neilb@suse.de>
+Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
 ---
- drivers/net/wireless/intel/iwlegacy/4965-rs.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ net/sunrpc/xprt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlegacy/4965-rs.c
-+++ b/drivers/net/wireless/intel/iwlegacy/4965-rs.c
-@@ -2424,7 +2424,7 @@ il4965_rs_fill_link_cmd(struct il_priv *
- 		/* Repeat initial/next rate.
- 		 * For legacy IL_NUMBER_TRY == 1, this loop will not execute.
- 		 * For HT IL_HT_NUMBER_TRY == 3, this executes twice. */
--		while (repeat_rate > 0) {
-+		while (repeat_rate > 0 && idx < (LINK_QUAL_MAX_RETRY_NUM - 1)) {
- 			if (is_legacy(tbl_type.lq_type)) {
- 				if (ant_toggle_cnt < NUM_TRY_BEFORE_ANT_TOGGLE)
- 					ant_toggle_cnt++;
-@@ -2443,8 +2443,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
- 			    cpu_to_le32(new_rate);
- 			repeat_rate--;
- 			idx++;
--			if (idx >= LINK_QUAL_MAX_RETRY_NUM)
--				goto out;
- 		}
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1550,9 +1550,9 @@ static void xprt_destroy(struct rpc_xprt
+ 	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
+ 	 * can only run *before* del_time_sync(), never after.
+ 	 */
+-	spin_lock(&xprt->transport_lock);
++	spin_lock_bh(&xprt->transport_lock);
+ 	del_timer_sync(&xprt->timer);
+-	spin_unlock(&xprt->transport_lock);
++	spin_unlock_bh(&xprt->transport_lock);
  
- 		il4965_rs_get_tbl_info_from_mcs(new_rate, lq_sta->band,
-@@ -2489,7 +2487,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
- 		repeat_rate--;
- 	}
- 
--out:
- 	lq_cmd->agg_params.agg_frame_cnt_limit = LINK_QUAL_AGG_FRAME_LIMIT_DEF;
- 	lq_cmd->agg_params.agg_dis_start_th = LINK_QUAL_AGG_DISABLE_START_DEF;
- 
+ 	/*
+ 	 * Destroy sockets etc from the system workqueue so they can
 
 
