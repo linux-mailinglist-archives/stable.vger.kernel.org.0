@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A6FD5B7407
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F5A5B7426
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235791AbiIMPSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:18:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55590 "EHLO
+        id S235211AbiIMPPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:15:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232215AbiIMPRh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:17:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117442654C;
-        Tue, 13 Sep 2022 07:34:41 -0700 (PDT)
+        with ESMTP id S235909AbiIMPOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:14:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E7756AA18;
+        Tue, 13 Sep 2022 07:33:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78218614A8;
-        Tue, 13 Sep 2022 14:34:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A3EC433D6;
-        Tue, 13 Sep 2022 14:34:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA696614C1;
+        Tue, 13 Sep 2022 14:33:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86F28C433D6;
+        Tue, 13 Sep 2022 14:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079670;
-        bh=cvrnkMDrCx/9uSbW8vjSxlgM/zSoFk03KZdXYfrkIn0=;
+        s=korg; t=1663079609;
+        bh=H1D+QZ2N+wLEuEAv5V5d0q1lZVLlwm/5xn6mWBLYCTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n4JoRGDP+Jata0d5FB/yBqz2JNKF1n2roHfoExbhY3dPnnmVQaAMHgZaV+IAyJj2F
-         Iugps+RTcUpdF8iJUj4CS1Vi1GMkX7hgnN/xtUYghfErkBeydCKDdKM6dV0BL4AiYh
-         4zj2cVzdobmZvQbCekfHetdAICD5lVqgc+2K7nNw=
+        b=ke9zG8riVLmOdE9+1U4yXHn70KFEXeNQ3e1IyY5b1GIrOHvbTsY47lcsVO3nriwYC
+         zuozjld4Y8mr9J2/RJNvPZ745N9rRdxQ1LwOVTHsODS7bd/0tDwxU5cU80902Vkn7X
+         wkWf/Ba5n6LAVVXVb84QLFEadrvkwuFUjuihNoiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 22/61] USB: serial: option: add support for Cinterion MV32-WA/WB RmNet mode
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
+Subject: [PATCH 4.19 66/79] sch_sfb: Dont assume the skb is still around after enqueueing to child
 Date:   Tue, 13 Sep 2022 16:07:24 +0200
-Message-Id: <20220913140347.618295577@linuxfoundation.org>
+Message-Id: <20220913140352.078322905@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
-References: <20220913140346.422813036@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Toke Høiland-Jørgensen <toke@toke.dk>
 
-commit 8ffe20d08f2c95d702c453020d03a4c568a988f0 upstream.
+[ Upstream commit 9efd23297cca530bb35e1848665805d3fcdd7889 ]
 
-We added PIDs for MV32-WA/WB MBIM mode before, now we need to add
-support for RmNet mode.
+The sch_sfb enqueue() routine assumes the skb is still alive after it has
+been enqueued into a child qdisc, using the data in the skb cb field in the
+increment_qlen() routine after enqueue. However, the skb may in fact have
+been freed, causing a use-after-free in this case. In particular, this
+happens if sch_cake is used as a child of sfb, and the GSO splitting mode
+of CAKE is enabled (in which case the skb will be split into segments and
+the original skb freed).
 
-Test evidence as below:
-T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=03 Dev#=  3 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00f3 Rev=05.04
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00F3 USB Mobile Broadband
-S:  SerialNumber=d7b4be8d
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+Fix this by copying the sfb cb data to the stack before enqueueing the skb,
+and using this stack copy in increment_qlen() instead of the skb pointer
+itself.
 
-T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=03 Dev#= 10 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00f4 Rev=05.04
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00F4 USB Mobile Broadband
-S:  SerialNumber=d095087d
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=50 Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-[ johan: sort entries ]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18231
+Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
+Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/sched/sch_sfb.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -442,6 +442,8 @@ static void option_instat_callback(struc
- #define CINTERION_PRODUCT_MV31_2_RMNET		0x00b9
- #define CINTERION_PRODUCT_MV32_WA		0x00f1
- #define CINTERION_PRODUCT_MV32_WB		0x00f2
-+#define CINTERION_PRODUCT_MV32_WA_RMNET		0x00f3
-+#define CINTERION_PRODUCT_MV32_WB_RMNET		0x00f4
+diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
+index 81d205acb1b6a..38cf065156951 100644
+--- a/net/sched/sch_sfb.c
++++ b/net/sched/sch_sfb.c
+@@ -139,15 +139,15 @@ static void increment_one_qlen(u32 sfbhash, u32 slot, struct sfb_sched_data *q)
+ 	}
+ }
  
- /* Olivetti products */
- #define OLIVETTI_VENDOR_ID			0x0b3c
-@@ -2004,8 +2006,12 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(0)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
- 	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA_RMNET, 0xff),
-+	  .driver_info = RSVD(0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
- 	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB_RMNET, 0xff),
-+	  .driver_info = RSVD(0) },
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD100),
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD120),
+-static void increment_qlen(const struct sk_buff *skb, struct sfb_sched_data *q)
++static void increment_qlen(const struct sfb_skb_cb *cb, struct sfb_sched_data *q)
+ {
+ 	u32 sfbhash;
+ 
+-	sfbhash = sfb_hash(skb, 0);
++	sfbhash = cb->hashes[0];
+ 	if (sfbhash)
+ 		increment_one_qlen(sfbhash, 0, q);
+ 
+-	sfbhash = sfb_hash(skb, 1);
++	sfbhash = cb->hashes[1];
+ 	if (sfbhash)
+ 		increment_one_qlen(sfbhash, 1, q);
+ }
+@@ -287,6 +287,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	struct sfb_sched_data *q = qdisc_priv(sch);
+ 	struct Qdisc *child = q->qdisc;
+ 	struct tcf_proto *fl;
++	struct sfb_skb_cb cb;
+ 	int i;
+ 	u32 p_min = ~0;
+ 	u32 minqlen = ~0;
+@@ -403,11 +404,12 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	}
+ 
+ enqueue:
++	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
+ 	ret = qdisc_enqueue(skb, child, to_free);
+ 	if (likely(ret == NET_XMIT_SUCCESS)) {
+ 		qdisc_qstats_backlog_inc(sch, skb);
+ 		sch->q.qlen++;
+-		increment_qlen(skb, q);
++		increment_qlen(&cb, q);
+ 	} else if (net_xmit_drop_count(ret)) {
+ 		q->stats.childdrop++;
+ 		qdisc_qstats_drop(sch);
+-- 
+2.35.1
+
 
 
