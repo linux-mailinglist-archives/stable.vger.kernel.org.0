@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 558945B7423
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BF6D5B7436
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:20:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233362AbiIMPTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:19:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38496 "EHLO
+        id S235868AbiIMPTl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:19:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235483AbiIMPSC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:18:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 184C1520A7;
-        Tue, 13 Sep 2022 07:34:56 -0700 (PDT)
+        with ESMTP id S236111AbiIMPTH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:19:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A44979A6F;
+        Tue, 13 Sep 2022 07:35:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 832B6614E4;
-        Tue, 13 Sep 2022 14:32:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86D05C433D6;
-        Tue, 13 Sep 2022 14:32:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DF14B80F9B;
+        Tue, 13 Sep 2022 14:33:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8DB1C433D6;
+        Tue, 13 Sep 2022 14:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079535;
-        bh=JArKBCEL/uMuvvvG5tPJeSOSfdRI7vlyp45mKEbpU+U=;
+        s=korg; t=1663079629;
+        bh=lALr4hqlVC7Kb7k9HX5nHMySYO7Fi/3h4fhul+LgTps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1b/XFUeUz67O8jepwEI+4janJf1pIuI0u/HNmYm9ro6Q0ocLwNu1xxeY5oP5nZR3l
-         DH0WP1CynUakCvZVQiyGVEM779gDK7cbUeMUqXIAQJdoireFxn+8WVbUo7qR6J06Gg
-         lI5BlKNFCPrVWA8uwXAdJlicrAbS7sOaAwQORLRQ=
+        b=gZY7vVPqaS0tWBINKhkS+NwLEmWFal5uhfMBeQnSbdNhSiOc3IjzjDZQHFk/t8uV4
+         Iqpl0YmOzt1Cp+WQxO7QAhXdhnhtQR7x0JZ2+iYjy7XPaBSD0GxU8S1tkZXoNxk89J
+         Lp4221jI0kJhgB34Bx/8Iw1b65hqFhqJxUnT3sgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Huang <jinsdb@126.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/79] drm/amdgpu: mmVM_L2_CNTL3 register not initialized correctly
-Date:   Tue, 13 Sep 2022 16:07:14 +0200
-Message-Id: <20220913140351.610246119@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>, stable <stable@kernel.org>
+Subject: [PATCH 4.14 13/61] binder: fix UAF of ref->proc caused by race condition
+Date:   Tue, 13 Sep 2022 16:07:15 +0200
+Message-Id: <20220913140347.164651613@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Huang <jinsdb@126.com>
+From: Carlos Llamas <cmllamas@google.com>
 
-[ Upstream commit b8983d42524f10ac6bf35bbce6a7cc8e45f61e04 ]
+commit a0e44c64b6061dda7e00b7c458e4523e2331b739 upstream.
 
-The mmVM_L2_CNTL3 register is not assigned an initial value
+A transaction of type BINDER_TYPE_WEAK_HANDLE can fail to increment the
+reference for a node. In this case, the target proc normally releases
+the failed reference upon close as expected. However, if the target is
+dying in parallel the call will race with binder_deferred_release(), so
+the target could have released all of its references by now leaving the
+cleanup of the new failed reference unhandled.
 
-Signed-off-by: Qu Huang <jinsdb@126.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The transaction then ends and the target proc gets released making the
+ref->proc now a dangling pointer. Later on, ref->node is closed and we
+attempt to take spin_lock(&ref->proc->inner_lock), which leads to the
+use-after-free bug reported below. Let's fix this by cleaning up the
+failed reference on the spot instead of relying on the target to do so.
+
+  ==================================================================
+  BUG: KASAN: use-after-free in _raw_spin_lock+0xa8/0x150
+  Write of size 4 at addr ffff5ca207094238 by task kworker/1:0/590
+
+  CPU: 1 PID: 590 Comm: kworker/1:0 Not tainted 5.19.0-rc8 #10
+  Hardware name: linux,dummy-virt (DT)
+  Workqueue: events binder_deferred_func
+  Call trace:
+   dump_backtrace.part.0+0x1d0/0x1e0
+   show_stack+0x18/0x70
+   dump_stack_lvl+0x68/0x84
+   print_report+0x2e4/0x61c
+   kasan_report+0xa4/0x110
+   kasan_check_range+0xfc/0x1a4
+   __kasan_check_write+0x3c/0x50
+   _raw_spin_lock+0xa8/0x150
+   binder_deferred_func+0x5e0/0x9b0
+   process_one_work+0x38c/0x5f0
+   worker_thread+0x9c/0x694
+   kthread+0x188/0x190
+   ret_from_fork+0x10/0x20
+
+Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Cc: stable <stable@kernel.org> # 4.14+
+Link: https://lore.kernel.org/r/20220801182511.3371447-1-cmllamas@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/android/binder.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c
-index c963eec58c702..923bc097a00b2 100644
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c
-@@ -155,6 +155,7 @@ static void mmhub_v1_0_init_cache_regs(struct amdgpu_device *adev)
- 	tmp = REG_SET_FIELD(tmp, VM_L2_CNTL2, INVALIDATE_L2_CACHE, 1);
- 	WREG32_SOC15(MMHUB, 0, mmVM_L2_CNTL2, tmp);
- 
-+	tmp = mmVM_L2_CNTL3_DEFAULT;
- 	if (adev->gmc.translate_further) {
- 		tmp = REG_SET_FIELD(tmp, VM_L2_CNTL3, BANK_SELECT, 12);
- 		tmp = REG_SET_FIELD(tmp, VM_L2_CNTL3,
--- 
-2.35.1
-
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -1757,6 +1757,18 @@ static int binder_inc_ref_for_node(struc
+ 	}
+ 	ret = binder_inc_ref_olocked(ref, strong, target_list);
+ 	*rdata = ref->data;
++	if (ret && ref == new_ref) {
++		/*
++		 * Cleanup the failed reference here as the target
++		 * could now be dead and have already released its
++		 * references by now. Calling on the new reference
++		 * with strong=0 and a tmp_refs will not decrement
++		 * the node. The new_ref gets kfree'd below.
++		 */
++		binder_cleanup_ref_olocked(new_ref);
++		ref = NULL;
++	}
++
+ 	binder_proc_unlock(proc);
+ 	if (new_ref && ref != new_ref)
+ 		/*
 
 
