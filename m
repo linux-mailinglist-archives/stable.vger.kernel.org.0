@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 826BF5B703F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:25:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 470445B6FFC
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232432AbiIMOY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:24:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41496 "EHLO
+        id S233316AbiIMOUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:20:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233604AbiIMOXn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:23:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D856611C;
-        Tue, 13 Sep 2022 07:15:48 -0700 (PDT)
+        with ESMTP id S233719AbiIMOTu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:19:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F0AE26F5;
+        Tue, 13 Sep 2022 07:14:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83E06614AE;
-        Tue, 13 Sep 2022 14:14:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87642C433D7;
-        Tue, 13 Sep 2022 14:14:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14C53614C2;
+        Tue, 13 Sep 2022 14:14:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B46DC433D6;
+        Tue, 13 Sep 2022 14:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078467;
-        bh=900PzX5Acpk2QwjDYmAp0NBaHR6gsyXB1qRe6hcKIko=;
+        s=korg; t=1663078469;
+        bh=ZCj8EpiWE4HdoEoR65ksFhQ1zBYwbSb8ZDqJZlmL7c8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EjYWEr31TSTu/zPUeALnrDL+7bw5+LOX2Er0JtKNy3pVUchTsRc+n/3o1oUlOPN2K
-         Xf6S4TYMTZPUWDKQTzYOa7kM6mO2oOiuD9TxUwIyDzSIatXrHUfxgt8Jib8PmHdJ7q
-         9FNojrCxKDdWvD+MKAWViMrqED9Vsp8Ukz7nrpeQ=
+        b=OulWTYbJdcft42XsVkOdFJfpgvrzlcAVkZeQyry8IynTJdJr1gXV8uBMr5MtsNEt9
+         X2lTcwZGp1/ZjV2oNBbqMfO0+kNNo5HEtC+SzGN70qgV8Age1XHubZ3zecWP562ory
+         //B8DF4N3tUrVzvLfXX0Rava0Kn+/nL2fwkjJnYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Arun Ramadoss <arun.ramadoss@microchip.com>,
-        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 150/192] net: phy: lan87xx: change interrupt src of link_up to comm_ready
-Date:   Tue, 13 Sep 2022 16:04:16 +0200
-Message-Id: <20220913140417.497196854@linuxfoundation.org>
+Subject: [PATCH 5.19 151/192] sch_sfb: Also store skb len before calling child enqueue
+Date:   Tue, 13 Sep 2022 16:04:17 +0200
+Message-Id: <20220913140417.547070074@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -55,136 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Ramadoss <arun.ramadoss@microchip.com>
+From: Toke Høiland-Jørgensen <toke@toke.dk>
 
-[ Upstream commit 5382033a35227c57a349d74752ad2527780159a9 ]
+[ Upstream commit 2f09707d0c972120bf794cfe0f0c67e2c2ddb252 ]
 
-Currently phy link up/down interrupt is enabled using the
-LAN87xx_INTERRUPT_MASK register. In the lan87xx_read_status function,
-phy link is determined using the T1_MODE_STAT_REG register comm_ready bit.
-comm_ready bit is set using the loc_rcvr_status & rem_rcvr_status.
-Whenever the phy link is up, LAN87xx_INTERRUPT_SOURCE link_up bit is set
-first but comm_ready bit takes some time to set based on local and
-remote receiver status.
-As per the current implementation, interrupt is triggered using link_up
-but the comm_ready bit is still cleared in the read_status function. So,
-link is always down.  Initially tested with the shared interrupt
-mechanism with switch and internal phy which is working, but after
-implementing interrupt controller it is not working.
-It can fixed either by updating the read_status function to read from
-LAN87XX_INTERRUPT_SOURCE register or enable the interrupt mask for
-comm_ready bit. But the validation team recommends the use of comm_ready
-for link detection.
-This patch fixes by enabling the comm_ready bit for link_up in the
-LAN87XX_INTERRUPT_MASK_2 register (MISC Bank) and link_down in
-LAN87xx_INTERRUPT_MASK register.
+Cong Wang noticed that the previous fix for sch_sfb accessing the queued
+skb after enqueueing it to a child qdisc was incomplete: the SFB enqueue
+function was also calling qdisc_qstats_backlog_inc() after enqueue, which
+reads the pkt len from the skb cb field. Fix this by also storing the skb
+len, and using the stored value to increment the backlog after enqueueing.
 
-Fixes: 8a1b415d70b7 ("net: phy: added ethtool master-slave configuration support")
-Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220905152750.5079-1-arun.ramadoss@microchip.com
+Fixes: 9efd23297cca ("sch_sfb: Don't assume the skb is still around after enqueueing to child")
+Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Acked-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20220905192137.965549-1-toke@toke.dk
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/microchip_t1.c | 58 +++++++++++++++++++++++++++++++---
- 1 file changed, 54 insertions(+), 4 deletions(-)
+ net/sched/sch_sfb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/microchip_t1.c b/drivers/net/phy/microchip_t1.c
-index d4c93d59bc539..8569a545e0a3f 100644
---- a/drivers/net/phy/microchip_t1.c
-+++ b/drivers/net/phy/microchip_t1.c
-@@ -28,12 +28,16 @@
- 
- /* Interrupt Source Register */
- #define LAN87XX_INTERRUPT_SOURCE                (0x18)
-+#define LAN87XX_INTERRUPT_SOURCE_2              (0x08)
- 
- /* Interrupt Mask Register */
- #define LAN87XX_INTERRUPT_MASK                  (0x19)
- #define LAN87XX_MASK_LINK_UP                    (0x0004)
- #define LAN87XX_MASK_LINK_DOWN                  (0x0002)
- 
-+#define LAN87XX_INTERRUPT_MASK_2                (0x09)
-+#define LAN87XX_MASK_COMM_RDY			BIT(10)
-+
- /* MISC Control 1 Register */
- #define LAN87XX_CTRL_1                          (0x11)
- #define LAN87XX_MASK_RGMII_TXC_DLY_EN           (0x4000)
-@@ -424,17 +428,55 @@ static int lan87xx_phy_config_intr(struct phy_device *phydev)
- 	int rc, val = 0;
- 
- 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
--		/* unmask all source and clear them before enable */
--		rc = phy_write(phydev, LAN87XX_INTERRUPT_MASK, 0x7FFF);
-+		/* clear all interrupt */
-+		rc = phy_write(phydev, LAN87XX_INTERRUPT_MASK, val);
-+		if (rc < 0)
-+			return rc;
-+
- 		rc = phy_read(phydev, LAN87XX_INTERRUPT_SOURCE);
--		val = LAN87XX_MASK_LINK_UP | LAN87XX_MASK_LINK_DOWN;
-+		if (rc < 0)
-+			return rc;
-+
-+		rc = access_ereg(phydev, PHYACC_ATTR_MODE_WRITE,
-+				 PHYACC_ATTR_BANK_MISC,
-+				 LAN87XX_INTERRUPT_MASK_2, val);
-+		if (rc < 0)
-+			return rc;
-+
-+		rc = access_ereg(phydev, PHYACC_ATTR_MODE_READ,
-+				 PHYACC_ATTR_BANK_MISC,
-+				 LAN87XX_INTERRUPT_SOURCE_2, 0);
-+		if (rc < 0)
-+			return rc;
-+
-+		/* enable link down and comm ready interrupt */
-+		val = LAN87XX_MASK_LINK_DOWN;
- 		rc = phy_write(phydev, LAN87XX_INTERRUPT_MASK, val);
-+		if (rc < 0)
-+			return rc;
-+
-+		val = LAN87XX_MASK_COMM_RDY;
-+		rc = access_ereg(phydev, PHYACC_ATTR_MODE_WRITE,
-+				 PHYACC_ATTR_BANK_MISC,
-+				 LAN87XX_INTERRUPT_MASK_2, val);
- 	} else {
- 		rc = phy_write(phydev, LAN87XX_INTERRUPT_MASK, val);
--		if (rc)
-+		if (rc < 0)
- 			return rc;
- 
- 		rc = phy_read(phydev, LAN87XX_INTERRUPT_SOURCE);
-+		if (rc < 0)
-+			return rc;
-+
-+		rc = access_ereg(phydev, PHYACC_ATTR_MODE_WRITE,
-+				 PHYACC_ATTR_BANK_MISC,
-+				 LAN87XX_INTERRUPT_MASK_2, val);
-+		if (rc < 0)
-+			return rc;
-+
-+		rc = access_ereg(phydev, PHYACC_ATTR_MODE_READ,
-+				 PHYACC_ATTR_BANK_MISC,
-+				 LAN87XX_INTERRUPT_SOURCE_2, 0);
- 	}
- 
- 	return rc < 0 ? rc : 0;
-@@ -444,6 +486,14 @@ static irqreturn_t lan87xx_handle_interrupt(struct phy_device *phydev)
+diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
+index 0d761f454ae8b..2829455211f8c 100644
+--- a/net/sched/sch_sfb.c
++++ b/net/sched/sch_sfb.c
+@@ -281,6 +281,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
  {
- 	int irq_status;
  
-+	irq_status  = access_ereg(phydev, PHYACC_ATTR_MODE_READ,
-+				  PHYACC_ATTR_BANK_MISC,
-+				  LAN87XX_INTERRUPT_SOURCE_2, 0);
-+	if (irq_status < 0) {
-+		phy_error(phydev);
-+		return IRQ_NONE;
-+	}
-+
- 	irq_status = phy_read(phydev, LAN87XX_INTERRUPT_SOURCE);
- 	if (irq_status < 0) {
- 		phy_error(phydev);
+ 	struct sfb_sched_data *q = qdisc_priv(sch);
++	unsigned int len = qdisc_pkt_len(skb);
+ 	struct Qdisc *child = q->qdisc;
+ 	struct tcf_proto *fl;
+ 	struct sfb_skb_cb cb;
+@@ -403,7 +404,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	memcpy(&cb, sfb_skb_cb(skb), sizeof(cb));
+ 	ret = qdisc_enqueue(skb, child, to_free);
+ 	if (likely(ret == NET_XMIT_SUCCESS)) {
+-		qdisc_qstats_backlog_inc(sch, skb);
++		sch->qstats.backlog += len;
+ 		sch->q.qlen++;
+ 		increment_qlen(&cb, q);
+ 	} else if (net_xmit_drop_count(ret)) {
 -- 
 2.35.1
 
