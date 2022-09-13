@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7DC65B73E5
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2F25B74FA
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235516AbiIMPOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:14:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50458 "EHLO
+        id S236273AbiIMP10 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:27:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232990AbiIMPMi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:12:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8912577E9E;
-        Tue, 13 Sep 2022 07:32:45 -0700 (PDT)
+        with ESMTP id S236282AbiIMPZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:25:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EEA37DF46;
+        Tue, 13 Sep 2022 07:38:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D388B80F6F;
-        Tue, 13 Sep 2022 14:31:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4325C433C1;
-        Tue, 13 Sep 2022 14:31:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F3B2614D4;
+        Tue, 13 Sep 2022 14:31:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41FB8C433D6;
+        Tue, 13 Sep 2022 14:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079474;
-        bh=wbhwPkgVfB0u/ecYJDpzWyQrjPmGXlonw19X6uHaZ7w=;
+        s=korg; t=1663079476;
+        bh=Sd0dpX/2W+jDhqDyoYomDpBo+orj3hzg0AEtI3Yg6fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rgLM9NhKeX+VytBn9hvXyrS60sgEYWbM48/c68WFliCbtUHgSLILscCoJ4H4t5XII
-         Gx/boem3nJB0rZwabTKTG+VU7KsOCgQtGfNAwKka8pLlxX+uMv4FHP5mIovCyclYv/
-         F1KNbBvrzIgEykfmEQc/REMi1lWl+wamWeyT2Z6I=
+        b=Nhefyjd9nIlhtY09S2hpECXe683RUU4VgGX72lInkLl7cjd5JTTr+BDaikKHe26wG
+         P+HyAVYEO9CWAxdl3X4M95LYfK8MuuH3BXHEntm16eOUMQ4CldpKaikmKQsGFn0HwH
+         WiQDkB+WWSxDch64wZHhfbyyWJTi8oxg4WQiCae8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.19 41/79] s390/hugetlb: fix prepare_hugepage_range() check for 2 GB hugepages
-Date:   Tue, 13 Sep 2022 16:06:59 +0200
-Message-Id: <20220913140350.893428702@linuxfoundation.org>
+Subject: [PATCH 4.19 42/79] s390: fix nospec table alignments
+Date:   Tue, 13 Sep 2022 16:07:00 +0200
+Message-Id: <20220913140350.942768586@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
 References: <20220913140348.835121645@linuxfoundation.org>
@@ -54,45 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 7c8d42fdf1a84b1a0dd60d6528309c8ec127e87c upstream.
+commit c9305b6c1f52060377c72aebe3a701389e9f3172 upstream.
 
-The alignment check in prepare_hugepage_range() is wrong for 2 GB
-hugepages, it only checks for 1 MB hugepage alignment.
+Add proper alignment for .nospec_call_table and .nospec_return_table in
+vmlinux.
 
-This can result in kernel crash in __unmap_hugepage_range() at the
-BUG_ON(start & ~huge_page_mask(h)) alignment check, for mappings
-created with MAP_FIXED at unaligned address.
+[hca@linux.ibm.com]: The problem with the missing alignment of the nospec
+tables exist since a long time, however only since commit e6ed91fd0768
+("s390/alternatives: remove padding generation code") and with
+CONFIG_RELOCATABLE=n the kernel may also crash at boot time.
 
-Fix this by correctly handling multiple hugepage sizes, similar to the
-generic version of prepare_hugepage_range().
+The above named commit reduced the size of struct alt_instr by one byte,
+so its new size is 11 bytes. Therefore depending on the number of cpu
+alternatives the size of the __alt_instructions array maybe odd, which
+again also causes that the addresses of the nospec tables will be odd.
 
-Fixes: d08de8e2d867 ("s390/mm: add support for 2GB hugepages")
-Cc: <stable@vger.kernel.org> # 4.8+
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+If the address of __nospec_call_start is odd and the kernel is compiled
+With CONFIG_RELOCATABLE=n the compiler may generate code that loads the
+address of __nospec_call_start with a 'larl' instruction.
+
+This will generate incorrect code since the 'larl' instruction only works
+with even addresses. In result the members of the nospec tables will be
+accessed with an off-by-one offset, which subsequently may lead to
+addressing exceptions within __nospec_revert().
+
+Fixes: f19fbd5ed642 ("s390: introduce execute-trampolines for branches")
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Link: https://lore.kernel.org/r/8719bf1ce4a72ebdeb575200290094e9ce047bcc.1661557333.git.jpoimboe@kernel.org
+Cc: <stable@vger.kernel.org> # 4.16
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/hugetlb.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/s390/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/s390/include/asm/hugetlb.h
-+++ b/arch/s390/include/asm/hugetlb.h
-@@ -30,9 +30,11 @@ pte_t huge_ptep_get_and_clear(struct mm_
- static inline int prepare_hugepage_range(struct file *file,
- 			unsigned long addr, unsigned long len)
- {
--	if (len & ~HPAGE_MASK)
-+	struct hstate *h = hstate_file(file);
-+
-+	if (len & ~huge_page_mask(h))
- 		return -EINVAL;
--	if (addr & ~HPAGE_MASK)
-+	if (addr & ~huge_page_mask(h))
- 		return -EINVAL;
- 	return 0;
- }
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -121,6 +121,7 @@ SECTIONS
+ 	/*
+ 	 * Table with the patch locations to undo expolines
+ 	*/
++	. = ALIGN(4);
+ 	.nospec_call_table : {
+ 		__nospec_call_start = . ;
+ 		*(.s390_indirect*)
 
 
