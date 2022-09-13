@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 689C55B708F
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6183B5B6FD7
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233841AbiIMO35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:29:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54638 "EHLO
+        id S233203AbiIMOSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:18:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234041AbiIMO3C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:29:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30FB863F14;
-        Tue, 13 Sep 2022 07:18:17 -0700 (PDT)
+        with ESMTP id S233204AbiIMOR6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:17:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5AF642D9;
+        Tue, 13 Sep 2022 07:12:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5114614B0;
-        Tue, 13 Sep 2022 14:16:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D99F9C433C1;
-        Tue, 13 Sep 2022 14:16:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ADD5614B7;
+        Tue, 13 Sep 2022 14:11:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A32C433C1;
+        Tue, 13 Sep 2022 14:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078603;
-        bh=31O2RnmTrqwLreTHa69wpotWavAZzHJ+YCcgLoU3qiM=;
+        s=korg; t=1663078307;
+        bh=xxPNsh/xajkhmhzlrFDpsytceTtjFF4T+3PHIVSJ6hE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1VwX/CF/acvdxBBLRyOpxQ/sHTxsGoTdZj13oBbWYJ8gllO/aZV1hoHamEC75K84c
-         qh100TxY1bB6r77qGKKaJz8WlzPwJP69MOOuk9CG/0stZl3ZipVK+3P77StB0sAf1V
-         Wj9mrVbcD5RxHsfpqZtr9QCYa41xRowiK77Ka0Ko=
+        b=UYX6YlLrqI0FqsFaXysWCiJaQdpzL2P/WDdgX/cneWgHjHZBdVpzQr1FOT0OqITnc
+         5IAkykTMyHqKX4cNqI1oHyrGyGFuj5bjvTZ4wAJHvzmZ9w0xAJIzhSDOYS5Lb5H9la
+         vzHCISmD5CKIpaUFFpMexZ6PAPpz1ViXL313sodg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.15 004/121] wifi: iwlegacy: 4965: corrected fix for potential off-by-one overflow in il4965_rs_fill_link_cmd()
-Date:   Tue, 13 Sep 2022 16:03:15 +0200
-Message-Id: <20220913140357.515051268@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Guralnik <michaelgur@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 090/192] RDMA/cma: Fix arguments order in net device validation
+Date:   Tue, 13 Sep 2022 16:03:16 +0200
+Message-Id: <20220913140414.449047516@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislaw Gruszka <stf_xl@wp.pl>
+From: Michael Guralnik <michaelgur@nvidia.com>
 
-commit 6d0ef7241553f3553a0a2764c69b07892705924c upstream.
+[ Upstream commit 27cfde795a96aef1e859a5480489944b95421e46 ]
 
-This reverts commit a8eb8e6f7159c7c20c0ddac428bde3d110890aa7 as
-it can cause invalid link quality command sent to the firmware
-and address the off-by-one issue by fixing condition of while loop.
+Fix the order of source and destination addresses when resolving the
+route between server and client to validate use of correct net device.
 
-Cc: stable@vger.kernel.org
-Fixes: a8eb8e6f7159 ("wifi: iwlegacy: 4965: fix potential off-by-one overflow in il4965_rs_fill_link_cmd()")
-Signed-off-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220815073737.GA999388@wp.pl
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The reverse order we had so far didn't actually validate the net device
+as the server would try to resolve the route to itself, thus always
+getting the server's net device.
+
+The issue was discovered when running cm applications on a single host
+between 2 interfaces with same subnet and source based routing rules.
+When resolving the reverse route the source based route rules were
+ignored.
+
+Fixes: f887f2ac87c2 ("IB/cma: Validate routing of incoming requests")
+Link: https://lore.kernel.org/r/1c1ec2277a131d277ebcceec987fd338d35b775f.1661251872.git.leonro@nvidia.com
+Signed-off-by: Michael Guralnik <michaelgur@nvidia.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlegacy/4965-rs.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/infiniband/core/cma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlegacy/4965-rs.c
-+++ b/drivers/net/wireless/intel/iwlegacy/4965-rs.c
-@@ -2403,7 +2403,7 @@ il4965_rs_fill_link_cmd(struct il_priv *
- 		/* Repeat initial/next rate.
- 		 * For legacy IL_NUMBER_TRY == 1, this loop will not execute.
- 		 * For HT IL_HT_NUMBER_TRY == 3, this executes twice. */
--		while (repeat_rate > 0) {
-+		while (repeat_rate > 0 && idx < (LINK_QUAL_MAX_RETRY_NUM - 1)) {
- 			if (is_legacy(tbl_type.lq_type)) {
- 				if (ant_toggle_cnt < NUM_TRY_BEFORE_ANT_TOGGLE)
- 					ant_toggle_cnt++;
-@@ -2422,8 +2422,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
- 			    cpu_to_le32(new_rate);
- 			repeat_rate--;
- 			idx++;
--			if (idx >= LINK_QUAL_MAX_RETRY_NUM)
--				goto out;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index fabca5e51e3d4..4dd133eccfdfb 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1719,8 +1719,8 @@ cma_ib_id_from_event(struct ib_cm_id *cm_id,
  		}
  
- 		il4965_rs_get_tbl_info_from_mcs(new_rate, lq_sta->band,
-@@ -2468,7 +2466,6 @@ il4965_rs_fill_link_cmd(struct il_priv *
- 		repeat_rate--;
- 	}
- 
--out:
- 	lq_cmd->agg_params.agg_frame_cnt_limit = LINK_QUAL_AGG_FRAME_LIMIT_DEF;
- 	lq_cmd->agg_params.agg_dis_start_th = LINK_QUAL_AGG_DISABLE_START_DEF;
- 
+ 		if (!validate_net_dev(*net_dev,
+-				 (struct sockaddr *)&req->listen_addr_storage,
+-				 (struct sockaddr *)&req->src_addr_storage)) {
++				 (struct sockaddr *)&req->src_addr_storage,
++				 (struct sockaddr *)&req->listen_addr_storage)) {
+ 			id_priv = ERR_PTR(-EHOSTUNREACH);
+ 			goto err;
+ 		}
+-- 
+2.35.1
+
 
 
