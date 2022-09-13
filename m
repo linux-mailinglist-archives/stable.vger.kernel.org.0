@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 468035B7322
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A02F5B703C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234503AbiIMOzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:55:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45984 "EHLO
+        id S232782AbiIMOYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:24:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234784AbiIMOyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:54:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497AC72EC1;
-        Tue, 13 Sep 2022 07:27:01 -0700 (PDT)
+        with ESMTP id S233139AbiIMOXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:23:31 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E433861701;
+        Tue, 13 Sep 2022 07:15:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A922F61414;
-        Tue, 13 Sep 2022 14:18:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5BDDC4347C;
-        Tue, 13 Sep 2022 14:18:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C9484CE1275;
+        Tue, 13 Sep 2022 14:13:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C41AAC433D6;
+        Tue, 13 Sep 2022 14:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078713;
-        bh=OYGIZzUf3tsRIRrsrVbwFTBCi+ghl60JeGakohJsvs8=;
+        s=korg; t=1663078436;
+        bh=1ME5e66fVDTdP1+yLfK6JdLvd1xQYZ9E8X3oa+BdnZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NboPBjg/oxeA9uv32J9a9SbB8IqIYVOV3YFTjY+5ADNLrZaHVmFo5fRvrytFuOey0
-         NUAWTqIC5JOORP64Ok7I4IRs/LVAuwRx0mQ9vaooVYYK+T1xUnd+qd0W0rky2idgFB
-         eQVQpSQsGPMkbccZzPrvIsroz7Mt+qlFxhZXHan0=
+        b=quVTk97uTwh2aVJVL+hFdDfj3ONfzbhk7A/5mymve3x/l72yYqGLo57FvpQk2fc9d
+         YciTroujvjGnhPGcAkFb8oQ8tErCnC+FeRH9ebnlSCZM+Ifc86E7EBVeQhmoUzVUMI
+         25UpJjvhDIDsahh81zKX6kYx/Rxx86Jg8BacDsz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Halaney <ahalaney@redhat.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Brian Masney <bmasney@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 054/121] regulator: core: Clean up on enable failure
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Dennis Maisenbacher <dennis.maisenbacher@wdc.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 139/192] nvmet: fix mar and mor off-by-one errors
 Date:   Tue, 13 Sep 2022 16:04:05 +0200
-Message-Id: <20220913140359.678790053@linuxfoundation.org>
+Message-Id: <20220913140416.942610283@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,70 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Halaney <ahalaney@redhat.com>
+From: Dennis Maisenbacher <dennis.maisenbacher@wdc.com>
 
-[ Upstream commit c32f1ebfd26bece77141257864ed7b4720da1557 ]
+[ Upstream commit b7e97872a65e1d57b4451769610554c131f37a0a ]
 
-If regulator_enable() fails, enable_count is incremented still.
-A consumer, assuming no matching regulator_disable() is necessary on
-failure, will then get this error message upon regulator_put()
-since enable_count is non-zero:
+Maximum Active Resources (MAR) and Maximum Open Resources (MOR) are 0's
+based vales where a value of 0xffffffff indicates that there is no limit.
 
-    [    1.277418] WARNING: CPU: 3 PID: 1 at drivers/regulator/core.c:2304 _regulator_put.part.0+0x168/0x170
+Decrement the values that are returned by bdev_max_open_zones and
+bdev_max_active_zones as the block layer helpers are not 0's based.
+A 0 returned by the block layer helpers indicates no limit, thus convert
+it to 0xffffffff (U32_MAX).
 
-The consumer could try to fix this in their driver by cleaning up on
-error from regulator_enable() (i.e. call regulator_disable()), but that
-results in the following since regulator_enable() failed and didn't
-increment user_count:
-
-    [    1.258112] unbalanced disables for vreg_l17c
-    [    1.262606] WARNING: CPU: 4 PID: 1 at drivers/regulator/core.c:2899 _regulator_disable+0xd4/0x190
-
-Fix this by decrementing enable_count upon failure to enable.
-
-With this in place, just the reason for failure to enable is printed
-as expected and developers can focus on the root cause of their issue
-instead of thinking their usage of the regulator consumer api is
-incorrect. For example, in my case:
-
-    [    1.240426] vreg_l17c: invalid input voltage found
-
-Fixes: 5451781dadf8 ("regulator: core: Only count load for enabled consumers")
-Signed-off-by: Andrew Halaney <ahalaney@redhat.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Brian Masney <bmasney@redhat.com>
-Link: https://lore.kernel.org/r/20220819194336.382740-1-ahalaney@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: aaf2e048af27 ("nvmet: add ZBD over ZNS backend support")
+Suggested-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Dennis Maisenbacher <dennis.maisenbacher@wdc.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/nvme/target/zns.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index f4f28e5888b1c..43613db7af754 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -2688,13 +2688,18 @@ static int _regulator_do_enable(struct regulator_dev *rdev)
-  */
- static int _regulator_handle_consumer_enable(struct regulator *regulator)
- {
-+	int ret;
- 	struct regulator_dev *rdev = regulator->rdev;
+diff --git a/drivers/nvme/target/zns.c b/drivers/nvme/target/zns.c
+index 82b61acf7a72b..1956be87ac5ff 100644
+--- a/drivers/nvme/target/zns.c
++++ b/drivers/nvme/target/zns.c
+@@ -100,6 +100,7 @@ void nvmet_execute_identify_cns_cs_ns(struct nvmet_req *req)
+ 	struct nvme_id_ns_zns *id_zns;
+ 	u64 zsze;
+ 	u16 status;
++	u32 mar, mor;
  
- 	lockdep_assert_held_once(&rdev->mutex.base);
+ 	if (le32_to_cpu(req->cmd->identify.nsid) == NVME_NSID_ALL) {
+ 		req->error_loc = offsetof(struct nvme_identify, nsid);
+@@ -130,8 +131,20 @@ void nvmet_execute_identify_cns_cs_ns(struct nvmet_req *req)
+ 	zsze = (bdev_zone_sectors(req->ns->bdev) << 9) >>
+ 					req->ns->blksize_shift;
+ 	id_zns->lbafe[0].zsze = cpu_to_le64(zsze);
+-	id_zns->mor = cpu_to_le32(bdev_max_open_zones(req->ns->bdev));
+-	id_zns->mar = cpu_to_le32(bdev_max_active_zones(req->ns->bdev));
++
++	mor = bdev_max_open_zones(req->ns->bdev);
++	if (!mor)
++		mor = U32_MAX;
++	else
++		mor--;
++	id_zns->mor = cpu_to_le32(mor);
++
++	mar = bdev_max_active_zones(req->ns->bdev);
++	if (!mar)
++		mar = U32_MAX;
++	else
++		mar--;
++	id_zns->mar = cpu_to_le32(mar);
  
- 	regulator->enable_count++;
--	if (regulator->uA_load && regulator->enable_count == 1)
--		return drms_uA_update(rdev);
-+	if (regulator->uA_load && regulator->enable_count == 1) {
-+		ret = drms_uA_update(rdev);
-+		if (ret)
-+			regulator->enable_count--;
-+		return ret;
-+	}
- 
- 	return 0;
- }
+ done:
+ 	status = nvmet_copy_to_sgl(req, 0, id_zns, sizeof(*id_zns));
 -- 
 2.35.1
 
