@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61D9C5B708C
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 030285B70CE
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233828AbiIMO3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:29:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56826 "EHLO
+        id S233966AbiIMOas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:30:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233967AbiIMO2u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:28:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F03569F62;
-        Tue, 13 Sep 2022 07:18:16 -0700 (PDT)
+        with ESMTP id S234144AbiIMO31 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:29:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E608962AB7;
+        Tue, 13 Sep 2022 07:18:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16B33614D0;
-        Tue, 13 Sep 2022 14:16:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA60C4314C;
-        Tue, 13 Sep 2022 14:16:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 370C8B80F3B;
+        Tue, 13 Sep 2022 14:16:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3488C433D6;
+        Tue, 13 Sep 2022 14:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078587;
-        bh=sEi3vH+/9vLyRKoZP3BAKNloMFh0QlP+mu32YyKXYy4=;
+        s=korg; t=1663078590;
+        bh=DQ3UWc+6JLXRSGG02z9nwZw4w9OJmIdrtpFzqqHqn88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FNkhk+FGgIUa2B3zl7z4SDiM55W/jBvuHgXmYSVVv2qMSgI/ZNX7uWn4DfASIMXpE
-         ezsnAjW4YOSNkPK8bgBRRLvl5HlK7cAlOtLa/dAuJ408bUedpNXFW2DmEFxYRMot1M
-         E0P3+lKIh3RlbrfZxi+CZr7s9rSM1rQQKw/Y0OuY=
+        b=EXYwFYztOsBktufwOH5p/X/oDVemUGOmv8HvvmMfA0ogi5WNSwnTh1kezcKXdqTcZ
+         AmL4QQN57x72LlFwoolbVbB5HnPCz3vSlxQA+99w3vbRCf3DV3Uhbv6NhyYrYJQJoD
+         ebK6Z4MpFeay5V7gi7V41oZ6gviGbTjwScwgfSWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        stable@vger.kernel.org, Gabe Teeger <Gabe.Teeger@amd.com>,
+        Solomon Chiu <solomon.chiu@amd.com>,
         Saaem Rizvi <SyedSaaem.Rizvi@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.19 191/192] drm/amd/display: Add SMU logging code
-Date:   Tue, 13 Sep 2022 16:04:57 +0200
-Message-Id: <20220913140419.587035997@linuxfoundation.org>
+Subject: [PATCH 5.19 192/192] drm/amd/display: Removing assert statements for Linux
+Date:   Tue, 13 Sep 2022 16:04:58 +0200
+Message-Id: <20220913140419.637634768@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -58,157 +58,154 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Saaem Rizvi <SyedSaaem.Rizvi@amd.com>
 
-commit 4b33b5ffcf68de3a43e7dddc91c5dc86e6ed8587 upstream.
+commit 149f6d1a6035a7aa6595ac6eeb9c8f566b2103cd upstream.
 
 [WHY]
-Logging for SMU response value after the wait allows us to know
-immediately what the response value was. Makes it easier to debug should
-the value be anything other than OK.
+Assert statements causing several bugs on Linux DM
 
 [HOW]
-Using the the already available DC SMU logging functions.
+Removing assert statement for Linux DM
+(ASSERT(result == VBIOSSMC_Result_OK)). Also adding
+logging statements for setting dcfclk.
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=216092
+Fixes: c1b972a18d05 ("drm/amd/display: Insert pulling smu busy status before sending another request")
+Reviewed-by: Gabe Teeger <Gabe.Teeger@amd.com>
+Acked-by: Solomon Chiu <solomon.chiu@amd.com>
 Signed-off-by: Saaem Rizvi <SyedSaaem.Rizvi@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c |   12 ++++++++++
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/dcn301_smu.c          |   12 ++++++++++
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_smu.c            |    8 ++++++
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_smu.c          |    8 ++++++
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn316/dcn316_smu.c          |    8 ++++++
- 5 files changed, 48 insertions(+)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c |    8 ++++++--
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/dcn301_smu.c          |    7 ++++++-
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_smu.c            |    8 ++++++--
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_smu.c          |    8 ++++++--
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn316/dcn316_smu.c          |    8 ++++++--
+ 5 files changed, 30 insertions(+), 9 deletions(-)
 
 --- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c
 +++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c
-@@ -41,6 +41,12 @@
- #define FN(reg_name, field) \
- 	FD(reg_name##__##field)
+@@ -101,9 +101,9 @@ static int rn_vbios_smu_send_msg_with_pa
+ 	uint32_t result;
  
-+#include "logger_types.h"
-+#undef DC_LOGGER
-+#define DC_LOGGER \
-+	CTX->logger
-+#define smu_print(str, ...) {DC_LOG_SMU(str, ##__VA_ARGS__); }
-+
- #define VBIOSSMC_MSG_TestMessage                  0x1
- #define VBIOSSMC_MSG_GetSmuVersion                0x2
- #define VBIOSSMC_MSG_PowerUpGfx                   0x3
-@@ -97,6 +103,12 @@ static int rn_vbios_smu_send_msg_with_pa
  	result = rn_smu_wait_for_response(clk_mgr, 10, 200000);
- 	ASSERT(result == VBIOSSMC_Result_OK);
+-	ASSERT(result == VBIOSSMC_Result_OK);
  
-+	smu_print("SMU response after wait: %d\n", result);
+-	smu_print("SMU response after wait: %d\n", result);
++	if (result != VBIOSSMC_Result_OK)
++		smu_print("SMU Response was not OK. SMU response after wait received is: %d\n", result);
+ 
+ 	if (result == VBIOSSMC_Status_BUSY) {
+ 		return -1;
+@@ -188,6 +188,10 @@ int rn_vbios_smu_set_hard_min_dcfclk(str
+ 			VBIOSSMC_MSG_SetHardMinDcfclkByFreq,
+ 			khz_to_mhz_ceil(requested_dcfclk_khz));
+ 
++#ifdef DBG
++	smu_print("actual_dcfclk_set_mhz %d is set to : %d\n", actual_dcfclk_set_mhz, actual_dcfclk_set_mhz * 1000);
++#endif
 +
-+	if (result == VBIOSSMC_Status_BUSY) {
-+		return -1;
-+	}
-+
- 	/* First clear response register */
- 	REG_WRITE(MP1_SMN_C2PMSG_91, VBIOSSMC_Status_BUSY);
+ 	return actual_dcfclk_set_mhz * 1000;
+ }
  
 --- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/dcn301_smu.c
 +++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/dcn301_smu.c
-@@ -41,6 +41,12 @@
- #define FN(reg_name, field) \
- 	FD(reg_name##__##field)
- 
-+#include "logger_types.h"
-+#undef DC_LOGGER
-+#define DC_LOGGER \
-+	CTX->logger
-+#define smu_print(str, ...) {DC_LOG_SMU(str, ##__VA_ARGS__); }
-+
- #define VBIOSSMC_MSG_GetSmuVersion                0x2
- #define VBIOSSMC_MSG_SetDispclkFreq               0x4
- #define VBIOSSMC_MSG_SetDprefclkFreq              0x5
-@@ -96,6 +102,12 @@ static int dcn301_smu_send_msg_with_para
+@@ -102,7 +102,8 @@ static int dcn301_smu_send_msg_with_para
  
  	result = dcn301_smu_wait_for_response(clk_mgr, 10, 200000);
  
-+	smu_print("SMU response after wait: %d\n", result);
+-	smu_print("SMU response after wait: %d\n", result);
++	if (result != VBIOSSMC_Result_OK)
++		smu_print("SMU Response was not OK. SMU response after wait received is: %d\n", result);
+ 
+ 	if (result == VBIOSSMC_Status_BUSY) {
+ 		return -1;
+@@ -179,6 +180,10 @@ int dcn301_smu_set_hard_min_dcfclk(struc
+ 			VBIOSSMC_MSG_SetHardMinDcfclkByFreq,
+ 			khz_to_mhz_ceil(requested_dcfclk_khz));
+ 
++#ifdef DBG
++	smu_print("actual_dcfclk_set_mhz %d is set to : %d\n", actual_dcfclk_set_mhz, actual_dcfclk_set_mhz * 1000);
++#endif
 +
-+	if (result == VBIOSSMC_Status_BUSY) {
-+		return -1;
-+	}
-+
- 	/* First clear response register */
- 	REG_WRITE(MP1_SMN_C2PMSG_91, VBIOSSMC_Status_BUSY);
+ 	return actual_dcfclk_set_mhz * 1000;
+ }
  
 --- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_smu.c
 +++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_smu.c
-@@ -40,6 +40,12 @@
- #define FN(reg_name, field) \
- 	FD(reg_name##__##field)
+@@ -108,9 +108,9 @@ static int dcn31_smu_send_msg_with_param
+ 	uint32_t result;
  
-+#include "logger_types.h"
-+#undef DC_LOGGER
-+#define DC_LOGGER \
-+	CTX->logger
-+#define smu_print(str, ...) {DC_LOG_SMU(str, ##__VA_ARGS__); }
-+
- #define VBIOSSMC_MSG_TestMessage                  0x1
- #define VBIOSSMC_MSG_GetSmuVersion                0x2
- #define VBIOSSMC_MSG_PowerUpGfx                   0x3
-@@ -104,6 +110,8 @@ static int dcn31_smu_send_msg_with_param
  	result = dcn31_smu_wait_for_response(clk_mgr, 10, 200000);
- 	ASSERT(result == VBIOSSMC_Result_OK);
+-	ASSERT(result == VBIOSSMC_Result_OK);
  
-+	smu_print("SMU response after wait: %d\n", result);
-+
+-	smu_print("SMU response after wait: %d\n", result);
++	if (result != VBIOSSMC_Result_OK)
++		smu_print("SMU Response was not OK. SMU response after wait received is: %d\n", result);
+ 
  	if (result == VBIOSSMC_Status_BUSY) {
  		return -1;
- 	}
+@@ -202,6 +202,10 @@ int dcn31_smu_set_hard_min_dcfclk(struct
+ 			VBIOSSMC_MSG_SetHardMinDcfclkByFreq,
+ 			khz_to_mhz_ceil(requested_dcfclk_khz));
+ 
++#ifdef DBG
++	smu_print("actual_dcfclk_set_mhz %d is set to : %d\n", actual_dcfclk_set_mhz, actual_dcfclk_set_mhz * 1000);
++#endif
++
+ 	return actual_dcfclk_set_mhz * 1000;
+ }
+ 
 --- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_smu.c
 +++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_smu.c
-@@ -70,6 +70,12 @@ static const struct IP_BASE NBIO_BASE =
- #define REG_NBIO(reg_name) \
- 	(NBIO_BASE.instance[0].segment[regBIF_BX_PF2_ ## reg_name ## _BASE_IDX] + regBIF_BX_PF2_ ## reg_name)
+@@ -136,9 +136,9 @@ static int dcn315_smu_send_msg_with_para
+ 	uint32_t result;
  
-+#include "logger_types.h"
-+#undef DC_LOGGER
-+#define DC_LOGGER \
-+	CTX->logger
-+#define smu_print(str, ...) {DC_LOG_SMU(str, ##__VA_ARGS__); }
-+
- #define mmMP1_C2PMSG_3                            0x3B1050C
- 
- #define VBIOSSMC_MSG_TestMessage                  0x01 ///< To check if PMFW is alive and responding. Requirement specified by PMFW team
-@@ -132,6 +138,8 @@ static int dcn315_smu_send_msg_with_para
  	result = dcn315_smu_wait_for_response(clk_mgr, 10, 200000);
- 	ASSERT(result == VBIOSSMC_Result_OK);
+-	ASSERT(result == VBIOSSMC_Result_OK);
  
-+	smu_print("SMU response after wait: %d\n", result);
-+
+-	smu_print("SMU response after wait: %d\n", result);
++	if (result != VBIOSSMC_Result_OK)
++		smu_print("SMU Response was not OK. SMU response after wait received is: %d\n", result);
+ 
  	if (result == VBIOSSMC_Status_BUSY) {
  		return -1;
- 	}
+@@ -205,6 +205,10 @@ int dcn315_smu_set_hard_min_dcfclk(struc
+ 			VBIOSSMC_MSG_SetHardMinDcfclkByFreq,
+ 			khz_to_mhz_ceil(requested_dcfclk_khz));
+ 
++#ifdef DBG
++	smu_print("actual_dcfclk_set_mhz %d is set to : %d\n", actual_dcfclk_set_mhz, actual_dcfclk_set_mhz * 1000);
++#endif
++
+ 	return actual_dcfclk_set_mhz * 1000;
+ }
+ 
 --- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn316/dcn316_smu.c
 +++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn316/dcn316_smu.c
-@@ -58,6 +58,12 @@ static const struct IP_BASE MP0_BASE = {
- #define FN(reg_name, field) \
- 	FD(reg_name##__##field)
+@@ -124,9 +124,9 @@ static int dcn316_smu_send_msg_with_para
+ 	uint32_t result;
  
-+#include "logger_types.h"
-+#undef DC_LOGGER
-+#define DC_LOGGER \
-+	CTX->logger
-+#define smu_print(str, ...) {DC_LOG_SMU(str, ##__VA_ARGS__); }
-+
- #define VBIOSSMC_MSG_TestMessage                  0x01 ///< To check if PMFW is alive and responding. Requirement specified by PMFW team
- #define VBIOSSMC_MSG_GetPmfwVersion               0x02 ///< Get PMFW version
- #define VBIOSSMC_MSG_Spare0                       0x03 ///< Spare0
-@@ -120,6 +126,8 @@ static int dcn316_smu_send_msg_with_para
  	result = dcn316_smu_wait_for_response(clk_mgr, 10, 200000);
- 	ASSERT(result == VBIOSSMC_Result_OK);
+-	ASSERT(result == VBIOSSMC_Result_OK);
  
-+	smu_print("SMU response after wait: %d\n", result);
-+
+-	smu_print("SMU response after wait: %d\n", result);
++	if (result != VBIOSSMC_Result_OK)
++		smu_print("SMU Response was not OK. SMU response after wait received is: %d\n", result);
+ 
  	if (result == VBIOSSMC_Status_BUSY) {
  		return -1;
- 	}
+@@ -191,6 +191,10 @@ int dcn316_smu_set_hard_min_dcfclk(struc
+ 			VBIOSSMC_MSG_SetHardMinDcfclkByFreq,
+ 			khz_to_mhz_ceil(requested_dcfclk_khz));
+ 
++#ifdef DBG
++	smu_print("actual_dcfclk_set_mhz %d is set to : %d\n", actual_dcfclk_set_mhz, actual_dcfclk_set_mhz * 1000);
++#endif
++
+ 	return actual_dcfclk_set_mhz * 1000;
+ }
+ 
 
 
