@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B86FD5B703D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB535B71AA
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232830AbiIMOYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:24:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39642 "EHLO
+        id S231714AbiIMOt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:49:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233514AbiIMOXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:23:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 165EF61B1F;
-        Tue, 13 Sep 2022 07:15:38 -0700 (PDT)
+        with ESMTP id S234531AbiIMOsy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:48:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 607BA6F551;
+        Tue, 13 Sep 2022 07:25:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F632B80F9C;
-        Tue, 13 Sep 2022 14:15:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0823DC433D6;
-        Tue, 13 Sep 2022 14:15:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C68A2614CE;
+        Tue, 13 Sep 2022 14:24:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB73DC433D6;
+        Tue, 13 Sep 2022 14:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078519;
-        bh=yljb55CwYjB2SsSXdpHl1sJ2giu6mj+JKJbpLxtk6Ws=;
+        s=korg; t=1663079040;
+        bh=+fk9TLqEpNx7WuHZZ2zSbxmR6htfifbuU340iivay+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDEAoJRuBCMSLtZ+lnAEV79tWqQqT4oCL7ItV0b5EUl4NVnxye6w4rvPgCAn4drFu
-         lHNlFB3w0vLBRC3lo5km3ioU4BthtoPNytF0MNOkxs1grE9PVJT0xZLkKQ1UqB+AhZ
-         EqQfK/NT78v/gpEwsbHRoFPOtC45E9dhHQrXuOQM=
+        b=akl5FqE/8bc4vG/yjmiEzuYhZS088AV9t/F0+ap1fc2TxqMEYAmK2/UMi6vKHVUwN
+         P6GoyS2ldUmbJhoPR85AALlXoRUtGBgzQAjicXMkAn293ErIJtLIa+eKn07RzNTO+K
+         rFsLy0BX1xMVJPB3ZdpjqPtXiHG7dXXcizlWxPCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoliang Yang <xiaoliang.yang_1@nxp.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 172/192] net: dsa: felix: tc-taprio intervals smaller than MTU should send at least one packet
-Date:   Tue, 13 Sep 2022 16:04:38 +0200
-Message-Id: <20220913140418.603893905@linuxfoundation.org>
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Imran Khan <imran.f.khan@oracle.com>,
+        Xuewen Yan <xuewen.yan@unisoc.com>
+Subject: [PATCH 5.10 34/79] cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock
+Date:   Tue, 13 Sep 2022 16:04:39 +0200
+Message-Id: <20220913140351.945201247@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,151 +55,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 11afdc6526de0e0368c05da632a8c0d29fc60bb8 ]
+[ Upstream commit 4f7e7236435ca0abe005c674ebd6892c6e83aeb3 ]
 
-The blamed commit broke tc-taprio schedules such as this one:
+Bringing up a CPU may involve creating and destroying tasks which requires
+read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
+cpus_read_lock(). However, cpuset's ->attach(), which may be called with
+thredagroup_rwsem write-locked, also wants to disable CPU hotplug and
+acquires cpus_read_lock(), leading to a deadlock.
 
-tc qdisc replace dev $swp1 root taprio \
-        num_tc 8 \
-        map 0 1 2 3 4 5 6 7 \
-        queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 \
-        base-time 0 \
-        sched-entry S 0x7f 990000 \
-        sched-entry S 0x80  10000 \
-        flags 0x2
+Fix it by guaranteeing that ->attach() is always called with CPU hotplug
+disabled and removing cpus_read_lock() call from cpuset_attach().
 
-because the gate entry for TC 7 (S 0x80 10000 ns) now has a static guard
-band added earlier than its 'gate close' event, such that packet
-overruns won't occur in the worst case of the largest packet possible.
-
-Since guard bands are statically determined based on the per-tc
-QSYS_QMAXSDU_CFG_* with a fallback on the port-based QSYS_PORT_MAX_SDU,
-we need to discuss what happens with TC 7 depending on kernel version,
-since the driver, prior to commit 55a515b1f5a9 ("net: dsa: felix: drop
-oversized frames with tc-taprio instead of hanging the port"), did not
-touch QSYS_QMAXSDU_CFG_*, and therefore relied on QSYS_PORT_MAX_SDU.
-
-1 (before vsc9959_tas_guard_bands_update): QSYS_PORT_MAX_SDU defaults to
-  1518, and at gigabit this introduces a static guard band (independent
-  of packet sizes) of 12144 ns, plus QSYS::HSCH_MISC_CFG.FRM_ADJ (bit
-  time of 20 octets => 160 ns). But this is larger than the time window
-  itself, of 10000 ns. So, the queue system never considers a frame with
-  TC 7 as eligible for transmission, since the gate practically never
-  opens, and these frames are forever stuck in the TX queues and hang
-  the port.
-
-2 (after vsc9959_tas_guard_bands_update): Under the sole goal of
-  enabling oversized frame dropping, we make an effort to set
-  QSYS_QMAXSDU_CFG_7 to 1230 bytes. But QSYS_QMAXSDU_CFG_7 plays
-  one more role, which we did not take into account: per-tc static guard
-  band, expressed in L2 byte time (auto-adjusted for FCS and L1 overhead).
-  There is a discrepancy between what the driver thinks (that there is
-  no guard band, and 100% of min_gate_len[tc] is available for egress
-  scheduling) and what the hardware actually does (crops the equivalent
-  of QSYS_QMAXSDU_CFG_7 ns out of min_gate_len[tc]). In practice, this
-  means that the hardware thinks it has exactly 0 ns for scheduling tc 7.
-
-In both cases, even minimum sized Ethernet frames are stuck on egress
-rather than being considered for scheduling on TC 7, even if they would
-fit given a proper configuration. Considering the current situation,
-with vsc9959_tas_guard_bands_update(), frames between 60 octets and 1230
-octets in size are not eligible for oversized dropping (because they are
-smaller than QSYS_QMAXSDU_CFG_7), but won't be considered as eligible
-for scheduling either, because the min_gate_len[7] (10000 ns) minus the
-guard band determined by QSYS_QMAXSDU_CFG_7 (1230 octets * 8 ns per
-octet == 9840 ns) minus the guard band auto-added for L1 overhead by
-QSYS::HSCH_MISC_CFG.FRM_ADJ (20 octets * 8 ns per octet == 160 octets)
-leaves 0 ns for scheduling in the queue system proper.
-
-Investigating the hardware behavior, it becomes apparent that the queue
-system needs precisely 33 ns of 'gate open' time in order to consider a
-frame as eligible for scheduling to a tc. So the solution to this
-problem is to amend vsc9959_tas_guard_bands_update(), by giving the
-per-tc guard bands less space by exactly 33 ns, just enough for one
-frame to be scheduled in that interval. This allows the queue system to
-make forward progress for that port-tc, and prevents it from hanging.
-
-Fixes: 297c4de6f780 ("net: dsa: felix: re-enable TAS guard band mode")
-Reported-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reviewed-and-tested-by: Imran Khan <imran.f.khan@oracle.com>
+Reported-and-tested-by: Xuewen Yan <xuewen.yan@unisoc.com>
+Fixes: 05c7b7a92cc8 ("cgroup/cpuset: Fix a race between cpuset_attach() and cpu hotplug")
+Cc: stable@vger.kernel.org # v5.17+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/ocelot/felix_vsc9959.c | 35 +++++++++++++++++++++++---
- 1 file changed, 31 insertions(+), 4 deletions(-)
+ kernel/cgroup/cgroup.c | 77 +++++++++++++++++++++++++++++-------------
+ kernel/cgroup/cpuset.c |  3 +-
+ 2 files changed, 55 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
-index 4cce71243080e..517bc3922ee24 100644
---- a/drivers/net/dsa/ocelot/felix_vsc9959.c
-+++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
-@@ -22,6 +22,7 @@
- #define VSC9959_NUM_PORTS		6
- 
- #define VSC9959_TAS_GCL_ENTRY_MAX	63
-+#define VSC9959_TAS_MIN_GATE_LEN_NS	33
- #define VSC9959_VCAP_POLICER_BASE	63
- #define VSC9959_VCAP_POLICER_MAX	383
- #define VSC9959_SWITCH_PCI_BAR		4
-@@ -1411,6 +1412,23 @@ static void vsc9959_mdio_bus_free(struct ocelot *ocelot)
- 	mdiobus_free(felix->imdio);
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 1072843b25709..684c16849eff3 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -2304,6 +2304,47 @@ int task_cgroup_path(struct task_struct *task, char *buf, size_t buflen)
  }
+ EXPORT_SYMBOL_GPL(task_cgroup_path);
  
-+/* The switch considers any frame (regardless of size) as eligible for
-+ * transmission if the traffic class gate is open for at least 33 ns.
-+ * Overruns are prevented by cropping an interval at the end of the gate time
-+ * slot for which egress scheduling is blocked, but we need to still keep 33 ns
-+ * available for one packet to be transmitted, otherwise the port tc will hang.
-+ * This function returns the size of a gate interval that remains available for
-+ * setting the guard band, after reserving the space for one egress frame.
++/**
++ * cgroup_attach_lock - Lock for ->attach()
++ * @lock_threadgroup: whether to down_write cgroup_threadgroup_rwsem
++ *
++ * cgroup migration sometimes needs to stabilize threadgroups against forks and
++ * exits by write-locking cgroup_threadgroup_rwsem. However, some ->attach()
++ * implementations (e.g. cpuset), also need to disable CPU hotplug.
++ * Unfortunately, letting ->attach() operations acquire cpus_read_lock() can
++ * lead to deadlocks.
++ *
++ * Bringing up a CPU may involve creating and destroying tasks which requires
++ * read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
++ * cpus_read_lock(). If we call an ->attach() which acquires the cpus lock while
++ * write-locking threadgroup_rwsem, the locking order is reversed and we end up
++ * waiting for an on-going CPU hotplug operation which in turn is waiting for
++ * the threadgroup_rwsem to be released to create new tasks. For more details:
++ *
++ *   http://lkml.kernel.org/r/20220711174629.uehfmqegcwn2lqzu@wubuntu
++ *
++ * Resolve the situation by always acquiring cpus_read_lock() before optionally
++ * write-locking cgroup_threadgroup_rwsem. This allows ->attach() to assume that
++ * CPU hotplug is disabled on entry.
 + */
-+static u64 vsc9959_tas_remaining_gate_len_ps(u64 gate_len_ns)
++static void cgroup_attach_lock(bool lock_threadgroup)
 +{
-+	/* Gate always open */
-+	if (gate_len_ns == U64_MAX)
-+		return U64_MAX;
-+
-+	return (gate_len_ns - VSC9959_TAS_MIN_GATE_LEN_NS) * PSEC_PER_NSEC;
++	cpus_read_lock();
++	if (lock_threadgroup)
++		percpu_down_write(&cgroup_threadgroup_rwsem);
 +}
 +
- /* Extract shortest continuous gate open intervals in ns for each traffic class
-  * of a cyclic tc-taprio schedule. If a gate is always open, the duration is
-  * considered U64_MAX. If the gate is always closed, it is considered 0.
-@@ -1590,10 +1608,13 @@ static void vsc9959_tas_guard_bands_update(struct ocelot *ocelot, int port)
- 	mutex_lock(&ocelot->fwd_domain_lock);
- 
- 	for (tc = 0; tc < OCELOT_NUM_TC; tc++) {
-+		u64 remaining_gate_len_ps;
- 		u32 max_sdu;
- 
--		if (min_gate_len[tc] == U64_MAX /* Gate always open */ ||
--		    min_gate_len[tc] * PSEC_PER_NSEC > needed_bit_time_ps) {
-+		remaining_gate_len_ps =
-+			vsc9959_tas_remaining_gate_len_ps(min_gate_len[tc]);
++/**
++ * cgroup_attach_unlock - Undo cgroup_attach_lock()
++ * @lock_threadgroup: whether to up_write cgroup_threadgroup_rwsem
++ */
++static void cgroup_attach_unlock(bool lock_threadgroup)
++{
++	if (lock_threadgroup)
++		percpu_up_write(&cgroup_threadgroup_rwsem);
++	cpus_read_unlock();
++}
 +
-+		if (remaining_gate_len_ps > needed_bit_time_ps) {
- 			/* Setting QMAXSDU_CFG to 0 disables oversized frame
- 			 * dropping.
- 			 */
-@@ -1606,9 +1627,15 @@ static void vsc9959_tas_guard_bands_update(struct ocelot *ocelot, int port)
- 			/* If traffic class doesn't support a full MTU sized
- 			 * frame, make sure to enable oversize frame dropping
- 			 * for frames larger than the smallest that would fit.
-+			 *
-+			 * However, the exact same register, QSYS_QMAXSDU_CFG_*,
-+			 * controls not only oversized frame dropping, but also
-+			 * per-tc static guard band lengths, so it reduces the
-+			 * useful gate interval length. Therefore, be careful
-+			 * to calculate a guard band (and therefore max_sdu)
-+			 * that still leaves 33 ns available in the time slot.
- 			 */
--			max_sdu = div_u64(min_gate_len[tc] * PSEC_PER_NSEC,
--					  picos_per_byte);
-+			max_sdu = div_u64(remaining_gate_len_ps, picos_per_byte);
- 			/* A TC gate may be completely closed, which is a
- 			 * special case where all packets are oversized.
- 			 * Any limit smaller than 64 octets accomplishes this
+ /**
+  * cgroup_migrate_add_task - add a migration target task to a migration context
+  * @task: target task
+@@ -2780,8 +2821,7 @@ int cgroup_attach_task(struct cgroup *dst_cgrp, struct task_struct *leader,
+ }
+ 
+ struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
+-					     bool *locked)
+-	__acquires(&cgroup_threadgroup_rwsem)
++					     bool *threadgroup_locked)
+ {
+ 	struct task_struct *tsk;
+ 	pid_t pid;
+@@ -2798,12 +2838,8 @@ struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
+ 	 * Therefore, we can skip the global lock.
+ 	 */
+ 	lockdep_assert_held(&cgroup_mutex);
+-	if (pid || threadgroup) {
+-		percpu_down_write(&cgroup_threadgroup_rwsem);
+-		*locked = true;
+-	} else {
+-		*locked = false;
+-	}
++	*threadgroup_locked = pid || threadgroup;
++	cgroup_attach_lock(*threadgroup_locked);
+ 
+ 	rcu_read_lock();
+ 	if (pid) {
+@@ -2834,17 +2870,14 @@ struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
+ 	goto out_unlock_rcu;
+ 
+ out_unlock_threadgroup:
+-	if (*locked) {
+-		percpu_up_write(&cgroup_threadgroup_rwsem);
+-		*locked = false;
+-	}
++	cgroup_attach_unlock(*threadgroup_locked);
++	*threadgroup_locked = false;
+ out_unlock_rcu:
+ 	rcu_read_unlock();
+ 	return tsk;
+ }
+ 
+-void cgroup_procs_write_finish(struct task_struct *task, bool locked)
+-	__releases(&cgroup_threadgroup_rwsem)
++void cgroup_procs_write_finish(struct task_struct *task, bool threadgroup_locked)
+ {
+ 	struct cgroup_subsys *ss;
+ 	int ssid;
+@@ -2852,8 +2885,8 @@ void cgroup_procs_write_finish(struct task_struct *task, bool locked)
+ 	/* release reference from cgroup_procs_write_start() */
+ 	put_task_struct(task);
+ 
+-	if (locked)
+-		percpu_up_write(&cgroup_threadgroup_rwsem);
++	cgroup_attach_unlock(threadgroup_locked);
++
+ 	for_each_subsys(ss, ssid)
+ 		if (ss->post_attach)
+ 			ss->post_attach();
+@@ -2930,8 +2963,7 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
+ 	 * write-locking can be skipped safely.
+ 	 */
+ 	has_tasks = !list_empty(&mgctx.preloaded_src_csets);
+-	if (has_tasks)
+-		percpu_down_write(&cgroup_threadgroup_rwsem);
++	cgroup_attach_lock(has_tasks);
+ 
+ 	/* NULL dst indicates self on default hierarchy */
+ 	ret = cgroup_migrate_prepare_dst(&mgctx);
+@@ -2952,8 +2984,7 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
+ 	ret = cgroup_migrate_execute(&mgctx);
+ out_finish:
+ 	cgroup_migrate_finish(&mgctx);
+-	if (has_tasks)
+-		percpu_up_write(&cgroup_threadgroup_rwsem);
++	cgroup_attach_unlock(has_tasks);
+ 	return ret;
+ }
+ 
+@@ -4809,13 +4840,13 @@ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+ 	ssize_t ret;
+-	bool locked;
++	bool threadgroup_locked;
+ 
+ 	dst_cgrp = cgroup_kn_lock_live(of->kn, false);
+ 	if (!dst_cgrp)
+ 		return -ENODEV;
+ 
+-	task = cgroup_procs_write_start(buf, true, &locked);
++	task = cgroup_procs_write_start(buf, true, &threadgroup_locked);
+ 	ret = PTR_ERR_OR_ZERO(task);
+ 	if (ret)
+ 		goto out_unlock;
+@@ -4841,7 +4872,7 @@ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ 	ret = cgroup_attach_task(dst_cgrp, task, true);
+ 
+ out_finish:
+-	cgroup_procs_write_finish(task, locked);
++	cgroup_procs_write_finish(task, threadgroup_locked);
+ out_unlock:
+ 	cgroup_kn_unlock(of->kn);
+ 
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index c51863b63f93a..b7830f1f1f3a5 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2212,7 +2212,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
+ 	cgroup_taskset_first(tset, &css);
+ 	cs = css_cs(css);
+ 
+-	cpus_read_lock();
++	lockdep_assert_cpus_held();	/* see cgroup_attach_lock() */
+ 	percpu_down_write(&cpuset_rwsem);
+ 
+ 	/* prepare for attach */
+@@ -2268,7 +2268,6 @@ static void cpuset_attach(struct cgroup_taskset *tset)
+ 		wake_up(&cpuset_attach_wq);
+ 
+ 	percpu_up_write(&cpuset_rwsem);
+-	cpus_read_unlock();
+ }
+ 
+ /* The various types of files and directories in a cpuset file system */
 -- 
 2.35.1
 
