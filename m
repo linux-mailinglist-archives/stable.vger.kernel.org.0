@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CA195B7344
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 286905B735B
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235243AbiIMPFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:05:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55094 "EHLO
+        id S235356AbiIMPJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:09:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235437AbiIMPE0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A602474DE5;
-        Tue, 13 Sep 2022 07:30:24 -0700 (PDT)
+        with ESMTP id S235683AbiIMPJD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:09:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AEEB5F119;
+        Tue, 13 Sep 2022 07:31:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F00E4614C1;
-        Tue, 13 Sep 2022 14:29:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ED75C433D6;
-        Tue, 13 Sep 2022 14:29:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B41F1B80D87;
+        Tue, 13 Sep 2022 14:31:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D281C43146;
+        Tue, 13 Sep 2022 14:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079341;
-        bh=civBiXs5blTaL9ds5FtStWNScm/e7AOBfl2bHSnVqY0=;
+        s=korg; t=1663079499;
+        bh=HQHYkKIuu2m483r8bXGwDp3s7/RFPN6AGKU9oMAMuI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m12UXoMzYsPVwERMHUGjemBAzb4JFxUKIuJWaS6bcm4lq/33ax+6i0dnGRIAH3A86
-         lyvJElEe4vT/5BFNkwrtbMs6+FjMYkkcXIgyEgwGLqU4CMiJTzxXN6GEzhEkFfxwLl
-         +iBx0tryxaI0iccbjPf2d67GEpO+D4EWg7ElC+PI=
+        b=SYTUjjVLZbFYBgX3qaytNrKGYW886JEcdcdWX97PVaJtkUjfpkrb6TpNn25OnWs0q
+         6BY56dkH2ErBJR6z7isR+Mq8UYPea4klIbtIdtwcgASN/28SC/gco8thlNQdxtTeqR
+         mIIDi9rmZ2zeC9ATq8FjmknLxdjYYaPmrIRm9mgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffrey E Altman <jaltman@auristor.com>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Zhenneng Li <lizhenneng@kylinos.cn>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/108] afs: Use the operation issue time instead of the reply time for callbacks
+Subject: [PATCH 4.19 50/79] drm/radeon: add a force flush to delay work when radeon
 Date:   Tue, 13 Sep 2022 16:07:08 +0200
-Message-Id: <20220913140357.790574282@linuxfoundation.org>
+Message-Id: <20220913140351.317693720@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,122 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Zhenneng Li <lizhenneng@kylinos.cn>
 
-[ Upstream commit 7903192c4b4a82d792cb0dc5e2779a2efe60d45b ]
+[ Upstream commit f461950fdc374a3ada5a63c669d997de4600dffe ]
 
-rxrpc and kafs between them try to use the receive timestamp on the first
-data packet (ie. the one with sequence number 1) as a base from which to
-calculate the time at which callback promise and lock expiration occurs.
+Although radeon card fence and wait for gpu to finish processing current batch rings,
+there is still a corner case that radeon lockup work queue may not be fully flushed,
+and meanwhile the radeon_suspend_kms() function has called pci_set_power_state() to
+put device in D3hot state.
+Per PCI spec rev 4.0 on 5.3.1.4.1 D3hot State.
+> Configuration and Message requests are the only TLPs accepted by a Function in
+> the D3hot state. All other received Requests must be handled as Unsupported Requests,
+> and all received Completions may optionally be handled as Unexpected Completions.
+This issue will happen in following logs:
+Unable to handle kernel paging request at virtual address 00008800e0008010
+CPU 0 kworker/0:3(131): Oops 0
+pc = [<ffffffff811bea5c>]  ra = [<ffffffff81240844>]  ps = 0000 Tainted: G        W
+pc is at si_gpu_check_soft_reset+0x3c/0x240
+ra is at si_dma_is_lockup+0x34/0xd0
+v0 = 0000000000000000  t0 = fff08800e0008010  t1 = 0000000000010000
+t2 = 0000000000008010  t3 = fff00007e3c00000  t4 = fff00007e3c00258
+t5 = 000000000000ffff  t6 = 0000000000000001  t7 = fff00007ef078000
+s0 = fff00007e3c016e8  s1 = fff00007e3c00000  s2 = fff00007e3c00018
+s3 = fff00007e3c00000  s4 = fff00007fff59d80  s5 = 0000000000000000
+s6 = fff00007ef07bd98
+a0 = fff00007e3c00000  a1 = fff00007e3c016e8  a2 = 0000000000000008
+a3 = 0000000000000001  a4 = 8f5c28f5c28f5c29  a5 = ffffffff810f4338
+t8 = 0000000000000275  t9 = ffffffff809b66f8  t10 = ff6769c5d964b800
+t11= 000000000000b886  pv = ffffffff811bea20  at = 0000000000000000
+gp = ffffffff81d89690  sp = 00000000aa814126
+Disabling lock debugging due to kernel taint
+Trace:
+[<ffffffff81240844>] si_dma_is_lockup+0x34/0xd0
+[<ffffffff81119610>] radeon_fence_check_lockup+0xd0/0x290
+[<ffffffff80977010>] process_one_work+0x280/0x550
+[<ffffffff80977350>] worker_thread+0x70/0x7c0
+[<ffffffff80977410>] worker_thread+0x130/0x7c0
+[<ffffffff80982040>] kthread+0x200/0x210
+[<ffffffff809772e0>] worker_thread+0x0/0x7c0
+[<ffffffff80981f8c>] kthread+0x14c/0x210
+[<ffffffff80911658>] ret_from_kernel_thread+0x18/0x20
+[<ffffffff80981e40>] kthread+0x0/0x210
+ Code: ad3e0008  43f0074a  ad7e0018  ad9e0020  8c3001e8  40230101
+ <88210000> 4821ed21
+So force lockup work queue flush to fix this problem.
 
-However, we don't know how long it took for the server to send us the reply
-from it having completed the basic part of the operation - it might then,
-for instance, have to send a bunch of a callback breaks, depending on the
-particular operation.
-
-Fix this by using the time at which the operation is issued on the client
-as a base instead.  That should never be longer than the server's idea of
-the expiry time.
-
-Fixes: 781070551c26 ("afs: Fix calculation of callback expiry time")
-Fixes: 2070a3e44962 ("rxrpc: Allow the reply time to be obtained on a client call")
-Suggested-by: Jeffrey E Altman <jaltman@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Zhenneng Li <lizhenneng@kylinos.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/flock.c     | 2 +-
- fs/afs/fsclient.c  | 2 +-
- fs/afs/internal.h  | 3 +--
- fs/afs/rxrpc.c     | 7 +------
- fs/afs/yfsclient.c | 3 +--
- 5 files changed, 5 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/radeon/radeon_device.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/afs/flock.c b/fs/afs/flock.c
-index d5e5a6ddc8478..0fa05998a24d2 100644
---- a/fs/afs/flock.c
-+++ b/fs/afs/flock.c
-@@ -75,7 +75,7 @@ void afs_lock_op_done(struct afs_call *call)
- 	if (call->error == 0) {
- 		spin_lock(&vnode->lock);
- 		trace_afs_flock_ev(vnode, NULL, afs_flock_timestamp, 0);
--		vnode->locked_at = call->reply_time;
-+		vnode->locked_at = call->issue_time;
- 		afs_schedule_lock_extension(vnode);
- 		spin_unlock(&vnode->lock);
- 	}
-diff --git a/fs/afs/fsclient.c b/fs/afs/fsclient.c
-index 5c2729fc07e52..254580b1dc74c 100644
---- a/fs/afs/fsclient.c
-+++ b/fs/afs/fsclient.c
-@@ -136,7 +136,7 @@ static void xdr_decode_AFSFetchStatus(const __be32 **_bp,
- 
- static time64_t xdr_decode_expiry(struct afs_call *call, u32 expiry)
- {
--	return ktime_divns(call->reply_time, NSEC_PER_SEC) + expiry;
-+	return ktime_divns(call->issue_time, NSEC_PER_SEC) + expiry;
- }
- 
- static void xdr_decode_AFSCallBack(const __be32 **_bp,
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index c3ad582f9fd0e..8d6582713fe72 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -159,7 +159,6 @@ struct afs_call {
- 	bool			need_attention;	/* T if RxRPC poked us */
- 	bool			async;		/* T if asynchronous */
- 	bool			upgrade;	/* T to request service upgrade */
--	bool			have_reply_time; /* T if have got reply_time */
- 	bool			intr;		/* T if interruptible */
- 	bool			unmarshalling_error; /* T if an unmarshalling error occurred */
- 	u16			service_id;	/* Actual service ID (after upgrade) */
-@@ -173,7 +172,7 @@ struct afs_call {
- 		} __attribute__((packed));
- 		__be64		tmp64;
- 	};
--	ktime_t			reply_time;	/* Time of first reply packet */
-+	ktime_t			issue_time;	/* Time of issue of operation */
- };
- 
- struct afs_call_type {
-diff --git a/fs/afs/rxrpc.c b/fs/afs/rxrpc.c
-index 6adab30a83993..49fcce6529a60 100644
---- a/fs/afs/rxrpc.c
-+++ b/fs/afs/rxrpc.c
-@@ -428,6 +428,7 @@ void afs_make_call(struct afs_addr_cursor *ac, struct afs_call *call, gfp_t gfp)
- 	if (call->max_lifespan)
- 		rxrpc_kernel_set_max_life(call->net->socket, rxcall,
- 					  call->max_lifespan);
-+	call->issue_time = ktime_get_real();
- 
- 	/* send the request */
- 	iov[0].iov_base	= call->request;
-@@ -532,12 +533,6 @@ static void afs_deliver_to_call(struct afs_call *call)
- 			return;
+diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
+index 59c8a6647ff21..cc1c07963116c 100644
+--- a/drivers/gpu/drm/radeon/radeon_device.c
++++ b/drivers/gpu/drm/radeon/radeon_device.c
+@@ -1625,6 +1625,9 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend,
+ 		if (r) {
+ 			/* delay GPU reset to resume */
+ 			radeon_fence_driver_force_completion(rdev, i);
++		} else {
++			/* finish executing delayed work */
++			flush_delayed_work(&rdev->fence_drv[i].lockup_work);
  		}
+ 	}
  
--		if (!call->have_reply_time &&
--		    rxrpc_kernel_get_reply_time(call->net->socket,
--						call->rxcall,
--						&call->reply_time))
--			call->have_reply_time = true;
--
- 		ret = call->type->deliver(call);
- 		state = READ_ONCE(call->state);
- 		if (ret == 0 && call->unmarshalling_error)
-diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
-index 3b19b009452a2..fa85b359f325b 100644
---- a/fs/afs/yfsclient.c
-+++ b/fs/afs/yfsclient.c
-@@ -241,8 +241,7 @@ static void xdr_decode_YFSCallBack(const __be32 **_bp,
- 	struct afs_callback *cb = &scb->callback;
- 	ktime_t cb_expiry;
- 
--	cb_expiry = call->reply_time;
--	cb_expiry = ktime_add(cb_expiry, xdr_to_u64(x->expiration_time) * 100);
-+	cb_expiry = ktime_add(call->issue_time, xdr_to_u64(x->expiration_time) * 100);
- 	cb->expires_at	= ktime_divns(cb_expiry, NSEC_PER_SEC);
- 	scb->have_cb	= true;
- 	*_bp += xdr_size(x);
 -- 
 2.35.1
 
