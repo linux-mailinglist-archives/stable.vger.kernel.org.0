@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 926635B72D7
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDBA05B72D2
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234574AbiIMOzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:55:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51144 "EHLO
+        id S234832AbiIMO4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:56:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234898AbiIMOyZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:54:25 -0400
+        with ESMTP id S235057AbiIMOzG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:55:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91B2B5C9E8;
-        Tue, 13 Sep 2022 07:27:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EDD967455;
+        Tue, 13 Sep 2022 07:27:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8F0B61499;
-        Tue, 13 Sep 2022 14:27:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CA0C433B5;
-        Tue, 13 Sep 2022 14:27:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DBF0614AA;
+        Tue, 13 Sep 2022 14:27:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9815DC433C1;
+        Tue, 13 Sep 2022 14:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079240;
-        bh=0eLeNUQv9a7171F8T/zCJdlMpIY5ShFGD4NI7lqJHNE=;
+        s=korg; t=1663079243;
+        bh=YLvaDxd/FE79/q/Iy23pWP/PXEWDZnOJVJRIS3CaBTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RYmEpCZsT52XrM+/ViaBrPuYizIbiZjHH6oS+l9It28Trcykr/l9UL8B8e8Wck0wn
-         79Lar1wwiWspDEaTm0XRspbXQ384xgnEeOqCg3cQn8KGbtxqKaRs3yyalwqvfzMq2r
-         Xck5qbUltE9b5E8HlRx5DEDXoig+9niygIlszFDc=
+        b=BPkzLSzH1HycxLkA0Ho+CcccvprpR27smPpC82k9PeNMKfmxgVI6IaN56YNN8EMBy
+         R+a+LTb2DLN0NVB1pMvyTeOx7+ANYTmM5VTwEekMjD6bsCbCWcYyzGJYRZhipRhfiu
+         IIHqnOzjdcv/83cjYeqMx90GLq3ZdMRjmN4z1Sbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>, stable <stable@kernel.org>
-Subject: [PATCH 5.4 031/108] binder: fix UAF of ref->proc caused by race condition
-Date:   Tue, 13 Sep 2022 16:06:02 +0200
-Message-Id: <20220913140354.985247540@linuxfoundation.org>
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 032/108] usb: dwc3: qcom: fix use-after-free on runtime-PM wakeup
+Date:   Tue, 13 Sep 2022 16:06:03 +0200
+Message-Id: <20220913140355.026878071@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -54,75 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit a0e44c64b6061dda7e00b7c458e4523e2331b739 upstream.
+[ Upstream commit a872ab303d5ddd4c965f9cd868677781a33ce35a ]
 
-A transaction of type BINDER_TYPE_WEAK_HANDLE can fail to increment the
-reference for a node. In this case, the target proc normally releases
-the failed reference upon close as expected. However, if the target is
-dying in parallel the call will race with binder_deferred_release(), so
-the target could have released all of its references by now leaving the
-cleanup of the new failed reference unhandled.
+The Qualcomm dwc3 runtime-PM implementation checks the xhci
+platform-device pointer in the wakeup-interrupt handler to determine
+whether the controller is in host mode and if so triggers a resume.
 
-The transaction then ends and the target proc gets released making the
-ref->proc now a dangling pointer. Later on, ref->node is closed and we
-attempt to take spin_lock(&ref->proc->inner_lock), which leads to the
-use-after-free bug reported below. Let's fix this by cleaning up the
-failed reference on the spot instead of relying on the target to do so.
+After a role switch in OTG mode the xhci platform-device would have been
+freed and the next wakeup from runtime suspend would access the freed
+memory.
 
-  ==================================================================
-  BUG: KASAN: use-after-free in _raw_spin_lock+0xa8/0x150
-  Write of size 4 at addr ffff5ca207094238 by task kworker/1:0/590
+Note that role switching is executed from a freezable workqueue, which
+guarantees that the pointer is stable during suspend.
 
-  CPU: 1 PID: 590 Comm: kworker/1:0 Not tainted 5.19.0-rc8 #10
-  Hardware name: linux,dummy-virt (DT)
-  Workqueue: events binder_deferred_func
-  Call trace:
-   dump_backtrace.part.0+0x1d0/0x1e0
-   show_stack+0x18/0x70
-   dump_stack_lvl+0x68/0x84
-   print_report+0x2e4/0x61c
-   kasan_report+0xa4/0x110
-   kasan_check_range+0xfc/0x1a4
-   __kasan_check_write+0x3c/0x50
-   _raw_spin_lock+0xa8/0x150
-   binder_deferred_func+0x5e0/0x9b0
-   process_one_work+0x38c/0x5f0
-   worker_thread+0x9c/0x694
-   kthread+0x188/0x190
-   ret_from_fork+0x10/0x20
+Also note that runtime PM has been broken since commit 2664deb09306
+("usb: dwc3: qcom: Honor wakeup enabled/disabled state"), which
+incidentally also prevents this issue from being triggered.
 
-Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Cc: stable <stable@kernel.org> # 4.14+
-Link: https://lore.kernel.org/r/20220801182511.3371447-1-cmllamas@google.com
+Fixes: a4333c3a6ba9 ("usb: dwc3: Add Qualcomm DWC3 glue driver")
+Cc: stable@vger.kernel.org      # 4.18
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20220804151001.23612-5-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/usb/dwc3/dwc3-qcom.c | 14 +++++++++++++-
+ drivers/usb/dwc3/host.c      |  1 +
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -1748,6 +1748,18 @@ static int binder_inc_ref_for_node(struc
- 	}
- 	ret = binder_inc_ref_olocked(ref, strong, target_list);
- 	*rdata = ref->data;
-+	if (ret && ref == new_ref) {
-+		/*
-+		 * Cleanup the failed reference here as the target
-+		 * could now be dead and have already released its
-+		 * references by now. Calling on the new reference
-+		 * with strong=0 and a tmp_refs will not decrement
-+		 * the node. The new_ref gets kfree'd below.
-+		 */
-+		binder_cleanup_ref_olocked(new_ref);
-+		ref = NULL;
-+	}
+diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
+index 7874b97e33227..aed35276e0e0c 100644
+--- a/drivers/usb/dwc3/dwc3-qcom.c
++++ b/drivers/usb/dwc3/dwc3-qcom.c
+@@ -190,6 +190,14 @@ static int dwc3_qcom_register_extcon(struct dwc3_qcom *qcom)
+ 	return 0;
+ }
+ 
++/* Only usable in contexts where the role can not change. */
++static bool dwc3_qcom_is_host(struct dwc3_qcom *qcom)
++{
++	struct dwc3 *dwc = platform_get_drvdata(qcom->dwc3);
 +
- 	binder_proc_unlock(proc);
- 	if (new_ref && ref != new_ref)
- 		/*
++	return dwc->xhci;
++}
++
+ static void dwc3_qcom_disable_interrupts(struct dwc3_qcom *qcom)
+ {
+ 	if (qcom->hs_phy_irq) {
+@@ -297,7 +305,11 @@ static irqreturn_t qcom_dwc3_resume_irq(int irq, void *data)
+ 	if (qcom->pm_suspended)
+ 		return IRQ_HANDLED;
+ 
+-	if (dwc->xhci)
++	/*
++	 * This is safe as role switching is done from a freezable workqueue
++	 * and the wakeup interrupts are disabled as part of resume.
++	 */
++	if (dwc3_qcom_is_host(qcom))
+ 		pm_runtime_resume(&dwc->xhci->dev);
+ 
+ 	return IRQ_HANDLED;
+diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
+index fa252870c926f..38bcb079ffc74 100644
+--- a/drivers/usb/dwc3/host.c
++++ b/drivers/usb/dwc3/host.c
+@@ -128,4 +128,5 @@ int dwc3_host_init(struct dwc3 *dwc)
+ void dwc3_host_exit(struct dwc3 *dwc)
+ {
+ 	platform_device_unregister(dwc->xhci);
++	dwc->xhci = NULL;
+ }
+-- 
+2.35.1
+
 
 
