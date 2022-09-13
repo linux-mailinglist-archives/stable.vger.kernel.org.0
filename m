@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D79A05B71F0
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80A1B5B7098
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231208AbiIMOop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:44:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60100 "EHLO
+        id S233810AbiIMO3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:29:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234495AbiIMOnl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08CC36EF29;
-        Tue, 13 Sep 2022 07:23:16 -0700 (PDT)
+        with ESMTP id S233953AbiIMO2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:28:49 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F686696F2;
+        Tue, 13 Sep 2022 07:17:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70956B80F97;
-        Tue, 13 Sep 2022 14:23:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF551C433D6;
-        Tue, 13 Sep 2022 14:23:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3878CCE1275;
+        Tue, 13 Sep 2022 14:15:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20FF2C433C1;
+        Tue, 13 Sep 2022 14:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078995;
-        bh=j90Uc8ZsfXepqIyM6WV/PLdAbU0hv1dUaJEvYkRqv3U=;
+        s=korg; t=1663078544;
+        bh=UhhhPffRGwfwZRKJbIMhFTEm7QuvdDRQ2HMjxH+0Rqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fi8cKhOIUemtJr0py/VlsBHftQnKxNad83bGELj9nkr/WydT+6LgXbVrkCidGG+RH
-         LxXSPyjUlgF9EWI+yLtL8h91sKVcm/rFbdl58AhtQu14tX9AP+j4YUMT91LpG2gqa0
-         1EuVEbp69x12Yy16IiCxigs7zWK2RrXeWtcdhd6k=
+        b=F8HPEKA7eaVTxJEg6l+WtzyZfp/lLkrkbIqfUj0jKq+Fr0VEdYZtI5ySPVujpZ2tz
+         4tLISkXlFq6pNaeQF76Ua24aPQfA0sMwO5ESwOEHpzNuSRcwkFwTkFnhkWSclZ39ip
+         vnMQ9z+hma02dGAhzuauLe/P7wagMEeT2Uo3xLsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chengchang Tang <tangchengchang@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 42/79] RDMA/hns: Fix supported page size
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 181/192] Revert "arm64: kasan: Revert "arm64: mte: reset the page tag in page->flags""
 Date:   Tue, 13 Sep 2022 16:04:47 +0200
-Message-Id: <20220913140352.328257156@linuxfoundation.org>
+Message-Id: <20220913140419.071856698@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +52,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengchang Tang <tangchengchang@huawei.com>
+This reverts commit add4bc9281e8704e5ab15616b429576c84f453a2.
 
-[ Upstream commit 55af9d498556f0860eb89ffa7677e8d73f6f643f ]
+On Mon, Sep 12, 2022 at 10:52:45AM +0100, Catalin Marinas wrote:
+>I missed this (holidays) and it looks like it's in stable already. On
+>its own it will likely break kasan_hw if used together with user-space
+>MTE as this change relies on two previous commits:
+>
+>70c248aca9e7 ("mm: kasan: Skip unpoisoning of user pages")
+>6d05141a3930 ("mm: kasan: Skip page unpoisoning only if __GFP_SKIP_KASAN_UNPOISON")
+>
+>The reason I did not cc stable is that there are other dependencies in
+>this area. The potential issues without the above commits were rather
+>theoretical, so take these patches rather as clean-ups/refactoring than
+>fixes.
 
-The supported page size for hns is (4K, 128M), not (4K, 2G).
-
-Fixes: cfc85f3e4b7f ("RDMA/hns: Add profile support for hip08 driver")
-Link: https://lore.kernel.org/r/20220829105021.1427804-2-liangwenpeng@huawei.com
-Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/hibernate.c | 5 +++++
+ arch/arm64/kernel/mte.c       | 9 +++++++++
+ arch/arm64/mm/copypage.c      | 9 +++++++++
+ arch/arm64/mm/mteswap.c       | 9 +++++++++
+ 4 files changed, 32 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-index be7f2fe1e8839..8a92faeb3d237 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-@@ -92,7 +92,7 @@
+diff --git a/arch/arm64/kernel/hibernate.c b/arch/arm64/kernel/hibernate.c
+index af5df48ba915b..2e248342476ea 100644
+--- a/arch/arm64/kernel/hibernate.c
++++ b/arch/arm64/kernel/hibernate.c
+@@ -300,6 +300,11 @@ static void swsusp_mte_restore_tags(void)
+ 		unsigned long pfn = xa_state.xa_index;
+ 		struct page *page = pfn_to_online_page(pfn);
  
- #define HNS_ROCE_V2_QPC_TIMER_ENTRY_SZ		PAGE_SIZE
- #define HNS_ROCE_V2_CQC_TIMER_ENTRY_SZ		PAGE_SIZE
--#define HNS_ROCE_V2_PAGE_SIZE_SUPPORTED		0xFFFFF000
-+#define HNS_ROCE_V2_PAGE_SIZE_SUPPORTED		0xFFFF000
- #define HNS_ROCE_V2_MAX_INNER_MTPT_NUM		2
- #define HNS_ROCE_INVALID_LKEY			0x100
- #define HNS_ROCE_CMQ_TX_TIMEOUT			30000
++		/*
++		 * It is not required to invoke page_kasan_tag_reset(page)
++		 * at this point since the tags stored in page->flags are
++		 * already restored.
++		 */
+ 		mte_restore_page_tags(page_address(page), tags);
+ 
+ 		mte_free_tag_storage(tags);
+diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
+index b2b730233274b..f6b00743c3994 100644
+--- a/arch/arm64/kernel/mte.c
++++ b/arch/arm64/kernel/mte.c
+@@ -48,6 +48,15 @@ static void mte_sync_page_tags(struct page *page, pte_t old_pte,
+ 	if (!pte_is_tagged)
+ 		return;
+ 
++	page_kasan_tag_reset(page);
++	/*
++	 * We need smp_wmb() in between setting the flags and clearing the
++	 * tags because if another thread reads page->flags and builds a
++	 * tagged address out of it, there is an actual dependency to the
++	 * memory access, but on the current thread we do not guarantee that
++	 * the new page->flags are visible before the tags were updated.
++	 */
++	smp_wmb();
+ 	mte_clear_page_tags(page_address(page));
+ }
+ 
+diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
+index 24913271e898c..0dea80bf6de46 100644
+--- a/arch/arm64/mm/copypage.c
++++ b/arch/arm64/mm/copypage.c
+@@ -23,6 +23,15 @@ void copy_highpage(struct page *to, struct page *from)
+ 
+ 	if (system_supports_mte() && test_bit(PG_mte_tagged, &from->flags)) {
+ 		set_bit(PG_mte_tagged, &to->flags);
++		page_kasan_tag_reset(to);
++		/*
++		 * We need smp_wmb() in between setting the flags and clearing the
++		 * tags because if another thread reads page->flags and builds a
++		 * tagged address out of it, there is an actual dependency to the
++		 * memory access, but on the current thread we do not guarantee that
++		 * the new page->flags are visible before the tags were updated.
++		 */
++		smp_wmb();
+ 		mte_copy_page_tags(kto, kfrom);
+ 	}
+ }
+diff --git a/arch/arm64/mm/mteswap.c b/arch/arm64/mm/mteswap.c
+index 4334dec93bd44..a9e50e930484a 100644
+--- a/arch/arm64/mm/mteswap.c
++++ b/arch/arm64/mm/mteswap.c
+@@ -53,6 +53,15 @@ bool mte_restore_tags(swp_entry_t entry, struct page *page)
+ 	if (!tags)
+ 		return false;
+ 
++	page_kasan_tag_reset(page);
++	/*
++	 * We need smp_wmb() in between setting the flags and clearing the
++	 * tags because if another thread reads page->flags and builds a
++	 * tagged address out of it, there is an actual dependency to the
++	 * memory access, but on the current thread we do not guarantee that
++	 * the new page->flags are visible before the tags were updated.
++	 */
++	smp_wmb();
+ 	mte_restore_page_tags(page_address(page), tags);
+ 
+ 	return true;
 -- 
 2.35.1
 
