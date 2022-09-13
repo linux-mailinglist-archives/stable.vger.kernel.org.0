@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CF05B761C
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 18:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 844E45B7780
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 19:16:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231407AbiIMQIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 12:08:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57526 "EHLO
+        id S232656AbiIMRPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 13:15:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233025AbiIMQI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 12:08:27 -0400
+        with ESMTP id S232641AbiIMROx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 13:14:53 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33228231;
-        Tue, 13 Sep 2022 08:04:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC5A1AD8E;
+        Tue, 13 Sep 2022 09:03:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1A647CE126C;
-        Tue, 13 Sep 2022 14:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A835C433C1;
-        Tue, 13 Sep 2022 14:13:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5E829CE1281;
+        Tue, 13 Sep 2022 14:17:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8E7C43470;
+        Tue, 13 Sep 2022 14:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078387;
-        bh=gunEe1nh5wFT9m/QHESeKsh9cUJrJDWi/ZcgBwYbPvE=;
+        s=korg; t=1663078658;
+        bh=VQo1ymelByDOIabi+qMStXzslI1hWPh7/22KgE1kAnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y4vKSsp3oBL4XbaQuYXlFDKbc6XDY8sXfluEy7jPudZgTIUmhjak1LNwXk7gr+17A
-         M9Kn+gWsk2HmHq82AKN7DOlPmUrqiALbgVQbUs2shlEljJXlqoebrPQ9HbLU70Oegu
-         hH3zF05WxyGmzcXkv6Hw7Uj8cCJwZ385MOAsHIX8=
+        b=YjjIa1nXKMsQPiuz88CfdUFwVTG/fL4o5xFqtXJTuDhsrB1ihFz5qEjVfqs9h76A+
+         cFDFJ0DNhebVssirj0FVY0jv+PCsXBnm5d7SOaVLQD5rzRY43YZr4ZuJn+lKLdmQ5p
+         6m9rsu0JXLM5QlXvTXMy4248UhZCOExrW1ZLZvz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 102/192] ARM: dts: at91: sama5d2_icp: dont keep vdd_other enabled all the time
-Date:   Tue, 13 Sep 2022 16:03:28 +0200
-Message-Id: <20220913140415.050368782@linuxfoundation.org>
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 032/121] tracing: Fix to check event_mutex is held while accessing trigger list
+Date:   Tue, 13 Sep 2022 16:03:43 +0200
+Message-Id: <20220913140358.731269290@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-[ Upstream commit 3d074b750d2b4c91962f10ea1df1c289ce0d3ce8 ]
+commit cecf8e128ec69149fe53c9a7bafa505a4bee25d9 upstream.
 
-VDD_OTHER is not connected to any on board consumer thus it is not
-needed to keep it enabled all the time.
+Since the check_user_trigger() is called outside of RCU
+read lock, this list_for_each_entry_rcu() caused a suspicious
+RCU usage warning.
 
-Fixes: 68a95ef72cef ("ARM: dts: at91: sama5d2-icp: add SAMA5D2-ICP")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220826083927.3107272-9-claudiu.beznea@microchip.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ # echo hist:keys=pid > events/sched/sched_stat_runtime/trigger
+ # cat events/sched/sched_stat_runtime/trigger
+[   43.167032]
+[   43.167418] =============================
+[   43.167992] WARNING: suspicious RCU usage
+[   43.168567] 5.19.0-rc5-00029-g19ebe4651abf #59 Not tainted
+[   43.169283] -----------------------------
+[   43.169863] kernel/trace/trace_events_trigger.c:145 RCU-list traversed in non-reader section!!
+...
+
+However, this file->triggers list is safe when it is accessed
+under event_mutex is held.
+To fix this warning, adds a lockdep_is_held check to the
+list_for_each_entry_rcu().
+
+Link: https://lkml.kernel.org/r/166226474977.223837.1992182913048377113.stgit@devnote2
+
+Cc: stable@vger.kernel.org
+Fixes: 7491e2c44278 ("tracing: Add a probe that attaches to trace events")
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/at91-sama5d2_icp.dts | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/trace/trace_events_trigger.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-index 64d5ae179bec9..492456e195a37 100644
---- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-@@ -258,7 +258,6 @@
- 					regulator-max-microvolt = <1850000>;
- 					regulator-initial-mode = <2>;
- 					regulator-allowed-modes = <2>, <4>;
--					regulator-always-on;
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -128,7 +128,8 @@ static bool check_user_trigger(struct tr
+ {
+ 	struct event_trigger_data *data;
  
- 					regulator-state-standby {
- 						regulator-on-in-suspend;
--- 
-2.35.1
-
+-	list_for_each_entry_rcu(data, &file->triggers, list) {
++	list_for_each_entry_rcu(data, &file->triggers, list,
++				lockdep_is_held(&event_mutex)) {
+ 		if (data->flags & EVENT_TRIGGER_FL_PROBE)
+ 			continue;
+ 		return true;
 
 
