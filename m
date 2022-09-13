@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA5F5B752D
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 413385B732F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236394AbiIMPdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:33:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54126 "EHLO
+        id S233336AbiIMPEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:04:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236404AbiIMPcU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:32:20 -0400
+        with ESMTP id S235218AbiIMPDh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:03:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6640C7F09A;
-        Tue, 13 Sep 2022 07:40:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D1EA2725;
+        Tue, 13 Sep 2022 07:29:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4691B80F00;
-        Tue, 13 Sep 2022 14:27:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 432F4C433D6;
-        Tue, 13 Sep 2022 14:27:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F921B80F97;
+        Tue, 13 Sep 2022 14:27:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D4BCC433D6;
+        Tue, 13 Sep 2022 14:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079232;
-        bh=nGzVdAkUdHZzt+1XHxzASBqRBLN+XqT1PI8XZGWCkvQ=;
+        s=korg; t=1663079234;
+        bh=WuC1rQF3W9/vxLyB8Fdq9aPmEjSav70ng3fgW4s7m0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glgCOvn9Hi8lGdC4A8YiUbtL5I0Ndl3HkCjlX+JLyHLwtLgAAV8z+HeGxsz5jX74g
-         V3dYzcIJtyJJBez13nOMFRMZySTLh9cHZI4Qc/GulM+lhvGqBy3ihEkXcLU7PtKzhG
-         NOC27Z/TGvcNx3vULak4vTvyAyS/z5zPzxl+7aAE=
+        b=rD/e3fDyHl8YJOdFAbgo0DFxOkIMX07GFb3KPfTvUf+P34VCkSgGrGDRsCD4hEG+Z
+         sxgmgXaUFBMBoezHgwtqK1K4DmyqAIBVZBJmOgx0T28dQLrXFYdet79GwV+26qna0Q
+         3E4Rxd9ILDhpf9z5uj24LRzqEN0TCK9IPkzrPqCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 5.4 028/108] misc: fastrpc: fix memory corruption on probe
-Date:   Tue, 13 Sep 2022 16:05:59 +0200
-Message-Id: <20220913140354.848802236@linuxfoundation.org>
+Subject: [PATCH 5.4 029/108] misc: fastrpc: fix memory corruption on open
+Date:   Tue, 13 Sep 2022 16:06:00 +0200
+Message-Id: <20220913140354.895626796@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
 References: <20220913140353.549108748@linuxfoundation.org>
@@ -54,35 +54,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 9baa1415d9abdd1e08362ea2dcfadfacee8690b5 upstream.
+commit d245f43aab2b61195d8ebb64cef7b5a08c590ab4 upstream.
 
-Add the missing sanity check on the probed-session count to avoid
-corrupting memory beyond the fixed-size slab-allocated session array
-when there are more than FASTRPC_MAX_SESSIONS sessions defined in the
-devicetree.
+The probe session-duplication overflow check incremented the session
+count also when there were no more available sessions so that memory
+beyond the fixed-size slab-allocated session array could be corrupted in
+fastrpc_session_alloc() on open().
 
 Fixes: f6f9279f2bf0 ("misc: fastrpc: Add Qualcomm fastrpc basic driver model")
 Cc: stable@vger.kernel.org      # 5.1
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220829080531.29681-2-johan+linaro@kernel.org
+Link: https://lore.kernel.org/r/20220829080531.29681-3-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/fastrpc.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/misc/fastrpc.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 --- a/drivers/misc/fastrpc.c
 +++ b/drivers/misc/fastrpc.c
-@@ -1357,6 +1357,11 @@ static int fastrpc_cb_probe(struct platf
- 	of_property_read_u32(dev->of_node, "qcom,nsessions", &sessions);
- 
- 	spin_lock_irqsave(&cctx->lock, flags);
-+	if (cctx->sesscount >= FASTRPC_MAX_SESSIONS) {
-+		dev_err(&pdev->dev, "too many sessions\n");
-+		spin_unlock_irqrestore(&cctx->lock, flags);
-+		return -ENOSPC;
-+	}
- 	sess = &cctx->session[cctx->sesscount];
+@@ -1362,7 +1362,7 @@ static int fastrpc_cb_probe(struct platf
+ 		spin_unlock_irqrestore(&cctx->lock, flags);
+ 		return -ENOSPC;
+ 	}
+-	sess = &cctx->session[cctx->sesscount];
++	sess = &cctx->session[cctx->sesscount++];
  	sess->used = false;
  	sess->valid = true;
+ 	sess->dev = dev;
+@@ -1375,13 +1375,12 @@ static int fastrpc_cb_probe(struct platf
+ 		struct fastrpc_session_ctx *dup_sess;
+ 
+ 		for (i = 1; i < sessions; i++) {
+-			if (cctx->sesscount++ >= FASTRPC_MAX_SESSIONS)
++			if (cctx->sesscount >= FASTRPC_MAX_SESSIONS)
+ 				break;
+-			dup_sess = &cctx->session[cctx->sesscount];
++			dup_sess = &cctx->session[cctx->sesscount++];
+ 			memcpy(dup_sess, sess, sizeof(*dup_sess));
+ 		}
+ 	}
+-	cctx->sesscount++;
+ 	spin_unlock_irqrestore(&cctx->lock, flags);
+ 	rc = dma_set_mask(dev, DMA_BIT_MASK(32));
+ 	if (rc) {
 
 
