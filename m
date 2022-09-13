@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 318ED5B7513
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:35:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A634B5B7577
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236582AbiIMPc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57554 "EHLO
+        id S234118AbiIMPod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:44:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236591AbiIMPcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:32:03 -0400
+        with ESMTP id S234280AbiIMPn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:43:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A99817F0A4;
-        Tue, 13 Sep 2022 07:40:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0EA485ABD;
+        Tue, 13 Sep 2022 07:48:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61D5DB80F4B;
-        Tue, 13 Sep 2022 14:32:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2709C433C1;
-        Tue, 13 Sep 2022 14:32:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F9F1B80D87;
+        Tue, 13 Sep 2022 14:32:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A533C433D6;
+        Tue, 13 Sep 2022 14:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079569;
-        bh=VvSTHLgcd1Hfj+ta/4Id3kr+s9ZO/nWJjkvzyQW4gPE=;
+        s=korg; t=1663079571;
+        bh=ilTAr5nPNvI1E5aLl32zYpZw9kchp8GWq3gidlQZdjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jXqZyGs21V6IQ4vx+x45bP80LrCKUBZjVy3eoJaCenWMVJ9TlIHS4+tGvq4e6U7t2
-         v/nno8T+yKSJfDddImdPu1sX2XMEr9UU9t56amE/6f0d1dAX4jvVhQgH/Fy33Uc72z
-         TaCsAartNHGM7TrPdZ0facTunPhAcpR7+gmcS2HU=
+        b=Fgru0b1sDAfpfoR72OxUM5oyNNbRVabnRAQM2IFubRybSrWknQtJ/n+L38W2oHQTF
+         rX7IsKqpGdXuwsFQ4W10UmSk0tvMuwepfV9q5PRJ1CelNdfnZlrhloOYFD/b3puJJm
+         ZD0MdvxLtnq6SBnXeEOH4alvALX20OjtvFihifhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
-        Chris Mi <cmi@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org,
+        Nagaraj Arankal <nagaraj.p.arankal@hpe.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 70/79] RDMA/mlx5: Set local port to one when accessing counters
-Date:   Tue, 13 Sep 2022 16:07:28 +0200
-Message-Id: <20220913140352.284380067@linuxfoundation.org>
+Subject: [PATCH 4.19 71/79] tcp: fix early ETIMEDOUT after spurious non-SACK RTO
+Date:   Tue, 13 Sep 2022 16:07:29 +0200
+Message-Id: <20220913140352.333113786@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
 References: <20220913140348.835121645@linuxfoundation.org>
@@ -54,51 +58,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Mi <cmi@nvidia.com>
+From: Neal Cardwell <ncardwell@google.com>
 
-[ Upstream commit 74b30b3ad5cec95d2647e796d10137438a098bc1 ]
+[ Upstream commit 686dc2db2a0fdc1d34b424ec2c0a735becd8d62b ]
 
-When accessing Ports Performance Counters Register (PPCNT),
-local port must be one if it is Function-Per-Port HCA that
-HCA_CAP.num_ports is 1.
+Fix a bug reported and analyzed by Nagaraj Arankal, where the handling
+of a spurious non-SACK RTO could cause a connection to fail to clear
+retrans_stamp, causing a later RTO to very prematurely time out the
+connection with ETIMEDOUT.
 
-The offending patch can change the local port to other values
-when accessing PPCNT after enabling switchdev mode. The following
-syndrome will be printed:
+Here is the buggy scenario, expanding upon Nagaraj Arankal's excellent
+report:
 
- # cat /sys/class/infiniband/rdmap4s0f0/ports/2/counters/*
- # dmesg
- mlx5_core 0000:04:00.0: mlx5_cmd_check:756:(pid 12450): ACCESS_REG(0x805) op_mod(0x1) failed, status bad parameter(0x3), syndrome (0x1e5585)
+(*1) Send one data packet on a non-SACK connection
 
-Fix it by setting local port to one for Function-Per-Port HCA.
+(*2) Because no ACK packet is received, the packet is retransmitted
+     and we enter CA_Loss; but this retransmission is spurious.
 
-Fixes: 210b1f78076f ("IB/mlx5: When not in dual port RoCE mode, use provided port as native")
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Chris Mi <cmi@nvidia.com>
-Link: https://lore.kernel.org/r/6c5086c295c76211169e58dbd610fb0402360bab.1661763459.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+(*3) The ACK for the original data is received. The transmitted packet
+     is acknowledged.  The TCP timestamp is before the retrans_stamp,
+     so tcp_may_undo() returns true, and tcp_try_undo_loss() returns
+     true without changing state to Open (because tcp_is_sack() is
+     false), and tcp_process_loss() returns without calling
+     tcp_try_undo_recovery().  Normally after undoing a CA_Loss
+     episode, tcp_fastretrans_alert() would see that the connection
+     has returned to CA_Open and fall through and call
+     tcp_try_to_open(), which would set retrans_stamp to 0.  However,
+     for non-SACK connections we hold the connection in CA_Loss, so do
+     not fall through to call tcp_try_to_open() and do not set
+     retrans_stamp to 0. So retrans_stamp is (erroneously) still
+     non-zero.
+
+     At this point the first "retransmission event" has passed and
+     been recovered from. Any future retransmission is a completely
+     new "event". However, retrans_stamp is erroneously still
+     set. (And we are still in CA_Loss, which is correct.)
+
+(*4) After 16 minutes (to correspond with tcp_retries2=15), a new data
+     packet is sent. Note: No data is transmitted between (*3) and
+     (*4) and we disabled keep alives.
+
+     The socket's timeout SHOULD be calculated from this point in
+     time, but instead it's calculated from the prior "event" 16
+     minutes ago (step (*2)).
+
+(*5) Because no ACK packet is received, the packet is retransmitted.
+
+(*6) At the time of the 2nd retransmission, the socket returns
+     ETIMEDOUT, prematurely, because retrans_stamp is (erroneously)
+     too far in the past (set at the time of (*2)).
+
+This commit fixes this bug by ensuring that we reuse in
+tcp_try_undo_loss() the same careful logic for non-SACK connections
+that we have in tcp_try_undo_recovery(). To avoid duplicating logic,
+we factor out that logic into a new
+tcp_is_non_sack_preventing_reopen() helper and call that helper from
+both undo functions.
+
+Fixes: da34ac7626b5 ("tcp: only undo on partial ACKs in CA_Loss")
+Reported-by: Nagaraj Arankal <nagaraj.p.arankal@hpe.com>
+Link: https://lore.kernel.org/all/SJ0PR84MB1847BE6C24D274C46A1B9B0EB27A9@SJ0PR84MB1847.NAMPRD84.PROD.OUTLOOK.COM/
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Yuchung Cheng <ycheng@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220903121023.866900-1-ncardwell.kernel@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/mad.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv4/tcp_input.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/mad.c b/drivers/infiniband/hw/mlx5/mad.c
-index cdf6e26ebc87d..fb6dcd12db254 100644
---- a/drivers/infiniband/hw/mlx5/mad.c
-+++ b/drivers/infiniband/hw/mlx5/mad.c
-@@ -216,6 +216,12 @@ static int process_pma_cmd(struct mlx5_ib_dev *dev, u8 port_num,
- 		mdev = dev->mdev;
- 		mdev_port_num = 1;
- 	}
-+	if (MLX5_CAP_GEN(dev->mdev, num_ports) == 1) {
-+		/* set local port to one for Function-Per-Port HCA. */
-+		mdev = dev->mdev;
-+		mdev_port_num = 1;
-+	}
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 0be9d5d3c032f..aac5d5b739268 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2372,6 +2372,21 @@ static inline bool tcp_may_undo(const struct tcp_sock *tp)
+ 	return tp->undo_marker && (!tp->undo_retrans || tcp_packet_delayed(tp));
+ }
+ 
++static bool tcp_is_non_sack_preventing_reopen(struct sock *sk)
++{
++	struct tcp_sock *tp = tcp_sk(sk);
 +
- 	/* Declaring support of extended counters */
- 	if (in_mad->mad_hdr.attr_id == IB_PMA_CLASS_PORT_INFO) {
- 		struct ib_class_port_info cpi = {};
++	if (tp->snd_una == tp->high_seq && tcp_is_reno(tp)) {
++		/* Hold old state until something *above* high_seq
++		 * is ACKed. For Reno it is MUST to prevent false
++		 * fast retransmits (RFC2582). SACK TCP is safe. */
++		if (!tcp_any_retrans_done(sk))
++			tp->retrans_stamp = 0;
++		return true;
++	}
++	return false;
++}
++
+ /* People celebrate: "We love our President!" */
+ static bool tcp_try_undo_recovery(struct sock *sk)
+ {
+@@ -2394,14 +2409,8 @@ static bool tcp_try_undo_recovery(struct sock *sk)
+ 	} else if (tp->rack.reo_wnd_persist) {
+ 		tp->rack.reo_wnd_persist--;
+ 	}
+-	if (tp->snd_una == tp->high_seq && tcp_is_reno(tp)) {
+-		/* Hold old state until something *above* high_seq
+-		 * is ACKed. For Reno it is MUST to prevent false
+-		 * fast retransmits (RFC2582). SACK TCP is safe. */
+-		if (!tcp_any_retrans_done(sk))
+-			tp->retrans_stamp = 0;
++	if (tcp_is_non_sack_preventing_reopen(sk))
+ 		return true;
+-	}
+ 	tcp_set_ca_state(sk, TCP_CA_Open);
+ 	tp->is_sack_reneg = 0;
+ 	return false;
+@@ -2437,6 +2446,8 @@ static bool tcp_try_undo_loss(struct sock *sk, bool frto_undo)
+ 			NET_INC_STATS(sock_net(sk),
+ 					LINUX_MIB_TCPSPURIOUSRTOS);
+ 		inet_csk(sk)->icsk_retransmits = 0;
++		if (tcp_is_non_sack_preventing_reopen(sk))
++			return true;
+ 		if (frto_undo || tcp_is_sack(tp)) {
+ 			tcp_set_ca_state(sk, TCP_CA_Open);
+ 			tp->is_sack_reneg = 0;
 -- 
 2.35.1
 
