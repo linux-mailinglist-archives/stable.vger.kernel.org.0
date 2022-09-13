@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 665495B711E
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32A955B714C
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233100AbiIMOjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:39:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40718 "EHLO
+        id S231686AbiIMOmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:42:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234211AbiIMOhM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:37:12 -0400
+        with ESMTP id S231489AbiIMOlv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:41:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A715C6B65D;
-        Tue, 13 Sep 2022 07:20:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2739C6DAF3;
+        Tue, 13 Sep 2022 07:22:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08010B80D87;
-        Tue, 13 Sep 2022 14:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 704C2C433C1;
-        Tue, 13 Sep 2022 14:20:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 820B7B80F01;
+        Tue, 13 Sep 2022 14:22:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC25CC433C1;
+        Tue, 13 Sep 2022 14:22:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078829;
-        bh=sJERrPUAwCBI0ASN54+KpYx7+Q3ky4neYCJzCXJ+fOA=;
+        s=korg; t=1663078935;
+        bh=9BUB6F8qHCVRmkkXwqJ9eg/dFaiKKeYVazMEdqCcvko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1q6r0pNEyuWWVFay3/TtAsdS7lR/+FpUCPURjltvWYm2jvn7HjuBRKS71xvldu2W
-         ccyMGEtQFonDnczIHzXyLWFINYGF5gC8SC16var7Yv+dEWOV5EOFx0ZHZ7qPU2jvVH
-         FhkTDwtigG3p5ZtvqbyGyKTPuCmVkBDSZNX2CksE=
+        b=kADngI/mnPC5zhHHM4L+B8L4C2+W8g88ggPlEMPGp3p1Y1Ii7BBspwxaTxrIiPM8f
+         4nfXb0uyWBH0CocZ/dHL/pUJ8Xh0x0gb8sRid+k6yaEHo5dNENynw6UPX5nMLCv0Uk
+         0up4D2yber+Bnvr6SzyCy3WavQXaIC0xWgeN8dQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 072/121] ALSA: usb-audio: Register card again for iface over delayed_register option
+Subject: [PATCH 5.10 18/79] parisc: Add runtime check to prevent PA2.0 kernels on PA1.x machines
 Date:   Tue, 13 Sep 2022 16:04:23 +0200
-Message-Id: <20220913140400.465277446@linuxfoundation.org>
+Message-Id: <20220913140351.180424832@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
+References: <20220913140350.291927556@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 2027f114686e0f3f1f39971964dfc618637c88c2 ]
+[ Upstream commit 591d2108f3abc4db9f9073cae37cf3591fd250d6 ]
 
-When the delayed registration is specified via either delayed_register
-option or the quirk, we delay the invocation of snd_card_register()
-until the given interface.  But if a wrong value has been set there
-and there are more interfaces over the given interface number,
-snd_card_register() call would be missing for those interfaces.
+If a 32-bit kernel was compiled for PA2.0 CPUs, it won't be able to run
+on machines with PA1.x CPUs. Add a check and bail out early if a PA1.x
+machine is detected.
 
-This patch catches up those missing calls by fixing the comparison of
-the interface number.  Now the call is skipped only if the processed
-interface is less than the given interface, instead of the exact
-match.
-
-Fixes: b70038ef4fea ("ALSA: usb-audio: Add delayed_register option")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216082
-Link: https://lore.kernel.org/r/20220831125901.4660-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.c   | 2 +-
- sound/usb/quirks.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/parisc/kernel/head.S | 43 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index ff5f8de1bc540..713b84d8d42f1 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -698,7 +698,7 @@ static bool check_delayed_register_option(struct snd_usb_audio *chip, int iface)
- 		if (delayed_register[i] &&
- 		    sscanf(delayed_register[i], "%x:%x", &id, &inum) == 2 &&
- 		    id == chip->usb_id)
--			return inum != iface;
-+			return iface < inum;
- 	}
+diff --git a/arch/parisc/kernel/head.S b/arch/parisc/kernel/head.S
+index aa93d775c34db..598d0938449da 100644
+--- a/arch/parisc/kernel/head.S
++++ b/arch/parisc/kernel/head.S
+@@ -22,7 +22,7 @@
+ #include <linux/init.h>
+ #include <linux/pgtable.h>
  
- 	return false;
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 9bfead5efc4c1..5b4d8f5eade20 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1764,7 +1764,7 @@ bool snd_usb_registration_quirk(struct snd_usb_audio *chip, int iface)
+-	.level	PA_ASM_LEVEL
++	.level	1.1
  
- 	for (q = registration_quirks; q->usb_id; q++)
- 		if (chip->usb_id == q->usb_id)
--			return iface != q->interface;
-+			return iface < q->interface;
+ 	__INITDATA
+ ENTRY(boot_args)
+@@ -69,6 +69,47 @@ $bss_loop:
+ 	stw,ma          %arg2,4(%r1)
+ 	stw,ma          %arg3,4(%r1)
  
- 	/* Register as normal */
- 	return false;
++#if !defined(CONFIG_64BIT) && defined(CONFIG_PA20)
++	/* This 32-bit kernel was compiled for PA2.0 CPUs. Check current CPU
++	 * and halt kernel if we detect a PA1.x CPU. */
++	ldi		32,%r10
++	mtctl		%r10,%cr11
++	.level 2.0
++	mfctl,w		%cr11,%r10
++	.level 1.1
++	comib,<>,n	0,%r10,$cpu_ok
++
++	load32		PA(msg1),%arg0
++	ldi		msg1_end-msg1,%arg1
++$iodc_panic:
++	copy		%arg0, %r10
++	copy		%arg1, %r11
++	load32		PA(init_stack),%sp
++#define MEM_CONS 0x3A0
++	ldw		MEM_CONS+32(%r0),%arg0	// HPA
++	ldi		ENTRY_IO_COUT,%arg1
++	ldw		MEM_CONS+36(%r0),%arg2	// SPA
++	ldw		MEM_CONS+8(%r0),%arg3	// layers
++	load32		PA(__bss_start),%r1
++	stw		%r1,-52(%sp)		// arg4
++	stw		%r0,-56(%sp)		// arg5
++	stw		%r10,-60(%sp)		// arg6 = ptr to text
++	stw		%r11,-64(%sp)		// arg7 = len
++	stw		%r0,-68(%sp)		// arg8
++	load32		PA(.iodc_panic_ret), %rp
++	ldw		MEM_CONS+40(%r0),%r1	// ENTRY_IODC
++	bv,n		(%r1)
++.iodc_panic_ret:
++	b .				/* wait endless with ... */
++	or		%r10,%r10,%r10	/* qemu idle sleep */
++msg1:	.ascii "Can't boot kernel which was built for PA8x00 CPUs on this machine.\r\n"
++msg1_end:
++
++$cpu_ok:
++#endif
++
++	.level	PA_ASM_LEVEL
++
+ 	/* Initialize startup VM. Just map first 16/32 MB of memory */
+ 	load32		PA(swapper_pg_dir),%r4
+ 	mtctl		%r4,%cr24	/* Initialize kernel root pointer */
 -- 
 2.35.1
 
