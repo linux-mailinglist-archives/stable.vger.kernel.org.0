@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A35355B7400
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D97C5B7457
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235658AbiIMPOv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:14:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42882 "EHLO
+        id S233765AbiIMPXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:23:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235844AbiIMPN7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:13:59 -0400
+        with ESMTP id S236006AbiIMPWb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:22:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFD278BEF;
-        Tue, 13 Sep 2022 07:33:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A9097B2AE;
+        Tue, 13 Sep 2022 07:36:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04B92614E2;
-        Tue, 13 Sep 2022 14:33:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AFC5C433C1;
-        Tue, 13 Sep 2022 14:33:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E953614D6;
+        Tue, 13 Sep 2022 14:34:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88569C433D6;
+        Tue, 13 Sep 2022 14:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079590;
-        bh=vhBPoo9+TLK9+hQbWq1b8y3SJghTY07Qom1m3j2Diu0=;
+        s=korg; t=1663079680;
+        bh=wKgCJp3zP3NbNOdKEk+ETPqBa8zJh+si08wG0lof3t0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wqQgsaPTnZYVUakymKyWY8a2i+pV+IGB9oj5NAiYmsYY0uSUckJ9kn1sQPInI8wYJ
-         owtrI4OoscEql7sVHfgwC4PN2nzkkTozkYvxpdDWOs3VmohGEpAIAUDIFiD60vIH3L
-         yVxyXKR75owa/1eC89Oe5U4YLwH6Z+me7oxHJVZ4=
+        b=aHKYbCJRTSbEDdz7qOIo0Qiy/VcdGxjlaYwmEibEsGWMq84zW12qucN3gwb12jBQj
+         AXDhg/ZXidLJLDaozoQdj1ppYphHJB0YCxYNdgm8CI2X5qX8hmchlaPo1WK6ig/ibL
+         UmwgE4+UnaN3VGudtHDVAG35uIIssbmC08xkaevs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Ling <gnaygnil@gmail.com>,
-        Keguang Zhang <keguang.zhang@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 78/79] MIPS: loongson32: ls1c: Fix hang during startup
+        stable@vger.kernel.org, Hyunwoo Kim <imv4bel@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.14 34/61] efi: capsule-loader: Fix use-after-free in efi_capsule_write
 Date:   Tue, 13 Sep 2022 16:07:36 +0200
-Message-Id: <20220913140352.641002229@linuxfoundation.org>
+Message-Id: <20220913140348.194658717@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140346.422813036@linuxfoundation.org>
+References: <20220913140346.422813036@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +53,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Ling <gnaygnil@gmail.com>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-[ Upstream commit 35508d2424097f9b6a1a17aac94f702767035616 ]
+commit 9cb636b5f6a8cc6d1b50809ec8f8d33ae0c84c95 upstream.
 
-The RTCCTRL reg of LS1C is obselete.
-Writing this reg will cause system hang.
+A race condition may occur if the user calls close() on another thread
+during a write() operation on the device node of the efi capsule.
 
-Fixes: 60219c563c9b6 ("MIPS: Add RTC support for Loongson1C board")
-Signed-off-by: Yang Ling <gnaygnil@gmail.com>
-Tested-by: Keguang Zhang <keguang.zhang@gmail.com>
-Acked-by: Keguang Zhang <keguang.zhang@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is a race condition that occurs between the efi_capsule_write() and
+efi_capsule_flush() functions of efi_capsule_fops, which ultimately
+results in UAF.
+
+So, the page freeing process is modified to be done in
+efi_capsule_release() instead of efi_capsule_flush().
+
+Cc: <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Link: https://lore.kernel.org/all/20220907102920.GA88602@ubuntu/
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/loongson32/ls1c/board.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/firmware/efi/capsule-loader.c |   31 +++++++------------------------
+ 1 file changed, 7 insertions(+), 24 deletions(-)
 
-diff --git a/arch/mips/loongson32/ls1c/board.c b/arch/mips/loongson32/ls1c/board.c
-index eb2d913c694fd..2d9675a6782c3 100644
---- a/arch/mips/loongson32/ls1c/board.c
-+++ b/arch/mips/loongson32/ls1c/board.c
-@@ -19,7 +19,6 @@ static struct platform_device *ls1c_platform_devices[] __initdata = {
- static int __init ls1c_platform_init(void)
- {
- 	ls1x_serial_set_uartclk(&ls1x_uart_pdev);
--	ls1x_rtc_set_extclk(&ls1x_rtc_pdev);
+--- a/drivers/firmware/efi/capsule-loader.c
++++ b/drivers/firmware/efi/capsule-loader.c
+@@ -238,29 +238,6 @@ failed:
+ }
  
- 	return platform_add_devices(ls1c_platform_devices,
- 				   ARRAY_SIZE(ls1c_platform_devices));
--- 
-2.35.1
-
+ /**
+- * efi_capsule_flush - called by file close or file flush
+- * @file: file pointer
+- * @id: not used
+- *
+- *	If a capsule is being partially uploaded then calling this function
+- *	will be treated as upload termination and will free those completed
+- *	buffer pages and -ECANCELED will be returned.
+- **/
+-static int efi_capsule_flush(struct file *file, fl_owner_t id)
+-{
+-	int ret = 0;
+-	struct capsule_info *cap_info = file->private_data;
+-
+-	if (cap_info->index > 0) {
+-		pr_err("capsule upload not complete\n");
+-		efi_free_all_buff_pages(cap_info);
+-		ret = -ECANCELED;
+-	}
+-
+-	return ret;
+-}
+-
+-/**
+  * efi_capsule_release - called by file close
+  * @inode: not used
+  * @file: file pointer
+@@ -272,6 +249,13 @@ static int efi_capsule_release(struct in
+ {
+ 	struct capsule_info *cap_info = file->private_data;
+ 
++	if (cap_info->index > 0 &&
++	    (cap_info->header.headersize == 0 ||
++	     cap_info->count < cap_info->total_size)) {
++		pr_err("capsule upload not complete\n");
++		efi_free_all_buff_pages(cap_info);
++	}
++
+ 	kfree(cap_info->pages);
+ 	kfree(cap_info->phys);
+ 	kfree(file->private_data);
+@@ -319,7 +303,6 @@ static const struct file_operations efi_
+ 	.owner = THIS_MODULE,
+ 	.open = efi_capsule_open,
+ 	.write = efi_capsule_write,
+-	.flush = efi_capsule_flush,
+ 	.release = efi_capsule_release,
+ 	.llseek = no_llseek,
+ };
 
 
