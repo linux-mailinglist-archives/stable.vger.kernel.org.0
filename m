@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F245B7362
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8348F5B7369
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235284AbiIMPHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:07:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55252 "EHLO
+        id S235416AbiIMPHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:07:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235287AbiIMPFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:05:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F25753A9;
-        Tue, 13 Sep 2022 07:30:35 -0700 (PDT)
+        with ESMTP id S235361AbiIMPGT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:06:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672A974DC9;
+        Tue, 13 Sep 2022 07:30:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAA09B80FA1;
-        Tue, 13 Sep 2022 14:30:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DCFBC433D7;
-        Tue, 13 Sep 2022 14:30:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2333BB80F1A;
+        Tue, 13 Sep 2022 14:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8835AC433D6;
+        Tue, 13 Sep 2022 14:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079426;
-        bh=6QeIICB9afA+06gQQvIaQmzK9vuCVqdguqf5PTujeGk=;
+        s=korg; t=1663079428;
+        bh=fVTPf3kZWUEOzXkJeJsw7Qw1cjNO7q4MAtA0lzT95Qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mNDAyuMP1/TcLT2kSWwQTleQ42cN4XY84n4hI6vb83aEvNV5bNFDIboO9ynttSekq
-         3ssdfPftON6V9rEqD749E2Y7zEJ/yRkGtKju0l8GxHefTECkcLRTqazf0umdo7canQ
-         HwVQONHa6Bep1U+ParpXfh0IWaeHLCadwwEepgsQ=
+        b=PD7QvzD3rywL1xBJ6C/lWaOkPluZhga8Qb/eDJOHp7dpLj8BEujG229zZZ0zq/by5
+         di5pU4knr7CX5NZQ9ORSbk683iJ3Z21EDOWcphcrp7JQXM0insykqolmi3WdUSEFGO
+         Qp+JpxzY6kWe6pmuQyv4XMLOcdoFuERAoTyxSKQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Zheng Wang <hackerzheng666@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.19 21/79] staging: rtl8712: fix use after free bugs
-Date:   Tue, 13 Sep 2022 16:06:39 +0200
-Message-Id: <20220913140349.912122205@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com,
+        stable <stable@kernel.org>,
+        Khalid Masum <khalid.masum.92@gmail.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 22/79] vt: Clear selection before changing the font
+Date:   Tue, 13 Sep 2022 16:06:40 +0200
+Message-Id: <20220913140349.970511449@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
 References: <20220913140348.835121645@linuxfoundation.org>
@@ -54,75 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Helge Deller <deller@gmx.de>
 
-commit e230a4455ac3e9b112f0367d1b8e255e141afae0 upstream.
+commit 566f9c9f89337792070b5a6062dff448b3e7977f upstream.
 
-_Read/Write_MACREG callbacks are NULL so the read/write_macreg_hdl()
-functions don't do anything except free the "pcmd" pointer.  It
-results in a use after free.  Delete them.
+When changing the console font with ioctl(KDFONTOP) the new font size
+can be bigger than the previous font. A previous selection may thus now
+be outside of the new screen size and thus trigger out-of-bounds
+accesses to graphics memory if the selection is removed in
+vc_do_resize().
 
-Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
+Prevent such out-of-memory accesses by dropping the selection before the
+various con_font_set() console handlers are called.
+
+Reported-by: syzbot+14b0e8f3fd1612e35350@syzkaller.appspotmail.com
 Cc: stable <stable@kernel.org>
-Reported-by: Zheng Wang <hackerzheng666@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/Yw4ASqkYcUhUfoY2@kili
+Tested-by: Khalid Masum <khalid.masum.92@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Link: https://lore.kernel.org/r/YuV9apZGNmGfjcor@p100
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/rtl8712_cmd.c |   36 ----------------------------------
- 1 file changed, 36 deletions(-)
+ drivers/tty/vt/vt.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/staging/rtl8712/rtl8712_cmd.c
-+++ b/drivers/staging/rtl8712/rtl8712_cmd.c
-@@ -129,34 +129,6 @@ static void r871x_internal_cmd_hdl(struc
- 	kfree(pdrvcmd->pbuf);
- }
- 
--static u8 read_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
--{
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
--	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
--
--	/*  invoke cmd->callback function */
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -4518,9 +4518,11 @@ static int con_font_set(struct vc_data *
+ 	console_lock();
+ 	if (vc->vc_mode != KD_TEXT)
+ 		rc = -EINVAL;
+-	else if (vc->vc_sw->con_font_set)
++	else if (vc->vc_sw->con_font_set) {
++		if (vc_is_sel(vc))
++			clear_selection();
+ 		rc = vc->vc_sw->con_font_set(vc, &font, op->flags);
 -	else
--		pcmd_callback(padapter, pcmd);
--	return H2C_SUCCESS;
--}
--
--static u8 write_macreg_hdl(struct _adapter *padapter, u8 *pbuf)
--{
--	void (*pcmd_callback)(struct _adapter *dev, struct cmd_obj	*pcmd);
--	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
--
--	/*  invoke cmd->callback function */
--	pcmd_callback = cmd_callback[pcmd->cmdcode].callback;
--	if (!pcmd_callback)
--		r8712_free_cmd_obj(pcmd);
++	} else
+ 		rc = -ENOSYS;
+ 	console_unlock();
+ 	kfree(font.data);
+@@ -4547,9 +4549,11 @@ static int con_font_default(struct vc_da
+ 		console_unlock();
+ 		return -EINVAL;
+ 	}
+-	if (vc->vc_sw->con_font_default)
++	if (vc->vc_sw->con_font_default) {
++		if (vc_is_sel(vc))
++			clear_selection();
+ 		rc = vc->vc_sw->con_font_default(vc, &font, s);
 -	else
--		pcmd_callback(padapter, pcmd);
--	return H2C_SUCCESS;
--}
--
- static u8 read_bbreg_hdl(struct _adapter *padapter, u8 *pbuf)
- {
- 	struct cmd_obj *pcmd  = (struct cmd_obj *)pbuf;
-@@ -225,14 +197,6 @@ static struct cmd_obj *cmd_hdl_filter(st
- 	pcmd_r = NULL;
- 
- 	switch (pcmd->cmdcode) {
--	case GEN_CMD_CODE(_Read_MACREG):
--		read_macreg_hdl(padapter, (u8 *)pcmd);
--		pcmd_r = pcmd;
--		break;
--	case GEN_CMD_CODE(_Write_MACREG):
--		write_macreg_hdl(padapter, (u8 *)pcmd);
--		pcmd_r = pcmd;
--		break;
- 	case GEN_CMD_CODE(_Read_BBREG):
- 		read_bbreg_hdl(padapter, (u8 *)pcmd);
- 		break;
++	} else
+ 		rc = -ENOSYS;
+ 	console_unlock();
+ 	if (!rc) {
 
 
