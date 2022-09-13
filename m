@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C215B7346
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F29E65B736D
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235258AbiIMPFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:05:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55186 "EHLO
+        id S235627AbiIMPLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:11:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235447AbiIMPE2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:04:28 -0400
+        with ESMTP id S235818AbiIMPJ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:09:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41371A1BF;
-        Tue, 13 Sep 2022 07:30:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B27B7675D;
+        Tue, 13 Sep 2022 07:32:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B041F61414;
-        Tue, 13 Sep 2022 14:28:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A7FC433C1;
-        Tue, 13 Sep 2022 14:28:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13DD1614E4;
+        Tue, 13 Sep 2022 14:30:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23E2BC433D7;
+        Tue, 13 Sep 2022 14:30:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079321;
-        bh=3PfSelEa4MEVsI+JJBE451z1V1ZOGqS2BljCPbdag0o=;
+        s=korg; t=1663079409;
+        bh=Qd9969KoNnkbTMb5ceNyswXbNKwxQESb7HfOPM1t9yI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kYM+Iriy/5HlsJOdrVP0Dsfx52CS0gjMXFa5uiKGWStUJllyv9XBT4GJXn1zfxcyF
-         V8TCTprAe0P0Haj2cO78gC8C9g0XKWq3Mj1TKElZsoMX4Uho69Wz7czELVFahLPB4e
-         IITA+rbDGiJzSU9BYy2jPXklBeZUvVHn1MdLsT8M=
+        b=GYcpsqFPNckEP8zb2Jb1Qdc3tRRLUcM2l9Zjza8KCHc5bV6wc6puCH54urK3wVYTX
+         6o3pc0EWmn4C5ZVZHnFExmlEbZDAYk3TyplzJwVUPYhk8fQsJag0VUU97RFB9kOK+2
+         q2BYYbBp3Pbj6i8vXBXGmrDohI6xRWeLjJRKtEzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 062/108] btrfs: harden identification of a stale device
+        stable@vger.kernel.org,
+        syzbot+e696806ef96cdd2d87cd@syzkaller.appspotmail.com,
+        Tom Herbert <tom@herbertland.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+9fc084a4348493ef65d2@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 15/79] kcm: fix strp_init() order and cleanup
 Date:   Tue, 13 Sep 2022 16:06:33 +0200
-Message-Id: <20220913140356.286481668@linuxfoundation.org>
+Message-Id: <20220913140349.595770855@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,95 +58,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-commit 770c79fb65506fc7c16459855c3839429f46cb32 upstream.
+[ Upstream commit 8fc29ff3910f3af08a7c40a75d436b5720efe2bf ]
 
-Identifying and removing the stale device from the fs_uuids list is done
-by btrfs_free_stale_devices().  btrfs_free_stale_devices() in turn
-depends on device_path_matched() to check if the device appears in more
-than one btrfs_device structure.
+strp_init() is called just a few lines above this csk->sk_user_data
+check, it also initializes strp->work etc., therefore, it is
+unnecessary to call strp_done() to cancel the freshly initialized
+work.
 
-The matching of the device happens by its path, the device path. However,
-when device mapper is in use, the dm device paths are nothing but a link
-to the actual block device, which leads to the device_path_matched()
-failing to match.
+And if sk_user_data is already used by KCM, psock->strp should not be
+touched, particularly strp->work state, so we need to move strp_init()
+after the csk->sk_user_data check.
 
-Fix this by matching the dev_t as provided by lookup_bdev() instead of
-plain string compare of the device paths.
+This also makes a lockdep warning reported by syzbot go away.
 
-Reported-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-and-tested-by: syzbot+9fc084a4348493ef65d2@syzkaller.appspotmail.com
+Reported-by: syzbot+e696806ef96cdd2d87cd@syzkaller.appspotmail.com
+Fixes: e5571240236c ("kcm: Check if sk_user_data already set in kcm_attach")
+Fixes: dff8baa26117 ("kcm: Call strp_stop before strp_done in kcm_attach")
+Cc: Tom Herbert <tom@herbertland.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20220827181314.193710-1-xiyou.wangcong@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |   44 +++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 37 insertions(+), 7 deletions(-)
+ net/kcm/kcmsock.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -713,15 +713,47 @@ static void pending_bios_fn(struct btrfs
- 	run_scheduled_bios(device);
- }
+diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
+index b919db02c7f9e..ef2543a4c1fc5 100644
+--- a/net/kcm/kcmsock.c
++++ b/net/kcm/kcmsock.c
+@@ -1412,12 +1412,6 @@ static int kcm_attach(struct socket *sock, struct socket *csock,
+ 	psock->sk = csk;
+ 	psock->bpf_prog = prog;
  
--static bool device_path_matched(const char *path, struct btrfs_device *device)
-+/*
-+ * Check if the device in the path matches the device in the given struct device.
-+ *
-+ * Returns:
-+ *   true  If it is the same device.
-+ *   false If it is not the same device or on error.
-+ */
-+static bool device_matched(const struct btrfs_device *device, const char *path)
- {
--	int found;
-+	char *device_name;
-+	struct block_device *bdev_old;
-+	struct block_device *bdev_new;
-+
-+	/*
-+	 * If we are looking for a device with the matching dev_t, then skip
-+	 * device without a name (a missing device).
-+	 */
-+	if (!device->name)
-+		return false;
-+
-+	device_name = kzalloc(BTRFS_PATH_NAME_MAX, GFP_KERNEL);
-+	if (!device_name)
-+		return false;
+-	err = strp_init(&psock->strp, csk, &cb);
+-	if (err) {
+-		kmem_cache_free(kcm_psockp, psock);
+-		goto out;
+-	}
+-
+ 	write_lock_bh(&csk->sk_callback_lock);
  
- 	rcu_read_lock();
--	found = strcmp(rcu_str_deref(device->name), path);
-+	scnprintf(device_name, BTRFS_PATH_NAME_MAX, "%s", rcu_str_deref(device->name));
- 	rcu_read_unlock();
+ 	/* Check if sk_user_data is aready by KCM or someone else.
+@@ -1425,13 +1419,18 @@ static int kcm_attach(struct socket *sock, struct socket *csock,
+ 	 */
+ 	if (csk->sk_user_data) {
+ 		write_unlock_bh(&csk->sk_callback_lock);
+-		strp_stop(&psock->strp);
+-		strp_done(&psock->strp);
+ 		kmem_cache_free(kcm_psockp, psock);
+ 		err = -EALREADY;
+ 		goto out;
+ 	}
  
--	return found == 0;
-+	bdev_old = lookup_bdev(device_name);
-+	kfree(device_name);
-+	if (IS_ERR(bdev_old))
-+		return false;
++	err = strp_init(&psock->strp, csk, &cb);
++	if (err) {
++		write_unlock_bh(&csk->sk_callback_lock);
++		kmem_cache_free(kcm_psockp, psock);
++		goto out;
++	}
 +
-+	bdev_new = lookup_bdev(path);
-+	if (IS_ERR(bdev_new))
-+		return false;
-+
-+	if (bdev_old == bdev_new)
-+		return true;
-+
-+	return false;
- }
- 
- /*
-@@ -754,9 +786,7 @@ static int btrfs_free_stale_devices(cons
- 					 &fs_devices->devices, dev_list) {
- 			if (skip_device && skip_device == device)
- 				continue;
--			if (path && !device->name)
--				continue;
--			if (path && !device_path_matched(path, device))
-+			if (path && !device_matched(device, path))
- 				continue;
- 			if (fs_devices->opened) {
- 				/* for an already deleted device return 0 */
+ 	psock->save_data_ready = csk->sk_data_ready;
+ 	psock->save_write_space = csk->sk_write_space;
+ 	psock->save_state_change = csk->sk_state_change;
+-- 
+2.35.1
+
 
 
