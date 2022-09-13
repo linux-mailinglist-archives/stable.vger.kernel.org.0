@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FECF5B709E
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C1E5B706F
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233851AbiIMO37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:29:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55732 "EHLO
+        id S233615AbiIMOZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:25:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234091AbiIMO3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:29:11 -0400
+        with ESMTP id S233788AbiIMOYQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:24:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F849642DC;
-        Tue, 13 Sep 2022 07:18:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3353C61B03;
+        Tue, 13 Sep 2022 07:16:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10D6F614B6;
-        Tue, 13 Sep 2022 14:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B3ABC433D7;
-        Tue, 13 Sep 2022 14:18:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B827614C2;
+        Tue, 13 Sep 2022 14:14:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68752C433D6;
+        Tue, 13 Sep 2022 14:14:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078697;
-        bh=/mmluQiHgHLAHKPQ2lf04xiTTFupX4BQ+YavLtbQiOs=;
+        s=korg; t=1663078486;
+        bh=W5/c/rz4SkjlvfKZ6VsL2xJxhvqUehoX+DDkoVI5Q/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2LjkIc3sx9K5+XkWAK+2kw2QUHAsOgB36uoH8cbYBiBa9URtca/2d8xmUQvkljZwX
-         wWmPmq9Tp+fUJklJB2EjRS5Q4WUlnrCXUa3726IMHu/PWJ6LeYJ0qLGHt+rtz1W/Yr
-         p2ikiz3zPGkPXELx6yM8Hifg08yTvTzbU4OVWxdA=
+        b=u8k342hmN/Alo0XCu57EuOEtCnwgPnBbKA3kjtgGh9wZCQXYDF8oMIHLsMhKkpwq8
+         KZNWbw7JVOf7dls2GHAidyDuEjJju+RIvHCtQK85RlZ8/rK5pc/EWGnZ10QBFVolf2
+         qDflXOthNEzPxcNLNzyPmVxZzMoFXuHHrA5fHMns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/121] riscv: dts: microchip: mpfs: Fix reference clock node
+        stable@vger.kernel.org, Sun Ke <sunke32@huawei.com>,
+        Jingbo Xu <jefflexu@linux.alibaba.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Chao Yu <chao@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 133/192] erofs: fix error return code in erofs_fscache_{meta_,}read_folio
 Date:   Tue, 13 Sep 2022 16:03:59 +0200
-Message-Id: <20220913140359.425823284@linuxfoundation.org>
+Message-Id: <20220913140416.637808524@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
-References: <20220913140357.323297659@linuxfoundation.org>
+In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
+References: <20220913140410.043243217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,77 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Sun Ke <sunke32@huawei.com>
 
-[ Upstream commit 9d7b3078628f591e4007210c0d5d3f94805cff55 ]
+[ Upstream commit 5bd9628b784cc5e38e1c7ebb680bbd6ee741230e ]
 
-"make dtbs_check" reports:
+If erofs_fscache_alloc_request fail and then goto out, it will return 0.
+it should return a negative error code instead of 0.
 
-    arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dt.yaml: soc: refclk: {'compatible': ['fixed-clock'], '#clock-cells': [[0]], 'clock-frequency': [[600000000]], 'clock-output-names': ['msspllclk'], 'phandle': [[7]]} should not be valid under {'type': 'object'}
-	From schema: dtschema/schemas/simple-bus.yaml
-
-Fix this by moving the node out of the "soc" subnode.
-While at it, rename it to "msspllclk", and drop the now superfluous
-"clock-output-names" property.
-Move the actual clock-frequency value to the board DTS, since it is not
-set until bitstream programming time.
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: d435d53228dd ("erofs: change to use asynchronous io for fscache readpage/readahead")
+Signed-off-by: Sun Ke <sunke32@huawei.com>
+Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Link: https://lore.kernel.org/r/20220815034829.3940803-1-sunke32@huawei.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/microchip/microchip-mpfs-icicle-kit.dts |  4 ++++
- arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi    | 12 +++++-------
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ fs/erofs/fscache.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts b/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts
-index cce5eca31f257..4b69ab4ff30a2 100644
---- a/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts
-+++ b/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts
-@@ -40,6 +40,10 @@
- 	};
- };
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 8e01d89c3319e..b5fd9d71e67f1 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -222,8 +222,10 @@ static int erofs_fscache_meta_read_folio(struct file *data, struct folio *folio)
  
-+&refclk {
-+	clock-frequency = <600000000>;
-+};
-+
- &serial0 {
- 	status = "okay";
- };
-diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-index 4ef4bcb748729..9279ccf20009a 100644
---- a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-+++ b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-@@ -139,6 +139,11 @@
- 		};
- 	};
+ 	rreq = erofs_fscache_alloc_request(folio_mapping(folio),
+ 				folio_pos(folio), folio_size(folio));
+-	if (IS_ERR(rreq))
++	if (IS_ERR(rreq)) {
++		ret = PTR_ERR(rreq);
+ 		goto out;
++	}
  
-+	refclk: msspllclk {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+	};
-+
- 	soc {
- 		#address-cells = <2>;
- 		#size-cells = <2>;
-@@ -188,13 +193,6 @@
- 			#dma-cells = <1>;
- 		};
+ 	return erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
+ 				rreq, mdev.m_pa);
+@@ -301,8 +303,10 @@ static int erofs_fscache_read_folio(struct file *file, struct folio *folio)
  
--		refclk: refclk {
--			compatible = "fixed-clock";
--			#clock-cells = <0>;
--			clock-frequency = <600000000>;
--			clock-output-names = "msspllclk";
--		};
--
- 		clkcfg: clkcfg@20002000 {
- 			compatible = "microchip,mpfs-clkcfg";
- 			reg = <0x0 0x20002000 0x0 0x1000>;
+ 	rreq = erofs_fscache_alloc_request(folio_mapping(folio),
+ 				folio_pos(folio), folio_size(folio));
+-	if (IS_ERR(rreq))
++	if (IS_ERR(rreq)) {
++		ret = PTR_ERR(rreq);
+ 		goto out_unlock;
++	}
+ 
+ 	pstart = mdev.m_pa + (pos - map.m_la);
+ 	return erofs_fscache_read_folios_async(mdev.m_fscache->cookie,
 -- 
 2.35.1
 
