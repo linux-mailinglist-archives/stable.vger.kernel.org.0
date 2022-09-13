@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3735B6F56
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B505B6F93
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:14:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232814AbiIMOLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:11:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50528 "EHLO
+        id S232830AbiIMOL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:11:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232635AbiIMOKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:10:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C085C9EB;
-        Tue, 13 Sep 2022 07:09:19 -0700 (PDT)
+        with ESMTP id S232743AbiIMOKO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:10:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A18E5D0F3;
+        Tue, 13 Sep 2022 07:09:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B98E61497;
-        Tue, 13 Sep 2022 14:09:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E4E6C433D6;
-        Tue, 13 Sep 2022 14:09:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0663DB80EF7;
+        Tue, 13 Sep 2022 14:09:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45F18C433C1;
+        Tue, 13 Sep 2022 14:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078158;
-        bh=Yqxdf40p+eJDpXpCuGnwjuEkWmXRdjLdXOKmqXAAtIA=;
+        s=korg; t=1663078161;
+        bh=R1o2qTd0IZwQ5v/5GWJHyyVKOL2uPBxZwvCG8Kb23nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2erHv/bhJGuTG257OSGOcIMDoRL0M60SXlVkWnG+OT8+VLD2oNrG1SWvoMC0XcdP
-         wIXPs+unOCzSPm6X+kiw7gPOtYieNKnxHODUMWHRBs2d16XxTup9DGR0TIbUFnBYMn
-         81TAhgskxuu5zCSq3hWdY52ZNrycnSJojtyhpyXM=
+        b=G8b0oPgKLiTAE0vGG/bqEuyeDPi4+vjAOzHD6BNHaeF4xBz84xWJj5YHJAVjRggTF
+         Ny/ejzWISlwuakchv7RYb5aLdd84HDmvBi743i+O1Q8ZdmDPIhowFauPBuDvbkzK6t
+         8D+fCs82JrJOzVTHAgECRO1uxyFS1u3vvpmEgWy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Huang <jinsdb@126.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 034/192] drm/amdgpu: mmVM_L2_CNTL3 register not initialized correctly
-Date:   Tue, 13 Sep 2022 16:02:20 +0200
-Message-Id: <20220913140411.615579815@linuxfoundation.org>
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>,
+        butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Subject: [PATCH 5.19 035/192] ALSA: pcm: oss: Fix race at SNDCTL_DSP_SYNC
+Date:   Tue, 13 Sep 2022 16:02:21 +0200
+Message-Id: <20220913140411.664801553@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -54,33 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Huang <jinsdb@126.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b8983d42524f10ac6bf35bbce6a7cc8e45f61e04 ]
+commit 8423f0b6d513b259fdab9c9bf4aaa6188d054c2d upstream.
 
-The mmVM_L2_CNTL3 register is not assigned an initial value
+There is a small race window at snd_pcm_oss_sync() that is called from
+OSS PCM SNDCTL_DSP_SYNC ioctl; namely the function calls
+snd_pcm_oss_make_ready() at first, then takes the params_lock mutex
+for the rest.  When the stream is set up again by another thread
+between them, it leads to inconsistency, and may result in unexpected
+results such as NULL dereference of OSS buffer as a fuzzer spotted
+recently.
 
-Signed-off-by: Qu Huang <jinsdb@126.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The fix is simply to cover snd_pcm_oss_make_ready() call into the same
+params_lock mutex with snd_pcm_oss_make_ready_locked() variant.
+
+Reported-and-tested-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAFcO6XN7JDM4xSXGhtusQfS2mSBcx50VJKwQpCq=WeLt57aaZA@mail.gmail.com
+Link: https://lore.kernel.org/r/20220905060714.22549-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/core/oss/pcm_oss.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c
-index 3f44a099c52a4..3e51e773f92be 100644
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v1_0.c
-@@ -176,6 +176,7 @@ static void mmhub_v1_0_init_cache_regs(struct amdgpu_device *adev)
- 	tmp = REG_SET_FIELD(tmp, VM_L2_CNTL2, INVALIDATE_L2_CACHE, 1);
- 	WREG32_SOC15(MMHUB, 0, mmVM_L2_CNTL2, tmp);
- 
-+	tmp = mmVM_L2_CNTL3_DEFAULT;
- 	if (adev->gmc.translate_further) {
- 		tmp = REG_SET_FIELD(tmp, VM_L2_CNTL3, BANK_SELECT, 12);
- 		tmp = REG_SET_FIELD(tmp, VM_L2_CNTL3,
--- 
-2.35.1
-
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -1672,14 +1672,14 @@ static int snd_pcm_oss_sync(struct snd_p
+ 		runtime = substream->runtime;
+ 		if (atomic_read(&substream->mmap_count))
+ 			goto __direct;
+-		err = snd_pcm_oss_make_ready(substream);
+-		if (err < 0)
+-			return err;
+ 		atomic_inc(&runtime->oss.rw_ref);
+ 		if (mutex_lock_interruptible(&runtime->oss.params_lock)) {
+ 			atomic_dec(&runtime->oss.rw_ref);
+ 			return -ERESTARTSYS;
+ 		}
++		err = snd_pcm_oss_make_ready_locked(substream);
++		if (err < 0)
++			goto unlock;
+ 		format = snd_pcm_oss_format_from(runtime->oss.format);
+ 		width = snd_pcm_format_physical_width(format);
+ 		if (runtime->oss.buffer_used > 0) {
 
 
