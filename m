@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1185B71C1
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0D25B716A
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230384AbiIMOol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:44:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46618 "EHLO
+        id S234415AbiIMOiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:38:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234540AbiIMOnz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:43:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 893A56EF3B;
-        Tue, 13 Sep 2022 07:23:24 -0700 (PDT)
+        with ESMTP id S234312AbiIMOhB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:37:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 276ED6BCE1;
+        Tue, 13 Sep 2022 07:20:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1997DB80F98;
-        Tue, 13 Sep 2022 14:23:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AFFDC433C1;
-        Tue, 13 Sep 2022 14:23:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F18A0B80EFC;
+        Tue, 13 Sep 2022 14:19:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 599DEC433D6;
+        Tue, 13 Sep 2022 14:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079002;
-        bh=m6L+BwhmhJiR7j80zYv8k+2TSA1Vi69dok8uQ0foBNs=;
+        s=korg; t=1663078785;
+        bh=G3oX5PNPUI/kOQTyVo/kiJLFuVAtcELIqKYOxDSVktw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MzvjKuSZ8iIyE42S8etEGx3bHbVbCvjorUXzkMsrIyv9kRGNpiIa0gg1Z0LGNC9hB
-         jRvegHYbB2EnN9QPRWUc6FFjE2//QT5u10kW4PVoY5gwsOTJvPfGvEKuu7dE7rV136
-         QCYSvPKu9mvprDWuV+E+HcJPoeLfSKR4q0VpZL+o=
+        b=tNsz36TVFPoGamDZ4vFK/TZgQkanFCO/w/lf4XOaFMswfb9xZLxfH8oHoyckwfxr0
+         T1501Rqc93M3PjWvzOjhg+o4rTZw1EpHI/e9FtVIKoD7/0kNtu0jn+TkgZOyAr3QlL
+         OaP8J6DGpQmz7GzNmGzTvQakIC5/DMCBLHdEXEqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Christian A. Ehrhardt" <lk@c--e.de>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 27/79] kprobes: Prohibit probes in gate area
-Date:   Tue, 13 Sep 2022 16:04:32 +0200
-Message-Id: <20220913140351.616293156@linuxfoundation.org>
+        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
+        Helena Anna Dubel <helena.anna.dubel@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 082/121] i40e: Fix kernel crash during module removal
+Date:   Tue, 13 Sep 2022 16:04:33 +0200
+Message-Id: <20220913140400.895146021@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140350.291927556@linuxfoundation.org>
-References: <20220913140350.291927556@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,117 +55,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian A. Ehrhardt <lk@c--e.de>
+From: Ivan Vecera <ivecera@redhat.com>
 
-commit 1efda38d6f9ba26ac88b359c6277f1172db03f1e upstream.
+[ Upstream commit fb8396aeda5872369a8ed6d2301e2c86e303c520 ]
 
-The system call gate area counts as kernel text but trying
-to install a kprobe in this area fails with an Oops later on.
-To fix this explicitly disallow the gate area for kprobes.
+The driver incorrectly frees client instance and subsequent
+i40e module removal leads to kernel crash.
 
-Found by syzkaller with the following reproducer:
-perf_event_open$cgroup(&(0x7f00000001c0)={0x6, 0x80, 0x0, 0x0, 0x0, 0x0, 0x80ffff, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, @perf_config_ext={0x0, 0xffffffffff600000}}, 0xffffffffffffffff, 0x0, 0xffffffffffffffff, 0x0)
+Reproducer:
+1. Do ethtool offline test followed immediately by another one
+host# ethtool -t eth0 offline; ethtool -t eth0 offline
+2. Remove recursively irdma module that also removes i40e module
+host# modprobe -r irdma
 
-Sample report:
-BUG: unable to handle page fault for address: fffffbfff3ac6000
-PGD 6dfcb067 P4D 6dfcb067 PUD 6df8f067 PMD 6de4d067 PTE 0
-Oops: 0000 [#1] PREEMPT SMP KASAN NOPTI
-CPU: 0 PID: 21978 Comm: syz-executor.2 Not tainted 6.0.0-rc3-00363-g7726d4c3e60b-dirty #6
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
-RIP: 0010:__insn_get_emulate_prefix arch/x86/lib/insn.c:91 [inline]
-RIP: 0010:insn_get_emulate_prefix arch/x86/lib/insn.c:106 [inline]
-RIP: 0010:insn_get_prefixes.part.0+0xa8/0x1110 arch/x86/lib/insn.c:134
-Code: 49 be 00 00 00 00 00 fc ff df 48 8b 40 60 48 89 44 24 08 e9 81 00 00 00 e8 e5 4b 39 ff 4c 89 fa 4c 89 f9 48 c1 ea 03 83 e1 07 <42> 0f b6 14 32 38 ca 7f 08 84 d2 0f 85 06 10 00 00 48 89 d8 48 89
-RSP: 0018:ffffc900088bf860 EFLAGS: 00010246
-RAX: 0000000000040000 RBX: ffffffff9b9bebc0 RCX: 0000000000000000
-RDX: 1ffffffff3ac6000 RSI: ffffc90002d82000 RDI: ffffc900088bf9e8
-RBP: ffffffff9d630001 R08: 0000000000000000 R09: ffffc900088bf9e8
-R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000001
-R13: ffffffff9d630000 R14: dffffc0000000000 R15: ffffffff9d630000
-FS:  00007f63eef63640(0000) GS:ffff88806d000000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: fffffbfff3ac6000 CR3: 0000000029d90005 CR4: 0000000000770ef0
-PKRU: 55555554
-Call Trace:
- <TASK>
- insn_get_prefixes arch/x86/lib/insn.c:131 [inline]
- insn_get_opcode arch/x86/lib/insn.c:272 [inline]
- insn_get_modrm+0x64a/0x7b0 arch/x86/lib/insn.c:343
- insn_get_sib+0x29a/0x330 arch/x86/lib/insn.c:421
- insn_get_displacement+0x350/0x6b0 arch/x86/lib/insn.c:464
- insn_get_immediate arch/x86/lib/insn.c:632 [inline]
- insn_get_length arch/x86/lib/insn.c:707 [inline]
- insn_decode+0x43a/0x490 arch/x86/lib/insn.c:747
- can_probe+0xfc/0x1d0 arch/x86/kernel/kprobes/core.c:282
- arch_prepare_kprobe+0x79/0x1c0 arch/x86/kernel/kprobes/core.c:739
- prepare_kprobe kernel/kprobes.c:1160 [inline]
- register_kprobe kernel/kprobes.c:1641 [inline]
- register_kprobe+0xb6e/0x1690 kernel/kprobes.c:1603
- __register_trace_kprobe kernel/trace/trace_kprobe.c:509 [inline]
- __register_trace_kprobe+0x26a/0x2d0 kernel/trace/trace_kprobe.c:477
- create_local_trace_kprobe+0x1f7/0x350 kernel/trace/trace_kprobe.c:1833
- perf_kprobe_init+0x18c/0x280 kernel/trace/trace_event_perf.c:271
- perf_kprobe_event_init+0xf8/0x1c0 kernel/events/core.c:9888
- perf_try_init_event+0x12d/0x570 kernel/events/core.c:11261
- perf_init_event kernel/events/core.c:11325 [inline]
- perf_event_alloc.part.0+0xf7f/0x36a0 kernel/events/core.c:11619
- perf_event_alloc kernel/events/core.c:12059 [inline]
- __do_sys_perf_event_open+0x4a8/0x2a00 kernel/events/core.c:12157
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f63ef7efaed
-Code: 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f63eef63028 EFLAGS: 00000246 ORIG_RAX: 000000000000012a
-RAX: ffffffffffffffda RBX: 00007f63ef90ff80 RCX: 00007f63ef7efaed
-RDX: 0000000000000000 RSI: ffffffffffffffff RDI: 00000000200001c0
-RBP: 00007f63ef86019c R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffffffffffff R11: 0000000000000246 R12: 0000000000000000
-R13: 0000000000000002 R14: 00007f63ef90ff80 R15: 00007f63eef43000
- </TASK>
-Modules linked in:
-CR2: fffffbfff3ac6000
----[ end trace 0000000000000000 ]---
-RIP: 0010:__insn_get_emulate_prefix arch/x86/lib/insn.c:91 [inline]
-RIP: 0010:insn_get_emulate_prefix arch/x86/lib/insn.c:106 [inline]
-RIP: 0010:insn_get_prefixes.part.0+0xa8/0x1110 arch/x86/lib/insn.c:134
-Code: 49 be 00 00 00 00 00 fc ff df 48 8b 40 60 48 89 44 24 08 e9 81 00 00 00 e8 e5 4b 39 ff 4c 89 fa 4c 89 f9 48 c1 ea 03 83 e1 07 <42> 0f b6 14 32 38 ca 7f 08 84 d2 0f 85 06 10 00 00 48 89 d8 48 89
-RSP: 0018:ffffc900088bf860 EFLAGS: 00010246
-RAX: 0000000000040000 RBX: ffffffff9b9bebc0 RCX: 0000000000000000
-RDX: 1ffffffff3ac6000 RSI: ffffc90002d82000 RDI: ffffc900088bf9e8
-RBP: ffffffff9d630001 R08: 0000000000000000 R09: ffffc900088bf9e8
-R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000001
-R13: ffffffff9d630000 R14: dffffc0000000000 R15: ffffffff9d630000
-FS:  00007f63eef63640(0000) GS:ffff88806d000000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: fffffbfff3ac6000 CR3: 0000000029d90005 CR4: 0000000000770ef0
-PKRU: 55555554
-==================================================================
+Result:
+[ 8675.035651] i40e 0000:3d:00.0 eno1: offline testing starting
+[ 8675.193774] i40e 0000:3d:00.0 eno1: testing finished
+[ 8675.201316] i40e 0000:3d:00.0 eno1: offline testing starting
+[ 8675.358921] i40e 0000:3d:00.0 eno1: testing finished
+[ 8675.496921] i40e 0000:3d:00.0: IRDMA hardware initialization FAILED init_state=2 status=-110
+[ 8686.188955] i40e 0000:3d:00.1: i40e_ptp_stop: removed PHC on eno2
+[ 8686.943890] i40e 0000:3d:00.1: Deleted LAN device PF1 bus=0x3d dev=0x00 func=0x01
+[ 8686.952669] i40e 0000:3d:00.0: i40e_ptp_stop: removed PHC on eno1
+[ 8687.761787] BUG: kernel NULL pointer dereference, address: 0000000000000030
+[ 8687.768755] #PF: supervisor read access in kernel mode
+[ 8687.773895] #PF: error_code(0x0000) - not-present page
+[ 8687.779034] PGD 0 P4D 0
+[ 8687.781575] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[ 8687.785935] CPU: 51 PID: 172891 Comm: rmmod Kdump: loaded Tainted: G        W I        5.19.0+ #2
+[ 8687.794800] Hardware name: Intel Corporation S2600WFD/S2600WFD, BIOS SE5C620.86B.0X.02.0001.051420190324 05/14/2019
+[ 8687.805222] RIP: 0010:i40e_lan_del_device+0x13/0xb0 [i40e]
+[ 8687.810719] Code: d4 84 c0 0f 84 b8 25 01 00 e9 9c 25 01 00 41 bc f4 ff ff ff eb 91 90 0f 1f 44 00 00 41 54 55 53 48 8b 87 58 08 00 00 48 89 fb <48> 8b 68 30 48 89 ef e8 21 8a 0f d5 48 89 ef e8 a9 78 0f d5 48 8b
+[ 8687.829462] RSP: 0018:ffffa604072efce0 EFLAGS: 00010202
+[ 8687.834689] RAX: 0000000000000000 RBX: ffff8f43833b2000 RCX: 0000000000000000
+[ 8687.841821] RDX: 0000000000000000 RSI: ffff8f4b0545b298 RDI: ffff8f43833b2000
+[ 8687.848955] RBP: ffff8f43833b2000 R08: 0000000000000001 R09: 0000000000000000
+[ 8687.856086] R10: 0000000000000000 R11: 000ffffffffff000 R12: ffff8f43833b2ef0
+[ 8687.863218] R13: ffff8f43833b2ef0 R14: ffff915103966000 R15: ffff8f43833b2008
+[ 8687.870342] FS:  00007f79501c3740(0000) GS:ffff8f4adffc0000(0000) knlGS:0000000000000000
+[ 8687.878427] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 8687.884174] CR2: 0000000000000030 CR3: 000000014276e004 CR4: 00000000007706e0
+[ 8687.891306] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 8687.898441] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 8687.905572] PKRU: 55555554
+[ 8687.908286] Call Trace:
+[ 8687.910737]  <TASK>
+[ 8687.912843]  i40e_remove+0x2c0/0x330 [i40e]
+[ 8687.917040]  pci_device_remove+0x33/0xa0
+[ 8687.920962]  device_release_driver_internal+0x1aa/0x230
+[ 8687.926188]  driver_detach+0x44/0x90
+[ 8687.929770]  bus_remove_driver+0x55/0xe0
+[ 8687.933693]  pci_unregister_driver+0x2a/0xb0
+[ 8687.937967]  i40e_exit_module+0xc/0xf48 [i40e]
 
-Link: https://lkml.kernel.org/r/20220907200917.654103-1-lk@c--e.de
+Two offline tests cause IRDMA driver failure (ETIMEDOUT) and this
+failure is indicated back to i40e_client_subtask() that calls
+i40e_client_del_instance() to free client instance referenced
+by pf->cinst and sets this pointer to NULL. During the module
+removal i40e_remove() calls i40e_lan_del_device() that dereferences
+pf->cinst that is NULL -> crash.
+Do not remove client instance when client open callbacks fails and
+just clear __I40E_CLIENT_INSTANCE_OPENED bit. The driver also needs
+to take care about this situation (when netdev is up and client
+is NOT opened) in i40e_notify_client_of_netdev_close() and
+calls client close callback only when __I40E_CLIENT_INSTANCE_OPENED
+is set.
 
-cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
-cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-cc: "David S. Miller" <davem@davemloft.net>
-Cc: stable@vger.kernel.org
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Christian A. Ehrhardt <lk@c--e.de>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0ef2d5afb12d ("i40e: KISS the client interface")
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Tested-by: Helena Anna Dubel <helena.anna.dubel@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/i40e/i40e_client.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1642,6 +1642,7 @@ static int check_kprobe_address_safe(str
- 	/* Ensure it is not in reserved area nor out of text */
- 	if (!(core_kernel_text((unsigned long) p->addr) ||
- 	    is_module_text_address((unsigned long) p->addr)) ||
-+	    in_gate_area_no_mm((unsigned long) p->addr) ||
- 	    within_kprobe_blacklist((unsigned long) p->addr) ||
- 	    jump_label_text_reserved(p->addr, p->addr) ||
- 	    static_call_text_reserved(p->addr, p->addr) ||
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_client.c b/drivers/net/ethernet/intel/i40e/i40e_client.c
+index ea2bb0140a6eb..10d7a982a5b9b 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_client.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_client.c
+@@ -177,6 +177,10 @@ void i40e_notify_client_of_netdev_close(struct i40e_vsi *vsi, bool reset)
+ 			"Cannot locate client instance close routine\n");
+ 		return;
+ 	}
++	if (!test_bit(__I40E_CLIENT_INSTANCE_OPENED, &cdev->state)) {
++		dev_dbg(&pf->pdev->dev, "Client is not open, abort close\n");
++		return;
++	}
+ 	cdev->client->ops->close(&cdev->lan_info, cdev->client, reset);
+ 	clear_bit(__I40E_CLIENT_INSTANCE_OPENED, &cdev->state);
+ 	i40e_client_release_qvlist(&cdev->lan_info);
+@@ -429,7 +433,6 @@ void i40e_client_subtask(struct i40e_pf *pf)
+ 				/* Remove failed client instance */
+ 				clear_bit(__I40E_CLIENT_INSTANCE_OPENED,
+ 					  &cdev->state);
+-				i40e_client_del_instance(pf);
+ 				return;
+ 			}
+ 		}
+-- 
+2.35.1
+
 
 
