@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32CB75B7025
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:24:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5FAB5B7150
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233011AbiIMOUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:20:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51690 "EHLO
+        id S233951AbiIMOe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:34:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233139AbiIMOSY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:18:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6272610FDA;
-        Tue, 13 Sep 2022 07:13:12 -0700 (PDT)
+        with ESMTP id S234077AbiIMOcy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:32:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25AB85F7FD;
+        Tue, 13 Sep 2022 07:19:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43BB4614B6;
-        Tue, 13 Sep 2022 14:13:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BDB7C433C1;
-        Tue, 13 Sep 2022 14:13:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BC53B80F9F;
+        Tue, 13 Sep 2022 14:17:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83BDC433C1;
+        Tue, 13 Sep 2022 14:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078384;
-        bh=OI4I2cN6EuRYAILR7BIdBmMjdLZtAe/yXapB8JqRc7w=;
+        s=korg; t=1663078664;
+        bh=oEjjcuEVG/iH/4Ku0spJKcB+eo0FIehX99DbWEpnbjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cejLtTIUtQTOM1nmXKHFo8MSlZiDo93S7CmOD37wgHTP3Rszms77mqeihmfqrOKi6
-         AnC02o/38BknDooWS0QQ+GmPNVQdMuxJzhdo/uHil2/fIcCC7OaPZbhwX5Fw/5nalj
-         VnTECiWOS5UtO1d+JU748F8CSGxQ3WIqIeKOpnwg=
+        b=pGPBlkMReebXtUjM/VYO8PGaIz6jQESd7MLYKY7oma8fz/9Ohq5ZQiKZ5Iak9h9Uk
+         R5fFj/M2f0g6Zx2K6e5G37hoj/i/DJ+6TCBfoaM7RL2Me1+A6P7kJlcgx7ZX7tby+f
+         IgTbL++WzKBWc04n509oZ5hi8gUK++KDkIyN/MJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Chandan <chandanx.rout@intel.com>
-Subject: [PATCH 5.19 119/192] ice: Fix DMA mappings leak
+        stable@vger.kernel.org, Luboslav Pivarc <lpivarc@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 5.15 034/121] vfio/type1: Unpin zero pages
 Date:   Tue, 13 Sep 2022 16:03:45 +0200
-Message-Id: <20220913140415.912802693@linuxfoundation.org>
+Message-Id: <20220913140358.820473968@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,232 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 7e753eb675f0523207b184558638ee2eed6c9ac2 ]
+commit 873aefb376bbc0ed1dd2381ea1d6ec88106fdbd4 upstream.
 
-Fix leak, when user changes ring parameters.
-During reallocation of RX buffers, new DMA mappings are created for
-those buffers. New buffers with different RX ring count should
-substitute older ones, but those buffers were freed in ice_vsi_cfg_rxq
-and reallocated again with ice_alloc_rx_buf. kfree on rx_buf caused
-leak of already mapped DMA.
-Reallocate ZC with xdp_buf struct, when BPF program loads. Reallocate
-back to rx_buf, when BPF program unloads.
-If BPF program is loaded/unloaded and XSK pools are created, reallocate
-RX queues accordingly in XDP_SETUP_XSK_POOL handler.
+There's currently a reference count leak on the zero page.  We increment
+the reference via pin_user_pages_remote(), but the page is later handled
+as an invalid/reserved page, therefore it's not accounted against the
+user and not unpinned by our put_pfn().
 
-Steps for reproduction:
-while :
-do
-	for ((i=0; i<=8160; i=i+32))
-	do
-		ethtool -G enp130s0f0 rx $i tx $i
-		sleep 0.5
-		ethtool -g enp130s0f0
-	done
-done
+Introducing special zero page handling in put_pfn() would resolve the
+leak, but without accounting of the zero page, a single user could
+still create enough mappings to generate a reference count overflow.
 
-Fixes: 617f3e1b588c ("ice: xsk: allocate separate memory for XDP SW ring")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Chandan <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The zero page is always resident, so for our purposes there's no reason
+to keep it pinned.  Therefore, add a loop to walk pages returned from
+pin_user_pages_remote() and unpin any zero pages.
+
+Cc: stable@vger.kernel.org
+Reported-by: Luboslav Pivarc <lpivarc@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/166182871735.3518559.8884121293045337358.stgit@omen
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_base.c | 17 ------
- drivers/net/ethernet/intel/ice/ice_main.c |  8 +++
- drivers/net/ethernet/intel/ice/ice_xsk.c  | 63 +++++++++++++++++++++++
- drivers/net/ethernet/intel/ice/ice_xsk.h  |  8 +++
- 4 files changed, 79 insertions(+), 17 deletions(-)
+ drivers/vfio/vfio_iommu_type1.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_base.c b/drivers/net/ethernet/intel/ice/ice_base.c
-index 136d7911adb48..1e32438081780 100644
---- a/drivers/net/ethernet/intel/ice/ice_base.c
-+++ b/drivers/net/ethernet/intel/ice/ice_base.c
-@@ -7,18 +7,6 @@
- #include "ice_dcb_lib.h"
- #include "ice_sriov.h"
- 
--static bool ice_alloc_rx_buf_zc(struct ice_rx_ring *rx_ring)
--{
--	rx_ring->xdp_buf = kcalloc(rx_ring->count, sizeof(*rx_ring->xdp_buf), GFP_KERNEL);
--	return !!rx_ring->xdp_buf;
--}
--
--static bool ice_alloc_rx_buf(struct ice_rx_ring *rx_ring)
--{
--	rx_ring->rx_buf = kcalloc(rx_ring->count, sizeof(*rx_ring->rx_buf), GFP_KERNEL);
--	return !!rx_ring->rx_buf;
--}
--
- /**
-  * __ice_vsi_get_qs_contig - Assign a contiguous chunk of queues to VSI
-  * @qs_cfg: gathered variables needed for PF->VSI queues assignment
-@@ -519,11 +507,8 @@ int ice_vsi_cfg_rxq(struct ice_rx_ring *ring)
- 			xdp_rxq_info_reg(&ring->xdp_rxq, ring->netdev,
- 					 ring->q_index, ring->q_vector->napi.napi_id);
- 
--		kfree(ring->rx_buf);
- 		ring->xsk_pool = ice_xsk_pool(ring);
- 		if (ring->xsk_pool) {
--			if (!ice_alloc_rx_buf_zc(ring))
--				return -ENOMEM;
- 			xdp_rxq_info_unreg_mem_model(&ring->xdp_rxq);
- 
- 			ring->rx_buf_len =
-@@ -538,8 +523,6 @@ int ice_vsi_cfg_rxq(struct ice_rx_ring *ring)
- 			dev_info(dev, "Registered XDP mem model MEM_TYPE_XSK_BUFF_POOL on Rx ring %d\n",
- 				 ring->q_index);
- 		} else {
--			if (!ice_alloc_rx_buf(ring))
--				return -ENOMEM;
- 			if (!xdp_rxq_info_is_reg(&ring->xdp_rxq))
- 				/* coverity[check_return] */
- 				xdp_rxq_info_reg(&ring->xdp_rxq,
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 3d45e075204e3..abc5d2b91f32b 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -2898,10 +2898,18 @@ ice_xdp_setup_prog(struct ice_vsi *vsi, struct bpf_prog *prog,
- 			if (xdp_ring_err)
- 				NL_SET_ERR_MSG_MOD(extack, "Setting up XDP Tx resources failed");
- 		}
-+		/* reallocate Rx queues that are used for zero-copy */
-+		xdp_ring_err = ice_realloc_zc_buf(vsi, true);
-+		if (xdp_ring_err)
-+			NL_SET_ERR_MSG_MOD(extack, "Setting up XDP Rx resources failed");
- 	} else if (ice_is_xdp_ena_vsi(vsi) && !prog) {
- 		xdp_ring_err = ice_destroy_xdp_rings(vsi);
- 		if (xdp_ring_err)
- 			NL_SET_ERR_MSG_MOD(extack, "Freeing XDP Tx resources failed");
-+		/* reallocate Rx queues that were used for zero-copy */
-+		xdp_ring_err = ice_realloc_zc_buf(vsi, false);
-+		if (xdp_ring_err)
-+			NL_SET_ERR_MSG_MOD(extack, "Freeing XDP Rx resources failed");
- 	} else {
- 		/* safe to call even when prog == vsi->xdp_prog as
- 		 * dev_xdp_install in net/core/dev.c incremented prog's
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index e48e29258450f..03ce85f6e6df8 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -192,6 +192,7 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
- 	err = ice_vsi_ctrl_one_rx_ring(vsi, false, q_idx, true);
- 	if (err)
- 		return err;
-+	ice_clean_rx_ring(rx_ring);
- 
- 	ice_qvec_toggle_napi(vsi, q_vector, false);
- 	ice_qp_clean_rings(vsi, q_idx);
-@@ -316,6 +317,62 @@ ice_xsk_pool_enable(struct ice_vsi *vsi, struct xsk_buff_pool *pool, u16 qid)
- 	return 0;
- }
- 
-+/**
-+ * ice_realloc_rx_xdp_bufs - reallocate for either XSK or normal buffer
-+ * @rx_ring: Rx ring
-+ * @pool_present: is pool for XSK present
-+ *
-+ * Try allocating memory and return ENOMEM, if failed to allocate.
-+ * If allocation was successful, substitute buffer with allocated one.
-+ * Returns 0 on success, negative on failure
-+ */
-+static int
-+ice_realloc_rx_xdp_bufs(struct ice_rx_ring *rx_ring, bool pool_present)
-+{
-+	size_t elem_size = pool_present ? sizeof(*rx_ring->xdp_buf) :
-+					  sizeof(*rx_ring->rx_buf);
-+	void *sw_ring = kcalloc(rx_ring->count, elem_size, GFP_KERNEL);
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -561,6 +561,18 @@ static int vaddr_get_pfns(struct mm_stru
+ 	ret = pin_user_pages_remote(mm, vaddr, npages, flags | FOLL_LONGTERM,
+ 				    pages, NULL, NULL);
+ 	if (ret > 0) {
++		int i;
 +
-+	if (!sw_ring)
-+		return -ENOMEM;
++		/*
++		 * The zero page is always resident, we don't need to pin it
++		 * and it falls into our invalid/reserved test so we don't
++		 * unpin in put_pfn().  Unpin all zero pages in the batch here.
++		 */
++		for (i = 0 ; i < ret; i++) {
++			if (unlikely(is_zero_pfn(page_to_pfn(pages[i]))))
++				unpin_user_page(pages[i]);
++		}
 +
-+	if (pool_present) {
-+		kfree(rx_ring->rx_buf);
-+		rx_ring->rx_buf = NULL;
-+		rx_ring->xdp_buf = sw_ring;
-+	} else {
-+		kfree(rx_ring->xdp_buf);
-+		rx_ring->xdp_buf = NULL;
-+		rx_ring->rx_buf = sw_ring;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * ice_realloc_zc_buf - reallocate XDP ZC queue pairs
-+ * @vsi: Current VSI
-+ * @zc: is zero copy set
-+ *
-+ * Reallocate buffer for rx_rings that might be used by XSK.
-+ * XDP requires more memory, than rx_buf provides.
-+ * Returns 0 on success, negative on failure
-+ */
-+int ice_realloc_zc_buf(struct ice_vsi *vsi, bool zc)
-+{
-+	struct ice_rx_ring *rx_ring;
-+	unsigned long q;
-+
-+	for_each_set_bit(q, vsi->af_xdp_zc_qps,
-+			 max_t(int, vsi->alloc_txq, vsi->alloc_rxq)) {
-+		rx_ring = vsi->rx_rings[q];
-+		if (ice_realloc_rx_xdp_bufs(rx_ring, zc))
-+			return -ENOMEM;
-+	}
-+
-+	return 0;
-+}
-+
- /**
-  * ice_xsk_pool_setup - enable/disable a buffer pool region depending on its state
-  * @vsi: Current VSI
-@@ -345,11 +402,17 @@ int ice_xsk_pool_setup(struct ice_vsi *vsi, struct xsk_buff_pool *pool, u16 qid)
- 	if_running = netif_running(vsi->netdev) && ice_is_xdp_ena_vsi(vsi);
- 
- 	if (if_running) {
-+		struct ice_rx_ring *rx_ring = vsi->rx_rings[qid];
-+
- 		ret = ice_qp_dis(vsi, qid);
- 		if (ret) {
- 			netdev_err(vsi->netdev, "ice_qp_dis error = %d\n", ret);
- 			goto xsk_pool_if_up;
- 		}
-+
-+		ret = ice_realloc_rx_xdp_bufs(rx_ring, pool_present);
-+		if (ret)
-+			goto xsk_pool_if_up;
+ 		*pfn = page_to_pfn(pages[0]);
+ 		goto done;
  	}
- 
- 	pool_failure = pool_present ? ice_xsk_pool_enable(vsi, pool, qid) :
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.h b/drivers/net/ethernet/intel/ice/ice_xsk.h
-index 21faec8e97db1..4edbe81eb6460 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.h
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.h
-@@ -27,6 +27,7 @@ bool ice_xsk_any_rx_ring_ena(struct ice_vsi *vsi);
- void ice_xsk_clean_rx_ring(struct ice_rx_ring *rx_ring);
- void ice_xsk_clean_xdp_ring(struct ice_tx_ring *xdp_ring);
- bool ice_xmit_zc(struct ice_tx_ring *xdp_ring, u32 budget, int napi_budget);
-+int ice_realloc_zc_buf(struct ice_vsi *vsi, bool zc);
- #else
- static inline bool
- ice_xmit_zc(struct ice_tx_ring __always_unused *xdp_ring,
-@@ -72,5 +73,12 @@ ice_xsk_wakeup(struct net_device __always_unused *netdev,
- 
- static inline void ice_xsk_clean_rx_ring(struct ice_rx_ring *rx_ring) { }
- static inline void ice_xsk_clean_xdp_ring(struct ice_tx_ring *xdp_ring) { }
-+
-+static inline int
-+ice_realloc_zc_buf(struct ice_vsi __always_unused *vsi,
-+		   bool __always_unused zc)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_XDP_SOCKETS */
- #endif /* !_ICE_XSK_H_ */
--- 
-2.35.1
-
 
 
