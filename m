@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8FA55B6F2E
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A02535B6F49
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:11:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232649AbiIMOKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:10:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50582 "EHLO
+        id S232651AbiIMOKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:10:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232648AbiIMOJN (ORCPT
+        with ESMTP id S232656AbiIMOJN (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:09:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 324F45B04E;
-        Tue, 13 Sep 2022 07:08:49 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0E3E5B796;
+        Tue, 13 Sep 2022 07:08:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEBA6614AA;
-        Tue, 13 Sep 2022 14:08:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA476C433C1;
-        Tue, 13 Sep 2022 14:08:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E34A614B0;
+        Tue, 13 Sep 2022 14:08:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 326C2C433D6;
+        Tue, 13 Sep 2022 14:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078128;
-        bh=I5qbucz9hEvTK5aZplOe8XJDRDj5Cv0jBV9i3aOvbeo=;
+        s=korg; t=1663078131;
+        bh=umSHXyyP2x8/OpU4qx0LoScNI/TBlKj/Dw6yLKC5jsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsgAj2B9IBvrtQeZKpbl/Z9hXHNPNeRRL47dcWK5U1wwzSFXDAKv3zeMbiubrZzu4
-         G/T0+lIibCK/MWfrzRKEgcjS2lZr84svAgTYw2HTkugL1U2Whtja41REnC15tS9+H+
-         6I2WeiLNqDgyUGihaVJofjmPdjgvCrUN54BvpA2w=
+        b=VSXzGhcuxWThGjeRAk5FzkFCxq6H6/WFZoz4sdlLcbz1PrOVD8IqpwlyiadW8bzxD
+         EVJVUbvxd/W9WQwwC7S/huMMWJywh5l4AHzGaMj0VwUyUxQkep1PSs0PjTFsE4hqeM
+         2jpTM0gOTa5xE4LEnBY9J1AEf/lVLHM5sXcI/FaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, "Lee, Chun-Yi" <jlee@suse.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 024/192] netfilter: conntrack: work around exceeded receive window
-Date:   Tue, 13 Sep 2022 16:02:10 +0200
-Message-Id: <20220913140411.114472939@linuxfoundation.org>
+Subject: [PATCH 5.19 025/192] thermal/int340x_thermal: handle data_vault when the value is ZERO_SIZE_PTR
+Date:   Tue, 13 Sep 2022 16:02:11 +0200
+Message-Id: <20220913140411.164875208@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
 References: <20220913140410.043243217@linuxfoundation.org>
@@ -53,134 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Lee, Chun-Yi <joeyli.kernel@gmail.com>
 
-[ Upstream commit cf97769c761abfeac8931b35fe0e1a8d5fabc9d8 ]
+[ Upstream commit 7931e28098a4c1a2a6802510b0cbe57546d2049d ]
 
-When a TCP sends more bytes than allowed by the receive window, all future
-packets can be marked as invalid.
-This can clog up the conntrack table because of 5-day default timeout.
+In some case, the GDDV returns a package with a buffer which has
+zero length. It causes that kmemdup() returns ZERO_SIZE_PTR (0x10).
 
-Sequence of packets:
- 01 initiator > responder: [S], seq 171, win 5840, options [mss 1330,sackOK,TS val 63 ecr 0,nop,wscale 1]
- 02 responder > initiator: [S.], seq 33211, ack 172, win 65535, options [mss 1460,sackOK,TS val 010 ecr 63,nop,wscale 8]
- 03 initiator > responder: [.], ack 33212, win 2920, options [nop,nop,TS val 068 ecr 010], length 0
- 04 initiator > responder: [P.], seq 172:240, ack 33212, win 2920, options [nop,nop,TS val 279 ecr 010], length 68
+Then the data_vault_read() got NULL point dereference problem when
+accessing the 0x10 value in data_vault.
 
-Window is 5840 starting from 33212 -> 39052.
+[   71.024560] BUG: kernel NULL pointer dereference, address:
+0000000000000010
 
- 05 responder > initiator: [.], ack 240, win 256, options [nop,nop,TS val 872 ecr 279], length 0
- 06 responder > initiator: [.], seq 33212:34530, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
+This patch uses ZERO_OR_NULL_PTR() for checking ZERO_SIZE_PTR or
+NULL value in data_vault.
 
-This is fine, conntrack will flag the connection as having outstanding
-data (UNACKED), which lowers the conntrack timeout to 300s.
-
- 07 responder > initiator: [.], seq 34530:35848, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
- 08 responder > initiator: [.], seq 35848:37166, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
- 09 responder > initiator: [.], seq 37166:38484, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
- 10 responder > initiator: [.], seq 38484:39802, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 1318
-
-Packet 10 is already sending more than permitted, but conntrack doesn't
-validate this (only seq is tested vs. maxend, not 'seq+len').
-
-38484 is acceptable, but only up to 39052, so this packet should
-not have been sent (or only 568 bytes, not 1318).
-
-At this point, connection is still in '300s' mode.
-
-Next packet however will get flagged:
- 11 responder > initiator: [P.], seq 39802:40128, ack 240, win 256, options [nop,nop,TS val 892 ecr 279], length 326
-
-nf_ct_proto_6: SEQ is over the upper bound (over the window of the receiver) .. LEN=378 .. SEQ=39802 ACK=240 ACK PSH ..
-
-Now, a couple of replies/acks comes in:
-
- 12 initiator > responder: [.], ack 34530, win 4368,
-[.. irrelevant acks removed ]
- 16 initiator > responder: [.], ack 39802, win 8712, options [nop,nop,TS val 296201291 ecr 2982371892], length 0
-
-This ack is significant -- this acks the last packet send by the
-responder that conntrack considered valid.
-
-This means that ack == td_end.  This will withdraw the
-'unacked data' flag, the connection moves back to the 5-day timeout
-of established conntracks.
-
- 17 initiator > responder: ack 40128, win 10030, ...
-
-This packet is also flagged as invalid.
-
-Because conntrack only updates state based on packets that are
-considered valid, packet 11 'did not exist' and that gets us:
-
-nf_ct_proto_6: ACK is over upper bound 39803 (ACKed data not seen yet) .. SEQ=240 ACK=40128 WINDOW=10030 RES=0x00 ACK URG
-
-Because this received and processed by the endpoints, the conntrack entry
-remains in a bad state, no packets will ever be considered valid again:
-
- 30 responder > initiator: [F.], seq 40432, ack 2045, win 391, ..
- 31 initiator > responder: [.], ack 40433, win 11348, ..
- 32 initiator > responder: [F.], seq 2045, ack 40433, win 11348 ..
-
-... all trigger 'ACK is over bound' test and we end up with
-non-early-evictable 5-day default timeout.
-
-NB: This patch triggers a bunch of checkpatch warnings because of silly
-indent.  I will resend the cleanup series linked below to reduce the
-indent level once this change has propagated to net-next.
-
-I could route the cleanup via nf but that causes extra backport work for
-stable maintainers.
-
-Link: https://lore.kernel.org/netfilter-devel/20220720175228.17880-1-fw@strlen.de/T/#mb1d7147d36294573cc4f81d00f9f8dadfdd06cd8
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: "Lee, Chun-Yi" <jlee@suse.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_proto_tcp.c | 31 ++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ drivers/thermal/intel/int340x_thermal/int3400_thermal.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_proto_tcp.c b/net/netfilter/nf_conntrack_proto_tcp.c
-index a63b51dceaf2c..a634c72b1ffcf 100644
---- a/net/netfilter/nf_conntrack_proto_tcp.c
-+++ b/net/netfilter/nf_conntrack_proto_tcp.c
-@@ -655,6 +655,37 @@ static bool tcp_in_window(struct nf_conn *ct,
- 		    tn->tcp_be_liberal)
- 			res = true;
- 		if (!res) {
-+			bool seq_ok = before(seq, sender->td_maxend + 1);
-+
-+			if (!seq_ok) {
-+				u32 overshot = end - sender->td_maxend + 1;
-+				bool ack_ok;
-+
-+				ack_ok = after(sack, receiver->td_end - MAXACKWINDOW(sender) - 1);
-+
-+				if (in_recv_win &&
-+				    ack_ok &&
-+				    overshot <= receiver->td_maxwin &&
-+				    before(sack, receiver->td_end + 1)) {
-+					/* Work around TCPs that send more bytes than allowed by
-+					 * the receive window.
-+					 *
-+					 * If the (marked as invalid) packet is allowed to pass by
-+					 * the ruleset and the peer acks this data, then its possible
-+					 * all future packets will trigger 'ACK is over upper bound' check.
-+					 *
-+					 * Thus if only the sequence check fails then do update td_end so
-+					 * possible ACK for this data can update internal state.
-+					 */
-+					sender->td_end = end;
-+					sender->flags |= IP_CT_TCP_FLAG_DATA_UNACKNOWLEDGED;
-+
-+					nf_ct_l4proto_log_invalid(skb, ct, hook_state,
-+								  "%u bytes more than expected", overshot);
-+					return res;
-+				}
-+			}
-+
- 			nf_ct_l4proto_log_invalid(skb, ct, hook_state,
- 			"%s",
- 			before(seq, sender->td_maxend + 1) ?
+diff --git a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+index 80d4e0676083a..365489bf4b8c1 100644
+--- a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
++++ b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+@@ -527,7 +527,7 @@ static void int3400_setup_gddv(struct int3400_thermal_priv *priv)
+ 	priv->data_vault = kmemdup(obj->package.elements[0].buffer.pointer,
+ 				   obj->package.elements[0].buffer.length,
+ 				   GFP_KERNEL);
+-	if (!priv->data_vault)
++	if (ZERO_OR_NULL_PTR(priv->data_vault))
+ 		goto out_free;
+ 
+ 	bin_attr_data_vault.private = priv->data_vault;
+@@ -597,7 +597,7 @@ static int int3400_thermal_probe(struct platform_device *pdev)
+ 			goto free_imok;
+ 	}
+ 
+-	if (priv->data_vault) {
++	if (!ZERO_OR_NULL_PTR(priv->data_vault)) {
+ 		result = sysfs_create_group(&pdev->dev.kobj,
+ 					    &data_attribute_group);
+ 		if (result)
+@@ -615,7 +615,8 @@ static int int3400_thermal_probe(struct platform_device *pdev)
+ free_sysfs:
+ 	cleanup_odvp(priv);
+ 	if (priv->data_vault) {
+-		sysfs_remove_group(&pdev->dev.kobj, &data_attribute_group);
++		if (!ZERO_OR_NULL_PTR(priv->data_vault))
++			sysfs_remove_group(&pdev->dev.kobj, &data_attribute_group);
+ 		kfree(priv->data_vault);
+ 	}
+ free_uuid:
+@@ -647,7 +648,7 @@ static int int3400_thermal_remove(struct platform_device *pdev)
+ 	if (!priv->rel_misc_dev_res)
+ 		acpi_thermal_rel_misc_device_remove(priv->adev->handle);
+ 
+-	if (priv->data_vault)
++	if (!ZERO_OR_NULL_PTR(priv->data_vault))
+ 		sysfs_remove_group(&pdev->dev.kobj, &data_attribute_group);
+ 	sysfs_remove_group(&pdev->dev.kobj, &uuid_attribute_group);
+ 	sysfs_remove_group(&pdev->dev.kobj, &imok_attribute_group);
 -- 
 2.35.1
 
