@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C015E5B72E7
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:05:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A84DA5B7564
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233145AbiIMPBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:01:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36740 "EHLO
+        id S236707AbiIMPlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 11:41:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233248AbiIMO7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:59:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0049437F9D;
-        Tue, 13 Sep 2022 07:29:07 -0700 (PDT)
+        with ESMTP id S236697AbiIMPkl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:40:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 333828284E;
+        Tue, 13 Sep 2022 07:45:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 895E9B80EFA;
-        Tue, 13 Sep 2022 14:28:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9CEBC43140;
-        Tue, 13 Sep 2022 14:28:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18E84614ED;
+        Tue, 13 Sep 2022 14:31:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CBDAC433D6;
+        Tue, 13 Sep 2022 14:31:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079295;
-        bh=Wuk+drh6qbtD/vL+GLzc8Y3Itg7gjLro5Tx5Nu2jaAw=;
+        s=korg; t=1663079494;
+        bh=fI2yfiNqV2oq5W4XyxDiisIz2YmEE/wdZyR8M0aqJwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuBgvl4+rv5zhXLoJBxapF2925WtrTeQ06OmLf9aat68bhAFJ8HXfIJIbo1wzQ9/a
-         5hVpv7wE+Xg9l3L8jCqVDphbfanAaDwxsUb/6Ud47G3mm8BjOhhSJ2PpylwaBl6geL
-         gxbemeXYJcK1iDCbGZ+BzXxe3Otqv2C/84kID6zQ=
+        b=yynort38fYMPA+dACnaHN5HNwUsVEj8WO4hmYKQbUcAM5oU+h1Jtp6j7fI+UzyNNH
+         qb16XpxXCazG0AOJTTfw0DGDYhiLf3iREuyQncdw99F+i8xsXBzgMUvrswkyaByyDz
+         RAJXzZyvmO0qSZKBgP8Ct5eD/2Kq138Ydr30Z5iI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pattara Teerapong <pteerapong@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 078/108] ALSA: aloop: Fix random zeros in capture data when using jiffies timer
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 4.19 31/79] thunderbolt: Use the actual buffer in tb_async_error()
 Date:   Tue, 13 Sep 2022 16:06:49 +0200
-Message-Id: <20220913140356.985352235@linuxfoundation.org>
+Message-Id: <20220913140350.401482524@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
-References: <20220913140353.549108748@linuxfoundation.org>
+In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
+References: <20220913140348.835121645@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pattara Teerapong <pteerapong@chromium.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 3e48940abee88b8dbbeeaf8a07e7b2b6be1271b3 upstream.
+commit eb100b8fa8e8b59eb3e5fc7a5fd4a1e3c5950f64 upstream.
 
-In loopback_jiffies_timer_pos_update(), we are getting jiffies twice.
-First time for playback, second time for capture. Jiffies can be updated
-between these two calls and if the capture jiffies is larger, extra zeros
-will be filled in the capture buffer.
+The received notification packet is held in pkg->buffer and not in pkg
+itself. Fix this by using the correct buffer.
 
-Change to get jiffies once and use it for both playback and capture.
-
-Signed-off-by: Pattara Teerapong <pteerapong@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220901144036.4049060-1-pteerapong@chromium.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 81a54b5e1986 ("thunderbolt: Let the connection manager handle all notifications")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/drivers/aloop.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/thunderbolt/ctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/drivers/aloop.c
-+++ b/sound/drivers/aloop.c
-@@ -463,17 +463,18 @@ static unsigned int loopback_pos_update(
- 			cable->streams[SNDRV_PCM_STREAM_PLAYBACK];
- 	struct loopback_pcm *dpcm_capt =
- 			cable->streams[SNDRV_PCM_STREAM_CAPTURE];
--	unsigned long delta_play = 0, delta_capt = 0;
-+	unsigned long delta_play = 0, delta_capt = 0, cur_jiffies;
- 	unsigned int running, count1, count2;
+--- a/drivers/thunderbolt/ctl.c
++++ b/drivers/thunderbolt/ctl.c
+@@ -387,7 +387,7 @@ static void tb_ctl_rx_submit(struct ctl_
  
-+	cur_jiffies = jiffies;
- 	running = cable->running ^ cable->pause;
- 	if (running & (1 << SNDRV_PCM_STREAM_PLAYBACK)) {
--		delta_play = jiffies - dpcm_play->last_jiffies;
-+		delta_play = cur_jiffies - dpcm_play->last_jiffies;
- 		dpcm_play->last_jiffies += delta_play;
- 	}
+ static int tb_async_error(const struct ctl_pkg *pkg)
+ {
+-	const struct cfg_error_pkg *error = (const struct cfg_error_pkg *)pkg;
++	const struct cfg_error_pkg *error = pkg->buffer;
  
- 	if (running & (1 << SNDRV_PCM_STREAM_CAPTURE)) {
--		delta_capt = jiffies - dpcm_capt->last_jiffies;
-+		delta_capt = cur_jiffies - dpcm_capt->last_jiffies;
- 		dpcm_capt->last_jiffies += delta_capt;
- 	}
- 
+ 	if (pkg->frame.eof != TB_CFG_PKG_ERROR)
+ 		return false;
 
 
