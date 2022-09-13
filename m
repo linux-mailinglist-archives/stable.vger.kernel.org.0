@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DE6B5B73E0
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63BFB5B72B4
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 17:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235796AbiIMPRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 11:17:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57234 "EHLO
+        id S233071AbiIMO7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:59:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235705AbiIMPQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 11:16:43 -0400
+        with ESMTP id S231840AbiIMO63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:58:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C145D1A3BB;
-        Tue, 13 Sep 2022 07:34:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75CA673939;
+        Tue, 13 Sep 2022 07:28:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71D8B614E5;
-        Tue, 13 Sep 2022 14:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 864ADC433B5;
-        Tue, 13 Sep 2022 14:32:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A84C6149A;
+        Tue, 13 Sep 2022 14:28:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18FDC433C1;
+        Tue, 13 Sep 2022 14:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663079543;
-        bh=CuFPnUVGuG9hBco8DptOgD2OQllpbhmCOy7iqqU/xjU=;
+        s=korg; t=1663079298;
+        bh=RzK23AnnTBpHaAt/ftPCJ8yoWw4fFO9OQ0Tgl9O29kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mg86VHa4PMxj1/YBxuMCtp7KY4ooDJoyrdvU6sm7So1XmMgZqkDbNZdLr3O7vWbPP
-         PgKc2xJ58Fj9FNxuGDj5yz7wDA4TUAlyEjS5HcJ0caEFIwld+yTSwUpg9PZWI7SVaL
-         2PQVWmFzmxuP1cXZTfZtGl74bwck3p79tXgtwQ24=
+        b=nOlamhBn0aaDHS6bQzgJ5PDwW+o68uLJFDlLPAT9mIwC4QUJ9q1hTv3JWv/dhE+Wv
+         fWnJ4LHQAB18ms8PCMLK1xPze3P9Ppv5944jkDYMsndEWq3uZ58EJBeBElIN671ANg
+         pTWeqOTeWxAezXML+DelIkEey2knENhle6fXFWWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 32/79] xhci: Add grace period after xHC start to prevent premature runtime suspend.
+        stable@vger.kernel.org, Dongxiang Ke <kdx.glider@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 079/108] ALSA: usb-audio: Fix an out-of-bounds bug in __snd_usb_parse_audio_interface()
 Date:   Tue, 13 Sep 2022 16:06:50 +0200
-Message-Id: <20220913140350.455005240@linuxfoundation.org>
+Message-Id: <20220913140357.026135161@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140348.835121645@linuxfoundation.org>
-References: <20220913140348.835121645@linuxfoundation.org>
+In-Reply-To: <20220913140353.549108748@linuxfoundation.org>
+References: <20220913140353.549108748@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Dongxiang Ke <kdx.glider@gmail.com>
 
-commit 33e321586e37b642ad10594b9ef25a613555cd08 upstream.
+commit e53f47f6c1a56d2af728909f1cb894da6b43d9bf upstream.
 
-After xHC controller is started, either in probe or resume, it can take
-a while before any of the connected usb devices are visible to the roothub
-due to link training.
+There may be a bad USB audio device with a USB ID of (0x04fa, 0x4201) and
+the number of it's interfaces less than 4, an out-of-bounds read bug occurs
+when parsing the interface descriptor for this device.
 
-It's possible xhci driver loads, sees no acivity and suspends the host
-before the USB device is visible.
+Fix this by checking the number of interfaces.
 
-In one testcase with a hotplugged xHC controller the host finally detected
-the connected USB device and generated a wake 500ms after host initial
-start.
-
-If hosts didn't suspend the device duringe training it probablty wouldn't
-take up to 500ms to detect it, but looking at specs reveal USB3 link
-training has a couple long timeout values, such as 120ms
-RxDetectQuietTimeout, and 360ms PollingLFPSTimeout.
-
-So Add a 500ms grace period that keeps polling the roothub for 500ms after
-start, preventing runtime suspend until USB devices are detected.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220825150840.132216-3-mathias.nyman@linux.intel.com
+Signed-off-by: Dongxiang Ke <kdx.glider@gmail.com>
+Link: https://lore.kernel.org/r/20220906024928.10951-1-kdx.glider@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-hub.c |   11 +++++++++++
- drivers/usb/host/xhci.c     |    4 +++-
- drivers/usb/host/xhci.h     |    2 +-
- 3 files changed, 15 insertions(+), 2 deletions(-)
+ sound/usb/stream.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1464,6 +1464,17 @@ int xhci_hub_status_data(struct usb_hcd
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -1103,7 +1103,7 @@ static int __snd_usb_parse_audio_interfa
+ 	 * Dallas DS4201 workaround: It presents 5 altsettings, but the last
+ 	 * one misses syncpipe, and does not produce any sound.
+ 	 */
+-	if (chip->usb_id == USB_ID(0x04fa, 0x4201))
++	if (chip->usb_id == USB_ID(0x04fa, 0x4201) && num >= 4)
+ 		num = 4;
  
- 	status = bus_state->resuming_ports;
- 
-+	/*
-+	 * SS devices are only visible to roothub after link training completes.
-+	 * Keep polling roothubs for a grace period after xHC start
-+	 */
-+	if (xhci->run_graceperiod) {
-+		if (time_before(jiffies, xhci->run_graceperiod))
-+			status = 1;
-+		else
-+			xhci->run_graceperiod = 0;
-+	}
-+
- 	mask = PORT_CSC | PORT_PEC | PORT_OCC | PORT_PLC | PORT_WRC | PORT_CEC;
- 
- 	/* For each port, did anything change?  If so, set that bit in buf. */
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -149,9 +149,11 @@ int xhci_start(struct xhci_hcd *xhci)
- 		xhci_err(xhci, "Host took too long to start, "
- 				"waited %u microseconds.\n",
- 				XHCI_MAX_HALT_USEC);
--	if (!ret)
-+	if (!ret) {
- 		/* clear state flags. Including dying, halted or removing */
- 		xhci->xhc_state = 0;
-+		xhci->run_graceperiod = jiffies + msecs_to_jiffies(500);
-+	}
- 
- 	return ret;
- }
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1811,7 +1811,7 @@ struct xhci_hcd {
- 
- 	/* Host controller watchdog timer structures */
- 	unsigned int		xhc_state;
--
-+	unsigned long		run_graceperiod;
- 	u32			command;
- 	struct s3_save		s3;
- /* Host controller is dying - not responding to commands. "I'm not dead yet!"
+ 	for (i = 0; i < num; i++) {
 
 
