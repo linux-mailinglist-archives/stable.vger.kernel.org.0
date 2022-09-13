@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF8D5B714B
-	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D64685B70DB
+	for <lists+stable@lfdr.de>; Tue, 13 Sep 2022 16:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234120AbiIMOha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Sep 2022 10:37:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48878 "EHLO
+        id S234068AbiIMOcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Sep 2022 10:32:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234065AbiIMOfy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:35:54 -0400
+        with ESMTP id S234069AbiIMOcN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Sep 2022 10:32:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92007677;
-        Tue, 13 Sep 2022 07:20:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D035EDF1;
+        Tue, 13 Sep 2022 07:19:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70946B80E22;
-        Tue, 13 Sep 2022 14:13:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD5EC433C1;
-        Tue, 13 Sep 2022 14:13:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6F17B80F01;
+        Tue, 13 Sep 2022 14:17:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AC9FC433D6;
+        Tue, 13 Sep 2022 14:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663078412;
-        bh=aowFWu6QphHH2BKBxF8cckcYeRK70J23D7jr4WHtX7w=;
+        s=korg; t=1663078620;
+        bh=jOv8v60wKjLg//lVQgOMfjenwYCSv7sZQmxfzg2d6BU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBQsE2MBiZXp87+ZRDZkw+FTWQHKxFaHJIR7g/DV9wu2Y5864RoSXaCClDZ1+7dB7
-         apinliaa/H3uOQgkIvlTP226jDBfOwt1MY2fNw7DNysrwkW9NK4AyKxGdnreU0xkAg
-         7d48/5dr9skN397EeuPni4xJSP4qoIOqDoz9UMDQ=
+        b=iBlOtCKPVAylC/mxqICOPx3t+HvC1CkM63vl1Jt7gDaUiAczmALpKa1IR4fF4bzbS
+         uTpYB7XhSO5TRHNKspgnZfav4aw3SP/54RciQTDTeqT27hEJsxaPCEM6MtZdDNswmp
+         eq5iFaW7D/w9HtWyMM3sJxCk1HkS8aQEB54pZ4no=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harsh Modi <harshmodi@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 103/192] netfilter: br_netfilter: Drop dst references before setting.
-Date:   Tue, 13 Sep 2022 16:03:29 +0200
-Message-Id: <20220913140415.101344902@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 019/121] arm64/signal: Raise limit on stack frames
+Date:   Tue, 13 Sep 2022 16:03:30 +0200
+Message-Id: <20220913140358.164630048@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20220913140410.043243217@linuxfoundation.org>
-References: <20220913140410.043243217@linuxfoundation.org>
+In-Reply-To: <20220913140357.323297659@linuxfoundation.org>
+References: <20220913140357.323297659@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,94 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harsh Modi <harshmodi@google.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit d047283a7034140ea5da759a494fd2274affdd46 ]
+[ Upstream commit 7ddcaf78e93c9282b4d92184f511b4d5bee75355 ]
 
-The IPv6 path already drops dst in the daddr changed case, but the IPv4
-path does not. This change makes the two code paths consistent.
+The signal code has a limit of 64K on the size of a stack frame that it
+will generate, if this limit is exceeded then a process will be killed if
+it receives a signal. Unfortunately with the advent of SME this limit is
+too small - the maximum possible size of the ZA register alone is 64K. This
+is not an issue for practical systems at present but is easily seen using
+virtual platforms.
 
-Further, it is possible that there is already a metadata_dst allocated from
-ingress that might already be attached to skbuff->dst while following
-the bridge path. If it is not released before setting a new
-metadata_dst, it will be leaked. This is similar to what is done in
-bpf_set_tunnel_key() or ip6_route_input().
+Raise the limit to 256K, this is substantially more than could be used by
+any current architecture extension.
 
-It is important to note that the memory being leaked is not the dst
-being set in the bridge code, but rather memory allocated from some
-other code path that is not being freed correctly before the skb dst is
-overwritten.
-
-An example of the leakage fixed by this commit found using kmemleak:
-
-unreferenced object 0xffff888010112b00 (size 256):
-  comm "softirq", pid 0, jiffies 4294762496 (age 32.012s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 80 16 f1 83 ff ff ff ff  ................
-    e1 4e f6 82 ff ff ff ff 00 00 00 00 00 00 00 00  .N..............
-  backtrace:
-    [<00000000d79567ea>] metadata_dst_alloc+0x1b/0xe0
-    [<00000000be113e13>] udp_tun_rx_dst+0x174/0x1f0
-    [<00000000a36848f4>] geneve_udp_encap_recv+0x350/0x7b0
-    [<00000000d4afb476>] udp_queue_rcv_one_skb+0x380/0x560
-    [<00000000ac064aea>] udp_unicast_rcv_skb+0x75/0x90
-    [<000000009a8ee8c5>] ip_protocol_deliver_rcu+0xd8/0x230
-    [<00000000ef4980bb>] ip_local_deliver_finish+0x7a/0xa0
-    [<00000000d7533c8c>] __netif_receive_skb_one_core+0x89/0xa0
-    [<00000000a879497d>] process_backlog+0x93/0x190
-    [<00000000e41ade9f>] __napi_poll+0x28/0x170
-    [<00000000b4c0906b>] net_rx_action+0x14f/0x2a0
-    [<00000000b20dd5d4>] __do_softirq+0xf4/0x305
-    [<000000003a7d7e15>] __irq_exit_rcu+0xc3/0x140
-    [<00000000968d39a2>] sysvec_apic_timer_interrupt+0x9e/0xc0
-    [<000000009e920794>] asm_sysvec_apic_timer_interrupt+0x16/0x20
-    [<000000008942add0>] native_safe_halt+0x13/0x20
-
-Florian Westphal says: "Original code was likely fine because nothing
-ever did set a skb->dst entry earlier than bridge in those days."
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Harsh Modi <harshmodi@google.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20220817182324.638214-2-broonie@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_netfilter_hooks.c | 2 ++
- net/bridge/br_netfilter_ipv6.c  | 1 +
- 2 files changed, 3 insertions(+)
+ arch/arm64/kernel/signal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index ff47790366497..f20f4373ff408 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -384,6 +384,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
- 				/* - Bridged-and-DNAT'ed traffic doesn't
- 				 *   require ip_forwarding. */
- 				if (rt->dst.dev == dev) {
-+					skb_dst_drop(skb);
- 					skb_dst_set(skb, &rt->dst);
- 					goto bridged_dnat;
- 				}
-@@ -413,6 +414,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
- 			kfree_skb(skb);
- 			return 0;
- 		}
-+		skb_dst_drop(skb);
- 		skb_dst_set_noref(skb, &rt->dst);
- 	}
+diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
+index b3e1beccf4588..8fdb89afd2b85 100644
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -91,7 +91,7 @@ static size_t sigframe_size(struct rt_sigframe_user_layout const *user)
+  * not taken into account.  This limit is not a guarantee and is
+  * NOT ABI.
+  */
+-#define SIGFRAME_MAXSZ SZ_64K
++#define SIGFRAME_MAXSZ SZ_256K
  
-diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
-index e4e0c836c3f51..6b07f30675bb0 100644
---- a/net/bridge/br_netfilter_ipv6.c
-+++ b/net/bridge/br_netfilter_ipv6.c
-@@ -197,6 +197,7 @@ static int br_nf_pre_routing_finish_ipv6(struct net *net, struct sock *sk, struc
- 			kfree_skb(skb);
- 			return 0;
- 		}
-+		skb_dst_drop(skb);
- 		skb_dst_set_noref(skb, &rt->dst);
- 	}
- 
+ static int __sigframe_alloc(struct rt_sigframe_user_layout *user,
+ 			    unsigned long *offset, size_t size, bool extend)
 -- 
 2.35.1
 
